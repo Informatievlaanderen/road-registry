@@ -11,7 +11,6 @@ using Marten;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
 using RoadRegistry.Infrastructure;
-using RoadRegistry.RoadNetwork;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.Events.V2;
 using ScopedRoadNetwork.ValueObjects;
@@ -102,14 +101,10 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
     {
         await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
 
-        var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry());
+        var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry(), ids: roadNetworkChanges.Ids, onlyV2: true);
         return await _roadNetworkRepository.Load(
             session,
-            new RoadNetworkIds(
-                roadNetworkChanges.RoadNodeIds.Union(ids.RoadNodeIds).ToList(),
-                roadNetworkChanges.RoadSegmentIds.Union(ids.RoadSegmentIds).ToList(),
-                roadNetworkChanges.GradeSeparatedJunctionIds.Union(ids.GradeSeparatedJunctionIds).ToList()
-            ),
+            ids,
             roadNetworkId
         );
     }

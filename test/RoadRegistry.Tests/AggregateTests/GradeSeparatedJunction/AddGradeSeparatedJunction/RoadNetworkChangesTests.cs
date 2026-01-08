@@ -23,7 +23,7 @@ public class RoadNetworkChangesTests
         var changes = RoadNetworkChanges.Start()
             .Add(_fixture.Create<AddGradeSeparatedJunctionChange>());
 
-        changes.RoadSegmentIds.Should().NotBeEmpty();
+        changes.Ids.RoadSegmentIds.Should().NotBeEmpty();
 
         var scope = changes.BuildScopeGeometry();
         scope.ToList().Should().BeEmpty();
@@ -38,6 +38,6 @@ public class RoadNetworkChangesTests
             .Add(_fixture.Create<AddRoadSegmentChange>())
             .Add(_fixture.Create<AddGradeSeparatedJunctionChange>());
 
-        changes.RoadSegmentIds.Should().BeEmpty();
+        changes.Ids.RoadSegmentIds.Should().BeEmpty();
     }
 }

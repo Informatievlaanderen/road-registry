@@ -62,7 +62,7 @@ public sealed class RemoveRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
     {
         await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
 
-        var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadSegmentIds);
+        var ids = await _roadNetworkRepository.GetUnderlyingIdsWithConnectedSegments(session, roadSegmentIds);
         return await _roadNetworkRepository.Load(
             session,
             ids,

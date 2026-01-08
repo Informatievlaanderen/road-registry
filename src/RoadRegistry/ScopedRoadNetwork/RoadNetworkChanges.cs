@@ -17,9 +17,7 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
     public int Count => _changes.Count;
 
     public Provenance Provenance { get; private set; }
-    public IReadOnlyCollection<RoadNodeId> RoadNodeIds { get; }
-    public IReadOnlyCollection<RoadSegmentId> RoadSegmentIds { get; }
-    public IReadOnlyCollection<GradeSeparatedJunctionId> GradeSeparatedJunctionIds { get; }
+    public RoadNetworkIds Ids => new(_roadNodeIds.AsReadOnly(),  _roadSegmentIds.AsReadOnly(), _gradeSeparatedJunctionIds.AsReadOnly());
 
     private readonly List<Geometry> _geometries = [];
     private readonly List<IRoadNetworkChange> _changes = [];
@@ -30,9 +28,6 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
 
     private RoadNetworkChanges()
     {
-        RoadNodeIds = _roadNodeIds.AsReadOnly();
-        RoadSegmentIds = _roadSegmentIds.AsReadOnly();
-        GradeSeparatedJunctionIds = _gradeSeparatedJunctionIds.AsReadOnly();
     }
 
     public static RoadNetworkChanges Start()

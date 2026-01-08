@@ -5,28 +5,15 @@ using Npgsql;
 
 public class DatabaseFixture : IAsyncLifetime
 {
-    public string DatabaseName { get; private set; }
-    public string ConnectionString { get; private set; }
-
     private string _rootConnectionString;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync()
     {
-        DatabaseName = $"road-{DateTime.Now:yyyyMMdd-HHmmss-fff}";
-
         _rootConnectionString = new ConfigurationBuilder()
             .AddIntegrationTestAppSettings()
             .Build()
             .GetConnectionString("Marten")!;
-
-        await CreateDatabase();
-
-        ConnectionString = string.Join(';', _rootConnectionString
-            .Split(';')
-            .Where(x => !x.StartsWith("Database=", StringComparison.InvariantCultureIgnoreCase))
-            .Concat([$"Database={DatabaseName}"]));
-
-        await InstallPostgis();
+        return Task.CompletedTask;
     }
 
     public Task DisposeAsync()
@@ -34,9 +21,24 @@ public class DatabaseFixture : IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    private async Task CreateDatabase()
+    public async Task<string> CreateDatabase()
     {
-        var createDbQuery = $"DROP DATABASE IF EXISTS \"{DatabaseName}\"; CREATE DATABASE \"{DatabaseName}\";";
+        var databaseName = $"road-{DateTime.Now:yyyyMMdd-HHmmss-fff}";
+
+        await CreateDatabase(databaseName);
+
+        var connectionString = string.Join(';', _rootConnectionString
+            .Split(';')
+            .Where(x => !x.StartsWith("Database=", StringComparison.InvariantCultureIgnoreCase))
+            .Concat([$"Database={databaseName}"]));
+        await InstallPostgis(connectionString);
+
+        return connectionString;
+    }
+
+    private async Task CreateDatabase(string databaseName)
+    {
+        var createDbQuery = $"DROP DATABASE IF EXISTS \"{databaseName}\"; CREATE DATABASE \"{databaseName}\";";
 
         await using var connection = new NpgsqlConnection(_rootConnectionString);
         await using var command = new NpgsqlCommand(createDbQuery, connection);
@@ -64,9 +66,9 @@ public class DatabaseFixture : IAsyncLifetime
         await command.ExecuteNonQueryAsync();
     }
 
-    private async Task InstallPostgis()
+    private async Task InstallPostgis(string connectionString)
     {
-        await using var connection = new NpgsqlConnection(ConnectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await using var command = new NpgsqlCommand("CREATE EXTENSION postgis", connection);
 
         await connection.OpenAsync();

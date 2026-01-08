@@ -1,15 +1,10 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenRemovingRoadSegments;
 
-using Actions.ChangeRoadNetwork;
 using Actions.RemoveRoadSegments;
 using AutoFixture;
-using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using FluentAssertions;
 using GradeSeparatedJunction.Changes;
-using Hosts;
 using Marten;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NetTopologySuite.Geometries;
@@ -18,31 +13,25 @@ using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.V3;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
-using RoadRegistry.Infrastructure.MartenDb.Setup;
-using RoadRegistry.RoadNetwork;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
-using ScopedRoadNetwork;
 using Sqs.RoadNetwork;
 using Tests.AggregateTests;
-using Tests.BackOffice;
-using Tests.Framework;
 using TicketingService.Abstractions;
+using Xunit.Abstractions;
 
 [Collection(nameof(DockerFixtureCollection))]
-public class WithValidRequest : IClassFixture<DatabaseFixture>
+public class WithValidRequest : RoadNetworkIntegrationTest
 {
-    private readonly DatabaseFixture _databaseFixture;
-    private readonly Mock<ITicketing> _ticketingMock = new();
     private readonly Mock<IExtractRequests> _extractRequestsMock = new();
 
-    public WithValidRequest(DatabaseFixture databaseFixture)
+    public WithValidRequest(DatabaseFixture databaseFixture, ITestOutputHelper testOutputHelper)
+        : base(databaseFixture, testOutputHelper)
     {
-        _databaseFixture = databaseFixture;
     }
 
     [Fact]
-    public async Task ThenSucceeded()
+    public async Task GivenRoadNetwork_ThenSucceeded()
     {
         // Arrange
         var sp = await BuildServiceProvider();
@@ -144,7 +133,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         await handler.Handle(new RemoveRoadSegmentsSqsLambdaRequest(string.Empty, sqsRequest), CancellationToken.None);
 
         // Assert
-        var ticketResult = _ticketingMock.Invocations
+        var ticketResult = TicketingMock.Invocations
             .Where(x => x.Method.Name == nameof(ITicketing.Complete) && x.Arguments[0].Equals(sqsRequest.TicketId))
             .Select(x => (TicketResult)x.Arguments[1])
             .SingleOrDefault();
@@ -170,71 +159,11 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         junctions.Single(x => x.GradeSeparatedJunctionId == junction.TemporaryId).IsRemoved.Should().BeTrue();
     }
 
-    private async Task Given(IServiceProvider sp, TranslatedChanges changes)
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        var fixture = new RoadNetworkTestData().Fixture;
-
-        var provenanceData = new RoadRegistryProvenanceData();
-        var sqsRequest = new ChangeRoadNetworkSqsRequest
-        {
-            DownloadId = fixture.Create<DownloadId>(),
-            TicketId = fixture.Create<TicketId>(),
-            Changes = changes.Select(ChangeRoadNetworkItem.Create).ToList(),
-            ProvenanceData = provenanceData
-        };
-
-        var handler = sp.GetRequiredService<ChangeRoadNetworkSqsLambdaRequestHandler>();
-        await handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, sqsRequest), CancellationToken.None);
-
-        var ticketResult = _ticketingMock.Invocations
-            .Where(x => x.Method.Name == nameof(ITicketing.Complete) && x.Arguments[0].Equals(sqsRequest.TicketId))
-            .Select(x => (TicketResult)x.Arguments[1])
-            .SingleOrDefault();
-        ticketResult.Should().NotBeNull();
-    }
-
-    private async Task<IServiceProvider> BuildServiceProvider()
-    {
-        var services = new ServiceCollection();
-
-        var configuration = new ConfigurationBuilder()
-            .AddIntegrationTestAppSettings()
-            .AddInMemoryCollection([
-                new KeyValuePair<string, string?>("ConnectionStrings:Marten", _databaseFixture.ConnectionString)
-            ])
-            .Build();
         services
-            .AddSingleton<IConfiguration>(configuration)
-            .AddLogging();
-
-        services
-            .AddSingleton<SqsLambdaHandlerOptions>(new FakeSqsLambdaHandlerOptions())
-            .AddSingleton<ICustomRetryPolicy>(new FakeRetryPolicy())
-            .AddSingleton(_ticketingMock.Object)
-            .AddSingleton(Mock.Of<IIdempotentCommandHandler>())
-            .AddSingleton(Mock.Of<IRoadRegistryContext>())
-            .AddSingleton(Mock.Of<IExtractUploadFailedEmailClient>())
-            .AddSingleton(_extractRequestsMock.Object);
-
-        services
-            .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots())
-            .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
-            .AddScoped<ChangeRoadNetworkSqsLambdaRequestHandler>()
+            .AddSingleton(_extractRequestsMock.Object)
             .AddScoped<RemoveRoadSegmentsSqsLambdaRequestHandler>();
-
-        var sp = services.BuildServiceProvider();
-
-        // force create marten schema
-        var store = sp.GetRequiredService<IDocumentStore>();
-        await EnsureRoadNetworkTopologyProjectionExists(store);
-
-        return sp;
-    }
-
-    private static async Task EnsureRoadNetworkTopologyProjectionExists(IDocumentStore store)
-    {
-        // build projection tables
-        await store.BuildProjectionDaemonAsync();
     }
 
     private static MultiLineString BuildSegmentGeometry(Point start, Point end)

@@ -21,7 +21,7 @@ public class RoadNetworkChangesTests
         var changes = RoadNetworkChanges.Start()
             .Add(_fixture.Create<AddRoadSegmentChange>());
 
-        changes.RoadSegmentIds.Should().BeEmpty();
+        changes.Ids.RoadSegmentIds.Should().BeEmpty();
 
         var scope = changes.BuildScopeGeometry();
         scope.ToList().Should().NotBeEmpty();

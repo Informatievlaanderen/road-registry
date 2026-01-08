@@ -164,7 +164,7 @@ public partial class ScopedRoadNetwork
     {
         if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
         {
-            return Problems.Single(new RoadNodeNotFound(change.RoadNodeId));
+            return Problems.None;
         }
 
         var problems = roadNode.Remove(changes.Provenance);
@@ -255,7 +255,7 @@ public partial class ScopedRoadNetwork
     {
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
         {
-            return Problems.Single(new RoadSegmentNotFound(roadSegmentId));
+            return Problems.None;
         }
 
         var problems = roadSegment.Remove(changes.Provenance);
@@ -315,7 +315,7 @@ public partial class ScopedRoadNetwork
     {
         if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var gradeSeparatedJunction))
         {
-            return Problems.Single(new GradeSeparatedJunctionNotFound(change.GradeSeparatedJunctionId));
+            return Problems.None;
         }
 
         var problems = gradeSeparatedJunction.Remove(changes.Provenance);

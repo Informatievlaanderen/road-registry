@@ -23,7 +23,7 @@ public class RoadNetworkChangesTests
         var changes = RoadNetworkChanges.Start()
             .Add(change);
 
-        changes.GradeSeparatedJunctionIds.Should().Contain(change.GradeSeparatedJunctionId);
+        changes.Ids.GradeSeparatedJunctionIds.Should().Contain(change.GradeSeparatedJunctionId);
 
         var scope = changes.BuildScopeGeometry();
         scope.ToList().Should().BeEmpty();

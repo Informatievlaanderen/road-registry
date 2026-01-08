@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
 
+using System.Data;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -13,7 +14,6 @@ using Microsoft.Extensions.Logging;
 using RoadNetwork;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
-using RoadRegistry.RoadNetwork;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.Events.V2;
 using ScopedRoadNetwork.ValueObjects;
@@ -98,20 +98,14 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
 
     private async Task<ScopedRoadNetwork> Load(RoadNetworkChanges roadNetworkChanges, RoadNetworkId roadNetworkId)
     {
-        return new ScopedRoadNetwork(roadNetworkId);
-        //TODO-pr enkel RoadNetwork opbouwen adv bestaande V2 data
+        await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
 
-        // await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
-        //
-        // var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry());
-        // return await _roadNetworkRepository.Load(
-        //     session,
-        //     new RoadNetworkIds(
-        //         roadNetworkChanges.RoadNodeIds.Union(ids.RoadNodeIds).ToList(),
-        //         roadNetworkChanges.RoadSegmentIds.Union(ids.RoadSegmentIds).ToList(),
-        //         roadNetworkChanges.GradeSeparatedJunctionIds.Union(ids.GradeSeparatedJunctionIds).ToList()
-        //     )
-        // );
+        var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry(), ids: roadNetworkChanges.Ids, onlyV2: true);
+        return await _roadNetworkRepository.Load(
+            session,
+            ids,
+            roadNetworkId
+        );
     }
 
     private async Task CompleteInwinningszone(DownloadId downloadId, CancellationToken cancellationToken)

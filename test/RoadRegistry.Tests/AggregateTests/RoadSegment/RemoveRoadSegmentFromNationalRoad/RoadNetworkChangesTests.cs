@@ -24,7 +24,7 @@ public class RoadNetworkChangesTests
         var changes = RoadNetworkChanges.Start()
             .Add(change);
 
-        changes.RoadSegmentIds.Should().Contain(change.RoadSegmentId);
+        changes.Ids.RoadSegmentIds.Should().Contain(change.RoadSegmentId);
 
         var scope = changes.BuildScopeGeometry();
         scope.ToList().Should().BeEmpty();
@@ -40,6 +40,6 @@ public class RoadNetworkChangesTests
             .Add(_fixture.Create<AddRoadSegmentChange>())
             .Add(change);
 
-        changes.RoadSegmentIds.Should().NotContain(change.RoadSegmentId);
+        changes.Ids.RoadSegmentIds.Should().NotContain(change.RoadSegmentId);
     }
 }

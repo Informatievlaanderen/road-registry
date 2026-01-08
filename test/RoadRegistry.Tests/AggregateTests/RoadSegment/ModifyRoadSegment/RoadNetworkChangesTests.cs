@@ -22,7 +22,7 @@ public class RoadNetworkChangesTests
         var changes = RoadNetworkChanges.Start()
             .Add(change);
 
-        changes.RoadSegmentIds.Should().Contain(change.RoadSegmentId);
+        changes.Ids.RoadSegmentIds.Should().Contain(change.RoadSegmentId);
 
         var scope = changes.BuildScopeGeometry();
         scope.ToList().Should().NotBeEmpty();
