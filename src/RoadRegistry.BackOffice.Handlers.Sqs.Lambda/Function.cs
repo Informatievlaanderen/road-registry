@@ -29,6 +29,7 @@ using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.RoadNetwork;
+using ScopedRoadNetwork;
 using SqlStreamStore;
 using StreetName;
 using ZipArchiveWriters.Cleaning;

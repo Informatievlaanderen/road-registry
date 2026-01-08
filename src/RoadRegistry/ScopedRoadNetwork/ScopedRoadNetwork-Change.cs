@@ -1,20 +1,20 @@
-﻿namespace RoadRegistry.RoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Events.V2;
-using GradeSeparatedJunction.Changes;
-using RoadNode.Changes;
+using RoadRegistry.GradeSeparatedJunction.Changes;
+using RoadRegistry.RoadNode.Changes;
+using RoadRegistry.RoadSegment;
+using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.ValueObjects.Problems;
-using RoadSegment;
-using RoadSegment.Changes;
 using ValueObjects;
 using RoadNode = RoadNode.RoadNode;
 using GradeSeparatedJunction = GradeSeparatedJunction.GradeSeparatedJunction;
 
-public partial class RoadNetwork
+public partial class ScopedRoadNetwork
 {
     public RoadNetworkChangeResult Change(RoadNetworkChanges changes, DownloadId? downloadId, IRoadNetworkIdGenerator idGenerator)
     {

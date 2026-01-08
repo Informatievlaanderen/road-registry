@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.RoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System.Collections.Generic;
 using RoadRegistry.ValueObjects;

@@ -3,9 +3,9 @@
 using GradeSeparatedJunction.Events.V1;
 using JasperFx.Events;
 using Marten;
-using RoadNetwork.Events.V1;
 using RoadNode.Events.V1;
 using RoadSegment.Events.V1;
+using ScopedRoadNetwork.Events.V1;
 
 public partial class RoadNetworkTopologyProjection
 {

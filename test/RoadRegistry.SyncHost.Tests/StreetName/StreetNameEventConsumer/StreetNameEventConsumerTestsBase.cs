@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
 using NodaTime.Testing;
 using RoadNetwork;
+using ScopedRoadNetwork;
 using SqlStreamStore;
 using Sync.StreetNameRegistry;
 using SyncHost.StreetName;

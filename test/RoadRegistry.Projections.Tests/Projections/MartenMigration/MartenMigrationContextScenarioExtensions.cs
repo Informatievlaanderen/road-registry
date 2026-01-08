@@ -8,10 +8,10 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
-using RoadNetwork.Events.V1;
-using RoadNetwork.Events.V2;
 using RoadRegistry.MartenMigration.Projections;
 using RoadRegistry.Tests.Framework.Projections;
+using ScopedRoadNetwork.Events.V1;
+using ScopedRoadNetwork.Events.V2;
 using Xunit.Sdk;
 
 public static class MartenMigrationContextScenarioExtensions

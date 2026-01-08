@@ -1,4 +1,4 @@
-namespace RoadRegistry.RoadNetwork.Events.V1;
+namespace RoadRegistry.ScopedRoadNetwork.Events.V1;
 
 using System;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;

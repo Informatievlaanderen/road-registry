@@ -1,7 +1,7 @@
 namespace RoadRegistry.RoadSegment.Changes;
 
-using RoadNetwork;
 using RoadRegistry.ValueObjects;
+using ScopedRoadNetwork;
 
 public sealed record RemoveRoadSegmentFromEuropeanRoadChange : IRoadNetworkChange
 {

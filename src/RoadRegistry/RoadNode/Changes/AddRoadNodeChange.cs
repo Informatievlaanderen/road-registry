@@ -1,7 +1,7 @@
 namespace RoadRegistry.RoadNode.Changes;
 
 using NetTopologySuite.Geometries;
-using RoadNetwork;
+using ScopedRoadNetwork;
 
 public sealed record AddRoadNodeChange : IRoadNetworkChange
 {

@@ -2,8 +2,8 @@
 
 using GradeSeparatedJunction.Changes;
 using RoadNode.Changes;
-using RoadRegistry.RoadNetwork;
 using RoadSegment.Changes;
+using ScopedRoadNetwork;
 
 public class ChangeRoadNetworkItem
 {

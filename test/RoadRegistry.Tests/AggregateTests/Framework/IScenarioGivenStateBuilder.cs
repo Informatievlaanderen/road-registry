@@ -2,9 +2,10 @@
 
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.RoadNetwork;
+using ScopedRoadNetwork;
 
 public interface IScenarioGivenStateBuilder
 {
-    IScenarioGivenStateBuilder Given(RoadNetwork given);
+    IScenarioGivenStateBuilder Given(ScopedRoadNetwork given);
     IScenarioWhenStateBuilder When(Command command);
 }

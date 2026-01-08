@@ -9,7 +9,8 @@ using Marten;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
 using RoadRegistry.RoadNetwork;
-using RoadRegistry.RoadNetwork.ValueObjects;
+using ScopedRoadNetwork;
+using ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 
 public sealed class RemoveRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler<RemoveRoadSegmentsSqsLambdaRequest>
@@ -57,7 +58,7 @@ public sealed class RemoveRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
         await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
     }
 
-    private async Task<RoadNetwork> Load(IReadOnlyCollection<RoadSegmentId> roadSegmentIds, RoadNetworkId roadNetworkId)
+    private async Task<ScopedRoadNetwork> Load(IReadOnlyCollection<RoadSegmentId> roadSegmentIds, RoadNetworkId roadNetworkId)
     {
         await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
 

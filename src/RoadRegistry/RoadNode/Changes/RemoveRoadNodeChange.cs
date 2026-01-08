@@ -1,6 +1,6 @@
 namespace RoadRegistry.RoadNode.Changes;
 
-using RoadNetwork;
+using ScopedRoadNetwork;
 
 public sealed record RemoveRoadNodeChange : IRoadNetworkChange
 {

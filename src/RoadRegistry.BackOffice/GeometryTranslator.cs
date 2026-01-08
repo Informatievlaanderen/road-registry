@@ -12,7 +12,6 @@ using NetTopologySuite.Geometries.Implementation;
 using NetTopologySuite.Geometries.Utilities;
 using NetTopologySuite.IO;
 using NetTopologySuite.IO.GML2;
-using RoadNetwork;
 using RoadRegistry.Extensions;
 using RoadSegment;
 using LineString = NetTopologySuite.Geometries.LineString;

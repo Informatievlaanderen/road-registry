@@ -1,16 +1,14 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.RemoveRoadSegmentFromEuropeanRoad;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.AddRoadSegmentToNationalRoad;
 
 using AutoFixture;
 using FluentAssertions;
+using Framework;
+using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadSegment.Changes;
-using RoadRegistry.RoadSegment.Events;
-using RoadRegistry.RoadSegment.ValueObjects;
-using RoadRegistry.Tests.AggregateTests.Framework;
 using ValueObjects.Problems;
-using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
-public class RoadNetworkTests : RoadNetworkTestBase
+public class ScopedRoadNetworkTests : RoadNetworkTestBase
 {
     [Fact]
     public Task ThenSummaryIsUpdated()
@@ -21,10 +19,10 @@ public class RoadNetworkTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1EndNode)
                 .Add(TestData.AddSegment1))
             .When(changes => changes
-                .Add(new RemoveRoadSegmentFromEuropeanRoadChange
+                .Add(new AddRoadSegmentToNationalRoadChange
                 {
                     RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-                    Number = TestData.Segment1Added.EuropeanRoadNumbers.First()
+                    Number = Fixture.Create<NationalRoadNumber>()
                 })
             )
             .Then((result, events) =>
@@ -37,7 +35,7 @@ public class RoadNetworkTests : RoadNetworkTestBase
     [Fact]
     public Task WhenNotFound_ThenError()
     {
-        var change = Fixture.Create<RemoveRoadSegmentFromEuropeanRoadChange>();
+        var change = Fixture.Create<AddRoadSegmentToNationalRoadChange>();
 
         return Run(scenario => scenario
             .Given(given => given)

@@ -1,16 +1,16 @@
-namespace RoadRegistry.RoadNetwork;
+namespace RoadRegistry.ScopedRoadNetwork;
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Extensions;
-using GradeSeparatedJunction.Changes;
 using NetTopologySuite.Geometries;
-using RoadNode.Changes;
+using RoadRegistry.Extensions;
+using RoadRegistry.GradeSeparatedJunction.Changes;
+using RoadRegistry.RoadNode.Changes;
+using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.ValueObjects;
-using RoadSegment.Changes;
 
 public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
 {

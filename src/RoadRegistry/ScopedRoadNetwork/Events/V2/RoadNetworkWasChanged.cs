@@ -1,4 +1,4 @@
-namespace RoadRegistry.RoadNetwork.Events.V2;
+namespace RoadRegistry.ScopedRoadNetwork.Events.V2;
 
 using System;
 using System.Collections.Generic;

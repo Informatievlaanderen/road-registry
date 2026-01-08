@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using RoadNetwork;
 using RoadRegistry.Infrastructure;
+using ScopedRoadNetwork;
 using IStreetNameCache = RoadRegistry.Infrastructure.IStreetNameCache;
 
 public static class ServiceCollectionExtensions

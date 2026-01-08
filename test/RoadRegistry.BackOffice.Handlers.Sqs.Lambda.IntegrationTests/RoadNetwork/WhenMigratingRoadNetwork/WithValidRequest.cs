@@ -16,6 +16,7 @@ using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.RoadNetwork;
+using ScopedRoadNetwork;
 using Sqs.RoadNetwork;
 using Tests.AggregateTests;
 using Tests.BackOffice;

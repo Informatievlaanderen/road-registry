@@ -6,7 +6,7 @@ using Framework;
 using NetTopologySuite.Geometries;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 
-public class RoadNetworkTests : RoadNetworkTestBase
+public class ScopedRoadNetworkTests : RoadNetworkTestBase
 {
     [Fact]
     public Task ThenSummaryIsUpdated()

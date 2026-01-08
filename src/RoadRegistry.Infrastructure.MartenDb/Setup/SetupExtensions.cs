@@ -14,9 +14,9 @@ using NodaTime;
 using NodaTime.Serialization.JsonNet;
 using Npgsql;
 using Projections;
-using RoadNetwork;
 using RoadNode;
 using RoadSegment;
+using ScopedRoadNetwork;
 using Store;
 using Weasel.Core;
 

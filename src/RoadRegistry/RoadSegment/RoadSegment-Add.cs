@@ -5,8 +5,8 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events.V2;
 using Extensions;
-using RoadNetwork;
 using RoadRegistry.ValueObjects.Problems;
+using ScopedRoadNetwork;
 using ValueObjects;
 
 public partial class RoadSegment

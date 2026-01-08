@@ -2,8 +2,8 @@
 
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.RoadNetwork;
-using RoadRegistry.RoadNetwork.ValueObjects;
-using RoadNetwork = RoadRegistry.RoadNetwork.RoadNetwork;
+using ScopedRoadNetwork;
+using ScopedRoadNetwork.ValueObjects;
 
 public class RoadNetworkBuilder
 {
@@ -15,9 +15,9 @@ public class RoadNetworkBuilder
         _idGenerator = idGenerator;
     }
 
-    public RoadNetwork Build()
+    public ScopedRoadNetwork Build()
     {
-        var roadNetwork = new RoadNetwork(new RoadNetworkId(Guid.NewGuid()));
+        var roadNetwork = new ScopedRoadNetwork(new RoadNetworkId(Guid.NewGuid()));
 
         foreach (var change in _changes)
         {

@@ -2,10 +2,11 @@
 
 using System.Collections;
 using System.Reflection;
+using ScopedRoadNetwork;
 
 public static class AggregateRootExtensions
 {
-    public static RoadRegistry.RoadNetwork.RoadNetwork WithoutChanges(this RoadRegistry.RoadNetwork.RoadNetwork aggregate)
+    public static ScopedRoadNetwork WithoutChanges(this ScopedRoadNetwork aggregate)
     {
         aggregate.ClearUncommittedEvents();
         return aggregate;

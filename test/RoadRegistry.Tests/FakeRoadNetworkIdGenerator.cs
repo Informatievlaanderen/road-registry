@@ -5,7 +5,7 @@ namespace RoadRegistry.Tests
         using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
     using RoadRegistry.BackOffice.Messages;
-            using RoadNetwork = RoadNetwork.RoadNetwork;
+    using ScopedRoadNetwork;
 
     public class FakeRoadNetworkIdGenerator: IRoadNetworkIdGenerator
     {

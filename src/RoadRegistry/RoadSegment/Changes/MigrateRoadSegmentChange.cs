@@ -2,7 +2,7 @@ namespace RoadRegistry.RoadSegment.Changes;
 
 using System.Collections.Generic;
 using NetTopologySuite.Geometries;
-using RoadNetwork;
+using ScopedRoadNetwork;
 using ValueObjects;
 
 public sealed record MigrateRoadSegmentChange : IRoadNetworkChange

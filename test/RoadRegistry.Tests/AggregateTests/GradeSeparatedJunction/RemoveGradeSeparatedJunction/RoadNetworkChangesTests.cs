@@ -5,6 +5,7 @@ using FluentAssertions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNetwork;
 using RoadRegistry.Tests.AggregateTests;
+using ScopedRoadNetwork;
 
 public class RoadNetworkChangesTests
 {

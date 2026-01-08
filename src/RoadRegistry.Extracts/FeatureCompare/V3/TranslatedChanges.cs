@@ -7,9 +7,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
-using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
+using ScopedRoadNetwork;
 
 public class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>, IEquatable<TranslatedChanges>
 {

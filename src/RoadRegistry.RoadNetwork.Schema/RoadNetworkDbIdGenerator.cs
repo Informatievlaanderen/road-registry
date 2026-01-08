@@ -3,6 +3,7 @@ namespace RoadRegistry.RoadNetwork.Schema
     using BackOffice;
     using BackOffice.Core;
     using RoadRegistry.ValueObjects;
+    using ScopedRoadNetwork;
 
     public class RoadNetworkDbIdGenerator: IRoadNetworkIdGenerator
     {

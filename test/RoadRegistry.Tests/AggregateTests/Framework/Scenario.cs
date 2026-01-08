@@ -2,7 +2,8 @@
 
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.RoadNetwork;
-using RoadRegistry.RoadNetwork.ValueObjects;
+using ScopedRoadNetwork;
+using ScopedRoadNetwork.ValueObjects;
 
 public class Scenario : IScenarioInitialStateBuilder
 {
@@ -107,7 +108,7 @@ public class Scenario : IScenarioInitialStateBuilder
             return new ScenarioBuilder(_givens, _when, _thens, _assert, _throws, exceptionIsAcceptable);
         }
 
-        public IScenarioGivenStateBuilder Given(RoadNetwork given)
+        public IScenarioGivenStateBuilder Given(ScopedRoadNetwork given)
         {
             throw new NotImplementedException();
         }

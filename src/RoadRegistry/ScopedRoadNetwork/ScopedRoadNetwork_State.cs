@@ -1,15 +1,14 @@
-﻿namespace RoadRegistry.RoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System.Collections.Generic;
 using System.Linq;
 using Events.V2;
-using GradeSeparatedJunction;
-using JasperFx.Events;
-using RoadNode;
-using RoadSegment;
+using RoadRegistry.GradeSeparatedJunction;
+using RoadRegistry.RoadNode;
+using RoadRegistry.RoadSegment;
 using ValueObjects;
 
-public partial class RoadNetwork : MartenAggregateRootEntity<RoadNetworkId>
+public partial class ScopedRoadNetwork : MartenAggregateRootEntity<RoadNetworkId>
 {
     public RoadNetworkId RoadNetworkId { get; }
     public RoadNetworkChangesSummary? SummaryOfLastChange { get; private set; }
@@ -21,12 +20,12 @@ public partial class RoadNetwork : MartenAggregateRootEntity<RoadNetworkId>
     private readonly Dictionary<RoadSegmentId, RoadSegment> _roadSegments;
     private readonly Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions;
 
-    public RoadNetwork(RoadNetworkId roadNetworkId)
+    public ScopedRoadNetwork(RoadNetworkId roadNetworkId)
         : this(roadNetworkId, [], [], [])
     {
     }
 
-    public RoadNetwork(
+    public ScopedRoadNetwork(
         RoadNetworkId roadNetworkId,
         IReadOnlyCollection<RoadNode> roadNodes,
         IReadOnlyCollection<RoadSegment> roadSegments,
@@ -45,9 +44,9 @@ public partial class RoadNetwork : MartenAggregateRootEntity<RoadNetworkId>
         GradeSeparatedJunctions = _gradeSeparatedJunctions.AsReadOnly();
     }
 
-    public static RoadNetwork Create(RoadNetworkWasChanged @event)
+    public static ScopedRoadNetwork Create(RoadNetworkWasChanged @event)
     {
-        var roadNetwork = new RoadNetwork(@event.RoadNetworkId)
+        var roadNetwork = new ScopedRoadNetwork(@event.RoadNetworkId)
         {
             SummaryOfLastChange = @event.Summary.ToRoadNetworkChangesSummary()
         };

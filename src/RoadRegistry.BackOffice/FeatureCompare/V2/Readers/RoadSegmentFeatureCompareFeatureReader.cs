@@ -9,7 +9,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Models;
 using NetTopologySuite.Geometries;
-using RoadNetwork;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Uploads;

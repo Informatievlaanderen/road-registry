@@ -7,6 +7,8 @@ using RoadRegistry.Extracts.Projections;
 using RoadRegistry.Tests.AggregateTests;
 using RoadRegistry.Tests.BackOffice;
 using RoadSegment.Events.V2;
+using ScopedRoadNetwork.Events.V1;
+using ScopedRoadNetwork.Events.V2;
 
 public class RoadSegmentProjectionTests
 {
@@ -15,7 +17,7 @@ public class RoadSegmentProjectionTests
     {
         var excludeEventTypes = new[]
         {
-            typeof(RoadRegistry.RoadNetwork.Events.V1.RoadNetworkChangesAccepted),
+            typeof(RoadNetworkChangesAccepted),
             typeof(RoadRegistry.RoadNode.Events.V1.ImportedRoadNode),
             typeof(RoadRegistry.RoadNode.Events.V1.RoadNodeAdded),
             typeof(RoadRegistry.RoadNode.Events.V1.RoadNodeModified),
@@ -24,7 +26,7 @@ public class RoadSegmentProjectionTests
             typeof(GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionAdded),
             typeof(GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionRemoved),
 
-            typeof(RoadRegistry.RoadNetwork.Events.V2.RoadNetworkWasChanged),
+            typeof(RoadNetworkWasChanged),
             typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasAdded),
             typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasModified),
             typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasMigrated),

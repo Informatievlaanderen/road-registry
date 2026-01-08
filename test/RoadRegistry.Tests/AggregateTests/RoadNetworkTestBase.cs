@@ -2,6 +2,7 @@
 
 using Framework;
 using RoadRegistry.RoadNetwork;
+using ScopedRoadNetwork;
 
 public abstract class RoadNetworkTestBase : AggregateTestBase
 {

@@ -4,8 +4,8 @@ using Dapper;
 using Marten;
 using NetTopologySuite.Geometries;
 using Projections;
-using RoadNetwork;
-using RoadNetwork.ValueObjects;
+using ScopedRoadNetwork;
+using ScopedRoadNetwork.ValueObjects;
 
 public class RoadNetworkRepository : IRoadNetworkRepository
 {
@@ -96,17 +96,17 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j ON 
         );
     }
 
-    public async Task<RoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, RoadNetworkId roadNetworkId)
+    public async Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, RoadNetworkId roadNetworkId)
     {
         var roadNodes = await session.LoadManyAsync(ids.RoadNodeIds);
         var roadSegments = await session.LoadManyAsync(ids.RoadSegmentIds);
         var gradeSeparatedJunctions = await session.LoadManyAsync(ids.GradeSeparatedJunctionIds);
-        var roadNetwork = await session.Events.AggregateStreamAsync<RoadNetwork>(StreamKeyFactory.Create(typeof(RoadNetwork), roadNetworkId));
+        var roadNetwork = await session.Events.AggregateStreamAsync<ScopedRoadNetwork>(StreamKeyFactory.Create(typeof(ScopedRoadNetwork), roadNetworkId));
 
-        return roadNetwork ?? new RoadNetwork(roadNetworkId, roadNodes, roadSegments, gradeSeparatedJunctions);
+        return roadNetwork ?? new ScopedRoadNetwork(roadNetworkId, roadNodes, roadSegments, gradeSeparatedJunctions);
     }
 
-    public async Task Save(RoadNetwork roadNetwork, string commandName, CancellationToken cancellationToken)
+    public async Task Save(ScopedRoadNetwork roadNetwork, string commandName, CancellationToken cancellationToken)
     {
         await using var session = Store.LightweightSession();
 

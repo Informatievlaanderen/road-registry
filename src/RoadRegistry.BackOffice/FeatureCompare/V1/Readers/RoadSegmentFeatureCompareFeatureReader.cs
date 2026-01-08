@@ -10,7 +10,6 @@ using Extensions;
 using Extracts;
 using Models;
 using NetTopologySuite.Geometries;
-using RoadNetwork;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Infrastructure.Extensions;

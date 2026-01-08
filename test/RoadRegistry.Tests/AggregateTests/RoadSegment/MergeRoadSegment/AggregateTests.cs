@@ -10,6 +10,7 @@ using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
 using RoadRegistry.ValueObjects.Problems;
+using ScopedRoadNetwork;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 public class AggregateTests : AggregateTestBase

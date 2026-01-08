@@ -4,8 +4,8 @@
     using Editor.Schema.Organizations;
     using Marten;
     using NetTopologySuite.Geometries;
-    using RoadNetwork;
     using RoadRegistry.Extracts.Projections;
+    using ScopedRoadNetwork;
 
     public class ZipArchiveDataProvider : IZipArchiveDataProvider
     {

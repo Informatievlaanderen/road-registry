@@ -1,7 +1,7 @@
 namespace RoadRegistry.GradeSeparatedJunction.Changes;
 
-using RoadNetwork;
 using RoadRegistry.RoadSegment.ValueObjects;
+using ScopedRoadNetwork;
 
 public sealed record AddGradeSeparatedJunctionChange : IRoadNetworkChange
 {

@@ -6,6 +6,8 @@ using GradeSeparatedJunction.Events.V2;
 using JasperFx.Events;
 using RoadRegistry.Extracts.Projections;
 using RoadRegistry.Tests.AggregateTests;
+using ScopedRoadNetwork.Events.V1;
+using ScopedRoadNetwork.Events.V2;
 
 public class GradeSeparatedJunctionProjectionTests
 {
@@ -14,7 +16,7 @@ public class GradeSeparatedJunctionProjectionTests
     {
         var excludeEventTypes = new[]
         {
-            typeof(RoadRegistry.RoadNetwork.Events.V1.RoadNetworkChangesAccepted),
+            typeof(RoadNetworkChangesAccepted),
             typeof(RoadRegistry.RoadNode.Events.V1.ImportedRoadNode),
             typeof(RoadRegistry.RoadNode.Events.V1.RoadNodeAdded),
             typeof(RoadRegistry.RoadNode.Events.V1.RoadNodeModified),
@@ -34,7 +36,7 @@ public class GradeSeparatedJunctionProjectionTests
             typeof(RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromNumberedRoad),
             typeof(RoadRegistry.RoadSegment.Events.V1.RoadSegmentStreetNamesChanged),
 
-            typeof(RoadRegistry.RoadNetwork.Events.V2.RoadNetworkWasChanged),
+            typeof(RoadNetworkWasChanged),
             typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasAdded),
             typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasModified),
             typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasMigrated),

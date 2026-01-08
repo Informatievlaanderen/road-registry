@@ -5,7 +5,7 @@ using FluentAssertions;
 using Framework;
 using RoadRegistry.RoadNode.Changes;
 
-public class RoadNetworkTests : RoadNetworkTestBase
+public class ScopedRoadNetworkTests : RoadNetworkTestBase
 {
     [Fact]
     public Task ThenSummaryIsUpdated()

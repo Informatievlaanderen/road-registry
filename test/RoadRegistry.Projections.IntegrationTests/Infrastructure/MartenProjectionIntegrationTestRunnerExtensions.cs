@@ -3,13 +3,14 @@
 using Marten;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
-using RoadNetwork.Events.V2;
-using RoadNetwork.ValueObjects;
 using RoadNode;
 using RoadNode.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadSegment;
 using RoadSegment.Events.V2;
+using ScopedRoadNetwork;
+using ScopedRoadNetwork.Events.V2;
+using ScopedRoadNetwork.ValueObjects;
 
 public class DummyRoadNetworkChangesProjection : RoadNetworkChangesProjection
 {
@@ -76,7 +77,7 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
             switch (evt)
             {
                 case RoadNetworkWasChanged @event:
-                    runner.Given<RoadNetwork, RoadNetworkId>(new RoadNetworkId(Guid.NewGuid()), @event);
+                    runner.Given<ScopedRoadNetwork, RoadNetworkId>(new RoadNetworkId(Guid.NewGuid()), @event);
                     break;
                 case RoadNodeWasAdded @event:
                     runner.Given<RoadNode, RoadNodeId>(@event.RoadNodeId, @event);

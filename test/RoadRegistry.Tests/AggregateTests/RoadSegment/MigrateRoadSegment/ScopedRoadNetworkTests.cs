@@ -6,7 +6,7 @@ using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.Tests.AggregateTests.Framework;
 
-public class RoadNetworkTests : RoadNetworkTestBase
+public class ScopedRoadNetworkTests : RoadNetworkTestBase
 {
     [Fact]
     public Task ThenSummaryIsUpdated()

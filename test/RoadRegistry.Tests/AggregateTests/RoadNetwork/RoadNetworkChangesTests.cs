@@ -3,6 +3,7 @@
 using System.Linq;
 using FluentAssertions;
 using RoadRegistry.RoadNetwork;
+using ScopedRoadNetwork;
 
 public class RoadNetworkChangesTests
 {

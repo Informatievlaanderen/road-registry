@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
-using RoadRegistry.RoadNetwork;
 using TicketingService.Abstractions;
 
 public class ChangeRoadNetworkSqsRequestHandler : SqsHandler<ChangeRoadNetworkSqsRequest>

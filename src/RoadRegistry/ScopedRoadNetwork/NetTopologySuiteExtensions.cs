@@ -1,9 +1,9 @@
-namespace RoadRegistry.RoadNetwork;
+namespace RoadRegistry.ScopedRoadNetwork;
 
 using System;
-using Extensions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using RoadRegistry.Extensions;
 using ValueObjects;
 
 public static class NetTopologySuiteExtensions

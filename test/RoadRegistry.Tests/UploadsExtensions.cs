@@ -6,6 +6,7 @@ using RoadNetwork;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
+using ScopedRoadNetwork;
 
 public static class UploadsExtensions
 {

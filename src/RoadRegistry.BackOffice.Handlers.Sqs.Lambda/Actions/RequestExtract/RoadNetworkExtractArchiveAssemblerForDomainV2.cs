@@ -13,6 +13,7 @@ using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.RoadNetwork;
+using ScopedRoadNetwork;
 
 public class RoadNetworkExtractArchiveAssemblerForDomainV2 : IRoadNetworkExtractArchiveAssembler
 {

@@ -6,6 +6,7 @@ using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.RoadNetwork;
+using ScopedRoadNetwork;
 using Problems = ValueObjects.Problems.Problems;
 
 public class ScenarioRunner
@@ -172,7 +173,7 @@ public class ScenarioRunner
             JsonConvert.SerializeObject(actual, SerializerSettings).Split(Environment.NewLine));
     }
 
-    private RoadNetwork BuildRoadNetwork(Action<RoadNetworkBuilder>[] givens)
+    private ScopedRoadNetwork BuildRoadNetwork(Action<RoadNetworkBuilder>[] givens)
     {
         var builder = new RoadNetworkBuilder(_roadNetworkIdGenerator);
 

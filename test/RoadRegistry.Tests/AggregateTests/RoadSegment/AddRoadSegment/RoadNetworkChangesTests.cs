@@ -4,6 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadSegment.Changes;
+using ScopedRoadNetwork;
 
 public class RoadNetworkChangesTests
 {

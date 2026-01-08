@@ -27,6 +27,7 @@ using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Infrastructure.Modules;
 using RoadRegistry.BackOffice.Messages;
+using ScopedRoadNetwork;
 using SqlStreamStore;
 using TicketingService.Abstractions;
 

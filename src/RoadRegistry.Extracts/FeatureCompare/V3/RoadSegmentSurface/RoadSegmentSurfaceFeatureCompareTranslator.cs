@@ -2,9 +2,9 @@ namespace RoadRegistry.Extracts.FeatureCompare.V3.RoadSegmentSurface;
 
 using System.Collections.Generic;
 using System.Linq;
-using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
+using ScopedRoadNetwork;
 using Uploads;
 using TranslatedChanges = TranslatedChanges;
 

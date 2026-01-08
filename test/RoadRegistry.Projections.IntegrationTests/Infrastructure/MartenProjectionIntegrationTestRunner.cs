@@ -10,10 +10,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RoadNetwork;
-using RoadNetwork.Events.V2;
-using RoadNetwork.ValueObjects;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
+using ScopedRoadNetwork;
+using ScopedRoadNetwork.Events.V2;
+using ScopedRoadNetwork.ValueObjects;
 using Tests.Framework.Projections;
 using Xunit.Sdk;
 
@@ -136,7 +137,7 @@ public class MartenProjectionIntegrationTestRunner
             await using var session = store.LightweightSession();
 
             var roadNetworkId = new RoadNetworkId(Guid.NewGuid());
-            var roadNetworkStreamKey = StreamKeyFactory.Create(typeof(RoadNetwork), roadNetworkId);
+            var roadNetworkStreamKey = StreamKeyFactory.Create(typeof(ScopedRoadNetwork), roadNetworkId);
 
             session.CausationId = "given";
             session.CorrelationId = roadNetworkStreamKey; // Ensure events are grouped by correlation id

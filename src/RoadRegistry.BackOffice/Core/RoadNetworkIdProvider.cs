@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 namespace RoadRegistry.BackOffice.Core
 {
     using RoadRegistry.Extensions;
-    using RoadRegistry.RoadNetwork;
-        using RoadRegistry.RoadSegment.ValueObjects;
+    using RoadRegistry.RoadSegment.ValueObjects;
+    using ScopedRoadNetwork;
 
     public interface IRoadNetworkIdProvider
     {

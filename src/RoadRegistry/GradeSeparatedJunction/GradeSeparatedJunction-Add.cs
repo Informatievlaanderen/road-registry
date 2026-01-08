@@ -3,8 +3,8 @@
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events.V2;
-using RoadNetwork;
 using RoadRegistry.ValueObjects.Problems;
+using ScopedRoadNetwork;
 
 public partial class GradeSeparatedJunction
 {

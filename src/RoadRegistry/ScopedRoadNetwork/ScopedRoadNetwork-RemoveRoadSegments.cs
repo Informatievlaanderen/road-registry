@@ -1,20 +1,20 @@
-﻿namespace RoadRegistry.RoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BackOffice;
-using BackOffice.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Extensions;
-using GradeSeparatedJunction.Changes;
 using NetTopologySuite.Geometries;
-using RoadNode.Changes;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Exceptions;
+using RoadRegistry.Extensions;
+using RoadRegistry.GradeSeparatedJunction.Changes;
+using RoadRegistry.RoadNode.Changes;
+using RoadRegistry.RoadSegment;
+using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.ValueObjects.Problems;
-using RoadSegment;
-using RoadSegment.Changes;
 
-public partial class RoadNetwork
+public partial class ScopedRoadNetwork
 {
     public void RemoveRoadSegments(
         IReadOnlyCollection<RoadSegmentId> roadSegmentIds,

@@ -5,9 +5,9 @@ using System.Linq;
 using Errors;
 using Extensions;
 using NetTopologySuite.Geometries;
-using RoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
 using RoadSegment;
+using ScopedRoadNetwork.ValueObjects;
 
 public partial class RoadNode
 {

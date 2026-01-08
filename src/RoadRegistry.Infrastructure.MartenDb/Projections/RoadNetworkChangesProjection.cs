@@ -5,10 +5,10 @@ using JasperFx.Events;
 using Marten;
 using Marten.Events.Projections;
 using Microsoft.Extensions.Logging;
-using RoadNetwork.Events.V1;
-using RoadNetwork.Events.V2;
 using RoadNode.Events.V1;
 using RoadSegment.Events.V1;
+using ScopedRoadNetwork.Events.V1;
+using ScopedRoadNetwork.Events.V2;
 
 public abstract class RoadNetworkChangesProjection : EventProjection
 {

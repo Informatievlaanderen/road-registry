@@ -4,6 +4,7 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.RoadNetwork;
+using ScopedRoadNetwork;
 using ValueObjects.Problems;
 
 public static class ScenarioExtensions

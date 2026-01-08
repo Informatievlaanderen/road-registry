@@ -6,6 +6,7 @@ using RoadRegistry.RoadNetwork;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.Tests.AggregateTests;
+using ScopedRoadNetwork;
 
 public class RoadNetworkChangesTests
 {

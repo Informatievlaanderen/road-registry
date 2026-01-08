@@ -9,7 +9,6 @@ using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using Messages;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
-using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.ValueObjects;
 using ValueObjects.Problems;

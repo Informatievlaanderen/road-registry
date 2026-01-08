@@ -2,7 +2,7 @@ namespace RoadRegistry.Converters;
 
 using System;
 using Newtonsoft.Json;
-using RoadNetwork.ValueObjects;
+using ScopedRoadNetwork.ValueObjects;
 
 public class RoadNetworkIdConverter : NullableValueTypeJsonConverter<RoadNetworkId>
 {

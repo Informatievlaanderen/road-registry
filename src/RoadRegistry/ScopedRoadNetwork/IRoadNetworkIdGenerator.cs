@@ -1,7 +1,6 @@
-namespace RoadRegistry.RoadNetwork;
+namespace RoadRegistry.ScopedRoadNetwork;
 
 using System.Threading.Tasks;
-using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ValueObjects;
 
 public interface IRoadNetworkIdGenerator

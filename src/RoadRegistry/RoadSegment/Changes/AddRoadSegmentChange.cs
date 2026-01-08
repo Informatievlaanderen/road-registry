@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
-using RoadNetwork;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ValueObjects;
+using ScopedRoadNetwork;
 
 public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRoadSegmentChange>
 {

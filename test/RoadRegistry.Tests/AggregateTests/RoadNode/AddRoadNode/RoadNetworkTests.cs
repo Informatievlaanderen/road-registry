@@ -5,7 +5,7 @@ using Framework;
 using RoadRegistry.BackOffice.Core;
 using ValueObjects.Problems;
 
-public class RoadNetworkTests : RoadNetworkTestBase
+public class ScopedRoadNetworkTests : RoadNetworkTestBase
 {
     [Fact]
     public Task ThenSummaryIsUpdated()

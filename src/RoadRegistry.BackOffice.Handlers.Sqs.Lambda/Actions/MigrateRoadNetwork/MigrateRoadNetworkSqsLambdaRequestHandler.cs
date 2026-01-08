@@ -14,8 +14,9 @@ using RoadNetwork;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadNetwork;
-using RoadRegistry.RoadNetwork.Events.V2;
-using RoadRegistry.RoadNetwork.ValueObjects;
+using ScopedRoadNetwork;
+using ScopedRoadNetwork.Events.V2;
+using ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 using ValueObjects.Problems;
 
@@ -81,7 +82,7 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
         return changeResult;
     }
 
-    private async Task<RoadNetworkChangeResult> ChangeRoadNetwork(MigrateRoadNetworkSqsRequest command, RoadNetwork roadNetwork, RoadNetworkChanges roadNetworkChanges, CancellationToken cancellationToken)
+    private async Task<RoadNetworkChangeResult> ChangeRoadNetwork(MigrateRoadNetworkSqsRequest command, ScopedRoadNetwork roadNetwork, RoadNetworkChanges roadNetworkChanges, CancellationToken cancellationToken)
     {
         var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator);
         if (changeResult.Problems.HasError())
@@ -95,9 +96,9 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
         return changeResult;
     }
 
-    private async Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges, RoadNetworkId roadNetworkId)
+    private async Task<ScopedRoadNetwork> Load(RoadNetworkChanges roadNetworkChanges, RoadNetworkId roadNetworkId)
     {
-        return new RoadNetwork(roadNetworkId);
+        return new ScopedRoadNetwork(roadNetworkId);
         //TODO-pr enkel RoadNetwork opbouwen adv bestaande V2 data
 
         // await using var session = _store.LightweightSession(IsolationLevel.Snapshot);

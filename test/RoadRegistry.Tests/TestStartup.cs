@@ -30,6 +30,7 @@ using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning.V1;
 using RoadRegistry.Infrastructure;
+using ScopedRoadNetwork;
 using SqlStreamStore;
 
 public abstract class TestStartup

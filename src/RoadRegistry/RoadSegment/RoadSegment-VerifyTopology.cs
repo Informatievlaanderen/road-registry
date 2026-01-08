@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Extensions;
 using NetTopologySuite.Geometries;
-using RoadNetwork;
-using RoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
+using ScopedRoadNetwork;
+using ScopedRoadNetwork.ValueObjects;
 
 public partial class RoadSegment
 {
@@ -76,7 +76,7 @@ public partial class RoadSegment
     }
 
     private static IEnumerable<RoadSegment> FindIntersectingRoadSegments(
-        RoadNetwork roadNetwork,
+        ScopedRoadNetwork roadNetwork,
         RoadSegmentId intersectsWithId,
         MultiLineString intersectsWithGeometry,
         RoadNodeId[] roadNodeIdsNotInCommon)

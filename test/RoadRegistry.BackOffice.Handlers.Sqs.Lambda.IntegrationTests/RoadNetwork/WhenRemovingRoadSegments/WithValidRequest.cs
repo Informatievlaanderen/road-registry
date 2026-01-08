@@ -22,6 +22,7 @@ using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.RoadNetwork;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
+using ScopedRoadNetwork;
 using Sqs.RoadNetwork;
 using Tests.AggregateTests;
 using Tests.BackOffice;
