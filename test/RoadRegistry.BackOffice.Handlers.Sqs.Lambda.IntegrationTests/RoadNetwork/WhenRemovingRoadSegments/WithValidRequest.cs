@@ -62,7 +62,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             OriginalId = null,
             StartNodeId = node1.TemporaryId,
             EndNodeId = node2.TemporaryId,
-            Geometry = BuildSegmentGeometry(node1.Geometry, node2.Geometry),
+            Geometry = BuildMultiLineString(node1.Geometry, node2.Geometry),
             Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.InUse),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(RoadSegmentCategory.RegionalRoad),
             EuropeanRoadNumbers = [],
@@ -74,7 +74,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             OriginalId = null,
             StartNodeId = node2.TemporaryId,
             EndNodeId = node3.TemporaryId,
-            Geometry = BuildSegmentGeometry(node2.Geometry, node3.Geometry),
+            Geometry = BuildMultiLineString(node2.Geometry, node3.Geometry),
             Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.OutOfUse),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(RoadSegmentCategory.RegionalRoad),
             EuropeanRoadNumbers = [],
@@ -96,7 +96,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             TemporaryId = new RoadSegmentId(3),
             StartNodeId = node4.TemporaryId,
             EndNodeId = node5.TemporaryId,
-            Geometry = BuildSegmentGeometry(node4.Geometry, node5.Geometry),
+            Geometry = BuildMultiLineString(node4.Geometry, node5.Geometry),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(RoadSegmentCategory.RegionalRoad)
         };
 
@@ -165,7 +165,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             .AddScoped<RemoveRoadSegmentsSqsLambdaRequestHandler>();
     }
 
-    private static MultiLineString BuildSegmentGeometry(Point start, Point end)
+    private static MultiLineString BuildMultiLineString(Point start, Point end)
     {
         return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
             .WithMeasureOrdinates();

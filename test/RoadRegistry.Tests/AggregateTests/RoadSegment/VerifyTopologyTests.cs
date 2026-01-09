@@ -158,7 +158,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add(TestData.AddSegment1 with
                 {
-                    Geometry = BuildSegmentGeometry(segment1Start, segment1End)
+                    Geometry = BuildMultiLineString(segment1Start, segment1End)
                 })
             )
             .When(changes => changes
@@ -172,7 +172,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add(TestData.AddSegment2 with
                 {
-                    Geometry = BuildSegmentGeometry(segment2Start, segment2End)
+                    Geometry = BuildMultiLineString(segment2Start, segment2End)
                 })
             )
             .ThenContainsProblems(new Error("IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction",
@@ -201,11 +201,5 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 new Error("RoadNodeNotConnectedToAnySegment", new ProblemParameter("RoadNodeId", TestData.Segment1EndNodeAdded.RoadNodeId.ToString()))
             )
         );
-    }
-
-    private static MultiLineString BuildSegmentGeometry(Point start, Point end)
-    {
-        return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
-            .WithMeasureOrdinates();
     }
 }

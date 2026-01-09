@@ -115,7 +115,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add(TestData.AddSegment1 with
                 {
-                    Geometry = BuildSegmentGeometry(segment1Start, segment1End)
+                    Geometry = BuildMultiLineString(segment1Start, segment1End)
                 })
                 .Add(TestData.AddSegment2StartNode with
                 {
@@ -127,7 +127,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add(TestData.AddSegment2 with
                 {
-                    Geometry = BuildSegmentGeometry(segment2Start, segment2End)
+                    Geometry = BuildMultiLineString(segment2Start, segment2End)
                 })
             )
             .When(changes => changes
@@ -144,11 +144,5 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 new ProblemParameter("UpperRoadSegmentId", TestData.Segment2Added.RoadSegmentId.ToString())
             ))
         );
-    }
-
-    private static MultiLineString BuildSegmentGeometry(Point start, Point end)
-    {
-        return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
-            .WithMeasureOrdinates();
     }
 }

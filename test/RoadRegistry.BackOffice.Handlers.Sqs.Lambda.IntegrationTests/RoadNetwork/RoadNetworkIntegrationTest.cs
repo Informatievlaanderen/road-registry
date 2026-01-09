@@ -126,11 +126,11 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
         }
     }
 
-    protected RoadSegmentGeometry BuildSegmentGeometry(int x1, int y1, int x2, int y2)
+    protected static RoadSegmentGeometry BuildRoadSegmentGeometry(int x1, int y1, int x2, int y2)
     {
-        return BuildSegmentGeometry(new Point(x1, y1), new Point(x2, y2));
+        return BuildRoadSegmentGeometry(new Point(x1, y1), new Point(x2, y2));
     }
-    protected RoadSegmentGeometry BuildSegmentGeometry(Point start, Point end)
+    protected static RoadSegmentGeometry BuildRoadSegmentGeometry(Point start, Point end)
     {
         return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
             .WithMeasureOrdinates()

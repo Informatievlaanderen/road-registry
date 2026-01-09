@@ -11,17 +11,12 @@ namespace RoadRegistry.Jobs.Processor
     using BackOffice.Abstractions.Exceptions;
     using BackOffice.Abstractions.Jobs;
     using BackOffice.Abstractions.Uploads;
-    using BackOffice.Core;
     using BackOffice.Exceptions;
-    using BackOffice.Extensions;
     using BackOffice.Extracts;
-    using BackOffice.FeatureToggles;
     using BackOffice.Handlers.Sqs.Extracts;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-    using CommandHandling;
-    using CommandHandling.Actions.ChangeRoadNetwork;
     using Extensions;
     using Extracts;
     using Extracts.Infrastructure.Extensions;
@@ -36,7 +31,7 @@ namespace RoadRegistry.Jobs.Processor
     using RoadRegistry.Infrastructure;
     using RoadRegistry.Infrastructure.DutchTranslations;
     using TicketingService.Abstractions;
-        using ValueObjects.ProblemCodes;
+    using ValueObjects.ProblemCodes;
     using ValueObjects.Problems;
     using JobsProcessorOptions = Infrastructure.Options.JobsProcessorOptions;
     using Task = System.Threading.Tasks.Task;

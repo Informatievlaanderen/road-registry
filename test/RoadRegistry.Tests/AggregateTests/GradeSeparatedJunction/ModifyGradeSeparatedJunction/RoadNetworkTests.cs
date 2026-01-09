@@ -30,7 +30,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 })
                 .Add(TestData.AddSegment1 with
                 {
-                    Geometry = BuildSegmentGeometry(segment1Start, segment1End)
+                    Geometry = BuildMultiLineString(segment1Start, segment1End)
                 })
                 .Add(TestData.AddSegment2StartNode with
                 {
@@ -42,7 +42,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 })
                 .Add(TestData.AddSegment2 with
                 {
-                    Geometry = BuildSegmentGeometry(segment2Start, segment2End)
+                    Geometry = BuildMultiLineString(segment2Start, segment2End)
                 })
                 .Add(Fixture.Create<AddGradeSeparatedJunctionChange>() with
                 {

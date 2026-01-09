@@ -191,14 +191,14 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             var roadSegmentIntersecting = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
             {
                 RoadSegmentId = new RoadSegmentId(1),
-                Geometry = BuildSegmentGeometry(0, 0, 10, 0),
+                Geometry = BuildRoadSegmentGeometry(0, 0, 10, 0),
                 StartNodeId = new RoadNodeId(1),
                 EndNodeId = new RoadNodeId(2)
             };
             var roadSegmentNotIntersecting = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
             {
                 RoadSegmentId = new RoadSegmentId(2),
-                Geometry = BuildSegmentGeometry(0, 100, 10, 100)
+                Geometry = BuildRoadSegmentGeometry(0, 100, 10, 100)
             };
             var junctionIntersecting = TestData.Fixture.Create<RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAdded>() with
             {
@@ -213,7 +213,7 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             await session.SaveChangesAsync();
         }
 
-        var requestGeometry = BuildSegmentGeometry(5, -5, 5, 5).ToGeometry();
+        var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).ToGeometry();
 
         // Act
         var ids = await GetUnderlyingIds(sp, requestGeometry);
@@ -239,14 +239,14 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             var roadSegment1 = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
             {
                 RoadSegmentId = new RoadSegmentId(1),
-                Geometry = BuildSegmentGeometry(0, 0, 10, 0),
+                Geometry = BuildRoadSegmentGeometry(0, 0, 10, 0),
                 StartNodeId = new RoadNodeId(1),
                 EndNodeId = new RoadNodeId(2)
             };
             var roadSegment2 = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
             {
                 RoadSegmentId = new RoadSegmentId(2),
-                Geometry = BuildSegmentGeometry(0, 100, 10, 100)
+                Geometry = BuildRoadSegmentGeometry(0, 100, 10, 100)
             };
             var junction = TestData.Fixture.Create<RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAdded>() with
             {
@@ -290,14 +290,14 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             var roadSegment1 = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
             {
                 RoadSegmentId = new RoadSegmentId(1),
-                Geometry = BuildSegmentGeometry(0, 0, 10, 0),
+                Geometry = BuildRoadSegmentGeometry(0, 0, 10, 0),
                 StartNodeId = new RoadNodeId(1),
                 EndNodeId = new RoadNodeId(2)
             };
             var roadSegment2 = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
             {
                 RoadSegmentId = new RoadSegmentId(2),
-                Geometry = BuildSegmentGeometry(0, 100, 10, 100)
+                Geometry = BuildRoadSegmentGeometry(0, 100, 10, 100)
             };
             var junction = TestData.Fixture.Create<RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAdded>() with
             {
@@ -341,14 +341,14 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             var roadSegment1 = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
             {
                 RoadSegmentId = new RoadSegmentId(1),
-                Geometry = BuildSegmentGeometry(0, 0, 10, 0),
+                Geometry = BuildRoadSegmentGeometry(0, 0, 10, 0),
                 StartNodeId = new RoadNodeId(1),
                 EndNodeId = new RoadNodeId(2)
             };
             var roadSegment2 = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
             {
                 RoadSegmentId = new RoadSegmentId(2),
-                Geometry = BuildSegmentGeometry(0, 100, 10, 100)
+                Geometry = BuildRoadSegmentGeometry(0, 100, 10, 100)
             };
             var junction = TestData.Fixture.Create<RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAdded>() with
             {
@@ -392,14 +392,14 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var roadSegmentIntersecting = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
         {
             RoadSegmentId = new RoadSegmentId(1),
-            Geometry = BuildSegmentGeometry(0, 0, 10, 0),
+            Geometry = BuildRoadSegmentGeometry(0, 0, 10, 0),
             StartNodeId = new RoadNodeId(1),
             EndNodeId = new RoadNodeId(2)
         };
         var roadSegmentNotIntersecting = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
         {
             RoadSegmentId = new RoadSegmentId(2),
-            Geometry = BuildSegmentGeometry(0, 100, 10, 100),
+            Geometry = BuildRoadSegmentGeometry(0, 100, 10, 100),
             StartNodeId = new  RoadNodeId(3),
             EndNodeId = new RoadNodeId(4)
         };
@@ -415,7 +415,7 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
 
         await session.SaveChangesAsync();
 
-        var requestGeometry = BuildSegmentGeometry(5, -5, 5, 5).ToGeometry();
+        var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).ToGeometry();
         var requestIds = new RoadNetworkIds([], [roadSegmentNotIntersecting.RoadSegmentId], []);
 
         // Act
