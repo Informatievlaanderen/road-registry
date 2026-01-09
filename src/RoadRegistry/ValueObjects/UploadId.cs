@@ -58,8 +58,8 @@ public readonly struct UploadId : IEquatable<UploadId>
         return instance.ToGuid();
     }
 
-    public static implicit operator string(UploadId instance)
+    public static implicit operator string?(UploadId? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 }

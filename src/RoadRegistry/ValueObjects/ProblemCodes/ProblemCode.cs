@@ -26,9 +26,9 @@ public sealed partial record ProblemCode
         return null;
     }
 
-    public static implicit operator string(ProblemCode problemCode)
+    public static implicit operator string?(ProblemCode? problemCode)
     {
-        return problemCode._value;
+        return problemCode?.ToString();
     }
 
     public override string ToString()

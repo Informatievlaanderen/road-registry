@@ -123,18 +123,19 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
         return Equals(left, right);
     }
 
-    public static implicit operator string(RoadSegmentAccessRestriction instance)
-    {
-        return instance?.ToString();
-    }
-    public static implicit operator int(RoadSegmentAccessRestriction instance)
-    {
-        return instance.Translation.Identifier;
-    }
-
     public static bool operator !=(RoadSegmentAccessRestriction left, RoadSegmentAccessRestriction right)
     {
         return !Equals(left, right);
+    }
+
+    public static implicit operator string?(RoadSegmentAccessRestriction? instance)
+    {
+        return instance?.ToString();
+    }
+
+    public static implicit operator int(RoadSegmentAccessRestriction instance)
+    {
+        return instance.Translation.Identifier;
     }
 
     public static RoadSegmentAccessRestriction Parse(string value)

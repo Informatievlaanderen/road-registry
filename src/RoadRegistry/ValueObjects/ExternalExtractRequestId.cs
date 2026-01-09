@@ -43,9 +43,9 @@ public readonly struct ExternalExtractRequestId : IEquatable<ExternalExtractRequ
         return _value;
     }
 
-    public static implicit operator string(ExternalExtractRequestId instance)
+    public static implicit operator string?(ExternalExtractRequestId? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator ==(ExternalExtractRequestId left, ExternalExtractRequestId right)

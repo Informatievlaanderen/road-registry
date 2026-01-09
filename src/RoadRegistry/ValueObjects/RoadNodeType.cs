@@ -111,18 +111,18 @@ public sealed class RoadNodeType : IEquatable<RoadNodeType>, IDutchToString
         return Equals(left, right);
     }
 
-    public static implicit operator string(RoadNodeType instance)
+    public static bool operator !=(RoadNodeType left, RoadNodeType right)
     {
-        return instance.ToString();
+        return !Equals(left, right);
+    }
+
+    public static implicit operator string?(RoadNodeType? instance)
+    {
+        return instance?.ToString();
     }
     public static implicit operator int(RoadNodeType instance)
     {
         return instance.Translation.Identifier;
-    }
-
-    public static bool operator !=(RoadNodeType left, RoadNodeType right)
-    {
-        return !Equals(left, right);
     }
 
     public static RoadNodeType Parse(string value)

@@ -82,9 +82,9 @@ public struct StreamName : IEquatable<StreamName>
         return _value ?? "";
     }
 
-    public static implicit operator string(StreamName instance)
+    public static implicit operator string?(StreamName? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static implicit operator StreamId(StreamName instance)

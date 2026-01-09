@@ -43,9 +43,9 @@ public readonly struct ExtractDescription : IEquatable<ExtractDescription>
         return _value;
     }
 
-    public static implicit operator string(ExtractDescription instance)
+    public static implicit operator string?(ExtractDescription? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static implicit operator ExtractDescription(string instance)

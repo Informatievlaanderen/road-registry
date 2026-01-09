@@ -86,9 +86,9 @@ public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJuncti
         return !Equals(left, right);
     }
 
-    public static implicit operator string(GradeSeparatedJunctionType instance)
+    public static implicit operator string?(GradeSeparatedJunctionType? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static GradeSeparatedJunctionType Parse(string value)

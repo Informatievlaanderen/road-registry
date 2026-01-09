@@ -68,9 +68,9 @@ public readonly struct OrganizationName : IEquatable<OrganizationName>
         return new OrganizationName(value.NullIfEmpty() ?? PredefinedTranslations.Unknown.Name);
     }
 
-    public static implicit operator string(OrganizationName instance)
+    public static implicit operator string?(OrganizationName? instance)
     {
-        return instance._value;
+        return instance?.ToString();
     }
 
     public static bool operator ==(OrganizationName left, OrganizationName right)

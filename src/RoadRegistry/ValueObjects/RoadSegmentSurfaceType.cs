@@ -103,10 +103,11 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>,
         return !Equals(left, right);
     }
 
-    public static implicit operator string(RoadSegmentSurfaceType instance)
+    public static implicit operator string?(RoadSegmentSurfaceType? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
+
     public static implicit operator int(RoadSegmentSurfaceType instance)
     {
         return instance.Translation.Identifier;

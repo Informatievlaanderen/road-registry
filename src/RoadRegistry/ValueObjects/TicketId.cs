@@ -56,9 +56,9 @@ public readonly struct TicketId : IEquatable<TicketId>
         return !left.Equals(right);
     }
 
-    public static implicit operator string(TicketId instance)
+    public static implicit operator string?(TicketId? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static implicit operator Guid(TicketId instance)

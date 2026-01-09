@@ -52,8 +52,8 @@ public readonly struct StreetNameId
         return new StreetNameLocalId(ObjectId);
     }
 
-    public static implicit operator string(StreetNameId instance)
+    public static implicit operator string?(StreetNameId? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 }

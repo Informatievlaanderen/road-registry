@@ -364,14 +364,14 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
         return Equals(left, right);
     }
 
-    public static implicit operator string(RoadSegmentCategory instance)
-    {
-        return instance?.ToString();
-    }
-
     public static bool operator !=(RoadSegmentCategory left, RoadSegmentCategory right)
     {
         return !Equals(left, right);
+    }
+
+    public static implicit operator string?(RoadSegmentCategory? instance)
+    {
+        return instance?.ToString();
     }
 
     public static RoadSegmentCategory Parse(string value)

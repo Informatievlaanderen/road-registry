@@ -55,7 +55,7 @@ public readonly struct OrganizationId : IEquatable<OrganizationId>
         return _value == other._value;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is OrganizationId id && Equals(id);
     }
@@ -70,9 +70,9 @@ public readonly struct OrganizationId : IEquatable<OrganizationId>
         return _value;
     }
 
-    public static implicit operator string(OrganizationId instance)
+    public static implicit operator string?(OrganizationId? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator ==(OrganizationId left, OrganizationId right)

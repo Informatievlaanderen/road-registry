@@ -64,9 +64,9 @@ public readonly struct ArchiveId : IEquatable<ArchiveId>
         return !left.Equals(right);
     }
 
-    public static implicit operator string(ArchiveId instance)
+    public static implicit operator string?(ArchiveId? instance)
     {
-        return instance._value;
+        return instance?._value;
     }
 
     public static implicit operator Guid(ArchiveId instance)

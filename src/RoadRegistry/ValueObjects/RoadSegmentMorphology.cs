@@ -279,9 +279,9 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>, I
         return !Equals(left, right);
     }
 
-    public static implicit operator string(RoadSegmentMorphology instance)
+    public static implicit operator string?(RoadSegmentMorphology? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static implicit operator int(RoadSegmentMorphology instance)

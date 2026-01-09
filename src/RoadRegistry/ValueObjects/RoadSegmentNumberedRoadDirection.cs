@@ -90,9 +90,9 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
         return !Equals(left, right);
     }
 
-    public static implicit operator string(RoadSegmentNumberedRoadDirection instance)
+    public static implicit operator string?(RoadSegmentNumberedRoadDirection? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static RoadSegmentNumberedRoadDirection Parse(string value)

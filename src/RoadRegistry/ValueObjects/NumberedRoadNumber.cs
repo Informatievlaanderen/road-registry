@@ -94,9 +94,9 @@ public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>, IComparable<N
         return new string(_value ?? []);
     }
 
-    public static implicit operator string(NumberedRoadNumber instance)
+    public static implicit operator string?(NumberedRoadNumber? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator ==(NumberedRoadNumber left, NumberedRoadNumber right)

@@ -39,9 +39,9 @@ public readonly struct Reason : IEquatable<Reason>
         return _value;
     }
 
-    public static implicit operator string(Reason instance)
+    public static implicit operator string?(Reason? instance)
     {
-        return instance._value;
+        return instance?.ToString();
     }
 
     public static bool operator ==(Reason left, Reason right)

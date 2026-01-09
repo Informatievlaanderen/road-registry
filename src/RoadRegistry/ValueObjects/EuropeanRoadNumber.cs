@@ -68,9 +68,9 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>, IDutchT
         return _value;
     }
 
-    public static implicit operator string(EuropeanRoadNumber instance)
+    public static implicit operator string?(EuropeanRoadNumber? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public int CompareTo(EuropeanRoadNumber other)

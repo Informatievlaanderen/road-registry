@@ -87,18 +87,18 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
         return Equals(left, right);
     }
 
-    public static implicit operator string(RoadSegmentGeometryDrawMethod instance)
+    public static bool operator !=(RoadSegmentGeometryDrawMethod left, RoadSegmentGeometryDrawMethod right)
+    {
+        return !Equals(left, right);
+    }
+
+    public static implicit operator string?(RoadSegmentGeometryDrawMethod? instance)
     {
         return instance?.ToString();
     }
     public static implicit operator int(RoadSegmentGeometryDrawMethod instance)
     {
         return instance.Translation.Identifier;
-    }
-
-    public static bool operator !=(RoadSegmentGeometryDrawMethod left, RoadSegmentGeometryDrawMethod right)
-    {
-        return !Equals(left, right);
     }
 
     public static RoadSegmentGeometryDrawMethod Parse(string value)
