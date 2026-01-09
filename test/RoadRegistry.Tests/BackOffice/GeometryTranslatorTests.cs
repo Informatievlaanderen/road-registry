@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
 using System.Linq;
+using Extensions;
 using RoadRegistry.BackOffice.Extensions;
 using LineString = NetTopologySuite.Geometries.LineString;
 using MultiPolygon = GeoJSON.Net.Geometry.MultiPolygon;

@@ -2,7 +2,6 @@ namespace RoadRegistry.Product.Projections;
 
 using BackOffice;
 using BackOffice.Extensions;
-using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -16,6 +15,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Extensions;
+using Extracts.Schemas.ExtractV1.RoadSegments;
 using Microsoft.Extensions.Logging;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 

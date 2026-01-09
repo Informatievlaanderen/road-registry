@@ -4,9 +4,9 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
-using Extracts.Dbase.RoadSegments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
 
 public class RoadSegmentWidthAttributesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {

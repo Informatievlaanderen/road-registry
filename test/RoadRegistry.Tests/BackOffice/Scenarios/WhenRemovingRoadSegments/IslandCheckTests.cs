@@ -4,11 +4,11 @@
     using Framework.Testing;
     using Moq;
     using NetTopologySuite.Geometries;
-    using RoadRegistry.BackOffice;
+        using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
     using RoadRegistry.BackOffice.Messages;
-    using Problem = RoadRegistry.BackOffice.Messages.Problem;
-    using ProblemSeverity = RoadRegistry.BackOffice.Messages.ProblemSeverity;
+            using Problem = RoadRegistry.Infrastructure.Messages.Problem;
+    using ProblemSeverity = RoadRegistry.Infrastructure.Messages.ProblemSeverity;
     using RemoveRoadSegments = RoadRegistry.BackOffice.Messages.RemoveRoadSegments;
 
     public class IslandCheckTests : RemoveRoadSegmentsTestBase

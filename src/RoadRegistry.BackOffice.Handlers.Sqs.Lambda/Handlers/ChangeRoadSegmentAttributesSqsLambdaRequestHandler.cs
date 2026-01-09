@@ -15,8 +15,11 @@ using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
+using RoadRegistry.Extracts;
+using RoadRegistry.Infrastructure;
 using StreetName;
 using TicketingService.Abstractions;
+using ValueObjects.Problems;
 using AddRoadSegmentToEuropeanRoad = BackOffice.Uploads.AddRoadSegmentToEuropeanRoad;
 using AddRoadSegmentToNationalRoad = BackOffice.Uploads.AddRoadSegmentToNationalRoad;
 using AddRoadSegmentToNumberedRoad = BackOffice.Uploads.AddRoadSegmentToNumberedRoad;
@@ -65,20 +68,20 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
 
         await _changeRoadNetworkDispatcher.DispatchAsync(request, "Attributen wijzigen", async translatedChanges =>
         {
-            var roadSegmentsProblems = new Dictionary<RoadSegmentId, Problems>();
+            var problems = Problems.None;
 
             foreach (var change in request.Request.ChangeRequests)
             {
-                (translatedChanges, var problems) = await AppendChange(change, translatedChanges, cancellationToken);
-                if (problems.Any())
+                (translatedChanges, var segmentProblems) = await AppendChange(change, translatedChanges, cancellationToken);
+                if (segmentProblems.Any())
                 {
-                    roadSegmentsProblems.Add(change.Id, problems);
+                    problems += segmentProblems;
                 }
             }
 
-            if (roadSegmentsProblems.Any())
+            if (problems.Any())
             {
-                throw new RoadSegmentsProblemsException(roadSegmentsProblems);
+                throw new RoadRegistryProblemsException(problems);
             }
 
             return translatedChanges;
@@ -89,13 +92,13 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
 
     private async Task<(TranslatedChanges, Problems)> AppendChange(ChangeRoadSegmentAttributeRequest change, TranslatedChanges translatedChanges, CancellationToken cancellationToken)
     {
-        var problems = Problems.None;
         var roadSegmentId = change.Id;
+        var problems = Problems.For(roadSegmentId);
 
         var editorRoadSegment = await _editorContext.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentId, cancellationToken);
         if (editorRoadSegment is null)
         {
-            problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
+            problems += new RoadSegmentNotFound(roadSegmentId);
             return (translatedChanges, problems);
         }
 
@@ -104,7 +107,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         var networkRoadSegment = await RoadRegistryContext.RoadNetworks.FindRoadSegment(roadSegmentId, geometryDrawMethod, cancellationToken);
         if (networkRoadSegment is null)
         {
-            problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
+            problems += new RoadSegmentNotFound(roadSegmentId);
             return (translatedChanges, problems);
         }
 

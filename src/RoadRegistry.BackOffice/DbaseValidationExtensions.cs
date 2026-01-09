@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice
 {
-    using Extracts.Dbase.RoadSegments;
+    using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+    using RoadRegistry.Extracts.Uploads;
+    using RoadRegistry.Infrastructure;
     using Uploads;
 
     public static class ValidationExtensions

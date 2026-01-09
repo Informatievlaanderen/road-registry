@@ -13,7 +13,7 @@ public class OrganizationOvoCodeTests
 
     public OrganizationOvoCodeTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeOrganizationOvoCode();
     }
 
@@ -86,7 +86,7 @@ public class OrganizationOvoCodeTests
     [Fact]
     public void VerifyBehavior()
     {
-        var customizedString = new Fixture();
+        var customizedString = FixtureFactory.Create();
         customizedString.Customize<string>(customization =>
             customization.FromFactory(generator =>
                 $"OVO{generator.Next(OrganizationOvoCode.MinDigitsValue, OrganizationOvoCode.MaxDigitsValue + 1):000000}"

@@ -18,9 +18,16 @@
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
     <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Extracts.Projections\RoadRegistry.Extracts.Projections.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Extracts.ZipArchiveWriters\RoadRegistry.Extracts.ZipArchiveWriters.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Infrastructure.MartenDb\RoadRegistry.Infrastructure.MartenDb.csproj" />
     <ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />
+    <PackageReference Include="Marten" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
   </ItemGroup>
 </Project>

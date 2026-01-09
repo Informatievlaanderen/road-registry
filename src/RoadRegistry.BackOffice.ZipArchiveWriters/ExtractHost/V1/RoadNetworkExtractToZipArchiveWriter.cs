@@ -6,7 +6,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase.Lists;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schemas.ExtractV1.Lists;
+using RoadRegistry.Infrastructure;
 
 public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter
 {

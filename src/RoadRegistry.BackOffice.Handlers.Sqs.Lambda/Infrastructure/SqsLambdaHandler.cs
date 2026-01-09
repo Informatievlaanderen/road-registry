@@ -6,6 +6,7 @@ using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
+using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Core;
@@ -14,6 +15,7 @@ using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using TicketingService.Abstractions;
+using ValueObjects.Problems;
 using ETag = Be.Vlaanderen.Basisregisters.Api.ETag.ETag;
 
 public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambdaHandler<TSqsLambdaRequest>
@@ -25,8 +27,21 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambd
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        ILogger logger)
-        : base(options, retryPolicy, ticketing, idempotentCommandHandler, roadRegistryContext, logger)
+        ILogger logger,
+        TicketingBehavior ticketingBehavior = TicketingBehavior.All)
+        : base(options, retryPolicy, ticketing, idempotentCommandHandler, roadRegistryContext, logger, ticketingBehavior)
+    {
+    }
+
+    protected SqsLambdaHandler(
+        SqsLambdaHandlerOptions options,
+        ICustomRetryPolicy retryPolicy,
+        ITicketing ticketing,
+        IIdempotentCommandHandler idempotentCommandHandler,
+        IRoadRegistryContext roadRegistryContext,
+        ILoggerFactory loggerFactory,
+        TicketingBehavior ticketingBehavior = TicketingBehavior.All)
+        : base(options, retryPolicy, ticketing, idempotentCommandHandler, roadRegistryContext, loggerFactory, ticketingBehavior)
     {
     }
 

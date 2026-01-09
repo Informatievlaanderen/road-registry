@@ -11,6 +11,7 @@ namespace RoadRegistry.Hosts
     using Editor.Schema;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
+    using RoadRegistry.Infrastructure;
 
     public class OrganizationCache : IOrganizationCache
     {
@@ -33,7 +34,7 @@ namespace RoadRegistry.Hosts
         {
             if (OrganizationId.IsSystemValue(organizationId))
             {
-                var translation = Organization.PredefinedTranslations.FromSystemValue(organizationId);
+                var translation = OrganizationName.PredefinedTranslations.FromSystemValue(organizationId);
 
                 return new OrganizationDetail
                 {

@@ -11,13 +11,13 @@ using ModifyGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.ModifyGrad
 using ModifyRoadNode = RoadRegistry.BackOffice.Messages.ModifyRoadNode;
 using ModifyRoadSegment = RoadRegistry.BackOffice.Messages.ModifyRoadSegment;
 using Point = RoadRegistry.BackOffice.Messages.Point;
-using Problem = RoadRegistry.BackOffice.Messages.Problem;
-using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
-using ProblemSeverity = RoadRegistry.BackOffice.Messages.ProblemSeverity;
+using Problem = RoadRegistry.Infrastructure.Messages.Problem;
+using ProblemParameter = RoadRegistry.Infrastructure.Messages.ProblemParameter;
+using ProblemSeverity = RoadRegistry.Infrastructure.Messages.ProblemSeverity;
 using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
-using RequestedRoadSegmentEuropeanRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentEuropeanRoadAttribute;
-using RequestedRoadSegmentNationalRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentNationalRoadAttribute;
-using RequestedRoadSegmentNumberedRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentNumberedRoadAttribute;
+using RequestedRoadSegmentEuropeanRoadAttribute = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.RequestedRoadSegmentEuropeanRoadAttribute;
+using RequestedRoadSegmentNationalRoadAttribute = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.RequestedRoadSegmentNationalRoadAttribute;
+using RequestedRoadSegmentNumberedRoadAttribute = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.RequestedRoadSegmentNumberedRoadAttribute;
 
 public class ModifyTheNonExisting : RoadRegistryTestBase
 {

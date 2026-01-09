@@ -10,17 +10,17 @@ public class Organization : EventSourcedEntity
 
     private Organization()
     {
-        On<ImportedOrganization>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name)));
+        On<ImportedOrganization>(e => Translation = new OrganizationName.DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name)));
         On<CreateOrganizationAccepted>(e =>
         {
-            Translation = new DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name));
+            Translation = new OrganizationName.DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name));
             OvoCode = OrganizationOvoCode.FromValue(e.OvoCode);
             KboNumber = OrganizationKboNumber.FromValue(e.KboNumber);
         });
-        On<RenameOrganizationAccepted>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name)));
+        On<RenameOrganizationAccepted>(e => Translation = new OrganizationName.DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name)));
         On<ChangeOrganizationAccepted>(e =>
         {
-            Translation = new DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name));
+            Translation = new OrganizationName.DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name));
             OvoCode = OrganizationOvoCode.FromValue(e.OvoCode);
             KboNumber = OrganizationKboNumber.FromValue(e.KboNumber);
             IsMaintainer = e.IsMaintainer;
@@ -31,38 +31,12 @@ public class Organization : EventSourcedEntity
         });
     }
 
-    public DutchTranslation Translation { get; private set; }
+    public OrganizationName.DutchTranslation Translation { get; private set; }
     public OrganizationOvoCode? OvoCode { get; private set; }
     public OrganizationKboNumber? KboNumber { get; private set; }
     public bool IsMaintainer { get; private set; }
 
     public bool IsRemoved { get; private set; }
-
-    public class DutchTranslation
-    {
-        internal DutchTranslation(OrganizationId identifier, OrganizationName name)
-        {
-            Identifier = identifier;
-            Name = name;
-        }
-
-        public OrganizationId Identifier { get; }
-        public OrganizationName Name { get; }
-    }
-
-    public static class PredefinedTranslations
-    {
-        public static readonly DutchTranslation Other = new(OrganizationId.Other, new OrganizationName("andere"));
-        public static readonly DutchTranslation Unknown = new(OrganizationId.Unknown, new OrganizationName("niet gekend"));
-        public static readonly DutchTranslation[] All = [Other, Unknown];
-
-        public static DutchTranslation FromSystemValue(OrganizationId organizationId)
-        {
-            return organizationId == OrganizationId.Other
-                ? Other
-                : Unknown;
-        }
-    }
 
     public void Rename(OrganizationName name)
     {
@@ -101,11 +75,11 @@ public class Organization : EventSourcedEntity
         });
     }
 
-    public static DutchTranslation ToDutchTranslation(Organization organization, OrganizationId organizationId)
+    public static OrganizationName.DutchTranslation ToDutchTranslation(Organization organization, OrganizationId organizationId)
     {
         if (organization is null)
         {
-            return PredefinedTranslations.FromSystemValue(organizationId);
+            return OrganizationName.PredefinedTranslations.FromSystemValue(organizationId);
         }
 
         // Can only be enabled once the OVO-code is leading instead of classic OrganizationId.

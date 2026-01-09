@@ -4,10 +4,10 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
-using Extracts.Dbase.RoadNodes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Product.Schema;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
 
 public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<ProductContext>
 {

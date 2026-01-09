@@ -1,9 +1,11 @@
 namespace RoadRegistry.Tests
 {
     using System.Runtime.CompilerServices;
-    using RoadRegistry.BackOffice;
+    using RoadNetwork;
+        using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
     using RoadRegistry.BackOffice.Messages;
+    using ScopedRoadNetwork;
 
     public class FakeRoadNetworkIdGenerator: IRoadNetworkIdGenerator
     {
@@ -42,52 +44,93 @@ namespace RoadRegistry.Tests
             }
         }
 
-        public Task<AttributeId> NewEuropeanRoadAttributeId()
+        public AttributeId NewEuropeanRoadAttributeId()
+        {
+            return new AttributeId(GetNextValue());
+        }
+        public Task<AttributeId> NewEuropeanRoadAttributeIdAsync()
         {
             return Task.FromResult(new AttributeId(GetNextValue()));
         }
 
-        public Task<GradeSeparatedJunctionId> NewGradeSeparatedJunctionId()
+        public GradeSeparatedJunctionId NewGradeSeparatedJunctionId()
+        {
+            return new GradeSeparatedJunctionId(GetNextValue());
+        }
+        public Task<GradeSeparatedJunctionId> NewGradeSeparatedJunctionIdAsync()
         {
             return Task.FromResult(new GradeSeparatedJunctionId(GetNextValue()));
         }
 
-        public Task<AttributeId> NewNationalRoadAttributeId()
+        public AttributeId NewNationalRoadAttributeId()
+        {
+            return new AttributeId(GetNextValue());
+        }
+        public Task<AttributeId> NewNationalRoadAttributeIdAsync()
         {
             return Task.FromResult(new AttributeId(GetNextValue()));
         }
 
-        public Task<AttributeId> NewNumberedRoadAttributeId()
+        public AttributeId NewNumberedRoadAttributeId()
+        {
+            return new AttributeId(GetNextValue());
+        }
+        public Task<AttributeId> NewNumberedRoadAttributeIdAsync()
         {
             return Task.FromResult(new AttributeId(GetNextValue()));
         }
 
-        public Task<RoadNodeId> NewRoadNodeId()
+        public RoadNodeId NewRoadNodeId()
+        {
+            return new RoadNodeId(GetNextValue());
+        }
+        public Task<RoadNodeId> NewRoadNodeIdAsync()
         {
             return Task.FromResult(new RoadNodeId(GetNextValue()));
         }
 
-        public Task<RoadSegmentId> NewRoadSegmentId()
+        public RoadSegmentId NewRoadSegmentId()
+        {
+            return new RoadSegmentId(GetNextValue());
+        }
+        public Task<RoadSegmentId> NewRoadSegmentIdAsync()
         {
             return Task.FromResult(new RoadSegmentId(GetNextValue()));
         }
 
-        public Task<AttributeId> NewRoadSegmentLaneAttributeId()
+        public AttributeId NewRoadSegmentLaneAttributeId()
+        {
+            return new AttributeId(GetNextValue());
+        }
+        public Task<AttributeId> NewRoadSegmentLaneAttributeIdAsync()
         {
             return Task.FromResult(new AttributeId(GetNextValue()));
         }
 
-        public Task<AttributeId> NewRoadSegmentSurfaceAttributeId()
+        public AttributeId NewRoadSegmentSurfaceAttributeId()
+        {
+            return new AttributeId(GetNextValue());
+        }
+        public Task<AttributeId> NewRoadSegmentSurfaceAttributeIdAsync()
         {
             return Task.FromResult(new AttributeId(GetNextValue()));
         }
 
-        public Task<AttributeId> NewRoadSegmentWidthAttributeId()
+        public AttributeId NewRoadSegmentWidthAttributeId()
+        {
+            return new AttributeId(GetNextValue());
+        }
+
+        public Task<AttributeId> NewRoadSegmentWidthAttributeIdAsync()
         {
             return Task.FromResult(new AttributeId(GetNextValue()));
         }
 
-        public Task<TransactionId> NewTransactionId()
+        public TransactionId NewTransactionId()
+        {
+            return new TransactionId(GetNextValue());
+        }
+        public Task<TransactionId> NewTransactionIdAsync()
         {
             return Task.FromResult(new TransactionId(GetNextValue()));
         }
@@ -101,7 +144,7 @@ namespace RoadRegistry.Tests
             if (givenTransactionIds.Any())
             {
                 var maxTransactionId = givenTransactionIds.Max();
-                SetCurrentValue(nameof(NewTransactionId), maxTransactionId);
+                SetCurrentValue(nameof(NewTransactionIdAsync), maxTransactionId);
             }
 
             foreach (var roadNetworkChangesAccepted in events.OfType<RoadNetworkChangesAccepted>())
@@ -111,52 +154,52 @@ namespace RoadRegistry.Tests
                     switch (change)
                     {
                         case ImportedRoadNode roadNode:
-                            SetNextValueIfGreaterThanCurrent(nameof(NewRoadNodeId), roadNode.Id);
+                            SetNextValueIfGreaterThanCurrent(nameof(NewRoadNodeIdAsync), roadNode.Id);
                             break;
                         case RoadNodeAdded roadNode:
-                            SetNextValueIfGreaterThanCurrent(nameof(NewRoadNodeId), roadNode.Id);
+                            SetNextValueIfGreaterThanCurrent(nameof(NewRoadNodeIdAsync), roadNode.Id);
                             break;
                         case ImportedRoadSegment roadSegment:
-                            SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentId), roadSegment.Id);
+                            SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentIdAsync), roadSegment.Id);
                             foreach (var lane  in roadSegment.Lanes)
                             {
-                                SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentLaneAttributeId), lane.AttributeId);
+                                SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentLaneAttributeIdAsync), lane.AttributeId);
                             }
                             foreach (var surface  in roadSegment.Surfaces)
                             {
-                                SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentSurfaceAttributeId), surface.AttributeId);
+                                SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentSurfaceAttributeIdAsync), surface.AttributeId);
                             }
                             foreach (var width  in roadSegment.Widths)
                             {
-                                SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentWidthAttributeId), width.AttributeId);
+                                SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentWidthAttributeIdAsync), width.AttributeId);
                             }
                             break;
                         case RoadSegmentAdded roadSegment:
-                            SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentId), roadSegment.Id);
+                            SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentIdAsync), roadSegment.Id);
                             foreach (var lane  in roadSegment.Lanes)
                             {
-                                SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentLaneAttributeId), lane.AttributeId);
+                                SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentLaneAttributeIdAsync), lane.AttributeId);
                             }
                             foreach (var surface  in roadSegment.Surfaces)
                             {
-                                SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentSurfaceAttributeId), surface.AttributeId);
+                                SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentSurfaceAttributeIdAsync), surface.AttributeId);
                             }
                             foreach (var width  in roadSegment.Widths)
                             {
-                                SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentWidthAttributeId), width.AttributeId);
+                                SetNextValueIfGreaterThanCurrent(nameof(NewRoadSegmentWidthAttributeIdAsync), width.AttributeId);
                             }
                             break;
                         case RoadSegmentAddedToEuropeanRoad europeanRoad:
-                            SetNextValueIfGreaterThanCurrent(nameof(NewEuropeanRoadAttributeId), europeanRoad.AttributeId);
+                            SetNextValueIfGreaterThanCurrent(nameof(NewEuropeanRoadAttributeIdAsync), europeanRoad.AttributeId);
                             break;
                         case RoadSegmentAddedToNationalRoad nationalRoad:
-                            SetNextValueIfGreaterThanCurrent(nameof(NewNationalRoadAttributeId), nationalRoad.AttributeId);
+                            SetNextValueIfGreaterThanCurrent(nameof(NewNationalRoadAttributeIdAsync), nationalRoad.AttributeId);
                             break;
                         case RoadSegmentAddedToNumberedRoad numberedRoad:
-                            SetNextValueIfGreaterThanCurrent(nameof(NewNumberedRoadAttributeId), numberedRoad.AttributeId);
+                            SetNextValueIfGreaterThanCurrent(nameof(NewNumberedRoadAttributeIdAsync), numberedRoad.AttributeId);
                             break;
                         case GradeSeparatedJunctionAdded gradeSeparatedJunction:
-                            SetNextValueIfGreaterThanCurrent(nameof(NewGradeSeparatedJunctionId), gradeSeparatedJunction.Id);
+                            SetNextValueIfGreaterThanCurrent(nameof(NewGradeSeparatedJunctionIdAsync), gradeSeparatedJunction.Id);
                             break;
                     }
                 }

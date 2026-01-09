@@ -1,9 +1,9 @@
 namespace RoadRegistry.Editor.Schema.RoadSegments;
 
 using BackOffice;
-using BackOffice.Extracts.Dbase.RoadSegments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
 
 public class RoadSegmentWidthAttributeConfiguration : IEntityTypeConfiguration<RoadSegmentWidthAttributeRecord>
 {

@@ -2,10 +2,10 @@ namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
 using System.Collections.Generic;
 using System.Linq;
-using BackOffice.Core;
 using BackOffice.Exceptions;
-using RoadRegistry.BackOffice.Extensions;
+using RoadRegistry.Infrastructure;
 using TicketingService.Abstractions;
+using ValueObjects.Problems;
 
 public static class ExceptionExtensions
 {
@@ -22,25 +22,19 @@ public static class ExceptionExtensions
         );
     }
 
-    public static TicketError ToTicketError(this RoadSegmentsProblemsException exception)
-    {
-        return new TicketError(exception.RoadSegmentsProblems
-            .SelectMany(x =>
-            {
-                var errorContext = new Dictionary<string, object>
-                {
-                    { "WegsegmentId", x.Key.ToInt32() }
-                };
-
-                return x.Value.Select(problem => problem.ToTicketError(errorContext));
-            })
-            .ToArray()
-        );
-    }
-
-    public static TicketError ToTicketError(this Problem problem, Dictionary<string, object> errorContext = null)
+    public static TicketError ToTicketError(this Problem problem)
     {
         var translation = problem.TranslateToDutch();
-        return new TicketError(translation.Message, translation.Code, errorContext ?? []);
+
+        var errorContext = new Dictionary<string, object>();
+        if (problem.Context is not null)
+        {
+            foreach (var parameter in problem.Context.Parameters)
+            {
+                errorContext.Add(parameter.Name, parameter.Value);
+            }
+        }
+
+        return new TicketError(translation.Message, translation.Code, errorContext);
     }
 }

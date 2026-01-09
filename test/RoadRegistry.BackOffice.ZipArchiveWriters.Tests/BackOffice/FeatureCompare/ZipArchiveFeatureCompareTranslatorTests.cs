@@ -22,9 +22,12 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
     using RoadRegistry.BackOffice.FeatureCompare;
     using RoadRegistry.BackOffice.FeatureCompare.V1;
     using RoadRegistry.BackOffice.FeatureCompare.V1.Readers;
+    using RoadRegistry.Extensions;
+    using RoadRegistry.Extracts;
+    using RoadRegistry.Extracts.Uploads;
     using RoadRegistry.Tests.BackOffice.Scenarios;
     using Uploads;
-    using Xunit.Abstractions;
+        using Xunit.Abstractions;
 
     public class ZipArchiveFeatureCompareTranslatorTests
     {
@@ -33,6 +36,39 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
         public ZipArchiveFeatureCompareTranslatorTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
+        }
+
+        //[Fact]
+        [Fact(Skip = "For debugging purposes, run feature compare v3 on a local archive")]
+        public async Task RunFeatureCompareV3()
+        {
+            var path = @"C:\Users\RikDePeuter\Downloads\be5bf26d75e4414fb32243f0565a9cdb.zip";
+
+            var loggerFactory = new LoggerFactory([new XUnitLoggerProvider(_outputHelper, new XUnitLoggerOptions())]);
+
+            var translator = ZipArchiveFeatureCompareTranslatorV3Builder.Create(loggerFactory: loggerFactory);
+
+            var sw = Stopwatch.StartNew();
+            try
+            {
+                using (var fileStream = File.OpenRead(path))
+                {
+                    var archive = new ZipArchive(fileStream);
+
+                    await translator.TranslateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
+                }
+            }
+            catch (ZipArchiveValidationException ex)
+            {
+                foreach (var problem in ex.Problems)
+                {
+                    _outputHelper.WriteLine(problem.Describe());
+                }
+
+                throw;
+            }
+
+            _outputHelper.WriteLine($"Duration: {sw.Elapsed}");
         }
 
         //[Fact]
@@ -198,7 +234,6 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                     var zipArchiveWriterVersion = writer.Key;
 
                     var request = new RoadNetworkExtractAssemblyRequest(
-                        fixture.Create<ExternalExtractRequestId>(),
                         fixture.Create<DownloadId>(),
                         fixture.Create<ExtractDescription>(),
                         transactionZoneGeometry,

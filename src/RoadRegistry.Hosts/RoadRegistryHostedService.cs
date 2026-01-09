@@ -3,6 +3,7 @@ namespace RoadRegistry.Hosts;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 

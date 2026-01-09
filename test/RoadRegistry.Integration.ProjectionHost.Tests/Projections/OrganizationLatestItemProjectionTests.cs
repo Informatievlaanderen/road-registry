@@ -21,7 +21,7 @@ public class OrganizationLatestItemProjectionTests
         var clock = new FakeClock(instant);
         _eventEnricher = EnrichEvent.WithTime(clock);
 
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeOrganizationId();
         _fixture.CustomizeOrganizationName();
         _fixture.CustomizeOrganizationOvoCode();

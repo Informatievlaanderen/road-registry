@@ -2,8 +2,8 @@ namespace RoadRegistry.Jobs.Processor.Tests
 {
     using AutoFixture;
     using BackOffice;
-    using BackOffice.Abstractions.Extracts;
     using BackOffice.Abstractions.Jobs;
+    using BackOffice.FeatureToggles;
     using BackOffice.Handlers.Sqs.Extracts;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -11,7 +11,6 @@ namespace RoadRegistry.Jobs.Processor.Tests
     using FluentAssertions;
     using Infrastructure.Options;
     using MediatR;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
@@ -101,10 +100,10 @@ namespace RoadRegistry.Jobs.Processor.Tests
             blobMetadataFilename.Value.Should().Be(blobFileName);
 
             var executedRequest = Assert.IsType<UploadExtractSqsRequest>(mockMediator.Invocations.Single().Arguments.First());
-            executedRequest.Request.TicketId.Should().Be(ticketId);
-            executedRequest.Request.DownloadId.Should().Be(downloadId);
+            executedRequest.TicketId.Should().Be(ticketId);
+            executedRequest.DownloadId.ToGuid().Should().Be(downloadId);
             executedRequest.ProvenanceData!.Operator.Should().Be(job.OperatorName);
-            createBlobInvocation.Arguments.OfType<BlobName>().Single().ToString().Should().Be(new UploadId(executedRequest.Request.UploadId).ToString());
+            createBlobInvocation.Arguments.OfType<BlobName>().Single().ToString().Should().Be(executedRequest.UploadId.ToString());
 
             mockIHostApplicationLifeTime.Verify(x => x.StopApplication(), Times.Once);
         }

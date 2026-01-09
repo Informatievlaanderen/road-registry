@@ -15,7 +15,7 @@ public class AttributeHashTests
 
     public AttributeHashTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeRoadSegmentCategory();
         _fixture.CustomizeRoadSegmentMorphology();
         _fixture.CustomizeRoadSegmentStatus();
@@ -66,7 +66,7 @@ public class AttributeHashTests
         var right = sut.With(value2);
         Assert.NotEqual(left, right);
     }
-    
+
     [Fact]
     public void DiffersWhenLeftSideDiffers()
     {
@@ -123,7 +123,7 @@ public class AttributeHashTests
         var right = sut.With(value2);
         Assert.NotEqual(left, right);
     }
-    
+
     [Fact]
     public void ToStringReturnsExpectedResult()
     {

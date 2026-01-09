@@ -85,6 +85,12 @@ namespace RoadRegistry.Extracts.Schema.Migrations
                     b.Property<DateTimeOffset?>("UploadedOn")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("ZipArchiveWriterVersion")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("V2");
+
                     b.HasKey("DownloadId");
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("DownloadId"));
@@ -122,6 +128,35 @@ namespace RoadRegistry.Extracts.Schema.Migrations
                     b.HasIndex("CurrentDownloadId");
 
                     b.ToTable("ExtractRequests", "RoadRegistryExtracts");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Extracts.Schema.Inwinningszone", b =>
+                {
+                    b.Property<string>("NisCode")
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<bool>("Completed")
+                        .HasColumnType("bit");
+
+                    b.Property<Geometry>("Contour")
+                        .IsRequired()
+                        .HasColumnType("Geometry");
+
+                    b.Property<Guid>("DownloadId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Operator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("NisCode");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("NisCode"));
+
+                    b.HasIndex("NisCode");
+
+                    b.ToTable("Inwinningszones", "RoadRegistryExtracts");
                 });
 #pragma warning restore 612, 618
         }

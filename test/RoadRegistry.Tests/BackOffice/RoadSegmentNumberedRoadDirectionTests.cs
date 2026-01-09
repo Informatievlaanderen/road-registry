@@ -12,7 +12,7 @@ public class RoadSegmentNumberedRoadDirectionTests
 
     public RoadSegmentNumberedRoadDirectionTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _knownValues = Array.ConvertAll(RoadSegmentNumberedRoadDirection.All, type => type.ToString());
     }
 

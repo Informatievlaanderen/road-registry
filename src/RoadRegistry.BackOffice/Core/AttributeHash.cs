@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Core;
 
 using System;
 using System.Diagnostics.Contracts;
+using RoadRegistry.BackOffice;
 
 public readonly struct AttributeHash : IEquatable<AttributeHash>
 {

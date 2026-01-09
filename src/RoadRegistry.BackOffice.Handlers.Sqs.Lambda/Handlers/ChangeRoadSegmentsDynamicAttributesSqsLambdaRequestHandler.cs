@@ -14,8 +14,13 @@ using Infrastructure;
 using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using NetTopologySuite.Geometries;
 using Requests;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Infrastructure;
 using TicketingService.Abstractions;
+using ValueObjects.Problems;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
@@ -62,20 +67,20 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
                 var recordNumber = RecordNumber.Initial;
                 var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 
-                var roadSegmentsProblems = new Dictionary<RoadSegmentId, Problems>();
+                var problems = Problems.None;
 
                 foreach (var change in request.Request.ChangeRequests)
                 {
-                    (translatedChanges, var problems, recordNumber) = await AppendChange(change, attributeIdProvider, translatedChanges, recordNumber, cancellationToken);
-                    if (problems.Any())
+                    (translatedChanges, var segmentProblems, recordNumber) = await AppendChange(change, attributeIdProvider, translatedChanges, recordNumber, cancellationToken);
+                    if (segmentProblems.Any())
                     {
-                        roadSegmentsProblems.Add(change.Id, problems);
+                        problems += segmentProblems;
                     }
                 }
 
-                if (roadSegmentsProblems.Any())
+                if (problems.Any())
                 {
-                    throw new RoadSegmentsProblemsException(roadSegmentsProblems);
+                    throw new RoadRegistryProblemsException(problems);
                 }
 
                 return translatedChanges;
@@ -93,12 +98,12 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
         CancellationToken cancellationToken)
     {
         var roadSegmentId = new RoadSegmentId(change.Id);
-        var problems = Problems.None;
+        var problems = Problems.For(roadSegmentId);
 
         var editorRoadSegment = await _editorContext.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == change.Id, cancellationToken);
         if (editorRoadSegment is null)
         {
-            problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
+            problems += new RoadSegmentNotFound(roadSegmentId);
             return (translatedChanges, problems, recordNumber);
         }
 
@@ -107,7 +112,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
         var networkRoadSegment = await RoadRegistryContext.RoadNetworks.FindRoadSegment(roadSegmentId, geometryDrawMethod, cancellationToken);
         if (networkRoadSegment is null)
         {
-            problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
+            problems += new RoadSegmentNotFound(roadSegmentId);
             return (translatedChanges, problems, recordNumber);
         }
 

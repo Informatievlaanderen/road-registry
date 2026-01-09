@@ -12,7 +12,7 @@ public class RoadSegmentLaneCountTests
 
     public RoadSegmentLaneCountTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeRoadSegmentLaneCount();
     }
 

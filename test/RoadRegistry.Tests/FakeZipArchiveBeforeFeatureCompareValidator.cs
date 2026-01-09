@@ -1,6 +1,7 @@
 namespace RoadRegistry.Tests;
 
 using System.IO.Compression;
+using Extracts.Uploads;
 using RoadRegistry.BackOffice.FeatureCompare;
 using RoadRegistry.BackOffice.Uploads;
 

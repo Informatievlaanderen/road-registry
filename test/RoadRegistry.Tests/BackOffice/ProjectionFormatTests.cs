@@ -2,6 +2,7 @@ namespace RoadRegistry.Tests.BackOffice;
 
 using System.Text;
 using RoadRegistry.BackOffice;
+using RoadRegistry.Extracts;
 
 public class ProjectionFormatTests
 {

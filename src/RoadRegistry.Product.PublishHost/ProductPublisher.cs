@@ -16,6 +16,8 @@ namespace RoadRegistry.Product.PublishHost
     using BackOffice.ZipArchiveWriters.ForProduct;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using CloudStorageClients;
+    using Extracts;
+    using Extracts.Infrastructure.Extensions;
     using HttpClients;
     using Infrastructure;
     using Infrastructure.Configurations;
@@ -23,6 +25,7 @@ namespace RoadRegistry.Product.PublishHost
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Microsoft.IO;
+    using RoadRegistry.Infrastructure;
     using Schema;
 
     public class ProductPublisher

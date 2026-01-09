@@ -12,7 +12,7 @@ public class DownloadIdTests
 
     public DownloadIdTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeArchiveId();
     }
 

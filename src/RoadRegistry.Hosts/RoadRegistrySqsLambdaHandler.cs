@@ -5,18 +5,19 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
-using BackOffice.Core;
 using BackOffice.Exceptions;
-using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
+using CommandHandling;
 using FluentValidation;
 using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Infrastructure;
 using TicketingService.Abstractions;
+using ValueObjects.Problems;
 
 public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambdaHandlerBase<TSqsLambdaRequest>
     where TSqsLambdaRequest : SqsLambdaRequest
@@ -27,8 +28,28 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        ILogger logger)
-        : base(retryPolicy, ticketing, idempotentCommandHandler)
+        ILoggerFactory loggerFactory,
+        TicketingBehavior ticketingBehavior = TicketingBehavior.All)
+        : base(retryPolicy, ticketing, idempotentCommandHandler, ticketingBehavior)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(roadRegistryContext);
+        ArgumentNullException.ThrowIfNull(loggerFactory);
+
+        RoadRegistryContext = roadRegistryContext;
+        DetailUrlFormat = options.DetailUrl;
+        Logger = loggerFactory.CreateLogger(GetType());
+    }
+
+    protected RoadRegistrySqsLambdaHandler(
+        SqsLambdaHandlerOptions options,
+        ICustomRetryPolicy retryPolicy,
+        ITicketing ticketing,
+        IIdempotentCommandHandler idempotentCommandHandler,
+        IRoadRegistryContext roadRegistryContext,
+        ILogger logger,
+        TicketingBehavior ticketingBehavior = TicketingBehavior.All)
+        : base(retryPolicy, ticketing, idempotentCommandHandler, ticketingBehavior)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(roadRegistryContext);
@@ -70,7 +91,6 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
         {
             RoadRegistryValidationException validationException => validationException.ToTicketError(),
             RoadRegistryProblemsException problemsException => problemsException.ToTicketError(),
-            RoadSegmentsProblemsException problemsException => problemsException.ToTicketError(),
             _ => null
         };
 

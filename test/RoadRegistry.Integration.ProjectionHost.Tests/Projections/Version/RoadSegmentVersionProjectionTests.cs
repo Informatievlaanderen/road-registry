@@ -86,7 +86,6 @@ public partial class RoadSegmentVersionProjectionTests
             .Expect();
     }
 
-
     [Fact]
     public Task WhenRoadSegmentsStreetNamesChanged()
     {

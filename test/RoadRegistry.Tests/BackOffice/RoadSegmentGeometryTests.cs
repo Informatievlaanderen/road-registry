@@ -1,13 +1,17 @@
 ﻿namespace RoadRegistry.Tests.BackOffice;
 
 using AutoFixture;
+using Extensions;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using RoadNetwork;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
+using RoadSegment;
 using Scenarios;
+using ValueObjects.Problems;
 
 public class RoadSegmentGeometryTests
 {
@@ -23,7 +27,7 @@ public class RoadSegmentGeometryTests
     {
         var geometry = GeometryTranslator.Translate(_fixture.Create<RoadSegmentGeometry>()).GetSingleLineString();
 
-        var problems = geometry.GetProblemsForRoadSegmentGeometry(_fixture.Create<RoadSegmentId>(), VerificationContextTolerances.Default);
+        var problems = geometry.ValidateRoadSegmentGeometry(_fixture.Create<RoadSegmentId>());
         problems.Should().BeEmpty();
     }
 
@@ -33,7 +37,7 @@ public class RoadSegmentGeometryTests
     {
         var geometry = new WKTReader().Read(wkt).ToMultiLineString().GetSingleLineString();
 
-        var problems = geometry.GetProblemsForRoadSegmentGeometry(_fixture.Create<RoadSegmentId>(), VerificationContextTolerances.Default);
+        var problems = geometry.ValidateRoadSegmentGeometry(_fixture.Create<RoadSegmentId>());
         problems.Should().ContainItemsAssignableTo<RoadSegmentGeometrySelfOverlaps>();
     }
 }

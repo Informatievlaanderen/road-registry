@@ -16,7 +16,7 @@
      public async Task WhenOverlap_ThenReturnExpectedResult()
      {
          // Arrange
-         var fixture = new Fixture();
+         var fixture = FixtureFactory.Create();
          await using var editorContext = BuildEditorContext();
 
          var downloadId1 = Guid.NewGuid();
@@ -49,7 +49,7 @@
      public async Task WhenOverlapWithInformativeExtract_ThenReturnExpectedResult()
      {
          // Arrange
-         var fixture = new Fixture();
+         var fixture = FixtureFactory.Create();
          await using var editorContext = BuildEditorContext();
 
          var downloadId1 = Guid.NewGuid();
@@ -92,7 +92,7 @@
      public async Task WhenNoOverlap_ThenNone()
      {
          // Arrange
-         var fixture = new Fixture();
+         var fixture = FixtureFactory.Create();
          await using var editorContext = BuildEditorContext();
 
          editorContext.ExtractRequests.Add(new ExtractRequestRecord
@@ -122,7 +122,7 @@
      public async Task WhenOverlapOnlyOnTheBorder_ThenNone()
      {
          // Arrange
-         var fixture = new Fixture();
+         var fixture = FixtureFactory.Create();
          await using var editorContext = BuildEditorContext();
 
          editorContext.ExtractRequests.Add(new ExtractRequestRecord

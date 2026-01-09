@@ -1,9 +1,13 @@
 namespace RoadRegistry.Tests.BackOffice;
 
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Core.ProblemCodes;
 using RoadRegistry.BackOffice.DutchTranslations;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Infrastructure.DutchTranslations;
+using RoadRegistry.Infrastructure.Messages;
+using ValueObjects.ProblemCodes;
+using ProblemSeverity = RoadRegistry.Infrastructure.Messages.ProblemSeverity;
 
 public class ProblemTranslatorTests
 {
@@ -134,6 +138,22 @@ public class ProblemTranslatorTests
                     new ProblemParameter("SegmentId", "1")
                 ]
             },
+            {
+                ProblemCode.GradeSeparatedJunction.LowerSegmentMissing, [
+                    new ProblemParameter("RoadSegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.GradeSeparatedJunction.UpperSegmentMissing, [
+                    new ProblemParameter("RoadSegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.GradeSeparatedJunction.UpperAndLowerDoNotIntersect, [
+                    new ProblemParameter("UpperRoadSegmentId", "1"),
+                    new ProblemParameter("LowerRoadSegmentId", "2")
+                ]
+            },
         };
 
         var allValues = ProblemCode.GetValues();
@@ -163,9 +183,14 @@ public class ProblemTranslatorTests
             }
             catch(Exception ex)
             {
-                _testOutputHelper.WriteLine($"Failed trying to translate problem {problemCode}: {ex.Message}");
+                _testOutputHelper.WriteLine($"Failed trying to translate problem {problemCode}: {ex}");
                 invalidProblemCodes.Add(problemCode);
             }
+        }
+
+        foreach (var problemCode in invalidProblemCodes.OrderBy(x => x.ToString()))
+        {
+            _testOutputHelper.WriteLine($"Missing translation: {problemCode}");
         }
 
         Assert.Empty(invalidProblemCodes);

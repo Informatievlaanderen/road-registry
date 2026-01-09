@@ -5,8 +5,8 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Editor.Schema;
-using Extracts.Dbase.Organizations;
 using Framework.Containers;
+using RoadRegistry.Extracts.Schemas.ExtractV1.Organizations;
 using ZipArchiveWriters.ForEditor;
 
 [Collection(nameof(SqlServerCollection))]
@@ -60,7 +60,7 @@ public class OrganizationsToZipArchiveWriterTests
                                     new DbaseFileHeader(
                                         DateTime.Now,
                                         DbaseCodePage.Western_European_ANSI,
-                                        new DbaseRecordCount(0 + Organization.PredefinedTranslations.All.Length),
+                                        new DbaseRecordCount(0 + OrganizationName.PredefinedTranslations.All.Length),
                                         OrganizationDbaseRecord.Schema),
                                     DbaseFileHeader.Read(reader));
                             }

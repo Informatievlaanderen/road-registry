@@ -22,7 +22,7 @@ public class RoadSegmentRecordProjectionTests
     {
         _testDataHelper = new TestDataHelper();
 
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeArchiveId();
         _fixture.CustomizeAttributeId();
         _fixture.CustomizeRoadSegmentId();
@@ -574,6 +574,7 @@ public class RoadSegmentRecordProjectionTests
         acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded.RightSide = acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded.LeftSide;
 
         var streetNameModified = _fixture.Create<StreetNameModified>();
+        streetNameModified.NameModified = true;
 
         var messages = new object[]
         {

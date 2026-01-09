@@ -13,6 +13,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
     using Hosts;
     using Hosts.Infrastructure.Extensions;
     using Hosts.Metadata;
+    using Infrastructure;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;

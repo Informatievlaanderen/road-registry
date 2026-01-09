@@ -19,7 +19,7 @@ public class RoadSegmentTests
 
     public RoadSegmentTests()
     {
-        var fixture = new Fixture();
+        var fixture = FixtureFactory.Create();
         fixture.CustomizePolylineM();
         fixture.CustomizeRoadNodeId();
         fixture.CustomizeRoadSegmentId();

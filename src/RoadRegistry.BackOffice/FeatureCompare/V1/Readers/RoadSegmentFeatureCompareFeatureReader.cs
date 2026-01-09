@@ -8,9 +8,15 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts;
-using Extracts.Dbase.RoadSegments;
 using Models;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.Infrastructure;
+using RoadSegment;
 using ShapeFile;
 using ShapeFile.V1;
 using Translators;
@@ -116,7 +122,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                             {
                                 var line = lines[0];
 
-                                var lineProblems = line.GetProblemsForRoadSegmentGeometry(features[index].Attributes.Id, context.Tolerances);
+                                var lineProblems = line.ValidateRoadSegmentGeometry(features[index].Attributes.Id);
 
                                 problems += lineProblems.Select(problem => recordContext
                                     .Error(problem.Reason)
@@ -211,14 +217,14 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         }
     }
 
-    private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareAttributes>>
+    private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<RoadRegistry.Extracts.Schemas.UploadV2.RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord.Schema)
+            : base(encoding, RoadRegistry.Extracts.Schemas.UploadV2.RoadSegmentDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, RoadRegistry.Extracts.Schemas.UploadV2.RoadSegmentDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {

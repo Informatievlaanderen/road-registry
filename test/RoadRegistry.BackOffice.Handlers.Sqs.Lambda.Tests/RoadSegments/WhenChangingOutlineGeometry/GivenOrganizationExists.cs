@@ -16,6 +16,7 @@ using Moq;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Requests;
+using RoadRegistry.Extensions;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;

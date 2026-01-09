@@ -12,7 +12,7 @@ public class RoadSegmentCategoryTests
 
     public RoadSegmentCategoryTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _knownValues = Array.ConvertAll(RoadSegmentCategory.All, type => type.ToString());
     }
 

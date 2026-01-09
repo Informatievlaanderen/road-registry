@@ -5,6 +5,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Extracts;
 using FluentValidation;
 using Infrastructure.Modules;
 using MartinCostello.Logging.XUnit;
@@ -17,6 +18,7 @@ using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
 using NodaTime.Testing;
+using RoadNetwork;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Core;
@@ -27,6 +29,8 @@ using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning.V1;
+using RoadRegistry.Infrastructure;
+using ScopedRoadNetwork;
 using SqlStreamStore;
 
 public abstract class TestStartup

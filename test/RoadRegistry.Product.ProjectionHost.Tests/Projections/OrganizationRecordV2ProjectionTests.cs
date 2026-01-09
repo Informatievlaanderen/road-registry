@@ -14,7 +14,7 @@ public class OrganizationRecordV2ProjectionTests : IClassFixture<ProjectionTestS
 
     public OrganizationRecordV2ProjectionTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeOrganizationId();
         _fixture.CustomizeOrganizationName();
         _fixture.CustomizeOrganizationOvoCode();

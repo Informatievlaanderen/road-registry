@@ -6,8 +6,10 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Extensions;
+using Infrastructure;
 using Moq;
 using ProjectionHost.Projections;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using RoadRegistry.Tests.BackOffice.Uploads;
@@ -966,6 +968,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded.RightSide = acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded.LeftSide;
 
         var streetNameModified = _fixture.Create<StreetNameModified>();
+        streetNameModified.NameModified = true;
 
         var messages = new object[]
         {

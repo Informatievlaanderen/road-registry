@@ -11,7 +11,7 @@ public class RoadSegmentLaneAttributeTests
 
     public RoadSegmentLaneAttributeTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeAttributeId();
         _fixture.CustomizeRoadSegmentLaneCount();
         _fixture.CustomizeRoadSegmentLaneDirection();

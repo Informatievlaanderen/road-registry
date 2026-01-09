@@ -4,8 +4,9 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
-using Extracts.Dbase.RoadNodes;
 using Framework.Containers;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
 using ZipArchiveWriters.ForEditor;
 
 [Collection(nameof(SqlServerCollection))]
@@ -112,7 +113,6 @@ public class RoadNodesToZipArchiveWriterTests
                             }
 
                             break;
-
 
                         default:
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");

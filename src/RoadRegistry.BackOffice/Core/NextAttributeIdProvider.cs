@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Core
 {
+
     public class NextAttributeIdProvider
     {
         private AttributeId _nextValue;

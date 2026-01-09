@@ -1,10 +1,12 @@
 ﻿namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
 using AutoFixture;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using NodaTime;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Infrastructure.Messages;
 
 public class RoadNetworkChangesAcceptedBuilder
 {

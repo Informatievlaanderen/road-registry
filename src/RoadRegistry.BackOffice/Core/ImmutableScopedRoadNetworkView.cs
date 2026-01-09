@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections.Generic;
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public class ImmutableScopedRoadNetworkView : IScopedRoadNetworkView
 {

@@ -1,10 +1,14 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeDynamicAttributes;
 
 using System;
+using CommandHandling;
 using FluentValidation;
+using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Core.ProblemCodes;
 using RoadRegistry.BackOffice.Extensions;
+using RoadRegistry.Extensions;
+using RoadRegistry.Infrastructure;
+using ValueObjects.ProblemCodes;
 
 public class ChangeLaneAttributeParametersValidator : AbstractValidator<ChangeLaneAttributeParameters>
 {

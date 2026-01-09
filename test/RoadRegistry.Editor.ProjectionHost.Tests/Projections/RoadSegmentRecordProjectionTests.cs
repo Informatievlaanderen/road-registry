@@ -3,12 +3,12 @@ namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 using System.Text;
 using AutoFixture;
 using BackOffice;
-using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Projections;
 using Editor.Schema.Extensions;
 using Editor.Schema.RoadSegments;
+using Extracts.Schemas.ExtractV1.RoadSegments;
 using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
 using NodaTime.Testing;
@@ -25,7 +25,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
 
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeArchiveId();
         _fixture.CustomizeAttributeId();
         _fixture.CustomizeRoadSegmentId();

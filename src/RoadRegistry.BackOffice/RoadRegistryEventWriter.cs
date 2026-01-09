@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Framework;
 using Messages;
 using Newtonsoft.Json;
+using RoadRegistry.Extensions;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 

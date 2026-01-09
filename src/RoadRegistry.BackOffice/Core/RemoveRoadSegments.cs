@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
+using ValueObjects.Problems;
 
 public class RemoveRoadSegments : IRequestedChange, IHaveHash
 {

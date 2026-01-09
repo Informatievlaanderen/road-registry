@@ -2,6 +2,7 @@
 
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.Infrastructure;
 
 public class FakeExtractRequests: IExtractRequests
 {

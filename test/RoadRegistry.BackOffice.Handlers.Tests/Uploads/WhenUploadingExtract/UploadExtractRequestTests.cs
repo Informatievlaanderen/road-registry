@@ -17,6 +17,8 @@ using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using Xunit.Abstractions;

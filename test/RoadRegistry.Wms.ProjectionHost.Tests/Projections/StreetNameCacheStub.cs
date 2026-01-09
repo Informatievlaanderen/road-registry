@@ -2,6 +2,7 @@ namespace RoadRegistry.Wms.ProjectionHost.Tests.Projections;
 
 using BackOffice;
 using BackOffice.Abstractions;
+using Infrastructure;
 using RoadRegistry.Sync.StreetNameRegistry.Models;
 using Sync.StreetNameRegistry;
 

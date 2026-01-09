@@ -14,7 +14,7 @@ public class GradeSeparatedJunctionLatestItemProjectionTests
 
     public GradeSeparatedJunctionLatestItemProjectionTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeGradeSeparatedJunctionType();
         _fixture.CustomizeGradeSeparatedJunctionId();
         _fixture.CustomizeRoadSegmentId();
@@ -143,7 +143,7 @@ public class GradeSeparatedJunctionLatestItemProjectionTests
         var acceptedGradeSeparatedJunctionRemoved = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.Create<GradeSeparatedJunctionRemoved>());
-        
+
         var expectedRecords = Array.ConvertAll(acceptedGradeSeparatedJunctionAdded.Changes, change =>
         {
             var junction = change.GradeSeparatedJunctionAdded;

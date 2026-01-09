@@ -13,7 +13,7 @@ public class OrganizationKboNumberTests
 
     public OrganizationKboNumberTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeOrganizationKboNumber();
     }
 
@@ -74,7 +74,7 @@ public class OrganizationKboNumberTests
     [Fact]
     public void VerifyBehavior()
     {
-        var customizedString = new Fixture();
+        var customizedString = FixtureFactory.Create();
         customizedString.Customize<string>(customization =>
             customization.FromFactory(generator =>
                 $"{generator.Next(1, 99999):00000}{generator.Next(1, 99999):00000}"

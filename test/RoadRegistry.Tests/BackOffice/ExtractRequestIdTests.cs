@@ -12,7 +12,7 @@ public class ExtractRequestIdTests
 
     public ExtractRequestIdTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeExtractRequestId();
     }
 

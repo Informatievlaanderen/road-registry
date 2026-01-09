@@ -54,6 +54,7 @@
   <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="Xunit.Abstractions" />
+    <Using Include="RoadRegistry.ValueObjects" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.json" CopyToOutputDirectory="Always" />

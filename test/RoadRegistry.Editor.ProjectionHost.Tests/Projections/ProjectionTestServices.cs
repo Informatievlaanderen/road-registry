@@ -1,6 +1,7 @@
 namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using BackOffice;
+using Extracts;
 using Microsoft.IO;
 
 public class ProjectionTestServices

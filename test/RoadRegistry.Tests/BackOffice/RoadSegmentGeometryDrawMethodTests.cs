@@ -12,7 +12,7 @@ public class RoadSegmentGeometryDrawMethodTests
 
     public RoadSegmentGeometryDrawMethodTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _knownValues = Array.ConvertAll(RoadSegmentGeometryDrawMethod.All, type => type.ToString());
     }
 

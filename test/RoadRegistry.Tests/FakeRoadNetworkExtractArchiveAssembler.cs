@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Tests;
 
+using Extracts;
 using RoadRegistry.BackOffice.Extracts;
 
 public class FakeRoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAssembler

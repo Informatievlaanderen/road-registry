@@ -4,14 +4,14 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Extracts.Schemas.ExtractV1.RoadSegments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Schema;
-using RoadSegmentEuropeanRoadAttributeRecord = BackOffice.Extracts.Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeRecord;
+using RoadSegmentEuropeanRoadAttributeRecord = Extracts.Schemas.ExtractV1.RoadSegments.RoadSegmentEuropeanRoadAttributeRecord;
 
 public class RoadSegmentEuropeanRoadAttributeRecordProjection : ConnectedProjection<ProductContext>
 {

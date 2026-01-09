@@ -17,7 +17,7 @@ public class GivenRoadNetwork : StreetNameEventConsumerTestsBase
         var testData = new RoadNetworkTestData();
         var streetName1LocalId = 1;
         var streetName2LocalId = 2;
-        var streetName1WasRenamed = new StreetNameWasRenamed(string.Empty, streetName1LocalId, streetName2LocalId, new FakeProvenance());
+        var streetName1WasRenamed = new StreetNameWasRenamed(string.Empty, streetName1LocalId, streetName2LocalId, new FakeKafkaProvenance());
 
         var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
         {

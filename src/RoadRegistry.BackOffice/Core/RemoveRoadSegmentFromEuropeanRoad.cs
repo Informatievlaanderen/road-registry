@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
+using RoadRegistry.RoadSegment.ValueObjects;
+using ValueObjects.Problems;
+using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 
 public class RemoveRoadSegmentFromEuropeanRoad : IRequestedChange, IHaveHash
 {
@@ -30,7 +33,7 @@ public class RemoveRoadSegmentFromEuropeanRoad : IRequestedChange, IHaveHash
     public RoadSegmentId SegmentId { get; }
     public RoadSegmentVersion SegmentVersion { get; }
 
-    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(Problem[] warnings)
     {
         yield return new Messages.AcceptedChange
         {

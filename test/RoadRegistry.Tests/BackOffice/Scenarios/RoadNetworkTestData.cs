@@ -3,6 +3,8 @@ namespace RoadRegistry.Tests.BackOffice.Scenarios;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
+using Extensions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NodaTime;
@@ -10,18 +12,19 @@ using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Infrastructure.Messages;
 using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
-using RequestedRoadSegmentEuropeanRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentEuropeanRoadAttribute;
-using RequestedRoadSegmentNationalRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentNationalRoadAttribute;
-using RequestedRoadSegmentNumberedRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentNumberedRoadAttribute;
+using RequestedRoadSegmentEuropeanRoadAttribute = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.RequestedRoadSegmentEuropeanRoadAttribute;
+using RequestedRoadSegmentNationalRoadAttribute = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.RequestedRoadSegmentNationalRoadAttribute;
+using RequestedRoadSegmentNumberedRoadAttribute = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.RequestedRoadSegmentNumberedRoadAttribute;
 
 public class RoadNetworkTestData
 {
     public RoadNetworkTestData(Action<Fixture> customize = null)
     {
-        ObjectProvider = new Fixture();
+        ObjectProvider = FixtureFactory.Create();
         ObjectProvider.CustomizePoint();
         ObjectProvider.CustomizePolylineM();
 
@@ -796,7 +799,7 @@ public class RoadNetworkTestData
     {
         get
         {
-            var fixture = new Fixture();
+            var fixture = FixtureFactory.Create();
             fixture.CustomizeAttributeId();
             fixture.CustomizeRoadSegmentLaneCount();
             fixture.CustomizeRoadSegmentLaneDirection();
@@ -930,7 +933,7 @@ public class RoadNetworkTestData
     {
         get
         {
-            var fixture = new Fixture();
+            var fixture = FixtureFactory.Create();
             fixture.CustomizeAttributeId();
             fixture.CustomizeRoadSegmentSurfaceType();
 
@@ -1059,7 +1062,7 @@ public class RoadNetworkTestData
     {
         get
         {
-            var fixture = new Fixture();
+            var fixture = FixtureFactory.Create();
             fixture.CustomizeAttributeId();
             fixture.CustomizeRoadSegmentWidth();
 

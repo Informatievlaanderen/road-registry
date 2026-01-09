@@ -11,6 +11,7 @@ using Handlers.Uploads;
 using Messages;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using RoadRegistry.Extracts;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using Uploads;

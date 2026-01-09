@@ -1,6 +1,7 @@
 namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using FluentValidation.TestHelper;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
@@ -13,10 +14,10 @@ using AddRoadSegmentToEuropeanRoad = RoadRegistry.BackOffice.Messages.AddRoadSeg
 using AddRoadSegmentToNationalRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNationalRoad;
 using AddRoadSegmentToNumberedRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNumberedRoad;
 using ModifyRoadNode = RoadRegistry.BackOffice.Messages.ModifyRoadNode;
-using RequestedRoadSegmentEuropeanRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentEuropeanRoadAttribute;
+using RequestedRoadSegmentEuropeanRoadAttribute = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.RequestedRoadSegmentEuropeanRoadAttribute;
 using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes;
-using RequestedRoadSegmentNationalRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentNationalRoadAttribute;
-using RequestedRoadSegmentNumberedRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentNumberedRoadAttribute;
+using RequestedRoadSegmentNationalRoadAttribute = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.RequestedRoadSegmentNationalRoadAttribute;
+using RequestedRoadSegmentNumberedRoadAttribute = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.RequestedRoadSegmentNumberedRoadAttribute;
 using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 

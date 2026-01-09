@@ -6,14 +6,19 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.FeatureCompare.V1;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Schemas.ExtractV1.GradeSeparatedJuntions;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using Xunit.Abstractions;
+using RoadSegmentLaneAttribute = Uploads.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = Uploads.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = Uploads.RoadSegmentWidthAttribute;
 
 public class FeaturesReaderTests
 {

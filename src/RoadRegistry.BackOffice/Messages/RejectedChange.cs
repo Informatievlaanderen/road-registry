@@ -1,5 +1,8 @@
 namespace RoadRegistry.BackOffice.Messages;
 
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
+using RoadRegistry.Infrastructure.Messages;
+
 public class RejectedChange
 {
     public AddGradeSeparatedJunction AddGradeSeparatedJunction { get; set; }

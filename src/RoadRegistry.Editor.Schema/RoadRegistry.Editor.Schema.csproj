@@ -28,4 +28,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" />
     <PackageReference Include="NetTopologySuite" />
   </ItemGroup>
+  <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
+  </ItemGroup>
 </Project>

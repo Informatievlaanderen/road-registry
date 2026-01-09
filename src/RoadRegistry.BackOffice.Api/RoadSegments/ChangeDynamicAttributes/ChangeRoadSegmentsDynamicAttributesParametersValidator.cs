@@ -2,11 +2,13 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeDynamicAttributes;
 
 using System.Collections.Generic;
 using System.Linq;
+using CommandHandling;
 using FluentValidation;
 using FluentValidation.Results;
-using RoadRegistry.BackOffice.Core.ProblemCodes;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.Editor.Schema;
+using RoadRegistry.Infrastructure;
+using ValueObjects.ProblemCodes;
 
 public class ChangeRoadSegmentsDynamicAttributesParametersValidator : AbstractValidator<ChangeRoadSegmentsDynamicAttributesParameters>
 {
@@ -44,13 +46,13 @@ public class ChangeRoadSegmentsDynamicAttributesParametersValidator : AbstractVa
                     .ToArray(), context);
                 return true;
             });
-        
+
         RuleForEach(request => request)
             .NotNull()
             .WithProblemCode(ProblemCode.Common.JsonInvalid)
             .SetValidator(new ChangeRoadSegmentDynamicAttributesParametersValidator(context));
     }
-    
+
     private IEnumerable<int> FindRoadSegmentIds(IEnumerable<int> ids)
     {
         return _editorContext.RoadSegments

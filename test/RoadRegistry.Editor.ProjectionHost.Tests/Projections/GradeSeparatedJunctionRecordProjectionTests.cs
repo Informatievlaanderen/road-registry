@@ -3,11 +3,11 @@ namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 using System.Text;
 using AutoFixture;
 using BackOffice;
-using BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
 using BackOffice.Messages;
 using Editor.Projections;
 using Editor.Schema.Extensions;
 using Editor.Schema.GradeSeparatedJunctions;
+using Extracts.Schemas.ExtractV1.GradeSeparatedJuntions;
 using Microsoft.IO;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
@@ -21,7 +21,7 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
 
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeGradeSeparatedJunctionType();
         _fixture.CustomizeGradeSeparatedJunctionId();
         _fixture.CustomizeRoadSegmentId();

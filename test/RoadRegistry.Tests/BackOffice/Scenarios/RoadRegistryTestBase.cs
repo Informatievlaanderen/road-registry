@@ -7,6 +7,7 @@ using Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac;
 using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
+using Extensions;
 using Framework.Testing;
 using Hosts;
 using KellermanSoftware.CompareNetObjects;
@@ -17,6 +18,7 @@ using Moq;
 using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Testing;
+using RoadNetwork;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
@@ -25,6 +27,7 @@ using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Infrastructure.Modules;
 using RoadRegistry.BackOffice.Messages;
+using ScopedRoadNetwork;
 using SqlStreamStore;
 using TicketingService.Abstractions;
 
@@ -43,7 +46,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     protected RoadRegistryTestBase(ITestOutputHelper testOutputHelper, ComparisonConfig comparisonConfig = null)
         : base(testOutputHelper)
     {
-        ObjectProvider = new Fixture();
+        ObjectProvider = FixtureFactory.Create();
         ObjectProvider.Register(() => (ISnapshotStrategy)NoSnapshotStrategy.Instance);
 
         Client = new MemoryBlobClient();

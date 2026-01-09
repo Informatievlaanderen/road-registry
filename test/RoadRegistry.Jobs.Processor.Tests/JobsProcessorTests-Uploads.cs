@@ -3,6 +3,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
     using AutoFixture;
     using BackOffice.Abstractions.Jobs;
     using BackOffice.Abstractions.Uploads;
+    using BackOffice.FeatureToggles;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Extracts.Schema;
@@ -19,7 +20,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
         [Fact]
         public async Task FlowTest_Uploads()
         {
-            var fixture = new Fixture();
+            var fixture = FixtureFactory.Create();
             var mockTicketing = new Mock<ITicketing>();
             var mockIBlobClient = new Mock<IBlobClient>();
             var mockMediator = new Mock<IMediator>();

@@ -17,7 +17,8 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Reason = BackOffice.Reason;
+using RoadRegistry.Infrastructure;
+using Reason = ValueObjects.Reason;
 
 public interface IChangeRoadNetworkDispatcher
 {

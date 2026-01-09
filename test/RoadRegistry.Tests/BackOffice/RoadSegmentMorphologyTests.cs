@@ -12,7 +12,7 @@ public class RoadSegmentMorphologyTests
 
     public RoadSegmentMorphologyTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _knownValues = Array.ConvertAll(RoadSegmentMorphology.All, type => type.ToString());
     }
 

@@ -1,7 +1,8 @@
 namespace RoadRegistry.Tests
 {
-    using RoadRegistry.BackOffice;
+        using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
+    using RoadRegistry.Infrastructure;
 
     public class FakeOrganizationCache: IOrganizationCache
     {
@@ -11,7 +12,7 @@ namespace RoadRegistry.Tests
         {
             if (OrganizationId.IsSystemValue(organizationId))
             {
-                var translation = Organization.PredefinedTranslations.FromSystemValue(organizationId);
+                var translation = OrganizationName.PredefinedTranslations.FromSystemValue(organizationId);
 
                 return Task.FromResult(new OrganizationDetail
                 {

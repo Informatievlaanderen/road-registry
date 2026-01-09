@@ -10,6 +10,8 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework;
 using Messages;
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadSegment.ValueObjects;
+using ScopedRoadNetwork;
 
 public class RoadNetwork : EventSourcedEntity
 {
@@ -36,7 +38,7 @@ public class RoadNetwork : EventSourcedEntity
         DownloadId? downloadId,
         Reason reason,
         OperatorName @operator,
-        Organization.DutchTranslation organization,
+        OrganizationName.DutchTranslation organization,
         RequestedChanges requestedChanges,
         TicketId? ticketId,
         IExtractUploadFailedEmailClient emailClient,

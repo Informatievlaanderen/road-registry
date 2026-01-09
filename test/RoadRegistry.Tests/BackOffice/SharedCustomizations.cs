@@ -2,9 +2,11 @@ namespace RoadRegistry.Tests.BackOffice;
 
 using AutoFixture;
 using AutoFixture.Dsl;
+using AutoFixture.Kernel;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Extensions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NodaTime;
@@ -14,6 +16,8 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts.Uploads;
+using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = RoadRegistry.BackOffice.Messages.Point;
 using Polygon = RoadRegistry.BackOffice.Messages.Polygon;
@@ -410,13 +414,25 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeProvenance(this IFixture fixture)
+    {
+        fixture.Customize<Provenance>(customization =>
+            customization.FromSeed(_ => new Provenance(new FakeClock(NodaConstants.UnixEpoch).GetCurrentInstant(),
+                Application.RoadRegistry,
+                new Reason("TEST"),
+                new Operator("TEST"),
+                Modification.Unknown,
+                fixture.Create<Organisation>()))
+        );
+    }
+
     public static void CustomizeReason(this IFixture fixture)
     {
-        fixture.Customize<RoadRegistry.BackOffice.Reason>(composer =>
+        fixture.Customize<ValueObjects.Reason>(composer =>
             composer.FromFactory(generator =>
-                new RoadRegistry.BackOffice.Reason(new string(
+                new ValueObjects.Reason(new string(
                     (char)generator.Next(97, 123), // a-z
-                    generator.Next(1, RoadRegistry.BackOffice.Reason.MaxLength + 1))))
+                    generator.Next(1, ValueObjects.Reason.MaxLength + 1))))
         );
     }
 
@@ -528,8 +544,25 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeRoadNodeGeometry(this IFixture fixture)
+    {
+        fixture.Customize<RoadRegistry.ValueObjects.RoadNodeGeometry>(composer =>
+            composer.FromFactory(_ =>
+                fixture.Create<NetTopologySuite.Geometries.Point>().ToRoadNodeGeometry()
+            ).OmitAutoProperties()
+        );
+    }
+
     public static void CustomizeRoadSegmentGeometry(this IFixture fixture)
     {
+        fixture.Customize<RoadRegistry.ValueObjects.RoadSegmentGeometry>(customizer =>
+            customizer.FromFactory(_ =>
+            {
+                var geometry = GeometryTranslator.Translate(fixture.Create<RoadSegmentGeometry>());
+
+                return RoadRegistry.ValueObjects.RoadSegmentGeometry.Create(geometry);
+            }).OmitAutoProperties());
+
         fixture.Customize<RoadSegmentGeometry>(customizer =>
             customizer.FromFactory(_ =>
             {
@@ -572,7 +605,7 @@ public static class SharedCustomizations
     public static void CustomizeRoadSegmentId(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentId>(composer =>
-            composer.FromFactory<int>(value => new RoadSegmentId(Math.Abs(value)))
+            composer.FromFactory<int>(_ => new RoadSegmentId(fixture.Create<IntegerValue>()))
         );
     }
 
@@ -893,5 +926,34 @@ public static class SharedCustomizations
     public static IPostprocessComposer<T> FromFactory<T>(this IFactoryComposer<T> composer, Func<Random, T> factory)
     {
         return composer.FromFactory<int>(value => factory(new Random(value)));
+    }
+
+    private sealed record IntegerValue(int Value)
+    {
+        public static implicit operator int(IntegerValue integerValue)
+        {
+            return integerValue.Value;
+        }
+    }
+    public static void CustomizeUniqueInteger(this IFixture fixture)
+    {
+        fixture.Customizations.Add(new WithUniqueIntegerValue());
+    }
+    private sealed class WithUniqueIntegerValue : ISpecimenBuilder
+    {
+        private int _lastInt;
+
+        public object Create(object request, ISpecimenContext context)
+        {
+            if (request is not Type type || type != typeof(IntegerValue))
+            {
+                return new NoSpecimen();
+            }
+
+            var nextInt = _lastInt + 1;
+            _lastInt = nextInt;
+
+            return new IntegerValue(nextInt);
+        }
     }
 }

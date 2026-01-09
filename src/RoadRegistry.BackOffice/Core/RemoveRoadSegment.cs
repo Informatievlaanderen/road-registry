@@ -3,6 +3,9 @@ namespace RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections.Generic;
 using Messages;
+using RoadRegistry.RoadSegment.ValueObjects;
+using ValueObjects.Problems;
+using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 
 public class RemoveRoadSegment : IRequestedChange
 {
@@ -15,7 +18,7 @@ public class RemoveRoadSegment : IRequestedChange
     public RoadSegmentId Id { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
 
-    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(Problem[] warnings)
     {
         yield return new Messages.AcceptedChange
         {

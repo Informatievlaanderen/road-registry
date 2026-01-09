@@ -13,7 +13,7 @@ public class OrganizationIdTests
 
     public OrganizationIdTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeOrganizationId();
     }
 
@@ -85,7 +85,7 @@ public class OrganizationIdTests
     [Fact]
     public void VerifyBehavior()
     {
-        var customizedString = new Fixture();
+        var customizedString = FixtureFactory.Create();
         customizedString.Customize<string>(customization =>
             customization.FromFactory(generator =>
                 new string(

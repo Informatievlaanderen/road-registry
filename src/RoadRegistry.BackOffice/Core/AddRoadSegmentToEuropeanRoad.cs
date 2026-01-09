@@ -4,6 +4,9 @@ using System;
 using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
+using RoadRegistry.RoadSegment.ValueObjects;
+using ValueObjects.Problems;
+using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 
 public class AddRoadSegmentToEuropeanRoad : IRequestedChange, IHaveHash
 {
@@ -34,7 +37,7 @@ public class AddRoadSegmentToEuropeanRoad : IRequestedChange, IHaveHash
     public RoadSegmentId? TemporarySegmentId { get; }
     public RoadSegmentVersion SegmentVersion { get; }
 
-    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(Problem[] warnings)
     {
         yield return new Messages.AcceptedChange
         {

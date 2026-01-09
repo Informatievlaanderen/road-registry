@@ -1,11 +1,12 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Downloads;
 
 using Api.Downloads;
-using BackOffice.Extracts.Dbase.Lists;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Infrastructure;
 using Product.Schema;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Schemas.ExtractV1.Lists;
 using RoadRegistry.Tests.Framework.Containers;
 
 public partial class DownloadControllerTests : ControllerMinimalTests<DownloadController>

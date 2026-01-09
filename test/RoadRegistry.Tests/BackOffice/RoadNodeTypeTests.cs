@@ -12,7 +12,7 @@ public class RoadNodeTypeTests
 
     public RoadNodeTypeTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _knownValues = Array.ConvertAll(RoadNodeType.All, type => type.ToString());
     }
 

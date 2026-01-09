@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
 using System.IO.Compression;
 using Extracts;
+using RoadRegistry.Extracts;
 
 public interface IZipArchiveWriter
 {

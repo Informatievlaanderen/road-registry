@@ -40,7 +40,7 @@ public abstract class BackofficeApiController : ApiController
 
     protected ProvenanceData CreateProvenanceData(Modification modification = Modification.Unknown)
     {
-        return new RoadRegistryProvenanceData(modification, ApiContext.HttpContextAccessor.HttpContext?.GetOperatorName());
+        return new RoadRegistryProvenanceData(modification, ApiContext.HttpContextAccessor.HttpContext?.GetOperator());
     }
 }
 

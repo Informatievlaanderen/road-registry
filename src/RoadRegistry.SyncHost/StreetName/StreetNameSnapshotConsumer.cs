@@ -15,6 +15,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Extensions;
 using RoadRegistry.Hosts;
 using RoadRegistry.StreetName;
 using SqlStreamStore;

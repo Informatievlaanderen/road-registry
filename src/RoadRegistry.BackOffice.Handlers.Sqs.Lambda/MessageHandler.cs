@@ -1,5 +1,12 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
+using Actions.ChangeRoadNetwork;
+using Actions.CloseExtract;
+using Actions.RemoveRoadSegments;
+using Actions.RequestExtract;
+using Actions.RequestInwinningExtract;
+using Actions.UploadExtract;
+using Actions.UploadInwinningExtract;
 using Autofac;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
@@ -8,10 +15,9 @@ using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Extracts;
 using MediatR;
 using Requests;
-using Requests.Extracts;
+using RoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Infrastructure;
 using RoadSegments;
-using Sqs;
 
 public sealed class MessageHandler : BlobMessageHandler
 {
@@ -50,8 +56,13 @@ public sealed class MessageHandler : BlobMessageHandler
             ChangeRoadSegmentOutlineGeometrySqsRequest request => new ChangeRoadSegmentOutlineGeometrySqsLambdaRequest(groupId, request),
             ChangeRoadSegmentsDynamicAttributesSqsRequest request => new ChangeRoadSegmentsDynamicAttributesSqsLambdaRequest(groupId, request),
             RequestExtractSqsRequest request => new RequestExtractSqsLambdaRequest(groupId, request),
+            RequestInwinningExtractSqsRequest request => new RequestInwinningExtractSqsLambdaRequest(groupId, request),
             UploadExtractSqsRequest request => new UploadExtractSqsLambdaRequest(groupId, request),
+            UploadExtractSqsRequestV2 request => new UploadExtractSqsLambdaRequestV2(groupId, request),
+            UploadInwinningExtractSqsRequest request => new UploadInwinningExtractSqsLambdaRequest(groupId, request),
             CloseExtractSqsRequest request => new CloseExtractSqsLambdaRequest(groupId, request),
+            ChangeRoadNetworkSqsRequest request => new ChangeRoadNetworkSqsLambdaRequest(groupId, request),
+            RemoveRoadSegmentsSqsRequest request => new RemoveRoadSegmentsSqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(
                 $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
         };

@@ -16,7 +16,7 @@ public class FullyDisconnectedRoadNodeTests
 
     public FullyDisconnectedRoadNodeTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeRoadNodeId();
         _fixture.CustomizeRoadNodeVersion();
         _fixture.CustomizeRoadNodeType();
@@ -110,7 +110,7 @@ public class ConnectedRoadNodeTests
 
     public ConnectedRoadNodeTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeRoadNodeId();
         _fixture.CustomizeRoadNodeVersion();
         _fixture.CustomizeRoadNodeType();

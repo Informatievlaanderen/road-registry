@@ -1,17 +1,22 @@
 namespace RoadRegistry.BackOffice.Exceptions;
 
+using CommandHandling;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using Core;
 using Extensions;
+using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.Messages;
+using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 
 public class RoadRegistryValidationException : RoadRegistryException
 {
     public string ErrorCode { get; }
 
-    public RoadRegistryValidationException(Problem problem)
+    public RoadRegistryValidationException(ValueObjects.Problems.Problem problem)
         : this(problem.TranslateToDutch())
     {
     }
-    public RoadRegistryValidationException(Messages.Problem problem)
+    public RoadRegistryValidationException(Problem problem)
         : this(problem.TranslateToDutch())
     {
     }

@@ -4,9 +4,10 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
-using Extracts.Dbase.Organizations;
 using Microsoft.EntityFrameworkCore;
 using Product.Schema;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Schemas.ExtractV1.Organizations;
 
 public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
 {
@@ -30,7 +31,7 @@ public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
         var dbfHeader = new DbaseFileHeader(
             DateTime.Now,
             DbaseCodePage.Western_European_ANSI,
-            new DbaseRecordCount(await organizationsQuery.CountAsync(cancellationToken) + Organization.PredefinedTranslations.All.Length),
+            new DbaseRecordCount(await organizationsQuery.CountAsync(cancellationToken) + OrganizationName.PredefinedTranslations.All.Length),
             OrganizationDbaseRecord.Schema
         );
         await using (var dbfEntryStream = dbfEntry.Open())
@@ -41,7 +42,7 @@ public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
         {
             var dbfRecord = new OrganizationDbaseRecord();
 
-            foreach (var predefined in Organization.PredefinedTranslations.All)
+            foreach (var predefined in OrganizationName.PredefinedTranslations.All)
             {
                 dbfRecord.ORG.Value = predefined.Identifier;
                 dbfRecord.LBLORG.Value = predefined.Name;

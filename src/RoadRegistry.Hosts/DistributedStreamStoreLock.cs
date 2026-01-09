@@ -12,13 +12,13 @@ using SqlStreamStore;
 public class DistributedStreamStoreLock : DistributedLock<IStreamStore>
 {
     private readonly DistributedStreamStoreLockOptions _options;
-    
+
     public DistributedStreamStoreLock(DistributedStreamStoreLockOptions options, StreamName streamName, ILogger logger)
         : base(options, $"{nameof(DistributedStreamStoreLock)}-{streamName}", logger)
     {
         _options = options;
     }
-    
+
     public async Task RetryRunUntilLockAcquiredAsync(Func<Task> runFunc, CancellationToken cancellationToken)
     {
         await RetryRunUntilLockAcquiredAsync(async () =>

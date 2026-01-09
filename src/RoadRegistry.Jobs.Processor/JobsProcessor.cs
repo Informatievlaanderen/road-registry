@@ -12,22 +12,32 @@ namespace RoadRegistry.Jobs.Processor
     using BackOffice.Abstractions.Jobs;
     using BackOffice.Abstractions.Uploads;
     using BackOffice.Core;
-    using BackOffice.Core.ProblemCodes;
     using BackOffice.Exceptions;
     using BackOffice.Extensions;
     using BackOffice.Extracts;
+    using BackOffice.FeatureToggles;
     using BackOffice.Handlers.Sqs.Extracts;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+    using CommandHandling;
+    using CommandHandling.Actions.ChangeRoadNetwork;
+    using Extensions;
+    using Extracts;
+    using Extracts.Infrastructure.Extensions;
     using Extracts.Schema;
+    using Extracts.Uploads;
     using FluentValidation;
     using FluentValidation.Results;
     using MediatR;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
+    using RoadRegistry.Infrastructure;
+    using RoadRegistry.Infrastructure.DutchTranslations;
     using TicketingService.Abstractions;
+        using ValueObjects.ProblemCodes;
+    using ValueObjects.Problems;
     using JobsProcessorOptions = Infrastructure.Options.JobsProcessorOptions;
     using Task = System.Threading.Tasks.Task;
 
@@ -265,12 +275,71 @@ namespace RoadRegistry.Jobs.Processor
 
                         var extractDownload = await _extractsDbContext.ExtractDownloads
                             .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
+                        var extractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId);
+
+                        if (extractDownload.ZipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2)
+                        {
+                            var extractRequest = await _extractsDbContext.ExtractRequests
+                                .SingleAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId, cancellationToken);
+
+                            return new UploadExtractSqsRequestV2
+                            {
+                                TicketId = job.TicketId,
+                                DownloadId = new DownloadId(job.DownloadId.Value),
+                                UploadId = uploadId,
+                                ExtractRequestId = extractRequestId,
+                                SendFailedEmail = extractRequest.ExternalRequestId is not null,
+                                ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description)
+                            };
+                        }
 
                         return new UploadExtractSqsRequest
                         {
-                            Request = new BackOffice.Abstractions.Extracts.V2.UploadExtractRequest(job.DownloadId.Value, uploadId, job.TicketId),
-                            ProvenanceData = new RoadRegistryProvenanceData(Modification.Unknown, job.OperatorName),
-                            ExtractRequestId = extractDownload.ExtractRequestId
+                            TicketId = job.TicketId,
+                            DownloadId = new DownloadId(job.DownloadId.Value),
+                            UploadId = uploadId,
+                            ExtractRequestId = extractRequestId,
+                            ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName)
+                        };
+                    }
+                case UploadType.Inwinning:
+                    {
+                        if (job.DownloadId is null)
+                        {
+                            throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired);
+                        }
+
+                        var uploadId = new UploadId(Guid.NewGuid());
+                        var fileNames = blob.Metadata
+                            .Where(pair => pair.Key == new MetadataKey("filename"))
+                            .Select(x => x.Value)
+                            .ToArray();
+                        var fileName = fileNames.Length == 1 ? fileNames.Single() : $"{uploadId}.zip";
+                        var metadata = Metadata.None.Add(
+                            new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), fileName)
+                        );
+
+                        await _uploadsBlobClient.CreateBlobAsync(
+                            new BlobName(uploadId.ToString()),
+                            metadata,
+                            blob.ContentType,
+                            blobStream,
+                            cancellationToken
+                        );
+
+                        var extractDownload = await _extractsDbContext.ExtractDownloads
+                            .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
+
+                        var extractRequest = await _extractsDbContext.ExtractRequests
+                            .SingleAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId, cancellationToken);
+
+                        return new UploadInwinningExtractSqsRequest
+                        {
+                            TicketId = job.TicketId,
+                            DownloadId = new DownloadId(job.DownloadId.Value),
+                            UploadId = uploadId,
+                            ExtractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId),
+                            ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description),
                         };
                     }
                 default:

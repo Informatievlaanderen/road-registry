@@ -12,7 +12,10 @@ using Infrastructure;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Requests;
+using RoadRegistry.Extensions;
+using RoadSegment;
 using TicketingService.Abstractions;
+using ValueObjects.Problems;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
@@ -66,7 +69,7 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
             var recordNumber = RecordNumber.Initial;
 
             var geometry = GeometryTranslator.Translate(request.Request.Geometry);
-            problems += geometry.GetSingleLineString().GetProblemsForRoadSegmentOutlinedGeometry(roadSegmentId, VerificationContextTolerances.Default);
+            problems += geometry.GetSingleLineString().GetProblemsForRoadSegmentOutlinedGeometry(roadSegmentId);
             if (problems.Any())
             {
                 throw new RoadRegistryProblemsException(problems);

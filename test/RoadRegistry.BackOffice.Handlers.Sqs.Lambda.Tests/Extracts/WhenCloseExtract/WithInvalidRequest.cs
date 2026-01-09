@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Extracts.WhenCloseExtract;
 
-using Abstractions.Extracts.V2;
 using AutoFixture;
+using Sqs.Extracts;
 using Xunit.Abstractions;
 
 public class WithInvalidRequest : WhenCloseExtractTestBase
@@ -15,9 +15,10 @@ public class WithInvalidRequest : WhenCloseExtractTestBase
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
-        var request = new CloseExtractRequest(
-            downloadId
-        );
+        var request = new CloseExtractSqsRequest
+        {
+            DownloadId = downloadId
+        };
 
         // Act
         await HandleRequest(request);

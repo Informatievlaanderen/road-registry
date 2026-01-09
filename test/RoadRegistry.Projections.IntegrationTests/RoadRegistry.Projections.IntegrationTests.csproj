@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Test.props" />
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NoWarn>CS8603</NoWarn>
+    <RootNamespace>RoadRegistry.Projections.IntegrationTests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Infrastructure.MartenDb\RoadRegistry.Infrastructure.MartenDb.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.DockerUtilities" />
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="MediatR.Contracts" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="System.IO.Pipelines" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="RoadRegistry.Tests" />
+    <Using Include="RoadRegistry.ValueObjects" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
+    <Content Include="postgres.yml" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+</Project>

@@ -10,6 +10,9 @@ using System.IO.Compression;
 using System.Linq;
 using FeatureCompare.V1.Translators;
 using Models;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Uploads;
 using Uploads;
 
 public static class FeatureValidationExtensions

@@ -6,8 +6,10 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Extensions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Infrastructure;
 
 public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter
 {

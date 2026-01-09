@@ -3,8 +3,8 @@ namespace RoadRegistry.Product.ProjectionHost.Tests.Projections;
 using System.Text;
 using AutoFixture;
 using BackOffice;
-using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
+using Extracts.Schemas.ExtractV1.RoadSegments;
 using Product.Projections;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
@@ -18,7 +18,7 @@ public class RoadSegmentSurfaceAttributeRecordProjectionTests : IClassFixture<Pr
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
 
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeArchiveId();
         _fixture.CustomizeAttributeId();
         _fixture.CustomizeRoadSegmentId();

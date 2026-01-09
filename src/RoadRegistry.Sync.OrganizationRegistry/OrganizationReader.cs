@@ -12,6 +12,7 @@ using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Exceptions;
+using RoadRegistry.Extensions;
 
 public interface IOrganizationReader
 {

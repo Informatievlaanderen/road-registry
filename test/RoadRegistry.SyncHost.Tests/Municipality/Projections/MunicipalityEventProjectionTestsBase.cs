@@ -13,7 +13,7 @@ public abstract class MunicipalityEventProjectionTestsBase : IClassFixture<Munic
     protected MunicipalityEventProjectionTestsBase(MunicipalityEventProjectionClassFixture projector)
     {
         Projector = projector;
-        Fixture = new Fixture();
+        Fixture = FixtureFactory.Create();
     }
 
     protected async Task<MunicipalityWasRegistered> GivenRegisteredMunicipality()

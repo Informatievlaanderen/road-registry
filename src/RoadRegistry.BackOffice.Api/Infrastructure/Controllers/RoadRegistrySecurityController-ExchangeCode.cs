@@ -6,7 +6,6 @@ using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using FluentValidation;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Mvc;
-using RoadRegistry.BackOffice.Core.ProblemCodes;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,6 +14,9 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using CommandHandling;
+using RoadRegistry.Infrastructure;
+using ValueObjects.ProblemCodes;
 
 public partial class RoadRegistrySecurityController
 {
@@ -35,7 +37,7 @@ public partial class RoadRegistrySecurityController
             Verifier = verifier
         };
         await new ExchangeCodeParametersValidator().ValidateAndThrowAsync(parameters, cancellationToken);
-        
+
         using var httpClient = httpClientFactory.CreateClient();
         var tokenEndpointAddress =
             $"{_openIdConnectOptions.Authority}{_openIdConnectOptions.TokenEndPoint}";

@@ -11,7 +11,7 @@ public class RoadNetworkRevisionTests
 
     public RoadNetworkRevisionTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
     }
 
     [Fact]

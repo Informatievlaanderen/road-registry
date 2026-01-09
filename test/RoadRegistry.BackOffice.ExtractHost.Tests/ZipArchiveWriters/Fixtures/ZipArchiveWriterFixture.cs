@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.Tests.ZipArchiveWriters.Fixtures;
 using Extracts;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using RoadRegistry.Extracts;
 
 public abstract class ZipArchiveWriterFixture
 {

@@ -12,6 +12,8 @@
     using RoadRegistry.BackOffice.Extracts;
     using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
     using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V1;
+    using RoadRegistry.Extracts;
+    using RoadRegistry.Infrastructure;
     using RoadRegistry.Tests.BackOffice;
     using RoadRegistry.Tests.BackOffice.Scenarios;
 
@@ -80,7 +82,6 @@
 
             using var archive = new ZipArchive(stream, ZipArchiveMode.Update, true, Encoding.UTF8);
             var request = new RoadNetworkExtractAssemblyRequest(
-                    fixture.Create<ExternalExtractRequestId>(),
                     fixture.Create<DownloadId>(),
                     fixture.Create<ExtractDescription>(),
                     fixture.Create<IPolygonal>(),
@@ -160,7 +161,6 @@
 
             using var archive = new ZipArchive(stream, ZipArchiveMode.Update, true, Encoding.UTF8);
             var request = new RoadNetworkExtractAssemblyRequest(
-                    fixture.Create<ExternalExtractRequestId>(),
                     fixture.Create<DownloadId>(),
                     fixture.Create<ExtractDescription>(),
                     fixture.Create<IPolygonal>(),

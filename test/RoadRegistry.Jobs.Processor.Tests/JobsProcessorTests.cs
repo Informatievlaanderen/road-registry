@@ -2,11 +2,12 @@ namespace RoadRegistry.Jobs.Processor.Tests
 {
     using BackOffice.Abstractions.Exceptions;
     using BackOffice.Abstractions.Jobs;
-    using BackOffice.Core.ProblemCodes;
     using BackOffice.Exceptions;
+    using BackOffice.FeatureToggles;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Extracts.Schema;
+    using Extracts.Uploads;
     using FluentAssertions;
     using Infrastructure.Options;
     using MediatR;
@@ -14,6 +15,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
     using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
     using TicketingService.Abstractions;
+    using ValueObjects.ProblemCodes;
 
     public partial class JobsProcessorTests
     {

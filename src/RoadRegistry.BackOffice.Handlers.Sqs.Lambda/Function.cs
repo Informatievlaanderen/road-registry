@@ -1,32 +1,40 @@
-using Amazon.Lambda.Core;
-using Amazon.Lambda.Serialization.Json;
-
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
+using System.Reflection;
+using Abstractions;
+using Actions.RequestExtract;
+using Actions.UploadExtract;
 using Autofac;
 using BackOffice.Extensions;
+using BackOffice.Extracts;
+using BackOffice.Handlers.Extracts;
 using BackOffice.Infrastructure.Modules;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
+using CommandHandling;
+using Editor.Schema;
+using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
+using Marten;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using StreetName;
-using System.Reflection;
-using Abstractions;
-using BackOffice.Extracts;
-using Editor.Schema;
-using Handlers.Extracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.MartenDb.Setup;
+using RoadRegistry.RoadNetwork;
+using ScopedRoadNetwork;
+using SqlStreamStore;
+using StreetName;
 using ZipArchiveWriters.Cleaning;
-using ZipArchiveWriters.ExtractHost;
+using ZipArchiveWriters.ExtractHost.V2;
+using DomainAssemblyMarker = BackOffice.DomainAssemblyMarker;
 
 public class Function : RoadRegistryLambdaFunction<MessageHandler>
 {
@@ -35,8 +43,8 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
     public Function()
         : base(new List<Assembly>
             {
-                typeof(BackOffice.Handlers.Sqs.DomainAssemblyMarker).Assembly,
-                typeof(RoadRegistry.BackOffice.Abstractions.BlobRequest).Assembly
+                typeof(DomainAssemblyMarker).Assembly,
+                typeof(BlobRequest).Assembly
             })
     {
     }
@@ -55,31 +63,66 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
                     CommandModules.RoadNetwork(sp)
                 ])
             )
-            .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
+            .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
             .AddStreetNameClient()
 
-            // Extracts
-            .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
+            // ChangeRoadNetwork
+            .AddMartenRoad(options => options
+                .AddRoadNetworkTopologyProjection()
+                .AddRoadAggregatesSnapshots())
+
+            // Extracts-domainv1
             .AddEditorContext()
-            .RegisterOptions<ZipArchiveWriterOptions>()
-            .AddSingleton<IZipArchiveWriterFactory>(sp =>
-                new ZipArchiveWriterFactory(
+            .AddSingleton<IBeforeFeatureCompareZipArchiveCleanerFactory, BeforeFeatureCompareZipArchiveCleanerFactory>()
+            .AddSingleton<ZipArchiveWriters.ExtractHost.IZipArchiveWriterFactory>(sp =>
+                new ZipArchiveWriters.ExtractHost.ZipArchiveWriterFactory(
                     null,
-                    new ZipArchiveWriters.ExtractHost.V2.RoadNetworkExtractZipArchiveWriter(
+                    new RoadNetworkExtractZipArchiveWriter(
                         sp.GetService<ZipArchiveWriterOptions>(),
                         sp.GetService<IStreetNameCache>(),
                         sp.GetService<RecyclableMemoryStreamManager>(),
                         sp.GetRequiredService<FileEncoding>(),
                         sp.GetRequiredService<ILoggerFactory>()
+                    )
+                ))
+            // Extracts-domainv2
+            .AddMartenRoad()
+            .AddScoped<ZipArchiveWriters.DomainV2.IZipArchiveWriterFactory>(sp =>
+                new ZipArchiveWriters.DomainV2.ZipArchiveWriterFactory(
+                    new ZipArchiveWriters.DomainV2.Writers.RoadNetworkExtractZipArchiveWriter(
+                        sp.GetService<ZipArchiveWriterOptions>(),
+                        sp.GetService<IStreetNameCache>(),
+                        sp.GetService<RecyclableMemoryStreamManager>(),
+                        sp.GetRequiredService<FileEncoding>(),
+                        sp.GetRequiredService<ILoggerFactory>()
+                    )
+                ))
+
+            // Extracts
+            .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
+            .AddScoped<IExtractRequests, ExtractRequests>()
+            .AddScoped<ExtractRequester>()
+            .AddScoped<ExtractUploader>()
+            .RegisterOptions<ZipArchiveWriterOptions>()
+            .AddScoped<IRoadNetworkExtractArchiveAssembler>(sp =>
+                sp.GetService<UseDomainV2FeatureToggle>().FeatureEnabled
+                    ? new RoadNetworkExtractArchiveAssemblerForDomainV2(
+                        sp.GetService<RecyclableMemoryStreamManager>(),
+                        sp.GetService<RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2.IZipArchiveWriterFactory>(),
+                        sp.GetRequiredService<IDocumentStore>(),
+                        sp.GetRequiredService<IRoadNetworkRepository>(),
+                        sp.GetService<Func<EditorContext>>(),
+                        sp.GetRequiredService<ILoggerFactory>()
+                    )
+                    : new RoadNetworkExtractArchiveAssemblerForDomainV1(
+                        sp.GetService<RecyclableMemoryStreamManager>(),
+                        sp.GetService<Func<EditorContext>>(),
+                        sp.GetService<RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.IZipArchiveWriterFactory>(),
+                        sp.GetRequiredService<IStreamStore>(),
+                        sp.GetRequiredService<ILoggerFactory>()
                     ))
-            )
-            .AddSingleton<IRoadNetworkExtractArchiveAssembler>(sp =>
-                new RoadNetworkExtractArchiveAssembler(
-                    sp.GetService<RecyclableMemoryStreamManager>(),
-                    sp.GetService<Func<EditorContext>>(),
-                    sp.GetService<IZipArchiveWriterFactory>()))
+
             .AddFeatureCompare()
-            .AddSingleton<IBeforeFeatureCompareZipArchiveCleanerFactory, BeforeFeatureCompareZipArchiveCleanerFactory>()
             ;
     }
 

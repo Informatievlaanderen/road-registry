@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Extensions;
 using Moq;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using RoadRegistry.Tests.Framework.Projections;
@@ -24,7 +25,7 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
 
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeArchiveId();
         _fixture.CustomizeAttributeId();
         _fixture.CustomizeRoadSegmentId();

@@ -19,7 +19,7 @@ public class ExtractRequestRecordProjectionTests
 
     public ExtractRequestRecordProjectionTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeArchiveId();
         _fixture.CustomizeExternalExtractRequestId();
         _fixture.CustomizeRoadNetworkExtractGotRequested();

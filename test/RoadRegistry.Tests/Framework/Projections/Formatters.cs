@@ -1,29 +1,19 @@
 namespace RoadRegistry.Tests.Framework.Projections;
 
-using NetTopologySuite.Geometries;
-using NetTopologySuite.IO.Converters;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice;
 
 public static class Formatters
 {
-    private static readonly GeometryFactory Factory = new(new PrecisionModel(), 31370);
     private static readonly JsonConverter[] Converters;
 
     static Formatters()
     {
-        Converters =
-        [
-            new GeometryConverter(),
-            new FeatureCollectionConverter(),
-            new FeatureConverter(),
-            new AttributesTableConverter(),
-            new GeometryConverter(Factory, 2),
-            new EnvelopeConverter()
-        ];
+        Converters = WellKnownJsonConverters.Converters.ToArray();
     }
 
     public static string NamedJsonMessage<T>(T message)
     {
-        return $"{message.GetType().Name} - {JsonConvert.SerializeObject(message, Formatting.Indented, Converters)}";
+        return message is not null ? $"{message.GetType().Name} - {JsonConvert.SerializeObject(message, Formatting.Indented, Converters)}" : null;
     }
 }

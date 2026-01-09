@@ -6,6 +6,7 @@ using Editor.Schema;
 using Framework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Infrastructure;
 
 public class GetOrganizationsRequestHandler : EndpointRequestHandler<GetOrganizationsRequest, GetOrganizationsResponse>
 {

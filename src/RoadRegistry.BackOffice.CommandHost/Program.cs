@@ -22,6 +22,7 @@ using Microsoft.Extensions.Logging;
 using NodaTime;
 using RoadNetwork.Schema;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Infrastructure;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using Uploads;

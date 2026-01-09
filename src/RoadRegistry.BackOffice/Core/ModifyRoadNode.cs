@@ -4,7 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Messages;
+using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
+using ValueObjects.Problems;
 using Point = NetTopologySuite.Geometries.Point;
+using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 
 public class ModifyRoadNode : IRequestedChange
 {
@@ -72,7 +76,7 @@ public class ModifyRoadNode : IRequestedChange
         return VerifyAfterResult.WithAcceptedChanges(problems, warnings => TranslateTo(warnings, context));
     }
 
-    private IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings, AfterVerificationContext context)
+    private IEnumerable<Messages.AcceptedChange> TranslateTo(Problem[] warnings, AfterVerificationContext context)
     {
         var node = context.AfterView.Nodes[Id];
 

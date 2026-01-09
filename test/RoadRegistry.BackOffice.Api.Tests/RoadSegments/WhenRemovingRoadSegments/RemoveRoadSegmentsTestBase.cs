@@ -2,17 +2,21 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenRemovingRoadSegment
 
 using System.Collections.Generic;
 using System.Linq;
-using Abstractions.RoadSegments;
-using Api.Infrastructure.Controllers;
-using Api.RoadSegments;
 using AutoFixture;
-using Extensions;
+using BackOffice.Handlers.Sqs.RoadNetwork;
+using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using RoadRegistry.BackOffice.Abstractions.RoadSegments;
+using RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
+using RoadRegistry.BackOffice.Api.RoadSegments;
+using RoadRegistry.BackOffice.FeatureToggles;
+using RoadRegistry.CommandHandling;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 
 public abstract class RemoveRoadSegmentsTestBase
@@ -28,8 +32,8 @@ public abstract class RemoveRoadSegmentsTestBase
 
         Mediator = new Mock<IMediator>();
         Mediator
-            .Setup(x => x.Send(It.IsAny<DeleteRoadSegmentsRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Fixture.Create<DeleteRoadSegmentsResponse>());
+            .Setup(x => x.Send(It.IsAny<RemoveRoadSegmentsSqsRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Fixture.Create<LocationResult>());
     }
 
     protected async Task ItShouldHaveExpectedError(
@@ -81,6 +85,7 @@ public abstract class RemoveRoadSegmentsTestBase
         return await controller.DeleteRoadSegments(
             parameters,
             new DeleteRoadSegmentsParametersValidator(),
+            new UseDomainV2FeatureToggle(true),
             CancellationToken.None
         );
     }

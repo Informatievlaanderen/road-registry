@@ -8,6 +8,8 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Producer;
 using Editor.Schema;
 using Editor.Schema.Extensions;
+using Extracts;
+using Extracts.Schemas.ExtractV1.RoadSegments;
 using FluentAssertions;
 using Integration.Schema;
 using Microsoft.Data.SqlClient;
@@ -20,7 +22,6 @@ using Producer.Snapshot.ProjectionHost.Shared;
 using Product.Schema;
 using RoadNetwork.Schema;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Wms.Schema;
 
@@ -138,7 +139,7 @@ public class FixRoadNumberAttributeIds
         // fix attribute_id in event (keep mapping van old->new)
         foreach (var change in message.Changes.Flatten().OfType<RoadSegmentAddedToEuropeanRoad>())
         {
-            var newId = await roadNetworkDbIdGenerator.NewEuropeanRoadAttributeId();
+            var newId = await roadNetworkDbIdGenerator.NewEuropeanRoadAttributeIdAsync();
             var oldId = change.AttributeId;
             europeanRoadMappings.Add(oldId, newId);
 
@@ -147,7 +148,7 @@ public class FixRoadNumberAttributeIds
 
         foreach (var change in message.Changes.Flatten().OfType<RoadSegmentAddedToNationalRoad>())
         {
-            var newId = await roadNetworkDbIdGenerator.NewNationalRoadAttributeId();
+            var newId = await roadNetworkDbIdGenerator.NewNationalRoadAttributeIdAsync();
             var oldId = change.AttributeId;
             nationalRoadMappings.Add(oldId, newId);
 
@@ -156,7 +157,7 @@ public class FixRoadNumberAttributeIds
 
         foreach (var change in message.Changes.Flatten().OfType<RoadSegmentAddedToNumberedRoad>())
         {
-            var newId = await roadNetworkDbIdGenerator.NewNumberedRoadAttributeId();
+            var newId = await roadNetworkDbIdGenerator.NewNumberedRoadAttributeIdAsync();
             var oldId = change.AttributeId;
             numberedRoadMappings.Add(oldId, newId);
 

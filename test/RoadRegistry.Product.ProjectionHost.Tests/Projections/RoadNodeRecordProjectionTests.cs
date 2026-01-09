@@ -3,9 +3,9 @@ namespace RoadRegistry.Product.ProjectionHost.Tests.Projections;
 using System.Text;
 using AutoFixture;
 using BackOffice;
-using BackOffice.Extracts.Dbase.RoadNodes;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extracts.Schemas.ExtractV1.RoadNodes;
 using Microsoft.IO;
 using Product.Projections;
 using RoadRegistry.Tests.BackOffice;
@@ -22,7 +22,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
 
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
 
         _fixture.CustomizeArchiveId();
         _fixture.CustomizeRoadNodeId();

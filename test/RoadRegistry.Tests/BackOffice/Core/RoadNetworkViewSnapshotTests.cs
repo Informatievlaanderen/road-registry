@@ -17,7 +17,7 @@ public class RoadNetworkViewSnapshotTests
 
     public RoadNetworkViewSnapshotTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeRoadNodeId();
         _fixture.CustomizeRoadNodeType();
         _fixture.CustomizeRoadSegmentId();

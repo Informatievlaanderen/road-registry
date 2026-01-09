@@ -11,7 +11,7 @@ public class RoadSegmentSurfaceAttributeTests
 
     public RoadSegmentSurfaceAttributeTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeAttributeId();
         _fixture.CustomizeRoadSegmentSurfaceType();
         _fixture.CustomizeRoadSegmentPosition();

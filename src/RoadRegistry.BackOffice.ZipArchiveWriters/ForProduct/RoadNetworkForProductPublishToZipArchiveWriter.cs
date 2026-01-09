@@ -3,9 +3,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ForProduct;
 using System.IO.Compression;
 using System.Text;
 using Abstractions;
-using Extracts.Dbase.Lists;
 using Microsoft.IO;
 using Product.Schema;
+using RoadRegistry.Extracts.Schemas.ExtractV1.Lists;
+using RoadRegistry.Infrastructure;
 
 public class RoadNetworkForProductPublishToZipArchiveWriter : IZipArchiveWriter<ProductContext>
 {

@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Test.props" />
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NoWarn>CS8603</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Handlers.Sqs.Lambda\RoadRegistry.BackOffice.Handlers.Sqs.Lambda.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.Aws.DistributedMutex" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.DockerUtilities" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.Sqs" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.Sqs.Lambda" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.TicketingService.Abstractions" />
+
+    <PackageReference Include="AWSSDK.Core" />
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="MediatR.Contracts" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" />
+    <PackageReference Include="Amazon.Lambda.SQSEvents" />
+    <PackageReference Include="Amazon.Lambda.TestUtilities" />
+    <PackageReference Include="System.IO.Pipelines" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="RoadRegistry.Tests" />
+    <Using Include="RoadRegistry.ValueObjects" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
+    <Content Include="postgres.yml" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="RoadRegistry">
+      <HintPath>..\RoadRegistry.Projections.Tests\bin\Debug\net9.0\RoadRegistry.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

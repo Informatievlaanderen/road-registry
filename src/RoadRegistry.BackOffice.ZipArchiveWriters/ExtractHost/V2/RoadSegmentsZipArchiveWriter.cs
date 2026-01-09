@@ -3,11 +3,12 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V2;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.V2;
 using Extracts;
-using Extracts.Dbase.RoadSegments;
 using Microsoft.IO;
-using ShapeFile.V2;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.ShapeFile;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Infrastructure;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter

@@ -2,13 +2,14 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenCreateOutline.Abstr
 
 using Api.Infrastructure.Controllers;
 using Api.RoadSegments;
-using BackOffice.Extracts.Dbase.Organizations;
 using Editor.Schema;
 using Editor.Schema.Organizations;
 using Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.Extensions;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using RoadRegistry.Tests.Framework.Projections;
 

@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Messages;
 
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
+
 public class ModifyRoadSegment
 {
     public int Id { get; set; }
