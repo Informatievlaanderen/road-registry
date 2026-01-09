@@ -32,25 +32,23 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         // Arrange
         var sp = await BuildServiceProvider();
 
-        var testData = new RoadNetworkTestData();
-
         var provenanceData = new RoadRegistryProvenanceData();
         var command = new ChangeRoadNetworkSqsRequest
         {
-            DownloadId = testData.Fixture.Create<DownloadId>(),
-            TicketId = testData.Fixture.Create<TicketId>(),
+            DownloadId = TestData.Fixture.Create<DownloadId>(),
+            TicketId = TestData.Fixture.Create<TicketId>(),
             Changes = [
                 new ChangeRoadNetworkItem
                 {
-                    AddRoadNode = testData.AddSegment1StartNode
+                    AddRoadNode = TestData.AddSegment1StartNode
                 },
                 new ChangeRoadNetworkItem
                 {
-                    AddRoadNode = testData.AddSegment1EndNode
+                    AddRoadNode = TestData.AddSegment1EndNode
                 },
                 new ChangeRoadNetworkItem
                 {
-                    AddRoadSegment = testData.AddSegment1
+                    AddRoadSegment = TestData.AddSegment1
                 }
             ],
             ProvenanceData = provenanceData
@@ -72,10 +70,10 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         var store = sp.GetRequiredService<IDocumentStore>();
         await using var session = store.LightweightSession();
 
-        var roadNodes = await session.LoadManyAsync([testData.Segment1StartNodeAdded.RoadNodeId, testData.Segment1EndNodeAdded.RoadNodeId]);
+        var roadNodes = await session.LoadManyAsync([TestData.Segment1StartNodeAdded.RoadNodeId, TestData.Segment1EndNodeAdded.RoadNodeId]);
         roadNodes.Should().HaveCount(2);
 
-        var roadSegments = await session.LoadManyAsync([testData.Segment1Added.RoadSegmentId]);
+        var roadSegments = await session.LoadManyAsync([TestData.Segment1Added.RoadSegmentId]);
         roadSegments.Should().HaveCount(1);
     }
 
@@ -85,27 +83,25 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         // Arrange
         var sp = await BuildServiceProvider();
 
-        var testData = new RoadNetworkTestData();
-
         await Given(sp, TranslatedChanges.Empty
-            .AppendChange(testData.AddSegment1StartNode)
-            .AppendChange(testData.AddSegment1EndNode)
-            .AppendChange(testData.AddSegment1));
+            .AppendChange(TestData.AddSegment1StartNode)
+            .AppendChange(TestData.AddSegment1EndNode)
+            .AppendChange(TestData.AddSegment1));
 
         var handler = sp.GetRequiredService<ChangeRoadNetworkSqsLambdaRequestHandler>();
 
-        var changedCategory = testData.Fixture.Create<RoadSegmentCategory>();
+        var changedCategory = TestData.Fixture.Create<RoadSegmentCategory>();
         var provenanceData = new RoadRegistryProvenanceData();
         var command = new ChangeRoadNetworkSqsRequest
         {
-            DownloadId = testData.Fixture.Create<DownloadId>(),
-            TicketId = testData.Fixture.Create<TicketId>(),
+            DownloadId = TestData.Fixture.Create<DownloadId>(),
+            TicketId = TestData.Fixture.Create<TicketId>(),
             Changes = [
                 new ChangeRoadNetworkItem
                 {
                     ModifyRoadSegment = new ModifyRoadSegmentChange
                     {
-                        RoadSegmentId = testData.Segment1Added.RoadSegmentId,
+                        RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
                         Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(changedCategory)
                     }
                 }
@@ -128,7 +124,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         var store = sp.GetRequiredService<IDocumentStore>();
         await using var session = store.LightweightSession();
 
-        var roadSegment = (await session.LoadManyAsync([testData.Segment1Added.RoadSegmentId])).Single();
+        var roadSegment = (await session.LoadManyAsync([TestData.Segment1Added.RoadSegmentId])).Single();
         roadSegment.Attributes.Category.Values.Single().Value.Should().Be(changedCategory);
     }
 
@@ -138,25 +134,23 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         // Arrange
         var sp = await BuildServiceProvider();
 
-        var testData = new RoadNetworkTestData();
-
         var provenanceData = new RoadRegistryProvenanceData();
         var command = new ChangeRoadNetworkSqsRequest
         {
-            DownloadId = testData.Fixture.Create<DownloadId>(),
-            TicketId = testData.Fixture.Create<TicketId>(),
+            DownloadId = TestData.Fixture.Create<DownloadId>(),
+            TicketId = TestData.Fixture.Create<TicketId>(),
             Changes = [
                 new ChangeRoadNetworkItem
                 {
-                    AddRoadNode = testData.AddSegment1StartNode
+                    AddRoadNode = TestData.AddSegment1StartNode
                 },
                 new ChangeRoadNetworkItem
                 {
-                    AddRoadNode = testData.AddSegment1EndNode
+                    AddRoadNode = TestData.AddSegment1EndNode
                 },
                 new ChangeRoadNetworkItem
                 {
-                    AddRoadSegment = testData.AddSegment1
+                    AddRoadSegment = TestData.AddSegment1
                 }
             ],
             ProvenanceData = provenanceData
@@ -196,10 +190,10 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         var store = sp.GetRequiredService<IDocumentStore>();
         await using var session = store.LightweightSession();
 
-        var roadNodes = await session.LoadManyAsync([testData.Segment1StartNodeAdded.RoadNodeId, testData.Segment1EndNodeAdded.RoadNodeId]);
+        var roadNodes = await session.LoadManyAsync([TestData.Segment1StartNodeAdded.RoadNodeId, TestData.Segment1EndNodeAdded.RoadNodeId]);
         roadNodes.Should().HaveCount(2);
 
-        var roadSegments = await session.LoadManyAsync([testData.Segment1Added.RoadSegmentId]);
+        var roadSegments = await session.LoadManyAsync([TestData.Segment1Added.RoadSegmentId]);
         roadSegments.Should().HaveCount(1);
     }
 

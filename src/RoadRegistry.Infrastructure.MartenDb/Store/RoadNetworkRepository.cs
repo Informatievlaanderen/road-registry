@@ -20,7 +20,7 @@ public class RoadNetworkRepository : IRoadNetworkRepository
     {
         if (geometry.IsEmpty && (ids is null || ids.IsEmpty))
         {
-            throw new InvalidOperationException("At least a geometry or ids must be specified.");
+            throw new ArgumentException("At least a geometry or ids must be specified.");
         }
 
         var baseSql = @$"
@@ -90,7 +90,7 @@ WITH ids AS (
         OR rs1.start_node_id = rs2.end_node_id
 		OR rs1.end_node_id = rs2.start_node_id
         OR rs1.end_node_id = rs2.end_node_id
-	WHERE rs1.id IN ({string.Join(",", roadSegmentIds.Select(x => x.ToInt32()))})
+	WHERE rs1.is_v2 AND rs2.is_v2 AND rs1.id IN ({string.Join(",", roadSegmentIds.Select(x => x.ToInt32()))})
 ),
 flat_ids AS (
     SELECT id1 AS id FROM ids
@@ -100,7 +100,7 @@ flat_ids AS (
 SELECT rs.id as RoadSegmentId, rs.start_node_id as StartNodeId, rs.end_node_id as EndNodeId, j.id as GradeSeparatedJunctionId
 FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
 JOIN flat_ids f ON rs.id = f.id
-LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j ON rs.id = j.upper_road_segment_id OR rs.id = j.lower_road_segment_id
+LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j ON j.is_v2 AND (rs.id = j.upper_road_segment_id OR rs.id = j.lower_road_segment_id)
 ";
 
         var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql)).ToList();

@@ -4,8 +4,8 @@ using System;
 
 public static class StreamKeyFactory
 {
-    public static string Create<TIdentifier>(Type entityType, TIdentifier identifier)
+    public static string Create<TIdentifier>(Type aggregateType, TIdentifier identifier)
     {
-        return $"{entityType.Name}-{identifier}";
+        return $"{aggregateType.Name}-{identifier}";
     }
 }

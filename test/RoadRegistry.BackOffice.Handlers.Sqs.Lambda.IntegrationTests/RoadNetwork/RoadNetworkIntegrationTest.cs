@@ -10,6 +10,8 @@ using Marten;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.V3;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using ScopedRoadNetwork;
@@ -24,17 +26,20 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
 {
     protected readonly ITestOutputHelper TestOutputHelper;
     protected readonly Mock<ITicketing> TicketingMock = new();
+    protected readonly RoadNetworkTestData TestData;
+
     private readonly DatabaseFixture _databaseFixture;
 
     protected RoadNetworkIntegrationTest(DatabaseFixture databaseFixture, ITestOutputHelper testOutputHelper)
     {
         _databaseFixture = databaseFixture;
         TestOutputHelper = testOutputHelper;
+        TestData = new();
     }
 
     protected async Task Given(IServiceProvider sp, TranslatedChanges changes)
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = TestData.Fixture;
 
         var provenanceData = new RoadRegistryProvenanceData();
         var sqsRequest = new ChangeRoadNetworkSqsRequest
@@ -119,5 +124,16 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
                 TestOutputHelper.WriteLine($"{error.ErrorCode}: {error.ErrorMessage}");
             }
         }
+    }
+
+    protected RoadSegmentGeometry BuildSegmentGeometry(int x1, int y1, int x2, int y2)
+    {
+        return BuildSegmentGeometry(new Point(x1, y1), new Point(x2, y2));
+    }
+    protected RoadSegmentGeometry BuildSegmentGeometry(Point start, Point end)
+    {
+        return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
+            .WithMeasureOrdinates()
+            .ToGeometryObject();
     }
 }

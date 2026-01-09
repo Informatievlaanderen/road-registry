@@ -36,8 +36,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         // Arrange
         var sp = await BuildServiceProvider();
 
-        var testData = new RoadNetworkTestData();
-        var fixture = testData.Fixture;
+        var fixture = TestData.Fixture;
 
         var node1 = new AddRoadNodeChange
         {
@@ -82,17 +81,17 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             NationalRoadNumbers = []
         };
 
-        var node4 = testData.AddSegment3StartNode with
+        var node4 = TestData.AddSegment3StartNode with
         {
             TemporaryId = new RoadNodeId(4),
             Geometry = new Point(200090, 200000),
         };
-        var node5 = testData.AddSegment3EndNode with
+        var node5 = TestData.AddSegment3EndNode with
         {
             TemporaryId = new RoadNodeId(5),
             Geometry = new Point(200095, 200000),
         };
-        var segment3 = testData.AddSegment3 with
+        var segment3 = TestData.AddSegment3 with
         {
             TemporaryId = new RoadSegmentId(3),
             StartNodeId = node4.TemporaryId,
@@ -123,7 +122,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         var provenanceData = new RoadRegistryProvenanceData();
         var sqsRequest = new RemoveRoadSegmentsSqsRequest
         {
-            RoadSegmentIds = [testData.Segment1Added.RoadSegmentId],
+            RoadSegmentIds = [TestData.Segment1Added.RoadSegmentId],
             ProvenanceData = provenanceData,
             TicketId = Guid.NewGuid()
         };
@@ -150,9 +149,9 @@ public class WithValidRequest : RoadNetworkIntegrationTest
 
         var roadSegments = await session.LoadManyAsync([segment1_node_1_2.TemporaryId, segment2_node_2_3.TemporaryId, segment3.TemporaryId]);
         roadSegments.Should().HaveCount(3);
-        roadSegments.Single(x => x.RoadSegmentId == testData.Segment1Added.RoadSegmentId).IsRemoved.Should().BeTrue();
-        roadSegments.Single(x => x.RoadSegmentId == testData.Segment2Added.RoadSegmentId).IsRemoved.Should().BeFalse();
-        roadSegments.Single(x => x.RoadSegmentId == testData.Segment3Added.RoadSegmentId).IsRemoved.Should().BeFalse();
+        roadSegments.Single(x => x.RoadSegmentId == TestData.Segment1Added.RoadSegmentId).IsRemoved.Should().BeTrue();
+        roadSegments.Single(x => x.RoadSegmentId == TestData.Segment2Added.RoadSegmentId).IsRemoved.Should().BeFalse();
+        roadSegments.Single(x => x.RoadSegmentId == TestData.Segment3Added.RoadSegmentId).IsRemoved.Should().BeFalse();
 
         var junctions = await session.LoadManyAsync([junction.TemporaryId]);
         junctions.Should().HaveCount(1);
