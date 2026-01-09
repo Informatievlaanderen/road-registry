@@ -82,7 +82,10 @@ public static class ConfigurationBuilderExtensions
     {
         return builder
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.integrationtests.json", optional: false, reloadOnChange: false)
+            .AddInMemoryCollection([
+                new KeyValuePair<string, string?>("ConnectionStrings:Marten", "Host=localhost;port=15432git;Username=postgres;Password=postgres")
+            ])
+            .AddJsonFile("appsettings.integrationtests.json", optional: true, reloadOnChange: false)
             .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", optional: true, reloadOnChange: false);
     }
 }
