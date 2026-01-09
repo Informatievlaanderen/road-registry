@@ -34,7 +34,7 @@ public abstract class FileProblem : IEquatable<FileProblem>, IEqualityComparer<F
                && Equals(x.Parameters, y.Parameters);
     }
 
-    public virtual bool Equals(FileProblem other)
+    public virtual bool Equals(FileProblem? other)
     {
         return other != null
                && GetType() == other.GetType()
@@ -43,14 +43,14 @@ public abstract class FileProblem : IEquatable<FileProblem>, IEqualityComparer<F
                && Parameters.SequenceEqual(other.Parameters);
     }
 
+    public override bool Equals(object? obj)
+    {
+        return obj is FileProblem other && Equals(other);
+    }
+
     public int GetHashCode(FileProblem obj)
     {
         return HashCode.Combine(obj.File, obj.Reason, obj.Parameters);
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is FileProblem other && Equals(other);
     }
 
     public override int GetHashCode()

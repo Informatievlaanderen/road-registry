@@ -104,11 +104,6 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
 
     public DutchTranslation Translation { get; }
 
-    public bool Equals(RoadSegmentStatus other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public static bool CanParse(string value)
     {
         return TryParse(value.ThrowIfNull(), out _);
@@ -119,7 +114,12 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
         return TryParseUsingDutchName(value, out _);
     }
 
-    public override bool Equals(object obj)
+    public bool Equals(RoadSegmentStatus? other)
+    {
+        return other != null && other._value == _value;
+    }
+
+    public override bool Equals(object? obj)
     {
         return obj is RoadSegmentStatus type && Equals(type);
     }
@@ -134,18 +134,18 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
         return Equals(left, right);
     }
 
+    public static bool operator !=(RoadSegmentStatus left, RoadSegmentStatus right)
+    {
+        return !Equals(left, right);
+    }
+
     public static implicit operator string(RoadSegmentStatus instance)
     {
-        return instance?.ToString();
+        return instance.ToString();
     }
     public static implicit operator int(RoadSegmentStatus instance)
     {
         return instance.Translation.Identifier;
-    }
-
-    public static bool operator !=(RoadSegmentStatus left, RoadSegmentStatus right)
-    {
-        return !Equals(left, right);
     }
 
     public static RoadSegmentStatus Parse(string value)

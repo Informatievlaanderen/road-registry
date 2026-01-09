@@ -68,11 +68,6 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>,
 
     public DutchTranslation Translation { get; }
 
-    public bool Equals(RoadSegmentSurfaceType other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public static bool CanParse(string value)
     {
         return TryParse(value.ThrowIfNull(), out _);
@@ -83,7 +78,12 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>,
         return TryParseUsingDutchName(value, out _);
     }
 
-    public override bool Equals(object obj)
+    public bool Equals(RoadSegmentSurfaceType? other)
+    {
+        return other != null && other._value == _value;
+    }
+
+    public override bool Equals(object? obj)
     {
         return obj is RoadSegmentSurfaceType type && Equals(type);
     }
@@ -98,18 +98,18 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>,
         return Equals(left, right);
     }
 
+    public static bool operator !=(RoadSegmentSurfaceType left, RoadSegmentSurfaceType right)
+    {
+        return !Equals(left, right);
+    }
+
     public static implicit operator string(RoadSegmentSurfaceType instance)
     {
-        return instance?.ToString();
+        return instance.ToString();
     }
     public static implicit operator int(RoadSegmentSurfaceType instance)
     {
         return instance.Translation.Identifier;
-    }
-
-    public static bool operator !=(RoadSegmentSurfaceType left, RoadSegmentSurfaceType right)
-    {
-        return !Equals(left, right);
     }
 
     public static RoadSegmentSurfaceType Parse(string value)
@@ -134,7 +134,7 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>,
         return Translation.Name;
     }
 
-    public static bool TryParse(string value, out RoadSegmentSurfaceType parsed)
+    public static bool TryParse(string value, out RoadSegmentSurfaceType? parsed)
     {
         ArgumentNullException.ThrowIfNull(value);
 
@@ -142,7 +142,7 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>,
         return parsed != null;
     }
 
-    public static bool TryParseUsingDutchName(string value, out RoadSegmentSurfaceType parsed)
+    public static bool TryParseUsingDutchName(string value, out RoadSegmentSurfaceType? parsed)
     {
         parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
         return parsed != null;

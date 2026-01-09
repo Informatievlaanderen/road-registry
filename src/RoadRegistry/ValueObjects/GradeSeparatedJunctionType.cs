@@ -54,11 +54,6 @@ public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJuncti
 
     public DutchTranslation Translation { get; }
 
-    public bool Equals(GradeSeparatedJunctionType other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -66,7 +61,12 @@ public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJuncti
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public override bool Equals(object obj)
+    public bool Equals(GradeSeparatedJunctionType? other)
+    {
+        return other != null && other._value == _value;
+    }
+
+    public override bool Equals(object? obj)
     {
         return obj is GradeSeparatedJunctionType type && Equals(type);
     }
@@ -81,14 +81,14 @@ public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJuncti
         return Equals(left, right);
     }
 
-    public static implicit operator string(GradeSeparatedJunctionType instance)
-    {
-        return instance.ToString();
-    }
-
     public static bool operator !=(GradeSeparatedJunctionType left, GradeSeparatedJunctionType right)
     {
         return !Equals(left, right);
+    }
+
+    public static implicit operator string(GradeSeparatedJunctionType instance)
+    {
+        return instance.ToString();
     }
 
     public static GradeSeparatedJunctionType Parse(string value)

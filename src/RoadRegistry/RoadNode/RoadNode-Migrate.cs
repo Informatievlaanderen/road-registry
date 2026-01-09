@@ -15,7 +15,7 @@ public partial class RoadNode
         var node = Create(new RoadNodeWasMigrated
         {
             RoadNodeId = change.RoadNodeId,
-            Geometry = change.Geometry.ToGeometryObject(),
+            Geometry = change.Geometry.ToRoadNodeGeometry(),
             Type = change.Type,
             Provenance = new ProvenanceData(provenance)
         });

@@ -36,7 +36,7 @@ public class AggregateTests : AggregateTestBase
 
         var segmentMigrated = (RoadSegmentWasMigrated)segment.GetChanges().Single();
         segmentMigrated.RoadSegmentId.Should().Be(change.RoadSegmentId);
-        segmentMigrated.Geometry.Should().Be(change.Geometry.ToGeometryObject());
+        segmentMigrated.Geometry.Should().Be(change.Geometry.ToRoadSegmentGeometry());
         segmentMigrated.OriginalId.Should().Be(change.OriginalId);
         segmentMigrated.StartNodeId.Should().Be(change.StartNodeId);
         segmentMigrated.EndNodeId.Should().Be(change.EndNodeId);
@@ -75,7 +75,7 @@ public class AggregateTests : AggregateTestBase
 
         var segmentMigrated = (RoadSegmentWasMigrated)segment.GetChanges().Single();
         segmentMigrated.RoadSegmentId.Should().Be(change.RoadSegmentId);
-        segmentMigrated.Geometry.Should().Be(change.Geometry.ToGeometryObject());
+        segmentMigrated.Geometry.Should().Be(change.Geometry.ToRoadSegmentGeometry());
         segmentMigrated.OriginalId.Should().Be(change.OriginalId);
         segmentMigrated.StartNodeId.Should().Be(change.StartNodeId);
         segmentMigrated.EndNodeId.Should().Be(change.EndNodeId);

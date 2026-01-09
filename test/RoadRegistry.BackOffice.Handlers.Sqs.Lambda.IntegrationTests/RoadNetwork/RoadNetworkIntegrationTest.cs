@@ -134,6 +134,6 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
     {
         return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
             .WithMeasureOrdinates()
-            .ToGeometryObject();
+            .ToRoadSegmentGeometry();
     }
 }

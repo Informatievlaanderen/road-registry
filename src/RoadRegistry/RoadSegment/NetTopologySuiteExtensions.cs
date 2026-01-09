@@ -54,47 +54,6 @@ public static class NetTopologySuiteExtensions
             problems = problems.Add(new RoadSegmentGeometrySelfIntersects(id));
         }
 
-        // disable Measure validation, it's automatically calculated anyway
-        // if (line.NumPoints > 0)
-        // {
-        //     var previousPointMeasure = 0.0;
-        //     for (var index = 0; index < line.CoordinateSequence.Count; index++)
-        //     {
-        //         var measure = line.CoordinateSequence.GetOrdinate(index, Ordinate.M);
-        //         var x = line.CoordinateSequence.GetX(index);
-        //         var y = line.CoordinateSequence.GetY(index);
-        //         if (index == 0 && !measure.IsReasonablyEqualTo(0, contextTolerances))
-        //         {
-        //             problems =
-        //                 problems.Add(new RoadSegmentStartPointMeasureValueNotEqualToZero(id, x, y, measure));
-        //         }
-        //         else if (index == line.CoordinateSequence.Count - 1 &&
-        //                  !measure.IsReasonablyEqualTo(line.Length, contextTolerances))
-        //         {
-        //             problems =
-        //                 problems.Add(new RoadSegmentEndPointMeasureValueNotEqualToLength(id, x, y, measure, line.Length));
-        //         }
-        //         else if (measure < 0.0 || measure.IsReasonablyGreaterThan(line.Length, contextTolerances))
-        //         {
-        //             problems =
-        //                 problems.Add(new RoadSegmentPointMeasureValueOutOfRange(id, x, y, measure, 0.0, line.Length));
-        //         }
-        //         else
-        //         {
-        //             if (index != 0 && measure <= previousPointMeasure)
-        //             {
-        //                 problems =
-        //                     problems.Add(new RoadSegmentPointMeasureValueDoesNotIncrease(id, x, y, measure,
-        //                         previousPointMeasure));
-        //             }
-        //             else
-        //             {
-        //                 previousPointMeasure = measure;
-        //             }
-        //         }
-        //     }
-        // }
-
         return problems;
     }
 }

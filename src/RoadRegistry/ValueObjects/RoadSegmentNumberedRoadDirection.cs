@@ -55,11 +55,6 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
 
     public DutchTranslation Translation { get; }
 
-    public bool Equals(RoadSegmentNumberedRoadDirection other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public static bool CanParse(string value)
     {
         return TryParse(value.ThrowIfNull(), out _);
@@ -70,7 +65,12 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
         return TryParseUsingDutchName(value, out _);
     }
 
-    public override bool Equals(object obj)
+    public bool Equals(RoadSegmentNumberedRoadDirection? other)
+    {
+        return other != null && other._value == _value;
+    }
+
+    public override bool Equals(object? obj)
     {
         return obj is RoadSegmentNumberedRoadDirection type && Equals(type);
     }
@@ -85,14 +85,14 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
         return Equals(left, right);
     }
 
-    public static implicit operator string(RoadSegmentNumberedRoadDirection instance)
-    {
-        return instance?.ToString();
-    }
-
     public static bool operator !=(RoadSegmentNumberedRoadDirection left, RoadSegmentNumberedRoadDirection right)
     {
         return !Equals(left, right);
+    }
+
+    public static implicit operator string(RoadSegmentNumberedRoadDirection instance)
+    {
+        return instance.ToString();
     }
 
     public static RoadSegmentNumberedRoadDirection Parse(string value)

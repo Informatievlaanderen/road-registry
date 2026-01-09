@@ -13,12 +13,10 @@ using ScopedRoadNetwork.Events.V2;
 public abstract class RoadNetworkChangesProjection : EventProjection
 {
     private readonly IReadOnlyCollection<IRoadNetworkChangesProjection> _projections;
-    private readonly ILogger? _logger;
 
-    protected RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections, ILogger? logger = null)
+    protected RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections)
     {
         _projections = projections;
-        _logger = logger;
 
         // V1
         IncludeType<ImportedRoadNode>();

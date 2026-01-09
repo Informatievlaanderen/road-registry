@@ -15,7 +15,7 @@ public partial class RoadNode
         Apply(new RoadNodeWasModified
         {
             RoadNodeId = RoadNodeId,
-            Geometry = change.Geometry?.ToGeometryObject(),
+            Geometry = change.Geometry?.ToRoadNodeGeometry(),
             Type = change.Type,
             Provenance = new ProvenanceData(provenance)
         });

@@ -11,7 +11,7 @@ using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using ScopedRoadNetwork;
 
-public class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>, IEquatable<TranslatedChanges>
+public sealed class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>, IEquatable<TranslatedChanges>
 {
     public static readonly TranslatedChanges Empty = new(
         ImmutableList<IRoadNetworkChange>.Empty,
@@ -125,7 +125,7 @@ public class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>, IEquat
                 _addRoadSegmentChanges, _modifyRoadSegmentChanges.SetItem(before.RoadSegmentId, after), _removeRoadSegmentChanges);
     }
 
-    public bool TryFindRoadSegmentChange(RoadSegmentId id, out IRoadNetworkChange change)
+    public bool TryFindRoadSegmentChange(RoadSegmentId id, out IRoadNetworkChange? change)
     {
         change = _addRoadSegmentChanges.GetValueOrDefault(id)
                  ?? (IRoadNetworkChange?)_modifyRoadSegmentChanges.GetValueOrDefault(id)
@@ -133,7 +133,7 @@ public class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>, IEquat
         return change != null;
     }
 
-    public bool Equals(TranslatedChanges other)
+    public bool Equals(TranslatedChanges? other)
     {
         if (other is null)
         {
@@ -148,7 +148,7 @@ public class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>, IEquat
         return _changes.SequenceEqual(other._changes);
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is null)
         {
@@ -170,6 +170,6 @@ public class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>, IEquat
 
     public override int GetHashCode()
     {
-        return (_changes != null ? _changes.GetHashCode() : 0);
+        return _changes.GetHashCode();
     }
 }

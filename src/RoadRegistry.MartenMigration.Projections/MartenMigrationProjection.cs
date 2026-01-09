@@ -67,7 +67,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var streamKey = StreamKeyFactory.Create(typeof(RoadNode), roadNodeId);
                 var legacyEvent = new ImportedRoadNode
                 {
-                    Geometry = point.ToGeometryObject(),
+                    Geometry = point.ToRoadNodeGeometry(),
                     RoadNodeId = envelope.Message.Id,
                     Origin = new()
                     {
@@ -110,7 +110,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var legacyEvent = new ImportedRoadSegment
                 {
                     RoadSegmentId = roadSegmentId,
-                    Geometry = geometry.ToGeometryObject(),
+                    Geometry = geometry.ToRoadSegmentGeometry(),
                     StartNodeId = envelope.Message.StartNodeId,
                     EndNodeId = envelope.Message.EndNodeId,
                     GeometryDrawMethod = envelope.Message.GeometryDrawMethod,
@@ -425,7 +425,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var streamKey = StreamKeyFactory.Create(typeof(RoadNode), roadNodeId);
             var legacyEvent = new RoadRegistry.RoadNode.Events.V1.RoadNodeAdded
             {
-                Geometry = point.ToGeometryObject(),
+                Geometry = point.ToRoadNodeGeometry(),
                 RoadNodeId = change.Id,
                 Version = change.Version,
                 TemporaryId = change.TemporaryId,
@@ -457,7 +457,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var streamKey = StreamKeyFactory.Create(typeof(RoadNode), roadNodeId);
                 var legacyEvent = new RoadRegistry.RoadNode.Events.V1.RoadNodeModified
                 {
-                    Geometry = point.ToGeometryObject(),
+                    Geometry = point.ToRoadNodeGeometry(),
                     RoadNodeId = change.Id,
                     Version = change.Version,
                     Type = change.Type,
@@ -517,7 +517,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 RoadSegmentId = change.Id,
                 TemporaryId = change.TemporaryId,
                 OriginalId = change.OriginalId,
-                Geometry = geometry.ToGeometryObject(),
+                Geometry = geometry.ToRoadSegmentGeometry(),
                 StartNodeId = change.StartNodeId,
                 EndNodeId = change.EndNodeId,
                 GeometryDrawMethod = change.GeometryDrawMethod,
@@ -592,7 +592,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     RoadSegmentId = change.Id,
                     OriginalId = change.OriginalId,
                     ConvertedFromOutlined = change.ConvertedFromOutlined,
-                    Geometry = geometry.ToGeometryObject(),
+                    Geometry = geometry.ToRoadSegmentGeometry(),
                     StartNodeId = change.StartNodeId,
                     EndNodeId = change.EndNodeId,
                     GeometryDrawMethod = change.GeometryDrawMethod,
@@ -647,6 +647,25 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 };
             },
             envelope, change, changeIndex, token);
+    }
+
+    private Task ModifyRoadSegment(RoadSegmentId roadSegmentId, Func<Provenance, IMartenEvent> getLegacyEvent, Envelope<RoadNetworkChangesAccepted> envelope, object change, int changeIndex, CancellationToken token)
+    {
+        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
+
+        return _repo.InIdempotentSession(eventIdentifier, session =>
+        {
+            session.CorrelationId = Guid.NewGuid().ToString();
+            session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+
+            var provenance = BuildProvenance(envelope, Modification.Update);
+
+            var streamKey = StreamKeyFactory.Create(typeof(RoadSegment), roadSegmentId);
+            var legacyEvent = getLegacyEvent(provenance);
+            session.Events.Append(streamKey, legacyEvent);
+
+            return Task.CompletedTask;
+        }, token);
     }
 
     private async Task AddRoadSegmentToEuropeanRoad(
@@ -875,7 +894,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     RoadSegmentId = change.Id,
                     Version = change.Version,
                     GeometryVersion = change.GeometryVersion,
-                    Geometry = GeometryTranslator.Translate(change.Geometry).ToGeometryObject(),
+                    Geometry = GeometryTranslator.Translate(change.Geometry).ToRoadSegmentGeometry(),
                     Lanes = change.Lanes.Select(x => new RoadSegmentLaneAttributes
                         {
                             AsOfGeometryVersion = x.AsOfGeometryVersion,
@@ -1051,23 +1070,6 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.Events.Append(streamKey, legacyEvent);
             }, token);
         }
-    }
-
-    private Task ModifyRoadSegment(RoadSegmentId roadSegmentId, Func<Provenance, IMartenEvent> getLegacyEvent, Envelope<RoadNetworkChangesAccepted> envelope, object change, int changeIndex, CancellationToken token)
-    {
-        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
-
-        return _repo.InIdempotentSession(eventIdentifier, async session =>
-        {
-            session.CorrelationId = Guid.NewGuid().ToString();
-            session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
-
-            var provenance = BuildProvenance(envelope, Modification.Update);
-
-            var streamKey = StreamKeyFactory.Create(typeof(RoadSegment), roadSegmentId);
-            var legacyEvent = getLegacyEvent(provenance);
-            session.Events.Append(streamKey, legacyEvent);
-        }, token);
     }
 
     private static Provenance BuildProvenance(Envelope<RoadNetworkChangesAccepted> envelope, Modification modification)

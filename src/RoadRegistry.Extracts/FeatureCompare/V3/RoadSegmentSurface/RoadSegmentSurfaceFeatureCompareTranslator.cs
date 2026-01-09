@@ -31,12 +31,12 @@ public class RoadSegmentSurfaceFeatureCompareTranslator : RoadSegmentAttributeFe
             var attributes = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>(grouping
                 .Where(x => x.RecordType != RecordType.Removed)
                 .Select(x => x.Feature.Attributes)
-                .Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.Type))
+                .Select(x => ((RoadSegmentPositionCoverage?)new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.Type))
             );
 
             if (changes.TryFindRoadSegmentChange(segmentId, out var roadSegmentChange))
             {
-                changes = UpdateRoadSegmentChange(changes, roadSegmentChange, attributes);
+                changes = UpdateRoadSegmentChange(changes, roadSegmentChange!, attributes);
             }
             else
             {

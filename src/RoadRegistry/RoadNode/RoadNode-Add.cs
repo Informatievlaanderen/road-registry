@@ -17,7 +17,7 @@ public partial class RoadNode
         {
             RoadNodeId = idGenerator.NewRoadNodeId(),
             OriginalId = change.OriginalId ?? change.TemporaryId,
-            Geometry = change.Geometry.ToGeometryObject(),
+            Geometry = change.Geometry.ToRoadNodeGeometry(),
             Type = change.Type,
             Provenance = new ProvenanceData(provenance)
         });

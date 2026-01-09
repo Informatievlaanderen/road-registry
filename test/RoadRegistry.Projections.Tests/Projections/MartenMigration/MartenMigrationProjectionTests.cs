@@ -50,7 +50,7 @@ public class MartenMigrationProjectionTests
                     TemporaryId = @event.TemporaryId,
                     OriginalId = @event.OriginalId,
                     Version = @event.Version,
-                    Geometry = GeometryTranslator.Translate(@event.Geometry).ToGeometryObject(),
+                    Geometry = GeometryTranslator.Translate(@event.Geometry).ToRoadNodeGeometry(),
                     Type = @event.Type,
                     Provenance = new ProvenanceData(new Provenance(
                         LocalDateTimeTranslator.TranslateFromWhen(message.When),

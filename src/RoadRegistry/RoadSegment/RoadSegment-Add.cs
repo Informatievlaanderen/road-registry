@@ -43,7 +43,7 @@ public partial class RoadSegment
         {
             RoadSegmentId = idGenerator.NewRoadSegmentId(),
             OriginalId = change.OriginalId,
-            Geometry = change.Geometry.ToGeometryObject(),
+            Geometry = change.Geometry.ToRoadSegmentGeometry(),
             StartNodeId = change.StartNodeId,
             EndNodeId = change.EndNodeId,
             GeometryDrawMethod = attributes.GeometryDrawMethod,

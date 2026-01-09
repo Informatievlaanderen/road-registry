@@ -77,11 +77,6 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
 
     public DutchTranslation Translation { get; }
 
-    public bool Equals(RoadSegmentLaneDirection other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -91,7 +86,12 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
 
     public static bool CanParseUsingDutchName(string value) => ParseUsingDutchName(value) is not null;
 
-    public override bool Equals(object obj)
+    public bool Equals(RoadSegmentLaneDirection? other)
+    {
+        return other != null && other._value == _value;
+    }
+
+    public override bool Equals(object? obj)
     {
         return obj is RoadSegmentLaneDirection type && Equals(type);
     }
@@ -106,14 +106,14 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
         return Equals(left, right);
     }
 
-    public static implicit operator string(RoadSegmentLaneDirection instance)
-    {
-        return instance?.ToString();
-    }
-
     public static bool operator !=(RoadSegmentLaneDirection left, RoadSegmentLaneDirection right)
     {
         return !Equals(left, right);
+    }
+
+    public static implicit operator string(RoadSegmentLaneDirection instance)
+    {
+        return instance.ToString();
     }
 
     public static RoadSegmentLaneDirection Parse(string value)
@@ -124,7 +124,7 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
         return parsed;
     }
 
-    public static RoadSegmentLaneDirection ParseUsingDutchName(string value)
+    public static RoadSegmentLaneDirection? ParseUsingDutchName(string? value)
     {
         return value == null ? null : Array.Find(All, candidate => candidate.Translation.Name == value);
     }
@@ -139,7 +139,7 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
         return Translation.Name;
     }
 
-    public static bool TryParse(string value, out RoadSegmentLaneDirection parsed)
+    public static bool TryParse(string value, out RoadSegmentLaneDirection? parsed)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
 

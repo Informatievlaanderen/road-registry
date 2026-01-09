@@ -18,7 +18,7 @@ public static class ShapeFileExtensions
         return new ShapeFileRecordEnumerator<TDbaseRecord>(reader);
     }
 
-    private class ShapeFileRecordEnumerator<TDbaseRecord> : IShapeFileRecordEnumerator<TDbaseRecord>
+    private sealed class ShapeFileRecordEnumerator<TDbaseRecord> : IShapeFileRecordEnumerator<TDbaseRecord>
         where TDbaseRecord : DbaseRecord, new()
         {
             private enum State { Initial, Started, Ended }

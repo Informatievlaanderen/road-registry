@@ -69,10 +69,16 @@ public sealed class RecordType : IEquatable<RecordType>
 
     public DutchTranslation Translation { get; }
 
-    public bool Equals(RecordType other)
+    public bool Equals(RecordType? other)
     {
         return other != null && other._value == _value;
     }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is RecordType type && Equals(type);
+    }
+
 
     public static bool CanParse(string value)
     {
@@ -80,12 +86,6 @@ public sealed class RecordType : IEquatable<RecordType>
 
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
-
-    public override bool Equals(object obj)
-    {
-        return obj is RecordType type && Equals(type);
-    }
-
     public override int GetHashCode()
     {
         return _value.GetHashCode();
@@ -101,14 +101,14 @@ public sealed class RecordType : IEquatable<RecordType>
         return Equals(left, right);
     }
 
-    public static implicit operator string(RecordType instance)
-    {
-        return instance.ToString();
-    }
-
     public static bool operator !=(RecordType left, RecordType right)
     {
         return !Equals(left, right);
+    }
+
+    public static implicit operator string(RecordType instance)
+    {
+        return instance.ToString();
     }
 
     public static RecordType Parse(string value)

@@ -194,7 +194,7 @@ public class RoadNetworkTestData
         {
             RoadNodeId = new RoadNodeId(1),
             OriginalId = AddSegment1StartNode.TemporaryId,
-            Geometry = AddSegment1StartNode.Geometry.ToGeometryObject(),
+            Geometry = AddSegment1StartNode.Geometry.ToRoadNodeGeometry(),
             Type = AddSegment1StartNode.Type,
             Provenance = new ProvenanceData(Provenance)
         };
@@ -225,7 +225,7 @@ public class RoadNetworkTestData
         {
             RoadNodeId = new RoadNodeId(2),
             OriginalId = AddSegment1EndNode.TemporaryId,
-            Geometry = AddSegment1EndNode.Geometry.ToGeometryObject(),
+            Geometry = AddSegment1EndNode.Geometry.ToRoadNodeGeometry(),
             Type = AddSegment1EndNode.Type,
             Provenance = new ProvenanceData(Provenance)
         };
@@ -256,7 +256,7 @@ public class RoadNetworkTestData
         {
             RoadNodeId = new RoadNodeId(3),
             OriginalId = AddSegment2StartNode.TemporaryId,
-            Geometry = AddSegment2StartNode.Geometry.ToGeometryObject(),
+            Geometry = AddSegment2StartNode.Geometry.ToRoadNodeGeometry(),
             Type = AddSegment2StartNode.Type,
             Provenance = new ProvenanceData(Provenance)
         };
@@ -273,7 +273,7 @@ public class RoadNetworkTestData
         {
             RoadNodeId = new RoadNodeId(4),
             OriginalId = AddSegment2EndNode.TemporaryId,
-            Geometry = AddSegment2EndNode.Geometry.ToGeometryObject(),
+            Geometry = AddSegment2EndNode.Geometry.ToRoadNodeGeometry(),
             Type = AddSegment2EndNode.Type,
             Provenance = new ProvenanceData(Provenance)
         };
@@ -290,7 +290,7 @@ public class RoadNetworkTestData
         {
             RoadNodeId = new RoadNodeId(5),
             OriginalId = AddSegment3StartNode.TemporaryId,
-            Geometry = AddSegment3StartNode.Geometry.ToGeometryObject(),
+            Geometry = AddSegment3StartNode.Geometry.ToRoadNodeGeometry(),
             Type = AddSegment3StartNode.Type,
             Provenance = new ProvenanceData(Provenance)
         };
@@ -307,7 +307,7 @@ public class RoadNetworkTestData
         {
             RoadNodeId = new RoadNodeId(6),
             OriginalId = AddSegment3EndNode.TemporaryId,
-            Geometry = AddSegment3EndNode.Geometry.ToGeometryObject(),
+            Geometry = AddSegment3EndNode.Geometry.ToRoadNodeGeometry(),
             Type = AddSegment3EndNode.Type,
             Provenance = new ProvenanceData(Provenance)
         };
@@ -338,7 +338,7 @@ public class RoadNetworkTestData
             OriginalId = AddSegment1.OriginalId,
             StartNodeId = Segment1StartNodeAdded.RoadNodeId,
             EndNodeId = Segment1EndNodeAdded.RoadNodeId,
-            Geometry = AddSegment1.Geometry.ToGeometryObject(),
+            Geometry = AddSegment1.Geometry.ToRoadSegmentGeometry(),
             MaintenanceAuthorityId = AddSegment1.MaintenanceAuthorityId,
             GeometryDrawMethod = AddSegment1.GeometryDrawMethod,
             Morphology = AddSegment1.Morphology,
@@ -377,7 +377,7 @@ public class RoadNetworkTestData
             OriginalId = AddSegment2.OriginalId,
             StartNodeId = Segment2StartNodeAdded.RoadNodeId,
             EndNodeId = Segment2EndNodeAdded.RoadNodeId,
-            Geometry = AddSegment2.Geometry.ToGeometryObject(),
+            Geometry = AddSegment2.Geometry.ToRoadSegmentGeometry(),
             MaintenanceAuthorityId = AddSegment2.MaintenanceAuthorityId,
             GeometryDrawMethod = AddSegment2.GeometryDrawMethod,
             Morphology = AddSegment2.Morphology,
@@ -416,7 +416,7 @@ public class RoadNetworkTestData
             OriginalId = AddSegment3.OriginalId,
             StartNodeId = Segment3StartNodeAdded.RoadNodeId,
             EndNodeId = Segment3EndNodeAdded.RoadNodeId,
-            Geometry = AddSegment3.Geometry.ToGeometryObject(),
+            Geometry = AddSegment3.Geometry.ToRoadSegmentGeometry(),
             MaintenanceAuthorityId = AddSegment3.MaintenanceAuthorityId,
             GeometryDrawMethod = AddSegment3.GeometryDrawMethod,
             Morphology = AddSegment3.Morphology,

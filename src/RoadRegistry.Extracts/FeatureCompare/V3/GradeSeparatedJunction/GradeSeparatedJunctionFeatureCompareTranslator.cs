@@ -283,7 +283,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
         private readonly int _max;
 
         public RoadSegmentCombinationKey(RoadSegmentFeatureCompareRecord roadSegment1, RoadSegmentFeatureCompareRecord roadSegment2)
-            : this((RoadSegmentId)roadSegment1.Id, (RoadSegmentId)roadSegment2.Id)
+            : this(roadSegment1.Id, roadSegment2.Id)
         {
         }
 

@@ -5,7 +5,7 @@ using NetTopologySuite.Geometries;
 public record RoadSegmentFeatureCompareAttributes
 {
     public RoadSegmentId Id { get; init; }
-    public MultiLineString Geometry { get; init; }
+    public MultiLineString? Geometry { get; init; }
     public RoadNodeId? StartNodeId { get; init; }
     public RoadNodeId? EndNodeId { get; init; }
     public RoadSegmentGeometryDrawMethod? Method { get; init; }

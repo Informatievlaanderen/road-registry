@@ -436,10 +436,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 {
                     problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(
                         NetTopologySuite.IO.Esri.ShapeType.PolyLineM,
-                        Geometry?.GeometryType);
+                        Geometry.GeometryType);
                 }
 
-                return null;
+                return default;
             }
 
             var method = ReadMethod();

@@ -56,7 +56,7 @@ public partial class RoadSegment
             OriginalId = change.OriginalId,
             StartNodeId = change.StartNodeId,
             EndNodeId = change.EndNodeId,
-            Geometry = geometry.ToGeometryObject(),
+            Geometry = geometry.ToRoadSegmentGeometry(),
             GeometryDrawMethod = geometryDrawMethod,
             AccessRestriction = accessRestriction,
             Category = category,

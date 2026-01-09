@@ -18,7 +18,7 @@ public static class NetTopologySuiteExtensions
             .WithSrid(geometry.SRID));
     }
 
-    public static RoadNodeGeometry ToGeometryObject(this Point geometry)
+    public static RoadNodeGeometry ToRoadNodeGeometry(this Point geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);
 
@@ -34,7 +34,7 @@ public static class NetTopologySuiteExtensions
             .WithMeasureOrdinates();
     }
 
-    public static RoadSegmentGeometry ToGeometryObject(this MultiLineString geometry)
+    public static RoadSegmentGeometry ToRoadSegmentGeometry(this MultiLineString geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);
 
@@ -43,17 +43,12 @@ public static class NetTopologySuiteExtensions
 
     public static IPolygonal[] GetPolygonals(this IPolygonal polygonal)
     {
-        if (polygonal is Polygon polygon)
+        return polygonal switch
         {
-            return new IPolygonal[] { polygon };
-        }
-
-        if (polygonal is MultiPolygon multiPolygon)
-        {
-            return multiPolygon.Geometries.Cast<IPolygonal>().ToArray();
-        }
-
-        throw new NotSupportedException($"Type '{polygonal.GetType().FullName}' is not supported. Only 'Polygon' or 'MultiPolygon' are allowed.");
+            Polygon polygon => [polygon],
+            MultiPolygon multiPolygon => multiPolygon.Geometries.Cast<IPolygonal>().ToArray(),
+            _ => throw new NotSupportedException($"Type '{polygonal.GetType().FullName}' is not supported. Only 'Polygon' or 'MultiPolygon' are allowed.")
+        };
     }
 
     public static bool RoadSegmentOverlapsWith(this MultiLineString g0, MultiLineString g1, double clusterTolerance)
@@ -64,7 +59,7 @@ public static class NetTopologySuiteExtensions
         return OverlapsWith(g0, g1, criticalOverlapPercentage, openGisGeometryType, clusterTolerance);
     }
 
-    public static bool OverlapsWith(this Geometry g0, Geometry g1, double threshold, OgcGeometryType oGisGeometryType, double clusterTolerance)
+    private static bool OverlapsWith(Geometry? g0, Geometry? g1, double threshold, OgcGeometryType oGisGeometryType, double clusterTolerance)
     {
         if (g0 is null && g1 is null)
         {

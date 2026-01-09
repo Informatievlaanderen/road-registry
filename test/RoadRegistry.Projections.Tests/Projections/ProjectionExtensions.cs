@@ -7,7 +7,6 @@ using JasperFx.Events;
 using KellermanSoftware.CompareNetObjects;
 using Marten;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
-using RoadRegistry.Projections.Tests.Projections.Template;
 using RoadRegistry.Tests.Framework.Projections;
 using Xunit.Sdk;
 
@@ -37,7 +36,7 @@ public static class ProjectionExtensions
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
 
-        var specification = scenario.Verify(async _ =>
+        var specification = scenario.Verify(_ =>
         {
             var comparisonConfig = new ComparisonConfig
             {
@@ -56,9 +55,9 @@ public static class ProjectionExtensions
                 actualRecords
             );
 
-            return result.AreEqual
+            return Task.FromResult(result.AreEqual
                 ? VerificationResult.Pass()
-                : VerificationResult.Fail(result.CreateDifferenceMessage(actualRecords, records));
+                : VerificationResult.Fail(result.CreateDifferenceMessage(actualRecords, records)));
         });
 
         var projector = new ConnectedProjector<IDocumentOperations>(specification.Resolver);
@@ -82,12 +81,12 @@ public static class ProjectionExtensions
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
 
-        var specification = scenario.Verify(async context =>
+        var specification = scenario.Verify(context =>
         {
             var actualRecords = store.AllRecords();
-            return actualRecords.Length == 0
+            return Task.FromResult(actualRecords.Length == 0
                 ? VerificationResult.Pass()
-                : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
+                : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}."));
         });
 
         var projector = new ConnectedProjector<IDocumentOperations>(specification.Resolver);
@@ -122,7 +121,6 @@ public static class ProjectionExtensions
     {
         var storeOptions = new StoreOptions();
         storeOptions.ConfigureRoad();
-        RoadSegmentProjection.Configure(storeOptions);
         return storeOptions;
     }
 }

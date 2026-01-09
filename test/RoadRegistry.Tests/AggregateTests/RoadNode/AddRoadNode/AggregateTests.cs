@@ -28,7 +28,7 @@ public class AggregateTests : AggregateTestBase
         var nodeAdded = (RoadNodeWasAdded)node.GetChanges().Single();
         nodeAdded.RoadNodeId.Should().Be(new RoadNodeId(1));
         nodeAdded.Type.Should().Be(change.Type);
-        nodeAdded.Geometry.Should().Be(change.Geometry.ToGeometryObject());
+        nodeAdded.Geometry.Should().Be(change.Geometry.ToRoadNodeGeometry());
     }
 
     [Fact]

@@ -14,8 +14,8 @@ using ScopedRoadNetwork.ValueObjects;
 
 public class DummyRoadNetworkChangesProjection : RoadNetworkChangesProjection
 {
-    public DummyRoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections, ILogger? logger = null)
-        : base(projections, logger)
+    public DummyRoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections)
+        : base(projections)
     {
     }
 }
@@ -40,7 +40,7 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
         {
             configureProjection?.Invoke(options);
 
-            options.AddRoadNetworkChangesProjection(new DummyRoadNetworkChangesProjection(projections, logger));
+            options.AddRoadNetworkChangesProjection(new DummyRoadNetworkChangesProjection(projections));
         });
     }
 
