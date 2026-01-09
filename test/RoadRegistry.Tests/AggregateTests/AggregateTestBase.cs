@@ -15,7 +15,7 @@ public abstract class AggregateTestBase
         Fixture = TestData.Fixture;
     }
 
-    protected MultiLineString BuildSegmentGeometry(Point start, Point end)
+    protected MultiLineString BuildMultiLineString(Point start, Point end)
     {
         return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
             .WithMeasureOrdinates();

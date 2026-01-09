@@ -40,9 +40,4 @@
     <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
     <Content Include="postgres.yml" CopyToOutputDirectory="Always" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="RoadRegistry">
-      <HintPath>..\RoadRegistry.Projections.Tests\bin\Debug\net9.0\RoadRegistry.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 </Project>
