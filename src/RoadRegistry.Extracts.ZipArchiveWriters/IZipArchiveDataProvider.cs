@@ -21,5 +21,5 @@ public interface IZipArchiveDataProvider
         IPolygonal contour,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<OrganizationRecordV2>> GetOrganizations(CancellationToken cancellationToken); //TODO-pr moet mee aangepast worden eens de orgs ook gemigreerd zijn
+    Task<IReadOnlyList<OrganizationRecordV2>> GetOrganizations(CancellationToken cancellationToken);
 }

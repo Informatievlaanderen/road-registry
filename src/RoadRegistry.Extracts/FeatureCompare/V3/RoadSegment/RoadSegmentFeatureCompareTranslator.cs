@@ -191,8 +191,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             };
         }
 
-        //TODO-pr FC inwinning changes (context.ZipArchiveMetadata.Inwinning)
-        //- FC AddRoadSegment moet bij een merge beide original IDs meegeven
+        //TODO-pr FC inwinning changes: FC AddRoadSegment moet bij een merge beide original IDs meegeven (context.ZipArchiveMetadata.Inwinning)
         foreach (var changeFeature in changeFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();

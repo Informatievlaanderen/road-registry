@@ -30,7 +30,7 @@ public class OrganizationsZipArchiveWriter : IZipArchiveWriter
 
         var dbaseRecords = new List<OrganizationDbaseRecord>();
 
-        foreach (var predefined in Organization.PredefinedTranslations.All)
+        foreach (var predefined in OrganizationName.PredefinedTranslations.All)
         {
             var dbfRecord = new OrganizationDbaseRecord();
             dbfRecord.ORG.Value = predefined.Identifier;

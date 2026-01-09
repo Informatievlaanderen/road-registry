@@ -60,7 +60,7 @@ public class OrganizationsToZipArchiveWriterTests
                                     new DbaseFileHeader(
                                         DateTime.Now,
                                         DbaseCodePage.Western_European_ANSI,
-                                        new DbaseRecordCount(0 + Organization.PredefinedTranslations.All.Length),
+                                        new DbaseRecordCount(0 + OrganizationName.PredefinedTranslations.All.Length),
                                         OrganizationDbaseRecord.Schema),
                                     DbaseFileHeader.Read(reader));
                             }

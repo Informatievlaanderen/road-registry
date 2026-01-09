@@ -70,7 +70,6 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
             ;
     }
 
-    //TODO-pr add unit test to ensure all dynamic attributes are ignored (using reflection)
     public bool EqualsOnlyNonDynamicAttributes(RoadSegmentAttributes? other)
     {
         if (other is null)

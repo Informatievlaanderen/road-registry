@@ -38,7 +38,7 @@ public class RoadNetwork : EventSourcedEntity
         DownloadId? downloadId,
         Reason reason,
         OperatorName @operator,
-        Organization.DutchTranslation organization,
+        OrganizationName.DutchTranslation organization,
         RequestedChanges requestedChanges,
         TicketId? ticketId,
         IExtractUploadFailedEmailClient emailClient,

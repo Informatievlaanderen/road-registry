@@ -63,8 +63,8 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
             nameof(Retired),
             new DutchTranslation(
                 6,
-                "TODO-pr",
-                "TODO-pr"
+                "TODO-pr implement new values",
+                "TODO-pr implement new values"
             )
         );
 

@@ -12,7 +12,7 @@ namespace RoadRegistry.Tests
         {
             if (OrganizationId.IsSystemValue(organizationId))
             {
-                var translation = Organization.PredefinedTranslations.FromSystemValue(organizationId);
+                var translation = OrganizationName.PredefinedTranslations.FromSystemValue(organizationId);
 
                 return Task.FromResult(new OrganizationDetail
                 {

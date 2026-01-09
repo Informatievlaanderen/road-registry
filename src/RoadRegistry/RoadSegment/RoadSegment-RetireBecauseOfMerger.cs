@@ -10,8 +10,6 @@ public partial class RoadSegment
     {
         var problems = Problems.For(RoadSegmentId);
 
-        //TODO-pr enkel voor measured segments? if yes, add validation + unit test
-
         Apply(new RoadSegmentWasRetiredBecauseOfMerger
         {
             RoadSegmentId = RoadSegmentId,

@@ -83,10 +83,9 @@ public readonly struct OrganizationName : IEquatable<OrganizationName>
         return !left.Equals(right);
     }
 
-    //TODO-pr waar deze plaatsen? stond vroeger bij Organization aggregate dat nu gaat verdwijnen
     public class DutchTranslation
     {
-        internal DutchTranslation(OrganizationId identifier, OrganizationName name)
+        public DutchTranslation(OrganizationId identifier, OrganizationName name)
         {
             Identifier = identifier;
             Name = name;

@@ -34,7 +34,7 @@ namespace RoadRegistry.Hosts
         {
             if (OrganizationId.IsSystemValue(organizationId))
             {
-                var translation = Organization.PredefinedTranslations.FromSystemValue(organizationId);
+                var translation = OrganizationName.PredefinedTranslations.FromSystemValue(organizationId);
 
                 return new OrganizationDetail
                 {

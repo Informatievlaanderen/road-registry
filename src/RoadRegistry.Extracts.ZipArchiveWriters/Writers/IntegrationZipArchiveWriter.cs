@@ -109,7 +109,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                     {
                         WS_OIDN = { Value = x.RoadSegmentId },
                         WS_UIDN = { Value = $"{x.RoadSegmentId}_{new Rfc3339SerializableDateTimeOffset(x.LastModified.Timestamp.ToBelgianDateTimeOffset()).ToString()}"},
-                        //WS_GIDN = { Value = "", }, //TODO-pr obsolete?
+                        //WS_GIDN = { Value = "", },
 
                         B_WK_OIDN = { Value = x.StartNodeId },
                         E_WK_OIDN = { Value = x.EndNodeId },
