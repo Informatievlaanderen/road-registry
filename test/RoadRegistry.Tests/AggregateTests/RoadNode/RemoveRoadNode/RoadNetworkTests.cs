@@ -32,7 +32,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
     }
 
     [Fact]
-    public Task WhenNotFound_ThenError()
+    public Task WhenNotFound_ThenNoProblem()
     {
         var change = Fixture.Create<RemoveRoadNodeChange>();
 
@@ -41,7 +41,10 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(change)
             )
-            .ThenProblems(new Error("RoadNodeNotFound", new ProblemParameter("NodeId", change.RoadNodeId.ToString())))
+            .Then((result, events) =>
+            {
+                result.Problems.HasError().Should().BeFalse();
+            })
         );
     }
 }
