@@ -1,3 +1,15 @@
+# [4.39.0](https://github.com/informatievlaanderen/road-registry/compare/v4.38.15...v4.39.0) (2026-01-09)
+
+
+### Bug Fixes
+
+* release build ([eb20a0e](https://github.com/informatievlaanderen/road-registry/commit/eb20a0e21c53f4edf91ebbf93b80ee8247817823))
+
+
+### Features
+
+* add DomainV2 with MartenDB #GAWR-7064 ([47a3d36](https://github.com/informatievlaanderen/road-registry/commit/47a3d3603fdd6bb9d06b059ab426f5ac3d1b73fe)), closes [#GAWR-7064](https://github.com/informatievlaanderen/road-registry/issues/GAWR-7064) [#GAWR-7064](https://github.com/informatievlaanderen/road-registry/issues/GAWR-7064)
+
 ## [4.38.15](https://github.com/informatievlaanderen/road-registry/compare/v4.38.14...v4.38.15) (2025-12-19)
 
 
