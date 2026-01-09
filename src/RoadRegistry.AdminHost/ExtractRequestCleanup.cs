@@ -12,6 +12,7 @@ namespace RoadRegistry.AdminHost
     using System.Threading;
     using Infrastructure.Options;
     using Microsoft.Extensions.Logging;
+    using ValueObjects;
 
     public class ExtractRequestCleanup
     {

@@ -139,10 +139,11 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
         return !Equals(left, right);
     }
 
-    public static implicit operator string(RoadSegmentStatus instance)
+    public static implicit operator string?(RoadSegmentStatus? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
+
     public static implicit operator int(RoadSegmentStatus instance)
     {
         return instance.Translation.Identifier;

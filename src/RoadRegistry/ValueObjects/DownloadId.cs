@@ -86,8 +86,8 @@ public readonly struct DownloadId : IEquatable<DownloadId>
         return instance.ToGuid();
     }
 
-    public static implicit operator string(DownloadId instance)
+    public static implicit operator string?(DownloadId? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 }

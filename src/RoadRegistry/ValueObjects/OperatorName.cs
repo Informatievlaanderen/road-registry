@@ -45,9 +45,9 @@ public readonly struct OperatorName : IEquatable<OperatorName>
         return _value;
     }
 
-    public static implicit operator string(OperatorName instance)
+    public static implicit operator string?(OperatorName? instance)
     {
-        return instance._value;
+        return instance?.ToString();
     }
 
     public static bool operator ==(OperatorName left, OperatorName right)

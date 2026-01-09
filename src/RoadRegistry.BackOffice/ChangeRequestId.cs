@@ -112,8 +112,8 @@ public readonly struct ChangeRequestId : IEquatable<ChangeRequestId>
         return !left.Equals(right);
     }
 
-    public static implicit operator string(ChangeRequestId instance)
+    public static implicit operator string?(ChangeRequestId? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 }

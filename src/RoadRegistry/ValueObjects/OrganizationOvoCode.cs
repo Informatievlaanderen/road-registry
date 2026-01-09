@@ -68,9 +68,9 @@ public readonly struct OrganizationOvoCode : IEquatable<OrganizationOvoCode>
         return _value;
     }
 
-    public static implicit operator string(OrganizationOvoCode instance)
+    public static implicit operator string?(OrganizationOvoCode? instance)
     {
-        return instance._value;
+        return instance?.ToString();
     }
 
     public static bool operator ==(OrganizationOvoCode left, OrganizationOvoCode right)

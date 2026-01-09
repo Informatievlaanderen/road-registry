@@ -102,8 +102,8 @@ public readonly struct ExtractRequestId : IEquatable<ExtractRequestId>
         return !left.Equals(right);
     }
 
-    public static implicit operator string(ExtractRequestId instance)
+    public static implicit operator string?(ExtractRequestId? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 }

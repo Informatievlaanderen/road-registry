@@ -10,6 +10,7 @@ using BackOffice.Abstractions;
 using BackOffice.Configuration;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using Extensions;
 using Hosts.Infrastructure;
 using Infrastructure.Options;
 using MediatR;
@@ -56,7 +57,7 @@ public class AdminMessageConsumer
                 {
                     var sqsMessageType = message.GetType();
                     _logger.LogInformation("SQS message '{Type}' received", sqsMessageType.FullName);
-                    
+
                     var backOfficeRequest = GetBackOfficeRequestFromSqsRequest(message);
                     if (backOfficeRequest is not null)
                     {

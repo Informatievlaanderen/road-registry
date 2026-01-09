@@ -148,9 +148,9 @@ public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>, ICom
         return new string(_value ?? []);
     }
 
-    public static implicit operator string(NationalRoadNumber instance)
+    public static implicit operator string?(NationalRoadNumber? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator ==(NationalRoadNumber left, NationalRoadNumber right)

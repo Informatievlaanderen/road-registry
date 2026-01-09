@@ -111,9 +111,9 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
         return !Equals(left, right);
     }
 
-    public static implicit operator string(RoadSegmentLaneDirection instance)
+    public static implicit operator string?(RoadSegmentLaneDirection? instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static RoadSegmentLaneDirection Parse(string value)

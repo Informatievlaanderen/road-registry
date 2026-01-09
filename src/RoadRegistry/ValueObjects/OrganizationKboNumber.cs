@@ -54,9 +54,9 @@ public readonly struct OrganizationKboNumber : IEquatable<OrganizationKboNumber>
         return _value;
     }
 
-    public static implicit operator string(OrganizationKboNumber instance)
+    public static implicit operator string?(OrganizationKboNumber? instance)
     {
-        return instance._value;
+        return instance?.ToString();
     }
 
     public static bool operator ==(OrganizationKboNumber left, OrganizationKboNumber right)

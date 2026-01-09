@@ -22,9 +22,9 @@ namespace RoadRegistry.ValueObjects
             return $"{Id}_{Version}";
         }
 
-        public static implicit operator string(UIDN instance)
+        public static implicit operator string?(UIDN? instance)
         {
-            return instance.ToString();
+            return instance?.ToString();
         }
     }
 }
