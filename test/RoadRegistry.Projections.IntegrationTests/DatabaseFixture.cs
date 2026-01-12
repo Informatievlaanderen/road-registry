@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.Configuration;
 using Npgsql;
+using Polly;
 
 public class DatabaseFixture : IAsyncLifetime
 {
@@ -40,27 +41,21 @@ public class DatabaseFixture : IAsyncLifetime
         await using var connection = new NpgsqlConnection(_rootConnectionString);
         await using var command = new NpgsqlCommand(createDbQuery, connection);
 
-        var attempt = 1;
-        while (true)
-        {
-            try
-            {
-                await connection.OpenAsync();
-                break;
-            }
-            catch
-            {
-                if (attempt == 5)
-                {
-                    throw;
-                }
-
-                attempt++;
-                await Task.Delay(TimeSpan.FromMilliseconds(200));
-            }
-        }
+        await WaitForPgToBeReady(connection);
 
         await command.ExecuteNonQueryAsync();
+    }
+
+    private static async Task WaitForPgToBeReady(NpgsqlConnection connection)
+    {
+        var policy = Policy
+            .Handle<NpgsqlException>()
+            .Or<System.Net.Sockets.SocketException>()
+            .Or<TimeoutException>()
+            .WaitAndRetryAsync(
+                retryCount: 30,
+                _ => TimeSpan.FromSeconds(1));
+        await policy.ExecuteAsync(connection.OpenAsync);
     }
 
     private async Task InstallPostgis()
