@@ -1,3 +1,10 @@
+## [4.39.2](https://github.com/informatievlaanderen/road-registry/compare/v4.39.1...v4.39.2) (2026-01-12)
+
+
+### Bug Fixes
+
+* backoffice.api nuget package include new domain project ([f0f9837](https://github.com/informatievlaanderen/road-registry/commit/f0f983781a460051a34ad807d2228558493eb3e4))
+
 ## [4.39.1](https://github.com/informatievlaanderen/road-registry/compare/v4.39.0...v4.39.1) (2026-01-12)
 
 
