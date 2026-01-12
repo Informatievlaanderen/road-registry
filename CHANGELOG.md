@@ -1,3 +1,14 @@
+## [4.39.1](https://github.com/informatievlaanderen/road-registry/compare/v4.39.0...v4.39.1) (2026-01-12)
+
+
+### Bug Fixes
+
+* **integrationtests:** marten connectionstring ([66e066d](https://github.com/informatievlaanderen/road-registry/commit/66e066d06fe607fce857a1ba87146060fb9dde49))
+* running integration tests on github ([ee75e82](https://github.com/informatievlaanderen/road-registry/commit/ee75e82fdcb07a9c36d805a8608f8644e67b079e))
+* schedule pipeline cleanup tools folder ([6e6a981](https://github.com/informatievlaanderen/road-registry/commit/6e6a981cd8818d71294e4403d33fa7859c44b03e))
+* scheduled tests wait for PG to be ready ([38093fb](https://github.com/informatievlaanderen/road-registry/commit/38093fbb478e94532bbc0bdc23e38dcdc4edf908))
+* upload inwinning response schema ([dd6a693](https://github.com/informatievlaanderen/road-registry/commit/dd6a69336413ef6bef373b96984bd32c235bf05e))
+
 # [4.39.0](https://github.com/informatievlaanderen/road-registry/compare/v4.38.15...v4.39.0) (2026-01-09)
 
 
