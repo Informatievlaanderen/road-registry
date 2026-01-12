@@ -27,7 +27,7 @@ public partial class InwinningController
     /// <response code="200">Als de url is aangemaakt.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
-    [ProducesResponseType(typeof(UploadExtractResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UploadInwinningExtractResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -72,8 +72,8 @@ public partial class InwinningController
         record.TicketId = response.TicketId;
         await extractsDbContext.SaveChangesAsync(cancellationToken);
 
-        return Ok(new UploadExtractResponse(response.UploadUrl, response.UploadUrlFormData, response.TicketUrl));
+        return Ok(new UploadInwinningExtractResponse(response.UploadUrl, response.UploadUrlFormData, response.TicketUrl));
     }
 
-    public sealed record UploadExtractResponse(string UploadUrl, Dictionary<string, string> UploadUrlFormData, string TicketUrl);
+    public sealed record UploadInwinningExtractResponse(string UploadUrl, Dictionary<string, string> UploadUrlFormData, string TicketUrl);
 }
