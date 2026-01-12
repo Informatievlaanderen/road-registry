@@ -28,8 +28,8 @@
   <ItemGroup>
     <None Include="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\logo.png" Pack="true" PackagePath=""/>
 
-    <None Include="bin\$(Configuration)\$(TargetFramework)\RoadRegistry.*.dll" Pack="true" PackagePath="lib\$(TargetFramework)"/>
-    <None Include="bin\$(Configuration)\$(TargetFramework)\RoadRegistry.*.pdb" Pack="true" PackagePath="lib\$(TargetFramework)"/>
+    <None Include="bin\$(Configuration)\$(TargetFramework)\RoadRegistry*.dll" Pack="true" PackagePath="lib\$(TargetFramework)"/>
+    <None Include="bin\$(Configuration)\$(TargetFramework)\RoadRegistry*.pdb" Pack="true" PackagePath="lib\$(TargetFramework)"/>
 
     <None Include="..\RoadRegistry.BackOffice.Abstractions\bin\$(Configuration)\$(TargetFramework)\RoadRegistry.BackOffice.Abstractions.xml" Pack="true" PackagePath="lib\$(TargetFramework)"/>
   </ItemGroup>
