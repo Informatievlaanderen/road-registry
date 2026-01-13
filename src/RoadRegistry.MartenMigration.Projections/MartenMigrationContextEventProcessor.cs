@@ -18,7 +18,7 @@ public class MartenMigrationContextEventProcessor : RunnerDbContextEventProcesso
         Scheduler scheduler,
         ILoggerFactory loggerFactory,
         IConfiguration configuration)
-        : base("roadregistry-martenmigration", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory, configuration)
+        : base("roadregistry-martenmigration", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory, configuration, catchUpBatchSize: 1)
     {
     }
 }
