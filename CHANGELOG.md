@@ -1,3 +1,10 @@
+## [4.39.3](https://github.com/informatievlaanderen/road-registry/compare/v4.39.2...v4.39.3) (2026-01-13)
+
+
+### Bug Fixes
+
+* martenmigrationprojection disable catch-up ([b711185](https://github.com/informatievlaanderen/road-registry/commit/b71118565ecc5fcd6cde6b67079d51067a51ff1f))
+
 ## [4.39.2](https://github.com/informatievlaanderen/road-registry/compare/v4.39.1...v4.39.2) (2026-01-12)
 
 
