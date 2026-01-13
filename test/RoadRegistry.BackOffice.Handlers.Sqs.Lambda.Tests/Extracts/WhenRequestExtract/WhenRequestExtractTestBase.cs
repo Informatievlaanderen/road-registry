@@ -12,6 +12,7 @@ using Moq;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Tests.BackOffice;
@@ -38,7 +39,7 @@ public abstract class WhenRequestExtractTestBase : BackOfficeLambdaTest
         {
             ExtractRequestId = request.ExtractRequestId,
             DownloadId = request.DownloadId,
-            Contour = request.Contour,
+            Contour = request.Contour.ToExtractGeometry(),
             Description = request.Description,
             IsInformative = request.IsInformative,
             ExternalRequestId = request.ExternalRequestId,

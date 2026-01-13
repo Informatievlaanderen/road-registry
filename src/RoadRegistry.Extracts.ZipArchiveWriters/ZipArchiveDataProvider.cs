@@ -1,11 +1,12 @@
-﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2
+﻿namespace RoadRegistry.Extracts.ZipArchiveWriters
 {
-    using Editor.Schema;
-    using Editor.Schema.Organizations;
     using Marten;
+    using Microsoft.EntityFrameworkCore;
     using NetTopologySuite.Geometries;
+    using RoadRegistry.Editor.Schema;
+    using RoadRegistry.Editor.Schema.Organizations;
     using RoadRegistry.Extracts.Projections;
-    using ScopedRoadNetwork;
+    using RoadRegistry.ScopedRoadNetwork;
 
     public class ZipArchiveDataProvider : IZipArchiveDataProvider
     {
@@ -49,10 +50,9 @@
 
         public async Task<IReadOnlyList<OrganizationRecordV2>> GetOrganizations(CancellationToken cancellationToken)
         {
-            return await _editorContext.OrganizationsV2
-                .Where(x => x.IsMaintainer)
-                .OrderBy(x => x.Code)
-                .ToListAsync(cancellationToken);
+            return await EntityFrameworkQueryableExtensions.ToListAsync(_editorContext.OrganizationsV2
+                    .Where(x => x.IsMaintainer)
+                    .OrderBy(x => x.Code), cancellationToken);
         }
 
         private async Task<RoadNetworkIds> GetUnderlyingRoadNetworkIds(Geometry geometry)

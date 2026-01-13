@@ -10,7 +10,7 @@ using RoadRegistry.Extensions;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ValueObjects.ProblemCodes;
-using Schemas.ExtractV1.RoadSegments;
+using Schemas.ExtractV2.RoadSegments;
 using Uploads;
 
 public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentSurfaceFeatureCompareAttributes>>

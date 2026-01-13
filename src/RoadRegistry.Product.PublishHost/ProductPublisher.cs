@@ -18,6 +18,7 @@ namespace RoadRegistry.Product.PublishHost
     using CloudStorageClients;
     using Extracts;
     using Extracts.Infrastructure.Extensions;
+    using Extracts.ZipArchiveWriters;
     using HttpClients;
     using Infrastructure;
     using Infrastructure.Configurations;

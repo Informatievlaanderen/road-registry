@@ -15,6 +15,7 @@ using Microsoft.Net.Http.Headers;
 using NodaTime.Text;
 using Product.Schema;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure;
 using ZipArchiveWriters.ForProduct;
 

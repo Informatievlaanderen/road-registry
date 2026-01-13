@@ -14,7 +14,6 @@ using Microsoft.Extensions.Logging;
 using NodaTime;
 using RoadRegistry.BackOffice.FeatureToggles;
 using SqlStreamStore;
-using DomainAssemblyMarker = BackOffice.DomainAssemblyMarker;
 
 public class Startup : TestStartup
 {
@@ -56,8 +55,8 @@ public class Startup : TestStartup
 
     protected override void ConfigureContainer(ContainerBuilder builder)
     {
-        builder.RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
-        builder.RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>();
+        builder.RegisterModulesFromAssemblyContaining<BackOfficeAssemblyMarker>();
+        builder.RegisterModulesFromAssemblyContaining<Handlers.BackOfficeHandlersAssemblyMarker>();
     }
 
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)

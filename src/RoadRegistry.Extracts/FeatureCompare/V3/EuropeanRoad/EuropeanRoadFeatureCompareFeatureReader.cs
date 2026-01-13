@@ -5,7 +5,7 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Infrastructure.Extensions;
-using Schemas.ExtractV1.RoadSegments;
+using Schemas.ExtractV2.RoadSegments;
 using Uploads;
 
 public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<EuropeanRoadFeatureCompareAttributes>>

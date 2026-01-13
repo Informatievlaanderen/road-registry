@@ -1,29 +1,35 @@
-import { createRouter, createWebHistory, RouteLocationNormalized, RouteRecordRaw } from "vue-router";
+import { createRouter, createWebHistory, RouteLocationNormalized, RouteLocationRaw, RouteRecordRaw } from "vue-router";
 import * as environment from "@/environment";
 import { ActivityRoutes } from "./modules/activity";
 import { ExtractRoutes } from "./modules/extract";
 import { ExtractRoutes as ExtractRoutesV2 } from "./modules/extract-v2";
+import { InwinningRoutes } from "./modules/inwinning";
 import { InformationRoutes } from "./modules/information";
 import { DownloadExtractRoutes } from "./modules/download-extract";
-import { DownloadProductRoutes } from "./modules/download-product";
 import { UploadRoutes } from "./modules/uploads";
 import { TransactionZonesRoutes } from "./modules/transaction-zones";
-import { AuthRoutes, AuthService, isAuthenticated } from "./auth";
-
-const defaultRedirect = environment.featureToggles.useExtractsV2 ? "extracten" : "activiteit";
+import { AuthRoutes, AuthService, isAuthenticated, user } from "./auth";
 
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
-    redirect: { name: defaultRedirect },
+    redirect: (to: any, from: any) => {
+      return {
+        name: user.state.isInwinner
+          ? "inwinning"
+          : environment.featureToggles.useExtractsV2
+            ? "extracten"
+            : "activiteit",
+      };
+    },
   },
   ...(AuthRoutes as RouteRecordRaw[]),
   ...(ActivityRoutes as RouteRecordRaw[]),
   ...(ExtractRoutes as RouteRecordRaw[]),
   ...(ExtractRoutesV2 as RouteRecordRaw[]),
+  ...(InwinningRoutes as RouteRecordRaw[]),
   ...(InformationRoutes as RouteRecordRaw[]),
   ...(DownloadExtractRoutes as RouteRecordRaw[]),
-  //...(DownloadProductRoutes as RouteRecordRaw[]),
   ...(UploadRoutes as RouteRecordRaw[]),
   ...(TransactionZonesRoutes as RouteRecordRaw[]),
 ];
@@ -45,35 +51,48 @@ export const router = createRouter({
   routes,
 });
 
-const userHasAccessToRoute = (to: RouteLocationNormalized): boolean => {
+const findRouteToRedirectTo = (to: RouteLocationNormalized): RouteLocationRaw | undefined => {
   const routeWithAuth = to.matched.find((record) => record.meta.requiresAuth);
   if (!routeWithAuth) {
-    return true;
+    return undefined;
   }
 
   if (!isAuthenticated.state) {
-    return false;
+    return {
+      name: "login",
+      query: { redirect: to.fullPath },
+    };
   }
 
   const meta = routeWithAuth.meta as {
     requiresContexts?: string[];
+    inwinning: boolean;
   };
 
+  if (user.state.isInwinner && !meta.inwinning) {
+      return {
+        name: "inwinning",
+      };
+    }
+
   if (meta.requiresContexts && meta.requiresContexts.length > 0) {
-    return AuthService.userHasAnyContext(meta.requiresContexts);
+    if (!AuthService.userHasAnyContext(meta.requiresContexts)) {
+      return {
+        name: "login",
+        query: { redirect: to.fullPath },
+      };
+    }
   }
 
-  return true;
+  return undefined;
 };
 
 router.beforeEach((to, from, next) => {
-  if (userHasAccessToRoute(to)) {
-    next();
+  let redirectTo = findRouteToRedirectTo(to);
+  if (redirectTo) {
+    next(redirectTo);
   } else {
-    next({
-      name: "login",
-      query: { redirect: to.fullPath },
-    });
+    next();
   }
 });
 

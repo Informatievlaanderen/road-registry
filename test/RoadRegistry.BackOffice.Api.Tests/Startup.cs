@@ -73,7 +73,7 @@ public class Startup : TestStartup
     {
         builder.RegisterModule<MediatorModule>();
         builder.RegisterModule<BackOffice.Handlers.MediatorModule>();
-        builder.RegisterModule<BackOffice.Handlers.Sqs.MediatorModule>();
+        builder.RegisterModule<BackOffice.Handlers.Sqs.BackOfficeHandlersSqsMediatorModule>();
 
         builder
             .RegisterInstance(new FakeBackOfficeS3SqsQueue())

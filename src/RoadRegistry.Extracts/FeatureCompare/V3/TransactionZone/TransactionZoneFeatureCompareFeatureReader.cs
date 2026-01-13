@@ -5,7 +5,7 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Infrastructure.Extensions;
-using Schemas.ExtractV1;
+using Schemas.ExtractV2;
 using Uploads;
 
 public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<TransactionZoneFeatureCompareAttributes>>
@@ -29,9 +29,7 @@ public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFea
             return new DbaseRecordData
             {
                 BESCHRIJV = dbaseRecord.BESCHRIJV.GetValue(),
-                DOWNLOADID = dbaseRecord.DOWNLOADID.GetValue(),
-                OPERATOR = dbaseRecord.OPERATOR.GetValue(),
-                ORG = dbaseRecord.ORG.GetValue()
+                DOWNLOADID = dbaseRecord.DOWNLOADID.GetValue()
             }.ToFeature(featureType, FileName, recordNumber, context);
         }
 
@@ -52,8 +50,6 @@ public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFea
     {
         public string BESCHRIJV { get; init; }
         public string DOWNLOADID { get; init; }
-        public string OPERATOR { get; init; }
-        public string ORG { get; init; }
 
         public (Feature<TransactionZoneFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, ZipArchiveFeatureReaderContext context)
         {
@@ -77,23 +73,6 @@ public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFea
                 }
 
                 return default;
-            }
-
-            OperatorName ReadOperatorName()
-            {
-                if (!string.IsNullOrEmpty(OPERATOR))
-                {
-                    if (OperatorName.AcceptsValue(OPERATOR))
-                    {
-                        return new OperatorName(OPERATOR);
-                    }
-                    else
-                    {
-                        problems += problemBuilder.OperatorNameOutOfRange(OPERATOR);
-                    }
-                }
-
-                return OperatorName.Unknown;
             }
 
             DownloadId ReadDownloadId()
@@ -120,30 +99,10 @@ public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFea
                 return default;
             }
 
-            OrganizationId ReadOrganization()
-            {
-                if (ORG is null)
-                {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(ORG));
-                }
-                else if (OrganizationId.AcceptsValue(ORG))
-                {
-                    return new OrganizationId(ORG);
-                }
-                else
-                {
-                    problems += problemBuilder.OrganizationIdOutOfRange(ORG);
-                }
-
-                return OrganizationId.Unknown;
-            }
-
             var feature = Feature.New(recordNumber, new TransactionZoneFeatureCompareAttributes
             {
                 Description = ReadDescription(),
-                OperatorName = ReadOperatorName(),
-                DownloadId = ReadDownloadId(),
-                Organization = ReadOrganization()
+                DownloadId = ReadDownloadId()
             });
             return (feature, problems);
         }

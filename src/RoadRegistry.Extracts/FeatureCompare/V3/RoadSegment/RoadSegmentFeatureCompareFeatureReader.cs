@@ -11,7 +11,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadSegment;
-using Schemas.ExtractV1.RoadSegments;
+using Schemas.ExtractV2.RoadSegments;
 using Uploads;
 
 public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareAttributes>>

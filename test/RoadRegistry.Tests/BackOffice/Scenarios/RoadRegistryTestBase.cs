@@ -113,7 +113,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     protected override void ConfigureEventHandling(ContainerBuilder builder)
     {
         var eventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-        builder.RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings));
+        builder.RegisterModule(new EventHandlingModule(typeof(BackOfficeAssemblyMarker).Assembly, eventSerializerSettings));
     }
 
     public Task Given(StreamName streamName, params object[] events)

@@ -20,9 +20,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure;
 using SqlStreamStore;
-using ZipArchiveWriters.ExtractHost;
+using IZipArchiveWriterFactory = ZipArchiveWriters.ExtractHost.IZipArchiveWriterFactory;
+using ZipArchiveWriterFactory = ZipArchiveWriters.ExtractHost.ZipArchiveWriterFactory;
 
 public class Program
 {

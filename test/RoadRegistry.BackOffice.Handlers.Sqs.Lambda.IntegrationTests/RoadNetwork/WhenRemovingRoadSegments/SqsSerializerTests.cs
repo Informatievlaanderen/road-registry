@@ -1,7 +1,10 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenRemovingRoadSegments;
 
 using AutoFixture;
+using BackOffice.Uploads;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using FluentAssertions;
+using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using Sqs.RoadNetwork;
 using Tests.AggregateTests;

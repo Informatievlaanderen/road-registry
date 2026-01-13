@@ -41,7 +41,7 @@ public class ApiKeyAuthenticator : IApiKeyAuthenticator
             return new ClaimsIdentity();
         }
 
-        var role = RoadRegistryRoles.Admin;
+        var role = RoadRegistryRoles.Editor; //RoadRegistryRoles.Admin; TODO-pr temp override
         var scopes = RoadRegistryRoles.GetScopes(role);
 
         return new ClaimsIdentity(new Claim[]
@@ -50,7 +50,8 @@ public class ApiKeyAuthenticator : IApiKeyAuthenticator
             new("active", true.ToString()),
             new(AcmIdmClaimTypes.VoApplicatieNaam, token.ClientName),
             new(RoadRegistryClaim.ClaimType, RoadRegistryClaim.ConvertRoleToClaimValue(role)),
-            new("operator", AnonymizeApiKey(apiKey))
+            new("operator", AnonymizeApiKey(apiKey)),
+            new("vo_doelgroepcode", "EA"), //TODO-pr temp override
         }.Concat(
             scopes.Select(scope => new Claim(AcmIdmClaimTypes.Scope, scope))
         ), AuthenticationSchemes.ApiKey);

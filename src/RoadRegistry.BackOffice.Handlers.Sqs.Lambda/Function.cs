@@ -26,15 +26,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
-using RoadRegistry.RoadNetwork;
 using ScopedRoadNetwork;
 using SqlStreamStore;
 using StreetName;
 using ZipArchiveWriters.Cleaning;
 using ZipArchiveWriters.ExtractHost.V2;
-using DomainAssemblyMarker = BackOffice.DomainAssemblyMarker;
 
 public class Function : RoadRegistryLambdaFunction<MessageHandler>
 {
@@ -43,8 +42,8 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
     public Function()
         : base(new List<Assembly>
             {
-                typeof(DomainAssemblyMarker).Assembly,
-                typeof(BlobRequest).Assembly
+                typeof(BackOfficeHandlersSqsAssemblyMarker).Assembly,
+                typeof(BackOfficeAbstractionsAssemblyMarker).Assembly
             })
     {
     }
@@ -63,7 +62,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
                     CommandModules.RoadNetwork(sp)
                 ])
             )
-            .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
+            .AddValidatorsFromAssemblyContaining<BackOfficeHandlersSqsAssemblyMarker>()
             .AddStreetNameClient()
 
             // ChangeRoadNetwork
@@ -86,10 +85,9 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
                     )
                 ))
             // Extracts-domainv2
-            .AddMartenRoad()
-            .AddScoped<ZipArchiveWriters.DomainV2.IZipArchiveWriterFactory>(sp =>
-                new ZipArchiveWriters.DomainV2.ZipArchiveWriterFactory(
-                    new ZipArchiveWriters.DomainV2.Writers.RoadNetworkExtractZipArchiveWriter(
+            .AddScoped<IZipArchiveWriterFactory>(sp =>
+                new ZipArchiveWriterFactory(
+                    new RoadRegistry.Extracts.ZipArchiveWriters.Writers.RoadNetworkExtractZipArchiveWriter(
                         sp.GetService<ZipArchiveWriterOptions>(),
                         sp.GetService<IStreetNameCache>(),
                         sp.GetService<RecyclableMemoryStreamManager>(),
@@ -108,7 +106,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
                 sp.GetService<UseDomainV2FeatureToggle>().FeatureEnabled
                     ? new RoadNetworkExtractArchiveAssemblerForDomainV2(
                         sp.GetService<RecyclableMemoryStreamManager>(),
-                        sp.GetService<RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2.IZipArchiveWriterFactory>(),
+                        sp.GetService<IZipArchiveWriterFactory>(),
                         sp.GetRequiredService<IDocumentStore>(),
                         sp.GetRequiredService<IRoadNetworkRepository>(),
                         sp.GetService<Func<EditorContext>>(),
@@ -129,10 +127,11 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
     protected override void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
         builder
-            .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.DomainAssemblyMarker).Assembly, EventSerializerSettings))
+            .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.BackOfficeHandlersAssemblyMarker).Assembly, EventSerializerSettings))
             .RegisterModule<CommandHandlingModule>()
             .RegisterModule<ContextModule>()
             .RegisterModule<SqsHandlersModule>()
+            .RegisterModule<BackOfficeHandlersSqsMediatorModule>()
             ;
 
         builder.RegisterIdempotentCommandHandler();

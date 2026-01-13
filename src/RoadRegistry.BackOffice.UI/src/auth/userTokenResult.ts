@@ -46,6 +46,9 @@ export default class UserTokenResult {
   get lastName(): string {
     return this.token.family_name ?? this.token["urn:be:vlaanderen:acm:familienaam"];
   }
+  get isInwinner(): boolean {
+    return this.token.vo_doelgroepcode === 'EA';
+  }
 
   parseContexts(): string[] {
     const dvWegenregister = this.token.dv_wegenregister ?? [];

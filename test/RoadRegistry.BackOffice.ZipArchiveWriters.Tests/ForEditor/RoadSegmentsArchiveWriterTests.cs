@@ -8,6 +8,7 @@ using Editor.Schema;
 using Framework.Containers;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Extracts.ZipArchiveWriters;
 using ZipArchiveWriters.ForEditor;
 
 [Collection(nameof(SqlServerCollection))]

@@ -8,7 +8,7 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Infrastructure.Extensions;
 using NetTopologySuite.Geometries;
-using Schemas.ExtractV1.RoadNodes;
+using Schemas.ExtractV2.RoadNodes;
 using Uploads;
 using Point = NetTopologySuite.Geometries.Point;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;

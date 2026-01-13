@@ -62,7 +62,7 @@ public partial class ExtractenController
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
                 ExtractRequestId = extractRequestId,
                 DownloadId = downloadId,
-                Contour = contour,
+                Contour = contour.ToExtractGeometry(),
                 Description = body.Beschrijving,
                 IsInformative = body.Informatief,
                 ExternalRequestId = null

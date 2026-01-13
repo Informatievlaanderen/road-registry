@@ -1,4 +1,5 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2;
+namespace RoadRegistry.Extracts.ZipArchiveWriters;
+
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.IO;

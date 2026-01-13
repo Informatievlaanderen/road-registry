@@ -1,7 +1,6 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2;
+namespace RoadRegistry.Extracts.ZipArchiveWriters;
 
 using System.IO.Compression;
-using Extracts;
 using RoadRegistry.Extracts;
 
 public interface IZipArchiveWriter

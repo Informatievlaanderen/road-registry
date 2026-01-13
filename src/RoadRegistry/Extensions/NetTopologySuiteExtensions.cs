@@ -41,6 +41,21 @@ public static class NetTopologySuiteExtensions
         return RoadSegmentGeometry.Create(geometry.WithoutDuplicateCoordinates());
     }
 
+    public static MultiPolygon ToGeometry(this ExtractGeometry geometry)
+    {
+        ArgumentNullException.ThrowIfNull(geometry);
+
+        return (MultiPolygon)new WKTReader().Read(geometry.WKT)
+                .WithSrid(geometry.SRID);
+    }
+
+    public static ExtractGeometry ToExtractGeometry(this MultiPolygon geometry)
+    {
+        ArgumentNullException.ThrowIfNull(geometry);
+
+        return ExtractGeometry.Create(geometry);
+    }
+
     public static IPolygonal[] GetPolygonals(this IPolygonal polygonal)
     {
         return polygonal switch

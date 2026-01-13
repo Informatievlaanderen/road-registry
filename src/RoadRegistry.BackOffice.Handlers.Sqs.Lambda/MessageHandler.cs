@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
 using Actions.ChangeRoadNetwork;
 using Actions.CloseExtract;
+using Actions.MigrateRoadNetwork;
 using Actions.RemoveRoadSegments;
 using Actions.RequestExtract;
 using Actions.RequestInwinningExtract;
@@ -32,8 +33,7 @@ public sealed class MessageHandler : BlobMessageHandler
     {
         if (messageData is not SqsRequest sqsRequest)
         {
-            messageMetadata.Logger?.LogInformation($"Unable to cast '{nameof(messageData)}' as {nameof(SqsRequest)}.");
-            return;
+            throw new InvalidOperationException($"Unable to cast '{nameof(messageData)}' as {nameof(SqsRequest)}.");
         }
 
         await using var lifetimeScope = _container.BeginLifetimeScope();
@@ -63,6 +63,7 @@ public sealed class MessageHandler : BlobMessageHandler
             CloseExtractSqsRequest request => new CloseExtractSqsLambdaRequest(groupId, request),
             ChangeRoadNetworkSqsRequest request => new ChangeRoadNetworkSqsLambdaRequest(groupId, request),
             RemoveRoadSegmentsSqsRequest request => new RemoveRoadSegmentsSqsLambdaRequest(groupId, request),
+            MigrateRoadNetworkSqsRequest request => new MigrateRoadNetworkSqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(
                 $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
         };

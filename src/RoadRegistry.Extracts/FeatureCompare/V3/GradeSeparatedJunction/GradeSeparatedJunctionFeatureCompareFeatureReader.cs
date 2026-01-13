@@ -5,7 +5,7 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Infrastructure.Extensions;
-using Schemas.ExtractV1.GradeSeparatedJuntions;
+using Schemas.ExtractV2.GradeSeparatedJuntions;
 using Uploads;
 
 public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<GradeSeparatedJunctionFeatureCompareAttributes>>

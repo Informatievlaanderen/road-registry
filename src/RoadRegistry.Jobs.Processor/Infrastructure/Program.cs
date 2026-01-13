@@ -20,7 +20,6 @@ using Microsoft.Extensions.Logging;
 using NodaTime;
 using Options;
 using SqlStreamStore;
-using MediatorModule = BackOffice.Handlers.Sqs.MediatorModule;
 
 public class Program
 {
@@ -73,7 +72,7 @@ public class Program
                 builder
                     .RegisterModule<BlobClientModule>()
                     .RegisterModule<BackOffice.Handlers.MediatorModule>()
-                    .RegisterModule<MediatorModule>()
+                    .RegisterModule<BackOfficeHandlersSqsMediatorModule>()
                     .RegisterModule<SqsHandlersModule>()
                     ;
             })
