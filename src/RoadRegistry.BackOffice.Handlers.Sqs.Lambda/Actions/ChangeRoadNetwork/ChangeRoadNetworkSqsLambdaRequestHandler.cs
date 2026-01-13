@@ -99,6 +99,11 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
 
     private async Task<ScopedRoadNetwork> Load(RoadNetworkChanges roadNetworkChanges, RoadNetworkId roadNetworkId)
     {
+        if (!roadNetworkChanges.Any())
+        {
+            return new ScopedRoadNetwork(roadNetworkId);
+        }
+
         await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
 
         var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry(), ids: roadNetworkChanges.Ids, onlyV2: true);

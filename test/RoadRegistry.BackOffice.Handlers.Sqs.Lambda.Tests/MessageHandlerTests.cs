@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 
+using System.Reflection;
+using Abstractions;
 using Autofac;
 using AutoFixture;
 using BackOffice.Uploads;

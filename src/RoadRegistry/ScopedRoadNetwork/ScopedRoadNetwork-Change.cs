@@ -111,14 +111,17 @@ public partial class ScopedRoadNetwork
                 .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
         }
 
-        Apply(new RoadNetworkWasChanged
+        if (changes.Any())
         {
-            RoadNetworkId = RoadNetworkId,
-            ScopeGeometry = changes.BuildScopeGeometry().ToGeometryObject(),
-            DownloadId = downloadId,
-            Summary = new RoadNetworkChangedSummary(summary),
-            Provenance = new ProvenanceData(changes.Provenance)
-        });
+            Apply(new RoadNetworkWasChanged
+            {
+                RoadNetworkId = RoadNetworkId,
+                ScopeGeometry = changes.BuildScopeGeometry().ToGeometryObject(),
+                DownloadId = downloadId,
+                Summary = new RoadNetworkChangedSummary(summary),
+                Provenance = new ProvenanceData(changes.Provenance)
+            });
+        }
 
         return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), summary);
     }

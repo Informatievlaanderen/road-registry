@@ -1,4 +1,5 @@
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
+
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
 using System.Reflection;
@@ -11,7 +12,6 @@ using BackOffice.Extracts;
 using BackOffice.Handlers.Extracts;
 using BackOffice.Infrastructure.Modules;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
-using CommandHandling;
 using Editor.Schema;
 using FeatureToggles;
 using FluentValidation;
@@ -40,11 +40,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
     protected override string ApplicationName => "RoadRegistry.BackOffice.Handlers.Sqs.Lambda";
 
     public Function()
-        : base(new List<Assembly>
-            {
-                typeof(BackOfficeHandlersSqsAssemblyMarker).Assembly,
-                typeof(BackOfficeAbstractionsAssemblyMarker).Assembly
-            })
+        : base(SqsJsonMessageAssemblies.Assemblies)
     {
     }
 
@@ -119,7 +115,6 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
                         sp.GetRequiredService<IStreamStore>(),
                         sp.GetRequiredService<ILoggerFactory>()
                     ))
-
             .AddFeatureCompare()
             ;
     }

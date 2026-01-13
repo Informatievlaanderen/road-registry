@@ -3,6 +3,7 @@ namespace RoadRegistry.Tests;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Handlers.Sqs;
 
 public class FakeSqsQueueConsumer : ISqsQueueConsumer
 {
@@ -24,7 +25,7 @@ public class FakeSqsQueueConsumer : ISqsQueueConsumer
             }
 
             var sqsJsonMessage = messages[0];
-            var messageData = sqsJsonMessage.Map(_serializer) ?? throw new ArgumentException("SQS message data is null.");
+            var messageData = sqsJsonMessage.Map(_serializer, SqsJsonMessageAssemblies.Assemblies) ?? throw new ArgumentException("SQS message data is null.");
 
             await messageHandler(messageData);
 
