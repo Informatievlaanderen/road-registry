@@ -38,7 +38,7 @@ public class ImplicitConversionOperatorAssertion<TResult> : IdiomaticAssertion
             .SingleOrDefault(candidate =>
                 candidate.Name == "op_Implicit"
                 && candidate.GetParameters().Length == 1
-                && candidate.GetParameters()[0].ParameterType == type
+                && (Nullable.GetUnderlyingType(candidate.GetParameters()[0].ParameterType) ?? candidate.GetParameters()[0].ParameterType) == type
                 && candidate.ReturnParameter.ParameterType == typeof(TResult));
 
         if (method == null)

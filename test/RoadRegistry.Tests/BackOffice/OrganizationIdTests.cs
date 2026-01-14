@@ -96,7 +96,7 @@ public class OrganizationIdTests
         var fixture = new CompositeSpecimenBuilder(customizedString, _fixture);
         var constructor = Constructors.Select(() => new OrganizationId(null));
         new CompositeIdiomaticAssertion(
-            new ImplicitConversionOperatorAssertion<string>(fixture),
+            new ImplicitConversionOperatorAssertion<string?>(fixture),
             new EquatableEqualsSelfAssertion(_fixture),
             new ConstructorBasedEquatableEqualsOtherAssertion(fixture, constructor),
             new EqualityOperatorEqualsSelfAssertion(_fixture),

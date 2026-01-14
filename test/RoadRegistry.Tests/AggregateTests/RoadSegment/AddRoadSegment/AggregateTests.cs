@@ -133,7 +133,7 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
-        segment.Geometry.Should().BeEquivalentTo(evt.Geometry);
+        segment.Geometry.Should().Be(evt.Geometry);
         segment.StartNodeId.Should().Be(evt.StartNodeId);
         segment.EndNodeId.Should().Be(evt.EndNodeId);
         segment.Attributes.GeometryDrawMethod.Should().Be(evt.GeometryDrawMethod);

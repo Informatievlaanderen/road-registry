@@ -7,6 +7,7 @@ public static class SqsJsonMessageAssemblies
 {
     public static readonly IReadOnlyCollection<Assembly> Assemblies =
     [
+        typeof(BackOfficeAssemblyMarker).Assembly,
         typeof(BackOfficeAbstractionsAssemblyMarker).Assembly,
         typeof(BackOfficeHandlersSqsAssemblyMarker).Assembly
     ];
