@@ -3,10 +3,8 @@ namespace RoadRegistry.RoadSegment.Changes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NetTopologySuite.Geometries;
-using RoadRegistry.RoadSegment.ValueObjects;
-using RoadRegistry.ValueObjects;
 using ScopedRoadNetwork;
+using ValueObjects;
 
 public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRoadSegmentChange>
 {
@@ -14,7 +12,7 @@ public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRo
     public RoadSegmentId? OriginalId { get; init; }
     public required RoadNodeId StartNodeId { get; init; }
     public required RoadNodeId EndNodeId { get; init; }
-    public required MultiLineString Geometry { get; init; }
+    public required RoadSegmentGeometry Geometry { get; init; }
     public required RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; init; }
     public required RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction> AccessRestriction { get; init; }
     public required RoadSegmentDynamicAttributeValues<RoadSegmentCategory> Category { get; init; }

@@ -5,10 +5,7 @@ using Extensions;
 using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;
-using RoadNetwork;
-using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
-using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using ValueObjects.Problems;
@@ -27,7 +24,7 @@ public class AggregateTests : AggregateTestBase
         var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates()
+            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates().ToRoadSegmentGeometry()
         };
 
         // Act
@@ -39,7 +36,7 @@ public class AggregateTests : AggregateTestBase
 
         var segmentModified = (RoadSegmentWasModified)segment.GetChanges().Single();
         segmentModified.RoadSegmentId.Should().Be(change.RoadSegmentId);
-        segmentModified.Geometry.Should().Be(change.Geometry.ToRoadSegmentGeometry());
+        segmentModified.Geometry.Should().BeEquivalentTo(change.Geometry);
         segmentModified.OriginalId.Should().Be(change.OriginalId);
         segmentModified.StartNodeId.Should().Be(change.StartNodeId!.Value);
         segmentModified.EndNodeId.Should().Be(change.EndNodeId!.Value);
@@ -64,7 +61,7 @@ public class AggregateTests : AggregateTestBase
         var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
-            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates()
+            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates().ToRoadSegmentGeometry()
         };
 
         // Act
@@ -76,7 +73,7 @@ public class AggregateTests : AggregateTestBase
 
         var segmentModified = (RoadSegmentWasModified)segment.GetChanges().Single();
         segmentModified.RoadSegmentId.Should().Be(change.RoadSegmentId);
-        segmentModified.Geometry.Should().Be(change.Geometry.ToRoadSegmentGeometry());
+        segmentModified.Geometry.Should().BeEquivalentTo(change.Geometry);
         segmentModified.OriginalId.Should().Be(change.OriginalId);
         segmentModified.StartNodeId.Should().Be(change.StartNodeId!.Value);
         segmentModified.EndNodeId.Should().Be(change.EndNodeId!.Value);
@@ -100,7 +97,7 @@ public class AggregateTests : AggregateTestBase
             .WithoutChanges();
         var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
-            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString()
+            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString().ToRoadSegmentGeometry()
         };
 
         // Act
@@ -120,7 +117,7 @@ public class AggregateTests : AggregateTestBase
             .WithoutChanges();
         var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
-            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString(),
+            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString().ToRoadSegmentGeometry(),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>()
                 .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategory>())
                 .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategory>())
@@ -148,7 +145,7 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
-        segment.Geometry.AsText().Should().Be(evt.Geometry!.WKT);
+        segment.Geometry.Should().BeEquivalentTo(evt.Geometry);
         segment.StartNodeId.Should().Be(evt.StartNodeId!.Value);
         segment.EndNodeId.Should().Be(evt.EndNodeId!.Value);
         segment.Attributes.GeometryDrawMethod.Should().Be(evt.GeometryDrawMethod);

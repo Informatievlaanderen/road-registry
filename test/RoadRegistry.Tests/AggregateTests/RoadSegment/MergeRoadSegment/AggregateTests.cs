@@ -22,7 +22,7 @@ public class AggregateTests : AggregateTestBase
         var change = Fixture.Create<MergeRoadSegmentChange>() with
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates(),
+            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates().ToRoadSegmentGeometry(),
             EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
             NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
         };
@@ -40,7 +40,7 @@ public class AggregateTests : AggregateTestBase
 
         var segmentAdded = (RoadSegmentWasMerged)segment.GetChanges().Single();
         segmentAdded.RoadSegmentId.Should().Be(new RoadSegmentId(1));
-        segmentAdded.Geometry.Should().Be(change.Geometry.ToRoadSegmentGeometry());
+        segmentAdded.Geometry.Should().BeEquivalentTo(change.Geometry);
         segmentAdded.OriginalIds.Should().BeEquivalentTo(change.OriginalIds);
         segmentAdded.StartNodeId.Should().Be(actualStartNodeId);
         segmentAdded.EndNodeId.Should().Be(change.EndNodeId);
@@ -63,7 +63,7 @@ public class AggregateTests : AggregateTestBase
         var change = Fixture.Create<MergeRoadSegmentChange>() with
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
-            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates(),
+            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates().ToRoadSegmentGeometry(),
             EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
             NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
         };
@@ -77,7 +77,7 @@ public class AggregateTests : AggregateTestBase
 
         var segmentAdded = (RoadSegmentWasMerged)segment.GetChanges().Single();
         segmentAdded.RoadSegmentId.Should().Be(new RoadSegmentId(1));
-        segmentAdded.Geometry.Should().Be(change.Geometry.ToRoadSegmentGeometry());
+        segmentAdded.Geometry.Should().BeEquivalentTo(change.Geometry);
         segmentAdded.OriginalIds.Should().BeEquivalentTo(change.OriginalIds);
         segmentAdded.StartNodeId.Should().Be(change.StartNodeId);
         segmentAdded.EndNodeId.Should().Be(change.EndNodeId);
@@ -99,7 +99,7 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         var change = Fixture.Create<MergeRoadSegmentChange>() with
         {
-            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString()
+            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString().ToRoadSegmentGeometry()
         };
 
         // Act
@@ -115,7 +115,7 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         var change = Fixture.Create<MergeRoadSegmentChange>() with
         {
-            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString(),
+            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString().ToRoadSegmentGeometry(),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>()
                 .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategory>())
                 .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategory>())
@@ -139,7 +139,7 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
-        segment.Geometry.AsText().Should().Be(evt.Geometry.WKT);
+        segment.Geometry.Should().BeEquivalentTo(evt.Geometry);
         segment.StartNodeId.Should().Be(evt.StartNodeId);
         segment.EndNodeId.Should().Be(evt.EndNodeId);
         segment.Attributes.GeometryDrawMethod.Should().Be(evt.GeometryDrawMethod);

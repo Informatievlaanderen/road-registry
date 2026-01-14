@@ -203,15 +203,15 @@ public partial class ScopedRoadNetwork
             OriginalIds = [segment1.RoadSegmentId, segment2.RoadSegmentId],
             StartNodeId = startNodeId,
             EndNodeId = endNodeId,
-            Geometry = geometry,
+            Geometry = geometry.ToRoadSegmentGeometry(),
             GeometryDrawMethod = segment1.Attributes.GeometryDrawMethod,
-            AccessRestriction = segment1.Attributes.AccessRestriction.MergeWith(segment2.Attributes.AccessRestriction, segment1.Geometry.Length, segment2.Geometry.Length, segment1HasIdealDirection, segment2HasIdealDirection),
-            Category = segment1.Attributes.Category.MergeWith(segment2.Attributes.Category, segment1.Geometry.Length, segment2.Geometry.Length, segment1HasIdealDirection, segment2HasIdealDirection),
-            Morphology = segment1.Attributes.Morphology.MergeWith(segment2.Attributes.Morphology, segment1.Geometry.Length, segment2.Geometry.Length, segment1HasIdealDirection, segment2HasIdealDirection),
-            Status = segment1.Attributes.Status.MergeWith(segment2.Attributes.Status, segment1.Geometry.Length, segment2.Geometry.Length, segment1HasIdealDirection, segment2HasIdealDirection),
-            StreetNameId = segment1.Attributes.StreetNameId.MergeWith(segment2.Attributes.StreetNameId, segment1.Geometry.Length, segment2.Geometry.Length, segment1HasIdealDirection, segment2HasIdealDirection),
-            MaintenanceAuthorityId = segment1.Attributes.MaintenanceAuthorityId.MergeWith(segment2.Attributes.MaintenanceAuthorityId, segment1.Geometry.Length, segment2.Geometry.Length, segment1HasIdealDirection, segment2HasIdealDirection),
-            SurfaceType = segment1.Attributes.SurfaceType.MergeWith(segment2.Attributes.SurfaceType, segment1.Geometry.Length, segment2.Geometry.Length, segment1HasIdealDirection, segment2HasIdealDirection),
+            AccessRestriction = segment1.Attributes.AccessRestriction.MergeWith(segment2.Attributes.AccessRestriction, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
+            Category = segment1.Attributes.Category.MergeWith(segment2.Attributes.Category, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
+            Morphology = segment1.Attributes.Morphology.MergeWith(segment2.Attributes.Morphology, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
+            Status = segment1.Attributes.Status.MergeWith(segment2.Attributes.Status, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
+            StreetNameId = segment1.Attributes.StreetNameId.MergeWith(segment2.Attributes.StreetNameId, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
+            MaintenanceAuthorityId = segment1.Attributes.MaintenanceAuthorityId.MergeWith(segment2.Attributes.MaintenanceAuthorityId, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
+            SurfaceType = segment1.Attributes.SurfaceType.MergeWith(segment2.Attributes.SurfaceType, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
             EuropeanRoadNumbers = segment1.Attributes.EuropeanRoadNumbers,
             NationalRoadNumbers = segment1.Attributes.NationalRoadNumbers
         };
@@ -269,12 +269,12 @@ public partial class ScopedRoadNetwork
         bool segment1HasIdealDirection, bool segment2HasIdealDirection,
         RoadNodeId startNode, RoadNodeId endNode, RoadNodeId commonNode)
     {
-        var geometry1Coordinates = segment1.Geometry.GetSingleLineString().Coordinates;
-        var geometry2Coordinates = segment2.Geometry.GetSingleLineString().Coordinates;
+        var geometry1Coordinates = segment1.Geometry.Value.GetSingleLineString().Coordinates;
+        var geometry2Coordinates = segment2.Geometry.Value.GetSingleLineString().Coordinates;
 
-        var startNodeCoordinate = _roadNodes[startNode].Geometry.Coordinate;
-        var endNodeCoordinate = _roadNodes[endNode].Geometry.Coordinate;
-        var commonNodeCoordinate = _roadNodes[commonNode].Geometry.Coordinate;
+        var startNodeCoordinate = _roadNodes[startNode].Geometry.Value.Coordinate;
+        var endNodeCoordinate = _roadNodes[endNode].Geometry.Value.Coordinate;
+        var commonNodeCoordinate = _roadNodes[commonNode].Geometry.Value.Coordinate;
 
         var coordinates = Enumerable.Empty<Coordinate>()
             .Concat([startNodeCoordinate])

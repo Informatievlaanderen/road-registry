@@ -1,15 +1,13 @@
 namespace RoadRegistry.RoadSegment.Changes;
 
-using NetTopologySuite.Geometries;
-using RoadRegistry.RoadSegment.ValueObjects;
-using RoadRegistry.ValueObjects;
 using ScopedRoadNetwork;
+using ValueObjects;
 
 public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
     public RoadSegmentId? OriginalId { get; init; }
-    public MultiLineString? Geometry { get; init; }
+    public RoadSegmentGeometry? Geometry { get; init; }
     public RoadNodeId? StartNodeId { get; init; }
     public RoadNodeId? EndNodeId { get; init; }
     public RoadSegmentGeometryDrawMethod? GeometryDrawMethod { get; init; }

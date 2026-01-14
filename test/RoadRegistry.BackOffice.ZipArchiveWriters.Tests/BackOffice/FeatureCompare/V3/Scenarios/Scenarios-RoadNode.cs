@@ -54,12 +54,12 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                 .AppendChange(new ModifyRoadNodeChange
                 {
                     RoadNodeId = new RoadNodeId(context.Change.TestData.RoadNode2DbaseRecord.WK_OIDN.Value),
-                    Geometry = context.Change.TestData.RoadNode2ShapeRecord.Geometry
+                    Geometry = context.Change.TestData.RoadNode2ShapeRecord.Geometry.ToRoadNodeGeometry()
                 })
                 .AppendChange(new ModifyRoadSegmentChange
                 {
                     RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
-                    Geometry = context.Change.TestData.RoadSegment1ShapeRecord.Geometry,
+                    Geometry = context.Change.TestData.RoadSegment1ShapeRecord.Geometry.ToRoadSegmentGeometry(),
                     SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>().Add(
                         new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.VANPOS.Value)),
                         new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value)),
@@ -103,12 +103,12 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                 {
                     TemporaryId = new RoadNodeId(context.Change.TestData.RoadNode2DbaseRecord.WK_OIDN.Value),
                     Type = RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode2DbaseRecord.TYPE.Value],
-                    Geometry = context.Change.TestData.RoadNode2ShapeRecord.Geometry
+                    Geometry = context.Change.TestData.RoadNode2ShapeRecord.Geometry.ToRoadNodeGeometry()
                 })
                 .AppendChange(new ModifyRoadSegmentChange
                 {
                     RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
-                    Geometry = context.Change.TestData.RoadSegment1ShapeRecord.Geometry,
+                    Geometry = context.Change.TestData.RoadSegment1ShapeRecord.Geometry.ToRoadSegmentGeometry(),
                     StartNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value),
                     EndNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value),
                     SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>().Add(
@@ -251,14 +251,14 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                     new ModifyRoadNodeChange
                     {
                         RoadNodeId = new RoadNodeId(context.Extract.TestData.RoadNode1DbaseRecord.WK_OIDN.Value),
-                        Geometry = context.Change.TestData.RoadNode1ShapeRecord.Geometry
+                        Geometry = context.Change.TestData.RoadNode1ShapeRecord.Geometry.ToRoadNodeGeometry()
                     }
                 )
                 .AppendChange(
                     new ModifyRoadSegmentChange
                     {
                         RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
-                        Geometry = context.Change.TestData.RoadSegment1ShapeRecord.Geometry,
+                        Geometry = context.Change.TestData.RoadSegment1ShapeRecord.Geometry.ToRoadSegmentGeometry(),
                         SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>().Add(
                             new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.VANPOS.Value)),
                             new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value)),

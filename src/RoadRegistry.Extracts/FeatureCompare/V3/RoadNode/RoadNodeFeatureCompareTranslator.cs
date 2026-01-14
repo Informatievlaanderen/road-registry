@@ -139,7 +139,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                             OriginalId = record.Id != record.Attributes.Id
                                 ? record.Attributes.Id
                                 : null,
-                            Geometry = record.Attributes.Geometry!,
+                            Geometry = record.Attributes.Geometry!.ToRoadNodeGeometry(),
                             Type = record.Attributes.Type!
                         }
                     );
@@ -149,7 +149,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                         new ModifyRoadNodeChange
                         {
                             RoadNodeId = record.Id,
-                            Geometry = record.Attributes.Geometry,
+                            Geometry = record.Attributes.Geometry?.ToRoadNodeGeometry(),
                             Type = record.Attributes.Type
                         }
                     );

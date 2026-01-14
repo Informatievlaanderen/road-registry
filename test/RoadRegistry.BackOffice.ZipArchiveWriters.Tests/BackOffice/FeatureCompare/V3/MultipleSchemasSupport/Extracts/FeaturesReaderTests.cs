@@ -166,21 +166,21 @@ public class FeaturesReaderTests
             {
                 TemporaryId = new RoadNodeId(roadNodeDbaseRecord3.WK_OIDN.Value),
                 OriginalId = null,
-                Geometry = GeometryTranslator.ToPoint(roadNodeShapeContent3.Shape),
+                Geometry = GeometryTranslator.ToPoint(roadNodeShapeContent3.Shape).ToRoadNodeGeometry(),
                 Type = RoadNodeType.ByIdentifier[roadNodeDbaseRecord3.TYPE.Value]
             })
             .AppendChange(new AddRoadNodeChange
             {
                 TemporaryId = new RoadNodeId(roadNodeDbaseRecord4.WK_OIDN.Value),
                 OriginalId = null,
-                Geometry = GeometryTranslator.ToPoint(roadNodeShapeContent4.Shape),
+                Geometry = GeometryTranslator.ToPoint(roadNodeShapeContent4.Shape).ToRoadNodeGeometry(),
                 Type = RoadNodeType.ByIdentifier[roadNodeDbaseRecord4.TYPE.Value]
             })
             .AppendChange(new AddRoadSegmentChange
             {
                 TemporaryId = roadSegment2TemporaryId,
                 OriginalId = new RoadSegmentId(roadSegmentDbaseRecord2.WS_OIDN.Value),
-                Geometry = GeometryTranslator.ToMultiLineString(roadSegmentShapeContent2.Shape),
+                Geometry = GeometryTranslator.ToMultiLineString(roadSegmentShapeContent2.Shape).ToRoadSegmentGeometry(),
                 StartNodeId = new RoadNodeId(roadSegmentDbaseRecord2.B_WK_OIDN.Value),
                 EndNodeId = new RoadNodeId(roadSegmentDbaseRecord2.E_WK_OIDN.Value),
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord2.METHODE.Value],

@@ -6,18 +6,9 @@ using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
-using NetTopologySuite.IO;
 
 public static class NetTopologySuiteExtensions
 {
-    public static Point ToGeometry(this RoadNodeGeometry geometry)
-    {
-        ArgumentNullException.ThrowIfNull(geometry);
-
-        return ((Point)new WKTReader().Read(geometry.WKT)
-            .WithSrid(geometry.SRID));
-    }
-
     public static RoadNodeGeometry ToRoadNodeGeometry(this Point geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);
@@ -25,28 +16,11 @@ public static class NetTopologySuiteExtensions
         return RoadNodeGeometry.Create(geometry);
     }
 
-    public static MultiLineString ToGeometry(this RoadSegmentGeometry geometry)
-    {
-        ArgumentNullException.ThrowIfNull(geometry);
-
-        return ((MultiLineString)new WKTReader().Read(geometry.WKT)
-                .WithSrid(geometry.SRID))
-            .WithMeasureOrdinates();
-    }
-
     public static RoadSegmentGeometry ToRoadSegmentGeometry(this MultiLineString geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);
 
         return RoadSegmentGeometry.Create(geometry.WithoutDuplicateCoordinates());
-    }
-
-    public static MultiPolygon ToGeometry(this ExtractGeometry geometry)
-    {
-        ArgumentNullException.ThrowIfNull(geometry);
-
-        return (MultiPolygon)new WKTReader().Read(geometry.WKT)
-                .WithSrid(geometry.SRID);
     }
 
     public static ExtractGeometry ToExtractGeometry(this MultiPolygon geometry)

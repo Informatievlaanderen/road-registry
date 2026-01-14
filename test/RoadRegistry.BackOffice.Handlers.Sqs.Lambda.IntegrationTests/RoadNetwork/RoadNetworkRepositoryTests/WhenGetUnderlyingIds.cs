@@ -213,7 +213,7 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             await session.SaveChangesAsync();
         }
 
-        var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).ToGeometry();
+        var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).Value;
 
         // Act
         var ids = await GetUnderlyingIds(sp, requestGeometry);
@@ -415,7 +415,7 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
 
         await session.SaveChangesAsync();
 
-        var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).ToGeometry();
+        var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).Value;
         var requestIds = new RoadNetworkIds([], [roadSegmentNotIntersecting.RoadSegmentId], []);
 
         // Act

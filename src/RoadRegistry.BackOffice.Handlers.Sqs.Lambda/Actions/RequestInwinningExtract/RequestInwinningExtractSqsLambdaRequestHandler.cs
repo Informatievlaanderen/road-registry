@@ -42,7 +42,7 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
     protected override async Task<object> InnerHandle(RequestInwinningExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         var niscode = request.Request.NisCode;
-        var geometry = request.Request.Contour.ToGeometry();
+        var geometry = request.Request.Contour.Value;
 
         //TODO-pr add test with informative=true
         if (!request.Request.IsInformative)

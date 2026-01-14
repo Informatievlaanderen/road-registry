@@ -22,7 +22,7 @@ public class AggregateTests : AggregateTestBase
         var change = Fixture.Create<MigrateRoadSegmentChange>() with
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-            Geometry = Fixture.Create<RoadSegmentGeometry>().ToGeometry(),
+            Geometry = Fixture.Create<RoadSegmentGeometry>(),
             EuropeanRoadNumbers = Fixture.CreateMany<EuropeanRoadNumber>(3).Distinct().ToList(),
             NationalRoadNumbers = Fixture.CreateMany<NationalRoadNumber>(3).Distinct().ToList()
         };
@@ -36,7 +36,7 @@ public class AggregateTests : AggregateTestBase
 
         var segmentMigrated = (RoadSegmentWasMigrated)segment.GetChanges().Single();
         segmentMigrated.RoadSegmentId.Should().Be(change.RoadSegmentId);
-        segmentMigrated.Geometry.Should().Be(change.Geometry.ToRoadSegmentGeometry());
+        segmentMigrated.Geometry.Should().BeEquivalentTo(change.Geometry);
         segmentMigrated.OriginalId.Should().Be(change.OriginalId);
         segmentMigrated.StartNodeId.Should().Be(change.StartNodeId);
         segmentMigrated.EndNodeId.Should().Be(change.EndNodeId);
@@ -61,7 +61,7 @@ public class AggregateTests : AggregateTestBase
         var change = Fixture.Create<MigrateRoadSegmentChange>() with
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
-            Geometry = Fixture.Create<RoadSegmentGeometry>().ToGeometry(),
+            Geometry = Fixture.Create<RoadSegmentGeometry>(),
             EuropeanRoadNumbers = Fixture.CreateMany<EuropeanRoadNumber>(3).Distinct().ToList(),
             NationalRoadNumbers = Fixture.CreateMany<NationalRoadNumber>(3).Distinct().ToList()
         };
@@ -75,7 +75,7 @@ public class AggregateTests : AggregateTestBase
 
         var segmentMigrated = (RoadSegmentWasMigrated)segment.GetChanges().Single();
         segmentMigrated.RoadSegmentId.Should().Be(change.RoadSegmentId);
-        segmentMigrated.Geometry.Should().Be(change.Geometry.ToRoadSegmentGeometry());
+        segmentMigrated.Geometry.Should().BeEquivalentTo(change.Geometry);
         segmentMigrated.OriginalId.Should().Be(change.OriginalId);
         segmentMigrated.StartNodeId.Should().Be(change.StartNodeId);
         segmentMigrated.EndNodeId.Should().Be(change.EndNodeId);
@@ -99,7 +99,7 @@ public class AggregateTests : AggregateTestBase
 
         var change = Fixture.Create<MigrateRoadSegmentChange>() with
         {
-            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString()
+            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString().ToRoadSegmentGeometry()
         };
 
         // Act
@@ -117,7 +117,7 @@ public class AggregateTests : AggregateTestBase
 
         var change = Fixture.Create<MigrateRoadSegmentChange>() with
         {
-            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString(),
+            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString().ToRoadSegmentGeometry(),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>()
                 .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategory>())
                 .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategory>())
@@ -143,7 +143,7 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
-        segment.Geometry.AsText().Should().Be(evt.Geometry.WKT);
+        segment.Geometry.Should().BeEquivalentTo(evt.Geometry);
         segment.StartNodeId.Should().Be(evt.StartNodeId);
         segment.EndNodeId.Should().Be(evt.EndNodeId);
         segment.Attributes.GeometryDrawMethod.Should().Be(evt.GeometryDrawMethod);

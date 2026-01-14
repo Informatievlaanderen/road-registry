@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.GradeSeparatedJunction.RemoveGradeSeparatedJunction;
 
 using AutoFixture;
+using Extensions;
 using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;
@@ -23,11 +24,11 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             .Given(given => given
                 .Add(TestData.AddSegment1StartNode with
                 {
-                    Geometry = segment1Start
+                    Geometry = segment1Start.ToRoadNodeGeometry()
                 })
                 .Add(TestData.AddSegment1EndNode with
                 {
-                    Geometry = segment1End
+                    Geometry = segment1End.ToRoadNodeGeometry()
                 })
                 .Add(TestData.AddSegment1 with
                 {
@@ -35,11 +36,11 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 })
                 .Add(TestData.AddSegment2StartNode with
                 {
-                    Geometry = segment2Start
+                    Geometry = segment2Start.ToRoadNodeGeometry()
                 })
                 .Add(TestData.AddSegment2EndNode with
                 {
-                    Geometry = segment2End
+                    Geometry = segment2End.ToRoadNodeGeometry()
                 })
                 .Add(TestData.AddSegment2 with
                 {

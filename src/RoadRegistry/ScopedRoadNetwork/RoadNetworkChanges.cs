@@ -103,7 +103,7 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
 
     public RoadNetworkChanges Add(AddRoadNodeChange change)
     {
-        _geometries.Add(change.Geometry);
+        _geometries.Add(change.Geometry.Value);
 
         return AddChange(change);
     }
@@ -112,7 +112,7 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
     {
         if (change.Geometry is not null)
         {
-            _geometries.Add(change.Geometry);
+            _geometries.Add(change.Geometry.Value);
         }
 
         _roadNodeIds.Add(change.RoadNodeId);
@@ -130,7 +130,7 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
     public RoadNetworkChanges Add(AddRoadSegmentChange change)
     {
         _temporaryRoadSegmentIds.Add(change.TemporaryId);
-        _geometries.Add(change.Geometry);
+        _geometries.Add(change.Geometry.Value);
 
         return AddChange(change);
     }
@@ -139,7 +139,7 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
     {
         if (change.Geometry is not null)
         {
-            _geometries.Add(change.Geometry);
+            _geometries.Add(change.Geometry.Value);
         }
 
         _roadSegmentIds.Add(change.RoadSegmentId);

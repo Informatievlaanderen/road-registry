@@ -1,14 +1,12 @@
 ﻿namespace RoadRegistry.RoadNode;
 
 using Events.V2;
-using Extensions;
-using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 
 public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
 {
     public RoadNodeId RoadNodeId { get; }
-    public Point Geometry { get; private set; }
+    public RoadNodeGeometry Geometry { get; private set; }
     public RoadNodeType Type { get; private set; }
 
     public bool IsRemoved { get; private set; }
@@ -22,7 +20,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
     [JsonConstructor]
     protected RoadNode(
         int roadNodeId,
-        Point geometry,
+        RoadNodeGeometry geometry,
         string type,
         EventTimestamp origin,
         EventTimestamp lastModified,
@@ -38,7 +36,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
     {
         var roadNode = new RoadNode(@event.RoadNodeId)
         {
-            Geometry = @event.Geometry.ToGeometry(),
+            Geometry = @event.Geometry,
             Type = @event.Type
         };
         roadNode.UncommittedEvents.Add(@event);
@@ -49,7 +47,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
     {
         var roadNode = new RoadNode(@event.RoadNodeId)
         {
-            Geometry = @event.Geometry.ToGeometry(),
+            Geometry = @event.Geometry,
             Type = @event.Type
         };
         roadNode.UncommittedEvents.Add(@event);
@@ -60,7 +58,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
     {
         UncommittedEvents.Add(@event);
 
-        Geometry = @event.Geometry?.ToGeometry() ?? Geometry;
+        Geometry = @event.Geometry ?? Geometry;
         Type = @event.Type ?? Type;
     }
 

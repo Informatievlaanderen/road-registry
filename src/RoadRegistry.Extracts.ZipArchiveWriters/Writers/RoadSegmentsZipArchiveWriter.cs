@@ -94,7 +94,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
                         BEGINORG = { Value = x.Origin.OrganizationId }
                     };
 
-                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.ToGeometry());
+                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
                 })
                 .ToList();
 

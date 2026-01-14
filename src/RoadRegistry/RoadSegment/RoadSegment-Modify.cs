@@ -3,7 +3,6 @@
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events.V2;
-using Extensions;
 using RoadRegistry.ValueObjects.Problems;
 
 public partial class RoadSegment
@@ -14,7 +13,7 @@ public partial class RoadSegment
         var problems = Problems.For(originalId);
 
         var geometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod;
-        var geometry = change.Geometry ?? Geometry;
+        var geometry = (change.Geometry ?? Geometry).Value;
 
         problems += new RoadSegmentGeometryValidator().Validate(originalId, geometryDrawMethod, geometry);
 
@@ -50,7 +49,7 @@ public partial class RoadSegment
             OriginalId = change.OriginalId,
             StartNodeId = change.StartNodeId,
             EndNodeId = change.EndNodeId,
-            Geometry = change.Geometry?.ToRoadSegmentGeometry(),
+            Geometry = change.Geometry,
             GeometryDrawMethod = change.GeometryDrawMethod,
             AccessRestriction = accessRestriction,
             Category = category,

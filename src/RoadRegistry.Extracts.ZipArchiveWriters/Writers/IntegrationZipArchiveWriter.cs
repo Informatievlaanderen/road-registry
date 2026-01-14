@@ -47,7 +47,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
         var nodesInContour = await zipArchiveDataProvider.GetRoadNodes(request.Contour, cancellationToken);
 
         // segments integration
-        var integrationBufferedSegmentsGeometries = segmentsInContour.Select(x => x.Geometry.ToGeometry().Buffer(IntegrationBufferInMeters)).ToList();
+        var integrationBufferedSegmentsGeometries = segmentsInContour.Select(x => x.Geometry.Value.Buffer(IntegrationBufferInMeters)).ToList();
 
         var integrationSegments = new List<RoadSegmentExtractItem>();
         var integrationNodes = new List<RoadNodeExtractItem>();
@@ -63,7 +63,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                 cancellationToken);
 
             integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentEqualityComparerById()).ToList();
-            integrationSegments = integrationSegments.Where(integrationSegment => { return integrationBufferedSegmentsGeometries.Any(segmentBufferedGeometry => segmentBufferedGeometry.Intersects(integrationSegment.Geometry.ToGeometry())); })
+            integrationSegments = integrationSegments.Where(integrationSegment => { return integrationBufferedSegmentsGeometries.Any(segmentBufferedGeometry => segmentBufferedGeometry.Intersects(integrationSegment.Geometry.Value)); })
                 .ToList();
 
             // nodes integration
@@ -131,7 +131,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                         BEGINORG = { Value = x.Origin.OrganizationId }
                     };
 
-                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.ToGeometry());
+                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
                 })
                 .ToList();
 
@@ -158,7 +158,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                         BEGINORG = { Value = x.Origin.OrganizationId }
                     };
 
-                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.ToGeometry());
+                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
                 });
 
             await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.Point, RoadNodeDbaseRecord.Schema, records, cancellationToken);

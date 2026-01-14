@@ -47,7 +47,7 @@ public class AggregateTests : AggregateTestBase
         // Assert
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
         segment.IsRemoved.Should().BeTrue();
-        segment.Geometry.AsText().Should().Be(segmentAdded.Geometry.WKT);
+        segment.Geometry.Should().BeEquivalentTo(segmentAdded.Geometry);
         segment.StartNodeId.Should().Be(segmentAdded.StartNodeId);
         segment.EndNodeId.Should().Be(segmentAdded.EndNodeId);
         segment.Attributes.GeometryDrawMethod.Should().Be(segmentAdded.GeometryDrawMethod);
