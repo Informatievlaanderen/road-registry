@@ -12,7 +12,11 @@ public static class RoadNetworkChangesProjectionExtensions
 
         options.Projections.Add(projection,
             ProjectionLifecycle.Async,
-            asyncConfiguration: opts => { opts.BatchSize = 1; });
+            asyncConfiguration: opts =>
+            {
+                opts.EnableDocumentTrackingByIdentity = true;
+                opts.BatchSize = 10000;
+            });
 
         return options;
     }

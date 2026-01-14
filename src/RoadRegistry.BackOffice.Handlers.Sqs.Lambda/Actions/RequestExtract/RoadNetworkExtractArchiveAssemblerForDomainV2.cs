@@ -11,6 +11,7 @@ using RoadRegistry.Editor.Schema;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.ZipArchiveWriters;
+using RoadRegistry.Infrastructure.MartenDb;
 using ScopedRoadNetwork;
 
 public class RoadNetworkExtractArchiveAssemblerForDomainV2 : IRoadNetworkExtractArchiveAssembler
@@ -42,8 +43,7 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV2 : IRoadNetworkExtract
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        //TODO-pr temp disable
-        //await _store.WaitForNonStaleProjection(WellKnownProjectionStateNames.ExtractsRoadNetworkChangesProjection, _logger, cancellationToken);
+        await _store.WaitForNonStaleProjection(WellKnownProjectionStateNames.ExtractsRoadNetworkChangesProjection, _logger, cancellationToken);
 
         await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
 

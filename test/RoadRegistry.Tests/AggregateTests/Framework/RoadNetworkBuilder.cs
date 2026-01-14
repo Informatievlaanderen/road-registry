@@ -17,7 +17,7 @@ public class RoadNetworkBuilder
 
     public ScopedRoadNetwork Build()
     {
-        var roadNetwork = new ScopedRoadNetwork(new RoadNetworkId(Guid.NewGuid()));
+        var roadNetwork = new ScopedRoadNetwork(new ScopedRoadNetworkId(Guid.NewGuid()));
 
         foreach (var change in _changes)
         {

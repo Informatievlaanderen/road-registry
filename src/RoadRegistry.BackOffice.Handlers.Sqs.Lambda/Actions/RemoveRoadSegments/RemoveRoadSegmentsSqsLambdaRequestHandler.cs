@@ -51,14 +51,14 @@ public sealed class RemoveRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
 
     private async Task Handle(RemoveRoadSegmentsSqsRequest command, CancellationToken cancellationToken)
     {
-        var roadNetwork = await Load(command.RoadSegmentIds, new RoadNetworkId(command.TicketId));
+        var roadNetwork = await Load(command.RoadSegmentIds, new ScopedRoadNetworkId(command.TicketId));
 
         roadNetwork.RemoveRoadSegments(command.RoadSegmentIds, _roadNetworkIdGenerator, command.ProvenanceData.ToProvenance());
 
         await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
     }
 
-    private async Task<ScopedRoadNetwork> Load(IReadOnlyCollection<RoadSegmentId> roadSegmentIds, RoadNetworkId roadNetworkId)
+    private async Task<ScopedRoadNetwork> Load(IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
     {
         await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
 

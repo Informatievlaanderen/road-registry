@@ -4,14 +4,14 @@ using System;
 using Newtonsoft.Json;
 using ScopedRoadNetwork.ValueObjects;
 
-public class RoadNetworkIdConverter : NullableValueTypeJsonConverter<RoadNetworkId>
+public class RoadNetworkIdConverter : NullableValueTypeJsonConverter<ScopedRoadNetworkId>
 {
-    protected override RoadNetworkId ReadJson(object value, Type objectType, JsonSerializer serializer)
+    protected override ScopedRoadNetworkId ReadJson(object value, Type objectType, JsonSerializer serializer)
     {
-        return new RoadNetworkId((string)value);
+        return new ScopedRoadNetworkId((string)value);
     }
 
-    protected override void WriteJson(JsonWriter writer, RoadNetworkId value, JsonSerializer serializer)
+    protected override void WriteJson(JsonWriter writer, ScopedRoadNetworkId value, JsonSerializer serializer)
     {
         writer.WriteValue(value.ToString());
     }

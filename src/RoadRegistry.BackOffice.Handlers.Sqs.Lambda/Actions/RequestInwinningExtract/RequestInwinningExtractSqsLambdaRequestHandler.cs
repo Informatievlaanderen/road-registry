@@ -44,7 +44,7 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
         var niscode = request.Request.NisCode;
         var geometry = request.Request.Contour.ToGeometry();
 
-        //TODO-pr test bij informative=true
+        //TODO-pr add test with informative=true
         if (!request.Request.IsInformative)
         {
             var inwinningsZone = await _extractsDbContext.Inwinningszones.FindAsync([niscode], cancellationToken);

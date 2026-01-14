@@ -136,7 +136,7 @@ public class MartenProjectionIntegrationTestRunner
         {
             await using var session = store.LightweightSession();
 
-            var roadNetworkId = new RoadNetworkId(Guid.NewGuid());
+            var roadNetworkId = new ScopedRoadNetworkId(Guid.NewGuid());
             var roadNetworkStreamKey = StreamKeyFactory.Create(typeof(ScopedRoadNetwork), roadNetworkId);
 
             session.CausationId = "given";

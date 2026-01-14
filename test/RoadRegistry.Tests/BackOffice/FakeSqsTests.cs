@@ -24,7 +24,7 @@ public class FakeSqsTests
 
         var originalMessage = new UploadRoadNetworkChangesArchive { ArchiveId = new ArchiveId(Guid.NewGuid().ToString("N")).ToString() };
 
-        var sqsQueueFactoryAndConsumer = new SqsQueueFactoryAndConsumerForDevelopment(new SqsJsonMessageSerializer(new SqsOptions()), new NullLoggerFactory());
+        var sqsQueueFactoryAndConsumer = new SqsQueueFactoryAndConsumerForDevelopment(new SqsJsonMessageSerializer(new SqsOptions(), SqsJsonMessageAssemblies.Assemblies), new NullLoggerFactory());
         sqsQueueFactoryAndConsumer.RemoveQueue(queueUrl);
 
         var sqsPublisher = sqsQueueFactoryAndConsumer.Create(queueUrl);

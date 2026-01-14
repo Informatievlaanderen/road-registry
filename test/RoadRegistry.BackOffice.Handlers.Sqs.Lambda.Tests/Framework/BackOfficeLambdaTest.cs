@@ -458,7 +458,7 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
     {
         // Arrange
         var mediator = new Mock<IMediator>();
-        var blobClient = new SqsMessagesBlobClient(Client, new SqsJsonMessageSerializer(new SqsOptions()));
+        var blobClient = new SqsMessagesBlobClient(Client, new SqsJsonMessageSerializer(new SqsOptions(), SqsJsonMessageAssemblies.Assemblies));
 
         var containerBuilder = new ContainerBuilder();
         containerBuilder.Register(_ => mediator.Object);

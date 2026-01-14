@@ -77,7 +77,7 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
             switch (evt)
             {
                 case RoadNetworkWasChanged @event:
-                    runner.Given<ScopedRoadNetwork, RoadNetworkId>(new RoadNetworkId(Guid.NewGuid()), @event);
+                    runner.Given<ScopedRoadNetwork, ScopedRoadNetworkId>(new ScopedRoadNetworkId(Guid.NewGuid()), @event);
                     break;
                 case RoadNodeWasAdded @event:
                     runner.Given<RoadNode, RoadNodeId>(@event.RoadNodeId, @event);

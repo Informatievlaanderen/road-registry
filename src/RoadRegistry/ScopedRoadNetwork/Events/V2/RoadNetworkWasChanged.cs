@@ -8,7 +8,7 @@ using ValueObjects;
 
 public record RoadNetworkWasChanged : IMartenEvent, ICreatedEvent
 {
-    public required RoadNetworkId RoadNetworkId { get; init; }
+    public required ScopedRoadNetworkId RoadNetworkId { get; init; }
     public RoadNetworkChangeGeometry? ScopeGeometry { get; init; }
     public DownloadId? DownloadId { get; init; }
     public required RoadNetworkChangedSummary Summary { get; init; }
