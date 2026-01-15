@@ -1,5 +1,5 @@
 import Root from "./views/Root.vue";
-import ExtractDetails from "./views/ExtractDetails.vue";
+import ExtractDetails from "./views/ExtractDetailsWrapper.vue";
 import Extracts from "./views/Extracts.vue";
 import RequestExtract from "./views/RequestExtract.vue";
 import RoadRegistry from "@/types/road-registry";

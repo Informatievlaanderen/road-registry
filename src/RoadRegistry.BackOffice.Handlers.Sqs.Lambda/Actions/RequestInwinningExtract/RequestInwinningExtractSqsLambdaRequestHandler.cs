@@ -86,11 +86,17 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
                 geometry,
                 request.Request.Description,
                 request.Request.IsInformative,
-                request.Request.IsInformative ? null : $"INWINNING_{niscode}"),
+                request.Request.IsInformative ? null : BuildExternalRequestId(niscode)),
             new TicketId(request.TicketId), request.Provenance, cancellationToken);
 
         var downloadId = new DownloadId(request.Request.DownloadId);
         return new RequestExtractResponse(downloadId);
+    }
+
+    private static string BuildExternalRequestId(string niscode)
+    {
+        // don't change the format, it's used in backend and frontend
+        return $"INWINNING_{niscode}";
     }
 
     protected override Task ValidateIfMatchHeaderValue(RequestInwinningExtractSqsLambdaRequest request, CancellationToken cancellationToken)

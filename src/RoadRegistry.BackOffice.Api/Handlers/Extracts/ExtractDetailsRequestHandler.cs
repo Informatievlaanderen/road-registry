@@ -32,7 +32,7 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
             from extractDownload in _extractsDbContext.ExtractDownloads
             join extractRequest in _extractsDbContext.ExtractRequests on extractDownload.ExtractRequestId equals extractRequest.ExtractRequestId
             where extractDownload.DownloadId == request.DownloadId.ToGuid()
-            select new { Download = extractDownload, extractRequest.Description }
+            select new { Download = extractDownload, extractRequest.Description, extractRequest.ExternalRequestId }
         ).SingleOrDefaultAsync(cancellationToken);
         if (record is null)
         {
@@ -45,6 +45,9 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
             Description = record.Description,
             Contour = record.Download.Contour.ToMultiPolygon(),
             ExtractRequestId = ExtractRequestId.FromString(record.Download.ExtractRequestId),
+            ExternalExtractRequestId = record.ExternalRequestId is not null
+                ? new ExternalExtractRequestId(record.ExternalRequestId)
+                : null,
             RequestedOn = record.Download.RequestedOn,
             IsInformative = record.Download.IsInformative,
             UploadId = record.Download.UploadId is not null ? new UploadId(record.Download.UploadId.Value) : null,

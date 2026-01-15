@@ -79,7 +79,7 @@ public class ExtractRequester
                 ExtractRequestId = extractRequestId,
                 Contour = contour,
                 IsInformative = isInformative,
-                RequestedOn = extractRequest.RequestedOn,
+                RequestedOn = DateTimeOffset.UtcNow,
                 DownloadId = downloadId,
                 TicketId = ticketId,
                 DownloadStatus = ExtractDownloadStatus.Preparing,

@@ -15,14 +15,13 @@
                 </div>
               </vl-region>
             </div>
+            <div v-else>
+              <div v-if="downloadAvailable === false && downloadStatusMessage">
+                <vl-alert :mod-error="downloadStatusMessage.error">
+                  {{ downloadStatusMessage.message }}
+                </vl-alert>
+              </div>
 
-            <div v-if="extract && downloadAvailable === false && downloadStatusMessage">
-              <vl-alert :mod-error="downloadStatusMessage.error">
-                {{ downloadStatusMessage.message }}
-              </vl-alert>
-            </div>
-
-            <div v-if="extract">
               <div>Aangevraagd op: {{ formatDate(extract.aangevraagdOp) }}</div>
               <div>Status: {{ status }}</div>
 
@@ -32,8 +31,11 @@
                   <vl-button v-if="isDownloading" mod-loading> Download extract... </vl-button>
                   <vl-button v-else @click="downloadExtract()"> Download extract </vl-button>
                 </span>
-                <span v-if="downloadAvailable && !extract.uploadStatus" style="margin-left: 1rem">
-                  <vl-button v-if="isDownloading" mod-loading> Genereer extract opnieuw... </vl-button>
+                <span
+                  v-if="downloadAvailable && !extract.informatief && !extract.uploadStatus"
+                  style="margin-left: 1rem"
+                >
+                  <vl-button v-if="isSubmitting" mod-loading> Genereer extract opnieuw... </vl-button>
                   <vl-button v-else @click="requestExtractAgain()"> Genereer extract opnieuw </vl-button>
                 </span>
                 <span v-if="extract.uploadStatus" style="margin-left: 1rem">
@@ -47,6 +49,17 @@
                   </vl-alert>
                 </div>
               </div>
+
+              <vl-alert v-if="municipalityFlow.hasGenericError" mod-error mod-small>
+                <p>Er is een onverwachte fout opgetreden.</p>
+              </vl-alert>
+              <vl-alert v-if="municipalityFlow.validationErrors.length" mod-error title="Validatie fouten" mod-small>
+                <ul>
+                  <li v-for="validationError in municipalityFlow.validationErrors" :key="validationError.code">
+                    {{ validationError.reason }}
+                  </li>
+                </ul>
+              </vl-alert>
 
               <br />
               <UploadComponent
@@ -105,6 +118,8 @@ import ActivitySummary from "../../activity/components/ActivitySummary.vue";
 import UploadComponent from "./UploadComponent.vue";
 import DateFormat from "@/core/utils/date-format";
 import RoadRegistry from "@/types/road-registry";
+import RoadRegistryExceptions from "@/types/road-registry-exceptions";
+import ValidationUtils from "@/core/utils/validation-utils";
 
 const camelizeKeys: any = (obj: any) => {
   if (Array.isArray(obj)) {
@@ -140,12 +155,17 @@ export default defineComponent({
           }
         | undefined,
       isDownloading: false as boolean,
+      isSubmitting: false as boolean,
       ticketId: "" as string,
       ticketStatus: undefined as string | undefined,
       ticketResponseCode: 0 as number,
       fileProblems: [] as Array<any>,
       changes: [] as Array<any>,
       summary: undefined as any | undefined,
+      municipalityFlow: {
+        validationErrors: [] as RoadRegistry.ValidationError[],
+        hasGenericError: false,
+      },
     };
   },
   computed: {
@@ -502,29 +522,23 @@ export default defineComponent({
       }
     },
     async requestExtractAgain(): Promise<void> {
-      //TODO-pr fill
-      /* 
-            this.isSubmitting = true;
+      this.isSubmitting = true;
       try {
-        this.municipalityFlow.validationErrors = [];
-        this.municipalityFlow.hasGenericError = false;
-
-        if (!this.municipalityFlowHasIsInformative) {
-          return;
-        }
-
+        let niscode = this.extract!.externeId.replace("INWINNING_", "");
         const requestData: RoadRegistry.ExtractDownloadaanvraagPerNisCodeBody = {
-          nisCode: this.municipalityFlow.nisCode,
-          beschrijving: this.municipalityFlowDescription,
-          informatief: this.municipalityFlow.isInformative as boolean,
+          nisCode: niscode,
+          beschrijving: this.extract!.beschrijving,
+          informatief: this.extract!.informatief,
         };
 
         let downloadExtractResponse = await PublicApi.Inwinning.requestExtract(requestData);
 
+        this.extract = undefined;
         this.$router.push({
           name: "inwinningExtractDetails",
           params: { downloadId: downloadExtractResponse.downloadId },
         });
+        this.$emit("reload");
       } catch (exception) {
         if (exception instanceof RoadRegistryExceptions.BadRequestError) {
           this.municipalityFlow.validationErrors = ValidationUtils.convertValidationErrorsToArray(
@@ -534,10 +548,8 @@ export default defineComponent({
           console.error("Submit municipality failed", exception);
           this.municipalityFlow.hasGenericError = true;
         }
-      } finally {
         this.isSubmitting = false;
       }
-      */
     },
     async downloadUpload(): Promise<void> {
       this.isDownloading = true;

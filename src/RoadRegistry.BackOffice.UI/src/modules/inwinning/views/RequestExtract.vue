@@ -129,11 +129,11 @@
 </template>
 
 <script lang="ts">
-import { PublicApi } from "../../../services";
+import { PublicApi } from "@/services";
 import ValidationUtils from "@/core/utils/validation-utils";
-import Municipalities from "../../../types/municipalities";
-import RoadRegistry from "../../../types/road-registry";
-import RoadRegistryExceptions from "../../../types/road-registry-exceptions";
+import Municipalities from "@/types/municipalities";
+import RoadRegistry from "@/types/road-registry";
+import RoadRegistryExceptions from "@/types/road-registry-exceptions";
 import { WR_ENV } from "@/environment";
 
 import { defineComponent } from "vue";
