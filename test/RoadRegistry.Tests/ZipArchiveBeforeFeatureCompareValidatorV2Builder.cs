@@ -1,7 +1,6 @@
 namespace RoadRegistry.Tests
 {
     using Extracts;
-    using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.FeatureCompare;
     using RoadRegistry.BackOffice.FeatureCompare.V2.Readers;
     using RoadRegistry.BackOffice.FeatureCompare.V2.Translators;

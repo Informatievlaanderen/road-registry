@@ -1,7 +1,7 @@
-﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.V3;
+﻿namespace RoadRegistry.Tests;
 
-using RoadRegistry.Extracts.FeatureCompare.V3;
-using RoadRegistry.Extracts.FeatureCompare.V3.RoadSegment;
+using Extracts.FeatureCompare.V3;
+using Extracts.FeatureCompare.V3.RoadSegment;
 
 public class FakeRoadSegmentFeatureCompareStreetNameContextFactoryV3: IRoadSegmentFeatureCompareStreetNameContextFactory
 {

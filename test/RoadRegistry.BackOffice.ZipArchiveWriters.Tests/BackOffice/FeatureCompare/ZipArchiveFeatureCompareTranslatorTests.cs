@@ -27,7 +27,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
     using RoadRegistry.Extracts.ZipArchiveWriters;
     using RoadRegistry.Tests.BackOffice.Scenarios;
     using Uploads;
-        using Xunit.Abstractions;
+    using V3;
+    using Xunit.Abstractions;
     using IZipArchiveWriter = ExtractHost.IZipArchiveWriter;
     using ZipArchiveDataProvider = ExtractHost.ZipArchiveDataProvider;
 

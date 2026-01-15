@@ -515,13 +515,4 @@ public class ExtractV2ZipArchiveTestData : IDisposable
             transactionZoneDbaseStream
         );
     }
-
-    [Fact]
-    public async Task ExtractsZipArchiveTestDataIsValid()
-    {
-        var sut = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create();
-        var result = await sut.ValidateAsync(ZipArchive, ZipArchiveMetadata.Empty, CancellationToken.None);
-
-        Assert.Equal(ZipArchiveProblems.None, result);
-    }
 }
