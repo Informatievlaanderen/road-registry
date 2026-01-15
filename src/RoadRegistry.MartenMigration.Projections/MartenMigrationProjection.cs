@@ -360,8 +360,9 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     case GradeSeparatedJunctionAdded change:
                         await AddGradeSeparatedJunction(roadNetworkId, change, changeIndex, envelope, token);
                         break;
-                    case GradeSeparatedJunctionModified:
-                        throw new InvalidOperationException("Change GradeSeparatedJunctionModified should not be in use");
+                    case GradeSeparatedJunctionModified change:
+                        await ModifyGradeSeparatedJunction(roadNetworkId, change, changeIndex, envelope, token);
+                        break;
                     case GradeSeparatedJunctionRemoved change:
                         await RemoveGradeSeparatedJunction(roadNetworkId, change, changeIndex, envelope, token);
                         break;
@@ -1062,6 +1063,35 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var legacyEvent = new RoadRegistry.GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionRemoved
             {
                 Id = change.Id,
+                Provenance = new ProvenanceData(provenance)
+            };
+            session.Events.Append(streamKey, legacyEvent);
+        }, token);
+    }
+
+    private Task ModifyGradeSeparatedJunction(
+        ScopedRoadNetworkId roadNetworkId,
+        GradeSeparatedJunctionModified change,
+        int changeIndex,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
+
+        return _repo.InIdempotentSession(eventIdentifier, async session =>
+        {
+            session.CorrelationId = roadNetworkId;
+            session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+
+            var provenance = BuildProvenance(envelope, Modification.Insert);
+
+            var streamKey = StreamKeyFactory.Create(typeof(GradeSeparatedJunction), new GradeSeparatedJunctionId(change.Id));
+            var legacyEvent = new RoadRegistry.GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionModified
+            {
+                Id = change.Id,
+                LowerRoadSegmentId = change.LowerRoadSegmentId,
+                UpperRoadSegmentId = change.UpperRoadSegmentId,
+                Type = change.Type,
                 Provenance = new ProvenanceData(provenance)
             };
             session.Events.Append(streamKey, legacyEvent);
