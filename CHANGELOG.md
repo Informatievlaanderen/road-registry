@@ -1,3 +1,10 @@
+# [4.40.0](https://github.com/informatievlaanderen/road-registry/compare/v4.39.3...v4.40.0) (2026-01-15)
+
+
+### Features
+
+* add Inwinning to UI + Domain V2 fixes ([be104ba](https://github.com/informatievlaanderen/road-registry/commit/be104ba91e6f94a1f91e63d0b9b79bd10c1877ee))
+
 ## [4.39.3](https://github.com/informatievlaanderen/road-registry/compare/v4.39.2...v4.39.3) (2026-01-13)
 
 
