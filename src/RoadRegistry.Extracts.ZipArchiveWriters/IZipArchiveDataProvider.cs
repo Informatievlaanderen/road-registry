@@ -1,11 +1,8 @@
-﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2;
+﻿namespace RoadRegistry.Extracts.ZipArchiveWriters;
 
-using Editor.Schema.Organizations;
-using GradeSeparatedJunction;
 using NetTopologySuite.Geometries;
-using RoadNode;
+using RoadRegistry.Editor.Schema.Organizations;
 using RoadRegistry.Extracts.Projections;
-using RoadSegment;
 
 public interface IZipArchiveDataProvider
 {

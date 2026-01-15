@@ -1,72 +1,30 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
-using GradeSeparatedJunction.Events.V1;
 using JasperFx.Events;
 using Marten;
 using Marten.Events.Projections;
-using Microsoft.Extensions.Logging;
-using RoadNode.Events.V1;
-using RoadSegment.Events.V1;
-using ScopedRoadNetwork.Events.V1;
-using ScopedRoadNetwork.Events.V2;
 
-public abstract class RoadNetworkChangesProjection : EventProjection
+public abstract class RoadNetworkChangesProjection : IProjection
 {
     private readonly IReadOnlyCollection<IRoadNetworkChangesProjection> _projections;
 
     protected RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections)
     {
         _projections = projections;
-
-        // V1
-        IncludeType<ImportedRoadNode>();
-        IncludeType<ImportedRoadSegment>();
-        IncludeType<ImportedGradeSeparatedJunction>();
-        IncludeType<RoadNetworkChangesAccepted>();
-
-        // V2
-        IncludeType<RoadNetworkWasChanged>();
     }
 
     public virtual void Configure(StoreOptions options)
     {
     }
 
-    public Task Project(IEvent<ImportedRoadNode> e, IDocumentOperations operations, CancellationToken cancellation)
+    //TODO-pr in table bijhouden welke correlationids zijn verwerkt (incl hun hoogste eventposition + projection name)
+    //wanneer batchsize gelijk is aan max, dan aparte query'en voor nog meer data op te halen
+    //tbd: indien te traag dan dit enkel doen wanneer de projectie dichtbij het einde is (bvb -50k)
+    public async Task ApplyAsync(IDocumentOperations operations, IReadOnlyList<IEvent> events, CancellationToken cancellation)
     {
-        return ProjectCorrelatedEvents(e, operations, cancellation);
-    }
-    public Task Project(IEvent<ImportedRoadSegment> e, IDocumentOperations operations, CancellationToken cancellation)
-    {
-        return ProjectCorrelatedEvents(e, operations, cancellation);
-    }
-    public Task Project(IEvent<ImportedGradeSeparatedJunction> e, IDocumentOperations operations, CancellationToken cancellation)
-    {
-        return ProjectCorrelatedEvents(e, operations, cancellation);
-    }
-    public Task Project(IEvent<RoadNetworkChangesAccepted> e, IDocumentOperations operations, CancellationToken cancellation)
-    {
-        return ProjectCorrelatedEvents(e, operations, cancellation);
-    }
-
-    public Task Project(IEvent<RoadNetworkWasChanged> e, IDocumentOperations operations, CancellationToken cancellation)
-    {
-        return ProjectCorrelatedEvents(e, operations, cancellation);
-    }
-
-    private async Task ProjectCorrelatedEvents(IEvent e, IDocumentOperations operations, CancellationToken cancellation)
-    {
-        var correlationId = e.CorrelationId!;
-
-        var processEvents = operations.Events.QueryAllRawEvents()
-            .Where(x => x.CorrelationId == correlationId) //TODO-pr add index on correlationId
-            .ToList()
-            .AsReadOnly();
-
         foreach (var projection in _projections)
         {
-            await projection.Project(processEvents, operations, cancellation);
+            await projection.Project(events, operations, cancellation).ConfigureAwait(false);
         }
     }
 }
-

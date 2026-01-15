@@ -33,7 +33,7 @@ public class LambdaRunner
 
     public async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await _sqsQueueConsumer.Consume(_sqsQueueUrlOptions.BackOffice, message =>
+        await _sqsQueueConsumer.Consume(_sqsQueueUrlOptions.BackOffice, async message =>
         {
             var sqsEvent = new SQSEvent
             {
@@ -56,9 +56,7 @@ public class LambdaRunner
                 Logger = new LambdaLogger(_logger)
             };
             var lambdaFunction = new Function();
-            lambdaFunction.Handler(sqsEventJson, lambdaContext).GetAwaiter().GetResult();
-
-            return Task.CompletedTask;
+            await lambdaFunction.Handler(sqsEventJson, lambdaContext);
         }, stoppingToken);
     }
 

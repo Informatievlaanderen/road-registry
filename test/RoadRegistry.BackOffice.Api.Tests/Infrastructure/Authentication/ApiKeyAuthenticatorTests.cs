@@ -5,6 +5,7 @@
     using Api.Infrastructure.Controllers.Attributes;
     using AutoFixture;
     using FluentAssertions;
+    using Microsoft.Extensions.Configuration;
     using Moq;
 
     public class ApiKeyAuthenticatorTests
@@ -29,7 +30,7 @@
                 .Setup(x => x.ReadAsync(It.IsAny<string>()))
                 .ReturnsAsync(new ApiToken(apiKey, _fixture.Create<string>(), new ApiTokenMetadata(true)));
 
-            var authenticator = new ApiKeyAuthenticator(tokenReader.Object);
+            var authenticator = new ApiKeyAuthenticator(tokenReader.Object, new ConfigurationBuilder().Build());
 
             var identity = (ClaimsIdentity) await authenticator.AuthenticateAsync(apiKey, CancellationToken.None);
 

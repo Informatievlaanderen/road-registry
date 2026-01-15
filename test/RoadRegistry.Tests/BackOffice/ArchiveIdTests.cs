@@ -88,7 +88,7 @@ public class ArchiveIdTests
 
         var assertions = new IIdiomaticAssertion[]
         {
-            new ImplicitConversionOperatorAssertion<string>(new CompositeSpecimenBuilder(fixture, _fixture)),
+            new ImplicitConversionOperatorAssertion<string?>(new CompositeSpecimenBuilder(fixture, _fixture)),
             new EquatableEqualsSelfAssertion(_fixture),
             new EquatableEqualsOtherAssertion(_fixture),
             new EqualityOperatorEqualsSelfAssertion(_fixture),
@@ -105,7 +105,7 @@ public class ArchiveIdTests
 
         foreach (var assertion in assertions)
         {
-            if (assertion is ImplicitConversionOperatorAssertion<string>)
+            if (assertion is ImplicitConversionOperatorAssertion<string?>)
             {
                 _fixture.CustomizeArchiveId();
             }

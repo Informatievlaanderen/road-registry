@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 
+using System.Reflection;
+using Abstractions;
 using Autofac;
 using AutoFixture;
 using BackOffice.Uploads;
@@ -27,7 +29,7 @@ public sealed class MessageHandlerTests : RoadRegistryTestBase
         var containerBuilder = new ContainerBuilder();
         containerBuilder.Register(_ => mediator.Object);
         var container = containerBuilder.Build();
-        var blobClient = new SqsMessagesBlobClient(Client, new SqsJsonMessageSerializer(new FakeSqsOptions()));
+        var blobClient = new SqsMessagesBlobClient(Client, new SqsJsonMessageSerializer(new FakeSqsOptions(), SqsJsonMessageAssemblies.Assemblies));
 
         var messageData = ObjectProvider.Create<TestSqsRequest>();
         var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };
@@ -52,7 +54,7 @@ public sealed class MessageHandlerTests : RoadRegistryTestBase
         var containerBuilder = new ContainerBuilder();
         containerBuilder.Register(_ => mediator.Object);
         var container = containerBuilder.Build();
-        var blobClient = new SqsMessagesBlobClient(Client, new SqsJsonMessageSerializer(new FakeSqsOptions()));
+        var blobClient = new SqsMessagesBlobClient(Client, new SqsJsonMessageSerializer(new FakeSqsOptions(), SqsJsonMessageAssemblies.Assemblies));
 
         var messageData = ObjectProvider.Create<object>();
         var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };

@@ -2,20 +2,20 @@
 
 using System;
 
-public sealed class RoadNetworkId
+public sealed class ScopedRoadNetworkId
 {
     private readonly string _id;
 
-    public RoadNetworkId(Guid id)
+    public ScopedRoadNetworkId(Guid id)
         : this(id.ToString("N"))
     {
     }
-    public RoadNetworkId(string id)
+    public ScopedRoadNetworkId(string id)
     {
         _id = id;
     }
 
     public override string ToString() => _id;
 
-    public static implicit operator string(RoadNetworkId roadNetworkId) => roadNetworkId.ToString();
+    public static implicit operator string(ScopedRoadNetworkId roadNetworkId) => roadNetworkId.ToString();
 }

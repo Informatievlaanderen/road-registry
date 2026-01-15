@@ -207,7 +207,7 @@ public class RoadNodeTypeTests
         _fixture.Customizations.Add(
             new FiniteSequenceGenerator<string>(_knownValues));
         new CompositeIdiomaticAssertion(
-            new ImplicitConversionOperatorAssertion<string>(_fixture),
+            new ImplicitConversionOperatorAssertion<string?>(_fixture),
             new EquatableEqualsSelfAssertion(_fixture),
             new EquatableEqualsOtherAssertion(_fixture),
             new EqualityOperatorEqualsSelfAssertion(_fixture),

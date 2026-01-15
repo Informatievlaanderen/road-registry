@@ -42,6 +42,7 @@ public partial class ExtractenController
             {
                 DownloadId = response.DownloadId,
                 Beschrijving = response.Description,
+                ExterneId = response.ExternalExtractRequestId,
                 Contour = response.Contour.ToGeoJson(),
                 AangevraagdOp = response.RequestedOn,
                 Informatief = response.IsInformative,
@@ -64,6 +65,7 @@ public record ExtractDetailsResponseBody
 {
     public string DownloadId { get; init; }
     public string Beschrijving { get; init; }
+    public string? ExterneId { get; init; }
     public MultiPolygon Contour { get; init; }
     public DateTimeOffset AangevraagdOp { get; init; }
     public bool Informatief { get; init; }

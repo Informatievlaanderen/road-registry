@@ -24,7 +24,7 @@ public partial class GradeSeparatedJunction
 
         if (upperSegment is not null
             && lowerSegment is not null
-            && !upperSegment.Geometry.Intersects(lowerSegment.Geometry))
+            && !upperSegment.Geometry.Value.Intersects(lowerSegment.Geometry.Value))
         {
             problems += new Error(ProblemCode.GradeSeparatedJunction.UpperAndLowerDoNotIntersect,
                 new ProblemParameter("LowerRoadSegmentId", context.IdTranslator.TranslateToTemporaryId(LowerRoadSegmentId).ToString()),

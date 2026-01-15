@@ -10,12 +10,12 @@
     using NetTopologySuite.Geometries;
     using RoadRegistry.BackOffice.Abstractions;
     using RoadRegistry.BackOffice.Extracts;
-    using RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2;
     using RoadRegistry.Extracts;
+    using RoadRegistry.Extracts.ZipArchiveWriters;
+    using RoadRegistry.Extracts.ZipArchiveWriters.Writers;
     using RoadRegistry.Infrastructure;
     using RoadRegistry.Tests.BackOffice;
     using RoadRegistry.Tests.BackOffice.Scenarios;
-    using ZipArchiveWriters.DomainV2.Writers;
 
     public class RoadNetworkExtractZipArchiveWriterTests
     {

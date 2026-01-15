@@ -8,7 +8,11 @@ using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schemas.ExtractV1.Lists;
+using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure;
+using CompositeZipArchiveWriter = ExtractHost.CompositeZipArchiveWriter;
+using IZipArchiveDataProvider = ExtractHost.IZipArchiveDataProvider;
+using IZipArchiveWriter = ExtractHost.IZipArchiveWriter;
 
 public class RoadNetworkExtractZipArchiveWriter : IZipArchiveWriter
 {

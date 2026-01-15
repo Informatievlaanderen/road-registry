@@ -41,19 +41,19 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         var node1 = new AddRoadNodeChange
         {
             TemporaryId = new RoadNodeId(1),
-            Geometry = new Point(200000, 200000),
+            Geometry = new Point(200000, 200000).ToRoadNodeGeometry(),
             Type = RoadNodeType.EndNode
         };
         var node2 = new AddRoadNodeChange
         {
             TemporaryId = new RoadNodeId(2),
-            Geometry = new Point(200010, 200000),
+            Geometry = new Point(200010, 200000).ToRoadNodeGeometry(),
             Type = RoadNodeType.FakeNode
         };
         var node3 = new AddRoadNodeChange
         {
             TemporaryId = new RoadNodeId(3),
-            Geometry = new Point(200020, 200000),
+            Geometry = new Point(200020, 200000).ToRoadNodeGeometry(),
             Type = RoadNodeType.EndNode
         };
         var segment1_node_1_2 = fixture.Create<AddRoadSegmentChange>() with
@@ -62,7 +62,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             OriginalId = null,
             StartNodeId = node1.TemporaryId,
             EndNodeId = node2.TemporaryId,
-            Geometry = BuildMultiLineString(node1.Geometry, node2.Geometry),
+            Geometry = BuildMultiLineString(node1.Geometry.Value, node2.Geometry.Value),
             Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.InUse),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(RoadSegmentCategory.RegionalRoad),
             EuropeanRoadNumbers = [],
@@ -74,7 +74,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             OriginalId = null,
             StartNodeId = node2.TemporaryId,
             EndNodeId = node3.TemporaryId,
-            Geometry = BuildMultiLineString(node2.Geometry, node3.Geometry),
+            Geometry = BuildMultiLineString(node2.Geometry.Value, node3.Geometry.Value),
             Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.OutOfUse),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(RoadSegmentCategory.RegionalRoad),
             EuropeanRoadNumbers = [],
@@ -84,19 +84,19 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         var node4 = TestData.AddSegment3StartNode with
         {
             TemporaryId = new RoadNodeId(4),
-            Geometry = new Point(200090, 200000),
+            Geometry = new Point(200090, 200000).ToRoadNodeGeometry(),
         };
         var node5 = TestData.AddSegment3EndNode with
         {
             TemporaryId = new RoadNodeId(5),
-            Geometry = new Point(200095, 200000),
+            Geometry = new Point(200095, 200000).ToRoadNodeGeometry(),
         };
         var segment3 = TestData.AddSegment3 with
         {
             TemporaryId = new RoadSegmentId(3),
             StartNodeId = node4.TemporaryId,
             EndNodeId = node5.TemporaryId,
-            Geometry = BuildMultiLineString(node4.Geometry, node5.Geometry),
+            Geometry = BuildMultiLineString(node4.Geometry.Value, node5.Geometry.Value),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(RoadSegmentCategory.RegionalRoad)
         };
 
@@ -165,9 +165,10 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             .AddScoped<RemoveRoadSegmentsSqsLambdaRequestHandler>();
     }
 
-    private static MultiLineString BuildMultiLineString(Point start, Point end)
+    private static RoadSegmentGeometry BuildMultiLineString(Point start, Point end)
     {
         return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
-            .WithMeasureOrdinates();
+            .WithMeasureOrdinates()
+            .ToRoadSegmentGeometry();
     }
 }

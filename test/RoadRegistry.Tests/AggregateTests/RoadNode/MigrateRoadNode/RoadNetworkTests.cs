@@ -17,7 +17,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     RoadNodeId = TestData.Segment1StartNodeAdded.RoadNodeId,
                     Type = TestData.Segment1StartNodeAdded.Type,
-                    Geometry = TestData.Segment1StartNodeAdded.Geometry.ToGeometry()
+                    Geometry = TestData.Segment1StartNodeAdded.Geometry
                 })
             )
             .Then((result, events) =>

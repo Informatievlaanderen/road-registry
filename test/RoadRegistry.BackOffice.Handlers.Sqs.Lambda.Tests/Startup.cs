@@ -21,7 +21,6 @@ using RoadRegistry.Tests.Framework;
 using SqlStreamStore;
 using StreetName;
 using System.Reflection;
-using MediatorModule = Sqs.MediatorModule;
 
 public class Startup : TestStartup
 {
@@ -37,7 +36,7 @@ public class Startup : TestStartup
             .RegisterModule<BackOffice.MediatorModule>()
             .RegisterModule<ContextModule>()
             .RegisterModule<BackOffice.Handlers.MediatorModule>()
-            .RegisterModule<MediatorModule>()
+            .RegisterModule<BackOfficeHandlersSqsMediatorModule>()
             ;
 
         builder.Register<SqsLambdaHandlerOptions>(c => new FakeSqsLambdaHandlerOptions());

@@ -13,7 +13,10 @@ using RoadRegistry.Editor.Schema.RoadSegments;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
 using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure;
+using IZipArchiveDataProvider = ExtractHost.IZipArchiveDataProvider;
+using IZipArchiveWriter = ExtractHost.IZipArchiveWriter;
 
 public class IntegrationToZipArchiveWriter : IZipArchiveWriter
 {

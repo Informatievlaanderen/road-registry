@@ -22,6 +22,11 @@ public partial class ScopedRoadNetwork
         var summary = new RoadNetworkChangesSummary();
         var idTranslator = new IdentifierTranslator();
 
+        if (!changes.Any())
+        {
+            //TODO-pr add problem if no changes are found
+        }
+
         var roadSegmentRoadNumberChanges = GetRoadSegmentRoadNumberChanges(changes);
 
         foreach (var roadNetworkChange in changes)
@@ -56,7 +61,7 @@ public partial class ScopedRoadNetwork
                     break;
 
                 case AddGradeSeparatedJunctionChange change:
-                    problems += AddGradeSeparatedJunction(changes, change, idGenerator, idTranslator, summary.GradeSeparatedJunctions) ;
+                    problems += AddGradeSeparatedJunction(changes, change, idGenerator, idTranslator, summary.GradeSeparatedJunctions);
                     break;
                 case RemoveGradeSeparatedJunctionChange change:
                     problems += RemoveGradeSeparatedJunction(changes, change, summary.GradeSeparatedJunctions);
@@ -89,14 +94,17 @@ public partial class ScopedRoadNetwork
                 .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
         }
 
-        Apply(new RoadNetworkWasChanged
+        if (changes.Any())
         {
-            RoadNetworkId = RoadNetworkId,
-            ScopeGeometry = changes.BuildScopeGeometry().ToGeometryObject(),
-            DownloadId = downloadId,
-            Summary = new RoadNetworkChangedSummary(summary),
-            Provenance = new ProvenanceData(changes.Provenance)
-        });
+            Apply(new RoadNetworkWasChanged
+            {
+                RoadNetworkId = RoadNetworkId,
+                ScopeGeometry = changes.BuildScopeGeometry().ToGeometryObject(),
+                DownloadId = downloadId,
+                Summary = new RoadNetworkChangedSummary(summary),
+                Provenance = new ProvenanceData(changes.Provenance)
+            });
+        }
 
         return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), summary);
     }
@@ -214,6 +222,7 @@ public partial class ScopedRoadNetwork
 
         return list.Distinct().ToImmutableList();
     }
+
     private IReadOnlyCollection<NationalRoadNumber> ReadNationalRoadNumbers(IEnumerable<IRoadNetworkChange> roadSegmentNumberChanges)
     {
         var list = new List<NationalRoadNumber>();

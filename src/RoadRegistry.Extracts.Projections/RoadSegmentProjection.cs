@@ -146,34 +146,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             session.Delete(roadSegment);
         });
-        When<IEvent<RoadSegmentAddedToEuropeanRoad>>((session, e, ct) =>
-        {
-            return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
-            {
-                segment.EuropeanRoadNumbers.Add(EuropeanRoadNumber.Parse(e.Data.Number));
-            }, e.Data);
-        });
-        When<IEvent<RoadSegmentAddedToNationalRoad>>((session, e, ct) =>
-        {
-            return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
-            {
-                segment.NationalRoadNumbers.Add(NationalRoadNumber.Parse(e.Data.Number));
-            }, e.Data);
-        });
-        When<IEvent<RoadSegmentRemovedFromEuropeanRoad>>((session, e, ct) =>
-        {
-            return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
-            {
-                segment.EuropeanRoadNumbers.Remove(EuropeanRoadNumber.Parse(e.Data.Number));
-            }, e.Data);
-        });
-        When<IEvent<RoadSegmentRemovedFromNationalRoad>>((session, e, ct) =>
-        {
-            return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
-            {
-                segment.NationalRoadNumbers.Remove(NationalRoadNumber.Parse(e.Data.Number));
-            }, e.Data);
-        });
+        When<IEvent<RoadSegmentAddedToEuropeanRoad>>((session, e, ct) => { return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment => { segment.EuropeanRoadNumbers.Add(EuropeanRoadNumber.Parse(e.Data.Number)); }, e.Data); });
+        When<IEvent<RoadSegmentAddedToNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment => { segment.NationalRoadNumbers.Add(NationalRoadNumber.Parse(e.Data.Number)); }, e.Data); });
+        When<IEvent<RoadSegmentRemovedFromEuropeanRoad>>((session, e, ct) => { return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment => { segment.EuropeanRoadNumbers.Remove(EuropeanRoadNumber.Parse(e.Data.Number)); }, e.Data); });
+        When<IEvent<RoadSegmentRemovedFromNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment => { segment.NationalRoadNumbers.Remove(NationalRoadNumber.Parse(e.Data.Number)); }, e.Data); });
         When<IEvent<RoadSegmentAttributesModified>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
@@ -405,34 +381,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             session.Delete(roadSegment);
         });
-        When<IEvent<RoadSegmentWasAddedToEuropeanRoad>>((session, e, ct) =>
-        {
-            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
-            {
-                segment.EuropeanRoadNumbers.Add(e.Data.Number);
-            }, e.Data);
-        });
-        When<IEvent<RoadSegmentWasAddedToNationalRoad>>((session, e, ct) =>
-        {
-            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
-            {
-                segment.NationalRoadNumbers.Add(e.Data.Number);
-            }, e.Data);
-        });
-        When<IEvent<RoadSegmentWasRemovedFromEuropeanRoad>>((session, e, ct) =>
-        {
-            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
-            {
-                segment.EuropeanRoadNumbers.Remove(e.Data.Number);
-            }, e.Data);
-        });
-        When<IEvent<RoadSegmentWasRemovedFromNationalRoad>>((session, e, ct) =>
-        {
-            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
-            {
-                segment.NationalRoadNumbers.Remove(e.Data.Number);
-            }, e.Data);
-        });
+        When<IEvent<RoadSegmentWasAddedToEuropeanRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.EuropeanRoadNumbers.Add(e.Data.Number); }, e.Data); });
+        When<IEvent<RoadSegmentWasAddedToNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.NationalRoadNumbers.Add(e.Data.Number); }, e.Data); });
+        When<IEvent<RoadSegmentWasRemovedFromEuropeanRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.EuropeanRoadNumbers.Remove(e.Data.Number); }, e.Data); });
+        When<IEvent<RoadSegmentWasRemovedFromNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.NationalRoadNumbers.Remove(e.Data.Number); }, e.Data); });
     }
 
     private async Task ModifyRoadSegment<TEvent>(IDocumentOperations operations, RoadSegmentId roadSegmentId, Action<RoadSegmentExtractItem> modify, TEvent evt)
@@ -481,19 +433,18 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
 public sealed class RoadSegmentExtractItem
 {
-    [JsonIgnore]
-    public int Id { get; private set; }
+    [JsonIgnore] public int Id { get; private set; }
 
     public required RoadSegmentId RoadSegmentId
     {
         get => new(Id);
         set => Id = value;
     }
+
     public required EventTimestamp Origin { get; set; }
     public required RoadSegmentGeometry Geometry { get; set; }
     public required RoadNodeId StartNodeId { get; set; }
     public required RoadNodeId EndNodeId { get; set; }
-
     public required RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; set; }
     public required RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction> AccessRestriction { get; set; }
     public required RoadSegmentDynamicAttributeValues<RoadSegmentCategory> Category { get; set; }
@@ -504,7 +455,6 @@ public sealed class RoadSegmentExtractItem
     public required RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> SurfaceType { get; set; }
     public required List<EuropeanRoadNumber> EuropeanRoadNumbers { get; set; }
     public required List<NationalRoadNumber> NationalRoadNumbers { get; set; }
-
     public required EventTimestamp LastModified { get; set; }
 }
 

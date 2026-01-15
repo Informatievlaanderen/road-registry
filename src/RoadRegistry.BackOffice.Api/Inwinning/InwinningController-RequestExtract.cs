@@ -83,8 +83,10 @@ public partial class InwinningController
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
                 ExtractRequestId = extractRequestId,
                 DownloadId = downloadId,
-                Contour = contour,
-                NisCode = body.NisCode
+                Contour = contour.ToExtractGeometry(),
+                NisCode = body.NisCode,
+                Description = body.Beschrijving,
+                IsInformative = body.Informatief
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));
@@ -96,7 +98,7 @@ public partial class InwinningController
     }
 }
 
-public record InwinningExtractDownloadaanvraagBody(string NisCode);
+public record InwinningExtractDownloadaanvraagBody(string NisCode, string Beschrijving, bool Informatief);
 
 public class InwinningExtractDownloadaanvraagBodyValidator : AbstractValidator<InwinningExtractDownloadaanvraagBody>
 {
@@ -111,6 +113,10 @@ public class InwinningExtractDownloadaanvraagBodyValidator : AbstractValidator<I
             .NotEmpty().WithProblemCode(ProblemCode.Extract.NisCodeIsRequired)
             .Must(BeNisCodeWithExpectedFormat).WithProblemCode(ProblemCode.Extract.NisCodeInvalid)
             .Must(BeKnownNisCode).WithErrorCode("NotFound").WithMessage(body => $"Er werd geen gemeente/stad gevonden voor de NIS-code '{body.NisCode}'");
+
+        RuleFor(c => c.Beschrijving)
+            .NotEmpty().WithProblemCode(ProblemCode.Extract.BeschrijvingIsRequired)
+            .MaximumLength(ExtractDescription.MaxLength).WithProblemCode(ProblemCode.Extract.BeschrijvingTooLong);
     }
 
     private bool BeKnownNisCode(string nisCode)

@@ -27,7 +27,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                         TestData.StartPoint1.Coordinate,
                         TestData.MiddlePoint1.Coordinate,
                         new Coordinate(TestData.EndPoint1.Coordinate.X + 0.0001, TestData.EndPoint1.Coordinate.Y)
-                    ])]).WithMeasureOrdinates()
+                    ])]).WithMeasureOrdinates().ToRoadSegmentGeometry()
                 })
             )
             .ThenContainsProblems(new Error("RoadSegmentGeometryTaken", new ProblemParameter("ByOtherSegment", TestData.Segment1Added.RoadSegmentId.ToString())))
@@ -75,7 +75,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(TestData.AddSegment1StartNode with
                 {
-                    Geometry = new Point(-10, 0)
+                    Geometry = new Point(-10, 0).ToRoadNodeGeometry()
                 })
                 .Add(TestData.AddSegment1)
             )
@@ -128,7 +128,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1StartNode)
                 .Add(TestData.AddSegment1EndNode with
                 {
-                    Geometry = new Point(-10, 0)
+                    Geometry = new Point(-10, 0).ToRoadNodeGeometry()
                 })
                 .Add(TestData.AddSegment1)
             )
@@ -150,11 +150,11 @@ public class VerifyTopologyTests : RoadNetworkTestBase
             .Given(given => given
                 .Add(TestData.AddSegment1StartNode with
                 {
-                    Geometry = segment1Start
+                    Geometry = segment1Start.ToRoadNodeGeometry()
                 })
                 .Add(TestData.AddSegment1EndNode with
                 {
-                    Geometry = segment1End
+                    Geometry = segment1End.ToRoadNodeGeometry()
                 })
                 .Add(TestData.AddSegment1 with
                 {
@@ -164,11 +164,11 @@ public class VerifyTopologyTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(TestData.AddSegment2StartNode with
                 {
-                    Geometry = segment2Start
+                    Geometry = segment2Start.ToRoadNodeGeometry()
                 })
                 .Add(TestData.AddSegment2EndNode with
                 {
-                    Geometry = segment2End
+                    Geometry = segment2End.ToRoadNodeGeometry()
                 })
                 .Add(TestData.AddSegment2 with
                 {

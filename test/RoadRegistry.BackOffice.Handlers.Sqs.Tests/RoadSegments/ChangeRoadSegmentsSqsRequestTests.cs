@@ -18,7 +18,7 @@ public class ChangeRoadSegmentsSqsRequestTests
         var request = CreateRequest();
 
         var sqsJsonMessage = SqsJsonMessage.Create(request, serializer);
-        var deserializedRequest = Assert.IsType<ChangeRoadSegmentsDynamicAttributesSqsRequest>(sqsJsonMessage.Map(serializer));
+        var deserializedRequest = Assert.IsType<ChangeRoadSegmentsDynamicAttributesSqsRequest>(sqsJsonMessage.Map(serializer, SqsJsonMessageAssemblies.Assemblies));
 
         Assert.Equal(request.Request, deserializedRequest.Request, new ChangeRoadSegmentsRequestEqualityComparer());
     }
@@ -31,7 +31,7 @@ public class ChangeRoadSegmentsSqsRequestTests
         var request = CreateRequest();
 
         var sqsJsonMessage = SqsJsonMessage.Create(request, serializer);
-        var deserializedRequest = Assert.IsType<ChangeRoadSegmentsDynamicAttributesSqsRequest>(sqsJsonMessage.Map(serializer));
+        var deserializedRequest = Assert.IsType<ChangeRoadSegmentsDynamicAttributesSqsRequest>(sqsJsonMessage.Map(serializer, SqsJsonMessageAssemblies.Assemblies));
 
         deserializedRequest.Request.Add(new RoadSegmentId(3), _ => { });
 

@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2.Writers;
+namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers;
 
 using System.IO.Compression;
 using System.Text;
@@ -6,14 +6,12 @@ using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Utilities;
 using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Infrastructure.ShapeFile;
-using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Extracts.Schemas.ExtractV2.RoadSegments;
 using RoadRegistry.Infrastructure;
-using RoadSegment;
-using RoadSegment.ValueObjects;
+using RoadRegistry.RoadSegment.ValueObjects;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
@@ -96,7 +94,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
                         BEGINORG = { Value = x.Origin.OrganizationId }
                     };
 
-                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.ToGeometry());
+                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
                 })
                 .ToList();
 

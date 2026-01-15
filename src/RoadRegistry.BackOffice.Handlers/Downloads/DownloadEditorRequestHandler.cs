@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Microsoft.Net.Http.Headers;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure;
 using ZipArchiveWriters.ForEditor;
 

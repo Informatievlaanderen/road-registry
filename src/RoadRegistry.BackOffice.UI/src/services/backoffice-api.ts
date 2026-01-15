@@ -306,6 +306,57 @@ export const BackOfficeApi = {
       return response.data;
     },
   },
+  Inwinning: {
+    getNisCodes: async (): Promise<string[]> => {
+      const path = `${apiEndpoint}/v1/inwinning/niscodes`;
+      const response = await apiClient.get<string[]>(path);
+      return response.data;
+    },
+    requestExtract: async (
+      downloadRequest: RoadRegistry.ExtractDownloadaanvraagPerNisCodeBody
+    ): Promise<RoadRegistry.RequestExtractResponse> => {
+      try {
+        const path = `${apiEndpoint}/v1/inwinning/downloadaanvraag`;
+        const response = await apiClient.post<RoadRegistry.ExtractDownloadaanvraagResponse>(path, downloadRequest);
+        return {
+          downloadId: response.data.downloadId,
+          ticketUrl: response.headers.location,
+        };
+      } catch (exception) {
+        throw convertError(exception);
+      }
+    },
+    getList: async (): Promise<RoadRegistry.ExtractListResponse> => {
+      const path = `${apiEndpoint}/v1/inwinning/extracten`;
+      const response = await apiClient.get<RoadRegistry.ExtractListResponse>(path);
+      return response.data;
+    },
+    upload: async (
+      downloadId: string,
+      file: Blob,
+      filename: string
+    ): Promise<RoadRegistry.UploadPresignedUrlResponse | null> => {
+      const path = `${apiEndpoint}/v1/inwinning/${downloadId}/upload`;
+      const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
+
+      const data = new FormData();
+      if (response.data.uploadUrlFormData) {
+        for (const key in response.data.uploadUrlFormData) {
+          data.append(key, response.data.uploadUrlFormData[key]);
+        }
+      }
+      data.append("file", file, filename);
+
+      const awsHttp = axios.create();
+      const uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
+
+      const status = uploadFileResponse.status as any;
+      if (status !== 204) {
+        return null;
+      }
+      return response.data;
+    },
+  },
   Information: {
     getInformation: async (): Promise<RoadRegistry.RoadNetworkInformationResponse> => {
       const path = `${apiEndpoint}/v1/information`;

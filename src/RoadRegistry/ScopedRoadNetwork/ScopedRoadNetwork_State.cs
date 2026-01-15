@@ -8,9 +8,9 @@ using RoadRegistry.RoadNode;
 using RoadRegistry.RoadSegment;
 using ValueObjects;
 
-public partial class ScopedRoadNetwork : MartenAggregateRootEntity<RoadNetworkId>
+public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNetworkId>
 {
-    public RoadNetworkId RoadNetworkId { get; }
+    public ScopedRoadNetworkId RoadNetworkId { get; }
     public RoadNetworkChangesSummary? SummaryOfLastChange { get; private set; }
 
     public IReadOnlyDictionary<RoadNodeId, RoadNode> RoadNodes { get; }
@@ -20,13 +20,13 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<RoadNetworkId
     private readonly Dictionary<RoadSegmentId, RoadSegment> _roadSegments;
     private readonly Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions;
 
-    public ScopedRoadNetwork(RoadNetworkId roadNetworkId)
+    public ScopedRoadNetwork(ScopedRoadNetworkId roadNetworkId)
         : this(roadNetworkId, [], [], [])
     {
     }
 
     public ScopedRoadNetwork(
-        RoadNetworkId roadNetworkId,
+        ScopedRoadNetworkId roadNetworkId,
         IReadOnlyCollection<RoadNode> roadNodes,
         IReadOnlyCollection<RoadSegment> roadSegments,
         IReadOnlyCollection<GradeSeparatedJunction> gradeSeparatedJunctions)

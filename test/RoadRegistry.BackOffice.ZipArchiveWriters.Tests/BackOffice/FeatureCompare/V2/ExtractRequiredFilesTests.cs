@@ -7,6 +7,7 @@ using RoadRegistry.BackOffice.FeatureCompare.V2;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V1;
 using Scenarios;
 using Xunit.Abstractions;
 
@@ -59,7 +60,7 @@ public class ExtractRequiredFilesTests : FeatureCompareTranslatorScenariosBase
             { "ERLTOGKRUISING.DBF", true }
         };
 
-        Assert.Equal(new ExtractsZipArchiveTestData().ZipArchiveWithEmptyFiles.Entries.Count, requiredFiles.Count);
+        Assert.Equal(new ExtractV1ZipArchiveTestData().ZipArchiveWithEmptyFiles.Entries.Count, requiredFiles.Count);
 
         foreach (var requiredFile in requiredFiles)
         {
@@ -67,7 +68,7 @@ public class ExtractRequiredFilesTests : FeatureCompareTranslatorScenariosBase
             var isRequired = requiredFile.Value;
             TestOutputHelper.WriteLine($"{fileName}: {isRequired}");
 
-            var zipArchive = new ExtractsZipArchiveBuilder()
+            var zipArchive = new ExtractV1ZipArchiveBuilder()
                 .ExcludeFileNames(fileName)
                 .Build();
 

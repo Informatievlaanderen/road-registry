@@ -14,6 +14,7 @@ using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
 using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V1;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using Xunit.Abstractions;
 using RoadSegmentLaneAttribute = Uploads.RoadSegmentLaneAttribute;
@@ -35,7 +36,7 @@ public class FeaturesReaderTests
     [Fact]
     public async Task AllFeatureReadersCanRead()
     {
-        var testData = new ExtractsZipArchiveTestData();
+        var testData = new ExtractV1ZipArchiveTestData();
         var fixture = CreateFixture(testData);
 
         var projectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
@@ -135,7 +136,7 @@ public class FeaturesReaderTests
         gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentDbaseRecord2.WS_OIDN.Value;
         var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
 
-        var zipArchive = fixture.CreateUploadZipArchive(testData,
+        var zipArchive = fixture.CreateUploadZipArchiveV1(testData,
             roadSegmentProjectionFormatStream: projectionFormatStream,
             roadNodeProjectionFormatStream: projectionFormatStream,
 
@@ -287,7 +288,7 @@ public class FeaturesReaderTests
         }
     }
 
-    private static Fixture CreateFixture(ExtractsZipArchiveTestData testData)
+    private static Fixture CreateFixture(ExtractV1ZipArchiveTestData testData)
     {
         var fixture = testData.Fixture;
 

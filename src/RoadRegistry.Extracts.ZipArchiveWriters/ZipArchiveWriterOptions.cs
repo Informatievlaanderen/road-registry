@@ -1,4 +1,6 @@
-namespace RoadRegistry.BackOffice.Abstractions;
+namespace RoadRegistry.Extracts.ZipArchiveWriters;
+
+using BackOffice;
 
 public class ZipArchiveWriterOptions: IHasConfigurationKey
 {

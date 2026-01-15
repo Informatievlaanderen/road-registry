@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.ExtractHost.Tests.ZipArchiveWriters.Fixtures;
 using System.Diagnostics;
 using System.Text;
 using Abstractions;
-using BackOffice.ZipArchiveWriters.ExtractHost;
 using BackOffice.ZipArchiveWriters.ExtractHost.V1;
 using Editor.Schema;
 using Extracts;
@@ -11,7 +10,9 @@ using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure;
+using ZipArchiveWriterFactory = BackOffice.ZipArchiveWriters.ExtractHost.ZipArchiveWriterFactory;
 
 public class IntegrationToZipArchiveWriterFixture : ZipArchiveWriterFixture, IAsyncLifetime
 {

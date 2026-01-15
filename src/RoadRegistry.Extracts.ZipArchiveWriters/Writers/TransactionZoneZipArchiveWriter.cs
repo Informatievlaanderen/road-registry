@@ -1,9 +1,8 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2.Writers;
+namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers;
 
 using System.IO.Compression;
 using System.Text;
 using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Infrastructure.ShapeFile;

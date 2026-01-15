@@ -22,6 +22,6 @@ public class ApiModule : Module
 
         builder
             .RegisterModule<EnvelopeModule>()
-            .RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings));
+            .RegisterModule(new EventHandlingModule(typeof(BackOfficeAssemblyMarker).Assembly, eventSerializerSettings));
     }
 }

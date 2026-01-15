@@ -80,6 +80,7 @@ export namespace RoadRegistry {
   export interface ExtractDetailsV2 {
     downloadId: string;
     beschrijving: string;
+    externeId: string;
     informatief: boolean;
     aangevraagdOp: string;
     downloadStatus: string;

@@ -1,12 +1,15 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2;
+namespace RoadRegistry.Extracts.ZipArchiveWriters;
 
-using Editor.Schema.GradeSeparatedJunctions;
-using Editor.Schema.RoadNodes;
-using Editor.Schema.RoadSegments;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
-using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Editor.Schema.GradeSeparatedJunctions;
+using RoadRegistry.Editor.Schema.RoadNodes;
+using RoadRegistry.Editor.Schema.RoadSegments;
+using Schemas.ExtractV1.RoadSegments;
+using RoadSegmentEuropeanRoadAttributeRecord = Schemas.ExtractV2.RoadSegments.RoadSegmentEuropeanRoadAttributeRecord;
+using RoadSegmentNationalRoadAttributeRecord = Schemas.ExtractV2.RoadSegments.RoadSegmentNationalRoadAttributeRecord;
+using RoadSegmentSurfaceAttributeRecord = Schemas.ExtractV2.RoadSegments.RoadSegmentSurfaceAttributeRecord;
 
 // NOTE: If you change the properties of any of the entities used below, you will need to update these queries too!
 public static class ContourQueryExtensions

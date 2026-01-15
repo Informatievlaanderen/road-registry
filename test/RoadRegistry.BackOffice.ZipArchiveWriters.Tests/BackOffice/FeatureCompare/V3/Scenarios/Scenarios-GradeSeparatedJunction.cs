@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.V3.Scenarios;
 
-using Exceptions;
 using GradeSeparatedJunction.Changes;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
@@ -8,7 +7,7 @@ using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.V3;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
-using Uploads;
+using RoadRegistry.Tests.BackOffice.Extracts.V2;
 using Xunit.Abstractions;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
 
@@ -22,15 +21,13 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task RemovedRoadSegmentShouldGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.DataSet.RoadSegmentDbaseRecords = new[] { builder.TestData.RoadSegment1DbaseRecord }.ToList();
                 builder.DataSet.RoadSegmentShapeRecords = new[] { builder.TestData.RoadSegment1ShapeRecord }.ToList();
 
-                builder.DataSet.LaneDbaseRecords = new[] { builder.TestData.RoadSegment1LaneDbaseRecord }.ToList();
                 builder.DataSet.SurfaceDbaseRecords = new[] { builder.TestData.RoadSegment1SurfaceDbaseRecord }.ToList();
-                builder.DataSet.WidthDbaseRecords = new[] { builder.TestData.RoadSegment1WidthDbaseRecord }.ToList();
             })
             .BuildWithResult(_ => TranslatedChanges.Empty);
 
@@ -41,7 +38,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task EqualLowerAndUpperShouldGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.TestData.GradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = builder.TestData.GradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value;
@@ -55,7 +52,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task UnknownRoadSegmentShouldGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
@@ -79,7 +76,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task WhenIntersectingMeasuredRoadSegmentsWithoutGradeSeparatedJunction_ThenShouldGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange(ConfigureIntersectingMeasuredRoadSegmentsWithoutGradeSeparatedJunction)
             .BuildWithResult(_ => TranslatedChanges.Empty);
 
@@ -90,7 +87,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task WhenIntersectingMeasuredRoadSegmentsWithoutGradeSeparatedJunction_WithChangedRoadSegmentsWithNullGeometry_ThenShouldOnlyReturnProblem()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 // trigger partial update
@@ -111,18 +108,10 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
                     new (intersection.X, intersection.Y + 5)
                 ]);
                 newSegment1Shape.Geometry = newSegment1GeometryCrossingSegment1.ToMultiLineString();
-                var newSegment1Lane = builder.CreateRoadSegmentLaneDbaseRecord();
-                newSegment1Lane.WS_OIDN.Value = newSegment1Dbase.WS_OIDN.Value;
-                newSegment1Lane.VANPOS.Value = 0;
-                newSegment1Lane.TOTPOS.Value = newSegment1Shape.Geometry.Length;
                 var newSegment1Surface = builder.CreateRoadSegmentSurfaceDbaseRecord();
                 newSegment1Surface.WS_OIDN.Value = newSegment1Dbase.WS_OIDN.Value;
                 newSegment1Surface.VANPOS.Value = 0;
                 newSegment1Surface.TOTPOS.Value = newSegment1Shape.Geometry.Length;
-                var newSegment1Width = builder.CreateRoadSegmentWidthDbaseRecord();
-                newSegment1Width.WS_OIDN.Value = newSegment1Dbase.WS_OIDN.Value;
-                newSegment1Width.VANPOS.Value = 0;
-                newSegment1Width.TOTPOS.Value = newSegment1Shape.Geometry.Length;
 
                 builder.DataSet.RoadNodeDbaseRecords.Add(newNode1Dbase);
                 builder.DataSet.RoadNodeDbaseRecords.Add(newNode2Dbase);
@@ -130,9 +119,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
                 builder.DataSet.RoadNodeShapeRecords.Add(newNode2Shape);
                 builder.DataSet.RoadSegmentDbaseRecords.Add(newSegment1Dbase);
                 builder.DataSet.RoadSegmentShapeRecords.Add(newSegment1Shape);
-                builder.DataSet.LaneDbaseRecords.Add(newSegment1Lane);
                 builder.DataSet.SurfaceDbaseRecords.Add(newSegment1Surface);
-                builder.DataSet.WidthDbaseRecords.Add(newSegment1Width);
             })
             .BuildWithResult(_ => TranslatedChanges.Empty);
 
@@ -152,9 +139,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
         ]);
         builder.TestData.RoadSegment2ShapeRecord.Geometry = roadSegment2Geometry.ToMultiLineString();
 
-        builder.TestData.RoadSegment2LaneDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
         builder.TestData.RoadSegment2SurfaceDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
-        builder.TestData.RoadSegment2WidthDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
 
         builder.DataSet.GradeSeparatedJunctionDbaseRecords.Clear();
     }
@@ -162,7 +147,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task IntersectingOutlinedRoadSegmentsWithoutGradeSeparatedJunctionShouldNotGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder(fixture =>
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder(fixture =>
             {
                 fixture.CustomizeRoadSegmentOutlineLaneCount();
                 fixture.CustomizeRoadSegmentOutlineMorphology();
@@ -188,7 +173,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task IntersectingRoadSegmentsAtTheirStartOrEndPointsWithoutGradeSeparatedJunctionShouldNotGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var roadSegment1Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
@@ -201,9 +186,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
                 ]);
                 builder.TestData.RoadSegment2ShapeRecord.Geometry = roadSegment2Geometry.ToMultiLineString();
 
-                builder.TestData.RoadSegment2LaneDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
                 builder.TestData.RoadSegment2SurfaceDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
-                builder.TestData.RoadSegment2WidthDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
 
                 builder.DataSet.GradeSeparatedJunctionDbaseRecords.Clear();
             })
@@ -215,7 +198,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task IntersectingRoadSegmentsInA_TShape_WithoutGradeSeparatedJunctionShouldNotGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var roadSegment1Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
@@ -228,9 +211,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
                 ]);
                 builder.TestData.RoadSegment2ShapeRecord.Geometry = roadSegment2Geometry.ToMultiLineString();
 
-                builder.TestData.RoadSegment2LaneDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
                 builder.TestData.RoadSegment2SurfaceDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
-                builder.TestData.RoadSegment2WidthDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
 
                 builder.DataSet.GradeSeparatedJunctionDbaseRecords.Clear();
             })
@@ -242,7 +223,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task Updated_DifferentId()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
@@ -282,7 +263,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task Updated_SameId()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
@@ -315,7 +296,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task RemovingDuplicateRecordsShouldReturnExpectedResult()
     {
-        var zipArchiveBuilder = new ExtractsZipArchiveBuilder();
+        var zipArchiveBuilder = new ExtractV2ZipArchiveBuilder();
 
         var duplicateGradeSeparatedJunction = zipArchiveBuilder.Records.CreateGradeSeparatedJunctionDbaseRecord();
 

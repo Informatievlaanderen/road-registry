@@ -10,6 +10,7 @@ using BackOffice.Extensions;
 using BackOffice.Framework;
 using CloudStorageClients;
 using Configurations;
+using Extracts.ZipArchiveWriters;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;

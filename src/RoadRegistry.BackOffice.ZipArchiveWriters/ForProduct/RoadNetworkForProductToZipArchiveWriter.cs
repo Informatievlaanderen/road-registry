@@ -8,6 +8,7 @@ using Microsoft.IO;
 using NodaTime;
 using Product.Schema;
 using RoadRegistry.Extracts.Schemas.ExtractV1.Lists;
+using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure;
 
 public class RoadNetworkForProductToZipArchiveWriter : IZipArchiveWriter<ProductContext>

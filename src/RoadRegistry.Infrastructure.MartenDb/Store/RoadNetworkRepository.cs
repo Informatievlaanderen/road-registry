@@ -122,7 +122,7 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j ON 
         );
     }
 
-    public async Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, RoadNetworkId roadNetworkId)
+    public async Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, ScopedRoadNetworkId roadNetworkId)
     {
         var roadNodes = await session.LoadManyAsync(ids.RoadNodeIds);
         var roadSegments = await session.LoadManyAsync(ids.RoadSegmentIds);

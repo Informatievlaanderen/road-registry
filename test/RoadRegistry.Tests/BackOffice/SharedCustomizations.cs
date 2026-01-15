@@ -13,15 +13,15 @@ using NodaTime;
 using NodaTime.Testing;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extracts.Uploads;
 using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = RoadRegistry.BackOffice.Messages.Point;
 using Polygon = RoadRegistry.BackOffice.Messages.Polygon;
 using Reason = Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason;
+using RoadNodeGeometry = ValueObjects.RoadNodeGeometry;
+using RoadSegmentGeometry = ValueObjects.RoadSegmentGeometry;
 using RoadSegmentLaneAttribute = RoadRegistry.BackOffice.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute;
 using RoadSegmentWidthAttribute = RoadRegistry.BackOffice.RoadSegmentWidthAttribute;
@@ -546,7 +546,7 @@ public static class SharedCustomizations
 
     public static void CustomizeRoadNodeGeometry(this IFixture fixture)
     {
-        fixture.Customize<RoadRegistry.ValueObjects.RoadNodeGeometry>(composer =>
+        fixture.Customize<RoadNodeGeometry>(composer =>
             composer.FromFactory(_ =>
                 fixture.Create<NetTopologySuite.Geometries.Point>().ToRoadNodeGeometry()
             ).OmitAutoProperties()
@@ -555,15 +555,15 @@ public static class SharedCustomizations
 
     public static void CustomizeRoadSegmentGeometry(this IFixture fixture)
     {
-        fixture.Customize<RoadRegistry.ValueObjects.RoadSegmentGeometry>(customizer =>
+        fixture.Customize<RoadSegmentGeometry>(customizer =>
             customizer.FromFactory(_ =>
             {
-                var geometry = GeometryTranslator.Translate(fixture.Create<RoadSegmentGeometry>());
+                var geometry = GeometryTranslator.Translate(fixture.Create<RoadRegistry.BackOffice.Messages.RoadSegmentGeometry>());
 
-                return RoadRegistry.ValueObjects.RoadSegmentGeometry.Create(geometry);
+                return RoadSegmentGeometry.Create(geometry);
             }).OmitAutoProperties());
 
-        fixture.Customize<RoadSegmentGeometry>(customizer =>
+        fixture.Customize<RoadRegistry.BackOffice.Messages.RoadSegmentGeometry>(customizer =>
             customizer.FromFactory(_ =>
             {
                 var lineString = fixture.Create<RoadRegistry.BackOffice.Messages.LineString>();
@@ -577,7 +577,7 @@ public static class SharedCustomizations
                     return measure;
                 }).ToArray();
 
-                return new RoadSegmentGeometry
+                return new RoadRegistry.BackOffice.Messages.RoadSegmentGeometry
                 {
                     SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
                     MultiLineString = new[]

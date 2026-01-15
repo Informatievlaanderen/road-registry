@@ -5,7 +5,7 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Infrastructure.Extensions;
-using Schemas.ExtractV1.RoadSegments;
+using Schemas.ExtractV2.RoadSegments;
 using Uploads;
 
 public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<EuropeanRoadFeatureCompareAttributes>>
@@ -13,8 +13,7 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
     private const ExtractFileName FileName = ExtractFileName.AttEuropweg;
 
     public EuropeanRoadFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new ExtractsFeatureReader(encoding),
-            new UploadsV2FeatureReader(encoding))
+        : base(new ExtractsFeatureReader(encoding))
     {
     }
 
@@ -42,24 +41,6 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
         }
 
         protected override (Feature<EuropeanRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadSegmentEuropeanRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
-        {
-            return new DbaseRecordData
-            {
-                EU_OIDN = dbaseRecord.EU_OIDN.GetValue(),
-                EUNUMMER = dbaseRecord.EUNUMMER.GetValue(),
-                WS_OIDN = dbaseRecord.WS_OIDN.GetValue()
-            }.ToFeature(featureType, FileName, recordNumber);
-        }
-    }
-
-    private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Schemas.UploadV2.RoadSegmentEuropeanRoadAttributeDbaseRecord, Feature<EuropeanRoadFeatureCompareAttributes>>
-    {
-        public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, EuropeanRoadFeatureCompareFeatureReader.FileName, Schemas.UploadV2.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema)
-        {
-        }
-
-        protected override (Feature<EuropeanRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Schemas.UploadV2.RoadSegmentEuropeanRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {

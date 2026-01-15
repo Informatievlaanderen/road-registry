@@ -3,7 +3,6 @@
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events.V2;
-using Extensions;
 using ScopedRoadNetwork;
 using ValueObjects.Problems;
 
@@ -17,7 +16,7 @@ public partial class RoadNode
         {
             RoadNodeId = idGenerator.NewRoadNodeId(),
             OriginalId = change.OriginalId ?? change.TemporaryId,
-            Geometry = change.Geometry.ToRoadNodeGeometry(),
+            Geometry = change.Geometry,
             Type = change.Type,
             Provenance = new ProvenanceData(provenance)
         });

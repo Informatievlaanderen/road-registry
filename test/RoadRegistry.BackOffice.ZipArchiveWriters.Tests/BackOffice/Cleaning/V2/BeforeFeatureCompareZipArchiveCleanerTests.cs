@@ -7,6 +7,7 @@ using RoadRegistry.BackOffice.FeatureCompare.V2.Readers;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V1;
 using Uploads;
 using ZipArchiveWriters.Cleaning.V2;
 
@@ -18,7 +19,7 @@ public class BeforeFeatureCompareZipArchiveCleanerTests
         // Arrange
         var cleaner = new BeforeFeatureCompareZipArchiveCleaner(FileEncoding.UTF8);
 
-        var archive = new ExtractsZipArchiveBuilder()
+        var archive = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.TestData.RoadSegment1LaneDbaseRecord.VANPOS.Value = null;

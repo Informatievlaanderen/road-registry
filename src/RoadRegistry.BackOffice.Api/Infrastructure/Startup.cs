@@ -13,7 +13,9 @@ using Authorization;
 using Autofac;
 using BackOffice.Extensions;
 using BackOffice.Extracts;
+using BackOffice.Handlers;
 using BackOffice.Handlers.Extensions;
+using BackOffice.Handlers.Sqs;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
@@ -56,6 +58,7 @@ using Options;
 using Product.Schema;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadSegments;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
@@ -64,7 +67,6 @@ using Sync.MunicipalityRegistry;
 using SystemHealthCheck;
 using SystemHealthCheck.HealthChecks;
 using ZipArchiveWriters.Cleaning;
-using DomainAssemblyMarker = BackOffice.Handlers.Sqs.DomainAssemblyMarker;
 using MediatorModule = Snapshot.Handlers.MediatorModule;
 using SystemClock = NodaTime.SystemClock;
 
@@ -151,9 +153,9 @@ public class Startup
 
         builder
             .RegisterModulesFromAssemblyContaining<Startup>()
-            .RegisterModulesFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
-            .RegisterModulesFromAssemblyContaining<BackOffice.Handlers.DomainAssemblyMarker>()
-            .RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
+            .RegisterModulesFromAssemblyContaining<BackOfficeAssemblyMarker>()
+            .RegisterModulesFromAssemblyContaining<BackOfficeHandlersAssemblyMarker>()
+            .RegisterModulesFromAssemblyContaining<BackOfficeHandlersSqsAssemblyMarker>();
     }
 
     public void ConfigureServices(IServiceCollection services)
@@ -301,9 +303,9 @@ public class Startup
             .AddOrganizationCache()
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddValidatorsFromAssemblyContaining<Startup>()
-            .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
-            .AddValidatorsFromAssemblyContaining<BackOffice.Handlers.DomainAssemblyMarker>()
-            .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
+            .AddValidatorsFromAssemblyContaining<BackOffice.BackOfficeAssemblyMarker>()
+            .AddValidatorsFromAssemblyContaining<BackOffice.Handlers.BackOfficeHandlersAssemblyMarker>()
+            .AddValidatorsFromAssemblyContaining<BackOfficeHandlersSqsAssemblyMarker>()
             .AddFeatureToggles(featureToggles)
             .AddTicketing()
             .AddRoadRegistrySnapshot()

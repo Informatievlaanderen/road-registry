@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2;
+namespace RoadRegistry.Extracts.ZipArchiveWriters;
 
 internal static class EnumerableExtensions
 {

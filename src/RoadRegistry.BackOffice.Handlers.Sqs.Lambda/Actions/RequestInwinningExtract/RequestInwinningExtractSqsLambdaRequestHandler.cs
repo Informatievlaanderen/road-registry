@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using RequestExtract;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
@@ -41,49 +42,61 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
     protected override async Task<object> InnerHandle(RequestInwinningExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         var niscode = request.Request.NisCode;
-        var inwinningsZone = await _extractsDbContext.Inwinningszones.FindAsync([niscode], cancellationToken);
+        var geometry = request.Request.Contour.Value;
 
-        if (inwinningsZone is not null && inwinningsZone.Operator != request.Provenance.Operator)
+        //TODO-pr add test with informative=true
+        if (!request.Request.IsInformative)
         {
-            throw new ValidationException([
-                new ValidationFailure
-                {
-                    PropertyName = string.Empty,
-                    ErrorCode = "InwinningszoneGestart",
-                    ErrorMessage = "Inwinning is al gestart door een andere organisatie."
-                }
-            ]);
-        }
+            var inwinningsZone = await _extractsDbContext.Inwinningszones.FindAsync([niscode], cancellationToken);
 
-        if (inwinningsZone is null)
-        {
-            inwinningsZone = new Inwinningszone
+            if (inwinningsZone is not null && inwinningsZone.Operator != request.Provenance.Operator)
             {
-                NisCode = niscode,
-                Contour = request.Request.Contour,
-                Operator = request.Provenance.Operator,
-                DownloadId = request.Request.DownloadId,
-                Completed = false
-            };
-            _extractsDbContext.Inwinningszones.Add(inwinningsZone);
-        }
-        else
-        {
-            inwinningsZone.DownloadId = request.Request.DownloadId;
+                throw new ValidationException([
+                    new ValidationFailure
+                    {
+                        PropertyName = string.Empty,
+                        ErrorCode = "InwinningszoneGestart",
+                        ErrorMessage = "Inwinning is al gestart door een andere organisatie."
+                    }
+                ]);
+            }
+
+            if (inwinningsZone is null)
+            {
+                inwinningsZone = new Inwinningszone
+                {
+                    NisCode = niscode,
+                    Contour = geometry,
+                    Operator = request.Provenance.Operator,
+                    DownloadId = request.Request.DownloadId,
+                    Completed = false
+                };
+                _extractsDbContext.Inwinningszones.Add(inwinningsZone);
+            }
+            else
+            {
+                inwinningsZone.DownloadId = request.Request.DownloadId;
+            }
         }
 
         await _extractRequester.BuildExtract(
             new RequestExtractData(
                 request.Request.ExtractRequestId,
                 request.Request.DownloadId,
-                request.Request.Contour,
-                $"Data-inwinning {niscode}",
-                false,
-                $"DATA_INWINNING_V2_{niscode}"),
+                geometry,
+                request.Request.Description,
+                request.Request.IsInformative,
+                request.Request.IsInformative ? null : BuildExternalRequestId(niscode)),
             new TicketId(request.TicketId), request.Provenance, cancellationToken);
 
         var downloadId = new DownloadId(request.Request.DownloadId);
         return new RequestExtractResponse(downloadId);
+    }
+
+    private static string BuildExternalRequestId(string niscode)
+    {
+        // don't change the format, it's used in backend and frontend
+        return $"INWINNING_{niscode}";
     }
 
     protected override Task ValidateIfMatchHeaderValue(RequestInwinningExtractSqsLambdaRequest request, CancellationToken cancellationToken)

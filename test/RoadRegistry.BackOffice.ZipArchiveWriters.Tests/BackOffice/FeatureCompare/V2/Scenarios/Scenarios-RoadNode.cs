@@ -11,6 +11,7 @@ using RoadRegistry.Editor.Schema.Extensions;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V1;
 using Xunit.Abstractions;
 using AddRoadNode = Uploads.AddRoadNode;
 using ModifyRoadNode = Uploads.ModifyRoadNode;
@@ -31,7 +32,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ModifiedGeometrySlightly()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var lengthIncrease = 0.01;
@@ -96,7 +97,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ModifiedGeometryToMoreThanClusterTolerance()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var lengthIncrease = 0.06;
@@ -170,7 +171,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task RecordsWhichAreTooCloseToEachShouldShouldGiveProblem()
     {
-        var zipArchive = new ExtractsZipArchiveBuilder()
+        var zipArchive = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var maxId = new RoadNodeId(builder.DataSet.RoadNodeDbaseRecords.Max(x => x.WK_OIDN.Value));
@@ -194,7 +195,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ChangingOnlyTheRoadNodeIdInChangeFeatureShouldResultInNoChanges()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var maxId = new RoadNodeId(builder.DataSet.RoadNodeDbaseRecords.Max(x => x.WK_OIDN.Value));
@@ -211,7 +212,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ChangingTheRoadNodeIdAndTypeInChangeFeatureShouldReuseTheRoadNodeIdFromExtractFeature()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV1ZipArchiveBuilder()
             .WithExtract((builder, context) =>
             {
                 var dbaseRecord = builder.CreateRoadNodeDbaseRecord();
@@ -246,7 +247,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ChangingTheRoadNodeIdAndTypeInChangeFeatureShouldReuseTheRoadNodeIdFromExtractFeatureAndTheLinkedRoadSegmentShouldAlsoBeUsingTheRoadNodeIdFromExtractFeature()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var dbaseRecord = builder.TestData.RoadNode1DbaseRecord;
@@ -273,7 +274,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ChangingTheRoadNodeIdAndGeometryInChangeFeatureShouldReuseTheRoadNodeIdFromExtractFeatureAndTheLinkedRoadSegmentShouldAlsoBeUsingTheRoadNodeIdFromExtractFeature()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var dbaseRecord = builder.TestData.RoadNode1DbaseRecord;
@@ -344,7 +345,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task IdsShouldBeUniqueAcrossChangeAndIntegrationData()
     {
-        var zipArchive = new ExtractsZipArchiveBuilder()
+        var zipArchive = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var integrationRoadNode = context.Integration.DataSet.RoadNodeDbaseRecords.First();

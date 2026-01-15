@@ -6,6 +6,7 @@ using Abstractions;
 using Editor.Schema;
 using Microsoft.IO;
 using RoadRegistry.Extracts.Schemas.ExtractV1.Lists;
+using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure;
 
 public class RoadNetworkForEditorToZipArchiveWriter : IZipArchiveWriter<EditorContext>

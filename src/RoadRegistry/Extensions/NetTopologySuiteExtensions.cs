@@ -6,18 +6,9 @@ using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
-using NetTopologySuite.IO;
 
 public static class NetTopologySuiteExtensions
 {
-    public static Point ToGeometry(this RoadNodeGeometry geometry)
-    {
-        ArgumentNullException.ThrowIfNull(geometry);
-
-        return ((Point)new WKTReader().Read(geometry.WKT)
-            .WithSrid(geometry.SRID));
-    }
-
     public static RoadNodeGeometry ToRoadNodeGeometry(this Point geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);
@@ -25,20 +16,18 @@ public static class NetTopologySuiteExtensions
         return RoadNodeGeometry.Create(geometry);
     }
 
-    public static MultiLineString ToGeometry(this RoadSegmentGeometry geometry)
-    {
-        ArgumentNullException.ThrowIfNull(geometry);
-
-        return ((MultiLineString)new WKTReader().Read(geometry.WKT)
-                .WithSrid(geometry.SRID))
-            .WithMeasureOrdinates();
-    }
-
     public static RoadSegmentGeometry ToRoadSegmentGeometry(this MultiLineString geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);
 
         return RoadSegmentGeometry.Create(geometry.WithoutDuplicateCoordinates());
+    }
+
+    public static ExtractGeometry ToExtractGeometry(this MultiPolygon geometry)
+    {
+        ArgumentNullException.ThrowIfNull(geometry);
+
+        return ExtractGeometry.Create(geometry);
     }
 
     public static IPolygonal[] GetPolygonals(this IPolygonal polygonal)
@@ -222,6 +211,17 @@ public static class NetTopologySuiteExtensions
         geometry.SRID = srid > 0
             ? srid
             : GeometryConfiguration.GeometryFactory.SRID;
+
+        return geometry;
+    }
+
+    public static T FillSridIfMissing<T>(this T geometry)
+        where T : Geometry
+    {
+        if (geometry.SRID == 0)
+        {
+            geometry.SRID = GeometryConfiguration.GeometryFactory.SRID;
+        }
 
         return geometry;
     }

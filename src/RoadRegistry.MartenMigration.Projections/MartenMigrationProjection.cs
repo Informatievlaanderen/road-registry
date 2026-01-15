@@ -60,7 +60,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     Modification.Insert,
                     Organisation.DigitaalVlaanderen);
 
-                session.CorrelationId = Guid.NewGuid().ToString();
+                session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
                 var roadNodeId = new RoadNodeId(envelope.Message.Id);
@@ -93,7 +93,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
             return _repo.InIdempotentSession(eventIdentifier, session =>
             {
-                session.CorrelationId = Guid.NewGuid().ToString();
+                session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
                 var geometry = GeometryTranslator.Translate(envelope.Message.Geometry);
@@ -264,7 +264,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
             return _repo.InIdempotentSession(eventIdentifier, session =>
             {
-                session.CorrelationId = Guid.NewGuid().ToString();
+                session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
                 var provenance = new Provenance(
@@ -301,80 +301,89 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (_, envelope, token) =>
         {
+            var roadNetworkId = new ScopedRoadNetworkId(envelope.Message.DownloadId ?? Guid.NewGuid());
+
             foreach (var (message, changeIndex) in envelope.Message.Changes.Select((x, i) => (x.Flatten(), i)))
                 switch (message)
                 {
                     case RoadNodeAdded change:
-                        await AddRoadNode(change, changeIndex, envelope, token);
+                        await AddRoadNode(roadNetworkId, change, changeIndex, envelope, token);
                         break;
                     case RoadNodeModified change:
-                        await ModifyRoadNode(change, changeIndex, envelope, token);
+                        await ModifyRoadNode(roadNetworkId, change, changeIndex, envelope, token);
                         break;
                     case RoadNodeRemoved change:
-                        await RemoveRoadNode(change, changeIndex, envelope, token);
+                        await RemoveRoadNode(roadNetworkId, change, changeIndex, envelope, token);
                         break;
 
                     case RoadSegmentAdded change:
-                        await AddRoadSegment(change, changeIndex, envelope, token);
+                        await AddRoadSegment(roadNetworkId, change, changeIndex, envelope, token);
                         break;
                     case RoadSegmentModified change:
-                        await ModifyRoadSegment(change, changeIndex, envelope, token);
+                        await ModifyRoadSegment(roadNetworkId, change, changeIndex, envelope, token);
                         break;
 
                     case RoadSegmentAddedToEuropeanRoad change:
-                        await AddRoadSegmentToEuropeanRoad(change, changeIndex, envelope, token);
+                        await AddRoadSegmentToEuropeanRoad(roadNetworkId, change, changeIndex, envelope, token);
                         break;
                     case RoadSegmentRemovedFromEuropeanRoad change:
-                        await RemoveRoadSegmentFromEuropeanRoad(change, changeIndex, envelope, token);
+                        await RemoveRoadSegmentFromEuropeanRoad(roadNetworkId, change, changeIndex, envelope, token);
                         break;
 
                     case RoadSegmentAddedToNationalRoad change:
-                        await AddRoadSegmentToNationalRoad(change, changeIndex, envelope, token);
+                        await AddRoadSegmentToNationalRoad(roadNetworkId, change, changeIndex, envelope, token);
                         break;
                     case RoadSegmentRemovedFromNationalRoad change:
-                        await RemoveRoadSegmentFromNationalRoad(change, changeIndex, envelope, token);
+                        await RemoveRoadSegmentFromNationalRoad(roadNetworkId, change, changeIndex, envelope, token);
                         break;
 
                     case RoadSegmentAddedToNumberedRoad change:
-                        await AddRoadSegmentToNumberedRoad(change, changeIndex, envelope, token);
+                        await AddRoadSegmentToNumberedRoad(roadNetworkId, change, changeIndex, envelope, token);
                         break;
                     case RoadSegmentRemovedFromNumberedRoad change:
-                        await RemoveRoadSegmentFromNumberedRoad(change, changeIndex, envelope, token);
+                        await RemoveRoadSegmentFromNumberedRoad(roadNetworkId, change, changeIndex, envelope, token);
                         break;
 
                     case RoadSegmentAttributesModified change:
-                        await ModifyRoadSegmentAttributes(change, changeIndex, envelope, token);
+                        await ModifyRoadSegmentAttributes(roadNetworkId, change, changeIndex, envelope, token);
                         break;
                     case RoadSegmentGeometryModified change:
-                        await ModifyRoadSegmentGeometry(change, changeIndex, envelope, token);
+                        await ModifyRoadSegmentGeometry(roadNetworkId, change, changeIndex, envelope, token);
                         break;
                     case RoadSegmentRemoved change:
-                        await RemoveRoadSegment(change, changeIndex, envelope, token);
+                        await RemoveRoadSegment(roadNetworkId, change, changeIndex, envelope, token);
                         break;
                     case OutlinedRoadSegmentRemoved change:
-                        await RemoveOutlinedRoadSegment(change, changeIndex, envelope, token);
+                        await RemoveOutlinedRoadSegment(roadNetworkId, change, changeIndex, envelope, token);
                         break;
 
                     case GradeSeparatedJunctionAdded change:
-                        await AddGradeSeparatedJunction(change, changeIndex, envelope, token);
+                        await AddGradeSeparatedJunction(roadNetworkId, change, changeIndex, envelope, token);
                         break;
-                    case GradeSeparatedJunctionModified:
-                        throw new InvalidOperationException("Change GradeSeparatedJunctionModified should not be in use");
+                    case GradeSeparatedJunctionModified change:
+                        await ModifyGradeSeparatedJunction(roadNetworkId, change, changeIndex, envelope, token);
+                        break;
                     case GradeSeparatedJunctionRemoved change:
-                        await RemoveGradeSeparatedJunction(change, changeIndex, envelope, token);
+                        await RemoveGradeSeparatedJunction(roadNetworkId, change, changeIndex, envelope, token);
                         break;
 
                     default:
                         throw new NotImplementedException($"Unknown change type {message.GetType()}");
                 }
 
-            await AcceptRoadNetworkChange(envelope, token);
+            await AcceptRoadNetworkChange(roadNetworkId, envelope, token);
         });
 
-        When<Envelope<RoadSegmentsStreetNamesChanged>>(async (_, envelope, token) => { await RoadSegmentsStreetNamesChanged(envelope, token); });
+        When<Envelope<RoadSegmentsStreetNamesChanged>>(async (_, envelope, token) =>
+        {
+            var roadNetworkId = new ScopedRoadNetworkId(Guid.NewGuid());
+
+            await RoadSegmentsStreetNamesChanged(roadNetworkId, envelope, token);
+        });
     }
 
     private Task AcceptRoadNetworkChange(
+        ScopedRoadNetworkId roadNetworkId,
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
@@ -382,12 +391,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
         return _repo.InIdempotentSession(eventIdentifier, session =>
         {
-            session.CorrelationId = Guid.NewGuid().ToString();
+            session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Unknown);
 
-            var streamKey = StreamKeyFactory.Create(typeof(ScopedRoadNetwork), new RoadNetworkId(envelope.Message.DownloadId ?? Guid.NewGuid()));
+            var streamKey = StreamKeyFactory.Create(typeof(ScopedRoadNetwork), new ScopedRoadNetworkId(envelope.Message.DownloadId ?? Guid.NewGuid()));
             var legacyEvent = new RoadRegistry.ScopedRoadNetwork.Events.V1.RoadNetworkChangesAccepted
             {
                 Operator = envelope.Message.Operator,
@@ -406,6 +415,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private Task AddRoadNode(
+        ScopedRoadNetworkId roadNetworkId,
         RoadNodeAdded change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -415,7 +425,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
         return _repo.InIdempotentSession(eventIdentifier, session =>
         {
-            session.CorrelationId = Guid.NewGuid().ToString();
+            session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
             var point = GeometryTranslator.Translate(change.Geometry);
@@ -438,6 +448,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private Task ModifyRoadNode(
+        ScopedRoadNetworkId roadNetworkId,
         RoadNodeModified change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -447,7 +458,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
         return _repo.InIdempotentSession(eventIdentifier, async session =>
             {
-                session.CorrelationId = Guid.NewGuid().ToString();
+                session.CorrelationId = roadNetworkId;
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
                 var point = GeometryTranslator.Translate(change.Geometry);
@@ -469,6 +480,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private Task RemoveRoadNode(
+        ScopedRoadNetworkId roadNetworkId,
         RoadNodeRemoved change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -478,7 +490,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
         return _repo.InIdempotentSession(eventIdentifier, async session =>
         {
-            session.CorrelationId = Guid.NewGuid().ToString();
+            session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Delete);
@@ -495,6 +507,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private Task AddRoadSegment(
+        ScopedRoadNetworkId roadNetworkId,
         RoadSegmentAdded change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -504,7 +517,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
         return _repo.InIdempotentSession(eventIdentifier, async session =>
         {
-            session.CorrelationId = Guid.NewGuid().ToString();
+            session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
             var geometry = GeometryTranslator.Translate(change.Geometry);
@@ -575,6 +588,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private async Task ModifyRoadSegment(
+        ScopedRoadNetworkId roadNetworkId,
         RoadSegmentModified change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -582,7 +596,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     {
         var roadSegmentId = new RoadSegmentId(change.Id);
 
-        await ModifyRoadSegment(roadSegmentId,
+        await ModifyRoadSegment(roadNetworkId, roadSegmentId,
             provenance =>
             {
                 var geometry = GeometryTranslator.Translate(change.Geometry);
@@ -649,13 +663,20 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             envelope, change, changeIndex, token);
     }
 
-    private Task ModifyRoadSegment(RoadSegmentId roadSegmentId, Func<Provenance, IMartenEvent> getLegacyEvent, Envelope<RoadNetworkChangesAccepted> envelope, object change, int changeIndex, CancellationToken token)
+    private Task ModifyRoadSegment(
+        ScopedRoadNetworkId roadNetworkId,
+        RoadSegmentId roadSegmentId,
+        Func<Provenance, IMartenEvent> getLegacyEvent,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        object change,
+        int changeIndex,
+        CancellationToken token)
     {
         var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
 
         return _repo.InIdempotentSession(eventIdentifier, session =>
         {
-            session.CorrelationId = Guid.NewGuid().ToString();
+            session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Update);
@@ -669,6 +690,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private async Task AddRoadSegmentToEuropeanRoad(
+        ScopedRoadNetworkId roadNetworkId,
         RoadSegmentAddedToEuropeanRoad change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -676,7 +698,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     {
         var roadSegmentId = new RoadSegmentId(change.SegmentId);
 
-        await ModifyRoadSegment(roadSegmentId,
+        await ModifyRoadSegment(roadNetworkId, roadSegmentId,
             provenance =>
             {
                 return new RoadRegistry.RoadSegment.Events.V1.RoadSegmentAddedToEuropeanRoad
@@ -693,6 +715,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private async Task RemoveRoadSegmentFromEuropeanRoad(
+        ScopedRoadNetworkId roadNetworkId,
         RoadSegmentRemovedFromEuropeanRoad change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -700,7 +723,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     {
         var roadSegmentId = new RoadSegmentId(change.SegmentId);
 
-        await ModifyRoadSegment(roadSegmentId,
+        await ModifyRoadSegment(roadNetworkId, roadSegmentId,
             provenance =>
             {
                 return new RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromEuropeanRoad
@@ -716,6 +739,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private async Task AddRoadSegmentToNationalRoad(
+        ScopedRoadNetworkId roadNetworkId,
         RoadSegmentAddedToNationalRoad change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -723,7 +747,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     {
         var roadSegmentId = new RoadSegmentId(change.SegmentId);
 
-        await ModifyRoadSegment(roadSegmentId,
+        await ModifyRoadSegment(roadNetworkId, roadSegmentId,
             provenance =>
             {
                 return new RoadRegistry.RoadSegment.Events.V1.RoadSegmentAddedToNationalRoad
@@ -740,6 +764,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private async Task RemoveRoadSegmentFromNationalRoad(
+        ScopedRoadNetworkId roadNetworkId,
         RoadSegmentRemovedFromNationalRoad change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -747,7 +772,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     {
         var roadSegmentId = new RoadSegmentId(change.SegmentId);
 
-        await ModifyRoadSegment(roadSegmentId,
+        await ModifyRoadSegment(roadNetworkId, roadSegmentId,
             provenance =>
             {
                 return new RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromNationalRoad
@@ -763,6 +788,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private async Task AddRoadSegmentToNumberedRoad(
+        ScopedRoadNetworkId roadNetworkId,
         RoadSegmentAddedToNumberedRoad change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -770,7 +796,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     {
         var roadSegmentId = new RoadSegmentId(change.SegmentId);
 
-        await ModifyRoadSegment(roadSegmentId,
+        await ModifyRoadSegment(roadNetworkId, roadSegmentId,
             provenance =>
             {
                 return new RoadRegistry.RoadSegment.Events.V1.RoadSegmentAddedToNumberedRoad
@@ -789,6 +815,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private async Task RemoveRoadSegmentFromNumberedRoad(
+        ScopedRoadNetworkId roadNetworkId,
         RoadSegmentRemovedFromNumberedRoad change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -796,7 +823,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     {
         var roadSegmentId = new RoadSegmentId(change.SegmentId);
 
-        await ModifyRoadSegment(roadSegmentId,
+        await ModifyRoadSegment(roadNetworkId, roadSegmentId,
             provenance =>
             {
                 return new RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromNumberedRoad
@@ -812,6 +839,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private async Task ModifyRoadSegmentAttributes(
+        ScopedRoadNetworkId roadNetworkId,
         RoadSegmentAttributesModified change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -819,7 +847,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     {
         var roadSegmentId = new RoadSegmentId(change.Id);
 
-        await ModifyRoadSegment(roadSegmentId,
+        await ModifyRoadSegment(roadNetworkId, roadSegmentId,
             provenance =>
             {
                 return new RoadRegistry.RoadSegment.Events.V1.RoadSegmentAttributesModified
@@ -879,6 +907,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private async Task ModifyRoadSegmentGeometry(
+        ScopedRoadNetworkId roadNetworkId,
         RoadSegmentGeometryModified change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -886,7 +915,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     {
         var roadSegmentId = new RoadSegmentId(change.Id);
 
-        await ModifyRoadSegment(roadSegmentId,
+        await ModifyRoadSegment(roadNetworkId, roadSegmentId,
             provenance =>
             {
                 return new RoadRegistry.RoadSegment.Events.V1.RoadSegmentGeometryModified
@@ -930,6 +959,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private Task RemoveRoadSegment(
+        ScopedRoadNetworkId roadNetworkId,
         RoadSegmentRemoved change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -940,7 +970,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
         return _repo.InIdempotentSession(eventIdentifier, async session =>
         {
-            session.CorrelationId = Guid.NewGuid().ToString();
+            session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Delete);
@@ -957,6 +987,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private Task RemoveOutlinedRoadSegment(
+        ScopedRoadNetworkId roadNetworkId,
         OutlinedRoadSegmentRemoved change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -967,7 +998,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
         return _repo.InIdempotentSession(eventIdentifier, async session =>
         {
-            session.CorrelationId = Guid.NewGuid().ToString();
+            session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Delete);
@@ -983,6 +1014,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private Task AddGradeSeparatedJunction(
+        ScopedRoadNetworkId roadNetworkId,
         GradeSeparatedJunctionAdded change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -992,7 +1024,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
         return _repo.InIdempotentSession(eventIdentifier, session =>
         {
-            session.CorrelationId = Guid.NewGuid().ToString();
+            session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Insert);
@@ -1012,6 +1044,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     }
 
     private Task RemoveGradeSeparatedJunction(
+        ScopedRoadNetworkId roadNetworkId,
         GradeSeparatedJunctionRemoved change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -1021,7 +1054,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
         return _repo.InIdempotentSession(eventIdentifier, async session =>
         {
-            session.CorrelationId = Guid.NewGuid().ToString();
+            session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Insert);
@@ -1036,7 +1069,37 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         }, token);
     }
 
+    private Task ModifyGradeSeparatedJunction(
+        ScopedRoadNetworkId roadNetworkId,
+        GradeSeparatedJunctionModified change,
+        int changeIndex,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
+
+        return _repo.InIdempotentSession(eventIdentifier, async session =>
+        {
+            session.CorrelationId = roadNetworkId;
+            session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+
+            var provenance = BuildProvenance(envelope, Modification.Insert);
+
+            var streamKey = StreamKeyFactory.Create(typeof(GradeSeparatedJunction), new GradeSeparatedJunctionId(change.Id));
+            var legacyEvent = new RoadRegistry.GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionModified
+            {
+                Id = change.Id,
+                LowerRoadSegmentId = change.LowerRoadSegmentId,
+                UpperRoadSegmentId = change.UpperRoadSegmentId,
+                Type = change.Type,
+                Provenance = new ProvenanceData(provenance)
+            };
+            session.Events.Append(streamKey, legacyEvent);
+        }, token);
+    }
+
     private async Task RoadSegmentsStreetNamesChanged(
+        ScopedRoadNetworkId roadNetworkId,
         Envelope<RoadSegmentsStreetNamesChanged> envelope,
         CancellationToken token)
     {
@@ -1046,7 +1109,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
             await _repo.InIdempotentSession(eventIdentifier, async session =>
             {
-                session.CorrelationId = Guid.NewGuid().ToString();
+                session.CorrelationId = roadNetworkId;
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
                 var provenance = new Provenance(

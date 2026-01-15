@@ -67,7 +67,7 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
     {
         var roadNetworkChanges = command.Changes.ToRoadNetworkChanges(command.ProvenanceData);
 
-        var roadNetwork = await Load(roadNetworkChanges, new RoadNetworkId(command.DownloadId.ToGuid()));
+        var roadNetwork = await Load(roadNetworkChanges, new ScopedRoadNetworkId(command.DownloadId.ToGuid()));
 
         var changeResult = roadNetwork.SummaryOfLastChange is null
             ? await ChangeRoadNetwork(command, roadNetwork, roadNetworkChanges, cancellationToken)
@@ -97,8 +97,13 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
         return changeResult;
     }
 
-    private async Task<ScopedRoadNetwork> Load(RoadNetworkChanges roadNetworkChanges, RoadNetworkId roadNetworkId)
+    private async Task<ScopedRoadNetwork> Load(RoadNetworkChanges roadNetworkChanges, ScopedRoadNetworkId roadNetworkId)
     {
+        if (!roadNetworkChanges.Any())
+        {
+            return new ScopedRoadNetwork(roadNetworkId);
+        }
+
         await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
 
         var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry(), ids: roadNetworkChanges.Ids, onlyV2: true);

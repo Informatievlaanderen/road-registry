@@ -1,9 +1,26 @@
 namespace RoadRegistry.ValueObjects;
 
+using Extensions;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 
 public record RoadSegmentGeometry : GeometryObject
 {
+    private MultiLineString? _geometry;
+
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    public MultiLineString Value
+    {
+        get
+        {
+            _geometry ??= ((MultiLineString)new WKTReader().Read(WKT))
+                .WithSrid(SRID)
+                .WithMeasureOrdinates();
+            return _geometry;
+        }
+    }
+
     public RoadSegmentGeometry(int srid, string wkt) : base(srid, wkt)
     {
     }

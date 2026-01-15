@@ -7,7 +7,6 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
     using AutoFixture;
     using Editor.Schema;
     using Exceptions;
-    using ExtractHost;
     using ExtractHost.V1;
     using ExtractHost.V2;
     using Extracts;
@@ -25,9 +24,13 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
     using RoadRegistry.Extensions;
     using RoadRegistry.Extracts;
     using RoadRegistry.Extracts.Uploads;
+    using RoadRegistry.Extracts.ZipArchiveWriters;
     using RoadRegistry.Tests.BackOffice.Scenarios;
     using Uploads;
-        using Xunit.Abstractions;
+    using V3;
+    using Xunit.Abstractions;
+    using IZipArchiveWriter = ExtractHost.IZipArchiveWriter;
+    using ZipArchiveDataProvider = ExtractHost.ZipArchiveDataProvider;
 
     public class ZipArchiveFeatureCompareTranslatorTests
     {

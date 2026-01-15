@@ -20,6 +20,7 @@ using Moq;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V1;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using Xunit.Abstractions;
 using ZipArchiveWriters.Cleaning;
@@ -56,7 +57,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
         });
         await editorContext.SaveChangesAsync();
 
-        using var archiveStream = new ExtractsZipArchiveBuilder()
+        using var archiveStream = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.TestData.TransactionZoneDbaseRecord.DOWNLOADID.Value = downloadId;
@@ -124,7 +125,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
         // Arrange
         await using var editorContext = Container.Resolve<EditorContext>();
 
-        using var archiveStream = new ExtractsZipArchiveBuilder()
+        using var archiveStream = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.TestData.TransactionZoneDbaseRecord.DOWNLOADID.Value = ObjectProvider.Create<DownloadId>();
@@ -157,7 +158,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
         // Arrange
         await using var editorContext = Container.Resolve<EditorContext>();
 
-        using var archiveStream = new ExtractsZipArchiveBuilder()
+        using var archiveStream = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.TestData.TransactionZoneDbaseRecord.DOWNLOADID.Value = "abc";
@@ -203,7 +204,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
         });
         await editorContext.SaveChangesAsync();
 
-        using var archiveStream = new ExtractsZipArchiveBuilder()
+        using var archiveStream = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.TestData.TransactionZoneDbaseRecord.DOWNLOADID.Value = downloadId;
@@ -372,7 +373,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
         });
         await editorContext.SaveChangesAsync();
 
-        using var archiveStream = new ExtractsZipArchiveBuilder()
+        using var archiveStream = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.TestData.TransactionZoneDbaseRecord.DOWNLOADID.Value = downloadId;

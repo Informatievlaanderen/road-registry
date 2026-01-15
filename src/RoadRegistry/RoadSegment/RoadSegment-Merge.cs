@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events.V2;
-using Extensions;
 using RoadRegistry.ValueObjects.Problems;
 using ScopedRoadNetwork;
 using ValueObjects;
@@ -15,9 +14,9 @@ public partial class RoadSegment
     {
         var problems = Problems.For(change.TemporaryId);
 
-        problems += new RoadSegmentGeometryValidator().Validate(change.TemporaryId, change.GeometryDrawMethod, change.Geometry);
+        problems += new RoadSegmentGeometryValidator().Validate(change.TemporaryId, change.GeometryDrawMethod, change.Geometry.Value);
 
-        var segmentLength = change.Geometry.Length;
+        var segmentLength = change.Geometry.Value.Length;
         var attributes = new RoadSegmentAttributes
         {
             GeometryDrawMethod = change.GeometryDrawMethod,
@@ -42,7 +41,7 @@ public partial class RoadSegment
         {
             RoadSegmentId = idGenerator.NewRoadSegmentId(),
             OriginalIds = change.OriginalIds,
-            Geometry = change.Geometry.ToRoadSegmentGeometry(),
+            Geometry = change.Geometry,
             StartNodeId = idTranslator.TranslateToPermanentId(change.StartNodeId),
             EndNodeId = idTranslator.TranslateToPermanentId(change.EndNodeId),
             GeometryDrawMethod = attributes.GeometryDrawMethod,

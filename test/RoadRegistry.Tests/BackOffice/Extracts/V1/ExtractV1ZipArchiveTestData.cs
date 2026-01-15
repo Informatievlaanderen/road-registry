@@ -1,4 +1,4 @@
-namespace RoadRegistry.Tests.BackOffice;
+namespace RoadRegistry.Tests.BackOffice.Extracts.V1;
 
 using System.IO.Compression;
 using System.Text;
@@ -7,9 +7,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.FeatureCompare;
-using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extracts.Schemas.ExtractV1;
 using RoadRegistry.Extracts.Schemas.ExtractV1.GradeSeparatedJuntions;
 using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
@@ -20,9 +17,9 @@ using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 
-public class ExtractsZipArchiveTestData : IDisposable
+public class ExtractV1ZipArchiveTestData : IDisposable
 {
-    public ExtractsZipArchiveTestData()
+    public ExtractV1ZipArchiveTestData()
     {
         Fixture = CreateFixture();
 

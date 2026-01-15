@@ -432,7 +432,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         OriginalId = record.Id != record.Attributes.Id
                             ? record.Attributes.Id
                             : null,
-                        Geometry = record.GeometryChanged ? record.Attributes.Geometry : null,
+                        Geometry = record.GeometryChanged ? record.Attributes.Geometry!.ToRoadSegmentGeometry() : null,
                         StartNodeId = record.Attributes.StartNodeId,
                         EndNodeId = record.Attributes.EndNodeId,
                         GeometryDrawMethod = record.Attributes.Method,
@@ -464,7 +464,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             OriginalId = record.Id != record.Attributes.Id
                                 ? record.Attributes.Id
                                 : null,
-                            Geometry = record.Attributes.Geometry,
+                            Geometry = record.Attributes.Geometry!.ToRoadSegmentGeometry(),
                             StartNodeId = record.Attributes.StartNodeId!.Value,
                             EndNodeId = record.Attributes.EndNodeId!.Value,
                             GeometryDrawMethod = record.Attributes.Method!,

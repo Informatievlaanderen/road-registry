@@ -6,6 +6,7 @@ using Abstractions;
 using Microsoft.IO;
 using Product.Schema;
 using RoadRegistry.Extracts.Schemas.ExtractV1.Lists;
+using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure;
 
 public class RoadNetworkForProductPublishToZipArchiveWriter : IZipArchiveWriter<ProductContext>

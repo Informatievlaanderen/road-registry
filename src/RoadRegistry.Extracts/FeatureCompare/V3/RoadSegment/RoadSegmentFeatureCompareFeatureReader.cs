@@ -11,7 +11,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadSegment;
-using Schemas.ExtractV1.RoadSegments;
+using Schemas.ExtractV2.RoadSegments;
 using Uploads;
 
 public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareAttributes>>
@@ -20,8 +20,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
 
     public RoadSegmentFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new ExtractsFeatureReader(encoding),
-            new UploadsV2FeatureReader(encoding))
+        : base(new ExtractsFeatureReader(encoding))
     {
         _encoding = encoding;
     }
@@ -85,33 +84,6 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         }
 
         protected override (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadSegmentDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
-        {
-            return new RecordData
-            {
-                B_WK_OIDN = dbaseRecord.B_WK_OIDN.GetValue(),
-                BEHEER = dbaseRecord.BEHEER.GetValue(),
-                E_WK_OIDN = dbaseRecord.E_WK_OIDN.GetValue(),
-                LSTRNMID = dbaseRecord.LSTRNMID.GetValue(),
-                METHODE = dbaseRecord.METHODE.GetValue(),
-                MORF = dbaseRecord.MORF.GetValue(),
-                RSTRNMID = dbaseRecord.RSTRNMID.GetValue(),
-                STATUS = dbaseRecord.STATUS.GetValue(),
-                TGBEP = dbaseRecord.TGBEP.GetValue(),
-                WEGCAT = dbaseRecord.WEGCAT.GetValue(),
-                WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
-                Geometry = geometry
-            }.ToFeature(featureType, FileName, recordNumber);
-        }
-    }
-
-    private sealed class UploadsV2FeatureReader : ZipArchiveShapeFeatureReader<Schemas.UploadV2.RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareAttributes>>
-    {
-        public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, RoadSegmentFeatureCompareFeatureReader.FileName, Schemas.UploadV2.RoadSegmentDbaseRecord.Schema)
-        {
-        }
-
-        protected override (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Schemas.UploadV2.RoadSegmentDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
         {
             return new RecordData
             {

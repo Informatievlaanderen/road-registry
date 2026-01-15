@@ -51,10 +51,12 @@
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Import" Version="22.0.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Legacy" Version="22.0.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Provenance" Version="22.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple" Version="6.0.3" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer" Version="6.0.3" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer" Version="6.0.3" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Producer" Version="6.0.3" />
+
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple" Version="6.0.4" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer" Version="6.0.4" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer" Version="6.0.4" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Producer" Version="6.0.4" />
+
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector" Version="15.0.1" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing" Version="15.0.1" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner" Version="15.0.1" />

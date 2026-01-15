@@ -3,15 +3,13 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Events.V2;
-using Extensions;
-using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using ValueObjects;
 
 public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 {
     public RoadSegmentId RoadSegmentId { get; }
-    public MultiLineString Geometry { get; private set; }
+    public RoadSegmentGeometry Geometry { get; private set; }
     public RoadNodeId StartNodeId { get; private set; }
     public RoadNodeId EndNodeId { get; private set; }
     public RoadSegmentAttributes Attributes { get; private set; }
@@ -45,7 +43,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     [JsonConstructor]
     protected RoadSegment(
         int roadSegmentId,
-        MultiLineString geometry,
+        RoadSegmentGeometry geometry,
         int startNodeId,
         int endNodeId,
         RoadSegmentAttributes attributes,
@@ -71,7 +69,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry.ToGeometry();
+        Geometry = @event.Geometry;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
         Attributes = new RoadSegmentAttributes
@@ -100,7 +98,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry.ToGeometry();
+        Geometry = @event.Geometry;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
         Attributes = new RoadSegmentAttributes
@@ -129,7 +127,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry.ToGeometry();
+        Geometry = @event.Geometry;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
         Attributes = new RoadSegmentAttributes
@@ -151,7 +149,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     {
         UncommittedEvents.Add(@event);
 
-        Geometry = @event.Geometry?.ToGeometry() ?? Geometry;
+        Geometry = @event.Geometry ?? Geometry;
         StartNodeId = @event.StartNodeId ?? StartNodeId;
         EndNodeId = @event.EndNodeId ?? EndNodeId;
         Attributes = Attributes with

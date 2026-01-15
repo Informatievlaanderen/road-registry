@@ -1,10 +1,8 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2.Writers;
+namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers;
 
 using System.IO.Compression;
 using System.Text;
-using Core;
-using Microsoft.IO;
-using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.Core;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Infrastructure.Dbase;

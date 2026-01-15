@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode;
 
 using AutoFixture;
+using Extensions;
 using Framework;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
@@ -58,7 +59,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1StartNode)
                 .Add(TestData.AddSegment1EndNode with
                 {
-                    Geometry = new Point(TestData.AddSegment1StartNode.Geometry.X + 0.0001, TestData.AddSegment1StartNode.Geometry.Y)
+                    Geometry = new Point(TestData.AddSegment1StartNode.Geometry.Value.X + 0.0001, TestData.AddSegment1StartNode.Geometry.Value.Y).ToRoadNodeGeometry()
                 })
             )
             .ThenContainsProblems(new Error("RoadNodeGeometryTaken", new ProblemParameter("ByOtherNode", TestData.AddSegment1StartNode.TemporaryId.ToString())))
@@ -78,7 +79,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 {
                     TemporaryId = new RoadNodeId(3),
                     OriginalId = Fixture.Create<RoadNodeId>(),
-                    Geometry = new Point(TestData.AddSegment1StartNode.Geometry.X + 1.99, TestData.AddSegment1StartNode.Geometry.Y),
+                    Geometry = new Point(TestData.AddSegment1StartNode.Geometry.Value.X + 1.99, TestData.AddSegment1StartNode.Geometry.Value.Y).ToRoadNodeGeometry(),
                     Type = Fixture.Create<RoadNodeType>()
                 })
             )

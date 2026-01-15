@@ -31,7 +31,7 @@ public sealed class SqsHandlersModule : Module
             .SingleInstance();
 
         builder
-            .Register(c => new SqsJsonMessageSerializer(c.Resolve<SqsOptions>()))
+            .Register(c => new SqsJsonMessageSerializer(c.Resolve<SqsOptions>(), SqsJsonMessageAssemblies.Assemblies))
             .SingleInstance();
 
         builder

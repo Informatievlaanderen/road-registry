@@ -6,6 +6,7 @@ using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Extracts;
+using Extracts.ZipArchiveWriters;
 using FluentValidation;
 using Infrastructure.Modules;
 using MartinCostello.Logging.XUnit;

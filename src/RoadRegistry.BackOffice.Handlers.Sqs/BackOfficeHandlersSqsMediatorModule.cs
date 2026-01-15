@@ -4,7 +4,7 @@ using Autofac;
 using MediatR;
 using MediatR.Pipeline;
 
-public class MediatorModule : Module
+public class BackOfficeHandlersSqsMediatorModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {

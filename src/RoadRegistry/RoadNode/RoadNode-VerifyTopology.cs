@@ -40,7 +40,7 @@ public partial class RoadNode
         var byOtherNode =
             context.RoadNetwork.GetNonRemovedRoadNodes().FirstOrDefault(n =>
                 n.Id != Id &&
-                n.Geometry.IsReasonablyEqualTo(Geometry, context.Tolerances));
+                n.Geometry.Value.IsReasonablyEqualTo(Geometry.Value, context.Tolerances));
         if (byOtherNode is not null)
         {
             problems = problems.Add(new RoadNodeGeometryTaken(
@@ -51,7 +51,7 @@ public partial class RoadNode
         problems = context.RoadNetwork.GetNonRemovedRoadSegments()
             .Where(s =>
                 segments.All(x => x.RoadSegmentId != s.RoadSegmentId)
-                && s.Geometry.IsWithinDistance(Geometry, Distances.TooClose)
+                && s.Geometry.Value.IsWithinDistance(Geometry.Value, Distances.TooClose)
             )
             .Aggregate(problems, (current, segment) =>
                     current.Add(new RoadNodeTooClose(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId))));

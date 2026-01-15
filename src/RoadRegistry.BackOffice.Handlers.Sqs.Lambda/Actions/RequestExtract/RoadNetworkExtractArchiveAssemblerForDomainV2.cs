@@ -7,12 +7,11 @@ using Marten;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure.MartenDb;
-using RoadRegistry.RoadNetwork;
 using ScopedRoadNetwork;
 
 public class RoadNetworkExtractArchiveAssemblerForDomainV2 : IRoadNetworkExtractArchiveAssembler

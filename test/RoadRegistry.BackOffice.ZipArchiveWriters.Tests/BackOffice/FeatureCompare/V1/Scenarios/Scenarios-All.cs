@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.FeatureCompare.V1;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V1;
 using Xunit.Abstractions;
 using RoadSegmentLaneAttribute = Uploads.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = Uploads.RoadSegmentSurfaceAttribute;
@@ -20,7 +21,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task Added()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV1ZipArchiveBuilder()
             .WithExtract((builder, context) =>
             {
                 builder.DataSet.RoadNodeDbaseRecords = new[] { builder.TestData.RoadNode3DbaseRecord, builder.TestData.RoadNode4DbaseRecord }.ToList();
@@ -181,7 +182,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task Modified()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
@@ -336,7 +337,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task NoChanges()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV1ZipArchiveBuilder()
             .BuildWithResult(_ => TranslatedChanges.Empty);
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
@@ -345,7 +346,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task Removed()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.DataSet.RoadNodeDbaseRecords = new[] { builder.TestData.RoadNode3DbaseRecord, builder.TestData.RoadNode4DbaseRecord }.ToList();

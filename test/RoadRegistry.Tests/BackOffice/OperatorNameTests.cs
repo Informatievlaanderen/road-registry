@@ -76,7 +76,7 @@ public class OperatorNameTests
                 )
             ));
         new CompositeIdiomaticAssertion(
-            new ImplicitConversionOperatorAssertion<string>(
+            new ImplicitConversionOperatorAssertion<string?>(
                 new CompositeSpecimenBuilder(customizedString, _fixture)),
             new EquatableEqualsSelfAssertion(_fixture),
             new EquatableEqualsOtherAssertion(_fixture),

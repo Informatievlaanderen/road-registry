@@ -75,11 +75,16 @@ public static class SessionExtensions
         return aggregates.AsReadOnly();
     }
 
+    public static async Task<long> GetHighWaterMark(this IDocumentOperations operations, CancellationToken cancellationToken)
+    {
+        return (await operations.AdvancedSql.QueryAsync<long>("SELECT last_seq_id FROM eventstore.mt_event_progression WHERE name = 'HighWaterMark'", cancellationToken)).SingleOrDefault();
+    }
+
     public static async Task WaitForNonStaleProjection(this IDocumentStore store, string projectionName, ILogger logger, CancellationToken cancellationToken)
     {
         await using var session = store.LightweightSession();
 
-        var highWaterMarkSequenceId = (await session.AdvancedSql.QueryAsync<long>("SELECT last_seq_id FROM eventstore.mt_event_progression WHERE name = 'HighWaterMark'", cancellationToken)).SingleOrDefault();
+        var highWaterMarkSequenceId = await session.GetHighWaterMark(cancellationToken);
         if (highWaterMarkSequenceId == 0)
         {
             throw new InvalidOperationException("No projection state found for HighWaterMark.");
