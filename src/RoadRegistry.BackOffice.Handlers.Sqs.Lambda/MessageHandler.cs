@@ -8,6 +8,7 @@ using Actions.RequestExtract;
 using Actions.RequestInwinningExtract;
 using Actions.UploadExtract;
 using Actions.UploadInwinningExtract;
+using Amazon.Runtime.Internal.Util;
 using Autofac;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
@@ -33,7 +34,8 @@ public sealed class MessageHandler : BlobMessageHandler
     {
         if (messageData is not SqsRequest sqsRequest)
         {
-            throw new InvalidOperationException($"Unable to cast '{nameof(messageData)}' as {nameof(SqsRequest)}.");
+            messageMetadata.Logger?.LogError($"Unable to cast '{nameof(messageData)}' as {nameof(SqsRequest)}.");
+            return;
         }
 
         await using var lifetimeScope = _container.BeginLifetimeScope();

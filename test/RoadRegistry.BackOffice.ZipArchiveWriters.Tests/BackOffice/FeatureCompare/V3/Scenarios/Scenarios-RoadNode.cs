@@ -1,8 +1,6 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.V3.Scenarios;
 
-using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema.Extensions;
-using Exceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
@@ -10,13 +8,11 @@ using RoadNode.Changes;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.V3;
 using RoadRegistry.Extracts.Uploads;
-using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V2;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
-using Uploads;
 using Xunit.Abstractions;
 using Point = NetTopologySuite.Geometries.Point;
-using RoadSegmentSurfaceAttribute = Uploads.RoadSegmentSurfaceAttribute;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
 
 public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
@@ -29,7 +25,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ModifiedGeometrySlightly()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var lengthIncrease = 0.01;
@@ -44,9 +40,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                     .WithSrid(lineString.SRID);
                 builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
 
-                builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = lineString.Length;
                 builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = lineString.Length;
-                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = lineString.Length;
 
                 builder.TestData.RoadNode2ShapeRecord.Geometry = endPointGeometry;
             })
@@ -73,7 +67,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ModifiedGeometryToMoreThanClusterTolerance()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var lengthIncrease = 0.06;
@@ -88,9 +82,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                     .WithSrid(lineString.SRID);
                 builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
 
-                builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = lineString.Length;
                 builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = lineString.Length;
-                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = lineString.Length;
 
                 builder.TestData.RoadNode2ShapeRecord.Geometry = endPointGeometry;
             })
@@ -123,7 +115,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task RecordsWhichAreTooCloseToEachShouldShouldGiveProblem()
     {
-        var zipArchive = new ExtractsZipArchiveBuilder()
+        var zipArchive = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var maxId = new RoadNodeId(builder.DataSet.RoadNodeDbaseRecords.Max(x => x.WK_OIDN.Value));
@@ -147,7 +139,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ChangingOnlyTheRoadNodeIdInChangeFeatureShouldResultInNoChanges()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var maxId = new RoadNodeId(builder.DataSet.RoadNodeDbaseRecords.Max(x => x.WK_OIDN.Value));
@@ -164,7 +156,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ChangingTheRoadNodeIdAndTypeInChangeFeatureShouldReuseTheRoadNodeIdFromExtractFeature()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithExtract((builder, context) =>
             {
                 var dbaseRecord = builder.CreateRoadNodeDbaseRecord();
@@ -199,7 +191,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ChangingTheRoadNodeIdAndTypeInChangeFeatureShouldReuseTheRoadNodeIdFromExtractFeatureAndTheLinkedRoadSegmentShouldAlsoBeUsingTheRoadNodeIdFromExtractFeature()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var dbaseRecord = builder.TestData.RoadNode1DbaseRecord;
@@ -224,7 +216,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ChangingTheRoadNodeIdAndGeometryInChangeFeatureShouldReuseTheRoadNodeIdFromExtractFeatureAndTheLinkedRoadSegmentShouldAlsoBeUsingTheRoadNodeIdFromExtractFeature()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var dbaseRecord = builder.TestData.RoadNode1DbaseRecord;
@@ -272,7 +264,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task IdsShouldBeUniqueAcrossChangeAndIntegrationData()
     {
-        var zipArchive = new ExtractsZipArchiveBuilder()
+        var zipArchive = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var integrationRoadNode = context.Integration.DataSet.RoadNodeDbaseRecords.First();

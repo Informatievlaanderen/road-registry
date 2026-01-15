@@ -13,6 +13,7 @@ using RoadRegistry.Extracts.Schemas.ExtractV1;
 using RoadRegistry.Extracts.Schemas.UploadV2;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V1;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveBeforeFeatureCompareValidatorTests
@@ -43,7 +44,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
 
         var transactionZoneStream = fixture.CreateEmptyDbfFile<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
 
-        return fixture.CreateUploadZipArchive(new ExtractsZipArchiveTestData(),
+        return fixture.CreateUploadZipArchiveV1(new ExtractV1ZipArchiveTestData(),
             roadSegmentDbaseChangeStream: roadSegmentDbaseStream,
             europeanRoadChangeStream: europeanRoadStream,
             nationalRoadChangeStream: nationalRoadStream,

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Core;
 using Messages;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
@@ -13,7 +12,6 @@ using NetTopologySuite.Geometries.Utilities;
 using NetTopologySuite.IO;
 using NetTopologySuite.IO.GML2;
 using RoadRegistry.Extensions;
-using RoadSegment;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = NetTopologySuite.Geometries.Polygon;
@@ -86,7 +84,8 @@ public static class GeometryTranslator
 
     public static Point ToPoint(Be.Vlaanderen.Basisregisters.Shaperon.Point point)
     {
-        return ShaperonGeometryTranslator.ToGeometryPoint(point);
+        return ShaperonGeometryTranslator.ToGeometryPoint(point)
+            .FillSridIfMissing();
     }
 
     public static Point Translate(RoadNodeGeometry geometry)

@@ -13,8 +13,7 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
     private const ExtractFileName FileName = ExtractFileName.RltOgkruising;
 
     public GradeSeparatedJunctionFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new ExtractsFeatureReader(encoding),
-            new UploadsV2FeatureReader(encoding))
+        : base(new ExtractsFeatureReader(encoding))
     {
     }
 
@@ -35,25 +34,6 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
         }
 
         protected override (Feature<GradeSeparatedJunctionFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, GradeSeparatedJunctionDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
-        {
-            return new DbaseRecordData
-            {
-                OK_OIDN = dbaseRecord.OK_OIDN.GetValue(),
-                BO_WS_OIDN = dbaseRecord.BO_WS_OIDN.GetValue(),
-                ON_WS_OIDN = dbaseRecord.ON_WS_OIDN.GetValue(),
-                TYPE = dbaseRecord.TYPE.GetValue()
-            }.ToFeature(featureType, FileName, recordNumber);
-        }
-    }
-
-    private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Schemas.UploadV2.GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
-    {
-        public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, ExtractFileName.RltOgkruising, Schemas.UploadV2.GradeSeparatedJunctionDbaseRecord.Schema)
-        {
-        }
-
-        protected override (Feature<GradeSeparatedJunctionFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Schemas.UploadV2.GradeSeparatedJunctionDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {

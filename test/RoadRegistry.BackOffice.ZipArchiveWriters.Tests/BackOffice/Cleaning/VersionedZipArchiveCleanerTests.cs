@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.Cleaning;
 using System.IO.Compression;
 using Moq;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V1;
 
 public class VersionedZipArchiveCleanerTests
 {
@@ -14,7 +15,7 @@ public class VersionedZipArchiveCleanerTests
     [InlineData(CleanResult.Changed, new []{ CleanResult.NotApplicable, CleanResult.Changed, CleanResult.NoChanges })]
     public async Task ReturnFirstNonNotApplicableResult(CleanResult expected, CleanResult[] results)
     {
-        var archive = new ExtractsZipArchiveTestData().ZipArchiveWithEmptyFiles;
+        var archive = new ExtractV1ZipArchiveTestData().ZipArchiveWithEmptyFiles;
 
         var cleaner = new FakeVersionedZipArchiveCleaner(results);
 

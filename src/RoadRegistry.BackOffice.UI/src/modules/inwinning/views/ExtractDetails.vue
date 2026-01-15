@@ -32,6 +32,10 @@
                   <vl-button v-if="isDownloading" mod-loading> Download extract... </vl-button>
                   <vl-button v-else @click="downloadExtract()"> Download extract </vl-button>
                 </span>
+                <span v-if="downloadAvailable && !extract.uploadStatus" style="margin-left: 1rem">
+                  <vl-button v-if="isDownloading" mod-loading> Genereer extract opnieuw... </vl-button>
+                  <vl-button v-else @click="requestExtractAgain()"> Genereer extract opnieuw </vl-button>
+                </span>
                 <span v-if="extract.uploadStatus" style="margin-left: 1rem">
                   <vl-button v-if="isDownloading" mod-loading> Download upload... </vl-button>
                   <vl-button v-else @click="downloadUpload()"> Download upload </vl-button>
@@ -496,6 +500,44 @@ export default defineComponent({
       } finally {
         this.isDownloading = false;
       }
+    },
+    async requestExtractAgain(): Promise<void> {
+      //TODO-pr fill
+      /* 
+            this.isSubmitting = true;
+      try {
+        this.municipalityFlow.validationErrors = [];
+        this.municipalityFlow.hasGenericError = false;
+
+        if (!this.municipalityFlowHasIsInformative) {
+          return;
+        }
+
+        const requestData: RoadRegistry.ExtractDownloadaanvraagPerNisCodeBody = {
+          nisCode: this.municipalityFlow.nisCode,
+          beschrijving: this.municipalityFlowDescription,
+          informatief: this.municipalityFlow.isInformative as boolean,
+        };
+
+        let downloadExtractResponse = await PublicApi.Inwinning.requestExtract(requestData);
+
+        this.$router.push({
+          name: "inwinningExtractDetails",
+          params: { downloadId: downloadExtractResponse.downloadId },
+        });
+      } catch (exception) {
+        if (exception instanceof RoadRegistryExceptions.BadRequestError) {
+          this.municipalityFlow.validationErrors = ValidationUtils.convertValidationErrorsToArray(
+            exception.error.validationErrors
+          );
+        } else {
+          console.error("Submit municipality failed", exception);
+          this.municipalityFlow.hasGenericError = true;
+        }
+      } finally {
+        this.isSubmitting = false;
+      }
+      */
     },
     async downloadUpload(): Promise<void> {
       this.isDownloading = true;

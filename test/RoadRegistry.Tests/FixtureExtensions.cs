@@ -12,20 +12,17 @@ using Extracts;
 using Extracts.Infrastructure.Dbase;
 using Extracts.Infrastructure.Extensions;
 using Extracts.Infrastructure.ShapeFile;
-using Extracts.Schemas.ExtractV1;
-using Extracts.Schemas.ExtractV1.RoadNodes;
-using Extracts.Schemas.ExtractV1.RoadSegments;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NodaTime;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Extensions;
-using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Messages;
+using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = NetTopologySuite.Geometries.Polygon;
+using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public static class Customizations
 {
@@ -123,8 +120,8 @@ public static class Customizations
 
     public static MemoryStream CreateRoadNodeShapeFile(this IFixture fixture, ICollection<PointShapeContent> shapes)
     {
-        return CreateShapeFile(NetTopologySuite.IO.Esri.ShapeType.Point, shapes
-            .Select(x => Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(x.Shape)));
+        return CreateShapeFile(ShapeType.Point, shapes
+            .Select(x => GeometryTranslator.ToGeometryPoint(x.Shape)));
     }
 
     public static MemoryStream CreateRoadNodeShapeFileWithOneRecord(this IFixture fixture)
@@ -134,14 +131,14 @@ public static class Customizations
 
     public static MemoryStream CreateRoadSegmentShapeFile(this IFixture fixture, ICollection<PolyLineMShapeContent> shapes)
     {
-        return CreateShapeFile(NetTopologySuite.IO.Esri.ShapeType.PolyLineM, shapes
-            .Select(x => Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiLineString(x.Shape)));
+        return CreateShapeFile(ShapeType.PolyLineM, shapes
+            .Select(x => GeometryTranslator.ToGeometryMultiLineString(x.Shape)));
     }
 
     public static MemoryStream CreateTransactionZoneShapeFile(this IFixture fixture, ICollection<PolygonShapeContent> shapes)
     {
-        return CreateShapeFile(NetTopologySuite.IO.Esri.ShapeType.Polygon, shapes
-            .Select(x => Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPolygon(x.Shape)));
+        return CreateShapeFile(ShapeType.Polygon, shapes
+            .Select(x => GeometryTranslator.ToGeometryPolygon(x.Shape)));
     }
 
     public static MemoryStream CreateRoadSegmentShapeFileWithOneRecord(this IFixture fixture, PolyLineMShapeContent polyLineMShapeContent = null)
@@ -154,7 +151,7 @@ public static class Customizations
         return CreateRoadSegmentShapeFile(fixture, [polyLineMShapeContent]);
     }
 
-    private static MemoryStream CreateShapeFile(NetTopologySuite.IO.Esri.ShapeType shapeType, IEnumerable<Geometry> geometries)
+    private static MemoryStream CreateShapeFile(ShapeType shapeType, IEnumerable<Geometry> geometries)
     {
         ArgumentNullException.ThrowIfNull(geometries);
 
@@ -174,118 +171,6 @@ public static class Customizations
 
         using var entryStream = entry.Open();
         return entryStream.CopyToNewMemoryStream();
-    }
-
-    public static ZipArchive CreateUploadZipArchive(this Fixture fixture,
-        ExtractsZipArchiveTestData testData,
-        MemoryStream roadSegmentShapeChangeStream = null,
-        MemoryStream roadSegmentProjectionFormatStream = null,
-        MemoryStream roadSegmentDbaseChangeStream = null,
-        MemoryStream roadNodeShapeChangeStream = null,
-        MemoryStream roadNodeProjectionFormatStream = null,
-        MemoryStream roadNodeDbaseChangeStream = null,
-        MemoryStream europeanRoadChangeStream = null,
-        MemoryStream numberedRoadChangeStream = null,
-        MemoryStream nationalRoadChangeStream = null,
-        MemoryStream laneChangeStream = null,
-        MemoryStream widthChangeStream = null,
-        MemoryStream surfaceChangeStream = null,
-        MemoryStream gradeSeparatedJunctionChangeStream = null,
-        MemoryStream roadSegmentShapeExtractStream = null,
-        MemoryStream roadSegmentDbaseExtractStream = null,
-        MemoryStream roadNodeShapeExtractStream = null,
-        MemoryStream roadNodeDbaseExtractStream = null,
-        MemoryStream europeanRoadExtractStream = null,
-        MemoryStream numberedRoadExtractStream = null,
-        MemoryStream nationalRoadExtractStream = null,
-        MemoryStream laneExtractStream = null,
-        MemoryStream widthExtractStream = null,
-        MemoryStream surfaceExtractStream = null,
-        MemoryStream gradeSeparatedJunctionExtractStream = null,
-        MemoryStream transactionZoneStream = null,
-        MemoryStream roadSegmentShapeIntegrationStream = null,
-        MemoryStream roadSegmentDbaseIntegrationStream = null,
-        MemoryStream roadNodeShapeIntegrationStream = null,
-        MemoryStream roadNodeDbaseIntegrationStream = null,
-        MemoryStream archiveStream = null,
-        ICollection<string> excludeFileNames = null
-    )
-    {
-        var files = new Dictionary<string, Stream>
-        {
-            { "IWEGSEGMENT.SHP", roadSegmentShapeIntegrationStream ?? fixture.CreateEmptyRoadSegmentShapeFile() },
-            { "IWEGSEGMENT.DBF", roadSegmentDbaseIntegrationStream ?? fixture.CreateEmptyDbfFile<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema) },
-            { "IWEGSEGMENT.PRJ", roadSegmentProjectionFormatStream },
-            { "EWEGSEGMENT.SHP", roadSegmentShapeExtractStream },
-            { "EWEGSEGMENT.DBF", roadSegmentDbaseExtractStream },
-            { "EWEGSEGMENT.PRJ", roadSegmentProjectionFormatStream },
-            { "WEGSEGMENT.SHP", roadSegmentShapeChangeStream },
-            { "WEGSEGMENT.DBF", roadSegmentDbaseChangeStream },
-            { "WEGSEGMENT.PRJ", roadSegmentProjectionFormatStream },
-            { "IWEGKNOOP.SHP", roadNodeShapeIntegrationStream ?? fixture.CreateEmptyRoadNodeShapeFile() },
-            { "IWEGKNOOP.DBF", roadNodeDbaseIntegrationStream ?? fixture.CreateEmptyDbfFile<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema) },
-            { "IWEGKNOOP.PRJ", roadNodeProjectionFormatStream },
-            { "EWEGKNOOP.SHP", roadNodeShapeExtractStream },
-            { "EWEGKNOOP.DBF", roadNodeDbaseExtractStream },
-            { "EWEGKNOOP.PRJ", roadNodeProjectionFormatStream },
-            { "WEGKNOOP.SHP", roadNodeShapeChangeStream },
-            { "WEGKNOOP.DBF", roadNodeDbaseChangeStream },
-            { "WEGKNOOP.PRJ", roadNodeProjectionFormatStream },
-            { "ATTEUROPWEG.DBF", europeanRoadChangeStream },
-            { "EATTEUROPWEG.DBF", europeanRoadExtractStream },
-            { "ATTGENUMWEG.DBF", numberedRoadChangeStream },
-            { "EATTGENUMWEG.DBF", numberedRoadExtractStream },
-            { "ATTNATIONWEG.DBF", nationalRoadChangeStream },
-            { "EATTNATIONWEG.DBF", nationalRoadExtractStream },
-            { "ATTRIJSTROKEN.DBF", laneChangeStream },
-            { "EATTRIJSTROKEN.DBF", laneExtractStream },
-            { "ATTWEGBREEDTE.DBF", widthChangeStream },
-            { "EATTWEGBREEDTE.DBF", widthExtractStream },
-            { "ATTWEGVERHARDING.DBF", surfaceChangeStream },
-            { "EATTWEGVERHARDING.DBF", surfaceExtractStream },
-            { "RLTOGKRUISING.DBF", gradeSeparatedJunctionChangeStream },
-            { "ERLTOGKRUISING.DBF", gradeSeparatedJunctionExtractStream },
-            { "TRANSACTIEZONES.DBF", transactionZoneStream ?? fixture.CreateDbfFileWithOneRecord<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema) }
-        };
-
-        var random = new Random(fixture.Create<int>());
-        var fileNames = files.Keys.ToList();
-        if (excludeFileNames is not null && excludeFileNames.Any())
-        {
-            fileNames = fileNames.Where(fileName => !excludeFileNames.Contains(fileName, StringComparer.InvariantCultureIgnoreCase)).ToList();
-        }
-        var writeOrder = fileNames.OrderBy(_ => random.Next()).ToArray();
-
-        var leaveArchiveStreamOpen = archiveStream is not null;
-        archiveStream ??= new MemoryStream();
-
-        var archive = new ZipArchive(archiveStream, ZipArchiveMode.Update, leaveArchiveStreamOpen, Encoding.UTF8);
-        foreach (var file in writeOrder)
-        {
-            var stream = files[file];
-            if (stream is not null)
-            {
-                stream.Position = 0;
-                using var entryStream = archive.CreateEntry(file).Open();
-                stream.CopyTo(entryStream);
-            }
-            else
-            {
-                var extractFileEntry = testData.ZipArchiveWithEmptyFiles.Entries.SingleOrDefault(x => string.Equals(x.Name, file, StringComparison.InvariantCultureIgnoreCase));
-                if (extractFileEntry is null)
-                {
-                    throw new Exception($"No file found in {nameof(testData.ZipArchiveWithEmptyFiles)} with name {file}");
-                }
-
-                using var extractFileEntryStream = extractFileEntry.Open();
-                using var entryStream = archive.CreateEntry(file).Open();
-                extractFileEntryStream.CopyTo(entryStream);
-            }
-        }
-
-        archiveStream.Position = 0;
-
-        return archive;
     }
 
     public static T CreateWhichIsDifferentThan<T>(this IFixture fixture, params T[] illegalValues)
@@ -391,7 +276,7 @@ public static class Customizations
                     {
                         Id = fixture.Create<RoadNodeId>(),
                         Type = fixture.Create<RoadNodeType>(),
-                        Geometry = GeometryTranslator.Translate(fixture.Create<Point>()),
+                        Geometry = RoadRegistry.BackOffice.GeometryTranslator.Translate(fixture.Create<Point>()),
                         Origin = fixture.Create<ImportedOriginProperties>()
                     }
                 )
@@ -410,7 +295,7 @@ public static class Customizations
                         Version = fixture.Create<int>(),
                         StartNodeId = fixture.Create<RoadNodeId>(),
                         EndNodeId = fixture.Create<RoadNodeId>(),
-                        Geometry = GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
+                        Geometry = RoadRegistry.BackOffice.GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
                         GeometryVersion = fixture.Create<GeometryVersion>(),
                         MaintenanceAuthority = new MaintenanceAuthority
                         {
@@ -631,7 +516,7 @@ public static class Customizations
                         Id = fixture.Create<RoadNodeId>(),
                         TemporaryId = fixture.Create<RoadNodeId>(),
                         Type = fixture.Create<RoadNodeType>(),
-                        Geometry = GeometryTranslator.Translate(fixture.Create<Point>()),
+                        Geometry = RoadRegistry.BackOffice.GeometryTranslator.Translate(fixture.Create<Point>()),
                         Version = 1
                     }
                 )
@@ -648,7 +533,7 @@ public static class Customizations
                     {
                         Id = fixture.Create<RoadNodeId>(),
                         Type = fixture.Create<RoadNodeType>(),
-                        Geometry = GeometryTranslator.Translate(fixture.Create<Point>()),
+                        Geometry = RoadRegistry.BackOffice.GeometryTranslator.Translate(fixture.Create<Point>()),
                         Version = fixture.Create<RoadNodeVersion>()
                     }
                 )
@@ -712,7 +597,7 @@ public static class Customizations
                         Id = fixture.Create<RoadSegmentId>(),
                         TemporaryId = fixture.Create<RoadSegmentId>(),
                         Category = fixture.Create<RoadSegmentCategory>(),
-                        Geometry = GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
+                        Geometry = RoadRegistry.BackOffice.GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
                         Lanes = fixture.CreateMany<RoadSegmentLaneAttributes>(generator.Next(1, 5)).ToArray(),
                         Morphology = fixture.Create<RoadSegmentMorphology>(),
                         Surfaces = fixture.CreateMany<RoadSegmentSurfaceAttributes>(generator.Next(1, 5)).ToArray(),
@@ -837,7 +722,7 @@ public static class Customizations
                     {
                         Id = fixture.Create<RoadSegmentId>(),
                         Version = fixture.Create<int>(),
-                        Geometry = GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
+                        Geometry = RoadRegistry.BackOffice.GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
                         GeometryVersion = fixture.Create<GeometryVersion>(),
                         Lanes = fixture.CreateMany<RoadSegmentLaneAttributes>(10).ToArray(),
                         Surfaces = fixture.CreateMany<RoadSegmentSurfaceAttributes>(10).ToArray(),
@@ -905,7 +790,7 @@ public static class Customizations
                     {
                         Id = fixture.Create<RoadSegmentId>(),
                         Category = fixture.Create<RoadSegmentCategory>(),
-                        Geometry = GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
+                        Geometry = RoadRegistry.BackOffice.GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
                         Lanes = fixture.CreateMany<RoadSegmentLaneAttributes>(generator.Next(1, 5)).ToArray(),
                         Morphology = fixture.Create<RoadSegmentMorphology>(),
                         Surfaces = fixture.CreateMany<RoadSegmentSurfaceAttributes>(generator.Next(1, 5)).ToArray(),
@@ -1264,7 +1149,7 @@ public static class Customizations
 
     public static PointShapeContent ToShapeContent(this Point point)
     {
-        return new PointShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(point));
+        return new PointShapeContent(GeometryTranslator.FromGeometryPoint(point));
     }
     public static PolyLineMShapeContent ToShapeContent(this LineString lineString)
     {
@@ -1273,13 +1158,13 @@ public static class Customizations
     public static PolyLineMShapeContent ToShapeContent(this MultiLineString lineString)
     {
         return new PolyLineMShapeContent(
-            Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(lineString)
+            GeometryTranslator.FromGeometryMultiLineString(lineString)
         );
     }
     public static PolygonShapeContent ToShapeContent(this Polygon polygon)
     {
         return new PolygonShapeContent(
-            Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPolygon(polygon)
+            GeometryTranslator.FromGeometryPolygon(polygon)
         );
     }
 

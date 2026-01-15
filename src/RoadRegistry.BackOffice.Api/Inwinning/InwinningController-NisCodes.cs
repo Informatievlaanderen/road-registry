@@ -42,7 +42,6 @@ public partial class InwinningController
         }
 
         var excludeNisCodes = await extractsDbContext.Inwinningszones
-            .Where(x => x.Completed || x.Operator != @operator)
             .Select(x => x.NisCode)
             .ToListAsync(cancellationToken);
 

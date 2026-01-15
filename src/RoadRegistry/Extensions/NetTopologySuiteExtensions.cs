@@ -215,6 +215,17 @@ public static class NetTopologySuiteExtensions
         return geometry;
     }
 
+    public static T FillSridIfMissing<T>(this T geometry)
+        where T : Geometry
+    {
+        if (geometry.SRID == 0)
+        {
+            geometry.SRID = GeometryConfiguration.GeometryFactory.SRID;
+        }
+
+        return geometry;
+    }
+
     public static MultiLineString WithMeasureOrdinates(this MultiLineString multiLineString)
     {
         var lineStrings = multiLineString.Geometries

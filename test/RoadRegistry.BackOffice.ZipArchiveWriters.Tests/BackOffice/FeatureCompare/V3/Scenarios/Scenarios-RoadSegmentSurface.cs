@@ -7,6 +7,7 @@ using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extracts.FeatureCompare.V3;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V2;
 using ValueObjects.ProblemCodes;
 using Xunit.Abstractions;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
@@ -21,7 +22,7 @@ public class RoadSegmentSurfaceScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task NotAdjacentFromToPositionShouldGiveProblem()
     {
-        var zipArchive = new ExtractsZipArchiveBuilder()
+        var zipArchive = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var surfaceDbaseRecord1 = builder.CreateRoadSegmentSurfaceDbaseRecord();
@@ -45,7 +46,7 @@ public class RoadSegmentSurfaceScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task NonZeroFromPositionShouldGiveProblem()
     {
-        var zipArchive = new ExtractsZipArchiveBuilder()
+        var zipArchive = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.TestData.RoadSegment1SurfaceDbaseRecord.VANPOS.Value = 1;
@@ -60,7 +61,7 @@ public class RoadSegmentSurfaceScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task EqualFromToPositionShouldGiveProblem()
     {
-        var zipArchive = new ExtractsZipArchiveBuilder()
+        var zipArchive = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var surfaceDbaseRecord1 = builder.CreateRoadSegmentSurfaceDbaseRecord();
@@ -89,7 +90,7 @@ public class RoadSegmentSurfaceScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ToPositionDifferentThanSegmentLengthShouldGiveProblem()
     {
-        var zipArchive = new ExtractsZipArchiveBuilder()
+        var zipArchive = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length - 1;
@@ -104,7 +105,7 @@ public class RoadSegmentSurfaceScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task SingleRecordWithZeroToPositionShouldSucceed()
     {
-        var zipArchive = new ExtractsZipArchiveBuilder()
+        var zipArchive = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = 0;
@@ -117,7 +118,7 @@ public class RoadSegmentSurfaceScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task RoadSegmentsWithoutSurfaceAttributesShouldGiveProblem()
     {
-        var zipArchive = new ExtractsZipArchiveBuilder()
+        var zipArchive = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.DataSet.SurfaceDbaseRecords.Clear();
@@ -131,7 +132,7 @@ public class RoadSegmentSurfaceScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task UsingUnknownRoadSegmentShouldGiveProblem()
     {
-        var zipArchive = new ExtractsZipArchiveBuilder()
+        var zipArchive = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var laneDbaseRecord3 = builder.CreateRoadSegmentSurfaceDbaseRecord();

@@ -5,7 +5,7 @@ using Marten;
 
 public static class RoadNetworkChangesProjectionExtensions
 {
-    public static StoreOptions AddRoadNetworkChangesProjection<T>(this StoreOptions options, T projection)
+    public static StoreOptions AddRoadNetworkChangesProjection<T>(this StoreOptions options, T projection, int batchSize = 5000)
         where T : RoadNetworkChangesProjection
     {
         projection.Configure(options);
@@ -15,7 +15,7 @@ public static class RoadNetworkChangesProjectionExtensions
             asyncConfiguration: opts =>
             {
                 opts.EnableDocumentTrackingByIdentity = true;
-                opts.BatchSize = 10000;
+                opts.BatchSize = batchSize;
             });
 
         return options;

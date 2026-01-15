@@ -7,6 +7,7 @@ using RoadRegistry.BackOffice.FeatureCompare.V2;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V1;
 using Xunit.Abstractions;
 
 public class NumberedRoadScenarios : FeatureCompareTranslatorScenariosBase
@@ -19,7 +20,7 @@ public class NumberedRoadScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task UnknownRoadSegmentShouldGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.WS_OIDN.Value = context.Fixture.CreateWhichIsDifferentThan(
@@ -35,7 +36,7 @@ public class NumberedRoadScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task GivenDuplicateRecords_WhenSegmentIdentical_ThenOnlyOneIsDeleted()
     {
-        var zipArchive = new ExtractsZipArchiveBuilder()
+        var zipArchive = new ExtractV1ZipArchiveBuilder()
             .WithExtract((builder, _) =>
             {
                 builder.TestData.RoadSegment1NumberedRoadDbaseRecord2.IDENT8.Value = builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.IDENT8.Value;
@@ -53,7 +54,7 @@ public class NumberedRoadScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task GivenDuplicateRecords_WhenSegmentModified_ThenOnlyOneIsDeleted()
     {
-        var zipArchive = new ExtractsZipArchiveBuilder()
+        var zipArchive = new ExtractV1ZipArchiveBuilder()
             .WithExtract((builder, _) =>
             {
                 builder.TestData.RoadSegment1DbaseRecord.STATUS.Value = RoadSegmentStatus.Unknown.Translation.Identifier;

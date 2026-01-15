@@ -7,6 +7,8 @@ using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extracts.FeatureCompare.V3;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V1;
+using RoadRegistry.Tests.BackOffice.Extracts.V2;
 using Scenarios;
 using Xunit.Abstractions;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
@@ -44,23 +46,17 @@ public class ExtractRequiredFilesTests : FeatureCompareTranslatorScenariosBase
             { "WEGSEGMENT.PRJ", true },
             { "EWEGSEGMENT.PRJ", true },
             { "IWEGSEGMENT.PRJ", false },
-            { "ATTRIJSTROKEN.DBF", false },
-            { "EATTRIJSTROKEN.DBF", false },
-            { "ATTWEGBREEDTE.DBF", false },
-            { "EATTWEGBREEDTE.DBF", false },
             { "ATTWEGVERHARDING.DBF", true },
             { "EATTWEGVERHARDING.DBF", true },
             { "ATTEUROPWEG.DBF", true },
             { "EATTEUROPWEG.DBF", true },
             { "ATTNATIONWEG.DBF", true },
             { "EATTNATIONWEG.DBF", true },
-            { "ATTGENUMWEG.DBF", false },
-            { "EATTGENUMWEG.DBF", false },
             { "RLTOGKRUISING.DBF", true },
             { "ERLTOGKRUISING.DBF", true }
         };
 
-        Assert.Equal(new ExtractsZipArchiveTestData().ZipArchiveWithEmptyFiles.Entries.Count, requiredFiles.Count);
+        Assert.Equal(new ExtractV2ZipArchiveTestData().ZipArchiveWithEmptyFiles.Entries.Count, requiredFiles.Count);
 
         foreach (var requiredFile in requiredFiles)
         {
@@ -68,7 +64,7 @@ public class ExtractRequiredFilesTests : FeatureCompareTranslatorScenariosBase
             var isRequired = requiredFile.Value;
             TestOutputHelper.WriteLine($"{fileName}: {isRequired}");
 
-            var zipArchive = new ExtractsZipArchiveBuilder()
+            var zipArchive = new ExtractV2ZipArchiveBuilder()
                 .ExcludeFileNames(fileName)
                 .Build();
 

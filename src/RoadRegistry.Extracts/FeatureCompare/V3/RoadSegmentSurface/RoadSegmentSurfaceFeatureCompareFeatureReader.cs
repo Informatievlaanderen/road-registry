@@ -18,8 +18,7 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
     private const ExtractFileName FileName = ExtractFileName.AttWegverharding;
 
     public RoadSegmentSurfaceFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new ExtractsFeatureReader(encoding),
-            new UploadsV2FeatureReader(encoding))
+        : base(new ExtractsFeatureReader(encoding))
     {
     }
 
@@ -94,26 +93,6 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
         }
 
         protected override (Feature<RoadSegmentSurfaceFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadSegmentSurfaceAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
-        {
-            return new DbaseRecordData
-            {
-                WV_OIDN = dbaseRecord.WV_OIDN.GetValue(),
-                WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
-                VANPOS = dbaseRecord.VANPOS.GetValue(),
-                TOTPOS = dbaseRecord.TOTPOS.GetValue(),
-                TYPE = dbaseRecord.TYPE.GetValue()
-            }.ToFeature(featureType, FileName, recordNumber);
-        }
-    }
-
-    private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Schemas.UploadV2.RoadSegmentSurfaceAttributeDbaseRecord, Feature<RoadSegmentSurfaceFeatureCompareAttributes>>
-    {
-        public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, RoadSegmentSurfaceFeatureCompareFeatureReader.FileName, Schemas.UploadV2.RoadSegmentSurfaceAttributeDbaseRecord.Schema)
-        {
-        }
-
-        protected override (Feature<RoadSegmentSurfaceFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Schemas.UploadV2.RoadSegmentSurfaceAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {

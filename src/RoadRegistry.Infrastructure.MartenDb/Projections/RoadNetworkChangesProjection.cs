@@ -17,6 +17,9 @@ public abstract class RoadNetworkChangesProjection : IProjection
     {
     }
 
+    //TODO-pr in table bijhouden welke correlationids zijn verwerkt (incl hun hoogste eventposition + projection name)
+    //wanneer batchsize gelijk is aan max, dan aparte query'en voor nog meer data op te halen
+    //tbd: indien te traag dan dit enkel doen wanneer de projectie dichtbij het einde is (bvb -50k)
     public async Task ApplyAsync(IDocumentOperations operations, IReadOnlyList<IEvent> events, CancellationToken cancellation)
     {
         foreach (var projection in _projections)

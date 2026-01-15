@@ -8,6 +8,7 @@ using RoadRegistry.Extracts.DutchTranslations;
 using RoadRegistry.Extracts.FeatureCompare.V3;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V2;
 using Xunit.Abstractions;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
 
@@ -23,7 +24,7 @@ public class EuropeanRoadScenarios : FeatureCompareTranslatorScenariosBase
     {
         string expectedTranslatedProblemMessage = null;
 
-        var zipArchive = new ExtractsZipArchiveBuilder()
+        var zipArchive = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.TestData.RoadSegment1EuropeanRoadDbaseRecord2.EUNUMMER.Value = builder.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value;
@@ -42,7 +43,7 @@ public class EuropeanRoadScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task UnknownRoadSegmentShouldGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.TestData.RoadSegment1EuropeanRoadDbaseRecord1.WS_OIDN.Value = context.Fixture.CreateWhichIsDifferentThan(

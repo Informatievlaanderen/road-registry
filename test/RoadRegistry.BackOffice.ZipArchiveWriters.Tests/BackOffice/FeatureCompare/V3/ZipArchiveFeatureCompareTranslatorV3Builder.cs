@@ -11,7 +11,6 @@ namespace RoadRegistry.Tests
     using Extracts.FeatureCompare.V3.TransactionZone;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
-    using RoadRegistry.BackOffice;
     using RoadRegistry.Infrastructure;
     using IZipArchiveFeatureCompareTranslator = Extracts.FeatureCompare.V3.IZipArchiveFeatureCompareTranslator;
 

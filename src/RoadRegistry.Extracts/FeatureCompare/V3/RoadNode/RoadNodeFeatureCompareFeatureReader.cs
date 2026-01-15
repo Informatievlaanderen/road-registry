@@ -19,8 +19,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
     private const ExtractFileName FileName = ExtractFileName.Wegknoop;
 
     public RoadNodeFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new ExtractsFeatureReader(encoding),
-            new UploadsV2FeatureReader(encoding))
+        : base(new ExtractsFeatureReader(encoding))
     {
         _encoding = encoding;
     }
@@ -82,24 +81,6 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
         }
 
         protected override (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadNodeDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
-        {
-            return new RecordData
-            {
-                WK_OIDN = dbaseRecord.WK_OIDN.GetValue(),
-                TYPE = dbaseRecord.TYPE.GetValue(),
-                Geometry = geometry
-            }.ToFeature(featureType, FileName, recordNumber);
-        }
-    }
-
-    private sealed class UploadsV2FeatureReader : ZipArchiveShapeFeatureReader<Schemas.UploadV2.RoadNodeDbaseRecord, Feature<RoadNodeFeatureCompareAttributes>>
-    {
-        public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, RoadNodeFeatureCompareFeatureReader.FileName, Schemas.UploadV2.RoadNodeDbaseRecord.Schema)
-        {
-        }
-
-        protected override (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Schemas.UploadV2.RoadNodeDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
         {
             return new RecordData
             {

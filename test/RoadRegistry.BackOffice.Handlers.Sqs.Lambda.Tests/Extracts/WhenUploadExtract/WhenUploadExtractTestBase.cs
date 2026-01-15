@@ -16,6 +16,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V1;
 using RoadRegistry.Tests.Framework;
 using SqlStreamStore;
 using Xunit.Abstractions;
@@ -58,7 +59,7 @@ public abstract class WhenUploadExtractTestBase : BackOfficeLambdaTest
                     ContentType.Parse("application/zip"),
                     _ =>
                     {
-                        var archiveStream = new ExtractsZipArchiveBuilder()
+                        var archiveStream = new ExtractV1ZipArchiveBuilder()
                             .BuildArchiveStream();
                         return Task.FromResult<Stream>(archiveStream);
                     }));

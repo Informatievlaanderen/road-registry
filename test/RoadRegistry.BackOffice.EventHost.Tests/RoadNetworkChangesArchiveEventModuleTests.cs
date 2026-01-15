@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using RoadRegistry.Extracts;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V1;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using Uploads;
 using Xunit.Abstractions;
@@ -89,7 +90,7 @@ public class RoadNetworkChangesArchiveEventModuleTests : RoadNetworkTestBase
             {
                 return new BlobObject(new BlobName("archive.zip"), Metadata.None, new ContentType(), _ =>
                 {
-                    var archiveStream = new ExtractsZipArchiveBuilder()
+                    var archiveStream = new ExtractV1ZipArchiveBuilder()
                         .BuildArchiveStream();
                     return Task.FromResult<Stream>(archiveStream);
                 });

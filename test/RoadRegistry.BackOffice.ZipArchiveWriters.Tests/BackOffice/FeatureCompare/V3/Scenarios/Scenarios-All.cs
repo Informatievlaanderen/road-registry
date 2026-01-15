@@ -1,13 +1,12 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.V3.Scenarios;
 
-using Be.Vlaanderen.Basisregisters.Shaperon;
 using GradeSeparatedJunction.Changes;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using RoadNode.Changes;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.V3;
-using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Extracts.V2;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
 using Xunit.Abstractions;
@@ -24,7 +23,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task Added()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithExtract((builder, _) =>
             {
                 builder.DataSet.RoadNodeDbaseRecords = new[] { builder.TestData.RoadNode3DbaseRecord, builder.TestData.RoadNode4DbaseRecord }.ToList();
@@ -33,10 +32,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 builder.DataSet.RoadSegmentShapeRecords = new[] { builder.TestData.RoadSegment2ShapeRecord }.ToList();
                 builder.DataSet.EuropeanRoadDbaseRecords.Clear();
                 builder.DataSet.NationalRoadDbaseRecords.Clear();
-                builder.DataSet.NumberedRoadDbaseRecords.Clear();
-                builder.DataSet.LaneDbaseRecords = new[] { builder.TestData.RoadSegment2LaneDbaseRecord }.ToList();
                 builder.DataSet.SurfaceDbaseRecords = new[] { builder.TestData.RoadSegment2SurfaceDbaseRecord }.ToList();
-                builder.DataSet.WidthDbaseRecords = new[] { builder.TestData.RoadSegment2WidthDbaseRecord }.ToList();
                 builder.DataSet.GradeSeparatedJunctionDbaseRecords.Clear();
             })
             .BuildWithResult(context =>
@@ -107,13 +103,14 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task Modified()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
 
                 builder.TestData.RoadNode1DbaseRecord.TYPE.Value = fixture.CreateWhichIsDifferentThan(RoadNodeType.ByIdentifier[builder.TestData.RoadNode1DbaseRecord.TYPE.Value]).Translation.Identifier;
-                builder.TestData.RoadNode1ShapeRecord.Geometry = new Point(builder.TestData.RoadNode1ShapeRecord.Geometry.X + 0.01, builder.TestData.RoadNode1ShapeRecord.Geometry.Y);
+                builder.TestData.RoadNode1ShapeRecord.Geometry = new Point(builder.TestData.RoadNode1ShapeRecord.Geometry.X + 0.01, builder.TestData.RoadNode1ShapeRecord.Geometry.Y)
+                    .FillSridIfMissing();
 
                 builder.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = builder.TestData.RoadNode3DbaseRecord.WK_OIDN.Value;
                 builder.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value = builder.TestData.RoadNode4DbaseRecord.WK_OIDN.Value;
@@ -129,15 +126,10 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                     new CoordinateM(builder.TestData.RoadNode2ShapeRecord.Geometry.X, builder.TestData.RoadNode2ShapeRecord.Geometry.Y, builder.TestData.RoadNode2ShapeRecord.Geometry.X)
                 ]);
                 builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
-                builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
                 builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
-                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
 
                 builder.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value = fixture.CreateWhichIsDifferentThan(EuropeanRoadNumber.Parse(builder.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value!), EuropeanRoadNumber.Parse(builder.TestData.RoadSegment1EuropeanRoadDbaseRecord2.EUNUMMER.Value!)).ToString();
                 builder.TestData.RoadSegment1NationalRoadDbaseRecord1.IDENT2.Value = fixture.CreateWhichIsDifferentThan(NationalRoadNumber.Parse(builder.TestData.RoadSegment1NationalRoadDbaseRecord1.IDENT2.Value!), NationalRoadNumber.Parse(builder.TestData.RoadSegment1NationalRoadDbaseRecord2.IDENT2.Value!)).ToString();
-                builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.IDENT8.Value = fixture.CreateWhichIsDifferentThan(NumberedRoadNumber.Parse(builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.IDENT8.Value!), NumberedRoadNumber.Parse(builder.TestData.RoadSegment1NumberedRoadDbaseRecord2.IDENT8.Value!)).ToString();
-                builder.TestData.RoadSegment1LaneDbaseRecord.RICHTING.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentLaneDirection.ByIdentifier[builder.TestData.RoadSegment1LaneDbaseRecord.RICHTING.Value]).Translation.Identifier;
-                builder.TestData.RoadSegment1WidthDbaseRecord.BREEDTE.Value = fixture.CreateWhichIsDifferentThan(new RoadSegmentWidth(builder.TestData.RoadSegment1WidthDbaseRecord.BREEDTE.Value));
                 builder.TestData.RoadSegment1SurfaceDbaseRecord.TYPE.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentSurfaceType.ByIdentifier[builder.TestData.RoadSegment1SurfaceDbaseRecord.TYPE.Value]).Translation.Identifier;
                 builder.TestData.GradeSeparatedJunctionDbaseRecord.TYPE.Value = fixture.CreateWhichIsDifferentThan(GradeSeparatedJunctionType.ByIdentifier[builder.TestData.GradeSeparatedJunctionDbaseRecord.TYPE.Value]).Translation.Identifier;
             })
@@ -224,7 +216,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task NoChanges()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .BuildWithResult(_ => TranslatedChanges.Empty);
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
@@ -233,7 +225,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task Removed()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.DataSet.RoadNodeDbaseRecords = new[] { builder.TestData.RoadNode3DbaseRecord, builder.TestData.RoadNode4DbaseRecord }.ToList();
@@ -242,10 +234,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 builder.DataSet.RoadSegmentShapeRecords = new[] { builder.TestData.RoadSegment2ShapeRecord }.ToList();
                 builder.DataSet.EuropeanRoadDbaseRecords.Clear();
                 builder.DataSet.NationalRoadDbaseRecords.Clear();
-                builder.DataSet.NumberedRoadDbaseRecords.Clear();
-                builder.DataSet.LaneDbaseRecords = new[] { builder.TestData.RoadSegment2LaneDbaseRecord }.ToList();
                 builder.DataSet.SurfaceDbaseRecords = new[] { builder.TestData.RoadSegment2SurfaceDbaseRecord }.ToList();
-                builder.DataSet.WidthDbaseRecords = new[] { builder.TestData.RoadSegment2WidthDbaseRecord }.ToList();
                 builder.DataSet.GradeSeparatedJunctionDbaseRecords.Clear();
             })
             .BuildWithResult(context => TranslatedChanges.Empty

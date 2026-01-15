@@ -13,8 +13,7 @@ public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
     private const ExtractFileName FileName = ExtractFileName.AttNationweg;
 
     public NationalRoadFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new ExtractsFeatureReader(encoding),
-            new UploadsV2FeatureReader(encoding))
+        : base(new ExtractsFeatureReader(encoding))
     {
     }
 
@@ -42,24 +41,6 @@ public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
         }
 
         protected override (Feature<NationalRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadSegmentNationalRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
-        {
-            return new DbaseRecordData
-            {
-                NW_OIDN = dbaseRecord.NW_OIDN.GetValue(),
-                WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
-                IDENT2 = dbaseRecord.IDENT2.GetValue()
-            }.ToFeature(featureType, FileName, recordNumber);
-        }
-    }
-
-    private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Schemas.UploadV2.RoadSegmentNationalRoadAttributeDbaseRecord, Feature<NationalRoadFeatureCompareAttributes>>
-    {
-        public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, NationalRoadFeatureCompareFeatureReader.FileName, Schemas.UploadV2.RoadSegmentNationalRoadAttributeDbaseRecord.Schema)
-        {
-        }
-
-        protected override (Feature<NationalRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Schemas.UploadV2.RoadSegmentNationalRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {
