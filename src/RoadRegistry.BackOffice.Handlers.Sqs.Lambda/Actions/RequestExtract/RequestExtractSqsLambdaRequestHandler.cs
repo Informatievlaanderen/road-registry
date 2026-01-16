@@ -33,11 +33,19 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
 
     protected override async Task<object> InnerHandle(RequestExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        await _extractRequester.BuildExtract(
-            new RequestExtractData(request.Request.ExtractRequestId, request.Request.DownloadId, request.Request.Contour.Value, request.Request.Description, request.Request.IsInformative, request.Request.ExternalRequestId),
-            new TicketId(request.TicketId),
-            request.Request.ZipArchiveWriterVersion,
-            request.Provenance, cancellationToken);
+        try
+        {
+            await _extractRequester.BuildExtract(
+                new RequestExtractData(request.Request.ExtractRequestId, request.Request.DownloadId, request.Request.Contour.Value, request.Request.Description, request.Request.IsInformative, request.Request.ExternalRequestId),
+                new TicketId(request.TicketId),
+                request.Request.ZipArchiveWriterVersion,
+                request.Provenance, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Failed building extract for DownloadId {request.Request.DownloadId}");
+            throw;
+        }
 
         var downloadId = new DownloadId(request.Request.DownloadId);
         return new RequestExtractResponse(downloadId);
