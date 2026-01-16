@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
+using BackOffice;
 using GradeSeparatedJunction.Events.V2;
 using JasperFx.Events;
 using Marten;
@@ -13,7 +14,7 @@ public class GradeSeparatedJunctionProjection : RoadNetworkChangesConnectedProje
     public static void Configure(StoreOptions options)
     {
         options.Schema.For<GradeSeparatedJunctionExtractItem>()
-            .DatabaseSchemaName("projections")
+            .DatabaseSchemaName(WellKnownSchemas.MartenProjections)
             .DocumentAlias("extract_gradeseparatedjunctions")
             .Identity(x => x.Id);
     }

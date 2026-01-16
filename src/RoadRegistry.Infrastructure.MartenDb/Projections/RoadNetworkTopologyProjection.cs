@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
+using BackOffice;
 using Marten.Events.Projections;
 using Weasel.Postgresql;
 using Weasel.Postgresql.Functions;
@@ -35,7 +36,7 @@ public partial class RoadNetworkTopologyProjection : EventProjection
         SchemaObjects.Add(table);
         Options.DeleteDataInTableOnTeardown(table.Identifier.QualifiedName);
 
-        SchemaObjects.Add(new Function(new PostgresqlObjectName("projections", "networktopology_delete_roadnode"), @$"
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_delete_roadnode"), @$"
 CREATE OR REPLACE FUNCTION projections.networktopology_delete_roadnode(p_id integer, p_timestamp timestamptz) RETURNS int AS
 $$
 DECLARE
@@ -58,7 +59,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;"));
 
-        SchemaObjects.Add(new Function(new PostgresqlObjectName("projections", "networktopology_update_roadnode"), @$"
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_update_roadnode"), @$"
 CREATE OR REPLACE FUNCTION projections.networktopology_update_roadnode(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer, p_is_v2 boolean) RETURNS int AS
 $$
 DECLARE
@@ -106,7 +107,7 @@ $$ LANGUAGE plpgsql;"));
         SchemaObjects.Add(table);
         Options.DeleteDataInTableOnTeardown(table.Identifier.QualifiedName);
 
-        SchemaObjects.Add(new Function(new PostgresqlObjectName("projections", "networktopology_delete_roadsegment"), @$"
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_delete_roadsegment"), @$"
 CREATE OR REPLACE FUNCTION projections.networktopology_delete_roadsegment(p_id integer, p_timestamp timestamptz) RETURNS int AS
 $$
 DECLARE
@@ -129,7 +130,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;"));
 
-        SchemaObjects.Add(new Function(new PostgresqlObjectName("projections", "networktopology_update_roadsegment"), @$"
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_update_roadsegment"), @$"
 CREATE OR REPLACE FUNCTION projections.networktopology_update_roadsegment(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer, p_start_node_id integer, p_end_node_id integer, p_is_v2 boolean) RETURNS int AS
 $$
 DECLARE
@@ -174,7 +175,7 @@ $$ LANGUAGE plpgsql;"));
         SchemaObjects.Add(table);
         Options.DeleteDataInTableOnTeardown(table.Identifier.QualifiedName);
 
-        SchemaObjects.Add(new Function(new PostgresqlObjectName("projections", "networktopology_delete_gradeseparatedjunction"), @$"
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_delete_gradeseparatedjunction"), @$"
 CREATE OR REPLACE FUNCTION projections.networktopology_delete_gradeseparatedjunction(p_id integer, p_timestamp timestamptz) RETURNS int AS
 $$
 DECLARE
@@ -197,7 +198,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;"));
 
-        SchemaObjects.Add(new Function(new PostgresqlObjectName("projections", "networktopology_update_gradeseparatedjunction"), @$"
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_update_gradeseparatedjunction"), @$"
 CREATE OR REPLACE FUNCTION projections.networktopology_update_gradeseparatedjunction(p_id integer, p_timestamp timestamptz, p_lower_road_segment_id integer, p_upper_road_segment_id integer) RETURNS int AS
 $$
 DECLARE

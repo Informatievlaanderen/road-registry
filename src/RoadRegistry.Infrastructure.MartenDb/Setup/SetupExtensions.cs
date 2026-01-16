@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Setup;
 
+using BackOffice;
 using GradeSeparatedJunction;
 using JasperFx.Events;
 using JasperFx.Events.Projections;
@@ -47,7 +48,7 @@ public static class SetupExtensions
 
     public static void ConfigureRoad(this StoreOptions options)
     {
-        options.DatabaseSchemaName = "eventstore";
+        options.DatabaseSchemaName = WellKnownSchemas.MartenEventStore;
 
         options.ConfigureSerializer();
 

@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj"/>
   </ItemGroup>
   <ItemGroup>

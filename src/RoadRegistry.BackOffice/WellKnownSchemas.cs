@@ -38,6 +38,8 @@ public static class WellKnownSchemas
     public const string RoadSegmentSurfaceProducerSnapshotSchema = "RoadRegistryRoadSegmentSurfaceProducerSnapshotSchema";
 
     public const string MartenMigrationSchema = "RoadRegistryMartenMigration";
+    public const string MartenEventStore = "eventstore";
+    public const string MartenProjections = "projections";
 }
 
 public static class MigrationTables
