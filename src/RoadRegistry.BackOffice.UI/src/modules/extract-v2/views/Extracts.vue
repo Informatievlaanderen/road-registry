@@ -227,7 +227,7 @@ export default defineComponent({
       return "";
     },
     extractIsInError(extract: RoadRegistry.ExtractListItem) {
-      return extract.downloadStatus === "Error" || extract.uploadStatus == "Rejected";
+      return !extract.gesloten && (extract.downloadStatus === "Error" || extract.uploadStatus == "Rejected");
     },
     formatDate(iso: string) {
       return DateFormat.format(iso);

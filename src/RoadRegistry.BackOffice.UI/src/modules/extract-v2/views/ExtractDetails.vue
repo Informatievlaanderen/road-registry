@@ -130,6 +130,7 @@ export default defineComponent({
   },
   data() {
     return {
+      unmounting: false,
       trackProgress: true,
       extract: undefined as RoadRegistry.ExtractDetailsV2 | undefined,
       downloadAvailable: false as boolean,
@@ -283,10 +284,15 @@ export default defineComponent({
   },
   unmounted() {
     this.trackProgress = false;
+    this.unmounting = true;
   },
   methods: {
     async waitUntilExtractDetailsIsAvailable(): Promise<void> {
       while (!this.downloadStatusMessage && this.trackProgress) {
+        if (this.unmounting) {
+          break;
+        }
+
         await this.loadExtractDetails();
 
         if (!this.downloadStatusMessage) {
@@ -301,6 +307,10 @@ export default defineComponent({
       return DateFormat.format(dateString);
     },
     async loadExtractDetails(): Promise<void> {
+      if (this.unmounting) {
+        return;
+      }
+
       try {
         let details = await PublicApi.Extracts.V2.getDetails(this.downloadId);
         this.extract = details;
@@ -338,14 +348,14 @@ export default defineComponent({
       }
     },
     async waitForTicketComplete(): Promise<void> {
-      if (!this.ticketId) {
+      if (!this.ticketId || this.unmounting) {
         return;
       }
 
       this.trackProgress = true;
 
       try {
-        while (this.trackProgress) {
+        while (this.trackProgress && !this.unmounting) {
           try {
             let ticketResult = await PublicApi.Ticketing.get(this.ticketId);
             this.ticketStatus = ticketResult.status;
@@ -360,6 +370,11 @@ export default defineComponent({
               case "RequestExtract":
                 this.handleTicketForDownload(ticketResult);
                 break;
+            }
+
+            if (ticketResult.status === "complete" || ticketResult.status === "error") {
+              this.trackProgress = false;
+              break;
             }
           } catch (err: any) {
             if (!this.handle400Or404Error(err)) {
@@ -387,11 +402,9 @@ export default defineComponent({
           this.ticketResponseCode = 1001;
           break;
         case "complete":
-          this.trackProgress = false;
           this.ticketResponseCode = 1002;
           break;
         case "error":
-          this.trackProgress = false;
           this.handleTicketError(ticketResult);
           break;
       }
@@ -406,7 +419,6 @@ export default defineComponent({
           break;
         case "complete":
           {
-            this.trackProgress = false;
             let uploadResult = camelizeKeys(JSON.parse(ticketResult.result.json));
 
             if (uploadResult.changes.length > 0) {
@@ -419,7 +431,6 @@ export default defineComponent({
           }
           break;
         case "error":
-          this.trackProgress = false;
           this.handleTicketError(ticketResult);
           break;
       }
@@ -431,11 +442,9 @@ export default defineComponent({
           this.ticketResponseCode = 1200;
           break;
         case "complete":
-          this.trackProgress = false;
           this.ticketResponseCode = 0;
           break;
         case "error":
-          this.trackProgress = false;
           this.handleTicketError(ticketResult);
           break;
       }
@@ -538,6 +547,10 @@ export default defineComponent({
         let response = await PublicApi.Extracts.V2.close(this.downloadId);
         let ticketId = response.ticketUrl.split("/").reverse()[0];
         await this.waitForTicketAndRefreshExtractDetails(ticketId);
+        while (this.ticketResponseCode === 0 && !this.extract!.gesloten && !this.unmounting) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          await this.loadExtractDetails();
+        }
       } finally {
         this.isClosing = false;
       }
