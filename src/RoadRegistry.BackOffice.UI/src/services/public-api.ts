@@ -283,6 +283,17 @@ export const PublicApi = {
 
         return response.data;
       },
+      close: async (downloadId: string): Promise<RoadRegistry.CloseExtractResponse> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.close(downloadId);
+        }
+
+        const path = `${apiEndpoint}/v2/wegen/extracten/${downloadId}/sluit`;
+        const response = await apiClient.post(path);
+        return {
+          ticketUrl: response.headers.location,
+        };
+      },
     },
     getDetails: async (downloadId: string) => {
       if (useBackOfficeApi) {

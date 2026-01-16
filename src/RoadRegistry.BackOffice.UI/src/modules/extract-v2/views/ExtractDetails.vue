@@ -36,6 +36,10 @@
                   <vl-button v-if="isDownloading" mod-loading> Download upload... </vl-button>
                   <vl-button v-else @click="downloadUpload()"> Download upload </vl-button>
                 </span>
+                <span v-if="userCanClose" style="margin-left: 1rem">
+                  <vl-button v-if="trackProgress" mod-loading> Sluit extract... </vl-button>
+                  <vl-button v-else @click="closeExtract()"> Sluit extract </vl-button>
+                </span>
                 <div v-if="downloadError">
                   <br />
                   <vl-alert :mod-error="true">
@@ -101,6 +105,7 @@ import ActivitySummary from "../../activity/components/ActivitySummary.vue";
 import UploadComponent from "./UploadComponent.vue";
 import DateFormat from "@/core/utils/date-format";
 import RoadRegistry from "@/types/road-registry";
+import { AuthService } from "@/auth";
 
 const camelizeKeys: any = (obj: any) => {
   if (Array.isArray(obj)) {
@@ -242,6 +247,10 @@ export default defineComponent({
           status.title = "Gelukt!";
           status.text = "Oplading is gelukt maar er zijn geen wijzigingen gevonden.";
           break;
+        case 1200:
+          status.title = "";
+          status.text = "Extract wordt gesloten.";
+          break;
         default:
           status.error = true;
           status.title = "Technische storing";
@@ -254,6 +263,16 @@ export default defineComponent({
     userCanUpload() {
       return (
         !this.extract?.informatief && this.downloadAvailable && !this.extract?.gesloten && this.extract?.gedownloadOp
+      );
+    },
+    userCanClose() {
+      return (
+        this.extract &&
+        !this.extract.informatief &&
+        !this.extract.gesloten &&
+        this.downloadStatusMessage &&
+        !this.trackProgress &&
+        AuthService.userHasAnyContext([RoadRegistry.UserContext.Admin])
       );
     },
   },
@@ -331,10 +350,16 @@ export default defineComponent({
             let ticketResult = await PublicApi.Ticketing.get(this.ticketId);
             this.ticketStatus = ticketResult.status;
 
-            if (ticketResult.metadata.action === "Upload") {
-              this.handleTicketForUpload(ticketResult);
-            } else {
-              this.handleTicketForDownload(ticketResult);
+            switch (ticketResult.metadata.action) {
+              case "Upload":
+                this.handleTicketForUpload(ticketResult);
+                break;
+              case "CloseExtract":
+                this.handleTicketForClose(ticketResult);
+                break;
+              case "RequestExtract":
+                this.handleTicketForDownload(ticketResult);
+                break;
             }
           } catch (err: any) {
             if (!this.handle400Or404Error(err)) {
@@ -366,32 +391,8 @@ export default defineComponent({
           this.ticketResponseCode = 1002;
           break;
         case "error":
-          {
-            this.trackProgress = false;
-            let ticketError = JSON.parse(ticketResult.result.json);
-            let errors = [ticketError, ...(ticketError.Errors ?? [])];
-            errors = uniqBy(errors, (x) => `${x.ErrorCode}_${x.ErrorMessage}`);
-            let problems = errors.map((error) => {
-              let codeParts = (error.ErrorCode ?? "").split("_");
-              let file = codeParts.length > 1 ? codeParts[0] : null;
-              let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
-              let severity = code.startsWith("Warning") ? "Warning" : "Error";
-              let text = error.ErrorMessage;
-              return { file, code, severity, text };
-            });
-            let fileProblems = uniq(problems.map((x) => x.file)).map((file) => {
-              return {
-                file,
-                problems: orderBy(
-                  problems.filter((p) => p.file === file),
-                  "severity"
-                ),
-              };
-            });
-
-            this.ticketResponseCode = 400;
-            this.fileProblems = fileProblems;
-          }
+          this.trackProgress = false;
+          this.handleTicketError(ticketResult);
           break;
       }
     },
@@ -418,34 +419,51 @@ export default defineComponent({
           }
           break;
         case "error":
-          {
-            this.trackProgress = false;
-            let ticketError = JSON.parse(ticketResult.result.json);
-            let errors = [ticketError, ...(ticketError.Errors ?? [])];
-            errors = uniqBy(errors, (x) => `${x.ErrorCode}_${x.ErrorMessage}`);
-            let problems = errors.map((error) => {
-              let codeParts = (error.ErrorCode ?? "").split("_");
-              let file = codeParts.length > 1 ? codeParts[0] : null;
-              let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
-              let severity = code.startsWith("Warning") ? "Warning" : "Error";
-              let text = error.ErrorMessage;
-              return { file, code, severity, text };
-            });
-            let fileProblems = uniq(problems.map((x) => x.file)).map((file) => {
-              return {
-                file,
-                problems: orderBy(
-                  problems.filter((p) => p.file === file),
-                  "severity"
-                ),
-              };
-            });
-
-            this.ticketResponseCode = 400;
-            this.fileProblems = fileProblems;
-          }
+          this.trackProgress = false;
+          this.handleTicketError(ticketResult);
           break;
       }
+    },
+    handleTicketForClose(ticketResult: RoadRegistry.TicketDetails): void {
+      switch (ticketResult.status) {
+        case "created":
+        case "pending":
+          this.ticketResponseCode = 1200;
+          break;
+        case "complete":
+          this.trackProgress = false;
+          this.ticketResponseCode = 0;
+          break;
+        case "error":
+          this.trackProgress = false;
+          this.handleTicketError(ticketResult);
+          break;
+      }
+    },
+    handleTicketError(ticketResult: RoadRegistry.TicketDetails) {
+      let ticketError = JSON.parse(ticketResult.result.json);
+      let errors = [ticketError, ...(ticketError.Errors ?? [])];
+      errors = uniqBy(errors, (x) => `${x.ErrorCode}_${x.ErrorMessage}`);
+      let problems = errors.map((error) => {
+        let codeParts = (error.ErrorCode ?? "").split("_");
+        let file = codeParts.length > 1 ? codeParts[0] : null;
+        let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
+        let severity = code.startsWith("Warning") ? "Warning" : "Error";
+        let text = error.ErrorMessage;
+        return { file, code, severity, text };
+      });
+      let fileProblems = uniq(problems.map((x) => x.file)).map((file) => {
+        return {
+          file,
+          problems: orderBy(
+            problems.filter((p) => p.file === file),
+            "severity"
+          ),
+        };
+      });
+
+      this.ticketResponseCode = 400;
+      this.fileProblems = fileProblems;
     },
     handle400Or404Error(err: any): boolean {
       if (err?.response?.status === 400) {
@@ -514,6 +532,11 @@ export default defineComponent({
         this.isDownloading = false;
       }
     },
+    async closeExtract(): Promise<void> {
+      let response = await PublicApi.Extracts.V2.close(this.downloadId);
+      let ticketId = response.ticketUrl.split("/").reverse()[0];
+      await this.waitForTicketAndRefreshExtractDetails(ticketId);
+    },
     resetUploadFeedback() {
       this.ticketResponseCode = 0;
       this.fileProblems = [];
@@ -523,7 +546,10 @@ export default defineComponent({
       this.resetUploadFeedback();
     },
     async handleUploadComplete(args: any) {
-      this.ticketId = args.ticketId;
+      await this.waitForTicketAndRefreshExtractDetails(args.ticketId);
+    },
+    async waitForTicketAndRefreshExtractDetails(ticketId: string) {
+      this.ticketId = ticketId;
       await this.waitForTicketComplete();
       await this.loadExtractDetails();
     },
