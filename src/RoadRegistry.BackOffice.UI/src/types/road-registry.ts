@@ -58,6 +58,10 @@ export namespace RoadRegistry {
     ticketUrl: string;
   }
 
+  export interface CloseExtractResponse {
+    ticketUrl: string;
+  }
+
   export interface GetTicketResponse {
     status: string;
     ticketId: string;

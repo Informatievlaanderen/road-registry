@@ -214,6 +214,13 @@ export const BackOfficeApi = {
         }
         return response.data;
       },
+      close: async (downloadId: string): Promise<RoadRegistry.CloseExtractResponse> => {
+        const path = `${apiEndpoint}/v1/extracten/${downloadId}/sluit`;
+        const response = await apiClient.post(path);
+        return {
+          ticketUrl: response.headers.location,
+        };
+      },
     },
     getDetails: async (downloadId: string) => {
       const path = `${apiEndpoint}/v1/extracts/${downloadId}`;
