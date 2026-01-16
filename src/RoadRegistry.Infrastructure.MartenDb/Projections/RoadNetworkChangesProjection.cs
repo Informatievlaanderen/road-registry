@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
+using System.Diagnostics;
 using JasperFx.Events;
 using Marten;
 using Marten.Events.Projections;
@@ -21,50 +22,43 @@ public abstract class RoadNetworkChangesProjection : IProjection
             .DatabaseSchemaName("eventstore")
             .DocumentAlias("roadnetworkchangesprojection_progression")
             .Identity(x => x.Id)
-            .Index(x => x.ProjectionName);
+            .Index(x => x.ProjectionName, i =>
+            {
+                i.Name = "ix_changesprojection_projectionname";
+            });
+
+        ConfigureSchema(options);
     }
+
     protected virtual void ConfigureSchema(StoreOptions options)
     {
     }
 
-    //TODO-pr current in table bijhouden welke correlationids zijn verwerkt (incl hun hoogste eventposition + projection name)
-    //wanneer batchsize gelijk is aan max, dan aparte query'en voor nog meer data op te halen
-    //tbd: indien te traag dan dit enkel doen wanneer de projectie dichtbij het einde is (bvb -50k)
     public async Task ApplyAsync(IDocumentOperations operations, IReadOnlyList<IEvent> events, CancellationToken cancellation)
     {
-        var eventsPerCorrelationId = events
+        var projectionName = GetType().Name;
+        var correlationIds = events.Select(x => x.CorrelationId!).Distinct().ToList();
+
+        var processedCorrelationIds = await operations.Query<RoadNetworkChangesProjectionProgression>()
+            .Where(x => x.ProjectionName == projectionName && correlationIds.Contains(x.Id))
+            .Select(x => x.Id)
+            .ToListAsync(cancellation);
+        var unprocessedCorrelationIds = correlationIds.Except(processedCorrelationIds).ToList();
+
+        var eventsPerCorrelationId = operations.Events.QueryAllRawEvents()
+            .Where(x => unprocessedCorrelationIds.Contains(x.CorrelationId!)) //TODO-pr add index on correlationId
+            .ToList()
             .GroupBy(x => x.CorrelationId!)
             .ToList();
 
-        foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, i) => (CorrelationId: g.Key, Events: g.ToArray(), IsLast: i == eventsPerCorrelationId.Count - 1)))
+        foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, i) => (CorrelationId: g.Key, Events: g.ToArray())))
         {
-            // if (eventsGrouping.IsLast)
-            // {
-            //     var eventProcessed = await operations.LoadAsync<RoadNetworkChangesProjectionProgression>(eventIdentifier, token);
-            //     if (eventProcessed is not null)
-            //     {
-            //         return;
-            //     }
-            //
-            //     var processEvents = operations.Events.QueryAllRawEvents()
-            //         .Where(x => x.CorrelationId == correlationId) //TODO-pr add index on correlationId
-            //         .ToList()
-            //         .AsReadOnly();
-            //     foreach (var projection in _projections)
-            //     {
-            //         await projection.Project(events, operations, cancellation).ConfigureAwait(false);
-            //     }
-            //
-            //
-            //     //session.Insert(new MigratedEvent(eventIdentifier));
-            // }
-            // else
+            foreach (var projection in _projections)
             {
-                foreach (var projection in _projections)
-                {
-                    await projection.Project(eventsGrouping.Events, operations, cancellation).ConfigureAwait(false);
-                }
+                await projection.Project(operations, eventsGrouping.Events, cancellation).ConfigureAwait(false);
             }
+
+            operations.Insert(new RoadNetworkChangesProjectionProgression(eventsGrouping.CorrelationId, projectionName, eventsGrouping.Events.Max(x => x.Sequence)));
         }
     }
 }

@@ -13,7 +13,7 @@ public abstract class RoadNetworkChangesConnectedProjection : ConnectedProjectio
         _resolver = new Lazy<ConnectedProjectionHandlerResolver<IDocumentOperations>>(() => Resolve.WhenAssignableToHandlerMessageType(Handlers));
     }
 
-    public async Task Project(IReadOnlyList<IEvent> events, IDocumentOperations operations, CancellationToken cancellationToken)
+    public async Task Project(IDocumentOperations operations, IReadOnlyList<IEvent> events, CancellationToken cancellationToken)
     {
         foreach (var evt in events)
         {

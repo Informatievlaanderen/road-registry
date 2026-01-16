@@ -11,14 +11,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Extensions;
-using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using SqlStreamStore;
 
-public class RoadNetworkExtractArchiveAssemblerForDomainV1 : IRoadNetworkExtractArchiveAssembler
+public class RoadNetworkExtractArchiveAssemblerForDomainV1
 {
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly Func<EditorContext> _contextFactory;
