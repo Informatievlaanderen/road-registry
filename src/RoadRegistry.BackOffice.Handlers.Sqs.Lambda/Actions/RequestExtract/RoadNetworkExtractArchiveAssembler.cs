@@ -14,23 +14,21 @@ public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAsse
         _serviceProvider = serviceProvider;
     }
 
-    private IRoadNetworkExtractArchiveAssembler Create(string zipArchiveWriterVersion)
-    {
-        if (zipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2)
-        {
-            return _serviceProvider.GetRequiredService<RoadNetworkExtractArchiveAssemblerForDomainV2>();
-        }
-
-        return _serviceProvider.GetRequiredService<RoadNetworkExtractArchiveAssemblerForDomainV1>();
-    }
-
     public Task<MemoryStream> AssembleArchive(RoadNetworkExtractAssemblyRequest request, CancellationToken cancellationToken)
     {
         var logger = _serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(GetType());
 
-        var assembler = Create(request.ZipArchiveWriterVersion);
-        logger.LogInformation("Using assembler of type '{Type}'", assembler.GetType().FullName);
-
-        return assembler.AssembleArchive(request, cancellationToken);
+        if (request.ZipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2)
+        {
+            logger.LogInformation("Using assembler for Domain V2");
+            var assembler = _serviceProvider.GetRequiredService<RoadNetworkExtractArchiveAssemblerForDomainV2>();
+            return assembler.AssembleArchive(request, cancellationToken);
+        }
+        else
+        {
+            logger.LogInformation("Using assembler for Domain V1");
+            var assembler = _serviceProvider.GetRequiredService<RoadNetworkExtractArchiveAssemblerForDomainV1>();
+            return assembler.AssembleArchive(request, cancellationToken);
+        }
     }
 }

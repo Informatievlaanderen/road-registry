@@ -6,7 +6,6 @@ using System.Text;
 using Marten;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
@@ -14,7 +13,7 @@ using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure.MartenDb;
 using ScopedRoadNetwork;
 
-public class RoadNetworkExtractArchiveAssemblerForDomainV2 : IRoadNetworkExtractArchiveAssembler
+public class RoadNetworkExtractArchiveAssemblerForDomainV2
 {
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly IZipArchiveWriterFactoryForDomainV2 _writerFactory;

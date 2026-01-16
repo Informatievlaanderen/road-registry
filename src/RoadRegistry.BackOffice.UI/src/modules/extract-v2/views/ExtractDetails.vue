@@ -37,7 +37,7 @@
                   <vl-button v-else @click="downloadUpload()"> Download upload </vl-button>
                 </span>
                 <span v-if="userCanClose" style="margin-left: 1rem">
-                  <vl-button v-if="trackProgress" mod-loading> Sluit extract... </vl-button>
+                  <vl-button v-if="isClosing" mod-loading> Sluit extract... </vl-button>
                   <vl-button v-else @click="closeExtract()"> Sluit extract </vl-button>
                 </span>
                 <div v-if="downloadError">
@@ -141,6 +141,7 @@ export default defineComponent({
           }
         | undefined,
       isDownloading: false as boolean,
+      isClosing: false as boolean,
       ticketId: "" as string,
       ticketStatus: undefined as string | undefined,
       ticketResponseCode: 0 as number,
@@ -532,9 +533,14 @@ export default defineComponent({
       }
     },
     async closeExtract(): Promise<void> {
-      let response = await PublicApi.Extracts.V2.close(this.downloadId);
-      let ticketId = response.ticketUrl.split("/").reverse()[0];
-      await this.waitForTicketAndRefreshExtractDetails(ticketId);
+      this.isClosing = true;
+      try {
+        let response = await PublicApi.Extracts.V2.close(this.downloadId);
+        let ticketId = response.ticketUrl.split("/").reverse()[0];
+        await this.waitForTicketAndRefreshExtractDetails(ticketId);
+      } finally {
+        this.isClosing = false;
+      }
     },
     resetUploadFeedback() {
       this.ticketResponseCode = 0;
