@@ -1,3 +1,10 @@
+## [4.41.1](https://github.com/informatievlaanderen/road-registry/compare/v4.41.0...v4.41.1) (2026-01-16)
+
+
+### Bug Fixes
+
+* refactor extra logging in archive assmblers + renaming properties to distinguish DomainV1 vs DomainV2 ([4882394](https://github.com/informatievlaanderen/road-registry/commit/4882394e9ecba385d1ad4a59d24c6ec58c8a2b9a))
+
 # [4.41.0](https://github.com/informatievlaanderen/road-registry/compare/v4.40.0...v4.41.0) (2026-01-16)
 
 
