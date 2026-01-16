@@ -1,3 +1,15 @@
+# [4.41.0](https://github.com/informatievlaanderen/road-registry/compare/v4.40.0...v4.41.0) (2026-01-16)
+
+
+### Bug Fixes
+
+* RoadNetworkExtractArchiveAssembler determine ZipArchiveWriterVersion from request ([7fce2b2](https://github.com/informatievlaanderen/road-registry/commit/7fce2b2df1467f18a4d2547f48e81768ba29fd64))
+
+
+### Features
+
+* close extract in UI ([74e99bb](https://github.com/informatievlaanderen/road-registry/commit/74e99bb19217327245449a1e4020394c447d7d17))
+
 # [4.40.0](https://github.com/informatievlaanderen/road-registry/compare/v4.39.3...v4.40.0) (2026-01-15)
 
 
