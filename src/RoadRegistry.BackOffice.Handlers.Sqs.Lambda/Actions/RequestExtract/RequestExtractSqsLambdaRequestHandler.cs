@@ -5,7 +5,6 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
-using RoadRegistry.Extensions;
 using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
 
@@ -36,7 +35,9 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
     {
         await _extractRequester.BuildExtract(
             new RequestExtractData(request.Request.ExtractRequestId, request.Request.DownloadId, request.Request.Contour.Value, request.Request.Description, request.Request.IsInformative, request.Request.ExternalRequestId),
-            new TicketId(request.TicketId), request.Provenance, cancellationToken);
+            new TicketId(request.TicketId),
+            request.Request.ZipArchiveWriterVersion,
+            request.Provenance, cancellationToken);
 
         var downloadId = new DownloadId(request.Request.DownloadId);
         return new RequestExtractResponse(downloadId);

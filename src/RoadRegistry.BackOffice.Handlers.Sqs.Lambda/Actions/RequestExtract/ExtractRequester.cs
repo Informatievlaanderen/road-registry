@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
 
@@ -19,24 +18,21 @@ public class ExtractRequester
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly RoadNetworkExtractDownloadsBlobClient _downloadsBlobClient;
     private readonly IRoadNetworkExtractArchiveAssembler _assembler;
-    private readonly UseDomainV2FeatureToggle _useDomainV2FeatureToggle;
     private readonly ILogger _logger;
 
     public ExtractRequester(
         ExtractsDbContext extractsDbContext,
         RoadNetworkExtractDownloadsBlobClient downloadsBlobClient,
         IRoadNetworkExtractArchiveAssembler assembler,
-        UseDomainV2FeatureToggle useDomainV2FeatureToggle,
         ILoggerFactory loggerFactory)
     {
         _extractsDbContext = extractsDbContext;
         _downloadsBlobClient = downloadsBlobClient;
         _assembler = assembler;
-        _useDomainV2FeatureToggle = useDomainV2FeatureToggle;
         _logger = loggerFactory.CreateLogger<ExtractRequester>();
     }
 
-    public async Task BuildExtract(RequestExtractData request, TicketId ticketId, Provenance provenance, CancellationToken cancellationToken)
+    public async Task BuildExtract(RequestExtractData request, TicketId ticketId, string zipArchiveWriterVersion, Provenance provenance, CancellationToken cancellationToken)
     {
         var extractRequestId = request.ExtractRequestId;
         var contour = request.Contour;
@@ -84,9 +80,7 @@ public class ExtractRequester
                 TicketId = ticketId,
                 DownloadStatus = ExtractDownloadStatus.Preparing,
                 Closed = isInformative,
-                ZipArchiveWriterVersion = _useDomainV2FeatureToggle.FeatureEnabled
-                    ? WellKnownZipArchiveWriterVersions.DomainV2
-                    : WellKnownZipArchiveWriterVersions.V2
+                ZipArchiveWriterVersion = zipArchiveWriterVersion
             };
             _extractsDbContext.ExtractDownloads.Add(extractDownload);
         }

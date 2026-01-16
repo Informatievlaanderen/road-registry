@@ -9,6 +9,7 @@ using AutoFixture;
 using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using FeatureToggles;
 using FluentAssertions;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -43,7 +44,8 @@ public partial class ExtractsControllerTests
         var result = await Controller.ExtractDownloadaanvraagPerBestand(
             new ExtractDownloadaanvraagPerBestandBody(Fixture.Create<string>(), bestanden, true),
             validator,
-            shpFileContourReader.Object);
+            shpFileContourReader.Object,
+            new UseDomainV2FeatureToggle(false));
 
         // Assert
         var acceptedResult = Assert.IsType<AcceptedResult>(result);
@@ -60,7 +62,8 @@ public partial class ExtractsControllerTests
         var act = () => Controller.ExtractDownloadaanvraagPerBestand(
             new ExtractDownloadaanvraagPerBestandBody(default, new FormFileCollection(), default),
             validator,
-            Mock.Of<IExtractShapefileContourReader>());
+            Mock.Of<IExtractShapefileContourReader>(),
+            new UseDomainV2FeatureToggle(false));
 
         await act.Should().ThrowAsync<ValidationException>();
     }
@@ -73,7 +76,8 @@ public partial class ExtractsControllerTests
         var act = () => Controller.ExtractDownloadaanvraagPerBestand(
             new ExtractDownloadaanvraagPerBestandBody(Fixture.Create<string>(), new FormFileCollection(), default),
             validator,
-            Mock.Of<IExtractShapefileContourReader>());
+            Mock.Of<IExtractShapefileContourReader>(),
+            new UseDomainV2FeatureToggle(false));
 
         var ex = (await act.Should().ThrowAsync<ValidationException>()).Which;
         ex.Errors.Count().Should().Be(1);

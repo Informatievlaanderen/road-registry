@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using RequestExtract;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
-using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
@@ -86,8 +86,11 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
                 geometry,
                 request.Request.Description,
                 request.Request.IsInformative,
-                request.Request.IsInformative ? null : BuildExternalRequestId(niscode)),
-            new TicketId(request.TicketId), request.Provenance, cancellationToken);
+                request.Request.IsInformative ? null : BuildExternalRequestId(niscode)
+            ),
+            new TicketId(request.TicketId),
+            WellKnownZipArchiveWriterVersions.DomainV2,
+            request.Provenance, cancellationToken);
 
         var downloadId = new DownloadId(request.Request.DownloadId);
         return new RequestExtractResponse(downloadId);

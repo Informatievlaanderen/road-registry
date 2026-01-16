@@ -6,6 +6,7 @@ using Api.Extracten;
 using AutoFixture;
 using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using FeatureToggles;
 using FluentAssertions;
 using FluentValidation;
 using Infrastructure;
@@ -41,7 +42,8 @@ public partial class ExtractsControllerTests
         var result = await Controller.ExtractDownloadaanvraagPerNisCode(
             new ExtractDownloadaanvraagPerNisCodeBody("12345", Fixture.Create<string>(), true),
             validator,
-            municipalityContext);
+            municipalityContext,
+            new UseDomainV2FeatureToggle(false));
 
         // Assert
         var acceptedResult = Assert.IsType<AcceptedResult>(result);
@@ -59,7 +61,8 @@ public partial class ExtractsControllerTests
         var act = () => Controller.ExtractDownloadaanvraagPerNisCode(
             new ExtractDownloadaanvraagPerNisCodeBody(default, default, default),
             validator,
-            municipalityContext);
+            municipalityContext,
+            new UseDomainV2FeatureToggle(false));
 
         await act.Should().ThrowAsync<ValidationException>();
     }

@@ -98,23 +98,9 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddScoped<ExtractRequester>()
             .AddScoped<ExtractUploader>()
             .RegisterOptions<ZipArchiveWriterOptions>()
-            .AddScoped<IRoadNetworkExtractArchiveAssembler>(sp =>
-                sp.GetService<UseDomainV2FeatureToggle>().FeatureEnabled
-                    ? new RoadNetworkExtractArchiveAssemblerForDomainV2(
-                        sp.GetService<RecyclableMemoryStreamManager>(),
-                        sp.GetService<IZipArchiveWriterFactory>(),
-                        sp.GetRequiredService<IDocumentStore>(),
-                        sp.GetRequiredService<IRoadNetworkRepository>(),
-                        sp.GetService<Func<EditorContext>>(),
-                        sp.GetRequiredService<ILoggerFactory>()
-                    )
-                    : new RoadNetworkExtractArchiveAssemblerForDomainV1(
-                        sp.GetService<RecyclableMemoryStreamManager>(),
-                        sp.GetService<Func<EditorContext>>(),
-                        sp.GetService<RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.IZipArchiveWriterFactory>(),
-                        sp.GetRequiredService<IStreamStore>(),
-                        sp.GetRequiredService<ILoggerFactory>()
-                    ))
+            .AddScoped<RoadNetworkExtractArchiveAssemblerForDomainV2>()
+            .AddScoped<RoadNetworkExtractArchiveAssemblerForDomainV1>()
+            .AddScoped<IRoadNetworkExtractArchiveAssembler>(sp => new RoadNetworkExtractArchiveAssembler(sp))
             .AddFeatureCompare()
             ;
     }

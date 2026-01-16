@@ -10,4 +10,5 @@ public sealed class RequestExtractSqsRequest : SqsRequest
     public required string Description { get; init; }
     public required bool IsInformative { get; init; }
     public required string? ExternalRequestId { get; init; }
+    public required string ZipArchiveWriterVersion { get; init; }
 }
