@@ -1,3 +1,10 @@
+## [4.41.3](https://github.com/informatievlaanderen/road-registry/compare/v4.41.2...v4.41.3) (2026-01-16)
+
+
+### Bug Fixes
+
+* **ui:** close extract ([935066a](https://github.com/informatievlaanderen/road-registry/commit/935066abd6704d443c20c7a010800580d67e2442))
+
 ## [4.41.2](https://github.com/informatievlaanderen/road-registry/compare/v4.41.1...v4.41.2) (2026-01-16)
 
 
