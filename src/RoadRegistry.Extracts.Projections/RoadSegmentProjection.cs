@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BackOffice;
 using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
@@ -17,7 +18,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
     public static void Configure(StoreOptions options)
     {
         options.Schema.For<RoadSegmentExtractItem>()
-            .DatabaseSchemaName("projections")
+            .DatabaseSchemaName(WellKnownSchemas.MartenProjections)
             .DocumentAlias("extract_roadsegments")
             .Identity(x => x.Id);
     }

@@ -23,6 +23,7 @@ public class ApiModule : Module
 {
     private readonly IConfiguration _configuration;
     private readonly Dictionary<ProjectionDetail, Func<DbContext>> _listOfProjections = new();
+    private readonly List<ProjectionDetail> _martenProjections = new();
     private readonly IServiceCollection _services;
 
     public ApiModule(
@@ -41,6 +42,7 @@ public class ApiModule : Module
         _services.AddStreamStore();
         RegisterProjections();
         _services.AddSingleton(_listOfProjections);
+        _services.AddSingleton<IReadOnlyList<ProjectionDetail>>(_martenProjections);
         builder.Populate(_services);
     }
 
@@ -86,6 +88,11 @@ public class ApiModule : Module
         if (projectionOptions.StreetNameSync.Enabled)
         {
             RegisterStreetNameProjection();
+        }
+
+        if (projectionOptions.Marten.Enabled)
+        {
+            RegisterMartenProjections();
         }
     }
 
@@ -342,6 +349,17 @@ public class ApiModule : Module
             Description = "",
             Name = "Sync - Street Name Event",
             WellKnownConnectionName = WellKnownConnectionNames.StreetNameProjections,
+            FallbackDesiredState = "subscribed"
+        });
+    }
+
+    private void RegisterMartenProjections()
+    {
+        _martenProjections.Add(new ProjectionDetail
+        {
+            Id = "ExtractsRoadNetworkChangesProjection:All",
+            Name = "Marten - Extracts",
+            Description = string.Empty,
             FallbackDesiredState = "subscribed"
         });
     }

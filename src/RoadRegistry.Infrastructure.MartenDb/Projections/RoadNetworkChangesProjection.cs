@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
-using System.Diagnostics;
+using BackOffice;
 using JasperFx.Events;
 using Marten;
 using Marten.Events.Projections;
@@ -19,7 +19,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
     public void Configure(StoreOptions options)
     {
         options.Schema.For<RoadNetworkChangesProjectionProgression>()
-            .DatabaseSchemaName("eventstore")
+            .DatabaseSchemaName(WellKnownSchemas.MartenEventStore)
             .DocumentAlias("roadnetworkchangesprojection_progression")
             .Identity(x => x.Id)
             .Index(x => x.ProjectionName, i =>

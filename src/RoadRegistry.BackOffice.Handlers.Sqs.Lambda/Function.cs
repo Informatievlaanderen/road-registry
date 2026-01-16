@@ -2,8 +2,6 @@
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
-using System.Reflection;
-using Abstractions;
 using Actions.RequestExtract;
 using Actions.UploadExtract;
 using Autofac;
@@ -12,13 +10,10 @@ using BackOffice.Extracts;
 using BackOffice.Handlers.Extracts;
 using BackOffice.Infrastructure.Modules;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
-using Editor.Schema;
-using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
-using Marten;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,10 +24,9 @@ using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
-using ScopedRoadNetwork;
-using SqlStreamStore;
 using StreetName;
 using ZipArchiveWriters.Cleaning;
+using ZipArchiveWriters.ExtractHost;
 using ZipArchiveWriters.ExtractHost.V2;
 
 public class Function : RoadRegistryLambdaFunction<MessageHandler>
@@ -69,8 +63,8 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             // Extracts-domainv1
             .AddEditorContext()
             .AddSingleton<IBeforeFeatureCompareZipArchiveCleanerFactory, BeforeFeatureCompareZipArchiveCleanerFactory>()
-            .AddSingleton<ZipArchiveWriters.ExtractHost.IZipArchiveWriterFactory>(sp =>
-                new ZipArchiveWriters.ExtractHost.ZipArchiveWriterFactory(
+            .AddSingleton<IZipArchiveWriterFactory>(sp =>
+                new ZipArchiveWriterFactory(
                     null,
                     new RoadNetworkExtractZipArchiveWriter(
                         sp.GetService<ZipArchiveWriterOptions>(),
@@ -108,7 +102,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
     protected override void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
         builder
-            .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.BackOfficeHandlersAssemblyMarker).Assembly, EventSerializerSettings))
+            .RegisterModule(new EventHandlingModule(typeof(BackOfficeHandlersAssemblyMarker).Assembly, EventSerializerSettings))
             .RegisterModule<CommandHandlingModule>()
             .RegisterModule<ContextModule>()
             .RegisterModule<SqsHandlersModule>()

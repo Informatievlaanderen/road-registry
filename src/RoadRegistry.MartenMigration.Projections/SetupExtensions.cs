@@ -30,7 +30,7 @@ public static class SetupExtensions
     public static void AddMartenDbMigration(this StoreOptions options)
     {
         options.Schema.For<MigratedEvent>()
-            .DatabaseSchemaName("projections")
+            .DatabaseSchemaName(WellKnownSchemas.MartenProjections)
             .Identity(x => x.Id);
     }
 }

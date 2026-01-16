@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb;
 
+using BackOffice;
 using Marten;
 using GradeSeparatedJunction;
 using JasperFx.Events;
@@ -26,11 +27,13 @@ public static class SessionExtensions
         var result = await session.LoadManyAsync([id]);
         return result.SingleOrDefault();
     }
+
     public static async Task<RoadSegment?> LoadAsync(this IDocumentSession session, RoadSegmentId id)
     {
         var result = await session.LoadManyAsync([id]);
         return result.SingleOrDefault();
     }
+
     public static async Task<GradeSeparatedJunction?> LoadAsync(this IDocumentSession session, GradeSeparatedJunctionId id)
     {
         var result = await session.LoadManyAsync([id]);
@@ -41,10 +44,12 @@ public static class SessionExtensions
     {
         return await session.LoadManyEntitiesAsync<RoadSegment, RoadSegmentId>(ids);
     }
+
     public static async Task<IReadOnlyList<RoadNode>> LoadManyAsync(this IDocumentSession session, IEnumerable<RoadNodeId> ids)
     {
         return await session.LoadManyEntitiesAsync<RoadNode, RoadNodeId>(ids);
     }
+
     public static async Task<IReadOnlyList<GradeSeparatedJunction>> LoadManyAsync(this IDocumentSession session, IEnumerable<GradeSeparatedJunctionId> ids)
     {
         return await session.LoadManyEntitiesAsync<GradeSeparatedJunction, GradeSeparatedJunctionId>(ids);
@@ -77,7 +82,12 @@ public static class SessionExtensions
 
     public static async Task<long> GetHighWaterMark(this IDocumentOperations operations, CancellationToken cancellationToken)
     {
-        return (await operations.AdvancedSql.QueryAsync<long>("SELECT last_seq_id FROM eventstore.mt_event_progression WHERE name = 'HighWaterMark'", cancellationToken)).SingleOrDefault();
+        return (await operations.AdvancedSql.QueryAsync<long>($"SELECT last_seq_id FROM {WellKnownSchemas.MartenEventStore}.mt_event_progression WHERE name = '{MartenConstants.HighWaterMarkName}'", cancellationToken)).SingleOrDefault();
+    }
+
+    public static Task<IReadOnlyList<EventProgression>> GetEventProgressions(this IDocumentOperations operations, CancellationToken cancellationToken)
+    {
+        return operations.AdvancedSql.QueryAsync<EventProgression>($"select json_build_object('{nameof(EventProgression.Name)}', name, '{nameof(EventProgression.LastSequenceId)}', last_seq_id) from {WellKnownSchemas.MartenEventStore}.mt_event_progression", cancellationToken);
     }
 
     public static async Task WaitForNonStaleProjection(this IDocumentStore store, string projectionName, ILogger logger, CancellationToken cancellationToken)
@@ -104,10 +114,12 @@ public static class SessionExtensions
             .ExecuteAsync(
                 async token =>
                 {
-                    var projectionSequenceId = (await session.AdvancedSql.QueryAsync<long>("SELECT last_seq_id FROM eventstore.mt_event_progression WHERE name = ?", token, projectionName)).Single();
+                    var projectionSequenceId = (await session.AdvancedSql.QueryAsync<long>($"SELECT last_seq_id FROM {WellKnownSchemas.MartenEventStore}.mt_event_progression WHERE name = ?", token, projectionName)).Single();
                     return projectionSequenceId;
                 },
                 cancellationToken
             );
     }
 }
+
+public sealed record EventProgression(string Name, long LastSequenceId);

@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
+using BackOffice;
 using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
@@ -13,7 +14,7 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
     public static void Configure(StoreOptions options)
     {
         options.Schema.For<RoadNodeExtractItem>()
-            .DatabaseSchemaName("projections")
+            .DatabaseSchemaName(WellKnownSchemas.MartenProjections)
             .DocumentAlias("extract_roadnodes")
             .Identity(x => x.Id);
     }
