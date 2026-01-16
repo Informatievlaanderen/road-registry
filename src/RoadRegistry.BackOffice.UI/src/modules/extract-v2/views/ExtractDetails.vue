@@ -271,7 +271,6 @@ export default defineComponent({
         !this.extract.informatief &&
         !this.extract.gesloten &&
         this.downloadStatusMessage &&
-        !this.trackProgress &&
         AuthService.userHasAnyContext([RoadRegistry.UserContext.Admin])
       );
     },

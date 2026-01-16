@@ -44,7 +44,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
         var externalRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
         var requestId = ExtractRequestId.FromExternalRequestId(externalRequestId);
         var ticketId = ObjectProvider.Create<Guid>();
-        var zipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.V2;
+        var zipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV1_2;
 
         await using var editorContext = Container.Resolve<EditorContext>();
         editorContext.ExtractDownloads.Add(new ExtractDownloadRecord
@@ -360,7 +360,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
         var externalRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
         var requestId = ExtractRequestId.FromExternalRequestId(externalRequestId);
         var ticketId = ObjectProvider.Create<Guid>();
-        var zipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.V2;
+        var zipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV1_2;
 
         await using var editorContext = Container.Resolve<EditorContext>();
         editorContext.ExtractDownloads.Add(new ExtractDownloadRecord

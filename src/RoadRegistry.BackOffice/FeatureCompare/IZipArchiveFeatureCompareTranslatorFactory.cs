@@ -22,7 +22,7 @@ public class ZipArchiveFeatureCompareTranslatorFactory : IZipArchiveFeatureCompa
 
     public IZipArchiveFeatureCompareTranslator Create(string zipArchiveWriterVersion)
     {
-        if (zipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.V2)
+        if (zipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV1_2)
         {
             return _v2;
         }

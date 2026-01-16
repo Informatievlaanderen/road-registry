@@ -34,8 +34,8 @@ public class DownloadExtractRequestHandler : ExtractRequestHandler<DownloadExtra
             Description = request.RequestId[..(request.RequestId.Length > ExtractDescription.MaxLength ? ExtractDescription.MaxLength : request.RequestId.Length)],
             IsInformative = request.IsInformative,
             ZipArchiveWriterVersion = _useGrbExtractZipArchiveWriterV2FeatureToggle.FeatureEnabled
-                ? WellKnownZipArchiveWriterVersions.V2
-                : WellKnownZipArchiveWriterVersions.V1
+                ? WellKnownZipArchiveWriterVersions.DomainV1_2
+                : WellKnownZipArchiveWriterVersions.DomainV1_1
         };
 
         var command = new Command(message).WithProvenanceData(request.ProvenanceData);

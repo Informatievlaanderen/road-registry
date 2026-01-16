@@ -71,7 +71,7 @@ public partial class ExtractenController
                 ExternalRequestId = null,
                 ZipArchiveWriterVersion = useDomainV2FeatureToggle.FeatureEnabled
                     ? WellKnownZipArchiveWriterVersions.DomainV2
-                    : WellKnownZipArchiveWriterVersions.V2
+                    : WellKnownZipArchiveWriterVersions.DomainV1_2
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));

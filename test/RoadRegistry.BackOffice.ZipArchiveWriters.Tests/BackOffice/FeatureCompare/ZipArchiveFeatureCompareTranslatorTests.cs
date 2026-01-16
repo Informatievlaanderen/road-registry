@@ -205,23 +205,23 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 
             var writers = new Dictionary<string, IZipArchiveWriter>
             {
-                { WellKnownZipArchiveWriterVersions.V1, writerV1 },
-                { WellKnownZipArchiveWriterVersions.V2, writerV2 }
+                { WellKnownZipArchiveWriterVersions.DomainV1_1, writerV1 },
+                { WellKnownZipArchiveWriterVersions.DomainV1_2, writerV2 }
             };
             var validators = new Dictionary<string, IZipArchiveBeforeFeatureCompareValidator>
             {
-                { WellKnownZipArchiveWriterVersions.V1, ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create() },
-                { WellKnownZipArchiveWriterVersions.V2, ZipArchiveBeforeFeatureCompareValidatorV2Builder.Create() }
+                { WellKnownZipArchiveWriterVersions.DomainV1_1, ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create() },
+                { WellKnownZipArchiveWriterVersions.DomainV1_2, ZipArchiveBeforeFeatureCompareValidatorV2Builder.Create() }
             };
             var translators = new Dictionary<string, IZipArchiveFeatureCompareTranslator>
             {
-                { WellKnownZipArchiveWriterVersions.V1, ZipArchiveFeatureCompareTranslatorV1Builder.Create() },
-                { WellKnownZipArchiveWriterVersions.V2, ZipArchiveFeatureCompareTranslatorV2Builder.Create() }
+                { WellKnownZipArchiveWriterVersions.DomainV1_1, ZipArchiveFeatureCompareTranslatorV1Builder.Create() },
+                { WellKnownZipArchiveWriterVersions.DomainV1_2, ZipArchiveFeatureCompareTranslatorV2Builder.Create() }
             };
             var readers = new Dictionary<string, Func<ZipArchive, Dictionary<ExtractFileName, int>>>
             {
-                { WellKnownZipArchiveWriterVersions.V1, ReadV1 },
-                { WellKnownZipArchiveWriterVersions.V2, ReadV2 }
+                { WellKnownZipArchiveWriterVersions.DomainV1_1, ReadV1 },
+                { WellKnownZipArchiveWriterVersions.DomainV1_2, ReadV2 }
             };
 
             var sw = Stopwatch.StartNew();
@@ -283,8 +283,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                     _outputHelper.WriteLine($"{zipArchiveWriterVersion} FeatureCompare: {sw.Elapsed}");
                 }
 
-                var v1Result = readResults[WellKnownZipArchiveWriterVersions.V1];
-                var v2Result = readResults[WellKnownZipArchiveWriterVersions.V2];
+                var v1Result = readResults[WellKnownZipArchiveWriterVersions.DomainV1_1];
+                var v2Result = readResults[WellKnownZipArchiveWriterVersions.DomainV1_2];
 
                 foreach (var v1 in v1Result)
                 {
@@ -402,21 +402,21 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                 "550102c0d47047418501628b5aaff090"
             };
 
-            var versions = new[] { WellKnownZipArchiveWriterVersions.V1, WellKnownZipArchiveWriterVersions.V2 };
+            var versions = new[] { WellKnownZipArchiveWriterVersions.DomainV1_1, WellKnownZipArchiveWriterVersions.DomainV1_2 };
             var validators = new Dictionary<string, IZipArchiveBeforeFeatureCompareValidator>
             {
-                { WellKnownZipArchiveWriterVersions.V1, ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create() },
-                { WellKnownZipArchiveWriterVersions.V2, ZipArchiveBeforeFeatureCompareValidatorV2Builder.Create() }
+                { WellKnownZipArchiveWriterVersions.DomainV1_1, ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create() },
+                { WellKnownZipArchiveWriterVersions.DomainV1_2, ZipArchiveBeforeFeatureCompareValidatorV2Builder.Create() }
             };
             var translators = new Dictionary<string, IZipArchiveFeatureCompareTranslator>
             {
-                { WellKnownZipArchiveWriterVersions.V1, ZipArchiveFeatureCompareTranslatorV1Builder.Create() },
-                { WellKnownZipArchiveWriterVersions.V2, ZipArchiveFeatureCompareTranslatorV2Builder.Create() }
+                { WellKnownZipArchiveWriterVersions.DomainV1_1, ZipArchiveFeatureCompareTranslatorV1Builder.Create() },
+                { WellKnownZipArchiveWriterVersions.DomainV1_2, ZipArchiveFeatureCompareTranslatorV2Builder.Create() }
             };
             var readers = new Dictionary<string, Func<ZipArchive, Dictionary<ExtractFileName, int>>>
             {
-                { WellKnownZipArchiveWriterVersions.V1, ReadV1 },
-                { WellKnownZipArchiveWriterVersions.V2, ReadV2 }
+                { WellKnownZipArchiveWriterVersions.DomainV1_1, ReadV1 },
+                { WellKnownZipArchiveWriterVersions.DomainV1_2, ReadV2 }
             };
 
             foreach (var archiveId in archiveIds)
@@ -455,20 +455,20 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                     _outputHelper.WriteLine($"{zipArchiveWriterVersion} FeatureCompare: {sw.Elapsed}");
                 }
 
-                var v1Result = readResults[WellKnownZipArchiveWriterVersions.V1];
-                var v2Result = readResults[WellKnownZipArchiveWriterVersions.V2];
+                var v1Result = readResults[WellKnownZipArchiveWriterVersions.DomainV1_1];
+                var v2Result = readResults[WellKnownZipArchiveWriterVersions.DomainV1_2];
 
                 foreach (var v1 in v1Result)
                 {
                     v2Result[v1.Key].Should().Be(v1.Value);
                 }
 
-                var v1ValidationResult = validationResults[WellKnownZipArchiveWriterVersions.V1];
-                var v2ValidationResult = validationResults[WellKnownZipArchiveWriterVersions.V2];
+                var v1ValidationResult = validationResults[WellKnownZipArchiveWriterVersions.DomainV1_1];
+                var v2ValidationResult = validationResults[WellKnownZipArchiveWriterVersions.DomainV1_2];
                 v2ValidationResult.Should().BeEquivalentTo(v1ValidationResult);
 
-                var v1Changes = changes[WellKnownZipArchiveWriterVersions.V1];
-                var v2Changes = changes[WellKnownZipArchiveWriterVersions.V2];
+                var v1Changes = changes[WellKnownZipArchiveWriterVersions.DomainV1_1];
+                var v2Changes = changes[WellKnownZipArchiveWriterVersions.DomainV1_2];
                 v2Changes.Count.Should().Be(v1Changes.Count);
 
                 _outputHelper.WriteLine(string.Empty);

@@ -34,6 +34,8 @@ public class ExtractRequester
 
     public async Task BuildExtract(RequestExtractData request, TicketId ticketId, string zipArchiveWriterVersion, Provenance provenance, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Building extract for ZipArchiveWriterVersion '{ZipArchiveWriterVersion}'", zipArchiveWriterVersion);
+
         var extractRequestId = request.ExtractRequestId;
         var contour = request.Contour;
         var downloadId = request.DownloadId;
@@ -120,6 +122,7 @@ public class ExtractRequester
 
         try
         {
+            _logger.LogInformation("Starting AssembleArchive on type '{AssemblerType}' for ZipArchiveWriterVersion '{ZipArchiveWriterVersion}'", _assembler.GetType().FullName, request.ZipArchiveWriterVersion);
             using var content = await _assembler.AssembleArchive(request, ct);
             content.Position = 0L;
 

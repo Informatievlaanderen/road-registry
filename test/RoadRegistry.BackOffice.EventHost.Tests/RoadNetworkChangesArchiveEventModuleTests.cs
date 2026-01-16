@@ -47,7 +47,7 @@ public class RoadNetworkChangesArchiveEventModuleTests : RoadNetworkTestBase
             new RoadNetworkExtractDownloadBecameAvailable
             {
                 DownloadId = archiveAccepted.DownloadId!.Value,
-                ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.V2
+                ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV1_2
             });
 
         var @event = new Event(archiveAccepted)

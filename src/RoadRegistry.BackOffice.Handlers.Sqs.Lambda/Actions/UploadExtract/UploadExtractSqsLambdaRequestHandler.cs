@@ -153,7 +153,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
 
         var extractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId);
 
-        var zipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.V2;
+        var zipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV1_2;
 
         try
         {

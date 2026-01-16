@@ -2,6 +2,7 @@
 
 using BackOffice.Extracts;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using RoadRegistry.Extracts;
 
 public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAssembler
@@ -25,7 +26,11 @@ public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAsse
 
     public Task<MemoryStream> AssembleArchive(RoadNetworkExtractAssemblyRequest request, CancellationToken cancellationToken)
     {
+        var logger = _serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(GetType());
+
         var assembler = Create(request.ZipArchiveWriterVersion);
+        logger.LogInformation("Using assembler of type '{Type}'", assembler.GetType().FullName);
+
         return assembler.AssembleArchive(request, cancellationToken);
     }
 }
