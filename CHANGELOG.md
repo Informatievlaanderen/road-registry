@@ -1,3 +1,10 @@
+## [4.41.2](https://github.com/informatievlaanderen/road-registry/compare/v4.41.1...v4.41.2) (2026-01-16)
+
+
+### Bug Fixes
+
+* roadnetworkprojection batching + extractarchiveassembler using wrong version ([3a577f7](https://github.com/informatievlaanderen/road-registry/commit/3a577f72db57060c60e857228061b02feb83ebba))
+
 ## [4.41.1](https://github.com/informatievlaanderen/road-registry/compare/v4.41.0...v4.41.1) (2026-01-16)
 
 
