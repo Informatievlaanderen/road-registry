@@ -8,12 +8,14 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using CommandHandling;
+using FeatureToggles;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
 using RoadRegistry.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
 using ValueObjects.ProblemCodes;
@@ -23,8 +25,9 @@ public partial class ExtractenController
     /// <summary>
     ///     Requests the download by contour.
     /// </summary>
-    /// <param name="validator"></param>
     /// <param name="body"></param>
+    /// <param name="validator"></param>
+    /// <param name="useDomainV2FeatureToggle"></param>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
     ///     of cancellation.
@@ -38,6 +41,7 @@ public partial class ExtractenController
     public async Task<IActionResult> ExtractDownloadaanvraagPerContour(
         [FromBody] ExtractDownloadaanvraagPerContourBody body,
         [FromServices] IValidator<ExtractDownloadaanvraagPerContourBody> validator,
+        [FromServices] UseDomainV2FeatureToggle useDomainV2FeatureToggle,
         CancellationToken cancellationToken = default)
     {
         try
@@ -58,7 +62,10 @@ public partial class ExtractenController
                 Contour = contour.ToExtractGeometry(),
                 Description = body.Beschrijving,
                 IsInformative = body.Informatief,
-                ExternalRequestId = body.ExterneId
+                ExternalRequestId = body.ExterneId,
+                ZipArchiveWriterVersion = useDomainV2FeatureToggle.FeatureEnabled
+                    ? WellKnownZipArchiveWriterVersions.DomainV2
+                    : WellKnownZipArchiveWriterVersions.V2
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));

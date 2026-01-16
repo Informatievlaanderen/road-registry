@@ -121,6 +121,16 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
+    public void Project(IEvent<GradeSeparatedJunctionModified> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_gradeseparatedjunction(?, ?, ?, ?);",
+            e.Data.Id,
+            e.Timestamp,
+            e.Data.LowerRoadSegmentId,
+            e.Data.UpperRoadSegmentId
+        );
+    }
+
     public void Project(IEvent<GradeSeparatedJunctionRemoved> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradeseparatedjunction(?, ?);",

@@ -6,6 +6,7 @@ using Api.Extracten;
 using AutoFixture;
 using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using FeatureToggles;
 using FluentAssertions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,8 @@ public partial class ExtractsControllerTests
         // Act
         var result = await Controller.ExtractDownloadaanvraagPerContour(
             new ExtractDownloadaanvraagPerContourBody(Polygon.Empty.AsText(), Fixture.Create<string>(), true, null),
-            validator);
+            validator,
+            new UseDomainV2FeatureToggle(false));
 
         // Assert
         var acceptedResult = Assert.IsType<AcceptedResult>(result);
@@ -44,7 +46,8 @@ public partial class ExtractsControllerTests
 
         var act = () => Controller.ExtractDownloadaanvraagPerContour(
             new ExtractDownloadaanvraagPerContourBody(default, default, default, default),
-            validator);
+            validator,
+            new UseDomainV2FeatureToggle(false));
 
         await act.Should().ThrowAsync<ValidationException>();
     }

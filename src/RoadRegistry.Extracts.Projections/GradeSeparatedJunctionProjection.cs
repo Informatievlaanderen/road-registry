@@ -47,6 +47,21 @@ public class GradeSeparatedJunctionProjection : RoadNetworkChangesConnectedProje
             });
             return Task.CompletedTask;
         });
+        When<IEvent<GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionModified>>(async (session, e, _) =>
+        {
+            var junction = await session.LoadAsync<GradeSeparatedJunctionExtractItem>(e.Data.Id);
+            if (junction is null)
+            {
+                throw new InvalidOperationException($"No document found for Id {e.Data.Id}");
+            }
+
+            junction.LastModified = e.Data.Provenance.ToEventTimestamp();
+            junction.Type = GradeSeparatedJunctionType.Parse(e.Data.Type);
+            junction.LowerRoadSegmentId = new RoadSegmentId(e.Data.LowerRoadSegmentId);
+            junction.UpperRoadSegmentId = new RoadSegmentId(e.Data.UpperRoadSegmentId);
+
+            session.Store(junction);
+        });
         When<IEvent<GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionRemoved>>(async (session, e, _) =>
         {
             var junction = await session.LoadAsync<GradeSeparatedJunctionExtractItem>(e.Data.Id);

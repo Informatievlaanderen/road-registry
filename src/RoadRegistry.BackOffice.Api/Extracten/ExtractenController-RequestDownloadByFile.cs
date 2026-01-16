@@ -12,6 +12,7 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using CommandHandling;
+using FeatureToggles;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -29,8 +30,9 @@ public partial class ExtractenController
     ///     Requests the download by file.
     /// </summary>
     /// <param name="body"></param>
-    /// <param name="shpFileContourReader"></param>
     /// <param name="validator"></param>
+    /// <param name="shpFileContourReader"></param>
+    /// <param name="useDomainV2FeatureToggle"></param>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
     ///     of cancellation.
@@ -46,6 +48,7 @@ public partial class ExtractenController
         ExtractDownloadaanvraagPerBestandBody body,
         [FromServices] IValidator<ExtractDownloadaanvraagPerBestand> validator,
         [FromServices] IExtractShapefileContourReader shpFileContourReader,
+        [FromServices] UseDomainV2FeatureToggle useDomainV2FeatureToggle,
         CancellationToken cancellationToken = default)
     {
         try
@@ -65,7 +68,10 @@ public partial class ExtractenController
                 Contour = contour.ToExtractGeometry(),
                 Description = body.Beschrijving,
                 IsInformative = body.Informatief,
-                ExternalRequestId = null
+                ExternalRequestId = null,
+                ZipArchiveWriterVersion = useDomainV2FeatureToggle.FeatureEnabled
+                    ? WellKnownZipArchiveWriterVersions.DomainV2
+                    : WellKnownZipArchiveWriterVersions.V2
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));

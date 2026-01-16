@@ -43,6 +43,7 @@ public abstract class WhenRequestExtractTestBase : BackOfficeLambdaTest
             Description = request.Description,
             IsInformative = request.IsInformative,
             ExternalRequestId = request.ExternalRequestId,
+            ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV2,
             TicketId = ticketId ?? Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>(),
@@ -65,7 +66,6 @@ public abstract class WhenRequestExtractTestBase : BackOfficeLambdaTest
                 ExtractsDbContext,
                 new RoadNetworkExtractDownloadsBlobClient(blobClient ?? Mock.Of<IBlobClient>()),
                 archiveAssembler ?? archiveAssemblerMock.Object,
-                new UseDomainV2FeatureToggle(true),
                 new NullLoggerFactory()),
             new NullLoggerFactory()
         );
