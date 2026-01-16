@@ -17,7 +17,7 @@ using ScopedRoadNetwork;
 public class RoadNetworkExtractArchiveAssemblerForDomainV2 : IRoadNetworkExtractArchiveAssembler
 {
     private readonly RecyclableMemoryStreamManager _manager;
-    private readonly IZipArchiveWriterFactory _writerFactory;
+    private readonly IZipArchiveWriterFactoryForDomainV2 _writerFactory;
     private readonly IDocumentStore _store;
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly Func<EditorContext> _editorContextFactory;
@@ -25,7 +25,7 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV2 : IRoadNetworkExtract
 
     public RoadNetworkExtractArchiveAssemblerForDomainV2(
         RecyclableMemoryStreamManager manager,
-        IZipArchiveWriterFactory writerFactory,
+        IZipArchiveWriterFactoryForDomainV2 writerFactory,
         IDocumentStore store,
         IRoadNetworkRepository roadNetworkRepository,
         Func<EditorContext> editorContextFactory,

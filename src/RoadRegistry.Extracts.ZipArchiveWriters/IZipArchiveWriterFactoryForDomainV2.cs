@@ -2,16 +2,16 @@
 
 using RoadRegistry.Extracts;
 
-public interface IZipArchiveWriterFactory
+public interface IZipArchiveWriterFactoryForDomainV2
 {
     IZipArchiveWriter Create(string zipArchiveWriterVersion);
 }
 
-public class ZipArchiveWriterFactory : IZipArchiveWriterFactory
+public class ZipArchiveWriterFactoryForDomainV2 : IZipArchiveWriterFactoryForDomainV2
 {
     private readonly IZipArchiveWriter _domainV2;
 
-    public ZipArchiveWriterFactory(
+    public ZipArchiveWriterFactoryForDomainV2(
         IZipArchiveWriter domainV2)
     {
         _domainV2 = domainV2;

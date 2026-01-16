@@ -10,7 +10,7 @@ public class ExtractsRoadNetworkChangesProjection : RoadNetworkChangesProjection
     {
     }
 
-    public override void Configure(StoreOptions options)
+    protected override void ConfigureSchema(StoreOptions options)
     {
         RoadNodeProjection.Configure(options);
         RoadSegmentProjection.Configure(options);

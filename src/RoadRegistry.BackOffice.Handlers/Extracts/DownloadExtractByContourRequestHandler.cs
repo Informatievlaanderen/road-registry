@@ -37,8 +37,8 @@ public class DownloadExtractByContourRequestHandler : ExtractRequestHandler<Down
             Description = request.Description,
             IsInformative = request.IsInformative,
             ZipArchiveWriterVersion = _useExtractZipArchiveWriterV2FeatureToggle.FeatureEnabled
-                ? WellKnownZipArchiveWriterVersions.V2
-                : WellKnownZipArchiveWriterVersions.V1
+                ? WellKnownZipArchiveWriterVersions.DomainV1_2
+                : WellKnownZipArchiveWriterVersions.DomainV1_1
         };
 
         var command = new Command(message).WithProvenanceData(request.ProvenanceData);

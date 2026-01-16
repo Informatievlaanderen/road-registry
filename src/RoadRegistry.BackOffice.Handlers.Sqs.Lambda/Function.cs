@@ -81,8 +81,8 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
                     )
                 ))
             // Extracts-domainv2
-            .AddScoped<IZipArchiveWriterFactory>(sp =>
-                new ZipArchiveWriterFactory(
+            .AddScoped<IZipArchiveWriterFactoryForDomainV2>(sp =>
+                new ZipArchiveWriterFactoryForDomainV2(
                     new RoadRegistry.Extracts.ZipArchiveWriters.Writers.RoadNetworkExtractZipArchiveWriter(
                         sp.GetService<ZipArchiveWriterOptions>(),
                         sp.GetService<IStreetNameCache>(),

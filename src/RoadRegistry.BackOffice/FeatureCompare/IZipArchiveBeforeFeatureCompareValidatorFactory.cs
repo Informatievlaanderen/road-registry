@@ -22,7 +22,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorFactory : IZipArchiveBeforeF
 
     public IZipArchiveBeforeFeatureCompareValidator Create(string zipArchiveWriterVersion)
     {
-        if (zipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.V2)
+        if (zipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV1_2)
         {
             return _validatorV2;
         }

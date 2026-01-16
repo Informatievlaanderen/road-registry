@@ -53,7 +53,7 @@ public class RoadNetworkExtract : EventSourcedEntity
         On<RoadNetworkExtractDownloadBecameAvailable>(e =>
         {
             _announcedDownloads.Add(new DownloadId(e.DownloadId));
-            ZipArchiveWriterVersion = e.ZipArchiveWriterVersion ?? WellKnownZipArchiveWriterVersions.V1;
+            ZipArchiveWriterVersion = e.ZipArchiveWriterVersion ?? WellKnownZipArchiveWriterVersions.DomainV1_1;
         });
         On<RoadNetworkExtractChangesArchiveUploaded>(e =>
         {

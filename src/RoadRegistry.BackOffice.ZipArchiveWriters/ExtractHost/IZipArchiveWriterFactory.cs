@@ -22,7 +22,7 @@ public class ZipArchiveWriterFactory : IZipArchiveWriterFactory
 
     public IZipArchiveWriter Create(string zipArchiveWriterVersion)
     {
-        if (zipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.V2)
+        if (zipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV1_2)
         {
             return _v2;
         }
