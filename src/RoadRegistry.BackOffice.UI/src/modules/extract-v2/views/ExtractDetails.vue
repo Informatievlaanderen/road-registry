@@ -288,16 +288,14 @@ export default defineComponent({
   },
   methods: {
     async waitUntilExtractDetailsIsAvailable(): Promise<void> {
-      while (!this.downloadStatusMessage && this.trackProgress) {
-        if (this.unmounting) {
+      while (true) {
+        await this.loadExtractDetails();
+
+        if (this.ticketId || this.unmounting) {
           break;
         }
 
-        await this.loadExtractDetails();
-
-        if (!this.downloadStatusMessage) {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     },
     formatDate(dateString: undefined | string): string {

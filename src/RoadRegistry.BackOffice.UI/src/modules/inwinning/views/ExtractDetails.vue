@@ -144,6 +144,7 @@ export default defineComponent({
   },
   data() {
     return {
+      unmounting: false,
       trackProgress: true,
       extract: undefined as RoadRegistry.ExtractDetailsV2 | undefined,
       downloadAvailable: false as boolean,
@@ -288,15 +289,18 @@ export default defineComponent({
   },
   unmounted() {
     this.trackProgress = false;
+    this.unmounting = true;
   },
   methods: {
     async waitUntilExtractDetailsIsAvailable(): Promise<void> {
-      while (!this.downloadStatusMessage && this.trackProgress) {
+      while (true) {
         await this.loadExtractDetails();
 
-        if (!this.downloadStatusMessage) {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (this.ticketId || this.unmounting) {
+          break;
         }
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     },
     formatDate(dateString: undefined | string): string {
@@ -306,6 +310,10 @@ export default defineComponent({
       return DateFormat.format(dateString);
     },
     async loadExtractDetails(): Promise<void> {
+      if (this.unmounting) {
+        return;
+      }
+
       try {
         let details = await PublicApi.Extracts.V2.getDetails(this.downloadId);
         this.extract = details;
@@ -343,14 +351,14 @@ export default defineComponent({
       }
     },
     async waitForTicketComplete(): Promise<void> {
-      if (!this.ticketId) {
+      if (!this.ticketId || this.unmounting) {
         return;
       }
 
       this.trackProgress = true;
 
       try {
-        while (this.trackProgress) {
+        while (this.trackProgress && !this.unmounting) {
           try {
             let ticketResult = await PublicApi.Ticketing.get(this.ticketId);
             this.ticketStatus = ticketResult.status;
