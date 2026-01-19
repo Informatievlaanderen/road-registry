@@ -13,6 +13,7 @@
     using RoadRegistry.Extracts;
     using RoadRegistry.Extracts.ZipArchiveWriters;
     using RoadRegistry.Extracts.ZipArchiveWriters.Writers;
+    using RoadRegistry.Extracts.ZipArchiveWriters.Writers.DomainV2;
     using RoadRegistry.Infrastructure;
     using RoadRegistry.Tests.BackOffice;
     using RoadRegistry.Tests.BackOffice.Scenarios;

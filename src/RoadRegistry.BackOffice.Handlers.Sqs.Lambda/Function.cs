@@ -77,7 +77,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             // Extracts-domainv2
             .AddScoped<IZipArchiveWriterFactoryForDomainV2>(sp =>
                 new ZipArchiveWriterFactoryForDomainV2(
-                    new RoadRegistry.Extracts.ZipArchiveWriters.Writers.RoadNetworkExtractZipArchiveWriter(
+                    new RoadRegistry.Extracts.ZipArchiveWriters.Writers.DomainV2.RoadNetworkExtractZipArchiveWriter(
                         sp.GetService<ZipArchiveWriterOptions>(),
                         sp.GetService<IStreetNameCache>(),
                         sp.GetService<RecyclableMemoryStreamManager>(),
