@@ -1,3 +1,15 @@
+# [4.42.0](https://github.com/informatievlaanderen/road-registry/compare/v4.41.3...v4.42.0) (2026-01-19)
+
+
+### Bug Fixes
+
+* wait for extract via the ticket instead of extract details endpoint ([edb21f8](https://github.com/informatievlaanderen/road-registry/commit/edb21f8fee87543155f0bcb9db5ea190cca44396))
+
+
+### Features
+
+* add Marten projection progress to projector ([887a160](https://github.com/informatievlaanderen/road-registry/commit/887a160860b610658b947ce015da03104c7337f5))
+
 ## [4.41.3](https://github.com/informatievlaanderen/road-registry/compare/v4.41.2...v4.41.3) (2026-01-16)
 
 
