@@ -4,70 +4,92 @@ namespace RoadRegistry.Extracts.Schemas.ExtractV2.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
-public class RoadSegmentDbaseRecord : DbaseRecord
+public class RoadSegmentDbaseRecord : DbaseRecord, IRoadSegmentDbaseRecord
 {
     public static readonly RoadSegmentDbaseSchema Schema = new();
 
     public RoadSegmentDbaseRecord()
     {
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-        WS_TEMPID = new DbaseInt32(Schema.WS_TEMPID);
+        WS_UIDN = new TrimmedDbaseString(Schema.WS_UIDN);
+        WS_GIDN = new TrimmedDbaseString(Schema.WS_GIDN);
+        B_WK_OIDN = new DbaseInt32(Schema.B_WK_OIDN);
+        E_WK_OIDN = new DbaseInt32(Schema.E_WK_OIDN);
         STATUS = new DbaseInt32(Schema.STATUS);
+        LBLSTATUS = new TrimmedDbaseString(Schema.LBLSTATUS);
         MORF = new DbaseInt32(Schema.MORF);
+        LBLMORF = new TrimmedDbaseString(Schema.LBLMORF);
         WEGCAT = new TrimmedDbaseString(Schema.WEGCAT);
+        LBLWEGCAT = new TrimmedDbaseString(Schema.LBLWEGCAT);
         LSTRNMID = new DbaseNullableInt32(Schema.LSTRNMID);
+        LSTRNM = new TrimmedDbaseString(Schema.LSTRNM);
         RSTRNMID = new DbaseNullableInt32(Schema.RSTRNMID);
-        LBEHEER = new TrimmedDbaseString(Schema.LBEHEER);
-        RBEHEER = new TrimmedDbaseString(Schema.RBEHEER);
-        TOEGANG = new DbaseInt32(Schema.TOEGANG);
-        VERHARDING = new DbaseInt32(Schema.VERHARDING);
-        AUTOHEEN = new DbaseInt32(Schema.AUTOHEEN);
-        AUTOTERUG = new DbaseInt32(Schema.AUTOTERUG);
-        FIETSHEEN = new DbaseInt32(Schema.FIETSHEEN);
-        FIETSTERUG = new DbaseInt32(Schema.FIETSTERUG);
-        VOETGANGER = new DbaseInt32(Schema.VOETGANGER);
-        CREATIE = new DbaseDateTime(Schema.CREATIE);
-        VERSIE = new DbaseDateTime(Schema.VERSIE);
+        RSTRNM = new TrimmedDbaseString(Schema.RSTRNM);
+        BEHEER = new TrimmedDbaseString(Schema.BEHEER);
+        LBLBEHEER = new TrimmedDbaseString(Schema.LBLBEHEER);
+        METHODE = new DbaseInt32(Schema.METHODE);
+        LBLMETHOD = new TrimmedDbaseString(Schema.LBLMETHOD);
+        OPNDATUM = new DbaseDateTime(Schema.OPNDATUM);
+        BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
+        BEGINORG = new TrimmedDbaseString(Schema.BEGINORG);
+        TGBEP = new DbaseInt32(Schema.TGBEP);
+        LBLTGBEP = new TrimmedDbaseString(Schema.LBLTGBEP);
 
         Values =
         [
             WS_OIDN,
-            WS_TEMPID,
+            WS_UIDN,
+            WS_GIDN,
+            B_WK_OIDN,
+            E_WK_OIDN,
             STATUS,
+            LBLSTATUS,
             MORF,
+            LBLMORF,
             WEGCAT,
+            LBLWEGCAT,
             LSTRNMID,
+            LSTRNM,
             RSTRNMID,
-            LBEHEER,
-            RBEHEER,
-            TOEGANG,
-            VERHARDING,
-            AUTOHEEN,
-            AUTOTERUG,
-            FIETSHEEN,
-            FIETSTERUG,
-            VOETGANGER,
-            CREATIE,
-            VERSIE
+            RSTRNM,
+            BEHEER,
+            LBLBEHEER,
+            METHODE,
+            LBLMETHOD,
+            OPNDATUM,
+            BEGINTIJD,
+            BEGINORG,
+            TGBEP,
+            LBLTGBEP
         ];
     }
 
-    public DbaseInt32 WS_OIDN { get; }
-    public DbaseInt32 WS_TEMPID { get; }
-    public DbaseInt32 STATUS { get; }
-    public DbaseInt32 MORF { get; }
-    public DbaseString WEGCAT { get; }
+    public DbaseInt32 B_WK_OIDN { get; }
+    public DbaseString BEGINORG { get; }
+    public DbaseDateTime BEGINTIJD { get; }
+    public DbaseString BEHEER { get; }
+    public DbaseInt32 E_WK_OIDN { get; }
+    public DbaseString LBLBEHEER { get; }
+    public DbaseString LBLMETHOD { get; }
+    public DbaseString LBLMORF { get; }
+    public DbaseString LBLSTATUS { get; }
+    public DbaseString LBLTGBEP { get; }
+    public DbaseString LBLWEGCAT { get; }
+    public DbaseString LSTRNM { get; }
     public DbaseNullableInt32 LSTRNMID { get; }
+    public DbaseInt32 METHODE { get; }
+    public DbaseInt32 MORF { get; }
+    public DbaseDateTime OPNDATUM { get; }
+    public DbaseString RSTRNM { get; }
     public DbaseNullableInt32 RSTRNMID { get; }
-    public DbaseString LBEHEER { get; }
-    public DbaseString RBEHEER { get; }
-    public DbaseInt32 TOEGANG { get; }
-    public DbaseInt32 VERHARDING { get; }
-    public DbaseInt32 AUTOHEEN { get; }
-    public DbaseInt32 AUTOTERUG { get; }
-    public DbaseInt32 FIETSHEEN { get; }
-    public DbaseInt32 FIETSTERUG { get; }
-    public DbaseInt32 VOETGANGER { get; }
-    public DbaseDateTime CREATIE { get; }
-    public DbaseDateTime VERSIE { get; }
+    public DbaseInt32 STATUS { get; }
+    public DbaseInt32 TGBEP { get; }
+    public DbaseString WEGCAT { get; }
+    public DbaseString WS_GIDN { get; }
+    public DbaseInt32 WS_OIDN { get; }
+    public DbaseString WS_UIDN { get; }
+
+    public DbaseString BEHEERDER => BEHEER;
+    public DbaseInt32 MORFOLOGIE => MORF;
+    public DbaseString CATEGORIE => WEGCAT;
 }

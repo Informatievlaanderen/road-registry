@@ -42,8 +42,9 @@ public class RoadNodeDbaseSchema : DbaseSchema
     }
 
     public DbaseField WK_OIDN => Fields[0];
+    public DbaseField WK_UIDN => Fields[1];
     public DbaseField TYPE => Fields[2];
-    public DbaseField GRENSKNOOP => Fields[3];
-    public DbaseField CREATIE => Fields[4];
-    public DbaseField VERSIE => Fields[5];
+    public DbaseField LBLTYPE => Fields[3];
+    public DbaseField BEGINTIJD => Fields[4];
+    public DbaseField BEGINORG => Fields[5];
 }
