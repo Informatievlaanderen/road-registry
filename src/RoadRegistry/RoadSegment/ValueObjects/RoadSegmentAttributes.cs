@@ -13,7 +13,7 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
     public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction> AccessRestriction { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentCategory> Category { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentMorphology> Morphology { get; init; }
-    public RoadSegmentDynamicAttributeValues<RoadSegmentStatus> Status { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2> Status { get; init; }
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId> MaintenanceAuthorityId { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> SurfaceType { get; init; }
@@ -30,7 +30,7 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
         RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction> accessRestriction,
         RoadSegmentDynamicAttributeValues<RoadSegmentCategory> category,
         RoadSegmentDynamicAttributeValues<RoadSegmentMorphology> morphology,
-        RoadSegmentDynamicAttributeValues<RoadSegmentStatus> status,
+        RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2> status,
         RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameId,
         RoadSegmentDynamicAttributeValues<OrganizationId> maintenanceAuthorityId,
         RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> surfaceType,

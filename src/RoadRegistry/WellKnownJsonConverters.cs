@@ -29,6 +29,7 @@ namespace RoadRegistry
                 new RoadSegmentMorphologyConverter(),
                 new RoadSegmentPositionConverter(),
                 new RoadSegmentStatusConverter(),
+                new RoadSegmentStatusV2Converter(),
                 new RoadSegmentSurfaceTypeConverter(),
                 new RoadSegmentWidthConverter(),
                 new RoadSegmentNumberedRoadDirectionConverter(),

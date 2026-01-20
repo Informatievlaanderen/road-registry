@@ -6,87 +6,77 @@ using System.Collections.Immutable;
 using System.Linq;
 using RoadRegistry.Extensions;
 
-public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToString
+public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutchToString
 {
-    public static readonly RoadSegmentStatus PermitRequested =
+    public static readonly RoadSegmentStatusV2 Planned =
         new(
-            "PermitRequested",
+            nameof(Planned),
             new DutchTranslation(
                 1,
-                "vergunning aangevraagd",
-                "Geometrie komt voor op officieel document in behandeling."
+                "gepland",
+                "Er werd een vergunning aangevraagd of verleend voor de weg, of de weg is in aanbouw."
             )
         );
 
-    public static readonly RoadSegmentStatus PermitGranted =
+    public static readonly RoadSegmentStatusV2 Realized =
         new(
-            "BuildingPermitGranted",
+            nameof(Realized),
             new DutchTranslation(
                 2,
-                "vergunning verleend",
-                "Geometrie komt voor op goedgekeurd, niet vervallen bouwdossier."
+                "gerealiseerd",
+                "De weg werd gerealiseerd (werken beëindigd) en in gebruik genomen."
             )
         );
 
-    public static readonly RoadSegmentStatus UnderConstruction =
+    public static readonly RoadSegmentStatusV2 NotRealized =
         new(
-            nameof(UnderConstruction),
+            nameof(NotRealized),
             new DutchTranslation(
                 3,
-                "in aanbouw",
-                "Aanvang der werken is gemeld."
+                "niet gerealiseerd",
+                "De weg werd niet gerealiseerd, bijvoorbeeld omdat de vergunning niet verleend werd, vervallen is of ingetrokken werd."
             )
         );
 
-    public static readonly RoadSegmentStatus InUse =
-        new(
-            nameof(InUse),
-            new DutchTranslation(
-                4,
-                "in gebruik",
-                "Werken zijn opgeleverd."
-            )
-        );
-
-    public static readonly RoadSegmentStatus OutOfUse =
+    public static readonly RoadSegmentStatusV2 OutOfUse =
         new(
             nameof(OutOfUse),
             new DutchTranslation(
-                5,
-                "buiten gebruik",
-                "Fysieke weg is buiten gebruik gesteld maar niet gesloopt."
+                4,
+                "Buiten gebruik",
+                "De weg werd niet opgeheven en bestaat juridisch gezien, maar is niet meer zichtbaar op het terrein of kan niet gebruikt worden."
             )
         );
 
-    public static readonly RoadSegmentStatus Unknown =
+    public static readonly RoadSegmentStatusV2 Retired =
         new(
-            nameof(Unknown),
+            nameof(Retired),
             new DutchTranslation(
-                -8,
-                "niet gekend",
-                "Geen informatie beschikbaar"
+                5,
+                "gehistoreerd",
+                "De weg werd opgeheven, gesloopt, samengevoegd of gesplitst."
             )
         );
 
-    public static readonly RoadSegmentStatus[] All =
+    public static readonly RoadSegmentStatusV2[] All =
     {
-        Unknown, PermitRequested, PermitGranted, UnderConstruction, InUse, OutOfUse
+        Planned, Realized, NotRealized, OutOfUse, Retired
     };
 
     public sealed record Edit
     {
-        public static readonly ImmutableArray<RoadSegmentStatus> Editable = [..All.Where(x => x != Unknown)];
+        public static readonly ImmutableArray<RoadSegmentStatusV2> Editable = [..All];
     }
 
-    public static readonly IReadOnlyDictionary<int, RoadSegmentStatus> ByIdentifier =
+    public static readonly IReadOnlyDictionary<int, RoadSegmentStatusV2> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
 
-    public static readonly IReadOnlyDictionary<string, RoadSegmentStatus> ByName =
+    public static readonly IReadOnlyDictionary<string, RoadSegmentStatusV2> ByName =
         All.ToDictionary(key => key.Translation.Name);
 
     private readonly string _value;
 
-    private RoadSegmentStatus(string value, DutchTranslation dutchTranslation)
+    private RoadSegmentStatusV2(string value, DutchTranslation dutchTranslation)
     {
         _value = value;
         Translation = dutchTranslation;
@@ -104,14 +94,14 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
         return TryParseUsingDutchName(value, out _);
     }
 
-    public bool Equals(RoadSegmentStatus? other)
+    public bool Equals(RoadSegmentStatusV2? other)
     {
         return other != null && other._value == _value;
     }
 
     public override bool Equals(object? obj)
     {
-        return obj is RoadSegmentStatus type && Equals(type);
+        return obj is RoadSegmentStatusV2 type && Equals(type);
     }
 
     public override int GetHashCode()
@@ -119,33 +109,33 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
         return _value.GetHashCode();
     }
 
-    public static bool operator ==(RoadSegmentStatus left, RoadSegmentStatus right)
+    public static bool operator ==(RoadSegmentStatusV2 left, RoadSegmentStatusV2 right)
     {
         return Equals(left, right);
     }
 
-    public static bool operator !=(RoadSegmentStatus left, RoadSegmentStatus right)
+    public static bool operator !=(RoadSegmentStatusV2 left, RoadSegmentStatusV2 right)
     {
         return !Equals(left, right);
     }
 
-    public static implicit operator string?(RoadSegmentStatus? instance)
+    public static implicit operator string?(RoadSegmentStatusV2? instance)
     {
         return instance?.ToString();
     }
 
-    public static implicit operator int(RoadSegmentStatus instance)
+    public static implicit operator int(RoadSegmentStatusV2 instance)
     {
         return instance.Translation.Identifier;
     }
 
-    public static RoadSegmentStatus Parse(string value)
+    public static RoadSegmentStatusV2 Parse(string value)
     {
         if (!TryParse(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment status.");
         return parsed;
     }
 
-    public static RoadSegmentStatus ParseUsingDutchName(string value)
+    public static RoadSegmentStatusV2 ParseUsingDutchName(string value)
     {
         if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment status.");
         return parsed;
@@ -161,7 +151,7 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
         return Translation.Name;
     }
 
-    public static bool TryParse(string value, out RoadSegmentStatus parsed)
+    public static bool TryParse(string value, out RoadSegmentStatusV2 parsed)
     {
         ArgumentNullException.ThrowIfNull(value);
 
@@ -169,13 +159,13 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
         return parsed != null;
     }
 
-    public static bool TryParseUsingDutchName(string value, out RoadSegmentStatus parsed)
+    public static bool TryParseUsingDutchName(string value, out RoadSegmentStatusV2 parsed)
     {
         parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
         return parsed != null;
     }
 
-    public class DutchTranslation
+    public sealed class DutchTranslation
     {
         internal DutchTranslation(int identifier, string name, string description)
         {

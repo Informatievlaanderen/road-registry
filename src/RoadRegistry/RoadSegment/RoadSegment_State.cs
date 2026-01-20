@@ -184,7 +184,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         MergedRoadSegmentId = @event.MergedRoadSegmentId;
         Attributes = Attributes with
         {
-            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.Retired)
+            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(RoadSegmentStatusV2.Retired)
         };
     }
 
@@ -195,7 +195,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         MergedRoadSegmentId = @event.MergedRoadSegmentId;
         Attributes = Attributes with
         {
-            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.Retired)
+            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(RoadSegmentStatusV2.Retired)
         };
     }
 

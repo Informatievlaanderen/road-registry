@@ -675,6 +675,22 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError RoadSegmentStatusV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual, bool outline = false)
+    {
+        return builder
+            .Error(nameof(RoadSegmentStatusMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    string.Join(",", outline
+                        ? RoadSegmentStatusV2.Edit.Editable.Select(status => status.Translation.Identifier.ToString())
+                        : RoadSegmentStatusV2.ByIdentifier.Keys.Select(key => key.ToString()))
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+
     public static FileError RoadSegmentMaintenanceAuthorityOutOfRange(this IDbaseFileRecordProblemBuilder builder, string value)
     {
         return builder

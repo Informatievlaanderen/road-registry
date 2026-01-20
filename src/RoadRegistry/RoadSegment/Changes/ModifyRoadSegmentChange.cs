@@ -14,7 +14,7 @@ public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
     public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>? AccessRestriction { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentCategory>? Category { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>? Morphology { get; init; }
-    public RoadSegmentDynamicAttributeValues<RoadSegmentStatus>? Status { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>? Status { get; init; }
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId>? StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId>? MaintenanceAuthorityId { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>? SurfaceType { get; init; }

@@ -13,7 +13,7 @@ public record RoadSegmentFeatureCompareAttributes
     public RoadSegmentCategory? Category { get; init; }
     public OrganizationId? MaintenanceAuthority { get; init; }
     public RoadSegmentMorphology? Morphology { get; init; }
-    public RoadSegmentStatus? Status { get; init; }
+    public RoadSegmentStatusV2? Status { get; init; }
     public StreetNameLocalId? LeftSideStreetNameId { get; init; }
     public StreetNameLocalId? RightSideStreetNameId { get; init; }
 

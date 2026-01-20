@@ -56,7 +56,7 @@ public static class Lists
 
     public static RoadSegmentStatusDbaseRecord[] AllRoadSegmentStatusDbaseRecords =>
         Array.ConvertAll(
-            RoadSegmentStatus.All,
+            RoadSegmentStatusV2.All,
             item => new RoadSegmentStatusDbaseRecord
             {
                 STATUS = { Value = item.Translation.Identifier },

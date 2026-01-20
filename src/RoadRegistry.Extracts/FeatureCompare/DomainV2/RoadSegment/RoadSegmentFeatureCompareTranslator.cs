@@ -449,7 +449,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             ? new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>(record.Attributes.Morphology)
                             : null,
                         Status = record.Attributes.Status is not null
-                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(record.Attributes.Status)
+                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(record.Attributes.Status)
                             : null,
                         StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId),
                     };
@@ -472,7 +472,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(record.Attributes.Category!),
                             MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(record.Attributes.MaintenanceAuthority!.Value),
                             Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>(record.Attributes.Morphology!),
-                            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(record.Attributes.Status!),
+                            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(record.Attributes.Status!),
                             StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId)!,
                             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>(),
                             EuropeanRoadNumbers = [],
