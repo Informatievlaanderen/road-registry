@@ -1,13 +1,14 @@
 namespace RoadRegistry.Extracts.Projections;
 
 using System;
-using BackOffice;
+using System.Linq;
 using BackOffice.Extensions;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
+using NodaTime.Text;
 using Schema;
 
 public class ExtractRequestProjection : ConnectedProjection<ExtractsDbContext>
@@ -63,10 +64,11 @@ public class ExtractRequestProjection : ConnectedProjection<ExtractsDbContext>
             }
             else if (record.CurrentDownloadId != message.DownloadId)
             {
-                var existingOpenDownload = await context.ExtractDownloads
-                    .SingleOrDefaultAsync(x => x.ExtractRequestId == extractRequestId
-                                               && x.Closed == false, ct);
-                if (existingOpenDownload is not null)
+                var requestedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToDateTimeOffset();
+                var existingOpenDownloads = await context.ExtractDownloads
+                    .Where(x => x.ExtractRequestId == extractRequestId && x.Closed == false && x.DownloadId != message.DownloadId && x.RequestedOn < requestedOn)
+                    .ToListAsync(ct);
+                foreach(var existingOpenDownload in existingOpenDownloads)
                 {
                     existingOpenDownload.Closed = true;
                 }
