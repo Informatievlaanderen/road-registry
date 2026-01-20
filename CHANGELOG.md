@@ -1,3 +1,10 @@
+## [4.42.1](https://github.com/informatievlaanderen/road-registry/compare/v4.42.0...v4.42.1) (2026-01-20)
+
+
+### Bug Fixes
+
+* extract projection close old open downloads even when there are multiple ([1277459](https://github.com/informatievlaanderen/road-registry/commit/1277459e08e5f2cb45cf7af3cbf16caf30ad712f))
+
 # [4.42.0](https://github.com/informatievlaanderen/road-registry/compare/v4.41.3...v4.42.0) (2026-01-19)
 
 
