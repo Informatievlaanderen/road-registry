@@ -14,7 +14,7 @@ public sealed record MergeRoadSegmentChange : IRoadNetworkChange
     public required RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; init; }
     public required RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction> AccessRestriction { get; init; }
     public required RoadSegmentDynamicAttributeValues<RoadSegmentCategory> Category { get; init; }
-    public required RoadSegmentDynamicAttributeValues<RoadSegmentMorphology> Morphology { get; init; }
+    public required RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> Morphology { get; init; }
     public required RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2> Status { get; init; }
     public required RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNameId { get; init; }
     public required RoadSegmentDynamicAttributeValues<OrganizationId> MaintenanceAuthorityId { get; init; }

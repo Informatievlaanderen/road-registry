@@ -12,7 +12,7 @@ public record RoadSegmentFeatureCompareAttributes
     public RoadSegmentAccessRestriction? AccessRestriction { get; init; }
     public RoadSegmentCategory? Category { get; init; }
     public OrganizationId? MaintenanceAuthority { get; init; }
-    public RoadSegmentMorphology? Morphology { get; init; }
+    public RoadSegmentMorphologyV2? Morphology { get; init; }
     public RoadSegmentStatusV2? Status { get; init; }
     public StreetNameLocalId? LeftSideStreetNameId { get; init; }
     public StreetNameLocalId? RightSideStreetNameId { get; init; }

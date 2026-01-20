@@ -274,7 +274,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return default;
             }
 
-            RoadSegmentMorphology ReadMorphology(RoadSegmentGeometryDrawMethod method)
+            RoadSegmentMorphologyV2 ReadMorphology(RoadSegmentGeometryDrawMethod method)
             {
                 var outlined = method == RoadSegmentGeometryDrawMethod.Outlined;
 
@@ -282,14 +282,14 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(MORF));
                 }
-                else if (RoadSegmentMorphology.ByIdentifier.TryGetValue(MORF.Value, out var value)
+                else if (RoadSegmentMorphologyV2.ByIdentifier.TryGetValue(MORF.Value, out var value)
                          && value.IsValid(outlined))
                 {
                     return value;
                 }
                 else
                 {
-                    problems += problemBuilder.RoadSegmentMorphologyMismatch(MORF.Value, outlined);
+                    problems += problemBuilder.RoadSegmentMorphologyV2Mismatch(MORF.Value, outlined);
                 }
 
                 return default;

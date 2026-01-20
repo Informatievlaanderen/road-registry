@@ -658,6 +658,21 @@ public static class DbaseFileProblems
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
             .Build();
     }
+    public static FileError RoadSegmentMorphologyV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual, bool outline = false)
+    {
+        return builder
+            .Error(nameof(RoadSegmentMorphologyMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    string.Join(",", outline
+                        ? RoadSegmentMorphologyV2.Edit.Editable.Select(status => status.Translation.Identifier.ToString())
+                        : RoadSegmentMorphologyV2.ByIdentifier.Keys.Select(key => key.ToString()))
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
 
     public static FileError RoadSegmentStatusMismatch(this IDbaseFileRecordProblemBuilder builder, int actual, bool outline = false)
     {

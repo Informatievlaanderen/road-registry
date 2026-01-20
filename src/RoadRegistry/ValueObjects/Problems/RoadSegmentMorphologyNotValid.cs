@@ -9,4 +9,10 @@ public class RoadSegmentMorphologyNotValid : Error
         new ProblemParameter("Morphology", morphology))
     {
     }
+
+    public RoadSegmentMorphologyNotValid(RoadSegmentMorphologyV2 morphology)
+        : base(ProblemCode.RoadSegment.Morphology.NotValid,
+        new ProblemParameter("Morphology", morphology))
+    {
+    }
 }

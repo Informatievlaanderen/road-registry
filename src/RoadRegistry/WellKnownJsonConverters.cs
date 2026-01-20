@@ -27,6 +27,7 @@ namespace RoadRegistry
                 new RoadSegmentLaneCountConverter(),
                 new RoadSegmentLaneDirectionConverter(),
                 new RoadSegmentMorphologyConverter(),
+                new RoadSegmentMorphologyV2Converter(),
                 new RoadSegmentPositionConverter(),
                 new RoadSegmentStatusConverter(),
                 new RoadSegmentStatusV2Converter(),

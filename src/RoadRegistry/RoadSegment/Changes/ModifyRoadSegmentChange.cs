@@ -13,7 +13,7 @@ public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
     public RoadSegmentGeometryDrawMethod? GeometryDrawMethod { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>? AccessRestriction { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentCategory>? Category { get; init; }
-    public RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>? Morphology { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>? Morphology { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>? Status { get; init; }
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId>? StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId>? MaintenanceAuthorityId { get; init; }

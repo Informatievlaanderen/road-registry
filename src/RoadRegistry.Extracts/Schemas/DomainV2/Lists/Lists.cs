@@ -46,7 +46,7 @@ public static class Lists
 
     public static RoadSegmentMorphologyDbaseRecord[] AllRoadSegmentMorphologyDbaseRecords =>
         Array.ConvertAll(
-            RoadSegmentMorphology.All,
+            RoadSegmentMorphologyV2.All,
             item => new RoadSegmentMorphologyDbaseRecord
             {
                 MORF = { Value = item.Translation.Identifier },
