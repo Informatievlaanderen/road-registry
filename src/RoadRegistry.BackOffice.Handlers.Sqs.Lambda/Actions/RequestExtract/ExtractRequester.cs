@@ -58,10 +58,10 @@ public class ExtractRequester
         }
         else if (extractRequest.CurrentDownloadId != downloadId)
         {
-            var existingOpenDownload = await _extractsDbContext.ExtractDownloads
-                .SingleOrDefaultAsync(x => x.ExtractRequestId == extractRequestId
-                                           && x.Closed == false, cancellationToken);
-            if (existingOpenDownload is not null)
+            var existingOpenDownloads = await _extractsDbContext.ExtractDownloads
+                .Where(x => x.ExtractRequestId == extractRequestId && x.Closed == false && x.DownloadId != downloadId.ToGuid())
+                .ToListAsync(cancellationToken);
+            foreach(var existingOpenDownload in existingOpenDownloads)
             {
                 existingOpenDownload.Closed = true;
             }
