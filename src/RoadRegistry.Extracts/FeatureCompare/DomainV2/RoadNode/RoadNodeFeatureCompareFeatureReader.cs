@@ -123,13 +123,13 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
                 return default;
             }
 
-            RoadNodeType ReadType()
+            RoadNodeTypeV2 ReadType()
             {
                 if (TYPE is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(TYPE));
                 }
-                else if (RoadNodeType.ByIdentifier.TryGetValue(TYPE.Value, out var value))
+                else if (RoadNodeTypeV2.ByIdentifier.TryGetValue(TYPE.Value, out var value))
                 {
                     return value;
                 }

@@ -16,7 +16,7 @@ public static class Lists
 
     public static RoadNodeTypeDbaseRecord[] AllRoadNodeTypeDbaseRecords =>
         Array.ConvertAll(
-            RoadNodeType.All,
+            RoadNodeTypeV2.All,
             item => new RoadNodeTypeDbaseRecord
             {
                 TYPE = { Value = item.Translation.Identifier },

@@ -29,8 +29,10 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
                 RoadNodeId = new RoadNodeId(e.Data.RoadNodeId),
                 Geometry = e.Data.Geometry,
                 Type = RoadNodeType.Parse(e.Data.Type),
+                Grensknoop = false,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp()
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = false
             });
             return Task.CompletedTask;
         });
@@ -41,8 +43,10 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
                 RoadNodeId = new RoadNodeId(e.Data.RoadNodeId),
                 Geometry = e.Data.Geometry,
                 Type = RoadNodeType.Parse(e.Data.Type),
+                Grensknoop = false,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp()
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = false
             });
             return Task.CompletedTask;
         });
@@ -79,8 +83,10 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
                 RoadNodeId = e.Data.RoadNodeId,
                 Geometry = e.Data.Geometry,
                 Type = RoadNodeType.Parse(e.Data.Type),
+                Grensknoop = e.Data.Grensknoop,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp()
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = true
             });
             return Task.CompletedTask;
         });
@@ -109,6 +115,8 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
             node.LastModified = e.Data.Provenance.ToEventTimestamp();
             node.Type = e.Data.Type;
             node.Geometry = e.Data.Geometry;
+            node.Grensknoop = e.Data.Grensknoop;
+            node.IsV2 = true;
 
             session.Store(node);
         });
@@ -135,9 +143,13 @@ public sealed class RoadNodeExtractItem
         get => new(Id);
         set => Id = value;
     }
-    public required EventTimestamp Origin { get; init; }
 
     public required RoadNodeGeometry Geometry { get; set; }
-    public required RoadNodeType Type { get; set; }
+    public required int Type { get; set; }
+    public required bool Grensknoop { get; set; }
+
+    public required EventTimestamp Origin { get; init; }
     public required EventTimestamp LastModified { get; set; }
+
+    public required bool IsV2 { get; set; }
 }

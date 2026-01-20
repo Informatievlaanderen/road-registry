@@ -6,7 +6,7 @@ public record RoadNodeFeatureCompareAttributes
 {
     public RoadNodeId Id { get; init; }
     public Point? Geometry { get; init; }
-    public RoadNodeType? Type { get; init; }
+    public RoadNodeTypeV2? Type { get; init; }
 
     public RoadNodeFeatureCompareAttributes OnlyChangedAttributes(RoadNodeFeatureCompareAttributes other)
     {

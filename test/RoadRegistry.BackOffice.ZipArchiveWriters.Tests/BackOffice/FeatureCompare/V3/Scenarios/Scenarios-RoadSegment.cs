@@ -28,7 +28,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var organizationCache = new FakeOrganizationCache()
             .Seed(orgId, null);
 
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) => { builder.TestData.RoadSegment1DbaseRecord.BEHEER.Value = orgId; })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
@@ -41,7 +41,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task SegmentWithTooLongGeometryShouldGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
@@ -63,7 +63,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenLeftSideStreetNameIdIsZero_ThenLeftStreetNameIdOutOfRange()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) => { builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = 0; })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
@@ -75,7 +75,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenLeftSideStreetNameIdIsNull_ThenNotApplicableIsUsedSilently()
     {
-        var zipArchive = new ExtractV2ZipArchiveBuilder()
+        var zipArchive = new DomainV2ZipArchiveBuilder()
             .WithExtract((builder, context) =>
             {
                 builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = 5;
@@ -92,7 +92,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenRightSideStreetNameIdIsZero_ThenRightStreetNameIdOutOfRange()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) => { builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = 0; })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
@@ -104,7 +104,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenRightSideStreetNameIdIsNull_ThenNotApplicableIsUsedSilently()
     {
-        var zipArchive = new ExtractV2ZipArchiveBuilder()
+        var zipArchive = new DomainV2ZipArchiveBuilder()
             .WithExtract((builder, context) =>
             {
                 builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = 5;
@@ -129,7 +129,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         Assert.True((await streetNameCache.GetAsync(removedStreetNameId, CancellationToken.None)).IsRemoved);
 
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 FillStreetNameCache(builder, streetNameCache);
@@ -158,7 +158,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         Assert.True((await streetNameCache.GetAsync(removedStreetNameId, CancellationToken.None)).IsRemoved);
 
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 FillStreetNameCache(builder, streetNameCache);
@@ -189,7 +189,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         Assert.Equal(renamedToStreetNameId, (await streetNameCache.GetRenamedIdsAsync(new[] { streetNameId }, CancellationToken.None))[streetNameId]);
 
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 FillStreetNameCache(builder, streetNameCache);
@@ -220,7 +220,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         Assert.Equal(renamedToStreetNameId, (await streetNameCache.GetRenamedIdsAsync(new[] { streetNameId }, CancellationToken.None))[streetNameId]);
 
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 FillStreetNameCache(builder, streetNameCache);
@@ -245,7 +245,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         var streetNameContextFactory = new RoadSegmentFeatureCompareStreetNameContextFactory(new FakeStreetNameCache());
 
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) => { builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = streetNameId; })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
@@ -262,7 +262,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         var streetNameContextFactory = new RoadSegmentFeatureCompareStreetNameContextFactory(new FakeStreetNameCache());
 
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) => { builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = streetNameId; })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
@@ -275,7 +275,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ModifiedGeometrySlightly()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
@@ -305,7 +305,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenGeometryHasAtLeast70PercentOverlap_ThenExtractIdShouldBeReused()
     {
-        var archiveBuilder = new ExtractV2ZipArchiveBuilder();
+        var archiveBuilder = new DomainV2ZipArchiveBuilder();
 
         var newSegmentId = new RoadSegmentId(0);
 
@@ -343,7 +343,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ModifiedGeometryToLessThan70PercentOverlap()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithExtract((builder, context) =>
             {
                 var lineString = new LineString(new Coordinate[]
@@ -443,7 +443,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ModifiedNonCriticalAttribute()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
@@ -466,7 +466,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task AddingNewSegmentWith70OverlapToExistingShouldGiveProblem()
     {
-        var zipArchive = new ExtractV2ZipArchiveBuilder()
+        var zipArchive = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var roadNodeDbaseRecord1 = builder.CreateRoadNodeDbaseRecord();
@@ -505,7 +505,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task ConversionFromOutlinedToMeasuredShouldReturnExpectedResult()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithExtract((builder, context) =>
             {
                 builder.TestData.RoadSegment1DbaseRecord.METHODE.Value = RoadSegmentGeometryDrawMethod.Outlined.Translation.Identifier;
@@ -554,7 +554,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task MultipleOutlinedRoadSegmentsWithIdenticalGeometriesShouldNotBeAProblem()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithExtract((builder, context) =>
             {
                 builder.TestData.RoadSegment1DbaseRecord.METHODE.Value = RoadSegmentGeometryDrawMethod.Outlined.Translation.Identifier;
@@ -600,7 +600,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task MultipleOutlinedRoadSegmentsWithOverlappingGeometriesButChangedGeometriesShouldReturnExpectedResult()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithExtract((builder, context) =>
             {
                 builder.TestData.RoadSegment1DbaseRecord.METHODE.Value = RoadSegmentGeometryDrawMethod.Outlined.Translation.Identifier;
@@ -664,7 +664,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task MissingIntegrationProjectionFileShouldNotFail()
     {
-        var zipArchive = new ExtractV2ZipArchiveBuilder()
+        var zipArchive = new DomainV2ZipArchiveBuilder()
             .ExcludeFileNames("IWEGSEGMENT.PRJ")
             .Build();
 
@@ -677,7 +677,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task IdsShouldBeUniqueAcrossChangeAndIntegrationData()
     {
-        var zipArchive = new ExtractV2ZipArchiveBuilder()
+        var zipArchive = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var integrationRoadSegment = context.Integration.DataSet.RoadSegmentDbaseRecords.First();
@@ -695,7 +695,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenUserChangedCategory_ThenOnlyCategoryShouldBeNotNull()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var extractCategory = RoadSegmentCategory.ByIdentifier[context.Extract.TestData.RoadSegment1DbaseRecord.CATEGORIE.Value];
@@ -717,7 +717,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task GivenTwoIdenticalRoadSegments_WhenFirstRoadSegmentIsRemovedAndSecondRoadSegmentIsModified_ThenSecondIdIsUsed()
     {
-        var zipArchive = new ExtractV2ZipArchiveBuilder()
+        var zipArchive = new DomainV2ZipArchiveBuilder()
             .WithExtract((builder, _) =>
             {
                 // ensure geometries of roadsegment 1 and 2 are equal
@@ -747,7 +747,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task GivenTwoIdenticalRoadSegments_WhenFirstRoadSegmentIsRemovedAndSecondRoadSegmentGeometryIsSlightlyChanged_ThenSecondIdIsUsed()
     {
-        var zipArchive = new ExtractV2ZipArchiveBuilder()
+        var zipArchive = new DomainV2ZipArchiveBuilder()
             .WithExtract((builder, _) =>
             {
                 // ensure geometries of roadsegment 1 and 2 are equal
@@ -779,7 +779,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task GivenTwoIdenticalRoadSegments_WhenFirstRoadSegmentIsRemovedAndSecondRoadSegmentIsUnchanged_ThenSecondIdIsUsed()
     {
-        var zipArchive = new ExtractV2ZipArchiveBuilder()
+        var zipArchive = new DomainV2ZipArchiveBuilder()
             .WithExtract((builder, _) =>
             {
                 // ensure geometries of roadsegment 1 and 2 are equal
@@ -806,7 +806,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenOnlyIdChanges_ThenNoChangesDetected()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var newSegmentId = builder.DataSet.RoadSegmentDbaseRecords.Select(x => x.WS_OIDN.Value).Max() + 1;

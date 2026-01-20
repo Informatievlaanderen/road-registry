@@ -24,7 +24,7 @@ public class EuropeanRoadScenarios : FeatureCompareTranslatorScenariosBase
     {
         string expectedTranslatedProblemMessage = null;
 
-        var zipArchive = new ExtractV2ZipArchiveBuilder()
+        var zipArchive = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.TestData.RoadSegment1EuropeanRoadDbaseRecord2.EUNUMMER.Value = builder.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value;
@@ -43,7 +43,7 @@ public class EuropeanRoadScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task UnknownRoadSegmentShouldGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.TestData.RoadSegment1EuropeanRoadDbaseRecord1.WS_OIDN.Value = context.Fixture.CreateWhichIsDifferentThan(

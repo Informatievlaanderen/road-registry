@@ -7,7 +7,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
 {
     public RoadNodeId RoadNodeId { get; }
     public RoadNodeGeometry Geometry { get; private set; }
-    public RoadNodeType Type { get; private set; }
+    public RoadNodeTypeV2 Type { get; private set; }
 
     public bool IsRemoved { get; private set; }
 
@@ -28,7 +28,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         : this(new RoadNodeId(roadNodeId))
     {
         Geometry = geometry;
-        Type = RoadNodeType.Parse(type);
+        Type = RoadNodeTypeV2.Parse(type);
         IsRemoved = isRemoved;
     }
 

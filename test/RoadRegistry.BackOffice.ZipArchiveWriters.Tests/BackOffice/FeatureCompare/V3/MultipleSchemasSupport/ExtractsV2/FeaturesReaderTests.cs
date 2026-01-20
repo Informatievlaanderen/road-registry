@@ -8,9 +8,9 @@ using NetTopologySuite.Geometries;
 using RoadNode.Changes;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.V3;
-using RoadRegistry.Extracts.Schemas.ExtractV2.GradeSeparatedJuntions;
-using RoadRegistry.Extracts.Schemas.ExtractV2.RoadNodes;
-using RoadRegistry.Extracts.Schemas.ExtractV2.RoadSegments;
+using RoadRegistry.Extracts.Schemas.DomainV2.GradeSeparatedJuntions;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadNodes;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts.V2;
@@ -34,7 +34,7 @@ public class FeaturesReaderTests
     [Fact]
     public async Task AllFeatureReadersCanRead()
     {
-        var testData = new ExtractV2ZipArchiveTestData();
+        var testData = new DomainV2ZipArchiveTestData();
         var fixture = CreateFixture(testData);
 
         var projectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
@@ -198,7 +198,7 @@ public class FeaturesReaderTests
         }
     }
 
-    private static Fixture CreateFixture(ExtractV2ZipArchiveTestData testData)
+    private static Fixture CreateFixture(DomainV2ZipArchiveTestData testData)
     {
         var fixture = testData.Fixture;
 

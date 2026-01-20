@@ -7,14 +7,13 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.V2
     using NetTopologySuite.Geometries;
     using RoadRegistry.Editor.Schema.Extensions;
     using RoadRegistry.Extensions;
-    using RoadRegistry.Extracts.Schemas.ExtractV2;
-    using RoadRegistry.Extracts.Schemas.ExtractV2.GradeSeparatedJuntions;
-    using RoadRegistry.Extracts.Schemas.ExtractV2.RoadNodes;
-    using RoadRegistry.Extracts.Schemas.ExtractV2.RoadSegments;
-    using V1;
+    using RoadRegistry.Extracts.Schemas.DomainV2;
+    using RoadRegistry.Extracts.Schemas.DomainV2.GradeSeparatedJuntions;
+    using RoadRegistry.Extracts.Schemas.DomainV2.RoadNodes;
+    using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
     using Point = NetTopologySuite.Geometries.Point;
 
-    public class ExtractV2ZipArchiveBuilder
+    public class DomainV2ZipArchiveBuilder
     {
         public Fixture Fixture { get; }
         public RecordBuilder Records { get; }
@@ -25,17 +24,17 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.V2
         private ZipArchiveDataSetStreams _extractStreams;
         private ZipArchiveDataSetStreams _changeStreams;
         private readonly List<string> _excludeFileNames = new();
-        private readonly ExtractV2ZipArchiveTestData _testData;
+        private readonly DomainV2ZipArchiveTestData _testData;
 
-        public ExtractV2ZipArchiveBuilder(Action<Fixture> customize = null)
+        public DomainV2ZipArchiveBuilder(Action<Fixture> customize = null)
         {
-            _testData = new ExtractV2ZipArchiveTestData();
+            _testData = new DomainV2ZipArchiveTestData();
             Fixture = CreateFixture(_testData);
             customize?.Invoke(Fixture);
             Records = new RecordBuilder(Fixture);
         }
 
-        public ExtractV2ZipArchiveBuilder WithIntegration(Action<ExtractsZipArchiveIntegrationDataSetBuilder, ExtractsZipArchiveDataSetBuilderContext> configure)
+        public DomainV2ZipArchiveBuilder WithIntegration(Action<ExtractsZipArchiveIntegrationDataSetBuilder, ExtractsZipArchiveDataSetBuilderContext> configure)
         {
             _integration ??= new ExtractsZipArchiveIntegrationDataSetBuilder(Fixture);
             _integration.ConfigureIntegration(configure);
@@ -44,7 +43,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.V2
             return this;
         }
 
-        public ExtractV2ZipArchiveBuilder WithExtract(Action<ExtractsZipArchiveExtractDataSetBuilder, ExtractsZipArchiveDataSetBuilderContext> configure)
+        public DomainV2ZipArchiveBuilder WithExtract(Action<ExtractsZipArchiveExtractDataSetBuilder, ExtractsZipArchiveDataSetBuilderContext> configure)
         {
             if (_integrationStreams is null)
             {
@@ -58,7 +57,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.V2
             return this;
         }
 
-        public ExtractV2ZipArchiveBuilder WithChange(Action<ExtractsZipArchiveChangeDataSetBuilder, ExtractsZipArchiveChangeDataSetBuilderContext> configure)
+        public DomainV2ZipArchiveBuilder WithChange(Action<ExtractsZipArchiveChangeDataSetBuilder, ExtractsZipArchiveChangeDataSetBuilderContext> configure)
         {
             if (_extractStreams is null)
             {
@@ -72,7 +71,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.V2
             return this;
         }
 
-        public ExtractV2ZipArchiveBuilder ExcludeFileNames(params string[] fileNames)
+        public DomainV2ZipArchiveBuilder ExcludeFileNames(params string[] fileNames)
         {
             _excludeFileNames.AddRange(fileNames);
             return this;
@@ -177,7 +176,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.V2
             );
         }
 
-        private Fixture CreateFixture(ExtractV2ZipArchiveTestData testData)
+        private Fixture CreateFixture(DomainV2ZipArchiveTestData testData)
         {
             var fixture = testData.Fixture;
             fixture.CustomizeUniqueInteger();

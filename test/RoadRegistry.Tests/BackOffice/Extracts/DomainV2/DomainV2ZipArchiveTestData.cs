@@ -7,19 +7,18 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
-using RoadRegistry.Extracts.Schemas.ExtractV2;
-using RoadRegistry.Extracts.Schemas.ExtractV2.GradeSeparatedJuntions;
-using RoadRegistry.Extracts.Schemas.ExtractV2.RoadNodes;
-using RoadRegistry.Extracts.Schemas.ExtractV2.RoadSegments;
-using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.Extracts.Schemas.DomainV2;
+using RoadRegistry.Extracts.Schemas.DomainV2.GradeSeparatedJuntions;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadNodes;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 
-public class ExtractV2ZipArchiveTestData : IDisposable
+public class DomainV2ZipArchiveTestData : IDisposable
 {
-    public ExtractV2ZipArchiveTestData()
+    public DomainV2ZipArchiveTestData()
     {
         Fixture = CreateFixture();
 
@@ -268,7 +267,6 @@ public class ExtractV2ZipArchiveTestData : IDisposable
         MemoryStream roadNodeDbaseIntegrationStream,
         MemoryStream europeanRoadChangeStream,
         MemoryStream nationalRoadChangeStream,
-        MemoryStream surfaceChangeStream,
         MemoryStream gradeSeparatedJunctionChangeStream,
         MemoryStream transactionZoneShapeStream,
         MemoryStream transactionZoneProjectionFormatStream,

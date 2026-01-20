@@ -64,7 +64,8 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                     .Select(x => NationalRoadNumber.Parse(x.Number))
                     .ToList(),
                 Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp()
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = false
             };
             session.Store(roadSegment);
 
@@ -102,7 +103,8 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 EuropeanRoadNumbers = [],
                 NationalRoadNumbers = [],
                 Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp()
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = false
             };
             session.Store(roadSegment);
 
@@ -255,7 +257,8 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList(),
                 NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList(),
                 Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp()
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = true
             };
             session.Store(roadSegment);
 
@@ -282,7 +285,8 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList(),
                 NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList(),
                 Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp()
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = true
             };
             session.Store(roadSegment);
 
@@ -350,6 +354,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 segment.SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>(e.Data.SurfaceType);
                 segment.EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList();
                 segment.NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList();
+                segment.IsV2 = true;
             }, e.Data);
         });
         When<IEvent<RoadSegmentWasRemoved>>(async (session, e, ct) =>
@@ -442,7 +447,6 @@ public sealed class RoadSegmentExtractItem
         set => Id = value;
     }
 
-    public required EventTimestamp Origin { get; set; }
     public required RoadSegmentGeometry Geometry { get; set; }
     public required RoadNodeId StartNodeId { get; set; }
     public required RoadNodeId EndNodeId { get; set; }
@@ -456,7 +460,11 @@ public sealed class RoadSegmentExtractItem
     public required RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> SurfaceType { get; set; }
     public required List<EuropeanRoadNumber> EuropeanRoadNumbers { get; set; }
     public required List<NationalRoadNumber> NationalRoadNumbers { get; set; }
+
+    public required EventTimestamp Origin { get; set; }
     public required EventTimestamp LastModified { get; set; }
+
+    public required bool IsV2 { get; set; }
 }
 
 public sealed class RoadSegmentDynamicAttributeValues<T>

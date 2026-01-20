@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Errors;
 using Extensions;
-using NetTopologySuite.Geometries;
 using RoadRegistry.ValueObjects.Problems;
 using RoadSegment;
 using ScopedRoadNetwork.ValueObjects;
@@ -69,25 +68,25 @@ public partial class RoadNode
         {
             problems += new RoadNodeNotConnectedToAnySegment(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
         }
-        else if (segments.Count == 1 && Type != RoadNodeType.EndNode)
+        else if (segments.Count == 1 && Type != RoadNodeTypeV2.EndNode)
         {
-            problems += RoadNodeTypeMismatch.New(
+            problems += RoadNodeTypeV2Mismatch.New(
                 context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
                 segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
                 Type,
-                [RoadNodeType.EndNode]);
+                [RoadNodeTypeV2.EndNode]);
         }
         else if (segments.Count == 2)
         {
-            if (!Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
+            if (!Type.IsAnyOf(RoadNodeTypeV2.FakeNode))
             {
-                problems += RoadNodeTypeMismatch.New(
+                problems += RoadNodeTypeV2Mismatch.New(
                     context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
                     segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
                     Type,
-                    [RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode]);
+                    [RoadNodeTypeV2.FakeNode]);
             }
-            else if (Type == RoadNodeType.FakeNode)
+            else if (Type == RoadNodeTypeV2.FakeNode)
             {
                 var segment1 = segments[0];
                 var segment2 = segments[1];
@@ -101,13 +100,13 @@ public partial class RoadNode
                 }
             }
         }
-        else if (segments.Count > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
+        else if (segments.Count > 2 && !Type.IsAnyOf(RoadNodeTypeV2.RealNode))
         {
-            problems += RoadNodeTypeMismatch.New(
+            problems += RoadNodeTypeV2Mismatch.New(
                 context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
                 segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
                 Type,
-                [RoadNodeType.RealNode, RoadNodeType.MiniRoundabout]);
+                [RoadNodeTypeV2.RealNode]);
         }
 
         return problems;

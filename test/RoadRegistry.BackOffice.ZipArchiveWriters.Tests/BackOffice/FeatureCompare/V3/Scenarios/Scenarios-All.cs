@@ -23,7 +23,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task Added()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithExtract((builder, _) =>
             {
                 builder.DataSet.RoadNodeDbaseRecords = new[] { builder.TestData.RoadNode3DbaseRecord, builder.TestData.RoadNode4DbaseRecord }.ToList();
@@ -103,7 +103,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task Modified()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
@@ -216,7 +216,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task NoChanges()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .BuildWithResult(_ => TranslatedChanges.Empty);
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
@@ -225,7 +225,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task Removed()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.DataSet.RoadNodeDbaseRecords = new[] { builder.TestData.RoadNode3DbaseRecord, builder.TestData.RoadNode4DbaseRecord }.ToList();

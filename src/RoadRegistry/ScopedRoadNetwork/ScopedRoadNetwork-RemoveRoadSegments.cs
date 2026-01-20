@@ -106,17 +106,17 @@ public partial class ScopedRoadNetwork
     {
         var node = _roadNodes[nodeId];
 
-        if (node.Type == RoadNodeType.EndNode)
+        if (node.Type == RoadNodeTypeV2.EndNode)
         {
             return node.Remove(provenance);
         }
 
-        if (node.Type == RoadNodeType.FakeNode)
+        if (node.Type == RoadNodeTypeV2.FakeNode)
         {
             return node.Modify(new ModifyRoadNodeChange
             {
                 RoadNodeId = nodeId,
-                Type = RoadNodeType.EndNode
+                Type = RoadNodeTypeV2.EndNode
             }, provenance);
         }
 
@@ -124,12 +124,12 @@ public partial class ScopedRoadNetwork
             .Where(x => x.StartNodeId == nodeId || x.EndNodeId == nodeId)
             .ToList();
 
-        if ((node.Type == RoadNodeType.RealNode || node.Type == RoadNodeType.MiniRoundabout) && nodeSegments.Count == 2)
+        if (node.Type == RoadNodeTypeV2.RealNode && nodeSegments.Count == 2)
         {
             var problems = node.Modify(new ModifyRoadNodeChange
             {
                 RoadNodeId = nodeId,
-                Type = RoadNodeType.FakeNode
+                Type = RoadNodeTypeV2.FakeNode
             }, provenance);
             if (!problems.HasError())
             {
@@ -137,15 +137,6 @@ public partial class ScopedRoadNetwork
             }
 
             return problems;
-        }
-
-        if (node.Type == RoadNodeType.TurningLoopNode)
-        {
-            return node.Modify(new ModifyRoadNodeChange
-            {
-                RoadNodeId = nodeId,
-                Type = RoadNodeType.EndNode
-            }, provenance);
         }
 
         return Problems.None;
@@ -160,9 +151,9 @@ public partial class ScopedRoadNetwork
     {
         var node = _roadNodes[nodeId];
 
-        if (node.Type != RoadNodeType.FakeNode || nodeSegments.Count != 2)
+        if (node.Type != RoadNodeTypeV2.FakeNode || nodeSegments.Count != 2)
         {
-            throw new InvalidOperationException($"Node {nodeId} should be of type {nameof(RoadNodeType.FakeNode)} and have exactly 2 connecting road segments.");
+            throw new InvalidOperationException($"Node {nodeId} should be of type {nameof(RoadNodeTypeV2.FakeNode)} and have exactly 2 connecting road segments.");
         }
 
         var segmentOne = nodeSegments.First();
@@ -174,14 +165,15 @@ public partial class ScopedRoadNetwork
             return Problems.None;
         }
 
-        if (segmentOne.GetOppositeNode(nodeId) == segmentTwo.GetOppositeNode(nodeId))
-        {
-            return node.Modify(new ModifyRoadNodeChange
-            {
-                RoadNodeId = nodeId,
-                Type = RoadNodeType.TurningLoopNode
-            }, provenance);
-        }
+        //TODO-pr TBD roadnodetype logic voor V2?
+        // if (segmentOne.GetOppositeNode(nodeId) == segmentTwo.GetOppositeNode(nodeId))
+        // {
+        //     return node.Modify(new ModifyRoadNodeChange
+        //     {
+        //         RoadNodeId = nodeId,
+        //         Type = RoadNodeTypeV2.TurningLoopNode
+        //     }, provenance);
+        // }
 
         return MergeSegments(segmentOne, segmentTwo, idGenerator, idTranslator, provenance);
     }

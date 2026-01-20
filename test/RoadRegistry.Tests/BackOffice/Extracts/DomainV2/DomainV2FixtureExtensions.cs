@@ -4,14 +4,14 @@ using System.IO.Compression;
 using System.Text;
 using AutoFixture;
 using BackOffice.Extracts.V2;
-using Extracts.Schemas.ExtractV2;
-using Extracts.Schemas.ExtractV2.RoadNodes;
-using Extracts.Schemas.ExtractV2.RoadSegments;
+using Extracts.Schemas.DomainV2;
+using Extracts.Schemas.DomainV2.RoadNodes;
+using Extracts.Schemas.DomainV2.RoadSegments;
 
-public static class ExtractV2FixtureExtensions
+public static class DomainV2FixtureExtensions
 {
     public static ZipArchive CreateUploadZipArchiveV2(this Fixture fixture,
-        ExtractV2ZipArchiveTestData testData,
+        DomainV2ZipArchiveTestData testData,
         MemoryStream roadSegmentShapeChangeStream = null,
         MemoryStream roadSegmentProjectionFormatStream = null,
         MemoryStream roadSegmentDbaseChangeStream = null,

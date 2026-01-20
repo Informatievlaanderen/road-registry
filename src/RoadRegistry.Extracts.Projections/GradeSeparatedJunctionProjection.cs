@@ -31,7 +31,8 @@ public class GradeSeparatedJunctionProjection : RoadNetworkChangesConnectedProje
                 UpperRoadSegmentId = new RoadSegmentId(e.Data.UpperRoadSegmentId),
                 Type = GradeSeparatedJunctionType.Parse(e.Data.Type),
                 Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp()
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = false
             });
             return Task.CompletedTask;
         });
@@ -44,7 +45,8 @@ public class GradeSeparatedJunctionProjection : RoadNetworkChangesConnectedProje
                 UpperRoadSegmentId = new RoadSegmentId(e.Data.UpperRoadSegmentId),
                 Type = GradeSeparatedJunctionType.Parse(e.Data.Type),
                 Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp()
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = false
             });
             return Task.CompletedTask;
         });
@@ -84,7 +86,8 @@ public class GradeSeparatedJunctionProjection : RoadNetworkChangesConnectedProje
                 UpperRoadSegmentId = new RoadSegmentId(e.Data.UpperRoadSegmentId),
                 Type = GradeSeparatedJunctionType.Parse(e.Data.Type),
                 Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp()
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = true
             });
             return Task.CompletedTask;
         });
@@ -126,11 +129,14 @@ public sealed class GradeSeparatedJunctionExtractItem
         get => new(Id);
         set => Id = value;
     }
-    public required EventTimestamp Origin { get; init; }
 
     public required RoadSegmentId LowerRoadSegmentId { get; set; }
     public required RoadSegmentId UpperRoadSegmentId { get; set; }
     public required GradeSeparatedJunctionType Type { get; set; }
+
+    public required EventTimestamp Origin { get; init; }
     public required EventTimestamp LastModified { get; set; }
+
+    public required bool IsV2 { get; set; }
 
 }

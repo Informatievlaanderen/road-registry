@@ -19,6 +19,7 @@ namespace RoadRegistry
                 new NumberedRoadNumberConverter(),
                 new RoadNodeIdConverter(),
                 new RoadNodeTypeConverter(),
+                new RoadNodeTypeV2Converter(),
                 new RoadSegmentIdConverter(),
                 new RoadSegmentAccessRestrictionConverter(),
                 new RoadSegmentCategoryConverter(),

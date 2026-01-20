@@ -21,7 +21,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task RemovedRoadSegmentShouldGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.DataSet.RoadSegmentDbaseRecords = new[] { builder.TestData.RoadSegment1DbaseRecord }.ToList();
@@ -38,7 +38,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task EqualLowerAndUpperShouldGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.TestData.GradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = builder.TestData.GradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value;
@@ -52,7 +52,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task UnknownRoadSegmentShouldGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
@@ -76,7 +76,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task WhenIntersectingMeasuredRoadSegmentsWithoutGradeSeparatedJunction_ThenShouldGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange(ConfigureIntersectingMeasuredRoadSegmentsWithoutGradeSeparatedJunction)
             .BuildWithResult(_ => TranslatedChanges.Empty);
 
@@ -87,7 +87,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task WhenIntersectingMeasuredRoadSegmentsWithoutGradeSeparatedJunction_WithChangedRoadSegmentsWithNullGeometry_ThenShouldOnlyReturnProblem()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 // trigger partial update
@@ -147,7 +147,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task IntersectingOutlinedRoadSegmentsWithoutGradeSeparatedJunctionShouldNotGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder(fixture =>
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder(fixture =>
             {
                 fixture.CustomizeRoadSegmentOutlineLaneCount();
                 fixture.CustomizeRoadSegmentOutlineMorphology();
@@ -173,7 +173,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task IntersectingRoadSegmentsAtTheirStartOrEndPointsWithoutGradeSeparatedJunctionShouldNotGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var roadSegment1Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
@@ -198,7 +198,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task IntersectingRoadSegmentsInA_TShape_WithoutGradeSeparatedJunctionShouldNotGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var roadSegment1Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
@@ -223,7 +223,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task Updated_DifferentId()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
@@ -263,7 +263,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task Updated_SameId()
     {
-        var (zipArchive, expected) = new ExtractV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
@@ -296,7 +296,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task RemovingDuplicateRecordsShouldReturnExpectedResult()
     {
-        var zipArchiveBuilder = new ExtractV2ZipArchiveBuilder();
+        var zipArchiveBuilder = new DomainV2ZipArchiveBuilder();
 
         var duplicateGradeSeparatedJunction = zipArchiveBuilder.Records.CreateGradeSeparatedJunctionDbaseRecord();
 

@@ -52,10 +52,10 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
                     var dbfRecord = new RoadNodeDbaseRecord
                     {
                         WK_OIDN = { Value = x.RoadNodeId },
-                        TYPE = { Value = x.Type },
+                        TYPE = { Value = x.IsV2 ? x.Type : MigrateRoadNodeType(x.Type) },
                         GRENSKNOOP = { Value = grensknoop },
                         CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
-                        VERSIE = { Value = x.LastModified.Timestamp.ToBrusselsDateTime() },
+                        VERSIE = { Value = x.LastModified.Timestamp.ToBrusselsDateTime() }
                     };
 
                     return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
@@ -65,8 +65,21 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
         }
     }
 
-    private RoadNodeType Migrate(RoadNodeType type)
+    public static RoadNodeTypeV2 MigrateRoadNodeType(int typeV1)
     {
-        switch(type)
+        switch (typeV1)
+        {
+            case 1:
+            case 4:
+                return RoadNodeTypeV2.RealNode;
+            case 2:
+                return RoadNodeTypeV2.FakeNode;
+            case 3:
+                return RoadNodeTypeV2.EndNode;
+            case 5:
+                return RoadNodeTypeV2.ValidationNode;
+        }
+
+        throw new NotSupportedException($"RoadNodeTypeV1 {typeV1}");
     }
 }

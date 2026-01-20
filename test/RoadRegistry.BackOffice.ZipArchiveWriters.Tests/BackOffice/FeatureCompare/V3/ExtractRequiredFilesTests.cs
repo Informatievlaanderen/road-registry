@@ -56,7 +56,7 @@ public class ExtractRequiredFilesTests : FeatureCompareTranslatorScenariosBase
             { "ERLTOGKRUISING.DBF", true }
         };
 
-        Assert.Equal(new ExtractV2ZipArchiveTestData().ZipArchiveWithEmptyFiles.Entries.Count, requiredFiles.Count);
+        Assert.Equal(new DomainV2ZipArchiveTestData().ZipArchiveWithEmptyFiles.Entries.Count, requiredFiles.Count);
 
         foreach (var requiredFile in requiredFiles)
         {
@@ -64,7 +64,7 @@ public class ExtractRequiredFilesTests : FeatureCompareTranslatorScenariosBase
             var isRequired = requiredFile.Value;
             TestOutputHelper.WriteLine($"{fileName}: {isRequired}");
 
-            var zipArchive = new ExtractV2ZipArchiveBuilder()
+            var zipArchive = new DomainV2ZipArchiveBuilder()
                 .ExcludeFileNames(fileName)
                 .Build();
 

@@ -148,14 +148,18 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                 .OrderBy(record => record.Id)
                 .Select(x =>
                 {
+                    //TODO-pr indien x.Grensknoop null, dan:
+                    //‘-8’ indien >10m van de gewestgrens)
+                    //'0' indien ≤10m van de gewestgrens
+                    short grensknoop = 0;
+
                     var dbfRecord = new RoadNodeDbaseRecord
                     {
                         WK_OIDN = { Value = x.RoadNodeId },
-                        WK_UIDN = { Value = $"{x.RoadNodeId}_{new Rfc3339SerializableDateTimeOffset(x.LastModified.Timestamp.ToBelgianDateTimeOffset()).ToString()}"},
-                        TYPE = { Value = x.Type },
-                        LBLTYPE = { Value = x.Type.ToDutchString() },
-                        BEGINTIJD = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
-                        BEGINORG = { Value = x.Origin.OrganizationId }
+                        TYPE = { Value = x.IsV2 ? x.Type : RoadNodesZipArchiveWriter.MigrateRoadNodeType(x.Type) },
+                        GRENSKNOOP = { Value = grensknoop },
+                        CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
+                        VERSIE = { Value = x.LastModified.Timestamp.ToBrusselsDateTime() }
                     };
 
                     return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);

@@ -193,6 +193,10 @@ public static class ProblemTranslator
                 GetRoadNodeTypeMismatch(problem))
         },
         {
+            ProblemCode.RoadNode.TypeV2Mismatch, problem => new(problem.Severity, problem.Reason,
+                GetRoadNodeTypeV2Mismatch(problem))
+        },
+        {
             ProblemCode.RoadNode.Fake.ConnectedSegmentsDoNotDiffer, problem => new(problem.Severity, problem.Reason,
                 $"De attributen van de verbonden wegsegmenten ({problem.Parameters[1].Value} en {problem.Parameters[2].Value}) verschillen onvoldoende voor deze schijnknoop.")
         },
@@ -998,6 +1002,29 @@ public static class ProblemTranslator
         sb.AppendFormat("{0} ", string.Join(',', problem.Parameters
             .Where(p => p.Name == "Expected")
             .Select(parameter => RoadNodeType.Parse(parameter.Value).Translation.Name)));
+        sb.AppendFormat(". De wegknoop is verbonden met {0} wegsegment(-en)",
+            problem.GetParameterValue("ConnectedSegmentCount"));
+        if (problem.Parameters.Any(p => p.Name == "ConnectedSegmentId"))
+        {
+            sb.AppendFormat(": {0} ", string.Join(',', problem.Parameters
+                .Where(p => p.Name == "ConnectedSegmentId")
+                .Select(parameter => parameter.Value)));
+        }
+
+        sb.Append(".");
+
+        return sb.ToString();
+    }
+
+    static string GetRoadNodeTypeV2Mismatch(Problem problem)
+    {
+        var sb = new StringBuilder();
+        sb.AppendFormat("Het opgegeven wegknoop type {0} van knoop {1} komt niet overeen met een van de verwachte wegknoop types: ",
+            RoadNodeTypeV2.Parse(problem.GetParameterValue("Actual")).Translation.Name,
+            problem.GetParameterValue("RoadNodeId"));
+        sb.AppendFormat("{0} ", string.Join(',', problem.Parameters
+            .Where(p => p.Name == "Expected")
+            .Select(parameter => RoadNodeTypeV2.Parse(parameter.Value).Translation.Name)));
         sb.AppendFormat(". De wegknoop is verbonden met {0} wegsegment(-en)",
             problem.GetParameterValue("ConnectedSegmentCount"));
         if (problem.Parameters.Any(p => p.Name == "ConnectedSegmentId"))
