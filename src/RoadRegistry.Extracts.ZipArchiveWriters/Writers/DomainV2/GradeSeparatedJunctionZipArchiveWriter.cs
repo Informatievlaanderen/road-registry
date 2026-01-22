@@ -43,8 +43,7 @@ public class GradeSeparatedJunctionZipArchiveWriter : IZipArchiveWriter
                     OK_OIDN = { Value = x.GradeSeparatedJunctionId },
                     BO_WS_OIDN = { Value = x.UpperRoadSegmentId },
                     ON_WS_OIDN = { Value = x.LowerRoadSegmentId },
-                    TYPE = { Value = x.Type.Translation.Identifier },
-                    LBLTYPE = { Value = x.Type.ToDutchString() },
+                    TYPE = { Value = x.IsV2 ? GradeSeparatedJunctionTypeV2.Parse(x.Type).Translation.Identifier : MigrateToV2(GradeSeparatedJunctionType.Parse(x.Type)) },
                     BEGINTIJD = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
                     BEGINORG = { Value = x.Origin.OrganizationId }
                 });
@@ -52,5 +51,22 @@ public class GradeSeparatedJunctionZipArchiveWriter : IZipArchiveWriter
             var dbaseRecordWriter = new DbaseRecordWriter(_encoding);
             await dbaseRecordWriter.WriteToArchive(archive, extractFilename, featureType, GradeSeparatedJunctionDbaseRecord.Schema, records, cancellationToken);
         }
+    }
+
+    public static int MigrateToV2(GradeSeparatedJunctionType v1)
+    {
+        var mapping = new Dictionary<int, int>
+        {
+            { 1, 1 },
+            { 2, 2 },
+            { -8, -8 }
+        };
+
+        if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
+        {
+            return v2;
+        }
+
+        throw new NotSupportedException(v1.ToString());
     }
 }

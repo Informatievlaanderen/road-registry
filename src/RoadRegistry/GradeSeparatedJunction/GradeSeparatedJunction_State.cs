@@ -8,7 +8,7 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
     public GradeSeparatedJunctionId GradeSeparatedJunctionId { get; }
     public RoadSegmentId LowerRoadSegmentId { get; private set; }
     public RoadSegmentId UpperRoadSegmentId { get; private set; }
-    public GradeSeparatedJunctionType Type { get; private set; }
+    public GradeSeparatedJunctionTypeV2 Type { get; private set; }
 
     public bool IsRemoved { get; private set; }
 
@@ -30,7 +30,7 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
     {
         LowerRoadSegmentId = new RoadSegmentId(lowerRoadSegmentId);
         UpperRoadSegmentId = new RoadSegmentId(upperRoadSegmentId);
-        Type = GradeSeparatedJunctionType.Parse(type);
+        Type = GradeSeparatedJunctionTypeV2.Parse(type);
         IsRemoved = isRemoved;
     }
 

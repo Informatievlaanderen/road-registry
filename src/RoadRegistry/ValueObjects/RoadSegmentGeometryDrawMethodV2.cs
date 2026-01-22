@@ -117,7 +117,7 @@ public sealed class RoadSegmentGeometryDrawMethodV2 : IEquatable<RoadSegmentGeom
         return parsed != null;
     }
 
-    public class DutchTranslation
+    public sealed class DutchTranslation
     {
         internal DutchTranslation(int identifier, string name, string description)
         {

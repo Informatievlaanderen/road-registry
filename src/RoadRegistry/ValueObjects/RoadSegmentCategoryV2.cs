@@ -11,9 +11,9 @@ using RoadRegistry.Extensions;
 public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, IDutchToString
 {
     //TODO-pr rename props to NL
-    public static readonly RoadSegmentCategoryV2 EuropeanMainRoad =
+    public static readonly RoadSegmentCategoryV2 EuropeseHoofdweg =
         new(
-            nameof(EuropeanMainRoad),
+            nameof(EuropeseHoofdweg),
             new DutchTranslation(
                 "EHW",
                 "europese hoofdweg",
@@ -21,9 +21,9 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
             )
         );
 
-    public static readonly RoadSegmentCategoryV2 FlemishMainRoad =
+    public static readonly RoadSegmentCategoryV2 VlaamseHoofdweg =
         new(
-            nameof(FlemishMainRoad),
+            nameof(VlaamseHoofdweg),
             new DutchTranslation(
                 "VHW",
                 "vlaamse hoofdweg",
@@ -31,9 +31,9 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
             )
         );
 
-    public static readonly RoadSegmentCategoryV2 RegionalRoad =
+    public static readonly RoadSegmentCategoryV2 RegionaleWeg =
         new(
-            nameof(RegionalRoad),
+            nameof(RegionaleWeg),
             new DutchTranslation(
                 "RW",
                 "regionale weg",
@@ -41,9 +41,9 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
             )
         );
 
-    public static readonly RoadSegmentCategoryV2 InterLocalRoad =
+    public static readonly RoadSegmentCategoryV2 InterlokaleWeg =
         new(
-            nameof(InterLocalRoad),
+            nameof(InterlokaleWeg),
             new DutchTranslation(
                 "IW",
                 "interlokale weg",
@@ -51,9 +51,9 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
             )
         );
 
-    public static readonly RoadSegmentCategoryV2 LocalAccessRoad =
+    public static readonly RoadSegmentCategoryV2 LokaleOntsluitingsweg =
         new(
-            nameof(LocalAccessRoad),
+            nameof(LokaleOntsluitingsweg),
             new DutchTranslation(
                 "OW",
                 "lokale ontsluitingsweg",
@@ -61,9 +61,9 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
             )
         );
 
-    public static readonly RoadSegmentCategoryV2 LocalHeritageAccessRoad =
+    public static readonly RoadSegmentCategoryV2 LokaleErftoegangsweg =
         new(
-            nameof(LocalHeritageAccessRoad),
+            nameof(LokaleErftoegangsweg),
             new DutchTranslation(
                 "EW",
                 "lokale erftoegangsweg",
@@ -71,9 +71,9 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
             )
         );
 
-    public static readonly RoadSegmentCategoryV2 Unknown =
+    public static readonly RoadSegmentCategoryV2 NietGekend =
         new(
-            nameof(Unknown),
+            nameof(NietGekend),
             new DutchTranslation(
                 "-8",
                 "niet gekend",
@@ -81,9 +81,9 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
             )
         );
 
-    public static readonly RoadSegmentCategoryV2 NotApplicable =
+    public static readonly RoadSegmentCategoryV2 NietVanToepassing =
         new(
-            nameof(NotApplicable),
+            nameof(NietVanToepassing),
             new DutchTranslation(
                 "-9",
                 "niet van toepassing",
@@ -93,14 +93,14 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
 
     public static readonly RoadSegmentCategoryV2[] All =
     [
-        Unknown,
-        NotApplicable,
-        EuropeanMainRoad,
-        FlemishMainRoad,
-        RegionalRoad,
-        InterLocalRoad,
-        LocalAccessRoad,
-        LocalHeritageAccessRoad
+        NietGekend,
+        NietVanToepassing,
+        EuropeseHoofdweg,
+        VlaamseHoofdweg,
+        RegionaleWeg,
+        InterlokaleWeg,
+        LokaleOntsluitingsweg,
+        LokaleErftoegangsweg
     ];
 
     public sealed record Edit
@@ -199,7 +199,7 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
         return parsed != null;
     }
 
-    public class DutchTranslation
+    public sealed class DutchTranslation
     {
         internal DutchTranslation(string identifier, string name, string description)
         {

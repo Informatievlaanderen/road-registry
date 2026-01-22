@@ -114,19 +114,19 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
                 return default;
             }
 
-            GradeSeparatedJunctionType ReadType()
+            GradeSeparatedJunctionTypeV2 ReadType()
             {
                 if (TYPE is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(TYPE));
                 }
-                else if (GradeSeparatedJunctionType.ByIdentifier.TryGetValue(TYPE.Value, out var value))
+                else if (GradeSeparatedJunctionTypeV2.ByIdentifier.TryGetValue(TYPE.Value, out var value))
                 {
                     return value;
                 }
                 else
                 {
-                    problems += problemBuilder.GradeSeparatedJunctionTypeMismatch(TYPE.Value);
+                    problems += problemBuilder.GradeSeparatedJunctionTypeV2Mismatch(TYPE.Value);
                 }
 
                 return default;

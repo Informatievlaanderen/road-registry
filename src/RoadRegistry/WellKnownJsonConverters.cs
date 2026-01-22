@@ -51,6 +51,7 @@ namespace RoadRegistry
                 new RoadSegmentStatusV2Converter(),
                 new RoadSegmentSurfaceTypeV2Converter(),
                 new RoadSegmentDynamicAttributeValuesJsonConverter(),
+                new GradeSeparatedJunctionTypeV2Converter(),
                 new RoadNetworkIdConverter()
             ];
         }

@@ -122,6 +122,19 @@ public static class DbaseFileProblems
             .WithParameter(new ProblemParameter("Actual", value.ToString()))
             .Build();
     }
+    public static FileError GradeSeparatedJunctionTypeV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Error(nameof(GradeSeparatedJunctionTypeMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    string.Join(",", GradeSeparatedJunctionTypeV2.ByIdentifier.Keys.Select(key => key.ToString()))
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .Build();
+    }
 
     public static FileError GradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegment(this IDbaseFileRecordProblemBuilder builder, RoadSegmentId roadSegmentId)
     {

@@ -6,7 +6,7 @@ public static class Lists
 {
     public static GradeSeparatedJunctionTypeDbaseRecord[] AllGradeSeparatedJunctionTypeDbaseRecords =>
         Array.ConvertAll(
-            GradeSeparatedJunctionType.All,
+            GradeSeparatedJunctionTypeV2.All,
             item => new GradeSeparatedJunctionTypeDbaseRecord
             {
                 TYPE = { Value = item.Translation.Identifier },

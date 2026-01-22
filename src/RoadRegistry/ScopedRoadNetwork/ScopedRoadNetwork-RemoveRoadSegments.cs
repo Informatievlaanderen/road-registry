@@ -25,8 +25,8 @@ public partial class ScopedRoadNetwork
 
         var invalidCategories = new[]
         {
-            RoadSegmentCategoryV2.EuropeanMainRoad,
-            RoadSegmentCategoryV2.FlemishMainRoad
+            RoadSegmentCategoryV2.EuropeseHoofdweg,
+            RoadSegmentCategoryV2.VlaamseHoofdweg
         };
 
         var idTranslator = new IdentifierTranslator();
