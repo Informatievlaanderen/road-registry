@@ -28,7 +28,7 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
             {
                 RoadNodeId = new RoadNodeId(e.Data.RoadNodeId),
                 Geometry = e.Data.Geometry,
-                Type = RoadNodeType.Parse(e.Data.Type),
+                Type = e.Data.Type,
                 Grensknoop = false,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
@@ -42,7 +42,7 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
             {
                 RoadNodeId = new RoadNodeId(e.Data.RoadNodeId),
                 Geometry = e.Data.Geometry,
-                Type = RoadNodeType.Parse(e.Data.Type),
+                Type = e.Data.Type,
                 Grensknoop = false,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
@@ -59,7 +59,7 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
             }
 
             node.LastModified = e.Data.Provenance.ToEventTimestamp();
-            node.Type = RoadNodeType.Parse(e.Data.Type);
+            node.Type = e.Data.Type;
             node.Geometry = e.Data.Geometry;
 
             session.Store(node);
@@ -82,7 +82,7 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
             {
                 RoadNodeId = e.Data.RoadNodeId,
                 Geometry = e.Data.Geometry,
-                Type = RoadNodeType.Parse(e.Data.Type),
+                Type = e.Data.Type,
                 Grensknoop = e.Data.Grensknoop,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
@@ -145,7 +145,7 @@ public sealed class RoadNodeExtractItem
     }
 
     public required RoadNodeGeometry Geometry { get; set; }
-    public required int Type { get; set; }
+    public required string Type { get; set; }
     public required bool Grensknoop { get; set; }
 
     public required EventTimestamp Origin { get; init; }

@@ -2,28 +2,20 @@ namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers.DomainV2;
 
 using System.IO.Compression;
 using System.Text;
-using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Utilities;
+using Extensions;
+using Infrastructure.ShapeFile;
 using NetTopologySuite.Geometries;
-using RoadRegistry.Extensions;
-using RoadRegistry.Extracts;
-using RoadRegistry.Extracts.Infrastructure.ShapeFile;
-using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
-using RoadRegistry.Infrastructure;
-using RoadRegistry.RoadSegment.ValueObjects;
+using Projections;
+using Schemas.DomainV2.RoadSegments;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
 {
     private readonly Encoding _encoding;
-    private readonly IStreetNameCache _streetNameCache;
 
-    public RoadSegmentsZipArchiveWriter(
-        IStreetNameCache streetNameCache,
-        Encoding encoding)
+    public RoadSegmentsZipArchiveWriter(Encoding encoding)
     {
-        _streetNameCache = streetNameCache.ThrowIfNull();
         _encoding = encoding.ThrowIfNull();
     }
 
@@ -31,6 +23,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
         IZipArchiveDataProvider zipArchiveDataProvider,
+        ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
@@ -45,95 +38,61 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
             ? [FeatureType.Extract]
             : [FeatureType.Extract, FeatureType.Change];
 
-        var cachedStreetNameIds = segments
-            .SelectMany(record => record.StreetNameId.Values.Select(x => x.Value))
-            .Where(streetNameId => streetNameId > 0)
-            .Select(streetNameId => streetNameId.ToInt32())
-            .Distinct()
-            .ToList();
-        var cachedStreetNames = await _streetNameCache.GetStreetNamesById(cachedStreetNameIds, cancellationToken);
-
         var writer = new ShapeFileRecordWriter(_encoding);
 
         foreach (var featureType in featureTypes)
         {
-            var records = segments
-                .OrderBy(x => x.Id)
-                .Select(x =>
-                {
-                    var leftStreetNameId = GetValue(x.StreetNameId, RoadSegmentAttributeSide.Left);
-                    var rightStreetNameId = GetValue(x.StreetNameId, RoadSegmentAttributeSide.Right);
-                    var status = GetValue(x.Status);
-                    var morphology = GetValue(x.Morphology);
-                    var accessRestriction = GetValue(x.AccessRestriction);
-                    var category = GetValue(x.Category);
-
-                    var statusValue = x.IsV2 ? RoadSegmentStatusV2.Parse(status).Translation.Identifier : MigrateToV2(RoadSegmentStatus.Parse(status));
-                    var morphologyValue = x.IsV2 ? RoadSegmentMorphologyV2.Parse(morphology).Translation.Identifier : MigrateToV2(RoadSegmentMorphology.Parse(morphology));
-                    var accessRestrictionValue = x.IsV2 ? RoadSegmentAccessRestrictionV2.Parse(accessRestriction).Translation.Identifier : MigrateToV2(RoadSegmentAccessRestriction.Parse(accessRestriction));
-                    var categoryValue = x.IsV2 ? RoadSegmentCategoryV2.Parse(category).Translation.Identifier : MigrateToV2(RoadSegmentCategory.Parse(category));
-
-                    //TODO-pr roadsegmentsurfacetype mapping
-                    /*{-,1 indien ‘AttWegverharding.TYPE' = 1 voor deze ID},
-{-,2 indien ‘AttWegverharding.TYPE' = 2 voor deze ID},
-{-,3 indien ‘AttWegverharding.TYPE' = -9 voor deze ID},
-{-,-8 indien ‘AttWegverharding.TYPE' = -8 voor deze ID},
-*/
-
-                    var dbfRecord = new RoadSegmentDbaseRecord
-                    {
-                        WS_OIDN = { Value = x.RoadSegmentId },
-                        WS_UIDN = { Value = $"{x.RoadSegmentId}_{new Rfc3339SerializableDateTimeOffset(x.LastModified.Timestamp.ToBelgianDateTimeOffset()).ToString()}" },
-                        //WS_GIDN = { Value = "", },
-
-                        B_WK_OIDN = { Value = x.StartNodeId },
-                        E_WK_OIDN = { Value = x.EndNodeId },
-                        STATUS = { Value = statusValue },
-                        //LBLSTATUS = { Value = xxx },
-                        MORF = { Value = morphologyValue },
-                        //LBLMORF = { Value = xxx },
-                        WEGCAT = { Value = categoryValue },
-                        //LBLWEGCAT = { Value = xxx },
-                        LSTRNMID = { Value = leftStreetNameId },
-                        LSTRNM = { Value = cachedStreetNames.GetValueOrDefault(leftStreetNameId) },
-                        RSTRNMID = { Value = rightStreetNameId },
-                        RSTRNM = { Value = cachedStreetNames.GetValueOrDefault(rightStreetNameId) },
-                        BEHEER = { Value = GetValue(x.MaintenanceAuthorityId) },
-                        //LBLBEHEER = { Value = xxx },
-                        METHODE = { Value = x.GeometryDrawMethod },
-                        //LBLMETHOD = { Value = xxx },
-                        TOEGANG = { Value = accessRestrictionValue },
-                        //LBLTGBEP = { Value = xxx },
-
-                        //OPNDATUM = { Value = xxx },
-                        BEGINTIJD = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
-                        BEGINORG = { Value = x.Origin.OrganizationId }
-                    };
-
-                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
-                })
-                .ToList();
+            var records = ConvertToDbaseRecords(segments, context);
 
             await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.PolyLine, RoadSegmentDbaseRecord.Schema, records, cancellationToken);
         }
     }
 
-    private static T GetValue<T>(RoadRegistry.Extracts.Projections.RoadSegmentDynamicAttributeValues<T> attributes)
+    internal static IEnumerable<(DbaseRecord, Geometry)> ConvertToDbaseRecords(IEnumerable<RoadSegmentExtractItem> segments, ZipArchiveWriteContext context)
     {
-        return attributes.Values.Single().Value;
+        return segments
+            .OrderBy(x => x.Id)
+            .SelectMany(roadSegment =>
+            {
+                return roadSegment.Flatten()
+                    .Select(x =>
+                    {
+                        var status = x.IsV2 ? RoadSegmentStatusV2.Parse(x.Status).Translation.Identifier : MigrateToV2(RoadSegmentStatus.Parse(x.Status));
+                        var morphology = x.IsV2 ? RoadSegmentMorphologyV2.Parse(x.Morphology).Translation.Identifier : MigrateToV2(RoadSegmentMorphology.Parse(x.Morphology));
+                        var accessRestriction = x.IsV2 ? RoadSegmentAccessRestrictionV2.Parse(x.AccessRestriction).Translation.Identifier : MigrateToV2(RoadSegmentAccessRestriction.Parse(x.AccessRestriction));
+                        var category = x.IsV2 ? RoadSegmentCategoryV2.Parse(x.Category).Translation.Identifier : MigrateToV2(RoadSegmentCategory.Parse(x.Category));
+                        var surfaceType = x.IsV2 ? RoadSegmentSurfaceTypeV2.Parse(x.SurfaceType).Translation.Identifier : MigrateToV2(RoadSegmentSurfaceType.Parse(x.SurfaceType));
+
+                        var dbfRecord = new RoadSegmentDbaseRecord
+                        {
+                            WS_TEMPID = { Value = context.NewTempId(x.RoadSegmentId) },
+                            WS_OIDN = { Value = x.RoadSegmentId },
+                            STATUS = { Value = status },
+                            MORF = { Value = morphology },
+                            WEGCAT = { Value = category },
+                            LSTRNMID = { Value = x.LeftStreetNameId },
+                            RSTRNMID = { Value = x.RightStreetNameId },
+                            LBEHEER = { Value = x.LeftMaintenanceAuthorityId },
+                            RBEHEER = { Value = x.RightMaintenanceAuthorityId },
+                            TOEGANG = { Value = accessRestriction },
+                            VERHARDING = { Value = surfaceType },
+                            //TODO-pr fill in from projection, implement in domain
+                            AUTOHEEN = { Value = 0 },
+                            AUTOTERUG = { Value = 0 },
+                            FIETSHEEN = { Value = 0 },
+                            FIETSTERUG = { Value = 0 },
+                            VOETGANGER = { Value = 0 },
+
+                            CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
+                            VERSIE = { Value = x.LastModified.Timestamp.ToBrusselsDateTime() }
+                        };
+
+                        return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
+                    });
+            });
     }
 
-    private static T GetValue<T>(RoadRegistry.Extracts.Projections.RoadSegmentDynamicAttributeValues<T> attributes, RoadSegmentAttributeSide side)
-    {
-        return side switch
-        {
-            RoadSegmentAttributeSide.Left => attributes.Values.Single(x => x.Side == RoadSegmentAttributeSide.Both || x.Side == RoadSegmentAttributeSide.Left).Value,
-            RoadSegmentAttributeSide.Right => attributes.Values.Single(x => x.Side == RoadSegmentAttributeSide.Both || x.Side == RoadSegmentAttributeSide.Right).Value,
-            _ => throw new InvalidOperationException("Only left or right side is allowed.")
-        };
-    }
-
-    public static int MigrateToV2(RoadSegmentStatus v1)
+    private static int MigrateToV2(RoadSegmentStatus v1)
     {
         var mapping = new Dictionary<int, int>
         {
@@ -153,7 +112,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
         throw new NotSupportedException(v1.ToString());
     }
 
-    public static int MigrateToV2(RoadSegmentMorphology v1)
+    private static int MigrateToV2(RoadSegmentMorphology v1)
     {
         var mapping = new Dictionary<int, int>
         {
@@ -186,7 +145,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
         throw new NotSupportedException(v1.ToString());
     }
 
-    public static int MigrateToV2(RoadSegmentAccessRestriction v1)
+    private static int MigrateToV2(RoadSegmentAccessRestriction v1)
     {
         var mapping = new Dictionary<int, int>
         {
@@ -206,7 +165,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
         throw new NotSupportedException(v1.ToString());
     }
 
-    public static string MigrateToV2(RoadSegmentCategory v1)
+    private static string MigrateToV2(RoadSegmentCategory v1)
     {
         var mapping = new Dictionary<string, string>
         {
@@ -218,6 +177,24 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
             { "EW", "EW" },
             { "-8", "-8" },
             { "-9", "-9" }
+        };
+
+        if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
+        {
+            return v2;
+        }
+
+        throw new NotSupportedException(v1.ToString());
+    }
+
+    private static int MigrateToV2(RoadSegmentSurfaceType v1)
+    {
+        var mapping = new Dictionary<int, int>
+        {
+            { 1, 1 },
+            { 2, 2 },
+            { -9, 3 },
+            { -8, -8 },
         };
 
         if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))

@@ -26,6 +26,7 @@ public class DbaseFileZipArchiveWriter : IZipArchiveWriter
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
         IZipArchiveDataProvider zipArchiveDataProvider,
+        ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);

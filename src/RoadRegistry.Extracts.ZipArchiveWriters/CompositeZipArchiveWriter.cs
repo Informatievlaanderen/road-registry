@@ -21,6 +21,7 @@ public class CompositeZipArchiveWriter : IZipArchiveWriter
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
         IZipArchiveDataProvider zipArchiveDataProvider,
+        ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
@@ -32,7 +33,7 @@ public class CompositeZipArchiveWriter : IZipArchiveWriter
             var sw = Stopwatch.StartNew();
             _logger.LogInformation("{Type} started...", writer.GetType().Name);
 
-            await writer.WriteAsync(archive, request, zipArchiveDataProvider, cancellationToken);
+            await writer.WriteAsync(archive, request, zipArchiveDataProvider, context, cancellationToken);
 
             _logger.LogInformation("{Type} completed in {Elapsed}", writer.GetType().Name, sw.Elapsed);
         }

@@ -12,9 +12,9 @@ namespace RoadRegistry
         {
             Converters =
             [
+                //common
                 new GeoJSON.Net.Converters.GeoJsonConverter(),
                 new OrganizationIdConverter(),
-                //common
                 new EuropeanRoadNumberConverter(),
                 new NationalRoadNumberConverter(),
                 new RoadNodeIdConverter(),

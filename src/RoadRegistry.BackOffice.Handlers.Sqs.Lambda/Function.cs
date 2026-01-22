@@ -79,7 +79,6 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
                 new ZipArchiveWriterFactoryForDomainV2(
                     new RoadRegistry.Extracts.ZipArchiveWriters.Writers.DomainV2.RoadNetworkExtractZipArchiveWriter(
                         sp.GetService<ZipArchiveWriterOptions>(),
-                        sp.GetService<IStreetNameCache>(),
                         sp.GetService<RecyclableMemoryStreamManager>(),
                         sp.GetRequiredService<FileEncoding>(),
                         sp.GetRequiredService<ILoggerFactory>()

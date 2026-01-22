@@ -20,6 +20,7 @@ public class GradeSeparatedJunctionZipArchiveWriter : IZipArchiveWriter
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
         IZipArchiveDataProvider zipArchiveDataProvider,
+        ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
@@ -41,11 +42,10 @@ public class GradeSeparatedJunctionZipArchiveWriter : IZipArchiveWriter
                 .Select(x => new GradeSeparatedJunctionDbaseRecord
                 {
                     OK_OIDN = { Value = x.GradeSeparatedJunctionId },
-                    BO_WS_OIDN = { Value = x.UpperRoadSegmentId },
-                    ON_WS_OIDN = { Value = x.LowerRoadSegmentId },
+                    BO_TEMPID = { Value = x.UpperRoadSegmentId },
+                    ON_TEMPID = { Value = x.LowerRoadSegmentId },
                     TYPE = { Value = x.IsV2 ? GradeSeparatedJunctionTypeV2.Parse(x.Type).Translation.Identifier : MigrateToV2(GradeSeparatedJunctionType.Parse(x.Type)) },
-                    BEGINTIJD = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
-                    BEGINORG = { Value = x.Origin.OrganizationId }
+                    CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() }
                 });
 
             var dbaseRecordWriter = new DbaseRecordWriter(_encoding);
@@ -53,7 +53,7 @@ public class GradeSeparatedJunctionZipArchiveWriter : IZipArchiveWriter
         }
     }
 
-    public static int MigrateToV2(GradeSeparatedJunctionType v1)
+    private static int MigrateToV2(GradeSeparatedJunctionType v1)
     {
         var mapping = new Dictionary<int, int>
         {

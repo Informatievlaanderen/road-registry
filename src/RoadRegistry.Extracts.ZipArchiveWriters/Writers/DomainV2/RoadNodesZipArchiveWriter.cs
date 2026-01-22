@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using NetTopologySuite.Geometries;
+using Projections;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Infrastructure.ShapeFile;
@@ -23,6 +24,7 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
         IZipArchiveDataProvider zipArchiveDataProvider,
+        ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
@@ -40,46 +42,64 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
 
         foreach (var featureType in featureTypes)
         {
-            var records = nodes
-                .OrderBy(record => record.Id)
-                .Select(x =>
-                {
-                    //TODO-pr indien x.Grensknoop null, dan:
-                    //‘-8’ indien >10m van de gewestgrens)
-                    //'0' indien ≤10m van de gewestgrens
-                    short grensknoop = 0;
-
-                    var dbfRecord = new RoadNodeDbaseRecord
-                    {
-                        WK_OIDN = { Value = x.RoadNodeId },
-                        TYPE = { Value = x.IsV2 ? x.Type : MigrateRoadNodeType(x.Type) },
-                        GRENSKNOOP = { Value = grensknoop },
-                        CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
-                        VERSIE = { Value = x.LastModified.Timestamp.ToBrusselsDateTime() }
-                    };
-
-                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
-                });
+            var records = ConvertToDbaseRecords(nodes);
 
             await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.Point, RoadNodeDbaseRecord.Schema, records, cancellationToken);
         }
     }
 
-    public static RoadNodeTypeV2 MigrateRoadNodeType(int typeV1)
+    internal static IEnumerable<(DbaseRecord, Geometry)> ConvertToDbaseRecords(IEnumerable<RoadNodeExtractItem> nodes)
     {
-        switch (typeV1)
+        return nodes
+            .OrderBy(record => record.Id)
+            .Select(x =>
+            {
+                var dbfRecord = new RoadNodeDbaseRecord
+                {
+                    WK_OIDN = { Value = x.RoadNodeId },
+                    TYPE = { Value = x.IsV2 ? RoadNodeTypeV2.Parse(x.Type).Translation.Identifier : MigrateRoadNodeType(RoadNodeType.Parse(x.Type)) },
+                    GRENSKNOOP = { Value = ToGrensknoopDbfValue(x.Grensknoop, x.Geometry, x.IsV2) },
+                    CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
+                    VERSIE = { Value = x.LastModified.Timestamp.ToBrusselsDateTime() }
+                };
+
+                return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
+            });
+    }
+
+    private static int MigrateRoadNodeType(RoadNodeType v1)
+    {
+        var mapping = new Dictionary<int, int>
         {
-            case 1:
-            case 4:
-                return RoadNodeTypeV2.EchteKnoop;
-            case 2:
-                return RoadNodeTypeV2.Schijnknoop;
-            case 3:
-                return RoadNodeTypeV2.Eindknoop;
-            case 5:
-                return RoadNodeTypeV2.Validatieknoop;
+            { 1, 1 },
+            { 2, 2 },
+            { 3, 3 },
+            { 4, 1 },
+            { 5, 4 }
+        };
+
+        if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
+        {
+            return v2;
         }
 
-        throw new NotSupportedException($"RoadNodeTypeV1 {typeV1}");
+        throw new NotSupportedException(v1.ToString());
+    }
+
+    private static short ToGrensknoopDbfValue(bool grensknoop, RoadNodeGeometry geometry, bool isV2)
+    {
+        return isV2
+            ? grensknoop.ToDbaseShortValue()
+            : IsWithin10MeterOfGrens(geometry)
+                ? (short)0
+                : (short)-8;
+    }
+
+    private static bool IsWithin10MeterOfGrens(RoadNodeGeometry geometry)
+    {
+        //TODO-pr indien x.Grensknoop null, dan:
+        //‘-8’ indien >10m van de gewestgrens)
+        //'0' indien ≤10m van de gewestgrens
+        throw new NotImplementedException();
     }
 }

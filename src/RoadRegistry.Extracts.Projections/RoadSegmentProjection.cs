@@ -462,16 +462,11 @@ public sealed class RoadSegmentExtractItem
     public required bool IsV2 { get; set; }
 }
 
-public static class RoadSegmentDynamicAttributeValuesExtensions
+internal static class RoadSegmentDynamicAttributeValuesExtensions
 {
     public static RoadSegmentDynamicAttributeValues<string> ToStringAttributeValues<T>(this RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<T> attributes, Func<T, string> converter)
     {
         return new RoadSegmentDynamicAttributeValues<string>(attributes.Values.Select(x => (x.Coverage?.From, x.Coverage?.To, x.Side, converter(x.Value))));
-    }
-
-    public static RoadSegmentDynamicAttributeValues<int> ToIntegerAttributeValues<T>(this RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<T> attributes, Func<T, int> converter)
-    {
-        return new RoadSegmentDynamicAttributeValues<int>(attributes.Values.Select(x => (x.Coverage?.From, x.Coverage?.To, x.Side, converter(x.Value))));
     }
 }
 

@@ -21,6 +21,7 @@ public class RoadSegmentNationalRoadAttributesZipArchiveWriter : IZipArchiveWrit
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
         IZipArchiveDataProvider zipArchiveDataProvider,
+        ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
@@ -49,11 +50,9 @@ public class RoadSegmentNationalRoadAttributesZipArchiveWriter : IZipArchiveWrit
                     var dbfRecord = new RoadSegmentNationalRoadAttributeDbaseRecord
                     {
                         NW_OIDN = { Value = attributeId.Next() },
-                        WS_OIDN = { Value = x.RoadSegment.RoadSegmentId },
-                        IDENT2 = { Value = x.number },
-                        BEGINTIJD = { Value = x.RoadSegment.Origin.Timestamp.ToBrusselsDateTime() },
-                        BEGINORG = { Value = x.RoadSegment.Origin.OrganizationId },
-                        //LBLBGNORG = {  }
+                        WS_TEMPID = { Value = x.RoadSegment.RoadSegmentId }, //TODO-pr implement WS_TEMPID
+                        NWNUMMER = { Value = x.number },
+                        CREATIE = { Value = x.RoadSegment.Origin.Timestamp.ToBrusselsDateTime() }
                     };
                     return dbfRecord;
                 });

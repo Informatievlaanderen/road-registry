@@ -51,7 +51,12 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV2
         var stream = _manager.GetStream();
         using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
         var writer = _writerFactory.Create(request.ZipArchiveWriterVersion);
-        await writer.WriteAsync(archive, request, new ZipArchiveDataProvider(session, _roadNetworkRepository, editorContext), cancellationToken);
+        await writer.WriteAsync(
+            archive,
+            request,
+            new ZipArchiveDataProvider(session, _roadNetworkRepository, editorContext),
+            new ZipArchiveWriteContext(),
+            cancellationToken);
 
         return stream;
     }

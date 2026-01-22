@@ -22,16 +22,12 @@
     {
         private readonly RecyclableMemoryStreamManager _memoryStreamManager;
         private readonly ZipArchiveWriterOptions _zipArchiveWriterOptions;
-        private readonly IStreetNameCache _streetNameCache;
         private readonly Mock<IZipArchiveDataProvider> _zipArchiveDataProvider;
 
-        public RoadNetworkExtractZipArchiveWriterTests(
-            ZipArchiveWriterOptions zipArchiveWriterOptions,
-            IStreetNameCache streetNameCache)
+        public RoadNetworkExtractZipArchiveWriterTests(ZipArchiveWriterOptions zipArchiveWriterOptions)
         {
             _memoryStreamManager = new RecyclableMemoryStreamManager();
             _zipArchiveWriterOptions = zipArchiveWriterOptions;
-            _streetNameCache = streetNameCache;
 
             _zipArchiveDataProvider = new Mock<IZipArchiveDataProvider>();
             _zipArchiveDataProvider
@@ -56,7 +52,6 @@
 
             var zipArchiveWriter = new RoadNetworkExtractZipArchiveWriter(
                 _zipArchiveWriterOptions,
-                _streetNameCache,
                 _memoryStreamManager,
                 Encoding.UTF8,
                 NullLoggerFactory.Instance);
@@ -69,8 +64,8 @@
                     fixture.Create<ExtractDescription>(),
                     fixture.Create<IPolygonal>(),
                     isInformative: true,
-                    zipArchiveWriterVersion: null);
-            await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, CancellationToken.None);
+                    zipArchiveWriterVersion: WellKnownZipArchiveWriterVersions.DomainV2);
+            await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, new ZipArchiveWriteContext(), CancellationToken.None);
 
            var fileNames =  archive.Entries.Select(x => x.FullName).ToList();
 
@@ -130,7 +125,6 @@
 
             var zipArchiveWriter = new RoadNetworkExtractZipArchiveWriter(
                 _zipArchiveWriterOptions,
-                _streetNameCache,
                 _memoryStreamManager,
                 Encoding.UTF8,
                 NullLoggerFactory.Instance);
@@ -143,8 +137,8 @@
                     fixture.Create<ExtractDescription>(),
                     fixture.Create<IPolygonal>(),
                     isInformative: false,
-                    zipArchiveWriterVersion: null);
-            await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, CancellationToken.None);
+                    zipArchiveWriterVersion: WellKnownZipArchiveWriterVersions.DomainV2);
+            await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, new ZipArchiveWriteContext(), CancellationToken.None);
 
            var fileNames =  archive.Entries.Select(x => x.FullName).ToList();
 
