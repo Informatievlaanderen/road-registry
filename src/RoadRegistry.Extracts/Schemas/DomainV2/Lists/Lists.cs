@@ -26,7 +26,7 @@ public static class Lists
 
     public static RoadSegmentAccessRestrictionDbaseRecord[] AllRoadSegmentAccessRestrictionDbaseRecords =>
         Array.ConvertAll(
-            RoadSegmentAccessRestriction.All,
+            RoadSegmentAccessRestrictionV2.All,
             item => new RoadSegmentAccessRestrictionDbaseRecord
             {
                 TYPE = { Value = item.Translation.Identifier },

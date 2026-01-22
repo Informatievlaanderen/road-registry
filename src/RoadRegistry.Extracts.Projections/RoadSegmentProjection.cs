@@ -34,7 +34,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             var morphology = e.Data.Morphology;
             var category = RoadSegmentCategory.Parse(e.Data.Category);
             var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(e.Data.GeometryDrawMethod);
-            var accessRestriction = RoadSegmentAccessRestriction.Parse(e.Data.AccessRestriction);
+            var accessRestriction = RoadSegmentAccessRestrictionV2.Parse(e.Data.AccessRestriction);
 
             var roadSegment = new RoadSegmentExtractItem
             {
@@ -43,8 +43,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 StartNodeId = new RoadNodeId(e.Data.StartNodeId),
                 EndNodeId = new RoadNodeId(e.Data.EndNodeId),
                 GeometryDrawMethod = geometryDrawMethod,
-                AccessRestriction =
-                    new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(accessRestriction),
+                AccessRestriction = new RoadSegmentDynamicAttributeValues<string>(accessRestriction),
                 Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(category),
                 Morphology = new RoadSegmentDynamicAttributeValues<string>(morphology),
                 Status = new RoadSegmentDynamicAttributeValues<string>(status),
@@ -78,7 +77,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             var morphology = e.Data.Morphology;
             var category = RoadSegmentCategory.Parse(e.Data.Category);
             var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(e.Data.GeometryDrawMethod);
-            var accessRestriction = RoadSegmentAccessRestriction.Parse(e.Data.AccessRestriction);
+            var accessRestriction = e.Data.AccessRestriction;
 
             var roadSegment = new RoadSegmentExtractItem
             {
@@ -87,7 +86,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 StartNodeId = new RoadNodeId(e.Data.StartNodeId),
                 EndNodeId = new RoadNodeId(e.Data.EndNodeId),
                 GeometryDrawMethod = geometryDrawMethod,
-                AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(accessRestriction),
+                AccessRestriction = new RoadSegmentDynamicAttributeValues<string>(accessRestriction),
                 Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(category),
                 Morphology = new RoadSegmentDynamicAttributeValues<string>(morphology),
                 Status = new RoadSegmentDynamicAttributeValues<string>(status),
@@ -118,13 +117,13 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 var morphology = e.Data.Morphology;
                 var category = RoadSegmentCategory.Parse(e.Data.Category);
                 var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(e.Data.GeometryDrawMethod);
-                var accessRestriction = RoadSegmentAccessRestriction.Parse(e.Data.AccessRestriction);
+                var accessRestriction = e.Data.AccessRestriction;
 
                 segment.Geometry = e.Data.Geometry;
                 segment.StartNodeId = new RoadNodeId(e.Data.StartNodeId);
                 segment.EndNodeId = new RoadNodeId(e.Data.EndNodeId);
                 segment.GeometryDrawMethod = geometryDrawMethod;
-                segment.AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(accessRestriction);
+                segment.AccessRestriction = new RoadSegmentDynamicAttributeValues<string>(accessRestriction);
                 segment.Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(category);
                 segment.Morphology = new RoadSegmentDynamicAttributeValues<string>(morphology);
                 segment.Status = new RoadSegmentDynamicAttributeValues<string>(status);
@@ -159,8 +158,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             {
                 if (e.Data.AccessRestriction is not null)
                 {
-                    var accessRestriction = RoadSegmentAccessRestriction.Parse(e.Data.AccessRestriction);
-                    segment.AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(accessRestriction);
+                    segment.AccessRestriction = new RoadSegmentDynamicAttributeValues<string>(e.Data.AccessRestriction);
                 }
 
                 if (e.Data.Category is not null)
@@ -245,7 +243,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 StartNodeId = new RoadNodeId(e.Data.StartNodeId),
                 EndNodeId = new RoadNodeId(e.Data.EndNodeId),
                 GeometryDrawMethod = e.Data.GeometryDrawMethod,
-                AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(e.Data.AccessRestriction),
+                AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString()),
                 Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(e.Data.Category),
                 Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString()),
                 Status = e.Data.Status.ToStringAttributeValues(x => x.ToString()),
@@ -273,7 +271,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 StartNodeId = new RoadNodeId(e.Data.StartNodeId),
                 EndNodeId = new RoadNodeId(e.Data.EndNodeId),
                 GeometryDrawMethod = e.Data.GeometryDrawMethod,
-                AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(e.Data.AccessRestriction),
+                AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString()),
                 Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(e.Data.Category),
                 Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString()),
                 Status = e.Data.Status.ToStringAttributeValues(x => x.ToString()),
@@ -301,7 +299,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
                 if (e.Data.AccessRestriction is not null)
                 {
-                    segment.AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(e.Data.AccessRestriction);
+                    segment.AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString());
                 }
 
                 if (e.Data.Category is not null)
@@ -343,7 +341,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 segment.StartNodeId = e.Data.StartNodeId;
                 segment.EndNodeId = e.Data.EndNodeId;
                 segment.GeometryDrawMethod = e.Data.GeometryDrawMethod;
-                segment.AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(e.Data.AccessRestriction);
+                segment.AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString());
                 segment.Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(e.Data.Category);
                 segment.Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString());
                 segment.Status = e.Data.Status.ToStringAttributeValues(x => x.ToString());
@@ -449,7 +447,7 @@ public sealed class RoadSegmentExtractItem
     public required RoadNodeId StartNodeId { get; set; }
     public required RoadNodeId EndNodeId { get; set; }
     public required RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; set; }
-    public required RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction> AccessRestriction { get; set; }
+    public required RoadSegmentDynamicAttributeValues<string> AccessRestriction { get; set; }
     public required RoadSegmentDynamicAttributeValues<RoadSegmentCategory> Category { get; set; }
     public required RoadSegmentDynamicAttributeValues<string> Morphology { get; set; }
     public required RoadSegmentDynamicAttributeValues<string> Status { get; set; }

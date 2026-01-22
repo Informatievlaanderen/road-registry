@@ -437,7 +437,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         EndNodeId = record.Attributes.EndNodeId,
                         GeometryDrawMethod = record.Attributes.Method,
                         AccessRestriction = record.Attributes.AccessRestriction is not null
-                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(record.Attributes.AccessRestriction)
+                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(record.Attributes.AccessRestriction)
                             : null,
                         Category = record.Attributes.Category is not null
                             ? new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(record.Attributes.Category)
@@ -468,7 +468,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             StartNodeId = record.Attributes.StartNodeId!.Value,
                             EndNodeId = record.Attributes.EndNodeId!.Value,
                             GeometryDrawMethod = record.Attributes.Method!,
-                            AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(record.Attributes.AccessRestriction!),
+                            AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(record.Attributes.AccessRestriction!),
                             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(record.Attributes.Category!),
                             MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(record.Attributes.MaintenanceAuthority!.Value),
                             Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(record.Attributes.Morphology!),

@@ -10,7 +10,7 @@ using RoadRegistry.ValueObjects;
 public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
 {
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; init; }
-    public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction> AccessRestriction { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> AccessRestriction { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentCategory> Category { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> Morphology { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2> Status { get; init; }
@@ -27,7 +27,7 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
     [JsonConstructor]
     protected RoadSegmentAttributes(
         string geometryDrawMethod,
-        RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction> accessRestriction,
+        RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> accessRestriction,
         RoadSegmentDynamicAttributeValues<RoadSegmentCategory> category,
         RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> morphology,
         RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2> status,

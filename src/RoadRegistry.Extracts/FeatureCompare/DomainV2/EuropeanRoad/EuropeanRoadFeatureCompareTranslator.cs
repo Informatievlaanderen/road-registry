@@ -127,6 +127,7 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                     }
                     break;
                 case RecordType.RemovedIdentifier:
+                    //TODO-pr niet doen als er al een RemoveRoadSegmentChange is
                     changes = changes.AppendChange(
                         new RemoveRoadSegmentFromEuropeanRoadChange
                         {

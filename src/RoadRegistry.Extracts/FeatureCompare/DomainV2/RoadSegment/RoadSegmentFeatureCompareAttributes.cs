@@ -9,7 +9,7 @@ public record RoadSegmentFeatureCompareAttributes
     public RoadNodeId? StartNodeId { get; init; }
     public RoadNodeId? EndNodeId { get; init; }
     public RoadSegmentGeometryDrawMethod? Method { get; init; }
-    public RoadSegmentAccessRestriction? AccessRestriction { get; init; }
+    public RoadSegmentAccessRestrictionV2? AccessRestriction { get; init; }
     public RoadSegmentCategory? Category { get; init; }
     public OrganizationId? MaintenanceAuthority { get; init; }
     public RoadSegmentMorphologyV2? Morphology { get; init; }

@@ -578,6 +578,20 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError RoadSegmentAccessRestrictionV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    {
+        return builder
+            .Error(nameof(RoadSegmentAccessRestrictionMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    string.Join(",", RoadSegmentAccessRestrictionV2.ByIdentifier.Keys.Select(key => key.ToString()))
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+
     public static FileError RoadSegmentCategoryMismatch(this IDbaseFileRecordProblemBuilder builder, string actual)
     {
         return builder

@@ -64,9 +64,12 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
                     var leftStreetNameId = GetValue(x.StreetNameId, RoadSegmentAttributeSide.Left);
                     var rightStreetNameId = GetValue(x.StreetNameId, RoadSegmentAttributeSide.Right);
                     var status = GetValue(x.Status);
+                    var morphology = GetValue(x.Morphology);
+                    var accessRestriction = GetValue(x.AccessRestriction);
 
                     var statusValue = x.IsV2 ? RoadSegmentStatusV2.Parse(status).Translation.Identifier : MigrateToV2(RoadSegmentStatus.Parse(status));
-                    var morphology = x.IsV2 ? x.Status : MigrateToV2((RoadSegmentMorphology)x.Morphology);
+                    var morphologyValue = x.IsV2 ? RoadSegmentMorphologyV2.Parse(morphology).Translation.Identifier : MigrateToV2(RoadSegmentMorphology.Parse(morphology));
+                    var accessRestrictionValue = x.IsV2 ? RoadSegmentAccessRestrictionV2.Parse(accessRestriction).Translation.Identifier : MigrateToV2(RoadSegmentAccessRestriction.Parse(accessRestriction));
 
                     var dbfRecord = new RoadSegmentDbaseRecord
                     {
@@ -78,7 +81,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
                         E_WK_OIDN = { Value = x.EndNodeId },
                         STATUS = { Value = statusValue },
                         //LBLSTATUS = { Value = xxx },
-                        MORF = { Value = morphology },
+                        MORF = { Value = morphologyValue },
                         //LBLMORF = { Value = xxx },
                         WEGCAT = { Value = GetValue(x.Category) },
                         //LBLWEGCAT = { Value = xxx },
@@ -90,7 +93,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
                         //LBLBEHEER = { Value = xxx },
                         METHODE = { Value = x.GeometryDrawMethod },
                         //LBLMETHOD = { Value = xxx },
-                        TGBEP = { Value = GetValue(x.AccessRestriction) },
+                        TOEGANG = { Value = accessRestrictionValue },
                         //LBLTGBEP = { Value = xxx },
 
                         //OPNDATUM = { Value = xxx },
@@ -164,6 +167,26 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
             { 125, 8 },
             { 130, 12 },
             { -8, -8 }
+        };
+
+        if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
+        {
+            return v2;
+        }
+
+        throw new NotSupportedException(v1.ToString());
+    }
+
+    public static int MigrateToV2(RoadSegmentAccessRestriction v1)
+    {
+        var mapping = new Dictionary<int, int>
+        {
+            { 1, 1 },
+            { 2, -2 },
+            { 3, -3 },
+            { 4, 2 },
+            { 5, 1 },
+            { 6, 1 }
         };
 
         if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))

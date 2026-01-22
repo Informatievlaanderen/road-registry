@@ -183,19 +183,19 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return default;
             }
 
-            RoadSegmentAccessRestriction ReadAccessRestriction()
+            RoadSegmentAccessRestrictionV2 ReadAccessRestriction()
             {
                 if (TGBEP is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(TGBEP));
                 }
-                else if (RoadSegmentAccessRestriction.ByIdentifier.TryGetValue(TGBEP.Value, out var value))
+                else if (RoadSegmentAccessRestrictionV2.ByIdentifier.TryGetValue(TGBEP.Value, out var value))
                 {
                     return value;
                 }
                 else
                 {
-                    problems += problemBuilder.RoadSegmentAccessRestrictionMismatch(TGBEP.Value);
+                    problems += problemBuilder.RoadSegmentAccessRestrictionV2Mismatch(TGBEP.Value);
                 }
 
                 return default;

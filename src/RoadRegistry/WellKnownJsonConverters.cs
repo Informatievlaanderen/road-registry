@@ -22,6 +22,7 @@ namespace RoadRegistry
                 new RoadNodeTypeV2Converter(),
                 new RoadSegmentIdConverter(),
                 new RoadSegmentAccessRestrictionConverter(),
+                new RoadSegmentAccessRestrictionV2Converter(),
                 new RoadSegmentCategoryConverter(),
                 new RoadSegmentGeometryDrawMethodConverter(),
                 new RoadSegmentLaneCountConverter(),
