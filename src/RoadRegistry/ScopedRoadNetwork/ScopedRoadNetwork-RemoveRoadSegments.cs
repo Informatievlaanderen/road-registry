@@ -25,11 +25,8 @@ public partial class ScopedRoadNetwork
 
         var invalidCategories = new[]
         {
-            RoadSegmentCategory.EuropeanMainRoad,
-            RoadSegmentCategory.FlemishMainRoad,
-            RoadSegmentCategory.MainRoad,
-            RoadSegmentCategory.PrimaryRoadI,
-            RoadSegmentCategory.PrimaryRoadII
+            RoadSegmentCategoryV2.EuropeanMainRoad,
+            RoadSegmentCategoryV2.FlemishMainRoad
         };
 
         var idTranslator = new IdentifierTranslator();
@@ -50,7 +47,7 @@ public partial class ScopedRoadNetwork
 
     private Problems TryRemoveRoadSegment(
         RoadSegmentId roadSegmentId,
-        IReadOnlyCollection<RoadSegmentCategory> invalidCategories,
+        IReadOnlyCollection<RoadSegmentCategoryV2> invalidCategories,
         IReadOnlyCollection<RoadSegmentId> removingRoadSegmentIds,
         IRoadNetworkIdGenerator idGenerator,
         IIdentifierTranslator idTranslator,

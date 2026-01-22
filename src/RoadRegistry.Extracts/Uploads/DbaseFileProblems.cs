@@ -606,6 +606,20 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError RoadSegmentCategoryV2Mismatch(this IDbaseFileRecordProblemBuilder builder, string actual)
+    {
+        return builder
+            .Error(nameof(RoadSegmentCategoryMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    string.Join(",", RoadSegmentCategoryV2.ByIdentifier.Keys.Select(key => key))
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual))
+            .Build();
+    }
+
     public static FileError RoadSegmentGeometryDrawMethodMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
     {
         return builder

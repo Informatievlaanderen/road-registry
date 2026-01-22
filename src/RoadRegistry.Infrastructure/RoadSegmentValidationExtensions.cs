@@ -44,6 +44,11 @@ public static class RoadSegmentValidationExtensions
         return RoadSegmentCategory.Edit.Editable.Contains(status);
     }
 
+    public static bool IsValidForEdit(this RoadSegmentCategoryV2 status)
+    {
+        return RoadSegmentCategoryV2.Edit.Editable.Contains(status);
+    }
+
     public static bool IsValidForEdit(this RoadSegmentLaneCount laneCount)
     {
         return laneCount != 0;

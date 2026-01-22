@@ -11,7 +11,7 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
 {
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> AccessRestriction { get; init; }
-    public RoadSegmentDynamicAttributeValues<RoadSegmentCategory> Category { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2> Category { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> Morphology { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2> Status { get; init; }
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNameId { get; init; }
@@ -28,7 +28,7 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
     protected RoadSegmentAttributes(
         string geometryDrawMethod,
         RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> accessRestriction,
-        RoadSegmentDynamicAttributeValues<RoadSegmentCategory> category,
+        RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2> category,
         RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> morphology,
         RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2> status,
         RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameId,

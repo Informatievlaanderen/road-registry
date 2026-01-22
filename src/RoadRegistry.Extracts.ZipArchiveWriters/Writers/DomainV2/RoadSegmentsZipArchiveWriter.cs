@@ -66,10 +66,12 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
                     var status = GetValue(x.Status);
                     var morphology = GetValue(x.Morphology);
                     var accessRestriction = GetValue(x.AccessRestriction);
+                    var category = GetValue(x.Category);
 
                     var statusValue = x.IsV2 ? RoadSegmentStatusV2.Parse(status).Translation.Identifier : MigrateToV2(RoadSegmentStatus.Parse(status));
                     var morphologyValue = x.IsV2 ? RoadSegmentMorphologyV2.Parse(morphology).Translation.Identifier : MigrateToV2(RoadSegmentMorphology.Parse(morphology));
                     var accessRestrictionValue = x.IsV2 ? RoadSegmentAccessRestrictionV2.Parse(accessRestriction).Translation.Identifier : MigrateToV2(RoadSegmentAccessRestriction.Parse(accessRestriction));
+                    var categoryValue = x.IsV2 ? RoadSegmentCategoryV2.Parse(category).Translation.Identifier : MigrateToV2(RoadSegmentCategory.Parse(category));
 
                     var dbfRecord = new RoadSegmentDbaseRecord
                     {
@@ -83,7 +85,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
                         //LBLSTATUS = { Value = xxx },
                         MORF = { Value = morphologyValue },
                         //LBLMORF = { Value = xxx },
-                        WEGCAT = { Value = GetValue(x.Category) },
+                        WEGCAT = { Value = categoryValue },
                         //LBLWEGCAT = { Value = xxx },
                         LSTRNMID = { Value = leftStreetNameId },
                         LSTRNM = { Value = cachedStreetNames.GetValueOrDefault(leftStreetNameId) },
@@ -187,6 +189,28 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
             { 4, 2 },
             { 5, 1 },
             { 6, 1 }
+        };
+
+        if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
+        {
+            return v2;
+        }
+
+        throw new NotSupportedException(v1.ToString());
+    }
+
+    public static string MigrateToV2(RoadSegmentCategory v1)
+    {
+        var mapping = new Dictionary<string, string>
+        {
+            { "EHW", "EHW" },
+            { "VHW", "VHW" },
+            { "RW", "RW" },
+            { "IW", "IW" },
+            { "OW", "OW" },
+            { "EW", "EW" },
+            { "-8", "-8" },
+            { "-9", "-9" }
         };
 
         if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))

@@ -165,19 +165,19 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return default;
             }
 
-            RoadSegmentCategory ReadCategory()
+            RoadSegmentCategoryV2 ReadCategory()
             {
                 if (WEGCAT is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(WEGCAT));
                 }
-                else if (RoadSegmentCategory.ByIdentifier.TryGetValue(WEGCAT, out var value))
+                else if (RoadSegmentCategoryV2.ByIdentifier.TryGetValue(WEGCAT, out var value))
                 {
                     return value;
                 }
                 else
                 {
-                    problems += problemBuilder.RoadSegmentCategoryMismatch(WEGCAT);
+                    problems += problemBuilder.RoadSegmentCategoryV2Mismatch(WEGCAT);
                 }
 
                 return default;

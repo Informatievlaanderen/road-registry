@@ -115,7 +115,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             {
                 var status = e.Data.Status;
                 var morphology = e.Data.Morphology;
-                var category = RoadSegmentCategory.Parse(e.Data.Category);
+                var category = e.Data.Category;
                 var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(e.Data.GeometryDrawMethod);
                 var accessRestriction = e.Data.AccessRestriction;
 

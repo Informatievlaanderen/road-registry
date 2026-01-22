@@ -36,7 +36,7 @@ public static class Lists
 
     public static RoadSegmentCategoryDbaseRecord[] AllRoadSegmentCategoryDbaseRecords =>
         Array.ConvertAll(
-            RoadSegmentCategory.All,
+            RoadSegmentCategoryV2.All,
             item => new RoadSegmentCategoryDbaseRecord
             {
                 WEGCAT = { Value = item.Translation.Identifier },
