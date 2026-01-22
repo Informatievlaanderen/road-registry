@@ -106,17 +106,17 @@ public partial class ScopedRoadNetwork
     {
         var node = _roadNodes[nodeId];
 
-        if (node.Type == RoadNodeTypeV2.EndNode)
+        if (node.Type == RoadNodeTypeV2.Eindknoop)
         {
             return node.Remove(provenance);
         }
 
-        if (node.Type == RoadNodeTypeV2.FakeNode)
+        if (node.Type == RoadNodeTypeV2.Schijnknoop)
         {
             return node.Modify(new ModifyRoadNodeChange
             {
                 RoadNodeId = nodeId,
-                Type = RoadNodeTypeV2.EndNode
+                Type = RoadNodeTypeV2.Eindknoop
             }, provenance);
         }
 
@@ -124,12 +124,12 @@ public partial class ScopedRoadNetwork
             .Where(x => x.StartNodeId == nodeId || x.EndNodeId == nodeId)
             .ToList();
 
-        if (node.Type == RoadNodeTypeV2.RealNode && nodeSegments.Count == 2)
+        if (node.Type == RoadNodeTypeV2.EchteKnoop && nodeSegments.Count == 2)
         {
             var problems = node.Modify(new ModifyRoadNodeChange
             {
                 RoadNodeId = nodeId,
-                Type = RoadNodeTypeV2.FakeNode
+                Type = RoadNodeTypeV2.Schijnknoop
             }, provenance);
             if (!problems.HasError())
             {
@@ -151,9 +151,9 @@ public partial class ScopedRoadNetwork
     {
         var node = _roadNodes[nodeId];
 
-        if (node.Type != RoadNodeTypeV2.FakeNode || nodeSegments.Count != 2)
+        if (node.Type != RoadNodeTypeV2.Schijnknoop || nodeSegments.Count != 2)
         {
-            throw new InvalidOperationException($"Node {nodeId} should be of type {nameof(RoadNodeTypeV2.FakeNode)} and have exactly 2 connecting road segments.");
+            throw new InvalidOperationException($"Node {nodeId} should be of type {nameof(RoadNodeTypeV2.Schijnknoop)} and have exactly 2 connecting road segments.");
         }
 
         var segmentOne = nodeSegments.First();

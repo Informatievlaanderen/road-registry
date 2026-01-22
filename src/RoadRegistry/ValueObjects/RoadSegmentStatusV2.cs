@@ -8,9 +8,9 @@ using RoadRegistry.Extensions;
 
 public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutchToString
 {
-    public static readonly RoadSegmentStatusV2 Planned =
+    public static readonly RoadSegmentStatusV2 Gepland =
         new(
-            nameof(Planned),
+            nameof(Gepland),
             new DutchTranslation(
                 1,
                 "gepland",
@@ -18,9 +18,9 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
             )
         );
 
-    public static readonly RoadSegmentStatusV2 Realized =
+    public static readonly RoadSegmentStatusV2 Gerealiseerd =
         new(
-            nameof(Realized),
+            nameof(Gerealiseerd),
             new DutchTranslation(
                 2,
                 "gerealiseerd",
@@ -28,9 +28,9 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
             )
         );
 
-    public static readonly RoadSegmentStatusV2 NotRealized =
+    public static readonly RoadSegmentStatusV2 NietGerealiseerd =
         new(
-            nameof(NotRealized),
+            nameof(NietGerealiseerd),
             new DutchTranslation(
                 3,
                 "niet gerealiseerd",
@@ -38,19 +38,19 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
             )
         );
 
-    public static readonly RoadSegmentStatusV2 OutOfUse =
+    public static readonly RoadSegmentStatusV2 BuitenGebruik =
         new(
-            nameof(OutOfUse),
+            nameof(BuitenGebruik),
             new DutchTranslation(
                 4,
-                "Buiten gebruik",
+                "buiten gebruik",
                 "De weg werd niet opgeheven en bestaat juridisch gezien, maar is niet meer zichtbaar op het terrein of kan niet gebruikt worden."
             )
         );
 
-    public static readonly RoadSegmentStatusV2 Retired =
+    public static readonly RoadSegmentStatusV2 Gehistoreerd =
         new(
-            nameof(Retired),
+            nameof(Gehistoreerd),
             new DutchTranslation(
                 5,
                 "gehistoreerd",
@@ -60,7 +60,7 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
 
     public static readonly RoadSegmentStatusV2[] All =
     {
-        Planned, Realized, NotRealized, OutOfUse, Retired
+        Gepland, Gerealiseerd, NietGerealiseerd, BuitenGebruik, Gehistoreerd
     };
 
     public sealed record Edit

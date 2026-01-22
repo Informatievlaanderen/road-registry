@@ -6,9 +6,9 @@ using System.Linq;
 
 public sealed class RoadNodeTypeV2 : IEquatable<RoadNodeTypeV2>, IDutchToString
 {
-    public static readonly RoadNodeTypeV2 RealNode =
+    public static readonly RoadNodeTypeV2 EchteKnoop =
         new(
-            nameof(RealNode),
+            nameof(EchteKnoop),
             new DutchTranslation(
                 1,
                 "echte knoop",
@@ -16,9 +16,9 @@ public sealed class RoadNodeTypeV2 : IEquatable<RoadNodeTypeV2>, IDutchToString
             )
         );
 
-    public static readonly RoadNodeTypeV2 FakeNode =
+    public static readonly RoadNodeTypeV2 Schijnknoop =
         new(
-            nameof(FakeNode),
+            nameof(Schijnknoop),
             new DutchTranslation(
                 2,
                 "schijnknoop",
@@ -26,9 +26,9 @@ public sealed class RoadNodeTypeV2 : IEquatable<RoadNodeTypeV2>, IDutchToString
             )
         );
 
-    public static readonly RoadNodeTypeV2 EndNode =
+    public static readonly RoadNodeTypeV2 Eindknoop =
         new(
-            nameof(EndNode),
+            nameof(Eindknoop),
             new DutchTranslation(
                 3,
                 "eindknoop",
@@ -36,9 +36,9 @@ public sealed class RoadNodeTypeV2 : IEquatable<RoadNodeTypeV2>, IDutchToString
             )
         );
 
-    public static readonly RoadNodeTypeV2 ValidationNode =
+    public static readonly RoadNodeTypeV2 Validatieknoop =
         new(
-            nameof(ValidationNode),
+            nameof(Validatieknoop),
             new DutchTranslation(
                 4,
                 "validatieknoop",
@@ -46,7 +46,7 @@ public sealed class RoadNodeTypeV2 : IEquatable<RoadNodeTypeV2>, IDutchToString
             )
         );
 
-    public static readonly RoadNodeTypeV2[] All = [RealNode, FakeNode, EndNode, ValidationNode];
+    public static readonly RoadNodeTypeV2[] All = [EchteKnoop, Schijnknoop, Eindknoop, Validatieknoop];
 
     public static readonly IReadOnlyDictionary<int, RoadNodeTypeV2> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);

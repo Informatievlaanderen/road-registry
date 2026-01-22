@@ -68,25 +68,25 @@ public partial class RoadNode
         {
             problems += new RoadNodeNotConnectedToAnySegment(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
         }
-        else if (segments.Count == 1 && Type != RoadNodeTypeV2.EndNode)
+        else if (segments.Count == 1 && Type != RoadNodeTypeV2.Eindknoop)
         {
             problems += RoadNodeTypeV2Mismatch.New(
                 context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
                 segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
                 Type,
-                [RoadNodeTypeV2.EndNode]);
+                [RoadNodeTypeV2.Eindknoop]);
         }
         else if (segments.Count == 2)
         {
-            if (!Type.IsAnyOf(RoadNodeTypeV2.FakeNode))
+            if (!Type.IsAnyOf(RoadNodeTypeV2.Schijnknoop))
             {
                 problems += RoadNodeTypeV2Mismatch.New(
                     context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
                     segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
                     Type,
-                    [RoadNodeTypeV2.FakeNode]);
+                    [RoadNodeTypeV2.Schijnknoop]);
             }
-            else if (Type == RoadNodeTypeV2.FakeNode)
+            else if (Type == RoadNodeTypeV2.Schijnknoop)
             {
                 var segment1 = segments[0];
                 var segment2 = segments[1];
@@ -100,13 +100,13 @@ public partial class RoadNode
                 }
             }
         }
-        else if (segments.Count > 2 && !Type.IsAnyOf(RoadNodeTypeV2.RealNode))
+        else if (segments.Count > 2 && !Type.IsAnyOf(RoadNodeTypeV2.EchteKnoop))
         {
             problems += RoadNodeTypeV2Mismatch.New(
                 context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
                 segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
                 Type,
-                [RoadNodeTypeV2.RealNode]);
+                [RoadNodeTypeV2.EchteKnoop]);
         }
 
         return problems;

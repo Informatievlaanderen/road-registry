@@ -36,6 +36,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
     public async Task ApplyAsync(IDocumentOperations operations, IReadOnlyList<IEvent> events, CancellationToken cancellation)
     {
+        //TODO-pr wanneer er iets failed, dan moet de error naar slack geraken + statusendpoint detecteren wanneer projectie plat ligt
         var projectionName = GetType().Name;
         var correlationIds = events.Select(x => x.CorrelationId!).Distinct().ToList();
 

@@ -20,23 +20,23 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
             )
         );
 
-    public static readonly RoadSegmentMorphologyV2 Weg_met_gescheiden_rijbanen_die_geen_autosnelweg_is =
+    public static readonly RoadSegmentMorphologyV2 WegMetGescheidenRijbanenDieGeenAutosnelwegIs =
         new(
-            nameof(Weg_met_gescheiden_rijbanen_die_geen_autosnelweg_is),
+            nameof(WegMetGescheidenRijbanenDieGeenAutosnelwegIs),
             new DutchTranslation(
                 2,
-                "weg_met_gescheiden_rijbanen_die_geen_autosnelweg_is",
+                "weg met gescheiden rijbanen die geen autosnelweg is",
                 "Een weg met gescheiden rijbanen die geen autosnelweg is, wordt gekenmerkt door de aanwezigheid van minstens twee gescheiden rijbanen (onafhankelijk van het aantal rijstroken) die tegengestelde toegelaten rijrichtingen hebben."
             )
         );
 
-    public static readonly RoadSegmentMorphologyV2 Weg_bestaande_uit_1_rijbaan
+    public static readonly RoadSegmentMorphologyV2 WegBestaandeUit1Rijbaan
         =
         new(
-            nameof(Weg_bestaande_uit_1_rijbaan),
+            nameof(WegBestaandeUit1Rijbaan),
             new DutchTranslation(
                 3,
-                "Weg bestaande uit één rijbaan",
+                "weg bestaande uit 1 rijbaan",
                 "Een weg bestaande uit één rijbaan stelt de centrale as voor van een rijbaan waarop geen enkele andere morfologie van toepassing is."
             )
         );
@@ -46,28 +46,28 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
             nameof(Parallelweg),
             new DutchTranslation(
                 4,
-                "Parallelweg",
+                "parallelweg",
                 "Een parallelweg is een op- of afrit waarvan de begin- en eindpositie verbonden is met dezelfde weg. Een parallelweg heeft een rechtstreekse verbinding met deze weg, of een verbinding via op- of afritten die geen parallelweg zijn. Parallelwegen zijn uitsluitend bedoeld voor gemotoriseerd verkeer."
             )
         );
 
-    public static readonly RoadSegmentMorphologyV2 Op_of_afrit
+    public static readonly RoadSegmentMorphologyV2 OpOfAfrit
         =
         new(
-            nameof(Op_of_afrit),
+            nameof(OpOfAfrit),
             new DutchTranslation(
                 5,
-                "Op- of afrit",
+                "op- of afrit",
                 "Een op- of afrit vormt een verbinding tussen twee wegen die elkaar kruisen."
             )
         );
 
-    public static readonly RoadSegmentMorphologyV2 In_of_uitrit =
+    public static readonly RoadSegmentMorphologyV2 InOfUitrit =
         new(
-            nameof(In_of_uitrit),
+            nameof(InOfUitrit),
             new DutchTranslation(
                 6,
-                "In- of uitrit",
+                "in- of uitrit",
                 "Een in- of uitrit is een weg die speciaal ontworpen is om een plaats te bereiken of te verlaten. In- of uitritten kunnen bijvoorbeeld opgenomen worden om een luchthaven, station, ziekenhuis, school, brandweerkazerne, politie, openbare dienst, parking, winkelcomplex, bedrijventerrein, hotel of restaurant te bereiken."
             )
         );
@@ -77,7 +77,7 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
             nameof(Rotonde),
             new DutchTranslation(
                 7,
-                "Rotonde",
+                "rotonde",
                 "Een rotonde is een weg waarop het verkeer in één richting verloopt rond een aangelegd middeneiland."
             )
         );
@@ -87,7 +87,7 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
             nameof(Aardeweg),
             new DutchTranslation(
                 8,
-                "Aardeweg",
+                "aardeweg",
                 "Een aardeweg is een openbare weg die breder is dan een pad en die niet voor het voertuigenverkeer in het algemeen is ingericht."
             )
         );
@@ -97,7 +97,7 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
             nameof(Pad),
             new DutchTranslation(
                 9,
-                "Pad",
+                "pad",
                 "Een pad is een smalle openbare weg die alleen het verkeer toelaat van voetgangers en van voertuigen die geen bredere dan de voor voetgangers vereiste ruimte nodig hebben."
             )
         );
@@ -107,17 +107,17 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
             nameof(Fietspad),
             new DutchTranslation(
                 10,
-                "Fietspad",
+                "fietspad",
                 "Een fietspad is het deel van de openbare weg gesignaleerd door het verkeersbord D7, D9, D11 of R12, of door twee evenwijdige witte onderbroken strepen op de weg. Fietspaden maken géén deel uit van de rijbaan."
             )
         );
 
-    public static readonly RoadSegmentMorphologyV2 Bedding_of_baan_voor_openbaar_vervoer =
+    public static readonly RoadSegmentMorphologyV2 BeddingOfBaanVoorOpenbaarVervoer =
         new(
-            nameof(Bedding_of_baan_voor_openbaar_vervoer),
+            nameof(BeddingOfBaanVoorOpenbaarVervoer),
             new DutchTranslation(
                 11,
-                "Bedding of baan voor openbaar vervoer",
+                "bedding of baan voor openbaar vervoer",
                 "Een bedding of baan voor openbaar vervoer is een trambedding of busbaan. Een trambedding is een weg die speciaal ontworpen is voor het tramverkeer. Een busbaan wordt afgebakend door het verkeersbord F17 en één of twee brede witte doorlopende of onderbroken strepen, of dambordmarkeringen bestaande uit witte vierkanten. Andere voertuigen zijn slechts bij uitzondering toegelaten op beddingen of banen voor openbaar vervoer."
             )
         );
@@ -136,16 +136,16 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
     public static readonly RoadSegmentMorphologyV2[] All =
     {
         Autosnelweg,
-        Weg_met_gescheiden_rijbanen_die_geen_autosnelweg_is,
-        Weg_bestaande_uit_1_rijbaan,
+        WegMetGescheidenRijbanenDieGeenAutosnelwegIs,
+        WegBestaandeUit1Rijbaan,
         Parallelweg,
-        Op_of_afrit,
-        In_of_uitrit,
+        OpOfAfrit,
+        InOfUitrit,
         Rotonde,
         Aardeweg,
         Pad,
         Fietspad,
-        Bedding_of_baan_voor_openbaar_vervoer,
+        BeddingOfBaanVoorOpenbaarVervoer,
         Veer
     };
 

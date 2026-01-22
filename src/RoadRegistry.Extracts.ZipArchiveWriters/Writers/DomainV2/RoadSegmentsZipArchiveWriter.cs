@@ -63,18 +63,22 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
                 {
                     var leftStreetNameId = GetValue(x.StreetNameId, RoadSegmentAttributeSide.Left);
                     var rightStreetNameId = GetValue(x.StreetNameId, RoadSegmentAttributeSide.Right);
+                    var status = GetValue(x.Status);
+
+                    var statusValue = x.IsV2 ? RoadSegmentStatusV2.Parse(status).Translation.Identifier : MigrateToV2(RoadSegmentStatus.Parse(status));
+                    var morphology = x.IsV2 ? x.Status : MigrateToV2((RoadSegmentMorphology)x.Morphology);
 
                     var dbfRecord = new RoadSegmentDbaseRecord
                     {
                         WS_OIDN = { Value = x.RoadSegmentId },
-                        WS_UIDN = { Value = $"{x.RoadSegmentId}_{new Rfc3339SerializableDateTimeOffset(x.LastModified.Timestamp.ToBelgianDateTimeOffset()).ToString()}"},
+                        WS_UIDN = { Value = $"{x.RoadSegmentId}_{new Rfc3339SerializableDateTimeOffset(x.LastModified.Timestamp.ToBelgianDateTimeOffset()).ToString()}" },
                         //WS_GIDN = { Value = "", },
 
                         B_WK_OIDN = { Value = x.StartNodeId },
                         E_WK_OIDN = { Value = x.EndNodeId },
-                        STATUS = { Value = GetValue(x.Status) },
+                        STATUS = { Value = statusValue },
                         //LBLSTATUS = { Value = xxx },
-                        MORF = { Value = GetValue(x.Morphology) },
+                        MORF = { Value = morphology },
                         //LBLMORF = { Value = xxx },
                         WEGCAT = { Value = GetValue(x.Category) },
                         //LBLWEGCAT = { Value = xxx },
@@ -106,6 +110,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
     {
         return attributes.Values.Single().Value;
     }
+
     private static T GetValue<T>(RoadRegistry.Extracts.Projections.RoadSegmentDynamicAttributeValues<T> attributes, RoadSegmentAttributeSide side)
     {
         return side switch
@@ -114,5 +119,40 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
             RoadSegmentAttributeSide.Right => attributes.Values.Single(x => x.Side == RoadSegmentAttributeSide.Both || x.Side == RoadSegmentAttributeSide.Right).Value,
             _ => throw new InvalidOperationException("Only left or right side is allowed.")
         };
+    }
+
+    public static int MigrateToV2(RoadSegmentStatus v1)
+    {
+        var mapping = new Dictionary<int, int>
+        {
+            { 1, 1 },
+            { 2, 1 },
+            { 3, 1 },
+            { 4, 2 },
+            { 5, -5 },
+            { -8, -5 }
+        };
+
+        if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
+        {
+            return v2;
+        }
+
+        throw new NotSupportedException(v1.ToString());
+    }
+
+    public static int MigrateToV2(RoadSegmentMorphology v1)
+    {
+        var mapping = new Dictionary<int, int>
+        {
+            { 1, 1 },
+        };
+
+        if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
+        {
+            return v2;
+        }
+
+        throw new NotSupportedException(v1.ToString());
     }
 }

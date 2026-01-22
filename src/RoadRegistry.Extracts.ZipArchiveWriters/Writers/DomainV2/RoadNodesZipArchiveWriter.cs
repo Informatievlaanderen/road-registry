@@ -71,13 +71,13 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
         {
             case 1:
             case 4:
-                return RoadNodeTypeV2.RealNode;
+                return RoadNodeTypeV2.EchteKnoop;
             case 2:
-                return RoadNodeTypeV2.FakeNode;
+                return RoadNodeTypeV2.Schijnknoop;
             case 3:
-                return RoadNodeTypeV2.EndNode;
+                return RoadNodeTypeV2.Eindknoop;
             case 5:
-                return RoadNodeTypeV2.ValidationNode;
+                return RoadNodeTypeV2.Validatieknoop;
         }
 
         throw new NotSupportedException($"RoadNodeTypeV1 {typeV1}");
