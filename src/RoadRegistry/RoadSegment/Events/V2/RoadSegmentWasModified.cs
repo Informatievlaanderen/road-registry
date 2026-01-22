@@ -10,7 +10,7 @@ public record RoadSegmentWasModified : IMartenEvent
     public RoadSegmentGeometry? Geometry { get; init; }
     public RoadNodeId? StartNodeId { get; init; }
     public RoadNodeId? EndNodeId { get; init; }
-    public RoadSegmentGeometryDrawMethod? GeometryDrawMethod { get; init; }
+    public RoadSegmentGeometryDrawMethodV2? GeometryDrawMethod { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>? AccessRestriction { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>? Category { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>? Morphology { get; init; }

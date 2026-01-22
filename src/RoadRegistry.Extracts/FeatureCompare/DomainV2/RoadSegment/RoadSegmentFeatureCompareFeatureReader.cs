@@ -146,13 +146,13 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return default;
             }
 
-            RoadSegmentGeometryDrawMethod ReadMethod()
+            RoadSegmentGeometryDrawMethodV2 ReadMethod()
             {
                 if (METHODE is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(METHODE));
                 }
-                else if (RoadSegmentGeometryDrawMethod.ByIdentifier.TryGetValue(METHODE.Value, out var value)
+                else if (RoadSegmentGeometryDrawMethodV2.ByIdentifier.TryGetValue(METHODE.Value, out var value)
                          && value.IsAllowed())
                 {
                     return value;
@@ -253,9 +253,9 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return default;
             }
 
-            RoadSegmentStatusV2 ReadStatus(RoadSegmentGeometryDrawMethod method)
+            RoadSegmentStatusV2 ReadStatus(RoadSegmentGeometryDrawMethodV2 method)
             {
-                var outlined = method == RoadSegmentGeometryDrawMethod.Outlined;
+                var outlined = method == RoadSegmentGeometryDrawMethodV2.Ingeschetst;
 
                 if (STATUS is null)
                 {
@@ -274,9 +274,9 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return default;
             }
 
-            RoadSegmentMorphologyV2 ReadMorphology(RoadSegmentGeometryDrawMethod method)
+            RoadSegmentMorphologyV2 ReadMorphology(RoadSegmentGeometryDrawMethodV2 method)
             {
-                var outlined = method == RoadSegmentGeometryDrawMethod.Outlined;
+                var outlined = method == RoadSegmentGeometryDrawMethodV2.Ingeschetst;
 
                 if (MORF is null)
                 {
@@ -295,9 +295,9 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return default;
             }
 
-            RoadNodeId ReadStartNodeId(RoadSegmentGeometryDrawMethod method)
+            RoadNodeId ReadStartNodeId(RoadSegmentGeometryDrawMethodV2 method)
             {
-                if (method == RoadSegmentGeometryDrawMethod.Outlined)
+                if (method == RoadSegmentGeometryDrawMethodV2.Ingeschetst)
                 {
                     if (B_WK_OIDN is not null)
                     {
@@ -337,9 +337,9 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return default;
             }
 
-            RoadNodeId ReadEndNodeId(RoadSegmentGeometryDrawMethod method)
+            RoadNodeId ReadEndNodeId(RoadSegmentGeometryDrawMethodV2 method)
             {
-                if (method == RoadSegmentGeometryDrawMethod.Outlined)
+                if (method == RoadSegmentGeometryDrawMethodV2.Ingeschetst)
                 {
                     if (E_WK_OIDN is not null)
                     {

@@ -134,7 +134,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         List<Feature<RoadSegmentFeatureCompareAttributes>> FindMatchingExtractFeatures(RoadSegmentFeatureCompareAttributes changeFeatureAttributes)
         {
-            if (changeFeatureAttributes.Method == RoadSegmentGeometryDrawMethod.Outlined)
+            if (changeFeatureAttributes.Method == RoadSegmentGeometryDrawMethodV2.Ingeschetst)
             {
                 return extractFeatures
                     .Where(x => x.Attributes.Id == changeFeatureAttributes.Id)

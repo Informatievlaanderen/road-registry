@@ -15,7 +15,7 @@ public partial class RoadSegment
     {
         var problems = Problems.For(RoadSegmentId);
 
-        if (IsRemoved || Attributes.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+        if (IsRemoved || Attributes.GeometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingeschetst)
         {
             return problems;
         }
@@ -83,7 +83,7 @@ public partial class RoadSegment
     {
         return roadNetwork
             .GetNonRemovedRoadSegments()
-            .Where(segment => segment.Attributes.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
+            .Where(segment => segment.Attributes.GeometryDrawMethod != RoadSegmentGeometryDrawMethodV2.Ingeschetst)
             .Where(segment => segment.RoadSegmentId != intersectsWithId)
             .Where(segment => segment.Geometry.Value.Intersects(intersectsWithGeometry))
             .Where(segment => !segment.Nodes.Any(roadNodeIdsNotInCommon.Contains));

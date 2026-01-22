@@ -11,7 +11,7 @@ public sealed record MergeRoadSegmentChange : IRoadNetworkChange
     public required RoadNodeId StartNodeId { get; init; }
     public required RoadNodeId EndNodeId { get; init; }
     public required RoadSegmentGeometry Geometry { get; init; }
-    public required RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; init; }
+    public required RoadSegmentGeometryDrawMethodV2 GeometryDrawMethod { get; init; }
     public required RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> AccessRestriction { get; init; }
     public required RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2> Category { get; init; }
     public required RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> Morphology { get; init; }

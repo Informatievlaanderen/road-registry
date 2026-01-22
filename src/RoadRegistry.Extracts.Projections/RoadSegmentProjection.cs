@@ -33,7 +33,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             var status = e.Data.Status;
             var morphology = e.Data.Morphology;
             var category = e.Data.Category;
-            var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(e.Data.GeometryDrawMethod);
+            var geometryDrawMethod = e.Data.GeometryDrawMethod;
             var accessRestriction = e.Data.AccessRestriction;
 
             var roadSegment = new RoadSegmentExtractItem
@@ -76,7 +76,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             var status = e.Data.Status;
             var morphology = e.Data.Morphology;
             var category = e.Data.Category;
-            var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(e.Data.GeometryDrawMethod);
+            var geometryDrawMethod = e.Data.GeometryDrawMethod;
             var accessRestriction = e.Data.AccessRestriction;
 
             var roadSegment = new RoadSegmentExtractItem
@@ -116,7 +116,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 var status = e.Data.Status;
                 var morphology = e.Data.Morphology;
                 var category = e.Data.Category;
-                var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(e.Data.GeometryDrawMethod);
+                var geometryDrawMethod = e.Data.GeometryDrawMethod;
                 var accessRestriction = e.Data.AccessRestriction;
 
                 segment.Geometry = e.Data.Geometry;
@@ -445,7 +445,7 @@ public sealed class RoadSegmentExtractItem
     public required RoadSegmentGeometry Geometry { get; set; }
     public required RoadNodeId StartNodeId { get; set; }
     public required RoadNodeId EndNodeId { get; set; }
-    public required RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; set; }
+    public required string GeometryDrawMethod { get; set; }
     public required RoadSegmentDynamicAttributeValues<string> AccessRestriction { get; set; }
     public required RoadSegmentDynamicAttributeValues<string> Category { get; set; }
     public required RoadSegmentDynamicAttributeValues<string> Morphology { get; set; }

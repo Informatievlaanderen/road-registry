@@ -9,7 +9,7 @@ using RoadRegistry.ValueObjects;
 
 public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
 {
-    public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; init; }
+    public RoadSegmentGeometryDrawMethodV2 GeometryDrawMethod { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> AccessRestriction { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2> Category { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> Morphology { get; init; }
@@ -38,7 +38,7 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
         ICollection<NationalRoadNumber> nationalRoadNumbers
     )
     {
-        GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(geometryDrawMethod);
+        GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Parse(geometryDrawMethod);
         AccessRestriction = accessRestriction;
         Category = category;
         Morphology = morphology;

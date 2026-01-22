@@ -21,6 +21,6 @@ public static class FeatureCompareRecordExtensions
 
     public static IEnumerable<RoadSegmentFeatureCompareRecord> NotOutlined(this IEnumerable<RoadSegmentFeatureCompareRecord> records)
     {
-        return records.ThrowIfNull().Where(x => x.Attributes.Method != RoadSegmentGeometryDrawMethod.Outlined);
+        return records.ThrowIfNull().Where(x => x.Attributes.Method != RoadSegmentGeometryDrawMethodV2.Ingeschetst);
     }
 }

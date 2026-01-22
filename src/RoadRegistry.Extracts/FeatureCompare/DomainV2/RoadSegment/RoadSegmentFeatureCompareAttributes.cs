@@ -8,7 +8,7 @@ public record RoadSegmentFeatureCompareAttributes
     public MultiLineString? Geometry { get; init; }
     public RoadNodeId? StartNodeId { get; init; }
     public RoadNodeId? EndNodeId { get; init; }
-    public RoadSegmentGeometryDrawMethod? Method { get; init; }
+    public RoadSegmentGeometryDrawMethodV2? Method { get; init; }
     public RoadSegmentAccessRestrictionV2? AccessRestriction { get; init; }
     public RoadSegmentCategoryV2? Category { get; init; }
     public OrganizationId? MaintenanceAuthority { get; init; }
