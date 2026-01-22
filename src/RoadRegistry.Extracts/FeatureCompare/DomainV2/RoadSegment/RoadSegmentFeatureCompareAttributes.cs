@@ -11,7 +11,8 @@ public record RoadSegmentFeatureCompareAttributes
     public RoadSegmentGeometryDrawMethodV2? Method { get; init; }
     public RoadSegmentAccessRestrictionV2? AccessRestriction { get; init; }
     public RoadSegmentCategoryV2? Category { get; init; }
-    public OrganizationId? MaintenanceAuthority { get; init; }
+    public OrganizationId? LeftMaintenanceAuthorityId { get; init; }
+    public OrganizationId? RightMaintenanceAuthorityId { get; init; }
     public RoadSegmentMorphologyV2? Morphology { get; init; }
     public RoadSegmentStatusV2? Status { get; init; }
     public StreetNameLocalId? LeftSideStreetNameId { get; init; }
@@ -28,7 +29,8 @@ public record RoadSegmentFeatureCompareAttributes
             Method = Method == other.Method ? null : Method,
             AccessRestriction = AccessRestriction == other.AccessRestriction ? null : AccessRestriction,
             Category = Category == other.Category ? null : Category,
-            MaintenanceAuthority = MaintenanceAuthority == other.MaintenanceAuthority ? null : MaintenanceAuthority,
+            LeftMaintenanceAuthorityId = LeftMaintenanceAuthorityId == other.LeftMaintenanceAuthorityId ? null : LeftMaintenanceAuthorityId,
+            RightMaintenanceAuthorityId = RightMaintenanceAuthorityId == other.RightMaintenanceAuthorityId ? null : RightMaintenanceAuthorityId,
             Morphology = Morphology == other.Morphology ? null : Morphology,
             Status = Status == other.Status ? null : Status,
             LeftSideStreetNameId = LeftSideStreetNameId == other.LeftSideStreetNameId && RightSideStreetNameId == other.RightSideStreetNameId ? null : LeftSideStreetNameId,

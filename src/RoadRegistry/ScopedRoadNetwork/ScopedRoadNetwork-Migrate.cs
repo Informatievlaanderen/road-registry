@@ -138,7 +138,8 @@ public partial class ScopedRoadNetwork
         {
             RoadNodeId = change.RoadNodeId,
             Geometry = change.Geometry!,
-            Type = change.Type!
+            Type = change.Type!,
+            Grensknoop = change.Grensknoop!.Value,
         };
 
         var (roadNode, problems) = RoadNode.Migrate(migrateChange, changes.Provenance);

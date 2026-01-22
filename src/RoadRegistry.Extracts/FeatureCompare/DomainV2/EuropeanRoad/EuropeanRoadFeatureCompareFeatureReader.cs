@@ -46,7 +46,7 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
             {
                 EU_OIDN = dbaseRecord.EU_OIDN.GetValue(),
                 EUNUMMER = dbaseRecord.EUNUMMER.GetValue(),
-                WS_OIDN = dbaseRecord.WS_OIDN.GetValue()
+                WS_TEMPID = dbaseRecord.WS_TEMPID.GetValue()
             }.ToFeature(featureType, FileName, recordNumber);
         }
     }
@@ -54,7 +54,7 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
     private sealed record DbaseRecordData
     {
         public int? EU_OIDN { get; init; }
-        public int? WS_OIDN { get; init; }
+        public int? WS_TEMPID { get; init; }
         public string EUNUMMER { get; init; }
 
         public (Feature<EuropeanRoadFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
@@ -85,17 +85,17 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
 
             RoadSegmentId ReadRoadSegmentId()
             {
-                if (WS_OIDN is null)
+                if (WS_TEMPID is null)
                 {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(WS_OIDN));
+                    problems += problemBuilder.RequiredFieldIsNull(nameof(WS_TEMPID));
                 }
-                else if (RoadSegmentId.Accepts(WS_OIDN.Value))
+                else if (RoadSegmentId.Accepts(WS_TEMPID.Value))
                 {
-                    return new RoadSegmentId(WS_OIDN.Value);
+                    return new RoadSegmentId(WS_TEMPID.Value);
                 }
                 else
                 {
-                    problems += problemBuilder.RoadSegmentIdOutOfRange(WS_OIDN.Value);
+                    problems += problemBuilder.RoadSegmentIdOutOfRange(WS_TEMPID.Value);
                 }
 
                 return default;

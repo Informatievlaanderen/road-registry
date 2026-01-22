@@ -9,7 +9,6 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
     using RoadRegistry.Extracts.FeatureCompare.V3.NationalRoad;
     using RoadRegistry.Extracts.FeatureCompare.V3.RoadNode;
     using RoadRegistry.Extracts.FeatureCompare.V3.RoadSegment;
-    using RoadRegistry.Extracts.FeatureCompare.V3.RoadSegmentSurface;
     using RoadRegistry.Extracts.FeatureCompare.V3.TransactionZone;
     using RoadRegistry.Infrastructure;
     using IZipArchiveFeatureCompareTranslator = RoadRegistry.Extracts.FeatureCompare.V3.IZipArchiveFeatureCompareTranslator;
@@ -31,7 +30,6 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                     streetNameContextFactory ?? new FakeRoadSegmentFeatureCompareStreetNameContextFactoryV3(),
                     organizationCache ?? new FakeOrganizationCache()
                 ),
-                new RoadSegmentSurfaceFeatureCompareTranslator(new RoadSegmentSurfaceFeatureCompareFeatureReader(Encoding)),
                 new EuropeanRoadFeatureCompareTranslator(new EuropeanRoadFeatureCompareFeatureReader(Encoding)),
                 new NationalRoadFeatureCompareTranslator(new NationalRoadFeatureCompareFeatureReader(Encoding)),
                 new GradeSeparatedJunctionFeatureCompareTranslator(new GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding)),

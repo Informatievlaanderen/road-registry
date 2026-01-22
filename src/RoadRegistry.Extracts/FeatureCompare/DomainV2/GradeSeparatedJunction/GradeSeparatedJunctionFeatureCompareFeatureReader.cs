@@ -38,8 +38,8 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
             return new DbaseRecordData
             {
                 OK_OIDN = dbaseRecord.OK_OIDN.GetValue(),
-                BO_WS_OIDN = dbaseRecord.BO_WS_OIDN.GetValue(),
-                ON_WS_OIDN = dbaseRecord.ON_WS_OIDN.GetValue(),
+                BO_WS_TEMPID = dbaseRecord.BO_TEMPID.GetValue(),
+                ON_WS_TEMPID = dbaseRecord.ON_TEMPID.GetValue(),
                 TYPE = dbaseRecord.TYPE.GetValue()
             }.ToFeature(featureType, FileName, recordNumber);
         }
@@ -48,8 +48,8 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
     private sealed record DbaseRecordData
     {
         public int? OK_OIDN { get; init; }
-        public int? BO_WS_OIDN { get; init; }
-        public int? ON_WS_OIDN { get; init; }
+        public int? BO_WS_TEMPID { get; init; }
+        public int? ON_WS_TEMPID { get; init; }
         public int? TYPE { get; init; }
 
         public (Feature<GradeSeparatedJunctionFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
@@ -80,17 +80,17 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
 
             RoadSegmentId ReadUpperRoadSegmentId()
             {
-                if (BO_WS_OIDN is null)
+                if (BO_WS_TEMPID is null)
                 {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(BO_WS_OIDN));
+                    problems += problemBuilder.RequiredFieldIsNull(nameof(BO_WS_TEMPID));
                 }
-                else if (RoadSegmentId.Accepts(BO_WS_OIDN.Value))
+                else if (RoadSegmentId.Accepts(BO_WS_TEMPID.Value))
                 {
-                    return new RoadSegmentId(BO_WS_OIDN.Value);
+                    return new RoadSegmentId(BO_WS_TEMPID.Value);
                 }
                 else
                 {
-                    problems += problemBuilder.UpperRoadSegmentIdOutOfRange(BO_WS_OIDN.Value);
+                    problems += problemBuilder.UpperRoadSegmentIdOutOfRange(BO_WS_TEMPID.Value);
                 }
 
                 return default;
@@ -98,17 +98,17 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
 
             RoadSegmentId ReadLowerRoadSegmentId()
             {
-                if (ON_WS_OIDN is null)
+                if (ON_WS_TEMPID is null)
                 {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(ON_WS_OIDN));
+                    problems += problemBuilder.RequiredFieldIsNull(nameof(ON_WS_TEMPID));
                 }
-                else if (RoadSegmentId.Accepts(ON_WS_OIDN.Value))
+                else if (RoadSegmentId.Accepts(ON_WS_TEMPID.Value))
                 {
-                    return new RoadSegmentId(ON_WS_OIDN.Value);
+                    return new RoadSegmentId(ON_WS_TEMPID.Value);
                 }
                 else
                 {
-                    problems += problemBuilder.LowerRoadSegmentIdOutOfRange(ON_WS_OIDN.Value);
+                    problems += problemBuilder.LowerRoadSegmentIdOutOfRange(ON_WS_TEMPID.Value);
                 }
 
                 return default;

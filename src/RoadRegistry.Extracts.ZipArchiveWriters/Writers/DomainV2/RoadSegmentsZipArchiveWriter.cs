@@ -73,6 +73,13 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
                     var accessRestrictionValue = x.IsV2 ? RoadSegmentAccessRestrictionV2.Parse(accessRestriction).Translation.Identifier : MigrateToV2(RoadSegmentAccessRestriction.Parse(accessRestriction));
                     var categoryValue = x.IsV2 ? RoadSegmentCategoryV2.Parse(category).Translation.Identifier : MigrateToV2(RoadSegmentCategory.Parse(category));
 
+                    //TODO-pr roadsegmentsurfacetype mapping
+                    /*{-,1 indien ‘AttWegverharding.TYPE' = 1 voor deze ID},
+{-,2 indien ‘AttWegverharding.TYPE' = 2 voor deze ID},
+{-,3 indien ‘AttWegverharding.TYPE' = -9 voor deze ID},
+{-,-8 indien ‘AttWegverharding.TYPE' = -8 voor deze ID},
+*/
+
                     var dbfRecord = new RoadSegmentDbaseRecord
                     {
                         WS_OIDN = { Value = x.RoadSegmentId },

@@ -45,8 +45,8 @@ public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
             return new DbaseRecordData
             {
                 NW_OIDN = dbaseRecord.NW_OIDN.GetValue(),
-                WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
-                IDENT2 = dbaseRecord.IDENT2.GetValue()
+                WS_TEMPID = dbaseRecord.WS_TEMPID.GetValue(),
+                NWNUMMER = dbaseRecord.NWNUMMER.GetValue()
             }.ToFeature(featureType, FileName, recordNumber);
         }
     }
@@ -54,8 +54,8 @@ public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
     private sealed record DbaseRecordData
     {
         public int? NW_OIDN { get; init; }
-        public int? WS_OIDN { get; init; }
-        public string IDENT2 { get; init; }
+        public int? WS_TEMPID { get; init; }
+        public string NWNUMMER { get; init; }
 
         public (Feature<NationalRoadFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
         {
@@ -85,17 +85,17 @@ public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
 
             RoadSegmentId ReadRoadSegmentId()
             {
-                if (WS_OIDN is null)
+                if (WS_TEMPID is null)
                 {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(WS_OIDN));
+                    problems += problemBuilder.RequiredFieldIsNull(nameof(WS_TEMPID));
                 }
-                else if (RoadSegmentId.Accepts(WS_OIDN.Value))
+                else if (RoadSegmentId.Accepts(WS_TEMPID.Value))
                 {
-                    return new RoadSegmentId(WS_OIDN.Value);
+                    return new RoadSegmentId(WS_TEMPID.Value);
                 }
                 else
                 {
-                    problems += problemBuilder.RoadSegmentIdOutOfRange(WS_OIDN.Value);
+                    problems += problemBuilder.RoadSegmentIdOutOfRange(WS_TEMPID.Value);
                 }
 
                 return default;
@@ -103,17 +103,17 @@ public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
 
             NationalRoadNumber ReadNumber()
             {
-                if (IDENT2 is null)
+                if (NWNUMMER is null)
                 {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(IDENT2));
+                    problems += problemBuilder.RequiredFieldIsNull(nameof(NWNUMMER));
                 }
-                else if (NationalRoadNumber.TryParse(IDENT2, out var value))
+                else if (NationalRoadNumber.TryParse(NWNUMMER, out var value))
                 {
                     return value;
                 }
                 else
                 {
-                    problems += problemBuilder.NotNationalRoadNumber(IDENT2);
+                    problems += problemBuilder.NotNationalRoadNumber(NWNUMMER);
                 }
 
                 return default;

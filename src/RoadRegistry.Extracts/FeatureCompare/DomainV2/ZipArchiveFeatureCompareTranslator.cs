@@ -13,7 +13,6 @@ using NationalRoad;
 using RoadNode;
 using RoadRegistry.Extensions;
 using RoadSegment;
-using RoadSegmentSurface;
 using TransactionZone;
 using Uploads;
 
@@ -26,7 +25,6 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
         TransactionZoneFeatureCompareTranslator transactionZoneTranslator,
         RoadNodeFeatureCompareTranslator roadNodeTranslator,
         RoadSegmentFeatureCompareTranslator roadSegmentTranslator,
-        RoadSegmentSurfaceFeatureCompareTranslator roadSegmentSurfaceTranslator,
         EuropeanRoadFeatureCompareTranslator europeanRoadTranslator,
         NationalRoadFeatureCompareTranslator nationalRoadTranslator,
         GradeSeparatedJunctionFeatureCompareTranslator gradeSeparatedJunctionTranslator,
@@ -36,7 +34,6 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
                 transactionZoneTranslator.ThrowIfNull(),
                 roadNodeTranslator.ThrowIfNull(),
                 roadSegmentTranslator.ThrowIfNull(),
-                roadSegmentSurfaceTranslator.ThrowIfNull(),
                 europeanRoadTranslator.ThrowIfNull(),
                 nationalRoadTranslator.ThrowIfNull(),
                 gradeSeparatedJunctionTranslator.ThrowIfNull()
