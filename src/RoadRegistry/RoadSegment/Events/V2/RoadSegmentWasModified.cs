@@ -17,7 +17,7 @@ public record RoadSegmentWasModified : IMartenEvent
     public RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>? Status { get; init; }
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId>? StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId>? MaintenanceAuthorityId { get; init; }
-    public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>? SurfaceType { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>? SurfaceType { get; init; }
 
     public required ProvenanceData Provenance { get; init; }
 }

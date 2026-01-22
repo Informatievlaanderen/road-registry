@@ -16,7 +16,7 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
     public RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2> Status { get; init; }
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId> MaintenanceAuthorityId { get; init; }
-    public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> SurfaceType { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> SurfaceType { get; init; }
     public ImmutableList<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; }
     public ImmutableList<NationalRoadNumber> NationalRoadNumbers { get; init; }
 
@@ -33,7 +33,7 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
         RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2> status,
         RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameId,
         RoadSegmentDynamicAttributeValues<OrganizationId> maintenanceAuthorityId,
-        RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> surfaceType,
+        RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> surfaceType,
         ICollection<EuropeanRoadNumber> europeanRoadNumbers,
         ICollection<NationalRoadNumber> nationalRoadNumbers
     )

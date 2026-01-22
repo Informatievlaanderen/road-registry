@@ -781,6 +781,19 @@ public static class DbaseFileProblems
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
             .Build();
     }
+    public static FileError SurfaceTypeV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    {
+        return builder
+            .Error(nameof(SurfaceTypeMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    string.Join(",", RoadSegmentSurfaceTypeV2.ByIdentifier.Keys.Select(key => key.ToString()))
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
 
     public static FileError ToPositionOutOfRange(this IDbaseFileRecordProblemBuilder builder, double value)
     {

@@ -18,7 +18,7 @@ public record RoadSegmentWasMerged: IMartenEvent, ICreatedEvent
     public required RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2> Status { get; init; }
     public required RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNameId { get; init; }
     public required RoadSegmentDynamicAttributeValues<OrganizationId> MaintenanceAuthorityId { get; init; }
-    public required RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> SurfaceType { get; init; }
+    public required RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> SurfaceType { get; init; }
     public required IReadOnlyCollection<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; }
     public required IReadOnlyCollection<NationalRoadNumber> NationalRoadNumbers { get; init; }
 

@@ -95,7 +95,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 MORF = dbaseRecord.MORF.GetValue(),
                 RSTRNMID = dbaseRecord.RSTRNMID.GetValue(),
                 STATUS = dbaseRecord.STATUS.GetValue(),
-                TGBEP = dbaseRecord.TGBEP.GetValue(),
+                TOEGANG = dbaseRecord.TOEGANG.GetValue(),
                 WEGCAT = dbaseRecord.WEGCAT.GetValue(),
                 WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
                 Geometry = geometry
@@ -114,7 +114,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         public int? MORF { get; init; }
         public int? RSTRNMID { get; init; }
         public int? STATUS { get; init; }
-        public int? TGBEP { get; init; }
+        public int? TOEGANG { get; init; }
         public string WEGCAT { get; init; }
         public Geometry Geometry { get; init; }
 
@@ -185,17 +185,17 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
             RoadSegmentAccessRestrictionV2 ReadAccessRestriction()
             {
-                if (TGBEP is null)
+                if (TOEGANG is null)
                 {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(TGBEP));
+                    problems += problemBuilder.RequiredFieldIsNull(nameof(TOEGANG));
                 }
-                else if (RoadSegmentAccessRestrictionV2.ByIdentifier.TryGetValue(TGBEP.Value, out var value))
+                else if (RoadSegmentAccessRestrictionV2.ByIdentifier.TryGetValue(TOEGANG.Value, out var value))
                 {
                     return value;
                 }
                 else
                 {
-                    problems += problemBuilder.RoadSegmentAccessRestrictionV2Mismatch(TGBEP.Value);
+                    problems += problemBuilder.RoadSegmentAccessRestrictionV2Mismatch(TOEGANG.Value);
                 }
 
                 return default;

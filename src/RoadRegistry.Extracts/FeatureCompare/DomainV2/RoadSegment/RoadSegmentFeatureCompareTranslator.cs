@@ -474,7 +474,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(record.Attributes.Morphology!),
                             Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(record.Attributes.Status!),
                             StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId)!,
-                            SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>(),
+                            SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(),
                             EuropeanRoadNumbers = [],
                             NationalRoadNumbers = []
                         }

@@ -66,7 +66,7 @@ public static class Lists
 
     public static SurfaceTypeDbaseRecord[] AllSurfaceTypeDbaseRecords =>
         Array.ConvertAll(
-            RoadSegmentSurfaceType.All,
+            RoadSegmentSurfaceTypeV2.All,
             item => new SurfaceTypeDbaseRecord
             {
                 TYPE = { Value = item.Translation.Identifier },

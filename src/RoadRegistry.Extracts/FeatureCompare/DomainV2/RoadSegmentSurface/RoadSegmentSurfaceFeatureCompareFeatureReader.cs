@@ -54,9 +54,9 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
             if (context.ChangedRoadSegments.TryGetValue(roadSegmentId, out var roadSegmentFeature)
                 && roadSegmentFeature.Attributes.Geometry is not null)
             {
-                var surfaces = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>(roadSegmentGroup
+                var surfaces = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(roadSegmentGroup
                     .Select(feature => feature.Attributes)
-                    .Select(surface => new RoadSegmentDynamicAttributeValue<RoadSegmentSurfaceType>
+                    .Select(surface => new RoadSegmentDynamicAttributeValue<RoadSegmentSurfaceTypeV2>
                     {
                         Coverage = new(surface.FromPosition, surface.ToPosition),
                         Value = surface.Type
@@ -200,19 +200,19 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
                 return default;
             }
 
-            RoadSegmentSurfaceType ReadType()
+            RoadSegmentSurfaceTypeV2 ReadType()
             {
                 if (TYPE is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(TYPE));
                 }
-                else if (RoadSegmentSurfaceType.ByIdentifier.TryGetValue(TYPE.Value, out var value))
+                else if (RoadSegmentSurfaceTypeV2.ByIdentifier.TryGetValue(TYPE.Value, out var value))
                 {
                     return value;
                 }
                 else
                 {
-                    problems += problemBuilder.SurfaceTypeMismatch(TYPE.Value);
+                    problems += problemBuilder.SurfaceTypeV2Mismatch(TYPE.Value);
                 }
 
                 return default;
