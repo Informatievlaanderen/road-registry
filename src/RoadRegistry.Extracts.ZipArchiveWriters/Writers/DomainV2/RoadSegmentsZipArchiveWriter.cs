@@ -145,7 +145,25 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
     {
         var mapping = new Dictionary<int, int>
         {
-            { 1, 1 },
+            { 101, 1 },
+            { 102, 2 },
+            { 103, 3 },
+            { 104, 7 },
+            { 105, 3 },
+            { 106, 3 },
+            { 107, 5 },
+            { 108, 5 },
+            { 109, 4 },
+            { 110, 3 },
+            { 111, 6 },
+            { 112, 6 },
+            { 113, -113 },
+            { 114, -114 },
+            { 116, 11 },
+            { 120, -120 },
+            { 125, 8 },
+            { 130, 12 },
+            { -8, -8 }
         };
 
         if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
