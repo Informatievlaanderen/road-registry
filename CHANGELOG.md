@@ -1,3 +1,10 @@
+## [4.42.2](https://github.com/informatievlaanderen/road-registry/compare/v4.42.1...v4.42.2) (2026-01-23)
+
+
+### Bug Fixes
+
+* **marten projection:** keep event order when projecting ([77984c3](https://github.com/informatievlaanderen/road-registry/commit/77984c3fdf7f35c9cb47d8045599aaa609a83e28))
+
 ## [4.42.1](https://github.com/informatievlaanderen/road-registry/compare/v4.42.0...v4.42.1) (2026-01-20)
 
 
