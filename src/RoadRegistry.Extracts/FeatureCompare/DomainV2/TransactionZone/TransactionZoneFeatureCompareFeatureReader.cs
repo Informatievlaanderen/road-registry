@@ -1,12 +1,12 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3.TransactionZone;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
 
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Infrastructure.Extensions;
-using Schemas.DomainV2;
-using Uploads;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Schemas.DomainV2;
+using RoadRegistry.Extracts.Uploads;
 
 public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<TransactionZoneFeatureCompareAttributes>>
 {

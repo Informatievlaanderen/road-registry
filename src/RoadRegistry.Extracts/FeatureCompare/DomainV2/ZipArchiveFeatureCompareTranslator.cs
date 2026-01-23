@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2;
 
 using System;
 using System.Collections.Generic;
@@ -12,9 +12,9 @@ using Microsoft.Extensions.Logging;
 using NationalRoad;
 using RoadNode;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Uploads;
 using RoadSegment;
 using TransactionZone;
-using Uploads;
 
 public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTranslator
 {

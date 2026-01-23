@@ -10,7 +10,7 @@ using Moq;
 using NetTopologySuite.Geometries;
 using RoadNode.Changes;
 using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.FeatureCompare.V3;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadSegment.Changes;

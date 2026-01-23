@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2;
 
 using System;
 using System.Collections;
@@ -9,7 +9,7 @@ using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
-using ScopedRoadNetwork;
+using RoadRegistry.ScopedRoadNetwork;
 
 public sealed class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>, IEquatable<TranslatedChanges>
 {

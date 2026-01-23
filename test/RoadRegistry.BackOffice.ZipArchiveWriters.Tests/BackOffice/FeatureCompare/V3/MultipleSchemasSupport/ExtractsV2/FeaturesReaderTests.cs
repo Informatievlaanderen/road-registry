@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using RoadNode.Changes;
 using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.FeatureCompare.V3;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Schemas.DomainV2.GradeSeparatedJuntions;
 using RoadRegistry.Extracts.Schemas.DomainV2.RoadNodes;
 using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
@@ -18,7 +18,7 @@ using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
 
 public class FeaturesReaderTests
 {

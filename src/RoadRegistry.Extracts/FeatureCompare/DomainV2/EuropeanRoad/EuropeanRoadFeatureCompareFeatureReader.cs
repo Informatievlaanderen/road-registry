@@ -1,12 +1,12 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3.EuropeanRoad;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.EuropeanRoad;
 
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Infrastructure.Extensions;
-using Schemas.DomainV2.RoadSegments;
-using Uploads;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
+using RoadRegistry.Extracts.Uploads;
 
 public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<EuropeanRoadFeatureCompareAttributes>>
 {

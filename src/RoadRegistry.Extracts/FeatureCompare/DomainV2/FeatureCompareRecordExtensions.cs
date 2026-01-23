@@ -1,11 +1,11 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2;
 
 using System.Collections.Generic;
 using System.Linq;
 using RoadNode;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Uploads;
 using RoadSegment;
-using Uploads;
 
 public static class FeatureCompareRecordExtensions
 {

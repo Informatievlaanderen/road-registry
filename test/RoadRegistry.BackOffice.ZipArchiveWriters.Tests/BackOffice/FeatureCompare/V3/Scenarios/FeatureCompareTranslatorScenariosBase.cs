@@ -3,13 +3,13 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 using System.IO.Compression;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Extracts;
-using RoadRegistry.Extracts.FeatureCompare.V3;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Uploads;
 using RoadSegment.ValueObjects;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using IZipArchiveFeatureCompareTranslator = RoadRegistry.Extracts.FeatureCompare.V3.IZipArchiveFeatureCompareTranslator;
-using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
+using IZipArchiveFeatureCompareTranslator = RoadRegistry.Extracts.FeatureCompare.DomainV2.IZipArchiveFeatureCompareTranslator;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
 
 public abstract class FeatureCompareTranslatorScenariosBase
 {

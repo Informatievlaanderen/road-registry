@@ -1,12 +1,12 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2;
 
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using RoadNode;
+using RoadRegistry.Extracts.Uploads;
 using RoadSegment;
-using Uploads;
 
 public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureReaderContext
 {

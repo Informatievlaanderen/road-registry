@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3.TransactionZone;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
 
 public record TransactionZoneFeatureCompareAttributes
 {

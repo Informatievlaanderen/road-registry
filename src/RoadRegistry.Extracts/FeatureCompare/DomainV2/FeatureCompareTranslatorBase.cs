@@ -1,11 +1,11 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2;
 
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Uploads;
+using RoadRegistry.Extracts.Uploads;
 
 public static class Feature
 {

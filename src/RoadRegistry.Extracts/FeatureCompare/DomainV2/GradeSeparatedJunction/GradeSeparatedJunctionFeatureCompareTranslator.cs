@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3.GradeSeparatedJunction;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.GradeSeparatedJunction;
 
 using System;
 using System.Collections.Concurrent;
@@ -9,12 +9,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Schemas.ExtractV1.GradeSeparatedJuntions;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.Infrastructure;
 using RoadSegment;
-using Schemas.ExtractV1.GradeSeparatedJuntions;
-using Uploads;
-using TranslatedChanges = V3.TranslatedChanges;
+using TranslatedChanges = DomainV2.TranslatedChanges;
 
 public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTranslatorBase<GradeSeparatedJunctionFeatureCompareAttributes>
 {

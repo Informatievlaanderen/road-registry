@@ -1,7 +1,7 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3.RoadSegment;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Uploads;
+using RoadRegistry.Extracts.Uploads;
 
 public class RoadSegmentFeatureCompareRecord
 {

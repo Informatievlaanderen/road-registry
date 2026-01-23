@@ -1,11 +1,11 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2;
 
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using RoadRegistry.Extensions;
-using Uploads;
+using RoadRegistry.Extracts.Uploads;
 
 public class VersionedZipArchiveFeatureReader<TFeature> : IZipArchiveFeatureReader<TFeature>
     where TFeature : class

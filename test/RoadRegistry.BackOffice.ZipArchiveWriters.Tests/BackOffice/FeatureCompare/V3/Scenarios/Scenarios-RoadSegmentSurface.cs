@@ -4,13 +4,13 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.Extracts.FeatureCompare.V3;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts.V2;
 using ValueObjects.ProblemCodes;
 using Xunit.Abstractions;
-using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
 
 public class RoadSegmentSurfaceScenarios : FeatureCompareTranslatorScenariosBase
 {

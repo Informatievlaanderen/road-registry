@@ -1,12 +1,12 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3.GradeSeparatedJunction;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.GradeSeparatedJunction;
 
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Infrastructure.Extensions;
-using Schemas.DomainV2.GradeSeparatedJuntions;
-using Uploads;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Schemas.DomainV2.GradeSeparatedJuntions;
+using RoadRegistry.Extracts.Uploads;
 
 public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
 {

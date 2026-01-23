@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3.RoadSegment;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 
 using System;
 using System.Collections.Generic;
@@ -6,13 +6,10 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Infrastructure.Extensions;
 using NetTopologySuite.Geometries;
-using RoadRegistry.Extensions;
-using RoadRegistry.Infrastructure;
-using RoadRegistry.RoadSegment;
-using Schemas.DomainV2.RoadSegments;
-using Uploads;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
+using RoadRegistry.Extracts.Uploads;
 
 public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareAttributes>>
 {

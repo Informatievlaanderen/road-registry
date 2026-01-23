@@ -1,8 +1,8 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3.TransactionZone;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
 
 using System.Threading;
 using System.Threading.Tasks;
-using Uploads;
+using RoadRegistry.Extracts.Uploads;
 using TranslatedChanges = TranslatedChanges;
 
 public class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslatorBase<TransactionZoneFeatureCompareAttributes>

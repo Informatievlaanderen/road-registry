@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3.RoadNode;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
 
 using NetTopologySuite.Geometries;
 

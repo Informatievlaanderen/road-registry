@@ -1,13 +1,13 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2;
 
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Infrastructure.ShapeFile;
 using NetTopologySuite.Geometries;
-using Uploads;
+using RoadRegistry.Extracts.Infrastructure.ShapeFile;
+using RoadRegistry.Extracts.Uploads;
 
 public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZipArchiveFeatureReader<TFeature>
     where TDbaseRecord : DbaseRecord, new()

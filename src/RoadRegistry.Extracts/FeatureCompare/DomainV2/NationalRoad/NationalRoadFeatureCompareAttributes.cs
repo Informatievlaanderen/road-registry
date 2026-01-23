@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3.NationalRoad;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.NationalRoad;
 
 public record NationalRoadFeatureCompareAttributes : RoadNumberingFeatureCompareAttributes
 {

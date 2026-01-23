@@ -6,7 +6,7 @@ using FluentAssertions;
 using Marten;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using RoadRegistry.Extracts.FeatureCompare.V3;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadSegment.Changes;

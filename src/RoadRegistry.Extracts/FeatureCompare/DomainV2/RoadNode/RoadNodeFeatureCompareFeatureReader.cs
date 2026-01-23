@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3.RoadNode;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
 
 using System;
 using System.Collections.Generic;
@@ -6,10 +6,10 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Infrastructure.Extensions;
 using NetTopologySuite.Geometries;
-using Schemas.DomainV2.RoadNodes;
-using Uploads;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadNodes;
+using RoadRegistry.Extracts.Uploads;
 using Point = NetTopologySuite.Geometries.Point;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 

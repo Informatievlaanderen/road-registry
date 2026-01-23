@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.FeatureCompare.V3;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using ScopedRoadNetwork;
 using Sqs.RoadNetwork;

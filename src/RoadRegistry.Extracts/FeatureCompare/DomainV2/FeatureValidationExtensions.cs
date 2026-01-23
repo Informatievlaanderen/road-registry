@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2;
 
 using System;
 using System.Collections.Generic;
@@ -6,10 +6,10 @@ using System.IO.Compression;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using EuropeanRoad;
-using Infrastructure.Extensions;
 using NationalRoad;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Uploads;
 using RoadSegment;
-using Uploads;
 
 public static class FeatureValidationExtensions
 {

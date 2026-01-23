@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Extracts.FeatureCompare.V3.RoadSegment;
+﻿namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 
 using System.Collections.Generic;
 using System.Linq;

@@ -1,11 +1,11 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3.EuropeanRoad;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.EuropeanRoad;
 
 using System.Collections.Generic;
 using System.Linq;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadSegment.Changes;
 using RoadSegment;
-using Uploads;
-using TranslatedChanges = V3.TranslatedChanges;
+using TranslatedChanges = DomainV2.TranslatedChanges;
 
 public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareTranslatorBase<EuropeanRoadFeatureCompareAttributes>
 {

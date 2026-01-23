@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.FeatureCompare.V3.RoadSegment;
+namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 
 using System;
 using System.Collections.Concurrent;
@@ -9,12 +9,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using RoadNode;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
-using Schemas.ExtractV1.RoadSegments;
-using Uploads;
-using TranslatedChanges = V3.TranslatedChanges;
+using TranslatedChanges = DomainV2.TranslatedChanges;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
 {
