@@ -49,14 +49,14 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     LowerRoadSegmentId = TestData.AddSegment1.TemporaryId,
                     UpperRoadSegmentId = TestData.AddSegment2.TemporaryId,
-                    Type = GradeSeparatedJunctionType.Bridge
+                    Type = GradeSeparatedJunctionTypeV2.Brug
                 })
             )
             .When(changes => changes
                 .Add(new ModifyGradeSeparatedJunctionChange
                 {
                     GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
-                    Type = GradeSeparatedJunctionType.Tunnel
+                    Type = GradeSeparatedJunctionTypeV2.Tunnel
                 })
             )
             .Then((result, events) =>

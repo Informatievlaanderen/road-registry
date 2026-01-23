@@ -4,11 +4,8 @@ using AutoFixture;
 using Extensions;
 using Framework;
 using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Core;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadSegment.Changes;
-using RoadRegistry.RoadSegment.ValueObjects;
 using ValueObjects.Problems;
 
 public class VerifyTopologyTests : RoadNetworkTestBase
@@ -136,7 +133,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                     TemporaryId = Fixture.Create<GradeSeparatedJunctionId>(),
                     LowerRoadSegmentId = TestData.Segment1Added.RoadSegmentId,
                     UpperRoadSegmentId = TestData.Segment2Added.RoadSegmentId,
-                    Type = Fixture.Create<GradeSeparatedJunctionType>()
+                    Type = Fixture.Create<GradeSeparatedJunctionTypeV2>()
                 })
             )
             .ThenContainsProblems(new Error("GradeSeparatedJunctionUpperAndLowerRoadSegmentDoNotIntersect",

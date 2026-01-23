@@ -3,9 +3,7 @@
 using Extensions;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice;
 using RoadRegistry.RoadSegment;
-using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RoadSegmentGeometryValidatorTests
 {
@@ -21,7 +19,7 @@ public class RoadSegmentGeometryValidatorTests
     {
         AssertValidateResult(
             new LineString([new Coordinate(0, 0), new Coordinate(1.99, 0)]).ToMultiLineString(),
-            RoadSegmentGeometryDrawMethod.Outlined,
+            RoadSegmentGeometryDrawMethodV2.Ingeschetst,
             expectedErrorCodes: ["RoadSegmentGeometryLengthLessThanMinimum"]);
     }
 
@@ -30,7 +28,7 @@ public class RoadSegmentGeometryValidatorTests
     {
         AssertValidateResult(
             new LineString([new Coordinate(0, 0), new Coordinate(100000.01, 0)]).ToMultiLineString(),
-            RoadSegmentGeometryDrawMethod.Outlined,
+            RoadSegmentGeometryDrawMethodV2.Ingeschetst,
             expectedErrorCodes: ["RoadSegmentGeometryLengthTooLong"]);
     }
 
@@ -39,7 +37,7 @@ public class RoadSegmentGeometryValidatorTests
     {
         AssertValidateResult(
             new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString(),
-            RoadSegmentGeometryDrawMethod.Measured,
+            RoadSegmentGeometryDrawMethodV2.Ingemeten,
             expectedErrorCodes: ["RoadSegmentGeometryLengthIsZero"]);
     }
 
@@ -48,7 +46,7 @@ public class RoadSegmentGeometryValidatorTests
     {
         AssertValidateResult(
             new LineString([new Coordinate(0, 0), new Coordinate(100000.01, 0)]).ToMultiLineString(),
-            RoadSegmentGeometryDrawMethod.Measured,
+            RoadSegmentGeometryDrawMethodV2.Ingemeten,
             expectedErrorCodes: ["RoadSegmentGeometryLengthTooLong"]);
     }
 
@@ -57,7 +55,7 @@ public class RoadSegmentGeometryValidatorTests
     {
         AssertValidateResult(
             new LineString([new Coordinate(0, 0), new Coordinate(0, 0), new Coordinate(5, 0)]).ToMultiLineString(),
-            RoadSegmentGeometryDrawMethod.Measured,
+            RoadSegmentGeometryDrawMethodV2.Ingemeten,
             expectedErrorCodes: ["RoadSegmentGeometrySelfOverlaps"]);
     }
 
@@ -66,11 +64,11 @@ public class RoadSegmentGeometryValidatorTests
     {
         AssertValidateResult(
             new LineString([new Coordinate(0, 0), new Coordinate(10, 0), new Coordinate(10, 1), new Coordinate(0, -1)]).ToMultiLineString(),
-            RoadSegmentGeometryDrawMethod.Measured,
+            RoadSegmentGeometryDrawMethodV2.Ingemeten,
             expectedErrorCodes: ["RoadSegmentGeometrySelfIntersects"]);
     }
 
-    private void AssertValidateResult(MultiLineString geometry, RoadSegmentGeometryDrawMethod geometryDrawMethod, string[] expectedErrorCodes)
+    private void AssertValidateResult(MultiLineString geometry, RoadSegmentGeometryDrawMethodV2 geometryDrawMethod, string[] expectedErrorCodes)
     {
         var problems = new RoadSegmentGeometryValidator().Validate(
             new RoadSegmentId(1),

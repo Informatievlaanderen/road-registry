@@ -61,7 +61,7 @@ public class RoadSegmentAttributesEqualsOnlyNonDynamicAttributesTests
         // GeometryDrawMethod must be checked
         var geometryChanged = baseline with
         {
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined
+            GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst
         };
         baseline.EqualsOnlyNonDynamicAttributes(geometryChanged).Should().BeFalse();
 

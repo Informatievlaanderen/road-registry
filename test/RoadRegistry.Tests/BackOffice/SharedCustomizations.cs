@@ -172,6 +172,11 @@ public static class SharedCustomizations
         fixture.Customize<GradeSeparatedJunctionType>(composer =>
             composer.FromFactory<int>(value => GradeSeparatedJunctionType.All[value % GradeSeparatedJunctionType.All.Length]));
     }
+    public static void CustomizeGradeSeparatedJunctionTypeV2(this IFixture fixture)
+    {
+        fixture.Customize<GradeSeparatedJunctionTypeV2>(composer =>
+            composer.FromFactory<int>(value => GradeSeparatedJunctionTypeV2.All[value % GradeSeparatedJunctionTypeV2.All.Length]));
+    }
 
     public static void CustomizeMultiPolygon(this IFixture fixture)
     {
@@ -517,6 +522,14 @@ public static class SharedCustomizations
             )
         );
     }
+    public static void CustomizeRoadSegmentAccessRestrictionV2(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentAccessRestrictionV2>(customization =>
+            customization.FromFactory(generator =>
+                RoadSegmentAccessRestrictionV2.All[generator.Next() % RoadSegmentAccessRestrictionV2.All.Length]
+            )
+        );
+    }
 
     public static void CustomizeRoadSegmentCategory(this IFixture fixture)
     {
@@ -526,6 +539,17 @@ public static class SharedCustomizations
                     var allowedValues = RoadSegmentCategory.All
                         .Where(x => !RoadSegmentCategory.IsUpgraded(x))
                         .ToArray();
+                    return allowedValues[generator.Next() % allowedValues.Length];
+                }
+            )
+        );
+    }
+    public static void CustomizeRoadSegmentCategoryV2(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentCategoryV2>(customization =>
+            customization.FromFactory(generator =>
+                {
+                    var allowedValues = RoadSegmentCategoryV2.All;
                     return allowedValues[generator.Next() % allowedValues.Length];
                 }
             )
@@ -592,6 +616,12 @@ public static class SharedCustomizations
     {
         fixture.Customize<RoadSegmentGeometryDrawMethod>(customization =>
             customization.FromFactory(generator => RoadSegmentGeometryDrawMethod.Measured)
+        );
+    }
+    public static void CustomizeRoadSegmentGeometryDrawMethodV2(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentGeometryDrawMethodV2>(customization =>
+            customization.FromFactory(generator => RoadSegmentGeometryDrawMethodV2.Ingemeten)
         );
     }
 
@@ -722,6 +752,14 @@ public static class SharedCustomizations
             )
         );
     }
+    public static void CustomizeRoadSegmentMorphologyV2(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentMorphologyV2>(customization =>
+            customization.FromFactory(generator =>
+                RoadSegmentMorphologyV2.All[generator.Next() % RoadSegmentMorphologyV2.All.Length]
+            )
+        );
+    }
 
     public static void CustomizeRoadSegmentNumberedRoadDirection(this IFixture fixture)
     {
@@ -799,6 +837,14 @@ public static class SharedCustomizations
             )
         );
     }
+    public static void CustomizeRoadSegmentStatusV2(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentStatusV2>(customization =>
+            customization.FromFactory(generator =>
+                RoadSegmentStatusV2.All[generator.Next() % RoadSegmentStatusV2.All.Length]
+            )
+        );
+    }
 
     public static void CustomizeRoadSegmentSurfaceAttribute(this IFixture fixture)
     {
@@ -843,6 +889,14 @@ public static class SharedCustomizations
         fixture.Customize<RoadSegmentSurfaceType>(customization =>
             customization.FromFactory(generator =>
                 RoadSegmentSurfaceType.All[generator.Next() % RoadSegmentSurfaceType.All.Length]
+            )
+        );
+    }
+    public static void CustomizeRoadSegmentSurfaceTypeV2(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentSurfaceTypeV2>(customization =>
+            customization.FromFactory(generator =>
+                RoadSegmentSurfaceTypeV2.All[generator.Next() % RoadSegmentSurfaceTypeV2.All.Length]
             )
         );
     }

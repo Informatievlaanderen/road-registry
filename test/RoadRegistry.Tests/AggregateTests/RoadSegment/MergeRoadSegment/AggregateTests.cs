@@ -21,7 +21,7 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         var change = Fixture.Create<MergeRoadSegmentChange>() with
         {
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
+            GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
             Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates().ToRoadSegmentGeometry(),
             EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
             NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
@@ -62,7 +62,7 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         var change = Fixture.Create<MergeRoadSegmentChange>() with
         {
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
+            GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst,
             Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates().ToRoadSegmentGeometry(),
             EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
             NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
@@ -116,9 +116,9 @@ public class AggregateTests : AggregateTestBase
         var change = Fixture.Create<MergeRoadSegmentChange>() with
         {
             Geometry = new LineString([new Coordinate(0, 0), new Coordinate(1, 0)]).ToMultiLineString().ToRoadSegmentGeometry(),
-            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>()
-                .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategory>())
-                .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategory>())
+            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>()
+                .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategoryV2>())
+                .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategoryV2>())
         };
 
         // Act

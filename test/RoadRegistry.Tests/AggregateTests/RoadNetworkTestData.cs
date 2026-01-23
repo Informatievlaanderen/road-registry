@@ -76,30 +76,18 @@ public class RoadNetworkTestData
         Fixture.CustomizeRoadNodeType();
         Fixture.CustomizeRoadNodeGeometry();
         Fixture.CustomizeRoadSegmentId();
-        Fixture.CustomizeRoadSegmentCategory();
-        Fixture.CustomizeRoadSegmentMorphology();
-        Fixture.CustomizeRoadSegmentStatus();
-        Fixture.CustomizeRoadSegmentAccessRestriction();
-        Fixture.CustomizeRoadSegmentLaneAttribute();
-        Fixture.CustomizeRoadSegmentLaneAttributes();
-        Fixture.CustomizeRoadSegmentLaneCount();
-        Fixture.CustomizeRoadSegmentLaneDirection();
-        Fixture.CustomizeRoadSegmentNumberedRoadDirection();
+        Fixture.CustomizeRoadSegmentCategoryV2();
+        Fixture.CustomizeRoadSegmentMorphologyV2();
+        Fixture.CustomizeRoadSegmentStatusV2();
+        Fixture.CustomizeRoadSegmentAccessRestrictionV2();
         Fixture.CustomizeRoadSegmentGeometry();
-        Fixture.CustomizeRoadSegmentGeometryDrawMethod();
-        Fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
-        Fixture.CustomizeRoadSegmentSurfaceAttribute();
-        Fixture.CustomizeRoadSegmentSurfaceAttributes();
-        Fixture.CustomizeRoadSegmentSurfaceType();
-        Fixture.CustomizeRoadSegmentWidthAttribute();
-        Fixture.CustomizeRoadSegmentWidthAttributes();
-        Fixture.CustomizeRoadSegmentWidth();
+        Fixture.CustomizeRoadSegmentGeometryDrawMethodV2();
+        Fixture.CustomizeRoadSegmentSurfaceTypeV2();
         Fixture.CustomizeEuropeanRoadNumber();
         Fixture.CustomizeNationalRoadNumber();
-        Fixture.CustomizeNumberedRoadNumber();
         Fixture.CustomizeOriginProperties();
         Fixture.CustomizeGradeSeparatedJunctionId();
-        Fixture.CustomizeGradeSeparatedJunctionType();
+        Fixture.CustomizeGradeSeparatedJunctionTypeV2();
         Fixture.CustomizeArchiveId();
         Fixture.CustomizeChangeRequestId();
         Fixture.CustomizeReason();
@@ -107,40 +95,17 @@ public class RoadNetworkTestData
         Fixture.CustomizeTransactionId();
         Fixture.CustomizeExtractRequestId();
 
-        Fixture.CustomizeRoadNodeAdded();
-        Fixture.CustomizeRoadNodeModified();
+        Fixture.CustomizeRoadNodeWasAdded();
+        Fixture.CustomizeRoadNodeWasModified();
         Fixture.CustomizeRoadSegmentDynamicAttributeValues<OrganizationId>();
-        Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentMorphology>();
-        Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentStatus>();
-        Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentCategory>();
-        Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>();
+        Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>();
+        Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>();
+        Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>();
+        Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>();
         Fixture.CustomizeRoadSegmentDynamicAttributeValues<StreetNameLocalId>();
         Fixture.CustomizeRoadSegmentAttributes();
-        Fixture.CustomizeRoadSegmentAdded();
-        Fixture.CustomizeRoadSegmentModified();
-        //
-        // ObjectProvider.Customize<RequestedRoadSegmentEuropeanRoadAttribute>(composer =>
-        //     composer.Do(instance =>
-        //         {
-        //             instance.AttributeId = ObjectProvider.Create<AttributeId>();
-        //             instance.Number = ObjectProvider.Create<EuropeanRoadNumber>();
-        //         })
-        //         .OmitAutoProperties());
-        // ObjectProvider.Customize<RequestedRoadSegmentNationalRoadAttribute>(composer =>
-        //     composer.Do(instance =>
-        //         {
-        //             instance.AttributeId = ObjectProvider.Create<AttributeId>();
-        //             instance.Number = ObjectProvider.Create<NationalRoadNumber>();
-        //         })
-        //         .OmitAutoProperties());
-        // ObjectProvider.Customize<RequestedRoadSegmentNumberedRoadAttribute>(composer =>
-        //     composer.Do(instance =>
-        //     {
-        //         instance.AttributeId = ObjectProvider.Create<AttributeId>();
-        //         instance.Number = ObjectProvider.Create<NumberedRoadNumber>();
-        //         instance.Direction = ObjectProvider.Create<RoadSegmentNumberedRoadDirection>();
-        //         instance.Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>();
-        //     }).OmitAutoProperties());
+        Fixture.CustomizeRoadSegmentWasAdded();
+        Fixture.CustomizeRoadSegmentWasModified();
 
         customize?.Invoke(Fixture);
 
@@ -187,7 +152,8 @@ public class RoadNetworkTestData
             TemporaryId = Fixture.Create<RoadNodeId>(),
             OriginalId = Fixture.Create<RoadNodeId>(),
             Geometry = StartPoint1.ToRoadNodeGeometry(),
-            Type = RoadNodeType.EndNode
+            Type = RoadNodeTypeV2.Eindknoop,
+            Grensknoop = false
         };
 
         Segment1StartNodeAdded = new RoadNodeWasAdded
@@ -196,29 +162,17 @@ public class RoadNetworkTestData
             OriginalId = AddSegment1StartNode.TemporaryId,
             Geometry = AddSegment1StartNode.Geometry,
             Type = AddSegment1StartNode.Type,
+            Grensknoop = AddSegment1StartNode.Grensknoop,
             Provenance = new ProvenanceData(Provenance)
         };
-
-        // ModifyStartNode1 = new ModifyRoadNodeChange
-        // {
-        //     Id = 1,
-        //     Geometry = GeometryTranslator.Translate(StartPoint1),
-        //     Type = RoadNodeType.EndNode
-        // };
-        //
-        // StartNode1Modified = new RoadNodeModified
-        // {
-        //     Id = StartNode1Added.Id,
-        //     Geometry = StartNode1Added.Geometry.ToGeometryObject(),
-        //     Type = StartNode1Added.Type
-        // };
 
         AddSegment1EndNode = new AddRoadNodeChange
         {
             TemporaryId = new RoadNodeId(AddSegment1StartNode.TemporaryId + 1),
             OriginalId = Fixture.Create<RoadNodeId>(),
             Geometry = EndPoint1.ToRoadNodeGeometry(),
-            Type = RoadNodeType.EndNode
+            Type = RoadNodeTypeV2.Eindknoop,
+            Grensknoop = false
         };
 
         Segment1EndNodeAdded = new RoadNodeWasAdded
@@ -227,29 +181,17 @@ public class RoadNetworkTestData
             OriginalId = AddSegment1EndNode.TemporaryId,
             Geometry = AddSegment1EndNode.Geometry,
             Type = AddSegment1EndNode.Type,
+            Grensknoop = AddSegment1EndNode.Grensknoop,
             Provenance = new ProvenanceData(Provenance)
         };
-
-        // ModifyEndNode1 = new ModifyRoadNodeChange
-        // {
-        //     Id = 2,
-        //     Geometry = StartPoint2,
-        //     Type = RoadNodeType.EndNode
-        // };
-        //
-        // EndNode1Modified = new RoadNodeModified
-        // {
-        //     Id = EndNode1Added.Id,
-        //     Geometry = EndNode1Added.Geometry.ToGeometryObject(),
-        //     Type = EndNode1Added.Type
-        // };
 
         AddSegment2StartNode = new AddRoadNodeChange
         {
             TemporaryId = new RoadNodeId(AddSegment1EndNode.TemporaryId + 1),
             OriginalId = new RoadNodeId(AddSegment1EndNode.TemporaryId + 1),
             Geometry = StartPoint2.ToRoadNodeGeometry(),
-            Type = RoadNodeType.EndNode
+            Type = RoadNodeTypeV2.Eindknoop,
+            Grensknoop = false
         };
 
         Segment2StartNodeAdded = new RoadNodeWasAdded
@@ -258,6 +200,7 @@ public class RoadNetworkTestData
             OriginalId = AddSegment2StartNode.TemporaryId,
             Geometry = AddSegment2StartNode.Geometry,
             Type = AddSegment2StartNode.Type,
+            Grensknoop = AddSegment2StartNode.Grensknoop,
             Provenance = new ProvenanceData(Provenance)
         };
 
@@ -266,7 +209,8 @@ public class RoadNetworkTestData
             TemporaryId = new RoadNodeId(AddSegment2StartNode.TemporaryId + 1),
             OriginalId = Fixture.Create<RoadNodeId>(),
             Geometry = EndPoint2.ToRoadNodeGeometry(),
-            Type = RoadNodeType.EndNode
+            Type = RoadNodeTypeV2.Eindknoop,
+            Grensknoop = false
         };
 
         Segment2EndNodeAdded = new RoadNodeWasAdded
@@ -275,6 +219,7 @@ public class RoadNetworkTestData
             OriginalId = AddSegment2EndNode.TemporaryId,
             Geometry = AddSegment2EndNode.Geometry,
             Type = AddSegment2EndNode.Type,
+            Grensknoop = AddSegment2EndNode.Grensknoop,
             Provenance = new ProvenanceData(Provenance)
         };
 
@@ -283,7 +228,8 @@ public class RoadNetworkTestData
             TemporaryId = new RoadNodeId(AddSegment2EndNode.TemporaryId + 1),
             OriginalId = Fixture.Create<RoadNodeId>(),
             Geometry = StartPoint3.ToRoadNodeGeometry(),
-            Type = RoadNodeType.EndNode
+            Type = RoadNodeTypeV2.Eindknoop,
+            Grensknoop = false
         };
 
         Segment3StartNodeAdded = new RoadNodeWasAdded
@@ -292,6 +238,7 @@ public class RoadNetworkTestData
             OriginalId = AddSegment3StartNode.TemporaryId,
             Geometry = AddSegment3StartNode.Geometry,
             Type = AddSegment3StartNode.Type,
+            Grensknoop = AddSegment3StartNode.Grensknoop,
             Provenance = new ProvenanceData(Provenance)
         };
 
@@ -300,7 +247,8 @@ public class RoadNetworkTestData
             TemporaryId = new RoadNodeId(AddSegment3StartNode.TemporaryId + 1),
             OriginalId = Fixture.Create<RoadNodeId>(),
             Geometry = EndPoint3.ToRoadNodeGeometry(),
-            Type = RoadNodeType.EndNode
+            Type = RoadNodeTypeV2.Eindknoop,
+            Grensknoop = false
         };
 
         Segment3EndNodeAdded = new RoadNodeWasAdded
@@ -309,6 +257,7 @@ public class RoadNetworkTestData
             OriginalId = AddSegment3EndNode.TemporaryId,
             Geometry = AddSegment3EndNode.Geometry,
             Type = AddSegment3EndNode.Type,
+            Grensknoop = AddSegment3EndNode.Grensknoop,
             Provenance = new ProvenanceData(Provenance)
         };
 
@@ -320,14 +269,17 @@ public class RoadNetworkTestData
             StartNodeId = AddSegment1StartNode.TemporaryId,
             EndNodeId = AddSegment1EndNode.TemporaryId,
             Geometry = MultiLineString1.ToRoadSegmentGeometry(),
-            GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
+            GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
             MaintenanceAuthorityId = Fixture.Create<RoadSegmentDynamicAttributeValues<OrganizationId>>(),
-            Morphology = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>>(),
-            Status = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentStatus>>(),
-            Category = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentCategory>>(),
-            AccessRestriction = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>>(),
+            Morphology = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>>(),
+            Status = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>>(),
+            Category = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>>(),
+            AccessRestriction = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>>(),
             StreetNameId = Fixture.Create<RoadSegmentDynamicAttributeValues<StreetNameLocalId>>(),
-            SurfaceType = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>>(),
+            SurfaceType = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>>(),
+            CarAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<VehicleAccess>>(),
+            BikeAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<VehicleAccess>>(),
+            PedestrianAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<bool>>(),
             EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
             NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
         };
@@ -347,6 +299,9 @@ public class RoadNetworkTestData
             AccessRestriction = AddSegment1.AccessRestriction,
             StreetNameId = AddSegment1.StreetNameId,
             SurfaceType = AddSegment1.SurfaceType,
+            CarAccess = AddSegment1.CarAccess,
+            BikeAccess = AddSegment1.BikeAccess,
+            PedestrianAccess = AddSegment1.PedestrianAccess,
             EuropeanRoadNumbers = AddSegment1.EuropeanRoadNumbers,
             NationalRoadNumbers = AddSegment1.NationalRoadNumbers,
             Provenance = new ProvenanceData(Provenance)
@@ -359,14 +314,17 @@ public class RoadNetworkTestData
             StartNodeId = AddSegment2StartNode.TemporaryId,
             EndNodeId = AddSegment2EndNode.TemporaryId,
             Geometry = MultiLineString2.ToRoadSegmentGeometry(),
-            GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
+            GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
             MaintenanceAuthorityId = Fixture.Create<RoadSegmentDynamicAttributeValues<OrganizationId>>(),
-            Morphology = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>>(),
-            Status = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentStatus>>(),
-            Category = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentCategory>>(),
-            AccessRestriction = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>>(),
+            Morphology = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>>(),
+            Status = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>>(),
+            Category = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>>(),
+            AccessRestriction = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>>(),
             StreetNameId = Fixture.Create<RoadSegmentDynamicAttributeValues<StreetNameLocalId>>(),
-            SurfaceType = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>>(),
+            SurfaceType = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>>(),
+            CarAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<VehicleAccess>>(),
+            BikeAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<VehicleAccess>>(),
+            PedestrianAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<bool>>(),
             EuropeanRoadNumbers = [],
             NationalRoadNumbers = []
         };
@@ -386,6 +344,9 @@ public class RoadNetworkTestData
             AccessRestriction = AddSegment2.AccessRestriction,
             StreetNameId = AddSegment2.StreetNameId,
             SurfaceType = AddSegment2.SurfaceType,
+            CarAccess = AddSegment2.CarAccess,
+            BikeAccess = AddSegment2.BikeAccess,
+            PedestrianAccess = AddSegment2.PedestrianAccess,
             EuropeanRoadNumbers = AddSegment2.EuropeanRoadNumbers,
             NationalRoadNumbers = AddSegment2.NationalRoadNumbers,
             Provenance = new ProvenanceData(Provenance)
@@ -398,14 +359,17 @@ public class RoadNetworkTestData
             StartNodeId = AddSegment3StartNode.TemporaryId,
             EndNodeId = AddSegment3EndNode.TemporaryId,
             Geometry = MultiLineString3.ToRoadSegmentGeometry(),
-            GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
+            GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
             MaintenanceAuthorityId = Fixture.Create<RoadSegmentDynamicAttributeValues<OrganizationId>>(),
-            Morphology = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>>(),
-            Status = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentStatus>>(),
-            Category = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentCategory>>(),
-            AccessRestriction = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>>(),
+            Morphology = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>>(),
+            Status = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>>(),
+            Category = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>>(),
+            AccessRestriction = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>>(),
             StreetNameId = Fixture.Create<RoadSegmentDynamicAttributeValues<StreetNameLocalId>>(),
-            SurfaceType = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>>(),
+            SurfaceType = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>>(),
+            CarAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<VehicleAccess>>(),
+            BikeAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<VehicleAccess>>(),
+            PedestrianAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<bool>>(),
             EuropeanRoadNumbers = [],
             NationalRoadNumbers = []
         };
@@ -425,6 +389,9 @@ public class RoadNetworkTestData
             AccessRestriction = AddSegment3.AccessRestriction,
             StreetNameId = AddSegment3.StreetNameId,
             SurfaceType = AddSegment3.SurfaceType,
+            CarAccess = AddSegment3.CarAccess,
+            BikeAccess = AddSegment3.BikeAccess,
+            PedestrianAccess = AddSegment3.PedestrianAccess,
             EuropeanRoadNumbers = AddSegment3.EuropeanRoadNumbers,
             NationalRoadNumbers = AddSegment3.NationalRoadNumbers,
             Provenance = new ProvenanceData(Provenance)
