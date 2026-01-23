@@ -21,6 +21,9 @@ public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRo
     public required RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNameId { get; init; }
     public required RoadSegmentDynamicAttributeValues<OrganizationId> MaintenanceAuthorityId { get; init; }
     public required RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> SurfaceType { get; init; }
+    public required RoadSegmentDynamicAttributeValues<VehicleAccess> CarAccess { get; init; }
+    public required RoadSegmentDynamicAttributeValues<VehicleAccess> BikeAccess { get; init; }
+    public required RoadSegmentDynamicAttributeValues<bool> PedestrianAccess { get; init; }
     public IReadOnlyCollection<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; } = [];
     public IReadOnlyCollection<NationalRoadNumber> NationalRoadNumbers { get; init; } = [];
 
@@ -49,6 +52,9 @@ public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRo
                && StreetNameId.Equals(other.StreetNameId)
                && MaintenanceAuthorityId.Equals(other.MaintenanceAuthorityId)
                && SurfaceType.Equals(other.SurfaceType)
+               && CarAccess.Equals(other.CarAccess)
+               && BikeAccess.Equals(other.BikeAccess)
+               && PedestrianAccess.Equals(other.PedestrianAccess)
                && EuropeanRoadNumbers.SequenceEqual(other.EuropeanRoadNumbers)
                && NationalRoadNumbers.SequenceEqual(other.NationalRoadNumbers);
     }

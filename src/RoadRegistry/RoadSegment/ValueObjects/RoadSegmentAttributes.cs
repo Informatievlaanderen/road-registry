@@ -17,6 +17,9 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId> MaintenanceAuthorityId { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> SurfaceType { get; init; }
+    public RoadSegmentDynamicAttributeValues<VehicleAccess> CarAccess { get; init; }
+    public RoadSegmentDynamicAttributeValues<VehicleAccess> BikeAccess { get; init; }
+    public RoadSegmentDynamicAttributeValues<bool> PedestrianAccess { get; init; }
     public ImmutableList<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; }
     public ImmutableList<NationalRoadNumber> NationalRoadNumbers { get; init; }
 
@@ -34,6 +37,9 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
         RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameId,
         RoadSegmentDynamicAttributeValues<OrganizationId> maintenanceAuthorityId,
         RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> surfaceType,
+        RoadSegmentDynamicAttributeValues<VehicleAccess> carAccess,
+        RoadSegmentDynamicAttributeValues<VehicleAccess> bikeAccess,
+        RoadSegmentDynamicAttributeValues<bool> pedestrianAccess,
         ICollection<EuropeanRoadNumber> europeanRoadNumbers,
         ICollection<NationalRoadNumber> nationalRoadNumbers
     )
@@ -46,6 +52,9 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
         StreetNameId = streetNameId;
         MaintenanceAuthorityId = maintenanceAuthorityId;
         SurfaceType = surfaceType;
+        CarAccess = carAccess;
+        BikeAccess = bikeAccess;
+        PedestrianAccess = pedestrianAccess;
         EuropeanRoadNumbers = europeanRoadNumbers.ToImmutableList();
         NationalRoadNumbers = nationalRoadNumbers.ToImmutableList();
     }
@@ -82,4 +91,11 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
                && NationalRoadNumbers.SequenceEqual(other.NationalRoadNumbers)
             ;
     }
+}
+
+public enum VehicleAccess
+{
+    Forward,
+    Backward,
+    BiDirectional
 }

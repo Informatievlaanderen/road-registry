@@ -422,6 +422,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
     {
         foreach (var record in records.Where(x => x.FeatureType != FeatureType.Integration))
         {
+            //TODO-pr implement new fields: car/bike/pedestrian access
             cancellationToken.ThrowIfCancellationRequested();
             switch (record.RecordType.Translation.Identifier)
             {
@@ -451,6 +452,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         Status = record.Attributes.Status is not null
                             ? new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(record.Attributes.Status)
                             : null,
+                        CarAccess = null,
+                        BikeAccess = null,
+                        PedestrianAccess = null,
                         StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId),
                     };
 
@@ -475,6 +479,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(record.Attributes.Status!),
                             StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId)!,
                             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(),
+                            CarAccess = new RoadSegmentDynamicAttributeValues<VehicleAccess>(),
+                            BikeAccess = new RoadSegmentDynamicAttributeValues<VehicleAccess>(),
+                            PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(),
                             EuropeanRoadNumbers = [],
                             NationalRoadNumbers = []
                         }

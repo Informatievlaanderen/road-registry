@@ -28,6 +28,9 @@ public partial class RoadSegment
         var streetNameId = change.StreetNameId.TryCleanEntireLengthCoverages(segmentLength);
         var maintenanceAuthorityId = change.MaintenanceAuthorityId.TryCleanEntireLengthCoverages(segmentLength);
         var surfaceType = change.SurfaceType.TryCleanEntireLengthCoverages(segmentLength);
+        var carAccess = change.CarAccess.TryCleanEntireLengthCoverages(segmentLength);
+        var bikeAccess = change.BikeAccess.TryCleanEntireLengthCoverages(segmentLength);
+        var pedestrianAccess = change.PedestrianAccess.TryCleanEntireLengthCoverages(segmentLength);
         var europeanRoadNumbers = change.EuropeanRoadNumbers.ToImmutableList();
         var nationalRoadNumbers = change.NationalRoadNumbers.ToImmutableList();
         var attributes = new RoadSegmentAttributes
@@ -40,6 +43,9 @@ public partial class RoadSegment
             StreetNameId = streetNameId,
             MaintenanceAuthorityId = maintenanceAuthorityId,
             SurfaceType = surfaceType,
+            CarAccess = carAccess,
+            BikeAccess = bikeAccess,
+            PedestrianAccess = pedestrianAccess,
             EuropeanRoadNumbers = europeanRoadNumbers,
             NationalRoadNumbers = nationalRoadNumbers
         };
@@ -65,6 +71,9 @@ public partial class RoadSegment
             StreetNameId = streetNameId,
             MaintenanceAuthorityId = maintenanceAuthorityId,
             SurfaceType = surfaceType,
+            CarAccess = carAccess,
+            BikeAccess = bikeAccess,
+            PedestrianAccess = pedestrianAccess,
             EuropeanRoadNumbers = europeanRoadNumbers,
             NationalRoadNumbers = nationalRoadNumbers,
             Provenance = new ProvenanceData(provenance)

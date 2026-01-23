@@ -201,6 +201,9 @@ public partial class ScopedRoadNetwork
             StreetNameId = segment1.Attributes.StreetNameId.MergeWith(segment2.Attributes.StreetNameId, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
             MaintenanceAuthorityId = segment1.Attributes.MaintenanceAuthorityId.MergeWith(segment2.Attributes.MaintenanceAuthorityId, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
             SurfaceType = segment1.Attributes.SurfaceType.MergeWith(segment2.Attributes.SurfaceType, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
+            CarAccess = segment1.Attributes.CarAccess.MergeWith(segment2.Attributes.CarAccess, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
+            BikeAccess = segment1.Attributes.BikeAccess.MergeWith(segment2.Attributes.BikeAccess, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
+            PedestrianAccess = segment1.Attributes.PedestrianAccess.MergeWith(segment2.Attributes.PedestrianAccess, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
             EuropeanRoadNumbers = segment1.Attributes.EuropeanRoadNumbers,
             NationalRoadNumbers = segment1.Attributes.NationalRoadNumbers
         };

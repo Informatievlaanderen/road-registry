@@ -8,6 +8,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
     public RoadNodeId RoadNodeId { get; }
     public RoadNodeGeometry Geometry { get; private set; }
     public RoadNodeTypeV2 Type { get; private set; }
+    public bool Grensknoop { get; private set; }
 
     public bool IsRemoved { get; private set; }
 
@@ -22,6 +23,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         int roadNodeId,
         RoadNodeGeometry geometry,
         string type,
+        bool grensknoop,
         EventTimestamp origin,
         EventTimestamp lastModified,
         bool isRemoved)
@@ -29,6 +31,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
     {
         Geometry = geometry;
         Type = RoadNodeTypeV2.Parse(type);
+        Grensknoop = grensknoop;
         IsRemoved = isRemoved;
     }
 
@@ -37,7 +40,8 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         var roadNode = new RoadNode(@event.RoadNodeId)
         {
             Geometry = @event.Geometry,
-            Type = @event.Type
+            Type = @event.Type,
+            Grensknoop = @event.Grensknoop
         };
         roadNode.UncommittedEvents.Add(@event);
         return roadNode;
@@ -48,7 +52,8 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         var roadNode = new RoadNode(@event.RoadNodeId)
         {
             Geometry = @event.Geometry,
-            Type = @event.Type
+            Type = @event.Type,
+            Grensknoop = @event.Grensknoop
         };
         roadNode.UncommittedEvents.Add(@event);
         return roadNode;
@@ -60,6 +65,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
 
         Geometry = @event.Geometry ?? Geometry;
         Type = @event.Type ?? Type;
+        Grensknoop = @event.Grensknoop ?? Grensknoop;
     }
 
     public void Apply(RoadNodeWasRemoved @event)
