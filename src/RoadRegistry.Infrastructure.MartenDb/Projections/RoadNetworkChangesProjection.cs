@@ -49,9 +49,10 @@ public abstract class RoadNetworkChangesProjection : IProjection
             .Where(x => unprocessedCorrelationIds.Contains(x.CorrelationId!)) //TODO-pr add index on correlationId
             .ToList()
             .GroupBy(x => x.CorrelationId!)
+            .OrderBy(x => x.First().Sequence)
             .ToList();
 
-        foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, i) => (CorrelationId: g.Key, Events: g.ToArray())))
+        foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, i) => (CorrelationId: g.Key, Events: g.OrderBy(x => x.Sequence).ToArray())))
         {
             foreach (var projection in _projections)
             {
