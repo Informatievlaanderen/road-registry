@@ -506,6 +506,11 @@ public static class SharedCustomizations
         fixture.Customize<RoadNodeType>(composer =>
             composer.FromFactory<int>(value => RoadNodeType.All[Math.Abs(value) % RoadNodeType.All.Length]));
     }
+    public static void CustomizeRoadNodeTypeV2(this IFixture fixture)
+    {
+        fixture.Customize<RoadNodeTypeV2>(composer =>
+            composer.FromFactory<int>(value => RoadNodeTypeV2.All[Math.Abs(value) % RoadNodeTypeV2.All.Length]));
+    }
 
     public static void CustomizeRoadNodeVersion(this IFixture fixture)
     {

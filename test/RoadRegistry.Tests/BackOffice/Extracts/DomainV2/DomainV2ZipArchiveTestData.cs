@@ -1,4 +1,4 @@
-namespace RoadRegistry.Tests.BackOffice.Extracts.V2;
+namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 
 using System.IO.Compression;
 using System.Text;
@@ -60,25 +60,17 @@ public class DomainV2ZipArchiveTestData : IDisposable
         fixture.CustomizeEuropeanRoadNumber();
         fixture.CustomizeNationalRoadNumber();
         fixture.CustomizeGradeSeparatedJunctionId();
-        fixture.CustomizeGradeSeparatedJunctionType();
-        fixture.CustomizeNumberedRoadNumber();
-        fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
-        fixture.CustomizeRoadSegmentNumberedRoadDirection();
+        fixture.CustomizeGradeSeparatedJunctionTypeV2();
         fixture.CustomizeRoadNodeId();
-        fixture.CustomizeRoadNodeType();
-        fixture.CustomizeRoadSegmentGeometryDrawMethod();
+        fixture.CustomizeRoadNodeTypeV2();
+        fixture.CustomizeRoadSegmentGeometryDrawMethodV2();
         fixture.CustomizeOrganizationId();
-        fixture.CustomizeRoadSegmentMorphology();
-        fixture.CustomizeRoadSegmentStatus();
-        fixture.CustomizeRoadSegmentCategory();
-        fixture.CustomizeRoadSegmentAccessRestriction();
-        fixture.CustomizeRoadSegmentLaneCount();
-        fixture.CustomizeRoadSegmentLaneDirection();
+        fixture.CustomizeRoadSegmentMorphologyV2();
+        fixture.CustomizeRoadSegmentStatusV2();
+        fixture.CustomizeRoadSegmentCategoryV2();
+        fixture.CustomizeRoadSegmentAccessRestrictionV2();
         fixture.CustomizeRoadSegmentPosition();
-        fixture.CustomizeRoadSegmentSurfaceType();
-        fixture.CustomizeRoadSegmentPosition();
-        fixture.CustomizeRoadSegmentWidth();
-        fixture.CustomizeRoadSegmentPosition();
+        fixture.CustomizeRoadSegmentSurfaceTypeV2();
         fixture.CustomizeOrganizationId();
         fixture.CustomizeOperatorName();
         fixture.CustomizeReason();
@@ -89,7 +81,7 @@ public class DomainV2ZipArchiveTestData : IDisposable
                 .FromFactory(random => new RoadSegmentEuropeanRoadAttributeDbaseRecord
                 {
                     EU_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
-                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
+                    WS_TEMPID = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
                     EUNUMMER = { Value = fixture.Create<EuropeanRoadNumber>().ToString() }
                 })
                 .OmitAutoProperties());
@@ -100,9 +92,9 @@ public class DomainV2ZipArchiveTestData : IDisposable
                 {
                     OK_OIDN = { Value = new GradeSeparatedJunctionId(random.Next(1, int.MaxValue)) },
                     TYPE =
-                        { Value = (short)fixture.Create<GradeSeparatedJunctionType>().Translation.Identifier },
-                    BO_WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
-                    ON_WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() }
+                        { Value = (short)fixture.Create<GradeSeparatedJunctionTypeV2>().Translation.Identifier },
+                    BO_TEMPID = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
+                    ON_TEMPID = { Value = fixture.Create<RoadSegmentId>().ToInt32() }
                 })
                 .OmitAutoProperties());
 
@@ -111,8 +103,8 @@ public class DomainV2ZipArchiveTestData : IDisposable
                 .FromFactory(random => new RoadSegmentNationalRoadAttributeDbaseRecord
                 {
                     NW_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
-                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
-                    IDENT2 = { Value = fixture.Create<NationalRoadNumber>().ToString() }
+                    WS_TEMPID = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
+                    NWNUMMER = { Value = fixture.Create<NationalRoadNumber>().ToString() }
                 })
                 .OmitAutoProperties());
 
@@ -121,7 +113,7 @@ public class DomainV2ZipArchiveTestData : IDisposable
                 .FromFactory(random => new RoadNodeDbaseRecord
                 {
                     WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
-                    TYPE = { Value = (short)fixture.Create<RoadNodeType>().Translation.Identifier }
+                    TYPE = { Value = (short)fixture.Create<RoadNodeTypeV2>().Translation.Identifier }
                 })
                 .OmitAutoProperties());
 
@@ -211,34 +203,23 @@ public class DomainV2ZipArchiveTestData : IDisposable
                 .FromFactory(random => new RoadSegmentDbaseRecord
                 {
                     WS_OIDN = { Value = new RoadSegmentId(random.Next(1, int.MaxValue)) },
-                    METHODE =
-                    {
-                        Value = (short)fixture.Create<RoadSegmentGeometryDrawMethod>().Translation.Identifier
-                    },
-                    BEHEER = { Value = fixture.Create<OrganizationId>() },
-                    MORF = { Value = (short)fixture.Create<RoadSegmentMorphology>().Translation.Identifier },
-                    STATUS = { Value = fixture.Create<RoadSegmentStatus>().Translation.Identifier },
-                    WEGCAT = { Value = fixture.Create<RoadSegmentCategory>().Translation.Identifier },
-                    B_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
-                    E_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
+                    // METHODE =
+                    // {
+                    //     Value = (short)fixture.Create<RoadSegmentGeometryDrawMethod>().Translation.Identifier
+                    // },
+                    LBEHEER = { Value = fixture.Create<OrganizationId>() },
+                    RBEHEER = { Value = fixture.Create<OrganizationId>() },
+                    MORF = { Value = (short)fixture.Create<RoadSegmentMorphologyV2>().Translation.Identifier },
+                    STATUS = { Value = fixture.Create<RoadSegmentStatusV2>().Translation.Identifier },
+                    WEGCAT = { Value = fixture.Create<RoadSegmentCategoryV2>().Translation.Identifier },
+                    //B_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
+                    //E_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
                     LSTRNMID = { Value = new StreetNameLocalId(random.Next(1, int.MaxValue)) },
                     RSTRNMID = { Value = new StreetNameLocalId(random.Next(1, int.MaxValue)) },
-                    TGBEP =
+                    TOEGANG =
                     {
-                        Value = (short)fixture.Create<RoadSegmentAccessRestriction>().Translation.Identifier
+                        Value = (short)fixture.Create<RoadSegmentAccessRestrictionV2>().Translation.Identifier
                     }
-                })
-                .OmitAutoProperties());
-
-        fixture.Customize<RoadSegmentSurfaceAttributeDbaseRecord>(
-            composer => composer
-                .FromFactory(random => new RoadSegmentSurfaceAttributeDbaseRecord
-                {
-                    WV_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
-                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
-                    VANPOS = { Value = fixture.Create<RoadSegmentPosition>().ToDouble() },
-                    TOTPOS = { Value = fixture.Create<RoadSegmentPosition>().ToDouble() },
-                    TYPE = { Value = (short)fixture.Create<RoadSegmentSurfaceType>().Translation.Identifier }
                 })
                 .OmitAutoProperties());
 
@@ -368,10 +349,6 @@ public class DomainV2ZipArchiveTestData : IDisposable
                     case "ATTNATIONWEG.DBF":
                         CreateEntry(requiredFile, nationalRoadChangeStream);
                         break;
-                    case "EATTWEGVERHARDING.DBF":
-                    case "ATTWEGVERHARDING.DBF":
-                        CreateEntry(requiredFile, surfaceChangeStream);
-                        break;
                     case "ERLTOGKRUISING.DBF":
                     case "RLTOGKRUISING.DBF":
                         CreateEntry(requiredFile, gradeSeparatedJunctionChangeStream);
@@ -402,7 +379,6 @@ public class DomainV2ZipArchiveTestData : IDisposable
 
         var europeanRoadChangeStream = Fixture.CreateEmptyDbfFile<RoadSegmentEuropeanRoadAttributeDbaseRecord>(RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
         var nationalRoadChangeStream = Fixture.CreateEmptyDbfFile<RoadSegmentNationalRoadAttributeDbaseRecord>(RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
-        var surfaceChangeStream = Fixture.CreateEmptyDbfFile<RoadSegmentSurfaceAttributeDbaseRecord>(RoadSegmentSurfaceAttributeDbaseRecord.Schema);
 
         var roadNodeShapeChangeStream = Fixture.CreateEmptyRoadNodeShapeFile();
         var roadNodeProjectionFormatStream = Fixture.CreateEmptyProjectionFormatFile();
@@ -427,7 +403,6 @@ public class DomainV2ZipArchiveTestData : IDisposable
             roadNodeDbaseChangeStream,
             europeanRoadChangeStream,
             nationalRoadChangeStream,
-            surfaceChangeStream,
             gradeSeparatedJunctionChangeStream,
             transactionZoneShapeStream,
             transactionZoneProjectionFormatStream,
@@ -461,30 +436,22 @@ public class DomainV2ZipArchiveTestData : IDisposable
         var roadSegmentShapeIntegrationStream = Fixture.CreateRoadSegmentShapeFileWithOneRecord(roadSegmentPolyLineMShapeContent);
         var roadSegmentProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
         var roadSegmentChangeDbaseRecord = Fixture.Create<RoadSegmentDbaseRecord>();
-        roadSegmentChangeDbaseRecord.B_WK_OIDN.Value = roadNodeDbaseChange1.WK_OIDN.Value;
-        roadSegmentChangeDbaseRecord.E_WK_OIDN.Value = roadNodeDbaseChange2.WK_OIDN.Value;
+        //roadSegmentChangeDbaseRecord.B_WK_OIDN.Value = roadNodeDbaseChange1.WK_OIDN.Value;
+        //roadSegmentChangeDbaseRecord.E_WK_OIDN.Value = roadNodeDbaseChange2.WK_OIDN.Value;
         var roadSegmentDbaseChangeStream = Fixture.CreateDbfFileWithOneRecord(RoadSegmentDbaseRecord.Schema, roadSegmentChangeDbaseRecord);
         var roadSegmentIntegrationDbaseRecord = Fixture.CreateWhichIsDifferentThan<RoadSegmentDbaseRecord>((x1, x2) => x1.WS_OIDN.Value == x2.WS_OIDN.Value);
-        roadSegmentIntegrationDbaseRecord.B_WK_OIDN.Value = roadNodeDbaseIntegration1.WK_OIDN.Value;
-        roadSegmentIntegrationDbaseRecord.E_WK_OIDN.Value = roadNodeDbaseIntegration2.WK_OIDN.Value;
+        //roadSegmentIntegrationDbaseRecord.B_WK_OIDN.Value = roadNodeDbaseIntegration1.WK_OIDN.Value;
+        //roadSegmentIntegrationDbaseRecord.E_WK_OIDN.Value = roadNodeDbaseIntegration2.WK_OIDN.Value;
         var roadSegmentDbaseIntegrationStream = Fixture.CreateDbfFileWithOneRecord(RoadSegmentDbaseRecord.Schema, roadSegmentIntegrationDbaseRecord);
 
         var europeanRoadChangeStream = Fixture.CreateDbfFileWithOneRecord<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
             RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
         var nationalRoadChangeStream = Fixture.CreateDbfFileWithOneRecord<RoadSegmentNationalRoadAttributeDbaseRecord>(
             RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
-        var surfaceChangeStream = Fixture.CreateDbfFileWithOneRecord<RoadSegmentSurfaceAttributeDbaseRecord>(
-            RoadSegmentSurfaceAttributeDbaseRecord.Schema,
-            record =>
-            {
-                record.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
-                record.VANPOS.Value = roadSegmentPolyLineMShapeContent.Shape.MeasureRange.Min;
-                record.TOTPOS.Value = roadSegmentPolyLineMShapeContent.Shape.MeasureRange.Max;
-            });
 
         var gradeSeparatedJunctionDbaseRecord = Fixture.Create<GradeSeparatedJunctionDbaseRecord>();
-        gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
-        gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
+        gradeSeparatedJunctionDbaseRecord.BO_TEMPID.Value = roadSegmentChangeDbaseRecord.WS_TEMPID.Value;
+        gradeSeparatedJunctionDbaseRecord.ON_TEMPID.Value = roadSegmentChangeDbaseRecord.WS_TEMPID.Value;
         var gradeSeparatedJunctionChangeStream = Fixture.CreateDbfFileWithOneRecord(GradeSeparatedJunctionDbaseRecord.Schema, gradeSeparatedJunctionDbaseRecord);
 
         var transactionZoneProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
@@ -506,7 +473,6 @@ public class DomainV2ZipArchiveTestData : IDisposable
             roadNodeDbaseIntegrationStream,
             europeanRoadChangeStream,
             nationalRoadChangeStream,
-            surfaceChangeStream,
             gradeSeparatedJunctionChangeStream,
             transactionZoneShapeStream,
             transactionZoneProjectionFormatStream,

@@ -1,14 +1,10 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.V3.Scenarios;
 
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.DutchTranslations;
-using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extracts.DutchTranslations;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Uploads;
-using RoadRegistry.Tests.BackOffice;
-using RoadRegistry.Tests.BackOffice.Extracts.V2;
+using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 using Xunit.Abstractions;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
 
@@ -27,9 +23,9 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
         var zipArchive = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
-                builder.TestData.RoadSegment1NationalRoadDbaseRecord2.IDENT2.Value = builder.TestData.RoadSegment1NationalRoadDbaseRecord1.IDENT2.Value;
+                builder.TestData.RoadSegment1NationalRoadDbaseRecord2.NWNUMMER.Value = builder.TestData.RoadSegment1NationalRoadDbaseRecord1.NWNUMMER.Value;
 
-                expectedTranslatedProblemMessage = $"De dbase record 1 met NW_OIDN {builder.TestData.RoadSegment1NationalRoadDbaseRecord1.NW_OIDN.Value} heeft hetzelfde WS_OIDN en IDENT2 als de dbase record 2 met NW_OIDN {builder.TestData.RoadSegment1NationalRoadDbaseRecord2.NW_OIDN.Value}.";
+                expectedTranslatedProblemMessage = $"De dbase record 1 met NW_OIDN {builder.TestData.RoadSegment1NationalRoadDbaseRecord1.NW_OIDN.Value} heeft hetzelfde WS_OIDN en NWNUMMER als de dbase record 2 met NW_OIDN {builder.TestData.RoadSegment1NationalRoadDbaseRecord2.NW_OIDN.Value}.";
             })
             .Build();
 
@@ -46,9 +42,9 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
         var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
-                builder.TestData.RoadSegment1NationalRoadDbaseRecord1.WS_OIDN.Value = context.Fixture.CreateWhichIsDifferentThan(
-                    builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value,
-                    builder.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value);
+                builder.TestData.RoadSegment1NationalRoadDbaseRecord1.WS_TEMPID.Value = context.Fixture.CreateWhichIsDifferentThan(
+                    builder.TestData.RoadSegment1DbaseRecord.WS_TEMPID.Value,
+                    builder.TestData.RoadSegment2DbaseRecord.WS_TEMPID.Value);
             })
             .BuildWithResult(_ => TranslatedChanges.Empty);
 

@@ -12,7 +12,6 @@ using RoadRegistry.Infrastructure.MartenDb;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
 using Sqs.RoadNetwork;
-using Tests.AggregateTests;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 
@@ -90,7 +89,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
 
         var handler = sp.GetRequiredService<ChangeRoadNetworkSqsLambdaRequestHandler>();
 
-        var changedCategory = TestData.Fixture.Create<RoadSegmentCategory>();
+        var changedCategory = TestData.Fixture.Create<RoadSegmentCategoryV2>();
         var provenanceData = new RoadRegistryProvenanceData();
         var command = new ChangeRoadNetworkSqsRequest
         {
@@ -102,7 +101,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
                     ModifyRoadSegment = new ModifyRoadSegmentChange
                     {
                         RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-                        Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(changedCategory)
+                        Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(changedCategory)
                     }
                 }
             ],

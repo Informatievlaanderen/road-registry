@@ -73,7 +73,7 @@ public class RoadNetworkTestData
         Fixture.CustomizeOrganizationKboNumber();
         Fixture.CustomizeRoadNodeId();
         Fixture.CustomizeRoadNodeVersion();
-        Fixture.CustomizeRoadNodeType();
+        Fixture.CustomizeRoadNodeTypeV2();
         Fixture.CustomizeRoadNodeGeometry();
         Fixture.CustomizeRoadSegmentId();
         Fixture.CustomizeRoadSegmentCategoryV2();

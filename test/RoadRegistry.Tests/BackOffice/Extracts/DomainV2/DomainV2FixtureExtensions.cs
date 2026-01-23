@@ -1,12 +1,11 @@
-namespace RoadRegistry.Tests;
+namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 
 using System.IO.Compression;
 using System.Text;
 using AutoFixture;
-using BackOffice.Extracts.V2;
-using Extracts.Schemas.DomainV2;
-using Extracts.Schemas.DomainV2.RoadNodes;
-using Extracts.Schemas.DomainV2.RoadSegments;
+using RoadRegistry.Extracts.Schemas.DomainV2;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadNodes;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
 
 public static class DomainV2FixtureExtensions
 {
@@ -20,7 +19,6 @@ public static class DomainV2FixtureExtensions
         MemoryStream roadNodeDbaseChangeStream = null,
         MemoryStream europeanRoadChangeStream = null,
         MemoryStream nationalRoadChangeStream = null,
-        MemoryStream surfaceChangeStream = null,
         MemoryStream gradeSeparatedJunctionChangeStream = null,
         MemoryStream roadSegmentShapeExtractStream = null,
         MemoryStream roadSegmentDbaseExtractStream = null,
@@ -28,7 +26,6 @@ public static class DomainV2FixtureExtensions
         MemoryStream roadNodeDbaseExtractStream = null,
         MemoryStream europeanRoadExtractStream = null,
         MemoryStream nationalRoadExtractStream = null,
-        MemoryStream surfaceExtractStream = null,
         MemoryStream gradeSeparatedJunctionExtractStream = null,
         MemoryStream transactionZoneStream = null,
         MemoryStream roadSegmentShapeIntegrationStream = null,
@@ -63,8 +60,6 @@ public static class DomainV2FixtureExtensions
             { "EATTEUROPWEG.DBF", europeanRoadExtractStream },
             { "ATTNATIONWEG.DBF", nationalRoadChangeStream },
             { "EATTNATIONWEG.DBF", nationalRoadExtractStream },
-            { "ATTWEGVERHARDING.DBF", surfaceChangeStream },
-            { "EATTWEGVERHARDING.DBF", surfaceExtractStream },
             { "RLTOGKRUISING.DBF", gradeSeparatedJunctionChangeStream },
             { "ERLTOGKRUISING.DBF", gradeSeparatedJunctionExtractStream },
             { "TRANSACTIEZONES.DBF", transactionZoneStream ?? fixture.CreateDbfFileWithOneRecord<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema) }

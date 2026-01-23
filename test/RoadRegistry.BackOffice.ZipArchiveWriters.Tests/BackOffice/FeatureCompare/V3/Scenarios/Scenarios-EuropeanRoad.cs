@@ -8,7 +8,7 @@ using RoadRegistry.Extracts.DutchTranslations;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
-using RoadRegistry.Tests.BackOffice.Extracts.V2;
+using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 using Xunit.Abstractions;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
 
@@ -46,9 +46,9 @@ public class EuropeanRoadScenarios : FeatureCompareTranslatorScenariosBase
         var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
-                builder.TestData.RoadSegment1EuropeanRoadDbaseRecord1.WS_OIDN.Value = context.Fixture.CreateWhichIsDifferentThan(
-                    builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value,
-                    builder.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value);
+                builder.TestData.RoadSegment1EuropeanRoadDbaseRecord1.WS_TEMPID.Value = context.Fixture.CreateWhichIsDifferentThan(
+                    builder.TestData.RoadSegment1DbaseRecord.WS_TEMPID.Value,
+                    builder.TestData.RoadSegment2DbaseRecord.WS_TEMPID.Value);
             })
             .BuildWithResult(_ => TranslatedChanges.Empty);
 
