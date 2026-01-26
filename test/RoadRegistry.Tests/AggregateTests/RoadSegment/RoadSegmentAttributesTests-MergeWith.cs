@@ -28,8 +28,8 @@ public class RoadSegmentAttributesMergeWithTests
         foreach (var (expected, index) in testCase.ExpectedAttributes.Values.Select((x, i) => (x, i)))
         {
             var actual = mergedAttributes.Values[index];
-            ((int?)actual.Coverage?.From.ToDecimal()).Should().Be(expected.From);
-            ((int?)actual.Coverage?.To.ToDecimal()).Should().Be(expected.To);
+            ((int)actual.Coverage.From.ToDecimal()).Should().Be(expected.From);
+            ((int)actual.Coverage.To.ToDecimal()).Should().Be(expected.To);
             actual.Side.Should().Be(expected.Side);
             actual.Value.Should().Be(expected.Value);
         }
@@ -42,7 +42,7 @@ public class RoadSegmentAttributesMergeWithTests
             Segment1Attributes = new AttributeValues([(0, 10, "a")]),
             Segment2Length = 5,
             Segment2Attributes = new AttributeValues([(0, 5, "a")]),
-            ExpectedAttributes = new AttributeValues([(null, null, "a")])
+            ExpectedAttributes = new AttributeValues([(0, 15, "a")])
         }];
         yield return [new MergeWithTestCase("single attribute with identical value over entire segment and non-Both sides")
         {
@@ -129,21 +129,13 @@ public class RoadSegmentAttributesMergeWithTests
     }
     public sealed class AttributeValues
     {
-        public ICollection<(int? From, int? To, RoadSegmentAttributeSide Side, string Value)> Values { get; }
+        public ICollection<(int From, int To, RoadSegmentAttributeSide Side, string Value)> Values { get; }
 
         public AttributeValues(ICollection<(int, int, string)> values)
-            : this(values.Select(x => ((int?)x.Item1, (int?)x.Item2, x.Item3)).ToArray())
-        {
-        }
-        public AttributeValues(ICollection<(int, int, RoadSegmentAttributeSide, string)> values)
-            : this(values.Select(x => ((int?)x.Item1, (int?)x.Item2, x.Item3, x.Item4)).ToArray())
-        {
-        }
-        public AttributeValues(ICollection<(int?, int?, string)> values)
             : this(values.Select(x => (x.Item1, x.Item2, RoadSegmentAttributeSide.Both, x.Item3)).ToArray())
         {
         }
-        public AttributeValues(ICollection<(int?, int?, RoadSegmentAttributeSide, string)> values)
+        public AttributeValues(ICollection<(int, int, RoadSegmentAttributeSide, string)> values)
         {
             Values = values.Select(x => (x.Item1, x.Item2, x.Item3, x.Item4)).ToArray();
         }
@@ -151,7 +143,7 @@ public class RoadSegmentAttributesMergeWithTests
         public RoadSegmentDynamicAttributeValues<string> ToRoadSegmentDynamicAttributeValues()
         {
             return new RoadSegmentDynamicAttributeValues<string>(Values.Select(x => (
-                x.Item1 is not null ? new RoadSegmentPositionCoverage(new RoadSegmentPosition(x.Item1.Value), new RoadSegmentPosition(x.Item2!.Value)) : null,
+                new RoadSegmentPositionCoverage(new RoadSegmentPosition(x.Item1), new RoadSegmentPosition(x.Item2)),
                 x.Item3,
                 x.Item4)));
         }

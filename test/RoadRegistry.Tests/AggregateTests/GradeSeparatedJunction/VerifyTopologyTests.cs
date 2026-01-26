@@ -110,10 +110,10 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 {
                     Geometry = segment1End.ToRoadNodeGeometry()
                 })
-                .Add(TestData.AddSegment1 with
+                .Add((TestData.AddSegment1 with
                 {
                     Geometry = BuildMultiLineString(segment1Start, segment1End)
-                })
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(TestData.AddSegment2StartNode with
                 {
                     Geometry = segment2Start.ToRoadNodeGeometry()
@@ -122,10 +122,10 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 {
                     Geometry = segment2End.ToRoadNodeGeometry()
                 })
-                .Add(TestData.AddSegment2 with
+                .Add((TestData.AddSegment2 with
                 {
                     Geometry = BuildMultiLineString(segment2Start, segment2End)
-                })
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
             .When(changes => changes
                 .Add(new AddGradeSeparatedJunctionChange

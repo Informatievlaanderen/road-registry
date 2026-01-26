@@ -117,8 +117,8 @@ public class AggregateTests : AggregateTestBase
         {
             Geometry = new LineString([new Coordinate(0, 0), new Coordinate(1, 0)]).ToMultiLineString().ToRoadSegmentGeometry(),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>()
-                .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategoryV2>())
-                .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategoryV2>())
+                .Add(new RoadSegmentPositionCoverage(RoadSegmentPosition.Zero, RoadSegmentPosition.Zero), RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategoryV2>())
+                .Add(new RoadSegmentPositionCoverage(RoadSegmentPosition.Zero, RoadSegmentPosition.Zero), RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategoryV2>())
         };
 
         // Act

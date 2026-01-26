@@ -102,6 +102,7 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
             node.LastModified = e.Data.Provenance.ToEventTimestamp();
             node.Type = e.Data.Type ?? node.Type;
             node.Geometry = e.Data.Geometry ?? node.Geometry;
+            node.Grensknoop = e.Data.Grensknoop ?? node.Grensknoop;
 
             session.Store(node);
         });

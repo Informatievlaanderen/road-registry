@@ -13,6 +13,7 @@ public static class ValidationExtensions
         RoadSegmentId roadSegmentId,
         double segmentLength,
         ProblemCode.RoadSegment.DynamicAttributeProblemCodes problemCodes)
+        where T : notnull
     {
         var problems = Problems.None;
 
@@ -38,7 +39,7 @@ public static class ValidationExtensions
             {
                 if (group.Key.From != RoadSegmentPosition.Zero)
                 {
-                    problems += new Error(problemCodes.FromPositionNotEqualToZero,
+                    problems += new Error(problemCodes.FromPositionNotEqualToZero!,
                         new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
                         new ProblemParameter("FromPosition", group.Key.From.ToString()));
                 }
@@ -47,7 +48,7 @@ public static class ValidationExtensions
             {
                 if (group.Key.From != previousToPosition.Value)
                 {
-                    problems += new Error(problemCodes.NotAdjacent,
+                    problems += new Error(problemCodes.NotAdjacent!,
                         new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
                         new ProblemParameter("ToPosition", previousToPosition.Value.ToString()),
                         new ProblemParameter("FromPosition", group.Key.From.ToString()));
@@ -55,7 +56,7 @@ public static class ValidationExtensions
 
                 if (group.Key.From == group.Key.To)
                 {
-                    problems += new Error(problemCodes.HasLengthOfZero,
+                    problems += new Error(problemCodes.HasLengthOfZero!,
                         new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
                         new ProblemParameter("FromPosition", group.Key.From.ToString()),
                         new ProblemParameter("ToPosition", group.Key.To.ToString()));
@@ -69,17 +70,17 @@ public static class ValidationExtensions
 
             if (both.Count > 1)
             {
-                problems += new Error(problemCodes.ValueNotUniqueWithinSegment,
+                problems += new Error(problemCodes.ValueNotUniqueWithinSegment!,
                     new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
-                    new ProblemParameter("FromPosition", group.Key?.From.ToString() ?? string.Empty),
-                    new ProblemParameter("ToPosition", group.Key?.To.ToString() ?? string.Empty));
+                    new ProblemParameter("FromPosition", group.Key.From.ToString()),
+                    new ProblemParameter("ToPosition", group.Key.To.ToString()));
             }
             else if (both.Count == 1 && notBoth.Count > 0)
             {
-                problems += new Error(problemCodes.LeftOrRightNotAllowedWhenUsingBoth,
+                problems += new Error(problemCodes.LeftOrRightNotAllowedWhenUsingBoth!,
                     new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
-                    new ProblemParameter("FromPosition", group.Key?.From.ToString() ?? string.Empty),
-                    new ProblemParameter("ToPosition", group.Key?.To.ToString() ?? string.Empty));
+                    new ProblemParameter("FromPosition", group.Key.From.ToString()),
+                    new ProblemParameter("ToPosition", group.Key.To.ToString()));
             }
             else if (both.Count == 0)
             {
@@ -88,27 +89,20 @@ public static class ValidationExtensions
                     .Any(x => x.Count() > 1);
                 if (hasNotUniqueRecords)
                 {
-                    problems += new Error(problemCodes.ValueNotUniqueWithinSegment,
+                    problems += new Error(problemCodes.ValueNotUniqueWithinSegment!,
                         new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
-                        new ProblemParameter("FromPosition", group.Key?.From.ToString() ?? string.Empty),
-                        new ProblemParameter("ToPosition", group.Key?.To.ToString() ?? string.Empty));
+                        new ProblemParameter("FromPosition", group.Key.From.ToString()),
+                        new ProblemParameter("ToPosition", group.Key.To.ToString()));
                 }
             }
         }
 
         if (previousToPosition is not null && !previousToPosition.Value.ToDouble().IsReasonablyEqualTo(segmentLength))
         {
-            problems += new Error(problemCodes.ToPositionNotEqualToLength,
+            problems += new Error(problemCodes.ToPositionNotEqualToLength!,
                 new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
                 new ProblemParameter("ToPosition", previousToPosition.Value.ToString()),
                 new ProblemParameter("Length", segmentLength.ToRoundedMeasurementString()));
-        }
-
-        var valuesOnEntireSegment = valuesGroupedByPositionSegment[null];
-        if (valuesOnEntireSegment.Any() && valuesGroupedByPositionSegment.Count > 1)
-        {
-            problems += new Error(problemCodes.AnotherSegmentFoundBesidesTheGlobalSegment,
-                new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()));
         }
 
         return problems;
@@ -120,7 +114,7 @@ public static class ValidationExtensions
     {
         if (collection is not null && collection.Count != collection.Distinct().Count())
         {
-            return Problems.Single(new Error(notUniqueProblemCode, new ProblemParameter("RoadSegmentId", roadSegmentId.ToString())));
+            return Problems.Single(new Error(notUniqueProblemCode!, new ProblemParameter("RoadSegmentId", roadSegmentId.ToString())));
         }
 
         return Problems.None;

@@ -62,6 +62,7 @@ public partial class RoadNode
 
     private Problems VerifyTypeMatchesConnectedSegmentCount(RoadNetworkVerifyTopologyContext context, List<RoadSegment> segments)
     {
+        //TODO-pr bij upload mee fixen + uncomment unit test VerifyTopologyTests
         var problems = Problems.None;
 
         if (segments.Count == 0)

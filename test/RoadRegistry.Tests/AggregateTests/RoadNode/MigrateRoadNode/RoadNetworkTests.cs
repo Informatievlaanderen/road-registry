@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode.MigrateRoadNode;
 
-using Extensions;
 using FluentAssertions;
 using Framework;
 using RoadRegistry.RoadNode.Changes;
@@ -17,7 +16,8 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     RoadNodeId = TestData.Segment1StartNodeAdded.RoadNodeId,
                     Type = TestData.Segment1StartNodeAdded.Type,
-                    Geometry = TestData.Segment1StartNodeAdded.Geometry
+                    Geometry = TestData.Segment1StartNodeAdded.Geometry,
+                    Grensknoop = TestData.Segment1StartNodeAdded.Grensknoop
                 })
             )
             .Then((result, events) =>
