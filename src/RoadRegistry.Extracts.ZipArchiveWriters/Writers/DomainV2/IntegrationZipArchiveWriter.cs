@@ -75,7 +75,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
         {
             var records = RoadSegmentsZipArchiveWriter.ConvertToDbaseRecords(integrationSegments, context);
 
-            var writer = new ShapeFileRecordWriter(_encoding);
+            var writer = new Lambert08ShapeFileRecordWriter(_encoding);
             await writer.WriteToArchive(archive, ExtractFileName.Wegsegment, featureType, ShapeType.PolyLine, RoadSegmentDbaseRecord.Schema, records, cancellationToken);
         }
 
@@ -83,7 +83,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
         {
             var records = RoadNodesZipArchiveWriter.ConvertToDbaseRecords(integrationNodes);
 
-            var writer = new ShapeFileRecordWriter(_encoding);
+            var writer = new Lambert08ShapeFileRecordWriter(_encoding);
             await writer.WriteToArchive(archive, ExtractFileName.Wegknoop, featureType, ShapeType.Point, RoadNodeDbaseRecord.Schema, records, cancellationToken);
         }
     }

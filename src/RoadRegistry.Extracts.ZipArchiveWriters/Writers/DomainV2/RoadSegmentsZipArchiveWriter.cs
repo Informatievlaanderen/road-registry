@@ -39,7 +39,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
             ? [FeatureType.Extract]
             : [FeatureType.Extract, FeatureType.Change];
 
-        var writer = new ShapeFileRecordWriter(_encoding);
+        var writer = new Lambert08ShapeFileRecordWriter(_encoding);
 
         foreach (var featureType in featureTypes)
         {
@@ -55,6 +55,8 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
             .OrderBy(x => x.Id)
             .SelectMany(roadSegment =>
             {
+                //TODO-pr voeg schijnknopen toe tussen elk flat segment
+
                 return roadSegment.Flatten()
                     .Select(x =>
                     {

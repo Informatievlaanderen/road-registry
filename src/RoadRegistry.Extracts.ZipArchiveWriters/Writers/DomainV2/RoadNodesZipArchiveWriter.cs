@@ -38,7 +38,7 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
             ? [FeatureType.Extract]
             : [FeatureType.Extract, FeatureType.Change];
 
-        var writer = new ShapeFileRecordWriter(_encoding);
+        var writer = new Lambert08ShapeFileRecordWriter(_encoding);
 
         foreach (var featureType in featureTypes)
         {
