@@ -18,16 +18,16 @@ public partial class RoadSegment
         problems += new RoadSegmentGeometryValidator().Validate(originalId, geometryDrawMethod, geometry);
 
         var segmentLength = geometry.Length;
-        var accessRestriction = change.AccessRestriction?.TryCleanEntireLengthCoverages(segmentLength);
-        var category = change.Category?.TryCleanEntireLengthCoverages(segmentLength);
-        var morphology = change.Morphology?.TryCleanEntireLengthCoverages(segmentLength);
-        var status = change.Status?.TryCleanEntireLengthCoverages(segmentLength);
-        var streetNameId = change.StreetNameId?.TryCleanEntireLengthCoverages(segmentLength);
-        var maintenanceAuthorityId = change.MaintenanceAuthorityId?.TryCleanEntireLengthCoverages(segmentLength);
-        var surfaceType = change.SurfaceType?.TryCleanEntireLengthCoverages(segmentLength);
-        var carAccess = change.CarAccess?.TryCleanEntireLengthCoverages(segmentLength);
-        var bikeAccess = change.BikeAccess?.TryCleanEntireLengthCoverages(segmentLength);
-        var pedestrianAccess = change.PedestrianAccess?.TryCleanEntireLengthCoverages(segmentLength);
+        var accessRestriction = change.AccessRestriction?.TryCleanCoverages(segmentLength);
+        var category = change.Category?.TryCleanCoverages(segmentLength);
+        var morphology = change.Morphology?.TryCleanCoverages(segmentLength);
+        var status = change.Status?.TryCleanCoverages(segmentLength);
+        var streetNameId = change.StreetNameId?.TryCleanCoverages(segmentLength);
+        var maintenanceAuthorityId = change.MaintenanceAuthorityId?.TryCleanCoverages(segmentLength);
+        var surfaceType = change.SurfaceType?.TryCleanCoverages(segmentLength);
+        var carAccess = change.CarAccess?.TryCleanCoverages(segmentLength);
+        var bikeAccess = change.BikeAccess?.TryCleanCoverages(segmentLength);
+        var pedestrianAccess = change.PedestrianAccess?.TryCleanCoverages(segmentLength);
         var attributes = Attributes with
         {
             GeometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,

@@ -112,7 +112,7 @@ public static class FixtureExtensions
             composer =>
                 composer.FromFactory(_ =>
                     new RoadSegmentDynamicAttributeValues<T>()
-                        .Add(fixture.Create<T>())
+                        .Add(fixture.Create<T>(), fixture.Create<RoadSegmentGeometry>())
                 ).OmitAutoProperties()
         );
     }

@@ -429,28 +429,30 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 case RecordType.IdenticalIdentifier:
                     break;
                 case RecordType.ModifiedIdentifier:
+                {
+                    var geometry = record.Attributes.Geometry!.ToRoadSegmentGeometry();
                     var modifyRoadSegment = new ModifyRoadSegmentChange
                     {
                         RoadSegmentId = record.Id,
                         OriginalId = record.Id != record.Attributes.Id
                             ? record.Attributes.Id
                             : null,
-                        Geometry = record.GeometryChanged ? record.Attributes.Geometry!.ToRoadSegmentGeometry() : null,
+                        Geometry = record.GeometryChanged ? geometry : null,
                         StartNodeId = record.Attributes.StartNodeId,
                         EndNodeId = record.Attributes.EndNodeId,
                         GeometryDrawMethod = record.Attributes.Method,
                         AccessRestriction = record.Attributes.AccessRestriction is not null
-                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(record.Attributes.AccessRestriction)
+                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(record.Attributes.AccessRestriction, geometry)
                             : null,
                         Category = record.Attributes.Category is not null
-                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(record.Attributes.Category)
+                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(record.Attributes.Category, geometry)
                             : null,
                         MaintenanceAuthorityId = BuildOrganizationIdAttributes(record.Attributes.LeftMaintenanceAuthorityId, record.Attributes.RightMaintenanceAuthorityId),
                         Morphology = record.Attributes.Morphology is not null
-                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(record.Attributes.Morphology)
+                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(record.Attributes.Morphology, geometry)
                             : null,
                         Status = record.Attributes.Status is not null
-                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(record.Attributes.Status)
+                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(record.Attributes.Status, geometry)
                             : null,
                         CarAccess = null,
                         BikeAccess = null,
@@ -459,8 +461,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     };
 
                     changes = changes.AppendChange(modifyRoadSegment);
+                }
                     break;
                 case RecordType.AddedIdentifier:
+                {
+                    var geometry = record.Attributes.Geometry!.ToRoadSegmentGeometry();
                     changes = changes.AppendChange(
                         new AddRoadSegmentChange
                         {
@@ -468,15 +473,15 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             OriginalId = record.Id != record.Attributes.Id
                                 ? record.Attributes.Id
                                 : null,
-                            Geometry = record.Attributes.Geometry!.ToRoadSegmentGeometry(),
+                            Geometry = geometry,
                             StartNodeId = record.Attributes.StartNodeId!.Value,
                             EndNodeId = record.Attributes.EndNodeId!.Value,
                             GeometryDrawMethod = record.Attributes.Method!,
-                            AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(record.Attributes.AccessRestriction!),
-                            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(record.Attributes.Category!),
+                            AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(record.Attributes.AccessRestriction!, geometry),
+                            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(record.Attributes.Category!, geometry),
                             MaintenanceAuthorityId = BuildOrganizationIdAttributes(record.Attributes.LeftMaintenanceAuthorityId, record.Attributes.RightMaintenanceAuthorityId)!,
-                            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(record.Attributes.Morphology!),
-                            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(record.Attributes.Status!),
+                            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(record.Attributes.Morphology!, geometry),
+                            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(record.Attributes.Status!, geometry),
                             StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId)!,
                             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(),
                             CarAccess = new RoadSegmentDynamicAttributeValues<VehicleAccess>(),
@@ -486,6 +491,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             NationalRoadNumbers = []
                         }
                     );
+                }
                     break;
                 case RecordType.RemovedIdentifier:
                     changes = changes.AppendChange(
@@ -510,7 +516,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         if (leftSideStreetNameId == rightSideStreetNameId)
         {
-            return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(leftSideStreetNameId!.Value);
+            return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(leftSideStreetNameId!.Value, null);
         }
 
         return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
@@ -527,7 +533,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         if (leftSideOrganizationId == rightSideOrganizationId)
         {
-            return new RoadSegmentDynamicAttributeValues<OrganizationId>(leftSideOrganizationId!.Value);
+            return new RoadSegmentDynamicAttributeValues<OrganizationId>(leftSideOrganizationId!.Value, null);
         }
 
         return new RoadSegmentDynamicAttributeValues<OrganizationId>()

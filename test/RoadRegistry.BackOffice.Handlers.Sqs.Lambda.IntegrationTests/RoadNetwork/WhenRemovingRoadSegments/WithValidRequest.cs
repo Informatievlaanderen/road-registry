@@ -66,10 +66,13 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             StartNodeId = node1.TemporaryId,
             EndNodeId = node2.TemporaryId,
             Geometry = BuildMultiLineString(node1.Geometry.Value, node2.Geometry.Value),
-            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(RoadSegmentStatusV2.Gerealiseerd),
-            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(RoadSegmentCategoryV2.RegionaleWeg),
             EuropeanRoadNumbers = [],
             NationalRoadNumbers = []
+        };
+        segment1_node_1_2 = segment1_node_1_2 with
+        {
+            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(RoadSegmentStatusV2.Gerealiseerd, segment1_node_1_2.Geometry),
+            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(RoadSegmentCategoryV2.RegionaleWeg, segment1_node_1_2.Geometry)
         };
         var segment2_node_2_3 = fixture.Create<AddRoadSegmentChange>() with
         {
@@ -78,10 +81,13 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             StartNodeId = node2.TemporaryId,
             EndNodeId = node3.TemporaryId,
             Geometry = BuildMultiLineString(node2.Geometry.Value, node3.Geometry.Value),
-            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(RoadSegmentStatusV2.Gehistoreerd),
-            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(RoadSegmentCategoryV2.RegionaleWeg),
             EuropeanRoadNumbers = [],
             NationalRoadNumbers = []
+        };
+        segment2_node_2_3 = segment2_node_2_3 with
+        {
+            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(RoadSegmentStatusV2.Gehistoreerd, segment2_node_2_3.Geometry),
+            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(RoadSegmentCategoryV2.RegionaleWeg, segment2_node_2_3.Geometry)
         };
 
         var node4 = TestData.AddSegment3StartNode with
@@ -99,8 +105,11 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             TemporaryId = new RoadSegmentId(3),
             StartNodeId = node4.TemporaryId,
             EndNodeId = node5.TemporaryId,
-            Geometry = BuildMultiLineString(node4.Geometry.Value, node5.Geometry.Value),
-            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(RoadSegmentCategoryV2.RegionaleWeg)
+            Geometry = BuildMultiLineString(node4.Geometry.Value, node5.Geometry.Value)
+        };
+        segment3 = segment3 with
+        {
+            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(RoadSegmentCategoryV2.RegionaleWeg, segment3.Geometry)
         };
 
         var junction = new AddGradeSeparatedJunctionChange

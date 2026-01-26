@@ -7,6 +7,7 @@ using Extensions;
 using Infrastructure.ShapeFile;
 using NetTopologySuite.Geometries;
 using Projections;
+using RoadSegment.ValueObjects;
 using Schemas.DomainV2.RoadSegments;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
@@ -76,12 +77,11 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
                             RBEHEER = { Value = x.RightMaintenanceAuthorityId },
                             TOEGANG = { Value = accessRestriction },
                             VERHARDING = { Value = surfaceType },
-                            //TODO-pr fill in from projection, implement in domain
-                            AUTOHEEN = { Value = 0 },
-                            AUTOTERUG = { Value = 0 },
-                            FIETSHEEN = { Value = 0 },
-                            FIETSTERUG = { Value = 0 },
-                            VOETGANGER = { Value = 0 },
+                            AUTOHEEN = { Value = (x.CarAccess == VehicleAccess.Forward || x.CarAccess == VehicleAccess.BiDirectional).ToDbaseShortValue() },
+                            AUTOTERUG = { Value = (x.CarAccess == VehicleAccess.Backward || x.CarAccess == VehicleAccess.BiDirectional).ToDbaseShortValue() },
+                            FIETSHEEN = { Value = (x.BikeAccess == VehicleAccess.Forward || x.BikeAccess == VehicleAccess.BiDirectional).ToDbaseShortValue() },
+                            FIETSTERUG = { Value = (x.BikeAccess == VehicleAccess.Backward || x.BikeAccess == VehicleAccess.BiDirectional).ToDbaseShortValue() },
+                            VOETGANGER = { Value = x.PedestrianAccess.ToDbaseShortValue() },
 
                             CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
                             VERSIE = { Value = x.LastModified.Timestamp.ToBrusselsDateTime() }

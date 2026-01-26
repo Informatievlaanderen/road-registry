@@ -29,7 +29,7 @@ public record RoadSegmentGeometry : GeometryObject
     {
     }
 
-    public static RoadSegmentGeometry Create(Geometry geometry)
+    public static RoadSegmentGeometry Create(MultiLineString geometry)
     {
         return new RoadSegmentGeometry(geometry);
     }

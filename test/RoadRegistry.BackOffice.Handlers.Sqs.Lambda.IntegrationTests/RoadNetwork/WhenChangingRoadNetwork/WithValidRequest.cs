@@ -101,7 +101,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
                     ModifyRoadSegment = new ModifyRoadSegmentChange
                     {
                         RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-                        Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(changedCategory)
+                        Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(changedCategory, TestData.Segment1Added.Geometry)
                     }
                 }
             ],

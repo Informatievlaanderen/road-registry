@@ -65,20 +65,20 @@ public abstract class FeatureCompareTranslatorScenariosBase
         }
     }
 
-    protected static RoadSegmentDynamicAttributeValues<StreetNameLocalId> BuildStreetNameIdAttributes(StreetNameLocalId? leftSideStreetNameId, StreetNameLocalId? rightSideStreetNameId)
-    {
-        if (leftSideStreetNameId is null && rightSideStreetNameId is null)
-        {
-            return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(StreetNameLocalId.NotApplicable);
-        }
-
-        if (leftSideStreetNameId == rightSideStreetNameId)
-        {
-            return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(leftSideStreetNameId.Value);
-        }
-
-        return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
-            .Add(null, RoadSegmentAttributeSide.Left, leftSideStreetNameId ?? StreetNameLocalId.NotApplicable)
-            .Add(null, RoadSegmentAttributeSide.Right, rightSideStreetNameId ?? StreetNameLocalId.NotApplicable);
-    }
+    // protected static RoadSegmentDynamicAttributeValues<StreetNameLocalId> BuildStreetNameIdAttributes(StreetNameLocalId? leftSideStreetNameId, StreetNameLocalId? rightSideStreetNameId)
+    // {
+    //     if (leftSideStreetNameId is null && rightSideStreetNameId is null)
+    //     {
+    //         return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(StreetNameLocalId.NotApplicable);
+    //     }
+    //
+    //     if (leftSideStreetNameId == rightSideStreetNameId)
+    //     {
+    //         return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(leftSideStreetNameId.Value);
+    //     }
+    //
+    //     return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
+    //         .Add(null, RoadSegmentAttributeSide.Left, leftSideStreetNameId ?? StreetNameLocalId.NotApplicable)
+    //         .Add(null, RoadSegmentAttributeSide.Right, rightSideStreetNameId ?? StreetNameLocalId.NotApplicable);
+    // }
 }

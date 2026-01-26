@@ -20,16 +20,16 @@ public partial class RoadSegment
         var attributes = new RoadSegmentAttributes
         {
             GeometryDrawMethod = change.GeometryDrawMethod,
-            AccessRestriction = change.AccessRestriction.TryCleanEntireLengthCoverages(segmentLength),
-            Category = change.Category.TryCleanEntireLengthCoverages(segmentLength),
-            Morphology = change.Morphology.TryCleanEntireLengthCoverages(segmentLength),
-            Status = change.Status.TryCleanEntireLengthCoverages(segmentLength),
-            StreetNameId = change.StreetNameId.TryCleanEntireLengthCoverages(segmentLength),
-            MaintenanceAuthorityId = change.MaintenanceAuthorityId.TryCleanEntireLengthCoverages(segmentLength),
-            SurfaceType = change.SurfaceType.TryCleanEntireLengthCoverages(segmentLength),
-            CarAccess = change.CarAccess.TryCleanEntireLengthCoverages(segmentLength),
-            BikeAccess = change.BikeAccess.TryCleanEntireLengthCoverages(segmentLength),
-            PedestrianAccess = change.PedestrianAccess.TryCleanEntireLengthCoverages(segmentLength),
+            AccessRestriction = change.AccessRestriction.TryCleanCoverages(segmentLength),
+            Category = change.Category.TryCleanCoverages(segmentLength),
+            Morphology = change.Morphology.TryCleanCoverages(segmentLength),
+            Status = change.Status.TryCleanCoverages(segmentLength),
+            StreetNameId = change.StreetNameId.TryCleanCoverages(segmentLength),
+            MaintenanceAuthorityId = change.MaintenanceAuthorityId.TryCleanCoverages(segmentLength),
+            SurfaceType = change.SurfaceType.TryCleanCoverages(segmentLength),
+            CarAccess = change.CarAccess.TryCleanCoverages(segmentLength),
+            BikeAccess = change.BikeAccess.TryCleanCoverages(segmentLength),
+            PedestrianAccess = change.PedestrianAccess.TryCleanCoverages(segmentLength),
             EuropeanRoadNumbers = change.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = change.NationalRoadNumbers.ToImmutableList()
         };
