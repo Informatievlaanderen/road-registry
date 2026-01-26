@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork;
 
+using System.Reflection;
 using Actions.ChangeRoadNetwork;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
@@ -14,6 +15,8 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
+using RoadSegment.Changes;
+using RoadSegment.ValueObjects;
 using ScopedRoadNetwork;
 using Sqs.RoadNetwork;
 using Tests.AggregateTests;
@@ -26,8 +29,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
 {
     protected readonly ITestOutputHelper TestOutputHelper;
     protected readonly Mock<ITicketing> TicketingMock = new();
-    protected readonly RoadNetworkTestData TestData;
-
+    protected readonly RoadNetworkTestDataV2 TestData;
     private readonly DatabaseFixture _databaseFixture;
 
     protected RoadNetworkIntegrationTest(DatabaseFixture databaseFixture, ITestOutputHelper testOutputHelper)
@@ -130,10 +132,44 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
     {
         return BuildRoadSegmentGeometry(new Point(x1, y1), new Point(x2, y2));
     }
+
     protected static RoadSegmentGeometry BuildRoadSegmentGeometry(Point start, Point end)
     {
         return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
             .WithMeasureOrdinates()
             .ToRoadSegmentGeometry();
+    }
+}
+
+internal static class RoadSegmentDynamicAttributeValuesExtensions
+{
+    public static RoadSegmentDynamicAttributeValues<T> OnEntireGeometry<T>(this RoadSegmentDynamicAttributeValues<T> attributeValues, RoadSegmentGeometry geometry)
+        where T : notnull
+    {
+        if (!attributeValues.Values.Any())
+        {
+            return attributeValues;
+        }
+
+        var newAttributeValues = new RoadSegmentDynamicAttributeValues<T>();
+        newAttributeValues.Add(RoadSegmentPosition.Zero, RoadSegmentPosition.FromDouble(geometry.Value.Length), RoadSegmentAttributeSide.Both, attributeValues.Values.Single().Value);
+        return newAttributeValues;
+    }
+
+    public static AddRoadSegmentChange WithDynamicAttributePositionsOnEntireGeometryLength(this AddRoadSegmentChange change)
+    {
+        return change with
+        {
+            AccessRestriction = change.AccessRestriction.OnEntireGeometry(change.Geometry),
+            Category = change.Category.OnEntireGeometry(change.Geometry),
+            Morphology = change.Morphology.OnEntireGeometry(change.Geometry),
+            Status = change.Status.OnEntireGeometry(change.Geometry),
+            StreetNameId = change.StreetNameId.OnEntireGeometry(change.Geometry),
+            MaintenanceAuthorityId = change.MaintenanceAuthorityId.OnEntireGeometry(change.Geometry),
+            SurfaceType = change.SurfaceType.OnEntireGeometry(change.Geometry),
+            CarAccess = change.CarAccess.OnEntireGeometry(change.Geometry),
+            BikeAccess = change.BikeAccess.OnEntireGeometry(change.Geometry),
+            PedestrianAccess = change.PedestrianAccess.OnEntireGeometry(change.Geometry)
+        };
     }
 }

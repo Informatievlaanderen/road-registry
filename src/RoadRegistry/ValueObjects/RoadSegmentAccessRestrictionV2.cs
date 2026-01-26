@@ -13,7 +13,7 @@ public sealed class RoadSegmentAccessRestrictionV2 : IEquatable<RoadSegmentAcces
             new DutchTranslation(
                 1,
                 "openbare weg",
-                "Elke weg die een bestemming tot openbaar gebruik heeft gekregen, bvb: door een overheidsbeslissing, door een uitdrukkelijke beslissing van een particulier (bv. gratis grondafstand), of door het feitelijk dulden van een eigenaar."
+                "Elke weg die een bestemming tot openbaar gebruik heeft gekregen."
             )
         );
 
@@ -23,7 +23,7 @@ public sealed class RoadSegmentAccessRestrictionV2 : IEquatable<RoadSegmentAcces
             new DutchTranslation(
                 2,
                 "private weg",
-                "Toegang tot de weg is beperkt aangezien deze een privatief karakter heeft, bvb: particuliere wegen (wegen in particulier eigendom die enkel voor particulier gebruik bestemd zijn), wegen die toebehoren aan het privaat domein van een overheid, en wegen die deel uitmaken van het openbaar domein van een overheid, maar die niet bestemd zijn tot openbaar gebruik."
+                "Toegang tot de weg is beperkt aangezien deze een privatief karakter heeft."
             )
         );
 

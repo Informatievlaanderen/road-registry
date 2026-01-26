@@ -30,7 +30,7 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
     public RoadSegmentDynamicAttributeValues(IEnumerable<(RoadSegmentPositionCoverage Coverage, RoadSegmentAttributeSide Side, T Value)> values)
     {
         Values = Values.AddRange(values
-            .OrderBy(x => x.Coverage?.From)
+            .OrderBy(x => x.Coverage.From)
             .Select(x => new RoadSegmentDynamicAttributeValue<T>
             {
                 Coverage = x.Coverage,
@@ -76,11 +76,6 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
         }
 
         return Values.SequenceEqual(other.Values);
-    }
-
-    public RoadSegmentDynamicAttributeValues<T> TryCleanCoverages(double geometryLength)
-    {
-        return this;
     }
 
     public RoadSegmentDynamicAttributeValues<T> MergeWith(RoadSegmentDynamicAttributeValues<T> otherAttributes,

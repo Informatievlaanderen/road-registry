@@ -17,7 +17,7 @@ using RoadRegistry.RoadSegment.ValueObjects;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 
-public class RoadNetworkTestData
+public class RoadNetworkTestDataV2
 {
     public Fixture Fixture { get; }
 
@@ -56,7 +56,7 @@ public class RoadNetworkTestData
     public AddRoadSegmentChange AddSegment3 { get; }
     public RoadSegmentWasAdded Segment3Added { get; }
 
-    public RoadNetworkTestData(Action<Fixture> customize = null)
+    public RoadNetworkTestDataV2(Action<Fixture> customize = null)
     {
         Fixture = FixtureFactory.Create();
         Fixture.CustomizePoint();
@@ -97,15 +97,11 @@ public class RoadNetworkTestData
 
         Fixture.CustomizeRoadNodeWasAdded();
         Fixture.CustomizeRoadNodeWasModified();
-        Fixture.CustomizeRoadSegmentDynamicAttributeValues<OrganizationId>();
-        Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>();
-        Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>();
-        Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>();
-        Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>();
-        Fixture.CustomizeRoadSegmentDynamicAttributeValues<StreetNameLocalId>();
         Fixture.CustomizeRoadSegmentAttributes();
         Fixture.CustomizeRoadSegmentWasAdded();
         Fixture.CustomizeRoadSegmentWasModified();
+        Fixture.CustomizeRoadSegmentWasMerged();
+        Fixture.CustomizeRoadSegmentWasMigrated();
 
         customize?.Invoke(Fixture);
 
@@ -270,16 +266,16 @@ public class RoadNetworkTestData
             EndNodeId = AddSegment1EndNode.TemporaryId,
             Geometry = MultiLineString1.ToRoadSegmentGeometry(),
             GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
-            MaintenanceAuthorityId = Fixture.Create<RoadSegmentDynamicAttributeValues<OrganizationId>>(),
-            Morphology = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>>(),
-            Status = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>>(),
-            Category = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>>(),
-            AccessRestriction = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>>(),
-            StreetNameId = Fixture.Create<RoadSegmentDynamicAttributeValues<StreetNameLocalId>>(),
-            SurfaceType = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>>(),
-            CarAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<VehicleAccess>>(),
-            BikeAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<VehicleAccess>>(),
-            PedestrianAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<bool>>(),
+            MaintenanceAuthorityId = CreateDynamicAttribute<OrganizationId>(Fixture, MultiLineString1),
+            Morphology = CreateDynamicAttribute<RoadSegmentMorphologyV2>(Fixture, MultiLineString1),
+            Status = CreateDynamicAttribute<RoadSegmentStatusV2>(Fixture, MultiLineString1),
+            Category = CreateDynamicAttribute<RoadSegmentCategoryV2>(Fixture, MultiLineString1),
+            AccessRestriction = CreateDynamicAttribute<RoadSegmentAccessRestrictionV2>(Fixture, MultiLineString1),
+            StreetNameId = CreateDynamicAttribute<StreetNameLocalId>(Fixture, MultiLineString1),
+            SurfaceType = CreateDynamicAttribute<RoadSegmentSurfaceTypeV2>(Fixture, MultiLineString1),
+            CarAccess = CreateDynamicAttribute<VehicleAccess>(Fixture, MultiLineString1),
+            BikeAccess = CreateDynamicAttribute<VehicleAccess>(Fixture, MultiLineString1),
+            PedestrianAccess = CreateDynamicAttribute<bool>(Fixture, MultiLineString1),
             EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
             NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
         };
@@ -315,16 +311,16 @@ public class RoadNetworkTestData
             EndNodeId = AddSegment2EndNode.TemporaryId,
             Geometry = MultiLineString2.ToRoadSegmentGeometry(),
             GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
-            MaintenanceAuthorityId = Fixture.Create<RoadSegmentDynamicAttributeValues<OrganizationId>>(),
-            Morphology = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>>(),
-            Status = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>>(),
-            Category = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>>(),
-            AccessRestriction = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>>(),
-            StreetNameId = Fixture.Create<RoadSegmentDynamicAttributeValues<StreetNameLocalId>>(),
-            SurfaceType = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>>(),
-            CarAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<VehicleAccess>>(),
-            BikeAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<VehicleAccess>>(),
-            PedestrianAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<bool>>(),
+            MaintenanceAuthorityId = CreateDynamicAttribute<OrganizationId>(Fixture, MultiLineString2),
+            Morphology = CreateDynamicAttribute<RoadSegmentMorphologyV2>(Fixture, MultiLineString2),
+            Status = CreateDynamicAttribute<RoadSegmentStatusV2>(Fixture, MultiLineString2),
+            Category = CreateDynamicAttribute<RoadSegmentCategoryV2>(Fixture, MultiLineString2),
+            AccessRestriction = CreateDynamicAttribute<RoadSegmentAccessRestrictionV2>(Fixture, MultiLineString2),
+            StreetNameId = CreateDynamicAttribute<StreetNameLocalId>(Fixture, MultiLineString2),
+            SurfaceType = CreateDynamicAttribute<RoadSegmentSurfaceTypeV2>(Fixture, MultiLineString2),
+            CarAccess = CreateDynamicAttribute<VehicleAccess>(Fixture, MultiLineString2),
+            BikeAccess = CreateDynamicAttribute<VehicleAccess>(Fixture, MultiLineString2),
+            PedestrianAccess = CreateDynamicAttribute<bool>(Fixture, MultiLineString2),
             EuropeanRoadNumbers = [],
             NationalRoadNumbers = []
         };
@@ -360,16 +356,16 @@ public class RoadNetworkTestData
             EndNodeId = AddSegment3EndNode.TemporaryId,
             Geometry = MultiLineString3.ToRoadSegmentGeometry(),
             GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
-            MaintenanceAuthorityId = Fixture.Create<RoadSegmentDynamicAttributeValues<OrganizationId>>(),
-            Morphology = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>>(),
-            Status = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>>(),
-            Category = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>>(),
-            AccessRestriction = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>>(),
-            StreetNameId = Fixture.Create<RoadSegmentDynamicAttributeValues<StreetNameLocalId>>(),
-            SurfaceType = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>>(),
-            CarAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<VehicleAccess>>(),
-            BikeAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<VehicleAccess>>(),
-            PedestrianAccess = Fixture.Create<RoadSegmentDynamicAttributeValues<bool>>(),
+            MaintenanceAuthorityId = CreateDynamicAttribute<OrganizationId>(Fixture, MultiLineString2),
+            Morphology = CreateDynamicAttribute<RoadSegmentMorphologyV2>(Fixture, MultiLineString2),
+            Status = CreateDynamicAttribute<RoadSegmentStatusV2>(Fixture, MultiLineString2),
+            Category = CreateDynamicAttribute<RoadSegmentCategoryV2>(Fixture, MultiLineString2),
+            AccessRestriction = CreateDynamicAttribute<RoadSegmentAccessRestrictionV2>(Fixture, MultiLineString2),
+            StreetNameId = CreateDynamicAttribute<StreetNameLocalId>(Fixture, MultiLineString2),
+            SurfaceType = CreateDynamicAttribute<RoadSegmentSurfaceTypeV2>(Fixture, MultiLineString2),
+            CarAccess = CreateDynamicAttribute<VehicleAccess>(Fixture, MultiLineString2),
+            BikeAccess = CreateDynamicAttribute<VehicleAccess>(Fixture, MultiLineString2),
+            PedestrianAccess = CreateDynamicAttribute<bool>(Fixture, MultiLineString2),
             EuropeanRoadNumbers = [],
             NationalRoadNumbers = []
         };
@@ -396,5 +392,11 @@ public class RoadNetworkTestData
             NationalRoadNumbers = AddSegment3.NationalRoadNumbers,
             Provenance = new ProvenanceData(Provenance)
         };
+    }
+
+    private RoadSegmentDynamicAttributeValues<T> CreateDynamicAttribute<T>(IFixture fixture, MultiLineString geometry)
+    {
+        return new RoadSegmentDynamicAttributeValues<T>()
+            .Add(fixture.Create<T>(), RoadSegmentGeometry.Create(geometry));
     }
 }

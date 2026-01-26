@@ -13,7 +13,7 @@ public class RoadSegmentAttributesValidatorTests
     public RoadSegmentAttributesValidatorTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
-        _fixture = new RoadNetworkTestData().Fixture;
+        _fixture = new RoadNetworkTestDataV2().Fixture;
     }
 
     [Fact]

@@ -79,7 +79,7 @@ public class GradeSeparatedJunctionProjectionTests
     [Fact]
     public Task WhenGradeSeparatedJunctionWasAdded_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
 
         var junction1Added = fixture.Create<GradeSeparatedJunctionWasAdded>();
         var junction2Added = fixture.Create<GradeSeparatedJunctionWasAdded>();
@@ -114,7 +114,7 @@ public class GradeSeparatedJunctionProjectionTests
     [Fact]
     public Task WhenGradeSeparatedJunctionWasModified_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<GradeSeparatedJunctionId>();
 
         var junctionAdded = fixture.Create<GradeSeparatedJunctionWasAdded>();
@@ -140,7 +140,7 @@ public class GradeSeparatedJunctionProjectionTests
     [Fact]
     public async Task WhenGradeSeparatedJunctionWasRemoved_ThenNone()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<GradeSeparatedJunctionId>();
 
         var junction1Added = fixture.Create<GradeSeparatedJunctionWasAdded>();

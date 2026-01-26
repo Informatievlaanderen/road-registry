@@ -219,25 +219,22 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
             fixture.Customize<RoadSegmentDbaseRecord>(composer => composer
                 .FromFactory(random => new RoadSegmentDbaseRecord
                 {
+                    WS_TEMPID = { Value = random.Next(1, int.MaxValue) },
                     WS_OIDN = { Value = fixture.Create<RoadSegmentId>() },
-                    // METHODE =
-                    // {
-                    //     Value = (short)fixture.Create<RoadSegmentGeometryDrawMethodV2>().Translation.Identifier
-                    // },
                     LBEHEER = { Value = fixture.Create<OrganizationId>() },
                     RBEHEER = { Value = fixture.Create<OrganizationId>() },
-                    MORF =
-                        { Value = (short)fixture.Create<RoadSegmentMorphologyV2>().Translation.Identifier },
+                    MORF = { Value = fixture.Create<RoadSegmentMorphologyV2>().Translation.Identifier },
                     STATUS = { Value = fixture.Create<RoadSegmentStatusV2>().Translation.Identifier },
                     WEGCAT = { Value = fixture.Create<RoadSegmentCategoryV2>().Translation.Identifier },
-                    // B_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
-                    // E_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
-                    LSTRNMID = { Value = new StreetNameLocalId(random.Next(1, int.MaxValue)) },
-                    RSTRNMID = { Value = new StreetNameLocalId(random.Next(1, int.MaxValue)) },
-                    TOEGANG =
-                    {
-                        Value = (short)fixture.Create<RoadSegmentAccessRestriction>().Translation.Identifier
-                    }
+                    LSTRNMID = { Value = fixture.Create<StreetNameLocalId>() },
+                    RSTRNMID = { Value = fixture.Create<StreetNameLocalId>() },
+                    TOEGANG = { Value = fixture.Create<RoadSegmentAccessRestrictionV2>().Translation.Identifier },
+                    VERHARDING = { Value = fixture.Create<RoadSegmentSurfaceTypeV2>().Translation.Identifier },
+                    AUTOHEEN = { Value = random.Next(0, 2) },
+                    AUTOTERUG = { Value = random.Next(0, 2) },
+                    FIETSHEEN = { Value = random.Next(0, 2) },
+                    FIETSTERUG = { Value = random.Next(0, 2) },
+                    VOETGANGER = { Value = random.Next(0, 2) }
                 })
                 .OmitAutoProperties());
 

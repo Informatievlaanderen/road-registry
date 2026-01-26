@@ -63,7 +63,7 @@ public class RoadSegmentProjectionTests
     [Fact]
     public Task WhenRoadSegmentWasAdded_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.CustomizeUniqueInteger();
 
         var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
@@ -106,9 +106,9 @@ public class RoadSegmentProjectionTests
             StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegment2Added.StreetNameId),
             MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegment2Added.MaintenanceAuthorityId),
             SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment2Added.SurfaceType.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
-            CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegment1Added.CarAccess),
-            BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegment1Added.BikeAccess),
-            PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment1Added.PedestrianAccess),
+            CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegment2Added.CarAccess),
+            BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegment2Added.BikeAccess),
+            PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment2Added.PedestrianAccess),
             EuropeanRoadNumbers = roadSegment2Added.EuropeanRoadNumbers.ToList(),
             NationalRoadNumbers = roadSegment2Added.NationalRoadNumbers.ToList(),
             Origin = roadSegment2Added.Provenance.ToEventTimestamp(),
@@ -125,7 +125,7 @@ public class RoadSegmentProjectionTests
     [Fact]
     public Task WhenRoadSegmentWasMerged_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.CustomizeUniqueInteger();
 
         var roadSegment1Added = fixture.Create<RoadSegmentWasMerged>();
@@ -187,7 +187,7 @@ public class RoadSegmentProjectionTests
     [Fact]
     public Task WhenRoadSegmentWasModified_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadSegmentId>();
 
         var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>();
@@ -226,7 +226,7 @@ public class RoadSegmentProjectionTests
     [Fact]
     public Task WhenRoadSegmentWasMigrated_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadSegmentId>();
 
         var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>();
@@ -265,7 +265,7 @@ public class RoadSegmentProjectionTests
     [Fact]
     public async Task WhenRoadSegmentWasRemoved_ThenNone()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadSegmentId>();
 
         var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
@@ -280,7 +280,7 @@ public class RoadSegmentProjectionTests
     [Fact]
     public async Task WhenRoadSegmentWasRetiredBecauseOfMerger_ThenNone()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadSegmentId>();
 
         var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
@@ -295,7 +295,7 @@ public class RoadSegmentProjectionTests
     [Fact]
     public async Task WhenRoadSegmentWasRetiredBecauseOfMigration_ThenNone()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadSegmentId>();
 
         var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
@@ -310,7 +310,7 @@ public class RoadSegmentProjectionTests
     [Fact]
     public Task WhenRoadSegmentWasAddedToEuropeanRoad_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadSegmentId>();
 
         var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>() with
@@ -352,7 +352,7 @@ public class RoadSegmentProjectionTests
     [Fact]
     public Task WhenRoadSegmentWasAddedToNationalRoad_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadSegmentId>();
 
         var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>() with
@@ -394,7 +394,7 @@ public class RoadSegmentProjectionTests
     [Fact]
     public Task WhenRoadSegmentWasRemovedFromEuropeanRoad_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadSegmentId>();
         fixture.Freeze<EuropeanRoadNumber>();
 
@@ -437,7 +437,7 @@ public class RoadSegmentProjectionTests
     [Fact]
     public Task WhenRoadSegmentWasRemovedFromNationalRoad_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadSegmentId>();
         fixture.Freeze<NationalRoadNumber>();
 

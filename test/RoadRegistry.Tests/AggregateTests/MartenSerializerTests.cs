@@ -17,7 +17,7 @@ public class MartenSerializerTests
     [Fact]
     public void EventsCanSerializeAndDeserializeToJson()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
 
         var martenEventType = typeof(IMartenEvent);
         var eventTypes = martenEventType.Assembly.GetTypes().Where(x => x.IsAssignableTo(martenEventType) && !x.IsAbstract).ToArray();

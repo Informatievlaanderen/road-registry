@@ -59,7 +59,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             Type = RoadNodeTypeV2.Eindknoop,
             Grensknoop = false
         };
-        var segment1_node_1_2 = fixture.Create<AddRoadSegmentChange>() with
+        var segment1_node_1_2 = (fixture.Create<AddRoadSegmentChange>() with
         {
             TemporaryId = new RoadSegmentId(1),
             OriginalId = null,
@@ -68,13 +68,13 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             Geometry = BuildMultiLineString(node1.Geometry.Value, node2.Geometry.Value),
             EuropeanRoadNumbers = [],
             NationalRoadNumbers = []
-        };
+        }).WithDynamicAttributePositionsOnEntireGeometryLength();
         segment1_node_1_2 = segment1_node_1_2 with
         {
             Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(RoadSegmentStatusV2.Gerealiseerd, segment1_node_1_2.Geometry),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(RoadSegmentCategoryV2.RegionaleWeg, segment1_node_1_2.Geometry)
         };
-        var segment2_node_2_3 = fixture.Create<AddRoadSegmentChange>() with
+        var segment2_node_2_3 = (fixture.Create<AddRoadSegmentChange>() with
         {
             TemporaryId = new RoadSegmentId(2),
             OriginalId = null,
@@ -83,7 +83,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             Geometry = BuildMultiLineString(node2.Geometry.Value, node3.Geometry.Value),
             EuropeanRoadNumbers = [],
             NationalRoadNumbers = []
-        };
+        }).WithDynamicAttributePositionsOnEntireGeometryLength();
         segment2_node_2_3 = segment2_node_2_3 with
         {
             Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(RoadSegmentStatusV2.Gehistoreerd, segment2_node_2_3.Geometry),
@@ -100,13 +100,13 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             TemporaryId = new RoadNodeId(5),
             Geometry = new Point(200095, 200000).ToRoadNodeGeometry(),
         };
-        var segment3 = TestData.AddSegment3 with
+        var segment3 = (TestData.AddSegment3 with
         {
             TemporaryId = new RoadSegmentId(3),
             StartNodeId = node4.TemporaryId,
             EndNodeId = node5.TemporaryId,
             Geometry = BuildMultiLineString(node4.Geometry.Value, node5.Geometry.Value)
-        };
+        }).WithDynamicAttributePositionsOnEntireGeometryLength();
         segment3 = segment3 with
         {
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(RoadSegmentCategoryV2.RegionaleWeg, segment3.Geometry)
@@ -157,7 +157,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         roadNodes.Should().HaveCount(2);
         roadNodes.Single(x => x.RoadNodeId == node1.TemporaryId).IsRemoved.Should().BeTrue();
         roadNodes.Single(x => x.RoadNodeId == node2.TemporaryId).IsRemoved.Should().BeFalse();
-        roadNodes.Single(x => x.RoadNodeId == node2.TemporaryId).Type.Should().Be(RoadNodeType.EndNode);
+        roadNodes.Single(x => x.RoadNodeId == node2.TemporaryId).Type.Should().Be(RoadNodeTypeV2.Eindknoop);
 
         var roadSegments = await session.LoadManyAsync([segment1_node_1_2.TemporaryId, segment2_node_2_3.TemporaryId, segment3.TemporaryId]);
         roadSegments.Should().HaveCount(3);

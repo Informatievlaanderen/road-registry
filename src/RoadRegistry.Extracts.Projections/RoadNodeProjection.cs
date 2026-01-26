@@ -11,6 +11,7 @@ using RoadRegistry.Infrastructure.MartenDb.Projections;
 
 public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
 {
+    //TODO-pr save geom in LB08
     public static void Configure(StoreOptions options)
     {
         options.Schema.For<RoadNodeExtractItem>()

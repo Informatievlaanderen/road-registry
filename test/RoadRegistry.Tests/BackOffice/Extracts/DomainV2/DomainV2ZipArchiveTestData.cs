@@ -71,7 +71,7 @@ public class DomainV2ZipArchiveTestData : IDisposable
         fixture.CustomizeRoadSegmentAccessRestrictionV2();
         fixture.CustomizeRoadSegmentPosition();
         fixture.CustomizeRoadSegmentSurfaceTypeV2();
-        fixture.CustomizeOrganizationId();
+        fixture.CustomizeStreetNameLocalId();
         fixture.CustomizeOperatorName();
         fixture.CustomizeReason();
         fixture.CustomizeDownloadId();
@@ -154,11 +154,10 @@ public class DomainV2ZipArchiveTestData : IDisposable
 
                     return new LineString(
                         new CoordinateArraySequence(
-                            new Coordinate[]
-                            {
-                                new CoordinateM(x, y, 0),
+                        [
+                            new CoordinateM(x, y, 0),
                                 new CoordinateM(x + m, y, m)
-                            }),
+                        ]),
                         GeometryConfiguration.GeometryFactory
                     );
                 }
@@ -171,20 +170,19 @@ public class DomainV2ZipArchiveTestData : IDisposable
                     var y = generator.Next(21000, 99000);
                     var width = generator.Next(10, 1000);
 
-                    return new Polygon(new LinearRing(new Coordinate[]
-                    {
+                    return new Polygon(new LinearRing([
                         new(x, y),
                         new(x, y + width),
                         new(x + width, y + width),
                         new(x + width, y),
-                        new(x, y),
-                    }));
+                        new(x, y)
+                    ]));
                 }
             ).OmitAutoProperties());
 
         fixture.Customize<MultiLineString>(customization =>
             customization.FromFactory(_ =>
-                new MultiLineString(new[] { fixture.Create<LineString>() })
+                new MultiLineString([fixture.Create<LineString>()])
             ).OmitAutoProperties()
         );
         fixture.Customize<PolyLineMShapeContent>(customization =>
@@ -202,24 +200,22 @@ public class DomainV2ZipArchiveTestData : IDisposable
             composer => composer
                 .FromFactory(random => new RoadSegmentDbaseRecord
                 {
-                    WS_OIDN = { Value = new RoadSegmentId(random.Next(1, int.MaxValue)) },
-                    // METHODE =
-                    // {
-                    //     Value = (short)fixture.Create<RoadSegmentGeometryDrawMethod>().Translation.Identifier
-                    // },
+                    WS_TEMPID = { Value = random.Next(1, int.MaxValue) },
+                    WS_OIDN = { Value = random.Next(1, int.MaxValue) },
                     LBEHEER = { Value = fixture.Create<OrganizationId>() },
                     RBEHEER = { Value = fixture.Create<OrganizationId>() },
-                    MORF = { Value = (short)fixture.Create<RoadSegmentMorphologyV2>().Translation.Identifier },
+                    MORF = { Value = fixture.Create<RoadSegmentMorphologyV2>().Translation.Identifier },
                     STATUS = { Value = fixture.Create<RoadSegmentStatusV2>().Translation.Identifier },
                     WEGCAT = { Value = fixture.Create<RoadSegmentCategoryV2>().Translation.Identifier },
-                    //B_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
-                    //E_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
-                    LSTRNMID = { Value = new StreetNameLocalId(random.Next(1, int.MaxValue)) },
-                    RSTRNMID = { Value = new StreetNameLocalId(random.Next(1, int.MaxValue)) },
-                    TOEGANG =
-                    {
-                        Value = (short)fixture.Create<RoadSegmentAccessRestrictionV2>().Translation.Identifier
-                    }
+                    LSTRNMID = { Value = fixture.Create<StreetNameLocalId>() },
+                    RSTRNMID = { Value = fixture.Create<StreetNameLocalId>() },
+                    TOEGANG = { Value = fixture.Create<RoadSegmentAccessRestrictionV2>().Translation.Identifier },
+                    VERHARDING = { Value = fixture.Create<RoadSegmentSurfaceTypeV2>().Translation.Identifier },
+                    AUTOHEEN = { Value = random.Next(0, 2) },
+                    AUTOTERUG = { Value = random.Next(0, 2) },
+                    FIETSHEEN = { Value = random.Next(0, 2) },
+                    FIETSTERUG = { Value = random.Next(0, 2) },
+                    VOETGANGER = { Value = random.Next(0, 2) }
                 })
                 .OmitAutoProperties());
 
@@ -413,23 +409,21 @@ public class DomainV2ZipArchiveTestData : IDisposable
     private ZipArchive CreateZipArchiveWithEachFileAtLeastOneRecord()
     {
         var roadNodeProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
-        var roadNodeShapeChangeStream = Fixture.CreateRoadNodeShapeFile(new[]
-        {
+        var roadNodeShapeChangeStream = Fixture.CreateRoadNodeShapeFile([
             Fixture.Create<PointShapeContent>(),
             Fixture.Create<PointShapeContent>()
-        });
-        var roadNodeShapeIntegrationStream = Fixture.CreateRoadNodeShapeFile(new[]
-        {
+        ]);
+        var roadNodeShapeIntegrationStream = Fixture.CreateRoadNodeShapeFile([
             Fixture.Create<PointShapeContent>(),
             Fixture.Create<PointShapeContent>()
-        });
+        ]);
         var roadNodeDbaseChange1 = Fixture.Create<RoadNodeDbaseRecord>();
         var roadNodeDbaseChange2 = Fixture.Create<RoadNodeDbaseRecord>();
-        var roadNodeDbaseChangeStream = Fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[]{ roadNodeDbaseChange1, roadNodeDbaseChange2 });
+        var roadNodeDbaseChangeStream = Fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, [roadNodeDbaseChange1, roadNodeDbaseChange2]);
 
         var roadNodeDbaseIntegration1 = Fixture.CreateWhichIsDifferentThan<RoadNodeDbaseRecord>((x1, x2) => x1.WK_OIDN.Value == x2.WK_OIDN.Value);
         var roadNodeDbaseIntegration2 = Fixture.CreateWhichIsDifferentThan<RoadNodeDbaseRecord>((x1, x2) => x1.WK_OIDN.Value == x2.WK_OIDN.Value);
-        var roadNodeDbaseIntegrationStream = Fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[]{ roadNodeDbaseIntegration1, roadNodeDbaseIntegration2 });
+        var roadNodeDbaseIntegrationStream = Fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, [roadNodeDbaseIntegration1, roadNodeDbaseIntegration2]);
 
         var roadSegmentPolyLineMShapeContent = Fixture.Create<PolyLineMShapeContent>();
         var roadSegmentShapeChangeStream = Fixture.CreateRoadSegmentShapeFileWithOneRecord(roadSegmentPolyLineMShapeContent);

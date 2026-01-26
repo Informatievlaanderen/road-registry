@@ -21,16 +21,16 @@ public partial class RoadSegment
         var attributes = new RoadSegmentAttributes
         {
             GeometryDrawMethod = change.GeometryDrawMethod,
-            AccessRestriction = change.AccessRestriction.TryCleanCoverages(segmentLength),
-            Category = change.Category.TryCleanCoverages(segmentLength),
-            Morphology = change.Morphology.TryCleanCoverages(segmentLength),
-            Status = change.Status.TryCleanCoverages(segmentLength),
-            StreetNameId = change.StreetNameId.TryCleanCoverages(segmentLength),
-            MaintenanceAuthorityId = change.MaintenanceAuthorityId.TryCleanCoverages(segmentLength),
-            SurfaceType = change.SurfaceType.TryCleanCoverages(segmentLength),
-            CarAccess = change.CarAccess.TryCleanCoverages(segmentLength),
-            BikeAccess = change.BikeAccess.TryCleanCoverages(segmentLength),
-            PedestrianAccess = change.PedestrianAccess.TryCleanCoverages(segmentLength),
+            AccessRestriction = change.AccessRestriction,
+            Category = change.Category,
+            Morphology = change.Morphology,
+            Status = change.Status,
+            StreetNameId = change.StreetNameId,
+            MaintenanceAuthorityId = change.MaintenanceAuthorityId,
+            SurfaceType = change.SurfaceType,
+            CarAccess = change.CarAccess,
+            BikeAccess = change.BikeAccess,
+            PedestrianAccess = change.PedestrianAccess,
             EuropeanRoadNumbers = change.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = change.NationalRoadNumbers.ToImmutableList()
         };

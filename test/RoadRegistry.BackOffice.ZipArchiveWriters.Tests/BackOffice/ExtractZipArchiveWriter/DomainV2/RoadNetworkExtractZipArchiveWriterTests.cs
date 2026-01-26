@@ -86,7 +86,6 @@
                "eWegsegment.shx",
                "eWegsegment.cpg",
                "eWegsegment.prj",
-               "eAttWegverharding.dbf",
                "eAttNationweg.dbf",
                "eAttEuropweg.dbf",
                "eRltOgkruising.dbf",
@@ -101,20 +100,20 @@
                "iWegknoop.cpg",
                "iWegknoop.prj",
                "eWegknoopLktType.dbf",
-               "eWegverhardLktType.dbf",
+               "eWegsegmentLktVerharding.dbf",
                "eWegsegmentLktWegcat.dbf",
                "eWegsegmentLktTgbep.dbf",
-               "eWegsegmentLktMethode.dbf",
                "eWegsegmentLktMorf.dbf",
                "eWegsegmentLktStatus.dbf",
                "eOgkruisingLktType.dbf",
            };
 
-           fileNames.Should().HaveCount(expectedFileNames.Length);
            foreach (var fileName in expectedFileNames)
            {
                fileNames.Should().Contain(fileName);
            }
+
+           fileNames.Should().HaveCount(expectedFileNames.Length);
         }
 
         [Fact]
@@ -169,8 +168,6 @@
                "Wegsegment.shx",
                "Wegsegment.cpg",
                "Wegsegment.prj",
-               "eAttWegverharding.dbf",
-               "AttWegverharding.dbf",
                "eAttNationweg.dbf",
                "AttNationweg.dbf",
                "eAttEuropweg.dbf",
@@ -188,20 +185,20 @@
                "iWegknoop.cpg",
                "iWegknoop.prj",
                "eWegknoopLktType.dbf",
-               "eWegverhardLktType.dbf",
+               "eWegsegmentLktVerharding.dbf",
                "eWegsegmentLktWegcat.dbf",
                "eWegsegmentLktTgbep.dbf",
-               "eWegsegmentLktMethode.dbf",
                "eWegsegmentLktMorf.dbf",
                "eWegsegmentLktStatus.dbf",
                "eOgkruisingLktType.dbf",
            };
 
-           fileNames.Should().HaveCount(expectedFileNames.Length);
            foreach (var fileName in expectedFileNames)
            {
                fileNames.Should().Contain(fileName);
            }
+
+           fileNames.Should().HaveCount(expectedFileNames.Length);
         }
     }
 }

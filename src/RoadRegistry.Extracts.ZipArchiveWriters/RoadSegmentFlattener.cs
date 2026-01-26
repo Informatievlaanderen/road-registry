@@ -51,7 +51,6 @@ public static class RoadSegmentFlattener
             from = positions[i];
         }
 
-        //TODO-pr flatten roadsegment according to all dynamic small segments
         return flatSegments;
     }
 

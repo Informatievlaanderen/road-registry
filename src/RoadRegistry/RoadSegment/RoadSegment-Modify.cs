@@ -18,16 +18,16 @@ public partial class RoadSegment
         problems += new RoadSegmentGeometryValidator().Validate(originalId, geometryDrawMethod, geometry);
 
         var segmentLength = geometry.Length;
-        var accessRestriction = change.AccessRestriction?.TryCleanCoverages(segmentLength);
-        var category = change.Category?.TryCleanCoverages(segmentLength);
-        var morphology = change.Morphology?.TryCleanCoverages(segmentLength);
-        var status = change.Status?.TryCleanCoverages(segmentLength);
-        var streetNameId = change.StreetNameId?.TryCleanCoverages(segmentLength);
-        var maintenanceAuthorityId = change.MaintenanceAuthorityId?.TryCleanCoverages(segmentLength);
-        var surfaceType = change.SurfaceType?.TryCleanCoverages(segmentLength);
-        var carAccess = change.CarAccess?.TryCleanCoverages(segmentLength);
-        var bikeAccess = change.BikeAccess?.TryCleanCoverages(segmentLength);
-        var pedestrianAccess = change.PedestrianAccess?.TryCleanCoverages(segmentLength);
+        var accessRestriction = change.AccessRestriction;
+        var category = change.Category;
+        var morphology = change.Morphology;
+        var status = change.Status;
+        var streetNameId = change.StreetNameId;
+        var maintenanceAuthorityId = change.MaintenanceAuthorityId;
+        var surfaceType = change.SurfaceType;
+        var carAccess = change.CarAccess;
+        var bikeAccess = change.BikeAccess;
+        var pedestrianAccess = change.PedestrianAccess;
         var attributes = Attributes with
         {
             GeometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,

@@ -22,8 +22,8 @@ public static class ValidationExtensions
         }
 
         var sortedAttributes = attributeValues.Values
-            .OrderBy(x => x.Coverage?.From)
-            .ThenBy(x => x.Coverage?.To)
+            .OrderBy(x => x.Coverage.From)
+            .ThenBy(x => x.Coverage.To)
             .ThenBy(x => x.Side)
             .ToList();
 
@@ -34,38 +34,35 @@ public static class ValidationExtensions
         RoadSegmentPosition? previousToPosition = null;
         foreach (var group in valuesGroupedByPositionSegment)
         {
-            if (group.Key is not null)
+            if (previousToPosition is null)
             {
-                if (previousToPosition is null)
+                if (group.Key.From != RoadSegmentPosition.Zero)
                 {
-                    if (group.Key.From != RoadSegmentPosition.Zero)
-                    {
-                        problems += new Error(problemCodes.FromPositionNotEqualToZero,
-                            new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
-                            new ProblemParameter("FromPosition", group.Key.From.ToString()));
-                    }
+                    problems += new Error(problemCodes.FromPositionNotEqualToZero,
+                        new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
+                        new ProblemParameter("FromPosition", group.Key.From.ToString()));
                 }
-                else
-                {
-                    if (group.Key.From != previousToPosition.Value)
-                    {
-                        problems += new Error(problemCodes.NotAdjacent,
-                            new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
-                            new ProblemParameter("ToPosition", previousToPosition.Value.ToString()),
-                            new ProblemParameter("FromPosition", group.Key.From.ToString()));
-                    }
-
-                    if (group.Key.From == group.Key.To)
-                    {
-                        problems += new Error(problemCodes.HasLengthOfZero,
-                            new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
-                            new ProblemParameter("FromPosition", group.Key.From.ToString()),
-                            new ProblemParameter("ToPosition", group.Key.To.ToString()));
-                    }
-                }
-
-                previousToPosition = group.Key.To;
             }
+            else
+            {
+                if (group.Key.From != previousToPosition.Value)
+                {
+                    problems += new Error(problemCodes.NotAdjacent,
+                        new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
+                        new ProblemParameter("ToPosition", previousToPosition.Value.ToString()),
+                        new ProblemParameter("FromPosition", group.Key.From.ToString()));
+                }
+
+                if (group.Key.From == group.Key.To)
+                {
+                    problems += new Error(problemCodes.HasLengthOfZero,
+                        new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
+                        new ProblemParameter("FromPosition", group.Key.From.ToString()),
+                        new ProblemParameter("ToPosition", group.Key.To.ToString()));
+                }
+            }
+
+            previousToPosition = group.Key.To;
 
             var both = group.Where(x => x.Side == RoadSegmentAttributeSide.Both).ToList();
             var notBoth = group.Where(x => x.Side != RoadSegmentAttributeSide.Both).ToList();

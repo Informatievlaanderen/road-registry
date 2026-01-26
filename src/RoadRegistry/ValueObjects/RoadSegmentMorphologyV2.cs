@@ -47,7 +47,7 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
             new DutchTranslation(
                 4,
                 "parallelweg",
-                "Een parallelweg is een op- of afrit waarvan de begin- en eindpositie verbonden is met dezelfde weg. Een parallelweg heeft een rechtstreekse verbinding met deze weg, of een verbinding via op- of afritten die geen parallelweg zijn. Parallelwegen zijn uitsluitend bedoeld voor gemotoriseerd verkeer."
+                "Een parallelweg is een op- of afrit waarvan de begin- en eindpositie verbonden is met dezelfde weg. Een parallelweg heeft een rechtstreekse verbinding met deze weg, of een verbinding via op- of afritten die geen parallelweg zijn."
             )
         );
 
@@ -68,7 +68,7 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
             new DutchTranslation(
                 6,
                 "in- of uitrit",
-                "Een in- of uitrit is een weg die speciaal ontworpen is om een plaats te bereiken of te verlaten. In- of uitritten kunnen bijvoorbeeld opgenomen worden om een luchthaven, station, ziekenhuis, school, brandweerkazerne, politie, openbare dienst, parking, winkelcomplex, bedrijventerrein, hotel of restaurant te bereiken."
+                "Een in- of uitrit is een weg die speciaal ontworpen is om een plaats te bereiken of te verlaten. In- of uitritten kunnen bvb. opgenomen worden om een station, ziekenhuis, school, openbare dienst, parking, bedrijventerrein, restaurant, etc. te bereiken.\n"
             )
         );
 
@@ -118,7 +118,7 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
             new DutchTranslation(
                 11,
                 "bedding of baan voor openbaar vervoer",
-                "Een bedding of baan voor openbaar vervoer is een trambedding of busbaan. Een trambedding is een weg die speciaal ontworpen is voor het tramverkeer. Een busbaan wordt afgebakend door het verkeersbord F17 en één of twee brede witte doorlopende of onderbroken strepen, of dambordmarkeringen bestaande uit witte vierkanten. Andere voertuigen zijn slechts bij uitzondering toegelaten op beddingen of banen voor openbaar vervoer."
+                "Een bedding of baan voor openbaar vervoer is een trambedding of busbaan."
             )
         );
 

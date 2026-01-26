@@ -12,7 +12,7 @@ public class RoadSegmentAttributesEqualsOnlyNonDynamicAttributesTests
 
     public RoadSegmentAttributesEqualsOnlyNonDynamicAttributesTests()
     {
-        _fixture = new RoadNetworkTestData().Fixture;
+        _fixture = new RoadNetworkTestDataV2().Fixture;
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class RoadSegmentAttributesEqualsOnlyNonDynamicAttributesTests
     [Fact]
     public void MustDetectChanges()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         var baseline = fixture.Create<RoadSegmentAttributes>();
 
         baseline.EqualsOnlyNonDynamicAttributes(baseline).Should().BeTrue();

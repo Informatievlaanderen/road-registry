@@ -16,6 +16,7 @@ using RoadSegment.ValueObjects;
 
 public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 {
+    //TODO-pr save geom in LB08
     public static void Configure(StoreOptions options)
     {
         options.Schema.For<RoadSegmentExtractItem>()

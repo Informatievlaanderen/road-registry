@@ -20,7 +20,7 @@ public class MartenSerializerTests
     [Fact]
     public void AggregateCanSerializeAndDeserializeToJson()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
 
         var original = GradeSeparatedJunction.Create(fixture.Create<GradeSeparatedJunctionWasAdded>());
 

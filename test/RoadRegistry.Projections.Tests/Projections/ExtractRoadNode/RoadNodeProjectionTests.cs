@@ -79,7 +79,7 @@ public class RoadNodeProjectionTests
     [Fact]
     public Task WhenRoadNodeWasAdded_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
 
         var roadNode1Added = fixture.Create<RoadNodeWasAdded>();
         var roadNode2Added = fixture.Create<RoadNodeWasAdded>();
@@ -114,7 +114,7 @@ public class RoadNodeProjectionTests
     [Fact]
     public Task WhenRoadNodeWasModified_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadNodeId>();
 
         var roadNodeAdded = fixture.Create<RoadNodeWasAdded>();
@@ -140,7 +140,7 @@ public class RoadNodeProjectionTests
     [Fact]
     public Task WhenRoadNodeWasMigrated_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadNodeId>();
 
         var roadNodeAdded = fixture.Create<RoadNodeWasAdded>();
@@ -166,7 +166,7 @@ public class RoadNodeProjectionTests
     [Fact]
     public async Task WhenRoadNodeWasRemoved_ThenNone()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadNodeId>();
 
         var roadNode1Added = fixture.Create<RoadNodeWasAdded>();
