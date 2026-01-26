@@ -7,11 +7,11 @@ using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
 using RoadNode.Events.V1;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 
 public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
 {
-    //TODO-pr save geom in LB08
     public static void Configure(StoreOptions options)
     {
         options.Schema.For<RoadNodeExtractItem>()
@@ -28,7 +28,7 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
             session.Store(new RoadNodeExtractItem
             {
                 RoadNodeId = new RoadNodeId(e.Data.RoadNodeId),
-                Geometry = e.Data.Geometry,
+                Geometry = ToLambert08(e.Data.Geometry),
                 Type = e.Data.Type,
                 Grensknoop = false,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
@@ -42,7 +42,7 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
             session.Store(new RoadNodeExtractItem
             {
                 RoadNodeId = new RoadNodeId(e.Data.RoadNodeId),
-                Geometry = e.Data.Geometry,
+                Geometry = ToLambert08(e.Data.Geometry),
                 Type = e.Data.Type,
                 Grensknoop = false,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
@@ -61,7 +61,7 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
 
             node.LastModified = e.Data.Provenance.ToEventTimestamp();
             node.Type = e.Data.Type;
-            node.Geometry = e.Data.Geometry;
+            node.Geometry = ToLambert08(e.Data.Geometry);
 
             session.Store(node);
         });
@@ -132,6 +132,11 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
 
             session.Delete(node);
         });
+    }
+
+    private static RoadNodeGeometry ToLambert08(RoadNodeGeometry geometry)
+    {
+        return RoadNodeGeometry.Create(geometry.Value.TransformFromLambert72To08());
     }
 }
 

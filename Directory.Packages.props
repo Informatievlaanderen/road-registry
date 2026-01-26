@@ -85,6 +85,7 @@
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     <PackageVersion Include="FluentAssertions" Version="[7.1.0,8.0.0)" />
     <PackageVersion Include="Duende.IdentityModel" Version="7.0.0" />
+    <PackageVersion Include="Gisvl.Gecko.CrsTransformer.NTS" Version="0.0.4" />
     <PackageVersion Include="Marten" Version="8.13.0" />
     <PackageVersion Include="MediatR" Version="12.5.0" />
     <PackageVersion Include="MediatR.Contracts" Version="2.0.1" />

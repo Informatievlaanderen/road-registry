@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj"/>
+    <PackageReference Include="Gisvl.Gecko.CrsTransformer.NTS" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="RoadRegistry.ValueObjects"/>

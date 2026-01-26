@@ -9,6 +9,7 @@ using BackOffice;
 using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadSegment.Events.V1;
 using RoadSegment.Events.V2;
@@ -16,7 +17,6 @@ using RoadSegment.ValueObjects;
 
 public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 {
-    //TODO-pr save geom in LB08
     public static void Configure(StoreOptions options)
     {
         options.Schema.For<RoadSegmentExtractItem>()
@@ -31,7 +31,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
         When<IEvent<ImportedRoadSegment>>((session, e, ct) =>
         {
             var roadSegmentId = new RoadSegmentId(e.Data.RoadSegmentId);
-            var geometry = e.Data.Geometry;
+            var geometry = ToLambert08(e.Data.Geometry);
             var status = e.Data.Status;
             var morphology = e.Data.Morphology;
             var category = e.Data.Category;
@@ -78,6 +78,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
         When<IEvent<RoadSegmentAdded>>((session, e, ct) =>
         {
             var roadSegmentId = new RoadSegmentId(e.Data.RoadSegmentId);
+            var geometry = ToLambert08(e.Data.Geometry);
             var status = e.Data.Status;
             var morphology = e.Data.Morphology;
             var category = e.Data.Category;
@@ -87,16 +88,16 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             var roadSegment = new RoadSegmentExtractItem
             {
                 RoadSegmentId = roadSegmentId,
-                Geometry = e.Data.Geometry,
+                Geometry = geometry,
                 StartNodeId = new RoadNodeId(e.Data.StartNodeId),
                 EndNodeId = new RoadNodeId(e.Data.EndNodeId),
                 GeometryDrawMethod = geometryDrawMethod,
-                AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(accessRestriction, e.Data.Geometry),
-                Category = new ExtractRoadSegmentDynamicAttribute<string>(category, e.Data.Geometry),
-                Morphology = new ExtractRoadSegmentDynamicAttribute<string>(morphology, e.Data.Geometry),
-                Status = new ExtractRoadSegmentDynamicAttribute<string>(status, e.Data.Geometry),
-                StreetNameId = BuildStreetNameIdAttributes(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, e.Data.Geometry),
-                MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(new OrganizationId(e.Data.MaintenanceAuthority.Code), e.Data.Geometry),
+                AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(accessRestriction, geometry),
+                Category = new ExtractRoadSegmentDynamicAttribute<string>(category, geometry),
+                Morphology = new ExtractRoadSegmentDynamicAttribute<string>(morphology, geometry),
+                Status = new ExtractRoadSegmentDynamicAttribute<string>(status, geometry),
+                StreetNameId = BuildStreetNameIdAttributes(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, geometry),
+                MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(new OrganizationId(e.Data.MaintenanceAuthority.Code), geometry),
                 SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
                         new RoadSegmentPosition(x.FromPosition),
@@ -127,16 +128,16 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 var geometryDrawMethod = e.Data.GeometryDrawMethod;
                 var accessRestriction = e.Data.AccessRestriction;
 
-                segment.Geometry = e.Data.Geometry;
+                segment.Geometry = ToLambert08(e.Data.Geometry);
                 segment.StartNodeId = new RoadNodeId(e.Data.StartNodeId);
                 segment.EndNodeId = new RoadNodeId(e.Data.EndNodeId);
                 segment.GeometryDrawMethod = geometryDrawMethod;
-                segment.AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(accessRestriction, e.Data.Geometry);
-                segment.Category = new ExtractRoadSegmentDynamicAttribute<string>(category, e.Data.Geometry);
-                segment.Morphology = new ExtractRoadSegmentDynamicAttribute<string>(morphology, e.Data.Geometry);
-                segment.Status = new ExtractRoadSegmentDynamicAttribute<string>(status, e.Data.Geometry);
-                segment.StreetNameId = BuildStreetNameIdAttributes(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, e.Data.Geometry);
-                segment.MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(new OrganizationId(e.Data.MaintenanceAuthority.Code), e.Data.Geometry);
+                segment.AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(accessRestriction, segment.Geometry);
+                segment.Category = new ExtractRoadSegmentDynamicAttribute<string>(category, segment.Geometry);
+                segment.Morphology = new ExtractRoadSegmentDynamicAttribute<string>(morphology, segment.Geometry);
+                segment.Status = new ExtractRoadSegmentDynamicAttribute<string>(status, segment.Geometry);
+                segment.StreetNameId = BuildStreetNameIdAttributes(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, segment.Geometry);
+                segment.MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(new OrganizationId(e.Data.MaintenanceAuthority.Code), segment.Geometry);
                 segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
                         new RoadSegmentPosition(x.FromPosition),
@@ -213,7 +214,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
         {
             return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
             {
-                segment.Geometry = e.Data.Geometry;
+                segment.Geometry = ToLambert08(e.Data.Geometry);
                 segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
                         new RoadSegmentPosition(x.FromPosition),
@@ -463,6 +464,11 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             RoadSegmentAttributeSide.Right => attributes.Values.Single(x => x.Side == RoadSegmentAttributeSide.Both || x.Side == RoadSegmentAttributeSide.Right).Value,
             _ => throw new InvalidOperationException("Only left or right side is allowed.")
         };
+    }
+
+    private static RoadSegmentGeometry ToLambert08(RoadSegmentGeometry geometry)
+    {
+        return RoadSegmentGeometry.Create(geometry.Value.TransformFromLambert72To08());
     }
 }
 
