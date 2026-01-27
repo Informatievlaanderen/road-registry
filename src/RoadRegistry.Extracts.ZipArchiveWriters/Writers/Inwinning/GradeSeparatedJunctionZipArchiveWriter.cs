@@ -39,18 +39,42 @@ public class GradeSeparatedJunctionZipArchiveWriter : IZipArchiveWriter
         {
             var records = junctions
                 .OrderBy(x => x.Id)
-                .Select(x => new GradeSeparatedJunctionDbaseRecord
+                .Select(x =>
                 {
-                    OK_OIDN = { Value = x.GradeSeparatedJunctionId },
-                    BO_TEMPID = { Value = x.UpperRoadSegmentId },
-                    ON_TEMPID = { Value = x.LowerRoadSegmentId },
-                    TYPE = { Value = x.IsV2 ? GradeSeparatedJunctionTypeV2.Parse(x.Type).Translation.Identifier : MigrateToV2(GradeSeparatedJunctionType.Parse(x.Type)) },
-                    CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() }
+                    var intersection = FindFirstIntersectingTempIds(x.UpperRoadSegmentId, x.LowerRoadSegmentId, context);
+
+                    return new GradeSeparatedJunctionDbaseRecord
+                    {
+                        OK_OIDN = { Value = x.GradeSeparatedJunctionId },
+                        BO_TEMPID = { Value = intersection.UpperRoadSegmentId },
+                        ON_TEMPID = { Value = intersection.LowerRoadSegmentId },
+                        TYPE = { Value = x.IsV2 ? GradeSeparatedJunctionTypeV2.Parse(x.Type).Translation.Identifier : MigrateToV2(GradeSeparatedJunctionType.Parse(x.Type)) },
+                        CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() }
+                    };
                 });
 
             var dbaseRecordWriter = new DbaseRecordWriter(_encoding);
             await dbaseRecordWriter.WriteToArchive(archive, extractFilename, featureType, GradeSeparatedJunctionDbaseRecord.Schema, records, cancellationToken);
         }
+    }
+
+    private static (RoadSegmentId UpperRoadSegmentId, RoadSegmentId LowerRoadSegmentId) FindFirstIntersectingTempIds(RoadSegmentId upperRoadSegmentId, RoadSegmentId lowerRoadSegmentId, ZipArchiveWriteContext context)
+    {
+        var upperTempSegments = context.GetTempSegments(upperRoadSegmentId);
+        var lowerTempSegments = context.GetTempSegments(lowerRoadSegmentId);
+
+        foreach (var upperTempSegment in upperTempSegments)
+        {
+            foreach (var lowerTempSegment in lowerTempSegments)
+            {
+                if (upperTempSegment.Geometry.Value.Intersects(lowerTempSegment.Geometry.Value))
+                {
+                    return (upperTempSegment.Id, lowerTempSegment.Id);
+                }
+            }
+        }
+
+        throw new InvalidOperationException($"No intersection found for temp segments between {upperRoadSegmentId} and {lowerRoadSegmentId}");
     }
 
     private static int MigrateToV2(GradeSeparatedJunctionType v1)

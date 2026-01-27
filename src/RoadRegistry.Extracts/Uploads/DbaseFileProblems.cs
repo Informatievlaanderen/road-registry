@@ -8,7 +8,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.Extensions;
 using RoadRegistry.ValueObjects.Problems;
 
-//TODO-pr make sure all V1 type usages are duplicated to V2 when needed
 public static class DbaseFileProblems
 {
     private static readonly NumberFormatInfo Provider = new()

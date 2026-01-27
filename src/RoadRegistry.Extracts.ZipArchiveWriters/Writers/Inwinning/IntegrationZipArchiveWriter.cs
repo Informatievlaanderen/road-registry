@@ -2,12 +2,12 @@ namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers.Inwinning;
 
 using System.IO.Compression;
 using System.Text;
+using Extensions;
+using Infrastructure.ShapeFile;
 using NetTopologySuite.Geometries;
-using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.Infrastructure.ShapeFile;
-using RoadRegistry.Extracts.Projections;
-using RoadRegistry.Extracts.Schemas.DomainV2.RoadNodes;
-using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
+using Projections;
+using Schemas.DomainV2.RoadNodes;
+using Schemas.DomainV2.RoadSegments;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class IntegrationZipArchiveWriter : IZipArchiveWriter
@@ -81,7 +81,8 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
 
         async Task WriteRoadNodes()
         {
-            var records = RoadNodesZipArchiveWriter.ConvertToDbaseRecords(integrationNodes);
+            var records = RoadNodesZipArchiveWriter.ConvertToDbaseRecords(integrationNodes)
+                .Concat(RoadNodesZipArchiveWriter.BuildSchijnknoopDbaseRecords(integrationSegments));
 
             var writer = new Lambert08ShapeFileRecordWriter(_encoding);
             await writer.WriteToArchive(archive, ExtractFileName.Wegknoop, featureType, ShapeType.Point, RoadNodeDbaseRecord.Schema, records, cancellationToken);

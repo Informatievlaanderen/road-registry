@@ -2,13 +2,14 @@ namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers.Inwinning;
 
 using System.IO.Compression;
 using System.Text;
+using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extensions;
+using Infrastructure.ShapeFile;
 using NetTopologySuite.Geometries;
-using RoadRegistry.Extensions;
-using RoadRegistry.Extracts;
-using RoadRegistry.Extracts.Infrastructure.ShapeFile;
-using RoadRegistry.Extracts.Projections;
-using RoadRegistry.Extracts.Schemas.DomainV2.RoadNodes;
+using Projections;
+using Schemas.DomainV2.RoadNodes;
+using Point = NetTopologySuite.Geometries.Point;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class RoadNodesZipArchiveWriter : IZipArchiveWriter
@@ -31,7 +32,7 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
-        var nodes = await zipArchiveDataProvider.GetRoadNodes(request.Contour, cancellationToken);
+        var nodes = (await zipArchiveDataProvider.GetRoadNodes(request.Contour, cancellationToken)).ToList();
 
         const ExtractFileName extractFilename = ExtractFileName.Wegknoop;
         FeatureType[] featureTypes = request.IsInformative
@@ -40,10 +41,17 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
 
         var writer = new Lambert08ShapeFileRecordWriter(_encoding);
 
+        var records = new List<(DbaseRecord, Geometry)>();
+        records.AddRange(ConvertToDbaseRecords(nodes));
+
+        if (nodes.Any())
+        {
+            var segments = await zipArchiveDataProvider.GetRoadSegments(request.Contour, cancellationToken);
+            records.AddRange(BuildSchijnknoopDbaseRecords(segments));
+        }
+
         foreach (var featureType in featureTypes)
         {
-            var records = ConvertToDbaseRecords(nodes);
-
             await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.Point, RoadNodeDbaseRecord.Schema, records, cancellationToken);
         }
     }
@@ -64,6 +72,31 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
 
                 return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
             });
+    }
+
+    internal static IEnumerable<(DbaseRecord, Geometry)> BuildSchijnknoopDbaseRecords(IEnumerable<RoadSegmentExtractItem> segments)
+    {
+        var schijnknoopIdProvider = new NextAttributeIdProvider(new AttributeId(5000000));
+
+        return segments
+            .SelectMany(x =>
+                x.Flatten().Skip(1)
+                    .Select(segment =>
+                    {
+                        var coordinate = segment.Geometry.Value.Coordinate;
+                        var nodeGeometry = RoadNodeGeometry.Create(new Point(coordinate.X, coordinate.Y) { SRID = x.Geometry.SRID });
+
+                        var dbfRecord = new RoadNodeDbaseRecord
+                        {
+                            WK_OIDN = { Value = schijnknoopIdProvider.Next() },
+                            TYPE = { Value = RoadNodeTypeV2.Schijnknoop },
+                            GRENSKNOOP = { Value = ToGrensknoopDbfValue(IsWithin10MeterOfGrens(nodeGeometry)) },
+                            CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() }
+                        };
+
+                        return ((DbaseRecord)dbfRecord, (Geometry)nodeGeometry.Value);
+                    })
+            );
     }
 
     private static int MigrateRoadNodeType(RoadNodeType v1)
@@ -87,11 +120,15 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
 
     private static short ToGrensknoopDbfValue(bool grensknoop, RoadNodeGeometry geometry, bool isV2)
     {
-        return isV2
-            ? grensknoop.ToDbaseShortValue()
-            : IsWithin10MeterOfGrens(geometry)
-                ? (short)0
-                : (short)-8;
+        return ToGrensknoopDbfValue(isV2
+            ? grensknoop
+            : IsWithin10MeterOfGrens(geometry));
+    }
+    private static short ToGrensknoopDbfValue(bool grensknoop)
+    {
+        return grensknoop
+            ? (short)0
+            : (short)-8;
     }
 
     private static bool IsWithin10MeterOfGrens(RoadNodeGeometry geometry)

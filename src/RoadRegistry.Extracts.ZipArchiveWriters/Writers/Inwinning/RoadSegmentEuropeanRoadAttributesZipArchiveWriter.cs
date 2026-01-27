@@ -45,17 +45,20 @@ public class RoadSegmentEuropeanRoadAttributesZipArchiveWriter : IZipArchiveWrit
                 .SelectMany(x => x.EuropeanRoadNumbers.Select(number => (RoadSegment: x, number)))
                 .OrderBy(x => x.RoadSegment.Id)
                 .ThenBy(x => x.number)
-                .Select(x =>
-                {
-                    var dbfRecord = new RoadSegmentEuropeanRoadAttributeDbaseRecord
-                    {
-                        EU_OIDN = { Value = attributeId.Next() },
-                        WS_TEMPID = { Value = x.RoadSegment.RoadSegmentId }, //TODO-pr implement WS_TEMPID
-                        EUNUMMER = { Value = x.number },
-                        CREATIE = { Value = x.RoadSegment.Origin.Timestamp.ToBrusselsDateTime() }
-                    };
-                    return dbfRecord;
-                });
+                .SelectMany(x =>
+                    context.GetTempSegments(x.RoadSegment.RoadSegmentId)
+                        .Select(tempSegment =>
+                        {
+                            var dbfRecord = new RoadSegmentEuropeanRoadAttributeDbaseRecord
+                            {
+                                EU_OIDN = { Value = attributeId.Next() },
+                                WS_TEMPID = { Value = tempSegment.Id },
+                                EUNUMMER = { Value = x.number },
+                                CREATIE = { Value = x.RoadSegment.Origin.Timestamp.ToBrusselsDateTime() }
+                            };
+                            return dbfRecord;
+                        })
+                );
 
             var dbaseRecordWriter = new DbaseRecordWriter(_encoding);
             await dbaseRecordWriter.WriteToArchive(archive, extractFilename, featureType, RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema, records, cancellationToken);

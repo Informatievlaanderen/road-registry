@@ -10,7 +10,6 @@ using RoadRegistry.Extensions;
 
 public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, IDutchToString
 {
-    //TODO-pr rename props to NL
     public static readonly RoadSegmentCategoryV2 EuropeseHoofdweg =
         new(
             nameof(EuropeseHoofdweg),

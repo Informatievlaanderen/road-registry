@@ -3,12 +3,12 @@ namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers.Inwinning;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extensions;
+using Infrastructure.ShapeFile;
 using NetTopologySuite.Geometries;
-using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.Infrastructure.ShapeFile;
-using RoadRegistry.Extracts.Projections;
-using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
-using RoadRegistry.RoadSegment.ValueObjects;
+using Projections;
+using RoadSegment.ValueObjects;
+using Schemas.DomainV2.RoadSegments;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
@@ -31,8 +31,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
-        var segments = await zipArchiveDataProvider.GetRoadSegments(
-            request.Contour, cancellationToken);
+        var segments = await zipArchiveDataProvider.GetRoadSegments(request.Contour, cancellationToken);
 
         const ExtractFileName extractFilename = ExtractFileName.Wegsegment;
         FeatureType[] featureTypes = request.IsInformative
@@ -55,8 +54,6 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
             .OrderBy(x => x.Id)
             .SelectMany(roadSegment =>
             {
-                //TODO-pr voeg schijnknopen toe tussen elk flat segment
-
                 return roadSegment.Flatten()
                     .Select(x =>
                     {
@@ -68,7 +65,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
 
                         var dbfRecord = new RoadSegmentDbaseRecord
                         {
-                            WS_TEMPID = { Value = context.NewTempId(x.RoadSegmentId) },
+                            WS_TEMPID = { Value = context.NewTempId(x.RoadSegmentId, x.Geometry) },
                             WS_OIDN = { Value = x.RoadSegmentId },
                             STATUS = { Value = status },
                             MORF = { Value = morphology },
