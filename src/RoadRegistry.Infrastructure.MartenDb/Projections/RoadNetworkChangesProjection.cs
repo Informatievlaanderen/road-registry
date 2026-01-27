@@ -76,9 +76,10 @@ public abstract class RoadNetworkChangesProjection : IProjection
     {
         var eventsPerCorrelationId = events
             .GroupBy(x => x.CorrelationId!)
+            .OrderBy(x => x.First().Sequence)
             .ToList();
 
-        foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, i) => (CorrelationId: g.Key, Events: g.ToArray())))
+        foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, i) => (CorrelationId: g.Key, Events: g.OrderBy(x => x.Sequence).ToArray())))
         {
             var lastSequenceId = eventsGrouping.Events.Max(x => x.Sequence);
             var projectionProgression = processedProjectionProgressions.SingleOrDefault(x => x.Id == eventsGrouping.CorrelationId);

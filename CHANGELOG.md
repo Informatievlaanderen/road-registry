@@ -1,3 +1,29 @@
+## [4.42.2](https://github.com/informatievlaanderen/road-registry/compare/v4.42.1...v4.42.2) (2026-01-23)
+
+
+### Bug Fixes
+
+* **marten projection:** keep event order when projecting ([77984c3](https://github.com/informatievlaanderen/road-registry/commit/77984c3fdf7f35c9cb47d8045599aaa609a83e28))
+
+## [4.42.1](https://github.com/informatievlaanderen/road-registry/compare/v4.42.0...v4.42.1) (2026-01-20)
+
+
+### Bug Fixes
+
+* extract projection close old open downloads even when there are multiple ([1277459](https://github.com/informatievlaanderen/road-registry/commit/1277459e08e5f2cb45cf7af3cbf16caf30ad712f))
+
+# [4.42.0](https://github.com/informatievlaanderen/road-registry/compare/v4.41.3...v4.42.0) (2026-01-19)
+
+
+### Bug Fixes
+
+* wait for extract via the ticket instead of extract details endpoint ([edb21f8](https://github.com/informatievlaanderen/road-registry/commit/edb21f8fee87543155f0bcb9db5ea190cca44396))
+
+
+### Features
+
+* add Marten projection progress to projector ([887a160](https://github.com/informatievlaanderen/road-registry/commit/887a160860b610658b947ce015da03104c7337f5))
+
 ## [4.41.3](https://github.com/informatievlaanderen/road-registry/compare/v4.41.2...v4.41.3) (2026-01-16)
 
 
