@@ -11,6 +11,7 @@ using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
+using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using ValueObjects;
 
@@ -24,7 +25,7 @@ public partial class ScopedRoadNetwork
 
         if (!changes.Any())
         {
-            //TODO-pr add problem if no changes are found
+            problems += Problems.Single(new Error(ProblemCode.RoadNetwork.NoChanges.ToString()));
         }
 
         var roadSegmentRoadNumberChanges = GetRoadSegmentRoadNumberChanges(changes);

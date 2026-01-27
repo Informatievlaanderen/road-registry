@@ -171,6 +171,10 @@ public static class ProblemTranslator
             ProblemCode.RoadNetwork.Disconnected, problem => new(problem.Severity, "WegenNetwerkNietVerbonden",
                 $"De wegknoop {problem.GetParameterValue("StartNodeId")} heeft geen verbinding meer met wegknoop {problem.GetParameterValue("EndNodeId")}.")
         },
+        {
+            ProblemCode.RoadNetwork.NoChanges, problem => new(problem.Severity, "GeenWijzigingen",
+                "Er werden geen wijzigingen gevonden.")
+        },
 
         {
             ProblemCode.RoadNode.NotConnectedToAnySegment, problem => new(problem.Severity, problem.Reason,
