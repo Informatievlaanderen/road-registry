@@ -4,16 +4,19 @@ using BackOffice;
 using JasperFx.Events;
 using Marten;
 using Marten.Events.Projections;
+using Microsoft.Extensions.Logging;
 
 public sealed record RoadNetworkChangesProjectionProgression(string Id, string ProjectionName, long LastSequenceId);
 
 public abstract class RoadNetworkChangesProjection : IProjection
 {
     private readonly IReadOnlyCollection<IRoadNetworkChangesProjection> _projections;
+    private readonly ILogger _logger;
 
-    protected RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections)
+    protected RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections, ILoggerFactory loggerFactory)
     {
         _projections = projections;
+        _logger = loggerFactory.CreateLogger(GetType());
     }
 
     public void Configure(StoreOptions options)
@@ -36,30 +39,37 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
     public async Task ApplyAsync(IDocumentOperations operations, IReadOnlyList<IEvent> events, CancellationToken cancellation)
     {
-        //TODO-pr wanneer er iets failed, dan moet de error naar slack geraken + statusendpoint detecteren wanneer projectie plat ligt
-        var projectionName = GetType().Name;
-        var correlationIds = events.Select(x => x.CorrelationId!).Distinct().ToList();
-
-        var processedCorrelationIds = await operations.Query<RoadNetworkChangesProjectionProgression>()
-            .Where(x => x.ProjectionName == projectionName && correlationIds.Contains(x.Id))
-            .Select(x => x.Id)
-            .ToListAsync(cancellation);
-        var unprocessedCorrelationIds = correlationIds.Except(processedCorrelationIds).ToList();
-
-        var eventsPerCorrelationId = operations.Events.QueryAllRawEvents()
-            .Where(x => unprocessedCorrelationIds.Contains(x.CorrelationId!)) //TODO-pr add index on correlationId
-            .ToList()
-            .GroupBy(x => x.CorrelationId!)
-            .ToList();
-
-        foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, i) => (CorrelationId: g.Key, Events: g.ToArray())))
+        try
         {
-            foreach (var projection in _projections)
-            {
-                await projection.Project(operations, eventsGrouping.Events, cancellation).ConfigureAwait(false);
-            }
+            var projectionName = GetType().Name;
+            var correlationIds = events.Select(x => x.CorrelationId!).Distinct().ToList();
 
-            operations.Insert(new RoadNetworkChangesProjectionProgression(eventsGrouping.CorrelationId, projectionName, eventsGrouping.Events.Max(x => x.Sequence)));
+            var processedCorrelationIds = await operations.Query<RoadNetworkChangesProjectionProgression>()
+                .Where(x => x.ProjectionName == projectionName && correlationIds.Contains(x.Id))
+                .Select(x => x.Id)
+                .ToListAsync(cancellation);
+            var unprocessedCorrelationIds = correlationIds.Except(processedCorrelationIds).ToList();
+
+            var eventsPerCorrelationId = operations.Events.QueryAllRawEvents()
+                .Where(x => unprocessedCorrelationIds.Contains(x.CorrelationId!)) //TODO-pr add index on correlationId
+                .ToList()
+                .GroupBy(x => x.CorrelationId!)
+                .ToList();
+
+            foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, i) => (CorrelationId: g.Key, Events: g.ToArray())))
+            {
+                foreach (var projection in _projections)
+                {
+                    await projection.Project(operations, eventsGrouping.Events, cancellation).ConfigureAwait(false);
+                }
+
+                operations.Insert(new RoadNetworkChangesProjectionProgression(eventsGrouping.CorrelationId, projectionName, eventsGrouping.Events.Max(x => x.Sequence)));
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error trying to project events from {events.First().Sequence} to {events.Last().Sequence}");
+            throw;
         }
     }
 }

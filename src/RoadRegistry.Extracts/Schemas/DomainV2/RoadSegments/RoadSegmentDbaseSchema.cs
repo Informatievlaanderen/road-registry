@@ -11,12 +11,12 @@ public class RoadSegmentDbaseSchema : DbaseSchema
         Fields =
         [
             DbaseField.CreateNumberField(
-                new DbaseFieldName(nameof(WS_OIDN)),
+                new DbaseFieldName(nameof(WS_TEMPID)),
                 new DbaseFieldLength(15),
                 new DbaseDecimalCount(0)),
 
             DbaseField.CreateNumberField(
-                new DbaseFieldName(nameof(WS_TEMPID)),
+                new DbaseFieldName(nameof(WS_OIDN)),
                 new DbaseFieldLength(15),
                 new DbaseDecimalCount(0)),
 
@@ -113,8 +113,8 @@ public class RoadSegmentDbaseSchema : DbaseSchema
         ];
     }
 
-    public DbaseField WS_OIDN => Fields[0];
-    public DbaseField WS_TEMPID => Fields[1];
+    public DbaseField WS_TEMPID => Fields[0];
+    public DbaseField WS_OIDN => Fields[1];
     public DbaseField STATUS => Fields[2];
     public DbaseField MORF => Fields[3];
     public DbaseField WEGCAT => Fields[4];

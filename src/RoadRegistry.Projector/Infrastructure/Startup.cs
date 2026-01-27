@@ -263,9 +263,9 @@ public class Startup
             .AddDbContext<StreetNameEventProjectionContext>(WellKnownConnectionNames.StreetNameProjections)
             .AddDbContext<IntegrationContext>(WellKnownConnectionNames.IntegrationProjections)
 
-            .AddMartenRoad(options =>
+            .AddMartenRoad((options, sp) =>
             {
-                options.AddRoadNetworkChangesProjection(new ExtractsRoadNetworkChangesProjection());
+                options.AddRoadNetworkChangesProjection(new ExtractsRoadNetworkChangesProjection(sp.GetRequiredService<ILoggerFactory>()));
             })
 
             .AddSingleton(new IDbContextMigratorFactory[]

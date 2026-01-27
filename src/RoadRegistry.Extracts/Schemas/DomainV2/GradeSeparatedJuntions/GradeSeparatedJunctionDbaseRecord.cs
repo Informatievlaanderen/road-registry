@@ -9,24 +9,24 @@ public class GradeSeparatedJunctionDbaseRecord : DbaseRecord
     public GradeSeparatedJunctionDbaseRecord()
     {
         OK_OIDN = new DbaseInt32(Schema.OK_OIDN);
-        TYPE = new DbaseInt32(Schema.TYPE);
         BO_TEMPID = new DbaseInt32(Schema.BO_TEMPID);
         ON_TEMPID = new DbaseInt32(Schema.ON_TEMPID);
+        TYPE = new DbaseInt32(Schema.TYPE);
         CREATIE = new DbaseDateTime(Schema.CREATIE);
 
         Values =
         [
             OK_OIDN,
-            TYPE,
             BO_TEMPID,
             ON_TEMPID,
+            TYPE,
             CREATIE
         ];
     }
 
     public DbaseInt32 OK_OIDN { get; }
-    public DbaseInt32 TYPE { get; }
     public DbaseInt32 BO_TEMPID { get; }
     public DbaseInt32 ON_TEMPID { get; }
+    public DbaseInt32 TYPE { get; }
     public DbaseDateTime CREATIE { get; }
 }

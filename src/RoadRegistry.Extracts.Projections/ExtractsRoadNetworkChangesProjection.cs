@@ -1,12 +1,13 @@
 ﻿namespace RoadRegistry.Extracts.Projections;
 
 using Marten;
+using Microsoft.Extensions.Logging;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 
 public class ExtractsRoadNetworkChangesProjection : RoadNetworkChangesProjection
 {
-    public ExtractsRoadNetworkChangesProjection()
-        : base([new RoadNodeProjection(), new RoadSegmentProjection(), new GradeSeparatedJunctionProjection()])
+    public ExtractsRoadNetworkChangesProjection(ILoggerFactory loggerFactory)
+        : base([new RoadNodeProjection(), new RoadSegmentProjection(), new GradeSeparatedJunctionProjection()], loggerFactory)
     {
     }
 
