@@ -59,8 +59,7 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
                     WK_OIDN = { Value = x.RoadNodeId },
                     TYPE = { Value = x.IsV2 ? RoadNodeTypeV2.Parse(x.Type).Translation.Identifier : MigrateRoadNodeType(RoadNodeType.Parse(x.Type)) },
                     GRENSKNOOP = { Value = ToGrensknoopDbfValue(x.Grensknoop, x.Geometry, x.IsV2) },
-                    CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
-                    VERSIE = { Value = x.LastModified.Timestamp.ToBrusselsDateTime() }
+                    CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() }
                 };
 
                 return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);

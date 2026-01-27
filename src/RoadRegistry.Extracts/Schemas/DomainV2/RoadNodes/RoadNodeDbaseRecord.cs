@@ -12,11 +12,10 @@ public class RoadNodeDbaseRecord : DbaseRecord
         TYPE = new DbaseInt32(Schema.TYPE);
         GRENSKNOOP = new DbaseInt16(Schema.GRENSKNOOP);
         CREATIE = new DbaseDateTime(Schema.CREATIE);
-        VERSIE = new DbaseDateTime(Schema.VERSIE);
 
         Values =
         [
-            WK_OIDN, TYPE, GRENSKNOOP, CREATIE, VERSIE
+            WK_OIDN, TYPE, GRENSKNOOP, CREATIE
         ];
     }
 
@@ -24,5 +23,4 @@ public class RoadNodeDbaseRecord : DbaseRecord
     public DbaseInt32 TYPE { get; }
     public DbaseInt16 GRENSKNOOP { get; }
     public DbaseDateTime CREATIE { get; }
-    public DbaseDateTime VERSIE { get; }
 }

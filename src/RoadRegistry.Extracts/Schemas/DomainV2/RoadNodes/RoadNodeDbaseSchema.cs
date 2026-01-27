@@ -28,12 +28,7 @@ public class RoadNodeDbaseSchema : DbaseSchema
             DbaseField
                 .CreateCharacterField(
                     new DbaseFieldName(nameof(CREATIE)),
-                    new DbaseFieldLength(15)),
-
-            DbaseField
-                .CreateCharacterField(
-                    new DbaseFieldName(nameof(VERSIE)),
-                    new DbaseFieldLength(15)),
+                    new DbaseFieldLength(15))
         ];
     }
 
@@ -41,5 +36,4 @@ public class RoadNodeDbaseSchema : DbaseSchema
     public DbaseField TYPE => Fields[1];
     public DbaseField GRENSKNOOP => Fields[2];
     public DbaseField CREATIE => Fields[3];
-    public DbaseField VERSIE => Fields[4];
 }
