@@ -133,9 +133,6 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
 
     private static bool IsWithin10MeterOfGrens(RoadNodeGeometry geometry)
     {
-        //TODO-pr indien x.Grensknoop null, dan:
-        //‘-8’ indien >10m van de gewestgrens)
-        //'0' indien ≤10m van de gewestgrens
-        throw new NotImplementedException();
+        return GewestGrens.IsCloseToBorder(geometry.Value, 10);
     }
 }

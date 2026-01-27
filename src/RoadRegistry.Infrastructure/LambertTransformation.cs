@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using Extensions;
 using Gisvl.Gecko.CrsTransformer.NTS;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
@@ -16,7 +17,6 @@ public static class LambertTransformation
     }
 
     private static readonly LambertTransformer Lambert72To08Transformer;
-    private static readonly WKTReader WktReader;
 
     private static readonly OgcGeometryType[] SupportedGeometryTypes =
     [
@@ -30,7 +30,6 @@ public static class LambertTransformation
 
     static LambertTransformation()
     {
-        WktReader = new WKTReader();
         Lambert72To08Transformer = new LambertTransformer(CoordinateSystem.Lambert72, CoordinateSystem.Lambert08);
     }
 
@@ -45,6 +44,15 @@ public static class LambertTransformation
         return Lambert72To08Transformer.Transform(geometry, true);
     }
 
+    public static bool IsLambert72(this Geometry geometry)
+    {
+        return geometry.SRID == CoordinateSystem.Lambert72.GeometryFactory.SRID;
+    }
+    public static bool IsLambert08(this Geometry geometry)
+    {
+        return geometry.SRID == CoordinateSystem.Lambert08.GeometryFactory.SRID;
+    }
+
     public static bool IsInsideFlandersUsingLambert72(this Geometry geometry)
     {
         return CoordinateSystem.Lambert72.Contains(geometry);
@@ -54,43 +62,31 @@ public static class LambertTransformation
         return CoordinateSystem.Lambert08.Contains(geometry);
     }
 
-    public static string EnsureCoordinatesAreLambert72(string wkt)
+    public static T EnsureLambert72<T>(this T geometry)
+        where T : Geometry
     {
-        return EnsureCoordinatesAreInCoordinateSystem(wkt, geometry =>
+        return EnsureCoordinatesAreInCoordinateSystem(geometry, () =>
             geometry.IsInsideFlandersUsingLambert08()
-                ? geometry.TransformFromLambert08To72().AsText()
-                : wkt);
+                ? geometry.TransformFromLambert08To72()
+                : geometry.WithSrid(CoordinateSystem.Lambert72.GeometryFactory.SRID));
     }
-    public static string EnsureCoordinatesAreLambert08(string wkt)
+    public static T EnsureLambert08<T>(this T geometry)
+        where T : Geometry
     {
-        return EnsureCoordinatesAreInCoordinateSystem(wkt, geometry =>
+        return EnsureCoordinatesAreInCoordinateSystem(geometry, () =>
             geometry.IsInsideFlandersUsingLambert72()
-                ? geometry.TransformFromLambert72To08().AsText()
-                : wkt);
+                ? geometry.TransformFromLambert72To08()
+                : geometry.WithSrid(CoordinateSystem.Lambert08.GeometryFactory.SRID));
     }
-    private static string EnsureCoordinatesAreInCoordinateSystem(string wkt, Func<Geometry, string> transformValidGeometry)
+    private static T EnsureCoordinatesAreInCoordinateSystem<T>(T geometry, Func<T> transformValidGeometry)
+        where T : Geometry
     {
-        if (string.IsNullOrEmpty(wkt))
-        {
-            return wkt;
-        }
-
-        Geometry geometry;
-        try
-        {
-            geometry = WktReader.Read(wkt);
-        }
-        catch
-        {
-            return wkt;
-        }
-
         if (!geometry.IsValid || !SupportedGeometryTypes.Contains(geometry.OgcGeometryType))
         {
-            return wkt;
+            return geometry;
         }
 
-        return transformValidGeometry(geometry);
+        return transformValidGeometry();
     }
 
     private sealed class FlandersCoordinateSystem

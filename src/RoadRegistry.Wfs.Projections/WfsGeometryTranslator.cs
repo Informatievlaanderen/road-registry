@@ -32,7 +32,7 @@ public static class WfsGeometryTranslator
 
         return new LineString(
             new CoordinateArraySequence(toPoints.ToArray()),
-            WellKnownGeometryFactories.Default)
+            WellKnownGeometryFactories.Lambert72)
         {
             SRID = geometry.SpatialReferenceSystemIdentifier
         };

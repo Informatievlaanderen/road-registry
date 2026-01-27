@@ -50,7 +50,7 @@ public class TransactionZoneRecordProjectionTests
                 Contour = (Geometry)GeometryTranslator.Translate(requested.Contour)
             }));
 
-        var geometry = new WKTReader(WellKnownGeometryFactories.Default).Read("POLYGON((10 10, 10 5, 5 5, 5 10, 10 10))");
+        var geometry = new WKTReader(WellKnownGeometryFactories.Lambert72).Read("POLYGON((10 10, 10 5, 5 5, 5 10, 10 10))");
         geometry.SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
 
         expected.Add(new OverlappingTransactionZonesRecord
@@ -92,7 +92,7 @@ public class TransactionZoneRecordProjectionTests
                 Contour = (Geometry)GeometryTranslator.Translate(requested.Contour),
             }));
 
-        var geometry = new WKTReader(WellKnownGeometryFactories.Default).Read("POLYGON((10 10, 10 5, 5 5, 5 10, 10 10))");
+        var geometry = new WKTReader(WellKnownGeometryFactories.Lambert72).Read("POLYGON((10 10, 10 5, 5 5, 5 10, 10 10))");
         geometry.SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
 
         expected.Add(new OverlappingTransactionZonesRecord
