@@ -265,7 +265,8 @@ public class Startup
 
             .AddMartenRoad((options, sp) =>
             {
-                options.AddRoadNetworkChangesProjection(new ExtractsRoadNetworkChangesProjection(sp.GetRequiredService<ILoggerFactory>()));
+                options.AddRoadNetworkChangesProjection(new ExtractsRoadNetworkChangesProjection(sp.GetRequiredService<ILoggerFactory>()),
+                    batchSize: ExtractsRoadNetworkChangesProjection.BatchSize);
             })
 
             .AddSingleton(new IDbContextMigratorFactory[]

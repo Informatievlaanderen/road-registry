@@ -6,17 +6,24 @@ using Marten;
 using Marten.Events.Projections;
 using Microsoft.Extensions.Logging;
 
-public sealed record RoadNetworkChangesProjectionProgression(string Id, string ProjectionName, long LastSequenceId);
-
 public abstract class RoadNetworkChangesProjection : IProjection
 {
     private readonly IReadOnlyCollection<IRoadNetworkChangesProjection> _projections;
+    private readonly int _batchSize;
+    private readonly int _catchUpThreshold;
     private readonly ILogger _logger;
+    private readonly string _projectionName;
 
-    protected RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections, ILoggerFactory loggerFactory)
+    protected const int DefaultBatchSize = 5000;
+    protected const int DefaultCatchUpThreshold = DefaultBatchSize * 4;
+
+    protected RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections, ILoggerFactory loggerFactory, int batchSize = DefaultBatchSize, int catchUpThreshold = DefaultCatchUpThreshold)
     {
         _projections = projections;
+        _batchSize = batchSize;
+        _catchUpThreshold = catchUpThreshold;
         _logger = loggerFactory.CreateLogger(GetType());
+        _projectionName = GetType().Name;
     }
 
     public void Configure(StoreOptions options)
@@ -25,10 +32,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
             .DatabaseSchemaName(WellKnownSchemas.MartenEventStore)
             .DocumentAlias("roadnetworkchangesprojection_progression")
             .Identity(x => x.Id)
-            .Index(x => x.ProjectionName, i =>
-            {
-                i.Name = "ix_changesprojection_projectionname";
-            });
+            .Index(x => x.ProjectionName, i => { i.Name = "ix_changesprojection_projectionname"; });
 
         ConfigureSchema(options);
     }
@@ -41,29 +45,24 @@ public abstract class RoadNetworkChangesProjection : IProjection
     {
         try
         {
-            var projectionName = GetType().Name;
-            var correlationIds = events.Select(x => x.CorrelationId!).Distinct().ToList();
+            var batchCorrelationIds = events.Select(x => x.CorrelationId!).Distinct().ToList();
 
-            var processedCorrelationIds = await operations.Query<RoadNetworkChangesProjectionProgression>()
-                .Where(x => x.ProjectionName == projectionName && correlationIds.Contains(x.Id))
-                .Select(x => x.Id)
+            var processedProjectionProgressions = await operations.Query<RoadNetworkChangesProjectionProgression>()
+                .Where(x => x.ProjectionName == _projectionName && batchCorrelationIds.Contains(x.Id))
                 .ToListAsync(cancellation);
-            var unprocessedCorrelationIds = correlationIds.Except(processedCorrelationIds).ToList();
 
-            var eventsPerCorrelationId = operations.Events.QueryAllRawEvents()
-                .Where(x => unprocessedCorrelationIds.Contains(x.CorrelationId!)) //TODO-pr add index on correlationId
-                .ToList()
-                .GroupBy(x => x.CorrelationId!)
-                .ToList();
-
-            foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, i) => (CorrelationId: g.Key, Events: g.ToArray())))
+            var streamMaxSequence = await operations.GetHighWaterMark(cancellation);
+            var processOnlyCurrentBatch = (streamMaxSequence - events.Max(x => x.Sequence)) > _catchUpThreshold || events.Count < _batchSize;
+            if (processOnlyCurrentBatch)
             {
-                foreach (var projection in _projections)
-                {
-                    await projection.Project(operations, eventsGrouping.Events, cancellation).ConfigureAwait(false);
-                }
-
-                operations.Insert(new RoadNetworkChangesProjectionProgression(eventsGrouping.CorrelationId, projectionName, eventsGrouping.Events.Max(x => x.Sequence)));
+                await ProcessEvents(operations, events, processedProjectionProgressions, cancellation);
+            }
+            else
+            {
+                var queriedEvents = operations.Events.QueryAllRawEvents()
+                    .Where(x => batchCorrelationIds.Contains(x.CorrelationId!)) //TODO-pr add index on correlationId
+                    .ToList();
+                await ProcessEvents(operations, queriedEvents, processedProjectionProgressions, cancellation);
             }
         }
         catch (Exception ex)
@@ -72,4 +71,48 @@ public abstract class RoadNetworkChangesProjection : IProjection
             throw;
         }
     }
+
+    private async Task ProcessEvents(IDocumentOperations operations, IReadOnlyList<IEvent> events, IReadOnlyList<RoadNetworkChangesProjectionProgression> processedProjectionProgressions, CancellationToken cancellation)
+    {
+        var eventsPerCorrelationId = events
+            .GroupBy(x => x.CorrelationId!)
+            .ToList();
+
+        foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, i) => (CorrelationId: g.Key, Events: g.ToArray())))
+        {
+            var lastSequenceId = eventsGrouping.Events.Max(x => x.Sequence);
+            var projectionProgression = processedProjectionProgressions.SingleOrDefault(x => x.Id == eventsGrouping.CorrelationId);
+            if (projectionProgression is not null && projectionProgression.LastSequenceId >= lastSequenceId)
+            {
+                // already processed
+                continue;
+            }
+
+            foreach (var projection in _projections)
+            {
+                await projection.Project(operations, eventsGrouping.Events, cancellation).ConfigureAwait(false);
+            }
+
+            if (projectionProgression is null)
+            {
+                operations.Insert(new RoadNetworkChangesProjectionProgression
+                {
+                    Id = eventsGrouping.CorrelationId,
+                    ProjectionName = _projectionName,
+                    LastSequenceId = lastSequenceId
+                });
+            }
+            else
+            {
+                projectionProgression.LastSequenceId = lastSequenceId;
+            }
+        }
+    }
+}
+
+public sealed class RoadNetworkChangesProjectionProgression
+{
+    public required string Id { get; set; }
+    public required string ProjectionName { get; set; }
+    public required long LastSequenceId { get; set; }
 }

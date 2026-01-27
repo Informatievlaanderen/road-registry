@@ -5,7 +5,7 @@ using Marten;
 
 public static class RoadNetworkChangesProjectionExtensions
 {
-    public static StoreOptions AddRoadNetworkChangesProjection<T>(this StoreOptions options, T projection, int batchSize = 5000)
+    public static StoreOptions AddRoadNetworkChangesProjection<T>(this StoreOptions options, T projection, int batchSize)
         where T : RoadNetworkChangesProjection
     {
         projection.Configure(options);
