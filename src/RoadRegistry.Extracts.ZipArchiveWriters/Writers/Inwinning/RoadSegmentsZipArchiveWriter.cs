@@ -1,14 +1,14 @@
-namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers.DomainV2;
+namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers.Inwinning;
 
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Extensions;
-using Infrastructure.ShapeFile;
 using NetTopologySuite.Geometries;
-using Projections;
-using RoadSegment.ValueObjects;
-using Schemas.DomainV2.RoadSegments;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Infrastructure.ShapeFile;
+using RoadRegistry.Extracts.Projections;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
+using RoadRegistry.RoadSegment.ValueObjects;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter

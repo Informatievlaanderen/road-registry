@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.ExtractZipArchiveWriter.DomainV2
+﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.ExtractZipArchiveWriter.Inwinning
 {
     using System.IO.Compression;
     using System.Text;
@@ -8,13 +8,9 @@
     using Microsoft.IO;
     using Moq;
     using NetTopologySuite.Geometries;
-    using RoadRegistry.BackOffice.Abstractions;
-    using RoadRegistry.BackOffice.Extracts;
     using RoadRegistry.Extracts;
     using RoadRegistry.Extracts.ZipArchiveWriters;
-    using RoadRegistry.Extracts.ZipArchiveWriters.Writers;
-    using RoadRegistry.Extracts.ZipArchiveWriters.Writers.DomainV2;
-    using RoadRegistry.Infrastructure;
+    using RoadRegistry.Extracts.ZipArchiveWriters.Writers.Inwinning;
     using RoadRegistry.Tests.BackOffice;
     using RoadRegistry.Tests.BackOffice.Scenarios;
 
@@ -64,7 +60,7 @@
                     fixture.Create<ExtractDescription>(),
                     fixture.Create<IPolygonal>(),
                     isInformative: true,
-                    zipArchiveWriterVersion: WellKnownZipArchiveWriterVersions.DomainV2);
+                    zipArchiveWriterVersion: WellKnownZipArchiveWriterVersions.DomainV2_Inwinning);
             await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, new ZipArchiveWriteContext(), CancellationToken.None);
 
            var fileNames =  archive.Entries.Select(x => x.FullName).ToList();
@@ -136,7 +132,7 @@
                     fixture.Create<ExtractDescription>(),
                     fixture.Create<IPolygonal>(),
                     isInformative: false,
-                    zipArchiveWriterVersion: WellKnownZipArchiveWriterVersions.DomainV2);
+                    zipArchiveWriterVersion: WellKnownZipArchiveWriterVersions.DomainV2_Inwinning);
             await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, new ZipArchiveWriteContext(), CancellationToken.None);
 
            var fileNames =  archive.Entries.Select(x => x.FullName).ToList();

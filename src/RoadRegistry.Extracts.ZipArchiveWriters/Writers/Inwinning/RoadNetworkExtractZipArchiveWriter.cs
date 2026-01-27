@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers.DomainV2;
+namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers.Inwinning;
 
 using System.IO.Compression;
 using System.Text;
@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schemas.DomainV2.Lists;
-using RoadRegistry.Infrastructure;
 
 public class RoadNetworkExtractZipArchiveWriter : IZipArchiveWriter
 {

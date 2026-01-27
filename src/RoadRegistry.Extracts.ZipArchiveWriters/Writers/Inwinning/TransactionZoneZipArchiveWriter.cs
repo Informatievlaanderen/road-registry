@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers.DomainV2;
+namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers.Inwinning;
 
 using System.IO.Compression;
 using System.Text;
