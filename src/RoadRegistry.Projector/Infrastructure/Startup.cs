@@ -123,7 +123,6 @@ public class Startup
 
     private async Task StartMartenProjections(IServiceProvider sp)
     {
-        //TODO-pr TBD: hoe gaan we configureren welke agents we willen projecteren en welke niet?
         var store = sp.GetRequiredService<IDocumentStore>();
         var projectionDaemon = await store.BuildProjectionDaemonAsync();
         await projectionDaemon.StartAllAsync();
@@ -183,14 +182,14 @@ public class Startup
                                 health.AddNpgSql(
                                     connectionString.Value,
                                     name: $"npgsql-{connectionString.Key.ToLowerInvariant()}",
-                                    tags: new[] { DatabaseTag, "sql", "npgsql" });
+                                    tags: [DatabaseTag, "sql", "npgsql"]);
                             }
                             else
                             {
                                 health.AddSqlServer(
                                     connectionString.Value,
                                     name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
-                                    tags: new[] { DatabaseTag, "sql", "sqlserver" });
+                                    tags: [DatabaseTag, "sql", "sqlserver"]);
                             }
                         }
 

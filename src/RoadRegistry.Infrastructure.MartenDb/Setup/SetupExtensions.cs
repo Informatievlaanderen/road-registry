@@ -107,7 +107,7 @@ public static class SetupExtensions
 
     public static StoreOptions AddRoadNetworkTopologyProjection(this StoreOptions options)
     {
-        options.Projections.Add<RoadNetworkTopologyProjection>(ProjectionLifecycle.Inline);
+        options.Projections.Add<RoadNetworkTopologyProjection>(ProjectionLifecycle.Inline, opts => opts.BatchSize = 5000);
         return options;
     }
     public static StoreOptions AddRoadAggregatesSnapshots(this StoreOptions options)
