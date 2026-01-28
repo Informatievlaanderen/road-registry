@@ -1,3 +1,15 @@
+# [4.43.0](https://github.com/informatievlaanderen/road-registry/compare/v4.42.2...v4.43.0) (2026-01-28)
+
+
+### Bug Fixes
+
+* unit test stability ([d30f022](https://github.com/informatievlaanderen/road-registry/commit/d30f022b42d0192290e35db67c38791a05e28ef6))
+
+
+### Features
+
+* Inwinning extract pipeline, LB08 storage, and Marten projection improvements ([698bf80](https://github.com/informatievlaanderen/road-registry/commit/698bf8030056ed2d9fba31188a7a2b286faec262))
+
 ## [4.42.2](https://github.com/informatievlaanderen/road-registry/compare/v4.42.1...v4.42.2) (2026-01-23)
 
 
