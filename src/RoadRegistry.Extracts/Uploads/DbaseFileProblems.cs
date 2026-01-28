@@ -121,6 +121,19 @@ public static class DbaseFileProblems
             .WithParameter(new ProblemParameter("Actual", value.ToString()))
             .Build();
     }
+    public static FileError GradeSeparatedJunctionTypeV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Error(nameof(GradeSeparatedJunctionTypeMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    string.Join(",", GradeSeparatedJunctionTypeV2.ByIdentifier.Keys.Select(key => key.ToString()))
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .Build();
+    }
 
     public static FileError GradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegment(this IDbaseFileRecordProblemBuilder builder, RoadSegmentId roadSegmentId)
     {
@@ -577,6 +590,20 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError RoadSegmentAccessRestrictionV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    {
+        return builder
+            .Error(nameof(RoadSegmentAccessRestrictionMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    string.Join(",", RoadSegmentAccessRestrictionV2.ByIdentifier.Keys.Select(key => key.ToString()))
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+
     public static FileError RoadSegmentCategoryMismatch(this IDbaseFileRecordProblemBuilder builder, string actual)
     {
         return builder
@@ -585,6 +612,20 @@ public static class DbaseFileProblems
                 new ProblemParameter(
                     "ExpectedOneOf",
                     string.Join(",", RoadSegmentCategory.ByIdentifier.Keys.Select(key => key))
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual))
+            .Build();
+    }
+
+    public static FileError RoadSegmentCategoryV2Mismatch(this IDbaseFileRecordProblemBuilder builder, string actual)
+    {
+        return builder
+            .Error(nameof(RoadSegmentCategoryMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    string.Join(",", RoadSegmentCategoryV2.ByIdentifier.Keys.Select(key => key))
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual))
@@ -657,6 +698,21 @@ public static class DbaseFileProblems
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
             .Build();
     }
+    public static FileError RoadSegmentMorphologyV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual, bool outline = false)
+    {
+        return builder
+            .Error(nameof(RoadSegmentMorphologyMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    string.Join(",", outline
+                        ? RoadSegmentMorphologyV2.Edit.Editable.Select(status => status.Translation.Identifier.ToString())
+                        : RoadSegmentMorphologyV2.ByIdentifier.Keys.Select(key => key.ToString()))
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
 
     public static FileError RoadSegmentStatusMismatch(this IDbaseFileRecordProblemBuilder builder, int actual, bool outline = false)
     {
@@ -668,6 +724,22 @@ public static class DbaseFileProblems
                     string.Join(",", outline
                         ? RoadSegmentStatus.Edit.Editable.Select(status => status.Translation.Identifier.ToString())
                         : RoadSegmentStatus.ByIdentifier.Keys.Select(key => key.ToString()))
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+
+    public static FileError RoadSegmentStatusV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual, bool outline = false)
+    {
+        return builder
+            .Error(nameof(RoadSegmentStatusMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    string.Join(",", outline
+                        ? RoadSegmentStatusV2.Edit.Editable.Select(status => status.Translation.Identifier.ToString())
+                        : RoadSegmentStatusV2.ByIdentifier.Keys.Select(key => key.ToString()))
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
@@ -730,6 +802,19 @@ public static class DbaseFileProblems
                 new ProblemParameter(
                     "ExpectedOneOf",
                     string.Join(",", RoadSegmentSurfaceType.ByIdentifier.Keys.Select(key => key.ToString()))
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+    public static FileError SurfaceTypeV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    {
+        return builder
+            .Error(nameof(SurfaceTypeMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    string.Join(",", RoadSegmentSurfaceTypeV2.ByIdentifier.Keys.Select(key => key.ToString()))
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))

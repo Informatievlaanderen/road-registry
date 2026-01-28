@@ -82,6 +82,9 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             StreetNameId = @event.StreetNameId,
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
             SurfaceType = @event.SurfaceType,
+            CarAccess = @event.CarAccess,
+            BikeAccess = @event.BikeAccess,
+            PedestrianAccess = @event.PedestrianAccess,
             EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
         };
@@ -111,6 +114,9 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             StreetNameId = @event.StreetNameId,
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
             SurfaceType = @event.SurfaceType,
+            CarAccess = @event.CarAccess,
+            BikeAccess = @event.BikeAccess,
+            PedestrianAccess = @event.PedestrianAccess,
             EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
         };
@@ -140,6 +146,9 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             StreetNameId = @event.StreetNameId,
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
             SurfaceType = @event.SurfaceType,
+            CarAccess = @event.CarAccess,
+            BikeAccess = @event.BikeAccess,
+            PedestrianAccess = @event.PedestrianAccess,
             EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
         };
@@ -161,7 +170,10 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             Status = @event.Status ?? Attributes.Status,
             StreetNameId = @event.StreetNameId ?? Attributes.StreetNameId,
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId ?? Attributes.MaintenanceAuthorityId,
-            SurfaceType = @event.SurfaceType ?? Attributes.SurfaceType
+            SurfaceType = @event.SurfaceType ?? Attributes.SurfaceType,
+            CarAccess = @event.CarAccess ?? Attributes.CarAccess,
+            BikeAccess = @event.BikeAccess ?? Attributes.BikeAccess,
+            PedestrianAccess = @event.PedestrianAccess ?? Attributes.PedestrianAccess
         };
     }
 
@@ -184,7 +196,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         MergedRoadSegmentId = @event.MergedRoadSegmentId;
         Attributes = Attributes with
         {
-            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.Retired)
+            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(RoadSegmentStatusV2.Gehistoreerd, Geometry)
         };
     }
 
@@ -195,7 +207,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         MergedRoadSegmentId = @event.MergedRoadSegmentId;
         Attributes = Attributes with
         {
-            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.Retired)
+            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(RoadSegmentStatusV2.Gehistoreerd, Geometry)
         };
     }
 

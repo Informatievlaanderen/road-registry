@@ -9,11 +9,11 @@ using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.Extracts.FeatureCompare.V3;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
-using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
 
 public sealed class ExtractUploader
 {

@@ -9,5 +9,6 @@ public interface IZipArchiveWriter
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
         IZipArchiveDataProvider zipArchiveDataProvider,
+        ZipArchiveWriteContext context,
         CancellationToken cancellationToken);
 }

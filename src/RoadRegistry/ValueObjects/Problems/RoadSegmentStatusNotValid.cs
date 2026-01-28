@@ -9,4 +9,10 @@ public class RoadSegmentStatusNotValid : Error
         new ProblemParameter("Status", status))
     {
     }
+
+    public RoadSegmentStatusNotValid(RoadSegmentStatusV2 status)
+        : base(ProblemCode.RoadSegment.Status.NotValid,
+            new ProblemParameter("Status", status))
+    {
+    }
 }

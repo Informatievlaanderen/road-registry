@@ -14,7 +14,6 @@ using EventProcessors;
 using Extensions;
 using Extracts;
 using Hosts;
-using Infrastructure.MartenDb.Setup;
 using MartenMigration.Projections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

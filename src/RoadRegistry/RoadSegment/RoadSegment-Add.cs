@@ -21,13 +21,16 @@ public partial class RoadSegment
         var attributes = new RoadSegmentAttributes
         {
             GeometryDrawMethod = change.GeometryDrawMethod,
-            AccessRestriction = change.AccessRestriction.TryCleanEntireLengthCoverages(segmentLength),
-            Category = change.Category.TryCleanEntireLengthCoverages(segmentLength),
-            Morphology = change.Morphology.TryCleanEntireLengthCoverages(segmentLength),
-            Status = change.Status.TryCleanEntireLengthCoverages(segmentLength),
-            StreetNameId = change.StreetNameId.TryCleanEntireLengthCoverages(segmentLength),
-            MaintenanceAuthorityId = change.MaintenanceAuthorityId.TryCleanEntireLengthCoverages(segmentLength),
-            SurfaceType = change.SurfaceType.TryCleanEntireLengthCoverages(segmentLength),
+            AccessRestriction = change.AccessRestriction,
+            Category = change.Category,
+            Morphology = change.Morphology,
+            Status = change.Status,
+            StreetNameId = change.StreetNameId,
+            MaintenanceAuthorityId = change.MaintenanceAuthorityId,
+            SurfaceType = change.SurfaceType,
+            CarAccess = change.CarAccess,
+            BikeAccess = change.BikeAccess,
+            PedestrianAccess = change.PedestrianAccess,
             EuropeanRoadNumbers = change.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = change.NationalRoadNumbers.ToImmutableList()
         };
@@ -53,6 +56,9 @@ public partial class RoadSegment
             StreetNameId = attributes.StreetNameId,
             MaintenanceAuthorityId = attributes.MaintenanceAuthorityId,
             SurfaceType = attributes.SurfaceType,
+            CarAccess = attributes.CarAccess,
+            BikeAccess = attributes.BikeAccess,
+            PedestrianAccess = attributes.PedestrianAccess,
             EuropeanRoadNumbers = attributes.EuropeanRoadNumbers,
             NationalRoadNumbers = attributes.NationalRoadNumbers,
             Provenance = new ProvenanceData(provenance)

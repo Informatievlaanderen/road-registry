@@ -129,12 +129,12 @@ public static class GeometryTranslator
             toLineStrings.Add(
                 new LineString(
                         new CoordinateArraySequence(toPoints.ToArray()),
-                        WellKnownGeometryFactories.Default)
+                        WellKnownGeometryFactories.Lambert72)
                     .WithSrid(geometry.SpatialReferenceSystemIdentifier)
             );
         }
 
-        return new MultiLineString(toLineStrings.ToArray(), WellKnownGeometryFactories.Default)
+        return new MultiLineString(toLineStrings.ToArray(), WellKnownGeometryFactories.Lambert72)
             .WithSrid(geometry.SpatialReferenceSystemIdentifier)
             .WithMeasureOrdinates();
     }
@@ -179,7 +179,7 @@ public static class GeometryTranslator
     {
         ArgumentNullException.ThrowIfNull(geometry);
 
-        var geometryFactory = WellKnownGeometryFactories.WithoutMAndZ;
+        var geometryFactory = WellKnownGeometryFactories.Lambert72WithoutMAndZ;
 
         if (geometry.WKT != null)
         {

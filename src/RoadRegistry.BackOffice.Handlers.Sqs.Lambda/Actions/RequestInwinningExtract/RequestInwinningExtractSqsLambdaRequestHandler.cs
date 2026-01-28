@@ -44,7 +44,6 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
         var niscode = request.Request.NisCode;
         var geometry = request.Request.Contour.Value;
 
-        //TODO-pr add test with informative=true
         if (!request.Request.IsInformative)
         {
             var inwinningsZone = await _extractsDbContext.Inwinningszones.FindAsync([niscode], cancellationToken);
@@ -89,7 +88,7 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
                 request.Request.IsInformative ? null : BuildExternalRequestId(niscode)
             ),
             new TicketId(request.TicketId),
-            WellKnownZipArchiveWriterVersions.DomainV2,
+            WellKnownZipArchiveWriterVersions.DomainV2_Inwinning,
             request.Provenance, cancellationToken);
 
         var downloadId = new DownloadId(request.Request.DownloadId);

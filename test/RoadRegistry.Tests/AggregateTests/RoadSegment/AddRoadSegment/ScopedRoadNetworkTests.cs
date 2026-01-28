@@ -35,9 +35,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(TestData.AddSegment1 with
                 {
-                    Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>()
-                        .Add(Fixture.Create<RoadSegmentCategory>())
-                        .Add(Fixture.Create<RoadSegmentCategory>())
+                    Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>()
+                        .Add(Fixture.Create<RoadSegmentCategoryV2>(), TestData.AddSegment1.Geometry)
+                        .Add(Fixture.Create<RoadSegmentCategoryV2>(), TestData.AddSegment1.Geometry)
                 })
             )
             .Then((result, events) => { result.Problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryValueNotUniqueWithinSegment"); })

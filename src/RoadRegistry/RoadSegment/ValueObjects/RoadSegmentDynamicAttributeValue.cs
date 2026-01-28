@@ -10,8 +10,7 @@ public sealed class RoadSegmentDynamicAttributeValue<T> : IEquatable<RoadSegment
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public RoadSegmentAttributeSide Side { get; init; }
 
-    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-    public RoadSegmentPositionCoverage? Coverage { get; init; }
+    public required RoadSegmentPositionCoverage Coverage { get; init; }
 
     public required T Value { get; init; }
 

@@ -1,22 +1,21 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Extracts.WhenRequestExtract;
 
+using Abstractions.Extracts.V2;
 using Actions.RequestExtract;
 using AutoFixture;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using FeatureToggles;
+using Framework;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
-using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
+using Sqs.Extracts;
 using Xunit.Abstractions;
 
 public abstract class WhenRequestExtractTestBase : BackOfficeLambdaTest
@@ -49,7 +48,7 @@ public abstract class WhenRequestExtractTestBase : BackOfficeLambdaTest
             ProvenanceData = ObjectProvider.Create<ProvenanceData>(),
         };
 
-        var sqsLambdaRequest = new RequestExtractSqsLambdaRequest(sqsRequest.DownloadId, sqsRequest);
+        var sqsLambdaRequest = new RequestExtractSqsLambdaRequest(sqsRequest.DownloadId.ToString(), sqsRequest);
 
         var archiveAssemblerMock = new Mock<IRoadNetworkExtractArchiveAssembler>();
         archiveAssemblerMock

@@ -15,4 +15,8 @@ internal static class DbaseRecordExtensions
             record.Read(reader);
         }
     }
+    public static short ToDbaseShortValue(this bool value)
+    {
+        return value ? (short)1 : (short)0;
+    }
 }

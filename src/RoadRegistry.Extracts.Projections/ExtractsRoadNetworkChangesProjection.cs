@@ -1,12 +1,17 @@
 ﻿namespace RoadRegistry.Extracts.Projections;
 
 using Marten;
+using Microsoft.Extensions.Logging;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 
 public class ExtractsRoadNetworkChangesProjection : RoadNetworkChangesProjection
 {
-    public ExtractsRoadNetworkChangesProjection()
-        : base([new RoadNodeProjection(), new RoadSegmentProjection(), new GradeSeparatedJunctionProjection()])
+    public const int BatchSize = DefaultBatchSize;
+
+    public ExtractsRoadNetworkChangesProjection(ILoggerFactory loggerFactory)
+        : base([new RoadNodeProjection(), new RoadSegmentProjection(), new GradeSeparatedJunctionProjection()], loggerFactory,
+            batchSize: BatchSize,
+            catchUpThreshold: BatchSize * 4)
     {
     }
 

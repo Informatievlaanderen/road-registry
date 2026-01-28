@@ -251,7 +251,7 @@ export const PublicApi = {
         const path = `${apiEndpoint}/v2/wegen/extracten/${downloadId}/upload`;
         const response = await apiClient.get<RoadRegistry.DownloadUploadResponse>(path);
 
-        downloadFile(response.data.downloadUrl, response.data.fileName);
+        downloadFile(response.data.downloadUrl, response.data.fileName || `${downloadId}_upload.zip`);
       },
       upload: async (
         downloadId: string,

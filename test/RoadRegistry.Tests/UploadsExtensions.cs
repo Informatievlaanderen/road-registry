@@ -24,7 +24,7 @@ public static class UploadsExtensions
         return JsonConvert.SerializeObject(requestedChanges, Formatting.Indented, EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
     }
 
-    public static string Describe(this Extracts.FeatureCompare.V3.TranslatedChanges changes, Func<IRoadNetworkChange, IRoadNetworkChange> modifyChange = null)
+    public static string Describe(this Extracts.FeatureCompare.DomainV2.TranslatedChanges changes, Func<IRoadNetworkChange, IRoadNetworkChange> modifyChange = null)
     {
         var requestedChanges = changes
             .Select(change => modifyChange?.Invoke(change) ?? change)

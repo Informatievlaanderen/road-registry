@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork;
 
+using System.Reflection;
 using Actions.ChangeRoadNetwork;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
@@ -12,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.FeatureCompare.V3;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using ScopedRoadNetwork;
 using Sqs.RoadNetwork;
@@ -26,8 +27,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
 {
     protected readonly ITestOutputHelper TestOutputHelper;
     protected readonly Mock<ITicketing> TicketingMock = new();
-    protected readonly RoadNetworkTestData TestData;
-
+    protected readonly RoadNetworkTestDataV2 TestData;
     private readonly DatabaseFixture _databaseFixture;
 
     protected RoadNetworkIntegrationTest(DatabaseFixture databaseFixture, ITestOutputHelper testOutputHelper)
@@ -130,6 +130,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
     {
         return BuildRoadSegmentGeometry(new Point(x1, y1), new Point(x2, y2));
     }
+
     protected static RoadSegmentGeometry BuildRoadSegmentGeometry(Point start, Point end)
     {
         return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])

@@ -26,7 +26,7 @@ public class ZipArchiveShapeFileReader
         var streamProviderRegistry = new ShapefileStreamProviderRegistry(streamProvider, null);
         var shpReader = new ShapeReader(streamProviderRegistry);
 
-        foreach (var geometry in shpReader.ReadAllShapes(WellKnownGeometryFactories.Default))
+        foreach (var geometry in shpReader.ReadAllShapes(WellKnownGeometryFactories.Lambert72))
         {
             yield return (geometry, recordNumber);
             recordNumber = recordNumber.Next();

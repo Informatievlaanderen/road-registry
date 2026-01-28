@@ -15,7 +15,7 @@ public class ExtractGeometryShapeFileReaderV2
 
         var shp = Shp.OpenRead(stream, new ShapefileReaderOptions
         {
-            Factory = WellKnownGeometryFactories.WithoutMAndZ
+            Factory = WellKnownGeometryFactories.Lambert72WithoutMAndZ
         });
 
         var geometry = shp.FirstOrDefault();

@@ -6,7 +6,7 @@ using NetTopologySuite.Geometries;
 
 public abstract class AggregateTestBase
 {
-    protected RoadNetworkTestData TestData { get; }
+    protected RoadNetworkTestDataV2 TestData { get; }
     protected IFixture Fixture { get; }
 
     protected AggregateTestBase()

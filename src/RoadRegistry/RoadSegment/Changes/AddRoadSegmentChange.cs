@@ -13,14 +13,17 @@ public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRo
     public required RoadNodeId StartNodeId { get; init; }
     public required RoadNodeId EndNodeId { get; init; }
     public required RoadSegmentGeometry Geometry { get; init; }
-    public required RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; init; }
-    public required RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction> AccessRestriction { get; init; }
-    public required RoadSegmentDynamicAttributeValues<RoadSegmentCategory> Category { get; init; }
-    public required RoadSegmentDynamicAttributeValues<RoadSegmentMorphology> Morphology { get; init; }
-    public required RoadSegmentDynamicAttributeValues<RoadSegmentStatus> Status { get; init; }
+    public required RoadSegmentGeometryDrawMethodV2 GeometryDrawMethod { get; init; }
+    public required RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> AccessRestriction { get; init; }
+    public required RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2> Category { get; init; }
+    public required RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> Morphology { get; init; }
+    public required RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2> Status { get; init; }
     public required RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNameId { get; init; }
     public required RoadSegmentDynamicAttributeValues<OrganizationId> MaintenanceAuthorityId { get; init; }
-    public required RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> SurfaceType { get; init; }
+    public required RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> SurfaceType { get; init; }
+    public required RoadSegmentDynamicAttributeValues<VehicleAccess> CarAccess { get; init; }
+    public required RoadSegmentDynamicAttributeValues<VehicleAccess> BikeAccess { get; init; }
+    public required RoadSegmentDynamicAttributeValues<bool> PedestrianAccess { get; init; }
     public IReadOnlyCollection<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; } = [];
     public IReadOnlyCollection<NationalRoadNumber> NationalRoadNumbers { get; init; } = [];
 
@@ -49,6 +52,9 @@ public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRo
                && StreetNameId.Equals(other.StreetNameId)
                && MaintenanceAuthorityId.Equals(other.MaintenanceAuthorityId)
                && SurfaceType.Equals(other.SurfaceType)
+               && CarAccess.Equals(other.CarAccess)
+               && BikeAccess.Equals(other.BikeAccess)
+               && PedestrianAccess.Equals(other.PedestrianAccess)
                && EuropeanRoadNumbers.SequenceEqual(other.EuropeanRoadNumbers)
                && NationalRoadNumbers.SequenceEqual(other.NationalRoadNumbers);
     }

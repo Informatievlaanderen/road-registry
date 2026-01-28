@@ -10,12 +10,15 @@ public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
     public RoadSegmentGeometry? Geometry { get; init; }
     public RoadNodeId? StartNodeId { get; init; }
     public RoadNodeId? EndNodeId { get; init; }
-    public RoadSegmentGeometryDrawMethod? GeometryDrawMethod { get; init; }
-    public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>? AccessRestriction { get; init; }
-    public RoadSegmentDynamicAttributeValues<RoadSegmentCategory>? Category { get; init; }
-    public RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>? Morphology { get; init; }
-    public RoadSegmentDynamicAttributeValues<RoadSegmentStatus>? Status { get; init; }
+    public RoadSegmentGeometryDrawMethodV2? GeometryDrawMethod { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>? AccessRestriction { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>? Category { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>? Morphology { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>? Status { get; init; }
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId>? StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId>? MaintenanceAuthorityId { get; init; }
-    public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>? SurfaceType { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>? SurfaceType { get; init; }
+    public RoadSegmentDynamicAttributeValues<VehicleAccess>? CarAccess { get; init; }
+    public RoadSegmentDynamicAttributeValues<VehicleAccess>? BikeAccess { get; init; }
+    public RoadSegmentDynamicAttributeValues<bool>? PedestrianAccess { get; init; }
 }

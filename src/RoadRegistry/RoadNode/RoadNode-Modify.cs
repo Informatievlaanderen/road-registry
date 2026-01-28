@@ -16,6 +16,7 @@ public partial class RoadNode
             RoadNodeId = RoadNodeId,
             Geometry = change.Geometry,
             Type = change.Type,
+            Grensknoop = change.Grensknoop,
             Provenance = new ProvenanceData(provenance)
         });
 

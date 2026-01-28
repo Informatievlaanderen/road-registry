@@ -11,6 +11,7 @@ using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
+using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using ValueObjects;
 
@@ -24,7 +25,7 @@ public partial class ScopedRoadNetwork
 
         if (!changes.Any())
         {
-            //TODO-pr add problem if no changes are found
+            problems += Problems.Single(new Error(ProblemCode.RoadNetwork.NoChanges.ToString()));
         }
 
         var roadSegmentRoadNumberChanges = GetRoadSegmentRoadNumberChanges(changes);
@@ -138,7 +139,8 @@ public partial class ScopedRoadNetwork
         {
             RoadNodeId = change.RoadNodeId,
             Geometry = change.Geometry!,
-            Type = change.Type!
+            Type = change.Type!,
+            Grensknoop = change.Grensknoop!.Value,
         };
 
         var (roadNode, problems) = RoadNode.Migrate(migrateChange, changes.Provenance);
@@ -181,6 +183,9 @@ public partial class ScopedRoadNetwork
             StreetNameId = change.StreetNameId!,
             MaintenanceAuthorityId = change.MaintenanceAuthorityId!,
             SurfaceType = change.SurfaceType!,
+            CarAccess = change.CarAccess!,
+            BikeAccess = change.BikeAccess!,
+            PedestrianAccess = change.PedestrianAccess!,
             EuropeanRoadNumbers = europeanRoadNumbers,
             NationalRoadNumbers = nationalRoadNumbers
         };

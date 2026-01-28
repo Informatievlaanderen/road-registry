@@ -9,19 +9,19 @@ public interface IZipArchiveWriterFactoryForDomainV2
 
 public class ZipArchiveWriterFactoryForDomainV2 : IZipArchiveWriterFactoryForDomainV2
 {
-    private readonly IZipArchiveWriter _domainV2;
+    private readonly IZipArchiveWriter _inwinning;
 
     public ZipArchiveWriterFactoryForDomainV2(
-        IZipArchiveWriter domainV2)
+        IZipArchiveWriter inwinning)
     {
-        _domainV2 = domainV2;
+        _inwinning = inwinning;
     }
 
     public IZipArchiveWriter Create(string zipArchiveWriterVersion)
     {
-        if (zipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2)
+        if (zipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2_Inwinning)
         {
-            return _domainV2 ?? throw new NotSupportedException();
+            return _inwinning ?? throw new NotSupportedException();
         }
 
         throw new NotSupportedException();

@@ -1,9 +1,9 @@
 ﻿namespace RoadRegistry.Projections.IntegrationTests.Projections.RoadNetworkChangesConnectedProjection;
 
 using AutoFixture;
-using RoadRegistry.Projections.IntegrationTests.Infrastructure;
-using RoadRegistry.Tests.BackOffice.Scenarios;
+using Infrastructure;
 using RoadSegment.Events.V2;
+using Tests.AggregateTests;
 using Xunit.Abstractions;
 
 [Collection(nameof(DockerFixtureCollection))]
@@ -21,7 +21,7 @@ public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
     [Fact]
     public async Task WhenRoadSegmentAdded_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().ObjectProvider;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
 
         var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>()
             with
@@ -54,7 +54,7 @@ public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
     [Fact]
     public async Task WhenRoadSegmentRemoved_ThenNone()
     {
-        var fixture = new RoadNetworkTestData().ObjectProvider;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         var id = new RoadSegmentId(3);
 
         var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>()

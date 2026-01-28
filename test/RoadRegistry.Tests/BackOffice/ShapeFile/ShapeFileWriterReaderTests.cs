@@ -50,7 +50,7 @@ public class ShapeFileWriterReaderTests
             CancellationToken.None);
 
         var reader = new ShapeFileRecordReader(encoding);
-        var dbase = reader.ReadFromArchive<TransactionZoneDbaseRecord>(archive, extractFileName, featureType, dbaseSchema, WellKnownGeometryFactories.Default);
+        var dbase = reader.ReadFromArchive<TransactionZoneDbaseRecord>(archive, extractFileName, featureType, dbaseSchema, WellKnownGeometryFactories.Lambert72);
 
         var readDbaseRecords = new List<(TransactionZoneDbaseRecord, Geometry)>();
         while (dbase.RecordEnumerator!.MoveNext())

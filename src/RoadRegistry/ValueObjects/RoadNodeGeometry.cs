@@ -28,7 +28,7 @@ public record RoadNodeGeometry : GeometryObject
     {
     }
 
-    public static RoadNodeGeometry Create(Geometry geometry)
+    public static RoadNodeGeometry Create(Point geometry)
     {
         return new RoadNodeGeometry(geometry);
     }

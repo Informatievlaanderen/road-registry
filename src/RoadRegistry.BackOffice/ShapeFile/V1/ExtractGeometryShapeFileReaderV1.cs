@@ -16,7 +16,7 @@ public class ExtractGeometryShapeFileReaderV1
         var streamProviderRegistry = new ShapefileStreamProviderRegistry(streamProvider, null);
 
         var shpReader = new NetTopologySuite.IO.ShapeFile.Extended.ShapeReader(streamProviderRegistry);
-        var geometry = shpReader.ReadAllShapes(geometryFactory ?? WellKnownGeometryFactories.WithoutMAndZ).FirstOrDefault();
+        var geometry = shpReader.ReadAllShapes(geometryFactory ?? WellKnownGeometryFactories.Lambert72WithoutMAndZ).FirstOrDefault();
 
         return (shpReader.ShapefileHeader, geometry);
     }

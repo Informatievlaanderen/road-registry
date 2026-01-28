@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
     using System.Text;
     using Abstractions;
     using AutoFixture;
+    using DomainV2;
     using Editor.Schema;
     using Exceptions;
     using ExtractHost.V1;
@@ -27,7 +28,6 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
     using RoadRegistry.Extracts.ZipArchiveWriters;
     using RoadRegistry.Tests.BackOffice.Scenarios;
     using Uploads;
-    using V3;
     using Xunit.Abstractions;
     using IZipArchiveWriter = ExtractHost.IZipArchiveWriter;
     using ZipArchiveDataProvider = ExtractHost.ZipArchiveDataProvider;

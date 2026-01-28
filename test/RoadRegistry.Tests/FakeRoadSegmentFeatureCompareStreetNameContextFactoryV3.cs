@@ -1,7 +1,7 @@
 ﻿namespace RoadRegistry.Tests;
 
-using Extracts.FeatureCompare.V3;
-using Extracts.FeatureCompare.V3.RoadSegment;
+using Extracts.FeatureCompare.DomainV2;
+using Extracts.FeatureCompare.DomainV2.RoadSegment;
 
 public class FakeRoadSegmentFeatureCompareStreetNameContextFactoryV3: IRoadSegmentFeatureCompareStreetNameContextFactory
 {

@@ -21,13 +21,16 @@ public partial class RoadSegment
         problems += new RoadSegmentGeometryValidator().Validate(originalId, geometryDrawMethod, geometry);
 
         var segmentLength = geometry.Length;
-        var accessRestriction = change.AccessRestriction.TryCleanEntireLengthCoverages(segmentLength);
-        var category = change.Category.TryCleanEntireLengthCoverages(segmentLength);
-        var morphology = change.Morphology.TryCleanEntireLengthCoverages(segmentLength);
-        var status = change.Status.TryCleanEntireLengthCoverages(segmentLength);
-        var streetNameId = change.StreetNameId.TryCleanEntireLengthCoverages(segmentLength);
-        var maintenanceAuthorityId = change.MaintenanceAuthorityId.TryCleanEntireLengthCoverages(segmentLength);
-        var surfaceType = change.SurfaceType.TryCleanEntireLengthCoverages(segmentLength);
+        var accessRestriction = change.AccessRestriction;
+        var category = change.Category;
+        var morphology = change.Morphology;
+        var status = change.Status;
+        var streetNameId = change.StreetNameId;
+        var maintenanceAuthorityId = change.MaintenanceAuthorityId;
+        var surfaceType = change.SurfaceType;
+        var carAccess = change.CarAccess;
+        var bikeAccess = change.BikeAccess;
+        var pedestrianAccess = change.PedestrianAccess;
         var europeanRoadNumbers = change.EuropeanRoadNumbers.ToImmutableList();
         var nationalRoadNumbers = change.NationalRoadNumbers.ToImmutableList();
         var attributes = new RoadSegmentAttributes
@@ -40,6 +43,9 @@ public partial class RoadSegment
             StreetNameId = streetNameId,
             MaintenanceAuthorityId = maintenanceAuthorityId,
             SurfaceType = surfaceType,
+            CarAccess = carAccess,
+            BikeAccess = bikeAccess,
+            PedestrianAccess = pedestrianAccess,
             EuropeanRoadNumbers = europeanRoadNumbers,
             NationalRoadNumbers = nationalRoadNumbers
         };
@@ -65,6 +71,9 @@ public partial class RoadSegment
             StreetNameId = streetNameId,
             MaintenanceAuthorityId = maintenanceAuthorityId,
             SurfaceType = surfaceType,
+            CarAccess = carAccess,
+            BikeAccess = bikeAccess,
+            PedestrianAccess = pedestrianAccess,
             EuropeanRoadNumbers = europeanRoadNumbers,
             NationalRoadNumbers = nationalRoadNumbers,
             Provenance = new ProvenanceData(provenance)
