@@ -6,16 +6,6 @@ using System.Linq;
 
 public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJunctionType>, IDutchToString
 {
-    public static readonly GradeSeparatedJunctionType Bridge =
-        new(
-            nameof(Bridge),
-            new DutchTranslation(
-                2,
-                "brug",
-                "Een brug is een doorgang voor een weg, spoorweg, aardeweg of pad die boven de grond of boven water gelegen is. Een brug kan vast of beweegbaar zijn."
-            )
-        );
-
     public static readonly GradeSeparatedJunctionType Tunnel =
         new(
             nameof(Tunnel),
@@ -23,6 +13,16 @@ public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJuncti
                 1,
                 "tunnel",
                 "Een tunnel is een doorgang voor een weg, spoorweg, aardeweg of pad die onder de grond, onder water of in een langwerpige, overdekte uitgraving is gelegen."
+            )
+        );
+
+    public static readonly GradeSeparatedJunctionType Bridge =
+        new(
+            nameof(Bridge),
+            new DutchTranslation(
+                2,
+                "brug",
+                "Een brug is een doorgang voor een weg, spoorweg, aardeweg of pad die boven de grond of boven water gelegen is. Een brug kan vast of beweegbaar zijn."
             )
         );
 

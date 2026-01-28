@@ -21,7 +21,7 @@ public class AggregateTests : AggregateTestBase
 
         var change = Fixture.Create<MigrateRoadSegmentChange>() with
         {
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
+            GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
             Geometry = Fixture.Create<RoadSegmentGeometry>(),
             EuropeanRoadNumbers = Fixture.CreateMany<EuropeanRoadNumber>(3).Distinct().ToList(),
             NationalRoadNumbers = Fixture.CreateMany<NationalRoadNumber>(3).Distinct().ToList()
@@ -60,7 +60,7 @@ public class AggregateTests : AggregateTestBase
 
         var change = Fixture.Create<MigrateRoadSegmentChange>() with
         {
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
+            GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst,
             Geometry = Fixture.Create<RoadSegmentGeometry>(),
             EuropeanRoadNumbers = Fixture.CreateMany<EuropeanRoadNumber>(3).Distinct().ToList(),
             NationalRoadNumbers = Fixture.CreateMany<NationalRoadNumber>(3).Distinct().ToList()
@@ -118,9 +118,9 @@ public class AggregateTests : AggregateTestBase
         var change = Fixture.Create<MigrateRoadSegmentChange>() with
         {
             Geometry = new LineString([new Coordinate(0, 0), new Coordinate(1, 0)]).ToMultiLineString().ToRoadSegmentGeometry(),
-            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>()
-                .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategory>())
-                .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategory>())
+            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>()
+                .Add(new RoadSegmentPositionCoverage(RoadSegmentPosition.Zero, RoadSegmentPosition.Zero), RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategoryV2>())
+                .Add(new RoadSegmentPositionCoverage(RoadSegmentPosition.Zero, RoadSegmentPosition.Zero), RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategoryV2>())
         };
 
         // Act

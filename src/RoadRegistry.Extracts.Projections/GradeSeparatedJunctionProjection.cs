@@ -29,9 +29,10 @@ public class GradeSeparatedJunctionProjection : RoadNetworkChangesConnectedProje
                 GradeSeparatedJunctionId = new GradeSeparatedJunctionId(e.Data.Id),
                 LowerRoadSegmentId = new RoadSegmentId(e.Data.LowerRoadSegmentId),
                 UpperRoadSegmentId = new RoadSegmentId(e.Data.UpperRoadSegmentId),
-                Type = GradeSeparatedJunctionType.Parse(e.Data.Type),
+                Type = e.Data.Type,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp()
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = false
             });
             return Task.CompletedTask;
         });
@@ -42,9 +43,10 @@ public class GradeSeparatedJunctionProjection : RoadNetworkChangesConnectedProje
                 GradeSeparatedJunctionId = new GradeSeparatedJunctionId(e.Data.Id),
                 LowerRoadSegmentId = new RoadSegmentId(e.Data.LowerRoadSegmentId),
                 UpperRoadSegmentId = new RoadSegmentId(e.Data.UpperRoadSegmentId),
-                Type = GradeSeparatedJunctionType.Parse(e.Data.Type),
+                Type = e.Data.Type,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp()
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = false
             });
             return Task.CompletedTask;
         });
@@ -57,7 +59,7 @@ public class GradeSeparatedJunctionProjection : RoadNetworkChangesConnectedProje
             }
 
             junction.LastModified = e.Data.Provenance.ToEventTimestamp();
-            junction.Type = GradeSeparatedJunctionType.Parse(e.Data.Type);
+            junction.Type = e.Data.Type;
             junction.LowerRoadSegmentId = new RoadSegmentId(e.Data.LowerRoadSegmentId);
             junction.UpperRoadSegmentId = new RoadSegmentId(e.Data.UpperRoadSegmentId);
 
@@ -82,9 +84,10 @@ public class GradeSeparatedJunctionProjection : RoadNetworkChangesConnectedProje
                 GradeSeparatedJunctionId = e.Data.GradeSeparatedJunctionId,
                 LowerRoadSegmentId = new RoadSegmentId(e.Data.LowerRoadSegmentId),
                 UpperRoadSegmentId = new RoadSegmentId(e.Data.UpperRoadSegmentId),
-                Type = GradeSeparatedJunctionType.Parse(e.Data.Type),
+                Type = e.Data.Type,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp()
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = true
             });
             return Task.CompletedTask;
         });
@@ -126,11 +129,13 @@ public sealed class GradeSeparatedJunctionExtractItem
         get => new(Id);
         set => Id = value;
     }
-    public required EventTimestamp Origin { get; init; }
 
     public required RoadSegmentId LowerRoadSegmentId { get; set; }
     public required RoadSegmentId UpperRoadSegmentId { get; set; }
-    public required GradeSeparatedJunctionType Type { get; set; }
+    public required string Type { get; set; }
+
+    public required EventTimestamp Origin { get; init; }
     public required EventTimestamp LastModified { get; set; }
 
+    public required bool IsV2 { get; set; }
 }

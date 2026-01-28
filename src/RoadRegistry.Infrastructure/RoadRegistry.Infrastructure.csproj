@@ -12,5 +12,13 @@
   <ItemGroup>
     <Using Include="RoadRegistry.ValueObjects"/>
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Gisvl.Gecko.CrsTransformer.Core">
+      <HintPath>..\..\assets\Gisvl.Gecko.CrsTransformer.0.0.4\Gisvl.Gecko.CrsTransformer.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Gisvl.Gecko.CrsTransformer.NTS">
+      <HintPath>..\..\assets\Gisvl.Gecko.CrsTransformer.0.0.4\Gisvl.Gecko.CrsTransformer.NTS.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
 </Project>

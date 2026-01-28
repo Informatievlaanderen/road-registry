@@ -1,0 +1,26 @@
+namespace RoadRegistry.Extracts.Schemas.Inwinning.RoadNodes;
+
+using Be.Vlaanderen.Basisregisters.Shaperon;
+
+public class RoadNodeDbaseRecord : DbaseRecord
+{
+    public static readonly RoadNodeDbaseSchema Schema = new();
+
+    public RoadNodeDbaseRecord()
+    {
+        WK_OIDN = new DbaseInt32(Schema.WK_OIDN);
+        TYPE = new DbaseInt32(Schema.TYPE);
+        GRENSKNOOP = new DbaseInt16(Schema.GRENSKNOOP);
+        CREATIE = new DbaseDateTime(Schema.CREATIE);
+
+        Values =
+        [
+            WK_OIDN, TYPE, GRENSKNOOP, CREATIE
+        ];
+    }
+
+    public DbaseInt32 WK_OIDN { get; }
+    public DbaseInt32 TYPE { get; }
+    public DbaseInt16 GRENSKNOOP { get; }
+    public DbaseDateTime CREATIE { get; }
+}

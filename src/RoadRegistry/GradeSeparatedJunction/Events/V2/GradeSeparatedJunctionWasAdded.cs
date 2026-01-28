@@ -8,7 +8,7 @@ public record GradeSeparatedJunctionWasAdded : IMartenEvent, ICreatedEvent
     public GradeSeparatedJunctionId? OriginalId { get; init; }
     public required RoadSegmentId LowerRoadSegmentId { get; init; }
     public required RoadSegmentId UpperRoadSegmentId { get; init; }
-    public required GradeSeparatedJunctionType Type { get; init; }
+    public required GradeSeparatedJunctionTypeV2 Type { get; init; }
 
     public required ProvenanceData Provenance { get; init; }
 }

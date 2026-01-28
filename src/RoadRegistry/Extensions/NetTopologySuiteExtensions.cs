@@ -330,7 +330,7 @@ public static class NetTopologySuiteExtensions
                             new Coordinate(Math.Round(fromPoint.X, Precisions.GeometryPrecision), Math.Round(fromPoint.Y, Precisions.GeometryPrecision)),
                             new Coordinate(Math.Round(toPoint.X, Precisions.GeometryPrecision), Math.Round(toPoint.Y, Precisions.GeometryPrecision))
                         })
-                    , WellKnownGeometryFactories.Default);
+                    , WellKnownGeometryFactories.Lambert72);
             fromPoint = toPoint;
         }
 

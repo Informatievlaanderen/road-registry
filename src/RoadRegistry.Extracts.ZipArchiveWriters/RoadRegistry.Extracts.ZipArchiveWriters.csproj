@@ -16,5 +16,8 @@
   <ItemGroup>
     <Using Include="RoadRegistry.ValueObjects"/>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\**\*" />
+  </ItemGroup>
 
 </Project>

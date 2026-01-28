@@ -76,7 +76,7 @@ public partial class InwinningController
         {
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(body.NisCode));
             var downloadId = new DownloadId(Guid.NewGuid());
-            var contour = municipality.Geometry.ToMultiPolygon();
+            var contour = municipality.Geometry.ToMultiPolygon().EnsureLambert08();
 
             var result = await _mediator.Send(new RequestInwinningExtractSqsRequest
             {

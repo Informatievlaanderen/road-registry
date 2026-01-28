@@ -1,11 +1,15 @@
 ﻿namespace RoadRegistry.Projections.Tests.Projections.ExtractGradeSeparatedJunction;
 
 using AutoFixture;
+using Extracts.Projections;
 using FluentAssertions;
 using GradeSeparatedJunction.Events.V2;
 using JasperFx.Events;
-using RoadRegistry.Extracts.Projections;
+using RoadNode.Events.V1;
+using RoadNode.Events.V2;
 using RoadRegistry.Tests.AggregateTests;
+using RoadSegment.Events.V1;
+using RoadSegment.Events.V2;
 using ScopedRoadNetwork.Events.V1;
 using ScopedRoadNetwork.Events.V2;
 
@@ -17,41 +21,41 @@ public class GradeSeparatedJunctionProjectionTests
         var excludeEventTypes = new[]
         {
             typeof(RoadNetworkChangesAccepted),
-            typeof(RoadRegistry.RoadNode.Events.V1.ImportedRoadNode),
-            typeof(RoadRegistry.RoadNode.Events.V1.RoadNodeAdded),
-            typeof(RoadRegistry.RoadNode.Events.V1.RoadNodeModified),
-            typeof(RoadRegistry.RoadNode.Events.V1.RoadNodeRemoved),
-            typeof(RoadRegistry.RoadSegment.Events.V1.ImportedRoadSegment),
-            typeof(RoadRegistry.RoadSegment.Events.V1.OutlinedRoadSegmentRemoved),
-            typeof(RoadRegistry.RoadSegment.Events.V1.RoadSegmentAdded),
-            typeof(RoadRegistry.RoadSegment.Events.V1.RoadSegmentAddedToEuropeanRoad),
-            typeof(RoadRegistry.RoadSegment.Events.V1.RoadSegmentAddedToNationalRoad),
-            typeof(RoadRegistry.RoadSegment.Events.V1.RoadSegmentAddedToNumberedRoad),
-            typeof(RoadRegistry.RoadSegment.Events.V1.RoadSegmentAttributesModified),
-            typeof(RoadRegistry.RoadSegment.Events.V1.RoadSegmentGeometryModified),
-            typeof(RoadRegistry.RoadSegment.Events.V1.RoadSegmentModified),
-            typeof(RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemoved),
-            typeof(RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromEuropeanRoad),
-            typeof(RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromNationalRoad),
-            typeof(RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromNumberedRoad),
-            typeof(RoadRegistry.RoadSegment.Events.V1.RoadSegmentStreetNamesChanged),
+            typeof(ImportedRoadNode),
+            typeof(RoadNodeAdded),
+            typeof(RoadNodeModified),
+            typeof(RoadNodeRemoved),
+            typeof(ImportedRoadSegment),
+            typeof(OutlinedRoadSegmentRemoved),
+            typeof(RoadSegmentAdded),
+            typeof(RoadSegmentAddedToEuropeanRoad),
+            typeof(RoadSegmentAddedToNationalRoad),
+            typeof(RoadSegmentAddedToNumberedRoad),
+            typeof(RoadSegmentAttributesModified),
+            typeof(RoadSegmentGeometryModified),
+            typeof(RoadSegmentModified),
+            typeof(RoadSegmentRemoved),
+            typeof(RoadSegmentRemovedFromEuropeanRoad),
+            typeof(RoadSegmentRemovedFromNationalRoad),
+            typeof(RoadSegmentRemovedFromNumberedRoad),
+            typeof(RoadSegmentStreetNamesChanged),
 
             typeof(RoadNetworkWasChanged),
-            typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasAdded),
-            typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasModified),
-            typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasMigrated),
-            typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasRemoved),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAddedToEuropeanRoad),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAddedToNationalRoad),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasModified),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasMerged),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasMigrated),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRetiredBecauseOfMerger),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRetiredBecauseOfMigration),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRemoved),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRemovedFromEuropeanRoad),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRemovedFromNationalRoad)
+            typeof(RoadNodeWasAdded),
+            typeof(RoadNodeWasModified),
+            typeof(RoadNodeWasMigrated),
+            typeof(RoadNodeWasRemoved),
+            typeof(RoadSegmentWasAdded),
+            typeof(RoadSegmentWasAddedToEuropeanRoad),
+            typeof(RoadSegmentWasAddedToNationalRoad),
+            typeof(RoadSegmentWasModified),
+            typeof(RoadSegmentWasMerged),
+            typeof(RoadSegmentWasMigrated),
+            typeof(RoadSegmentWasRetiredBecauseOfMerger),
+            typeof(RoadSegmentWasRetiredBecauseOfMigration),
+            typeof(RoadSegmentWasRemoved),
+            typeof(RoadSegmentWasRemovedFromEuropeanRoad),
+            typeof(RoadSegmentWasRemovedFromNationalRoad)
         };
         var allEventTypes = typeof(IMartenEvent).Assembly
             .GetTypes()
@@ -73,9 +77,9 @@ public class GradeSeparatedJunctionProjectionTests
     }
 
     [Fact]
-    public Task WhenGradeSeparatedJunctionAdded_ThenSucceeded()
+    public Task WhenGradeSeparatedJunctionWasAdded_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
 
         var junction1Added = fixture.Create<GradeSeparatedJunctionWasAdded>();
         var junction2Added = fixture.Create<GradeSeparatedJunctionWasAdded>();
@@ -86,6 +90,7 @@ public class GradeSeparatedJunctionProjectionTests
             LowerRoadSegmentId = junction1Added.LowerRoadSegmentId,
             UpperRoadSegmentId = junction1Added.UpperRoadSegmentId,
             Type = junction1Added.Type,
+            IsV2 = true,
             Origin = junction1Added.Provenance.ToEventTimestamp(),
             LastModified = junction1Added.Provenance.ToEventTimestamp()
         };
@@ -95,6 +100,7 @@ public class GradeSeparatedJunctionProjectionTests
             LowerRoadSegmentId = junction2Added.LowerRoadSegmentId,
             UpperRoadSegmentId = junction2Added.UpperRoadSegmentId,
             Type = junction2Added.Type,
+            IsV2 = true,
             Origin = junction2Added.Provenance.ToEventTimestamp(),
             LastModified = junction2Added.Provenance.ToEventTimestamp()
         };
@@ -106,9 +112,9 @@ public class GradeSeparatedJunctionProjectionTests
     }
 
     [Fact]
-    public Task WhenGradeSeparatedJunctionModified_ThenSucceeded()
+    public Task WhenGradeSeparatedJunctionWasModified_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<GradeSeparatedJunctionId>();
 
         var junctionAdded = fixture.Create<GradeSeparatedJunctionWasAdded>();
@@ -120,6 +126,7 @@ public class GradeSeparatedJunctionProjectionTests
             LowerRoadSegmentId = junctionModified.LowerRoadSegmentId!.Value,
             UpperRoadSegmentId = junctionModified.UpperRoadSegmentId!.Value,
             Type = junctionModified.Type!,
+            IsV2 = true,
             Origin = junctionAdded.Provenance.ToEventTimestamp(),
             LastModified = junctionModified.Provenance.ToEventTimestamp()
         };
@@ -131,9 +138,9 @@ public class GradeSeparatedJunctionProjectionTests
     }
 
     [Fact]
-    public async Task WhenGradeSeparatedJunctionRemoved_ThenNone()
+    public async Task WhenGradeSeparatedJunctionWasRemoved_ThenNone()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<GradeSeparatedJunctionId>();
 
         var junction1Added = fixture.Create<GradeSeparatedJunctionWasAdded>();

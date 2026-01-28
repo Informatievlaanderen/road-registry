@@ -11,7 +11,6 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using CommandHandling;
 using FeatureToggles;
 using FluentValidation;
 using FluentValidation.Results;
@@ -59,6 +58,11 @@ public partial class ExtractenController
             var contour = shpFileContourReader.Read(request.ShpFile.ReadStream).ToMultiPolygon();
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
+
+            if (useDomainV2FeatureToggle.FeatureEnabled)
+            {
+                contour = contour.EnsureLambert08();
+            }
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {

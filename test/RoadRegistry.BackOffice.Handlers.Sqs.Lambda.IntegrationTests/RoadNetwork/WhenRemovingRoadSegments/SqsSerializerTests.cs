@@ -22,7 +22,7 @@ public class SqsSerializerTests
     [Fact]
     public void CanSerializeAndDeserializeToJson()
     {
-        var fixture = new RoadNetworkTestData().Fixture;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
 
         var original = fixture.Create<RemoveRoadSegmentsSqsRequest>();
 

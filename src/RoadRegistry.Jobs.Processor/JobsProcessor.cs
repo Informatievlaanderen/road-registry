@@ -272,7 +272,7 @@ namespace RoadRegistry.Jobs.Processor
                             .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
                         var extractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId);
 
-                        if (extractDownload.ZipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2)
+                        if (extractDownload.ZipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2 || extractDownload.ZipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2_Inwinning)
                         {
                             var extractRequest = await _extractsDbContext.ExtractRequests
                                 .SingleAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId, cancellationToken);

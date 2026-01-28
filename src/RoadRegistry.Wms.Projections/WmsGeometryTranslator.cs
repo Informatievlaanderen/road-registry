@@ -31,7 +31,7 @@ public static class WmsGeometryTranslator
 
         return new LineString(
             new CoordinateArraySequence(toPoints.ToArray()),
-            WellKnownGeometryFactories.Default)
+            WellKnownGeometryFactories.Lambert72)
         {
             SRID = geometry.SpatialReferenceSystemIdentifier
         };

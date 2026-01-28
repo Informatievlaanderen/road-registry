@@ -2,7 +2,7 @@
 
 using Marten;
 using Microsoft.Extensions.Logging;
-using RoadNetwork;
+using Microsoft.Extensions.Logging.Abstractions;
 using RoadNode;
 using RoadNode.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
@@ -15,7 +15,7 @@ using ScopedRoadNetwork.ValueObjects;
 public class DummyRoadNetworkChangesProjection : RoadNetworkChangesProjection
 {
     public DummyRoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections)
-        : base(projections)
+        : base(projections, NullLoggerFactory.Instance)
     {
     }
 }
@@ -40,7 +40,7 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
         {
             configureProjection?.Invoke(options);
 
-            options.AddRoadNetworkChangesProjection(new DummyRoadNetworkChangesProjection(projections));
+            options.AddRoadNetworkChangesProjection(new DummyRoadNetworkChangesProjection(projections), 5000);
         });
     }
 

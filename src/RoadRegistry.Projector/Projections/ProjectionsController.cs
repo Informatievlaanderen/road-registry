@@ -18,7 +18,7 @@ using SqlStreamStore;
 
 [ApiVersion("1.0")]
 [ApiRoute("projections")]
-public class ProjectionsController : DefaultProjectionsController
+public partial class ProjectionsController : DefaultProjectionsController
 {
     private readonly IDocumentStore _documentStore;
     private readonly IReadOnlyList<ProjectionDetail> _martenProjections;

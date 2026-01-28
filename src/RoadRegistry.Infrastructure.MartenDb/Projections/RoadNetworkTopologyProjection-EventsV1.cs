@@ -11,31 +11,37 @@ public partial class RoadNetworkTopologyProjection
 {
     public void Project(IEvent<ImportedRoadNode> e, IDocumentOperations ops)
     {
+        var geometry = e.Data.Geometry.ToLambert08();
+
         ops.QueueSqlCommand($"INSERT INTO {RoadNodesTableName} (id, geometry, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, FALSE)",
             e.Data.RoadNodeId,
-            e.Data.Geometry.WKT,
-            e.Data.Geometry.SRID,
+            geometry.WKT,
+            geometry.SRID,
             e.Timestamp
         );
     }
 
     public void Project(IEvent<RoadNodeAdded> e, IDocumentOperations ops)
     {
+        var geometry = e.Data.Geometry.ToLambert08();
+
         ops.QueueSqlCommand($"INSERT INTO {RoadNodesTableName} (id, geometry, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, FALSE)",
             e.Data.RoadNodeId,
-            e.Data.Geometry.WKT,
-            e.Data.Geometry.SRID,
+            geometry.WKT,
+            geometry.SRID,
             e.Timestamp
         );
     }
 
     public void Project(IEvent<RoadNodeModified> e, IDocumentOperations ops)
     {
+        var geometry = e.Data.Geometry.ToLambert08();
+
         ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, FALSE);",
             e.Data.RoadNodeId,
             e.Timestamp,
-            e.Data.Geometry.WKT,
-            e.Data.Geometry.SRID
+            geometry.WKT,
+            geometry.SRID
         );
     }
 
@@ -49,10 +55,12 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<ImportedRoadSegment> e, IDocumentOperations ops)
     {
+        var geometry = e.Data.Geometry.ToLambert08();
+
         ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?, FALSE)",
             e.Data.RoadSegmentId,
-            e.Data.Geometry.WKT,
-            e.Data.Geometry.SRID,
+            geometry.WKT,
+            geometry.SRID,
             e.Data.StartNodeId,
             e.Data.EndNodeId,
             e.Timestamp
@@ -61,10 +69,12 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadSegmentAdded> e, IDocumentOperations ops)
     {
+        var geometry = e.Data.Geometry.ToLambert08();
+
         ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?, FALSE)",
             e.Data.RoadSegmentId,
-            e.Data.Geometry.WKT,
-            e.Data.Geometry.SRID,
+            geometry.WKT,
+            geometry.SRID,
             e.Data.StartNodeId,
             e.Data.EndNodeId,
             e.Timestamp
@@ -73,11 +83,13 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadSegmentModified> e, IDocumentOperations ops)
     {
+        var geometry = e.Data.Geometry.ToLambert08();
+
         ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, FALSE);",
             e.Data.RoadSegmentId,
             e.Timestamp,
-            e.Data.Geometry.WKT,
-            e.Data.Geometry.SRID,
+            geometry.WKT,
+            geometry.SRID,
             e.Data.StartNodeId,
             e.Data.EndNodeId
         );
@@ -85,11 +97,13 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadSegmentGeometryModified> e, IDocumentOperations ops)
     {
+        var geometry = e.Data.Geometry.ToLambert08();
+
         ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, null, null, FALSE);",
             e.Data.RoadSegmentId,
             e.Timestamp,
-            e.Data.Geometry.WKT,
-            e.Data.Geometry.SRID
+            geometry.WKT,
+            geometry.SRID
         );
     }
 

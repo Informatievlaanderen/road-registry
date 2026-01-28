@@ -6,7 +6,6 @@ using JasperFx.Events;
 using JasperFx.Events.Projections;
 using Marten;
 using Marten.Events.Projections;
-using Marten.Services.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -25,6 +24,14 @@ public static class SetupExtensions
 {
     public static IServiceCollection AddMartenRoad(this IServiceCollection services, Action<StoreOptions>? configure = null)
     {
+        return AddMartenRoad(services, (options, _) =>
+        {
+            configure?.Invoke(options);
+        });
+    }
+
+    public static IServiceCollection AddMartenRoad(this IServiceCollection services, Action<StoreOptions, IServiceProvider>? configure = null)
+    {
         services
             .AddMarten(sp =>
             {
@@ -36,7 +43,7 @@ public static class SetupExtensions
                     .UseNetTopologySuite()
                     .Build());
                 options.ConfigureRoad();
-                configure?.Invoke(options);
+                configure?.Invoke(options, sp);
 
                 return options;
             });
@@ -100,7 +107,7 @@ public static class SetupExtensions
 
     public static StoreOptions AddRoadNetworkTopologyProjection(this StoreOptions options)
     {
-        options.Projections.Add<RoadNetworkTopologyProjection>(ProjectionLifecycle.Inline);
+        options.Projections.Add<RoadNetworkTopologyProjection>(ProjectionLifecycle.Inline, opts => opts.BatchSize = 5000);
         return options;
     }
     public static StoreOptions AddRoadAggregatesSnapshots(this StoreOptions options)

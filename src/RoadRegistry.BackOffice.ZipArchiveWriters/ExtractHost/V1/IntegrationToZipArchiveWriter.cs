@@ -60,7 +60,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter
 
         if (integrationBufferedSegmentsGeometries.Any())
         {
-            var integrationBufferedContourGeometry =  (IPolygonal)WellKnownGeometryFactories.Default
+            var integrationBufferedContourGeometry =  (IPolygonal)WellKnownGeometryFactories.Lambert72
                 .BuildGeometry(integrationBufferedSegmentsGeometries)
                 .ConvexHull();
 

@@ -28,7 +28,7 @@ public record ExtractGeometry : GeometryObject
     {
     }
 
-    public static ExtractGeometry Create(Geometry geometry)
+    public static ExtractGeometry Create(MultiPolygon geometry)
     {
         return new ExtractGeometry(geometry);
     }

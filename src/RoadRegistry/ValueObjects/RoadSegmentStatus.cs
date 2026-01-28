@@ -58,16 +58,6 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
             )
         );
 
-    public static readonly RoadSegmentStatus Retired =
-        new(
-            nameof(Retired),
-            new DutchTranslation(
-                6,
-                "TODO-pr implement new values",
-                "TODO-pr implement new values"
-            )
-        );
-
     public static readonly RoadSegmentStatus Unknown =
         new(
             nameof(Unknown),

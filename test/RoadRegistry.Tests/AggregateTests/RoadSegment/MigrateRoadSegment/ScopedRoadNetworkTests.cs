@@ -30,7 +30,10 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     Status = TestData.AddSegment1.Status,
                     StreetNameId = TestData.AddSegment1.StreetNameId,
                     MaintenanceAuthorityId = TestData.AddSegment1.MaintenanceAuthorityId,
-                    SurfaceType = TestData.AddSegment1.SurfaceType
+                    SurfaceType = TestData.AddSegment1.SurfaceType,
+                    CarAccess = TestData.AddSegment1.CarAccess,
+                    BikeAccess = TestData.AddSegment1.BikeAccess,
+                    PedestrianAccess = TestData.AddSegment1.PedestrianAccess
                 })
             )
             .Then((result, events) =>
@@ -65,7 +68,10 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     Status = TestData.AddSegment1.Status,
                     StreetNameId = TestData.AddSegment1.StreetNameId,
                     MaintenanceAuthorityId = TestData.AddSegment1.MaintenanceAuthorityId,
-                    SurfaceType = TestData.AddSegment1.SurfaceType
+                    SurfaceType = TestData.AddSegment1.SurfaceType,
+                    CarAccess = TestData.AddSegment1.CarAccess,
+                    BikeAccess = TestData.AddSegment1.BikeAccess,
+                    PedestrianAccess = TestData.AddSegment1.PedestrianAccess
                 })
                 .Add(new AddRoadSegmentToEuropeanRoadChange
                 {
@@ -119,7 +125,10 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     Status = TestData.AddSegment1.Status,
                     StreetNameId = TestData.AddSegment1.StreetNameId,
                     MaintenanceAuthorityId = TestData.AddSegment1.MaintenanceAuthorityId,
-                    SurfaceType = TestData.AddSegment1.SurfaceType
+                    SurfaceType = TestData.AddSegment1.SurfaceType,
+                    CarAccess = TestData.AddSegment1.CarAccess,
+                    BikeAccess = TestData.AddSegment1.BikeAccess,
+                    PedestrianAccess = TestData.AddSegment1.PedestrianAccess
                 })
                 .Add(new AddRoadSegmentToNationalRoadChange
                 {

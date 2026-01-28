@@ -12,7 +12,7 @@ public class RoadNetworkChangesTests
 
     public RoadNetworkChangesTests()
     {
-        _fixture = new RoadNetworkTestData().Fixture;
+        _fixture = new RoadNetworkTestDataV2().Fixture;
     }
 
     [Fact]

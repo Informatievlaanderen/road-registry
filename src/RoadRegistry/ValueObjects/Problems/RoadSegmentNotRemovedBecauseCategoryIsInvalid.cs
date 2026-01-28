@@ -11,4 +11,11 @@ public class RoadSegmentNotRemovedBecauseCategoryIsInvalid : Error
             new ProblemParameter("Category", category.Translation.Name))
     {
     }
+
+    public RoadSegmentNotRemovedBecauseCategoryIsInvalid(RoadSegmentId id, RoadSegmentCategoryV2 category)
+        : base(ProblemCode.RoadSegment.NotRemovedBecauseCategoryIsInvalid,
+            new ProblemParameter("Identifier", id.ToString()),
+            new ProblemParameter("Category", category.Translation.Name))
+    {
+    }
 }

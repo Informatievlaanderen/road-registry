@@ -49,6 +49,6 @@ public class AggregateTests : AggregateTestBase
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
         segment.MergedRoadSegmentId.Should().Be(evt.MergedRoadSegmentId);
         segment.Attributes.Status.Should().BeEquivalentTo(
-            new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.Retired));
+            new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(RoadSegmentStatusV2.Gehistoreerd, segment.Geometry));
     }
 }

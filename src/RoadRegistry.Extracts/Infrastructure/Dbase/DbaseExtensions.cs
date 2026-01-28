@@ -72,8 +72,16 @@ public static class DbaseExtensions
         throw new NotImplementedException($"Unknown field type: {field.FieldType}");
     }
 
-    private static object GetValue(this DbaseFieldValue dbaseFieldValue)
+    private static object? GetValue(this DbaseFieldValue dbaseFieldValue)
     {
+        if (dbaseFieldValue is DbaseInt16 shortField)
+        {
+            return shortField.HasValue ? shortField.Value : 0;
+        }
+        if (dbaseFieldValue is DbaseNullableInt16 nullableShortField)
+        {
+            return nullableShortField.Value;
+        }
         if (dbaseFieldValue is DbaseInt32 intField)
         {
             return intField.HasValue ? intField.Value : 0;
@@ -102,8 +110,23 @@ public static class DbaseExtensions
         throw new NotImplementedException($"Unknown field type: {dbaseFieldValue.Field.FieldType}");
     }
 
-    internal static void SetValue(this DbaseFieldValue dbaseFieldValue, object value)
+    internal static void SetValue(this DbaseFieldValue dbaseFieldValue, object? value)
     {
+        if (dbaseFieldValue is DbaseInt16 shortField)
+        {
+            if (value is not null)
+            {
+                shortField.Value = Convert.ToInt16(value);
+            }
+            return;
+        }
+        if (dbaseFieldValue is DbaseNullableInt16 nullableShortField)
+        {
+            nullableShortField.Value = value is not null
+                ? Convert.ToInt16(value)
+                : null;
+            return;
+        }
         if (dbaseFieldValue is DbaseInt32 intField)
         {
             if (value is not null)
@@ -170,7 +193,7 @@ public static class DbaseExtensions
 
             private readonly DbfReader _reader;
             private RecordNumber _number;
-            private TDbaseRecord _current;
+            private TDbaseRecord? _current;
             private State _state;
 
             public DbfRecordEnumerator(DbfReader reader)

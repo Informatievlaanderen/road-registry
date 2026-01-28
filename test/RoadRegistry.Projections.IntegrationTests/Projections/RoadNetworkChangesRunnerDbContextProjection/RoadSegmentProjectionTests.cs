@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using RoadSegment.Events.V2;
-using Tests.BackOffice.Scenarios;
+using Tests.AggregateTests;
 
 [Collection(nameof(DockerFixtureCollection))]
 public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
@@ -21,7 +21,7 @@ public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
     [Fact]
     public async Task WhenRoadSegmentAdded_ThenSucceeded()
     {
-        var fixture = new RoadNetworkTestData().ObjectProvider;
+        var fixture = new RoadNetworkTestDataV2().Fixture;
 
         var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
         var roadSegment2Added = fixture.Create<RoadSegmentWasAdded>();

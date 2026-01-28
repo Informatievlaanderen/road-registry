@@ -33,6 +33,13 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadNode.TypeV2Mismatch, [
+                    new ProblemParameter { Name = "RoadNodeId", Value = "1" },
+                    new ProblemParameter { Name = "ConnectedSegmentCount", Value = "1" },
+                    new ProblemParameter { Name = "Actual", Value = RoadNodeTypeV2.Eindknoop.ToString() }
+                ]
+            },
+            {
                 ProblemCode.StreetName.RegistryUnexpectedError, [
                     new ProblemParameter { Name = "StatusCode", Value = "500" }
                 ]

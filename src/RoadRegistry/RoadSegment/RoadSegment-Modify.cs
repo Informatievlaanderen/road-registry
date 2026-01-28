@@ -18,13 +18,16 @@ public partial class RoadSegment
         problems += new RoadSegmentGeometryValidator().Validate(originalId, geometryDrawMethod, geometry);
 
         var segmentLength = geometry.Length;
-        var accessRestriction = change.AccessRestriction?.TryCleanEntireLengthCoverages(segmentLength);
-        var category = change.Category?.TryCleanEntireLengthCoverages(segmentLength);
-        var morphology = change.Morphology?.TryCleanEntireLengthCoverages(segmentLength);
-        var status = change.Status?.TryCleanEntireLengthCoverages(segmentLength);
-        var streetNameId = change.StreetNameId?.TryCleanEntireLengthCoverages(segmentLength);
-        var maintenanceAuthorityId = change.MaintenanceAuthorityId?.TryCleanEntireLengthCoverages(segmentLength);
-        var surfaceType = change.SurfaceType?.TryCleanEntireLengthCoverages(segmentLength);
+        var accessRestriction = change.AccessRestriction;
+        var category = change.Category;
+        var morphology = change.Morphology;
+        var status = change.Status;
+        var streetNameId = change.StreetNameId;
+        var maintenanceAuthorityId = change.MaintenanceAuthorityId;
+        var surfaceType = change.SurfaceType;
+        var carAccess = change.CarAccess;
+        var bikeAccess = change.BikeAccess;
+        var pedestrianAccess = change.PedestrianAccess;
         var attributes = Attributes with
         {
             GeometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,
@@ -34,7 +37,10 @@ public partial class RoadSegment
             Status = status ?? Attributes.Status,
             StreetNameId = streetNameId ?? Attributes.StreetNameId,
             MaintenanceAuthorityId = maintenanceAuthorityId ?? Attributes.MaintenanceAuthorityId,
-            SurfaceType = surfaceType ?? Attributes.SurfaceType
+            SurfaceType = surfaceType ?? Attributes.SurfaceType,
+            CarAccess = carAccess ?? Attributes.CarAccess,
+            BikeAccess = bikeAccess ?? Attributes.BikeAccess,
+            PedestrianAccess = pedestrianAccess ?? Attributes.PedestrianAccess
         };
         problems += new RoadSegmentAttributesValidator().Validate(originalId, attributes, segmentLength);
 
@@ -58,6 +64,9 @@ public partial class RoadSegment
             StreetNameId = streetNameId,
             MaintenanceAuthorityId = maintenanceAuthorityId,
             SurfaceType = surfaceType,
+            CarAccess = carAccess,
+            BikeAccess = bikeAccess,
+            PedestrianAccess = pedestrianAccess,
             Provenance = new ProvenanceData(provenance)
         });
 

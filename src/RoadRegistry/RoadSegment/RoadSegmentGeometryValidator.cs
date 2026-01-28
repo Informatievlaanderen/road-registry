@@ -7,13 +7,13 @@ using RoadRegistry.ValueObjects.Problems;
 
 public class RoadSegmentGeometryValidator
 {
-    public Problems Validate(RoadSegmentId roadSegmentId, RoadSegmentGeometryDrawMethod geometryDrawMethod, MultiLineString geometry)
+    public Problems Validate(RoadSegmentId roadSegmentId, RoadSegmentGeometryDrawMethodV2 geometryDrawMethod, MultiLineString geometry)
     {
         var problems = Problems.None;
 
         var line = geometry.GetSingleLineString();
 
-        if (geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+        if (geometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingeschetst)
         {
             problems += line.GetProblemsForRoadSegmentOutlinedGeometry(roadSegmentId);
 
