@@ -250,7 +250,7 @@ public class WithValidRequest : WhenRequestInwinningExtractTestBase
 
         var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
         extractDownload.ExtractRequestId.Should().Be(request.ExtractRequestId);
-        extractDownload.Closed.Should().Be(request.IsInformative);
+        extractDownload.Closed.Should().BeFalse();
         extractDownload.Contour.Should().BeEquivalentTo(request.Contour);
         extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
         extractDownload.DownloadStatus.Should().Be(ExtractDownloadStatus.Error);
