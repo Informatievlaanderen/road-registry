@@ -81,7 +81,7 @@ public class ExtractRequester
                 DownloadId = downloadId,
                 TicketId = ticketId,
                 DownloadStatus = ExtractDownloadStatus.Preparing,
-                Closed = isInformative,
+                Closed = false,
                 ZipArchiveWriterVersion = zipArchiveWriterVersion
             };
             _extractsDbContext.ExtractDownloads.Add(extractDownload);
@@ -92,6 +92,11 @@ public class ExtractRequester
         try
         {
             await BuildArchive(extractRequest, extractDownload, cancellationToken);
+
+            if (isInformative)
+            {
+                extractDownload.Closed = true;
+            }
 
             extractDownload.DownloadStatus = ExtractDownloadStatus.Available;
         }
