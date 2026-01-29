@@ -1,3 +1,10 @@
+## [4.43.2](https://github.com/informatievlaanderen/road-registry/compare/v4.43.1...v4.43.2) (2026-01-29)
+
+
+### Bug Fixes
+
+* ExterneId can't be an empty string ([3b93d8d](https://github.com/informatievlaanderen/road-registry/commit/3b93d8d8a1441925c5791645a53bd706282cfec2))
+
 ## [4.43.1](https://github.com/informatievlaanderen/road-registry/compare/v4.43.0...v4.43.1) (2026-01-29)
 
 
