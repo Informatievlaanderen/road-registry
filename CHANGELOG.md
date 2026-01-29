@@ -1,3 +1,10 @@
+## [4.43.1](https://github.com/informatievlaanderen/road-registry/compare/v4.43.0...v4.43.1) (2026-01-29)
+
+
+### Bug Fixes
+
+* ExterneId validation when requesting extract ([16fafa9](https://github.com/informatievlaanderen/road-registry/commit/16fafa9eaa0c2a00a12eec59f49662854cde6aa3))
+
 # [4.43.0](https://github.com/informatievlaanderen/road-registry/compare/v4.42.2...v4.43.0) (2026-01-28)
 
 
