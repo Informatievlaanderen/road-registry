@@ -100,9 +100,11 @@ public class ExtractDownloadaanvraagPerContourBodyValidator : AbstractValidator<
             .MaximumLength(ExtractDescription.MaxLength)
             .WithProblemCode(ProblemCode.Extract.BeschrijvingTooLong);
 
-        When(x => !string.IsNullOrEmpty(x.ExterneId), () =>
+        When(x => x.ExterneId is not null, () =>
         {
             RuleFor(x => x.ExterneId)
+                .NotEmpty()
+                .WithProblemCode(ProblemCode.Extract.ExterneIdInvalid)
                 .Must(ExternalExtractRequestId.AcceptsValue)
                 .WithProblemCode(ProblemCode.Extract.ExterneIdInvalid);
         });
