@@ -103,7 +103,7 @@ public class ExtractDownloadaanvraagPerContourBodyValidator : AbstractValidator<
         When(x => !string.IsNullOrEmpty(x.ExterneId), () =>
         {
             RuleFor(x => x.ExterneId)
-                .Must(ExtractRequestId.Accepts)
+                .Must(ExternalExtractRequestId.AcceptsValue)
                 .WithProblemCode(ProblemCode.Extract.ExterneIdInvalid);
         });
     }

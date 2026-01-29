@@ -28,7 +28,7 @@ public partial class ExtractsControllerTests
 
         // Act
         var result = await Controller.ExtractDownloadaanvraagPerContour(
-            new ExtractDownloadaanvraagPerContourBody(Polygon.Empty.AsText(), Fixture.Create<string>(), true, null),
+            new ExtractDownloadaanvraagPerContourBody(Polygon.Empty.AsText(), Fixture.Create<string>(), true, Fixture.Create<string>()),
             validator,
             new UseDomainV2FeatureToggle(false));
 
