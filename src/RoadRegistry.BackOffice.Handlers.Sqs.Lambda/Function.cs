@@ -20,6 +20,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure;
@@ -58,7 +59,8 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             // ChangeRoadNetwork
             .AddMartenRoad(options => options
                 .AddRoadNetworkTopologyProjection()
-                .AddRoadAggregatesSnapshots())
+                .AddRoadAggregatesSnapshots()
+                .ConfigureExtractDocuments())
 
             // Extracts-domainv1
             .AddEditorContext()

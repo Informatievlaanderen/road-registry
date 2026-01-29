@@ -8,8 +8,9 @@ using Microsoft.Extensions.Logging;
 
 public abstract class RoadNetworkChangesProjection : IProjection
 {
+    public int BatchSize { get; }
+
     private readonly IReadOnlyCollection<IRoadNetworkChangesProjection> _projections;
-    private readonly int _batchSize;
     private readonly int _catchUpThreshold;
     private readonly ILogger _logger;
     private readonly string _projectionName;
@@ -20,7 +21,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
     protected RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections, ILoggerFactory loggerFactory, int batchSize = DefaultBatchSize, int catchUpThreshold = DefaultCatchUpThreshold)
     {
         _projections = projections;
-        _batchSize = batchSize;
+        BatchSize = batchSize;
         _catchUpThreshold = catchUpThreshold;
         _logger = loggerFactory.CreateLogger(GetType());
         _projectionName = GetType().Name;
@@ -52,7 +53,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
                 .ToListAsync(cancellation);
 
             var streamMaxSequence = await operations.GetHighWaterMark(cancellation);
-            var processOnlyCurrentBatch = (streamMaxSequence - events.Max(x => x.Sequence)) > _catchUpThreshold || events.Count < _batchSize;
+            var processOnlyCurrentBatch = (streamMaxSequence - events.Max(x => x.Sequence)) > _catchUpThreshold || events.Count < BatchSize;
             if (processOnlyCurrentBatch)
             {
                 await ProcessEvents(operations, events, processedProjectionProgressions, cancellation);

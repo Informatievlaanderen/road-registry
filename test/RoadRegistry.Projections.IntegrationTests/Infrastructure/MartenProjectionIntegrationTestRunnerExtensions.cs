@@ -40,7 +40,7 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
         {
             configureProjection?.Invoke(options);
 
-            options.AddRoadNetworkChangesProjection(new DummyRoadNetworkChangesProjection(projections), 5000);
+            options.AddRoadNetworkChangesProjection(new DummyRoadNetworkChangesProjection(projections));
         });
     }
 
