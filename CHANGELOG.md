@@ -1,3 +1,10 @@
+## [4.43.3](https://github.com/informatievlaanderen/road-registry/compare/v4.43.2...v4.43.3) (2026-01-29)
+
+
+### Bug Fixes
+
+* register marten extracts documents in lambda; optionally configure extracts projection batchsize ([03455c8](https://github.com/informatievlaanderen/road-registry/commit/03455c8ec8ab3a864c5b4ed99c788b307b189368))
+
 ## [4.43.2](https://github.com/informatievlaanderen/road-registry/compare/v4.43.1...v4.43.2) (2026-01-29)
 
 
