@@ -76,6 +76,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
     private async Task ProcessEvents(IDocumentOperations operations, IReadOnlyList<IEvent> events, IReadOnlyList<RoadNetworkChangesProjectionProgression> processedProjectionProgressions, CancellationToken cancellation)
     {
         var eventsPerCorrelationId = events
+            .Where(x => x.StreamKey is null || !x.StreamKey.StartsWith("mt_"))
             .GroupBy(x => x.CorrelationId!)
             .OrderBy(x => x.First().Sequence)
             .ToList();
