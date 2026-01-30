@@ -85,7 +85,7 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
                 geometry,
                 request.Request.Description,
                 request.Request.IsInformative,
-                request.Request.IsInformative ? null : BuildExternalRequestId(niscode)
+                BuildExternalRequestId(niscode)
             ),
             new TicketId(request.TicketId),
             WellKnownZipArchiveWriterVersions.DomainV2_Inwinning,

@@ -90,6 +90,9 @@ public class WithValidRequest : WhenRequestInwinningExtractTestBase
         // Assert
         VerifyThatTicketHasCompleted(new RequestExtractResponse(downloadId));
 
+        var extractRequest = ExtractsDbContext.ExtractRequests.Single(x => x.ExtractRequestId == request.ExtractRequestId);
+        extractRequest.ExternalRequestId.Should().Be($"INWINNING_{nisCode}");
+
         var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
         extractDownload.Closed.Should().BeTrue();
 
