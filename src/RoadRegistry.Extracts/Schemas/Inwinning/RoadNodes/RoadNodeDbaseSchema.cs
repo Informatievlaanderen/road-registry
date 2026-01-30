@@ -22,7 +22,7 @@ public class RoadNodeDbaseSchema : DbaseSchema
             DbaseField
                 .CreateNumberField(
                     new DbaseFieldName(nameof(GRENSKNOOP)),
-                    new DbaseFieldLength(1),
+                    new DbaseFieldLength(2),
                     new DbaseDecimalCount(0)),
 
             DbaseField
