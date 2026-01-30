@@ -1,3 +1,10 @@
+## [4.43.6](https://github.com/informatievlaanderen/road-registry/compare/v4.43.5...v4.43.6) (2026-01-30)
+
+
+### Bug Fixes
+
+* Inwinning informative extracts should also have ExternalRequestId to be found in the list extracts ([12e968c](https://github.com/informatievlaanderen/road-registry/commit/12e968ca20a2a41d5ef0a3b3d26bb2512c0244cf))
+
 ## [4.43.5](https://github.com/informatievlaanderen/road-registry/compare/v4.43.4...v4.43.5) (2026-01-30)
 
 
