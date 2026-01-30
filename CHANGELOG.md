@@ -1,3 +1,10 @@
+## [4.43.5](https://github.com/informatievlaanderen/road-registry/compare/v4.43.4...v4.43.5) (2026-01-30)
+
+
+### Bug Fixes
+
+* change GRENSKNOOP length to 2 ([341276c](https://github.com/informatievlaanderen/road-registry/commit/341276c4d56aa4ae43b33e5f2997f481ef3dc362))
+
 ## [4.43.4](https://github.com/informatievlaanderen/road-registry/compare/v4.43.3...v4.43.4) (2026-01-30)
 
 
