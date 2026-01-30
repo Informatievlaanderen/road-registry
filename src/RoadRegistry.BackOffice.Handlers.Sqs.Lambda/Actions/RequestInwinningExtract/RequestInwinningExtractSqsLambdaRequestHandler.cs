@@ -1,16 +1,16 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestInwinningExtract;
 
+using Abstractions.Extracts.V2;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using FluentValidation;
 using FluentValidation.Results;
+using Hosts;
+using Infrastructure;
 using Microsoft.Extensions.Logging;
 using RequestExtract;
-using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
-using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
 
 public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHandler<RequestInwinningExtractSqsLambdaRequest>
@@ -41,58 +41,66 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
 
     protected override async Task<object> InnerHandle(RequestInwinningExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        var niscode = request.Request.NisCode;
-        var geometry = request.Request.Contour.Value;
-
-        if (!request.Request.IsInformative)
+        try
         {
-            var inwinningsZone = await _extractsDbContext.Inwinningszones.FindAsync([niscode], cancellationToken);
+            var niscode = request.Request.NisCode;
+            var geometry = request.Request.Contour.Value;
 
-            if (inwinningsZone is not null && inwinningsZone.Operator != request.Provenance.Operator)
+            if (!request.Request.IsInformative)
             {
-                throw new ValidationException([
-                    new ValidationFailure
-                    {
-                        PropertyName = string.Empty,
-                        ErrorCode = "InwinningszoneGestart",
-                        ErrorMessage = "Inwinning is al gestart door een andere organisatie."
-                    }
-                ]);
-            }
+                var inwinningsZone = await _extractsDbContext.Inwinningszones.FindAsync([niscode], cancellationToken);
 
-            if (inwinningsZone is null)
-            {
-                inwinningsZone = new Inwinningszone
+                if (inwinningsZone is not null && inwinningsZone.Operator != request.Provenance.Operator)
                 {
-                    NisCode = niscode,
-                    Contour = geometry,
-                    Operator = request.Provenance.Operator,
-                    DownloadId = request.Request.DownloadId,
-                    Completed = false
-                };
-                _extractsDbContext.Inwinningszones.Add(inwinningsZone);
+                    throw new ValidationException([
+                        new ValidationFailure
+                        {
+                            PropertyName = string.Empty,
+                            ErrorCode = "InwinningszoneGestart",
+                            ErrorMessage = "Inwinning is al gestart door een andere organisatie."
+                        }
+                    ]);
+                }
+
+                if (inwinningsZone is null)
+                {
+                    inwinningsZone = new Inwinningszone
+                    {
+                        NisCode = niscode,
+                        Contour = geometry,
+                        Operator = request.Provenance.Operator,
+                        DownloadId = request.Request.DownloadId,
+                        Completed = false
+                    };
+                    _extractsDbContext.Inwinningszones.Add(inwinningsZone);
+                }
+                else
+                {
+                    inwinningsZone.DownloadId = request.Request.DownloadId;
+                }
             }
-            else
-            {
-                inwinningsZone.DownloadId = request.Request.DownloadId;
-            }
+
+            await _extractRequester.BuildExtract(
+                new RequestExtractData(
+                    request.Request.ExtractRequestId,
+                    request.Request.DownloadId,
+                    geometry,
+                    request.Request.Description,
+                    request.Request.IsInformative,
+                    BuildExternalRequestId(niscode)
+                ),
+                new TicketId(request.TicketId),
+                WellKnownZipArchiveWriterVersions.DomainV2_Inwinning,
+                request.Provenance, cancellationToken);
+
+            var downloadId = new DownloadId(request.Request.DownloadId);
+            return new RequestExtractResponse(downloadId);
         }
-
-        await _extractRequester.BuildExtract(
-            new RequestExtractData(
-                request.Request.ExtractRequestId,
-                request.Request.DownloadId,
-                geometry,
-                request.Request.Description,
-                request.Request.IsInformative,
-                BuildExternalRequestId(niscode)
-            ),
-            new TicketId(request.TicketId),
-            WellKnownZipArchiveWriterVersions.DomainV2_Inwinning,
-            request.Provenance, cancellationToken);
-
-        var downloadId = new DownloadId(request.Request.DownloadId);
-        return new RequestExtractResponse(downloadId);
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Error trying to build an extract for niscode {request.Request.NisCode}");
+            throw;
+        }
     }
 
     private static string BuildExternalRequestId(string niscode)
