@@ -7,10 +7,13 @@ using BackOffice;
 using BackOffice.FeatureToggles;
 using BackOffice.Messages;
 using Framework;
+using Infrastructure;
+using Moq;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using RoadSegment.ValueObjects;
 using Schema;
+using StreetName;
 using Wms.Projections;
 using StreetNameRecord = StreetNameRecord;
 
@@ -307,7 +310,7 @@ public class RoadSegmentRecordProjectionTests
 
         var expectedRoadSegment = _testDataHelper.ExpectedRoadSegment(wegSegmentId);
 
-        await new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(true))
+        await BuildProjection()
             .Scenario()
             .Given(importedRoadSegment)
             .Expect(new RoadSegmentRecord
@@ -373,7 +376,7 @@ public class RoadSegmentRecordProjectionTests
 
         var streetNameCacheStub = new StreetNameCacheStub(streetNameRecord);
 
-        await new RoadSegmentRecordProjection(streetNameCacheStub, new UseRoadSegmentSoftDeleteFeatureToggle(true))
+        await BuildProjection(streetNameCacheStub)
             .Scenario()
             .Given(importedRoadSegment)
             .Expect(new RoadSegmentRecord
@@ -490,7 +493,7 @@ public class RoadSegmentRecordProjectionTests
             };
         });
 
-        return new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(true))
+        return BuildProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentAttributesModified)
             .Expect(expectedRecords);
@@ -561,7 +564,7 @@ public class RoadSegmentRecordProjectionTests
             };
         });
 
-        return new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(true))
+        return BuildProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentGeometryModified)
             .Expect(expectedRecords);
@@ -630,7 +633,7 @@ public class RoadSegmentRecordProjectionTests
             };
         });
 
-        return new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(true))
+        return BuildProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, roadSegmentsStreetNamesChanged)
             .Expect(expectedRecords);
@@ -699,7 +702,7 @@ public class RoadSegmentRecordProjectionTests
             };
         });
 
-        return new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(true))
+        return BuildProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(expectedRecords);
@@ -724,7 +727,7 @@ public class RoadSegmentRecordProjectionTests
             acceptedRoadSegmentRemoved
         };
 
-        return new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(false))
+        return BuildProjection(useSoftDelete: false)
             .Scenario()
             .Given(messages)
             .ExpectNone();
@@ -801,7 +804,7 @@ public class RoadSegmentRecordProjectionTests
             };
         });
 
-        return new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(true))
+        return BuildProjection()
             .Scenario()
             .Given(messages)
             .Expect(expectedRecords);
@@ -879,7 +882,7 @@ public class RoadSegmentRecordProjectionTests
             };
         });
 
-        return new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(true))
+        return BuildProjection()
             .Scenario()
             .Given(messages)
             .Expect(expectedRecords);
@@ -956,7 +959,7 @@ public class RoadSegmentRecordProjectionTests
             };
         });
 
-        return new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(true))
+        return BuildProjection()
             .Scenario()
             .Given(messages)
             .Expect(expectedRecords);
@@ -1010,8 +1013,8 @@ public class RoadSegmentRecordProjectionTests
         return record;
     }
 
-    private RoadSegmentRecordProjection BuildProjection()
+    private RoadSegmentRecordProjection BuildProjection(IStreetNameCache streetNameCache = null, bool useSoftDelete = true)
     {
-        return new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(true));
+        return new RoadSegmentRecordProjection(streetNameCache ?? new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(useSoftDelete), Mock.Of<IStreetNameClient>());
     }
 }

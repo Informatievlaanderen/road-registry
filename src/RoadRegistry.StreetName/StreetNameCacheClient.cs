@@ -1,9 +1,7 @@
 namespace RoadRegistry.StreetName;
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using BackOffice;
 using Extensions;
 using Infrastructure;
 
@@ -28,7 +26,8 @@ public class StreetNameCacheClient : IStreetNameClient
         {
             Id = streetName.Id,
             Name = streetName.Name,
-            Status = streetName.Status
+            Status = streetName.Status,
+            NisCode = streetName.NisCode
         };
     }
 }

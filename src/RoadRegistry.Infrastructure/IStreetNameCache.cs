@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 public interface IStreetNameCache
 {
     Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken);
-    Task<StreetNameCacheItem> GetAsync(int streetNameId, CancellationToken cancellationToken);
+    Task<StreetNameCacheItem?> GetAsync(int streetNameId, CancellationToken cancellationToken);
     Task<ICollection<StreetNameCacheItem>> GetAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken);
     Task<Dictionary<int, int>> GetRenamedIdsAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken);
 }

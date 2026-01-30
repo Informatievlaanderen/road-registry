@@ -58,7 +58,8 @@ namespace RoadRegistry.StreetName
             {
                 Id = int.Parse(streetName.Identificator.ObjectId),
                 Name = GetSpelling(streetName.Straatnamen, Taal.NL),
-                Status = streetName.StraatnaamStatus
+                Status = streetName.StraatnaamStatus,
+                NisCode = streetName.Gemeente.ObjectId
             };
         }
 
