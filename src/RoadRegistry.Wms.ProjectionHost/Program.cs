@@ -21,6 +21,7 @@ using Newtonsoft.Json;
 using Projections;
 using Schema;
 using SqlStreamStore;
+using StreetName;
 
 public class Program
 {
@@ -53,13 +54,15 @@ public class Program
                         );
                 })
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new WmsContextMigrationFactory())
+                .AddStreetNameClient()
                 .AddHostedService(sp =>
                 {
                     ConnectedProjection<WmsContext>[] connectedProjectionHandlers =
                     [
                         new RoadSegmentRecordProjection(
                             sp.GetRequiredService<IStreetNameCache>(),
-                            sp.GetRequiredService<UseRoadSegmentSoftDeleteFeatureToggle>()),
+                            sp.GetRequiredService<UseRoadSegmentSoftDeleteFeatureToggle>(),
+                            sp.GetRequiredService<IStreetNameClient>()),
                         new RoadSegmentEuropeanRoadAttributeRecordProjection(),
                         new RoadSegmentNationalRoadAttributeRecordProjection(),
                         new TransactionZoneRecordProjection(sp.GetRequiredService<ILoggerFactory>())

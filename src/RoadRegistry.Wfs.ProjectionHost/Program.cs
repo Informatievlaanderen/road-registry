@@ -21,6 +21,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Projections;
 using Schema;
+using StreetName;
 
 public class Program
 {
@@ -56,7 +57,10 @@ public class Program
                 {
                     // new GradeSeparatedJunctionRecordProjection(),
                     new RoadNodeRecordProjection(),
-                    new RoadSegmentRecordProjection(sp.GetRequiredService<IStreetNameCache>(), sp.GetRequiredService<UseRoadSegmentSoftDeleteFeatureToggle>())
+                    new RoadSegmentRecordProjection(
+                        sp.GetRequiredService<IStreetNameCache>(),
+                        sp.GetRequiredService<UseRoadSegmentSoftDeleteFeatureToggle>(),
+                        sp.GetRequiredService<IStreetNameClient>())
                 })
                 .AddSingleton(sp => Resolve.WhenEqualToHandlerMessageType(sp
                     .GetRequiredService<ConnectedProjection<WfsContext>[]>()
@@ -68,6 +72,7 @@ public class Program
                         sp.GetRequiredService<ConnectedProjection<WfsContext>[]>()
                         , WfsContextEventProcessor.EventMapping))
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new WfsContextMigrationFactory())
+                .AddStreetNameClient()
                 .AddHostedService<WfsContextEventProcessor>())
             .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddHostedServicesStatus()

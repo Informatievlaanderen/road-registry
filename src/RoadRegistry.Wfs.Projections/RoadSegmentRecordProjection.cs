@@ -14,14 +14,20 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Extensions;
 using Infrastructure;
 using Schema;
+using StreetName;
 
 public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
 {
     private readonly IStreetNameCache _streetNameCache;
+    private readonly IStreetNameClient _streetNameClient;
 
-    public RoadSegmentRecordProjection(IStreetNameCache streetNameCache, UseRoadSegmentSoftDeleteFeatureToggle useRoadSegmentSoftDeleteFeatureToggle)
+    public RoadSegmentRecordProjection(
+        IStreetNameCache streetNameCache,
+        UseRoadSegmentSoftDeleteFeatureToggle useRoadSegmentSoftDeleteFeatureToggle,
+        IStreetNameClient streetNameClient)
     {
         _streetNameCache = streetNameCache.ThrowIfNull();
+        _streetNameClient = streetNameClient.ThrowIfNull();
 
         When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
         {
@@ -403,7 +409,25 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         int? streetNameId,
         CancellationToken token)
     {
-        return streetNameId.HasValue ? await _streetNameCache.GetAsync(streetNameId.Value, token).ConfigureAwait(false) : null;
+        if (streetNameId is null)
+        {
+            return null;
+        }
+
+        var streetName = await _streetNameCache.GetAsync(streetNameId.Value, token).ConfigureAwait(false);
+        if (streetName is null)
+        {
+            var streetNameDetails = await _streetNameClient.GetAsync(streetNameId.Value, token).ConfigureAwait(false);
+            return new StreetNameCacheItem
+            {
+                Id = streetNameDetails.Id,
+                NisCode = streetNameDetails.NisCode,
+                Name = streetNameDetails.Name,
+                Status = streetNameDetails.Status
+            };
+        }
+
+        return streetName;
     }
 
     private static void UpdateBeginTime<TMessage>(RoadSegmentRecord record, Envelope<TMessage> envelope)
