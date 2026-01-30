@@ -1,3 +1,10 @@
+# [4.44.0](https://github.com/informatievlaanderen/road-registry/compare/v4.43.6...v4.44.0) (2026-01-30)
+
+
+### Features
+
+* WMS/WFS projection to call StreetName detail as fallback when streetname not found in cache ([05da343](https://github.com/informatievlaanderen/road-registry/commit/05da3432ac06974bc5a2aced256adad71515691c))
+
 ## [4.43.6](https://github.com/informatievlaanderen/road-registry/compare/v4.43.5...v4.43.6) (2026-01-30)
 
 
