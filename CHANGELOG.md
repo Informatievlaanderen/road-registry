@@ -1,3 +1,10 @@
+## [4.43.4](https://github.com/informatievlaanderen/road-registry/compare/v4.43.3...v4.43.4) (2026-01-30)
+
+
+### Bug Fixes
+
+* Marten projections ignore internal Marten streams ([72c1c21](https://github.com/informatievlaanderen/road-registry/commit/72c1c213e617fe7f04f7165fc48ded17fd9c1add))
+
 ## [4.43.3](https://github.com/informatievlaanderen/road-registry/compare/v4.43.2...v4.43.3) (2026-01-29)
 
 
