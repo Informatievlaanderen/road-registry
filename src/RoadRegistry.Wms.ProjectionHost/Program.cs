@@ -54,6 +54,7 @@ public class Program
                         );
                 })
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new WmsContextMigrationFactory())
+                .AddHttpClient()
                 .AddStreetNameClient()
                 .AddHostedService(sp =>
                 {
