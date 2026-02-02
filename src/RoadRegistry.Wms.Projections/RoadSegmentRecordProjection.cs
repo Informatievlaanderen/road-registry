@@ -621,7 +621,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         int? streetNameId,
         CancellationToken token)
     {
-        if (streetNameId is null)
+        if (streetNameId is null || streetNameId == StreetNameLocalId.NotApplicable || streetNameId == StreetNameLocalId.Unknown)
         {
             return null;
         }

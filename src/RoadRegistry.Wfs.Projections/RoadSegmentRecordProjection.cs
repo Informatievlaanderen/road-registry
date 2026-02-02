@@ -409,7 +409,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         int? streetNameId,
         CancellationToken token)
     {
-        if (streetNameId is null)
+        if (streetNameId is null || streetNameId == StreetNameLocalId.NotApplicable || streetNameId == StreetNameLocalId.Unknown)
         {
             return null;
         }
