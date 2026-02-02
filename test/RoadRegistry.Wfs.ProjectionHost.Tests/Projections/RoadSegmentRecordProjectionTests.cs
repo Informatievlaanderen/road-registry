@@ -196,10 +196,10 @@ public class RoadSegmentRecordProjectionTests
                 AccessRestriction = expectedRoadSegment.lblToegangsbeperking,
 
                 LeftSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
-                LeftSideStreetName = streetNameRecord.DutchName,
+                LeftSideStreetName = expectedRoadSegment.linksStraatnaamID > 0 ? streetNameRecord.DutchName : importedRoadSegment.LeftSide.StreetName,
 
                 RightSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
-                RightSideStreetName = streetNameRecord.DutchName,
+                RightSideStreetName = expectedRoadSegment.linksStraatnaamID > 0 ? streetNameRecord.DutchName : importedRoadSegment.RightSide.StreetName,
 
                 BeginRoadNodeId = expectedRoadSegment.beginWegknoopID,
                 EndRoadNodeId = expectedRoadSegment.eindWegknoopID
