@@ -72,6 +72,7 @@ public class Program
                         sp.GetRequiredService<ConnectedProjection<WfsContext>[]>()
                         , WfsContextEventProcessor.EventMapping))
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new WfsContextMigrationFactory())
+                .AddHttpClient()
                 .AddStreetNameClient()
                 .AddHostedService<WfsContextEventProcessor>())
             .ConfigureHealthChecks(HostingPort, builder => builder
