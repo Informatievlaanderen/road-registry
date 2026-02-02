@@ -1,3 +1,10 @@
+## [4.44.1](https://github.com/informatievlaanderen/road-registry/compare/v4.44.0...v4.44.1) (2026-02-02)
+
+
+### Bug Fixes
+
+* add missing HttpClientFactory DI registration ([5a07d27](https://github.com/informatievlaanderen/road-registry/commit/5a07d274c353b9ec5923a507510f9e5e531817d9))
+
 # [4.44.0](https://github.com/informatievlaanderen/road-registry/compare/v4.43.6...v4.44.0) (2026-01-30)
 
 
