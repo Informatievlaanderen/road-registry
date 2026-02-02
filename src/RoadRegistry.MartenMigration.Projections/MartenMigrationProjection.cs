@@ -196,7 +196,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                         AttributeId = x.AttributeId,
                         Count = x.Count,
                         Direction = x.Direction,
-                        FromPosition = x.FromPosition,
+                        FromPosition = Convert.ToDouble(x.FromPosition),
+                        ToPosition = Convert.ToDouble(x.ToPosition),
                         Origin = new()
                         {
                             Application = x.Origin.Application,
@@ -205,15 +206,15 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                             OrganizationId = x.Origin.OrganizationId,
                             Since = x.Origin.Since,
                             TransactionId = x.Origin.TransactionId
-                        },
-                        ToPosition = x.ToPosition
+                        }
                     }).ToArray(),
                     Surfaces = envelope.Message.Surfaces.Select(x => new ImportedRoadSegmentSurfaceAttribute
                     {
                         AsOfGeometryVersion = x.AsOfGeometryVersion,
                         AttributeId = x.AttributeId,
                         Type = x.Type,
-                        FromPosition = x.FromPosition,
+                        FromPosition = Convert.ToDouble(x.FromPosition),
+                        ToPosition = Convert.ToDouble(x.ToPosition),
                         Origin = new()
                         {
                             Application = x.Origin.Application,
@@ -222,15 +223,15 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                             OrganizationId = x.Origin.OrganizationId,
                             Since = x.Origin.Since,
                             TransactionId = x.Origin.TransactionId
-                        },
-                        ToPosition = x.ToPosition
+                        }
                     }).ToArray(),
                     Widths = envelope.Message.Widths.Select(x => new ImportedRoadSegmentWidthAttribute
                     {
                         AsOfGeometryVersion = x.AsOfGeometryVersion,
                         AttributeId = x.AttributeId,
                         Width = x.Width,
-                        FromPosition = x.FromPosition,
+                        FromPosition = Convert.ToDouble(x.FromPosition),
+                        ToPosition = Convert.ToDouble(x.ToPosition),
                         Origin = new()
                         {
                             Application = x.Origin.Application,
@@ -239,8 +240,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                             OrganizationId = x.Origin.OrganizationId,
                             Since = x.Origin.Since,
                             TransactionId = x.Origin.TransactionId
-                        },
-                        ToPosition = x.ToPosition
+                        }
                     }).ToArray(),
                     When = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToDateTimeOffset(),
                     Origin = new()
@@ -559,8 +559,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                         AttributeId = x.AttributeId,
                         Count = x.Count,
                         Direction = x.Direction,
-                        FromPosition = x.FromPosition,
-                        ToPosition = x.ToPosition,
+                        FromPosition = Convert.ToDouble(x.FromPosition),
+                        ToPosition = Convert.ToDouble(x.ToPosition)
                     })
                     .ToArray(),
                 Surfaces = change.Surfaces.Select(x => new RoadSegmentSurfaceAttributes
@@ -568,8 +568,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                         AsOfGeometryVersion = x.AsOfGeometryVersion,
                         AttributeId = x.AttributeId,
                         Type = x.Type,
-                        FromPosition = x.FromPosition,
-                        ToPosition = x.ToPosition
+                        FromPosition = Convert.ToDouble(x.FromPosition),
+                        ToPosition = Convert.ToDouble(x.ToPosition)
                     })
                     .ToArray(),
                 Widths = change.Widths.Select(x => new RoadSegmentWidthAttributes
@@ -577,8 +577,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                         AsOfGeometryVersion = x.AsOfGeometryVersion,
                         AttributeId = x.AttributeId,
                         Width = x.Width,
-                        FromPosition = x.FromPosition,
-                        ToPosition = x.ToPosition
+                        FromPosition = Convert.ToDouble(x.FromPosition),
+                        ToPosition = Convert.ToDouble(x.ToPosition)
                     })
                     .ToArray(),
                 Provenance = new ProvenanceData(provenance)
@@ -635,8 +635,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                             AttributeId = x.AttributeId,
                             Count = x.Count,
                             Direction = x.Direction,
-                            FromPosition = x.FromPosition,
-                            ToPosition = x.ToPosition,
+                            FromPosition = Convert.ToDouble(x.FromPosition),
+                            ToPosition = Convert.ToDouble(x.ToPosition)
                         })
                         .ToArray(),
                     Surfaces = change.Surfaces.Select(x => new RoadSegmentSurfaceAttributes
@@ -644,8 +644,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                             AsOfGeometryVersion = x.AsOfGeometryVersion,
                             AttributeId = x.AttributeId,
                             Type = x.Type,
-                            FromPosition = x.FromPosition,
-                            ToPosition = x.ToPosition
+                            FromPosition = Convert.ToDouble(x.FromPosition),
+                            ToPosition = Convert.ToDouble(x.ToPosition)
                         })
                         .ToArray(),
                     Widths = change.Widths.Select(x => new RoadSegmentWidthAttributes
@@ -653,8 +653,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                             AsOfGeometryVersion = x.AsOfGeometryVersion,
                             AttributeId = x.AttributeId,
                             Width = x.Width,
-                            FromPosition = x.FromPosition,
-                            ToPosition = x.ToPosition
+                            FromPosition = Convert.ToDouble(x.FromPosition),
+                            ToPosition = Convert.ToDouble(x.ToPosition)
                         })
                         .ToArray(),
                     Provenance = new ProvenanceData(provenance)
@@ -878,8 +878,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                             AttributeId = x.AttributeId,
                             Count = x.Count,
                             Direction = x.Direction,
-                            FromPosition = x.FromPosition,
-                            ToPosition = x.ToPosition,
+                            FromPosition = Convert.ToDouble(x.FromPosition),
+                            ToPosition = Convert.ToDouble(x.ToPosition)
                         })
                         .ToArray(),
                     Surfaces = change.Surfaces?.Select(x => new RoadSegmentSurfaceAttributes
@@ -887,8 +887,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                             AsOfGeometryVersion = x.AsOfGeometryVersion,
                             AttributeId = x.AttributeId,
                             Type = x.Type,
-                            FromPosition = x.FromPosition,
-                            ToPosition = x.ToPosition
+                            FromPosition = Convert.ToDouble(x.FromPosition),
+                            ToPosition = Convert.ToDouble(x.ToPosition)
                         })
                         .ToArray(),
                     Widths = change.Widths?.Select(x => new RoadSegmentWidthAttributes
@@ -896,8 +896,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                             AsOfGeometryVersion = x.AsOfGeometryVersion,
                             AttributeId = x.AttributeId,
                             Width = x.Width,
-                            FromPosition = x.FromPosition,
-                            ToPosition = x.ToPosition
+                            FromPosition = Convert.ToDouble(x.FromPosition),
+                            ToPosition = Convert.ToDouble(x.ToPosition)
                         })
                         .ToArray(),
                     Provenance = new ProvenanceData(provenance)
@@ -930,8 +930,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                             AttributeId = x.AttributeId,
                             Count = x.Count,
                             Direction = x.Direction,
-                            FromPosition = x.FromPosition,
-                            ToPosition = x.ToPosition,
+                            FromPosition = Convert.ToDouble(x.FromPosition),
+                            ToPosition = Convert.ToDouble(x.ToPosition)
                         })
                         .ToArray(),
                     Surfaces = change.Surfaces.Select(x => new RoadSegmentSurfaceAttributes
@@ -939,8 +939,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                             AsOfGeometryVersion = x.AsOfGeometryVersion,
                             AttributeId = x.AttributeId,
                             Type = x.Type,
-                            FromPosition = x.FromPosition,
-                            ToPosition = x.ToPosition
+                            FromPosition = Convert.ToDouble(x.FromPosition),
+                            ToPosition = Convert.ToDouble(x.ToPosition)
                         })
                         .ToArray(),
                     Widths = change.Widths.Select(x => new RoadSegmentWidthAttributes
@@ -948,8 +948,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                             AsOfGeometryVersion = x.AsOfGeometryVersion,
                             AttributeId = x.AttributeId,
                             Width = x.Width,
-                            FromPosition = x.FromPosition,
-                            ToPosition = x.ToPosition
+                            FromPosition = Convert.ToDouble(x.FromPosition),
+                            ToPosition = Convert.ToDouble(x.ToPosition)
                         })
                         .ToArray(),
                     Provenance = new ProvenanceData(provenance)

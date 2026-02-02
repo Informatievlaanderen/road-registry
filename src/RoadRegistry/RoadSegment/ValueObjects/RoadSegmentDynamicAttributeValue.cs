@@ -28,4 +28,4 @@ public sealed class RoadSegmentDynamicAttributeValue<T> : IEquatable<RoadSegment
     }
 }
 
-public sealed record RoadSegmentPositionCoverage(RoadSegmentPosition From, RoadSegmentPosition To);
+public sealed record RoadSegmentPositionCoverage(RoadSegmentPositionV2 From, RoadSegmentPositionV2 To);

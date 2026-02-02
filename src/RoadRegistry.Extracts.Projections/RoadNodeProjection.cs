@@ -142,8 +142,7 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
 
 public sealed class RoadNodeExtractItem
 {
-    [JsonIgnore]
-    public int Id { get; private set; }
+    [JsonIgnore] public int Id { get; private set; }
 
     public required RoadNodeId RoadNodeId
     {
@@ -154,9 +153,7 @@ public sealed class RoadNodeExtractItem
     public required RoadNodeGeometry Geometry { get; set; }
     public required string Type { get; set; }
     public required bool Grensknoop { get; set; }
-
     public required EventTimestamp Origin { get; init; }
     public required EventTimestamp LastModified { get; set; }
-
     public required bool IsV2 { get; set; }
 }

@@ -26,6 +26,8 @@
             IPolygonal contour,
             CancellationToken cancellationToken)
         {
+            //TODO-pr temp override
+            contour = (IPolygonal)((Geometry)contour).Buffer(10000);
             var ids = await GetUnderlyingRoadNetworkIds((Geometry)contour);
 
             return await _session.LoadManyAsync<RoadNodeExtractItem>(cancellationToken, ids.RoadNodeIds.Select(x => x.ToInt32()).ToArray());

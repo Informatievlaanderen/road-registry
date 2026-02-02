@@ -21,5 +21,10 @@ namespace RoadRegistry.Extensions
         {
             return Math.Round(value, Precisions.GeometryPrecision);
         }
+
+        public static double RoundToCm(this double value)
+        {
+            return Math.Round(value, Precisions.GeometryPrecisionV2);
+        }
     }
 }

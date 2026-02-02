@@ -41,10 +41,10 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
 
     public RoadSegmentDynamicAttributeValues<T> Add(T value, RoadSegmentGeometry geometry)
     {
-        return Add(RoadSegmentPosition.Zero, RoadSegmentPosition.FromDouble(geometry.Value.Length), value);
+        return Add(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length), value);
     }
 
-    public RoadSegmentDynamicAttributeValues<T> Add(RoadSegmentPosition from, RoadSegmentPosition to, T value)
+    public RoadSegmentDynamicAttributeValues<T> Add(RoadSegmentPositionV2 from, RoadSegmentPositionV2 to, T value)
     {
         return Add(new RoadSegmentPositionCoverage(from, to), value);
     }
@@ -53,7 +53,7 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
         return Add(coverage, RoadSegmentAttributeSide.Both, value);
     }
 
-    public RoadSegmentDynamicAttributeValues<T> Add(RoadSegmentPosition from, RoadSegmentPosition to, RoadSegmentAttributeSide side, T value)
+    public RoadSegmentDynamicAttributeValues<T> Add(RoadSegmentPositionV2 from, RoadSegmentPositionV2 to, RoadSegmentAttributeSide side, T value)
     {
         return Add(new RoadSegmentPositionCoverage(from, to), side, value);
     }
@@ -94,8 +94,8 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
                 : Values.Reverse().Select(x => new RoadSegmentDynamicAttributeValue<T>
                 {
                     Coverage = new(
-                        RoadSegmentPosition.FromDouble(thisGeometryLength - x.Coverage.To),
-                        RoadSegmentPosition.FromDouble(thisGeometryLength - x.Coverage.From)
+                        new RoadSegmentPositionV2(thisGeometryLength - x.Coverage.To),
+                        new RoadSegmentPositionV2(thisGeometryLength - x.Coverage.From)
                     ),
                     Side = x.Side,
                     Value = x.Value
@@ -104,8 +104,8 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
                 ? otherAttributes.Values.Select(x => new RoadSegmentDynamicAttributeValue<T>
                 {
                     Coverage = new(
-                        RoadSegmentPosition.FromDouble(thisGeometryLength + x.Coverage.From),
-                        RoadSegmentPosition.FromDouble(thisGeometryLength + x.Coverage.To)
+                        new RoadSegmentPositionV2(thisGeometryLength + x.Coverage.From),
+                        new RoadSegmentPositionV2(thisGeometryLength + x.Coverage.To)
                     ),
                     Side = x.Side,
                     Value = x.Value
@@ -113,8 +113,8 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
                 : otherAttributes.Values.Reverse().Select(x => new RoadSegmentDynamicAttributeValue<T>
                 {
                     Coverage = new(
-                        RoadSegmentPosition.FromDouble(thisGeometryLength + otherGeometryLength - x.Coverage.To),
-                        RoadSegmentPosition.FromDouble(thisGeometryLength + otherGeometryLength - x.Coverage.From)
+                        new RoadSegmentPositionV2(thisGeometryLength + otherGeometryLength - x.Coverage.To),
+                        new RoadSegmentPositionV2(thisGeometryLength + otherGeometryLength - x.Coverage.From)
                     ),
                     Side = x.Side,
                     Value = x.Value

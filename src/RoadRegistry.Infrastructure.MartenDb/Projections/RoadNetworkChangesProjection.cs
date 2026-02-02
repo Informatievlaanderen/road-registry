@@ -33,7 +33,10 @@ public abstract class RoadNetworkChangesProjection : IProjection
             .DatabaseSchemaName(WellKnownSchemas.MartenEventStore)
             .DocumentAlias("roadnetworkchangesprojection_progression")
             .Identity(x => x.Id)
-            .Index(x => x.ProjectionName, i => { i.Name = "ix_changesprojection_projectionname"; });
+            .Duplicate(x => x.ProjectionName, configure: index =>
+            {
+                index.Name = "ix_changesprojection_projectionname";
+            }, notNull: true);
 
         ConfigureSchema(options);
     }
@@ -47,7 +50,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
         try
         {
             var batchCorrelationIds = events.Select(x => x.CorrelationId!).Distinct().ToList();
-
+            //operations.AdvancedSql.QueryAsync<>()
             var processedProjectionProgressions = await operations.Query<RoadNetworkChangesProjectionProgression>()
                 .Where(x => x.ProjectionName == _projectionName && batchCorrelationIds.Contains(x.Id))
                 .ToListAsync(cancellation);
