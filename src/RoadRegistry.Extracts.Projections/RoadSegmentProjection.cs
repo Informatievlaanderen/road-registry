@@ -55,7 +55,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
                         new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        new RoadSegmentPositionV2(Convert.ToDouble(x.ToPosition).RoundToCm()),
+                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), geometry),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 ),
@@ -102,7 +102,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
                         new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        new RoadSegmentPositionV2(Convert.ToDouble(x.ToPosition).RoundToCm()),
+                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), geometry),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 ),
@@ -142,7 +142,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
                         new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        new RoadSegmentPositionV2(Convert.ToDouble(x.ToPosition).RoundToCm()),
+                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), segment.Geometry),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 );
@@ -204,7 +204,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                     segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                         .Select(x => (
                             new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                            new RoadSegmentPositionV2(Convert.ToDouble(x.ToPosition).RoundToCm()),
+                            UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), segment.Geometry),
                             RoadSegmentAttributeSide.Both,
                             x.Type))
                     );
@@ -219,7 +219,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
                         new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        new RoadSegmentPositionV2(Convert.ToDouble(x.ToPosition).RoundToCm()),
+                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), segment.Geometry),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 );
@@ -460,6 +460,19 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
     private static ExtractRoadSegmentDynamicAttribute<T> ForEntireGeometry<T>(T value, RoadSegmentGeometry geometry)
     {
         return new ExtractRoadSegmentDynamicAttribute<T>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Both, value)]);
+    }
+
+    private static RoadSegmentPositionV2 UseGeometryLengthIfReasonablyEqual(double position, RoadSegmentGeometry geometry)
+    {
+        var geometryLength = geometry.Value.Length.RoundToCm();
+        position = position.RoundToCm();
+
+        if (position.IsReasonablyEqualTo(geometryLength, 0.02))
+        {
+            return new RoadSegmentPositionV2(geometryLength);
+        }
+
+        return new RoadSegmentPositionV2(position);
     }
 
     private static StreetNameLocalId GetValue(ExtractRoadSegmentDynamicAttribute<StreetNameLocalId> attributes, RoadSegmentAttributeSide side)

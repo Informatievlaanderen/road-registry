@@ -7,10 +7,14 @@ using FluentAssertions;
 using GradeSeparatedJunction.Events.V1;
 using GradeSeparatedJunction.Events.V2;
 using JasperFx.Events;
+using NetTopologySuite.Geometries;
 using RoadNode.Events.V1;
 using RoadNode.Events.V2;
 using RoadRegistry.Tests.AggregateTests;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadSegment.Events.V1;
+using RoadSegment.Events.V1.ValueObjects;
 using RoadSegment.Events.V2;
 using RoadSegment.ValueObjects;
 using ScopedRoadNetwork.Events.V1;
@@ -60,6 +64,66 @@ public class RoadSegmentProjectionTests
         {
             Assert.Fail($"Missing handlers for event types:{Environment.NewLine}{string.Join(Environment.NewLine, missingEventTypes.Select(x => x.FullName).OrderBy(x => x))}");
         }
+    }
+
+    [Theory]
+    [InlineData(100.02, false)]
+    [InlineData(100.01, true)]
+    [InlineData(99.99, true)]
+    [InlineData(99.98, false)]
+    public Task V1_WhenSurfaceTypeToPositionIs1CmDifferentThanGeometryLength_ThenGeometryLengthIsUsed(double surfaceTypeToPosition, bool expectGeometryLength)
+    {
+        var v1Fixture = new RoadNetworkTestData().ObjectProvider;
+        v1Fixture.CustomizeUniqueInteger();
+
+        var roadSegment1Added = v1Fixture.Create<RoadSegmentAdded>();
+        roadSegment1Added.LeftSide = new RoadSegmentSideAttributes { StreetNameId = StreetNameLocalId.NotApplicable };
+        roadSegment1Added.RightSide = new RoadSegmentSideAttributes { StreetNameId = StreetNameLocalId.NotApplicable };
+        roadSegment1Added.MaintenanceAuthority.Code = OrganizationId.Unknown.ToString();
+
+        roadSegment1Added.Geometry = BuildRoadSegmentGeometry(0, 0, 100, 0);
+        roadSegment1Added.Surfaces =
+        [
+            new RoadSegmentSurfaceAttributes
+            {
+                FromPosition = 0,
+                ToPosition = surfaceTypeToPosition,
+                Type = v1Fixture.Create<RoadSegmentSurfaceType>().ToString(),
+                AsOfGeometryVersion = 0,
+                AttributeId = 1
+            }
+        ];
+
+        var expectedRoadSegment1 = new RoadSegmentExtractItem
+        {
+            RoadSegmentId = new RoadSegmentId(roadSegment1Added.RoadSegmentId),
+            Geometry = new RoadSegmentGeometry(3812, "MULTILINESTRING ((500021.1638673437 499983.87319930363, 500121.1630778698 499983.8851437904))"),
+            StartNodeId = new RoadNodeId(roadSegment1Added.StartNodeId),
+            EndNodeId = new RoadNodeId(roadSegment1Added.EndNodeId),
+            GeometryDrawMethod = roadSegment1Added.GeometryDrawMethod,
+            AccessRestriction = ForEntireLength(roadSegment1Added.AccessRestriction, roadSegment1Added.Geometry),
+            Category = ForEntireLength(roadSegment1Added.Category, roadSegment1Added.Geometry),
+            Morphology = ForEntireLength(roadSegment1Added.Morphology, roadSegment1Added.Geometry),
+            Status = ForEntireLength(roadSegment1Added.Status, roadSegment1Added.Geometry),
+            StreetNameId = ForEntireLength(StreetNameLocalId.NotApplicable, roadSegment1Added.Geometry),
+            MaintenanceAuthorityId = ForEntireLength(new OrganizationId(roadSegment1Added.MaintenanceAuthority.Code), roadSegment1Added.Geometry),
+            SurfaceType = expectGeometryLength
+                ? ForEntireLength(roadSegment1Added.Surfaces.Single().Type, roadSegment1Added.Geometry)
+                : new ExtractRoadSegmentDynamicAttribute<string>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(surfaceTypeToPosition), RoadSegmentAttributeSide.Both, roadSegment1Added.Surfaces.Single().Type)]),
+            CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(),
+            BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(),
+            PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(),
+            EuropeanRoadNumbers = [],
+            NationalRoadNumbers = [],
+            Origin = roadSegment1Added.Provenance.ToEventTimestamp(),
+            LastModified = roadSegment1Added.Provenance.ToEventTimestamp(),
+            IsV2 = false
+        };
+
+        return BuildProjection()
+            .Scenario()
+            .Given(roadSegment1Added)
+            .Expect(expectedRoadSegment1);
     }
 
     [Fact]
@@ -487,5 +551,17 @@ public class RoadSegmentProjectionTests
     private RoadSegmentProjection BuildProjection()
     {
         return new RoadSegmentProjection();
+    }
+
+    protected static RoadSegmentGeometry BuildRoadSegmentGeometry(int x1, int y1, int x2, int y2)
+    {
+        return BuildRoadSegmentGeometry(new Point(x1, y1), new Point(x2, y2));
+    }
+
+    protected static RoadSegmentGeometry BuildRoadSegmentGeometry(Point start, Point end)
+    {
+        return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
+            .WithMeasureOrdinates()
+            .ToRoadSegmentGeometry();
     }
 }
