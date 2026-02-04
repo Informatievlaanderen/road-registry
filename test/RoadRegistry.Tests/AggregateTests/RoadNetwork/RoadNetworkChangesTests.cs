@@ -2,6 +2,7 @@
 
 using System.Linq;
 using FluentAssertions;
+using NetTopologySuite.Geometries;
 using RoadRegistry.RoadNetwork;
 using ScopedRoadNetwork;
 
@@ -18,6 +19,6 @@ public class RoadNetworkChangesTests
         changes.Ids.GradeSeparatedJunctionIds.Should().BeEmpty();
 
         var scope = changes.BuildScopeGeometry();
-        scope.ToList().Should().BeEmpty();
+        ((IComparable<Geometry>)scope).Should().BeNull();
     }
 }

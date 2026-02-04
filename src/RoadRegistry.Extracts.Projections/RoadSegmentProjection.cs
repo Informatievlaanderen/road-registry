@@ -467,7 +467,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
         var geometryLength = geometry.Value.Length.RoundToCm();
         position = position.RoundToCm();
 
-        if (position.IsReasonablyEqualTo(geometryLength, 0.02))
+        if (position.IsReasonablyEqualTo(geometryLength, 0.05))
         {
             return new RoadSegmentPositionV2(geometryLength);
         }

@@ -136,10 +136,6 @@ public static class RoadSegmentFlattener
 
         if (!values.Any())
         {
-            if (typeof(T) == typeof(string))
-            {
-                //TODO-pr temp
-            }
             value = default;
             return false;
         }

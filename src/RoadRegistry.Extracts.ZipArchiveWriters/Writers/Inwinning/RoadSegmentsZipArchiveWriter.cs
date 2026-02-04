@@ -32,6 +32,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
         ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
         var segments = await zipArchiveDataProvider.GetRoadSegments(request.Contour, cancellationToken);
+        var records = ConvertToDbaseRecords(segments, context);
 
         const ExtractFileName extractFilename = ExtractFileName.Wegsegment;
         FeatureType[] featureTypes = request.IsInformative
@@ -42,13 +43,11 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
 
         foreach (var featureType in featureTypes)
         {
-            var records = ConvertToDbaseRecords(segments, context);
-
             await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.PolyLine, RoadSegmentDbaseRecord.Schema, records, cancellationToken);
         }
     }
 
-    internal static IEnumerable<(DbaseRecord, Geometry)> ConvertToDbaseRecords(IEnumerable<RoadSegmentExtractItem> segments, ZipArchiveWriteContext context)
+    internal static IReadOnlyCollection<(DbaseRecord, Geometry)> ConvertToDbaseRecords(IEnumerable<RoadSegmentExtractItem> segments, ZipArchiveWriteContext context)
     {
         return segments
             .OrderBy(x => x.Id)
@@ -88,7 +87,8 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
 
                         return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
                     });
-            });
+            })
+            .ToList();
     }
 
     private static int MigrateToV2(RoadSegmentStatus v1)

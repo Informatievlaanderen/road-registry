@@ -2,6 +2,7 @@
 
 using AutoFixture;
 using FluentAssertions;
+using NetTopologySuite.Geometries;
 using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.Tests.AggregateTests;
@@ -25,6 +26,6 @@ public class RoadNetworkChangesTests
         changes.Ids.RoadNodeIds.Should().BeEmpty();
 
         var scope = changes.BuildScopeGeometry();
-        scope.ToList().Should().NotBeEmpty();
+        ((IComparable<Geometry>)scope).Should().NotBeNull();
     }
 }

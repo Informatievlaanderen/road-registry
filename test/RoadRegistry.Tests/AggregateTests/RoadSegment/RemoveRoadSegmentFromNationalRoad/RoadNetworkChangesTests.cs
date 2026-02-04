@@ -2,6 +2,7 @@
 
 using AutoFixture;
 using FluentAssertions;
+using NetTopologySuite.Geometries;
 using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
@@ -27,7 +28,7 @@ public class RoadNetworkChangesTests
         changes.Ids.RoadSegmentIds.Should().Contain(change.RoadSegmentId);
 
         var scope = changes.BuildScopeGeometry();
-        scope.ToList().Should().BeEmpty();
+        ((IComparable<Geometry>)scope).Should().BeNull();
     }
 
     [Fact]

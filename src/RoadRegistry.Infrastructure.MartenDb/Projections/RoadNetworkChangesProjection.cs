@@ -9,20 +9,16 @@ using Microsoft.Extensions.Logging;
 public abstract class RoadNetworkChangesProjection : IProjection
 {
     public int BatchSize { get; }
-
     private readonly IReadOnlyCollection<IRoadNetworkChangesProjection> _projections;
-    private readonly int _catchUpThreshold;
     private readonly ILogger _logger;
     private readonly string _projectionName;
-
     protected const int DefaultBatchSize = 5000;
-    protected const int DefaultCatchUpThreshold = DefaultBatchSize * 4;
+    private bool? _isCatchingUp;
 
-    protected RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections, ILoggerFactory loggerFactory, int batchSize = DefaultBatchSize, int catchUpThreshold = DefaultCatchUpThreshold)
+    protected RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections, ILoggerFactory loggerFactory, int batchSize = DefaultBatchSize)
     {
         _projections = projections;
         BatchSize = batchSize;
-        _catchUpThreshold = catchUpThreshold;
         _logger = loggerFactory.CreateLogger(GetType());
         _projectionName = GetType().Name;
     }
@@ -33,10 +29,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
             .DatabaseSchemaName(WellKnownSchemas.MartenEventStore)
             .DocumentAlias("roadnetworkchangesprojection_progression")
             .Identity(x => x.Id)
-            .Duplicate(x => x.ProjectionName, configure: index =>
-            {
-                index.Name = "ix_changesprojection_projectionname";
-            }, notNull: true);
+            .Duplicate(x => x.ProjectionName, configure: index => { index.Name = "ix_changesprojection_projectionname"; }, notNull: true);
 
         ConfigureSchema(options);
     }
@@ -50,13 +43,12 @@ public abstract class RoadNetworkChangesProjection : IProjection
         try
         {
             var batchCorrelationIds = events.Select(x => x.CorrelationId!).Distinct().ToList();
-            //operations.AdvancedSql.QueryAsync<>()
+
             var processedProjectionProgressions = await operations.Query<RoadNetworkChangesProjectionProgression>()
                 .Where(x => x.ProjectionName == _projectionName && batchCorrelationIds.Contains(x.Id))
                 .ToListAsync(cancellation);
 
-            var streamMaxSequence = await operations.GetHighWaterMark(cancellation);
-            var processOnlyCurrentBatch = (streamMaxSequence - events.Max(x => x.Sequence)) > _catchUpThreshold || events.Count < BatchSize;
+            var processOnlyCurrentBatch = DetermineToProcessOnlyCurrentBatch(events);
             if (processOnlyCurrentBatch)
             {
                 await ProcessEvents(operations, events, processedProjectionProgressions, cancellation);
@@ -76,27 +68,42 @@ public abstract class RoadNetworkChangesProjection : IProjection
         }
     }
 
+    private bool DetermineToProcessOnlyCurrentBatch(IReadOnlyList<IEvent> events)
+    {
+        if (_isCatchingUp is null)
+        {
+            _isCatchingUp = events.Count == BatchSize;
+        }
+        else if (events.Count < BatchSize)
+        {
+            _isCatchingUp = false;
+        }
+
+        return _isCatchingUp!.Value || events.Count < BatchSize;
+    }
+
     private async Task ProcessEvents(IDocumentOperations operations, IReadOnlyList<IEvent> events, IReadOnlyList<RoadNetworkChangesProjectionProgression> processedProjectionProgressions, CancellationToken cancellation)
     {
         var eventsPerCorrelationId = events
-            .Where(x => x.StreamKey is null || !x.StreamKey.StartsWith("mt_"))
+            .Where(x => x.CorrelationId is not null && (x.StreamKey is null || !x.StreamKey.StartsWith("mt_")))
             .GroupBy(x => x.CorrelationId!)
             .OrderBy(x => x.First().Sequence)
             .ToList();
 
-        foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, i) => (CorrelationId: g.Key, Events: g.OrderBy(x => x.Sequence).ToArray())))
+        foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, i) => (CorrelationId: g.Key, Events: g.OrderBy(x => x.Sequence).ToList())))
         {
             var lastSequenceId = eventsGrouping.Events.Max(x => x.Sequence);
             var projectionProgression = processedProjectionProgressions.SingleOrDefault(x => x.Id == eventsGrouping.CorrelationId);
-            if (projectionProgression is not null && projectionProgression.LastSequenceId >= lastSequenceId)
-            {
-                // already processed
-                continue;
-            }
 
-            foreach (var projection in _projections)
+            var eventsToProcess = projectionProgression is not null
+                ? eventsGrouping.Events.Where(x => x.Sequence > projectionProgression.LastSequenceId).ToList()
+                : eventsGrouping.Events;
+            if (eventsToProcess.Any())
             {
-                await projection.Project(operations, eventsGrouping.Events, cancellation).ConfigureAwait(false);
+                foreach (var projection in _projections)
+                {
+                    await projection.Project(operations, eventsToProcess, cancellation).ConfigureAwait(false);
+                }
             }
 
             if (projectionProgression is null)
@@ -108,7 +115,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
                     LastSequenceId = lastSequenceId
                 });
             }
-            else
+            else if (lastSequenceId > projectionProgression.LastSequenceId)
             {
                 projectionProgression.LastSequenceId = lastSequenceId;
             }

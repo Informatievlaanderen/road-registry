@@ -9,7 +9,7 @@ using ValueObjects;
 
 public interface IRoadNetworkRepository
 {
-    Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry geometry, RoadNetworkIds? ids = null, bool onlyV2 = false);
+    Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry? geometry = null, RoadNetworkIds? ids = null, bool onlyV2 = false);
     Task<RoadNetworkIds> GetUnderlyingIdsWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds);
     Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, ScopedRoadNetworkId roadNetworkId);
     Task Save(ScopedRoadNetwork roadNetwork, string commandName, CancellationToken cancellationToken);

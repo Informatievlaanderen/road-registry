@@ -16,46 +16,148 @@ public class RoadNetworkRepository : IRoadNetworkRepository
         Store = store;
     }
 
-    public async Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry geometry, RoadNetworkIds? ids = null, bool onlyV2 = false)
+    public async Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry? geometry = null, RoadNetworkIds? ids = null, bool onlyV2 = false)
     {
-        if (geometry.IsEmpty && (ids is null || ids.IsEmpty))
+        if ((geometry is null || geometry.IsEmpty) && (ids is null || ids.IsEmpty))
         {
             throw new ArgumentException("At least a geometry or ids must be specified.");
         }
 
-        var baseSql = @$"
-SELECT rs.id as RoadSegmentId, rs.start_node_id as StartNodeId, rs.end_node_id as EndNodeId, j.id as GradeSeparatedJunctionId
-FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
-LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j ON rs.id = j.upper_road_segment_id OR rs.id = j.lower_road_segment_id
-WHERE {(onlyV2 ? "rs.is_v2 AND (j.is_v2 IS NULL OR j.is_v2)" : "TRUE")}";
+        var sql = $@"
+WITH
+input AS (
+  SELECT
+    -- Optional inputs (pass NULL or empty array when not used)
+    ST_SetSRID(ST_GeomFromText(@wkt), @srid)       AS boundary_geom,   -- may be NULL
+    @roadsegmentids::bigint[]                      AS roadsegmentids,  -- may be NULL/empty
+    @roadnodeids::bigint[]                         AS roadnodeids,     -- may be NULL/empty
+    @junctionids::bigint[]                         AS junctionids      -- may be NULL/empty
+),
 
-        var queries = new List<string>();
+/* Seed segments = UNION of:
+   - spatial hits
+   - explicit roadsegmentids
+   - segments touched by roadnodeids (start/end)
+   - segments referenced by explicit junctionids (upper/lower)
+*/
+seed_segments AS (
+  -- spatial
+  SELECT rs.id
+  FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
+  CROSS JOIN input i
+  WHERE i.boundary_geom IS NOT NULL
+    AND ST_Intersects(rs.geometry, i.boundary_geom)
 
-        if (!geometry.IsEmpty)
-        {
-            queries.Add($"{baseSql} AND ST_Intersects(rs.geometry, ST_GeomFromText(@wkt, {geometry.SRID}))");
-        }
+  UNION
 
-        if (ids is not null)
-        {
-            if (ids.RoadNodeIds.Any())
+  -- roadsegmentids
+  SELECT rs.id
+  FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
+  CROSS JOIN input i
+  WHERE i.roadsegmentids IS NOT NULL
+    AND cardinality(i.roadsegmentids) > 0
+    AND rs.id = ANY(i.roadsegmentids)
+
+  UNION
+
+  -- roadnodeids
+  SELECT rs.id
+  FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
+  CROSS JOIN input i
+  WHERE i.roadnodeids IS NOT NULL
+    AND cardinality(i.roadnodeids) > 0
+    AND (rs.start_node_id = ANY(i.roadnodeids) OR rs.end_node_id = ANY(i.roadnodeids))
+
+  UNION
+
+  -- segments implied by junctionids
+  SELECT j.upper_road_segment_id
+  FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j
+  CROSS JOIN input i
+  WHERE i.junctionids IS NOT NULL
+    AND cardinality(i.junctionids) > 0
+    AND j.id = ANY(i.junctionids)
+
+  UNION
+
+  SELECT j.lower_road_segment_id
+  FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j
+  CROSS JOIN input i
+  WHERE i.junctionids IS NOT NULL
+    AND cardinality(i.junctionids) > 0
+    AND j.id = ANY(i.junctionids)
+),
+
+/* Seed junctions = UNION of:
+   - explicit junctionids
+   - junctions touching any seed segment (using UNION ALL branches; dedup after)
+*/
+seed_junctions_raw AS (
+  -- explicit junctionids
+  SELECT j.id, j.upper_road_segment_id, j.lower_road_segment_id
+  FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j
+  CROSS JOIN input i
+  WHERE i.junctionids IS NOT NULL
+    AND cardinality(i.junctionids) > 0
+    AND j.id = ANY(i.junctionids)
+
+  UNION ALL
+
+  -- junctions where upper segment is in seed
+  SELECT j.id, j.upper_road_segment_id, j.lower_road_segment_id
+  FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j
+  WHERE j.upper_road_segment_id IN (SELECT id FROM seed_segments)
+
+  UNION ALL
+
+  -- junctions where lower segment is in seed
+  SELECT j.id, j.upper_road_segment_id, j.lower_road_segment_id
+  FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j
+  WHERE j.lower_road_segment_id IN (SELECT id FROM seed_segments)
+),
+seed_junctions AS (
+  SELECT DISTINCT id, upper_road_segment_id, lower_road_segment_id
+  FROM seed_junctions_raw
+),
+
+-- Expanded segments: always include both ends of seed junctions (even if outside spatial boundary)
+expanded_segments AS (
+  SELECT id FROM seed_segments
+  UNION
+  SELECT upper_road_segment_id FROM seed_junctions
+  UNION
+  SELECT lower_road_segment_id FROM seed_junctions
+),
+
+-- Segment<->junction link rows, but ONLY for seed junctions
+segment_junction_links AS (
+  SELECT upper_road_segment_id AS road_segment_id, id AS gradeseparatedjunctionid
+  FROM seed_junctions
+  UNION ALL
+  SELECT lower_road_segment_id AS road_segment_id, id AS gradeseparatedjunctionid
+  FROM seed_junctions
+)
+
+SELECT
+  rs.id            AS RoadSegmentId,
+  rs.start_node_id AS StartNodeId,
+  rs.end_node_id   AS EndNodeId,
+  sjl.gradeseparatedjunctionid AS GradeSeparatedJunctionId
+FROM expanded_segments es
+JOIN {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
+  ON rs.id = es.id
+LEFT JOIN segment_junction_links sjl
+  ON sjl.road_segment_id = rs.id
+";
+        var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql,
+            new
             {
-                queries.Add($"{baseSql} AND (rs.start_node_id IN ({string.Join(",", ids.RoadNodeIds.Select(x => x.ToInt32()))}) OR rs.end_node_id IN ({string.Join(",", ids.RoadNodeIds.Select(x => x.ToInt32()))}))");
-            }
-
-            if (ids.RoadSegmentIds.Any())
-            {
-                queries.Add($"{baseSql} AND rs.id IN ({string.Join(",", ids.RoadSegmentIds.Select(x => x.ToInt32()))})");
-            }
-
-            if (ids.GradeSeparatedJunctionIds.Any())
-            {
-                queries.Add($"{baseSql} AND j.id IN ({string.Join(",", ids.GradeSeparatedJunctionIds.Select(x => x.ToInt32()))})");
-            }
-        }
-
-        var sql = string.Join(" UNION ", queries);
-        var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql, new { wkt = geometry.AsText() })).ToList();
+                wkt = geometry?.AsText(),
+                srid = geometry?.SRID,
+                roadsegmentids = ids?.RoadSegmentIds.Count > 0 ? ids.RoadSegmentIds.Select(x => x.ToInt32()).ToArray() : null,
+                roadnodeids = ids?.RoadNodeIds.Count > 0 ? ids.RoadNodeIds.Select(x => x.ToInt32()).ToArray() : null,
+                junctionids = ids?.GradeSeparatedJunctionIds.Count > 0 ? ids.GradeSeparatedJunctionIds.Select(x => x.ToInt32()).ToArray() : null
+            })).ToList();
 
         return new RoadNetworkIds(
             segments.SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })
