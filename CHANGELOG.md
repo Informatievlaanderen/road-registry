@@ -1,3 +1,11 @@
+## [4.44.2](https://github.com/informatievlaanderen/road-registry/compare/v4.44.1...v4.44.2) (2026-02-04)
+
+
+### Bug Fixes
+
+* Inwinning extract (round positions + RoadNetworkRepository query) ([#1826](https://github.com/informatievlaanderen/road-registry/issues/1826)) ([a4bdbe8](https://github.com/informatievlaanderen/road-registry/commit/a4bdbe844251c9ef7b40a21f67bccadb30811943))
+* wms/wfs deal with -9 when fetching from streetname-registry ([7aa6330](https://github.com/informatievlaanderen/road-registry/commit/7aa6330b45b6a8160a80115438a4f9dd5bb44d01))
+
 ## [4.44.1](https://github.com/informatievlaanderen/road-registry/compare/v4.44.0...v4.44.1) (2026-02-02)
 
 
