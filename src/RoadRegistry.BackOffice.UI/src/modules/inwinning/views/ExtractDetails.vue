@@ -296,7 +296,7 @@ export default defineComponent({
       while (true) {
         await this.loadExtractDetails();
 
-        if (this.ticketId || this.unmounting) {
+        if (this.downloadAvailable || this.ticketId || this.unmounting) {
           break;
         }
 

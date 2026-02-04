@@ -435,6 +435,6 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var repo = sp.GetRequiredService<IRoadNetworkRepository>();
 
         await using var session = store.LightweightSession();
-        return await repo.GetUnderlyingIds(session, geometry ?? Polygon.Empty, ids, onlyV2);
+        return await repo.GetUnderlyingIds(session, geometry, ids, onlyV2);
     }
 }

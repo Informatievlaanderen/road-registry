@@ -9,8 +9,7 @@ public class ExtractsRoadNetworkChangesProjection : RoadNetworkChangesProjection
 {
     public ExtractsRoadNetworkChangesProjection(int batchSize, ILoggerFactory loggerFactory)
         : base([new RoadNodeProjection(), new RoadSegmentProjection(), new GradeSeparatedJunctionProjection()], loggerFactory,
-            batchSize: batchSize,
-            catchUpThreshold: batchSize * 4)
+            batchSize: batchSize)
     {
     }
 

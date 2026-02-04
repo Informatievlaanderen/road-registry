@@ -413,14 +413,14 @@ public class RoadSegmentRecordProjectionTests
                 TransactionId = expectedRoadSegment.transactieID,
 
                 LeftSideMunicipalityId = null,
-                LeftSideMunicipalityNisCode = streetNameRecord.NisCode,
+                LeftSideMunicipalityNisCode = expectedRoadSegment.linksStraatnaamID > 0 ? streetNameRecord.NisCode : null,
                 LeftSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
-                LeftSideStreetName = streetNameRecord.DutchName,
+                LeftSideStreetName = expectedRoadSegment.linksStraatnaamID > 0 ? streetNameRecord.DutchName : importedRoadSegment.LeftSide.StreetName,
 
                 RightSideMunicipalityId = null,
-                RightSideMunicipalityNisCode = streetNameRecord.NisCode,
-                RightSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
-                RightSideStreetName = streetNameRecord.DutchName,
+                RightSideMunicipalityNisCode = expectedRoadSegment.rechtsStraatnaamID > 0 ? streetNameRecord.NisCode : null,
+                RightSideStreetNameId = expectedRoadSegment.rechtsStraatnaamID,
+                RightSideStreetName = expectedRoadSegment.rechtsStraatnaamID > 0 ? streetNameRecord.DutchName : importedRoadSegment.RightSide.StreetName,
 
                 RoadSegmentVersion = expectedRoadSegment.wegsegmentversie,
                 BeginRoadNodeId = expectedRoadSegment.beginWegknoopID,

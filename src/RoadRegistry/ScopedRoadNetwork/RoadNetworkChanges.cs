@@ -51,11 +51,11 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
         return GetEnumerator();
     }
 
-    public MultiPolygon BuildScopeGeometry()
+    public MultiPolygon? BuildScopeGeometry()
     {
         if (!_geometries.Any())
         {
-            return MultiPolygon.Empty;
+            return null;
         }
 
         var scopes = new List<Polygon>();

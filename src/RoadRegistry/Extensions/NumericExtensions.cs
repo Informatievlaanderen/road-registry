@@ -2,11 +2,24 @@ namespace RoadRegistry.Extensions;
 
 using System;
 
-internal static class NumericExtensions
+public static class NumericExtensions
 {
     public static bool IsReasonablyEqualTo(this RoadSegmentPosition value, double other)
     {
         return IsReasonablyEqualTo(value.ToDouble(), other, DefaultTolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyEqualTo(this RoadSegmentPositionV2 value, RoadSegmentPositionV2 other)
+    {
+        return IsReasonablyEqualTo(value, other.ToDouble());
+    }
+    public static bool IsReasonablyEqualTo(this RoadSegmentPositionV2 value, double other)
+    {
+        return IsReasonablyEqualTo(value.ToDouble(), other, DefaultTolerances.GeometryToleranceV2);
+    }
+    public static RoadSegmentPositionV2 RoundToCm(this RoadSegmentPositionV2 value)
+    {
+        return new RoadSegmentPositionV2(value.ToDouble().RoundToCm());
     }
 
     public static bool IsReasonablyEqualTo(this double value, double other, double tolerance)

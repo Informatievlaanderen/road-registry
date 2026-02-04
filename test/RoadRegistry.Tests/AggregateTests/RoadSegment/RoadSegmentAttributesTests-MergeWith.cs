@@ -28,8 +28,8 @@ public class RoadSegmentAttributesMergeWithTests
         foreach (var (expected, index) in testCase.ExpectedAttributes.Values.Select((x, i) => (x, i)))
         {
             var actual = mergedAttributes.Values[index];
-            ((int)actual.Coverage.From.ToDecimal()).Should().Be(expected.From);
-            ((int)actual.Coverage.To.ToDecimal()).Should().Be(expected.To);
+            ((int)actual.Coverage.From.ToDouble()).Should().Be(expected.From);
+            ((int)actual.Coverage.To.ToDouble()).Should().Be(expected.To);
             actual.Side.Should().Be(expected.Side);
             actual.Value.Should().Be(expected.Value);
         }
@@ -143,7 +143,7 @@ public class RoadSegmentAttributesMergeWithTests
         public RoadSegmentDynamicAttributeValues<string> ToRoadSegmentDynamicAttributeValues()
         {
             return new RoadSegmentDynamicAttributeValues<string>(Values.Select(x => (
-                new RoadSegmentPositionCoverage(new RoadSegmentPosition(x.Item1), new RoadSegmentPosition(x.Item2)),
+                new RoadSegmentPositionCoverage(new RoadSegmentPositionV2(x.Item1), new RoadSegmentPositionV2(x.Item2)),
                 x.Item3,
                 x.Item4)));
         }

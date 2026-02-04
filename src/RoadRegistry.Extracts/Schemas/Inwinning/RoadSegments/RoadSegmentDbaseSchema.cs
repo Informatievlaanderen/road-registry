@@ -29,7 +29,7 @@ public class RoadSegmentDbaseSchema : DbaseSchema
             DbaseField
                 .CreateNumberField(
                     new DbaseFieldName(nameof(MORF)),
-                    new DbaseFieldLength(3),
+                    new DbaseFieldLength(4),
                     new DbaseDecimalCount(0)),
 
             DbaseField

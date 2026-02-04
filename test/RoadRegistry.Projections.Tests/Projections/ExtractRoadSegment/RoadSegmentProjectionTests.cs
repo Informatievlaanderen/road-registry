@@ -1,16 +1,22 @@
 ﻿namespace RoadRegistry.Projections.Tests.Projections.ExtractRoadSegment;
 
 using AutoFixture;
+using Extensions;
 using Extracts.Projections;
 using FluentAssertions;
 using GradeSeparatedJunction.Events.V1;
 using GradeSeparatedJunction.Events.V2;
 using JasperFx.Events;
+using NetTopologySuite.Geometries;
 using RoadNode.Events.V1;
 using RoadNode.Events.V2;
 using RoadRegistry.Tests.AggregateTests;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadSegment.Events.V1;
+using RoadSegment.Events.V1.ValueObjects;
 using RoadSegment.Events.V2;
+using RoadSegment.ValueObjects;
 using ScopedRoadNetwork.Events.V1;
 using ScopedRoadNetwork.Events.V2;
 using VehicleAccess = RoadSegment.ValueObjects.VehicleAccess;
@@ -60,6 +66,66 @@ public class RoadSegmentProjectionTests
         }
     }
 
+    [Theory]
+    [InlineData(100.02, false)]
+    [InlineData(100.01, true)]
+    [InlineData(99.99, true)]
+    [InlineData(99.98, false)]
+    public Task V1_WhenSurfaceTypeToPositionIs1CmDifferentThanGeometryLength_ThenGeometryLengthIsUsed(double surfaceTypeToPosition, bool expectGeometryLength)
+    {
+        var v1Fixture = new RoadNetworkTestData().ObjectProvider;
+        v1Fixture.CustomizeUniqueInteger();
+
+        var roadSegment1Added = v1Fixture.Create<RoadSegmentAdded>();
+        roadSegment1Added.LeftSide = new RoadSegmentSideAttributes { StreetNameId = StreetNameLocalId.NotApplicable };
+        roadSegment1Added.RightSide = new RoadSegmentSideAttributes { StreetNameId = StreetNameLocalId.NotApplicable };
+        roadSegment1Added.MaintenanceAuthority.Code = OrganizationId.Unknown.ToString();
+
+        roadSegment1Added.Geometry = BuildRoadSegmentGeometry(0, 0, 100, 0);
+        roadSegment1Added.Surfaces =
+        [
+            new RoadSegmentSurfaceAttributes
+            {
+                FromPosition = 0,
+                ToPosition = surfaceTypeToPosition,
+                Type = v1Fixture.Create<RoadSegmentSurfaceType>().ToString(),
+                AsOfGeometryVersion = 0,
+                AttributeId = 1
+            }
+        ];
+
+        var expectedRoadSegment1 = new RoadSegmentExtractItem
+        {
+            RoadSegmentId = new RoadSegmentId(roadSegment1Added.RoadSegmentId),
+            Geometry = new RoadSegmentGeometry(3812, "MULTILINESTRING ((500021.1638673437 499983.87319930363, 500121.1630778698 499983.8851437904))"),
+            StartNodeId = new RoadNodeId(roadSegment1Added.StartNodeId),
+            EndNodeId = new RoadNodeId(roadSegment1Added.EndNodeId),
+            GeometryDrawMethod = roadSegment1Added.GeometryDrawMethod,
+            AccessRestriction = ForEntireLength(roadSegment1Added.AccessRestriction, roadSegment1Added.Geometry),
+            Category = ForEntireLength(roadSegment1Added.Category, roadSegment1Added.Geometry),
+            Morphology = ForEntireLength(roadSegment1Added.Morphology, roadSegment1Added.Geometry),
+            Status = ForEntireLength(roadSegment1Added.Status, roadSegment1Added.Geometry),
+            StreetNameId = ForEntireLength(StreetNameLocalId.NotApplicable, roadSegment1Added.Geometry),
+            MaintenanceAuthorityId = ForEntireLength(new OrganizationId(roadSegment1Added.MaintenanceAuthority.Code), roadSegment1Added.Geometry),
+            SurfaceType = expectGeometryLength
+                ? ForEntireLength(roadSegment1Added.Surfaces.Single().Type, roadSegment1Added.Geometry)
+                : new ExtractRoadSegmentDynamicAttribute<string>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(surfaceTypeToPosition), RoadSegmentAttributeSide.Both, roadSegment1Added.Surfaces.Single().Type)]),
+            CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(),
+            BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(),
+            PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(),
+            EuropeanRoadNumbers = [],
+            NationalRoadNumbers = [],
+            Origin = roadSegment1Added.Provenance.ToEventTimestamp(),
+            LastModified = roadSegment1Added.Provenance.ToEventTimestamp(),
+            IsV2 = false
+        };
+
+        return BuildProjection()
+            .Scenario()
+            .Given(roadSegment1Added)
+            .Expect(expectedRoadSegment1);
+    }
+
     [Fact]
     public Task WhenRoadSegmentWasAdded_ThenSucceeded()
     {
@@ -76,13 +142,13 @@ public class RoadSegmentProjectionTests
             StartNodeId = roadSegment1Added.StartNodeId,
             EndNodeId = roadSegment1Added.EndNodeId,
             GeometryDrawMethod = roadSegment1Added.GeometryDrawMethod,
-            AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment1Added.AccessRestriction.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
-            Category = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment1Added.Category.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
-            Morphology = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment1Added.Morphology.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
-            Status = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment1Added.Status.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
+            AccessRestriction = ForEntireLength(roadSegment1Added.AccessRestriction.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
+            Category = ForEntireLength(roadSegment1Added.Category.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
+            Morphology = ForEntireLength(roadSegment1Added.Morphology.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
+            Status = ForEntireLength(roadSegment1Added.Status.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
             StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegment1Added.StreetNameId),
             MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegment1Added.MaintenanceAuthorityId),
-            SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment1Added.SurfaceType.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
+            SurfaceType = ForEntireLength(roadSegment1Added.SurfaceType.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
             CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegment1Added.CarAccess),
             BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegment1Added.BikeAccess),
             PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment1Added.PedestrianAccess),
@@ -99,13 +165,13 @@ public class RoadSegmentProjectionTests
             StartNodeId = roadSegment2Added.StartNodeId,
             EndNodeId = roadSegment2Added.EndNodeId,
             GeometryDrawMethod = roadSegment2Added.GeometryDrawMethod,
-            AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment2Added.AccessRestriction.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
-            Category = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment2Added.Category.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
-            Morphology = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment2Added.Morphology.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
-            Status = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment2Added.Status.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
+            AccessRestriction = ForEntireLength(roadSegment2Added.AccessRestriction.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
+            Category = ForEntireLength(roadSegment2Added.Category.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
+            Morphology = ForEntireLength(roadSegment2Added.Morphology.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
+            Status = ForEntireLength(roadSegment2Added.Status.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
             StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegment2Added.StreetNameId),
             MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegment2Added.MaintenanceAuthorityId),
-            SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment2Added.SurfaceType.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
+            SurfaceType = ForEntireLength(roadSegment2Added.SurfaceType.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
             CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegment2Added.CarAccess),
             BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegment2Added.BikeAccess),
             PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment2Added.PedestrianAccess),
@@ -138,13 +204,13 @@ public class RoadSegmentProjectionTests
             StartNodeId = roadSegment1Added.StartNodeId,
             EndNodeId = roadSegment1Added.EndNodeId,
             GeometryDrawMethod = roadSegment1Added.GeometryDrawMethod,
-            AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment1Added.AccessRestriction.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
-            Category = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment1Added.Category.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
-            Morphology = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment1Added.Morphology.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
-            Status = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment1Added.Status.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
+            AccessRestriction = ForEntireLength(roadSegment1Added.AccessRestriction.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
+            Category = ForEntireLength(roadSegment1Added.Category.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
+            Morphology = ForEntireLength(roadSegment1Added.Morphology.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
+            Status = ForEntireLength(roadSegment1Added.Status.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
             StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegment1Added.StreetNameId),
             MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegment1Added.MaintenanceAuthorityId),
-            SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment1Added.SurfaceType.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
+            SurfaceType = ForEntireLength(roadSegment1Added.SurfaceType.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
             CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegment1Added.CarAccess),
             BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegment1Added.BikeAccess),
             PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment1Added.PedestrianAccess),
@@ -161,13 +227,13 @@ public class RoadSegmentProjectionTests
             StartNodeId = roadSegment2Added.StartNodeId,
             EndNodeId = roadSegment2Added.EndNodeId,
             GeometryDrawMethod = roadSegment2Added.GeometryDrawMethod,
-            AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment2Added.AccessRestriction.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
-            Category = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment2Added.Category.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
-            Morphology = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment2Added.Morphology.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
-            Status = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment2Added.Status.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
+            AccessRestriction = ForEntireLength(roadSegment2Added.AccessRestriction.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
+            Category = ForEntireLength(roadSegment2Added.Category.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
+            Morphology = ForEntireLength(roadSegment2Added.Morphology.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
+            Status = ForEntireLength(roadSegment2Added.Status.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
             StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegment2Added.StreetNameId),
             MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegment2Added.MaintenanceAuthorityId),
-            SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(roadSegment2Added.SurfaceType.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
+            SurfaceType = ForEntireLength(roadSegment2Added.SurfaceType.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
             CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegment2Added.CarAccess),
             BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegment2Added.BikeAccess),
             PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment2Added.PedestrianAccess),
@@ -200,13 +266,13 @@ public class RoadSegmentProjectionTests
             StartNodeId = roadSegmentModified.StartNodeId!.Value,
             EndNodeId = roadSegmentModified.EndNodeId!.Value,
             GeometryDrawMethod = roadSegmentModified.GeometryDrawMethod,
-            AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentModified.AccessRestriction!.Values.Single().Value.ToString(), roadSegmentModified.Geometry),
-            Category = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentModified.Category!.Values.Single().Value.ToString(), roadSegmentModified.Geometry),
-            Morphology = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentModified.Morphology!.Values.Single().Value.ToString(), roadSegmentModified.Geometry),
-            Status = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentModified.Status!.Values.Single().Value.ToString(), roadSegmentModified.Geometry),
+            AccessRestriction = ForEntireLength(roadSegmentModified.AccessRestriction!.Values.Single().Value.ToString(), roadSegmentModified.Geometry!),
+            Category = ForEntireLength(roadSegmentModified.Category!.Values.Single().Value.ToString(), roadSegmentModified.Geometry!),
+            Morphology = ForEntireLength(roadSegmentModified.Morphology!.Values.Single().Value.ToString(), roadSegmentModified.Geometry!),
+            Status = ForEntireLength(roadSegmentModified.Status!.Values.Single().Value.ToString(), roadSegmentModified.Geometry!),
             StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegmentModified.StreetNameId),
             MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegmentModified.MaintenanceAuthorityId),
-            SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentModified.SurfaceType!.Values.Single().Value.ToString(), roadSegmentModified.Geometry),
+            SurfaceType = ForEntireLength(roadSegmentModified.SurfaceType!.Values.Single().Value.ToString(), roadSegmentModified.Geometry!),
             CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegmentModified.CarAccess),
             BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegmentModified.BikeAccess),
             PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegmentModified.PedestrianAccess),
@@ -239,13 +305,13 @@ public class RoadSegmentProjectionTests
             StartNodeId = roadSegmentMigrated.StartNodeId,
             EndNodeId = roadSegmentMigrated.EndNodeId,
             GeometryDrawMethod = roadSegmentMigrated.GeometryDrawMethod,
-            AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentMigrated.AccessRestriction.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
-            Category = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentMigrated.Category.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
-            Morphology = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentMigrated.Morphology.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
-            Status = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentMigrated.Status.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
+            AccessRestriction = ForEntireLength(roadSegmentMigrated.AccessRestriction.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
+            Category = ForEntireLength(roadSegmentMigrated.Category.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
+            Morphology = ForEntireLength(roadSegmentMigrated.Morphology.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
+            Status = ForEntireLength(roadSegmentMigrated.Status.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
             StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegmentMigrated.StreetNameId),
             MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegmentMigrated.MaintenanceAuthorityId),
-            SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentMigrated.SurfaceType.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
+            SurfaceType = ForEntireLength(roadSegmentMigrated.SurfaceType.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
             CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegmentMigrated.CarAccess),
             BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegmentMigrated.BikeAccess),
             PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegmentMigrated.PedestrianAccess),
@@ -326,13 +392,13 @@ public class RoadSegmentProjectionTests
             StartNodeId = roadSegmentAdded.StartNodeId,
             EndNodeId = roadSegmentAdded.EndNodeId,
             GeometryDrawMethod = roadSegmentAdded.GeometryDrawMethod,
-            AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.AccessRestriction.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
-            Category = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.Category.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
-            Morphology = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.Morphology.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
-            Status = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.Status.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            AccessRestriction = ForEntireLength(roadSegmentAdded.AccessRestriction.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            Category = ForEntireLength(roadSegmentAdded.Category.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            Morphology = ForEntireLength(roadSegmentAdded.Morphology.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            Status = ForEntireLength(roadSegmentAdded.Status.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
             StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegmentAdded.StreetNameId),
             MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegmentAdded.MaintenanceAuthorityId),
-            SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.SurfaceType.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            SurfaceType = ForEntireLength(roadSegmentAdded.SurfaceType.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
             CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegmentAdded.CarAccess),
             BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegmentAdded.BikeAccess),
             PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegmentAdded.PedestrianAccess),
@@ -368,13 +434,13 @@ public class RoadSegmentProjectionTests
             StartNodeId = roadSegmentAdded.StartNodeId,
             EndNodeId = roadSegmentAdded.EndNodeId,
             GeometryDrawMethod = roadSegmentAdded.GeometryDrawMethod,
-            AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.AccessRestriction.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
-            Category = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.Category.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
-            Morphology = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.Morphology.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
-            Status = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.Status.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            AccessRestriction = ForEntireLength(roadSegmentAdded.AccessRestriction.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            Category = ForEntireLength(roadSegmentAdded.Category.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            Morphology = ForEntireLength(roadSegmentAdded.Morphology.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            Status = ForEntireLength(roadSegmentAdded.Status.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
             StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegmentAdded.StreetNameId),
             MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegmentAdded.MaintenanceAuthorityId),
-            SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.SurfaceType.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            SurfaceType = ForEntireLength(roadSegmentAdded.SurfaceType.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
             CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegmentAdded.CarAccess),
             BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegmentAdded.BikeAccess),
             PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegmentAdded.PedestrianAccess),
@@ -411,13 +477,13 @@ public class RoadSegmentProjectionTests
             StartNodeId = roadSegmentAdded.StartNodeId,
             EndNodeId = roadSegmentAdded.EndNodeId,
             GeometryDrawMethod = roadSegmentAdded.GeometryDrawMethod,
-            AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.AccessRestriction.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
-            Category = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.Category.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
-            Morphology = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.Morphology.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
-            Status = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.Status.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            AccessRestriction = ForEntireLength(roadSegmentAdded.AccessRestriction.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            Category = ForEntireLength(roadSegmentAdded.Category.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            Morphology = ForEntireLength(roadSegmentAdded.Morphology.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            Status = ForEntireLength(roadSegmentAdded.Status.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
             StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegmentAdded.StreetNameId),
             MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegmentAdded.MaintenanceAuthorityId),
-            SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.SurfaceType.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            SurfaceType = ForEntireLength(roadSegmentAdded.SurfaceType.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
             CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegmentAdded.CarAccess),
             BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegmentAdded.BikeAccess),
             PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegmentAdded.PedestrianAccess),
@@ -454,13 +520,13 @@ public class RoadSegmentProjectionTests
             StartNodeId = roadSegmentAdded.StartNodeId,
             EndNodeId = roadSegmentAdded.EndNodeId,
             GeometryDrawMethod = roadSegmentAdded.GeometryDrawMethod,
-            AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.AccessRestriction.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
-            Category = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.Category.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
-            Morphology = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.Morphology.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
-            Status = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.Status.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            AccessRestriction = ForEntireLength(roadSegmentAdded.AccessRestriction.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            Category = ForEntireLength(roadSegmentAdded.Category.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            Morphology = ForEntireLength(roadSegmentAdded.Morphology.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            Status = ForEntireLength(roadSegmentAdded.Status.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
             StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegmentAdded.StreetNameId),
             MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegmentAdded.MaintenanceAuthorityId),
-            SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(roadSegmentAdded.SurfaceType.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            SurfaceType = ForEntireLength(roadSegmentAdded.SurfaceType.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
             CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegmentAdded.CarAccess),
             BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(roadSegmentAdded.BikeAccess),
             PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegmentAdded.PedestrianAccess),
@@ -477,8 +543,25 @@ public class RoadSegmentProjectionTests
             .Expect(expectedRoadSegment);
     }
 
+    private static ExtractRoadSegmentDynamicAttribute<T> ForEntireLength<T>(T value, RoadSegmentGeometry geometry)
+    {
+        return new ExtractRoadSegmentDynamicAttribute<T>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Both, value)]);
+    }
+
     private RoadSegmentProjection BuildProjection()
     {
         return new RoadSegmentProjection();
+    }
+
+    protected static RoadSegmentGeometry BuildRoadSegmentGeometry(int x1, int y1, int x2, int y2)
+    {
+        return BuildRoadSegmentGeometry(new Point(x1, y1), new Point(x2, y2));
+    }
+
+    protected static RoadSegmentGeometry BuildRoadSegmentGeometry(Point start, Point end)
+    {
+        return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
+            .WithMeasureOrdinates()
+            .ToRoadSegmentGeometry();
     }
 }

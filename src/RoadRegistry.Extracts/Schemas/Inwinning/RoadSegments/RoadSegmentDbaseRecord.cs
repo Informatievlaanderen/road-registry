@@ -21,11 +21,11 @@ public class RoadSegmentDbaseRecord : DbaseRecord
         RBEHEER = new TrimmedDbaseString(Schema.RBEHEER);
         TOEGANG = new DbaseInt32(Schema.TOEGANG);
         VERHARDING = new DbaseInt32(Schema.VERHARDING);
-        AUTOHEEN = new DbaseInt32(Schema.AUTOHEEN);
-        AUTOTERUG = new DbaseInt32(Schema.AUTOTERUG);
-        FIETSHEEN = new DbaseInt32(Schema.FIETSHEEN);
-        FIETSTERUG = new DbaseInt32(Schema.FIETSTERUG);
-        VOETGANGER = new DbaseInt32(Schema.VOETGANGER);
+        AUTOHEEN = new DbaseNullableInt32(Schema.AUTOHEEN);
+        AUTOTERUG = new DbaseNullableInt32(Schema.AUTOTERUG);
+        FIETSHEEN = new DbaseNullableInt32(Schema.FIETSHEEN);
+        FIETSTERUG = new DbaseNullableInt32(Schema.FIETSTERUG);
+        VOETGANGER = new DbaseNullableInt32(Schema.VOETGANGER);
         CREATIE = new DbaseDateTime(Schema.CREATIE);
         VERSIE = new DbaseDateTime(Schema.VERSIE);
 
@@ -63,11 +63,11 @@ public class RoadSegmentDbaseRecord : DbaseRecord
     public DbaseString RBEHEER { get; }
     public DbaseInt32 TOEGANG { get; }
     public DbaseInt32 VERHARDING { get; }
-    public DbaseInt32 AUTOHEEN { get; }
-    public DbaseInt32 AUTOTERUG { get; }
-    public DbaseInt32 FIETSHEEN { get; }
-    public DbaseInt32 FIETSTERUG { get; }
-    public DbaseInt32 VOETGANGER { get; }
+    public DbaseNullableInt32 AUTOHEEN { get; }
+    public DbaseNullableInt32 AUTOTERUG { get; }
+    public DbaseNullableInt32 FIETSHEEN { get; }
+    public DbaseNullableInt32 FIETSTERUG { get; }
+    public DbaseNullableInt32 VOETGANGER { get; }
     public DbaseDateTime CREATIE { get; }
     public DbaseDateTime VERSIE { get; }
 }

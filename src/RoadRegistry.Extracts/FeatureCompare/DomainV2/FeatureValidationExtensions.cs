@@ -155,12 +155,12 @@ public static class FeatureValidationExtensions
             var roadSegmentId = roadSegmentGroup.Key;
 
             var nullFromPosition = roadSegmentGroup
-                .Where(x => x.Attributes.FromPosition == RoadSegmentPosition.Zero)
+                .Where(x => x.Attributes.FromPosition == RoadSegmentPositionV2.Zero)
                 .ToArray();
             if (nullFromPosition.Length == 1)
             {
                 var feature = nullFromPosition.Single();
-                if (feature.Attributes.FromPosition == RoadSegmentPosition.Zero)
+                if (feature.Attributes.FromPosition == RoadSegmentPositionV2.Zero)
                 {
                     problems = problems
                         .Remove(problem =>
@@ -174,12 +174,12 @@ public static class FeatureValidationExtensions
             }
 
             var nullToPosition = roadSegmentGroup
-                .Where(x => x.Attributes.ToPosition == RoadSegmentPosition.Zero)
+                .Where(x => x.Attributes.ToPosition == RoadSegmentPositionV2.Zero)
                 .ToArray();
             if (nullToPosition.Length == 1)
             {
                 var feature = nullToPosition.Single();
-                if (feature.Attributes.ToPosition == RoadSegmentPosition.Zero)
+                if (feature.Attributes.ToPosition == RoadSegmentPositionV2.Zero)
                 {
                     if (context.ChangedRoadSegments.TryGetValue(roadSegmentId, out var roadSegmentFeature)
                         && roadSegmentFeature.Attributes.Geometry is not null)
@@ -188,7 +188,7 @@ public static class FeatureValidationExtensions
                         {
                             Attributes = feature.Attributes with
                             {
-                                ToPosition = RoadSegmentPosition.FromDouble(roadSegmentFeature.Attributes.Geometry.Length)
+                                ToPosition = new RoadSegmentPositionV2(roadSegmentFeature.Attributes.Geometry.Length)
                             }
                         };
 

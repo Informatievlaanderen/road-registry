@@ -32,12 +32,12 @@ public static class ValidationExtensions
             .ToLookup(x => x.Coverage, x => (x.Side, x.Value));
 
         // ensure each position segment has correct amount of values per side
-        RoadSegmentPosition? previousToPosition = null;
+        RoadSegmentPositionV2? previousToPosition = null;
         foreach (var group in valuesGroupedByPositionSegment)
         {
             if (previousToPosition is null)
             {
-                if (group.Key.From != RoadSegmentPosition.Zero)
+                if (group.Key.From != RoadSegmentPositionV2.Zero)
                 {
                     problems += new Error(problemCodes.FromPositionNotEqualToZero!,
                         new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
@@ -97,7 +97,7 @@ public static class ValidationExtensions
             }
         }
 
-        if (previousToPosition is not null && !previousToPosition.Value.ToDouble().IsReasonablyEqualTo(segmentLength))
+        if (previousToPosition is not null && !previousToPosition.Value.IsReasonablyEqualTo(segmentLength))
         {
             problems += new Error(problemCodes.ToPositionNotEqualToLength!,
                 new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),

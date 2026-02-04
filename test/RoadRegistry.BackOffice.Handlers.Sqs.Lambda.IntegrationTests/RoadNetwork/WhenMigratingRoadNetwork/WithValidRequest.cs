@@ -11,7 +11,6 @@ using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
 using Sqs.RoadNetwork;
-using Tests.AggregateTests;
 using Tests.BackOffice;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;

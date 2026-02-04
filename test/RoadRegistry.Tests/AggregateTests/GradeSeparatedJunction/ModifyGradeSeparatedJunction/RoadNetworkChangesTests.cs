@@ -2,6 +2,7 @@
 
 using AutoFixture;
 using FluentAssertions;
+using NetTopologySuite.Geometries;
 using RoadRegistry.RoadNetwork;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadSegment.Changes;
@@ -27,7 +28,7 @@ public class RoadNetworkChangesTests
         changes.Ids.GradeSeparatedJunctionIds.Should().Contain(change.GradeSeparatedJunctionId);
 
         var scope = changes.BuildScopeGeometry();
-        scope.ToList().Should().BeEmpty();
+        ((IComparable<Geometry>)scope).Should().BeNull();
     }
 
     [Fact]
@@ -39,7 +40,7 @@ public class RoadNetworkChangesTests
         changes.Ids.RoadSegmentIds.Should().NotBeEmpty();
 
         var scope = changes.BuildScopeGeometry();
-        scope.ToList().Should().BeEmpty();
+        ((IComparable<Geometry>)scope).Should().BeNull();
     }
 
     [Fact]

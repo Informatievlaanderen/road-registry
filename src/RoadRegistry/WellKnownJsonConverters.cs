@@ -19,7 +19,6 @@ namespace RoadRegistry
                 new NationalRoadNumberConverter(),
                 new RoadNodeIdConverter(),
                 new RoadSegmentIdConverter(),
-                new RoadSegmentPositionConverter(),
                 new RoadSegmentWidthConverter(),
                 new GradeSeparatedJunctionIdConverter(),
                 new StreetNameLocalIdConverter(),
@@ -30,6 +29,7 @@ namespace RoadRegistry
                 //v1
                 new NumberedRoadNumberConverter(),
                 new RoadNodeTypeConverter(),
+                new RoadSegmentPositionConverter(),
                 new RoadSegmentAccessRestrictionConverter(),
                 new RoadSegmentCategoryConverter(),
                 new RoadSegmentGeometryDrawMethodConverter(),
@@ -44,6 +44,7 @@ namespace RoadRegistry
 
                 //v2
                 new RoadNodeTypeV2Converter(),
+                new RoadSegmentPositionV2Converter(),
                 new RoadSegmentAccessRestrictionV2Converter(),
                 new RoadSegmentCategoryV2Converter(),
                 new RoadSegmentGeometryDrawMethodV2Converter(),

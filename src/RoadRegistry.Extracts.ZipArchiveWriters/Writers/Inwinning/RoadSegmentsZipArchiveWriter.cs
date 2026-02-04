@@ -32,6 +32,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
         ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
         var segments = await zipArchiveDataProvider.GetRoadSegments(request.Contour, cancellationToken);
+        var records = ConvertToDbaseRecords(segments, context);
 
         const ExtractFileName extractFilename = ExtractFileName.Wegsegment;
         FeatureType[] featureTypes = request.IsInformative
@@ -42,13 +43,11 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
 
         foreach (var featureType in featureTypes)
         {
-            var records = ConvertToDbaseRecords(segments, context);
-
             await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.PolyLine, RoadSegmentDbaseRecord.Schema, records, cancellationToken);
         }
     }
 
-    internal static IEnumerable<(DbaseRecord, Geometry)> ConvertToDbaseRecords(IEnumerable<RoadSegmentExtractItem> segments, ZipArchiveWriteContext context)
+    internal static IReadOnlyCollection<(DbaseRecord, Geometry)> ConvertToDbaseRecords(IEnumerable<RoadSegmentExtractItem> segments, ZipArchiveWriteContext context)
     {
         return segments
             .OrderBy(x => x.Id)
@@ -76,11 +75,11 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
                             RBEHEER = { Value = x.RightMaintenanceAuthorityId },
                             TOEGANG = { Value = accessRestriction },
                             VERHARDING = { Value = surfaceType },
-                            AUTOHEEN = { Value = (x.CarAccess == VehicleAccess.Forward || x.CarAccess == VehicleAccess.BiDirectional).ToDbaseShortValue() },
-                            AUTOTERUG = { Value = (x.CarAccess == VehicleAccess.Backward || x.CarAccess == VehicleAccess.BiDirectional).ToDbaseShortValue() },
-                            FIETSHEEN = { Value = (x.BikeAccess == VehicleAccess.Forward || x.BikeAccess == VehicleAccess.BiDirectional).ToDbaseShortValue() },
-                            FIETSTERUG = { Value = (x.BikeAccess == VehicleAccess.Backward || x.BikeAccess == VehicleAccess.BiDirectional).ToDbaseShortValue() },
-                            VOETGANGER = { Value = x.PedestrianAccess.ToDbaseShortValue() },
+                            AUTOHEEN = { Value = x.CarAccess is not null ? (x.CarAccess == VehicleAccess.Forward || x.CarAccess == VehicleAccess.BiDirectional).ToDbaseShortValue() : null },
+                            AUTOTERUG = { Value = x.CarAccess is not null ? (x.CarAccess == VehicleAccess.Backward || x.CarAccess == VehicleAccess.BiDirectional).ToDbaseShortValue() : null },
+                            FIETSHEEN = { Value = x.BikeAccess is not null ? (x.BikeAccess == VehicleAccess.Forward || x.BikeAccess == VehicleAccess.BiDirectional).ToDbaseShortValue() : null },
+                            FIETSTERUG = { Value = x.BikeAccess is not null ? (x.BikeAccess == VehicleAccess.Backward || x.BikeAccess == VehicleAccess.BiDirectional).ToDbaseShortValue() : null },
+                            VOETGANGER = { Value = x.PedestrianAccess?.ToDbaseShortValue() },
 
                             CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
                             VERSIE = { Value = x.LastModified.Timestamp.ToBrusselsDateTime() }
@@ -88,7 +87,8 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
 
                         return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
                     });
-            });
+            })
+            .ToList();
     }
 
     private static int MigrateToV2(RoadSegmentStatus v1)

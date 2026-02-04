@@ -11,7 +11,10 @@ public readonly struct RoadSegmentPosition : IEquatable<RoadSegmentPosition>, IC
 
     public RoadSegmentPosition(decimal value)
     {
-        if (value < 0.0m) throw new ArgumentOutOfRangeException(nameof(value), value, "The road segment position must be greater than or equal to zero.");
+        if (value < 0.0m)
+        {
+            throw new ArgumentOutOfRangeException(nameof(value), value, "The road segment position must be greater than or equal to zero.");
+        }
 
         _value = value;
     }

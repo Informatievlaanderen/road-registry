@@ -100,7 +100,7 @@ public partial class ScopedRoadNetwork
             Apply(new RoadNetworkWasChanged
             {
                 RoadNetworkId = RoadNetworkId,
-                ScopeGeometry = changes.BuildScopeGeometry().ToGeometryObject(),
+                ScopeGeometry = changes.BuildScopeGeometry()?.ToGeometryObject(),
                 DownloadId = downloadId,
                 Summary = new RoadNetworkChangedSummary(summary),
                 Provenance = new ProvenanceData(changes.Provenance)

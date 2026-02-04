@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
+using Extensions;
 using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
@@ -45,16 +46,16 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 StartNodeId = new RoadNodeId(e.Data.StartNodeId),
                 EndNodeId = new RoadNodeId(e.Data.EndNodeId),
                 GeometryDrawMethod = geometryDrawMethod,
-                AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(accessRestriction, geometry),
-                Category = new ExtractRoadSegmentDynamicAttribute<string>(category, geometry),
-                Morphology = new ExtractRoadSegmentDynamicAttribute<string>(morphology, geometry),
-                Status = new ExtractRoadSegmentDynamicAttribute<string>(status, geometry),
-                StreetNameId = BuildStreetNameIdAttributes(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, geometry),
-                MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(new OrganizationId(e.Data.MaintenanceAuthority.Code), geometry),
+                AccessRestriction = ForEntireGeometry(accessRestriction, geometry),
+                Category = ForEntireGeometry(category, geometry),
+                Morphology = ForEntireGeometry(morphology, geometry),
+                Status = ForEntireGeometry(status, geometry),
+                StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, geometry),
+                MaintenanceAuthorityId = ForEntireGeometry(new OrganizationId(e.Data.MaintenanceAuthority.Code), geometry),
                 SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
-                        new RoadSegmentPosition(x.FromPosition),
-                        new RoadSegmentPosition(x.ToPosition),
+                        new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
+                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), geometry),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 ),
@@ -75,7 +76,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             return Task.CompletedTask;
         });
-        When<IEvent<RoadSegmentAdded>>((session, e, ct) =>
+        When<IEvent<RoadSegmentAdded>>((session, e, _) =>
         {
             var roadSegmentId = new RoadSegmentId(e.Data.RoadSegmentId);
             var geometry = ToLambert08(e.Data.Geometry);
@@ -92,16 +93,16 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 StartNodeId = new RoadNodeId(e.Data.StartNodeId),
                 EndNodeId = new RoadNodeId(e.Data.EndNodeId),
                 GeometryDrawMethod = geometryDrawMethod,
-                AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(accessRestriction, geometry),
-                Category = new ExtractRoadSegmentDynamicAttribute<string>(category, geometry),
-                Morphology = new ExtractRoadSegmentDynamicAttribute<string>(morphology, geometry),
-                Status = new ExtractRoadSegmentDynamicAttribute<string>(status, geometry),
-                StreetNameId = BuildStreetNameIdAttributes(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, geometry),
-                MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(new OrganizationId(e.Data.MaintenanceAuthority.Code), geometry),
+                AccessRestriction = ForEntireGeometry(accessRestriction, geometry),
+                Category = ForEntireGeometry(category, geometry),
+                Morphology = ForEntireGeometry(morphology, geometry),
+                Status = ForEntireGeometry(status, geometry),
+                StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, geometry),
+                MaintenanceAuthorityId = ForEntireGeometry(new OrganizationId(e.Data.MaintenanceAuthority.Code), geometry),
                 SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
-                        new RoadSegmentPosition(x.FromPosition),
-                        new RoadSegmentPosition(x.ToPosition),
+                        new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
+                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), geometry),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 ),
@@ -132,22 +133,22 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 segment.StartNodeId = new RoadNodeId(e.Data.StartNodeId);
                 segment.EndNodeId = new RoadNodeId(e.Data.EndNodeId);
                 segment.GeometryDrawMethod = geometryDrawMethod;
-                segment.AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(accessRestriction, segment.Geometry);
-                segment.Category = new ExtractRoadSegmentDynamicAttribute<string>(category, segment.Geometry);
-                segment.Morphology = new ExtractRoadSegmentDynamicAttribute<string>(morphology, segment.Geometry);
-                segment.Status = new ExtractRoadSegmentDynamicAttribute<string>(status, segment.Geometry);
-                segment.StreetNameId = BuildStreetNameIdAttributes(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, segment.Geometry);
-                segment.MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(new OrganizationId(e.Data.MaintenanceAuthority.Code), segment.Geometry);
+                segment.AccessRestriction = ForEntireGeometry(accessRestriction, segment.Geometry);
+                segment.Category = ForEntireGeometry(category, segment.Geometry);
+                segment.Morphology = ForEntireGeometry(morphology, segment.Geometry);
+                segment.Status = ForEntireGeometry(status, segment.Geometry);
+                segment.StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, segment.Geometry);
+                segment.MaintenanceAuthorityId = ForEntireGeometry(new OrganizationId(e.Data.MaintenanceAuthority.Code), segment.Geometry);
                 segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
-                        new RoadSegmentPosition(x.FromPosition),
-                        new RoadSegmentPosition(x.ToPosition),
+                        new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
+                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), segment.Geometry),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 );
             }, e.Data, ct);
         });
-        When<IEvent<RoadSegmentRemoved>>(async (session, e, ct) =>
+        When<IEvent<RoadSegmentRemoved>>(async (session, e, _) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)
@@ -167,27 +168,27 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             {
                 if (e.Data.AccessRestriction is not null)
                 {
-                    segment.AccessRestriction = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.AccessRestriction, segment.Geometry);
+                    segment.AccessRestriction = ForEntireGeometry(e.Data.AccessRestriction, segment.Geometry);
                 }
 
                 if (e.Data.Category is not null)
                 {
-                    segment.Category = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Category, segment.Geometry);
+                    segment.Category = ForEntireGeometry(e.Data.Category, segment.Geometry);
                 }
 
                 if (e.Data.Morphology is not null)
                 {
-                    segment.Morphology = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Morphology, segment.Geometry);
+                    segment.Morphology = ForEntireGeometry(e.Data.Morphology, segment.Geometry);
                 }
 
                 if (e.Data.Status is not null)
                 {
-                    segment.Status = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Status, segment.Geometry);
+                    segment.Status = ForEntireGeometry(e.Data.Status, segment.Geometry);
                 }
 
                 if (e.Data.LeftSide is not null || e.Data.RightSide is not null)
                 {
-                    segment.StreetNameId = BuildStreetNameIdAttributes(
+                    segment.StreetNameId = BuildStreetNameIdAttributesFromV1(
                         e.Data.LeftSide?.StreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Left),
                         e.Data.RightSide?.StreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Right),
                         segment.Geometry);
@@ -195,15 +196,15 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
                 if (e.Data.MaintenanceAuthority is not null)
                 {
-                    segment.MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(new OrganizationId(e.Data.MaintenanceAuthority.Code), segment.Geometry);
+                    segment.MaintenanceAuthorityId = ForEntireGeometry(new OrganizationId(e.Data.MaintenanceAuthority.Code), segment.Geometry);
                 }
 
                 if (e.Data.Surfaces is not null)
                 {
                     segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                         .Select(x => (
-                            new RoadSegmentPosition(x.FromPosition),
-                            new RoadSegmentPosition(x.ToPosition),
+                            new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
+                            UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), segment.Geometry),
                             RoadSegmentAttributeSide.Both,
                             x.Type))
                     );
@@ -217,8 +218,8 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 segment.Geometry = ToLambert08(e.Data.Geometry);
                 segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
-                        new RoadSegmentPosition(x.FromPosition),
-                        new RoadSegmentPosition(x.ToPosition),
+                        new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
+                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), segment.Geometry),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 );
@@ -230,7 +231,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             {
                 if (e.Data.LeftSideStreetNameId is not null || e.Data.RightSideStreetNameId is not null)
                 {
-                    segment.StreetNameId = BuildStreetNameIdAttributes(
+                    segment.StreetNameId = BuildStreetNameIdAttributesFromV1(
                         e.Data.LeftSideStreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Left),
                         e.Data.RightSideStreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Right),
                         segment.Geometry);
@@ -242,7 +243,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
         When<IEvent<RoadSegmentRemovedFromNumberedRoad>>((_, _, _) => Task.CompletedTask); // Do nothing
 
         // V2
-        When<IEvent<RoadSegmentWasAdded>>((session, e, ct) =>
+        When<IEvent<RoadSegmentWasAdded>>((session, e, _) =>
         {
             var roadSegmentId = e.Data.RoadSegmentId;
 
@@ -273,7 +274,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             return Task.CompletedTask;
         });
-        When<IEvent<RoadSegmentWasMerged>>((session, e, ct) =>
+        When<IEvent<RoadSegmentWasMerged>>((session, e, _) =>
         {
             var roadSegmentId = e.Data.RoadSegmentId;
 
@@ -387,7 +388,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 segment.IsV2 = true;
             }, e.Data, ct);
         });
-        When<IEvent<RoadSegmentWasRemoved>>(async (session, e, ct) =>
+        When<IEvent<RoadSegmentWasRemoved>>(async (session, e, _) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)
@@ -397,7 +398,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             session.Delete(roadSegment);
         });
-        When<IEvent<RoadSegmentWasRetiredBecauseOfMerger>>(async (session, e, ct) =>
+        When<IEvent<RoadSegmentWasRetiredBecauseOfMerger>>(async (session, e, _) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)
@@ -407,7 +408,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             session.Delete(roadSegment);
         });
-        When<IEvent<RoadSegmentWasRetiredBecauseOfMigration>>(async (session, e, ct) =>
+        When<IEvent<RoadSegmentWasRetiredBecauseOfMigration>>(async (session, e, _) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)
@@ -438,22 +439,40 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
         operations.Store(roadSegment);
     }
 
-    private static ExtractRoadSegmentDynamicAttribute<StreetNameLocalId> BuildStreetNameIdAttributes(int? leftSideStreetNameId, int? rightSideStreetNameId, RoadSegmentGeometry geometry)
+    private static ExtractRoadSegmentDynamicAttribute<StreetNameLocalId> BuildStreetNameIdAttributesFromV1(int? leftSideStreetNameId, int? rightSideStreetNameId, RoadSegmentGeometry geometry)
     {
         if (leftSideStreetNameId is null && rightSideStreetNameId is null)
         {
-            return new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(StreetNameLocalId.NotApplicable, geometry);
+            return ForEntireGeometry(StreetNameLocalId.NotApplicable, geometry);
         }
 
         if (leftSideStreetNameId == rightSideStreetNameId)
         {
-            return new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(new StreetNameLocalId(leftSideStreetNameId!.Value), geometry);
+            return ForEntireGeometry(new StreetNameLocalId(leftSideStreetNameId!.Value), geometry);
         }
 
         return new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>([
-            (RoadSegmentPosition.Zero, RoadSegmentPosition.FromDouble(geometry.Value.Length), RoadSegmentAttributeSide.Left, StreetNameLocalId.FromValue(leftSideStreetNameId) ?? StreetNameLocalId.NotApplicable),
-            (RoadSegmentPosition.Zero, RoadSegmentPosition.FromDouble(geometry.Value.Length), RoadSegmentAttributeSide.Right, StreetNameLocalId.FromValue(rightSideStreetNameId) ?? StreetNameLocalId.NotApplicable)
+            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Left, StreetNameLocalId.FromValue(leftSideStreetNameId) ?? StreetNameLocalId.NotApplicable),
+            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Right, StreetNameLocalId.FromValue(rightSideStreetNameId) ?? StreetNameLocalId.NotApplicable)
         ]);
+    }
+
+    private static ExtractRoadSegmentDynamicAttribute<T> ForEntireGeometry<T>(T value, RoadSegmentGeometry geometry)
+    {
+        return new ExtractRoadSegmentDynamicAttribute<T>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Both, value)]);
+    }
+
+    private static RoadSegmentPositionV2 UseGeometryLengthIfReasonablyEqual(double position, RoadSegmentGeometry geometry)
+    {
+        var geometryLength = geometry.Value.Length.RoundToCm();
+        position = position.RoundToCm();
+
+        if (position.IsReasonablyEqualTo(geometryLength, 0.05))
+        {
+            return new RoadSegmentPositionV2(geometryLength);
+        }
+
+        return new RoadSegmentPositionV2(position);
     }
 
     private static StreetNameLocalId GetValue(ExtractRoadSegmentDynamicAttribute<StreetNameLocalId> attributes, RoadSegmentAttributeSide side)
@@ -511,17 +530,12 @@ public sealed class ExtractRoadSegmentDynamicAttribute<T>
     {
     }
 
-    public ExtractRoadSegmentDynamicAttribute(T value, RoadSegmentGeometry geometry)
-        : this([(RoadSegmentPosition.Zero, RoadSegmentPosition.FromDouble(geometry.Value.Length), RoadSegmentAttributeSide.Both, value)])
-    {
-    }
-
     public ExtractRoadSegmentDynamicAttribute(RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<T> attributes)
         : this(attributes.Values.Select(x => (x.Coverage.From, x.Coverage.To, x.Side, x.Value)))
     {
     }
 
-    public ExtractRoadSegmentDynamicAttribute(IEnumerable<(RoadSegmentPosition From, RoadSegmentPosition To, RoadSegmentAttributeSide Side, T Value)> values)
+    public ExtractRoadSegmentDynamicAttribute(IEnumerable<(RoadSegmentPositionV2 From, RoadSegmentPositionV2 To, RoadSegmentAttributeSide Side, T Value)> values)
     {
         Values = values
             .OrderBy(x => x.From)
@@ -538,8 +552,8 @@ public sealed class ExtractRoadSegmentDynamicAttribute<T>
 
 public interface IExtractRoadSegmentDynamicAttributeValueCoverage
 {
-    public RoadSegmentPosition From { get; }
-    public RoadSegmentPosition To { get; }
+    public RoadSegmentPositionV2 From { get; }
+    public RoadSegmentPositionV2 To { get; }
 }
 
 public sealed class ExtractRoadSegmentDynamicAttributeValue<T> : IExtractRoadSegmentDynamicAttributeValueCoverage
@@ -547,8 +561,8 @@ public sealed class ExtractRoadSegmentDynamicAttributeValue<T> : IExtractRoadSeg
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public RoadSegmentAttributeSide Side { get; set; }
 
-    public required RoadSegmentPosition From { get; set; }
-    public required RoadSegmentPosition To { get; set; }
+    public required RoadSegmentPositionV2 From { get; set; }
+    public required RoadSegmentPositionV2 To { get; set; }
     public required T Value { get; set; }
 }
 
