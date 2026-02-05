@@ -80,7 +80,7 @@ public class ExtractRequester
                 RequestedOn = DateTimeOffset.UtcNow,
                 DownloadId = downloadId,
                 TicketId = ticketId,
-                DownloadStatus = ExtractDownloadStatus.Preparing,
+                Status = ExtractDownloadStatus.Preparing,
                 Closed = false,
                 ZipArchiveWriterVersion = zipArchiveWriterVersion
             };
@@ -98,11 +98,11 @@ public class ExtractRequester
                 extractDownload.Closed = true;
             }
 
-            extractDownload.DownloadStatus = ExtractDownloadStatus.Available;
+            extractDownload.Status = ExtractDownloadStatus.Available;
         }
         catch
         {
-            extractDownload.DownloadStatus = ExtractDownloadStatus.Error;
+            extractDownload.Status = ExtractDownloadStatus.Error;
             throw;
         }
         finally

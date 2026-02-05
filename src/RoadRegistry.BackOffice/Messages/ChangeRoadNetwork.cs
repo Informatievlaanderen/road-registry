@@ -18,6 +18,7 @@ public class ChangeRoadNetwork : IMessage, IHasCommandProvenance
     public string RequestId { get; set; }
     public string ExtractRequestId { get; set; }
     public Guid? DownloadId { get; set; }
+    public Guid? UploadId { get; set; }
     public Guid? TicketId { get; set; }
     public bool UseExtractsV2 { get; set; }
 

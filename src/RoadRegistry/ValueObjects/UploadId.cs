@@ -18,6 +18,13 @@ public readonly struct UploadId : IEquatable<UploadId>
         return value != Guid.Empty;
     }
 
+    public static UploadId? FromValue(Guid? value)
+    {
+        return value.HasValue
+            ? new UploadId(value.Value)
+            : null;
+    }
+
     public bool Equals(UploadId other)
     {
         return _value == other._value;

@@ -1,5 +1,6 @@
 namespace RoadRegistry.Extracts.Projections;
 
+using System;
 using System.Linq;
 using BackOffice;
 using BackOffice.Extensions;
@@ -28,7 +29,7 @@ public class ExtractDownloadProjection : ConnectedProjection<ExtractsDbContext>
                     RequestedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToDateTimeOffset(),
                     DownloadedOn = null,
                     Closed = false,
-                    DownloadStatus = ExtractDownloadStatus.Preparing
+                    Status = ExtractDownloadStatus.Preparing
                 };
                 await context.ExtractDownloads.AddAsync(record, ct);
             }
@@ -48,7 +49,7 @@ public class ExtractDownloadProjection : ConnectedProjection<ExtractsDbContext>
                     RequestedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToDateTimeOffset(),
                     DownloadedOn = null,
                     Closed = false,
-                    DownloadStatus = ExtractDownloadStatus.Preparing
+                    Status = ExtractDownloadStatus.Preparing
                 };
                 await context.ExtractDownloads.AddAsync(record, ct);
             }
@@ -73,7 +74,7 @@ public class ExtractDownloadProjection : ConnectedProjection<ExtractsDbContext>
         When<Envelope<RoadNetworkExtractDownloadBecameAvailable>>(async (context, envelope, ct) =>
         {
             var record = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
-            record.DownloadStatus = ExtractDownloadStatus.Available;
+            record.Status = ExtractDownloadStatus.Available;
             if (record.IsInformative)
             {
                 record.Closed = true;
@@ -88,47 +89,58 @@ public class ExtractDownloadProjection : ConnectedProjection<ExtractsDbContext>
             }
 
             var record = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.DownloadId == envelope.Message.DownloadId.Value, ct);
-            record.DownloadStatus = ExtractDownloadStatus.Error;
+            record.Status = ExtractDownloadStatus.Error;
         });
 
         When<Envelope<RoadNetworkExtractChangesArchiveUploaded>>(async (context, envelope, ct) =>
         {
-            var record = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
-            record.UploadId = envelope.Message.UploadId;
-            record.UploadedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToDateTimeOffset();
-            record.UploadStatus = ExtractUploadStatus.Processing;
-            record.TicketId = envelope.Message.TicketId;
+            var download = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
+            download.LatestUploadId = envelope.Message.UploadId;
+
+            var upload = new ExtractUpload
+            {
+                UploadId = envelope.Message.UploadId,
+                DownloadId = download.DownloadId,
+                Status = ExtractUploadStatus.Processing,
+                UploadedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToDateTimeOffset(),
+                TicketId = envelope.Message.TicketId ?? Guid.Empty
+            };
+            context.ExtractUploads.Add(upload);
         });
 
         When<Envelope<RoadNetworkExtractChangesArchiveAccepted>>(async (context, envelope, ct) =>
         {
-            var record = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
-            record.UploadStatus = ExtractUploadStatus.Accepted;
-            record.TicketId = envelope.Message.TicketId;
+            var record = await context.ExtractUploads.IncludeLocalSingleAsync(upload => upload.UploadId == envelope.Message.UploadId, ct);
+            record.Status = ExtractUploadStatus.Accepted;
+            record.TicketId = envelope.Message.TicketId ?? Guid.Empty;
         });
 
         When<Envelope<RoadNetworkExtractChangesArchiveRejected>>(async (context, envelope, ct) =>
         {
-            var record = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
-            record.UploadStatus = ExtractUploadStatus.Rejected;
+            var record = await context.ExtractUploads.IncludeLocalSingleAsync(upload => upload.UploadId == envelope.Message.UploadId, ct);
+            record.Status = ExtractUploadStatus.AutomaticValidationFailed;
         });
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, ct) =>
         {
-            var record = await context.ExtractDownloads.IncludeLocalSingleOrDefaultAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
-            if (record is not null)
+            var download = await context.ExtractDownloads.IncludeLocalSingleOrDefaultAsync(upload => upload.DownloadId == envelope.Message.DownloadId, ct);
+            if (download?.LatestUploadId is not null)
             {
-                record.UploadStatus = ExtractUploadStatus.Accepted;
+                var upload = await context.ExtractUploads.IncludeLocalSingleOrDefaultAsync(upload => upload.UploadId == download.LatestUploadId, ct);
+                if (upload is not null)
+                {
+                    upload.Status = ExtractUploadStatus.Accepted;
+                }
             }
         });
 
         When<Envelope<RoadNetworkChangesRejected>>(async (context, envelope, ct) =>
         {
-            ExtractDownload record = null;
+            ExtractUpload upload = null;
 
             if (envelope.Message.TicketId is not null)
             {
-                record = await context.ExtractDownloads.IncludeLocalSingleOrDefaultAsync(download => download.TicketId == envelope.Message.TicketId, ct);
+                upload = await context.ExtractUploads.IncludeLocalSingleOrDefaultAsync(x => x.TicketId == envelope.Message.TicketId, ct);
             }
             else
             {
@@ -136,22 +148,30 @@ public class ExtractDownloadProjection : ConnectedProjection<ExtractsDbContext>
                 var extractRequest = await context.ExtractRequests.IncludeLocalSingleOrDefaultAsync(request => request.ExternalRequestId == envelope.Message.Reason, ct);
                 if (extractRequest is not null)
                 {
-                    record = await context.ExtractDownloads.IncludeLocalSingleOrDefaultAsync(download => download.DownloadId == extractRequest.CurrentDownloadId, ct);
+                    var download = await context.ExtractDownloads.IncludeLocalSingleOrDefaultAsync(download => download.DownloadId == extractRequest.CurrentDownloadId, ct);
+                    if (download?.LatestUploadId is not null)
+                    {
+                        upload = await context.ExtractUploads.IncludeLocalSingleOrDefaultAsync(x => x.UploadId == download.LatestUploadId, ct);
+                    }
                 }
             }
 
-            if (record is not null)
+            if (upload is not null)
             {
-                record.UploadStatus = ExtractUploadStatus.Rejected;
+                upload.Status = ExtractUploadStatus.AutomaticValidationFailed;
             }
         });
 
         When<Envelope<NoRoadNetworkChanges>>(async (context, envelope, ct) =>
         {
-            var record = await context.ExtractDownloads.IncludeLocalSingleOrDefaultAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
-            if (record is not null)
+            var download = await context.ExtractDownloads.IncludeLocalSingleOrDefaultAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
+            if (download?.LatestUploadId is not null)
             {
-                record.UploadStatus = ExtractUploadStatus.Accepted;
+                var upload = await context.ExtractUploads.IncludeLocalSingleOrDefaultAsync(x => x.UploadId == download.LatestUploadId, ct);
+                if (upload is not null)
+                {
+                    upload.Status = ExtractUploadStatus.Accepted;
+                }
             }
         });
     }

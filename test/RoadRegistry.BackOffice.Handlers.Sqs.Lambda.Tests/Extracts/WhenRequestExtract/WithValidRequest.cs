@@ -52,7 +52,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         extractDownload.Closed.Should().BeFalse();
         extractDownload.Contour.Should().BeEquivalentTo(request.Contour);
         extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
-        extractDownload.DownloadStatus.Should().Be(ExtractDownloadStatus.Available);
+        extractDownload.Status.Should().Be(ExtractDownloadStatus.Available);
         extractDownload.IsInformative.Should().Be(request.IsInformative);
         extractDownload.UploadedOn.Should().BeNull();
         extractDownload.UploadId.Should().BeNull();
@@ -141,7 +141,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         extractDownload.Closed.Should().BeFalse();
         extractDownload.Contour.Should().BeEquivalentTo(request.Contour);
         extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
-        extractDownload.DownloadStatus.Should().Be(ExtractDownloadStatus.Available);
+        extractDownload.Status.Should().Be(ExtractDownloadStatus.Available);
         extractDownload.IsInformative.Should().Be(request.IsInformative);
         extractDownload.UploadedOn.Should().BeNull();
         extractDownload.UploadId.Should().BeNull();
@@ -204,7 +204,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         extractDownload.Closed.Should().BeFalse();
         extractDownload.Contour.Should().BeEquivalentTo(request.Contour);
         extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
-        extractDownload.DownloadStatus.Should().Be(ExtractDownloadStatus.Available);
+        extractDownload.Status.Should().Be(ExtractDownloadStatus.Available);
         extractDownload.IsInformative.Should().Be(request.IsInformative);
         extractDownload.UploadedOn.Should().BeNull();
         extractDownload.UploadId.Should().BeNull();
@@ -247,7 +247,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         extractDownload.Closed.Should().BeFalse();
         extractDownload.Contour.Should().BeEquivalentTo(request.Contour);
         extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
-        extractDownload.DownloadStatus.Should().Be(ExtractDownloadStatus.Error);
+        extractDownload.Status.Should().Be(ExtractDownloadStatus.Error);
         extractDownload.IsInformative.Should().Be(request.IsInformative);
         extractDownload.UploadedOn.Should().BeNull();
         extractDownload.UploadId.Should().BeNull();
@@ -280,6 +280,6 @@ public class WithValidRequest : WhenRequestExtractTestBase
         VerifyThatTicketHasError("DatabaseTimeout","Er was een probleem met de databank tijdens het aanmaken van het extract.");
 
         var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
-        extractDownload.DownloadStatus.Should().Be(ExtractDownloadStatus.Error);
+        extractDownload.Status.Should().Be(ExtractDownloadStatus.Error);
     }
 }

@@ -1,34 +1,31 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateDryRunRoadNetwork;
 
 using System.Data;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using ChangeRoadNetwork;
 using Exceptions;
 using Hosts;
 using Infrastructure;
 using Marten;
-using Microsoft.EntityFrameworkCore;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
-using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 using ScopedRoadNetwork;
-using ScopedRoadNetwork.Events.V2;
 using ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
-using ValueObjects.Problems;
 
-public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<MigrateRoadNetworkSqsLambdaRequest>
+public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<MigrateDryRunRoadNetworkSqsLambdaRequest>
 {
     private readonly IDocumentStore _store;
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
     private readonly IExtractRequests _extractRequests;
-    private readonly ExtractsDbContext _extractsDbContext;
+    private readonly IMediator _mediator;
 
-    public MigrateRoadNetworkSqsLambdaRequestHandler(
+    public MigrateDryRunRoadNetworkSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
@@ -38,7 +35,7 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
         IRoadNetworkRepository roadNetworkRepository,
         IRoadNetworkIdGenerator roadNetworkIdGenerator,
         IExtractRequests extractRequests,
-        ExtractsDbContext extractsDbContext,
+        IMediator mediator,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -47,43 +44,35 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
             idempotentCommandHandler,
             roadRegistryContext,
             loggerFactory,
-            TicketingBehavior.Complete | TicketingBehavior.Error)
+            TicketingBehavior.Error)
     {
         _store = store;
         _roadNetworkRepository = roadNetworkRepository;
         _roadNetworkIdGenerator = roadNetworkIdGenerator;
         _extractRequests = extractRequests;
-        _extractsDbContext = extractsDbContext;
+        _mediator = mediator;
     }
 
-    protected override async Task<object> InnerHandle(MigrateRoadNetworkSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(MigrateDryRunRoadNetworkSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
-        var changeResult = await Handle(sqsLambdaRequest.Request, cancellationToken);
+        await MigrateWithoutSaving(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest, cancellationToken);
 
-        return new ChangeRoadNetworkTicketResult
+        await _mediator.Send(new DataValidationSqsRequest
         {
-            Summary = new RoadNetworkChangedSummary(changeResult.Summary)
-        };
+            TicketId = sqsLambdaRequest.TicketId,
+            ProvenanceData = new ProvenanceData(sqsLambdaRequest.Provenance),
+            MigrateRoadNetworkSqsRequest = sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest
+        }, cancellationToken);
+
+        return new object();
     }
 
-    private async Task<RoadNetworkChangeResult> Handle(MigrateRoadNetworkSqsRequest command, CancellationToken cancellationToken)
+    private async Task MigrateWithoutSaving(MigrateRoadNetworkSqsRequest command, CancellationToken cancellationToken)
     {
         var roadNetworkChanges = command.Changes.ToRoadNetworkChanges(command.ProvenanceData);
 
         var roadNetwork = await Load(roadNetworkChanges, new ScopedRoadNetworkId(command.DownloadId.ToGuid()));
 
-        var changeResult = roadNetwork.SummaryOfLastChange is null
-            ? await ChangeRoadNetwork(command, roadNetwork, roadNetworkChanges, cancellationToken)
-            : new RoadNetworkChangeResult(Problems.None, roadNetwork.SummaryOfLastChange);
-
-        await _extractRequests.UploadAcceptedAsync(command.UploadId, cancellationToken);
-        await CompleteInwinningszone(command.DownloadId, cancellationToken);
-
-        return changeResult;
-    }
-
-    private async Task<RoadNetworkChangeResult> ChangeRoadNetwork(MigrateRoadNetworkSqsRequest command, ScopedRoadNetwork roadNetwork, RoadNetworkChanges roadNetworkChanges, CancellationToken cancellationToken)
-    {
         var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator);
         if (changeResult.Problems.HasError())
         {
@@ -91,10 +80,6 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
 
             throw new RoadRegistryProblemsException(changeResult.Problems);
         }
-
-        await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
-
-        return changeResult;
     }
 
     private async Task<ScopedRoadNetwork> Load(RoadNetworkChanges roadNetworkChanges, ScopedRoadNetworkId roadNetworkId)
@@ -112,13 +97,5 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
             ids,
             roadNetworkId
         );
-    }
-
-    private async Task CompleteInwinningszone(DownloadId downloadId, CancellationToken cancellationToken)
-    {
-        var inwinningszone = await EntityFrameworkQueryableExtensions.SingleAsync(_extractsDbContext.Inwinningszones, x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
-
-        inwinningszone.Completed = true;
-        await _extractsDbContext.SaveChangesAsync(cancellationToken);
     }
 }

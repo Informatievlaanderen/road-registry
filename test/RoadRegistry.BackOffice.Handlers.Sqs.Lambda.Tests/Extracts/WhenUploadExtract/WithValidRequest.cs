@@ -67,10 +67,8 @@ public class WithValidRequest : WhenUploadExtractTestBase
             ), Times.Never
         );
 
-        var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
-        extractDownload.UploadId.Should().Be(request.UploadId);
-        extractDownload.UploadedOn.Should().NotBeNull();
-        extractDownload.UploadStatus.Should().Be(ExtractUploadStatus.Processing);
+        var extractUpload = ExtractsDbContext.ExtractUploads.Single(x => x.UploadId == request.UploadId.ToGuid());
+        extractUpload.Status.Should().Be(ExtractUploadStatus.Processing);
 
         var lastMessage = (await StreamStore.ReadAllBackwards(Position.End, 1)).Messages.Single();
         var messageMetadata = lastMessage.JsonMetadataAs<MessageMetadata>();
@@ -80,6 +78,7 @@ public class WithValidRequest : WhenUploadExtractTestBase
         changeRoadNetworkCommand.Should().NotBeNull();
         changeRoadNetworkCommand!.ExtractRequestId.Should().Be(request.ExtractRequestId);
         changeRoadNetworkCommand.DownloadId.Should().Be(request.DownloadId);
+        changeRoadNetworkCommand.UploadId.Should().Be(request.UploadId);
         changeRoadNetworkCommand.TicketId.Should().Be(sqsRequest.TicketId);
         changeRoadNetworkCommand.UseExtractsV2.Should().BeTrue();
     }

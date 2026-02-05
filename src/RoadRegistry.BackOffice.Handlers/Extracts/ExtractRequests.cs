@@ -1,7 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using Abstractions.Exceptions;
-using BackOffice.Extracts;
 using Microsoft.EntityFrameworkCore;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
@@ -15,32 +14,44 @@ public class ExtractRequests : IExtractRequests
         _extractsDbContext = extractsDbContext;
     }
 
-    public async Task UploadAcceptedAsync(DownloadId downloadId, CancellationToken cancellationToken)
+    public async Task UploadAcceptedAsync(UploadId uploadId, CancellationToken cancellationToken)
     {
-        await UpdateExtractDownload(downloadId, record =>
+        await UpdateExtractUpload(uploadId, async record =>
         {
-            record.UploadStatus = ExtractUploadStatus.Accepted;
-            record.Closed = true;
+            record.Status = ExtractUploadStatus.Accepted;
+
+            var extractDownload = await _extractsDbContext.ExtractDownloads.SingleAsync(x => x.DownloadId == record.DownloadId, cancellationToken);
+            extractDownload.Closed = true;
         }, cancellationToken);
     }
 
-    public async Task UploadRejectedAsync(DownloadId downloadId, CancellationToken cancellationToken)
+    public async Task AutomaticValidationFailedAsync(UploadId uploadId, CancellationToken cancellationToken)
     {
-        await UpdateExtractDownload(downloadId, record =>
+        await UpdateExtractUpload(uploadId, record =>
         {
-            record.UploadStatus = ExtractUploadStatus.Rejected;
+            record.Status = ExtractUploadStatus.AutomaticValidationFailed;
+            return Task.CompletedTask;
         }, cancellationToken);
     }
 
-    private async Task UpdateExtractDownload(DownloadId downloadId, Action<ExtractDownload> change, CancellationToken cancellationToken)
+    public async Task ManualValidationFailedAsync(UploadId uploadId, CancellationToken cancellationToken)
     {
-        var record = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
+        await UpdateExtractUpload(uploadId, record =>
+        {
+            record.Status = ExtractUploadStatus.ManualValidationFailed;
+            return Task.CompletedTask;
+        }, cancellationToken);
+    }
+
+    private async Task UpdateExtractUpload(UploadId uploadId, Func<ExtractUpload, Task> change, CancellationToken cancellationToken)
+    {
+        var record = await _extractsDbContext.ExtractUploads.SingleOrDefaultAsync(x => x.UploadId == uploadId.ToGuid(), cancellationToken);
         if (record is null)
         {
-            throw new UploadExtractNotFoundException($"Could not close extract with downloadId {downloadId}");
+            throw new UploadExtractNotFoundException($"Could find extractupload with uploadId {uploadId}");
         }
 
-        change(record);
+        await change(record);
 
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
     }

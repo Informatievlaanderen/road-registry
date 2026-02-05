@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.FeatureCompare;
 using RoadRegistry.BackOffice.Framework;
@@ -79,7 +78,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
 
     protected override async Task<object> InnerHandle(UploadExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        var downloadId = new DownloadId(request.Request.DownloadId);
+        var uploadId = request.Request.UploadId;
 
         try
         {
@@ -90,10 +89,10 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         }
         catch
         {
-            var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
-            if (extractDownload is not null)
+            var extractUpload = await _extractsDbContext.ExtractUploads.SingleOrDefaultAsync(x => x.UploadId == uploadId.ToGuid(), cancellationToken);
+            if (extractUpload is not null)
             {
-                extractDownload.UploadStatus = ExtractUploadStatus.Rejected;
+                extractUpload.Status = ExtractUploadStatus.AutomaticValidationFailed;
                 await _extractsDbContext.SaveChangesAsync(cancellationToken);
             }
 
@@ -106,15 +105,13 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         var downloadId = new DownloadId(request.Request.DownloadId);
         var uploadId = new UploadId(request.Request.UploadId);
         var blobName = new BlobName(uploadId);
+        var ticketId = new TicketId(request.TicketId);
 
         var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
         if (extractDownload is null)
         {
             throw new ExtractDownloadNotFoundException(downloadId);
         }
-
-        extractDownload.UploadId = uploadId;
-        extractDownload.UploadedOn = DateTimeOffset.UtcNow;
 
         if (extractDownload.IsInformative)
         {
@@ -148,7 +145,25 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             throw new UnsupportedMediaTypeException(archiveBlob.ContentType);
         }
 
-        extractDownload.UploadStatus = ExtractUploadStatus.Processing;
+        var extractUpload = await _extractsDbContext.ExtractUploads.SingleOrDefaultAsync(x => x.UploadId == uploadId.ToGuid(), cancellationToken);
+        if (extractUpload is null)
+        {
+            extractUpload = new ExtractUpload
+            {
+                UploadId = uploadId,
+                DownloadId = downloadId,
+                UploadedOn = DateTimeOffset.UtcNow,
+                Status = ExtractUploadStatus.Processing,
+                TicketId = ticketId
+            };
+            _extractsDbContext.ExtractUploads.Add(extractUpload);
+        }
+        else
+        {
+            extractUpload.Status = ExtractUploadStatus.Processing;
+            extractUpload.TicketId = ticketId;
+        }
+
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
 
         var extractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId);
@@ -175,11 +190,11 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             var requestId = ChangeRequestId.FromUploadId(uploadId);
             var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(
                 Logger,
-                extractRequestId, requestId, downloadId, request.TicketId, cancellationToken);
+                extractRequestId, requestId, downloadId, ticketId, cancellationToken);
             changeRoadNetwork.UseExtractsV2 = true;
 
             var command = new Command(changeRoadNetwork)
-                .WithMessageId(request.TicketId)
+                .WithMessageId(ticketId)
                 .WithProvenanceData(request.Request.ProvenanceData);
             var roadNetworkCommandQueueForCommandHost = new RoadNetworkCommandQueue(_store, new ApplicationMetadata(RoadRegistryApplication.BackOffice));
             await roadNetworkCommandQueueForCommandHost.WriteAsync(command, cancellationToken);
@@ -239,11 +254,11 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
 
     protected override TicketError? InnerMapDomainException(DomainException exception, UploadExtractSqsLambdaRequest request)
     {
-        return ConvertToError(exception, request)?.ToTicketError()
+        return ConvertToError(exception)?.ToTicketError()
             ?? base.InnerMapDomainException(exception, request);
     }
 
-    private Error? ConvertToError(DomainException exception, UploadExtractSqsLambdaRequest request)
+    private Error? ConvertToError(DomainException exception)
     {
         return exception switch
         {

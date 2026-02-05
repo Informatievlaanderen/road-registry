@@ -36,4 +36,5 @@ public static class WellKnownConnectionNames
     public const string MunicipalityEventConsumer = "MunicipalityEventConsumer";
     public const string MunicipalityEventConsumerAdmin = "MunicipalityEventConsumerAdmin";
     public const string MartenMigrationAdmin = "MartenMigrationAdmin";
+    public const string MartenMigration = "MartenMigration";
 }

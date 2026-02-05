@@ -11,7 +11,7 @@ public class FakeExtractRequests: IExtractRequests
         return Task.CompletedTask;
     }
 
-    public Task UploadRejectedAsync(DownloadId downloadId, CancellationToken cancellationToken)
+    public Task UploadAutomaticValidationFailedAsync(DownloadId downloadId, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }

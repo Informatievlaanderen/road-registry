@@ -1,7 +1,8 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork;
 
-using System.Reflection;
 using Actions.ChangeRoadNetwork;
+using Actions.DataValidation;
+using Actions.UploadInwinningExtract;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -27,6 +28,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
 {
     protected readonly ITestOutputHelper TestOutputHelper;
     protected readonly Mock<ITicketing> TicketingMock = new();
+    protected readonly Mock<IDataValidationApiClient> DataValidationClientMock = new();
     protected readonly RoadNetworkTestDataV2 TestData;
     private readonly DatabaseFixture _databaseFixture;
 
@@ -45,6 +47,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
         var sqsRequest = new ChangeRoadNetworkSqsRequest
         {
             DownloadId = fixture.Create<DownloadId>(),
+            UploadId = TestData.Fixture.Create<UploadId>(),
             TicketId = fixture.Create<TicketId>(),
             Changes = changes.Select(ChangeRoadNetworkItem.Create).ToList(),
             ProvenanceData = provenanceData
@@ -87,6 +90,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
         services
             .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots())
             .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
+            .AddSingleton(DataValidationClientMock.Object)
             .AddScoped<ChangeRoadNetworkSqsLambdaRequestHandler>();
 
         ConfigureServices(services);

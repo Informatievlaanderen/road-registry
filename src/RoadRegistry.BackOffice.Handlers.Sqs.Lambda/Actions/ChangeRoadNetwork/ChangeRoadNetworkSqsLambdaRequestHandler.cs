@@ -73,7 +73,7 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
             ? await ChangeRoadNetwork(command, roadNetwork, roadNetworkChanges, cancellationToken)
             : new RoadNetworkChangeResult(Problems.None, roadNetwork.SummaryOfLastChange);
 
-        await _extractRequests.UploadAcceptedAsync(command.DownloadId, cancellationToken);
+        await _extractRequests.UploadAcceptedAsync(command.UploadId, cancellationToken);
 
         return changeResult;
     }
@@ -83,7 +83,7 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
         var changeResult = roadNetwork.Change(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator);
         if (changeResult.Problems.HasError())
         {
-            await _extractRequests.UploadRejectedAsync(command.DownloadId, cancellationToken);
+            await _extractRequests.AutomaticValidationFailedAsync(command.UploadId, cancellationToken);
 
             if (command.SendFailedEmail)
             {

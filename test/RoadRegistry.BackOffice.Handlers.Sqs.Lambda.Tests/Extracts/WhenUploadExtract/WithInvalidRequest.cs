@@ -63,7 +63,7 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
         var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
         extractDownload.UploadId.Should().Be(request.UploadId);
         extractDownload.UploadedOn.Should().NotBeNull();
-        extractDownload.UploadStatus.Should().Be(ExtractUploadStatus.Rejected);
+        extractDownload.UploadStatus.Should().Be(ExtractUploadStatus.AutomaticValidationFailed);
     }
 
     [Fact]

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.Schema;
@@ -12,9 +13,11 @@ using RoadRegistry.Extracts.Schema;
 namespace RoadRegistry.Extracts.Schema.Migrations
 {
     [DbContext(typeof(ExtractsDbContext))]
-    partial class ExtractsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260204150655_AddDataValidationQueue")]
+    partial class AddDataValidationQueue
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,23 +50,19 @@ namespace RoadRegistry.Extracts.Schema.Migrations
 
             modelBuilder.Entity("RoadRegistry.Extracts.Schema.DataValidationQueueItem", b =>
                 {
-                    b.Property<Guid>("UploadId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Completed")
-                        .HasColumnType("bit");
-
                     b.Property<string>("DataValidationId")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("SqsRequestJson")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("UploadId");
+                    b.Property<Guid>("UploadId")
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("UploadId"));
+                    b.HasKey("DataValidationId");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("DataValidationId"));
 
                     b.ToTable("DataValidationQueue", "RoadRegistryExtracts");
                 });
