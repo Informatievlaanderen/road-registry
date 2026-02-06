@@ -4,6 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using Moq;
 using RoadNetwork;
+using RoadRegistry.Extracts.Schema;
 using Xunit.Abstractions;
 
 public class WithValidRequest : WhenDataValidationTestBase
@@ -22,6 +23,16 @@ public class WithValidRequest : WhenDataValidationTestBase
         DataValidationApiClientMock
             .Setup(x => x.RequestDataValidationAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => ObjectProvider.Create<string>());
+
+        ExtractsDbContext.ExtractUploads.Add(new ExtractUpload
+        {
+            UploadId = migrateRoadNetworkSqsRequest.UploadId,
+            DownloadId = migrateRoadNetworkSqsRequest.DownloadId,
+            Status = ExtractUploadStatus.Processing,
+            TicketId = ticketId,
+            UploadedOn = DateTimeOffset.Now
+        });
+        await ExtractsDbContext.SaveChangesAsync();
 
         // Act
         await HandleRequest(migrateRoadNetworkSqsRequest, ticketId: ticketId);
