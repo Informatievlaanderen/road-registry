@@ -1,3 +1,15 @@
+# [4.45.0](https://github.com/informatievlaanderen/road-registry/compare/v4.44.2...v4.45.0) (2026-02-06)
+
+
+### Bug Fixes
+
+* datavalidation lambda test ([6c30af0](https://github.com/informatievlaanderen/road-registry/commit/6c30af0d2141dec31267d8651e0e97a86d7b7867))
+
+
+### Features
+
+* Inwinning upload status flow GAWR-7195 ([2a24ed3](https://github.com/informatievlaanderen/road-registry/commit/2a24ed3c062f5f362dadc84ca7f1abdfd9169127))
+
 ## [4.44.2](https://github.com/informatievlaanderen/road-registry/compare/v4.44.1...v4.44.2) (2026-02-04)
 
 
