@@ -9,11 +9,13 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using FluentAssertions;
 using Hosts;
 using Marten;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.DataValidation;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using ScopedRoadNetwork;
@@ -29,6 +31,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
     protected readonly ITestOutputHelper TestOutputHelper;
     protected readonly Mock<ITicketing> TicketingMock = new();
     protected readonly Mock<IDataValidationApiClient> DataValidationClientMock = new();
+    protected readonly Mock<IMediator> MediatorMock = new();
     protected readonly RoadNetworkTestDataV2 TestData;
     private readonly DatabaseFixture _databaseFixture;
 
@@ -83,6 +86,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
             .AddSingleton<SqsLambdaHandlerOptions>(new FakeSqsLambdaHandlerOptions())
             .AddSingleton<ICustomRetryPolicy>(new FakeRetryPolicy())
             .AddSingleton(TicketingMock.Object)
+            .AddSingleton(MediatorMock.Object)
             .AddSingleton(Mock.Of<IIdempotentCommandHandler>())
             .AddSingleton(Mock.Of<IRoadRegistryContext>())
             .AddSingleton(Mock.Of<IExtractUploadFailedEmailClient>());

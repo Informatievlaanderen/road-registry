@@ -57,7 +57,7 @@ public class WithValidRequest : WhenUploadInwinningExtractTestBase
 
         MediatorMock
             .Verify(x => x.Send(
-                It.Is<MigrateDryRunRoadNetworkSqsRequest>(r => r.DownloadId == downloadId),
+                It.Is<MigrateDryRunRoadNetworkSqsRequest>(r => r.MigrateRoadNetworkSqsRequest.DownloadId == downloadId),
                 It.IsAny<CancellationToken>()), Times.Once);
     }
 }

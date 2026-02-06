@@ -1,12 +1,9 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Extracts.WhenUploadExtract;
 
 using Abstractions.Exceptions;
-using Abstractions.Extracts.V2;
 using AutoFixture;
-using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Exceptions;
 using FluentAssertions;
 using Moq;
 using RoadRegistry.Extracts.Schema;
@@ -60,10 +57,9 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
             )
         );
 
-        var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
-        extractDownload.UploadId.Should().Be(request.UploadId);
-        extractDownload.UploadedOn.Should().NotBeNull();
-        extractDownload.UploadStatus.Should().Be(ExtractUploadStatus.AutomaticValidationFailed);
+        var extractDownload = ExtractsDbContext.ExtractUploads.Single(x => x.UploadId == request.UploadId.ToGuid());
+        extractDownload.DownloadId.Should().Be(downloadId.ToGuid());
+        extractDownload.Status.Should().Be(ExtractUploadStatus.AutomaticValidationFailed);
     }
 
     [Fact]

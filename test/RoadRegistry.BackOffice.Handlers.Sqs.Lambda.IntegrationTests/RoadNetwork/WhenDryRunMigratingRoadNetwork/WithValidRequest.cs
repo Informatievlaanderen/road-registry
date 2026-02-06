@@ -35,29 +35,34 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         var provenanceData = new RoadRegistryProvenanceData();
         var command = new MigrateDryRunRoadNetworkSqsRequest
         {
-            DownloadId = TestData.Fixture.Create<DownloadId>(),
+            MigrateRoadNetworkSqsRequest = new MigrateRoadNetworkSqsRequest
+            {
+                UploadId = TestData.Fixture.Create<UploadId>(),
+                DownloadId = TestData.Fixture.Create<DownloadId>(),
+                Changes =
+                [
+                    new ChangeRoadNetworkItem
+                    {
+                        AddRoadNode = TestData.AddSegment1StartNode
+                    },
+                    new ChangeRoadNetworkItem
+                    {
+                        AddRoadNode = TestData.AddSegment1EndNode
+                    },
+                    new ChangeRoadNetworkItem
+                    {
+                        AddRoadSegment = TestData.AddSegment1
+                    }
+                ]
+            },
             TicketId = TestData.Fixture.Create<TicketId>(),
-            Changes = [
-                new ChangeRoadNetworkItem
-                {
-                    AddRoadNode = TestData.AddSegment1StartNode
-                },
-                new ChangeRoadNetworkItem
-                {
-                    AddRoadNode = TestData.AddSegment1EndNode
-                },
-                new ChangeRoadNetworkItem
-                {
-                    AddRoadSegment = TestData.AddSegment1
-                }
-            ],
             ProvenanceData = provenanceData
         };
 
         var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
         extractsDbContext.Inwinningszones.Add(new Inwinningszone
         {
-            DownloadId = command.DownloadId,
+            DownloadId = command.MigrateRoadNetworkSqsRequest.DownloadId,
             NisCode = "12345",
             Contour = new WKTReader().Read(GeometryTranslatorTestCases.ValidPolygon),
             Operator = provenanceData.Operator,
@@ -85,11 +90,11 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         var roadSegments = await session.LoadManyAsync([TestData.Segment1Added.RoadSegmentId]);
         roadSegments.Should().BeEmpty();
 
-        var inwinningsZone = extractsDbContext.Inwinningszones.Single(x => x.DownloadId == command.DownloadId.ToGuid());
+        var inwinningsZone = extractsDbContext.Inwinningszones.Single(x => x.DownloadId == command.MigrateRoadNetworkSqsRequest.DownloadId.ToGuid());
         inwinningsZone.Completed.Should().BeFalse();
 
-        DataValidationClientMock.Verify(x => x.RequestDataValidationAsync(
-            It.Is<MigrateRoadNetworkSqsRequest>(r => r.DownloadId == command.DownloadId && r.TicketId == command.TicketId),
+        MediatorMock.Verify(x => x.Send(
+            It.Is<DataValidationSqsRequest>(r => r.MigrateRoadNetworkSqsRequest == command.MigrateRoadNetworkSqsRequest && r.TicketId == command.TicketId),
             It.IsAny<CancellationToken>()),
             Times.Once);
     }

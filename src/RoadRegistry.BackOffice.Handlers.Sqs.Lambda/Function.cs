@@ -2,10 +2,8 @@
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
-using Actions.DataValidation;
 using Actions.RequestExtract;
 using Actions.UploadExtract;
-using Actions.UploadInwinningExtract;
 using Autofac;
 using BackOffice.Extensions;
 using BackOffice.Extracts;
@@ -22,6 +20,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.DataValidation;
 using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.ZipArchiveWriters;

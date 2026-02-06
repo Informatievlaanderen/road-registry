@@ -9,6 +9,7 @@ using Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Extracts.DataValidation;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 using TicketingService.Abstractions;
@@ -17,9 +18,7 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
 {
     private readonly IDataValidationApiClient _dataValidationClient;
     private readonly ExtractsDbContext _extractsDbContext;
-    private readonly IExtractRequests _extractRequests;
     private readonly SqsJsonMessageSerializer _sqsJsonMessageSerializer;
-    private readonly IMediator _mediator;
 
     public DataValidationSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -29,9 +28,7 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
         IRoadRegistryContext roadRegistryContext,
         IDataValidationApiClient dataValidationClient,
         ExtractsDbContext extractsDbContext,
-        IExtractRequests extractRequests,
         SqsJsonMessageSerializer sqsJsonMessageSerializer,
-        IMediator mediator,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -44,9 +41,7 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
     {
         _dataValidationClient = dataValidationClient;
         _extractsDbContext = extractsDbContext;
-        _extractRequests = extractRequests;
         _sqsJsonMessageSerializer = sqsJsonMessageSerializer;
-        _mediator = mediator;
     }
 
     protected override async Task<object> InnerHandle(DataValidationSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
@@ -70,9 +65,12 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
         }
 
         //TODO-pr poll until automatic validation is complete/rejected, with max 10mins
+        //if automaticvalidation failed, then reject extractrequest
+        //await _extractRequests.AutomaticValidationFailedAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, cancellationToken);
+        //queueItem.Completed = true;
+        //await _extractsDbContext.SaveChangesAsync(cancellationToken);
 
-        // if automatic validation was completed, then register
-        //await _mediator.Send(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest, cancellationToken);
+        //if automaticvalidation passed, then keep going with slower polling by simply stopping this lambda run
 
         return new object();
     }

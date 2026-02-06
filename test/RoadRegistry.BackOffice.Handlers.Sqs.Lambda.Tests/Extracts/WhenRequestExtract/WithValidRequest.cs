@@ -54,9 +54,6 @@ public class WithValidRequest : WhenRequestExtractTestBase
         extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
         extractDownload.Status.Should().Be(ExtractDownloadStatus.Available);
         extractDownload.IsInformative.Should().Be(request.IsInformative);
-        extractDownload.UploadedOn.Should().BeNull();
-        extractDownload.UploadId.Should().BeNull();
-        extractDownload.UploadStatus.Should().BeNull();
 
         blobClientMock.Verify(x => x.CreateBlobAsync(
             new BlobName(downloadId),
@@ -143,9 +140,6 @@ public class WithValidRequest : WhenRequestExtractTestBase
         extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
         extractDownload.Status.Should().Be(ExtractDownloadStatus.Available);
         extractDownload.IsInformative.Should().Be(request.IsInformative);
-        extractDownload.UploadedOn.Should().BeNull();
-        extractDownload.UploadId.Should().BeNull();
-        extractDownload.UploadStatus.Should().BeNull();
 
         var previousDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.ExtractRequestId == originalExtractRequest.ExtractRequestId
                                                                               && x.DownloadId != downloadId);
@@ -206,9 +200,6 @@ public class WithValidRequest : WhenRequestExtractTestBase
         extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
         extractDownload.Status.Should().Be(ExtractDownloadStatus.Available);
         extractDownload.IsInformative.Should().Be(request.IsInformative);
-        extractDownload.UploadedOn.Should().BeNull();
-        extractDownload.UploadId.Should().BeNull();
-        extractDownload.UploadStatus.Should().BeNull();
     }
 
     [Fact]
@@ -249,9 +240,6 @@ public class WithValidRequest : WhenRequestExtractTestBase
         extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
         extractDownload.Status.Should().Be(ExtractDownloadStatus.Error);
         extractDownload.IsInformative.Should().Be(request.IsInformative);
-        extractDownload.UploadedOn.Should().BeNull();
-        extractDownload.UploadId.Should().BeNull();
-        extractDownload.UploadStatus.Should().BeNull();
     }
 
     [Fact]

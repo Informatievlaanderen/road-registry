@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.DataValidation;
+﻿namespace RoadRegistry.Extracts.DataValidation;
 
 public interface IDataValidationApiClient
 {

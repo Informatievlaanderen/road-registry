@@ -57,7 +57,7 @@ public abstract class WhenUploadInwinningExtractTestBase : BackOfficeLambdaTest
 
     private sealed class FakeExtractUploader : IExtractUploader
     {
-        public Task<TranslatedChanges> ProcessUploadAndDetectChanges(DownloadId downloadId, UploadId uploadId, ZipArchiveMetadata zipArchiveMetadata, CancellationToken cancellationToken)
+        public Task<TranslatedChanges> ProcessUploadAndDetectChanges(DownloadId downloadId, UploadId uploadId, TicketId ticketId, ZipArchiveMetadata zipArchiveMetadata, CancellationToken cancellationToken)
         {
             return Task.FromResult(TranslatedChanges.Empty);
         }

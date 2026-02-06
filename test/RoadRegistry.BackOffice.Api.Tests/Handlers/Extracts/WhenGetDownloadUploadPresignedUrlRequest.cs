@@ -41,7 +41,7 @@ public class WhenGetDownloadUploadPresignedUrlRequest
             Contour = Polygon.Empty,
             ExtractRequestId = _fixture.Create<ExtractRequestId>(),
             Status = ExtractDownloadStatus.Available,
-            UploadId = Guid.NewGuid()
+            LatestUploadId = Guid.NewGuid()
         });
         await extractsDbContext.SaveChangesAsync();
 
@@ -135,7 +135,7 @@ public class WhenGetDownloadUploadPresignedUrlRequest
             Contour = Polygon.Empty,
             ExtractRequestId = _fixture.Create<ExtractRequestId>(),
             Status = ExtractDownloadStatus.Available,
-            UploadId = null
+            LatestUploadId = null
         });
         await extractsDbContext.SaveChangesAsync();
 
@@ -164,7 +164,7 @@ public class WhenGetDownloadUploadPresignedUrlRequest
             Contour = Polygon.Empty,
             ExtractRequestId = _fixture.Create<ExtractRequestId>(),
             Status = ExtractDownloadStatus.Available,
-            UploadId = Guid.NewGuid()
+            LatestUploadId = Guid.NewGuid()
         });
         await extractsDbContext.SaveChangesAsync();
 

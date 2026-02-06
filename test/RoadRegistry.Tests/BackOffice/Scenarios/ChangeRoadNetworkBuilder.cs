@@ -16,6 +16,7 @@ public class ChangeRoadNetworkBuilder
     private TicketId? _ticketId;
     private ExtractRequestId? _extractRequestId;
     private DownloadId? _downloadId;
+    private UploadId? _uploadId;
     private bool _extractsV2;
 
     public ChangeRoadNetworkBuilder(Fixture fixture)
@@ -139,6 +140,13 @@ public class ChangeRoadNetworkBuilder
         return this;
     }
 
+    public ChangeRoadNetworkBuilder WithUploadId(UploadId uploadId)
+    {
+        _uploadId = uploadId;
+
+        return this;
+    }
+
     public ChangeRoadNetworkBuilder WithExtractsV2()
     {
         _extractsV2 = true;
@@ -158,6 +166,7 @@ public class ChangeRoadNetworkBuilder
             ExtractRequestId = _extractRequestId,
             Changes = _changes.ToArray(),
             DownloadId = _downloadId,
+            UploadId = _uploadId,
             UseExtractsV2 = _extractsV2
         });
     }
