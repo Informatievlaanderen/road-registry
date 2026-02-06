@@ -13,7 +13,7 @@ public class DataValidationQueueItem
     public bool Completed { get; set; }
 }
 
-public class InwinningszoneDataValidationConfiguration : IEntityTypeConfiguration<DataValidationQueueItem>
+public class DataValidationQueueItemConfiguration : IEntityTypeConfiguration<DataValidationQueueItem>
 {
     private const string TableName = "DataValidationQueue";
 

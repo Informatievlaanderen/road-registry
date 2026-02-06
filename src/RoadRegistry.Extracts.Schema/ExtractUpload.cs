@@ -19,7 +19,8 @@ public enum ExtractUploadStatus
     Processing = 0,
     AutomaticValidationFailed = 1,
     Accepted = 2,
-    ManualValidationFailed = 3
+    AutomaticValidationSucceeded = 3,
+    ManualValidationFailed = 4
 }
 
 public class ExtractUploadConfiguration : IEntityTypeConfiguration<ExtractUpload>

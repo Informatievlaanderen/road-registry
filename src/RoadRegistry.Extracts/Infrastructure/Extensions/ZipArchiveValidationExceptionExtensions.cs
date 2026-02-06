@@ -18,7 +18,8 @@ public static class ZipArchiveValidationExceptionExtensions
 
                     return new ValidationFailure(problem.File, translatedProblem.Message)
                     {
-                        ErrorCode = $"{problem.Severity}{translatedProblem.Code}"
+                        ErrorCode = $"{problem.Severity}{translatedProblem.Code}",
+                        CustomState = new Dictionary<string, object> { { "Bestand", problem.File } }
                     };
                 }
             )

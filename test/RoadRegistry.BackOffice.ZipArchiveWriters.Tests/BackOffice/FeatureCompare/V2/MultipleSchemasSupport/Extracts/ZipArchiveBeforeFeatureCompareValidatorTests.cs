@@ -401,7 +401,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                     case ".DBF":
                         return entry.HasNoDbaseRecords(hasNoDbaseRecordsAsErrorFiles.Contains(entry.Name));
                     case ".PRJ":
-                        return entry.ProjectionFormatInvalid();
+                        return entry.ProjectionFormatNotLambert72();
                 }
 
                 return null;

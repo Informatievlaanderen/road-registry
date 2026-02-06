@@ -65,6 +65,7 @@
               <UploadComponent
                 v-if="userCanUpload"
                 :download-id="downloadId"
+                :disabled="uploadDisabled"
                 @upload-start="handleUploadStart"
                 @upload-complete="handleUploadComplete"
               />
@@ -167,6 +168,7 @@ export default defineComponent({
         validationErrors: [] as RoadRegistry.ValidationError[],
         hasGenericError: false,
       },
+      uploadDisabled: false,
     };
   },
   computed: {
@@ -191,8 +193,10 @@ export default defineComponent({
         switch (this.extract.uploadStatus) {
           case "Processing":
             return "Verwerken";
-          case "Rejected":
-            return "Geweigerd";
+          case "AutomaticValidationFailed":
+            return "Verworpen";
+          case "AutomaticValidationSucceeded":
+            return "Automatische controles geslaagd";
           case "Accepted":
             return "Aanvaard";
         }
@@ -223,6 +227,13 @@ export default defineComponent({
         title: "",
         text: "",
       };
+
+      if (this.extract?.uploadStatus === "AutomaticValidationSucceeded") {
+        status.title = "";
+        status.text =
+          "Er lopen momenteel scherm- en terreincontroles voor deze levering. Gedurende deze controlefase kan er geen nieuw archief opgeladen worden.";
+        return status;
+      }
 
       switch (this.ticketResponseCode) {
         case 0:
@@ -278,7 +289,12 @@ export default defineComponent({
     },
     userCanUpload() {
       return (
-        !this.extract?.informatief && this.downloadAvailable && !this.extract?.gesloten && this.extract?.gedownloadOp
+        !this.extract?.informatief &&
+        this.downloadAvailable &&
+        !this.extract?.gesloten &&
+        this.extract?.gedownloadOp &&
+        this.extract?.uploadStatus !== "Processing" &&
+        this.extract?.uploadStatus !== "AutomaticValidationSucceeded"
       );
     },
   },
@@ -437,6 +453,7 @@ export default defineComponent({
           break;
         case "complete":
           {
+            this.uploadDisabled = false;
             this.trackProgress = false;
             let uploadResult = camelizeKeys(JSON.parse(ticketResult.result.json));
 
@@ -451,18 +468,25 @@ export default defineComponent({
           break;
         case "error":
           {
+            this.uploadDisabled = false;
             this.trackProgress = false;
             let ticketError = JSON.parse(ticketResult.result.json);
             let errors = [ticketError, ...(ticketError.Errors ?? [])];
+
             errors = uniqBy(errors, (x) => `${x.ErrorCode}_${x.ErrorMessage}`);
-            let problems = errors.map((error) => {
-              let codeParts = (error.ErrorCode ?? "").split("_");
-              let file = codeParts.length > 1 ? codeParts[0] : null;
-              let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
-              let severity = code.startsWith("Warning") ? "Warning" : "Error";
-              let text = error.ErrorMessage;
-              return { file, code, severity, text };
-            });
+            let problems = errors
+              .flatMap((x) => x.Errors)
+              .map((error) => {
+                let codeParts = (error.ErrorCode ?? "").split("_");
+                let file = codeParts.length > 1 ? codeParts[0] : null;
+                if (error.ErrorContext && error.ErrorContext["Bestand"]) {
+                  file = error.ErrorContext["Bestand"];
+                }
+                let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
+                let severity = code.startsWith("Warning") ? "Warning" : "Error";
+                let text = error.ErrorMessage;
+                return { file, code, severity, text };
+              });
             let fileProblems = uniq(problems.map((x) => x.file)).map((file) => {
               return {
                 file,
@@ -586,6 +610,7 @@ export default defineComponent({
     },
     async handleUploadComplete(args: any) {
       this.ticketId = args.ticketId;
+      this.uploadDisabled = true;
       await this.waitForTicketComplete();
       await this.loadExtractDetails();
     },

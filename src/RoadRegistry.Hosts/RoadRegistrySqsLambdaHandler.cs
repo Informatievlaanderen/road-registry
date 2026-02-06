@@ -1,6 +1,8 @@
 namespace RoadRegistry.Hosts;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +15,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using CommandHandling;
 using FluentValidation;
+using FluentValidation.Results;
 using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Infrastructure;
@@ -66,7 +69,24 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
 
     protected override TicketError MapValidationException(ValidationException exception, TSqsLambdaRequest request)
     {
-        return base.MapValidationException(exception.TranslateToDutch(), request);
+        exception = exception.TranslateToDutch();
+
+        if (exception.Errors is not null)
+        {
+            return exception.Errors.Count() == 1
+                ? ToTicketError(exception.Errors.Single())
+                : new TicketError(exception.Errors.Select(ToTicketError).ToList());
+        }
+
+        return null;
+    }
+
+    private static TicketError ToTicketError(ValidationFailure failure)
+    {
+        return new TicketError(failure.ErrorMessage, failure.ErrorCode)
+        {
+            ErrorContext = failure.CustomState as Dictionary<string, object>
+        };
     }
 
     protected override async Task HandleAggregateIdIsNotFoundException(TSqsLambdaRequest request, CancellationToken cancellationToken)

@@ -6,7 +6,7 @@ using Infrastructure.Extensions;
 
 public static class FeatureValidationExtensions
 {
-    public static ZipArchiveProblems ValidateProjectionFile(this ZipArchive archive, FeatureType featureType, ExtractFileName fileName, Encoding encoding)
+    public static ZipArchiveProblems ValidateProjectionFileLambert72(this ZipArchive archive, FeatureType featureType, ExtractFileName fileName, Encoding encoding)
     {
         var prjFileName = featureType.ToProjectionFileName(fileName);
         var prjEntry = archive.FindEntry(prjFileName);
@@ -16,7 +16,21 @@ public static class FeatureValidationExtensions
                 .RequiredFileMissing(prjFileName);
         }
 
-        return new ZipArchiveProjectionFormatEntryValidator(encoding)
+        return new ZipArchiveProjectionLambert72FormatEntryValidator(encoding)
+            .Validate(prjEntry);
+    }
+
+    public static ZipArchiveProblems ValidateProjectionFileLambert08(this ZipArchive archive, FeatureType featureType, ExtractFileName fileName, Encoding encoding)
+    {
+        var prjFileName = featureType.ToProjectionFileName(fileName);
+        var prjEntry = archive.FindEntry(prjFileName);
+        if (prjEntry is null)
+        {
+            return ZipArchiveProblems.None
+                .RequiredFileMissing(prjFileName);
+        }
+
+        return new ZipArchiveProjectionLambert08FormatEntryValidator(encoding)
             .Validate(prjEntry);
     }
 }

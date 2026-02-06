@@ -96,6 +96,15 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
         }, cancellationToken);
     }
 
+    public async Task AutomaticValidationSucceededAsync(UploadId uploadId, CancellationToken cancellationToken)
+    {
+        await UpdateExtractUpload(uploadId, record =>
+        {
+            record.Status = ExtractUploadStatus.AutomaticValidationSucceeded;
+            return Task.CompletedTask;
+        }, cancellationToken);
+    }
+
     public async Task ManualValidationFailedAsync(UploadId uploadId, CancellationToken cancellationToken)
     {
         await UpdateExtractUpload(uploadId, record =>

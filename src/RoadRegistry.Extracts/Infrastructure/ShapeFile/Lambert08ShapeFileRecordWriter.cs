@@ -5,7 +5,7 @@ using System.Text;
 public sealed class Lambert08ShapeFileRecordWriter : ShapeFileRecordWriter
 {
     public Lambert08ShapeFileRecordWriter(Encoding encoding)
-        : base(encoding, WellknownSrids.Lambert08)
+        : base(encoding, ProjectionFormat.BelgeLambert2008)
     {
     }
 }

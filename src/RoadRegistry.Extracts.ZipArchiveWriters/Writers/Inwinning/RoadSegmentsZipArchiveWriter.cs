@@ -175,7 +175,25 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
             { "OW", "OW" },
             { "EW", "EW" },
             { "-8", "-8" },
-            { "-9", "-9" }
+            { "-9", "-9" },
+
+            //obsolete values, only a problem for tst/stg
+            { "L", "OW" },
+            { "L1", "EW" },
+            { "L2", "EW" },
+            { "L3", "EW" },
+            { "H", "EHW" },
+            { "PI", "VHW" },
+            { "PII", "VHW" },
+            { "PII-1", "VHW" },
+            { "PII-2", "VHW" },
+            { "PII-3", "VHW" },
+            { "PII-4", "VHW" },
+            { "S", "RW" },
+            { "S1", "IW" },
+            { "S2", "IW" },
+            { "S3", "IW" },
+            { "S4", "IW" }
         };
 
         if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))

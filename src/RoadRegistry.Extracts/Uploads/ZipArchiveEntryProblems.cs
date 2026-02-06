@@ -72,9 +72,13 @@ public static class ZipArchiveEntryProblems
 
     // projection format
 
-    public static FileError ProjectionFormatInvalid(this ZipArchiveEntry entry)
+    public static FileError ProjectionFormatNotLambert72(this ZipArchiveEntry entry)
     {
-        return new FileProblemBuilder(entry.Name).ProjectionFormatInvalid();
+        return new FileProblemBuilder(entry.Name).ProjectionFormatNotLambert72();
+    }
+    public static FileError ProjectionFormatNotLambert08(this ZipArchiveEntry entry)
+    {
+        return new FileProblemBuilder(entry.Name).ProjectionFormatNotLambert08();
     }
 
     public static FileProblem RoadSegmentsWithoutLaneAttributes(this ZipArchiveEntry entry, RoadSegmentId[] segments)

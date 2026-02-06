@@ -47,7 +47,7 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
         if (nodes.Any())
         {
             var segments = await zipArchiveDataProvider.GetRoadSegments(request.Contour, cancellationToken);
-            records.AddRange(BuildSchijnknoopDbaseRecords(segments));
+            records.AddRange(BuildSchijnknoopDbaseRecords(segments, context));
         }
 
         foreach (var featureType in featureTypes)
@@ -74,10 +74,8 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
             });
     }
 
-    internal static IEnumerable<(DbaseRecord, Geometry)> BuildSchijnknoopDbaseRecords(IEnumerable<RoadSegmentExtractItem> segments)
+    internal static IEnumerable<(DbaseRecord, Geometry)> BuildSchijnknoopDbaseRecords(IEnumerable<RoadSegmentExtractItem> segments, ZipArchiveWriteContext context)
     {
-        var schijnknoopIdProvider = new NextAttributeIdProvider(new AttributeId(5000000));
-
         return segments
             .SelectMany(x =>
                 x.Flatten().Skip(1)
@@ -88,7 +86,7 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
 
                         var dbfRecord = new RoadNodeDbaseRecord
                         {
-                            WK_OIDN = { Value = schijnknoopIdProvider.Next() },
+                            WK_OIDN = { Value = context.NewSchijnknoopId() },
                             TYPE = { Value = RoadNodeTypeV2.Schijnknoop },
                             GRENSKNOOP = { Value = ToGrensknoopDbfValue(IsWithin10MeterOfGrens(nodeGeometry)) },
                             CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() }

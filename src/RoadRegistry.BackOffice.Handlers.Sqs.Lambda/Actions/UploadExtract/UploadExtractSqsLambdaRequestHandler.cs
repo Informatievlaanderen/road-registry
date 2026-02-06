@@ -89,14 +89,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         }
         catch
         {
-            try
-            {
-                await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
-            }
-            catch (UploadExtractNotFoundException)
-            {
-                // Do nothing
-            }
+            await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
             throw;
         }
     }

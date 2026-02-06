@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.DataValidation;
 
+using System.Diagnostics;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
@@ -46,6 +47,8 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
 
     protected override async Task<object> InnerHandle(DataValidationSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
+        var startOfAction = Stopwatch.StartNew();
+
         var queueItem = await _extractsDbContext.DataValidationQueue.SingleOrDefaultAsync(x => x.UploadId == sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId.ToGuid(), cancellationToken);
         if (queueItem is null)
         {
@@ -64,13 +67,35 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
             await _extractsDbContext.SaveChangesAsync(cancellationToken);
         }
 
-        //TODO-pr poll until automatic validation is complete/rejected, with max 10mins
-        //if automaticvalidation failed, then reject extractrequest
-        //await _extractRequests.AutomaticValidationFailedAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, cancellationToken);
-        //queueItem.Completed = true;
-        //await _extractsDbContext.SaveChangesAsync(cancellationToken);
+        bool? automaticValidationSucceed = null;
+        while (automaticValidationSucceed is null)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
 
-        //if automaticvalidation passed, then keep going with slower polling by simply stopping this lambda run
+            if (startOfAction.Elapsed.TotalMinutes >= 10)
+            {
+                break;
+            }
+
+            //TODO-pr poll until automatic validation is complete/rejected
+
+            automaticValidationSucceed = true;
+        }
+
+        if (automaticValidationSucceed is not null)
+        {
+            if (automaticValidationSucceed.Value)
+            {
+                await _extractsDbContext.AutomaticValidationSucceededAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, cancellationToken);
+            }
+            else
+            {
+                await _extractsDbContext.AutomaticValidationFailedAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, cancellationToken);
+
+                queueItem.Completed = true;
+                await _extractsDbContext.SaveChangesAsync(cancellationToken);
+            }
+        }
 
         return new object();
     }

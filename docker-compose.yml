@@ -1,16 +1,14 @@
-version: '3.8'
-name: 'road-registry'
-
+version: "3.8"
+name: "road-registry"
 
 services:
-
   mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
     container_name: road-mssql
     ports:
       - 21433:1433
     environment:
-      ACCEPT_EULA: 'Y'
+      ACCEPT_EULA: "Y"
       SA_PASSWORD: E@syP@ssw0rd
       MSSQL_MEMORY_LIMIT_MB: 1000
       MSSQL_PID: Standard
@@ -22,13 +20,13 @@ services:
     image: minio/minio:latest
     container_name: minio
     ports:
-    - "9010:9000"
-    - "9011:9001"
+      - "9010:9000"
+      - "9011:9001"
     environment:
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
     volumes:
-    - minio-data:/data
+      - minio-data:/data
     command: server --console-address :9001 /data
 
   seq:
@@ -37,7 +35,7 @@ services:
     ports:
       - 5341:80
     environment:
-      ACCEPT_EULA: 'Y'
+      ACCEPT_EULA: "Y"
     volumes:
       - seq-data:/data
 
@@ -51,7 +49,7 @@ services:
       - 29050:5432
 
   ticketing-service:
-    image: 362233117987.dkr.ecr.eu-west-1.amazonaws.com/ticketing-service/ticketing:2.1.1
+    image: 362233117987.dkr.ecr.eu-west-1.amazonaws.com/ticketing-service/ticketing:3.2.4
     container_name: ticketing-service
     depends_on:
       - postgresql

@@ -34,8 +34,14 @@ public class DataValidationPollingService : IScheduledJob
             {
                 //TODO-pr poll datavalidation, update extract status if needed
 
-                queueItem.Completed = true;
-                await _extractsDbContext.SaveChangesAsync(cancellationToken);
+
+                //TODO-pr temp
+                await _extractsDbContext.ManualValidationFailedAsync(new UploadId(queueItem.UploadId), cancellationToken);
+
+                // await _extractsDbContext.UploadAcceptedAsync(new UploadId(queueItem.UploadId), cancellationToken);
+                //
+                // queueItem.Completed = true;
+                // await _extractsDbContext.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)
             {

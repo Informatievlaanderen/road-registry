@@ -6,11 +6,11 @@ using System.IO.Compression;
 using System.Text;
 using RoadRegistry.Extensions;
 
-public class ZipArchiveProjectionFormatEntryValidator : IZipArchiveEntryValidator
+public class ZipArchiveProjectionLambert72FormatEntryValidator : IZipArchiveEntryValidator
 {
     private readonly Encoding _encoding;
 
-    public ZipArchiveProjectionFormatEntryValidator(Encoding encoding)
+    public ZipArchiveProjectionLambert72FormatEntryValidator(Encoding encoding)
     {
         _encoding = encoding.ThrowIfNull();
     }
@@ -27,7 +27,7 @@ public class ZipArchiveProjectionFormatEntryValidator : IZipArchiveEntryValidato
             var projectionFormat = ProjectionFormat.Read(reader);
             if (!projectionFormat.IsBelgeLambert1972())
             {
-                problems += entry.ProjectionFormatInvalid();
+                problems += entry.ProjectionFormatNotLambert72();
             }
         }
 

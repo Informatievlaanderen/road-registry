@@ -82,7 +82,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
         async Task WriteRoadNodes()
         {
             var records = RoadNodesZipArchiveWriter.ConvertToDbaseRecords(integrationNodes)
-                .Concat(RoadNodesZipArchiveWriter.BuildSchijnknoopDbaseRecords(integrationSegments));
+                .Concat(RoadNodesZipArchiveWriter.BuildSchijnknoopDbaseRecords(integrationSegments, context));
 
             var writer = new Lambert08ShapeFileRecordWriter(_encoding);
             await writer.WriteToArchive(archive, ExtractFileName.Wegknoop, featureType, ShapeType.Point, RoadNodeDbaseRecord.Schema, records, cancellationToken);
