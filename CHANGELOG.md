@@ -1,3 +1,10 @@
+## [4.45.1](https://github.com/informatievlaanderen/road-registry/compare/v4.45.0...v4.45.1) (2026-02-06)
+
+
+### Bug Fixes
+
+* UI handle upload status AutomaticValidationFailed + disable uploadcomponent when upload started ([77e378a](https://github.com/informatievlaanderen/road-registry/commit/77e378a71dcbea144a6bfe9f2aa759a427efcfeb))
+
 # [4.45.0](https://github.com/informatievlaanderen/road-registry/compare/v4.44.2...v4.45.0) (2026-02-06)
 
 
