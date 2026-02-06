@@ -12,7 +12,7 @@
       v-bind="options"
       :mod-success="uploadResult.uploadResponseCode > 0 && alertInfo.success"
       :mod-error="uploadResult.uploadResponseCode > 0 && (alertInfo.error || alertInfo.warning)"
-      :mod-disabled="isUploading || isProcessing"
+      :mod-disabled="disabled || isUploading || isProcessing"
       @upload-success="isUploading = false"
       @upload-complete="isUploading = false"
       @upload-canceled="isUploading = false"
@@ -59,6 +59,10 @@ export default defineComponent({
     downloadId: {
       type: String,
       required: true,
+    },
+    disabled: {
+      type: Boolean,
+      required: false,
     },
   },
   data() {
@@ -175,22 +179,22 @@ export default defineComponent({
   methods: {
     async processing(file: any) {
       this.startUpload();
-      
+
       // Tell Dropzone the file is accepted and being uploaded
       file.accepted = true;
-      file.status = 'uploading';
-      
+      file.status = "uploading";
+
       try {
         this.uploadResult = {
           uploadResponseCode: 0,
           fileProblems: [],
         };
         this.uploadResult = await this.uploadFile(file);
-        
+
         // Mark file as success in Dropzone
-        file.status = 'success';
+        file.status = "success";
       } catch (error) {
-        file.status = 'error';
+        file.status = "error";
         throw error;
       } finally {
         this.endUpload();
@@ -200,7 +204,7 @@ export default defineComponent({
       uploadResponseCode: number;
       fileProblems: Array<any>;
     }> {
-      const allowedFileTypes = this.options.acceptedFiles.split(',');
+      const allowedFileTypes = this.options.acceptedFiles.split(",");
       if (!allowedFileTypes.includes(file.type)) {
         return {
           uploadResponseCode: 2,
@@ -292,7 +296,7 @@ export default defineComponent({
 </script>
 
 <style>
-  .vl-upload__file.dz-error{
-    display: none !important;
-  }
+.vl-upload__file.dz-error {
+  display: none !important;
+}
 </style>
