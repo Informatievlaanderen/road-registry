@@ -35,19 +35,19 @@ public class GetDownloadUploadPresignedUrlRequestHandler : EndpointRequestHandle
 
     protected override async Task<GetDownloadUploadPresignedUrlResponse> InnerHandleAsync(GetDownloadUploadPresignedUrlRequest request, CancellationToken cancellationToken)
     {
-        var record = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == request.DownloadId.ToGuid(), cancellationToken);
+        var downloadRecord = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == request.DownloadId.ToGuid(), cancellationToken);
 
-        if (record is not { DownloadStatus: ExtractDownloadStatus.Available })
+        if (downloadRecord is not { Status: ExtractDownloadStatus.Available })
         {
             throw new ExtractDownloadNotFoundException(request.DownloadId);
         }
 
-        if (record.UploadId is null)
+        if (downloadRecord.LatestUploadId is null)
         {
             throw new ExtractUploadNotFoundException(request.DownloadId);
         }
 
-        var uploadId = new UploadId(record.UploadId.Value);
+        var uploadId = new UploadId(downloadRecord.LatestUploadId.Value);
         var blobName = new BlobName(uploadId);
 
         if (!await _client.BlobExistsAsync(blobName, cancellationToken))

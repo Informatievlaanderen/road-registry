@@ -45,6 +45,29 @@ namespace RoadRegistry.Extracts.Schema.Migrations
                     b.ToTable("ProjectionStates", "RoadRegistryExtracts");
                 });
 
+            modelBuilder.Entity("RoadRegistry.Extracts.Schema.DataValidationQueueItem", b =>
+                {
+                    b.Property<Guid>("UploadId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Completed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("DataValidationId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("SqsRequestJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UploadId");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("UploadId"));
+
+                    b.ToTable("DataValidationQueue", "RoadRegistryExtracts");
+                });
+
             modelBuilder.Entity("RoadRegistry.Extracts.Schema.ExtractDownload", b =>
                 {
                     b.Property<Guid>("DownloadId")
@@ -57,9 +80,6 @@ namespace RoadRegistry.Extracts.Schema.Migrations
                         .IsRequired()
                         .HasColumnType("Geometry");
 
-                    b.Property<int>("DownloadStatus")
-                        .HasColumnType("int");
-
                     b.Property<DateTimeOffset?>("DownloadedOn")
                         .HasColumnType("datetimeoffset");
 
@@ -70,20 +90,17 @@ namespace RoadRegistry.Extracts.Schema.Migrations
                     b.Property<bool>("IsInformative")
                         .HasColumnType("bit");
 
+                    b.Property<Guid?>("LatestUploadId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTimeOffset>("RequestedOn")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<Guid?>("TicketId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("UploadId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("UploadStatus")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset?>("UploadedOn")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<Guid?>("TicketId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ZipArchiveWriterVersion")
                         .IsRequired()
@@ -128,6 +145,30 @@ namespace RoadRegistry.Extracts.Schema.Migrations
                     b.HasIndex("CurrentDownloadId");
 
                     b.ToTable("ExtractRequests", "RoadRegistryExtracts");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Extracts.Schema.ExtractUpload", b =>
+                {
+                    b.Property<Guid>("UploadId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DownloadId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("UploadedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("UploadId");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("UploadId"));
+
+                    b.ToTable("ExtractUploads", "RoadRegistryExtracts");
                 });
 
             modelBuilder.Entity("RoadRegistry.Extracts.Schema.Inwinningszone", b =>

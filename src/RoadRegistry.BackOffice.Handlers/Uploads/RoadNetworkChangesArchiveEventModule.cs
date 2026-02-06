@@ -65,7 +65,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 
                     var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(
                         logger,
-                        extractRequestId, requestId, downloadId, message.Body.TicketId, ct);
+                        extractRequestId, requestId, downloadId, null, message.Body.TicketId, ct);
 
                     var command = new Command(changeRoadNetwork)
                         .WithMessageId(message.MessageId)

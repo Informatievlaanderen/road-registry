@@ -25,16 +25,16 @@ public static class ValidationExtensions
         rule.WithErrorCode(problemCode);
 
         string? propertyName = null;
-        rule.Configure(r =>
-        {
-            propertyName = r.PropertyName;
-        });
+        rule.Configure(r => { propertyName = r.PropertyName; });
         rule.WithState((_, value) =>
         {
-            return new[] { new ProblemParameter(propertyName ?? "request", valueConverter is not null
-                ? valueConverter(value)
-                : string.Format(CultureInfo.InvariantCulture, "{0}", value)
-                ) };
+            return new[]
+            {
+                new ProblemParameter(propertyName ?? "request", valueConverter is not null
+                    ? valueConverter(value)
+                    : string.Format(CultureInfo.InvariantCulture, "{0}", value)
+                )
+            };
         });
 
         return rule;
@@ -100,6 +100,7 @@ public static class ValidationExtensions
     {
         return problem.Translate().TranslateToDutch();
     }
+
     public static ProblemTranslation TranslateToDutch(this Infrastructure.Messages.Problem problem)
     {
         return ProblemTranslator.Dutch(problem);
@@ -134,6 +135,15 @@ public static class ValidationExtensions
         if (customState is null)
         {
             return [];
+        }
+
+        if (customState is Dictionary<string, object> customStateDictionary)
+        {
+            return customStateDictionary.Select(x => new Infrastructure.Messages.ProblemParameter
+            {
+                Name = x.Key,
+                Value = x.Value.ToString()!
+            }).ToArray();
         }
 
         if (customState is Infrastructure.Messages.ProblemParameter[] problemParameters)

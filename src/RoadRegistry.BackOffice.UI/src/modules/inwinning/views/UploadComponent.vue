@@ -12,7 +12,7 @@
       v-bind="options"
       :mod-success="uploadResult.uploadResponseCode > 0 && alertInfo.success"
       :mod-error="uploadResult.uploadResponseCode > 0 && (alertInfo.error || alertInfo.warning)"
-      :mod-disabled="isUploading || isProcessing"
+      :mod-disabled="disabled || isUploading || isProcessing"
       @upload-success="isUploading = false"
       @upload-complete="isUploading = false"
       @upload-canceled="isUploading = false"
@@ -59,6 +59,10 @@ export default defineComponent({
     downloadId: {
       type: String,
       required: true,
+    },
+    disabled: {
+      type: Boolean,
+      required: false,
     },
   },
   data() {

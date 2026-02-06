@@ -41,6 +41,7 @@ using Extracts.Schema;
 using Hosts.Infrastructure.Extensions;
 using Integration.Schema;
 using Marten;
+using MartenMigration.Projections;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NodaTime;
@@ -239,6 +240,11 @@ public class Startup
                             health.AddDbContextCheck<StreetNameEventConsumerContext>();
                             health.AddDbContextCheck<StreetNameEventProjectionContext>();
                         }
+
+                        if (projectionOptions.Marten.Enabled)
+                        {
+                            health.AddDbContextCheck<MartenMigrationContext>();
+                        }
                     }
                 }
             })
@@ -261,6 +267,7 @@ public class Startup
             .AddDbContext<StreetNameEventConsumerContext>(WellKnownConnectionNames.StreetNameEventConsumer)
             .AddDbContext<StreetNameEventProjectionContext>(WellKnownConnectionNames.StreetNameProjections)
             .AddDbContext<IntegrationContext>(WellKnownConnectionNames.IntegrationProjections)
+            .AddDbContext<MartenMigrationContext>(WellKnownConnectionNames.MartenMigration)
 
             .AddMartenRoad((options, sp) =>
             {

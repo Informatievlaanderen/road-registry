@@ -25,7 +25,7 @@ using UploadExtract;
 public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHandler<UploadInwinningExtractSqsLambdaRequest>
 {
     private readonly ExtractsDbContext _extractsDbContext;
-    private readonly ExtractUploader _extractUploader;
+    private readonly IExtractUploader _extractUploader;
     private readonly IMediator _mediator;
 
     public UploadInwinningExtractSqsLambdaRequestHandler(
@@ -35,7 +35,7 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         ExtractsDbContext extractsDbContext,
-        ExtractUploader extractUploader,
+        IExtractUploader extractUploader,
         IMediator mediator,
         ILoggerFactory loggerFactory)
         : base(
@@ -54,27 +54,41 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
 
     protected override async Task<object> InnerHandle(UploadInwinningExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        var inwinningszone = await _extractsDbContext.Inwinningszones.SingleOrDefaultAsync(x => x.DownloadId == request.Request.DownloadId.ToGuid(), cancellationToken);
-        if (inwinningszone is null)
+        try
         {
-            throw new InvalidOperationException($"No Inwinningszone found for {request.Request.DownloadId}");
+            var inwinningszone = await _extractsDbContext.Inwinningszones.SingleOrDefaultAsync(x => x.DownloadId == request.Request.DownloadId.ToGuid(), cancellationToken);
+            if (inwinningszone is null)
+            {
+                throw new InvalidOperationException($"No Inwinningszone found for {request.Request.DownloadId}");
+            }
+
+            if (inwinningszone.Completed)
+            {
+                throw new InwinningszoneCompletedException(request.Request.DownloadId);
+            }
+
+            var ticketId = new TicketId(request.TicketId);
+            var translatedChanges = await _extractUploader.ProcessUploadAndDetectChanges(request.Request.DownloadId, request.Request.UploadId, ticketId, ZipArchiveMetadata.Empty.WithInwinning(), cancellationToken);
+
+            var migrateDryRunRoadNetworkSqsRequest = new MigrateDryRunRoadNetworkSqsRequest
+            {
+                TicketId = ticketId,
+                ProvenanceData = new ProvenanceData(request.Provenance),
+                MigrateRoadNetworkSqsRequest = new MigrateRoadNetworkSqsRequest
+                {
+                    TicketId = ticketId,
+                    DownloadId = request.Request.DownloadId,
+                    UploadId = request.Request.UploadId,
+                    Changes = translatedChanges.Select(ChangeRoadNetworkItem.Create).ToList(),
+                    ProvenanceData = new ProvenanceData(request.Provenance)
+                }
+            };
+            await _mediator.Send(migrateDryRunRoadNetworkSqsRequest, cancellationToken);
         }
-
-        if (inwinningszone.Completed)
+        catch (Exception ex)
         {
-            throw new InwinningszoneCompletedException(request.Request.DownloadId);
+            throw;
         }
-
-        var translatedChanges = await _extractUploader.ProcessUploadAndDetectChanges(request.Request.DownloadId, request.Request.UploadId, ZipArchiveMetadata.Empty.WithInwinning(), cancellationToken);
-
-        var migrateRoadNetworkSqsRequest = new MigrateRoadNetworkSqsRequest
-        {
-            TicketId = request.TicketId,
-            DownloadId = request.Request.DownloadId,
-            Changes = translatedChanges.Select(ChangeRoadNetworkItem.Create).ToList(),
-            ProvenanceData = new ProvenanceData(request.Provenance)
-        };
-        await _mediator.Send(migrateRoadNetworkSqsRequest, cancellationToken);
 
         return new object();
     }

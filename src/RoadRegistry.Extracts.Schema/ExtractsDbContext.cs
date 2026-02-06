@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.Abstractions.Exceptions;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -30,7 +31,9 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
 
     public DbSet<ExtractRequest> ExtractRequests { get; set; }
     public DbSet<ExtractDownload> ExtractDownloads { get; set; }
+    public DbSet<ExtractUpload> ExtractUploads { get; set; }
     public DbSet<Inwinningszone> Inwinningszones { get; set; }
+    public DbSet<DataValidationQueueItem> DataValidationQueue { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -71,6 +74,57 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
             .ToList();
 
         return downloadIds;
+    }
+
+    public async Task UploadAcceptedAsync(UploadId uploadId, CancellationToken cancellationToken)
+    {
+        await UpdateExtractUpload(uploadId, async record =>
+        {
+            record.Status = ExtractUploadStatus.Accepted;
+
+            var extractDownload = await ExtractDownloads.SingleAsync(x => x.DownloadId == record.DownloadId, cancellationToken);
+            extractDownload.Closed = true;
+        }, cancellationToken);
+    }
+
+    public async Task AutomaticValidationFailedAsync(UploadId uploadId, CancellationToken cancellationToken)
+    {
+        await UpdateExtractUpload(uploadId, record =>
+        {
+            record.Status = ExtractUploadStatus.AutomaticValidationFailed;
+            return Task.CompletedTask;
+        }, cancellationToken);
+    }
+
+    public async Task AutomaticValidationSucceededAsync(UploadId uploadId, CancellationToken cancellationToken)
+    {
+        await UpdateExtractUpload(uploadId, record =>
+        {
+            record.Status = ExtractUploadStatus.AutomaticValidationSucceeded;
+            return Task.CompletedTask;
+        }, cancellationToken);
+    }
+
+    public async Task ManualValidationFailedAsync(UploadId uploadId, CancellationToken cancellationToken)
+    {
+        await UpdateExtractUpload(uploadId, record =>
+        {
+            record.Status = ExtractUploadStatus.ManualValidationFailed;
+            return Task.CompletedTask;
+        }, cancellationToken);
+    }
+
+    private async Task UpdateExtractUpload(UploadId uploadId, Func<ExtractUpload, Task> change, CancellationToken cancellationToken)
+    {
+        var record = await ExtractUploads.SingleOrDefaultAsync(x => x.UploadId == uploadId.ToGuid(), cancellationToken);
+        if (record is null)
+        {
+            throw new UploadExtractNotFoundException($"Could find extractupload with uploadId {uploadId}");
+        }
+
+        await change(record);
+
+        await SaveChangesAsync(cancellationToken);
     }
 }
 

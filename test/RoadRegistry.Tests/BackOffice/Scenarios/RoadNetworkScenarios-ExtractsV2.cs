@@ -5,10 +5,8 @@ using AutoFixture;
 using Framework.Testing;
 using Moq;
 using NodaTime.Text;
-using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Infrastructure;
@@ -36,6 +34,7 @@ public class RoadNetworkScenariosExtractsV2 : RoadNetworkTestBase
         var externalRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
         var extractRequestId = ObjectProvider.Create<ExtractRequestId>();
         var downloadId = ObjectProvider.Create<DownloadId>();
+        var uploadId = ObjectProvider.Create<UploadId>();
         var currentInstant = Clock.GetCurrentInstant();
 
         await Run(scenario => scenario
@@ -60,6 +59,7 @@ public class RoadNetworkScenariosExtractsV2 : RoadNetworkTestBase
             )
             .When(new ChangeRoadNetworkBuilder(TestData)
                 .WithDownloadId(downloadId)
+                .WithUploadId(uploadId)
                 .WithExtractRequestId(extractRequestId)
                 .WithAddRoadNode(TestData.AddStartNode1)
                 .WithAddRoadNode(TestData.AddEndNode1)
@@ -99,6 +99,6 @@ public class RoadNetworkScenariosExtractsV2 : RoadNetworkTestBase
                 })
             ]));
 
-        _extractRequests.Verify(x => x.UploadAcceptedAsync(downloadId, It.IsAny<CancellationToken>()));
+        _extractRequests.Verify(x => x.UploadAcceptedAsync(uploadId, It.IsAny<CancellationToken>()));
     }
 }

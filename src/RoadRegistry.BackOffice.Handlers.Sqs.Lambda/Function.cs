@@ -20,6 +20,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.DataValidation;
 using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.ZipArchiveWriters;
@@ -91,7 +92,8 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
             .AddScoped<IExtractRequests, ExtractRequests>()
             .AddScoped<ExtractRequester>()
-            .AddScoped<ExtractUploader>()
+            .AddScoped<IExtractUploader, ExtractUploader>()
+            .AddScoped<IDataValidationApiClient, DataValidationApiClient>()
             .RegisterOptions<ZipArchiveWriterOptions>()
             .AddScoped<RoadNetworkExtractArchiveAssemblerForDomainV2>()
             .AddScoped<RoadNetworkExtractArchiveAssemblerForDomainV1>()

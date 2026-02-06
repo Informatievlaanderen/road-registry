@@ -31,8 +31,12 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
         var record = await (
             from extractDownload in _extractsDbContext.ExtractDownloads
             join extractRequest in _extractsDbContext.ExtractRequests on extractDownload.ExtractRequestId equals extractRequest.ExtractRequestId
+            join extractUpload in _extractsDbContext.ExtractUploads
+                on extractDownload.LatestUploadId equals extractUpload.UploadId
+                into extractUploads
+            from extractUpload in extractUploads.DefaultIfEmpty()
             where extractDownload.DownloadId == request.DownloadId.ToGuid()
-            select new { Download = extractDownload, extractRequest.Description, extractRequest.ExternalRequestId }
+            select new { Download = extractDownload, extractRequest.Description, extractRequest.ExternalRequestId, Upload = extractUpload }
         ).SingleOrDefaultAsync(cancellationToken);
         if (record is null)
         {
@@ -50,11 +54,11 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
                 : null,
             RequestedOn = record.Download.RequestedOn,
             IsInformative = record.Download.IsInformative,
-            UploadId = record.Download.UploadId is not null ? new UploadId(record.Download.UploadId.Value) : null,
-            TicketId = TicketId.FromValue(record.Download.TicketId),
-            DownloadStatus = record.Download.DownloadStatus.ToString(),
+            UploadId = UploadId.FromValue(record.Upload?.UploadId),
+            TicketId = TicketId.FromValue(record.Upload?.TicketId ?? record.Download.TicketId),
+            DownloadStatus = record.Download.Status.ToString(),
             DownloadedOn = record.Download.DownloadedOn,
-            UploadStatus = record.Download.UploadStatus?.ToString(),
+            UploadStatus = record.Upload?.Status.ToString(),
             Closed = record.Download.Closed
         };
     }

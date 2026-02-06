@@ -13,8 +13,5 @@
   <ItemGroup>
     <Using Include="RoadRegistry.ValueObjects"/>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Infrastructure\" />
-  </ItemGroup>
 
 </Project>

@@ -31,15 +31,19 @@ public class InwinningExtractListRequestHandler : EndpointRequestHandler<Inwinni
         var query =
                 from extractRequest in extractRequestsQuery
                 join extractDownload in _extractsDbContext.ExtractDownloads on extractRequest.CurrentDownloadId equals extractDownload.DownloadId
-                select new { Extract = extractRequest, Download = extractDownload }
+                join extractUpload in _extractsDbContext.ExtractUploads
+                    on extractDownload.LatestUploadId equals extractUpload.UploadId
+                    into extractUploads
+                from extractUpload in extractUploads.DefaultIfEmpty()
+                select new { Extract = extractRequest, Download = extractDownload, Upload = extractUpload }
             ;
 
         query = query
             .OrderBy(x => x.Download.Closed
                 ? 9
-                : x.Download.UploadStatus == ExtractUploadStatus.Rejected
+                : x.Upload != null && (x.Upload.Status == ExtractUploadStatus.AutomaticValidationFailed || x.Upload.Status == ExtractUploadStatus.ManualValidationFailed)
                     ? 0
-                    : x.Download.UploadStatus == ExtractUploadStatus.Processing
+                    : x.Upload != null && x.Upload.Status == ExtractUploadStatus.Processing
                         ? 1
                         : 2)
             .ThenByDescending(x => x.Download.RequestedOn);
@@ -56,8 +60,8 @@ public class InwinningExtractListRequestHandler : EndpointRequestHandler<Inwinni
                     ExtractRequestId = ExtractRequestId.FromString(record.Extract.ExtractRequestId),
                     RequestedOn = record.Download.RequestedOn,
                     IsInformative = record.Download.IsInformative,
-                    DownloadStatus = record.Download.DownloadStatus.ToString(),
-                    UploadStatus = record.Download.UploadStatus?.ToString(),
+                    DownloadStatus = record.Download.Status.ToString(),
+                    UploadStatus = record.Upload?.Status.ToString(),
                     Closed = record.Download.Closed,
                 })
                 .ToList()

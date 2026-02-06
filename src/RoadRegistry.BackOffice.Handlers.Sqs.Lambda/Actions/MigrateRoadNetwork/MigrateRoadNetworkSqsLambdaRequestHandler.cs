@@ -76,7 +76,7 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
             ? await ChangeRoadNetwork(command, roadNetwork, roadNetworkChanges, cancellationToken)
             : new RoadNetworkChangeResult(Problems.None, roadNetwork.SummaryOfLastChange);
 
-        await _extractRequests.UploadAcceptedAsync(command.DownloadId, cancellationToken);
+        await _extractRequests.UploadAcceptedAsync(command.UploadId, cancellationToken);
         await CompleteInwinningszone(command.DownloadId, cancellationToken);
 
         return changeResult;
@@ -87,12 +87,13 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
         var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator);
         if (changeResult.Problems.HasError())
         {
-            await _extractRequests.UploadRejectedAsync(command.DownloadId, cancellationToken);
+            await _extractRequests.AutomaticValidationFailedAsync(command.UploadId, cancellationToken);
 
             throw new RoadRegistryProblemsException(changeResult.Problems);
         }
 
         await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
+
         return changeResult;
     }
 

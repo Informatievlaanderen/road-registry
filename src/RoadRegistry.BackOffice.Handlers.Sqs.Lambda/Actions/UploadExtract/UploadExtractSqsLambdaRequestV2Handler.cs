@@ -1,28 +1,27 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadExtract;
 
+using Abstractions.Exceptions;
+using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Exceptions;
+using Hosts;
+using Hosts.Infrastructure.Extensions;
+using Infrastructure;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.Abstractions.Exceptions;
-using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
-using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
-using RoadRegistry.BackOffice.Uploads;
+using RoadNetwork;
 using RoadRegistry.Extracts.Uploads;
-using RoadRegistry.Hosts;
-using RoadRegistry.Hosts.Infrastructure.Extensions;
-using RoadRegistry.ValueObjects.ProblemCodes;
-using RoadRegistry.ValueObjects.Problems;
 using TicketingService.Abstractions;
+using ValueObjects.ProblemCodes;
+using ValueObjects.Problems;
 
 public sealed class UploadExtractSqsLambdaRequestV2Handler : SqsLambdaHandler<UploadExtractSqsLambdaRequestV2>
 {
-    private readonly ExtractUploader _extractUploader;
+    private readonly IExtractUploader _extractUploader;
     private readonly IMediator _mediator;
 
     public UploadExtractSqsLambdaRequestV2Handler(
@@ -31,7 +30,7 @@ public sealed class UploadExtractSqsLambdaRequestV2Handler : SqsLambdaHandler<Up
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        ExtractUploader extractUploader,
+        IExtractUploader extractUploader,
         IMediator mediator,
         ILoggerFactory loggerFactory)
         : base(
@@ -49,12 +48,14 @@ public sealed class UploadExtractSqsLambdaRequestV2Handler : SqsLambdaHandler<Up
 
     protected override async Task<object> InnerHandle(UploadExtractSqsLambdaRequestV2 request, CancellationToken cancellationToken)
     {
-        var translatedChanges = await _extractUploader.ProcessUploadAndDetectChanges(request.Request.DownloadId, request.Request.UploadId, ZipArchiveMetadata.Empty, cancellationToken);
+        var ticketId = new TicketId(request.TicketId);
+        var translatedChanges = await _extractUploader.ProcessUploadAndDetectChanges(request.Request.DownloadId, request.Request.UploadId, ticketId, ZipArchiveMetadata.Empty, cancellationToken);
 
         var changeRoadNetworkSqsRequest = new ChangeRoadNetworkSqsRequest
         {
-            TicketId = request.TicketId,
+            TicketId = ticketId,
             DownloadId = request.Request.DownloadId,
+            UploadId = request.Request.UploadId,
             Changes = translatedChanges.Select(ChangeRoadNetworkItem.Create).ToList(),
             SendFailedEmail = request.Request.SendFailedEmail,
             ProvenanceData = new ProvenanceData(request.Provenance)

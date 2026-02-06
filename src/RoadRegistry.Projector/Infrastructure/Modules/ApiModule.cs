@@ -16,6 +16,7 @@ using Sync.StreetNameRegistry;
 using System;
 using System.Collections.Generic;
 using Integration.Schema;
+using MartenMigration.Projections;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -355,6 +356,15 @@ public class ApiModule : Module
 
     private void RegisterMartenProjections()
     {
+        RegisterProjection<MartenMigrationContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-martenmigration",
+            Description = "",
+            Name = "Marten Migration",
+            WellKnownConnectionName = WellKnownConnectionNames.MartenMigration,
+            FallbackDesiredState = "subscribed"
+        });
+
         _martenProjections.Add(new ProjectionDetail
         {
             Id = "ExtractsRoadNetworkChangesProjection:All",

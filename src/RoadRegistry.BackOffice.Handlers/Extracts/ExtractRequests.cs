@@ -1,8 +1,5 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
-using Abstractions.Exceptions;
-using BackOffice.Extracts;
-using Microsoft.EntityFrameworkCore;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 
@@ -15,33 +12,18 @@ public class ExtractRequests : IExtractRequests
         _extractsDbContext = extractsDbContext;
     }
 
-    public async Task UploadAcceptedAsync(DownloadId downloadId, CancellationToken cancellationToken)
+    public async Task UploadAcceptedAsync(UploadId uploadId, CancellationToken cancellationToken)
     {
-        await UpdateExtractDownload(downloadId, record =>
-        {
-            record.UploadStatus = ExtractUploadStatus.Accepted;
-            record.Closed = true;
-        }, cancellationToken);
+        await _extractsDbContext.UploadAcceptedAsync(uploadId, cancellationToken);
     }
 
-    public async Task UploadRejectedAsync(DownloadId downloadId, CancellationToken cancellationToken)
+    public async Task AutomaticValidationFailedAsync(UploadId uploadId, CancellationToken cancellationToken)
     {
-        await UpdateExtractDownload(downloadId, record =>
-        {
-            record.UploadStatus = ExtractUploadStatus.Rejected;
-        }, cancellationToken);
+        await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
     }
 
-    private async Task UpdateExtractDownload(DownloadId downloadId, Action<ExtractDownload> change, CancellationToken cancellationToken)
+    public async Task ManualValidationFailedAsync(UploadId uploadId, CancellationToken cancellationToken)
     {
-        var record = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
-        if (record is null)
-        {
-            throw new UploadExtractNotFoundException($"Could not close extract with downloadId {downloadId}");
-        }
-
-        change(record);
-
-        await _extractsDbContext.SaveChangesAsync(cancellationToken);
+        await _extractsDbContext.ManualValidationFailedAsync(uploadId, cancellationToken);
     }
 }

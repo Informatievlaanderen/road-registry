@@ -34,6 +34,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         var provenanceData = new RoadRegistryProvenanceData();
         var command = new MigrateRoadNetworkSqsRequest
         {
+            UploadId = TestData.Fixture.Create<UploadId>(),
             DownloadId = TestData.Fixture.Create<DownloadId>(),
             TicketId = TestData.Fixture.Create<TicketId>(),
             Changes = [
@@ -97,6 +98,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         var provenanceData = new RoadRegistryProvenanceData();
         var command = new MigrateRoadNetworkSqsRequest
         {
+            UploadId = TestData.Fixture.Create<UploadId>(),
             DownloadId = TestData.Fixture.Create<DownloadId>(),
             TicketId = TestData.Fixture.Create<TicketId>(),
             Changes = [
@@ -129,7 +131,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
 
         var uploadAcceptedCount = 0;
         _extractRequestsMock
-            .Setup(x => x.UploadAcceptedAsync(It.IsAny<DownloadId>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.UploadAcceptedAsync(It.IsAny<UploadId>(), It.IsAny<CancellationToken>()))
             .Returns(() =>
             {
                 uploadAcceptedCount++;

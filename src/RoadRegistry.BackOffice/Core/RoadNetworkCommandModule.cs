@@ -63,6 +63,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         var request = ChangeRequestId.FromString(command.Body.RequestId);
         var downloadId = DownloadId.FromValue(command.Body.DownloadId);
+        var uploadId = UploadId.FromValue(command.Body.UploadId);
         var @operator = new OperatorName(command.Body.Operator);
         var reason = new Reason(command.Body.Reason);
         var ticketId = TicketId.FromValue(command.Body.TicketId);
@@ -146,11 +147,11 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
                 if (failedChangedMessages.Any())
                 {
-                    await extractsRequests.UploadRejectedAsync(downloadId!.Value, cancellationToken);
+                    await extractsRequests.AutomaticValidationFailedAsync(uploadId!.Value, cancellationToken);
                 }
                 else
                 {
-                    await extractsRequests.UploadAcceptedAsync(downloadId!.Value, cancellationToken);
+                    await extractsRequests.UploadAcceptedAsync(uploadId!.Value, cancellationToken);
                 }
             }
             else

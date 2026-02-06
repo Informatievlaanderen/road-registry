@@ -15,11 +15,9 @@ public class ExtractDownload
     public DateTimeOffset RequestedOn { get; set; }
     public string ZipArchiveWriterVersion { get; set; } = WellKnownZipArchiveWriterVersions.DomainV1_2;
 
-    public ExtractDownloadStatus DownloadStatus { get; set; }
+    public ExtractDownloadStatus Status { get; set; }
     public DateTimeOffset? DownloadedOn { get; set; }
-    public Guid? UploadId { get; set; }
-    public DateTimeOffset? UploadedOn { get; set; }
-    public ExtractUploadStatus? UploadStatus { get; set; }
+    public Guid? LatestUploadId { get; set; }
 
     public bool Closed { get; set; }
     public Guid? TicketId { get; set; }
@@ -30,13 +28,6 @@ public enum ExtractDownloadStatus
     Preparing = 0,
     Error = 1,
     Available = 2
-}
-
-public enum ExtractUploadStatus
-{
-    Processing = 0,
-    Rejected = 1,
-    Accepted = 2
 }
 
 public class ExtractDownloadConfiguration : IEntityTypeConfiguration<ExtractDownload>
@@ -59,11 +50,8 @@ public class ExtractDownloadConfiguration : IEntityTypeConfiguration<ExtractDown
             .IsRequired();
         b.Property(p => p.IsInformative).IsRequired();
         b.Property(p => p.RequestedOn).IsRequired();
-        b.Property(p => p.DownloadStatus).IsRequired();
+        b.Property(p => p.Status).IsRequired();
         b.Property(p => p.DownloadedOn).IsRequired(false);
-        b.Property(p => p.UploadId).IsRequired(false);
-        b.Property(p => p.UploadedOn).IsRequired(false);
-        b.Property(p => p.UploadStatus).IsRequired(false);
         b.Property(p => p.TicketId).IsRequired(false);
         b.Property(p => p.Closed).IsRequired();
         b.Property(p => p.ZipArchiveWriterVersion).IsRequired().HasDefaultValue(WellKnownZipArchiveWriterVersions.DomainV1_2);

@@ -14,7 +14,6 @@ using Autofac;
 using BackOffice.Extensions;
 using BackOffice.Extracts;
 using BackOffice.Handlers;
-using BackOffice.Handlers.Extensions;
 using BackOffice.Handlers.Sqs;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Api;
@@ -30,7 +29,6 @@ using Editor.Schema;
 using Extensions;
 using Extracten;
 using FeatureCompare;
-using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Hosts;
@@ -57,6 +55,7 @@ using NodaTime;
 using Options;
 using Product.Schema;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.DataValidation;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadSegments;
@@ -303,8 +302,8 @@ public class Startup
             .AddOrganizationCache()
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddValidatorsFromAssemblyContaining<Startup>()
-            .AddValidatorsFromAssemblyContaining<BackOffice.BackOfficeAssemblyMarker>()
-            .AddValidatorsFromAssemblyContaining<BackOffice.Handlers.BackOfficeHandlersAssemblyMarker>()
+            .AddValidatorsFromAssemblyContaining<BackOfficeAssemblyMarker>()
+            .AddValidatorsFromAssemblyContaining<BackOfficeHandlersAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<BackOfficeHandlersSqsAssemblyMarker>()
             .AddFeatureToggles(featureToggles)
             .AddTicketing()
@@ -354,6 +353,9 @@ public class Startup
 
             // Inwinning
             .Configure<InwinningOrganizationNisCodesOptions>(_configuration.GetSection(InwinningOrganizationNisCodesOptions.ConfigKey))
+            .AddScoped<IDataValidationApiClient, DataValidationApiClient>()
+            .AddScoped<DataValidationPollingService>()
+            .AddScheduledJob<DataValidationPollingService>(TimeSpan.FromHours(1))
 
             .AddDistributedMemoryCache()
             .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)

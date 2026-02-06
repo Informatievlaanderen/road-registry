@@ -46,7 +46,8 @@ public static class FileProblemTranslator
         return problem.Reason switch
         {
             nameof(ZipArchiveProblems.RequiredFileMissing) => translation with { Message = "Het bestand ontbreekt in het archief." },
-            nameof(ProjectionFormatFileProblems.ProjectionFormatInvalid) => translation with { Message = "Projectie formaat is niet 'Belge_Lambert_1972'." },
+            nameof(ProjectionFormatFileProblems.ProjectionFormatNotLambert72) => translation with { Message = "Projectie formaat is niet 'Belge_Lambert_1972'." },
+            nameof(ProjectionFormatFileProblems.ProjectionFormatNotLambert08) => translation with { Message = "Projectie formaat is niet 'Belge_Lambert_2008'." },
             nameof(DbaseFileProblems.HasNoDbaseRecords) => translation with { Message = "Het bestand bevat geen rijen." },
             nameof(DbaseFileProblems.HasDbaseHeaderFormatError) => translation with { Message = "De hoofding van het bestand is niet correct geformateerd." },
             nameof(DbaseFileProblems.HasDbaseSchemaMismatch) => translation with { Message = $"Het verwachte dbase schema ({problem.GetParameterValue("ExpectedSchema")}) stemt niet overeen met het eigenlijke dbase schema ({problem.GetParameterValue("ActualSchema")})." },

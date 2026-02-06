@@ -36,7 +36,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
     {
         var (features, problems) = base.Read(archive, featureType, fileName, context);
 
-        problems += archive.ValidateProjectionFile(featureType, fileName, _encoding);
+        problems += archive.ValidateProjectionFileLambert72(featureType, fileName, _encoding);
         problems += ReadShapeFile(features, archive, featureType, fileName);
         problems += archive.ValidateUniqueIdentifiers(features, featureType, fileName, feature => feature.Attributes.Id);
 

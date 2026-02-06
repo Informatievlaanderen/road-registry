@@ -1,5 +1,7 @@
 namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
+using AggregateTests;
+
 public class RoadNetworkTestBase : RoadRegistryTestBase
 {
     protected readonly RoadNetworkTestData TestData;
@@ -9,6 +11,7 @@ public class RoadNetworkTestBase : RoadRegistryTestBase
     {
         TestData = new RoadNetworkTestData();
         TestData.CopyCustomizationsTo(ObjectProvider);
+        new RoadNetworkTestDataV2().CopyCustomizationsTo(ObjectProvider);
     }
 
     public static IEnumerable<object[]> NonAdjacentLaneAttributesCases => RoadNetworkTestData.NonAdjacentLaneAttributesCases;

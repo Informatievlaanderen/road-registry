@@ -399,4 +399,14 @@ public class RoadNetworkTestDataV2
         return new RoadSegmentDynamicAttributeValues<T>()
             .Add(fixture.Create<T>(), RoadSegmentGeometry.Create(geometry));
     }
+
+    public RoadNetworkTestDataV2 CopyCustomizationsTo(Fixture target)
+    {
+        foreach (var customization in Fixture.Customizations)
+        {
+            target.Customizations.Add(customization);
+        }
+
+        return this;
+    }
 }
