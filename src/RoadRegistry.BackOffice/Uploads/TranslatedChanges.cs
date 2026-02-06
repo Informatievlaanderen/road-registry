@@ -236,6 +236,7 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
         ExtractRequestId extractRequestId,
         ChangeRequestId requestId,
         DownloadId downloadId,
+        UploadId? uploadId,
         Guid? ticketId,
         CancellationToken cancellationToken)
     {
@@ -253,6 +254,7 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
             ExtractRequestId = extractRequestId,
             RequestId = requestId,
             DownloadId = downloadId,
+            UploadId = uploadId,
             Changes = requestedChanges.ToArray(),
             Reason = Reason,
             Operator = Operator,

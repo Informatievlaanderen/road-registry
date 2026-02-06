@@ -33,6 +33,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         var sp = await BuildServiceProvider();
 
         var provenanceData = new RoadRegistryProvenanceData();
+        var ticketId = TestData.Fixture.Create<TicketId>();
         var command = new MigrateDryRunRoadNetworkSqsRequest
         {
             MigrateRoadNetworkSqsRequest = new MigrateRoadNetworkSqsRequest
@@ -53,9 +54,11 @@ public class WithValidRequest : RoadNetworkIntegrationTest
                     {
                         AddRoadSegment = TestData.AddSegment1
                     }
-                ]
+                ],
+                TicketId = ticketId,
+                ProvenanceData = provenanceData
             },
-            TicketId = TestData.Fixture.Create<TicketId>(),
+            TicketId = ticketId,
             ProvenanceData = provenanceData
         };
 

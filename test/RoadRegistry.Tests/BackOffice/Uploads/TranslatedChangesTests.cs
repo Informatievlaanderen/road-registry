@@ -23,6 +23,7 @@ public class TranslatedChangesTests
             fixture.Create<ChangeRequestId>(),
             fixture.Create<DownloadId>(),
             null,
+            null,
             CancellationToken.None);
         await sut.Should().ThrowAsync<ZipArchiveValidationException>();
     }

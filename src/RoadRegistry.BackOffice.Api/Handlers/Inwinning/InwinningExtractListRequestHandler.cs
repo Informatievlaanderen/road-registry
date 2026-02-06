@@ -41,9 +41,9 @@ public class InwinningExtractListRequestHandler : EndpointRequestHandler<Inwinni
         query = query
             .OrderBy(x => x.Download.Closed
                 ? 9
-                : x.Upload.Status == ExtractUploadStatus.AutomaticValidationFailed || x.Upload.Status == ExtractUploadStatus.ManualValidationFailed
+                : x.Upload != null && (x.Upload.Status == ExtractUploadStatus.AutomaticValidationFailed || x.Upload.Status == ExtractUploadStatus.ManualValidationFailed)
                     ? 0
-                    : x.Upload.Status == ExtractUploadStatus.Processing
+                    : x.Upload != null && x.Upload.Status == ExtractUploadStatus.Processing
                         ? 1
                         : 2)
             .ThenByDescending(x => x.Download.RequestedOn);

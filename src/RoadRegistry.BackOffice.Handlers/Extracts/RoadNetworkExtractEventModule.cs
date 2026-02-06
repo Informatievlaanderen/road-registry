@@ -87,7 +87,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
 
                     var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(
                         logger,
-                        extractRequestId, changeRequestId, downloadId, message.Body.TicketId, ct);
+                        extractRequestId, changeRequestId, downloadId, uploadId, message.Body.TicketId, ct);
 
                     var command = new Command(changeRoadNetwork)
                         .WithMessageId(message.MessageId)

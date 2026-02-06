@@ -46,6 +46,8 @@ public sealed class ExtractUploader : IExtractUploader
 
     public async Task<TranslatedChanges> ProcessUploadAndDetectChanges(DownloadId downloadId, UploadId uploadId, TicketId ticketId, ZipArchiveMetadata zipArchiveMetadata, CancellationToken cancellationToken)
     {
+        await EnsureExtractUploadExists(uploadId, downloadId, ticketId, cancellationToken);
+
         var blobName = new BlobName(uploadId);
 
         var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
@@ -86,6 +88,34 @@ public sealed class ExtractUploader : IExtractUploader
             throw new UnsupportedMediaTypeException(archiveBlob.ContentType);
         }
 
+        try
+        {
+            await using var archiveBlobStream = await archiveBlob.OpenAsync(cancellationToken);
+            using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, true);
+
+            var translatedChanges = await _featureCompareTranslator.TranslateAsync(archive, zipArchiveMetadata.WithDownloadId(downloadId), cancellationToken);
+            return translatedChanges;
+        }
+        catch (InvalidDataException)
+        {
+            throw new CorruptArchiveException();
+        }
+        catch (ZipArchiveValidationException ex)
+        {
+            await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
+            await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
+            throw ex.ToDutchValidationException();
+        }
+        catch
+        {
+            await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
+            await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
+            throw;
+        }
+    }
+
+    private async Task EnsureExtractUploadExists(UploadId uploadId, DownloadId downloadId, TicketId ticketId, CancellationToken cancellationToken)
+    {
         var extractUpload = await _extractsDbContext.ExtractUploads.SingleOrDefaultAsync(x => x.UploadId == uploadId.ToGuid(), cancellationToken);
         if (extractUpload is null)
         {
@@ -104,39 +134,6 @@ public sealed class ExtractUploader : IExtractUploader
             extractUpload.Status = ExtractUploadStatus.Processing;
             extractUpload.TicketId = ticketId;
         }
-
-        await _extractsDbContext.SaveChangesAsync(cancellationToken);
-
-        try
-        {
-            await using var archiveBlobStream = await archiveBlob.OpenAsync(cancellationToken);
-            using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, true);
-
-            var translatedChanges = await _featureCompareTranslator.TranslateAsync(archive, zipArchiveMetadata.WithDownloadId(downloadId), cancellationToken);
-            return translatedChanges;
-        }
-        catch (InvalidDataException)
-        {
-            throw new CorruptArchiveException();
-        }
-        catch (ZipArchiveValidationException ex)
-        {
-            await RejectExtractUpload(uploadId, cancellationToken);
-            await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
-            throw ex.ToDutchValidationException();
-        }
-        catch
-        {
-            await RejectExtractUpload(uploadId, cancellationToken);
-            await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
-            throw;
-        }
-    }
-
-    private async Task RejectExtractUpload(UploadId uploadId, CancellationToken cancellationToken)
-    {
-        var extractUpload = await _extractsDbContext.ExtractUploads.SingleAsync(x => x.UploadId == uploadId.ToGuid(), cancellationToken);
-        extractUpload.Status = ExtractUploadStatus.AutomaticValidationFailed;
 
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
     }

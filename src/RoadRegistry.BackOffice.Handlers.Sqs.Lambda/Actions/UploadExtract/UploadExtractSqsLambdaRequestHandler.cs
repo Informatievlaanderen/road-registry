@@ -89,23 +89,26 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         }
         catch
         {
-            var extractUpload = await _extractsDbContext.ExtractUploads.SingleOrDefaultAsync(x => x.UploadId == uploadId.ToGuid(), cancellationToken);
-            if (extractUpload is not null)
+            try
             {
-                extractUpload.Status = ExtractUploadStatus.AutomaticValidationFailed;
-                await _extractsDbContext.SaveChangesAsync(cancellationToken);
+                await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
             }
-
+            catch (UploadExtractNotFoundException)
+            {
+                // Do nothing
+            }
             throw;
         }
     }
 
     private async Task<object> InnerHandleForCustomTicketId(UploadExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        var downloadId = new DownloadId(request.Request.DownloadId);
-        var uploadId = new UploadId(request.Request.UploadId);
+        var downloadId = request.Request.DownloadId;
+        var uploadId = request.Request.UploadId;
         var blobName = new BlobName(uploadId);
         var ticketId = new TicketId(request.TicketId);
+
+        await EnsureExtractUploadExists(uploadId, downloadId, ticketId, cancellationToken);
 
         var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
         if (extractDownload is null)
@@ -145,27 +148,6 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             throw new UnsupportedMediaTypeException(archiveBlob.ContentType);
         }
 
-        var extractUpload = await _extractsDbContext.ExtractUploads.SingleOrDefaultAsync(x => x.UploadId == uploadId.ToGuid(), cancellationToken);
-        if (extractUpload is null)
-        {
-            extractUpload = new ExtractUpload
-            {
-                UploadId = uploadId,
-                DownloadId = downloadId,
-                UploadedOn = DateTimeOffset.UtcNow,
-                Status = ExtractUploadStatus.Processing,
-                TicketId = ticketId
-            };
-            _extractsDbContext.ExtractUploads.Add(extractUpload);
-        }
-        else
-        {
-            extractUpload.Status = ExtractUploadStatus.Processing;
-            extractUpload.TicketId = ticketId;
-        }
-
-        await _extractsDbContext.SaveChangesAsync(cancellationToken);
-
         var extractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId);
 
         var zipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV1_2;
@@ -190,7 +172,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             var requestId = ChangeRequestId.FromUploadId(uploadId);
             var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(
                 Logger,
-                extractRequestId, requestId, downloadId, ticketId, cancellationToken);
+                extractRequestId, requestId, downloadId, uploadId, ticketId, cancellationToken);
             changeRoadNetwork.UseExtractsV2 = true;
 
             var command = new Command(changeRoadNetwork)
@@ -215,6 +197,29 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         }
 
         return new object();
+    }
+
+    private async Task EnsureExtractUploadExists(UploadId uploadId, DownloadId downloadId, TicketId ticketId, CancellationToken cancellationToken)
+    {
+        var extractUpload = await _extractsDbContext.ExtractUploads.SingleOrDefaultAsync(x => x.UploadId == uploadId.ToGuid(), cancellationToken);
+        if (extractUpload is null)
+        {
+            extractUpload = new ExtractUpload
+            {
+                UploadId = uploadId,
+                DownloadId = downloadId,
+                UploadedOn = DateTimeOffset.UtcNow,
+                Status = ExtractUploadStatus.Processing,
+                TicketId = ticketId
+            };
+            _extractsDbContext.ExtractUploads.Add(extractUpload);
+        }
+        else
+        {
+            extractUpload.Status = ExtractUploadStatus.Processing;
+            extractUpload.TicketId = ticketId;
+        }
+        await _extractsDbContext.SaveChangesAsync(cancellationToken);
     }
 
     private async Task HandleSendingFailedEmail(ExtractRequest extractRequest, DownloadId downloadId, CancellationToken cancellationToken)
