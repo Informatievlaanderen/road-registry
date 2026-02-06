@@ -52,6 +52,7 @@
               <UploadComponent
                 v-if="userCanUpload"
                 :download-id="downloadId"
+                :disabled="uploadDisabled"
                 @upload-start="handleUploadStart"
                 @upload-complete="handleUploadComplete"
               />
@@ -149,6 +150,7 @@ export default defineComponent({
       fileProblems: [] as Array<any>,
       changes: [] as Array<any>,
       summary: undefined as any | undefined,
+      uploadDisabled: false,
     };
   },
   computed: {
@@ -173,7 +175,8 @@ export default defineComponent({
         switch (this.extract.uploadStatus) {
           case "Processing":
             return "Verwerken";
-          case "Rejected":
+          case "AutomaticValidationFailed":
+          case "ManualValidationFailed":
             return "Geweigerd";
           case "Accepted":
             return "Aanvaard";
@@ -417,6 +420,7 @@ export default defineComponent({
           break;
         case "complete":
           {
+            this.uploadDisabled = false;
             let uploadResult = camelizeKeys(JSON.parse(ticketResult.result.json));
 
             if (uploadResult.changes.length > 0) {
@@ -429,6 +433,7 @@ export default defineComponent({
           }
           break;
         case "error":
+          this.uploadDisabled = false;
           this.handleTicketError(ticketResult);
           break;
       }
@@ -567,6 +572,7 @@ export default defineComponent({
       this.resetUploadFeedback();
     },
     async handleUploadComplete(args: any) {
+      this.uploadDisabled = true;
       await this.waitForTicketAndRefreshExtractDetails(args.ticketId);
     },
     async waitForTicketAndRefreshExtractDetails(ticketId: string) {

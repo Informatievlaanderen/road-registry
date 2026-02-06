@@ -197,6 +197,8 @@ export default defineComponent({
             return "Verworpen";
           case "AutomaticValidationSucceeded":
             return "Automatische controles geslaagd";
+          case "ManualValidationFailed":
+            return "Geweigerd";
           case "Accepted":
             return "Aanvaard";
         }
