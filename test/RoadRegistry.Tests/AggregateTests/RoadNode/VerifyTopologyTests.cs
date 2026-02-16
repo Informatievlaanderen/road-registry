@@ -77,7 +77,6 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                     TemporaryId = new RoadNodeId(3),
                     OriginalId = Fixture.Create<RoadNodeId>(),
                     Geometry = new Point(TestData.AddSegment1StartNode.Geometry.Value.X + 1.99, TestData.AddSegment1StartNode.Geometry.Value.Y).ToRoadNodeGeometry(),
-                    Type = Fixture.Create<RoadNodeTypeV2>(),
                     Grensknoop = Fixture.Create<bool>()
                 })
             )
@@ -176,34 +175,34 @@ public class VerifyTopologyTests : RoadNetworkTestBase
     //     );
     // }
 
-    [Fact]
-    public Task WhenVerifyType_WithTwoSegmentsConnectedAndTypeIsFakeNodeButConnectedSegmentAttributesAreIdentical_ThenError()
-    {
-        var addStartNode1WithWrongType = TestData.AddSegment1StartNode with
-        {
-            Type = RoadNodeTypeV2.Schijnknoop
-        };
-
-        var addIdenticalSegment = TestData.AddSegment1 with
-        {
-            TemporaryId = Fixture.CreateWhichIsDifferentThan(TestData.AddSegment1.TemporaryId),
-            OriginalId = Fixture.CreateWhichIsDifferentThan(TestData.AddSegment1.TemporaryId, TestData.AddSegment1.OriginalId)
-        };
-
-        return Run(scenario => scenario
-            .Given(given => given)
-            .When(changes => changes
-                .Add(addStartNode1WithWrongType)
-                .Add(TestData.AddSegment1)
-                .Add(addIdenticalSegment)
-            )
-            .ThenContainsProblems(new Error("FakeRoadNodeConnectedSegmentsDoNotDiffer",
-                new ProblemParameter("RoadNodeId", TestData.AddSegment1StartNode.TemporaryId.ToString()),
-                new ProblemParameter("SegmentId", TestData.AddSegment1.OriginalId.ToString()),
-                new ProblemParameter("SegmentId", addIdenticalSegment.OriginalId.ToString())
-            ))
-        );
-    }
+    // [Fact]
+    // public Task WhenVerifyType_WithTwoSegmentsConnectedAndTypeIsFakeNodeButConnectedSegmentAttributesAreIdentical_ThenError()
+    // {
+    //     var addStartNode1WithWrongType = TestData.AddSegment1StartNode with
+    //     {
+    //         Type = RoadNodeTypeV2.Schijnknoop
+    //     };
+    //
+    //     var addIdenticalSegment = TestData.AddSegment1 with
+    //     {
+    //         TemporaryId = Fixture.CreateWhichIsDifferentThan(TestData.AddSegment1.TemporaryId),
+    //         OriginalId = Fixture.CreateWhichIsDifferentThan(TestData.AddSegment1.TemporaryId, TestData.AddSegment1.OriginalId)
+    //     };
+    //
+    //     return Run(scenario => scenario
+    //         .Given(given => given)
+    //         .When(changes => changes
+    //             .Add(addStartNode1WithWrongType)
+    //             .Add(TestData.AddSegment1)
+    //             .Add(addIdenticalSegment)
+    //         )
+    //         .ThenContainsProblems(new Error("FakeRoadNodeConnectedSegmentsDoNotDiffer",
+    //             new ProblemParameter("RoadNodeId", TestData.AddSegment1StartNode.TemporaryId.ToString()),
+    //             new ProblemParameter("SegmentId", TestData.AddSegment1.OriginalId.ToString()),
+    //             new ProblemParameter("SegmentId", addIdenticalSegment.OriginalId.ToString())
+    //         ))
+    //     );
+    // }
 
     // [Theory]
     // [InlineData(nameof(RoadNodeTypeV2.Eindknoop), true)]

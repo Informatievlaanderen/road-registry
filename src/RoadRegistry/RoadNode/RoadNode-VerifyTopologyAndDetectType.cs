@@ -2,7 +2,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Errors;
+using Events.V2;
 using Extensions;
 using RoadRegistry.ValueObjects.Problems;
 using RoadSegment;
@@ -10,7 +12,7 @@ using ScopedRoadNetwork.ValueObjects;
 
 public partial class RoadNode
 {
-    public Problems VerifyTopology(RoadNetworkVerifyTopologyContext context)
+    public Problems VerifyTopologyAndDetectType(RoadNetworkVerifyTopologyContext context, Provenance provenance)
     {
         var problems = Problems.For(RoadNodeId);
 
@@ -55,12 +57,12 @@ public partial class RoadNode
             .Aggregate(problems, (current, segment) =>
                     current.Add(new RoadNodeTooClose(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId))));
 
-        problems += VerifyTypeMatchesConnectedSegmentCount(context, segments);
+        problems += ValidateTypeAndChangeIfNeeded(context, segments, provenance);
 
         return problems;
     }
 
-    private Problems VerifyTypeMatchesConnectedSegmentCount(RoadNetworkVerifyTopologyContext context, List<RoadSegment> segments)
+    private Problems ValidateTypeAndChangeIfNeeded(RoadNetworkVerifyTopologyContext context, List<RoadSegment> segments, Provenance provenance)
     {
         //TODO-pr bij upload mee fixen + uncomment unit test VerifyTopologyTests
         var problems = Problems.None;
@@ -71,21 +73,23 @@ public partial class RoadNode
         }
         else if (segments.Count == 1 && Type != RoadNodeTypeV2.Eindknoop)
         {
-            problems += RoadNodeTypeV2Mismatch.New(
-                context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
-                segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
-                Type,
-                [RoadNodeTypeV2.Eindknoop]);
+            Apply(new RoadNodeTypeWasChanged
+            {
+                RoadNodeId = RoadNodeId,
+                Type = RoadNodeTypeV2.Eindknoop,
+                Provenance = new ProvenanceData(provenance)
+            });
         }
         else if (segments.Count == 2)
         {
             if (!Type.IsAnyOf(RoadNodeTypeV2.Schijnknoop))
             {
-                problems += RoadNodeTypeV2Mismatch.New(
-                    context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
-                    segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
-                    Type,
-                    [RoadNodeTypeV2.Schijnknoop]);
+                Apply(new RoadNodeTypeWasChanged
+                {
+                    RoadNodeId = RoadNodeId,
+                    Type = RoadNodeTypeV2.Schijnknoop,
+                    Provenance = new ProvenanceData(provenance)
+                });
             }
             else if (Type == RoadNodeTypeV2.Schijnknoop)
             {
@@ -103,11 +107,12 @@ public partial class RoadNode
         }
         else if (segments.Count > 2 && !Type.IsAnyOf(RoadNodeTypeV2.EchteKnoop))
         {
-            problems += RoadNodeTypeV2Mismatch.New(
-                context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
-                segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
-                Type,
-                [RoadNodeTypeV2.EchteKnoop]);
+            Apply(new RoadNodeTypeWasChanged
+            {
+                RoadNodeId = RoadNodeId,
+                Type = RoadNodeTypeV2.EchteKnoop,
+                Provenance = new ProvenanceData(provenance)
+            });
         }
 
         return problems;

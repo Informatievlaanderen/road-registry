@@ -21,7 +21,6 @@ public static class FixtureExtensions
                     RoadNodeId = fixture.Create<RoadNodeId>(),
                     OriginalId = fixture.Create<RoadNodeId>(),
                     Geometry = fixture.Create<RoadNodeGeometry>(),
-                    Type = fixture.Create<RoadNodeTypeV2>(),
                     Grensknoop = fixture.Create<bool>(),
                     Provenance = fixture.Create<ProvenanceData>()
                 }
@@ -37,7 +36,6 @@ public static class FixtureExtensions
                 {
                     RoadNodeId = fixture.Create<RoadNodeId>(),
                     Geometry = fixture.Create<RoadNodeGeometry>(),
-                    Type = fixture.Create<RoadNodeTypeV2>(),
                     Grensknoop = fixture.Create<bool>(),
                     Provenance = fixture.Create<ProvenanceData>()
                 }

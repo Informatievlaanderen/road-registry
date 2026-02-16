@@ -47,7 +47,6 @@ public class AggregateTests : AggregateTestBase
         // Assert
         node.RoadNodeId.Should().Be(evt.RoadNodeId);
         node.IsRemoved.Should().BeTrue();
-        node.Type.Should().Be(nodeAdded.Type);
         node.Geometry.Should().Be(nodeAdded.Geometry);
     }
 }

@@ -96,13 +96,13 @@ public static class FeatureValidationExtensions
             if (feature.Attributes.StartNodeId > 0 && !context.ChangedRoadNodes.ContainsKey(feature.Attributes.StartNodeId.Value))
             {
                 var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
-                problems += recordContext.RoadSegmentStartNodeMissing(feature.Attributes.Id);
+                problems += recordContext.RoadSegmentStartNodeMissing(feature.Attributes.TempId);
             }
 
             if (feature.Attributes.EndNodeId > 0 && !context.ChangedRoadNodes.ContainsKey(feature.Attributes.EndNodeId.Value))
             {
                 var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
-                problems += recordContext.RoadSegmentEndNodeMissing(feature.Attributes.Id);
+                problems += recordContext.RoadSegmentEndNodeMissing(feature.Attributes.TempId);
             }
         }
 
@@ -127,8 +127,8 @@ public static class FeatureValidationExtensions
         }
 
         var segmentsWithoutAttributes = context.ChangedRoadSegments.Values
-            .Where(roadSegment => features.All(attribute => attribute.Attributes.RoadSegmentId != roadSegment.Attributes.Id))
-            .Select(roadSegment => roadSegment.Attributes.Id)
+            .Where(roadSegment => features.All(attribute => attribute.Attributes.RoadSegmentId != roadSegment.Attributes.TempId))
+            .Select(roadSegment => roadSegment.Attributes.TempId)
             .ToArray();
 
         if (segmentsWithoutAttributes.Any())

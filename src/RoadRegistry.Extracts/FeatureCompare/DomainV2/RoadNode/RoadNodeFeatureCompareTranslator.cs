@@ -119,8 +119,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
 
     private bool AttributesEquals(Feature<RoadNodeFeatureCompareAttributes> feature1, Feature<RoadNodeFeatureCompareAttributes> feature2, ZipArchiveEntryFeatureCompareTranslateContext context)
     {
-        return feature1.Attributes.Type == feature2.Attributes.Type
-               && feature1.Attributes.Geometry.IsReasonablyEqualTo(feature2.Attributes.Geometry, context.Tolerances)
+        return feature1.Attributes.Geometry.IsReasonablyEqualTo(feature2.Attributes.Geometry, context.Tolerances)
                && feature1.Attributes.Grensknoop == feature2.Attributes.Grensknoop;
     }
 
@@ -141,7 +140,6 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                                 ? record.Attributes.Id
                                 : null,
                             Geometry = record.Attributes.Geometry!.ToRoadNodeGeometry(),
-                            Type = record.Attributes.Type!,
                             Grensknoop = record.Attributes.Grensknoop!.Value
                         }
                     );
@@ -152,7 +150,6 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                         {
                             RoadNodeId = record.Id,
                             Geometry = record.Attributes.Geometry?.ToRoadNodeGeometry(),
-                            Type = record.Attributes.Type,
                             Grensknoop = record.Attributes.Grensknoop
                         }
                     );

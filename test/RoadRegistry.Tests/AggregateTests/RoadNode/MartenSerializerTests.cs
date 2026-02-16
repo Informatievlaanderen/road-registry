@@ -23,6 +23,7 @@ public class MartenSerializerTests
         var fixture = new RoadNetworkTestDataV2().Fixture;
 
         var original = RoadNode.Create(fixture.Create<RoadNodeWasAdded>());
+        original.Apply(fixture.Create<RoadNodeTypeWasChanged>());
 
         var serializer = new StoreOptions().ConfigureSerializer().Serializer();
         var originalAsJson = serializer.ToJson(original);

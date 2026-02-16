@@ -13,7 +13,7 @@ using Uploads;
 using FileProblem = Messages.FileProblem;
 using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 
-public static class FileProblemTranslator
+public static partial class FileProblemTranslator
 {
     public static ProblemTranslation TranslateToDutch(this Messages.FileProblem problem)
     {
@@ -22,9 +22,21 @@ public static class FileProblemTranslator
 
     public static readonly Converter<FileProblem, ProblemTranslation> Dutch = problem =>
     {
+        return Translate(problem)
+               ?? TranslateInwinning(problem)
+               ?? new ProblemTranslation(problem.Severity, problem.Reason, ProblemTranslator.Dutch(new Problem
+               {
+                   Reason = problem.Reason,
+                   Parameters = problem.Parameters,
+                   Severity = problem.Severity
+               }).Message);
+    };
+
+    private static readonly Converter<FileProblem, ProblemTranslation?> Translate = problem =>
+    {
         var translation = new ProblemTranslation(problem.Severity, problem.Reason);
 
-        string DbaseRecordLabel(string identifierField = null, string identifierValue = null)
+        string DbaseRecordLabel(string? identifierField = null, string? identifierValue = null)
         {
             var sb = new StringBuilder();
             sb.Append("dbase record ");
@@ -47,7 +59,6 @@ public static class FileProblemTranslator
         {
             nameof(ZipArchiveProblems.RequiredFileMissing) => translation with { Message = "Het bestand ontbreekt in het archief." },
             nameof(ProjectionFormatFileProblems.ProjectionFormatNotLambert72) => translation with { Message = "Projectie formaat is niet 'Belge_Lambert_1972'." },
-            nameof(ProjectionFormatFileProblems.ProjectionFormatNotLambert08) => translation with { Message = "Projectie formaat is niet 'Belge_Lambert_2008'." },
             nameof(DbaseFileProblems.HasNoDbaseRecords) => translation with { Message = "Het bestand bevat geen rijen." },
             nameof(DbaseFileProblems.HasDbaseHeaderFormatError) => translation with { Message = "De hoofding van het bestand is niet correct geformateerd." },
             nameof(DbaseFileProblems.HasDbaseSchemaMismatch) => translation with { Message = $"Het verwachte dbase schema ({problem.GetParameterValue("ExpectedSchema")}) stemt niet overeen met het eigenlijke dbase schema ({problem.GetParameterValue("ActualSchema")})." },
@@ -140,15 +151,7 @@ public static class FileProblemTranslator
             nameof(ShapeFileProblems.ShapeRecordGeometrySelfOverlaps) => translation with { Message = $"De shape record {problem.GetParameterValue("RecordNumber")} geometrie overlapt zichzelf." },
             nameof(ShapeFileProblems.ShapeRecordGeometrySelfIntersects) => translation with { Message = $"De shape record {problem.GetParameterValue("RecordNumber")} geometrie kruist zichzelf." },
             nameof(ShapeFileProblems.ShapeRecordGeometryHasInvalidMeasureOrdinates) => translation with { Message = $"De shape record {problem.GetParameterValue("RecordNumber")} geometrie bevat ongeldige measure waarden." },
-            _ => translation with
-            {
-                Message = ProblemTranslator.Dutch(new Problem
-                {
-                    Reason = problem.Reason,
-                    Parameters = problem.Parameters,
-                    Severity = problem.Severity
-                }).Message
-            }
+            _ => null
         };
     };
 }

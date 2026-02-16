@@ -149,11 +149,6 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
         Veer
     };
 
-    public sealed record Edit
-    {
-        public static readonly ImmutableArray<RoadSegmentMorphologyV2> Editable = [..All];
-    }
-
     public static readonly IReadOnlyDictionary<int, RoadSegmentMorphologyV2> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
 

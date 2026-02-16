@@ -568,6 +568,19 @@ public static class DbaseFileProblems
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
             .Build();
     }
+    public static FileError RoadNodeGrensknoopMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    {
+        return builder
+            .Error(nameof(RoadNodeGrensknoopMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    "0,1"
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
     public static FileError RoadNodeGeometryMissing(this IDbaseFileRecordProblemBuilder builder, int value)
     {
         return builder
@@ -698,16 +711,14 @@ public static class DbaseFileProblems
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
             .Build();
     }
-    public static FileError RoadSegmentMorphologyV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual, bool outline = false)
+    public static FileError RoadSegmentMorphologyV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
     {
         return builder
             .Error(nameof(RoadSegmentMorphologyMismatch))
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",
-                    string.Join(",", outline
-                        ? RoadSegmentMorphologyV2.Edit.Editable.Select(status => status.Translation.Identifier.ToString())
-                        : RoadSegmentMorphologyV2.ByIdentifier.Keys.Select(key => key.ToString()))
+                    string.Join(",", RoadSegmentMorphologyV2.ByIdentifier.Keys.Select(key => key.ToString()))
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
@@ -730,16 +741,14 @@ public static class DbaseFileProblems
             .Build();
     }
 
-    public static FileError RoadSegmentStatusV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual, bool outline = false)
+    public static FileError RoadSegmentStatusV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
     {
         return builder
             .Error(nameof(RoadSegmentStatusMismatch))
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",
-                    string.Join(",", outline
-                        ? RoadSegmentStatusV2.Edit.Editable.Select(status => status.Translation.Identifier.ToString())
-                        : RoadSegmentStatusV2.ByIdentifier.Keys.Select(key => key.ToString()))
+                    string.Join(",", RoadSegmentStatusV2.ByIdentifier.Keys.Select(key => key.ToString()))
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
@@ -807,14 +816,79 @@ public static class DbaseFileProblems
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
             .Build();
     }
-    public static FileError SurfaceTypeV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    public static FileError RoadSegmentSurfaceTypeV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
     {
         return builder
-            .Error(nameof(SurfaceTypeMismatch))
+            .Error(nameof(RoadSegmentSurfaceTypeV2Mismatch))
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",
                     string.Join(",", RoadSegmentSurfaceTypeV2.ByIdentifier.Keys.Select(key => key.ToString()))
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+    public static FileError RoadSegmentAutoHeenMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    {
+        return builder
+            .Error(nameof(RoadSegmentAutoHeenMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    "0,1"
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+    public static FileError RoadSegmentAutoTerugMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    {
+        return builder
+            .Error(nameof(RoadSegmentAutoTerugMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    "0,1"
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+    public static FileError RoadSegmentFietsHeenMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    {
+        return builder
+            .Error(nameof(RoadSegmentFietsHeenMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    "0,1"
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+    public static FileError RoadSegmentFietsTerugMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    {
+        return builder
+            .Error(nameof(RoadSegmentFietsTerugMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    "0,1"
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+    public static FileError RoadSegmentVoetgangerMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    {
+        return builder
+            .Error(nameof(RoadSegmentVoetgangerMismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    "0,1"
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))

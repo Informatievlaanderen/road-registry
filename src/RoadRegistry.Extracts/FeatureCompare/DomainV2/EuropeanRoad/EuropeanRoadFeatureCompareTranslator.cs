@@ -108,33 +108,43 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
             switch (record.RecordType.Translation.Identifier)
             {
                 case RecordType.AddedIdentifier:
-                    if (changes.TryFindRoadSegmentChange(record.Feature.Attributes.RoadSegmentId, out var roadSegmentChange) && roadSegmentChange is AddRoadSegmentChange addRoadSegmentChange)
                     {
-                        changes = changes.ReplaceChange(addRoadSegmentChange, addRoadSegmentChange with
+                        if (changes.TryFindRoadSegmentChange(record.Feature.Attributes.RoadSegmentId, out var roadSegmentChange) && roadSegmentChange is AddRoadSegmentChange addRoadSegmentChange)
                         {
-                            EuropeanRoadNumbers = addRoadSegmentChange.EuropeanRoadNumbers.Concat([record.Feature.Attributes.Number]).ToArray()
-                        });
-                    }
-                    else
-                    {
-                        changes = changes.AppendChange(
-                            new AddRoadSegmentToEuropeanRoadChange
+                            changes = changes.ReplaceChange(addRoadSegmentChange, addRoadSegmentChange with
                             {
-                                RoadSegmentId = record.Feature.Attributes.RoadSegmentId,
-                                Number = record.Feature.Attributes.Number
-                            }
-                        );
+                                EuropeanRoadNumbers = addRoadSegmentChange.EuropeanRoadNumbers.Concat([record.Feature.Attributes.Number]).ToArray()
+                            });
+                        }
+                        else
+                        {
+                            changes = changes.AppendChange(
+                                new AddRoadSegmentToEuropeanRoadChange
+                                {
+                                    RoadSegmentId = record.Feature.Attributes.RoadSegmentId,
+                                    Number = record.Feature.Attributes.Number
+                                }
+                            );
+                        }
                     }
                     break;
                 case RecordType.RemovedIdentifier:
-                    //TODO-pr niet doen als er al een RemoveRoadSegmentChange is
-                    changes = changes.AppendChange(
-                        new RemoveRoadSegmentFromEuropeanRoadChange
+                    {
+                        if (changes.TryFindRoadSegmentChange(record.Feature.Attributes.RoadSegmentId, out var roadSegmentChange) && roadSegmentChange is RemoveRoadSegmentChange removeRoadSegmentChange)
                         {
-                            RoadSegmentId = record.Feature.Attributes.RoadSegmentId,
-                            Number = record.Feature.Attributes.Number
+                            // Do not register removal of number
                         }
-                    );
+                        else
+                        {
+                            changes = changes.AppendChange(
+                                new RemoveRoadSegmentFromEuropeanRoadChange
+                                {
+                                    RoadSegmentId = record.Feature.Attributes.RoadSegmentId,
+                                    Number = record.Feature.Attributes.Number
+                                }
+                            );
+                        }
+                    }
                     break;
             }
         }

@@ -17,7 +17,6 @@ public partial class RoadNode
             RoadNodeId = idGenerator.NewRoadNodeId(),
             OriginalId = change.OriginalId ?? change.TemporaryId,
             Geometry = change.Geometry,
-            Type = change.Type,
             Grensknoop = change.Grensknoop,
             Provenance = new ProvenanceData(provenance)
         });

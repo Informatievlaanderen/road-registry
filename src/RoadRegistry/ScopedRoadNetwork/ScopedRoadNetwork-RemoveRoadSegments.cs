@@ -101,40 +101,40 @@ public partial class ScopedRoadNetwork
         IIdentifierTranslator idTranslator,
         Provenance provenance)
     {
-        var node = _roadNodes[nodeId];
-
-        if (node.Type == RoadNodeTypeV2.Eindknoop)
-        {
-            return node.Remove(provenance);
-        }
-
-        if (node.Type == RoadNodeTypeV2.Schijnknoop)
-        {
-            return node.Modify(new ModifyRoadNodeChange
-            {
-                RoadNodeId = nodeId,
-                Type = RoadNodeTypeV2.Eindknoop
-            }, provenance);
-        }
-
-        var nodeSegments = GetNonRemovedRoadSegments()
-            .Where(x => x.StartNodeId == nodeId || x.EndNodeId == nodeId)
-            .ToList();
-
-        if (node.Type == RoadNodeTypeV2.EchteKnoop && nodeSegments.Count == 2)
-        {
-            var problems = node.Modify(new ModifyRoadNodeChange
-            {
-                RoadNodeId = nodeId,
-                Type = RoadNodeTypeV2.Schijnknoop
-            }, provenance);
-            if (!problems.HasError())
-            {
-                problems += TryMergeFakeNodeSegments(nodeId, nodeSegments, removingRoadSegmentIds, idGenerator, idTranslator, provenance);
-            }
-
-            return problems;
-        }
+        //var node = _roadNodes[nodeId];
+        //
+        // if (node.Type == RoadNodeTypeV2.Eindknoop)
+        // {
+        //     return node.Remove(provenance);
+        // }
+        //
+        // if (node.Type == RoadNodeTypeV2.Schijnknoop)
+        // {
+        //     return node.Modify(new ModifyRoadNodeChange
+        //     {
+        //         RoadNodeId = nodeId,
+        //         Type = RoadNodeTypeV2.Eindknoop
+        //     }, provenance);
+        // }
+        //
+        // var nodeSegments = GetNonRemovedRoadSegments()
+        //     .Where(x => x.StartNodeId == nodeId || x.EndNodeId == nodeId)
+        //     .ToList();
+        //
+        // if (node.Type == RoadNodeTypeV2.EchteKnoop && nodeSegments.Count == 2)
+        // {
+        //     var problems = node.Modify(new ModifyRoadNodeChange
+        //     {
+        //         RoadNodeId = nodeId,
+        //         Type = RoadNodeTypeV2.Schijnknoop
+        //     }, provenance);
+        //     if (!problems.HasError())
+        //     {
+        //         problems += TryMergeFakeNodeSegments(nodeId, nodeSegments, removingRoadSegmentIds, idGenerator, idTranslator, provenance);
+        //     }
+        //
+        //     return problems;
+        // }
 
         return Problems.None;
     }

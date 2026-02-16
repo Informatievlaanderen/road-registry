@@ -5,7 +5,6 @@ using Extensions;
 using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.Core;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using ValueObjects.Problems;
 

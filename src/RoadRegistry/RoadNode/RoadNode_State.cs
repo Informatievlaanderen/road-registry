@@ -40,7 +40,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         var roadNode = new RoadNode(@event.RoadNodeId)
         {
             Geometry = @event.Geometry,
-            Type = @event.Type,
+            Type = default,
             Grensknoop = @event.Grensknoop
         };
         roadNode.UncommittedEvents.Add(@event);
@@ -52,11 +52,19 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         var roadNode = new RoadNode(@event.RoadNodeId)
         {
             Geometry = @event.Geometry,
-            Type = @event.Type,
+            Type = default,
             Grensknoop = @event.Grensknoop
         };
         roadNode.UncommittedEvents.Add(@event);
         return roadNode;
+    }
+
+    //TODO-pr add unit tests for RoadNodeTypeWasChanged + dat dit gebeurd bij het aanmaken van een wegknoop
+    public void Apply(RoadNodeTypeWasChanged @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Type = @event.Type;
     }
 
     public void Apply(RoadNodeWasModified @event)
@@ -64,7 +72,6 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         UncommittedEvents.Add(@event);
 
         Geometry = @event.Geometry ?? Geometry;
-        Type = @event.Type ?? Type;
         Grensknoop = @event.Grensknoop ?? Grensknoop;
     }
 

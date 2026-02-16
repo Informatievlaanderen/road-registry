@@ -102,7 +102,7 @@ public partial class ScopedRoadNetwork
                 .Distinct()
                 .Select(x => _roadNodes.GetValueOrDefault(x))
                 .Where(x => x is not null)
-                .Aggregate(problems, (p, x) => p + x!.VerifyTopology(context));
+                .Aggregate(problems, (p, x) => p + x!.VerifyTopologyAndDetectType(context, changes.Provenance));
             problems = _roadSegments.Values
                 .Where(x => x.HasChanges())
                 .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));

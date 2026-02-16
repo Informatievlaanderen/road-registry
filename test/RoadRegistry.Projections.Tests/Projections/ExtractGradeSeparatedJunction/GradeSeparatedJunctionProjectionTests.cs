@@ -42,6 +42,7 @@ public class GradeSeparatedJunctionProjectionTests
 
             typeof(RoadNetworkWasChanged),
             typeof(RoadNodeWasAdded),
+            typeof(RoadNodeTypeWasChanged),
             typeof(RoadNodeWasModified),
             typeof(RoadNodeWasMigrated),
             typeof(RoadNodeWasRemoved),

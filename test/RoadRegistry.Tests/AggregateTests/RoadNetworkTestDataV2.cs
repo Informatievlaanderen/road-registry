@@ -148,7 +148,6 @@ public class RoadNetworkTestDataV2
             TemporaryId = Fixture.Create<RoadNodeId>(),
             OriginalId = Fixture.Create<RoadNodeId>(),
             Geometry = StartPoint1.ToRoadNodeGeometry(),
-            Type = RoadNodeTypeV2.Eindknoop,
             Grensknoop = false
         };
 
@@ -157,7 +156,6 @@ public class RoadNetworkTestDataV2
             RoadNodeId = new RoadNodeId(1),
             OriginalId = AddSegment1StartNode.TemporaryId,
             Geometry = AddSegment1StartNode.Geometry,
-            Type = AddSegment1StartNode.Type,
             Grensknoop = AddSegment1StartNode.Grensknoop,
             Provenance = new ProvenanceData(Provenance)
         };
@@ -167,7 +165,6 @@ public class RoadNetworkTestDataV2
             TemporaryId = new RoadNodeId(AddSegment1StartNode.TemporaryId + 1),
             OriginalId = Fixture.Create<RoadNodeId>(),
             Geometry = EndPoint1.ToRoadNodeGeometry(),
-            Type = RoadNodeTypeV2.Eindknoop,
             Grensknoop = false
         };
 
@@ -176,7 +173,6 @@ public class RoadNetworkTestDataV2
             RoadNodeId = new RoadNodeId(2),
             OriginalId = AddSegment1EndNode.TemporaryId,
             Geometry = AddSegment1EndNode.Geometry,
-            Type = AddSegment1EndNode.Type,
             Grensknoop = AddSegment1EndNode.Grensknoop,
             Provenance = new ProvenanceData(Provenance)
         };
@@ -186,7 +182,6 @@ public class RoadNetworkTestDataV2
             TemporaryId = new RoadNodeId(AddSegment1EndNode.TemporaryId + 1),
             OriginalId = new RoadNodeId(AddSegment1EndNode.TemporaryId + 1),
             Geometry = StartPoint2.ToRoadNodeGeometry(),
-            Type = RoadNodeTypeV2.Eindknoop,
             Grensknoop = false
         };
 
@@ -195,7 +190,6 @@ public class RoadNetworkTestDataV2
             RoadNodeId = new RoadNodeId(3),
             OriginalId = AddSegment2StartNode.TemporaryId,
             Geometry = AddSegment2StartNode.Geometry,
-            Type = AddSegment2StartNode.Type,
             Grensknoop = AddSegment2StartNode.Grensknoop,
             Provenance = new ProvenanceData(Provenance)
         };
@@ -205,7 +199,6 @@ public class RoadNetworkTestDataV2
             TemporaryId = new RoadNodeId(AddSegment2StartNode.TemporaryId + 1),
             OriginalId = Fixture.Create<RoadNodeId>(),
             Geometry = EndPoint2.ToRoadNodeGeometry(),
-            Type = RoadNodeTypeV2.Eindknoop,
             Grensknoop = false
         };
 
@@ -214,7 +207,6 @@ public class RoadNetworkTestDataV2
             RoadNodeId = new RoadNodeId(4),
             OriginalId = AddSegment2EndNode.TemporaryId,
             Geometry = AddSegment2EndNode.Geometry,
-            Type = AddSegment2EndNode.Type,
             Grensknoop = AddSegment2EndNode.Grensknoop,
             Provenance = new ProvenanceData(Provenance)
         };
@@ -224,7 +216,6 @@ public class RoadNetworkTestDataV2
             TemporaryId = new RoadNodeId(AddSegment2EndNode.TemporaryId + 1),
             OriginalId = Fixture.Create<RoadNodeId>(),
             Geometry = StartPoint3.ToRoadNodeGeometry(),
-            Type = RoadNodeTypeV2.Eindknoop,
             Grensknoop = false
         };
 
@@ -233,7 +224,6 @@ public class RoadNetworkTestDataV2
             RoadNodeId = new RoadNodeId(5),
             OriginalId = AddSegment3StartNode.TemporaryId,
             Geometry = AddSegment3StartNode.Geometry,
-            Type = AddSegment3StartNode.Type,
             Grensknoop = AddSegment3StartNode.Grensknoop,
             Provenance = new ProvenanceData(Provenance)
         };
@@ -243,7 +233,6 @@ public class RoadNetworkTestDataV2
             TemporaryId = new RoadNodeId(AddSegment3StartNode.TemporaryId + 1),
             OriginalId = Fixture.Create<RoadNodeId>(),
             Geometry = EndPoint3.ToRoadNodeGeometry(),
-            Type = RoadNodeTypeV2.Eindknoop,
             Grensknoop = false
         };
 
@@ -252,7 +241,6 @@ public class RoadNetworkTestDataV2
             RoadNodeId = new RoadNodeId(6),
             OriginalId = AddSegment3EndNode.TemporaryId,
             Geometry = AddSegment3EndNode.Geometry,
-            Type = AddSegment3EndNode.Type,
             Grensknoop = AddSegment3EndNode.Grensknoop,
             Provenance = new ProvenanceData(Provenance)
         };

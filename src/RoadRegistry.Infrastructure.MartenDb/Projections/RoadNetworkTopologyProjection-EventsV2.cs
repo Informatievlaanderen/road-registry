@@ -161,6 +161,10 @@ public partial class RoadNetworkTopologyProjection
     {
         // Do nothing
     }
+    public void Project(IEvent<RoadNodeTypeWasChanged> e, IDocumentOperations ops)
+    {
+        // Do nothing
+    }
     public void Project(IEvent<RoadSegmentWasAddedToEuropeanRoad> e, IDocumentOperations ops)
     {
         // Do nothing
