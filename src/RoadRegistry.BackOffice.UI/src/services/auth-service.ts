@@ -1,5 +1,7 @@
 import { reactive } from "vue";
 import router from "@/router";
+import axios from "axios";
+
 import PublicApi from "./public-api";
 import UserTokenResult from "@/auth/userTokenResult";
 import OidcClient from "@/auth/roadRegistryOidcClient";
@@ -78,8 +80,11 @@ export const AuthService = {
     }
   },
   async logout(): Promise<void> {
-    if (this.getToken()) {
-      await OidcClient.instance.createSignoutRequest();
+    let token = this.getToken();
+    if (token) {
+      let signoutRequest = await OidcClient.instance.createSignoutRequest({ id_token_hint: token });
+      const http = axios.create();
+      await http.get(signoutRequest.url);
     }
     this.reset();
     router.push({ name: "login" });
