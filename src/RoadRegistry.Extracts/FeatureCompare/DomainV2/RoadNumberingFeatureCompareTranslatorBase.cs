@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadSegment;
 
@@ -134,7 +134,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
             {
                 var recordContext = _fileName
                     .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
-                    .WithIdentifier(nameof(RoadSegmentNationalRoadAttributeDbaseRecord.WS_OIDN), changeFeature.Attributes.Id);
+                    .WithIdentifier(nameof(RoadSegmentNationalRoadAttributeDbaseRecord.WS_TEMPID), changeFeature.Attributes.RoadSegmentId);
 
                 problems += recordContext.RoadSegmentIdOutOfRange(changeFeature.Attributes.RoadSegmentId);
             }

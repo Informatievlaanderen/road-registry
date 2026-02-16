@@ -606,7 +606,7 @@ public static class DbaseFileProblems
     public static FileError RoadSegmentAccessRestrictionV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
     {
         return builder
-            .Error(nameof(RoadSegmentAccessRestrictionMismatch))
+            .Error(nameof(RoadSegmentAccessRestrictionV2Mismatch))
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",
@@ -714,7 +714,7 @@ public static class DbaseFileProblems
     public static FileError RoadSegmentMorphologyV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
     {
         return builder
-            .Error(nameof(RoadSegmentMorphologyMismatch))
+            .Error(nameof(RoadSegmentMorphologyV2Mismatch))
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",
@@ -744,7 +744,7 @@ public static class DbaseFileProblems
     public static FileError RoadSegmentStatusV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
     {
         return builder
-            .Error(nameof(RoadSegmentStatusMismatch))
+            .Error(nameof(RoadSegmentStatusV2Mismatch))
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",

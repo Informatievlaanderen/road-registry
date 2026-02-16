@@ -10,6 +10,7 @@ using Infrastructure.Dbase;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.Infrastructure.Messages;
 using Schemas.Inwinning.RoadNodes;
 using Point = NetTopologySuite.Geometries.Point;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
@@ -36,6 +37,17 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
         {
             case FeatureType.Change:
                 AddToContext(features, featureType, context);
+                break;
+            case FeatureType.Extract:
+                if (context.ZipArchiveMetadata.Inwinning)
+                {
+                    var excludeProblems = new List<Func<FileProblem, bool>>
+                    {
+                        p => p.Reason == nameof(DbaseFileProblems.RoadNodeGrensknoopMismatch) && p.GetParameterValue("Actual") == "-8"
+                    };
+                    problems = ZipArchiveProblems.None + problems
+                        .Where(p => excludeProblems.All(x => !x(p)));
+                }
                 break;
             case FeatureType.Integration:
                 problems = ZipArchiveProblems.None + problems
@@ -116,7 +128,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
                 var recordContext = fileName
                     .AtShapeRecord(featureType, recordNumber);
 
-                problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(ShapeType.Point, Geometry!.GeometryType);
+                problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(ShapeType.Point, Geometry.GeometryType);
                 return null;
             }
 

@@ -9,13 +9,13 @@ using NetTopologySuite.IO.Esri.Shp;
 
 public class ExtractGeometryShapeFileReaderV2
 {
-    public (ShapeType, Geometry?) Read(Stream stream)
+    public (ShapeType, Geometry?) Read(Stream stream, GeometryFactory geometryFactory)
     {
         stream.Position = 0;
 
         var shp = Shp.OpenRead(stream, new ShapefileReaderOptions
         {
-            Factory = WellKnownGeometryFactories.Lambert72WithoutMAndZ
+            Factory = geometryFactory
         });
 
         var geometry = shp.FirstOrDefault();

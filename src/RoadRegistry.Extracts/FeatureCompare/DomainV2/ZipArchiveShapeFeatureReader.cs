@@ -32,7 +32,7 @@ public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZi
         try
         {
             using var shape = new ShapeFileRecordReader(_encoding)
-                .ReadFromArchive<TDbaseRecord>(archive, FileName, featureType, _dbaseSchema, WellKnownGeometryFactories.Lambert72WithoutMAndZ);
+                .ReadFromArchive<TDbaseRecord>(archive, FileName, featureType, _dbaseSchema, WellKnownGeometryFactories.Lambert08WithoutMAndZ);
 
             return ReadFeatures(featureType, shape.DbaseEntry, shape.ShapeEntry, shape.RecordEnumerator, context);
         }

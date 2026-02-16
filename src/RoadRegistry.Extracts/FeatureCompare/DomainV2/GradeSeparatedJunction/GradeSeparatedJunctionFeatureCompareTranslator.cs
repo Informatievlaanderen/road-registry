@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.Schemas.ExtractV1.GradeSeparatedJuntions;
+using RoadRegistry.Extracts.Schemas.Inwinning.GradeSeparatedJuntions;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.Infrastructure;

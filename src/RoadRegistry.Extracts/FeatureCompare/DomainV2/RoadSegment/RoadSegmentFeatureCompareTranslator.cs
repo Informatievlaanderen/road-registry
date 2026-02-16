@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using RoadNode;
 using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadSegment.Changes;
@@ -345,32 +345,37 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         foreach (var changeFeature in changeFeatures)
         {
-            throw new NotImplementedException();
-            // var maintenanceAuthorityCode = changeFeature.Attributes.MaintenanceAuthority!.Value;
-            //
-            // var maintenanceAuthority = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(maintenanceAuthorityCode, cancellationToken);
-            // if (maintenanceAuthority is null)
-            // {
-            //     var recordContext = FileName
-            //         .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
-            //         .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_OIDN), changeFeature.Attributes.Id);
-            //
-            //     problems += recordContext.RoadSegmentMaintenanceAuthorityNotKnown(maintenanceAuthorityCode);
-            //     continue;
-            // }
-            //
-            // maintenanceAuthorityCode = maintenanceAuthority.Code;
-            //
-            // result.Add(changeFeature with
-            // {
-            //     Attributes = changeFeature.Attributes with
-            //     {
-            //         MaintenanceAuthority = maintenanceAuthorityCode
-            //     }
-            // });
+            var leftMaintenanceAuthorityCode = await ValidateAndGetMaintenanceAuthorityode(changeFeature, changeFeature.Attributes.LeftMaintenanceAuthorityId!.Value);
+            var rightMaintenanceAuthorityCode = await ValidateAndGetMaintenanceAuthorityode(changeFeature, changeFeature.Attributes.RightMaintenanceAuthorityId!.Value);
+
+            result.Add(changeFeature with
+            {
+                Attributes = changeFeature.Attributes with
+                {
+                    LeftMaintenanceAuthorityId = leftMaintenanceAuthorityCode,
+                    RightMaintenanceAuthorityId = rightMaintenanceAuthorityCode
+                }
+            });
         }
 
         return (result, problems);
+
+        async Task<OrganizationId> ValidateAndGetMaintenanceAuthorityode(Feature<RoadSegmentFeatureCompareAttributes> changeFeature, OrganizationId maintenanceAuthorityCode)
+        {
+            var maintenanceAuthority = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(maintenanceAuthorityCode, cancellationToken);
+            if (maintenanceAuthority is null)
+            {
+                var recordContext = FileName
+                    .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
+                    .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_TEMPID), changeFeature.Attributes.TempId);
+
+                problems += recordContext.RoadSegmentMaintenanceAuthorityNotKnown(maintenanceAuthorityCode);
+                return maintenanceAuthorityCode;
+            }
+
+            maintenanceAuthorityCode = maintenanceAuthority.Code;
+            return maintenanceAuthorityCode;
+        }
     }
 
     private ZipArchiveProblems AddProcessedRecordsToContext(RoadSegmentId maxId, ICollection<RoadSegmentFeatureCompareRecord> processedRecords, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
@@ -446,7 +451,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         Category = record.Attributes.Category is not null
                             ? new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(record.Attributes.Category, geometry)
                             : null,
-                        MaintenanceAuthorityId = BuildOrganizationIdAttributes(record.Attributes.LeftMaintenanceAuthorityId, record.Attributes.RightMaintenanceAuthorityId),
+                        MaintenanceAuthorityId = BuildOrganizationIdAttributes(record.Attributes.LeftMaintenanceAuthorityId, record.Attributes.RightMaintenanceAuthorityId, geometry),
                         Morphology = record.Attributes.Morphology is not null
                             ? new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(record.Attributes.Morphology, geometry)
                             : null,
@@ -458,7 +463,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         CarAccess = null,
                         BikeAccess = null,
                         PedestrianAccess = null,
-                        StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId),
+                        StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId, geometry),
                     };
 
                     changes = changes.AppendChange(modifyRoadSegment);
@@ -480,10 +485,10 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             GeometryDrawMethod = record.Attributes.Method!,
                             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(record.Attributes.AccessRestriction!, geometry),
                             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(record.Attributes.Category!, geometry),
-                            MaintenanceAuthorityId = BuildOrganizationIdAttributes(record.Attributes.LeftMaintenanceAuthorityId, record.Attributes.RightMaintenanceAuthorityId)!,
+                            MaintenanceAuthorityId = BuildOrganizationIdAttributes(record.Attributes.LeftMaintenanceAuthorityId, record.Attributes.RightMaintenanceAuthorityId, geometry)!,
                             Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(record.Attributes.Morphology!, geometry),
                             Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(record.Attributes.Status!, geometry),
-                            StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId)!,
+                            StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId, geometry)!,
                             //TODO-pr implement new fields: surfacetype/car/bike/pedestrian access
                             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(),
                             CarAccess = new RoadSegmentDynamicAttributeValues<VehicleAccess>(),
@@ -509,7 +514,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         return changes;
     }
 
-    private RoadSegmentDynamicAttributeValues<StreetNameLocalId>? BuildStreetNameIdAttributes(StreetNameLocalId? leftSideStreetNameId, StreetNameLocalId? rightSideStreetNameId)
+    private RoadSegmentDynamicAttributeValues<StreetNameLocalId>? BuildStreetNameIdAttributes(StreetNameLocalId? leftSideStreetNameId, StreetNameLocalId? rightSideStreetNameId, RoadSegmentGeometry geometry)
     {
         if (leftSideStreetNameId is null && rightSideStreetNameId is null)
         {
@@ -518,15 +523,15 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         if (leftSideStreetNameId == rightSideStreetNameId)
         {
-            return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(leftSideStreetNameId!.Value, null);
+            return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(leftSideStreetNameId!.Value, geometry);
         }
 
         return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
-            .Add(null, RoadSegmentAttributeSide.Left, leftSideStreetNameId ?? StreetNameLocalId.NotApplicable)
-            .Add(null, RoadSegmentAttributeSide.Right, rightSideStreetNameId ?? StreetNameLocalId.NotApplicable);
+            .Add(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length), RoadSegmentAttributeSide.Left, leftSideStreetNameId ?? StreetNameLocalId.NotApplicable)
+            .Add(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length), RoadSegmentAttributeSide.Right, rightSideStreetNameId ?? StreetNameLocalId.NotApplicable);
     }
 
-    private RoadSegmentDynamicAttributeValues<OrganizationId>? BuildOrganizationIdAttributes(OrganizationId? leftSideOrganizationId, OrganizationId? rightSideOrganizationId)
+    private RoadSegmentDynamicAttributeValues<OrganizationId>? BuildOrganizationIdAttributes(OrganizationId? leftSideOrganizationId, OrganizationId? rightSideOrganizationId, RoadSegmentGeometry geometry)
     {
         if (leftSideOrganizationId is null && rightSideOrganizationId is null)
         {
@@ -535,12 +540,12 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         if (leftSideOrganizationId == rightSideOrganizationId)
         {
-            return new RoadSegmentDynamicAttributeValues<OrganizationId>(leftSideOrganizationId!.Value, null);
+            return new RoadSegmentDynamicAttributeValues<OrganizationId>(leftSideOrganizationId!.Value, geometry);
         }
 
         return new RoadSegmentDynamicAttributeValues<OrganizationId>()
-            .Add(null, RoadSegmentAttributeSide.Left, leftSideOrganizationId ?? OrganizationId.Unknown)
-            .Add(null, RoadSegmentAttributeSide.Right, rightSideOrganizationId ?? OrganizationId.Unknown);
+            .Add(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length), RoadSegmentAttributeSide.Left, leftSideOrganizationId ?? OrganizationId.Unknown)
+            .Add(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length), RoadSegmentAttributeSide.Right, rightSideOrganizationId ?? OrganizationId.Unknown);
     }
 
     private void MigrateRoadNodeIds(RoadSegmentFeatureCompareRecord record, ZipArchiveEntryFeatureCompareTranslateContext context)

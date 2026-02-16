@@ -74,4 +74,21 @@ public abstract class FileProblem : IEquatable<FileProblem>, IEqualityComparer<F
     }
 
     public abstract Messages.FileProblem Translate();
+
+    public string GetParameterValue(string parameterName)
+    {
+        var value = GetOptionalParameterValue(parameterName);
+        if (value is null)
+        {
+            throw new ArgumentException($"No parameter found with name '{parameterName}'");
+        }
+
+        return value;
+    }
+    public string? GetOptionalParameterValue(string parameterName)
+    {
+        return Parameters
+            .SingleOrDefault(x => string.Equals(x.Name, parameterName, StringComparison.InvariantCultureIgnoreCase))
+            ?.Value;
+    }
 }

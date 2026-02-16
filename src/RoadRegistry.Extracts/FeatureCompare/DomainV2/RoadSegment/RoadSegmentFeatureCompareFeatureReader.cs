@@ -39,6 +39,29 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
                 AddToContext(features, featureType, context);
                 break;
+            case FeatureType.Extract:
+                if (context.ZipArchiveMetadata.Inwinning)
+                {
+                    var excludeProblems = new List<Func<FileProblem, bool>>
+                    {
+                        p => p.Reason == nameof(DbaseFileProblems.RoadSegmentStatusV2Mismatch) && p.GetParameterValue("Actual") == "-5",
+                        p => p.Reason == nameof(DbaseFileProblems.RoadSegmentMorphologyV2Mismatch) && p.GetParameterValue("Actual") == "-113",
+                        p => p.Reason == nameof(DbaseFileProblems.RoadSegmentMorphologyV2Mismatch) && p.GetParameterValue("Actual") == "-114",
+                        p => p.Reason == nameof(DbaseFileProblems.RoadSegmentMorphologyV2Mismatch) && p.GetParameterValue("Actual") == "-120",
+                        p => p.Reason == nameof(DbaseFileProblems.RoadSegmentMorphologyV2Mismatch) && p.GetParameterValue("Actual") == "-8",
+                        p => p.Reason == nameof(DbaseFileProblems.RoadSegmentAccessRestrictionV2Mismatch) && p.GetParameterValue("Actual") == "-2",
+                        p => p.Reason == nameof(DbaseFileProblems.RoadSegmentAccessRestrictionV2Mismatch) && p.GetParameterValue("Actual") == "-3",
+                        p => p.Reason == nameof(DbaseFileProblems.RoadSegmentSurfaceTypeV2Mismatch) && p.GetParameterValue("Actual") == "-8",
+                        p => p.Reason == nameof(DbaseFileProblems.RequiredFieldIsNull) && p.GetParameterValue("Field") == "AUTOHEEN",
+                        p => p.Reason == nameof(DbaseFileProblems.RequiredFieldIsNull) && p.GetParameterValue("Field") == "AUTOTERUG",
+                        p => p.Reason == nameof(DbaseFileProblems.RequiredFieldIsNull) && p.GetParameterValue("Field") == "FIETSHEEN",
+                        p => p.Reason == nameof(DbaseFileProblems.RequiredFieldIsNull) && p.GetParameterValue("Field") == "FIETSTERUG",
+                        p => p.Reason == nameof(DbaseFileProblems.RequiredFieldIsNull) && p.GetParameterValue("Field") == "VOETGANGER"
+                    };
+                    problems = ZipArchiveProblems.None + problems
+                        .Where(p => excludeProblems.All(x => !x(p)));
+                }
+                break;
             case FeatureType.Integration:
                 problems = ZipArchiveProblems.None + problems
                     .GetMissingOrInvalidFileProblems()
@@ -52,7 +75,6 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                         problems += recordContext.RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange(feature.Attributes.TempId, knownRoadSegment.RecordNumber);
                     }
                 }
-
                 break;
         }
 
@@ -150,6 +172,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
                     var lines = multiLineString
                         .WithMeasureOrdinates()
+                        .WithoutDuplicateCoordinates()
                         .Geometries
                         .OfType<LineString>()
                         .ToArray();

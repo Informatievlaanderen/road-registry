@@ -344,24 +344,24 @@ public static class ProblemTranslator
                 "De opgegeven geometrie is geen geldige LineString in gml 3.2.")
         },
         {
-            ProblemCode.RoadSegment.Geometry.LengthIsZero, problem => new(problem.Severity, problem.Reason, problem.HasParameter("RecordNumber")
-                ? $"De shape record {problem.GetParameterValue("RecordNumber")} geometrie lengte is 0."
-                : problem.HasParameter("Identifier")
-                    ? $"De lengte van het wegsegment met id {problem.GetParameterValue("Identifier")} is 0."
+            ProblemCode.RoadSegment.Geometry.LengthIsZero, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+                ? $"De lengte van het wegsegment met id {problem.GetParameterValue("Identifier")} is 0."
+                : problem.HasParameter("RecordNumber")
+                    ? $"De shape record {problem.GetParameterValue("RecordNumber")} geometrie lengte is 0."
                     : "De lengte van het wegsegment is 0.")
         },
         {
-            ProblemCode.RoadSegment.Geometry.SelfIntersects, problem => new(problem.Severity, problem.Reason, problem.HasParameter("RecordNumber")
-                ? $"De shape record {problem.GetParameterValue("RecordNumber")} geometrie kruist zichzelf."
-                : problem.HasParameter("Identifier")
-                    ? $"De geometrie van het wegsegment met id {problem.GetParameterValue("Identifier")} kruist zichzelf."
+            ProblemCode.RoadSegment.Geometry.SelfIntersects, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+                ? $"De geometrie van het wegsegment met id {problem.GetParameterValue("Identifier")} kruist zichzelf."
+                : problem.HasParameter("RecordNumber")
+                    ? $"De shape record {problem.GetParameterValue("RecordNumber")} geometrie kruist zichzelf."
                     : "De geometrie van het wegsegment kruist zichzelf.")
         },
         {
-            ProblemCode.RoadSegment.Geometry.SelfOverlaps, problem => new(problem.Severity, problem.Reason, problem.HasParameter("RecordNumber")
-                ? $"De shape record {problem.GetParameterValue("RecordNumber")} geometrie overlapt zichzelf."
-                : problem.HasParameter("Identifier")
-                    ? $"De geometrie van het wegsegment met id {problem.GetParameterValue("Identifier")} overlapt zichzelf."
+            ProblemCode.RoadSegment.Geometry.SelfOverlaps, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+                ? $"De geometrie van het wegsegment met id {problem.GetParameterValue("Identifier")} overlapt zichzelf."
+                : problem.HasParameter("RecordNumber")
+                    ? $"De shape record {problem.GetParameterValue("RecordNumber")} geometrie overlapt zichzelf."
                     : "De geometrie van het wegsegment overlapt zichzelf.")
         },
         {
