@@ -473,22 +473,20 @@ export default defineComponent({
             this.uploadDisabled = false;
             this.trackProgress = false;
             let ticketError = JSON.parse(ticketResult.result.json);
-            let errors = [ticketError, ...(ticketError.Errors ?? [])];
+            let errors = ticketError.Errors?.length > 0 ? [...ticketError.Errors] : [ticketError];
 
             errors = uniqBy(errors, (x) => `${x.ErrorCode}_${x.ErrorMessage}`);
-            let problems = errors
-              .flatMap((x) => x.Errors)
-              .map((error) => {
-                let codeParts = (error.ErrorCode ?? "").split("_");
-                let file = codeParts.length > 1 ? codeParts[0] : null;
-                if (error.ErrorContext && error.ErrorContext["Bestand"]) {
-                  file = error.ErrorContext["Bestand"];
-                }
-                let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
-                let severity = code.startsWith("Warning") ? "Warning" : "Error";
-                let text = error.ErrorMessage;
-                return { file, code, severity, text };
-              });
+            let problems = errors.map((error) => {
+              let codeParts = (error.ErrorCode ?? "").split("_");
+              let file = codeParts.length > 1 ? codeParts[0] : null;
+              if (error.ErrorContext && error.ErrorContext["Bestand"]) {
+                file = error.ErrorContext["Bestand"];
+              }
+              let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
+              let severity = code.startsWith("Warning") ? "Warning" : "Error";
+              let text = error.ErrorMessage;
+              return { file, code, severity, text };
+            });
             let fileProblems = uniq(problems.map((x) => x.file)).map((file) => {
               return {
                 file,
