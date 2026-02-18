@@ -97,5 +97,6 @@ public enum VehicleAccess
 {
     Forward,
     Backward,
-    BiDirectional
+    BiDirectional,
+    None
 }
