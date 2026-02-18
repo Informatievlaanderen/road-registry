@@ -68,7 +68,11 @@ public partial class RoadRegistrySecurityController
         var tokenBuilder = new RoadRegistryTokenBuilder(_openIdConnectOptions);
         var jwtToken = tokenBuilder.BuildJwt(identity);
 
-        return Ok(jwtToken);
+        return Ok(new
+        {
+            IdToken = tokenResponse.IdentityToken,
+            AccessToken = jwtToken
+        });
     }
 
     private void AddRoadRegistryScopes(ClaimsIdentity identity, IEnumerable<Claim> claims)

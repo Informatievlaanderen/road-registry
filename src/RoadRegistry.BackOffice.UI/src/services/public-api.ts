@@ -532,13 +532,17 @@ export const PublicApi = {
       const response = await apiClient.get<RoadRegistry.SecurityInfo>(path);
       return response.data;
     },
-    getExchangeCode: async (code: string, verifier: string, redirectUri: string): Promise<string> => {
+    getExchangeCode: async (
+      code: string,
+      verifier: string,
+      redirectUri: string
+    ): Promise<RoadRegistry.CodeExchangeResponse> => {
       if (useBackOfficeApi) {
         return BackOfficeApi.Security.getExchangeCode(code, verifier, redirectUri);
       }
 
       const path = `${apiEndpoint}/v2/wegen/security/exchange?code=${code}&verifier=${verifier}&redirectUri=${redirectUri}`;
-      const response = await apiClient.get(path);
+      const response = await apiClient.get<RoadRegistry.CodeExchangeResponse>(path);
       return response.data;
     },
     getAuthenticatedUser: async (): Promise<RoadRegistry.UserInfo> => {
