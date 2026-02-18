@@ -42,7 +42,7 @@ const createAxiosInstance = (options?: AxiosHttpApiClientOptions) => {
     if (apiKey) {
       config.headers["x-api-key"] = apiKey;
     } else {
-      const token = AuthService.getToken();
+      const token = AuthService.getAccessToken();
       if (token) {
         config.headers["Authorization"] = `JwtBearer ${token}`;
       } else {

@@ -62,6 +62,11 @@ export namespace RoadRegistry {
     ticketUrl: string;
   }
 
+  export interface CodeExchangeResponse {
+    idToken: string;
+    accessToken: string;
+  }
+
   export interface GetTicketResponse {
     status: string;
     ticketId: string;

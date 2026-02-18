@@ -9,7 +9,8 @@ import RoadRegistry from "@/types/road-registry";
 
 const WR_AUTH_APIKEY = "RoadRegistry.BackOffice.UI.Authentication.ApiKey";
 const WR_AUTH_OIDC_VERIFIER = "RoadRegistry.BackOffice.UI.Authentication.OidcVerifier";
-const WR_AUTH_OIDC_TOKEN = "RoadRegistry.BackOffice.UI.Authentication.OidcToken";
+const WR_AUTH_ID_TOKEN = "RoadRegistry.BackOffice.UI.Authentication.IdToken";
+const WR_AUTH_ACCESS_TOKEN = "RoadRegistry.BackOffice.UI.Authentication.AccessToken";
 const WR_AUTH_REDIRECT_URL = "RoadRegistry.BackOffice.UI.Authentication.RedirectUrl";
 
 export const isAuthenticated = reactive({
@@ -24,7 +25,8 @@ export const AuthService = {
   reset() {
     sessionStorage.removeItem(WR_AUTH_APIKEY);
     sessionStorage.removeItem(WR_AUTH_OIDC_VERIFIER);
-    sessionStorage.removeItem(WR_AUTH_OIDC_TOKEN);
+    sessionStorage.removeItem(WR_AUTH_ID_TOKEN);
+    sessionStorage.removeItem(WR_AUTH_ACCESS_TOKEN);
     sessionStorage.removeItem(WR_AUTH_REDIRECT_URL);
 
     isAuthenticated.state = false;
@@ -33,8 +35,8 @@ export const AuthService = {
   getApiKey(): string | null {
     return sessionStorage.getItem(WR_AUTH_APIKEY);
   },
-  getToken(): string | null {
-    return sessionStorage.getItem(WR_AUTH_OIDC_TOKEN);
+  getAccessToken(): string | null {
+    return sessionStorage.getItem(WR_AUTH_ACCESS_TOKEN);
   },
   async initialize(): Promise<void> {
     await OidcClient.initialize();
@@ -63,8 +65,9 @@ export const AuthService = {
   async completeAcmIdmLogin(code: string): Promise<void> {
     const verifier = sessionStorage.getItem(WR_AUTH_OIDC_VERIFIER) as string;
     const redirectUri = OidcClient.instance.settings.redirect_uri;
-    const token = await PublicApi.Security.getExchangeCode(code, verifier, redirectUri);
-    sessionStorage.setItem(WR_AUTH_OIDC_TOKEN, token);
+    const exchangeResponse = await PublicApi.Security.getExchangeCode(code, verifier, redirectUri);
+    sessionStorage.setItem(WR_AUTH_ID_TOKEN, exchangeResponse.idToken);
+    sessionStorage.setItem(WR_AUTH_ACCESS_TOKEN, exchangeResponse.accessToken);
 
     try {
       const isAuthenticated = await this.checkAuthentication();
@@ -80,9 +83,9 @@ export const AuthService = {
     }
   },
   async logout(): Promise<void> {
-    let token = this.getToken();
-    if (token) {
-      let signoutRequest = await OidcClient.instance.createSignoutRequest({ id_token_hint: token });
+    let idToken = sessionStorage.getItem(WR_AUTH_ID_TOKEN);
+    if (idToken) {
+      let signoutRequest = await OidcClient.instance.createSignoutRequest({ id_token_hint: idToken });
       const http = axios.create();
       await http.get(signoutRequest.url);
     }

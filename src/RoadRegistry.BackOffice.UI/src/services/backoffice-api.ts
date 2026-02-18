@@ -382,9 +382,13 @@ export const BackOfficeApi = {
       const response = await apiClient.get<RoadRegistry.SecurityInfo>(path);
       return response.data;
     },
-    getExchangeCode: async (code: string, verifier: string, redirectUri: string): Promise<string> => {
+    getExchangeCode: async (
+      code: string,
+      verifier: string,
+      redirectUri: string
+    ): Promise<RoadRegistry.CodeExchangeResponse> => {
       const path = `${apiEndpoint}/v1/security/exchange?code=${code}&verifier=${verifier}&redirectUri=${redirectUri}`;
-      const response = await apiClient.get(path);
+      const response = await apiClient.get<RoadRegistry.CodeExchangeResponse>(path);
       return response.data;
     },
     getAuthenticatedUser: async (): Promise<RoadRegistry.UserInfo> => {
