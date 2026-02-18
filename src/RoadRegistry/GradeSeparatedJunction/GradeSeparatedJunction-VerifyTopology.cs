@@ -6,7 +6,7 @@ using ScopedRoadNetwork.ValueObjects;
 
 public partial class GradeSeparatedJunction
 {
-    public Problems VerifyTopology(RoadNetworkVerifyTopologyContext context)
+    public Problems VerifyTopology(ScopedRoadNetworkContext context)
     {
         var problems = Problems.For(GradeSeparatedJunctionId);
 

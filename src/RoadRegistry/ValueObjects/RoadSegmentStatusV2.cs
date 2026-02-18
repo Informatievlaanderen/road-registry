@@ -63,11 +63,6 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
         Gepland, Gerealiseerd, NietGerealiseerd, BuitenGebruik, Gehistoreerd
     };
 
-    public sealed record Edit
-    {
-        public static readonly ImmutableArray<RoadSegmentStatusV2> Editable = [..All];
-    }
-
     public static readonly IReadOnlyDictionary<int, RoadSegmentStatusV2> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
 
@@ -109,12 +104,12 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
         return _value.GetHashCode();
     }
 
-    public static bool operator ==(RoadSegmentStatusV2 left, RoadSegmentStatusV2 right)
+    public static bool operator ==(RoadSegmentStatusV2? left, RoadSegmentStatusV2? right)
     {
         return Equals(left, right);
     }
 
-    public static bool operator !=(RoadSegmentStatusV2 left, RoadSegmentStatusV2 right)
+    public static bool operator !=(RoadSegmentStatusV2? left, RoadSegmentStatusV2? right)
     {
         return !Equals(left, right);
     }

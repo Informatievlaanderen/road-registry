@@ -1,16 +1,18 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
 using System.Collections.Immutable;
+using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events.V2;
 using Extensions;
 using RoadRegistry.ValueObjects.Problems;
+using ScopedRoadNetwork.ValueObjects;
 using ValueObjects;
 
 public partial class RoadSegment
 {
-    public static (RoadSegment?, Problems) Migrate(MigrateRoadSegmentChange change, Provenance provenance)
+    public static (RoadSegment?, Problems) Migrate(MigrateRoadSegmentChange change, ScopedRoadNetworkContext context)
     {
         var originalId = change.OriginalId ?? change.RoadSegmentId;
         var problems = Problems.For(originalId);
@@ -51,6 +53,9 @@ public partial class RoadSegment
         };
         problems += new RoadSegmentAttributesValidator().Validate(originalId, attributes, segmentLength);
 
+        var startEndNodes = context.RoadNetwork.FindStartEndNodes(originalId, change.GeometryDrawMethod, change.Geometry, context.Tolerances);
+        problems += startEndNodes.Problems;
+
         if (problems.HasError())
         {
             return (null, problems);
@@ -60,8 +65,8 @@ public partial class RoadSegment
         {
             RoadSegmentId = change.RoadSegmentId,
             OriginalId = change.OriginalId,
-            StartNodeId = change.StartNodeId,
-            EndNodeId = change.EndNodeId,
+            StartNodeId = startEndNodes.StartNodeId!.Value,
+            EndNodeId = startEndNodes.EndNodeId!.Value,
             Geometry = geometry.ToRoadSegmentGeometry(),
             GeometryDrawMethod = geometryDrawMethod,
             AccessRestriction = accessRestriction,
@@ -76,7 +81,7 @@ public partial class RoadSegment
             PedestrianAccess = pedestrianAccess,
             EuropeanRoadNumbers = europeanRoadNumbers,
             NationalRoadNumbers = nationalRoadNumbers,
-            Provenance = new ProvenanceData(provenance)
+            Provenance = new ProvenanceData(context.Provenance)
         });
 
         return (segment, problems);

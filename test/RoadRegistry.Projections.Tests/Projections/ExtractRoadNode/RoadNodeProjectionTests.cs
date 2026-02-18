@@ -88,7 +88,7 @@ public class RoadNodeProjectionTests
         {
             RoadNodeId = roadNode1Added.RoadNodeId,
             Geometry = roadNode1Added.Geometry,
-            Type = roadNode1Added.Type,
+            Type = null,
             Grensknoop = roadNode1Added.Grensknoop,
             IsV2 = true,
             Origin = roadNode1Added.Provenance.ToEventTimestamp(),
@@ -98,7 +98,7 @@ public class RoadNodeProjectionTests
         {
             RoadNodeId = roadNode2Added.RoadNodeId,
             Geometry = roadNode2Added.Geometry,
-            Type = roadNode2Added.Type,
+            Type = null,
             Grensknoop = roadNode2Added.Grensknoop,
             IsV2 = true,
             Origin = roadNode2Added.Provenance.ToEventTimestamp(),
@@ -109,6 +109,32 @@ public class RoadNodeProjectionTests
             .Scenario()
             .Given(roadNode1Added, roadNode2Added)
             .Expect(expectedRoadNode1, expectedRoadNode2);
+    }
+
+    [Fact]
+    public Task WhenRoadNodeTypeWasChanged_ThenSucceeded()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadNodeId>();
+
+        var roadNodeAdded = fixture.Create<RoadNodeWasAdded>();
+        var roadNodeTypeWasChanged = fixture.Create<RoadNodeTypeWasChanged>();
+
+        var expectedRoadNode = new RoadNodeExtractItem
+        {
+            RoadNodeId = roadNodeAdded.RoadNodeId,
+            Geometry = roadNodeAdded.Geometry,
+            Type = roadNodeTypeWasChanged.Type,
+            Grensknoop = roadNodeAdded.Grensknoop,
+            IsV2 = true,
+            Origin = roadNodeAdded.Provenance.ToEventTimestamp(),
+            LastModified = roadNodeTypeWasChanged.Provenance.ToEventTimestamp()
+        };
+
+        return BuildProjection()
+            .Scenario()
+            .Given(roadNodeAdded, roadNodeTypeWasChanged)
+            .Expect(expectedRoadNode);
     }
 
     [Fact]
@@ -124,7 +150,7 @@ public class RoadNodeProjectionTests
         {
             RoadNodeId = roadNodeAdded.RoadNodeId,
             Geometry = roadNodeModified.Geometry,
-            Type = roadNodeModified.Type!,
+            Type = null,
             Grensknoop = roadNodeModified.Grensknoop!.Value,
             IsV2 = true,
             Origin = roadNodeAdded.Provenance.ToEventTimestamp(),
@@ -150,7 +176,7 @@ public class RoadNodeProjectionTests
         {
             RoadNodeId = roadNodeAdded.RoadNodeId,
             Geometry = roadNodeMigrated.Geometry,
-            Type = roadNodeMigrated.Type,
+            Type = null,
             Grensknoop = roadNodeMigrated.Grensknoop,
             IsV2 = true,
             Origin = roadNodeAdded.Provenance.ToEventTimestamp(),

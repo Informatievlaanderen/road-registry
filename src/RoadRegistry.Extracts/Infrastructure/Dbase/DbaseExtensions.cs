@@ -78,30 +78,37 @@ public static class DbaseExtensions
         {
             return shortField.HasValue ? shortField.Value : 0;
         }
+
         if (dbaseFieldValue is DbaseNullableInt16 nullableShortField)
         {
             return nullableShortField.Value;
         }
+
         if (dbaseFieldValue is DbaseInt32 intField)
         {
             return intField.HasValue ? intField.Value : 0;
         }
+
         if (dbaseFieldValue is DbaseNullableInt32 nullableIntField)
         {
             return nullableIntField.Value;
         }
+
         if (dbaseFieldValue is DbaseString stringField)
         {
             return stringField.HasValue ? stringField.Value : null;
         }
+
         if (dbaseFieldValue is DbaseDateTime dateTimeField)
         {
             return dateTimeField.HasValue ? dateTimeField.Value.ToString(DateTimeFormat) : null;
         }
+
         if (dbaseFieldValue is DbaseDouble doubleField)
         {
             return doubleField.HasValue ? doubleField.Value : 0.0;
         }
+
         if (dbaseFieldValue is DbaseNullableDouble nullableDoubleField)
         {
             return nullableDoubleField.Value;
@@ -118,8 +125,10 @@ public static class DbaseExtensions
             {
                 shortField.Value = Convert.ToInt16(value);
             }
+
             return;
         }
+
         if (dbaseFieldValue is DbaseNullableInt16 nullableShortField)
         {
             nullableShortField.Value = value is not null
@@ -127,14 +136,17 @@ public static class DbaseExtensions
                 : null;
             return;
         }
+
         if (dbaseFieldValue is DbaseInt32 intField)
         {
             if (value is not null)
             {
                 intField.Value = Convert.ToInt32(value);
             }
+
             return;
         }
+
         if (dbaseFieldValue is DbaseNullableInt32 nullableIntField)
         {
             nullableIntField.Value = value is not null
@@ -142,11 +154,13 @@ public static class DbaseExtensions
                 : null;
             return;
         }
+
         if (dbaseFieldValue is DbaseString stringField)
         {
             stringField.Value = (string)value;
             return;
         }
+
         if (dbaseFieldValue is DbaseDateTime dateTimeField)
         {
             if (!string.IsNullOrWhiteSpace(value?.ToString()))
@@ -158,16 +172,20 @@ public static class DbaseExtensions
 
                 dateTimeField.Value = dateTimeValue;
             }
+
             return;
         }
+
         if (dbaseFieldValue is DbaseDouble doubleField)
         {
             if (value is not null)
             {
                 doubleField.Value = Convert.ToDouble(value);
             }
+
             return;
         }
+
         if (dbaseFieldValue is DbaseNullableDouble nullableDoubleField)
         {
             nullableDoubleField.Value = value is not null
@@ -188,103 +206,118 @@ public static class DbaseExtensions
 
     private sealed class DbfRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbaseRecord>
         where TDbaseRecord : DbaseRecord, new()
+    {
+        private enum State
         {
-            private enum State { Initial, Started, Ended }
+            Initial,
+            Started,
+            Ended
+        }
 
-            private readonly DbfReader _reader;
-            private RecordNumber _number;
-            private TDbaseRecord? _current;
-            private State _state;
+        private readonly DbfReader _reader;
+        private RecordNumber _number;
+        private TDbaseRecord? _current;
+        private State _state;
 
-            public DbfRecordEnumerator(DbfReader reader)
+        public DbfRecordEnumerator(DbfReader reader)
+        {
+            _reader = reader.ThrowIfNull();
+            _current = null;
+            _state = State.Initial;
+            _number = RecordNumber.Initial;
+        }
+
+        public bool MoveNext()
+        {
+            if (_state == State.Ended)
             {
-                _reader = reader.ThrowIfNull();
-                _current = null;
-                _state = State.Initial;
-                _number = RecordNumber.Initial;
+                return false;
             }
 
-            public bool MoveNext()
+            if (_state == State.Initial)
             {
-                if (_state == State.Ended)
-                {
-                    return false;
-                }
-
-                if (_state == State.Initial)
-                {
-                    _state = State.Started;
-                }
-                else
-                {
-                    if (_reader.RecordCount == _number.ToInt32())
-                    {
-                        _current = null;
-                        _state = State.Ended;
-                        return false;
-                    }
-
-                    _number = _number.Next();
-                }
-
-                try
-                {
-                    if (!_reader.Read())
-                    {
-                        _current = null;
-                        _state = State.Ended;
-                        return false;
-                    }
-
-                    var record = new TDbaseRecord();
-                    foreach (var field in _reader.Fields)
-                    {
-                        var dbaseFieldValue = record.Values.Single(x => x.Field.Name == field.Name);
-                        dbaseFieldValue.SetValue(field.Value);
-                    }
-
-                    _current = record;
-                }
-                catch (Exception)
+                _state = State.Started;
+            }
+            else
+            {
+                if (_reader.RecordCount == _number.ToInt32())
                 {
                     _current = null;
                     _state = State.Ended;
-                    throw;
+                    return false;
                 }
 
-                return _state == State.Started;
+                _number = _number.Next();
             }
 
-            public void Reset()
+            try
             {
-                throw new NotSupportedException("Reset is not supported. Enumeration can only be performed once.");
-            }
-
-            object System.Collections.IEnumerator.Current => Current;
-
-            public TDbaseRecord Current
-            {
-                get
+                if (!_reader.Read())
                 {
-                    if (_state == State.Initial)
-                    {
-                        throw new InvalidOperationException("Enumeration has not started. Call MoveNext().");
-                    }
-
-                    if (_state == State.Ended)
-                    {
-                        throw new InvalidOperationException("Enumeration has already ended. Reset is not supported.");
-                    }
-
-                    return _current;
+                    _current = null;
+                    _state = State.Ended;
+                    return false;
                 }
+
+                var record = new TDbaseRecord();
+                foreach (var field in _reader.Fields)
+                {
+                    var dbaseFieldValue = record.Values.Single(x => x.Field.Name == field.Name);
+                    dbaseFieldValue.SetValue(field.Value);
+                }
+
+                _current = record;
+            }
+            catch (Exception)
+            {
+                _current = null;
+                _state = State.Ended;
+                throw;
             }
 
-            public RecordNumber CurrentRecordNumber => _number;
+            return _state == State.Started;
+        }
 
-            public void Dispose()
+        public void Reset()
+        {
+            throw new NotSupportedException("Reset is not supported. Enumeration can only be performed once.");
+        }
+
+        object System.Collections.IEnumerator.Current => Current;
+
+        public TDbaseRecord Current
+        {
+            get
             {
-                _reader.Dispose();
+                if (_state == State.Initial)
+                {
+                    throw new InvalidOperationException("Enumeration has not started. Call MoveNext().");
+                }
+
+                if (_state == State.Ended)
+                {
+                    throw new InvalidOperationException("Enumeration has already ended. Reset is not supported.");
+                }
+
+                return _current;
             }
         }
+
+        public RecordNumber CurrentRecordNumber => _number;
+
+        public void Dispose()
+        {
+            _reader.Dispose();
+        }
+    }
+
+    public static short ToDbaseShortValue(this bool value)
+    {
+        return value ? (short)1 : (short)0;
+    }
+
+    public static bool? ToBooleanFromDbaseValue(this int? value)
+    {
+        return value == 1 ? true : value == 0 ? false : null;
+    }
 }

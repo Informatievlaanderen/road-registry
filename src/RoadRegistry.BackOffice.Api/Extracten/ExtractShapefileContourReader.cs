@@ -4,32 +4,30 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CommandHandling;
+using Core;
 using FluentValidation;
 using FluentValidation.Results;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using NetTopologySuite.IO.Esri;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Extensions;
-using RoadRegistry.BackOffice.ShapeFile.V1;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Infrastructure.ShapeFile;
 using RoadRegistry.Infrastructure;
+using ShapeFile.V1;
 using ValueObjects.Problems;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 using Problem = ValueObjects.Problems.Problem;
 
 public interface IExtractShapefileContourReader
 {
-    Geometry Read(Stream shpStream);
+    Geometry Read(Stream shpStream, GeometryFactory geometryFactory);
 }
 
 public class ExtractShapefileContourReader : IExtractShapefileContourReader
 {
-    public Geometry Read(Stream shpStream)
+    public Geometry Read(Stream shpStream, GeometryFactory geometryFactory)
     {
-        var (polygons, problems) = TryTranslateV2(shpStream);
+        var (polygons, problems) = TryTranslateV2(shpStream, geometryFactory);
         if (problems.Any())
         {
             var (v1Polygons, v1Problems) = TryTranslateV1(shpStream);
@@ -109,7 +107,7 @@ public class ExtractShapefileContourReader : IExtractShapefileContourReader
         return (polygons, problems);
     }
 
-    private (List<Polygon>, List<Problem>) TryTranslateV2(Stream shpStream)
+    private (List<Polygon>, List<Problem>) TryTranslateV2(Stream shpStream, GeometryFactory geometryFactory)
     {
         var problems = new List<Problem>();
 
@@ -117,7 +115,7 @@ public class ExtractShapefileContourReader : IExtractShapefileContourReader
         Geometry geometry = null;
         try
         {
-            (shapeType, geometry) = new ExtractGeometryShapeFileReaderV2().Read(shpStream);
+            (shapeType, geometry) = new ExtractGeometryShapeFileReaderV2().Read(shpStream, geometryFactory);
         }
         catch (Exception ex)
         {

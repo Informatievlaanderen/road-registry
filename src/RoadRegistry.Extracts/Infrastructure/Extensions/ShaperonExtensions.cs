@@ -19,6 +19,16 @@ public static class ShaperonExtensions
         return field.Value;
     }
 
+    public static int? GetValue(this DbaseInt16 field)
+    {
+        return field.HasValue ? field.Value : null;
+    }
+
+    public static int? GetValue(this DbaseNullableInt16 field)
+    {
+        return field.Value;
+    }
+
     public static double? GetValue(this DbaseDouble field)
     {
         return field.HasValue ? field.Value : null;

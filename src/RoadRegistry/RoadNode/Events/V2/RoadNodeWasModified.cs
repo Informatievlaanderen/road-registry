@@ -6,7 +6,6 @@ public record RoadNodeWasModified : IMartenEvent
 {
     public required RoadNodeId RoadNodeId { get; init; }
     public RoadNodeGeometry? Geometry { get; init; }
-    public RoadNodeTypeV2? Type { get; init; }
     public bool? Grensknoop { get; init; }
 
     public required ProvenanceData Provenance { get; init; }

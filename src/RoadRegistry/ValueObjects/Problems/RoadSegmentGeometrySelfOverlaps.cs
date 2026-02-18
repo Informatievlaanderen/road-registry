@@ -1,7 +1,6 @@
 namespace RoadRegistry.ValueObjects.Problems;
 
 using ProblemCodes;
-using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RoadSegmentGeometrySelfOverlaps : Error
 {

@@ -83,13 +83,26 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
             {
                 RoadNodeId = e.Data.RoadNodeId,
                 Geometry = e.Data.Geometry,
-                Type = e.Data.Type,
+                Type = null,
                 Grensknoop = e.Data.Grensknoop,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = true
             });
             return Task.CompletedTask;
+        });
+        When<IEvent<RoadNode.Events.V2.RoadNodeTypeWasChanged>>(async (session, e, _) =>
+        {
+            var node = await session.LoadAsync<RoadNodeExtractItem>(e.Data.RoadNodeId);
+            if (node is null)
+            {
+                throw new InvalidOperationException($"No document found for Id {e.Data.RoadNodeId}");
+            }
+
+            node.LastModified = e.Data.Provenance.ToEventTimestamp();
+            node.Type = e.Data.Type;
+
+            session.Store(node);
         });
         When<IEvent<RoadNode.Events.V2.RoadNodeWasModified>>(async (session, e, _) =>
         {
@@ -100,7 +113,6 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
             }
 
             node.LastModified = e.Data.Provenance.ToEventTimestamp();
-            node.Type = e.Data.Type ?? node.Type;
             node.Geometry = e.Data.Geometry ?? node.Geometry;
             node.Grensknoop = e.Data.Grensknoop ?? node.Grensknoop;
 
@@ -115,7 +127,6 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
             }
 
             node.LastModified = e.Data.Provenance.ToEventTimestamp();
-            node.Type = e.Data.Type;
             node.Geometry = e.Data.Geometry;
             node.Grensknoop = e.Data.Grensknoop;
             node.IsV2 = true;

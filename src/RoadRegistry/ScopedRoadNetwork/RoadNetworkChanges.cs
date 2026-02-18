@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Operation.Union;
+using NetTopologySuite.Operation.Valid;
 using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
@@ -43,8 +45,32 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
 
     public IEnumerator<IRoadNetworkChange> GetEnumerator()
     {
-        return _changes.GetEnumerator();
+        return _changes
+            .OrderBy(x => Array.IndexOf(ChangeOrderTypes, x.GetType(), 0, ChangeOrderTypes.Length))
+            .GetEnumerator();
     }
+
+    internal static readonly Type[] ChangeOrderTypes = [
+        //important before segments
+        typeof(AddRoadNodeChange),
+        typeof(ModifyRoadNodeChange),
+        typeof(MigrateRoadNodeChange),
+        typeof(RemoveRoadNodeChange),
+
+        //all the rest
+        typeof(AddRoadSegmentChange),
+        typeof(AddRoadSegmentToEuropeanRoadChange),
+        typeof(AddRoadSegmentToNationalRoadChange),
+        typeof(MergeRoadSegmentChange),
+        typeof(MigrateRoadSegmentChange),
+        typeof(ModifyRoadSegmentChange),
+        typeof(RemoveRoadSegmentChange),
+        typeof(RemoveRoadSegmentFromEuropeanRoadChange),
+        typeof(RemoveRoadSegmentFromNationalRoadChange),
+        typeof(AddGradeSeparatedJunctionChange),
+        typeof(ModifyGradeSeparatedJunctionChange),
+        typeof(RemoveGradeSeparatedJunctionChange),
+    ];
 
     IEnumerator IEnumerable.GetEnumerator()
     {
@@ -78,27 +104,24 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
             scopes.Add(scope);
         }
 
-        MergeOverlappingScopes(scopes);
-
-        return new MultiPolygon(scopes.ToArray())
-            .WithSrid(_geometries.First().SRID);
+        var mp = MergeOverlappingScopes(scopes);
+        return mp;
     }
 
-    private void MergeOverlappingScopes(List<Polygon> scopes)
+    private MultiPolygon MergeOverlappingScopes(List<Polygon> scopes)
     {
-        for (var i = 0; i < scopes.Count; i++)
-        {
-            for (var j = i + 1; j < scopes.Count; j++)
-            {
-                if (scopes[i].Intersects(scopes[j]))
-                {
-                    var merged = (Polygon)scopes[i].Union(scopes[j]);
-                    scopes[i] = merged;
-                    scopes.RemoveAt(j);
-                    j--; // Adjust index after removal
-                }
-            }
-        }
+        var factory = scopes[0].Factory;
+        var geom = factory.BuildGeometry(scopes);
+        var unioned = UnaryUnionOp.Union(geom);
+
+        // Keep separate islands as polygons
+        var mergedPolys = new List<Polygon>();
+        for (var i = 0; i < unioned.NumGeometries; i++)
+            if (unioned.GetGeometryN(i) is Polygon p)
+                mergedPolys.Add(p);
+
+        return new MultiPolygon(mergedPolys.ToArray(), _geometries.First().Factory)
+            .WithSrid(_geometries.First().SRID);
     }
 
     public RoadNetworkChanges Add(AddRoadNodeChange change)

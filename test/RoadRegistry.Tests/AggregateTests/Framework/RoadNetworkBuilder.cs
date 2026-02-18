@@ -1,7 +1,6 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
 using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.RoadNetwork;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
 

@@ -1,13 +1,15 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
+using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events.V2;
 using RoadRegistry.ValueObjects.Problems;
+using ScopedRoadNetwork.ValueObjects;
 
 public partial class RoadSegment
 {
-    public Problems Modify(ModifyRoadSegmentChange change, Provenance provenance)
+    public Problems Modify(ModifyRoadSegmentChange change, ScopedRoadNetworkContext context)
     {
         var originalId = change.OriginalId ?? change.RoadSegmentId;
         var problems = Problems.For(originalId);
@@ -44,6 +46,16 @@ public partial class RoadSegment
         };
         problems += new RoadSegmentAttributesValidator().Validate(originalId, attributes, segmentLength);
 
+        RoadNodeId? startNodeId = null, endNodeId = null;
+
+        if (change.Geometry is not null)
+        {
+            var startEndNodes = context.RoadNetwork.FindStartEndNodes(originalId, attributes.GeometryDrawMethod, change.Geometry, context.Tolerances);
+            problems += startEndNodes.Problems;
+            startNodeId = startEndNodes.StartNodeId;
+            endNodeId = startEndNodes.EndNodeId;
+        }
+
         if (problems.HasError())
         {
             return problems;
@@ -53,8 +65,8 @@ public partial class RoadSegment
         {
             RoadSegmentId = RoadSegmentId,
             OriginalId = change.OriginalId,
-            StartNodeId = change.StartNodeId,
-            EndNodeId = change.EndNodeId,
+            StartNodeId = startNodeId,
+            EndNodeId = endNodeId,
             Geometry = change.Geometry,
             GeometryDrawMethod = change.GeometryDrawMethod,
             AccessRestriction = accessRestriction,
@@ -67,7 +79,7 @@ public partial class RoadSegment
             CarAccess = carAccess,
             BikeAccess = bikeAccess,
             PedestrianAccess = pedestrianAccess,
-            Provenance = new ProvenanceData(provenance)
+            Provenance = new ProvenanceData(context.Provenance)
         });
 
         return problems;

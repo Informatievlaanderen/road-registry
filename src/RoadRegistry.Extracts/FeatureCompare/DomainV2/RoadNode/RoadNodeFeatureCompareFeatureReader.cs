@@ -6,9 +6,11 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Infrastructure.Dbase;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.Infrastructure.Messages;
 using Schemas.Inwinning.RoadNodes;
 using Point = NetTopologySuite.Geometries.Point;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
@@ -19,7 +21,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
     private const ExtractFileName FileName = ExtractFileName.Wegknoop;
 
     public RoadNodeFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new ExtractsFeatureReader(encoding))
+        : base(new InwinningFeatureReader(encoding))
     {
         _encoding = encoding;
     }
@@ -35,6 +37,17 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
         {
             case FeatureType.Change:
                 AddToContext(features, featureType, context);
+                break;
+            case FeatureType.Extract:
+                if (context.ZipArchiveMetadata.Inwinning)
+                {
+                    var excludeProblems = new List<Func<FileProblem, bool>>
+                    {
+                        p => p.Reason == nameof(DbaseFileProblems.RoadNodeGrensknoopMismatch) && p.GetParameterValue("Actual") == "-8"
+                    };
+                    problems = ZipArchiveProblems.None + problems
+                        .Where(p => excludeProblems.All(x => !x(p)));
+                }
                 break;
             case FeatureType.Integration:
                 problems = ZipArchiveProblems.None + problems
@@ -73,9 +86,9 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
         }
     }
 
-    private sealed class ExtractsFeatureReader : ZipArchiveShapeFeatureReader<RoadNodeDbaseRecord, Feature<RoadNodeFeatureCompareAttributes>>
+    private sealed class InwinningFeatureReader : ZipArchiveShapeFeatureReader<RoadNodeDbaseRecord, Feature<RoadNodeFeatureCompareAttributes>>
     {
-        public ExtractsFeatureReader(Encoding encoding)
+        public InwinningFeatureReader(Encoding encoding)
             : base(encoding, RoadNodeFeatureCompareFeatureReader.FileName, RoadNodeDbaseRecord.Schema)
         {
         }
@@ -84,18 +97,18 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
         {
             return new RecordData
             {
+                Geometry = geometry,
                 WK_OIDN = dbaseRecord.WK_OIDN.GetValue(),
-                TYPE = dbaseRecord.TYPE.GetValue(),
-                Geometry = geometry
+                GRENSKNOOP = dbaseRecord.GRENSKNOOP.GetValue(),
             }.ToFeature(featureType, FileName, recordNumber);
         }
     }
 
     private sealed record RecordData
     {
+        public required Geometry Geometry { get; init; }
         public required int? WK_OIDN { get; init; }
-        public required int? TYPE { get; init; }
-        public required Geometry? Geometry { get; init; }
+        public required int? GRENSKNOOP { get; init; }
 
         public (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
         {
@@ -104,6 +117,20 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
                 .WithIdentifier(nameof(WK_OIDN), WK_OIDN);
 
             var problems = ZipArchiveProblems.None;
+
+            Point? ReadGeometry()
+            {
+                if (Geometry is Point point)
+                {
+                    return point;
+                }
+
+                var recordContext = fileName
+                    .AtShapeRecord(featureType, recordNumber);
+
+                problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(ShapeType.Point, Geometry.GeometryType);
+                return null;
+            }
 
             RoadNodeId ReadId()
             {
@@ -123,43 +150,31 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
                 return default;
             }
 
-            RoadNodeTypeV2 ReadType()
+            bool? ReadGrensknoop()
             {
-                if (TYPE is null)
+                if (GRENSKNOOP is null)
                 {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(TYPE));
-                }
-                else if (RoadNodeTypeV2.ByIdentifier.TryGetValue(TYPE.Value, out var value))
-                {
-                    return value;
+                    problems += problemBuilder.RequiredFieldIsNull(nameof(GRENSKNOOP));
                 }
                 else
                 {
-                    problems += problemBuilder.RoadNodeTypeMismatch(TYPE.Value);
+                    var boolValue = GRENSKNOOP.ToBooleanFromDbaseValue();
+                    if (boolValue is not null)
+                    {
+                        return boolValue.Value;
+                    }
+
+                    problems += problemBuilder.RoadNodeGrensknoopMismatch(GRENSKNOOP.Value);
                 }
 
-                return default;
-            }
-
-            Point ReadGeometry()
-            {
-                if (Geometry is Point point)
-                {
-                    return point;
-                }
-
-                var recordContext = fileName
-                    .AtShapeRecord(featureType, recordNumber);
-
-                problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(ShapeType.Point, Geometry?.GeometryType);
                 return null;
             }
 
             var feature = Feature.New(recordNumber, new RoadNodeFeatureCompareAttributes
             {
+                Geometry = ReadGeometry(),
                 Id = ReadId(),
-                Type = ReadType(),
-                Geometry = ReadGeometry()
+                Grensknoop = ReadGrensknoop(),
             });
             return (feature, problems);
         }

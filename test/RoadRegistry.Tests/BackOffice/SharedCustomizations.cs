@@ -15,6 +15,8 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Extracts.Uploads;
+using ScopedRoadNetwork;
+using ScopedRoadNetwork.ValueObjects;
 using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = RoadRegistry.BackOffice.Messages.Point;
@@ -87,6 +89,13 @@ public static class SharedCustomizations
 
                     return result;
                 }));
+    }
+
+    public static void CustomizeScopedRoadNetworkContext(this IFixture fixture)
+    {
+        fixture.Customize<ScopedRoadNetworkContext>(composer =>
+            composer.FromFactory(g => new ScopedRoadNetworkContext(new ScopedRoadNetwork(fixture.Create<ScopedRoadNetworkId>()), new IdentifierTranslator(), new FakeProvenance()))
+        );
     }
 
     public static void CustomizeAttributeId(this IFixture fixture)

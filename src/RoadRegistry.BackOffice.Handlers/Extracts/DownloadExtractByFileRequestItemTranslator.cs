@@ -117,7 +117,7 @@ public class ExtractShapefileContourReader : IDownloadExtractByFileRequestItemTr
         Geometry geometry = null;
         try
         {
-            (shapeType, geometry) = new ExtractGeometryShapeFileReaderV2().Read(shapeFile.ReadStream);
+            (shapeType, geometry) = new ExtractGeometryShapeFileReaderV2().Read(shapeFile.ReadStream, WellKnownGeometryFactories.Lambert72WithoutMAndZ);
         }
         catch (Exception ex)
         {

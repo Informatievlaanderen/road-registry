@@ -13,7 +13,7 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
     private const ExtractFileName FileName = ExtractFileName.RltOgkruising;
 
     public GradeSeparatedJunctionFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new ExtractsFeatureReader(encoding))
+        : base(new InwinningFeatureReader(encoding))
     {
     }
 
@@ -26,9 +26,9 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
         return (features, problems);
     }
 
-    private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
+    private sealed class InwinningFeatureReader : ZipArchiveDbaseFeatureReader<GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
     {
-        public ExtractsFeatureReader(Encoding encoding)
+        public InwinningFeatureReader(Encoding encoding)
             : base(encoding, ExtractFileName.RltOgkruising, GradeSeparatedJunctionDbaseRecord.Schema)
         {
         }

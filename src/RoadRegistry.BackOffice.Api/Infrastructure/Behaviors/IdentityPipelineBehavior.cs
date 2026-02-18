@@ -12,7 +12,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Behaviors
     using MediatR;
     using Microsoft.AspNetCore.Http;
 
-    public class IdentityPipelineBehavior<TRequest,TResponse> : IPipelineBehavior<TRequest, TResponse>
+    public class IdentityPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -24,16 +24,19 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Behaviors
 
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
-            switch (request)
+            if (_httpContextAccessor.HttpContext is not null)
             {
-                case EndpointRequest endpointRequest:
-                    endpointRequest.Metadata = GetMetadata();
-                    endpointRequest.ProvenanceData = CreateProvenanceData();
-                    break;
-                case SqsRequest sqsRequest:
-                    sqsRequest.Metadata = GetMetadata();
-                    sqsRequest.ProvenanceData = CreateProvenanceData();
-                    break;
+                switch (request)
+                {
+                    case EndpointRequest endpointRequest:
+                        endpointRequest.Metadata = GetMetadata();
+                        endpointRequest.ProvenanceData = CreateProvenanceData();
+                        break;
+                    case SqsRequest sqsRequest:
+                        sqsRequest.Metadata = GetMetadata();
+                        sqsRequest.ProvenanceData = CreateProvenanceData();
+                        break;
+                }
             }
 
             return await next();
@@ -55,6 +58,5 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Behaviors
                 { "CorrelationId", correlationId ?? Guid.NewGuid().ToString() }
             };
         }
-
     }
 }

@@ -13,6 +13,7 @@ using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.ValueObjects.Problems;
+using ValueObjects;
 
 public partial class ScopedRoadNetwork
 {
@@ -101,40 +102,40 @@ public partial class ScopedRoadNetwork
         IIdentifierTranslator idTranslator,
         Provenance provenance)
     {
-        var node = _roadNodes[nodeId];
-
-        if (node.Type == RoadNodeTypeV2.Eindknoop)
-        {
-            return node.Remove(provenance);
-        }
-
-        if (node.Type == RoadNodeTypeV2.Schijnknoop)
-        {
-            return node.Modify(new ModifyRoadNodeChange
-            {
-                RoadNodeId = nodeId,
-                Type = RoadNodeTypeV2.Eindknoop
-            }, provenance);
-        }
-
-        var nodeSegments = GetNonRemovedRoadSegments()
-            .Where(x => x.StartNodeId == nodeId || x.EndNodeId == nodeId)
-            .ToList();
-
-        if (node.Type == RoadNodeTypeV2.EchteKnoop && nodeSegments.Count == 2)
-        {
-            var problems = node.Modify(new ModifyRoadNodeChange
-            {
-                RoadNodeId = nodeId,
-                Type = RoadNodeTypeV2.Schijnknoop
-            }, provenance);
-            if (!problems.HasError())
-            {
-                problems += TryMergeFakeNodeSegments(nodeId, nodeSegments, removingRoadSegmentIds, idGenerator, idTranslator, provenance);
-            }
-
-            return problems;
-        }
+        //var node = _roadNodes[nodeId];
+        //
+        // if (node.Type == RoadNodeTypeV2.Eindknoop)
+        // {
+        //     return node.Remove(provenance);
+        // }
+        //
+        // if (node.Type == RoadNodeTypeV2.Schijnknoop)
+        // {
+        //     return node.Modify(new ModifyRoadNodeChange
+        //     {
+        //         RoadNodeId = nodeId,
+        //         Type = RoadNodeTypeV2.Eindknoop
+        //     }, provenance);
+        // }
+        //
+        // var nodeSegments = GetNonRemovedRoadSegments()
+        //     .Where(x => x.StartNodeId == nodeId || x.EndNodeId == nodeId)
+        //     .ToList();
+        //
+        // if (node.Type == RoadNodeTypeV2.EchteKnoop && nodeSegments.Count == 2)
+        // {
+        //     var problems = node.Modify(new ModifyRoadNodeChange
+        //     {
+        //         RoadNodeId = nodeId,
+        //         Type = RoadNodeTypeV2.Schijnknoop
+        //     }, provenance);
+        //     if (!problems.HasError())
+        //     {
+        //         problems += TryMergeFakeNodeSegments(nodeId, nodeSegments, removingRoadSegmentIds, idGenerator, idTranslator, provenance);
+        //     }
+        //
+        //     return problems;
+        // }
 
         return Problems.None;
     }
@@ -143,8 +144,7 @@ public partial class ScopedRoadNetwork
         IReadOnlyCollection<RoadSegment> nodeSegments,
         IReadOnlyCollection<RoadSegmentId> removingRoadSegmentIds,
         IRoadNetworkIdGenerator idGenerator,
-        IIdentifierTranslator idTranslator,
-        Provenance provenance)
+        ScopedRoadNetworkContext context)
     {
         var node = _roadNodes[nodeId];
 
@@ -172,10 +172,10 @@ public partial class ScopedRoadNetwork
         //     }, provenance);
         // }
 
-        return MergeSegments(segmentOne, segmentTwo, idGenerator, idTranslator, provenance);
+        return MergeSegments(segmentOne, segmentTwo, idGenerator, context);
     }
 
-    private Problems MergeSegments(RoadSegment segment1, RoadSegment segment2, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator, Provenance provenance)
+    private Problems MergeSegments(RoadSegment segment1, RoadSegment segment2, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
     {
         var commonNodeId = segment1.GetCommonNode(segment2)!.Value;
         var startNodeId = segment1.GetOppositeNode(commonNodeId)!.Value;
@@ -190,8 +190,6 @@ public partial class ScopedRoadNetwork
         {
             TemporaryId = _roadSegments.Keys.Max().Next(),
             OriginalIds = [segment1.RoadSegmentId, segment2.RoadSegmentId],
-            StartNodeId = startNodeId,
-            EndNodeId = endNodeId,
             Geometry = geometry.ToRoadSegmentGeometry(),
             GeometryDrawMethod = segment1.Attributes.GeometryDrawMethod,
             AccessRestriction = segment1.Attributes.AccessRestriction.MergeWith(segment2.Attributes.AccessRestriction, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
@@ -208,18 +206,18 @@ public partial class ScopedRoadNetwork
             NationalRoadNumbers = segment1.Attributes.NationalRoadNumbers
         };
 
-        var (roadSegment, problems) = RoadSegment.Merge(mergedSegment, provenance, idGenerator, idTranslator);
+        var (roadSegment, problems) = RoadSegment.Merge(mergedSegment, idGenerator, context);
         if (problems.HasError())
         {
             return problems;
         }
 
-        problems += idTranslator.RegisterMapping(mergedSegment.TemporaryId, roadSegment!.RoadSegmentId);
+        problems += context.IdTranslator.RegisterMapping(mergedSegment.TemporaryId, roadSegment!.RoadSegmentId);
         _roadSegments.Add(roadSegment.RoadSegmentId, roadSegment);
 
-        problems += segment1.RetireBecauseOfMerger(roadSegment.RoadSegmentId, provenance);
-        problems += segment2.RetireBecauseOfMerger(roadSegment.RoadSegmentId, provenance);
-        problems += _roadNodes[commonNodeId].Remove(provenance);
+        problems += segment1.RetireBecauseOfMerger(roadSegment.RoadSegmentId, context.Provenance);
+        problems += segment2.RetireBecauseOfMerger(roadSegment.RoadSegmentId, context.Provenance);
+        problems += _roadNodes[commonNodeId].Remove(context.Provenance);
 
         var nodeSegmentIds = new[] { segment1.RoadSegmentId, segment2.RoadSegmentId };
         var connectedJunctions = _gradeSeparatedJunctions
@@ -250,7 +248,7 @@ public partial class ScopedRoadNetwork
                 };
             }
 
-            problems += junction.Modify(modify, provenance);
+            problems += junction.Modify(modify, context.Provenance);
         }
 
         return problems;

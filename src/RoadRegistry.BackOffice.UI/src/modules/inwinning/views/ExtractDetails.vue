@@ -36,6 +36,7 @@
                   style="margin-left: 1rem"
                 >
                   <vl-button v-if="isSubmitting" mod-loading> Genereer extract opnieuw... </vl-button>
+                  <vl-button v-else-if="uploadDisabled" mod-disabled> Genereer extract opnieuw </vl-button>
                   <vl-button v-else @click="requestExtractAgain()"> Genereer extract opnieuw </vl-button>
                 </span>
                 <span v-if="extract.uploadStatus" style="margin-left: 1rem">
@@ -327,7 +328,7 @@ export default defineComponent({
       }
       return DateFormat.format(dateString);
     },
-    async loadExtractDetails(): Promise<void> {
+    async loadExtractDetails(ticketId?: string): Promise<void> {
       if (this.unmounting) {
         return;
       }
@@ -335,7 +336,7 @@ export default defineComponent({
       try {
         let details = await PublicApi.Extracts.V2.getDetails(this.downloadId);
         this.extract = details;
-        this.ticketId = details.ticketId;
+        this.ticketId = ticketId || details.ticketId;
         this.downloadAvailable = details.downloadStatus == "Available";
         this.downloadStatusMessage =
           details.downloadStatus == "Available"
@@ -452,6 +453,14 @@ export default defineComponent({
           break;
         case "pending":
           this.ticketResponseCode = 1101;
+
+          if (ticketResult.result && ticketResult.result.json) {
+            let pendingResult = camelizeKeys(JSON.parse(ticketResult.result.json));
+            if (pendingResult.status !== this.extract!.uploadStatus) {
+              this.loadExtractDetails();
+            }
+          }
+
           break;
         case "complete":
           {
@@ -473,22 +482,20 @@ export default defineComponent({
             this.uploadDisabled = false;
             this.trackProgress = false;
             let ticketError = JSON.parse(ticketResult.result.json);
-            let errors = [ticketError, ...(ticketError.Errors ?? [])];
+            let errors = ticketError.Errors?.length > 0 ? [...ticketError.Errors] : [ticketError];
 
             errors = uniqBy(errors, (x) => `${x.ErrorCode}_${x.ErrorMessage}`);
-            let problems = errors
-              .flatMap((x) => x.Errors)
-              .map((error) => {
-                let codeParts = (error.ErrorCode ?? "").split("_");
-                let file = codeParts.length > 1 ? codeParts[0] : null;
-                if (error.ErrorContext && error.ErrorContext["Bestand"]) {
-                  file = error.ErrorContext["Bestand"];
-                }
-                let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
-                let severity = code.startsWith("Warning") ? "Warning" : "Error";
-                let text = error.ErrorMessage;
-                return { file, code, severity, text };
-              });
+            let problems = errors.map((error) => {
+              let codeParts = (error.ErrorCode ?? "").split("_");
+              let file = codeParts.length > 1 ? codeParts[0] : null;
+              if (error.ErrorContext && error.ErrorContext["Bestand"]) {
+                file = error.ErrorContext["Bestand"];
+              }
+              let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
+              let severity = code.startsWith("Warning") ? "Warning" : "Error";
+              let text = error.ErrorMessage;
+              return { file, code, severity, text };
+            });
             let fileProblems = uniq(problems.map((x) => x.file)).map((file) => {
               return {
                 file,

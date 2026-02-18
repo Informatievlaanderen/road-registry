@@ -13,13 +13,13 @@ public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFea
     private const ExtractFileName FileName = ExtractFileName.Transactiezones;
 
     public TransactionZoneFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new ExtractsFeatureReader(encoding))
+        : base(new InwinningFeatureReader(encoding))
     {
     }
 
-    private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<TransactionZoneDbaseRecord, Feature<TransactionZoneFeatureCompareAttributes>>
+    private sealed class InwinningFeatureReader : ZipArchiveDbaseFeatureReader<TransactionZoneDbaseRecord, Feature<TransactionZoneFeatureCompareAttributes>>
     {
-        public ExtractsFeatureReader(Encoding encoding)
+        public InwinningFeatureReader(Encoding encoding)
             : base(encoding, TransactionZoneFeatureCompareFeatureReader.FileName, TransactionZoneDbaseRecord.Schema, treatHasNoDbaseRecordsAsError: true)
         {
         }

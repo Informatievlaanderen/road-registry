@@ -49,14 +49,14 @@ public sealed class RoadSegmentAccessRestrictionV2 : IEquatable<RoadSegmentAcces
 
     public DutchTranslation Translation { get; }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is RoadSegmentAccessRestrictionV2 type && Equals(type);
     }
 
-    public bool Equals(RoadSegmentAccessRestrictionV2 other)
+    public bool Equals(RoadSegmentAccessRestrictionV2? other)
     {
-        return other != null && other._value == _value;
+        return other is not null && other._value == _value;
     }
 
     public static bool CanParse(string value)
@@ -74,12 +74,12 @@ public sealed class RoadSegmentAccessRestrictionV2 : IEquatable<RoadSegmentAcces
         return _value.GetHashCode();
     }
 
-    public static bool operator ==(RoadSegmentAccessRestrictionV2 left, RoadSegmentAccessRestrictionV2 right)
+    public static bool operator ==(RoadSegmentAccessRestrictionV2? left, RoadSegmentAccessRestrictionV2? right)
     {
         return Equals(left, right);
     }
 
-    public static bool operator !=(RoadSegmentAccessRestrictionV2 left, RoadSegmentAccessRestrictionV2 right)
+    public static bool operator !=(RoadSegmentAccessRestrictionV2? left, RoadSegmentAccessRestrictionV2? right)
     {
         return !Equals(left, right);
     }

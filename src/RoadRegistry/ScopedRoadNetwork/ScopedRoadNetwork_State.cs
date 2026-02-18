@@ -3,9 +3,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Events.V2;
+using Extensions;
+using NetTopologySuite.Geometries;
 using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadSegment;
+using RoadRegistry.ValueObjects.Problems;
 using ValueObjects;
 
 public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNetworkId>
@@ -71,5 +74,36 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
     public IEnumerable<GradeSeparatedJunction> GetNonRemovedGradeSeparatedJunctions()
     {
         return _gradeSeparatedJunctions.Values.Where(x => !x.IsRemoved);
+    }
+
+    public (RoadNodeId? StartNodeId, RoadNodeId? EndNodeId, Problems Problems) FindStartEndNodes(RoadSegmentId roadSegmentId, RoadSegmentGeometryDrawMethodV2 method, RoadSegmentGeometry geometry, VerificationContextTolerances tolerances)
+    {
+        if (method == RoadSegmentGeometryDrawMethodV2.Ingeschetst)
+        {
+            return (RoadNodeId.Zero, RoadNodeId.Zero, Problems.None);
+        }
+
+        var problems = Problems.None;
+
+        var startNodeId = FindRoadNode(geometry.Value.Coordinate, tolerances)?.RoadNodeId;
+        if (startNodeId is null)
+        {
+            problems += new RoadSegmentStartNodeMissing(roadSegmentId);
+        }
+
+        var endNodeId = FindRoadNode(geometry.Value.Coordinates.Last(), tolerances)?.RoadNodeId;
+        if (endNodeId is null)
+        {
+            problems += new RoadSegmentEndNodeMissing(roadSegmentId);
+        }
+
+        return (startNodeId, endNodeId, problems);
+    }
+
+    private RoadNode? FindRoadNode(Coordinate coordinate, VerificationContextTolerances tolerance)
+    {
+        var point = new Point(coordinate.X, coordinate.Y);
+        return _roadNodes.Values
+            .FirstOrDefault(x => !x.IsRemoved && x.Geometry.Value.IsReasonablyEqualTo(point, tolerance));
     }
 }

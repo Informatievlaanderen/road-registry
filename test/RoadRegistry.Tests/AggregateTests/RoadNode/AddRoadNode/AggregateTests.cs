@@ -27,7 +27,6 @@ public class AggregateTests : AggregateTestBase
 
         var nodeAdded = (RoadNodeWasAdded)node.GetChanges().Single();
         nodeAdded.RoadNodeId.Should().Be(new RoadNodeId(1));
-        nodeAdded.Type.Should().Be(change.Type);
         nodeAdded.Geometry.Should().BeEquivalentTo(change.Geometry);
     }
 
@@ -35,14 +34,18 @@ public class AggregateTests : AggregateTestBase
     public void StateCheck()
     {
         // Arrange
+        Fixture.Freeze<RoadNodeId>();
+
         var evt = Fixture.Create<RoadNodeWasAdded>();
+        var typeWasChanged = Fixture.Create<RoadNodeTypeWasChanged>();
 
         // Act
         var node = RoadNode.Create(evt);
+        node.Apply(typeWasChanged);
 
         // Assert
         node.RoadNodeId.Should().Be(evt.RoadNodeId);
-        node.Type.Should().Be(evt.Type);
         node.Geometry.Should().Be(evt.Geometry);
+        node.Type.Should().Be(typeWasChanged.Type);
     }
 }

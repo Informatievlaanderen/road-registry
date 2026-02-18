@@ -122,7 +122,7 @@ namespace RoadRegistry.Jobs.Processor
 
                         try
                         {
-                            await _ticketing.Pending(job.TicketId, stoppingToken);
+                            await _ticketing.Pending(job.TicketId, cancellationToken: stoppingToken);
                             await UpdateJobStatus(job, JobStatus.Processing, stoppingToken);
 
                             // Send archive to be further processed

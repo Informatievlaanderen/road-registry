@@ -69,7 +69,7 @@ public class AdminMessageConsumer
                     var ticketId = (message as SqsRequest)?.TicketId;
                     if (ticketId is not null)
                     {
-                        await _ticketing.Pending(ticketId.Value, cancellationToken);
+                        await _ticketing.Pending(ticketId.Value, cancellationToken: cancellationToken);
                     }
 
                     try

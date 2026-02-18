@@ -8,15 +8,7 @@ public static class RoadSegmentValidationExtensions
     {
         return !outlined || IsValidForEdit(morphology);
     }
-    public static bool IsValid(this RoadSegmentMorphologyV2 morphology, bool outlined)
-    {
-        return !outlined || IsValidForEdit(morphology);
-    }
     public static bool IsValid(this RoadSegmentStatus status, bool outlined)
-    {
-        return !outlined || IsValidForEdit(status);
-    }
-    public static bool IsValid(this RoadSegmentStatusV2 status, bool outlined)
     {
         return !outlined || IsValidForEdit(status);
     }
@@ -25,18 +17,10 @@ public static class RoadSegmentValidationExtensions
     {
         return RoadSegmentMorphology.Edit.Editable.Contains(morphology);
     }
-    public static bool IsValidForEdit(this RoadSegmentMorphologyV2 morphology)
-    {
-        return RoadSegmentMorphologyV2.Edit.Editable.Contains(morphology);
-    }
 
     public static bool IsValidForEdit(this RoadSegmentStatus status)
     {
         return RoadSegmentStatus.Edit.Editable.Contains(status);
-    }
-    public static bool IsValidForEdit(this RoadSegmentStatusV2 status)
-    {
-        return RoadSegmentStatusV2.Edit.Editable.Contains(status);
     }
 
     public static bool IsValidForEdit(this RoadSegmentCategory status)

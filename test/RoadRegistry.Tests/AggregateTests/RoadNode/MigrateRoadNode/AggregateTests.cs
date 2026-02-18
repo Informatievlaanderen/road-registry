@@ -27,7 +27,6 @@ public class AggregateTests : AggregateTestBase
 
         var nodeModified = (RoadNodeWasMigrated)node.GetChanges().Single();
         nodeModified.RoadNodeId.Should().Be(node.RoadNodeId);
-        nodeModified.Type.Should().Be(change.Type);
         nodeModified.Geometry.Should().BeEquivalentTo(change.Geometry);
     }
 
@@ -44,7 +43,6 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         node.RoadNodeId.Should().Be(evt.RoadNodeId);
-        node.Type.Should().Be(evt.Type);
         node.Geometry.Should().Be(evt.Geometry);
     }
 }

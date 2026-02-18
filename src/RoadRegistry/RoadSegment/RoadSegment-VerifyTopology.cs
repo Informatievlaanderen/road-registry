@@ -11,7 +11,7 @@ using ScopedRoadNetwork.ValueObjects;
 
 public partial class RoadSegment
 {
-    public Problems VerifyTopology(RoadNetworkVerifyTopologyContext context)
+    public Problems VerifyTopology(ScopedRoadNetworkContext context)
     {
         var problems = Problems.For(RoadSegmentId);
 

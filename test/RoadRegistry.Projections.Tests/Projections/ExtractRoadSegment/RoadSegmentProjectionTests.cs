@@ -40,6 +40,7 @@ public class RoadSegmentProjectionTests
 
             typeof(RoadNetworkWasChanged),
             typeof(RoadNodeWasAdded),
+            typeof(RoadNodeTypeWasChanged),
             typeof(RoadNodeWasModified),
             typeof(RoadNodeWasMigrated),
             typeof(RoadNodeWasRemoved),

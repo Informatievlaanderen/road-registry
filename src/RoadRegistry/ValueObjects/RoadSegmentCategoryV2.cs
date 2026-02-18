@@ -120,14 +120,14 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
 
     public DutchTranslation Translation { get; }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is RoadSegmentCategoryV2 type && Equals(type);
     }
 
-    public bool Equals(RoadSegmentCategoryV2 other)
+    public bool Equals(RoadSegmentCategoryV2? other)
     {
-        return other != null && other._value == _value;
+        return other is not null && other._value == _value;
     }
 
     public static bool CanParse(string value)
@@ -145,12 +145,12 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
         return _value.GetHashCode();
     }
 
-    public static bool operator ==(RoadSegmentCategoryV2 left, RoadSegmentCategoryV2 right)
+    public static bool operator ==(RoadSegmentCategoryV2? left, RoadSegmentCategoryV2? right)
     {
         return Equals(left, right);
     }
 
-    public static bool operator !=(RoadSegmentCategoryV2 left, RoadSegmentCategoryV2 right)
+    public static bool operator !=(RoadSegmentCategoryV2? left, RoadSegmentCategoryV2? right)
     {
         return !Equals(left, right);
     }

@@ -95,7 +95,8 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
 
 public enum VehicleAccess
 {
-    Forward,
-    Backward,
-    BiDirectional
+    None = 0,
+    Forward = 1,
+    Backward = 2,
+    BiDirectional = 3
 }

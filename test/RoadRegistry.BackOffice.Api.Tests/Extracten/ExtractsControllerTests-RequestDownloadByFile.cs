@@ -31,7 +31,7 @@ public partial class ExtractsControllerTests
         var validator = new ExtractDownloadaanvraagPerBestandValidator(Encoding.UTF8);
         var shpFileContourReader = new Mock<IExtractShapefileContourReader>();
         shpFileContourReader
-            .Setup(x => x.Read(It.IsAny<Stream>()))
+            .Setup(x => x.Read(It.IsAny<Stream>(), It.IsAny<GeometryFactory>()))
             .Returns(Polygon.Empty);
 
         var bestanden = new FormFileCollection

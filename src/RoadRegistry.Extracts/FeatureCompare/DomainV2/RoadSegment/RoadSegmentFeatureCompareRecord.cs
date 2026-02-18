@@ -29,5 +29,5 @@ public class RoadSegmentFeatureCompareRecord
     public bool GeometryChanged { get; init; }
 
     public RoadSegmentId GetActualId() => Id;
-    public RoadSegmentId GetOriginalId() => Attributes.Id;
+    public RoadSegmentId GetOriginalId() => Attributes.TempId;
 }

@@ -19,6 +19,10 @@ public static class WellKnownGeometryFactories
         new PrecisionModel(PrecisionModels.Floating),
         WellknownSrids.Lambert08,
         new DotSpatialAffineCoordinateSequenceFactory(Ordinates.XYZM));
+    public static readonly GeometryFactory Lambert08WithoutMAndZ = new(
+        GeometryConfiguration.GeometryFactory.PrecisionModel,
+        WellknownSrids.Lambert08,
+        new DotSpatialAffineCoordinateSequenceFactory(Ordinates.XY));
 
 
     public static readonly GeometryFactory WithoutSrid = new(GeometryConfiguration.GeometryFactory.PrecisionModel, 0, GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory);

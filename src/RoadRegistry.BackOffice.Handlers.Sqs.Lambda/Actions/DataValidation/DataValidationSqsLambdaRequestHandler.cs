@@ -68,6 +68,8 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
         }
 
         bool? automaticValidationSucceed = null;
+        TicketError? ticketError = null;
+
         while (automaticValidationSucceed is null)
         {
             await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
@@ -77,8 +79,8 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
                 break;
             }
 
-            //TODO-pr poll until automatic validation is complete/rejected
-
+            //TODO-pr poll until automatic validation is complete/rejected, when rejected then fill in ticketError
+            //temp accept upload
             automaticValidationSucceed = true;
         }
 
@@ -87,10 +89,12 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
             if (automaticValidationSucceed.Value)
             {
                 await _extractsDbContext.AutomaticValidationSucceededAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, cancellationToken);
+                await Ticketing.Pending(sqsLambdaRequest.TicketId, new TicketResult(new { Status = nameof(ExtractUploadStatus.AutomaticValidationSucceeded) }), cancellationToken);
             }
             else
             {
                 await _extractsDbContext.AutomaticValidationFailedAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, cancellationToken);
+                await Ticketing.Error(sqsLambdaRequest.TicketId, ticketError, cancellationToken);
 
                 queueItem.Completed = true;
                 await _extractsDbContext.SaveChangesAsync(cancellationToken);

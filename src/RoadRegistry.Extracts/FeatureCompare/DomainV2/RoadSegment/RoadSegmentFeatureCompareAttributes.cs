@@ -1,13 +1,13 @@
 namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public record RoadSegmentFeatureCompareAttributes
 {
-    public RoadSegmentId Id { get; init; }
-    public MultiLineString? Geometry { get; init; }
-    public RoadNodeId? StartNodeId { get; init; }
-    public RoadNodeId? EndNodeId { get; init; }
+    public RoadSegmentId TempId { get; init; }
+    public RoadSegmentId? RoadSegmentId { get; init; }
+    public required MultiLineString Geometry { get; init; }
     public RoadSegmentGeometryDrawMethodV2? Method { get; init; }
     public RoadSegmentAccessRestrictionV2? AccessRestriction { get; init; }
     public RoadSegmentCategoryV2? Category { get; init; }
@@ -17,15 +17,17 @@ public record RoadSegmentFeatureCompareAttributes
     public RoadSegmentStatusV2? Status { get; init; }
     public StreetNameLocalId? LeftSideStreetNameId { get; init; }
     public StreetNameLocalId? RightSideStreetNameId { get; init; }
+    public RoadSegmentSurfaceTypeV2? SurfaceType { get; init; }
+    public VehicleAccess? CarAccess { get; init; }
+    public VehicleAccess? BikeAccess { get; init; }
+    public bool? PedestrianAccess { get; init; }
 
-    public RoadSegmentFeatureCompareAttributes OnlyChangedAttributes(RoadSegmentFeatureCompareAttributes other, MultiLineString extractGeometry, bool alwaysIncludeNodeIds)
+    public RoadSegmentFeatureCompareAttributes OnlyChangedAttributes(RoadSegmentFeatureCompareAttributes other, MultiLineString extractGeometry)
     {
         return new RoadSegmentFeatureCompareAttributes
         {
-            Id = Id,
+            TempId = TempId,
             Geometry = Geometry.EqualsExact(other.Geometry) ? extractGeometry : Geometry,
-            StartNodeId = StartNodeId != other.StartNodeId || alwaysIncludeNodeIds ? StartNodeId : null,
-            EndNodeId = EndNodeId != other.EndNodeId || alwaysIncludeNodeIds ? EndNodeId : null,
             Method = Method == other.Method ? null : Method,
             AccessRestriction = AccessRestriction == other.AccessRestriction ? null : AccessRestriction,
             Category = Category == other.Category ? null : Category,
@@ -34,7 +36,11 @@ public record RoadSegmentFeatureCompareAttributes
             Morphology = Morphology == other.Morphology ? null : Morphology,
             Status = Status == other.Status ? null : Status,
             LeftSideStreetNameId = LeftSideStreetNameId == other.LeftSideStreetNameId && RightSideStreetNameId == other.RightSideStreetNameId ? null : LeftSideStreetNameId,
-            RightSideStreetNameId = LeftSideStreetNameId == other.LeftSideStreetNameId && RightSideStreetNameId == other.RightSideStreetNameId ? null : RightSideStreetNameId
+            RightSideStreetNameId = LeftSideStreetNameId == other.LeftSideStreetNameId && RightSideStreetNameId == other.RightSideStreetNameId ? null : RightSideStreetNameId,
+            SurfaceType = SurfaceType == other.SurfaceType ? null : SurfaceType,
+            CarAccess = CarAccess == other.CarAccess ? null : CarAccess,
+            BikeAccess = BikeAccess == other.BikeAccess ? null : BikeAccess,
+            PedestrianAccess = PedestrianAccess == other.PedestrianAccess ? null : PedestrianAccess
         };
     }
 }

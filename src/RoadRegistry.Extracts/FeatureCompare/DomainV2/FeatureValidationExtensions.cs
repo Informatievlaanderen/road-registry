@@ -82,33 +82,6 @@ public static class FeatureValidationExtensions
         return problems;
     }
 
-    public static ZipArchiveProblems ValidateMissingRoadNodes(this ZipArchive archive, List<Feature<RoadSegmentFeatureCompareAttributes>> features, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
-    {
-        var problems = ZipArchiveProblems.None;
-
-        if (!features.Any())
-        {
-            return problems;
-        }
-
-        foreach (var feature in features)
-        {
-            if (feature.Attributes.StartNodeId > 0 && !context.ChangedRoadNodes.ContainsKey(feature.Attributes.StartNodeId.Value))
-            {
-                var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
-                problems += recordContext.RoadSegmentStartNodeMissing(feature.Attributes.Id);
-            }
-
-            if (feature.Attributes.EndNodeId > 0 && !context.ChangedRoadNodes.ContainsKey(feature.Attributes.EndNodeId.Value))
-            {
-                var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
-                problems += recordContext.RoadSegmentEndNodeMissing(feature.Attributes.Id);
-            }
-        }
-
-        return problems;
-    }
-
     public static ZipArchiveProblems ValidateRoadSegmentsWithoutAttributes<T>(this ZipArchive archive, List<Feature<T>> features, ExtractFileName fileName, Func<ZipArchiveEntry, RoadSegmentId[], FileProblem> problemBuilder, ZipArchiveFeatureReaderContext context)
         where T : RoadSegmentDynamicAttributeAttributes
     {
@@ -127,8 +100,8 @@ public static class FeatureValidationExtensions
         }
 
         var segmentsWithoutAttributes = context.ChangedRoadSegments.Values
-            .Where(roadSegment => features.All(attribute => attribute.Attributes.RoadSegmentId != roadSegment.Attributes.Id))
-            .Select(roadSegment => roadSegment.Attributes.Id)
+            .Where(roadSegment => features.All(attribute => attribute.Attributes.RoadSegmentId != roadSegment.Attributes.TempId))
+            .Select(roadSegment => roadSegment.Attributes.TempId)
             .ToArray();
 
         if (segmentsWithoutAttributes.Any())

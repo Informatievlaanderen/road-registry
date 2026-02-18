@@ -13,7 +13,7 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
     private const ExtractFileName FileName = ExtractFileName.AttEuropweg;
 
     public EuropeanRoadFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new ExtractsFeatureReader(encoding))
+        : base(new InwinningFeatureReader(encoding))
     {
     }
 
@@ -33,9 +33,9 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
         return (features, problems);
     }
 
-    private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<RoadSegmentEuropeanRoadAttributeDbaseRecord, Feature<EuropeanRoadFeatureCompareAttributes>>
+    private sealed class InwinningFeatureReader : ZipArchiveDbaseFeatureReader<RoadSegmentEuropeanRoadAttributeDbaseRecord, Feature<EuropeanRoadFeatureCompareAttributes>>
     {
-        public ExtractsFeatureReader(Encoding encoding)
+        public InwinningFeatureReader(Encoding encoding)
             : base(encoding, EuropeanRoadFeatureCompareFeatureReader.FileName, RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema)
         {
         }
