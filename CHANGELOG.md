@@ -1,3 +1,10 @@
+## [4.46.1](https://github.com/informatievlaanderen/road-registry/compare/v4.46.0...v4.46.1) (2026-02-18)
+
+
+### Bug Fixes
+
+* logout use original IdToken ([0bbc0ed](https://github.com/informatievlaanderen/road-registry/commit/0bbc0ed2f970160d33092d562d7d90239fd1ab08))
+
 # [4.46.0](https://github.com/informatievlaanderen/road-registry/compare/v4.45.1...v4.46.0) (2026-02-18)
 
 
