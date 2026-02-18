@@ -145,6 +145,7 @@ public class Startup
             .RegisterModule<BlobClientModule>()
             .RegisterModule<MediatorModule>()
             .RegisterModule<SnapshotSqsHandlersModule>()
+            .RegisterModule<BackOfficeHandlersSqsMediatorModule>() //for DataValidationPollingService
             ;
 
         builder
@@ -355,7 +356,7 @@ public class Startup
             .Configure<InwinningOrganizationNisCodesOptions>(_configuration.GetSection(InwinningOrganizationNisCodesOptions.ConfigKey))
             .AddScoped<IDataValidationApiClient, DataValidationApiClient>()
             .AddScoped<DataValidationPollingService>()
-            .AddScheduledJob<DataValidationPollingService>(TimeSpan.FromHours(1))
+            .AddScheduledJob<DataValidationPollingService>(_configuration.GetRequiredValue<TimeSpan>("DataValidationPollingOptions:Period"))
 
             .AddDistributedMemoryCache()
             .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)

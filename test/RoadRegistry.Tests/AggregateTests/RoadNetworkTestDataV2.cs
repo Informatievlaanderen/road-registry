@@ -94,6 +94,7 @@ public class RoadNetworkTestDataV2
         Fixture.CustomizeOperatorName();
         Fixture.CustomizeTransactionId();
         Fixture.CustomizeExtractRequestId();
+        Fixture.CustomizeScopedRoadNetworkContext();
 
         Fixture.CustomizeRoadNodeWasAdded();
         Fixture.CustomizeRoadNodeWasModified();
@@ -250,8 +251,6 @@ public class RoadNetworkTestDataV2
         {
             TemporaryId = segment1TemporaryId,
             OriginalId = segment1TemporaryId,
-            StartNodeId = AddSegment1StartNode.TemporaryId,
-            EndNodeId = AddSegment1EndNode.TemporaryId,
             Geometry = MultiLineString1.ToRoadSegmentGeometry(),
             GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
             MaintenanceAuthorityId = CreateDynamicAttribute<OrganizationId>(Fixture, MultiLineString1),
@@ -295,8 +294,6 @@ public class RoadNetworkTestDataV2
         {
             TemporaryId = new RoadSegmentId(AddSegment1.TemporaryId + 1),
             OriginalId = new RoadSegmentId(AddSegment1.TemporaryId + 1),
-            StartNodeId = AddSegment2StartNode.TemporaryId,
-            EndNodeId = AddSegment2EndNode.TemporaryId,
             Geometry = MultiLineString2.ToRoadSegmentGeometry(),
             GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
             MaintenanceAuthorityId = CreateDynamicAttribute<OrganizationId>(Fixture, MultiLineString2),
@@ -340,8 +337,6 @@ public class RoadNetworkTestDataV2
         {
             TemporaryId = new RoadSegmentId(AddSegment2.TemporaryId + 1),
             OriginalId = new RoadSegmentId(AddSegment2.TemporaryId + 1),
-            StartNodeId = AddSegment3StartNode.TemporaryId,
-            EndNodeId = AddSegment3EndNode.TemporaryId,
             Geometry = MultiLineString3.ToRoadSegmentGeometry(),
             GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
             MaintenanceAuthorityId = CreateDynamicAttribute<OrganizationId>(Fixture, MultiLineString2),

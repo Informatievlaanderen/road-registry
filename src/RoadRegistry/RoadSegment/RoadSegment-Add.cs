@@ -6,11 +6,12 @@ using Changes;
 using Events.V2;
 using RoadRegistry.ValueObjects.Problems;
 using ScopedRoadNetwork;
+using ScopedRoadNetwork.ValueObjects;
 using ValueObjects;
 
 public partial class RoadSegment
 {
-    public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, Provenance provenance, IRoadNetworkIdGenerator idGenerator)
+    public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
     {
         var originalId = change.OriginalId ?? change.TemporaryId;
         var problems = Problems.For(originalId);
@@ -36,6 +37,9 @@ public partial class RoadSegment
         };
         problems += new RoadSegmentAttributesValidator().Validate(originalId, attributes, segmentLength);
 
+        var startEndNodes = context.RoadNetwork.FindStartEndNodes(originalId, change.GeometryDrawMethod, change.Geometry, context.Tolerances);
+        problems += startEndNodes.Problems;
+
         if (problems.HasError())
         {
             return (null, problems);
@@ -46,8 +50,8 @@ public partial class RoadSegment
             RoadSegmentId = idGenerator.NewRoadSegmentId(),
             OriginalId = change.OriginalId,
             Geometry = change.Geometry,
-            StartNodeId = change.StartNodeId,
-            EndNodeId = change.EndNodeId,
+            StartNodeId = startEndNodes.StartNodeId!.Value,
+            EndNodeId = startEndNodes.EndNodeId!.Value,
             GeometryDrawMethod = attributes.GeometryDrawMethod,
             AccessRestriction = attributes.AccessRestriction,
             Category = attributes.Category,
@@ -61,7 +65,7 @@ public partial class RoadSegment
             PedestrianAccess = attributes.PedestrianAccess,
             EuropeanRoadNumbers = attributes.EuropeanRoadNumbers,
             NationalRoadNumbers = attributes.NationalRoadNumbers,
-            Provenance = new ProvenanceData(provenance)
+            Provenance = new ProvenanceData(context.Provenance)
         });
 
         return (segment, problems);

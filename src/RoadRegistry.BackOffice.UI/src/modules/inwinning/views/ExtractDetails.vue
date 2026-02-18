@@ -36,6 +36,7 @@
                   style="margin-left: 1rem"
                 >
                   <vl-button v-if="isSubmitting" mod-loading> Genereer extract opnieuw... </vl-button>
+                  <vl-button v-else-if="uploadDisabled" mod-disabled> Genereer extract opnieuw </vl-button>
                   <vl-button v-else @click="requestExtractAgain()"> Genereer extract opnieuw </vl-button>
                 </span>
                 <span v-if="extract.uploadStatus" style="margin-left: 1rem">
@@ -169,6 +170,7 @@ export default defineComponent({
         hasGenericError: false,
       },
       uploadDisabled: false,
+      refreshExtractDetailsInterval: undefined as any | undefined,
     };
   },
   computed: {
@@ -308,6 +310,9 @@ export default defineComponent({
   unmounted() {
     this.trackProgress = false;
     this.unmounting = true;
+    if (this.refreshExtractDetailsInterval) {
+      clearInterval(this.refreshExtractDetailsInterval);
+    }
   },
   methods: {
     async waitUntilExtractDetailsIsAvailable(): Promise<void> {
@@ -327,7 +332,7 @@ export default defineComponent({
       }
       return DateFormat.format(dateString);
     },
-    async loadExtractDetails(): Promise<void> {
+    async loadExtractDetails(ticketId?: string): Promise<void> {
       if (this.unmounting) {
         return;
       }
@@ -335,7 +340,7 @@ export default defineComponent({
       try {
         let details = await PublicApi.Extracts.V2.getDetails(this.downloadId);
         this.extract = details;
-        this.ticketId = details.ticketId;
+        this.ticketId = ticketId || details.ticketId;
         this.downloadAvailable = details.downloadStatus == "Available";
         this.downloadStatusMessage =
           details.downloadStatus == "Available"
@@ -611,7 +616,14 @@ export default defineComponent({
     async handleUploadComplete(args: any) {
       this.ticketId = args.ticketId;
       this.uploadDisabled = true;
+
+      this.refreshExtractDetailsInterval = setInterval(() => {
+        console.log("tick refresh extractdetails", new Date().toISOString(), this.refreshExtractDetailsInterval);
+        this.loadExtractDetails(args.ticketId);
+      }, 10_000);
       await this.waitForTicketComplete();
+
+      clearInterval(this.refreshExtractDetailsInterval);
       await this.loadExtractDetails();
     },
   },

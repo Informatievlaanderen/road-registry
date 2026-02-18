@@ -12,6 +12,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadSegment;
+using RoadRegistry.RoadSegment.ValueObjects;
 using Schemas.Inwinning.RoadSegments;
 
 public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareAttributes>>
@@ -35,8 +36,6 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         switch (featureType)
         {
             case FeatureType.Change:
-                problems += archive.ValidateMissingRoadNodes(features, featureType, FileName, context);
-
                 AddToContext(features, featureType, context);
                 break;
             case FeatureType.Extract:
@@ -61,6 +60,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     problems = ZipArchiveProblems.None + problems
                         .Where(p => excludeProblems.All(x => !x(p)));
                 }
+
                 break;
             case FeatureType.Integration:
                 problems = ZipArchiveProblems.None + problems
@@ -75,6 +75,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                         problems += recordContext.RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange(feature.Attributes.TempId, knownRoadSegment.RecordNumber);
                     }
                 }
+
                 break;
         }
 
@@ -161,7 +162,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
             var roadSegmentId = ReadId();
 
-            MultiLineString? ReadGeometry()
+            MultiLineString ReadGeometry()
             {
                 var recordContext = fileName
                     .AtShapeRecord(featureType, recordNumber);
@@ -201,7 +202,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                         Geometry.GeometryType);
                 }
 
-                return null;
+                return MultiLineString.Empty;
             }
 
             RoadSegmentId ReadId()
@@ -400,8 +401,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return null;
             }
 
-            bool? ReadCarAccessForward()
+            VehicleAccess? ReadCarAccess()
             {
+                bool? forward = null, backward = null;
+
                 if (AUTOHEEN is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(AUTOHEEN));
@@ -411,16 +414,14 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     var boolValue = AUTOHEEN.ToBooleanFromDbaseValue();
                     if (boolValue is not null)
                     {
-                        return boolValue.Value;
+                        forward = boolValue.Value;
                     }
-
-                    problems += problemBuilder.RoadSegmentAutoHeenMismatch(AUTOHEEN.Value);
+                    else
+                    {
+                        problems += problemBuilder.RoadSegmentAutoHeenMismatch(AUTOHEEN.Value);
+                    }
                 }
 
-                return null;
-            }
-            bool? ReadCarAccessBackward()
-            {
                 if (AUTOTERUG is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(AUTOTERUG));
@@ -430,16 +431,30 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     var boolValue = AUTOTERUG.ToBooleanFromDbaseValue();
                     if (boolValue is not null)
                     {
-                        return boolValue.Value;
+                        backward = boolValue.Value;
                     }
+                    else
+                    {
+                        problems += problemBuilder.RoadSegmentAutoTerugMismatch(AUTOTERUG.Value);
+                    }
+                }
 
-                    problems += problemBuilder.RoadSegmentAutoTerugMismatch(AUTOTERUG.Value);
+                if (forward is not null && backward is not null)
+                {
+                    return forward.Value && backward.Value
+                        ? VehicleAccess.BiDirectional
+                        : forward.Value
+                            ? VehicleAccess.Forward
+                            : VehicleAccess.Backward;
                 }
 
                 return null;
             }
-            bool? ReadBikeAccessForward()
+
+            VehicleAccess? ReadBikeAccess()
             {
+                bool? forward = null, backward = null;
+
                 if (FIETSHEEN is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(FIETSHEEN));
@@ -449,16 +464,14 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     var boolValue = FIETSHEEN.ToBooleanFromDbaseValue();
                     if (boolValue is not null)
                     {
-                        return boolValue.Value;
+                        forward = boolValue.Value;
                     }
-
-                    problems += problemBuilder.RoadSegmentFietsHeenMismatch(FIETSHEEN.Value);
+                    else
+                    {
+                        problems += problemBuilder.RoadSegmentFietsHeenMismatch(FIETSHEEN.Value);
+                    }
                 }
 
-                return null;
-            }
-            bool? ReadBikeAccessBackward()
-            {
                 if (FIETSTERUG is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(FIETSTERUG));
@@ -468,14 +481,26 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     var boolValue = FIETSTERUG.ToBooleanFromDbaseValue();
                     if (boolValue is not null)
                     {
-                        return boolValue.Value;
+                        backward = boolValue.Value;
                     }
+                    else
+                    {
+                        problems += problemBuilder.RoadSegmentFietsTerugMismatch(FIETSTERUG.Value);
+                    }
+                }
 
-                    problems += problemBuilder.RoadSegmentFietsTerugMismatch(FIETSTERUG.Value);
+                if (forward is not null && backward is not null)
+                {
+                    return forward.Value && backward.Value
+                        ? VehicleAccess.BiDirectional
+                        : forward.Value
+                            ? VehicleAccess.Forward
+                            : VehicleAccess.Backward;
                 }
 
                 return null;
             }
+
             bool? ReadPedestrianAccess()
             {
                 if (VOETGANGER is null)
@@ -502,8 +527,6 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 TempId = roadSegmentId,
                 RoadSegmentId = ReadRoadSegmentId(),
                 Method = null,
-                StartNodeId = null,
-                EndNodeId = null,
                 Category = ReadCategory(),
                 AccessRestriction = ReadAccessRestriction(),
                 LeftSideStreetNameId = ReadLeftStreetNameId(),
@@ -513,10 +536,8 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 Status = ReadStatus(),
                 Morphology = ReadMorphology(),
                 SurfaceType = ReadSurfaceType(),
-                CarAccessForward = ReadCarAccessForward(),
-                CarAccessBackward = ReadCarAccessBackward(),
-                BikeAccessForward = ReadBikeAccessForward(),
-                BikeAccessBackward = ReadBikeAccessBackward(),
+                CarAccess = ReadCarAccess(),
+                BikeAccess = ReadBikeAccess(),
                 PedestrianAccess = ReadPedestrianAccess()
             });
             return (feature, problems);

@@ -30,7 +30,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 })
                 .Add((TestData.AddSegment1 with
                 {
-                    Geometry = BuildMultiLineString(segment1Start, segment1End)
+                    Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(TestData.AddSegment2StartNode with
                 {
@@ -42,7 +42,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 })
                 .Add((TestData.AddSegment2 with
                 {
-                    Geometry = BuildMultiLineString(segment2Start, segment2End)
+                    Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(Fixture.Create<AddGradeSeparatedJunctionChange>() with
                 {

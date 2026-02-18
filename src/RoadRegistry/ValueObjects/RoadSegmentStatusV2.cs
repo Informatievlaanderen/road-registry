@@ -104,12 +104,12 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
         return _value.GetHashCode();
     }
 
-    public static bool operator ==(RoadSegmentStatusV2 left, RoadSegmentStatusV2 right)
+    public static bool operator ==(RoadSegmentStatusV2? left, RoadSegmentStatusV2? right)
     {
         return Equals(left, right);
     }
 
-    public static bool operator !=(RoadSegmentStatusV2 left, RoadSegmentStatusV2 right)
+    public static bool operator !=(RoadSegmentStatusV2? left, RoadSegmentStatusV2? right)
     {
         return !Equals(left, right);
     }

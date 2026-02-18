@@ -90,6 +90,9 @@ public sealed class ExtractUploader : IExtractUploader
 
         try
         {
+            extractDownload.LatestUploadId = uploadId;
+            await _extractsDbContext.SaveChangesAsync(cancellationToken);
+
             await using var archiveBlobStream = await archiveBlob.OpenAsync(cancellationToken);
             using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, true);
 

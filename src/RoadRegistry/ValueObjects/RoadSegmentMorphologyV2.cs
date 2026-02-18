@@ -190,12 +190,12 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
         return _value.GetHashCode();
     }
 
-    public static bool operator ==(RoadSegmentMorphologyV2 left, RoadSegmentMorphologyV2 right)
+    public static bool operator ==(RoadSegmentMorphologyV2? left, RoadSegmentMorphologyV2? right)
     {
         return Equals(left, right);
     }
 
-    public static bool operator !=(RoadSegmentMorphologyV2 left, RoadSegmentMorphologyV2 right)
+    public static bool operator !=(RoadSegmentMorphologyV2? left, RoadSegmentMorphologyV2? right)
     {
         return !Equals(left, right);
     }

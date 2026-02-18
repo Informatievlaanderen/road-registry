@@ -10,8 +10,6 @@ public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRo
 {
     public required RoadSegmentId TemporaryId { get; init; }
     public RoadSegmentId? OriginalId { get; init; }
-    public required RoadNodeId StartNodeId { get; init; }
-    public required RoadNodeId EndNodeId { get; init; }
     public required RoadSegmentGeometry Geometry { get; init; }
     public required RoadSegmentGeometryDrawMethodV2 GeometryDrawMethod { get; init; }
     public required RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> AccessRestriction { get; init; }
@@ -41,8 +39,6 @@ public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRo
 
         return TemporaryId.Equals(other.TemporaryId)
                && OriginalId.Equals(other.OriginalId)
-               && StartNodeId.Equals(other.StartNodeId)
-               && EndNodeId.Equals(other.EndNodeId)
                && Geometry.Equals(other.Geometry)
                && GeometryDrawMethod.Equals(other.GeometryDrawMethod)
                && AccessRestriction.Equals(other.AccessRestriction)

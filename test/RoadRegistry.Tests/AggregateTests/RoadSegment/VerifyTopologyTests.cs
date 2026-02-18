@@ -80,7 +80,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1)
             )
             .ThenContainsProblems(
-                new Error("RoadSegmentStartPointDoesNotMatchNodeGeometry", new ProblemParameter("Identifier", TestData.AddSegment1.TemporaryId.ToString()))
+                new Error("RoadSegmentStartNodeMissing", new ProblemParameter("Identifier", TestData.AddSegment1.TemporaryId.ToString()))
             )
         );
     }
@@ -133,7 +133,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1)
             )
             .ThenContainsProblems(
-                new Error("RoadSegmentEndPointDoesNotMatchNodeGeometry", new ProblemParameter("Identifier", TestData.AddSegment1.TemporaryId.ToString()))
+                new Error("RoadSegmentEndNodeMissing", new ProblemParameter("Identifier", TestData.AddSegment1.TemporaryId.ToString()))
             )
         );
     }
@@ -158,7 +158,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add((TestData.AddSegment1 with
                 {
-                    Geometry = BuildMultiLineString(segment1Start, segment1End)
+                    Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
             .When(changes => changes
@@ -172,7 +172,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add((TestData.AddSegment2 with
                 {
-                    Geometry = BuildMultiLineString(segment2Start, segment2End)
+                    Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
             .ThenContainsProblems(new Error("IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction",

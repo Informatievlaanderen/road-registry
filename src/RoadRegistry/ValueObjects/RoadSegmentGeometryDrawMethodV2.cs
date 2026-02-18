@@ -50,14 +50,14 @@ public sealed class RoadSegmentGeometryDrawMethodV2 : IEquatable<RoadSegmentGeom
 
     public DutchTranslation Translation { get; }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is RoadSegmentGeometryDrawMethodV2 type && Equals(type);
     }
 
-    public bool Equals(RoadSegmentGeometryDrawMethodV2 other)
+    public bool Equals(RoadSegmentGeometryDrawMethodV2? other)
     {
-        return other != null && other._value == _value;
+        return other is not null && other._value == _value;
     }
 
     public static bool CanParse(string value)
@@ -72,12 +72,12 @@ public sealed class RoadSegmentGeometryDrawMethodV2 : IEquatable<RoadSegmentGeom
         return _value.GetHashCode();
     }
 
-    public static bool operator ==(RoadSegmentGeometryDrawMethodV2 left, RoadSegmentGeometryDrawMethodV2 right)
+    public static bool operator ==(RoadSegmentGeometryDrawMethodV2? left, RoadSegmentGeometryDrawMethodV2? right)
     {
         return Equals(left, right);
     }
 
-    public static bool operator !=(RoadSegmentGeometryDrawMethodV2 left, RoadSegmentGeometryDrawMethodV2 right)
+    public static bool operator !=(RoadSegmentGeometryDrawMethodV2? left, RoadSegmentGeometryDrawMethodV2? right)
     {
         return !Equals(left, right);
     }

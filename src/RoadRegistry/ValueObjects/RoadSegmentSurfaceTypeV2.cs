@@ -83,12 +83,12 @@ public sealed class RoadSegmentSurfaceTypeV2 : IEquatable<RoadSegmentSurfaceType
         return _value.GetHashCode();
     }
 
-    public static bool operator ==(RoadSegmentSurfaceTypeV2 left, RoadSegmentSurfaceTypeV2 right)
+    public static bool operator ==(RoadSegmentSurfaceTypeV2? left, RoadSegmentSurfaceTypeV2? right)
     {
         return Equals(left, right);
     }
 
-    public static bool operator !=(RoadSegmentSurfaceTypeV2 left, RoadSegmentSurfaceTypeV2 right)
+    public static bool operator !=(RoadSegmentSurfaceTypeV2? left, RoadSegmentSurfaceTypeV2? right)
     {
         return !Equals(left, right);
     }

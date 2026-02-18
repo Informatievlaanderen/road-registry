@@ -50,6 +50,8 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
         return Run(scenario => scenario
             .Given(given => given)
             .When(changes => changes
+                .Add(TestData.AddSegment1StartNode)
+                .Add(TestData.AddSegment1EndNode)
                 .Add(TestData.AddSegment1)
                 .Add(TestData.AddSegment1)
             )
