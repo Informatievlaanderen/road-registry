@@ -22,10 +22,6 @@ public partial class ScopedRoadNetwork
         var summary = new RoadNetworkChangesSummary();
         var idTranslator = new IdentifierTranslator();
 
-        //TODO-pr current: changes in bepaalde volgorde verwerken, eerst roadnode create/modify, dan al de rest, wel expliciet zijn voor te kunnen unit testen
-        //bij het aanmaken van een wegsegment/modify geometry mag het roadnetwork worden meegegeven om zo de roadnodeids te kunnen vinden
-        //startnodeids uit de segment change commands halen
-        //ook toepassen bij Migrate
         var context = new ScopedRoadNetworkContext(this, idTranslator, changes.Provenance);
 
         foreach (var roadNetworkChange in changes)
