@@ -441,11 +441,13 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
                 if (forward is not null && backward is not null)
                 {
-                    return forward.Value && backward.Value
-                        ? VehicleAccess.BiDirectional
-                        : forward.Value
-                            ? VehicleAccess.Forward
-                            : VehicleAccess.Backward;
+                    if (forward.Value && backward.Value)
+                        return VehicleAccess.BiDirectional;
+                    if (forward.Value)
+                        return VehicleAccess.Forward;
+                    if (backward.Value)
+                        return VehicleAccess.Backward;
+                    return VehicleAccess.None;
                 }
 
                 return null;
@@ -491,11 +493,13 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
                 if (forward is not null && backward is not null)
                 {
-                    return forward.Value && backward.Value
-                        ? VehicleAccess.BiDirectional
-                        : forward.Value
-                            ? VehicleAccess.Forward
-                            : VehicleAccess.Backward;
+                    if (forward.Value && backward.Value)
+                        return VehicleAccess.BiDirectional;
+                    if (forward.Value)
+                        return VehicleAccess.Forward;
+                    if (backward.Value)
+                        return VehicleAccess.Backward;
+                    return VehicleAccess.None;
                 }
 
                 return null;
