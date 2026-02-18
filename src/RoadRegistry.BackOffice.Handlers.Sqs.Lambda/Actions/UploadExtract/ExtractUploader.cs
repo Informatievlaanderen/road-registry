@@ -11,6 +11,7 @@ using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
+using TicketingService.Abstractions;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
 
 public interface IExtractUploader
@@ -31,22 +32,26 @@ public sealed class ExtractUploader : IExtractUploader
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly IZipArchiveFeatureCompareTranslator _featureCompareTranslator;
     private readonly IExtractUploadFailedEmailClient _extractUploadFailedEmailClient;
+    private readonly ITicketing _ticketing;
 
     public ExtractUploader(
         ExtractsDbContext extractsDbContext,
         RoadNetworkUploadsBlobClient uploadsBlobClient,
         IZipArchiveFeatureCompareTranslator featureCompareTranslator,
-        IExtractUploadFailedEmailClient extractUploadFailedEmailClient)
+        IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
+        ITicketing ticketing)
     {
         _extractsDbContext = extractsDbContext;
         _uploadsBlobClient = uploadsBlobClient;
         _featureCompareTranslator = featureCompareTranslator;
         _extractUploadFailedEmailClient = extractUploadFailedEmailClient;
+        _ticketing = ticketing;
     }
 
     public async Task<TranslatedChanges> ProcessUploadAndDetectChanges(DownloadId downloadId, UploadId uploadId, TicketId ticketId, ZipArchiveMetadata zipArchiveMetadata, CancellationToken cancellationToken)
     {
-        await EnsureExtractUploadExists(uploadId, downloadId, ticketId, cancellationToken);
+        var extractUpload = await EnsureExtractUploadExists(uploadId, downloadId, ticketId, cancellationToken);
+        await _ticketing.Pending(ticketId, new TicketResult(new { Status = extractUpload.Status.ToString() }), cancellationToken);
 
         var blobName = new BlobName(uploadId);
 
@@ -117,7 +122,7 @@ public sealed class ExtractUploader : IExtractUploader
         }
     }
 
-    private async Task EnsureExtractUploadExists(UploadId uploadId, DownloadId downloadId, TicketId ticketId, CancellationToken cancellationToken)
+    private async Task<ExtractUpload> EnsureExtractUploadExists(UploadId uploadId, DownloadId downloadId, TicketId ticketId, CancellationToken cancellationToken)
     {
         var extractUpload = await _extractsDbContext.ExtractUploads.SingleOrDefaultAsync(x => x.UploadId == uploadId.ToGuid(), cancellationToken);
         if (extractUpload is null)
@@ -139,6 +144,8 @@ public sealed class ExtractUploader : IExtractUploader
         }
 
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
+
+        return extractUpload;
     }
 
     private async Task HandleSendingFailedEmail(ExtractRequest extractRequest, DownloadId downloadId, CancellationToken cancellationToken)

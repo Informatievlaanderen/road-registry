@@ -170,7 +170,6 @@ export default defineComponent({
         hasGenericError: false,
       },
       uploadDisabled: false,
-      refreshExtractDetailsInterval: undefined as any | undefined,
     };
   },
   computed: {
@@ -310,9 +309,6 @@ export default defineComponent({
   unmounted() {
     this.trackProgress = false;
     this.unmounting = true;
-    if (this.refreshExtractDetailsInterval) {
-      clearInterval(this.refreshExtractDetailsInterval);
-    }
   },
   methods: {
     async waitUntilExtractDetailsIsAvailable(): Promise<void> {
@@ -457,6 +453,14 @@ export default defineComponent({
           break;
         case "pending":
           this.ticketResponseCode = 1101;
+
+          if (ticketResult.result && ticketResult.result.json) {
+            let pendingResult = camelizeKeys(JSON.parse(ticketResult.result.json));
+            if (pendingResult.status !== this.extract!.uploadStatus) {
+              this.loadExtractDetails();
+            }
+          }
+
           break;
         case "complete":
           {
@@ -616,14 +620,7 @@ export default defineComponent({
     async handleUploadComplete(args: any) {
       this.ticketId = args.ticketId;
       this.uploadDisabled = true;
-
-      this.refreshExtractDetailsInterval = setInterval(() => {
-        console.log("tick refresh extractdetails", new Date().toISOString(), this.refreshExtractDetailsInterval);
-        this.loadExtractDetails(args.ticketId);
-      }, 10_000);
       await this.waitForTicketComplete();
-
-      clearInterval(this.refreshExtractDetailsInterval);
       await this.loadExtractDetails();
     },
   },

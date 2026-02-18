@@ -76,7 +76,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 var ticket = await ticketing.Get(ticketId.Value, cancellationToken);
                 if (ticket?.Status == TicketStatus.Created)
                 {
-                    await ticketing.Pending(ticketId.Value, cancellationToken);
+                    await ticketing.Pending(ticketId.Value, cancellationToken: cancellationToken);
                 }
             }
 

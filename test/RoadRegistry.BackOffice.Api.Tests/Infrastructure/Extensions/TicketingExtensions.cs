@@ -22,7 +22,12 @@ public class FakeHttpProxyTicketing : ITicketing
         return Task.FromResult(new Ticket(ticketId, TicketStatus.Complete, new Dictionary<string, string>(), new TicketResult()));
     }
 
-    public Task Pending(Guid ticketId, CancellationToken cancellationToken = new())
+    public Task Pending(Guid ticketId, CancellationToken cancellationToken = new CancellationToken())
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task Pending(Guid ticketId, TicketResult result, CancellationToken cancellationToken = new CancellationToken())
     {
         return Task.CompletedTask;
     }

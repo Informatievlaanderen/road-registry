@@ -17,6 +17,7 @@ using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.Tests.AggregateTests;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
+using TicketingService.Abstractions;
 using IZipArchiveFeatureCompareTranslator = RoadRegistry.Extracts.FeatureCompare.DomainV2.IZipArchiveFeatureCompareTranslator;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
 
@@ -433,7 +434,8 @@ public class ExtractUploaderTests
             ExtractsDbContext,
             new RoadNetworkUploadsBlobClient(blobClient),
             zipArchiveFeatureCompareTranslator ?? new FakeZipArchiveFeatureCompareTranslator(),
-            extractUploadFailedEmailClient ?? new FakeExtractUploadFailedEmailClient()
+            extractUploadFailedEmailClient ?? new FakeExtractUploadFailedEmailClient(),
+            Mock.Of<ITicketing>()
         );
 
         await extractUploader.ProcessUploadAndDetectChanges(downloadId, uploadId ?? Fixture.Create<UploadId>(), Fixture.Create<TicketId>(), ZipArchiveMetadata.Empty, CancellationToken.None);
