@@ -129,7 +129,7 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                     break;
                 case RecordType.RemovedIdentifier:
                     {
-                        if (changes.TryFindRoadSegmentChange(record.Feature.Attributes.RoadSegmentId, out var roadSegmentChange) && roadSegmentChange is RemoveRoadSegmentChange removeRoadSegmentChange)
+                        if (changes.TryFindRoadSegmentChange(record.Feature.Attributes.RoadSegmentId, out var roadSegmentChange) && roadSegmentChange is RemoveRoadSegmentChange)
                         {
                             // Do not register removal of number
                         }

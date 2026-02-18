@@ -2,13 +2,33 @@
 
 using AutoFixture;
 using Extensions;
+using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;
 using RoadRegistry.RoadNode.Changes;
+using RoadRegistry.RoadNode.Events.V2;
 using ValueObjects.Problems;
 
 public class VerifyTopologyTests : RoadNetworkTestBase
 {
+    [Fact]
+    public Task WhenAdd_ThenTypeIsDetermined()
+    {
+        return Run(scenario => scenario
+            .Given(given => given
+            )
+            .When(changes => changes
+                .Add(TestData.AddSegment1StartNode)
+                .Add(TestData.AddSegment1EndNode)
+                .Add(TestData.AddSegment1)
+            )
+            .Then((result, events) =>
+            {
+                events.Should().ContainItemsAssignableTo<RoadNodeTypeWasChanged>();
+            })
+        );
+    }
+
     [Fact]
     public Task WhenRemovedAndSegmentsAreStillConnectedByStartNode_ThenError()
     {

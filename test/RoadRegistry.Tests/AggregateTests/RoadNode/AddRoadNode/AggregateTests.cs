@@ -34,13 +34,18 @@ public class AggregateTests : AggregateTestBase
     public void StateCheck()
     {
         // Arrange
+        Fixture.Freeze<RoadNodeId>();
+
         var evt = Fixture.Create<RoadNodeWasAdded>();
+        var typeWasChanged = Fixture.Create<RoadNodeTypeWasChanged>();
 
         // Act
         var node = RoadNode.Create(evt);
+        node.Apply(typeWasChanged);
 
         // Assert
         node.RoadNodeId.Should().Be(evt.RoadNodeId);
         node.Geometry.Should().Be(evt.Geometry);
+        node.Type.Should().Be(typeWasChanged.Type);
     }
 }

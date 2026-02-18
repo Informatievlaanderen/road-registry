@@ -58,6 +58,9 @@ public class ExtractUploaderTests
         await ProcessUpload(downloadId, uploadId: uploadId);
 
         // Assert
+        var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
+        extractDownload.LatestUploadId.Should().Be(uploadId.ToGuid());
+
         var extractUpload = ExtractsDbContext.ExtractUploads.Single(x => x.UploadId == uploadId);
         extractUpload.Status.Should().Be(ExtractUploadStatus.Processing);
     }
@@ -399,6 +402,7 @@ public class ExtractUploaderTests
         var extractDownload = ExtractsDbContext.ExtractUploads.Single(x => x.DownloadId == downloadId);
         extractDownload.Status.Should().Be(ExtractUploadStatus.AutomaticValidationFailed);
     }
+
     private sealed class FakeDomainException : DomainException;
 
     private async Task ProcessUpload(

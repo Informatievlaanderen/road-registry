@@ -59,7 +59,6 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         return roadNode;
     }
 
-    //TODO-pr add unit tests for RoadNodeTypeWasChanged + dat dit gebeurd bij het aanmaken van een wegknoop
     public void Apply(RoadNodeTypeWasChanged @event)
     {
         UncommittedEvents.Add(@event);
