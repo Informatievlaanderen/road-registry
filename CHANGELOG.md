@@ -1,3 +1,10 @@
+# [4.46.0](https://github.com/informatievlaanderen/road-registry/compare/v4.45.1...v4.46.0) (2026-02-18)
+
+
+### Features
+
+* auto-detect RoadNode type + linked RoadNode IDs; FC support Inwinning schema; Inwinning extract upload status flow + data validation polling; fix(backoffice-ui): ACM/IDM logout cleanup and ticket errors as file problems ([#1831](https://github.com/informatievlaanderen/road-registry/issues/1831)) ([864502e](https://github.com/informatievlaanderen/road-registry/commit/864502e5b187709751500ef974e730a3cbbfd2ef))
+
 ## [4.45.1](https://github.com/informatievlaanderen/road-registry/compare/v4.45.0...v4.45.1) (2026-02-06)
 
 
