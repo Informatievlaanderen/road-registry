@@ -7,10 +7,12 @@ using System.Linq;
 using RoadNode;
 using RoadRegistry.Extracts.Uploads;
 using RoadSegment;
+using TransactionZone;
 
 public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureReaderContext
 {
     public ZipArchive Archive { get; }
+    public TransactionZoneFeatureCompareAttributes TransactionZone { get; set; }
     public List<RoadNodeFeatureCompareRecord> RoadNodeRecords { get; }
     public List<RoadSegmentFeatureCompareRecord> RoadSegmentRecords { get; }
 

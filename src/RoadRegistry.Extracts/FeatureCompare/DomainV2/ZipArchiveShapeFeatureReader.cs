@@ -42,7 +42,7 @@ public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZi
         }
     }
 
-    private (List<TFeature>, ZipArchiveProblems) ReadFeatures(
+    protected virtual (List<TFeature>, ZipArchiveProblems) ReadFeatures(
         FeatureType featureType,
         ZipArchiveEntry dbfEntry,
         ZipArchiveEntry shpEntry,

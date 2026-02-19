@@ -10,7 +10,6 @@ using Infrastructure.Dbase;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Uploads;
-using RoadRegistry.Infrastructure.Messages;
 using Schemas.Inwinning.RoadNodes;
 using Point = NetTopologySuite.Geometries.Point;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;

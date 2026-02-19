@@ -13,10 +13,12 @@ using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
+using TransactionZone;
 using TranslatedChanges = DomainV2.TranslatedChanges;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
 {
+    private readonly IGrbOgcApiFeaturesDownloader _ogcApiFeaturesDownloader;
     private readonly IRoadSegmentFeatureCompareStreetNameContextFactory _streetNameContextFactory;
     private readonly IOrganizationCache _organizationCache;
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
@@ -24,11 +26,13 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
     public RoadSegmentFeatureCompareTranslator(
         RoadSegmentFeatureCompareFeatureReader featureReader,
         IRoadSegmentFeatureCompareStreetNameContextFactory streetNameContextFactory,
-        IOrganizationCache organizationCache)
+        IOrganizationCache organizationCache,
+        IGrbOgcApiFeaturesDownloader ogcApiFeaturesDownloader)
         : base(featureReader)
     {
-        _streetNameContextFactory = streetNameContextFactory.ThrowIfNull();
-        _organizationCache = organizationCache.ThrowIfNull();
+        _streetNameContextFactory = streetNameContextFactory;
+        _organizationCache = organizationCache;
+        _ogcApiFeaturesDownloader = ogcApiFeaturesDownloader;
     }
 
     public override async Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
@@ -43,6 +47,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         if (changeFeatures.Any())
         {
             var streetNameContext = await _streetNameContextFactory.Create(changeFeatures, cancellationToken);
+
+            //TODO-pr current
+            var ogcFeaturesCache = await GetOgcFeaturesCache(context, cancellationToken);
 
             foreach (var feature in context.ChangedRoadSegments.Values)
             {
@@ -87,6 +94,18 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         changes = TranslateProcessedRecords(changes, context, cancellationToken);
 
         return (changes, problems);
+    }
+
+    private async Task<OgcFeaturesCache> GetOgcFeaturesCache(ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    {
+        //TODO-pr confirm dat die SRID LB08 is
+        var ogcFeatures = await _ogcApiFeaturesDownloader.DownloadFeaturesAsync(
+            ["KNW", "WBN"],
+            context.TransactionZone.Geometry.Value.Boundary.EnvelopeInternal,
+            context.TransactionZone.Geometry.Value.SRID,
+            cancellationToken);
+
+        return new OgcFeaturesCache(ogcFeatures);
     }
 
     private static ZipArchiveProblems GetProblemsForStreetNameId(IDbaseFileRecordProblemBuilder recordContext, StreetNameLocalId? id, bool leftSide, IRoadSegmentFeatureCompareStreetNameContext streetNameContext)
@@ -333,6 +352,16 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         }
 
         //TODO-pr detect Method based on GRB data
+        /*
+Algoritme voor het afleiden van geometriemethodes:
+Wegsegmenten met status ‘gepland’ krijgen de geometriemethode ‘ingeschetst'
+Resterende wegsegmenten met geometriemethode ‘ingemeten’ die < 75% binnen de GRB (wegbaanvlakken + kunstwerkzones) liggen, krijgen de geometriemethode ‘ingeschetst’
+Resterende wegsegmenten met geometriemethode ‘ingemeten’ die ≥ 75% binnen de GRB (wegbaanvlakken + kunstwerkzones) liggen, krijgen de geometriemethode ‘ingemeten’
+
+Afleiden kan m.b.v. de GRB OGC API’s (met de GRB WFS als alternatieve optie die minder future proof is en minder mogelijkheden biedt qua ruimtelijke bevraging).
+https://vlaamseoverheid.atlassian.net/wiki/spaces/VBR/pages/7973994565/Afleiden+van+geometriemethode
+*/
+
         return changeFeature with
         {
             Attributes = changeFeature.Attributes with
@@ -353,6 +382,23 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             record.Id = nextId;
             nextId = nextId.Next();
         }
+
+        //TODO-pr bepaal welke knopen de validatieknopen zijn en gebruik die om de wegsegmenten te ontplatkloppen
+        /*Bij ontvangst van een levering:
+
+Maak alle knooptypes leeg
+Ken knooptype 'eindknoop' toe aan alle wegknopen die slechts met 1 wegsegment verbonden zijn
+Ken knooptype 'echte knoop' toe aan alle wegknopen die met >2 wegsegmenten verbonden zijn
+Ken knooptype ‘validatieknoop’ toe aan alle wegknopen die met precies 2 wegsegmenten verbonden zijn EN
+waarvoor grensknoop = 1, OF
+waarvoor geldt dat ze verhinderen
+dat een wegsegment zichzelf kruist,
+dat twee wegsegmenten elkaar meermaals kruisen, OF
+dat een wegsegment dezelfde begin- en eindknoop heeft.
+
+Merge alle wegsegmenten in de werkbestanden van de levering die met elkaar verbonden zijn door een knoop waarvoor nog geen knooptype toegekend werd (schijnknopen).
+
+Warning v1 wegsegmenten buiten de werkbestanden mogen op dit moment nog niet gemerged worden met v2 wegsegmenten in de levering*/
 
         foreach (var record in processedRecords)
         {
@@ -532,5 +578,16 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     RecordType.Removed));
             }
         }
+    }
+
+    private sealed class OgcFeaturesCache
+    {
+        private readonly IReadOnlyList<OgcFeature> _features;
+
+        public OgcFeaturesCache(IReadOnlyList<OgcFeature> features)
+        {
+            _features = features;
+        }
+
     }
 }
