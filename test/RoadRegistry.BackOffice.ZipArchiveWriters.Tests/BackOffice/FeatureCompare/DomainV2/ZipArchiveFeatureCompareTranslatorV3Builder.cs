@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 {
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
+    using Moq;
     using RoadRegistry.Extracts;
     using RoadRegistry.Extracts.FeatureCompare.DomainV2;
     using RoadRegistry.Extracts.FeatureCompare.DomainV2.EuropeanRoad;
@@ -28,7 +29,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                 new RoadSegmentFeatureCompareTranslator(
                     new RoadSegmentFeatureCompareFeatureReader(Encoding),
                     streetNameContextFactory ?? new FakeRoadSegmentFeatureCompareStreetNameContextFactoryV3(),
-                    organizationCache ?? new FakeOrganizationCache()
+                    organizationCache ?? new FakeOrganizationCache(),
+                    Mock.Of<IGrbOgcApiFeaturesDownloader>()
                 ),
                 new EuropeanRoadFeatureCompareTranslator(new EuropeanRoadFeatureCompareFeatureReader(Encoding)),
                 new NationalRoadFeatureCompareTranslator(new NationalRoadFeatureCompareFeatureReader(Encoding)),
