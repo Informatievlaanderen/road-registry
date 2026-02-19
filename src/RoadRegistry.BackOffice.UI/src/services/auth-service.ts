@@ -85,7 +85,10 @@ export const AuthService = {
   async logout(): Promise<void> {
     let idToken = sessionStorage.getItem(WR_AUTH_ID_TOKEN);
     if (idToken) {
-      let signoutRequest = await OidcClient.instance.createSignoutRequest({ id_token_hint: idToken });
+      let signoutRequest = await OidcClient.instance.createSignoutRequest({
+        id_token_hint: idToken,
+        post_logout_redirect_uri: OidcClient.instance.settings.post_logout_redirect_uri,
+      });
       const http = axios.create();
       await http.get(signoutRequest.url);
     }
