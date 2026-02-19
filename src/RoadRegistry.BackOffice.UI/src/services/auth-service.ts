@@ -1,6 +1,5 @@
 import { reactive } from "vue";
 import router from "@/router";
-import axios from "axios";
 
 import PublicApi from "./public-api";
 import UserTokenResult from "@/auth/userTokenResult";
@@ -89,9 +88,11 @@ export const AuthService = {
         id_token_hint: idToken,
         post_logout_redirect_uri: OidcClient.instance.settings.post_logout_redirect_uri,
       });
-      const http = axios.create();
-      await http.get(signoutRequest.url);
+      this.reset();
+      window.location.href = signoutRequest.url;
+      return;
     }
+
     this.reset();
     router.push({ name: "login" });
   },
