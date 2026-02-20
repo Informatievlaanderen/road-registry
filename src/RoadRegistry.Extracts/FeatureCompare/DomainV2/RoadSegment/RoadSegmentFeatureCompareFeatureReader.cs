@@ -401,10 +401,8 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return null;
             }
 
-            VehicleAccess? ReadCarAccess()
+            bool? ReadCarAccessForward()
             {
-                bool? forward = null, backward = null;
-
                 if (AUTOHEEN is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(AUTOHEEN));
@@ -414,7 +412,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     var boolValue = AUTOHEEN.ToBooleanFromDbaseValue();
                     if (boolValue is not null)
                     {
-                        forward = boolValue.Value;
+                        return boolValue.Value;
                     }
                     else
                     {
@@ -422,6 +420,11 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     }
                 }
 
+                return null;
+            }
+
+            bool? ReadCarAccessBackward()
+            {
                 if (AUTOTERUG is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(AUTOTERUG));
@@ -431,7 +434,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     var boolValue = AUTOTERUG.ToBooleanFromDbaseValue();
                     if (boolValue is not null)
                     {
-                        backward = boolValue.Value;
+                        return boolValue.Value;
                     }
                     else
                     {
@@ -439,24 +442,11 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     }
                 }
 
-                if (forward is not null && backward is not null)
-                {
-                    if (forward.Value && backward.Value)
-                        return VehicleAccess.BiDirectional;
-                    if (forward.Value)
-                        return VehicleAccess.Forward;
-                    if (backward.Value)
-                        return VehicleAccess.Backward;
-                    return VehicleAccess.None;
-                }
-
                 return null;
             }
 
-            VehicleAccess? ReadBikeAccess()
+            bool? ReadBikeAccessForward()
             {
-                bool? forward = null, backward = null;
-
                 if (FIETSHEEN is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(FIETSHEEN));
@@ -466,7 +456,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     var boolValue = FIETSHEEN.ToBooleanFromDbaseValue();
                     if (boolValue is not null)
                     {
-                        forward = boolValue.Value;
+                        return boolValue.Value;
                     }
                     else
                     {
@@ -474,6 +464,11 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     }
                 }
 
+                return null;
+            }
+
+            bool? ReadBikeAccessBackward()
+            {
                 if (FIETSTERUG is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(FIETSTERUG));
@@ -483,23 +478,12 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     var boolValue = FIETSTERUG.ToBooleanFromDbaseValue();
                     if (boolValue is not null)
                     {
-                        backward = boolValue.Value;
+                        return boolValue.Value;
                     }
                     else
                     {
                         problems += problemBuilder.RoadSegmentFietsTerugMismatch(FIETSTERUG.Value);
                     }
-                }
-
-                if (forward is not null && backward is not null)
-                {
-                    if (forward.Value && backward.Value)
-                        return VehicleAccess.BiDirectional;
-                    if (forward.Value)
-                        return VehicleAccess.Forward;
-                    if (backward.Value)
-                        return VehicleAccess.Backward;
-                    return VehicleAccess.None;
                 }
 
                 return null;
@@ -531,17 +515,19 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 TempId = roadSegmentId,
                 RoadSegmentId = ReadRoadSegmentId(),
                 Method = null,
+                Status = ReadStatus(),
                 Category = ReadCategory(),
                 AccessRestriction = ReadAccessRestriction(),
                 LeftSideStreetNameId = ReadLeftStreetNameId(),
                 RightSideStreetNameId = ReadRightStreetNameId(),
                 LeftMaintenanceAuthorityId = ReadLeftMaintenanceAuthority(),
                 RightMaintenanceAuthorityId = ReadRightMaintenanceAuthority(),
-                Status = ReadStatus(),
                 Morphology = ReadMorphology(),
                 SurfaceType = ReadSurfaceType(),
-                CarAccess = ReadCarAccess(),
-                BikeAccess = ReadBikeAccess(),
+                CarAccessForward = ReadCarAccessForward(),
+                CarAccessBackward = ReadCarAccessBackward(),
+                BikeAccessForward = ReadBikeAccessForward(),
+                BikeAccessBackward = ReadBikeAccessBackward(),
                 PedestrianAccess = ReadPedestrianAccess()
             });
             return (feature, problems);

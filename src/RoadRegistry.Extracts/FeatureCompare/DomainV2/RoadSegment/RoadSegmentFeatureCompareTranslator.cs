@@ -453,6 +453,7 @@ Warning v1 wegsegmenten buiten de werkbestanden mogen op dit moment nog niet gem
                             : null,
                         Geometry = record.GeometryChanged || context.ZipArchiveMetadata.Inwinning ? geometry : null,
                         GeometryDrawMethod = record.Attributes.Method,
+                        Status = record.Attributes.Status,
                         AccessRestriction = record.Attributes.AccessRestriction is not null
                             ? new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(record.Attributes.AccessRestriction, geometry)
                             : null,
@@ -463,17 +464,20 @@ Warning v1 wegsegmenten buiten de werkbestanden mogen op dit moment nog niet gem
                         Morphology = record.Attributes.Morphology is not null
                             ? new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(record.Attributes.Morphology, geometry)
                             : null,
-                        Status = record.Attributes.Status is not null
-                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(record.Attributes.Status, geometry)
-                            : null,
                         SurfaceType = record.Attributes.SurfaceType is not null
                             ? new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(record.Attributes.SurfaceType, geometry)
                             : null,
-                        CarAccess = record.Attributes.CarAccess is not null
-                            ? new RoadSegmentDynamicAttributeValues<VehicleAccess>(record.Attributes.CarAccess.Value, geometry)
+                        CarAccessForward = record.Attributes.CarAccessForward is not null
+                            ? new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.CarAccessForward.Value, geometry)
                             : null,
-                        BikeAccess = record.Attributes.BikeAccess is not null
-                            ? new RoadSegmentDynamicAttributeValues<VehicleAccess>(record.Attributes.BikeAccess.Value, geometry)
+                        CarAccessBackward = record.Attributes.CarAccessBackward is not null
+                            ? new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.CarAccessBackward.Value, geometry)
+                            : null,
+                        BikeAccessForward = record.Attributes.BikeAccessForward is not null
+                            ? new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.BikeAccessForward.Value, geometry)
+                            : null,
+                        BikeAccessBackward = record.Attributes.BikeAccessBackward is not null
+                            ? new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.BikeAccessBackward.Value, geometry)
                             : null,
                         PedestrianAccess = record.Attributes.PedestrianAccess is not null
                             ? new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.PedestrianAccess.Value, geometry)
@@ -496,15 +500,17 @@ Warning v1 wegsegmenten buiten de werkbestanden mogen op dit moment nog niet gem
                                 : null,
                             Geometry = geometry,
                             GeometryDrawMethod = record.Attributes.Method!,
+                            Status = record.Attributes.Status!,
                             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(record.Attributes.AccessRestriction!, geometry),
                             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(record.Attributes.Category!, geometry),
                             MaintenanceAuthorityId = BuildOrganizationIdAttributes(record.Attributes.LeftMaintenanceAuthorityId, record.Attributes.RightMaintenanceAuthorityId, geometry)!,
                             Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(record.Attributes.Morphology!, geometry),
-                            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(record.Attributes.Status!, geometry),
                             StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId, geometry)!,
                             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(record.Attributes.SurfaceType!, geometry),
-                            CarAccess = new RoadSegmentDynamicAttributeValues<VehicleAccess>(record.Attributes.CarAccess!.Value, geometry),
-                            BikeAccess = new RoadSegmentDynamicAttributeValues<VehicleAccess>(record.Attributes.BikeAccess!.Value, geometry),
+                            CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.CarAccessForward!.Value, geometry),
+                            CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.CarAccessBackward!.Value, geometry),
+                            BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.BikeAccessForward!.Value, geometry),
+                            BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.BikeAccessBackward!.Value, geometry),
                             PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.PedestrianAccess!.Value, geometry),
                             EuropeanRoadNumbers = [],
                             NationalRoadNumbers = []

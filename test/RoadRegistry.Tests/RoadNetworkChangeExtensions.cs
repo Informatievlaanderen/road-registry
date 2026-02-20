@@ -26,12 +26,13 @@ public static class RoadNetworkChangeExtensions
             AccessRestriction = change.AccessRestriction.ForEntireGeometry(change.Geometry),
             Category = change.Category.ForEntireGeometry(change.Geometry),
             Morphology = change.Morphology.ForEntireGeometry(change.Geometry),
-            Status = change.Status.ForEntireGeometry(change.Geometry),
             StreetNameId = change.StreetNameId.ForEntireGeometry(change.Geometry),
             MaintenanceAuthorityId = change.MaintenanceAuthorityId.ForEntireGeometry(change.Geometry),
             SurfaceType = change.SurfaceType.ForEntireGeometry(change.Geometry),
-            CarAccess = change.CarAccess.ForEntireGeometry(change.Geometry),
-            BikeAccess = change.BikeAccess.ForEntireGeometry(change.Geometry),
+            CarAccessForward = change.CarAccessForward.ForEntireGeometry(change.Geometry),
+            CarAccessBackward = change.CarAccessBackward.ForEntireGeometry(change.Geometry),
+            BikeAccessForward = change.BikeAccessForward.ForEntireGeometry(change.Geometry),
+            BikeAccessBackward = change.BikeAccessBackward.ForEntireGeometry(change.Geometry),
             PedestrianAccess = change.PedestrianAccess.ForEntireGeometry(change.Geometry)
         };
     }

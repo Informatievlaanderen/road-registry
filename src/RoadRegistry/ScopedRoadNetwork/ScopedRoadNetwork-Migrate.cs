@@ -182,8 +182,10 @@ public partial class ScopedRoadNetwork
             StreetNameId = change.StreetNameId!,
             MaintenanceAuthorityId = change.MaintenanceAuthorityId!,
             SurfaceType = change.SurfaceType!,
-            CarAccess = change.CarAccess!,
-            BikeAccess = change.BikeAccess!,
+            CarAccessForward = change.CarAccessForward!,
+            CarAccessBackward = change.CarAccessBackward!,
+            BikeAccessForward = change.BikeAccessForward!,
+            BikeAccessBackward = change.BikeAccessBackward!,
             PedestrianAccess = change.PedestrianAccess!,
             EuropeanRoadNumbers = europeanRoadNumbers,
             NationalRoadNumbers = nationalRoadNumbers

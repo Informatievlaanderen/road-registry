@@ -115,17 +115,6 @@ public class RoadSegmentAttributesValidatorTests
     }
 
     [Fact]
-    public void EnsureValidatorIsUsedForAttribute_Status()
-    {
-        EnsureValidatorIsUsedForAttribute(change => change with
-        {
-            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<RoadSegmentStatusV2>())
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<RoadSegmentStatusV2>())
-        });
-    }
-
-    [Fact]
     public void EnsureValidatorIsUsedForAttribute_StreetNameId()
     {
         EnsureValidatorIsUsedForAttribute(change => change with
@@ -159,24 +148,46 @@ public class RoadSegmentAttributesValidatorTests
     }
 
     [Fact]
-    public void EnsureValidatorIsUsedForAttribute_CarAccess()
+    public void EnsureValidatorIsUsedForAttribute_CarAccessForward()
     {
         EnsureValidatorIsUsedForAttribute(change => change with
         {
-            CarAccess = new RoadSegmentDynamicAttributeValues<VehicleAccess>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<VehicleAccess>())
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<VehicleAccess>())
+            CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>()
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
         });
     }
 
     [Fact]
-    public void EnsureValidatorIsUsedForAttribute_BikeAccess()
+    public void EnsureValidatorIsUsedForAttribute_CarAccessBackward()
     {
         EnsureValidatorIsUsedForAttribute(change => change with
         {
-            BikeAccess = new RoadSegmentDynamicAttributeValues<VehicleAccess>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<VehicleAccess>())
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<VehicleAccess>())
+            CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>()
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
+        });
+    }
+
+    [Fact]
+    public void EnsureValidatorIsUsedForAttribute_BikeAccessForward()
+    {
+        EnsureValidatorIsUsedForAttribute(change => change with
+        {
+            BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>()
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
+        });
+    }
+
+    [Fact]
+    public void EnsureValidatorIsUsedForAttribute_BikeAccessBackward()
+    {
+        EnsureValidatorIsUsedForAttribute(change => change with
+        {
+            BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>()
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
         });
     }
 

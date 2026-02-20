@@ -35,21 +35,39 @@ public sealed partial record ProblemCode
             };
         }
 
-        public static class BikeAccess
+        public static class BikeAccessForward
         {
-            public static readonly ProblemCode NotValid = new("RoadSegmentBikeAccessNotValid");
-            public static readonly ProblemCode IsRequired = new("RoadSegmentBikeAccessIsRequired");
+            public static readonly ProblemCode NotValid = new("RoadSegmentBikeAccessForwardNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentBikeAccessForwardIsRequired");
 
             public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
             {
-                FromOrToPositionIsNull = new("RoadSegmentBikeAccessAttributeFromOrToPositionIsNull"),
-                FromPositionNotEqualToZero = new("RoadSegmentBikeAccessAttributeFromPositionNotEqualToZero"),
-                HasCountOfZero = new("RoadSegmentBikeAccessAttributeHasCountOfZero"),
-                HasLengthOfZero = new("RoadSegmentBikeAccessAttributeHasLengthOfZero"),
-                NotAdjacent = new("RoadSegmentBikeAccessAttributeNotAdjacent"),
-                ToPositionNotEqualToLength = new("RoadSegmentBikeAccessAttributeToPositionNotEqualToLength"),
-                ValueNotUniqueWithinSegment = new("RoadSegmentBikeAccessAttributeValueNotUniqueWithinSegment"),
-                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentBikeAccessAttributeLeftOrRightNotAllowedWhenUsingBoth"),
+                FromOrToPositionIsNull = new("RoadSegmentBikeAccessForwardAttributeFromOrToPositionIsNull"),
+                FromPositionNotEqualToZero = new("RoadSegmentBikeAccessForwardAttributeFromPositionNotEqualToZero"),
+                HasCountOfZero = new("RoadSegmentBikeAccessForwardAttributeHasCountOfZero"),
+                HasLengthOfZero = new("RoadSegmentBikeAccessForwardAttributeHasLengthOfZero"),
+                NotAdjacent = new("RoadSegmentBikeAccessForwardAttributeNotAdjacent"),
+                ToPositionNotEqualToLength = new("RoadSegmentBikeAccessForwardAttributeToPositionNotEqualToLength"),
+                ValueNotUniqueWithinSegment = new("RoadSegmentBikeAccessForwardAttributeValueNotUniqueWithinSegment"),
+                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentBikeAccessForwardAttributeLeftOrRightNotAllowedWhenUsingBoth"),
+            };
+        }
+
+        public static class BikeAccessBackward
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentBikeAccessBackwardNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentBikeAccessBackwardIsRequired");
+
+            public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
+            {
+                FromOrToPositionIsNull = new("RoadSegmentBikeAccessBackwardAttributeFromOrToPositionIsNull"),
+                FromPositionNotEqualToZero = new("RoadSegmentBikeAccessBackwardAttributeFromPositionNotEqualToZero"),
+                HasCountOfZero = new("RoadSegmentBikeAccessBackwardAttributeHasCountOfZero"),
+                HasLengthOfZero = new("RoadSegmentBikeAccessBackwardAttributeHasLengthOfZero"),
+                NotAdjacent = new("RoadSegmentBikeAccessBackwardAttributeNotAdjacent"),
+                ToPositionNotEqualToLength = new("RoadSegmentBikeAccessBackwardAttributeToPositionNotEqualToLength"),
+                ValueNotUniqueWithinSegment = new("RoadSegmentBikeAccessBackwardAttributeValueNotUniqueWithinSegment"),
+                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentBikeAccessBackwardAttributeLeftOrRightNotAllowedWhenUsingBoth"),
             };
         }
 
@@ -72,21 +90,39 @@ public sealed partial record ProblemCode
             };
         }
 
-        public static class CarAccess
+        public static class CarAccessForward
         {
-            public static readonly ProblemCode NotValid = new("RoadSegmentCarAccessNotValid");
-            public static readonly ProblemCode IsRequired = new("RoadSegmentCarAccessIsRequired");
+            public static readonly ProblemCode NotValid = new("RoadSegmentCarAccessForwardNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentCarAccessForwardIsRequired");
 
             public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
             {
-                FromOrToPositionIsNull = new("RoadSegmentCarAccessAttributeFromOrToPositionIsNull"),
-                FromPositionNotEqualToZero = new("RoadSegmentCarAccessAttributeFromPositionNotEqualToZero"),
-                HasCountOfZero = new("RoadSegmentCarAccessAttributeHasCountOfZero"),
-                HasLengthOfZero = new("RoadSegmentCarAccessAttributeHasLengthOfZero"),
-                NotAdjacent = new("RoadSegmentCarAccessAttributeNotAdjacent"),
-                ToPositionNotEqualToLength = new("RoadSegmentCarAccessAttributeToPositionNotEqualToLength"),
-                ValueNotUniqueWithinSegment = new("RoadSegmentCarAccessAttributeValueNotUniqueWithinSegment"),
-                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentCarAccessAttributeLeftOrRightNotAllowedWhenUsingBoth"),
+                FromOrToPositionIsNull = new("RoadSegmentCarAccessForwardAttributeFromOrToPositionIsNull"),
+                FromPositionNotEqualToZero = new("RoadSegmentCarAccessForwardAttributeFromPositionNotEqualToZero"),
+                HasCountOfZero = new("RoadSegmentCarAccessForwardAttributeHasCountOfZero"),
+                HasLengthOfZero = new("RoadSegmentCarAccessForwardAttributeHasLengthOfZero"),
+                NotAdjacent = new("RoadSegmentCarAccessForwardAttributeNotAdjacent"),
+                ToPositionNotEqualToLength = new("RoadSegmentCarAccessForwardAttributeToPositionNotEqualToLength"),
+                ValueNotUniqueWithinSegment = new("RoadSegmentCarAccessForwardAttributeValueNotUniqueWithinSegment"),
+                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentCarAccessForwardAttributeLeftOrRightNotAllowedWhenUsingBoth"),
+            };
+        }
+
+        public static class CarAccessBackward
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentCarAccessBackwardNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentCarAccessBackwardIsRequired");
+
+            public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
+            {
+                FromOrToPositionIsNull = new("RoadSegmentCarAccessBackwardAttributeFromOrToPositionIsNull"),
+                FromPositionNotEqualToZero = new("RoadSegmentCarAccessBackwardAttributeFromPositionNotEqualToZero"),
+                HasCountOfZero = new("RoadSegmentCarAccessBackwardAttributeHasCountOfZero"),
+                HasLengthOfZero = new("RoadSegmentCarAccessBackwardAttributeHasLengthOfZero"),
+                NotAdjacent = new("RoadSegmentCarAccessBackwardAttributeNotAdjacent"),
+                ToPositionNotEqualToLength = new("RoadSegmentCarAccessBackwardAttributeToPositionNotEqualToLength"),
+                ValueNotUniqueWithinSegment = new("RoadSegmentCarAccessBackwardAttributeValueNotUniqueWithinSegment"),
+                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentCarAccessBackwardAttributeLeftOrRightNotAllowedWhenUsingBoth"),
             };
         }
 
@@ -242,18 +278,6 @@ public sealed partial record ProblemCode
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentStatusNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentStatusIsRequired");
-
-            public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
-            {
-                FromOrToPositionIsNull = new("RoadSegmentStatusFromOrToPositionIsNull"),
-                FromPositionNotEqualToZero = new("RoadSegmentStatusFromPositionNotEqualToZero"),
-                HasCountOfZero = new("RoadSegmentStatusHasCountOfZero"),
-                HasLengthOfZero = new("RoadSegmentStatusHasLengthOfZero"),
-                NotAdjacent = new("RoadSegmentStatusNotAdjacent"),
-                ToPositionNotEqualToLength = new("RoadSegmentStatusToPositionNotEqualToLength"),
-                ValueNotUniqueWithinSegment = new("RoadSegmentStatusValueNotUniqueWithinSegment"),
-                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentStatusLeftOrRightNotAllowedWhenUsingBoth"),
-            };
         }
 
         public static class Width
