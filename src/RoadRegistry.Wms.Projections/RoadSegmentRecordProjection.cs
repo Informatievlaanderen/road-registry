@@ -630,6 +630,11 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         if (streetName is null)
         {
             var streetNameDetails = await _streetNameClient.GetAsync(streetNameId.Value, token).ConfigureAwait(false);
+            if (streetNameDetails is null)
+            {
+                return null;
+            }
+
             return new StreetNameCacheItem
             {
                 Id = streetNameDetails.Id,
