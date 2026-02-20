@@ -794,82 +794,160 @@ public static class ProblemTranslator
                 $"De categorie bevat meerdere attributen voor dezelfde dekking.")
         },
         {
-            ProblemCode.RoadSegment.CarAccess.IsRequired, problem => new(problem.Severity, "AutoToegangVerplicht",
+            ProblemCode.RoadSegment.CarAccessForward.IsRequired, problem => new(problem.Severity, "AutoHeenVerplicht",
+                "Auto heen is verplicht.")
+        },
+        {
+            ProblemCode.RoadSegment.CarAccessForward.NotValid, problem => new(problem.Severity, "AutoHeenNietCorrect",
+                $"Auto heen is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")
+        },
+        {
+            ProblemCode.RoadSegment.CarAccessForward.DynamicAttributeProblemCodes.FromOrToPositionIsNull, problem => new(problem.Severity, problem.Reason,
+                $"De van of naar positie van een auto heen attribuut is leeg.")
+        },
+        {
+            ProblemCode.RoadSegment.CarAccessForward.DynamicAttributeProblemCodes.FromPositionNotEqualToZero, problem => new(problem.Severity, problem.Reason,
+                $"De van positie ({problem.Parameters[1].Value}) van het eerste auto heen attribuut is niet 0.0.")
+        },
+        {
+            ProblemCode.RoadSegment.CarAccessForward.DynamicAttributeProblemCodes.HasCountOfZero, problem => new(problem.Severity, problem.Reason, "Wegsegment heeft geen enkele auto heen.")
+        },
+        {
+            ProblemCode.RoadSegment.CarAccessForward.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
+                $"De van ({problem.Parameters[1].Value}) en tot positie ({problem.Parameters[2].Value}) van een auto heen attribuut heeft lengte 0.")
+        },
+        {
+            ProblemCode.RoadSegment.CarAccessForward.DynamicAttributeProblemCodes.LeftOrRightNotAllowedWhenUsingBoth, problem => new(problem.Severity, problem.Reason,
+                $"Een auto heen attribuut mag geen kant 'beide' gebruiken wanneer er 'links' of 'rechts' wordt gebruikt voor de dekking.")
+        },
+        {
+            ProblemCode.RoadSegment.CarAccessForward.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
+                $"De tot positie ({problem.Parameters[1].Value}) van het auto heen attribuut sluit niet aan op de van positie ({problem.Parameters[3].Value}).")
+        },
+        {
+            ProblemCode.RoadSegment.CarAccessForward.DynamicAttributeProblemCodes.ToPositionNotEqualToLength, problem => new(problem.Severity, problem.Reason,
+                $"De tot positie ({problem.Parameters[1].Value}) van het laatste auto heen attribuut is niet gelijk aan de lengte van het wegsegment ({problem.Parameters[2].Value}).")
+        },
+        {
+            ProblemCode.RoadSegment.CarAccessForward.DynamicAttributeProblemCodes.ValueNotUniqueWithinSegment, problem => new(problem.Severity, problem.Reason,
+                $"Het auto heen bevat meerdere attributen voor dezelfde dekking.")
+        },
+        {
+            ProblemCode.RoadSegment.CarAccessBackward.IsRequired, problem => new(problem.Severity, "AutoTerugVerplicht",
                 "Auto toegang is verplicht.")
         },
         {
-            ProblemCode.RoadSegment.CarAccess.NotValid, problem => new(problem.Severity, "AutoToegangNietCorrect",
-                $"Auto toegang is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")
+            ProblemCode.RoadSegment.CarAccessBackward.NotValid, problem => new(problem.Severity, "AutoTerugNietCorrect",
+                $"Auto terug is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")
         },
         {
-            ProblemCode.RoadSegment.CarAccess.DynamicAttributeProblemCodes.FromOrToPositionIsNull, problem => new(problem.Severity, problem.Reason,
-                $"De van of naar positie van een auto toegang attribuut is leeg.")
+            ProblemCode.RoadSegment.CarAccessBackward.DynamicAttributeProblemCodes.FromOrToPositionIsNull, problem => new(problem.Severity, problem.Reason,
+                $"De van of naar positie van een auto terug attribuut is leeg.")
         },
         {
-            ProblemCode.RoadSegment.CarAccess.DynamicAttributeProblemCodes.FromPositionNotEqualToZero, problem => new(problem.Severity, problem.Reason,
-                $"De van positie ({problem.Parameters[1].Value}) van het eerste auto toegang attribuut is niet 0.0.")
+            ProblemCode.RoadSegment.CarAccessBackward.DynamicAttributeProblemCodes.FromPositionNotEqualToZero, problem => new(problem.Severity, problem.Reason,
+                $"De van positie ({problem.Parameters[1].Value}) van het eerste auto terug attribuut is niet 0.0.")
         },
         {
-            ProblemCode.RoadSegment.CarAccess.DynamicAttributeProblemCodes.HasCountOfZero, problem => new(problem.Severity, problem.Reason, "Wegsegment heeft geen enkele auto toegang.")
+            ProblemCode.RoadSegment.CarAccessBackward.DynamicAttributeProblemCodes.HasCountOfZero, problem => new(problem.Severity, problem.Reason, "Wegsegment heeft geen enkele auto terug.")
         },
         {
-            ProblemCode.RoadSegment.CarAccess.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
-                $"De van ({problem.Parameters[1].Value}) en tot positie ({problem.Parameters[2].Value}) van een auto toegang attribuut heeft lengte 0.")
+            ProblemCode.RoadSegment.CarAccessBackward.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
+                $"De van ({problem.Parameters[1].Value}) en tot positie ({problem.Parameters[2].Value}) van een auto terug attribuut heeft lengte 0.")
         },
         {
-            ProblemCode.RoadSegment.CarAccess.DynamicAttributeProblemCodes.LeftOrRightNotAllowedWhenUsingBoth, problem => new(problem.Severity, problem.Reason,
-                $"Een auto toegang attribuut mag geen kant 'beide' gebruiken wanneer er 'links' of 'rechts' wordt gebruikt voor de dekking.")
+            ProblemCode.RoadSegment.CarAccessBackward.DynamicAttributeProblemCodes.LeftOrRightNotAllowedWhenUsingBoth, problem => new(problem.Severity, problem.Reason,
+                $"Een auto terug attribuut mag geen kant 'beide' gebruiken wanneer er 'links' of 'rechts' wordt gebruikt voor de dekking.")
         },
         {
-            ProblemCode.RoadSegment.CarAccess.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
-                $"De tot positie ({problem.Parameters[1].Value}) van het auto toegang attribuut sluit niet aan op de van positie ({problem.Parameters[3].Value}).")
+            ProblemCode.RoadSegment.CarAccessBackward.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
+                $"De tot positie ({problem.Parameters[1].Value}) van het auto terug attribuut sluit niet aan op de van positie ({problem.Parameters[3].Value}).")
         },
         {
-            ProblemCode.RoadSegment.CarAccess.DynamicAttributeProblemCodes.ToPositionNotEqualToLength, problem => new(problem.Severity, problem.Reason,
-                $"De tot positie ({problem.Parameters[1].Value}) van het laatste auto toegang attribuut is niet gelijk aan de lengte van het wegsegment ({problem.Parameters[2].Value}).")
+            ProblemCode.RoadSegment.CarAccessBackward.DynamicAttributeProblemCodes.ToPositionNotEqualToLength, problem => new(problem.Severity, problem.Reason,
+                $"De tot positie ({problem.Parameters[1].Value}) van het laatste auto terug attribuut is niet gelijk aan de lengte van het wegsegment ({problem.Parameters[2].Value}).")
         },
         {
-            ProblemCode.RoadSegment.CarAccess.DynamicAttributeProblemCodes.ValueNotUniqueWithinSegment, problem => new(problem.Severity, problem.Reason,
-                $"Het auto toegang bevat meerdere attributen voor dezelfde dekking.")
+            ProblemCode.RoadSegment.CarAccessBackward.DynamicAttributeProblemCodes.ValueNotUniqueWithinSegment, problem => new(problem.Severity, problem.Reason,
+                $"Het auto terug bevat meerdere attributen voor dezelfde dekking.")
         },
         {
-            ProblemCode.RoadSegment.BikeAccess.IsRequired, problem => new(problem.Severity, "FietsToegangVerplicht",
-                "Fiets toegang is verplicht.")
+            ProblemCode.RoadSegment.BikeAccessForward.IsRequired, problem => new(problem.Severity, "FietsHeenVerplicht",
+                "Fiets heen is verplicht.")
         },
         {
-            ProblemCode.RoadSegment.BikeAccess.NotValid, problem => new(problem.Severity, "FietsToegangNietCorrect",
-                $"Fiets toegang is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")
+            ProblemCode.RoadSegment.BikeAccessForward.NotValid, problem => new(problem.Severity, "FietsHeenNietCorrect",
+                $"Fiets heen is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")
         },
         {
-            ProblemCode.RoadSegment.BikeAccess.DynamicAttributeProblemCodes.FromOrToPositionIsNull, problem => new(problem.Severity, problem.Reason,
-                $"De van of naar positie van een fiets toegang attribuut is leeg.")
+            ProblemCode.RoadSegment.BikeAccessForward.DynamicAttributeProblemCodes.FromOrToPositionIsNull, problem => new(problem.Severity, problem.Reason,
+                $"De van of naar positie van een fiets heen attribuut is leeg.")
         },
         {
-            ProblemCode.RoadSegment.BikeAccess.DynamicAttributeProblemCodes.FromPositionNotEqualToZero, problem => new(problem.Severity, problem.Reason,
-                $"De van positie ({problem.Parameters[1].Value}) van het eerste fiets toegang attribuut is niet 0.0.")
+            ProblemCode.RoadSegment.BikeAccessForward.DynamicAttributeProblemCodes.FromPositionNotEqualToZero, problem => new(problem.Severity, problem.Reason,
+                $"De van positie ({problem.Parameters[1].Value}) van het eerste fiets heen attribuut is niet 0.0.")
         },
         {
-            ProblemCode.RoadSegment.BikeAccess.DynamicAttributeProblemCodes.HasCountOfZero, problem => new(problem.Severity, problem.Reason, "Wegsegment heeft geen enkele fiets toegang.")
+            ProblemCode.RoadSegment.BikeAccessForward.DynamicAttributeProblemCodes.HasCountOfZero, problem => new(problem.Severity, problem.Reason, "Wegsegment heeft geen enkele fiets heen.")
         },
         {
-            ProblemCode.RoadSegment.BikeAccess.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
-                $"De van ({problem.Parameters[1].Value}) en tot positie ({problem.Parameters[2].Value}) van een fiets toegang attribuut heeft lengte 0.")
+            ProblemCode.RoadSegment.BikeAccessForward.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
+                $"De van ({problem.Parameters[1].Value}) en tot positie ({problem.Parameters[2].Value}) van een fiets heen attribuut heeft lengte 0.")
         },
         {
-            ProblemCode.RoadSegment.BikeAccess.DynamicAttributeProblemCodes.LeftOrRightNotAllowedWhenUsingBoth, problem => new(problem.Severity, problem.Reason,
-                $"Een fiets toegang attribuut mag geen kant 'beide' gebruiken wanneer er 'links' of 'rechts' wordt gebruikt voor de dekking.")
+            ProblemCode.RoadSegment.BikeAccessForward.DynamicAttributeProblemCodes.LeftOrRightNotAllowedWhenUsingBoth, problem => new(problem.Severity, problem.Reason,
+                $"Een fiets heen attribuut mag geen kant 'beide' gebruiken wanneer er 'links' of 'rechts' wordt gebruikt voor de dekking.")
         },
         {
-            ProblemCode.RoadSegment.BikeAccess.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
-                $"De tot positie ({problem.Parameters[1].Value}) van het fiets toegang attribuut sluit niet aan op de van positie ({problem.Parameters[3].Value}).")
+            ProblemCode.RoadSegment.BikeAccessForward.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
+                $"De tot positie ({problem.Parameters[1].Value}) van het fiets heen attribuut sluit niet aan op de van positie ({problem.Parameters[3].Value}).")
         },
         {
-            ProblemCode.RoadSegment.BikeAccess.DynamicAttributeProblemCodes.ToPositionNotEqualToLength, problem => new(problem.Severity, problem.Reason,
-                $"De tot positie ({problem.Parameters[1].Value}) van het laatste fiets toegang attribuut is niet gelijk aan de lengte van het wegsegment ({problem.Parameters[2].Value}).")
+            ProblemCode.RoadSegment.BikeAccessForward.DynamicAttributeProblemCodes.ToPositionNotEqualToLength, problem => new(problem.Severity, problem.Reason,
+                $"De tot positie ({problem.Parameters[1].Value}) van het laatste fiets heen attribuut is niet gelijk aan de lengte van het wegsegment ({problem.Parameters[2].Value}).")
         },
         {
-            ProblemCode.RoadSegment.BikeAccess.DynamicAttributeProblemCodes.ValueNotUniqueWithinSegment, problem => new(problem.Severity, problem.Reason,
-                $"Het fiets toegang bevat meerdere attributen voor dezelfde dekking.")
+            ProblemCode.RoadSegment.BikeAccessForward.DynamicAttributeProblemCodes.ValueNotUniqueWithinSegment, problem => new(problem.Severity, problem.Reason,
+                $"Het fiets heen bevat meerdere attributen voor dezelfde dekking.")
+        },
+        {
+            ProblemCode.RoadSegment.BikeAccessBackward.IsRequired, problem => new(problem.Severity, "FietsTerugVerplicht",
+                "Fiets terug is verplicht.")
+        },
+        {
+            ProblemCode.RoadSegment.BikeAccessBackward.NotValid, problem => new(problem.Severity, "FietsTerugNietCorrect",
+                $"Fiets terug is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")
+        },
+        {
+            ProblemCode.RoadSegment.BikeAccessBackward.DynamicAttributeProblemCodes.FromOrToPositionIsNull, problem => new(problem.Severity, problem.Reason,
+                $"De van of naar positie van een fiets terug attribuut is leeg.")
+        },
+        {
+            ProblemCode.RoadSegment.BikeAccessBackward.DynamicAttributeProblemCodes.FromPositionNotEqualToZero, problem => new(problem.Severity, problem.Reason,
+                $"De van positie ({problem.Parameters[1].Value}) van het eerste fiets terug attribuut is niet 0.0.")
+        },
+        {
+            ProblemCode.RoadSegment.BikeAccessBackward.DynamicAttributeProblemCodes.HasCountOfZero, problem => new(problem.Severity, problem.Reason, "Wegsegment heeft geen enkele fiets terug.")
+        },
+        {
+            ProblemCode.RoadSegment.BikeAccessBackward.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
+                $"De van ({problem.Parameters[1].Value}) en tot positie ({problem.Parameters[2].Value}) van een fiets terug attribuut heeft lengte 0.")
+        },
+        {
+            ProblemCode.RoadSegment.BikeAccessBackward.DynamicAttributeProblemCodes.LeftOrRightNotAllowedWhenUsingBoth, problem => new(problem.Severity, problem.Reason,
+                $"Een fiets terug attribuut mag geen kant 'beide' gebruiken wanneer er 'links' of 'rechts' wordt gebruikt voor de dekking.")
+        },
+        {
+            ProblemCode.RoadSegment.BikeAccessBackward.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
+                $"De tot positie ({problem.Parameters[1].Value}) van het fiets terug attribuut sluit niet aan op de van positie ({problem.Parameters[3].Value}).")
+        },
+        {
+            ProblemCode.RoadSegment.BikeAccessBackward.DynamicAttributeProblemCodes.ToPositionNotEqualToLength, problem => new(problem.Severity, problem.Reason,
+                $"De tot positie ({problem.Parameters[1].Value}) van het laatste fiets terug attribuut is niet gelijk aan de lengte van het wegsegment ({problem.Parameters[2].Value}).")
+        },
+        {
+            ProblemCode.RoadSegment.BikeAccessBackward.DynamicAttributeProblemCodes.ValueNotUniqueWithinSegment, problem => new(problem.Severity, problem.Reason,
+                $"Het fiets terug bevat meerdere attributen voor dezelfde dekking.")
         },
         {
             ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes.FromOrToPositionIsNull, problem => new(problem.Severity, problem.Reason,
@@ -940,37 +1018,6 @@ public static class ProblemTranslator
         {
             ProblemCode.RoadSegment.PedestrianAccess.DynamicAttributeProblemCodes.ValueNotUniqueWithinSegment, problem => new(problem.Severity, problem.Reason,
                 $"Het voetgangers toegang bevat meerdere attributen voor dezelfde dekking.")
-        },
-        {
-            ProblemCode.RoadSegment.Status.DynamicAttributeProblemCodes.FromOrToPositionIsNull, problem => new(problem.Severity, problem.Reason,
-                $"De van of naar positie van een status attribuut is leeg.")
-        },
-        {
-            ProblemCode.RoadSegment.Status.DynamicAttributeProblemCodes.FromPositionNotEqualToZero, problem => new(problem.Severity, problem.Reason,
-                $"De van positie ({problem.Parameters[1].Value}) van het eerste status attribuut is niet 0.0.")
-        },
-        {
-            ProblemCode.RoadSegment.Status.DynamicAttributeProblemCodes.HasCountOfZero, problem => new(problem.Severity, problem.Reason, "Wegsegment heeft geen enkele status.")
-        },
-        {
-            ProblemCode.RoadSegment.Status.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
-                $"De van ({problem.Parameters[1].Value}) en tot positie ({problem.Parameters[2].Value}) van een status attribuut heeft lengte 0.")
-        },
-        {
-            ProblemCode.RoadSegment.Status.DynamicAttributeProblemCodes.LeftOrRightNotAllowedWhenUsingBoth, problem => new(problem.Severity, problem.Reason,
-                $"Een status attribuut mag geen kant 'beide' gebruiken wanneer er 'links' of 'rechts' wordt gebruikt voor de dekking.")
-        },
-        {
-            ProblemCode.RoadSegment.Status.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
-                $"De tot positie ({problem.Parameters[1].Value}) van het status attribuut sluit niet aan op de van positie ({problem.Parameters[3].Value}).")
-        },
-        {
-            ProblemCode.RoadSegment.Status.DynamicAttributeProblemCodes.ToPositionNotEqualToLength, problem => new(problem.Severity, problem.Reason,
-                $"De tot positie ({problem.Parameters[1].Value}) van het laatste status attribuut is niet gelijk aan de lengte van het wegsegment ({problem.Parameters[2].Value}).")
-        },
-        {
-            ProblemCode.RoadSegment.Status.DynamicAttributeProblemCodes.ValueNotUniqueWithinSegment, problem => new(problem.Severity, problem.Reason,
-                $"De status bevat meerdere attributen voor dezelfde dekking.")
         },
         {
             ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes.FromOrToPositionIsNull, problem => new(problem.Severity, problem.Reason,

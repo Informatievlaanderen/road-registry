@@ -46,10 +46,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 StartNodeId = new RoadNodeId(e.Data.StartNodeId),
                 EndNodeId = new RoadNodeId(e.Data.EndNodeId),
                 GeometryDrawMethod = geometryDrawMethod,
+                Status = status,
                 AccessRestriction = ForEntireGeometry(accessRestriction, geometry),
                 Category = ForEntireGeometry(category, geometry),
                 Morphology = ForEntireGeometry(morphology, geometry),
-                Status = ForEntireGeometry(status, geometry),
                 StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, geometry),
                 MaintenanceAuthorityId = ForEntireGeometry(new OrganizationId(e.Data.MaintenanceAuthority.Code), geometry),
                 SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
@@ -59,8 +59,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 ),
-                CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(),
-                BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(),
+                CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(),
+                CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(),
+                BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(),
+                BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(),
                 PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(),
                 EuropeanRoadNumbers = e.Data.PartOfEuropeanRoads
                     .Select(x => EuropeanRoadNumber.Parse(x.Number))
@@ -93,10 +95,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 StartNodeId = new RoadNodeId(e.Data.StartNodeId),
                 EndNodeId = new RoadNodeId(e.Data.EndNodeId),
                 GeometryDrawMethod = geometryDrawMethod,
+                Status = status,
                 AccessRestriction = ForEntireGeometry(accessRestriction, geometry),
                 Category = ForEntireGeometry(category, geometry),
                 Morphology = ForEntireGeometry(morphology, geometry),
-                Status = ForEntireGeometry(status, geometry),
                 StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, geometry),
                 MaintenanceAuthorityId = ForEntireGeometry(new OrganizationId(e.Data.MaintenanceAuthority.Code), geometry),
                 SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
@@ -106,8 +108,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 ),
-                CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(),
-                BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(),
+                CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(),
+                CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(),
+                BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(),
+                BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(),
                 PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(),
                 EuropeanRoadNumbers = [],
                 NationalRoadNumbers = [],
@@ -133,10 +137,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 segment.StartNodeId = new RoadNodeId(e.Data.StartNodeId);
                 segment.EndNodeId = new RoadNodeId(e.Data.EndNodeId);
                 segment.GeometryDrawMethod = geometryDrawMethod;
+                segment.Status = status;
                 segment.AccessRestriction = ForEntireGeometry(accessRestriction, segment.Geometry);
                 segment.Category = ForEntireGeometry(category, segment.Geometry);
                 segment.Morphology = ForEntireGeometry(morphology, segment.Geometry);
-                segment.Status = ForEntireGeometry(status, segment.Geometry);
                 segment.StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, segment.Geometry);
                 segment.MaintenanceAuthorityId = ForEntireGeometry(new OrganizationId(e.Data.MaintenanceAuthority.Code), segment.Geometry);
                 segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
@@ -183,7 +187,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
                 if (e.Data.Status is not null)
                 {
-                    segment.Status = ForEntireGeometry(e.Data.Status, segment.Geometry);
+                    segment.Status = e.Data.Status;
                 }
 
                 if (e.Data.LeftSide is not null || e.Data.RightSide is not null)
@@ -254,15 +258,17 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 StartNodeId = new RoadNodeId(e.Data.StartNodeId),
                 EndNodeId = new RoadNodeId(e.Data.EndNodeId),
                 GeometryDrawMethod = e.Data.GeometryDrawMethod,
+                Status = e.Data.Status,
                 AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString()),
                 Category = e.Data.Category.ToStringAttributeValues(x => x.ToString()),
                 Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString()),
-                Status = e.Data.Status.ToStringAttributeValues(x => x.ToString()),
                 StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId),
                 MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId),
                 SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x.ToString()),
-                CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(e.Data.CarAccess),
-                BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(e.Data.BikeAccess),
+                CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessForward),
+                CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessBackward),
+                BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessForward),
+                BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessBackward),
                 PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.PedestrianAccess),
                 EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList(),
                 NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList(),
@@ -285,15 +291,17 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 StartNodeId = new RoadNodeId(e.Data.StartNodeId),
                 EndNodeId = new RoadNodeId(e.Data.EndNodeId),
                 GeometryDrawMethod = e.Data.GeometryDrawMethod,
+                Status = e.Data.Status,
                 AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString()),
                 Category = e.Data.Category.ToStringAttributeValues(x => x.ToString()),
                 Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString()),
-                Status = e.Data.Status.ToStringAttributeValues(x => x.ToString()),
                 StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId),
                 MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId),
                 SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x.ToString()),
-                CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(e.Data.CarAccess),
-                BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(e.Data.BikeAccess),
+                CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessForward),
+                CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessBackward),
+                BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessForward),
+                BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessBackward),
                 PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.PedestrianAccess),
                 EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList(),
                 NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList(),
@@ -313,6 +321,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 segment.StartNodeId = e.Data.StartNodeId ?? segment.StartNodeId;
                 segment.EndNodeId = e.Data.EndNodeId ?? segment.EndNodeId;
                 segment.GeometryDrawMethod = e.Data.GeometryDrawMethod ?? segment.GeometryDrawMethod;
+                segment.Status = e.Data.Status ?? segment.Status;
 
                 if (e.Data.AccessRestriction is not null)
                 {
@@ -327,11 +336,6 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 if (e.Data.Morphology is not null)
                 {
                     segment.Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString());
-                }
-
-                if (e.Data.Status is not null)
-                {
-                    segment.Status = e.Data.Status.ToStringAttributeValues(x => x.ToString());
                 }
 
                 if (e.Data.StreetNameId is not null)
@@ -349,14 +353,24 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                     segment.SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x.ToString());
                 }
 
-                if (e.Data.CarAccess is not null)
+                if (e.Data.CarAccessForward is not null)
                 {
-                    segment.CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(e.Data.CarAccess);
+                    segment.CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessForward);
                 }
 
-                if (e.Data.BikeAccess is not null)
+                if (e.Data.CarAccessBackward is not null)
                 {
-                    segment.BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(e.Data.BikeAccess);
+                    segment.CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessBackward);
+                }
+
+                if (e.Data.BikeAccessForward is not null)
+                {
+                    segment.BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessForward);
+                }
+
+                if (e.Data.BikeAccessBackward is not null)
+                {
+                    segment.BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessBackward);
                 }
 
                 if (e.Data.PedestrianAccess is not null)
@@ -373,15 +387,17 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 segment.StartNodeId = e.Data.StartNodeId;
                 segment.EndNodeId = e.Data.EndNodeId;
                 segment.GeometryDrawMethod = e.Data.GeometryDrawMethod;
+                segment.Status = e.Data.Status;
                 segment.AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString());
                 segment.Category = e.Data.Category.ToStringAttributeValues(x => x.ToString());
                 segment.Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString());
-                segment.Status = e.Data.Status.ToStringAttributeValues(x => x.ToString());
                 segment.StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId);
                 segment.MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId);
                 segment.SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x.ToString());
-                segment.CarAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(e.Data.CarAccess);
-                segment.BikeAccess = new ExtractRoadSegmentDynamicAttribute<VehicleAccess>(e.Data.BikeAccess);
+                segment.CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessForward);
+                segment.CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessBackward);
+                segment.BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessForward);
+                segment.BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessBackward);
                 segment.PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.PedestrianAccess);
                 segment.EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList();
                 segment.NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList();
@@ -505,15 +521,17 @@ public sealed class RoadSegmentExtractItem
     public required RoadNodeId StartNodeId { get; set; }
     public required RoadNodeId EndNodeId { get; set; }
     public required string GeometryDrawMethod { get; set; }
+    public required string Status { get; set; }
     public required ExtractRoadSegmentDynamicAttribute<string> AccessRestriction { get; set; }
     public required ExtractRoadSegmentDynamicAttribute<string> Category { get; set; }
     public required ExtractRoadSegmentDynamicAttribute<string> Morphology { get; set; }
-    public required ExtractRoadSegmentDynamicAttribute<string> Status { get; set; }
     public required ExtractRoadSegmentDynamicAttribute<StreetNameLocalId> StreetNameId { get; set; }
     public required ExtractRoadSegmentDynamicAttribute<OrganizationId> MaintenanceAuthorityId { get; set; }
     public required ExtractRoadSegmentDynamicAttribute<string> SurfaceType { get; set; }
-    public required ExtractRoadSegmentDynamicAttribute<VehicleAccess> CarAccess { get; set; }
-    public required ExtractRoadSegmentDynamicAttribute<VehicleAccess> BikeAccess { get; set; }
+    public required ExtractRoadSegmentDynamicAttribute<bool> CarAccessForward { get; set; }
+    public required ExtractRoadSegmentDynamicAttribute<bool> CarAccessBackward { get; set; }
+    public required ExtractRoadSegmentDynamicAttribute<bool> BikeAccessForward { get; set; }
+    public required ExtractRoadSegmentDynamicAttribute<bool> BikeAccessBackward { get; set; }
     public required ExtractRoadSegmentDynamicAttribute<bool> PedestrianAccess { get; set; }
     public required List<EuropeanRoadNumber> EuropeanRoadNumbers { get; set; }
     public required List<NationalRoadNumber> NationalRoadNumbers { get; set; }

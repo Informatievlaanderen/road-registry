@@ -29,8 +29,10 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     StreetNameId = TestData.AddSegment1.StreetNameId,
                     MaintenanceAuthorityId = TestData.AddSegment1.MaintenanceAuthorityId,
                     SurfaceType = TestData.AddSegment1.SurfaceType,
-                    CarAccess = TestData.AddSegment1.CarAccess,
-                    BikeAccess = TestData.AddSegment1.BikeAccess,
+                    CarAccessForward = TestData.AddSegment1.CarAccessForward,
+                    CarAccessBackward = TestData.AddSegment1.CarAccessBackward,
+                    BikeAccessForward = TestData.AddSegment1.BikeAccessForward,
+                    BikeAccessBackward = TestData.AddSegment1.BikeAccessBackward,
                     PedestrianAccess = TestData.AddSegment1.PedestrianAccess
                 })
             )
@@ -65,8 +67,10 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     StreetNameId = TestData.AddSegment1.StreetNameId,
                     MaintenanceAuthorityId = TestData.AddSegment1.MaintenanceAuthorityId,
                     SurfaceType = TestData.AddSegment1.SurfaceType,
-                    CarAccess = TestData.AddSegment1.CarAccess,
-                    BikeAccess = TestData.AddSegment1.BikeAccess,
+                    CarAccessForward = TestData.AddSegment1.CarAccessForward,
+                    CarAccessBackward = TestData.AddSegment1.CarAccessBackward,
+                    BikeAccessForward = TestData.AddSegment1.BikeAccessForward,
+                    BikeAccessBackward = TestData.AddSegment1.BikeAccessBackward,
                     PedestrianAccess = TestData.AddSegment1.PedestrianAccess
                 })
                 .Add(new AddRoadSegmentToEuropeanRoadChange
@@ -120,8 +124,10 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     StreetNameId = TestData.AddSegment1.StreetNameId,
                     MaintenanceAuthorityId = TestData.AddSegment1.MaintenanceAuthorityId,
                     SurfaceType = TestData.AddSegment1.SurfaceType,
-                    CarAccess = TestData.AddSegment1.CarAccess,
-                    BikeAccess = TestData.AddSegment1.BikeAccess,
+                    CarAccessForward = TestData.AddSegment1.CarAccessForward,
+                    CarAccessBackward = TestData.AddSegment1.CarAccessBackward,
+                    BikeAccessForward = TestData.AddSegment1.BikeAccessForward,
+                    BikeAccessBackward = TestData.AddSegment1.BikeAccessBackward,
                     PedestrianAccess = TestData.AddSegment1.PedestrianAccess
                 })
                 .Add(new AddRoadSegmentToNationalRoadChange

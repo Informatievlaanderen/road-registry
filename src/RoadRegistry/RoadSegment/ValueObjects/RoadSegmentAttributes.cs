@@ -10,15 +10,17 @@ using RoadRegistry.ValueObjects;
 public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
 {
     public RoadSegmentGeometryDrawMethodV2 GeometryDrawMethod { get; init; }
+    public RoadSegmentStatusV2 Status { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> AccessRestriction { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2> Category { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> Morphology { get; init; }
-    public RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2> Status { get; init; }
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId> MaintenanceAuthorityId { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> SurfaceType { get; init; }
-    public RoadSegmentDynamicAttributeValues<VehicleAccess> CarAccess { get; init; }
-    public RoadSegmentDynamicAttributeValues<VehicleAccess> BikeAccess { get; init; }
+    public RoadSegmentDynamicAttributeValues<bool> CarAccessForward { get; init; }
+    public RoadSegmentDynamicAttributeValues<bool> CarAccessBackward { get; init; }
+    public RoadSegmentDynamicAttributeValues<bool> BikeAccessForward { get; init; }
+    public RoadSegmentDynamicAttributeValues<bool> BikeAccessBackward { get; init; }
     public RoadSegmentDynamicAttributeValues<bool> PedestrianAccess { get; init; }
     public ImmutableList<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; }
     public ImmutableList<NationalRoadNumber> NationalRoadNumbers { get; init; }
@@ -30,30 +32,34 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
     [JsonConstructor]
     protected RoadSegmentAttributes(
         string geometryDrawMethod,
+        string status,
         RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> accessRestriction,
         RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2> category,
         RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> morphology,
-        RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2> status,
         RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameId,
         RoadSegmentDynamicAttributeValues<OrganizationId> maintenanceAuthorityId,
         RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> surfaceType,
-        RoadSegmentDynamicAttributeValues<VehicleAccess> carAccess,
-        RoadSegmentDynamicAttributeValues<VehicleAccess> bikeAccess,
+        RoadSegmentDynamicAttributeValues<bool> carAccessForward,
+        RoadSegmentDynamicAttributeValues<bool> carAccessBackward,
+        RoadSegmentDynamicAttributeValues<bool> bikeAccessForward,
+        RoadSegmentDynamicAttributeValues<bool> bikeAccessBackward,
         RoadSegmentDynamicAttributeValues<bool> pedestrianAccess,
         ICollection<EuropeanRoadNumber> europeanRoadNumbers,
         ICollection<NationalRoadNumber> nationalRoadNumbers
     )
     {
         GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Parse(geometryDrawMethod);
+        Status = RoadSegmentStatusV2.Parse(status);
         AccessRestriction = accessRestriction;
         Category = category;
         Morphology = morphology;
-        Status = status;
         StreetNameId = streetNameId;
         MaintenanceAuthorityId = maintenanceAuthorityId;
         SurfaceType = surfaceType;
-        CarAccess = carAccess;
-        BikeAccess = bikeAccess;
+        CarAccessForward = carAccessForward;
+        CarAccessBackward = carAccessBackward;
+        BikeAccessForward = bikeAccessForward;
+        BikeAccessBackward = bikeAccessBackward;
         PedestrianAccess = pedestrianAccess;
         EuropeanRoadNumbers = europeanRoadNumbers.ToImmutableList();
         NationalRoadNumbers = nationalRoadNumbers.ToImmutableList();
@@ -74,6 +80,11 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
                && StreetNameId.Equals(other.StreetNameId)
                && MaintenanceAuthorityId.Equals(other.MaintenanceAuthorityId)
                && SurfaceType.Equals(other.SurfaceType)
+               && CarAccessForward.Equals(other.CarAccessForward)
+               && CarAccessBackward.Equals(other.CarAccessBackward)
+               && BikeAccessForward.Equals(other.BikeAccessForward)
+               && BikeAccessBackward.Equals(other.BikeAccessBackward)
+               && PedestrianAccess.Equals(other.PedestrianAccess)
                && EuropeanRoadNumbers.SequenceEqual(other.EuropeanRoadNumbers)
                && NationalRoadNumbers.SequenceEqual(other.NationalRoadNumbers)
             ;
@@ -87,16 +98,9 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
         }
 
         return GeometryDrawMethod.Equals(other.GeometryDrawMethod)
+               && Status.Equals(other.Status)
                && EuropeanRoadNumbers.SequenceEqual(other.EuropeanRoadNumbers)
                && NationalRoadNumbers.SequenceEqual(other.NationalRoadNumbers)
             ;
     }
-}
-
-public enum VehicleAccess
-{
-    None = 0,
-    Forward = 1,
-    Backward = 2,
-    BiDirectional = 3
 }
