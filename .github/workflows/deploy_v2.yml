@@ -8,7 +8,7 @@ on:
         type: choice
         description: Select the environment
         options:
-        - tst
+        - test
         - stg
         - prd
         required: true
@@ -35,10 +35,10 @@ jobs:
   deploy_services:
     if: github.repository_owner == 'Informatievlaanderen'
     needs: [deploy_start_slack]
-    name: Deploy
+    name: Deploy services + tasks
     uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.yml@main
     strategy:
-       matrix: 
+       matrix:
          services: [
           'backoffice-api',
           'backoffice-commandhost',
@@ -59,6 +59,7 @@ jobs:
     with:
       environment: ${{ github.event.inputs.environment }}
       service-name: ${{ matrix.services }}
+      application: ${{ matrix.services }}
       version: ${{ github.event.inputs.version }}
       domain: 'road'
       project: 'grawr'
@@ -67,27 +68,25 @@ jobs:
 
   deploy_lambda:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [deploy_services]
-    name: Deploy lambda(s)
-    runs-on: ubuntu-latest
+    needs: [deploy_start_slack, deploy_services]
+    name: Deploy lambdas
+    uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.yml@main
     strategy:
        matrix:
          functions: [
           'sqsbackofficefunction',
           'sqssnapshotfunction'
          ]
-
-    steps:
-    - name: Promote Lambda
-      uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda-v4@main
-      with:
-        function-name: ${{ matrix.functions }}
-        deploy-url: ${{ vars.VBR_AWS_DEPLOY_LAMBDA_DEVOPS_BASEURL }}
-        access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
-        secret-access-key-id: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
-        region: ${{ secrets.VBR_AWS_REGION_PRD }}
-        version: ${{ github.event.inputs.version }}
-        environment: ${{ github.event.inputs.environment }}
+    with:
+      deploy-target: 'lambda'
+      environment: ${{ github.event.inputs.environment }}
+      service-name: ${{ matrix.functions }}
+      application: 'lambda'
+      version: ${{ github.event.inputs.version }}
+      domain: 'road'
+      project: 'grawr'
+      use-subfolder: true
+    secrets: inherit
 
   system_healthcheck:
     needs: [ deploy_lambda ]
