@@ -1,3 +1,10 @@
+## [4.46.5](https://github.com/informatievlaanderen/road-registry/compare/v4.46.4...v4.46.5) (2026-02-23)
+
+
+### Bug Fixes
+
+* **ci:** use aws role instead of id/secret ([0c94bc5](https://github.com/informatievlaanderen/road-registry/commit/0c94bc57fadaa17fc77109a97bd5eb0bc8788ac2))
+
 ## [4.46.4](https://github.com/informatievlaanderen/road-registry/compare/v4.46.3...v4.46.4) (2026-02-23)
 
 
