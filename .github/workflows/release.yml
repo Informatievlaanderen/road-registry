@@ -688,10 +688,10 @@ jobs:
           'product-publishhost',
          ]
     with:
-      environment: ${{ github.event.inputs.environment }}
+      environment: 'test'
       service-name: ${{ matrix.services }}
       application: ${{ matrix.services }}
-      version: ${{ github.event.inputs.version }}
+      version: ${{ needs.release.outputs.version }}
       domain: 'road'
       project: 'grawr'
       use-subfolder: true
@@ -710,10 +710,10 @@ jobs:
          ]
     with:
       deploy-target: 'lambda'
-      environment: ${{ github.event.inputs.environment }}
+      environment: 'test'
       service-name: ${{ matrix.functions }}
       application: 'lambda'
-      version: ${{ github.event.inputs.version }}
+      version: ${{ needs.release.outputs.version }}
       domain: 'road'
       project: 'grawr'
       use-subfolder: true
