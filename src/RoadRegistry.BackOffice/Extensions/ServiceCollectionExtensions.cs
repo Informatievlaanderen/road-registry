@@ -279,7 +279,15 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddFeatureCompareDomainV2(this IServiceCollection services)
     {
         return services
-            .AddSingleton<IGrbOgcApiFeaturesDownloader>(sp => new GrbOgcApiFeaturesDownloader(new HttpClient(), $"{sp.GetRequiredService<IConfiguration>().GetValue<string>("GrbOgcApiUrl")}/features/v1"))
+            .AddHttpClient("GrbOgcApiFeaturesDownloaderClient")
+            .Services
+            .AddSingleton<IGrbOgcApiFeaturesDownloader>(sp =>
+            {
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                var client = httpClientFactory.CreateClient("GrbOgcApiFeaturesDownloaderClient");
+                var baseUrl = $"{sp.GetRequiredService<IConfiguration>().GetValue<string>("GrbOgcApiUrl")}/features/v1";
+                return new GrbOgcApiFeaturesDownloader(client, baseUrl);
+            })
 
             .AddSingleton<TransactionZoneFeatureCompareFeatureReader>()
             .AddSingleton<RoadNodeFeatureCompareFeatureReader>()
