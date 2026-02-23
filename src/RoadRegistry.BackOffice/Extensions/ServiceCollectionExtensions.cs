@@ -279,7 +279,7 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddFeatureCompareDomainV2(this IServiceCollection services)
     {
         return services
-            .AddSingleton<IGrbOgcApiFeaturesDownloader>(_ => new GrbOgcApiFeaturesDownloader(new HttpClient(), "https://geo.api.vlaanderen.be/GRB/ogc/features/v1"))
+            .AddSingleton<IGrbOgcApiFeaturesDownloader>(sp => new GrbOgcApiFeaturesDownloader(new HttpClient(), $"{sp.GetRequiredService<IConfiguration>().GetValue<string>("GrbOgcApiUrl")}/features/v1"))
 
             .AddSingleton<TransactionZoneFeatureCompareFeatureReader>()
             .AddSingleton<RoadNodeFeatureCompareFeatureReader>()
