@@ -834,7 +834,7 @@ public static class ProblemTranslator
         },
         {
             ProblemCode.RoadSegment.CarAccessBackward.IsRequired, problem => new(problem.Severity, "AutoTerugVerplicht",
-                "Auto toegang is verplicht.")
+                "Auto terug is verplicht.")
         },
         {
             ProblemCode.RoadSegment.CarAccessBackward.NotValid, problem => new(problem.Severity, "AutoTerugNietCorrect",
