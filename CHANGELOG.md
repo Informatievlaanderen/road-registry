@@ -1,3 +1,10 @@
+## [4.46.4](https://github.com/informatievlaanderen/road-registry/compare/v4.46.3...v4.46.4) (2026-02-23)
+
+
+### Bug Fixes
+
+* cd to trigger build ([3879ad0](https://github.com/informatievlaanderen/road-registry/commit/3879ad09a70baf5ae6e7b09deabe621b85a37da5))
+
 ## [4.46.3](https://github.com/informatievlaanderen/road-registry/compare/v4.46.2...v4.46.3) (2026-02-23)
 
 
