@@ -278,14 +278,15 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddFeatureCompareDomainV2(this IServiceCollection services)
     {
+        services
+            .AddHttpClient(nameof(GrbOgcApiFeaturesDownloader));
+
         return services
-            .AddHttpClient("GrbOgcApiFeaturesDownloaderClient")
-            .Services
             .AddSingleton<IGrbOgcApiFeaturesDownloader>(sp =>
             {
                 var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-                var client = httpClientFactory.CreateClient("GrbOgcApiFeaturesDownloaderClient");
-                var baseUrl = $"{sp.GetRequiredService<IConfiguration>().GetValue<string>("GrbOgcApiUrl")}/features/v1";
+                var client = httpClientFactory.CreateClient(nameof(GrbOgcApiFeaturesDownloader));
+                var baseUrl = $"{sp.GetRequiredService<IConfiguration>().GetValue<string>("GrbOgcApiUrl")?.TrimEnd('/')}/features/v1";
                 return new GrbOgcApiFeaturesDownloader(client, baseUrl);
             })
 
