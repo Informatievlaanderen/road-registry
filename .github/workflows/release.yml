@@ -646,115 +646,6 @@ jobs:
           SEMVER: ${{ needs.release.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
 
-  deploy_services_to_test:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ push_images, release ]
-    name: Deploy services to test
-    runs-on: ubuntu-latest
-    strategy:
-       matrix: 
-         services: [
-          'road-backoffice-api',
-          'road-backoffice-commandhost',
-          'road-backoffice-eventhost',
-          'road-backoffice-extracthost',
-          'road-backoffice-ui',
-          'road-editor-projectionhost',
-          'road-producer-snapshot-projectionhost',
-          'road-product-projectionhost',
-          'road-projector',
-          'road-synchost',
-          'road-wfs-projectionhost',
-          'road-wms-projectionhost'
-         ]
-
-    steps:
-    - name: CD services
-      env:
-        BUILD_URL: ${{ vars.VBR_AWS_BUILD_API_DEVOPS }}/${{matrix.services}}
-        STATUS_URL: ${{ vars.VBR_AWS_BUILD_STATUS_API_DEVOPS }}/${{matrix.services}}
-      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
-      with:
-        environment: tst
-        version: ${{ needs.release.outputs.version }}
-        status-url: $STATUS_URL
-        deploy-url: $BUILD_URL
-        access-key: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
-        secret-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
-        interval: 2
-        deploy-target: 'agb_ecs_service'
-        domain: 'basisregisters'
-        project: 'basisregisters'
-
-    - name: Output CD services
-      shell: bash
-      run: |
-        echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
-        echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
-        echo ${{ steps.awscurl-polling-action.outputs.final-message }}
-
-  deploy_tasks_to_test:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ push_images, release ]
-    name: Deploy tasks to test
-    runs-on: ubuntu-latest
-    strategy:
-       matrix: 
-         services: [
-          'road-adminhost',
-          'road-jobs-processor',
-          'road-product-publishhost'
-         ]
-
-    steps:
-    - name: CD services
-      env:
-        BUILD_URL: ${{ vars.VBR_AWS_BUILD_API_DEVOPS }}/${{matrix.services}}
-        STATUS_URL: ${{ vars.VBR_AWS_BUILD_STATUS_API_DEVOPS }}/${{matrix.services}}
-      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
-      with:
-        environment: tst
-        version: ${{ needs.release.outputs.version }}
-        status-url: $STATUS_URL
-        deploy-url: $BUILD_URL
-        access-key: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
-        secret-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
-        interval: 2
-        deploy-target: 'ecs_scheduled_task'
-        domain: 'basisregisters'
-        project: 'basisregisters'
-
-    - name: Output CD tasks
-      shell: bash
-      run: |
-        echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
-        echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
-        echo ${{ steps.awscurl-polling-action.outputs.final-message }}
-
-  deploy_lambda_to_test:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ deploy_services_to_test, deploy_tasks_to_test, release ]
-    name: Deploy lambda(s) to test
-    runs-on: ubuntu-latest
-    strategy:
-       matrix:
-         functions: [
-          'rr-sqsbackofficefunction',
-          'rr-sqssnapshotfunction'
-         ]
-
-    steps:
-    - name: Promote Lambda(s)
-      uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda-v4@main
-      with:
-        function-name: ${{ matrix.functions }}
-        deploy-url: ${{ vars.VBR_AWS_DEPLOY_LAMBDA_DEVOPS_BASEURL }}
-        access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
-        secret-access-key-id: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
-        region: ${{ secrets.VBR_AWS_REGION_PRD }}
-        version: ${{ needs.release.outputs.version }}
-        environment: tst
-
   deploy_to_test_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
     needs: [ release, push_images ]
@@ -771,6 +662,62 @@ jobs:
         payload: |
           channel: '#team-dinosaur-dev'
           text: 'Deployment of road-registry ${{ needs.release.outputs.version }} to tst has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+
+  deploy_services_to_test:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [ push_images, release ]
+    name: Deploy
+    uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.yml@main
+    strategy:
+       matrix:
+         services: [
+          'backoffice-api',
+          'backoffice-commandhost',
+          'backoffice-eventhost',
+          'backoffice-extracthost',
+          'backoffice-ui',
+          'editor-projectionhost',
+          'producer-snapshot-projectionhost',
+          'product-projectionhost',
+          'projector',
+          'synchost',
+          'wfs-projectionhost',
+          'wms-projectionhost',
+          'adminhost',
+          'jobs-processor',
+          'product-publishhost',
+         ]
+    with:
+      environment: 'test'
+      service-name: ${{ matrix.services }}
+      application: ${{ matrix.services }}
+      version: ${{ needs.release.outputs.version }}
+      domain: 'road'
+      project: 'grawr'
+      use-subfolder: true
+    secrets: inherit
+
+  deploy_lambda_to_test:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [ deploy_services_to_test, release ]
+    name: Deploy lambda(s) to test
+    uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.yml@main
+    strategy:
+       matrix:
+         functions: [
+          'sqsbackofficefunction',
+          'sqssnapshotfunction'
+         ]
+    with:
+      deploy-target: 'lambda'
+      environment: 'test'
+      service-name: ${{ matrix.functions }}
+      application: 'lambda'
+      version: ${{ needs.release.outputs.version }}
+      domain: 'road'
+      project: 'grawr'
+      use-subfolder: true
+    secrets: inherit
 
   system_healthcheck:
     if: github.repository_owner == 'Informatievlaanderen'

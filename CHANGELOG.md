@@ -1,3 +1,18 @@
+## [4.46.4](https://github.com/informatievlaanderen/road-registry/compare/v4.46.3...v4.46.4) (2026-02-23)
+
+
+### Bug Fixes
+
+* cd to trigger build ([3879ad0](https://github.com/informatievlaanderen/road-registry/commit/3879ad09a70baf5ae6e7b09deabe621b85a37da5))
+
+## [4.46.3](https://github.com/informatievlaanderen/road-registry/compare/v4.46.2...v4.46.3) (2026-02-23)
+
+
+### Bug Fixes
+
+* redirect to logout url ([cbd3bcd](https://github.com/informatievlaanderen/road-registry/commit/cbd3bcd29d2e9eb3a20691a4b6f60521934e99c4))
+* wms/wfs streetname cache handle when streetnameID does not exist or ever existed ([9839ee7](https://github.com/informatievlaanderen/road-registry/commit/9839ee75a6742e5eda76be77b764cfbc4fcd5aac))
+
 ## [4.46.2](https://github.com/informatievlaanderen/road-registry/compare/v4.46.1...v4.46.2) (2026-02-19)
 
 
