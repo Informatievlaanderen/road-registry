@@ -88,13 +88,7 @@ public sealed class GrbOgcApiFeaturesDownloader : IGrbOgcApiFeaturesDownloader
 
             foreach (var feature in collection.Features
                          .Where(x => x.Type == "Feature" && x.Geometry is not null))
-                yield return new OgcFeature
-                {
-                    CollectionId = collectionId,
-                    Id = feature.Id,
-                    Geometry = feature.Geometry.ToNtsGeometry()!.WithSrid(srid),
-                    Properties = feature.Properties
-                };
+                yield return new OgcFeature(collectionId, feature.Id, feature.Geometry.ToNtsGeometry()!.WithSrid(srid), feature.Properties);
 
             nextUrl = GetNextLink(collection);
 
@@ -161,8 +155,16 @@ public sealed class GrbOgcApiFeaturesDownloader : IGrbOgcApiFeaturesDownloader
 
 public sealed class OgcFeature
 {
-    public required string CollectionId { get; init; }
-    public required string? Id { get; init; }
-    public required Geometry Geometry { get; init; }
-    public required Dictionary<string, object>? Properties { get; init; }
+    public string CollectionId { get; }
+    public string? Id { get;  }
+    public Geometry Geometry { get; }
+    public Dictionary<string, object>? Properties { get; }
+
+    public OgcFeature(string collectionid, string? id, Geometry geometry, Dictionary<string, object>? properties)
+    {
+        CollectionId = collectionid;
+        Id = id;
+        Geometry = geometry;
+        Properties = properties;
+    }
 }

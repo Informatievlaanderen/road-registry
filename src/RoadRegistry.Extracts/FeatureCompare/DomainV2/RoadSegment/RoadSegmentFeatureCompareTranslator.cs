@@ -7,13 +7,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
-using TransactionZone;
 using TranslatedChanges = DomainV2.TranslatedChanges;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
@@ -47,10 +47,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         if (changeFeatures.Any())
         {
             var streetNameContext = await _streetNameContextFactory.Create(changeFeatures, cancellationToken);
-
-            //TODO-pr current
-            var ogcFeaturesCache = await GetOgcFeaturesCache(context, cancellationToken);
-
             foreach (var feature in context.ChangedRoadSegments.Values)
             {
                 var recordContext = FileName
@@ -61,17 +57,22 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 problems += GetProblemsForStreetNameId(recordContext, feature.Attributes.RightSideStreetNameId, false, streetNameContext);
             }
 
+            var ogcFeaturesCache = await GetOgcFeaturesCache(context, cancellationToken);
+            extractFeatures = extractFeatures.Select(x => EnsureMethodIsNotNull(x, ogcFeaturesCache)).ToList();
+            changeFeatures = changeFeatures.Select(x => EnsureMethodIsNotNull(x, ogcFeaturesCache)).ToList();
+
             (changeFeatures, var maintenanceAuthorityProblems) = await ValidateMaintenanceAuthorityAndMapToInternalId(changeFeatures, cancellationToken);
             problems += maintenanceAuthorityProblems;
-
-            changeFeatures = changeFeatures.Select(EnsureMethodIsNotNull).ToList();
 
             var batchCount = Debugger.IsAttached ? 1 : 4;
 
             var processedLeveringRecords = new ConcurrentDictionary<int, (List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems)>();
             Parallel.Invoke(changeFeatures
                 .SplitIntoBatches(batchCount)
-                .Select((changeFeaturesBatch, index) => { return (Action)(() => { processedLeveringRecords.TryAdd(index, ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, streetNameContext, context, cancellationToken)); }); })
+                .Select((changeFeaturesBatch, index) => { return (Action)(() =>
+                {
+                    processedLeveringRecords.TryAdd(index, ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, streetNameContext, context, cancellationToken));
+                }); })
                 .ToArray());
 
             foreach (var processedProblems in processedLeveringRecords.OrderBy(x => x.Key).Select(x => x.Value.Item2))
@@ -98,6 +99,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
     private async Task<OgcFeaturesCache> GetOgcFeaturesCache(ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
+        if (!context.ZipArchiveMetadata.Inwinning)
+        {
+            return new OgcFeaturesCache([]);
+        }
+
         //TODO-pr confirm dat die SRID LB08 is
         var ogcFeatures = await _ogcApiFeaturesDownloader.DownloadFeaturesAsync(
             ["KNW", "WBN"],
@@ -146,11 +152,10 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
-        var clusterTolerance = 1.0;
-
         var problems = ZipArchiveProblems.None;
 
         var processedRecords = new List<RoadSegmentFeatureCompareRecord>();
+        const double clusterTolerance = 1.0;
 
         List<Feature<RoadSegmentFeatureCompareAttributes>> FindMatchingExtractFeatures(RoadSegmentFeatureCompareAttributes changeFeatureAttributes)
         {
@@ -161,9 +166,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     .ToList();
             }
 
-            var bufferedGeometry = changeFeatureAttributes.Geometry!.Buffer(clusterTolerance);
+            var bufferedGeometry = changeFeatureAttributes.Geometry.Buffer(clusterTolerance);
             return extractFeatures
-                .Where(x => x.Attributes.Geometry!.Intersects(bufferedGeometry))
+                .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry))
                 .Where(x => changeFeatureAttributes.Geometry.RoadSegmentOverlapsWith(x.Attributes.Geometry, clusterTolerance))
                 .ToList();
         }
@@ -344,23 +349,24 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         }
     }
 
-    private Feature<RoadSegmentFeatureCompareAttributes> EnsureMethodIsNotNull(Feature<RoadSegmentFeatureCompareAttributes> changeFeature)
+    private Feature<RoadSegmentFeatureCompareAttributes> EnsureMethodIsNotNull(Feature<RoadSegmentFeatureCompareAttributes> changeFeature, OgcFeaturesCache ogcFeaturesCache)
     {
         if (changeFeature.Attributes.Method is not null)
         {
             return changeFeature;
         }
 
-        //TODO-pr detect Method based on GRB data
-        /*
-Algoritme voor het afleiden van geometriemethodes:
-Wegsegmenten met status ‘gepland’ krijgen de geometriemethode ‘ingeschetst'
-Resterende wegsegmenten met geometriemethode ‘ingemeten’ die < 75% binnen de GRB (wegbaanvlakken + kunstwerkzones) liggen, krijgen de geometriemethode ‘ingeschetst’
-Resterende wegsegmenten met geometriemethode ‘ingemeten’ die ≥ 75% binnen de GRB (wegbaanvlakken + kunstwerkzones) liggen, krijgen de geometriemethode ‘ingemeten’
-
-Afleiden kan m.b.v. de GRB OGC API’s (met de GRB WFS als alternatieve optie die minder future proof is en minder mogelijkheden biedt qua ruimtelijke bevraging).
-https://vlaamseoverheid.atlassian.net/wiki/spaces/VBR/pages/7973994565/Afleiden+van+geometriemethode
-*/
+        if (changeFeature.Attributes.Status == RoadSegmentStatusV2.Gepland
+            || !ogcFeaturesCache.HasOverlapWithFeatures(changeFeature.Attributes.Geometry, 0.75))
+        {
+            return changeFeature with
+            {
+                Attributes = changeFeature.Attributes with
+                {
+                    Method = RoadSegmentGeometryDrawMethodV2.Ingeschetst
+                }
+            };
+        }
 
         return changeFeature with
         {
@@ -585,15 +591,33 @@ Warning v1 wegsegmenten buiten de werkbestanden mogen op dit moment nog niet gem
             }
         }
     }
+}
 
-    private sealed class OgcFeaturesCache
+public sealed class OgcFeaturesCache
+{
+    private readonly IReadOnlyList<OgcFeature> _features;
+
+    public OgcFeaturesCache(IReadOnlyList<OgcFeature> features)
     {
-        private readonly IReadOnlyList<OgcFeature> _features;
+        _features = features;
+    }
 
-        public OgcFeaturesCache(IReadOnlyList<OgcFeature> features)
-        {
-            _features = features;
-        }
+    public bool HasOverlapWithFeatures(MultiLineString geometry, double minimumOverlapPercentage)
+    {
+        var source = geometry.Buffer(0.001);
+        var overlappingFeatures = _features
+            .Select(x => (Feature: x, OverlapPercentage: GetOverlapPercentage(source, x)))
+            .Where(x => x.OverlapPercentage > 0)
+            .ToList();
 
+        return overlappingFeatures.Sum(x => x.OverlapPercentage) >= minimumOverlapPercentage;
+    }
+
+    private static double GetOverlapPercentage(Geometry roadSegmentGeometry, OgcFeature ogcFeature)
+    {
+        var overlap = roadSegmentGeometry.Intersection(ogcFeature.Geometry);
+
+        var overlapValue = overlap.Area / roadSegmentGeometry.Area;
+        return overlapValue;
     }
 }
