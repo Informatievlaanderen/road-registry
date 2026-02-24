@@ -659,6 +659,20 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError RoadSegmentGeometryDrawMethodV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    {
+        return builder
+            .Error(nameof(RoadSegmentGeometryDrawMethodV2Mismatch))
+            .WithParameter(
+                new ProblemParameter(
+                    "ExpectedOneOf",
+                    string.Join(",", RoadSegmentGeometryDrawMethodV2.Allowed.Select(geometryDrawMethod => geometryDrawMethod.Translation.Identifier.ToString()))
+                )
+            )
+            .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+
     public static FileError RoadSegmentIdOutOfRange(this IDbaseFileRecordProblemBuilder builder, int value)
     {
         return builder

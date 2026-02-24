@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
@@ -17,6 +18,7 @@ using TranslatedChanges = DomainV2.TranslatedChanges;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
 {
+    private readonly IGrbOgcApiFeaturesDownloader _ogcApiFeaturesDownloader;
     private readonly IRoadSegmentFeatureCompareStreetNameContextFactory _streetNameContextFactory;
     private readonly IOrganizationCache _organizationCache;
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
@@ -24,11 +26,13 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
     public RoadSegmentFeatureCompareTranslator(
         RoadSegmentFeatureCompareFeatureReader featureReader,
         IRoadSegmentFeatureCompareStreetNameContextFactory streetNameContextFactory,
-        IOrganizationCache organizationCache)
+        IOrganizationCache organizationCache,
+        IGrbOgcApiFeaturesDownloader ogcApiFeaturesDownloader)
         : base(featureReader)
     {
-        _streetNameContextFactory = streetNameContextFactory.ThrowIfNull();
-        _organizationCache = organizationCache.ThrowIfNull();
+        _streetNameContextFactory = streetNameContextFactory;
+        _organizationCache = organizationCache;
+        _ogcApiFeaturesDownloader = ogcApiFeaturesDownloader;
     }
 
     public override async Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
@@ -43,7 +47,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         if (changeFeatures.Any())
         {
             var streetNameContext = await _streetNameContextFactory.Create(changeFeatures, cancellationToken);
-
             foreach (var feature in context.ChangedRoadSegments.Values)
             {
                 var recordContext = FileName
@@ -54,17 +57,22 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 problems += GetProblemsForStreetNameId(recordContext, feature.Attributes.RightSideStreetNameId, false, streetNameContext);
             }
 
+            var ogcFeaturesCache = await GetOgcFeaturesCache(context, cancellationToken);
+            extractFeatures = extractFeatures.Select(x => EnsureMethodIsNotNull(x, ogcFeaturesCache)).ToList();
+            changeFeatures = changeFeatures.Select(x => EnsureMethodIsNotNull(x, ogcFeaturesCache)).ToList();
+
             (changeFeatures, var maintenanceAuthorityProblems) = await ValidateMaintenanceAuthorityAndMapToInternalId(changeFeatures, cancellationToken);
             problems += maintenanceAuthorityProblems;
-
-            changeFeatures = changeFeatures.Select(EnsureMethodIsNotNull).ToList();
 
             var batchCount = Debugger.IsAttached ? 1 : 4;
 
             var processedLeveringRecords = new ConcurrentDictionary<int, (List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems)>();
             Parallel.Invoke(changeFeatures
                 .SplitIntoBatches(batchCount)
-                .Select((changeFeaturesBatch, index) => { return (Action)(() => { processedLeveringRecords.TryAdd(index, ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, streetNameContext, context, cancellationToken)); }); })
+                .Select((changeFeaturesBatch, index) => { return (Action)(() =>
+                {
+                    processedLeveringRecords.TryAdd(index, ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, streetNameContext, context, cancellationToken));
+                }); })
                 .ToArray());
 
             foreach (var processedProblems in processedLeveringRecords.OrderBy(x => x.Key).Select(x => x.Value.Item2))
@@ -87,6 +95,23 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         changes = TranslateProcessedRecords(changes, context, cancellationToken);
 
         return (changes, problems);
+    }
+
+    private async Task<OgcFeaturesCache> GetOgcFeaturesCache(ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    {
+        if (!context.ZipArchiveMetadata.Inwinning)
+        {
+            return new OgcFeaturesCache([]);
+        }
+
+        //TODO-pr confirm dat die SRID LB08 is
+        var ogcFeatures = await _ogcApiFeaturesDownloader.DownloadFeaturesAsync(
+            ["KNW", "WBN"],
+            context.TransactionZone.Geometry.Value.Boundary.EnvelopeInternal,
+            context.TransactionZone.Geometry.Value.SRID,
+            cancellationToken);
+
+        return new OgcFeaturesCache(ogcFeatures);
     }
 
     private static ZipArchiveProblems GetProblemsForStreetNameId(IDbaseFileRecordProblemBuilder recordContext, StreetNameLocalId? id, bool leftSide, IRoadSegmentFeatureCompareStreetNameContext streetNameContext)
@@ -127,11 +152,10 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
-        var clusterTolerance = 1.0;
-
         var problems = ZipArchiveProblems.None;
 
         var processedRecords = new List<RoadSegmentFeatureCompareRecord>();
+        const double clusterTolerance = 1.0;
 
         List<Feature<RoadSegmentFeatureCompareAttributes>> FindMatchingExtractFeatures(RoadSegmentFeatureCompareAttributes changeFeatureAttributes)
         {
@@ -142,9 +166,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     .ToList();
             }
 
-            var bufferedGeometry = changeFeatureAttributes.Geometry!.Buffer(clusterTolerance);
+            var bufferedGeometry = changeFeatureAttributes.Geometry.Buffer(clusterTolerance);
             return extractFeatures
-                .Where(x => x.Attributes.Geometry!.Intersects(bufferedGeometry))
+                .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry))
                 .Where(x => changeFeatureAttributes.Geometry.RoadSegmentOverlapsWith(x.Attributes.Geometry, clusterTolerance))
                 .ToList();
         }
@@ -325,14 +349,25 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         }
     }
 
-    private Feature<RoadSegmentFeatureCompareAttributes> EnsureMethodIsNotNull(Feature<RoadSegmentFeatureCompareAttributes> changeFeature)
+    private Feature<RoadSegmentFeatureCompareAttributes> EnsureMethodIsNotNull(Feature<RoadSegmentFeatureCompareAttributes> changeFeature, OgcFeaturesCache ogcFeaturesCache)
     {
         if (changeFeature.Attributes.Method is not null)
         {
             return changeFeature;
         }
 
-        //TODO-pr detect Method based on GRB data
+        if (changeFeature.Attributes.Status == RoadSegmentStatusV2.Gepland
+            || !ogcFeaturesCache.HasOverlapWithFeatures(changeFeature.Attributes.Geometry, 0.75))
+        {
+            return changeFeature with
+            {
+                Attributes = changeFeature.Attributes with
+                {
+                    Method = RoadSegmentGeometryDrawMethodV2.Ingeschetst
+                }
+            };
+        }
+
         return changeFeature with
         {
             Attributes = changeFeature.Attributes with
@@ -353,6 +388,23 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             record.Id = nextId;
             nextId = nextId.Next();
         }
+
+        //TODO-pr bepaal welke knopen de validatieknopen zijn en gebruik die om de wegsegmenten te ontplatkloppen
+        /*Bij ontvangst van een levering:
+
+Maak alle knooptypes leeg
+Ken knooptype 'eindknoop' toe aan alle wegknopen die slechts met 1 wegsegment verbonden zijn
+Ken knooptype 'echte knoop' toe aan alle wegknopen die met >2 wegsegmenten verbonden zijn
+Ken knooptype ‘validatieknoop’ toe aan alle wegknopen die met precies 2 wegsegmenten verbonden zijn EN
+waarvoor grensknoop = 1, OF
+waarvoor geldt dat ze verhinderen
+dat een wegsegment zichzelf kruist,
+dat twee wegsegmenten elkaar meermaals kruisen, OF
+dat een wegsegment dezelfde begin- en eindknoop heeft.
+
+Merge alle wegsegmenten in de werkbestanden van de levering die met elkaar verbonden zijn door een knoop waarvoor nog geen knooptype toegekend werd (schijnknopen).
+
+Warning v1 wegsegmenten buiten de werkbestanden mogen op dit moment nog niet gemerged worden met v2 wegsegmenten in de levering*/
 
         foreach (var record in processedRecords)
         {
@@ -407,6 +459,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             : null,
                         Geometry = record.GeometryChanged || context.ZipArchiveMetadata.Inwinning ? geometry : null,
                         GeometryDrawMethod = record.Attributes.Method,
+                        Status = record.Attributes.Status,
                         AccessRestriction = record.Attributes.AccessRestriction is not null
                             ? new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(record.Attributes.AccessRestriction, geometry)
                             : null,
@@ -417,17 +470,20 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         Morphology = record.Attributes.Morphology is not null
                             ? new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(record.Attributes.Morphology, geometry)
                             : null,
-                        Status = record.Attributes.Status is not null
-                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(record.Attributes.Status, geometry)
-                            : null,
                         SurfaceType = record.Attributes.SurfaceType is not null
                             ? new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(record.Attributes.SurfaceType, geometry)
                             : null,
-                        CarAccess = record.Attributes.CarAccess is not null
-                            ? new RoadSegmentDynamicAttributeValues<VehicleAccess>(record.Attributes.CarAccess.Value, geometry)
+                        CarAccessForward = record.Attributes.CarAccessForward is not null
+                            ? new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.CarAccessForward.Value, geometry)
                             : null,
-                        BikeAccess = record.Attributes.BikeAccess is not null
-                            ? new RoadSegmentDynamicAttributeValues<VehicleAccess>(record.Attributes.BikeAccess.Value, geometry)
+                        CarAccessBackward = record.Attributes.CarAccessBackward is not null
+                            ? new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.CarAccessBackward.Value, geometry)
+                            : null,
+                        BikeAccessForward = record.Attributes.BikeAccessForward is not null
+                            ? new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.BikeAccessForward.Value, geometry)
+                            : null,
+                        BikeAccessBackward = record.Attributes.BikeAccessBackward is not null
+                            ? new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.BikeAccessBackward.Value, geometry)
                             : null,
                         PedestrianAccess = record.Attributes.PedestrianAccess is not null
                             ? new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.PedestrianAccess.Value, geometry)
@@ -450,15 +506,17 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                                 : null,
                             Geometry = geometry,
                             GeometryDrawMethod = record.Attributes.Method!,
+                            Status = record.Attributes.Status!,
                             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(record.Attributes.AccessRestriction!, geometry),
                             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(record.Attributes.Category!, geometry),
                             MaintenanceAuthorityId = BuildOrganizationIdAttributes(record.Attributes.LeftMaintenanceAuthorityId, record.Attributes.RightMaintenanceAuthorityId, geometry)!,
                             Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(record.Attributes.Morphology!, geometry),
-                            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(record.Attributes.Status!, geometry),
                             StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId, geometry)!,
                             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(record.Attributes.SurfaceType!, geometry),
-                            CarAccess = new RoadSegmentDynamicAttributeValues<VehicleAccess>(record.Attributes.CarAccess!.Value, geometry),
-                            BikeAccess = new RoadSegmentDynamicAttributeValues<VehicleAccess>(record.Attributes.BikeAccess!.Value, geometry),
+                            CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.CarAccessForward!.Value, geometry),
+                            CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.CarAccessBackward!.Value, geometry),
+                            BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.BikeAccessForward!.Value, geometry),
+                            BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.BikeAccessBackward!.Value, geometry),
                             PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(record.Attributes.PedestrianAccess!.Value, geometry),
                             EuropeanRoadNumbers = [],
                             NationalRoadNumbers = []
@@ -532,5 +590,34 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     RecordType.Removed));
             }
         }
+    }
+}
+
+public sealed class OgcFeaturesCache
+{
+    private readonly IReadOnlyList<OgcFeature> _features;
+
+    public OgcFeaturesCache(IReadOnlyList<OgcFeature> features)
+    {
+        _features = features;
+    }
+
+    public bool HasOverlapWithFeatures(MultiLineString geometry, double minimumOverlapPercentage)
+    {
+        var source = geometry.Buffer(0.001);
+        var overlappingFeatures = _features
+            .Select(x => (Feature: x, OverlapPercentage: GetOverlapPercentage(source, x)))
+            .Where(x => x.OverlapPercentage > 0)
+            .ToList();
+
+        return overlappingFeatures.Sum(x => x.OverlapPercentage) >= minimumOverlapPercentage;
+    }
+
+    private static double GetOverlapPercentage(Geometry roadSegmentGeometry, OgcFeature ogcFeature)
+    {
+        var overlap = roadSegmentGeometry.Intersection(ogcFeature.Geometry);
+
+        var overlapValue = overlap.Area / roadSegmentGeometry.Area;
+        return overlapValue;
     }
 }

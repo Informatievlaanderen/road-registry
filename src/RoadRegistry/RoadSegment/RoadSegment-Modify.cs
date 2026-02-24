@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
-using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events.V2;
@@ -27,8 +26,10 @@ public partial class RoadSegment
         var streetNameId = change.StreetNameId;
         var maintenanceAuthorityId = change.MaintenanceAuthorityId;
         var surfaceType = change.SurfaceType;
-        var carAccess = change.CarAccess;
-        var bikeAccess = change.BikeAccess;
+        var carAccessForward = change.CarAccessForward;
+        var carAccessBackward = change.CarAccessBackward;
+        var bikeAccessForward = change.BikeAccessForward;
+        var bikeAccessBackward = change.BikeAccessBackward;
         var pedestrianAccess = change.PedestrianAccess;
         var attributes = Attributes with
         {
@@ -40,8 +41,10 @@ public partial class RoadSegment
             StreetNameId = streetNameId ?? Attributes.StreetNameId,
             MaintenanceAuthorityId = maintenanceAuthorityId ?? Attributes.MaintenanceAuthorityId,
             SurfaceType = surfaceType ?? Attributes.SurfaceType,
-            CarAccess = carAccess ?? Attributes.CarAccess,
-            BikeAccess = bikeAccess ?? Attributes.BikeAccess,
+            CarAccessForward = carAccessForward ?? Attributes.CarAccessForward,
+            CarAccessBackward = carAccessBackward ?? Attributes.CarAccessBackward,
+            BikeAccessForward = bikeAccessForward ?? Attributes.BikeAccessForward,
+            BikeAccessBackward = bikeAccessBackward ?? Attributes.BikeAccessBackward,
             PedestrianAccess = pedestrianAccess ?? Attributes.PedestrianAccess
         };
         problems += new RoadSegmentAttributesValidator().Validate(originalId, attributes, segmentLength);
@@ -76,8 +79,10 @@ public partial class RoadSegment
             StreetNameId = streetNameId,
             MaintenanceAuthorityId = maintenanceAuthorityId,
             SurfaceType = surfaceType,
-            CarAccess = carAccess,
-            BikeAccess = bikeAccess,
+            CarAccessForward = carAccessForward,
+            CarAccessBackward = carAccessBackward,
+            BikeAccessForward = bikeAccessForward,
+            BikeAccessBackward = bikeAccessBackward,
             PedestrianAccess = pedestrianAccess,
             Provenance = new ProvenanceData(context.Provenance)
         });

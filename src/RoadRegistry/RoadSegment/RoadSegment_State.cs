@@ -75,15 +75,17 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         Attributes = new RoadSegmentAttributes
         {
             GeometryDrawMethod = @event.GeometryDrawMethod,
+            Status = @event.Status,
             AccessRestriction = @event.AccessRestriction,
             Category = @event.Category,
             Morphology = @event.Morphology,
-            Status = @event.Status,
             StreetNameId = @event.StreetNameId,
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
             SurfaceType = @event.SurfaceType,
-            CarAccess = @event.CarAccess,
-            BikeAccess = @event.BikeAccess,
+            CarAccessForward = @event.CarAccessForward,
+            CarAccessBackward = @event.CarAccessBackward,
+            BikeAccessForward = @event.BikeAccessForward,
+            BikeAccessBackward = @event.BikeAccessBackward,
             PedestrianAccess = @event.PedestrianAccess,
             EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
@@ -107,15 +109,17 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         Attributes = new RoadSegmentAttributes
         {
             GeometryDrawMethod = @event.GeometryDrawMethod,
+            Status = @event.Status,
             AccessRestriction = @event.AccessRestriction,
             Category = @event.Category,
             Morphology = @event.Morphology,
-            Status = @event.Status,
             StreetNameId = @event.StreetNameId,
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
             SurfaceType = @event.SurfaceType,
-            CarAccess = @event.CarAccess,
-            BikeAccess = @event.BikeAccess,
+            CarAccessForward = @event.CarAccessForward,
+            CarAccessBackward = @event.CarAccessBackward,
+            BikeAccessForward = @event.BikeAccessForward,
+            BikeAccessBackward = @event.BikeAccessBackward,
             PedestrianAccess = @event.PedestrianAccess,
             EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
@@ -139,15 +143,17 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         Attributes = new RoadSegmentAttributes
         {
             GeometryDrawMethod = @event.GeometryDrawMethod,
+            Status = @event.Status,
             AccessRestriction = @event.AccessRestriction,
             Category = @event.Category,
             Morphology = @event.Morphology,
-            Status = @event.Status,
             StreetNameId = @event.StreetNameId,
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
             SurfaceType = @event.SurfaceType,
-            CarAccess = @event.CarAccess,
-            BikeAccess = @event.BikeAccess,
+            CarAccessForward = @event.CarAccessForward,
+            CarAccessBackward = @event.CarAccessBackward,
+            BikeAccessForward = @event.BikeAccessForward,
+            BikeAccessBackward = @event.BikeAccessBackward,
             PedestrianAccess = @event.PedestrianAccess,
             EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
@@ -164,15 +170,17 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         Attributes = Attributes with
         {
             GeometryDrawMethod = @event.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,
+            Status = @event.Status ?? Attributes.Status,
             AccessRestriction = @event.AccessRestriction ?? Attributes.AccessRestriction,
             Category = @event.Category ?? Attributes.Category,
             Morphology = @event.Morphology ?? Attributes.Morphology,
-            Status = @event.Status ?? Attributes.Status,
             StreetNameId = @event.StreetNameId ?? Attributes.StreetNameId,
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId ?? Attributes.MaintenanceAuthorityId,
             SurfaceType = @event.SurfaceType ?? Attributes.SurfaceType,
-            CarAccess = @event.CarAccess ?? Attributes.CarAccess,
-            BikeAccess = @event.BikeAccess ?? Attributes.BikeAccess,
+            CarAccessForward = @event.CarAccessForward ?? Attributes.CarAccessForward,
+            CarAccessBackward = @event.CarAccessBackward ?? Attributes.CarAccessBackward,
+            BikeAccessForward = @event.BikeAccessForward ?? Attributes.BikeAccessForward,
+            BikeAccessBackward = @event.BikeAccessBackward ?? Attributes.BikeAccessBackward,
             PedestrianAccess = @event.PedestrianAccess ?? Attributes.PedestrianAccess
         };
     }
@@ -196,7 +204,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         MergedRoadSegmentId = @event.MergedRoadSegmentId;
         Attributes = Attributes with
         {
-            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(RoadSegmentStatusV2.Gehistoreerd, Geometry)
+            Status = RoadSegmentStatusV2.Gehistoreerd
         };
     }
 
@@ -207,7 +215,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         MergedRoadSegmentId = @event.MergedRoadSegmentId;
         Attributes = Attributes with
         {
-            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatusV2>(RoadSegmentStatusV2.Gehistoreerd, Geometry)
+            Status = RoadSegmentStatusV2.Gehistoreerd
         };
     }
 

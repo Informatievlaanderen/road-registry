@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net.Http;
 using Amazon.SimpleEmailV2;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Configuration;
@@ -277,7 +278,18 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddFeatureCompareDomainV2(this IServiceCollection services)
     {
+        services
+            .AddHttpClient(nameof(GrbOgcApiFeaturesDownloader));
+
         return services
+            .AddSingleton<IGrbOgcApiFeaturesDownloader>(sp =>
+            {
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                var client = httpClientFactory.CreateClient(nameof(GrbOgcApiFeaturesDownloader));
+                var baseUrl = $"{sp.GetRequiredService<IConfiguration>().GetValue<string>("GrbOgcApiUrl")?.TrimEnd('/')}/features/v1";
+                return new GrbOgcApiFeaturesDownloader(client, baseUrl);
+            })
+
             .AddSingleton<TransactionZoneFeatureCompareFeatureReader>()
             .AddSingleton<RoadNodeFeatureCompareFeatureReader>()
             .AddSingleton<RoadSegmentFeatureCompareFeatureReader>()

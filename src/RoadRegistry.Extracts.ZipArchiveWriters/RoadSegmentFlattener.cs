@@ -32,17 +32,19 @@ public static class RoadSegmentFlattener
                     RoadSegmentId = roadSegment.RoadSegmentId,
                     Geometry = RoadSegmentGeometry.Create(fromToGeometry),
                     GeometryDrawMethod = roadSegment.GeometryDrawMethod,
+                    Status = roadSegment.Status,
                     AccessRestriction = roadSegment.AccessRestriction.GetValue(from, to),
                     Category = roadSegment.Category.GetValue(from, to),
                     Morphology = roadSegment.Morphology.GetValue(from, to),
-                    Status = roadSegment.Status.GetValue(from, to),
                     LeftStreetNameId = roadSegment.StreetNameId.GetValue(from, to, RoadSegmentAttributeSide.Left),
                     RightStreetNameId = roadSegment.StreetNameId.GetValue(from, to, RoadSegmentAttributeSide.Right),
                     LeftMaintenanceAuthorityId = roadSegment.MaintenanceAuthorityId.GetValue(from, to, RoadSegmentAttributeSide.Left),
                     RightMaintenanceAuthorityId = roadSegment.MaintenanceAuthorityId.GetValue(from, to, RoadSegmentAttributeSide.Right),
                     SurfaceType = roadSegment.SurfaceType.GetValue(from, to),
-                    CarAccess = roadSegment.CarAccess.TryGetValue(from, to, RoadSegmentAttributeSide.Both, out var carAccess) ? carAccess : null,
-                    BikeAccess = roadSegment.BikeAccess.TryGetValue(from, to, RoadSegmentAttributeSide.Both, out var bikeAccess) ? bikeAccess : null,
+                    CarAccessForward = roadSegment.CarAccessForward.TryGetValue(from, to, RoadSegmentAttributeSide.Both, out var carAccessForward) ? carAccessForward : null,
+                    CarAccessBackward = roadSegment.CarAccessBackward.TryGetValue(from, to, RoadSegmentAttributeSide.Both, out var carAccessBackward) ? carAccessBackward : null,
+                    BikeAccessForward = roadSegment.BikeAccessForward.TryGetValue(from, to, RoadSegmentAttributeSide.Both, out var bikeAccessForward) ? bikeAccessForward : null,
+                    BikeAccessBackward = roadSegment.BikeAccessBackward.TryGetValue(from, to, RoadSegmentAttributeSide.Both, out var bikeAccessBackward) ? bikeAccessBackward : null,
                     PedestrianAccess = roadSegment.PedestrianAccess.TryGetValue(from, to, RoadSegmentAttributeSide.Both, out var pedestrianAccess) ? pedestrianAccess : null,
                     EuropeanRoadNumbers = roadSegment.EuropeanRoadNumbers,
                     NationalRoadNumbers = roadSegment.NationalRoadNumbers,
@@ -160,17 +162,19 @@ public sealed class FlatRoadSegment
     public required RoadSegmentId RoadSegmentId { get; init; }
     public required RoadSegmentGeometry Geometry { get; init; }
     public required string GeometryDrawMethod { get; init; }
+    public required string Status { get; init; }
     public required string AccessRestriction { get; init; }
     public required string Category { get; init; }
     public required string Morphology { get; init; }
-    public required string Status { get; init; }
     public required StreetNameLocalId LeftStreetNameId { get; init; }
     public required StreetNameLocalId RightStreetNameId { get; init; }
     public required OrganizationId LeftMaintenanceAuthorityId { get; init; }
     public required OrganizationId RightMaintenanceAuthorityId { get; init; }
     public required string SurfaceType { get; init; }
-    public required VehicleAccess? CarAccess { get; init; }
-    public required VehicleAccess? BikeAccess { get; init; }
+    public required bool? CarAccessForward { get; init; }
+    public required bool? CarAccessBackward { get; init; }
+    public required bool? BikeAccessForward { get; init; }
+    public required bool? BikeAccessBackward { get; init; }
     public required bool? PedestrianAccess { get; init; }
     public required List<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; }
     public required List<NationalRoadNumber> NationalRoadNumbers { get; init; }

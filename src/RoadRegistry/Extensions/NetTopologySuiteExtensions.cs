@@ -48,7 +48,7 @@ public static class NetTopologySuiteExtensions
         return OverlapsWith(g0, g1, criticalOverlapPercentage, openGisGeometryType, clusterTolerance);
     }
 
-    private static bool OverlapsWith(Geometry? g0, Geometry? g1, double threshold, OgcGeometryType oGisGeometryType, double clusterTolerance)
+    private static bool OverlapsWith(Geometry? g0, Geometry? g1, double minimumOverlapThreshold, OgcGeometryType oGisGeometryType, double clusterTolerance)
     {
         if (g0 is null && g1 is null)
         {
@@ -82,9 +82,9 @@ public static class NetTopologySuiteExtensions
             var g1Buf = g1.Buffer(clusterTolerance);
             overlap = g0.Intersection(g1Buf);
             var overlapValue = Math.Round(overlap.Length / g1.Length);
-            if (overlapValue >= threshold)
+            if (overlapValue >= minimumOverlapThreshold)
             {
-                return CheckOverlapViceVersa(g0, g1, OgcGeometryType.LineString, threshold, clusterTolerance);
+                return CheckOverlapViceVersa(g0, g1, OgcGeometryType.LineString, minimumOverlapThreshold, clusterTolerance);
             }
 
             return false;
@@ -95,7 +95,7 @@ public static class NetTopologySuiteExtensions
             overlap = g0.Intersection(g1);
 
             var overlapValue = Math.Round(overlap.Area / g1.Area);
-            if (overlapValue >= threshold)
+            if (overlapValue >= minimumOverlapThreshold)
             {
                 return true;
             }

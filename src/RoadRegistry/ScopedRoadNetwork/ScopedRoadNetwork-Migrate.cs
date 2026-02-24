@@ -74,6 +74,13 @@ public partial class ScopedRoadNetwork
             }
         }
 
+        //TODO-pr maak automatisch gelijkgrondsekruisingen aan/verwijder ze: (ook in roadnetwork.change)
+        /*Voeg gelijkgrondse kruisingen toe op elk punt waar 2 wegsegmenten elkaar kruisen zonder dat er overlap is in de gecapteerde verkeerstypes*.
+        Er is overlap in gecapteerde verkeerstypes tussen 2 wegsegmenten A en B wanneer
+        (‘auto heen’='1' of ‘auto terug’='1') voor zowel A als B,
+        (‘fiets heen’='1' of ‘fiets terug’='1') voor zowel A als B, of
+        ‘voetganger’='1' voor zowel A als B.*/
+
         if (!problems.HasError())
         {
             problems = _roadNodes.Values.Where(x => x.HasChanges()).Select(x => x.RoadNodeId)
@@ -175,8 +182,10 @@ public partial class ScopedRoadNetwork
             StreetNameId = change.StreetNameId!,
             MaintenanceAuthorityId = change.MaintenanceAuthorityId!,
             SurfaceType = change.SurfaceType!,
-            CarAccess = change.CarAccess!,
-            BikeAccess = change.BikeAccess!,
+            CarAccessForward = change.CarAccessForward!,
+            CarAccessBackward = change.CarAccessBackward!,
+            BikeAccessForward = change.BikeAccessForward!,
+            BikeAccessBackward = change.BikeAccessBackward!,
             PedestrianAccess = change.PedestrianAccess!,
             EuropeanRoadNumbers = europeanRoadNumbers,
             NationalRoadNumbers = nationalRoadNumbers
