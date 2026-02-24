@@ -1,3 +1,10 @@
+# [4.47.0](https://github.com/informatievlaanderen/road-registry/compare/v4.46.5...v4.47.0) (2026-02-24)
+
+
+### Features
+
+* add OGC API for Method determination + refactor: roadsegment status to simple attribute + remove VehicleAccess GAWR-7195 ([65ed840](https://github.com/informatievlaanderen/road-registry/commit/65ed84043733f8bb3fc3433d3453ad9167bba61b))
+
 ## [4.46.5](https://github.com/informatievlaanderen/road-registry/compare/v4.46.4...v4.46.5) (2026-02-23)
 
 
