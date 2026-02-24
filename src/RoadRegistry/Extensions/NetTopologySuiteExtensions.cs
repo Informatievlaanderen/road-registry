@@ -392,7 +392,13 @@ public static class NetTopologySuiteExtensions
         if (ReferenceEquals(@this, other)) return true;
         if (@this.IsEmpty && other.IsEmpty) return true;
         if (@this.IsEmpty != other.IsEmpty) return false;
-        return @this.EqualsExact(other, tolerances.GeometryTolerance);
+        return @this.IsReasonablyEqualTo(other.Coordinate, tolerances);
+    }
+
+    public static bool IsReasonablyEqualTo(this Point @this, Coordinate other, VerificationContextTolerances tolerances)
+    {
+        if (ReferenceEquals(@this, other)) return true;
+        return @this.Coordinate.Equals2D(other, tolerances.GeometryTolerance);
     }
 
     public static bool IsReasonablyEqualTo(this Coordinate @this, Coordinate other, VerificationContextTolerances tolerances)

@@ -9,7 +9,7 @@ using RoadRegistry.Infrastructure;
 public interface IRoadSegmentFeatureCompareStreetNameContextFactory
 {
     Task<IRoadSegmentFeatureCompareStreetNameContext> Create(
-        ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures,
+        ICollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> changeFeatures,
         CancellationToken cancellationToken);
 }
 
@@ -23,7 +23,7 @@ public class RoadSegmentFeatureCompareStreetNameContextFactory: IRoadSegmentFeat
     }
 
     public async Task<IRoadSegmentFeatureCompareStreetNameContext> Create(
-        ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures,
+        ICollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> changeFeatures,
         CancellationToken cancellationToken)
     {
         var usedStreetNameIds = changeFeatures

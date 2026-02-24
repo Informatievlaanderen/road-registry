@@ -16,8 +16,8 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
 
     protected override void HandleIdenticalRoadSegment(
         RoadSegmentFeatureCompareRecord wegsegment,
-        ILookup<RoadSegmentId, Feature<EuropeanRoadFeatureCompareAttributes>> changeFeatures,
-        ILookup<RoadSegmentId, Feature<EuropeanRoadFeatureCompareAttributes>> extractFeatures,
+        ILookup<RoadSegmentTempId, Feature<EuropeanRoadFeatureCompareAttributes>> changeFeatures,
+        ILookup<RoadSegmentTempId, Feature<EuropeanRoadFeatureCompareAttributes>> extractFeatures,
         List<Record> processedRecords)
     {
         var wegsegmentChangeFeatures = changeFeatures[wegsegment.GetOriginalId()].ToList();
@@ -25,7 +25,7 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
 
         foreach (var changeFeature in wegsegmentChangeFeatures)
         {
-            var leveringExtractFeatures = extractFeatures[changeFeature.Attributes.RoadSegmentId]
+            var leveringExtractFeatures = extractFeatures[changeFeature.Attributes.RoadSegmentTempId]
                 .Where(x => x.Attributes.Number == changeFeature.Attributes.Number)
                 .ToList();
             if (!leveringExtractFeatures.Any())
@@ -48,7 +48,7 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
 
         foreach (var extractFeature in wegsegmentExtractFeatures)
         {
-            var extractChangeFeatures = changeFeatures[extractFeature.Attributes.RoadSegmentId]
+            var extractChangeFeatures = changeFeatures[extractFeature.Attributes.RoadSegmentTempId]
                 .Where(x => x.Attributes.Number == extractFeature.Attributes.Number)
                 .ToList();
             if (!extractChangeFeatures.Any())
@@ -60,8 +60,8 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
 
     protected override void HandleModifiedRoadSegment(
         RoadSegmentFeatureCompareRecord wegsegment,
-        ILookup<RoadSegmentId, Feature<EuropeanRoadFeatureCompareAttributes>> changeFeatures,
-        ILookup<RoadSegmentId, Feature<EuropeanRoadFeatureCompareAttributes>> extractFeatures,
+        ILookup<RoadSegmentTempId, Feature<EuropeanRoadFeatureCompareAttributes>> changeFeatures,
+        ILookup<RoadSegmentTempId, Feature<EuropeanRoadFeatureCompareAttributes>> extractFeatures,
         List<Record> processedRecords)
     {
         var wegsegmentChangeFeatures = changeFeatures[wegsegment.GetOriginalId()].ToList();
@@ -78,7 +78,7 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                 {
                     Attributes = changeFeature.Attributes with
                     {
-                        RoadSegmentId = wegsegment.GetActualId()
+                        RoadSegmentTempId = wegsegment.GetActualId()
                     }
                 }, RecordType.Added));
             }
@@ -109,7 +109,7 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
             {
                 case RecordType.AddedIdentifier:
                     {
-                        if (changes.TryFindRoadSegmentChange(record.Feature.Attributes.RoadSegmentId, out var roadSegmentChange) && roadSegmentChange is AddRoadSegmentChange addRoadSegmentChange)
+                        if (changes.TryFindRoadSegmentChange(record.Feature.Attributes.RoadSegmentTempId, out var roadSegmentChange) && roadSegmentChange is AddRoadSegmentChange addRoadSegmentChange)
                         {
                             changes = changes.ReplaceChange(addRoadSegmentChange, addRoadSegmentChange with
                             {
@@ -121,7 +121,7 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                             changes = changes.AppendChange(
                                 new AddRoadSegmentToEuropeanRoadChange
                                 {
-                                    RoadSegmentId = record.Feature.Attributes.RoadSegmentId,
+                                    RoadSegmentId = record.Feature.Attributes.RoadSegmentTempId,
                                     Number = record.Feature.Attributes.Number
                                 }
                             );
@@ -130,7 +130,7 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                     break;
                 case RecordType.RemovedIdentifier:
                     {
-                        if (changes.TryFindRoadSegmentChange(record.Feature.Attributes.RoadSegmentId, out var roadSegmentChange) && roadSegmentChange is RemoveRoadSegmentChange)
+                        if (changes.TryFindRoadSegmentChange(record.Feature.Attributes.RoadSegmentTempId, out var roadSegmentChange) && roadSegmentChange is RemoveRoadSegmentChange)
                         {
                             // Do not register removal of number
                         }
@@ -139,7 +139,7 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                             changes = changes.AppendChange(
                                 new RemoveRoadSegmentFromEuropeanRoadChange
                                 {
-                                    RoadSegmentId = record.Feature.Attributes.RoadSegmentId,
+                                    RoadSegmentId = record.Feature.Attributes.RoadSegmentTempId,
                                     Number = record.Feature.Attributes.Number
                                 }
                             );

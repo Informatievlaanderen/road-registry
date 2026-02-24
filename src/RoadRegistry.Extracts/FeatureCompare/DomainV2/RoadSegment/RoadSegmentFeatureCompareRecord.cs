@@ -8,26 +8,29 @@ public class RoadSegmentFeatureCompareRecord
     public RoadSegmentFeatureCompareRecord(
         FeatureType featureType,
         RecordNumber recordNumber,
-        RoadSegmentFeatureCompareAttributes attributes,
-        RoadSegmentId id,
+        RoadSegmentFeatureCompareWithDynamicAttributes attributes,
+        IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> flatFeatures,
+        RoadSegmentId roadSegmentId,
         RecordType recordType
     )
     {
         FeatureType = featureType;
         RecordNumber = recordNumber;
         Attributes = attributes;
-        Id = id;
+        RoadSegmentId = roadSegmentId;
         RecordType = recordType;
+        FlatFeatures = flatFeatures;
     }
 
     public FeatureType FeatureType { get; }
     public RecordNumber RecordNumber { get; }
-    public RoadSegmentFeatureCompareAttributes Attributes { get; set; }
-    public RoadSegmentId Id { get; set; }
+    public RoadSegmentFeatureCompareWithDynamicAttributes Attributes { get; }
+    public RoadSegmentId RoadSegmentId { get; set; }
     public RecordType RecordType { get; }
+    public IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> FlatFeatures { get; }
 
     public bool GeometryChanged { get; init; }
 
-    public RoadSegmentId GetActualId() => Id;
-    public RoadSegmentId GetOriginalId() => Attributes.TempId;
+    public RoadSegmentId GetActualId() => RoadSegmentId;
+    public RoadSegmentId GetOriginalId() => Attributes.RoadSegmentId;
 }

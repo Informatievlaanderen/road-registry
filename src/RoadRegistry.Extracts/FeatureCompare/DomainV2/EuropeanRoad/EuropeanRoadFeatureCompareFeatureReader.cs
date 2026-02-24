@@ -55,7 +55,7 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
     {
         public int? EU_OIDN { get; init; }
         public int? WS_TEMPID { get; init; }
-        public string EUNUMMER { get; init; }
+        public string? EUNUMMER { get; init; }
 
         public (Feature<EuropeanRoadFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
         {
@@ -83,15 +83,15 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
                 return default;
             }
 
-            RoadSegmentId ReadRoadSegmentId()
+            RoadSegmentTempId ReadRoadSegmentId()
             {
                 if (WS_TEMPID is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(WS_TEMPID));
                 }
-                else if (RoadSegmentId.Accepts(WS_TEMPID.Value))
+                else if (RoadSegmentTempId.Accepts(WS_TEMPID.Value))
                 {
-                    return new RoadSegmentId(WS_TEMPID.Value);
+                    return new RoadSegmentTempId(WS_TEMPID.Value);
                 }
                 else
                 {
@@ -122,7 +122,7 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
             var feature = Feature.New(recordNumber, new EuropeanRoadFeatureCompareAttributes
             {
                 Id = ReadId(),
-                RoadSegmentId = ReadRoadSegmentId(),
+                RoadSegmentTempId = ReadRoadSegmentId(),
                 Number = ReadNumber()
             });
             return (feature, problems);
