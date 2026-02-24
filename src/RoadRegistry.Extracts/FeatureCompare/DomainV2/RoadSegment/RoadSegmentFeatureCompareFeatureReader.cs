@@ -12,10 +12,9 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadSegment;
-using RoadRegistry.RoadSegment.ValueObjects;
 using Schemas.Inwinning.RoadSegments;
 
-public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareAttributes>>
+public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>
 {
     private readonly FileEncoding _encoding;
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
@@ -26,7 +25,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         _encoding = encoding;
     }
 
-    public override (List<Feature<RoadSegmentFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
+    public override (List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
         var (features, problems) = base.Read(archive, featureType, context);
 
@@ -72,7 +71,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     if (context.ChangedRoadSegments.TryGetValue(feature.Attributes.TempId, out var knownRoadSegment))
                     {
                         var recordContext = FileName.AtDbaseRecord(featureType, feature.RecordNumber);
-                        problems += recordContext.RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange(feature.Attributes.TempId, knownRoadSegment.RecordNumber);
+                        problems += recordContext.RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange(new RoadSegmentId(feature.Attributes.TempId.ToInt()), knownRoadSegment.RecordNumber);
                     }
                 }
 
@@ -82,7 +81,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         return (features, problems);
     }
 
-    private void AddToContext(List<Feature<RoadSegmentFeatureCompareAttributes>> features, FeatureType featureType, ZipArchiveFeatureReaderContext context)
+    private void AddToContext(List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> features, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
         if (featureType != FeatureType.Change)
         {
@@ -100,14 +99,14 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         }
     }
 
-    private sealed class InwinningFeatureReader : ZipArchiveShapeFeatureReader<RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareAttributes>>
+    private sealed class InwinningFeatureReader : ZipArchiveShapeFeatureReader<RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareWithFlatAttributes>>
     {
         public InwinningFeatureReader(Encoding encoding)
             : base(encoding, RoadSegmentFeatureCompareFeatureReader.FileName, RoadSegmentDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadSegmentDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadSegmentFeatureCompareWithFlatAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadSegmentDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
         {
             return new RecordData
             {
@@ -154,7 +153,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         public required int? FIETSTERUG { get; init; }
         public required int? VOETGANGER { get; init; }
 
-        public (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, ZipArchiveFeatureReaderContext context)
+        public (Feature<RoadSegmentFeatureCompareWithFlatAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, ZipArchiveFeatureReaderContext context)
         {
             var problemBuilder = fileName
                 .AtDbaseRecord(featureType, recordNumber)
@@ -187,7 +186,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     {
                         var line = lines[0];
 
-                        var lineProblems = line.ValidateRoadSegmentGeometry(roadSegmentId);
+                        var lineProblems = line.ValidateRoadSegmentGeometry(new RoadSegmentId(roadSegmentId.ToInt()));
 
                         problems += lineProblems.Select(problem => recordContext
                             .Error(problem.Reason)
@@ -207,15 +206,15 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return MultiLineString.Empty;
             }
 
-            RoadSegmentId ReadId()
+            RoadSegmentTempId ReadId()
             {
                 if (WS_TEMPID is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(WS_TEMPID));
                 }
-                else if (RoadSegmentId.Accepts(WS_TEMPID.Value))
+                else if (RoadSegmentTempId.Accepts(WS_TEMPID.Value))
                 {
-                    return new RoadSegmentId(WS_TEMPID.Value);
+                    return new RoadSegmentTempId(WS_TEMPID.Value);
                 }
                 else
                 {
@@ -229,7 +228,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
             {
                 if (WS_OIDN is null)
                 {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(WS_OIDN));
+                    if (featureType != FeatureType.Change)
+                    {
+                        problems += problemBuilder.RequiredFieldIsNull(nameof(WS_OIDN));
+                    }
                 }
                 else if (RoadSegmentId.Accepts(WS_OIDN.Value))
                 {
@@ -529,7 +531,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return null;
             }
 
-            var feature = Feature.New(recordNumber, new RoadSegmentFeatureCompareAttributes
+            var feature = Feature.New(recordNumber, new RoadSegmentFeatureCompareWithFlatAttributes
             {
                 Geometry = ReadGeometry(),
                 TempId = roadSegmentId,

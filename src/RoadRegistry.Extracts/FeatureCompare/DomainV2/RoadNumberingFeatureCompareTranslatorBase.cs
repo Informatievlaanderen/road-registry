@@ -19,8 +19,8 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         _fileName = fileName;
     }
 
-    protected abstract void HandleIdenticalRoadSegment(RoadSegmentFeatureCompareRecord wegsegment, ILookup<RoadSegmentId, Feature<TAttributes>> changeFeatures, ILookup<RoadSegmentId, Feature<TAttributes>> extractFeatures, List<Record> processedRecords);
-    protected abstract void HandleModifiedRoadSegment(RoadSegmentFeatureCompareRecord wegsegment, ILookup<RoadSegmentId, Feature<TAttributes>> changeFeatures, ILookup<RoadSegmentId, Feature<TAttributes>> extractFeatures, List<Record> processedRecords);
+    protected abstract void HandleIdenticalRoadSegment(RoadSegmentFeatureCompareRecord wegsegment, ILookup<RoadSegmentTempId, Feature<TAttributes>> changeFeatures, ILookup<RoadSegmentTempId, Feature<TAttributes>> extractFeatures, List<Record> processedRecords);
+    protected abstract void HandleModifiedRoadSegment(RoadSegmentFeatureCompareRecord wegsegment, ILookup<RoadSegmentTempId, Feature<TAttributes>> changeFeatures, ILookup<RoadSegmentTempId, Feature<TAttributes>> extractFeatures, List<Record> processedRecords);
 
     public override Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
@@ -30,8 +30,8 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
 
         problems = ValidateRoadSegmentIds(features.Change, problems, context, cancellationToken);
 
-        var extractFeaturesLookup = features.Extract.ToLookup(x => x.Attributes.RoadSegmentId);
-        var changeFeaturesLookup = features.Change.ToLookup(x => x.Attributes.RoadSegmentId);
+        var extractFeaturesLookup = features.Extract.ToLookup(x => x.Attributes.RoadSegmentTempId);
+        var changeFeaturesLookup = features.Change.ToLookup(x => x.Attributes.RoadSegmentTempId);
 
         List<Record> addedRecords = [], deletedRecords = [], identicalRecords = [], modifiedRecords = [];
 
@@ -52,7 +52,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         return Task.FromResult((TranslateProcessedRecords(context, changes, processedRecords), problems));
     }
 
-    private static List<Record> ProcessAddedSegments(ILookup<RoadSegmentId, Feature<TAttributes>> changeFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private static List<Record> ProcessAddedSegments(ILookup<RoadSegmentTempId, Feature<TAttributes>> changeFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
         var processedRecords = new List<Record>();
 
@@ -68,7 +68,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
                 {
                     Attributes = feature.Attributes with
                     {
-                        RoadSegmentId = wegsegment.GetActualId()
+                        RoadSegmentTempId = wegsegment.GetActualId()
                     }
                 }, RecordType.Added));
             }
@@ -77,7 +77,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         return processedRecords;
     }
 
-    private static List<Record> ProcessRemovedSegments(ILookup<RoadSegmentId, Feature<TAttributes>> extractFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private static List<Record> ProcessRemovedSegments(ILookup<RoadSegmentTempId, Feature<TAttributes>> extractFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
         var processedRecords = new List<Record>();
 
@@ -93,7 +93,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         return processedRecords;
     }
 
-    private List<Record> ProcessIdenticalSegments(ILookup<RoadSegmentId, Feature<TAttributes>> extractFeaturesLookup, ILookup<RoadSegmentId, Feature<TAttributes>> changeFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private List<Record> ProcessIdenticalSegments(ILookup<RoadSegmentTempId, Feature<TAttributes>> extractFeaturesLookup, ILookup<RoadSegmentTempId, Feature<TAttributes>> changeFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
         var processedRecords = new List<Record>();
 
@@ -108,7 +108,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         return processedRecords;
     }
 
-    private List<Record> ProcessModifiedSegments(ILookup<RoadSegmentId, Feature<TAttributes>> extractFeaturesLookup, ILookup<RoadSegmentId, Feature<TAttributes>> changeFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private List<Record> ProcessModifiedSegments(ILookup<RoadSegmentTempId, Feature<TAttributes>> extractFeaturesLookup, ILookup<RoadSegmentTempId, Feature<TAttributes>> changeFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
         var processedRecords = new List<Record>();
 
@@ -129,14 +129,14 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var wegsegmentFeature = context.FindNotRemovedRoadSegmentByOriginalId(changeFeature.Attributes.RoadSegmentId);
+            var wegsegmentFeature = context.FindNotRemovedRoadSegmentByOriginalId(changeFeature.Attributes.RoadSegmentTempId);
             if (wegsegmentFeature is null)
             {
                 var recordContext = _fileName
                     .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
-                    .WithIdentifier(nameof(RoadSegmentNationalRoadAttributeDbaseRecord.WS_TEMPID), changeFeature.Attributes.RoadSegmentId);
+                    .WithIdentifier(nameof(RoadSegmentNationalRoadAttributeDbaseRecord.WS_TEMPID), changeFeature.Attributes.RoadSegmentTempId.ToInt());
 
-                problems += recordContext.RoadSegmentIdOutOfRange(changeFeature.Attributes.RoadSegmentId);
+                problems += recordContext.RoadSegmentIdOutOfRange(changeFeature.Attributes.RoadSegmentTempId.ToInt());
             }
         }
 

@@ -117,7 +117,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
 
             var problems = ZipArchiveProblems.None;
 
-            Point? ReadGeometry()
+            Point ReadGeometry()
             {
                 if (Geometry is Point point)
                 {
@@ -128,7 +128,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
                     .AtShapeRecord(featureType, recordNumber);
 
                 problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(ShapeType.Point, Geometry.GeometryType);
-                return null;
+                return Point.Empty;
             }
 
             RoadNodeId ReadId()

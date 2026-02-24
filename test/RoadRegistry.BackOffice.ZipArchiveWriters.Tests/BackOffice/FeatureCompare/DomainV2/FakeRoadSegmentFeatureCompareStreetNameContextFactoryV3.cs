@@ -12,7 +12,7 @@ public class FakeRoadSegmentFeatureCompareStreetNameContextFactoryV3: IRoadSegme
         _context = new FakeRoadSegmentFeatureCompareStreetNameContextV3();
     }
 
-    public Task<IRoadSegmentFeatureCompareStreetNameContext> Create(ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures, CancellationToken cancellationToken)
+    public Task<IRoadSegmentFeatureCompareStreetNameContext> Create(ICollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> changeFeatures, CancellationToken cancellationToken)
     {
         return Task.FromResult(_context);
     }

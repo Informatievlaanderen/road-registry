@@ -122,7 +122,7 @@ public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
             var feature = Feature.New(recordNumber, new NationalRoadFeatureCompareAttributes
             {
                 Id = ReadId(),
-                RoadSegmentId = ReadRoadSegmentId(),
+                RoadSegmentTempId = ReadRoadSegmentId(),
                 Number = ReadNumber()
             });
             return (feature, problems);

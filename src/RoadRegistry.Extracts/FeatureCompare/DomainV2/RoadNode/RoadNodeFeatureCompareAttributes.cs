@@ -5,15 +5,15 @@ using NetTopologySuite.Geometries;
 public record RoadNodeFeatureCompareAttributes
 {
     public RoadNodeId Id { get; init; }
-    public Point? Geometry { get; init; }
+    public Point Geometry { get; init; }
+    public bool GeometryChanged { get; init; }
     public bool? Grensknoop { get; init; }
 
     public RoadNodeFeatureCompareAttributes OnlyChangedAttributes(RoadNodeFeatureCompareAttributes other)
     {
-        return new RoadNodeFeatureCompareAttributes
+        return other with
         {
-            Id = Id,
-            Geometry = Geometry!.EqualsExact(other.Geometry) ? null : Geometry,
+            GeometryChanged = !Geometry.EqualsExact(other.Geometry),
             Grensknoop = Grensknoop == other.Grensknoop ? null : Grensknoop
         };
     }

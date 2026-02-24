@@ -40,7 +40,7 @@ public static class FeatureValidationExtensions
     public static ZipArchiveProblems ValidateUniqueEuropeanRoads(this ZipArchive archive, List<Feature<EuropeanRoadFeatureCompareAttributes>> features, FeatureType featureType, ExtractFileName fileName)
     {
         return ValidateUniqueRecords(features,
-            (item1, item2) => item1.RoadSegmentId == item2.RoadSegmentId && item1.Number == item2.Number,
+            (item1, item2) => item1.RoadSegmentTempId == item2.RoadSegmentTempId && item1.Number == item2.Number,
             (feature, duplicateFeature) =>
             {
                 var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
@@ -51,7 +51,7 @@ public static class FeatureValidationExtensions
     public static ZipArchiveProblems ValidateUniqueNationalRoads(this ZipArchive archive, List<Feature<NationalRoadFeatureCompareAttributes>> features, FeatureType featureType, ExtractFileName fileName)
     {
         return ValidateUniqueRecords(features,
-            (item1, item2) => item1.RoadSegmentId == item2.RoadSegmentId && item1.Number == item2.Number,
+            (item1, item2) => item1.RoadSegmentTempId == item2.RoadSegmentTempId && item1.Number == item2.Number,
             (feature, duplicateFeature) =>
         {
             var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);

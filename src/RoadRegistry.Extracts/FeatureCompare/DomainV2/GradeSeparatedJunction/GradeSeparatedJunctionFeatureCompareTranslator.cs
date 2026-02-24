@@ -215,7 +215,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
         var uniqueRoadSegmentCombinations = (
             from r1 in changedRoadSegments
             from r2 in context.RoadSegmentRecords.NotRemoved().NotOutlined()
-            where r1.Id != r2.Id && r1.Attributes.Geometry.Envelope.Intersects(r2.Attributes.Geometry.Envelope)
+            where r1.RoadSegmentId != r2.RoadSegmentId && r1.Attributes.Geometry.Envelope.Intersects(r2.Attributes.Geometry.Envelope)
             select new RoadSegmentCombination(r1, r2)
         ).DistinctBy(x => x.Key).ToList();
 
@@ -283,7 +283,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
         private readonly int _max;
 
         public RoadSegmentCombinationKey(RoadSegmentFeatureCompareRecord roadSegment1, RoadSegmentFeatureCompareRecord roadSegment2)
-            : this(roadSegment1.Id, roadSegment2.Id)
+            : this(roadSegment1.RoadSegmentId, roadSegment2.RoadSegmentId)
         {
         }
 

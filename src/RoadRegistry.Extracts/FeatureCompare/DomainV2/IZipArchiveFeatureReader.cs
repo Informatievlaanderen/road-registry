@@ -15,14 +15,14 @@ public class ZipArchiveFeatureReaderContext
 {
     public ZipArchiveMetadata ZipArchiveMetadata { get; }
     public VerificationContextTolerances Tolerances { get; }
-    public IDictionary<RoadSegmentId, Feature<RoadSegmentFeatureCompareAttributes>> ChangedRoadSegments { get; }
+    public IDictionary<RoadSegmentTempId, Feature<RoadSegmentFeatureCompareWithFlatAttributes>> ChangedRoadSegments { get; }
     public IDictionary<RoadNodeId, Feature<RoadNodeFeatureCompareAttributes>> ChangedRoadNodes { get; }
 
     public ZipArchiveFeatureReaderContext(ZipArchiveMetadata metadata)
     {
         ZipArchiveMetadata = metadata;
         Tolerances = VerificationContextTolerances.Default;
-        ChangedRoadSegments = new Dictionary<RoadSegmentId, Feature<RoadSegmentFeatureCompareAttributes>>();
+        ChangedRoadSegments = new Dictionary<RoadSegmentTempId, Feature<RoadSegmentFeatureCompareWithFlatAttributes>>();
         ChangedRoadNodes = new Dictionary<RoadNodeId, Feature<RoadNodeFeatureCompareAttributes>>();
     }
 }

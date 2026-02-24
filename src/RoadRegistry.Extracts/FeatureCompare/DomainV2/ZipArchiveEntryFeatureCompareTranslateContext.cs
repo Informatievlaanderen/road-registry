@@ -36,7 +36,7 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
             ?? RoadSegmentRecords.SingleOrDefault(x => x.GetOriginalId() == id);
     }
 
-    public RoadSegmentFeatureCompareRecord? FindNotRemovedRoadSegmentByOriginalId(RoadSegmentId originalId)
+    public RoadSegmentFeatureCompareRecord? FindNotRemovedRoadSegmentByOriginalId(RoadSegmentTempId originalId)
     {
         var matchingFeatures = RoadSegmentRecords
             .NotRemoved()
@@ -45,7 +45,7 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
 
         if (matchingFeatures.Count > 1)
         {
-            var matchingFeaturesInfo = string.Join("\n", matchingFeatures.Select(feature => $"RoadSegment #{feature.RecordNumber}, ID: {feature.Id}, FeatureType: {feature.FeatureType}, RecordType: {feature.RecordType}"));
+            var matchingFeaturesInfo = string.Join("\n", matchingFeatures.Select(feature => $"RoadSegment #{feature.RecordNumber}, ID: {feature.RoadSegmentId}, FeatureType: {feature.FeatureType}, RecordType: {feature.RecordType}"));
             throw new InvalidOperationException($"Found {matchingFeatures.Count} processed road segments with original ID {originalId} while only 1 is expected.\n{matchingFeaturesInfo}");
         }
 

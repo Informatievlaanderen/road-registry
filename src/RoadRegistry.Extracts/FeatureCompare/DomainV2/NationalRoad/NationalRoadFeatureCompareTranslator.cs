@@ -25,7 +25,7 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
 
         foreach (var changeFeature in wegsegmentChangeFeatures)
         {
-            var leveringExtractFeatures = extractFeatures[changeFeature.Attributes.RoadSegmentId]
+            var leveringExtractFeatures = extractFeatures[changeFeature.Attributes.RoadSegmentTempId]
                 .Where(x => x.Attributes.Number == changeFeature.Attributes.Number)
                 .ToList();
             if (!leveringExtractFeatures.Any())
@@ -48,7 +48,7 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
 
         foreach (var extractFeature in wegsegmentExtractFeatures)
         {
-            var extractChangeFeature = changeFeatures[extractFeature.Attributes.RoadSegmentId]
+            var extractChangeFeature = changeFeatures[extractFeature.Attributes.RoadSegmentTempId]
                 .Where(x => x.Attributes.Number == extractFeature.Attributes.Number)
                 .ToList();
             if (!extractChangeFeature.Any())
@@ -78,7 +78,7 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                 {
                     Attributes = changeFeature.Attributes with
                     {
-                        RoadSegmentId = wegsegment.GetActualId()
+                        RoadSegmentTempId = wegsegment.GetActualId()
                     }
                 }, RecordType.Added));
             }
@@ -108,7 +108,7 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
             {
                 case RecordType.AddedIdentifier:
                     {
-                        if (changes.TryFindRoadSegmentChange(record.Feature.Attributes.RoadSegmentId, out var roadSegmentChange) && roadSegmentChange is AddRoadSegmentChange addRoadSegmentChange)
+                        if (changes.TryFindRoadSegmentChange(record.Feature.Attributes.RoadSegmentTempId, out var roadSegmentChange) && roadSegmentChange is AddRoadSegmentChange addRoadSegmentChange)
                         {
                             changes = changes.ReplaceChange(addRoadSegmentChange, addRoadSegmentChange with
                             {
@@ -120,7 +120,7 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                             changes = changes.AppendChange(
                                 new AddRoadSegmentToNationalRoadChange
                                 {
-                                    RoadSegmentId = record.Feature.Attributes.RoadSegmentId,
+                                    RoadSegmentId = record.Feature.Attributes.RoadSegmentTempId,
                                     Number = record.Feature.Attributes.Number
                                 }
                             );
@@ -129,7 +129,7 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                     break;
                 case RecordType.RemovedIdentifier:
                     {
-                        if (changes.TryFindRoadSegmentChange(record.Feature.Attributes.RoadSegmentId, out var roadSegmentChange) && roadSegmentChange is RemoveRoadSegmentChange)
+                        if (changes.TryFindRoadSegmentChange(record.Feature.Attributes.RoadSegmentTempId, out var roadSegmentChange) && roadSegmentChange is RemoveRoadSegmentChange)
                         {
                             // Do not register removal of number
                         }
@@ -138,7 +138,7 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                             changes = changes.AppendChange(
                                 new RemoveRoadSegmentFromNationalRoadChange
                                 {
-                                    RoadSegmentId = record.Feature.Attributes.RoadSegmentId,
+                                    RoadSegmentId = record.Feature.Attributes.RoadSegmentTempId,
                                     Number = record.Feature.Attributes.Number
                                 }
                             );
