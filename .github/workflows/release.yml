@@ -669,7 +669,7 @@ jobs:
     if: github.repository_owner == 'Informatievlaanderen'
     needs: [ push_images, release ]
     name: Deploy
-    uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.yml@main
+    uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.1.yml@main
     strategy:
        matrix:
          services: [
@@ -703,7 +703,7 @@ jobs:
     if: github.repository_owner == 'Informatievlaanderen'
     needs: [ deploy_services_to_test, release ]
     name: Deploy lambda(s) to test
-    uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.yml@main
+    uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.1.yml@main
     strategy:
        matrix:
          functions: [
