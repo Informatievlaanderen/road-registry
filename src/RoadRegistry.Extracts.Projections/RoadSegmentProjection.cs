@@ -53,9 +53,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, geometry),
                 MaintenanceAuthorityId = ForEntireGeometry(new OrganizationId(e.Data.MaintenanceAuthority.Code), geometry),
                 SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
-                    .Select(x => (
+                    .OrderBy(x => x.FromPosition)
+                    .Select((x, i) => (
                         new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), geometry),
+                        UseGeometryLengthIfPositionIsLast(Convert.ToDouble(x.ToPosition), geometry, isLast: i == e.Data.Surfaces.Length - 1),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 ),
@@ -102,9 +103,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, geometry),
                 MaintenanceAuthorityId = ForEntireGeometry(new OrganizationId(e.Data.MaintenanceAuthority.Code), geometry),
                 SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
-                    .Select(x => (
+                    .OrderBy(x => x.FromPosition)
+                    .Select((x, i) => (
                         new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), geometry),
+                        UseGeometryLengthIfPositionIsLast(Convert.ToDouble(x.ToPosition), geometry, isLast: i == e.Data.Surfaces.Length - 1),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 ),
@@ -144,9 +146,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 segment.StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, segment.Geometry);
                 segment.MaintenanceAuthorityId = ForEntireGeometry(new OrganizationId(e.Data.MaintenanceAuthority.Code), segment.Geometry);
                 segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
-                    .Select(x => (
+                    .OrderBy(x => x.FromPosition)
+                    .Select((x, i) => (
                         new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), segment.Geometry),
+                        UseGeometryLengthIfPositionIsLast(Convert.ToDouble(x.ToPosition), segment.Geometry, isLast: i == e.Data.Surfaces.Length - 1),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 );
@@ -206,9 +209,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 if (e.Data.Surfaces is not null)
                 {
                     segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
-                        .Select(x => (
+                        .OrderBy(x => x.FromPosition)
+                        .Select((x, i) => (
                             new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                            UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), segment.Geometry),
+                            UseGeometryLengthIfPositionIsLast(Convert.ToDouble(x.ToPosition), segment.Geometry, isLast: i == e.Data.Surfaces.Length - 1),
                             RoadSegmentAttributeSide.Both,
                             x.Type))
                     );
@@ -221,9 +225,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             {
                 segment.Geometry = ToLambert08(e.Data.Geometry);
                 segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
-                    .Select(x => (
+                    .OrderBy(x => x.FromPosition)
+                    .Select((x, i) => (
                         new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), segment.Geometry),
+                        UseGeometryLengthIfPositionIsLast(Convert.ToDouble(x.ToPosition), segment.Geometry, isLast: i == e.Data.Surfaces.Length - 1),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 );
@@ -478,17 +483,11 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
         return new ExtractRoadSegmentDynamicAttribute<T>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Both, value)]);
     }
 
-    private static RoadSegmentPositionV2 UseGeometryLengthIfReasonablyEqual(double position, RoadSegmentGeometry geometry)
+    private static RoadSegmentPositionV2 UseGeometryLengthIfPositionIsLast(double position, RoadSegmentGeometry geometry, bool isLast)
     {
-        var geometryLength = geometry.Value.Length.RoundToCm();
-        position = position.RoundToCm();
-
-        if (position.IsReasonablyEqualTo(geometryLength, 0.05))
-        {
-            return new RoadSegmentPositionV2(geometryLength);
-        }
-
-        return new RoadSegmentPositionV2(position);
+        return isLast
+            ? new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm())
+            : new RoadSegmentPositionV2(position.RoundToCm());
     }
 
     private static StreetNameLocalId GetValue(ExtractRoadSegmentDynamicAttribute<StreetNameLocalId> attributes, RoadSegmentAttributeSide side)

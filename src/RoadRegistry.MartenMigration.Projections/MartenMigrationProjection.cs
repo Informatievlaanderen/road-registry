@@ -14,7 +14,6 @@ using Extensions;
 using GradeSeparatedJunction;
 using NodaTime;
 using NodaTime.Text;
-using RoadNetwork;
 using RoadNode;
 using RoadSegment;
 using ScopedRoadNetwork;
@@ -34,7 +33,6 @@ using RoadSegmentSurfaceAttributes = RoadSegment.Events.V1.ValueObjects.RoadSegm
 using RoadSegmentWidthAttributes = RoadSegment.Events.V1.ValueObjects.RoadSegmentWidthAttributes;
 using RoadSegmentSideAttributes = RoadSegment.Events.V1.ValueObjects.RoadSegmentSideAttributes;
 using Reason = Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason;
-using RoadNodeGeometry = ValueObjects.RoadNodeGeometry;
 using RoadSegmentStreetNamesChanged = RoadSegment.Events.V1.RoadSegmentStreetNamesChanged;
 
 public class MartenMigrationProjection : ConnectedProjection<MartenMigrationContext>
