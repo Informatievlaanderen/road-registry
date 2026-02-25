@@ -55,7 +55,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
                         new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), geometry),
+                        UseGeometryLengthIfPositionIsReasonablyEqualOrGreater(Convert.ToDouble(x.ToPosition), geometry),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 ),
@@ -104,7 +104,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
                         new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), geometry),
+                        UseGeometryLengthIfPositionIsReasonablyEqualOrGreater(Convert.ToDouble(x.ToPosition), geometry),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 ),
@@ -146,7 +146,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
                         new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), segment.Geometry),
+                        UseGeometryLengthIfPositionIsReasonablyEqualOrGreater(Convert.ToDouble(x.ToPosition), segment.Geometry),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 );
@@ -208,7 +208,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                     segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                         .Select(x => (
                             new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                            UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), segment.Geometry),
+                            UseGeometryLengthIfPositionIsReasonablyEqualOrGreater(Convert.ToDouble(x.ToPosition), segment.Geometry),
                             RoadSegmentAttributeSide.Both,
                             x.Type))
                     );
@@ -223,7 +223,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 segment.SurfaceType = new ExtractRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .Select(x => (
                         new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        UseGeometryLengthIfReasonablyEqual(Convert.ToDouble(x.ToPosition), segment.Geometry),
+                        UseGeometryLengthIfPositionIsReasonablyEqualOrGreater(Convert.ToDouble(x.ToPosition), segment.Geometry),
                         RoadSegmentAttributeSide.Both,
                         x.Type))
                 );
@@ -478,12 +478,13 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
         return new ExtractRoadSegmentDynamicAttribute<T>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Both, value)]);
     }
 
-    private static RoadSegmentPositionV2 UseGeometryLengthIfReasonablyEqual(double position, RoadSegmentGeometry geometry)
+    private static RoadSegmentPositionV2 UseGeometryLengthIfPositionIsReasonablyEqualOrGreater(double position, RoadSegmentGeometry geometry)
     {
         var geometryLength = geometry.Value.Length.RoundToCm();
         position = position.RoundToCm();
 
-        if (position.IsReasonablyEqualTo(geometryLength, 0.05))
+        const double tolerance = 0.05;
+        if (position.IsReasonablyEqualTo(geometryLength, tolerance) || position.IsReasonablyGreaterThan(geometryLength, tolerance))
         {
             return new RoadSegmentPositionV2(geometryLength);
         }
