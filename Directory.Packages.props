@@ -43,7 +43,7 @@
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.BlobStore" Version="5.0.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.CommandHandling" Version="10.0.2" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency" Version="10.0.2" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.DockerUtilities" Version="4.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.DockerUtilities" Version="4.0.1" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.EventHandling" Version="7.0.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.EventHandling.Autofac" Version="7.0.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic" Version="5.0.0" />
