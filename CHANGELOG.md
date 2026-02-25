@@ -1,3 +1,10 @@
+## [4.47.2](https://github.com/informatievlaanderen/road-registry/compare/v4.47.1...v4.47.2) (2026-02-25)
+
+
+### Bug Fixes
+
+* more info in exception when writing extractroadsegment dbase records ([fb2efc7](https://github.com/informatievlaanderen/road-registry/commit/fb2efc7b4e29e5a4bce0439370fcd4781a0f8647))
+
 ## [4.47.1](https://github.com/informatievlaanderen/road-registry/compare/v4.47.0...v4.47.1) (2026-02-25)
 
 
