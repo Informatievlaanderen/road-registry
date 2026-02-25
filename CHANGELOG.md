@@ -1,3 +1,10 @@
+## [4.47.3](https://github.com/informatievlaanderen/road-registry/compare/v4.47.2...v4.47.3) (2026-02-25)
+
+
+### Bug Fixes
+
+* extract roadsegment projection always use geometrylength for last position ([0988096](https://github.com/informatievlaanderen/road-registry/commit/0988096ae9e3c3aae1370a340d36193fdf34e499))
+
 ## [4.47.2](https://github.com/informatievlaanderen/road-registry/compare/v4.47.1...v4.47.2) (2026-02-25)
 
 
