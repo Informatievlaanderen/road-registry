@@ -54,40 +54,47 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
             .OrderBy(x => x.Id)
             .SelectMany(roadSegment =>
             {
-                return roadSegment.Flatten()
-                    .Select(x =>
-                    {
-                        var status = x.IsV2 ? RoadSegmentStatusV2.Parse(x.Status).Translation.Identifier : MigrateToV2(RoadSegmentStatus.Parse(x.Status));
-                        var morphology = x.IsV2 ? RoadSegmentMorphologyV2.Parse(x.Morphology).Translation.Identifier : MigrateToV2(RoadSegmentMorphology.Parse(x.Morphology));
-                        var accessRestriction = x.IsV2 ? RoadSegmentAccessRestrictionV2.Parse(x.AccessRestriction).Translation.Identifier : MigrateToV2(RoadSegmentAccessRestriction.Parse(x.AccessRestriction));
-                        var category = x.IsV2 ? RoadSegmentCategoryV2.Parse(x.Category).Translation.Identifier : MigrateToV2(RoadSegmentCategory.Parse(x.Category));
-                        var surfaceType = x.IsV2 ? RoadSegmentSurfaceTypeV2.Parse(x.SurfaceType).Translation.Identifier : MigrateToV2(RoadSegmentSurfaceType.Parse(x.SurfaceType));
-
-                        var dbfRecord = new RoadSegmentDbaseRecord
+                try
+                {
+                    return roadSegment.Flatten()
+                        .Select(x =>
                         {
-                            WS_TEMPID = { Value = context.NewTempId(x.RoadSegmentId, x.Geometry) },
-                            WS_OIDN = { Value = x.RoadSegmentId },
-                            STATUS = { Value = status },
-                            MORF = { Value = morphology },
-                            WEGCAT = { Value = category },
-                            LSTRNMID = { Value = x.LeftStreetNameId },
-                            RSTRNMID = { Value = x.RightStreetNameId },
-                            LBEHEER = { Value = x.LeftMaintenanceAuthorityId },
-                            RBEHEER = { Value = x.RightMaintenanceAuthorityId },
-                            TOEGANG = { Value = accessRestriction },
-                            VERHARDING = { Value = surfaceType },
-                            AUTOHEEN = { Value = x.CarAccessForward?.ToDbaseShortValue() },
-                            AUTOTERUG = { Value = x.CarAccessBackward?.ToDbaseShortValue() },
-                            FIETSHEEN = { Value = x.BikeAccessForward?.ToDbaseShortValue() },
-                            FIETSTERUG = { Value = x.BikeAccessBackward?.ToDbaseShortValue() },
-                            VOETGANGER = { Value = x.PedestrianAccess?.ToDbaseShortValue() },
+                            var status = x.IsV2 ? RoadSegmentStatusV2.Parse(x.Status).Translation.Identifier : MigrateToV2(RoadSegmentStatus.Parse(x.Status));
+                            var morphology = x.IsV2 ? RoadSegmentMorphologyV2.Parse(x.Morphology).Translation.Identifier : MigrateToV2(RoadSegmentMorphology.Parse(x.Morphology));
+                            var accessRestriction = x.IsV2 ? RoadSegmentAccessRestrictionV2.Parse(x.AccessRestriction).Translation.Identifier : MigrateToV2(RoadSegmentAccessRestriction.Parse(x.AccessRestriction));
+                            var category = x.IsV2 ? RoadSegmentCategoryV2.Parse(x.Category).Translation.Identifier : MigrateToV2(RoadSegmentCategory.Parse(x.Category));
+                            var surfaceType = x.IsV2 ? RoadSegmentSurfaceTypeV2.Parse(x.SurfaceType).Translation.Identifier : MigrateToV2(RoadSegmentSurfaceType.Parse(x.SurfaceType));
 
-                            CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
-                            VERSIE = { Value = x.LastModified.Timestamp.ToBrusselsDateTime() }
-                        };
+                            var dbfRecord = new RoadSegmentDbaseRecord
+                            {
+                                WS_TEMPID = { Value = context.NewTempId(x.RoadSegmentId, x.Geometry) },
+                                WS_OIDN = { Value = x.RoadSegmentId },
+                                STATUS = { Value = status },
+                                MORF = { Value = morphology },
+                                WEGCAT = { Value = category },
+                                LSTRNMID = { Value = x.LeftStreetNameId },
+                                RSTRNMID = { Value = x.RightStreetNameId },
+                                LBEHEER = { Value = x.LeftMaintenanceAuthorityId },
+                                RBEHEER = { Value = x.RightMaintenanceAuthorityId },
+                                TOEGANG = { Value = accessRestriction },
+                                VERHARDING = { Value = surfaceType },
+                                AUTOHEEN = { Value = x.CarAccessForward?.ToDbaseShortValue() },
+                                AUTOTERUG = { Value = x.CarAccessBackward?.ToDbaseShortValue() },
+                                FIETSHEEN = { Value = x.BikeAccessForward?.ToDbaseShortValue() },
+                                FIETSTERUG = { Value = x.BikeAccessBackward?.ToDbaseShortValue() },
+                                VOETGANGER = { Value = x.PedestrianAccess?.ToDbaseShortValue() },
 
-                        return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
-                    });
+                                CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
+                                VERSIE = { Value = x.LastModified.Timestamp.ToBrusselsDateTime() }
+                            };
+
+                            return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
+                        });
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException($"Unable to convert RoadSegment {roadSegment.Id}: {ex.Message}", ex);
+                }
             })
             .ToList();
     }
