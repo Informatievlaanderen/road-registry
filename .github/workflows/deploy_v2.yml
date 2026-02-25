@@ -16,6 +16,9 @@ on:
         description: Version
         required: true
 
+permissions:
+  id-token: write
+
 jobs:
   deploy_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
@@ -36,7 +39,7 @@ jobs:
     if: github.repository_owner == 'Informatievlaanderen'
     needs: [deploy_start_slack]
     name: Deploy services + tasks
-    uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.yml@main
+    uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.1.yml@main
     strategy:
        matrix:
          services: [
@@ -70,7 +73,7 @@ jobs:
     if: github.repository_owner == 'Informatievlaanderen'
     needs: [deploy_start_slack, deploy_services]
     name: Deploy lambdas
-    uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.yml@main
+    uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.1.yml@main
     strategy:
        matrix:
          functions: [
