@@ -67,11 +67,12 @@ public class RoadSegmentProjectionTests
     }
 
     [Theory]
-    [InlineData(100.02, false)]
+    [InlineData(100.02, true)]
     [InlineData(100.01, true)]
     [InlineData(99.99, true)]
-    [InlineData(99.98, false)]
-    public Task V1_WhenSurfaceTypeToPositionIs1CmDifferentThanGeometryLength_ThenGeometryLengthIsUsed(double surfaceTypeToPosition, bool expectGeometryLength)
+    [InlineData(99.98, true)]
+    [InlineData(120.00, true)]
+    public Task V1_WhenLastSurfaceTypeToPosition_ThenGeometryLengthIsUsed(double surfaceTypeToPosition, bool expectGeometryLength)
     {
         var v1Fixture = new RoadNetworkTestData().ObjectProvider;
         v1Fixture.CustomizeUniqueInteger();
