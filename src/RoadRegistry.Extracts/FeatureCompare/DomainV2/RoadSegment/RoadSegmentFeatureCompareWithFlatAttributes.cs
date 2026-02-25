@@ -5,24 +5,24 @@ using RoadRegistry.RoadSegment.ValueObjects;
 
 public record RoadSegmentFeatureCompareWithFlatAttributes
 {
-    public RoadSegmentTempId TempId { get; init; }
-    public RoadSegmentId? RoadSegmentId { get; init; }
+    public required RoadSegmentTempId TempId { get; init; }
+    public required RoadSegmentId? RoadSegmentId { get; init; }
     public required MultiLineString Geometry { get; init; }
-    public RoadSegmentGeometryDrawMethodV2? Method { get; init; }
-    public RoadSegmentStatusV2? Status { get; init; }
-    public RoadSegmentAccessRestrictionV2? AccessRestriction { get; init; }
-    public RoadSegmentCategoryV2? Category { get; init; }
-    public OrganizationId? LeftMaintenanceAuthorityId { get; init; }
-    public OrganizationId? RightMaintenanceAuthorityId { get; init; }
-    public RoadSegmentMorphologyV2? Morphology { get; init; }
-    public StreetNameLocalId? LeftSideStreetNameId { get; init; }
-    public StreetNameLocalId? RightSideStreetNameId { get; init; }
-    public RoadSegmentSurfaceTypeV2? SurfaceType { get; init; }
-    public bool? CarAccessForward { get; init; }
-    public bool? CarAccessBackward { get; init; }
-    public bool? BikeAccessForward { get; init; }
-    public bool? BikeAccessBackward { get; init; }
-    public bool? PedestrianAccess { get; init; }
+    public required RoadSegmentGeometryDrawMethodV2? Method { get; init; }
+    public required RoadSegmentStatusV2 Status { get; init; }
+    public required RoadSegmentAccessRestrictionV2 AccessRestriction { get; init; }
+    public required RoadSegmentCategoryV2 Category { get; init; }
+    public required OrganizationId LeftMaintenanceAuthorityId { get; init; }
+    public required OrganizationId RightMaintenanceAuthorityId { get; init; }
+    public required RoadSegmentMorphologyV2 Morphology { get; init; }
+    public required StreetNameLocalId LeftSideStreetNameId { get; init; }
+    public required StreetNameLocalId RightSideStreetNameId { get; init; }
+    public required RoadSegmentSurfaceTypeV2 SurfaceType { get; init; }
+    public required bool CarAccessForward { get; init; }
+    public required bool CarAccessBackward { get; init; }
+    public required bool BikeAccessForward { get; init; }
+    public required bool BikeAccessBackward { get; init; }
+    public required bool PedestrianAccess { get; init; }
 }
 
 public record RoadSegmentFeatureCompareWithDynamicAttributes
@@ -69,9 +69,52 @@ public record RoadSegmentFeatureCompareWithDynamicAttributes
         RoadSegmentId roadSegmentId,
         MultiLineString geometry,
         RoadSegmentGeometryDrawMethodV2 method,
+        RoadSegmentStatusV2 status,
         IReadOnlyCollection<RoadSegmentFeatureCompareWithFlatAttributes> flatAttributes)
     {
-        //TODO-pr merge flat into dynamic attributes
-        throw new NotImplementedException();
+        var fromPosition = 0.0;
+        var toPosition = 0.0;
+
+        var coveragePerGeometry = flatAttributes
+            .ToDictionary(x => x.Geometry, x =>
+            {
+                fromPosition = toPosition;
+                toPosition += x.Geometry.Length;
+                return new RoadSegmentPositionCoverage(new RoadSegmentPositionV2(fromPosition), new RoadSegmentPositionV2(toPosition));
+            });
+
+        return new RoadSegmentFeatureCompareWithDynamicAttributes
+        {
+            RoadSegmentId = roadSegmentId,
+            Geometry = geometry,
+            Method = method,
+            Status = status,
+            AccessRestriction = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.AccessRestriction))),
+            Category = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.Category))),
+            MaintenanceAuthorityId = CreateDynamicAttributeValues(flatAttributes.SelectMany(x => new []
+            {
+                (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Left, x.LeftMaintenanceAuthorityId),
+                (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Right, x.RightMaintenanceAuthorityId)
+            })),
+            Morphology = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.Morphology))),
+            StreetNameId = CreateDynamicAttributeValues(flatAttributes.SelectMany(x => new []
+            {
+                (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Left, x.LeftSideStreetNameId),
+                (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Right, x.RightSideStreetNameId)
+            })),
+            SurfaceType = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.SurfaceType))),
+            CarAccessForward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.CarAccessForward))),
+            CarAccessBackward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.CarAccessBackward))),
+            BikeAccessForward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.BikeAccessForward))),
+            BikeAccessBackward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.BikeAccessBackward))),
+            PedestrianAccess = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.PedestrianAccess)))
+        };
+    }
+
+    private static RoadSegmentDynamicAttributeValues<T> CreateDynamicAttributeValues<T>(
+        IEnumerable<(RoadSegmentPositionCoverage Coverage, RoadSegmentAttributeSide Side, T Value)> attributeValues)
+        where T : notnull
+    {
+        return new RoadSegmentDynamicAttributeValues<T>(attributeValues);
     }
 }

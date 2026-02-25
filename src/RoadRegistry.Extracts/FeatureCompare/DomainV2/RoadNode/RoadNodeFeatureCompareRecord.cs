@@ -20,6 +20,8 @@ public class RoadNodeFeatureCompareRecord
     public RoadNodeId Id { get; set; }
     public RecordType RecordType { get; }
 
+    public bool GeometryChanged { get; init; }
+
     public RoadNodeId GetActualId() => Id;
-    public RoadNodeId GetOriginalId() => Attributes.Id;
+    public RoadNodeId GetOriginalId() => Attributes.RoadNodeId;
 }

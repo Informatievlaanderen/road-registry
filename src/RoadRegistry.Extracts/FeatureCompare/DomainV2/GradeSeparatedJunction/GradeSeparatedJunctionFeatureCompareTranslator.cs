@@ -86,8 +86,8 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
                 continue;
             }
 
-            var boWegsegmentFeature = context.FindNotRemovedRoadSegmentByOriginalId(changeFeature.Attributes.UpperRoadSegmentId);
-            var onWegsegmentFeature = context.FindNotRemovedRoadSegmentByOriginalId(changeFeature.Attributes.LowerRoadSegmentId);
+            var boWegsegmentFeature = context.FindNotRemovedRoadSegmentByOriginalId(FeatureType.Change, changeFeature.Attributes.UpperRoadSegmentId);
+            var onWegsegmentFeature = context.FindNotRemovedRoadSegmentByOriginalId(FeatureType.Change, changeFeature.Attributes.LowerRoadSegmentId);
 
             if (boWegsegmentFeature is null || onWegsegmentFeature is null)
             {
