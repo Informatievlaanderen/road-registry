@@ -1,3 +1,11 @@
+## [4.47.1](https://github.com/informatievlaanderen/road-registry/compare/v4.47.0...v4.47.1) (2026-02-25)
+
+
+### Bug Fixes
+
+* more info in exception when writing extractroadsegment dbase records ([6140244](https://github.com/informatievlaanderen/road-registry/commit/61402447283856fb460338c308b19414550f28b9))
+* release pipeline use deploy 4.1 ([886305f](https://github.com/informatievlaanderen/road-registry/commit/886305f8a90097b11dd37aa77fa3b2e7d9bba1c0))
+
 # [4.47.0](https://github.com/informatievlaanderen/road-registry/compare/v4.46.5...v4.47.0) (2026-02-24)
 
 
