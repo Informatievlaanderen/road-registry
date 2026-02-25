@@ -14,15 +14,32 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
     public ZipArchive Archive { get; }
     public TransactionZoneFeatureCompareAttributes TransactionZone { get; set; }
     public List<RoadNodeFeatureCompareRecord> RoadNodeRecords { get; }
-    public List<RoadSegmentFeatureCompareRecord> RoadSegmentRecords { get; }
+    public IReadOnlyList<RoadSegmentFeatureCompareRecord> RoadSegmentRecords { get; }
+
+    private List<RoadSegmentFeatureCompareRecord> _roadSegmentRecords = [];
+    private Dictionary<(FeatureType, RoadSegmentTempId), RoadSegmentId> _roadSegmentTempIdToActualIdMapping = new();
 
     public ZipArchiveEntryFeatureCompareTranslateContext(ZipArchive archive, ZipArchiveMetadata metadata)
         : base(metadata)
     {
         Archive = archive;
         RoadNodeRecords = [];
-        RoadSegmentRecords = [];
+        RoadSegmentRecords = _roadSegmentRecords.AsReadOnly();
     }
+
+    public void AddRoadSegments(IEnumerable<RoadSegmentFeatureCompareRecord> roadSegmentRecords)
+    {
+        foreach (var roadSegmentRecord in roadSegmentRecords)
+        {
+            _roadSegmentRecords.Add(roadSegmentRecord);
+            foreach (var flatFeature in roadSegmentRecord.FlatFeatures)
+            {
+                _roadSegmentTempIdToActualIdMapping.Add((roadSegmentRecord.FeatureType, flatFeature.Attributes.TempId), roadSegmentRecord.RoadSegmentId);
+            }
+        }
+    }
+
+    public RoadSegmentId MapToRoadSegmentId(FeatureType featureType, RoadSegmentTempId roadSegmentTempId) => _roadSegmentTempIdToActualIdMapping[(featureType, roadSegmentTempId)];
 
     public RoadNodeFeatureCompareRecord? FindNotRemovedRoadNode(RoadNodeId id)
     {
@@ -36,9 +53,20 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
             ?? RoadSegmentRecords.SingleOrDefault(x => x.GetOriginalId() == id);
     }
 
-    public RoadSegmentFeatureCompareRecord? FindNotRemovedRoadSegmentByOriginalId(RoadSegmentTempId originalId)
+    public RoadSegmentFeatureCompareRecord? FindNotRemovedRoadSegmentByOriginalId(FeatureType featureType, RoadSegmentTempId originalTempId)
+    {
+        if (!_roadSegmentTempIdToActualIdMapping.TryGetValue((featureType, originalTempId), out var actualId))
+        {
+            return null;
+        }
+
+        return FindNotRemovedRoadSegmentByOriginalId(featureType, actualId);
+    }
+
+    public RoadSegmentFeatureCompareRecord? FindNotRemovedRoadSegmentByOriginalId(FeatureType featureType, RoadSegmentId originalId)
     {
         var matchingFeatures = RoadSegmentRecords
+            .Where(x => x.FeatureType == featureType)
             .NotRemoved()
             .Where(x => x.GetOriginalId() == originalId)
             .ToList();

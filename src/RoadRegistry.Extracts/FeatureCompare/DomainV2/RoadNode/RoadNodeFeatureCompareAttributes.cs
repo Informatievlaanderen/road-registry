@@ -4,16 +4,16 @@ using NetTopologySuite.Geometries;
 
 public record RoadNodeFeatureCompareAttributes
 {
-    public RoadNodeId Id { get; init; }
-    public Point Geometry { get; init; }
-    public bool GeometryChanged { get; init; }
+    public required RoadNodeId RoadNodeId { get; init; }
+    public required Point Geometry { get; init; }
     public bool? Grensknoop { get; init; }
 
-    public RoadNodeFeatureCompareAttributes OnlyChangedAttributes(RoadNodeFeatureCompareAttributes other)
+    public RoadNodeFeatureCompareAttributes OnlyChangedAttributes(RoadNodeFeatureCompareAttributes other, Point extractGeometry)
     {
-        return other with
+        return new RoadNodeFeatureCompareAttributes
         {
-            GeometryChanged = !Geometry.EqualsExact(other.Geometry),
+            RoadNodeId = RoadNodeId,
+            Geometry = Geometry.EqualsExact(other.Geometry) ? extractGeometry : Geometry,
             Grensknoop = Grensknoop == other.Grensknoop ? null : Grensknoop
         };
     }

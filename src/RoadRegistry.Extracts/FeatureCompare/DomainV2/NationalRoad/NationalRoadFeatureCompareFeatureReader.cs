@@ -83,15 +83,15 @@ public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
                 return default;
             }
 
-            RoadSegmentId ReadRoadSegmentId()
+            RoadSegmentTempId ReadRoadSegmentId()
             {
                 if (WS_TEMPID is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(WS_TEMPID));
                 }
-                else if (RoadSegmentId.Accepts(WS_TEMPID.Value))
+                else if (RoadSegmentTempId.Accepts(WS_TEMPID.Value))
                 {
-                    return new RoadSegmentId(WS_TEMPID.Value);
+                    return new RoadSegmentTempId(WS_TEMPID.Value);
                 }
                 else
                 {
