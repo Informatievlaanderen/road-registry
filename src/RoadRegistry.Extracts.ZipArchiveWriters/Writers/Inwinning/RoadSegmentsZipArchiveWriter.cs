@@ -54,10 +54,10 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
             .OrderBy(x => x.Id)
             .SelectMany(roadSegment =>
             {
-                try
-                {
-                    return roadSegment.Flatten()
-                        .Select(x =>
+                return roadSegment.Flatten()
+                    .Select(x =>
+                    {
+                        try
                         {
                             var status = x.IsV2 ? RoadSegmentStatusV2.Parse(x.Status).Translation.Identifier : MigrateToV2(RoadSegmentStatus.Parse(x.Status));
                             var morphology = x.IsV2 ? RoadSegmentMorphologyV2.Parse(x.Morphology).Translation.Identifier : MigrateToV2(RoadSegmentMorphology.Parse(x.Morphology));
@@ -89,12 +89,12 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
                             };
 
                             return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
-                        });
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidOperationException($"Unable to convert RoadSegment {roadSegment.Id}: {ex.Message}", ex);
-                }
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new InvalidOperationException($"Unable to convert flat RoadSegment {roadSegment.Id} with geometry '{x.Geometry.WKT}': {ex.Message}", ex);
+                        }
+                    });
             })
             .ToList();
     }
