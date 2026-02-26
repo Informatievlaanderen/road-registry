@@ -62,9 +62,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
                 break;
             case FeatureType.Integration:
-                problems = ZipArchiveProblems.None + problems
-                    .GetMissingOrInvalidFileProblems()
-                    .Where(x => !x.File.Equals(featureType.ToProjectionFileName(FileName), StringComparison.InvariantCultureIgnoreCase));
+                problems = ZipArchiveProblems.Many(problems.GetMissingOrInvalidFileProblems());
 
                 foreach (var feature in features)
                 {

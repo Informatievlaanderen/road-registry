@@ -29,7 +29,7 @@ public class FeaturesReaderTests
         var testData = new ExtractV1ZipArchiveTestData();
         var fixture = CreateFixture(testData);
 
-        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+        var roadSegmentProjectionFormatStream = fixture.CreateLambert72ProjectionFormatFileWithOneRecord();
 
         var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
         roadSegmentDbaseRecord1.WS_OIDN.Value = 1;
@@ -92,7 +92,7 @@ public class FeaturesReaderTests
         var surfaceExtractStream = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, new[] { surfaceDbaseRecord1 });
         var surfaceChangeStream = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, new[] { surfaceDbaseRecord1, surfaceDbaseRecord2 });
 
-        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+        var roadNodeProjectionFormatStream = fixture.CreateLambert72ProjectionFormatFileWithOneRecord();
 
         var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
         roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;

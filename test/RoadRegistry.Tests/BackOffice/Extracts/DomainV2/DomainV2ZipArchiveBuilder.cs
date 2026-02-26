@@ -148,8 +148,8 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
 
             return Fixture.CreateUploadZipArchiveV2(
                 _testData,
-                roadSegmentProjectionFormatStream: Fixture.CreateProjectionFormatFileWithOneRecord(),
-                roadNodeProjectionFormatStream: Fixture.CreateProjectionFormatFileWithOneRecord(),
+                roadSegmentProjectionFormatStream: Fixture.CreateLambert08ProjectionFormatFileWithOneRecord(),
+                roadNodeProjectionFormatStream: Fixture.CreateLambert08ProjectionFormatFileWithOneRecord(),
                 roadNodeDbaseIntegrationStream: _integrationStreams.RoadNodeDbaseRecords,
                 roadNodeShapeIntegrationStream: _integrationStreams.RoadNodeShapeRecords,
                 roadSegmentDbaseIntegrationStream: _integrationStreams.RoadSegmentDbaseRecords,
@@ -169,6 +169,8 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
                 nationalRoadChangeStream: _changeStreams.NationalRoadDbaseRecords,
                 gradeSeparatedJunctionChangeStream: _changeStreams.GradeSeparatedJunctionDbaseRecords,
                 transactionZoneStream: _changeStreams.TransactionZoneDbaseRecords,
+                transactionZoneShapeStream: _changeStreams.TransactionZoneShapeRecords,
+                transactionZoneProjectionFormatStream: Fixture.CreateLambert08ProjectionFormatFileWithOneRecord(),
                 archiveStream: archiveStream,
                 excludeFileNames: _excludeFileNames
             );
@@ -289,16 +291,12 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
             TestData.RoadNode4DbaseRecord = CreateRoadNodeDbaseRecord();
 
             TestData.RoadSegment1DbaseRecord = CreateRoadSegmentDbaseRecord();
-            // TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = TestData.RoadNode1DbaseRecord.WK_OIDN.Value;
-            // TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value = TestData.RoadNode2DbaseRecord.WK_OIDN.Value;
             var roadSegment1LineString = CreateRoadSegmentGeometry();
             TestData.RoadNode1ShapeRecord = CreateRoadNodeShapeRecord(roadSegment1LineString.StartPoint);
             TestData.RoadNode2ShapeRecord = CreateRoadNodeShapeRecord(roadSegment1LineString.EndPoint);
             TestData.RoadSegment1ShapeRecord = CreateRoadSegmentShapeRecord(roadSegment1LineString);
 
             TestData.RoadSegment2DbaseRecord = CreateRoadSegmentDbaseRecord();
-            // TestData.RoadSegment2DbaseRecord.B_WK_OIDN.Value = TestData.RoadNode3DbaseRecord.WK_OIDN.Value;
-            // TestData.RoadSegment2DbaseRecord.E_WK_OIDN.Value = TestData.RoadNode4DbaseRecord.WK_OIDN.Value;
             var roadSegment2LineString = new LineString([
                 new CoordinateM(roadSegment1LineString.Coordinates[0].X + 1000, roadSegment1LineString.Coordinates[0].Y + 1000, roadSegment1LineString.Coordinates[0].M),
                 new CoordinateM(roadSegment1LineString.Coordinates[1].X + 1000, roadSegment1LineString.Coordinates[1].Y + 1000, roadSegment1LineString.Coordinates[1].M)
@@ -308,22 +306,23 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
             TestData.RoadSegment2ShapeRecord = CreateRoadSegmentShapeRecord(roadSegment2LineString);
 
             TestData.RoadSegment1EuropeanRoadDbaseRecord1 = CreateRoadSegmentEuropeanRoadDbaseRecord();
-            TestData.RoadSegment1EuropeanRoadDbaseRecord1.WS_TEMPID.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+            TestData.RoadSegment1EuropeanRoadDbaseRecord1.WS_TEMPID.Value = TestData.RoadSegment1DbaseRecord.WS_TEMPID.Value;
             TestData.RoadSegment1EuropeanRoadDbaseRecord2 = CreateRoadSegmentEuropeanRoadDbaseRecord();
-            TestData.RoadSegment1EuropeanRoadDbaseRecord2.WS_TEMPID.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+            TestData.RoadSegment1EuropeanRoadDbaseRecord2.WS_TEMPID.Value = TestData.RoadSegment1DbaseRecord.WS_TEMPID.Value;
             TestData.RoadSegment1EuropeanRoadDbaseRecord2.EUNUMMER.Value = fixture.CreateWhichIsDifferentThan(EuropeanRoadNumber.Parse(TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value!));
 
             TestData.RoadSegment1NationalRoadDbaseRecord1 = CreateRoadSegmentNationalRoadDbaseRecord();
-            TestData.RoadSegment1NationalRoadDbaseRecord1.WS_TEMPID.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+            TestData.RoadSegment1NationalRoadDbaseRecord1.WS_TEMPID.Value = TestData.RoadSegment1DbaseRecord.WS_TEMPID.Value;
             TestData.RoadSegment1NationalRoadDbaseRecord2 = CreateRoadSegmentNationalRoadDbaseRecord();
-            TestData.RoadSegment1NationalRoadDbaseRecord2.WS_TEMPID.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+            TestData.RoadSegment1NationalRoadDbaseRecord2.WS_TEMPID.Value = TestData.RoadSegment1DbaseRecord.WS_TEMPID.Value;
             TestData.RoadSegment1NationalRoadDbaseRecord2.NWNUMMER.Value = fixture.CreateWhichIsDifferentThan(NationalRoadNumber.Parse(TestData.RoadSegment1NationalRoadDbaseRecord1.NWNUMMER.Value!));
 
             TestData.GradeSeparatedJunctionDbaseRecord = CreateGradeSeparatedJunctionDbaseRecord();
-            TestData.GradeSeparatedJunctionDbaseRecord.BO_TEMPID.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-            TestData.GradeSeparatedJunctionDbaseRecord.ON_TEMPID.Value = TestData.RoadSegment2DbaseRecord.WS_OIDN.Value;
+            TestData.GradeSeparatedJunctionDbaseRecord.BO_TEMPID.Value = TestData.RoadSegment1DbaseRecord.WS_TEMPID.Value;
+            TestData.GradeSeparatedJunctionDbaseRecord.ON_TEMPID.Value = TestData.RoadSegment2DbaseRecord.WS_TEMPID.Value;
 
             TestData.TransactionZoneDbaseRecord = CreateTransactionZoneDbaseRecord();
+            TestData.TransactionZoneShapeRecord = CreateTransactionZoneShapeRecord();
         }
 
         public ExtractsZipArchiveExtractDataSetBuilder ConfigureExtract(Action<ExtractsZipArchiveExtractDataSetBuilder, ExtractsZipArchiveDataSetBuilderContext> configure)
@@ -337,7 +336,8 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
                 EuropeanRoadDbaseRecords = new[] { TestData.RoadSegment1EuropeanRoadDbaseRecord1, TestData.RoadSegment1EuropeanRoadDbaseRecord2 }.ToList(),
                 NationalRoadDbaseRecords = new[] { TestData.RoadSegment1NationalRoadDbaseRecord1, TestData.RoadSegment1NationalRoadDbaseRecord2 }.ToList(),
                 GradeSeparatedJunctionDbaseRecords = new[] { TestData.GradeSeparatedJunctionDbaseRecord }.ToList(),
-                TransactionZoneDbaseRecords = new[] { TestData.TransactionZoneDbaseRecord }.ToList()
+                TransactionZoneDbaseRecords = new[] { TestData.TransactionZoneDbaseRecord }.ToList(),
+                TransactionZoneShapeRecords = new[] { TestData.TransactionZoneShapeRecord }.ToList(),
             };
 
             configure(this, new ExtractsZipArchiveDataSetBuilderContext(_fixture));
@@ -390,6 +390,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
 
             TestData.GradeSeparatedJunctionDbaseRecord = testData.GradeSeparatedJunctionDbaseRecord.Clone(manager, encoding);
             TestData.TransactionZoneDbaseRecord = testData.TransactionZoneDbaseRecord.Clone(manager, encoding);
+            TestData.TransactionZoneShapeRecord = testData.TransactionZoneShapeRecord.Clone();
         }
 
         public ExtractsZipArchiveExtractDataSetBuilder ConfigureChange(Action<ExtractsZipArchiveChangeDataSetBuilder, ExtractsZipArchiveChangeDataSetBuilderContext> configure)
@@ -494,6 +495,37 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
         {
             return _fixture.Create<TransactionZoneDbaseRecord>();
         }
+
+        public TransactionZoneShapeRecord CreateTransactionZoneShapeRecord()
+        {
+            return CreateTransactionZoneShapeRecord(CreateTransactionZoneGeometry());
+        }
+
+        public TransactionZoneShapeRecord CreateTransactionZoneShapeRecord(Polygon polygon)
+        {
+            return new TransactionZoneShapeRecord
+            {
+                Geometry = polygon
+            };
+        }
+
+        public Polygon CreateTransactionZoneGeometry()
+        {
+            return _fixture.Create<Polygon>();
+        }
+    }
+
+    public class TransactionZoneShapeRecord
+    {
+        public Polygon Geometry { get; set; }
+
+        public TransactionZoneShapeRecord Clone()
+        {
+            return new TransactionZoneShapeRecord
+            {
+                Geometry = Geometry
+            };
+        }
     }
 
     public class RoadSegmentShapeRecord
@@ -542,6 +574,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
         public RoadSegmentNationalRoadAttributeDbaseRecord RoadSegment1NationalRoadDbaseRecord2 { get; set; }
         public GradeSeparatedJunctionDbaseRecord GradeSeparatedJunctionDbaseRecord { get; set; }
         public TransactionZoneDbaseRecord TransactionZoneDbaseRecord { get; set; }
+        public TransactionZoneShapeRecord TransactionZoneShapeRecord { get; set; }
     }
 
     public class ZipArchiveIntegrationDataSet
@@ -566,6 +599,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
         public List<RoadSegmentNationalRoadAttributeDbaseRecord> NationalRoadDbaseRecords { get; set; }
         public List<GradeSeparatedJunctionDbaseRecord> GradeSeparatedJunctionDbaseRecords { get; set; }
         public List<TransactionZoneDbaseRecord> TransactionZoneDbaseRecords { get; set; }
+        public List<TransactionZoneShapeRecord> TransactionZoneShapeRecords { get; set; }
 
         public override void Clear()
         {
@@ -612,11 +646,13 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
             NationalRoadDbaseRecords = fixture.CreateDbfFile(RoadSegmentNationalRoadAttributeDbaseRecord.Schema, set.NationalRoadDbaseRecords ?? []);
             GradeSeparatedJunctionDbaseRecords = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, set.GradeSeparatedJunctionDbaseRecords ?? []);
             TransactionZoneDbaseRecords = fixture.CreateDbfFile(TransactionZoneDbaseRecord.Schema, set.TransactionZoneDbaseRecords ?? []);
+            TransactionZoneShapeRecords = fixture.CreateTransactionZoneShapeFile((set.TransactionZoneShapeRecords ?? new List<TransactionZoneShapeRecord>()).Select(x => x.Geometry.ToShapeContent()).ToList());
         }
 
         public MemoryStream EuropeanRoadDbaseRecords { get; }
         public MemoryStream NationalRoadDbaseRecords { get; }
         public MemoryStream GradeSeparatedJunctionDbaseRecords { get; }
         public MemoryStream TransactionZoneDbaseRecords { get; }
+        public MemoryStream TransactionZoneShapeRecords { get; }
     }
 }

@@ -28,6 +28,8 @@ public static class DomainV2FixtureExtensions
         MemoryStream nationalRoadExtractStream = null,
         MemoryStream gradeSeparatedJunctionExtractStream = null,
         MemoryStream transactionZoneStream = null,
+        MemoryStream transactionZoneShapeStream = null,
+        MemoryStream transactionZoneProjectionFormatStream = null,
         MemoryStream roadSegmentShapeIntegrationStream = null,
         MemoryStream roadSegmentDbaseIntegrationStream = null,
         MemoryStream roadNodeShapeIntegrationStream = null,
@@ -62,7 +64,9 @@ public static class DomainV2FixtureExtensions
             { "EATTNATIONWEG.DBF", nationalRoadExtractStream },
             { "RLTOGKRUISING.DBF", gradeSeparatedJunctionChangeStream },
             { "ERLTOGKRUISING.DBF", gradeSeparatedJunctionExtractStream },
-            { "TRANSACTIEZONES.DBF", transactionZoneStream ?? fixture.CreateDbfFileWithOneRecord<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema) }
+            { "TRANSACTIEZONES.DBF", transactionZoneStream ?? fixture.CreateDbfFileWithOneRecord<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema) },
+            { "TRANSACTIEZONES.SHP", transactionZoneShapeStream ?? fixture.CreateEmptyTransactionZoneShapeFile() },
+            { "TRANSACTIEZONES.PRJ", transactionZoneProjectionFormatStream },
         };
 
         var random = new Random(fixture.Create<int>());

@@ -147,8 +147,8 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.V1
             }
 
             return Fixture.CreateUploadZipArchiveV1(_testData,
-                roadSegmentProjectionFormatStream: Fixture.CreateProjectionFormatFileWithOneRecord(),
-                roadNodeProjectionFormatStream: Fixture.CreateProjectionFormatFileWithOneRecord(),
+                roadSegmentProjectionFormatStream: Fixture.CreateLambert72ProjectionFormatFileWithOneRecord(),
+                roadNodeProjectionFormatStream: Fixture.CreateLambert72ProjectionFormatFileWithOneRecord(),
                 roadNodeDbaseIntegrationStream: _integrationStreams.RoadNodeDbaseRecords,
                 roadNodeShapeIntegrationStream: _integrationStreams.RoadNodeShapeRecords,
                 roadSegmentDbaseIntegrationStream: _integrationStreams.RoadSegmentDbaseRecords,

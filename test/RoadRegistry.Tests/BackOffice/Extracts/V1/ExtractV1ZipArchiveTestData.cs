@@ -518,7 +518,7 @@ public class ExtractV1ZipArchiveTestData : IDisposable
 
     private ZipArchive CreateZipArchiveWithEachFileAtLeastOneRecord()
     {
-        var roadNodeProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
+        var roadNodeProjectionFormatStream = Fixture.CreateLambert72ProjectionFormatFileWithOneRecord();
         var roadNodeShapeChangeStream = Fixture.CreateRoadNodeShapeFile(new[]
         {
             Fixture.Create<PointShapeContent>(),
@@ -540,7 +540,7 @@ public class ExtractV1ZipArchiveTestData : IDisposable
         var roadSegmentPolyLineMShapeContent = Fixture.Create<PolyLineMShapeContent>();
         var roadSegmentShapeChangeStream = Fixture.CreateRoadSegmentShapeFileWithOneRecord(roadSegmentPolyLineMShapeContent);
         var roadSegmentShapeIntegrationStream = Fixture.CreateRoadSegmentShapeFileWithOneRecord(roadSegmentPolyLineMShapeContent);
-        var roadSegmentProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
+        var roadSegmentProjectionFormatStream = Fixture.CreateLambert72ProjectionFormatFileWithOneRecord();
         var roadSegmentChangeDbaseRecord = Fixture.Create<RoadSegmentDbaseRecord>();
         roadSegmentChangeDbaseRecord.B_WK_OIDN.Value = roadNodeDbaseChange1.WK_OIDN.Value;
         roadSegmentChangeDbaseRecord.E_WK_OIDN.Value = roadNodeDbaseChange2.WK_OIDN.Value;
@@ -586,7 +586,7 @@ public class ExtractV1ZipArchiveTestData : IDisposable
         gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
         var gradeSeparatedJunctionChangeStream = Fixture.CreateDbfFileWithOneRecord(GradeSeparatedJunctionDbaseRecord.Schema, gradeSeparatedJunctionDbaseRecord);
 
-        var transactionZoneProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
+        var transactionZoneProjectionFormatStream = Fixture.CreateLambert72ProjectionFormatFileWithOneRecord();
         var transactionZoneShapeStream = Fixture.CreateTransactionZoneShapeFile([
             Fixture.Create<PolygonShapeContent>()
         ]);

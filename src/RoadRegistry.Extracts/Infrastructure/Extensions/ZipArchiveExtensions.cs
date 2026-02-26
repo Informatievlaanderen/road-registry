@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 public static class ZipArchiveExtensions
 {
-    public static ZipArchiveEntry FindEntry(this ZipArchive archive, string fileName)
+    public static ZipArchiveEntry? FindEntry(this ZipArchive archive, string fileName)
     {
         var entries = archive.Entries
             .Where(x => x.Name.Equals(fileName, StringComparison.InvariantCultureIgnoreCase))

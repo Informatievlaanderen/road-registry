@@ -97,9 +97,7 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
     {
         if (file == null) throw new ArgumentNullException(nameof(file));
 
-        return new ZipArchiveProblems(_problems.Add(
-            new FileError(file.ToUpperInvariant(), nameof(RequiredFileMissing)))
-        );
+        return Single(new FileError(file.ToUpperInvariant(), nameof(RequiredFileMissing)));
     }
 
     public bool HasError()

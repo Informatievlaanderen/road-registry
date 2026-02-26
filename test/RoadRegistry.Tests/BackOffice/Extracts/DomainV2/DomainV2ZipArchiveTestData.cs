@@ -408,7 +408,7 @@ public class DomainV2ZipArchiveTestData : IDisposable
 
     private ZipArchive CreateZipArchiveWithEachFileAtLeastOneRecord()
     {
-        var roadNodeProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
+        var roadNodeProjectionFormatStream = Fixture.CreateLambert08ProjectionFormatFileWithOneRecord();
         var roadNodeShapeChangeStream = Fixture.CreateRoadNodeShapeFile([
             Fixture.Create<PointShapeContent>(),
             Fixture.Create<PointShapeContent>()
@@ -428,14 +428,10 @@ public class DomainV2ZipArchiveTestData : IDisposable
         var roadSegmentPolyLineMShapeContent = Fixture.Create<PolyLineMShapeContent>();
         var roadSegmentShapeChangeStream = Fixture.CreateRoadSegmentShapeFileWithOneRecord(roadSegmentPolyLineMShapeContent);
         var roadSegmentShapeIntegrationStream = Fixture.CreateRoadSegmentShapeFileWithOneRecord(roadSegmentPolyLineMShapeContent);
-        var roadSegmentProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
+        var roadSegmentProjectionFormatStream = Fixture.CreateLambert08ProjectionFormatFileWithOneRecord();
         var roadSegmentChangeDbaseRecord = Fixture.Create<RoadSegmentDbaseRecord>();
-        //roadSegmentChangeDbaseRecord.B_WK_OIDN.Value = roadNodeDbaseChange1.WK_OIDN.Value;
-        //roadSegmentChangeDbaseRecord.E_WK_OIDN.Value = roadNodeDbaseChange2.WK_OIDN.Value;
         var roadSegmentDbaseChangeStream = Fixture.CreateDbfFileWithOneRecord(RoadSegmentDbaseRecord.Schema, roadSegmentChangeDbaseRecord);
         var roadSegmentIntegrationDbaseRecord = Fixture.CreateWhichIsDifferentThan<RoadSegmentDbaseRecord>((x1, x2) => x1.WS_OIDN.Value == x2.WS_OIDN.Value);
-        //roadSegmentIntegrationDbaseRecord.B_WK_OIDN.Value = roadNodeDbaseIntegration1.WK_OIDN.Value;
-        //roadSegmentIntegrationDbaseRecord.E_WK_OIDN.Value = roadNodeDbaseIntegration2.WK_OIDN.Value;
         var roadSegmentDbaseIntegrationStream = Fixture.CreateDbfFileWithOneRecord(RoadSegmentDbaseRecord.Schema, roadSegmentIntegrationDbaseRecord);
 
         var europeanRoadChangeStream = Fixture.CreateDbfFileWithOneRecord<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
@@ -448,7 +444,7 @@ public class DomainV2ZipArchiveTestData : IDisposable
         gradeSeparatedJunctionDbaseRecord.ON_TEMPID.Value = roadSegmentChangeDbaseRecord.WS_TEMPID.Value;
         var gradeSeparatedJunctionChangeStream = Fixture.CreateDbfFileWithOneRecord(GradeSeparatedJunctionDbaseRecord.Schema, gradeSeparatedJunctionDbaseRecord);
 
-        var transactionZoneProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
+        var transactionZoneProjectionFormatStream = Fixture.CreateLambert08ProjectionFormatFileWithOneRecord();
         var transactionZoneShapeStream = Fixture.CreateTransactionZoneShapeFile([
             Fixture.Create<PolygonShapeContent>()
         ]);

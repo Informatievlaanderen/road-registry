@@ -39,7 +39,7 @@ public class FeaturesReaderTests
         var testData = new ExtractV1ZipArchiveTestData();
         var fixture = CreateFixture(testData);
 
-        var projectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+        var projectionFormatStream = fixture.CreateLambert72ProjectionFormatFileWithOneRecord();
 
         var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
         roadSegmentDbaseRecord1.WS_OIDN.Value = 1;
