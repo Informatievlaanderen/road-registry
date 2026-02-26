@@ -135,7 +135,7 @@ public static class DbaseFileProblems
             .Build();
     }
 
-    public static FileError GradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegment(this IDbaseFileRecordProblemBuilder builder, RoadSegmentId roadSegmentId)
+    public static FileError GradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegment(this IDbaseFileRecordProblemBuilder builder, int roadSegmentId)
     {
         return builder
             .Error(nameof(GradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegment))
