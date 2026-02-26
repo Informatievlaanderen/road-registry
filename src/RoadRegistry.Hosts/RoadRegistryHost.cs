@@ -21,15 +21,17 @@ public class RoadRegistryHost<T>
     private readonly IStreamStore _streamStore;
     private readonly List<Action<IServiceProvider, ILogger<T>>> _configureLoggingActions = new();
     private readonly List<string> _wellKnownConnectionNames = new();
-    private readonly Func<IServiceProvider, Task> _runCommandDelegate;
+    private readonly Func<IServiceProvider, CancellationToken, Task> _runCommandDelegate;
 
-    public RoadRegistryHost(IHost host, Func<IServiceProvider, Task> runCommandDelegate)
+    public RoadRegistryHost(IHost host, Func<IServiceProvider, CancellationToken, Task>? runCommandDelegate)
     {
         Configuration = host.Services.GetRequiredService<IConfiguration>();
         _host = host;
         _streamStore = host.Services.GetRequiredService<IStreamStore>();
         _logger = host.Services.GetRequiredService<ILogger<T>>();
-        _runCommandDelegate = runCommandDelegate ?? (_ => _host.RunAsync());
+
+        _runCommandDelegate = runCommandDelegate ?? ((_, stoppingToken) =>
+            _host.RunAsync(stoppingToken));
     }
 
     public string ApplicationName => typeof(T).Namespace;
@@ -81,7 +83,8 @@ public class RoadRegistryHost<T>
 
                     Console.WriteLine($"Started {ApplicationName}");
 
-                    await _runCommandDelegate(_host.Services).ConfigureAwait(false);
+                    var stoppingToken = _host.Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
+                    await _runCommandDelegate(_host.Services, stoppingToken).ConfigureAwait(false);
                 },
                 DistributedLockOptions.LoadFromConfiguration(Configuration), _logger);
         }
