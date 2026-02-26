@@ -139,7 +139,10 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
             return archiveStream;
         }
 
-        public ZipArchive Build(MemoryStream archiveStream = null)
+        public ZipArchive Build(MemoryStream archiveStream = null,
+            MemoryStream roadSegmentProjectionFormatStream = null,
+            MemoryStream roadNodeProjectionFormatStream = null,
+            MemoryStream transactionZoneProjectionFormatStream = null)
         {
             if (_changeStreams is null)
             {
@@ -148,8 +151,9 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
 
             return Fixture.CreateUploadZipArchiveV2(
                 _testData,
-                roadSegmentProjectionFormatStream: Fixture.CreateLambert08ProjectionFormatFileWithOneRecord(),
-                roadNodeProjectionFormatStream: Fixture.CreateLambert08ProjectionFormatFileWithOneRecord(),
+                roadSegmentProjectionFormatStream: roadSegmentProjectionFormatStream ?? Fixture.CreateLambert08ProjectionFormatFileWithOneRecord(),
+                roadNodeProjectionFormatStream: roadNodeProjectionFormatStream ?? Fixture.CreateLambert08ProjectionFormatFileWithOneRecord(),
+                transactionZoneProjectionFormatStream: transactionZoneProjectionFormatStream ?? Fixture.CreateLambert08ProjectionFormatFileWithOneRecord(),
                 roadNodeDbaseIntegrationStream: _integrationStreams.RoadNodeDbaseRecords,
                 roadNodeShapeIntegrationStream: _integrationStreams.RoadNodeShapeRecords,
                 roadSegmentDbaseIntegrationStream: _integrationStreams.RoadSegmentDbaseRecords,
@@ -170,7 +174,6 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
                 gradeSeparatedJunctionChangeStream: _changeStreams.GradeSeparatedJunctionDbaseRecords,
                 transactionZoneStream: _changeStreams.TransactionZoneDbaseRecords,
                 transactionZoneShapeStream: _changeStreams.TransactionZoneShapeRecords,
-                transactionZoneProjectionFormatStream: Fixture.CreateLambert08ProjectionFormatFileWithOneRecord(),
                 archiveStream: archiveStream,
                 excludeFileNames: _excludeFileNames
             );
