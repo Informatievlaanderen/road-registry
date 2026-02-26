@@ -30,7 +30,7 @@ using Serilog;
 public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 {
     private readonly string[] _args;
-    private Func<IServiceProvider, Task> _runCommandDelegate;
+    private Func<IServiceProvider, CancellationToken, Task> _runCommandDelegate;
 
     private RoadRegistryHostBuilder()
     {
@@ -229,16 +229,12 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
     public RoadRegistryHostBuilder<T> ConfigureRunCommand(Func<IServiceProvider, CancellationToken, Task> runCommandDelegate)
     {
-        return ConfigureRunCommand(sp =>
-        {
-            var hostApplicationLifetime = sp.GetRequiredService<IHostApplicationLifetime>();
-            return runCommandDelegate(sp, hostApplicationLifetime.ApplicationStopping);
-        });
+        _runCommandDelegate = runCommandDelegate;
+        return this;
     }
 
     public RoadRegistryHostBuilder<T> ConfigureRunCommand(Func<IServiceProvider, Task> runCommandDelegate)
     {
-        _runCommandDelegate = runCommandDelegate;
-        return this;
+        return ConfigureRunCommand((sp, _) => runCommandDelegate(sp));
     }
 }
