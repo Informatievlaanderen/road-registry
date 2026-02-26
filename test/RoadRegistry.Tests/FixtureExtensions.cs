@@ -106,7 +106,7 @@ public static class Customizations
         return value;
     }
 
-    public static MemoryStream CreateProjectionFormatFileWithOneRecord(this IFixture fixture)
+    public static MemoryStream CreateLambert72ProjectionFormatFileWithOneRecord(this IFixture fixture)
     {
         var projectionFormatStream = new MemoryStream();
         using var writer = new StreamWriter(
@@ -114,6 +114,17 @@ public static class Customizations
             Encoding.UTF8,
             leaveOpen: true);
         writer.Write(ProjectionFormat.BelgeLambert1972.Content);
+
+        return projectionFormatStream;
+    }
+    public static MemoryStream CreateLambert08ProjectionFormatFileWithOneRecord(this IFixture fixture)
+    {
+        var projectionFormatStream = new MemoryStream();
+        using var writer = new StreamWriter(
+            projectionFormatStream,
+            Encoding.UTF8,
+            leaveOpen: true);
+        writer.Write(ProjectionFormat.BelgeLambert2008.Content);
 
         return projectionFormatStream;
     }

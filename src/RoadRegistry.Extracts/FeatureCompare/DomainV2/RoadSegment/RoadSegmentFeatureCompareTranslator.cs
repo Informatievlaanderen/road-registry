@@ -67,7 +67,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         }
 
         await dynamicExtractFeaturesTask;
-        AddRemovedExtractRecordsToContext(dynamicExtractFeaturesTask.Result, context, cancellationToken);
+        AddExtractRecordsToContext(dynamicExtractFeaturesTask.Result, context, cancellationToken);
 
         problems.ThrowIfError();
 
@@ -140,7 +140,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             return new OgcFeaturesCache([]);
         }
 
-        //TODO-pr confirm dat die SRID LB08 is
         var ogcFeatures = await _ogcApiFeaturesDownloader.DownloadFeaturesAsync(
             ["KNW", "WBN"],
             context.TransactionZone.Geometry.Value.Boundary.EnvelopeInternal,
@@ -525,7 +524,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         return changes;
     }
 
-    private void AddRemovedExtractRecordsToContext(List<RoadSegmentFeatureWithDynamicAttributes> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private void AddExtractRecordsToContext(List<RoadSegmentFeatureWithDynamicAttributes> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
         foreach (var extractFeature in extractFeatures)
         {
@@ -534,16 +533,14 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             var hasProcessedRoadSegment = context.RoadSegmentRecords.Any(x => x.FeatureType == FeatureType.Change
                                                                               && x.RoadSegmentId == extractFeature.Attributes.RoadSegmentId
                                                                               && x.RecordType != RecordType.Added);
-            if (!hasProcessedRoadSegment)
-            {
-                context.AddRoadSegments([new RoadSegmentFeatureCompareRecord(
-                    FeatureType.Extract,
-                    extractFeature.RecordNumber,
-                    extractFeature.Attributes,
-                    extractFeature.FlatFeatures,
-                    extractFeature.Attributes.RoadSegmentId,
-                    RecordType.Removed)]);
-            }
+
+            context.AddRoadSegments([new RoadSegmentFeatureCompareRecord(
+                FeatureType.Extract,
+                extractFeature.RecordNumber,
+                extractFeature.Attributes,
+                extractFeature.FlatFeatures,
+                extractFeature.Attributes.RoadSegmentId,
+                hasProcessedRoadSegment ? RecordType.Identical : RecordType.Removed)]);
         }
     }
 }

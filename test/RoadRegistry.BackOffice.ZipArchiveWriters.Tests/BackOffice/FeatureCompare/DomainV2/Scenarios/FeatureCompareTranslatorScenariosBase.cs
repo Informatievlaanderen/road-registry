@@ -14,7 +14,6 @@ public abstract class FeatureCompareTranslatorScenariosBase
 {
     protected ITestOutputHelper TestOutputHelper { get; }
     protected ILogger<ZipArchiveFeatureCompareTranslator> Logger { get; }
-    protected readonly FileEncoding Encoding = FileEncoding.UTF8;
 
     protected FeatureCompareTranslatorScenariosBase(ITestOutputHelper testOutputHelper, ILogger<ZipArchiveFeatureCompareTranslator> logger)
     {
@@ -32,7 +31,7 @@ public abstract class FeatureCompareTranslatorScenariosBase
 
             try
             {
-                return await sut.TranslateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
+                return await sut.TranslateAsync(archive, ZipArchiveMetadata.Empty.WithInwinning(), CancellationToken.None);
             }
             catch (ZipArchiveValidationException ex)
             {

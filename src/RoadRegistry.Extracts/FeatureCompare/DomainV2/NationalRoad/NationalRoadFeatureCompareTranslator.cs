@@ -20,6 +20,7 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
         ILookup<RoadSegmentId, Feature<NationalRoadFeatureCompareAttributes>> extractFeatures,
         List<Record> processedRecords)
     {
+        return;
         throw new NotImplementedException(); //TODO-pr uncomment and fix
         // var wegsegmentChangeFeatures = changeFeatures[wegsegment.GetOriginalId()].ToList();
         // var wegsegmentExtractFeatures = extractFeatures[wegsegment.GetOriginalId()].ToList();
@@ -65,6 +66,7 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
         ILookup<RoadSegmentId, Feature<NationalRoadFeatureCompareAttributes>> extractFeatures,
         List<Record> processedRecords)
     {
+        return;
         throw new NotImplementedException(); //TODO-pr uncomment and fix
         // var wegsegmentChangeFeatures = changeFeatures[wegsegment.GetOriginalId()].ToList();
         // var wegsegmentExtractFeatures = extractFeatures[wegsegment.GetOriginalId()].ToList();
@@ -104,6 +106,7 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
 
     protected override TranslatedChanges TranslateProcessedRecords(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, List<Record> records)
     {
+        return TranslatedChanges.Empty;
         throw new NotImplementedException(); //TODO-pr uncomment and fix
         // foreach (var record in records)
         // {

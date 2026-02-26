@@ -13,11 +13,22 @@ using Schemas.Inwinning;
 
 public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<TransactionZoneFeatureCompareAttributes>>
 {
+    private readonly FileEncoding _encoding;
     private const ExtractFileName FileName = ExtractFileName.Transactiezones;
 
     public TransactionZoneFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new InwinningFeatureReader(encoding))
     {
+        _encoding = encoding;
+    }
+
+    public override (List<Feature<TransactionZoneFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
+    {
+        var (features, problems) =  base.Read(archive, featureType, context);
+
+        problems += archive.ValidateProjectionFileLambert08(featureType, FileName, _encoding);
+
+        return (features, problems);
     }
 
     private sealed class InwinningFeatureReader : ZipArchiveShapeFeatureReader<TransactionZoneDbaseRecord, Feature<TransactionZoneFeatureCompareAttributes>>
