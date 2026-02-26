@@ -19,8 +19,16 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         _fileName = fileName;
     }
 
-    protected abstract void HandleIdenticalRoadSegment(RoadSegmentFeatureCompareRecord wegsegment, ILookup<RoadSegmentId, Feature<TAttributes>> changeFeatures, ILookup<RoadSegmentId, Feature<TAttributes>> extractFeatures, List<Record> processedRecords);
-    protected abstract void HandleModifiedRoadSegment(RoadSegmentFeatureCompareRecord wegsegment, ILookup<RoadSegmentId, Feature<TAttributes>> changeFeatures, ILookup<RoadSegmentId, Feature<TAttributes>> extractFeatures, List<Record> processedRecords);
+    protected abstract void HandleIdenticalRoadSegment(RoadSegmentFeatureCompareRecord wegsegment,
+        ILookup<RoadSegmentId, Feature<TAttributes>> changeFeatures,
+        ILookup<RoadSegmentId, Feature<TAttributes>> extractFeatures,
+        List<Record> processedRecords,
+        ZipArchiveEntryFeatureCompareTranslateContext context);
+    protected abstract void HandleModifiedRoadSegment(RoadSegmentFeatureCompareRecord wegsegment,
+        ILookup<RoadSegmentId, Feature<TAttributes>> changeFeatures,
+        ILookup<RoadSegmentId, Feature<TAttributes>> extractFeatures,
+        List<Record> processedRecords,
+        ZipArchiveEntryFeatureCompareTranslateContext context);
 
     public override Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
@@ -50,7 +58,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
             .Concat(modifiedRecords)
             .ToList();
 
-        return Task.FromResult((TranslateProcessedRecords(context, changes, processedRecords), problems));
+        return Task.FromResult((TranslateProcessedRecords(changes, processedRecords), problems));
     }
 
     private static List<Record> ProcessAddedSegments(ILookup<RoadSegmentId, Feature<TAttributes>> changeFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
@@ -62,7 +70,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var wegsegmentChangeFeatures = changeFeaturesLookup[wegsegment.GetOriginalId()].ToList();
+            var wegsegmentChangeFeatures = changeFeaturesLookup[wegsegment.GetActualId()].ToList();
             foreach (var feature in wegsegmentChangeFeatures)
             {
                 processedRecords.Add(new Record(feature, RecordType.Added, wegsegment.GetActualId()));
@@ -98,7 +106,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            HandleIdenticalRoadSegment(wegsegment, changeFeaturesLookup, extractFeaturesLookup, processedRecords);
+            HandleIdenticalRoadSegment(wegsegment, changeFeaturesLookup, extractFeaturesLookup, processedRecords, context);
         }
 
         return processedRecords;
@@ -113,7 +121,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            HandleModifiedRoadSegment(wegsegment, changeFeaturesLookup, extractFeaturesLookup, processedRecords);
+            HandleModifiedRoadSegment(wegsegment, changeFeaturesLookup, extractFeaturesLookup, processedRecords, context);
         }
 
         return processedRecords;
@@ -125,7 +133,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var wegsegmentFeature = context.FindNotRemovedRoadSegmentByOriginalId(FeatureType.Change, changeFeature.Attributes.RoadSegmentTempId);
+            var wegsegmentFeature = context.FindNotRemovedRoadSegmentByTempId(FeatureType.Change, changeFeature.Attributes.RoadSegmentTempId);
             if (wegsegmentFeature is null)
             {
                 var recordContext = _fileName
@@ -139,7 +147,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         return problems;
     }
 
-    protected abstract TranslatedChanges TranslateProcessedRecords(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, List<Record> records);
+    protected abstract TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records);
 
     protected record Record(Feature<TAttributes> Feature, RecordType RecordType, RoadSegmentId RoadSegmentId);
 }

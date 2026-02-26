@@ -76,16 +76,30 @@ public static class GeometryTranslator
         return gmlReader.Read(gml);
     }
 
-    public static MultiLineString ToMultiLineString(PolyLineM polyLineM)
+    public static MultiLineString ToMultiLineStringLambert72(PolyLineM polyLineM)
     {
         return ShaperonGeometryTranslator.ToGeometryMultiLineString(polyLineM)
+            .WithSrid(WellknownSrids.Lambert72)
             .WithMeasureOrdinates();
     }
 
-    public static Point ToPoint(Be.Vlaanderen.Basisregisters.Shaperon.Point point)
+    public static MultiLineString ToMultiLineStringLambert08(PolyLineM polyLineM)
+    {
+        return ShaperonGeometryTranslator.ToGeometryMultiLineString(polyLineM)
+            .WithSrid(WellknownSrids.Lambert08)
+            .WithMeasureOrdinates();
+    }
+
+    public static Point ToPointLambert72(Be.Vlaanderen.Basisregisters.Shaperon.Point point)
     {
         return ShaperonGeometryTranslator.ToGeometryPoint(point)
-            .FillSridIfMissing();
+            .WithSrid(WellknownSrids.Lambert72);
+    }
+
+    public static Point ToPointLambert08(Be.Vlaanderen.Basisregisters.Shaperon.Point point)
+    {
+        return ShaperonGeometryTranslator.ToGeometryPoint(point)
+            .WithSrid(WellknownSrids.Lambert08);
     }
 
     public static Point Translate(RoadNodeGeometry geometry)

@@ -52,4 +52,16 @@
 //         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, expected));
 //         Assert.Contains(ex.Problems, x => x.Reason == nameof(DbaseFileProblems.RoadSegmentIdOutOfRange));
 //     }
+//
+// [Fact]
+// public void WhenSegmentAndNationalNumberRemoved_ThenOnlySegmentRemoved()
+// {
+//     throw new NotImplementedException();
+// }
+//
+// [Fact]
+// public void WhenSegmentIsKeptAndOnlyNationalNumberRemoved_ThenOnlyNationalNumberRemoved()
+// {
+//     throw new NotImplementedException();
+// }
 // }

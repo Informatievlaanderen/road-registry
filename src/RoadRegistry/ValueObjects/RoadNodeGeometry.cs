@@ -1,10 +1,11 @@
 ﻿namespace RoadRegistry.ValueObjects;
 
+using System;
 using Extensions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
-public record RoadNodeGeometry : GeometryObject
+public sealed record RoadNodeGeometry : GeometryObject, IEquatable<RoadNodeGeometry>
 {
     private Point? _geometry;
 
@@ -31,5 +32,15 @@ public record RoadNodeGeometry : GeometryObject
     public static RoadNodeGeometry Create(Point geometry)
     {
         return new RoadNodeGeometry(geometry);
+    }
+
+    public bool Equals(RoadNodeGeometry? other)
+    {
+        return base.Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
     }
 }

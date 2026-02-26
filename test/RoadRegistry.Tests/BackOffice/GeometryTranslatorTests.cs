@@ -48,7 +48,7 @@ public class GeometryTranslatorTests
             invalidMeasures
         );
 
-        var geometryLineString = GeometryTranslator.ToMultiLineString(polyline);
+        var geometryLineString = GeometryTranslator.ToMultiLineStringLambert72(polyline);
 
         var actualMeasures = geometryLineString.GetOrdinates(Ordinate.M);
         var expectedMeasures = points.Select(x => x.Y).ToArray();
