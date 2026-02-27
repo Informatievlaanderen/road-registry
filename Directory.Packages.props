@@ -22,12 +22,12 @@
     <PackageVersion Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageVersion Include="AutoFixture.Idioms" Version="4.18.1" />
     <PackageVersion Include="AutoFixture.Xunit2" Version="4.18.1" />
-    <PackageVersion Include="AWSSDK.Core" Version="3.7.402.35" />
-    <PackageVersion Include="AWSSDK.DynamoDBv2" Version="3.7.302" />
-    <PackageVersion Include="AWSSDK.Lambda" Version="3.7.304.8" />
-    <PackageVersion Include="AWSSDK.SimpleEmailV2" Version="3.7.301.5" />
-    <PackageVersion Include="AWSSDK.SimpleNotificationService" Version="3.7.301.7" />
-    <PackageVersion Include="AWSSDK.SQS" Version="3.7.400.129" />
+    <PackageVersion Include="AWSSDK.Core" Version="3.7.500.85" />
+    <PackageVersion Include="AWSSDK.DynamoDBv2" Version="3.7.512.1" />
+    <PackageVersion Include="AWSSDK.Lambda" Version="3.7.511.11" />
+    <PackageVersion Include="AWSSDK.SimpleEmailV2" Version="3.7.508.26" />
+    <PackageVersion Include="AWSSDK.SimpleNotificationService" Version="3.7.502.48" />
+    <PackageVersion Include="AWSSDK.SQS" Version="3.7.502.44" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.24.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.AggregateSource" Version="10.0.2" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting" Version="10.0.2" />
