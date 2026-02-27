@@ -394,6 +394,19 @@ public static class DbaseFileProblems
             .WithParameter(new ProblemParameter("AttributeId", attributeId.ToString()))
             .WithParameter(new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
             .WithParameter(new ProblemParameter("TakenByAttributeId", takenByAttributeId.ToString()))
+            .WithParameter(new ProblemParameter("RoadSegmentIdentifierField", "WS_OIDN"))
+            .WithParameter(new ProblemParameter("NumberField", "EUNUMMER"))
+            .Build();
+    }
+    public static FileError EuropeanRoadNotUniqueV2(this IDbaseFileRecordProblemBuilder builder, AttributeId attributeId, RecordNumber takenByRecordNumber, AttributeId takenByAttributeId)
+    {
+        return builder
+            .Error(nameof(EuropeanRoadNotUnique))
+            .WithParameter(new ProblemParameter("AttributeId", attributeId.ToString()))
+            .WithParameter(new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
+            .WithParameter(new ProblemParameter("TakenByAttributeId", takenByAttributeId.ToString()))
+            .WithParameter(new ProblemParameter("RoadSegmentIdentifierField", "WS_TEMPID"))
+            .WithParameter(new ProblemParameter("NumberField", "EUNUMMER"))
             .Build();
     }
 
@@ -415,6 +428,19 @@ public static class DbaseFileProblems
             .WithParameter(new ProblemParameter("AttributeId", attributeId.ToString()))
             .WithParameter(new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
             .WithParameter(new ProblemParameter("TakenByAttributeId", takenByAttributeId.ToString()))
+            .WithParameter(new ProblemParameter("RoadSegmentIdentifierField", "WS_OIDN"))
+            .WithParameter(new ProblemParameter("NumberField", "IDENT2"))
+            .Build();
+    }
+    public static FileError NationalRoadNotUniqueV2(this IDbaseFileRecordProblemBuilder builder, AttributeId attributeId, RecordNumber takenByRecordNumber, AttributeId takenByAttributeId)
+    {
+        return builder
+            .Error(nameof(NationalRoadNotUnique))
+            .WithParameter(new ProblemParameter("AttributeId", attributeId.ToString()))
+            .WithParameter(new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
+            .WithParameter(new ProblemParameter("TakenByAttributeId", takenByAttributeId.ToString()))
+            .WithParameter(new ProblemParameter("RoadSegmentIdentifierField", "WS_TEMPID"))
+            .WithParameter(new ProblemParameter("NumberField", "NWNUMMER"))
             .Build();
     }
 

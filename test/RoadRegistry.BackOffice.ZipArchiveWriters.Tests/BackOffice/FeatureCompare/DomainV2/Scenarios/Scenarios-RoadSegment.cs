@@ -1,5 +1,4 @@
-//TODO-pr uncomment bij implementatie upload
-// namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.V3.Scenarios;
+// namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios;
 //
 // using FluentAssertions;
 // using GradeSeparatedJunction.Changes;
@@ -10,7 +9,7 @@
 // using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 // using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 // using RoadRegistry.Extracts.Uploads;
-// using RoadRegistry.Tests.BackOffice.Extracts.V2;
+// using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 // using RoadSegment.Changes;
 // using RoadSegment.ValueObjects;
 // using Xunit.Abstractions;
@@ -372,69 +371,71 @@
 //                 var roadSegment1Id = maxRoadSegmentId.Next();
 //
 //                 return TranslatedChanges.Empty
-//                     .AppendChange(new AddRoadSegmentChange
-//                     {
-//                         TemporaryId = roadSegment1Id,
-//                         OriginalId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
-//                         StartNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value),
-//                         EndNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value),
-//                         Geometry = context.Change.TestData.RoadSegment1ShapeRecord.Geometry.ToRoadSegmentGeometry(),
-//                         GeometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
-//                         MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(new OrganizationId(context.Change.TestData.RoadSegment1DbaseRecord.BEHEER.Value!)),
-//                         Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(RoadSegmentMorphologyV2.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.MORF.Value]),
-//                         Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatusV2.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.STATUS.Value]),
-//                         Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(RoadSegmentCategoryV2.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.WEGCAT.Value]),
-//                         AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(RoadSegmentAccessRestrictionV2.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.TOEGANG.Value]),
-//                         StreetNameId = BuildStreetNameIdAttributes(StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value), StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)),
-//                         SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>().Add(
-//                             new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.VANPOS.Value)),
-//                             new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value)),
-//                             RoadSegmentSurfaceTypeV2.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.VERHARDING.Value]
-//                         ),
-//                         EuropeanRoadNumbers = [
-//                             EuropeanRoadNumber.Parse(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value!),
-//                             EuropeanRoadNumber.Parse(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord2.EUNUMMER.Value!)
-//                         ],
-//                         NationalRoadNumbers = [
-//                             NationalRoadNumber.Parse(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord1.NWNUMMER.Value!),
-//                             NationalRoadNumber.Parse(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord2.NWNUMMER.Value!)
-//                         ]
-//                     })
-//                     .AppendChange(new RemoveRoadSegmentChange
-//                     {
-//                         RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value)
-//                     })
-//                     .AppendChange(new RemoveRoadSegmentFromEuropeanRoadChange
-//                     {
-//                         RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
-//                         Number = EuropeanRoadNumber.Parse(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value)
-//                     })
-//                     .AppendChange(new RemoveRoadSegmentFromEuropeanRoadChange
-//                     {
-//                         RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
-//                         Number = EuropeanRoadNumber.Parse(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord2.EUNUMMER.Value)
-//                     })
-//                     .AppendChange(new RemoveRoadSegmentFromNationalRoadChange
-//                     {
-//                         RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
-//                         Number = NationalRoadNumber.Parse(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord1.NWNUMMER.Value)
-//                     })
-//                     .AppendChange(new RemoveRoadSegmentFromNationalRoadChange
-//                     {
-//                         RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
-//                         Number = NationalRoadNumber.Parse(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord2.NWNUMMER.Value)
-//                     })
-//                     .AppendChange(new AddGradeSeparatedJunctionChange
-//                     {
-//                         TemporaryId = new GradeSeparatedJunctionId(context.Extract.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN.Value),
-//                         Type = GradeSeparatedJunctionTypeV2.ByIdentifier[context.Extract.TestData.GradeSeparatedJunctionDbaseRecord.TYPE.Value],
-//                         UpperRoadSegmentId = roadSegment1Id,
-//                         LowerRoadSegmentId = new RoadSegmentId(context.Extract.TestData.GradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value)
-//                     })
-//                     .AppendChange(new RemoveGradeSeparatedJunctionChange
-//                     {
-//                         GradeSeparatedJunctionId = new GradeSeparatedJunctionId(context.Extract.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN.Value)
-//                     })
+//                         .AppendChange(new AddRoadSegmentChange
+//                         {
+//                             TemporaryId = roadSegment1Id,
+//                             OriginalId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+//                             StartNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value),
+//                             EndNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value),
+//                             Geometry = context.Change.TestData.RoadSegment1ShapeRecord.Geometry.ToRoadSegmentGeometry(),
+//                             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
+//                             MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(new OrganizationId(context.Change.TestData.RoadSegment1DbaseRecord.BEHEER.Value!)),
+//                             Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(RoadSegmentMorphologyV2.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.MORF.Value]),
+//                             Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatusV2.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.STATUS.Value]),
+//                             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(RoadSegmentCategoryV2.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.WEGCAT.Value]),
+//                             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(RoadSegmentAccessRestrictionV2.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.TOEGANG.Value]),
+//                             StreetNameId = BuildStreetNameIdAttributes(StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value), StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)),
+//                             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>().Add(
+//                                 new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.VANPOS.Value)),
+//                                 new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value)),
+//                                 RoadSegmentSurfaceTypeV2.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.VERHARDING.Value]
+//                             ),
+//                             EuropeanRoadNumbers =
+//                             [
+//                                 EuropeanRoadNumber.Parse(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value!),
+//                                 EuropeanRoadNumber.Parse(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord2.EUNUMMER.Value!)
+//                             ],
+//                             NationalRoadNumbers =
+//                             [
+//                                 NationalRoadNumber.Parse(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord1.NWNUMMER.Value!),
+//                                 NationalRoadNumber.Parse(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord2.NWNUMMER.Value!)
+//                             ]
+//                         })
+//                         .AppendChange(new RemoveRoadSegmentChange
+//                         {
+//                             RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value)
+//                         })
+//                         .AppendChange(new RemoveRoadSegmentFromEuropeanRoadChange
+//                         {
+//                             RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+//                             Number = EuropeanRoadNumber.Parse(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value)
+//                         })
+//                         .AppendChange(new RemoveRoadSegmentFromEuropeanRoadChange
+//                         {
+//                             RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+//                             Number = EuropeanRoadNumber.Parse(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord2.EUNUMMER.Value)
+//                         })
+//                         .AppendChange(new RemoveRoadSegmentFromNationalRoadChange
+//                         {
+//                             RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+//                             Number = NationalRoadNumber.Parse(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord1.NWNUMMER.Value)
+//                         })
+//                         .AppendChange(new RemoveRoadSegmentFromNationalRoadChange
+//                         {
+//                             RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+//                             Number = NationalRoadNumber.Parse(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord2.NWNUMMER.Value)
+//                         })
+//                         .AppendChange(new AddGradeSeparatedJunctionChange
+//                         {
+//                             TemporaryId = new GradeSeparatedJunctionId(context.Extract.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN.Value),
+//                             Type = GradeSeparatedJunctionTypeV2.ByIdentifier[context.Extract.TestData.GradeSeparatedJunctionDbaseRecord.TYPE.Value],
+//                             UpperRoadSegmentId = roadSegment1Id,
+//                             LowerRoadSegmentId = new RoadSegmentId(context.Extract.TestData.GradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value)
+//                         })
+//                         .AppendChange(new RemoveGradeSeparatedJunctionChange
+//                         {
+//                             GradeSeparatedJunctionId = new GradeSeparatedJunctionId(context.Extract.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN.Value)
+//                         })
 //                     ;
 //             });
 //

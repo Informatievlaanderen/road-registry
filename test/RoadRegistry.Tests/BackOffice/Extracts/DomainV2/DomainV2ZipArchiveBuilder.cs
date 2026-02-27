@@ -106,9 +106,15 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
 
         public (ZipArchive, T) BuildWithResult<T>(Func<ZipArchiveBuildContext, T> build, MemoryStream archiveStream = null)
         {
+            var (zipArchive, context) = BuildWithContext(archiveStream);
+            return (zipArchive, build(context));
+        }
+
+        public (ZipArchive, ZipArchiveBuildContext) BuildWithContext(MemoryStream archiveStream = null)
+        {
             var zipArchive = Build(archiveStream);
 
-            return (zipArchive, build(new ZipArchiveBuildContext
+            return (zipArchive, new ZipArchiveBuildContext
             {
                 ZipArchive = zipArchive,
                 Integration = new ZipArchiveIntegrationBuildContextSet
@@ -125,7 +131,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
                     TestData = _change.TestData,
                     DataSet = _change.DataSet
                 }
-            }));
+            });
         }
 
         public MemoryStream BuildArchiveStream()
