@@ -44,7 +44,7 @@ public static class FeatureValidationExtensions
             (feature, duplicateFeature) =>
             {
                 var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
-                return recordContext.EuropeanRoadNotUnique(feature.Attributes.Id, duplicateFeature.RecordNumber, duplicateFeature.Attributes.Id);
+                return recordContext.EuropeanRoadNotUniqueV2(feature.Attributes.Id, duplicateFeature.RecordNumber, duplicateFeature.Attributes.Id);
             });
     }
 
@@ -55,7 +55,7 @@ public static class FeatureValidationExtensions
             (feature, duplicateFeature) =>
         {
             var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
-            return recordContext.NationalRoadNotUnique(feature.Attributes.Id, duplicateFeature.RecordNumber, duplicateFeature.Attributes.Id);
+            return recordContext.NationalRoadNotUniqueV2(feature.Attributes.Id, duplicateFeature.RecordNumber, duplicateFeature.Attributes.Id);
         });
     }
 
