@@ -54,10 +54,10 @@
 //                 {
 //                     RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
 //                     Geometry = context.Change.TestData.RoadSegment1ShapeRecord.Geometry.ToRoadSegmentGeometry(),
-//                     SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>().Add(
+//                     SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>().Add(
 //                         new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.VANPOS.Value)),
 //                         new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value)),
-//                         RoadSegmentSurfaceType.ByIdentifier[context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TYPE.Value])
+//                         RoadSegmentSurfaceTypeV2.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.VERHARDING.Value])
 //                 })
 //             );
 //
@@ -94,7 +94,7 @@
 //                 .AppendChange(new AddRoadNodeChange
 //                 {
 //                     TemporaryId = new RoadNodeId(context.Change.TestData.RoadNode2DbaseRecord.WK_OIDN.Value),
-//                     Type = RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode2DbaseRecord.TYPE.Value],
+//                     Type = RoadNodeTypeV2.ByIdentifier[context.Change.TestData.RoadNode2DbaseRecord.TYPE.Value],
 //                     Geometry = context.Change.TestData.RoadNode2ShapeRecord.Geometry.ToRoadNodeGeometry()
 //                 })
 //                 .AppendChange(new ModifyRoadSegmentChange
@@ -103,10 +103,10 @@
 //                     Geometry = context.Change.TestData.RoadSegment1ShapeRecord.Geometry.ToRoadSegmentGeometry(),
 //                     StartNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value),
 //                     EndNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value),
-//                     SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>().Add(
+//                     SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>().Add(
 //                         new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.VANPOS.Value)),
 //                         new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value)),
-//                         RoadSegmentSurfaceType.ByIdentifier[context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TYPE.Value])
+//                         RoadSegmentSurfaceTypeV2.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.VERHARDING.Value])
 //                 }));
 //
 //         await TranslateReturnsExpectedResult(zipArchive, expected);
@@ -173,7 +173,7 @@
 //                 var maxId = new RoadNodeId(context.Extract.DataSet.RoadNodeDbaseRecords.Max(x => x.WK_OIDN.Value));
 //
 //                 dbaseRecord.WK_OIDN.Value = maxId.Next();
-//                 dbaseRecord.TYPE.Value = context.Fixture.CreateWhichIsDifferentThan(RoadNodeType.ByIdentifier[dbaseRecord.TYPE.Value]).Translation.Identifier;
+//                 dbaseRecord.TYPE.Value = context.Fixture.CreateWhichIsDifferentThan(RoadNodeTypeV2.ByIdentifier[dbaseRecord.TYPE.Value]).Translation.Identifier;
 //
 //                 builder.DataSet.RoadNodeDbaseRecords.Add(dbaseRecord);
 //                 builder.DataSet.RoadNodeShapeRecords.Add(shapeRecord);
@@ -182,7 +182,7 @@
 //                 .AppendChange(new ModifyRoadNodeChange
 //                 {
 //                     RoadNodeId = new RoadNodeId(context.Extract.DataSet.RoadNodeDbaseRecords.Last().WK_OIDN.Value),
-//                     Type = RoadNodeType.ByIdentifier[context.Change.DataSet.RoadNodeDbaseRecords.Last().TYPE.Value]
+//                     Type = RoadNodeTypeV2.ByIdentifier[context.Change.DataSet.RoadNodeDbaseRecords.Last().TYPE.Value]
 //                 }));
 //
 //         await TranslateReturnsExpectedResult(zipArchive, expected);
@@ -198,7 +198,7 @@
 //
 //                 var maxId = new RoadNodeId(builder.DataSet.RoadNodeDbaseRecords.Max(x => x.WK_OIDN.Value));
 //
-//                 dbaseRecord.TYPE.Value = context.Fixture.CreateWhichIsDifferentThan(RoadNodeType.ByIdentifier[dbaseRecord.TYPE.Value]).Translation.Identifier;
+//                 dbaseRecord.TYPE.Value = context.Fixture.CreateWhichIsDifferentThan(RoadNodeTypeV2.ByIdentifier[dbaseRecord.TYPE.Value]).Translation.Identifier;
 //                 dbaseRecord.WK_OIDN.Value = maxId.Next();
 //                 builder.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = dbaseRecord.WK_OIDN.Value;
 //             })
@@ -206,7 +206,7 @@
 //                 .AppendChange(new ModifyRoadNodeChange
 //                 {
 //                     RoadNodeId = new RoadNodeId(context.Extract.TestData.RoadNode1DbaseRecord.WK_OIDN.Value),
-//                     Type = RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode1DbaseRecord.TYPE.Value]
+//                     Type = RoadNodeTypeV2.ByIdentifier[context.Change.TestData.RoadNode1DbaseRecord.TYPE.Value]
 //                 })
 //             );
 //
@@ -251,10 +251,10 @@
 //                     {
 //                         RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
 //                         Geometry = context.Change.TestData.RoadSegment1ShapeRecord.Geometry.ToRoadSegmentGeometry(),
-//                         SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>().Add(
+//                         SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>().Add(
 //                             new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.VANPOS.Value)),
 //                             new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value)),
-//                             RoadSegmentSurfaceType.ByIdentifier[context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TYPE.Value])
+//                             RoadSegmentSurfaceTypeV2.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.VERHARDING.Value])
 //                     })
 //             );
 //

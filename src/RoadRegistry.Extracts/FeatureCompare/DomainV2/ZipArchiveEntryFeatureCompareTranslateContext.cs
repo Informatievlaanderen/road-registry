@@ -13,45 +13,80 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
 {
     public ZipArchive Archive { get; }
     public TransactionZoneFeatureCompareAttributes TransactionZone { get; set; }
-    public List<RoadNodeFeatureCompareRecord> RoadNodeRecords { get; }
-    public IReadOnlyList<RoadSegmentFeatureCompareRecord> RoadSegmentRecords { get; }
-
-    private readonly List<RoadSegmentFeatureCompareRecord> _roadSegmentRecords = [];
+    private readonly Dictionary<FeatureType, List<RoadNodeFeatureCompareRecord>> _roadNodeRecords = [];
+    private readonly Dictionary<FeatureType, List<RoadSegmentFeatureCompareRecord>> _roadSegmentRecords = [];
     private readonly Dictionary<(FeatureType, RoadSegmentTempId), RoadSegmentId> _roadSegmentTempIdToActualIdMapping = new();
 
     public ZipArchiveEntryFeatureCompareTranslateContext(ZipArchive archive, ZipArchiveMetadata metadata)
         : base(metadata)
     {
         Archive = archive;
-        RoadNodeRecords = [];
-        RoadSegmentRecords = _roadSegmentRecords.AsReadOnly();
     }
 
-    public void AddRoadSegments(IEnumerable<RoadSegmentFeatureCompareRecord> roadSegmentRecords)
+    public void AddRoadNodeRecords(IReadOnlyCollection<RoadNodeFeatureCompareRecord> records)
     {
-        foreach (var roadSegmentRecord in roadSegmentRecords)
+        if (records.Count == 0)
         {
-            _roadSegmentRecords.Add(roadSegmentRecord);
-            foreach (var flatFeature in roadSegmentRecord.FlatFeatures)
+            return;
+        }
+
+        var featureType = records.Select(x => x.FeatureType).Distinct().Single();
+
+        foreach (var record in records)
+        {
+            _roadNodeRecords.TryAdd(featureType, new());
+            _roadNodeRecords[featureType].Add(record);
+        }
+    }
+
+    public IReadOnlyList<RoadNodeFeatureCompareRecord> GetRoadNodeRecords(FeatureType featureType)
+    {
+        return _roadNodeRecords.TryGetValue(featureType, out var records)
+            ? records.AsReadOnly()
+            : [];
+    }
+
+    public void AddRoadSegmentRecords(IReadOnlyCollection<RoadSegmentFeatureCompareRecord> records)
+    {
+        if (records.Count == 0)
+        {
+            return;
+        }
+
+        var featureType = records.Select(x => x.FeatureType).Distinct().Single();
+
+        foreach (var record in records)
+        {
+            _roadSegmentRecords.TryAdd(featureType, new());
+            _roadSegmentRecords[featureType].Add(record);
+
+            foreach (var flatFeature in record.FlatFeatures)
             {
-                _roadSegmentTempIdToActualIdMapping.Add((roadSegmentRecord.FeatureType, flatFeature.Attributes.TempId), roadSegmentRecord.GetActualId());
+                _roadSegmentTempIdToActualIdMapping.Add((record.FeatureType, flatFeature.Attributes.TempId), record.GetActualId());
             }
         }
     }
 
     public RoadSegmentId MapToRoadSegmentId(FeatureType featureType, RoadSegmentTempId roadSegmentTempId) => _roadSegmentTempIdToActualIdMapping[(featureType, roadSegmentTempId)];
 
-    public RoadNodeFeatureCompareRecord? FindNotRemovedRoadNode(RoadNodeId id)
+    public IReadOnlyList<RoadSegmentFeatureCompareRecord> GetRoadSegmentRecords(FeatureType featureType)
     {
-        return RoadNodeRecords.NotRemoved().SingleOrDefault(x => x.GetActualId() == id)
-            ?? RoadNodeRecords.NotRemoved().SingleOrDefault(x => x.GetOriginalId() == id);
+        return _roadSegmentRecords.TryGetValue(featureType, out var records)
+            ? records.AsReadOnly()
+            : [];
     }
 
-    public RoadSegmentFeatureCompareRecord? FindRoadSegment(RoadSegmentId id)
-    {
-        return RoadSegmentRecords.SingleOrDefault(x => x.GetActualId() == id)
-            ?? RoadSegmentRecords.SingleOrDefault(x => x.GetOriginalId() == id);
-    }
+    // public RoadNodeFeatureCompareRecord? FindNotRemovedRoadNode(RoadNodeId id)
+    // {
+    //     return RoadNodeRecords.NotRemoved().SingleOrDefault(x => x.GetActualId() == id)
+    //         ?? RoadNodeRecords.NotRemoved().SingleOrDefault(x => x.GetOriginalId() == id);
+    // }
+    //
+    // public RoadSegmentFeatureCompareRecord? FindRoadSegment(RoadSegmentId id)
+    // {
+    //     return RoadSegmentRecords.SingleOrDefault(x => x.GetActualId() == id)
+    //         ?? RoadSegmentRecords.SingleOrDefault(x => x.GetOriginalId() == id);
+    // }
 
     public RoadSegmentFeatureCompareRecord? FindNotRemovedRoadSegmentByTempId(FeatureType featureType, RoadSegmentTempId originalTempId)
     {
@@ -65,8 +100,7 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
 
     private RoadSegmentFeatureCompareRecord? FindNotRemovedRoadSegmentByActualId(FeatureType featureType, RoadSegmentId actualId)
     {
-        var matchingFeatures = RoadSegmentRecords
-            .Where(x => x.FeatureType == featureType)
+        var matchingFeatures = GetRoadSegmentRecords(featureType)
             .NotRemoved()
             .Where(x => x.GetActualId() == actualId)
             .ToList();

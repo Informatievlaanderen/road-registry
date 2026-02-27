@@ -320,4 +320,12 @@ public static class DbaseExtensions
     {
         return value == 1 ? true : value == 0 ? false : null;
     }
+
+    public static bool ToBooleanFromDbaseValue(this short value)
+    {
+        return value == 1
+            ? true : value == 0
+                ? false
+                : throw new ArgumentException($"Invalid value: {value}");
+    }
 }

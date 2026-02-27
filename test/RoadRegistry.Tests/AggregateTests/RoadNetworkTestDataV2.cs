@@ -59,8 +59,8 @@ public class RoadNetworkTestDataV2
     public RoadNetworkTestDataV2(Action<Fixture> customize = null)
     {
         Fixture = FixtureFactory.Create();
-        Fixture.CustomizePoint();
-        Fixture.CustomizePolylineM();
+        Fixture.CustomizePoint(srid: WellknownSrids.Lambert08);
+        Fixture.CustomizePolylineM(srid: WellknownSrids.Lambert08);
 
         Fixture.CustomizeOrganisation();
         Fixture.CustomizeProvenance();

@@ -44,7 +44,7 @@
         public async Task InformativeExtractRequest_ThenOnlyContainsExtractAndIntegrationFiles()
         {
             var fixture = new RoadNetworkTestData().ObjectProvider;
-            fixture.CustomizeNtsPolygon();
+            fixture.CustomizeNtsPolygon(srid: WellknownSrids.Lambert08);
 
             var zipArchiveWriter = new RoadNetworkExtractZipArchiveWriter(
                 _zipArchiveWriterOptions,
@@ -116,7 +116,7 @@
         public async Task NotInformativeExtractRequest_ThenAlsoContainsChangeFiles()
         {
             var fixture = new RoadNetworkTestData().ObjectProvider;
-            fixture.CustomizeNtsPolygon();
+            fixture.CustomizeNtsPolygon(srid: WellknownSrids.Lambert08);
 
             var zipArchiveWriter = new RoadNetworkExtractZipArchiveWriter(
                 _zipArchiveWriterOptions,

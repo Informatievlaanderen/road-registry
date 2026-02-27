@@ -177,10 +177,9 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
     {
         var problems = ZipArchiveProblems.None;
 
-        var changedRoadSegments = context.RoadSegmentRecords
+        var changedRoadSegments = context.GetRoadSegmentRecords(FeatureType.Change)
             .NotOutlined()
-            .Where(x => x.FeatureType == FeatureType.Change
-                        && (x.RecordType == RecordType.Added || (x.RecordType == RecordType.Modified && x.GeometryChanged)))
+            .Where(x => x.RecordType == RecordType.Added || (x.RecordType == RecordType.Modified && x.GeometryChanged))
             .ToList();
 
         var batchCount = Debugger.IsAttached ? 1 : 4;
@@ -206,7 +205,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
     {
         var uniqueRoadSegmentCombinations = (
             from r1 in changedRoadSegments
-            from r2 in context.RoadSegmentRecords.NotRemoved().NotOutlined()
+            from r2 in context.GetRoadSegmentRecords(FeatureType.Change).NotRemoved().NotOutlined()
             where r1.RoadSegmentId != r2.RoadSegmentId && r1.Attributes.Geometry.Envelope.Intersects(r2.Attributes.Geometry.Envelope)
             select new RoadSegmentCombination(r1, r2)
         ).DistinctBy(x => x.Key).ToList();
@@ -290,12 +289,12 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             _max = Math.Max(id1, id2);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ReferenceEquals(this, obj) || obj is RoadSegmentCombinationKey other && Equals(other);
         }
 
-        public bool Equals(RoadSegmentCombinationKey other)
+        public bool Equals(RoadSegmentCombinationKey? other)
         {
             if (ReferenceEquals(null, other))
             {
@@ -315,7 +314,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             return HashCode.Combine(_min, _max);
         }
 
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
             if (obj is RoadSegmentCombinationKey other)
             {

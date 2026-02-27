@@ -30,7 +30,7 @@ public class RoadSegmentUnflattenerTests
         var maxUsedRoadSegmentId = new RoadSegmentId(500);
         var translateContext = new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty);
 
-        translateContext.RoadNodeRecords.Add(new RoadNodeFeatureCompareRecord(
+        translateContext.AddRoadNodeRecords([new RoadNodeFeatureCompareRecord(
             featureType,
             new RecordNumber(1),
             new RoadNodeFeatureCompareAttributes
@@ -40,7 +40,7 @@ public class RoadSegmentUnflattenerTests
                 Grensknoop = false
             },
             new RoadNodeId(1),
-            RecordType.Identical));
+            RecordType.Identical)]);
 
         var flatSegment1 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
         {
