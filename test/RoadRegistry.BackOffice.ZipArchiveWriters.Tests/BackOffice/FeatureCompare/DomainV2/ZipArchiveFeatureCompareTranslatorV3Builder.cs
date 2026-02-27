@@ -22,13 +22,9 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
         public static IZipArchiveFeatureCompareTranslator Create(
             IOrganizationCache organizationCache = null,
             IRoadSegmentFeatureCompareStreetNameContextFactory streetNameContextFactory = null,
+            IGrbOgcApiFeaturesDownloader grbOgcApiFeaturesDownloader = null,
             ILoggerFactory loggerFactory = null)
         {
-            var grbOgcApiFeaturesDownloaderMock = new Mock<IGrbOgcApiFeaturesDownloader>();
-            grbOgcApiFeaturesDownloaderMock
-                .Setup(x => x.DownloadFeaturesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<Envelope>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() => []);
-
             return new ZipArchiveFeatureCompareTranslator(
                 new TransactionZoneFeatureCompareTranslator(new TransactionZoneFeatureCompareFeatureReader(Encoding)),
                 new RoadNodeFeatureCompareTranslator(new RoadNodeFeatureCompareFeatureReader(Encoding)),
@@ -36,7 +32,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                     new RoadSegmentFeatureCompareFeatureReader(Encoding),
                     streetNameContextFactory ?? new FakeRoadSegmentFeatureCompareStreetNameContextFactoryV3(),
                     organizationCache ?? new FakeOrganizationCache(),
-                    grbOgcApiFeaturesDownloaderMock.Object
+                    grbOgcApiFeaturesDownloader ?? new FakeGrbOgcApiFeaturesDownloader()
                 ),
                 new EuropeanRoadFeatureCompareTranslator(new EuropeanRoadFeatureCompareFeatureReader(Encoding)),
                 new NationalRoadFeatureCompareTranslator(new NationalRoadFeatureCompareFeatureReader(Encoding)),

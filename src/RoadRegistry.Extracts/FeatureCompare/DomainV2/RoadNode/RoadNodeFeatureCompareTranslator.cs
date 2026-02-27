@@ -31,24 +31,46 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
 
         if (changeFeatures.Any())
         {
-            var batchCount = Debugger.IsAttached ? 1 : 4;
+            var processedLeveringRecords = ProcessLeveringRecordsInParallel(
+                changeFeatures, extractFeatures, context, cancellationToken);
 
-            var processedLeveringRecords = new ConcurrentDictionary<int, ICollection<RoadNodeFeatureCompareRecord>>();
-            Parallel.Invoke(changeFeatures
-                .SplitIntoBatches(batchCount)
-                .Select((changeFeaturesBatch, index) => { return (Action)(() => { processedLeveringRecords.TryAdd(index, ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, context, cancellationToken)); }); })
-                .ToArray());
-
-            problems += AddProcessedRecordsToContext(processedLeveringRecords.OrderBy(x => x.Key).SelectMany(x => x.Value).ToList(), context, cancellationToken);
+            problems += AddProcessedRecordsToContext(processedLeveringRecords, context, cancellationToken);
         }
 
         AddExtractRecordsToContext(extractFeatures, context, cancellationToken);
-
         problems.ThrowIfError();
 
-        changes = TranslateProcessedRecords(changes, context.RoadNodeRecords, context, cancellationToken);
+        changes = TranslateProcessedRecords(changes, context, cancellationToken);
 
         return Task.FromResult((changes, problems));
+    }
+
+    private List<RoadNodeFeatureCompareRecord> ProcessLeveringRecordsInParallel(
+        List<Feature<RoadNodeFeatureCompareAttributes>> dynamicChangeFeatures,
+        List<Feature<RoadNodeFeatureCompareAttributes>> dynamicExtractFeatures,
+        ZipArchiveEntryFeatureCompareTranslateContext context,
+        CancellationToken cancellationToken)
+    {
+        var batchCount = Debugger.IsAttached ? 1 : 4;
+
+        var processedLeveringRecords = new ConcurrentDictionary<int, List<RoadNodeFeatureCompareRecord>>();
+        Parallel.Invoke(dynamicChangeFeatures
+            .SplitIntoBatches(batchCount)
+            .Select((changeFeaturesBatch, index) =>
+            {
+                return (Action)(() =>
+                {
+                    processedLeveringRecords.TryAdd(index,
+                        ProcessLeveringRecords(changeFeaturesBatch, dynamicExtractFeatures, context, cancellationToken));
+                });
+            })
+            .ToArray());
+
+        var processedLeveringRecordsList = processedLeveringRecords
+            .OrderBy(x => x.Key)
+            .SelectMany(x => x.Value)
+            .ToList();
+        return processedLeveringRecordsList;
     }
 
     private List<RoadNodeFeatureCompareRecord> ProcessLeveringRecords(ICollection<Feature<RoadNodeFeatureCompareAttributes>> changeFeatures, ICollection<Feature<RoadNodeFeatureCompareAttributes>> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
@@ -125,9 +147,9 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                && feature1.Attributes.Grensknoop == feature2.Attributes.Grensknoop;
     }
 
-    private TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<RoadNodeFeatureCompareRecord> records, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
-        foreach (var record in records)
+        foreach (var record in context.GetRoadNodeRecords(FeatureType.Change))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -186,7 +208,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                     .AtDbaseRecord(FeatureType.Change, record.RecordNumber)
                     .WithIdentifier(nameof(RoadNodeDbaseRecord.WK_OIDN), record.GetOriginalId());
 
-                var existingRecords = context.RoadNodeRecords
+                var existingRecords = context.GetRoadNodeRecords(FeatureType.Change)
                     .Where(x => x.RecordType != RecordType.Removed && x.GetActualId() == record.GetActualId())
                     .ToArray();
 
@@ -204,7 +226,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                 }
             }
 
-            context.RoadNodeRecords.Add(record);
+            context.AddRoadNodeRecords([record]);
         }
 
         return problems;
@@ -212,14 +234,36 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
 
     private void AddExtractRecordsToContext(List<Feature<RoadNodeFeatureCompareAttributes>> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
+        var changeRoadNodeRecords = context.GetRoadNodeRecords(FeatureType.Change);
+
         foreach (var extractFeature in extractFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var hasProcessedRoadNode = context.RoadNodeRecords.Any(x => x.Id == extractFeature.Attributes.RoadNodeId
-                                                                        && !x.RecordType.Equals(RecordType.Added));
-            context.RoadNodeRecords.Add(new RoadNodeFeatureCompareRecord(FeatureType.Extract, extractFeature.RecordNumber, extractFeature.Attributes, extractFeature.Attributes.RoadNodeId,
-                hasProcessedRoadNode ? RecordType.Identical : RecordType.Removed));
+            var hasProcessedRoadNode = changeRoadNodeRecords.Any(x => x.Id == extractFeature.Attributes.RoadNodeId
+                                                                      && !x.RecordType.Equals(RecordType.Added));
+            var recordType = hasProcessedRoadNode ? RecordType.Identical : RecordType.Removed;
+
+            context.AddRoadNodeRecords([
+                new RoadNodeFeatureCompareRecord(
+                    FeatureType.Extract,
+                    extractFeature.RecordNumber,
+                    extractFeature.Attributes,
+                    extractFeature.Attributes.RoadNodeId,
+                    recordType)
+            ]);
+
+            if (recordType == RecordType.Removed)
+            {
+                context.AddRoadNodeRecords([
+                    new RoadNodeFeatureCompareRecord(
+                        FeatureType.Change,
+                        extractFeature.RecordNumber,
+                        extractFeature.Attributes,
+                        extractFeature.Attributes.RoadNodeId,
+                        recordType)
+                ]);
+            }
         }
     }
 }

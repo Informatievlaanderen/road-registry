@@ -352,19 +352,19 @@ public static class SharedCustomizations
         );
     }
 
-    public static void CustomizePoint(this IFixture fixture)
+    public static void CustomizePoint(this IFixture fixture, int srid = 0)
     {
         fixture.Customize<NetTopologySuite.Geometries.Point>(customization =>
             customization.FromFactory(generator =>
                 new NetTopologySuite.Geometries.Point(
                     fixture.Create<double>(),
                     fixture.Create<double>()
-                )
+                ).WithSrid(srid)
             ).OmitAutoProperties()
         );
     }
 
-    public static void CustomizePolylineM(this IFixture fixture)
+    public static void CustomizePolylineM(this IFixture fixture, int srid = 0)
     {
         fixture.Customize<CoordinateM>(customization =>
             customization.FromFactory(generator =>
@@ -380,7 +380,7 @@ public static class SharedCustomizations
             customization.FromFactory(generator =>
                 new LineString(
                     new CoordinateArraySequence(fixture.CreateMany<CoordinateM>(2).Cast<Coordinate>().ToArray()),
-                    GeometryConfiguration.GeometryFactory)
+                    GeometryConfiguration.GeometryFactory).WithSrid(srid)
             ).OmitAutoProperties()
         );
 
@@ -388,12 +388,12 @@ public static class SharedCustomizations
             customization.FromFactory(generator =>
                 new MultiLineString(
                     fixture.CreateMany<LineString>(1).ToArray(),
-                    GeometryConfiguration.GeometryFactory)
+                    GeometryConfiguration.GeometryFactory).WithSrid(srid)
             ).OmitAutoProperties()
         );
     }
 
-    public static void CustomizeNtsPolygon(this IFixture fixture)
+    public static void CustomizeNtsPolygon(this IFixture fixture, int srid = 0)
     {
         fixture.Customize<NetTopologySuite.Geometries.Polygon>(customization => customization
             .FromFactory(generator =>
@@ -407,7 +407,7 @@ public static class SharedCustomizations
                     new Coordinate(point.X + width, point.Y + width),
                     new Coordinate(point.X + width, point.Y),
                     new Coordinate(point.X, point.Y),
-                ]));
+                ])).WithSrid(srid);
             })
             .OmitAutoProperties());
 
@@ -857,6 +857,13 @@ public static class SharedCustomizations
             customization.FromFactory(generator =>
                 RoadSegmentStatusV2.All[generator.Next() % RoadSegmentStatusV2.All.Length]
             )
+        );
+    }
+
+    public static void Freeze<T>(this IFixture fixture, T frozenValue)
+    {
+        fixture.Customize<T>(customization =>
+            customization.FromFactory(_ => frozenValue)
         );
     }
 

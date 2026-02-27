@@ -3,7 +3,6 @@
 using Extensions;
 using NetTopologySuite.Geometries;
 using RoadNode;
-using Uploads;
 
 public class RoadSegmentUnflattener
 {
@@ -30,7 +29,7 @@ public class RoadSegmentUnflattener
         var segmentsByNode = BuildSegmentNodeGraph(featureType, records, context, cancellationToken);
 
         // Step 2: Classify nodes according to the rules
-        var nodeClassifications = ClassifyNodes(records, segmentsByNode, context, cancellationToken);
+        var nodeClassifications = ClassifyNodes(featureType, records, segmentsByNode, context, cancellationToken);
 
         // Step 3: Merge segments connected by schijnknopen (nodes with no type assigned)
         var unflattenedRecords = MergeSegmentsAtSchijnknopen(records, maxUsedRoadSegmentId, segmentsByNode, nodeClassifications, context.Tolerances, ogcFeaturesCache, cancellationToken);
@@ -88,26 +87,25 @@ public class RoadSegmentUnflattener
         Coordinate point,
         ZipArchiveEntryFeatureCompareTranslateContext context)
     {
-        return context.RoadNodeRecords
-            .FirstOrDefault(x => x.FeatureType == featuretype
-                                 && x.RecordType != RecordType.Removed
-                                 && x.Attributes.Geometry.IsReasonablyEqualTo(point, context.Tolerances));
+        return context.GetRoadNodeRecords(featuretype)
+            .NotRemoved()
+            .FirstOrDefault(x => x.Attributes.Geometry.IsReasonablyEqualTo(point, context.Tolerances));
     }
 
-    private Dictionary<RoadNodeId, RoadNodeTypeV2> ClassifyNodes(
-        IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
+    private Dictionary<RoadNodeId, RoadNodeTypeV2> ClassifyNodes(FeatureType featureType, IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
         var nodeClassifications = new Dictionary<RoadNodeId, RoadNodeTypeV2>();
+        var roadNodeRecords = context.GetRoadNodeRecords(featureType);
 
         foreach (var (node, connectedSegments) in segmentsByNode)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var nodeId = node.Item1;
-            var nodeRecord = context.RoadNodeRecords.FirstOrDefault(x => x.Id == nodeId);
+            var nodeRecord = roadNodeRecords.FirstOrDefault(x => x.Id == nodeId);
             if (nodeRecord is null)
             {
                 continue;

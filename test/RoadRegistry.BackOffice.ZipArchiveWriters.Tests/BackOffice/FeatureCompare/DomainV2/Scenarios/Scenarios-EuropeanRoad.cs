@@ -54,12 +54,6 @@
 //     }
 //
 // [Fact]
-// public void WhenSegmentAndEuropeanNumberRemoved_ThenOnlySegmentRemoved()
-// {
-//     throw new NotImplementedException();
-// }
-//
-// [Fact]
 // public void WhenSegmentIsKeptAndOnlyEuropeanNumberRemoved_ThenOnlyEuropeanNumberRemoved()
 // {
 //     throw new NotImplementedException();

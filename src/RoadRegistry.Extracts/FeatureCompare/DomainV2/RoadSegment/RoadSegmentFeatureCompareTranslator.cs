@@ -39,9 +39,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         var (extractFeatures, changeFeatures, integrationFeatures, problems) = ReadExtractAndChangeAndIntegrationFeatures(context.Archive, context);
         problems.ThrowIfError();
 
-        context.AddRoadSegments(integrationFeatures.Select(feature =>
-            new RoadSegmentFeatureCompareRecord(FeatureType.Integration, feature.RecordNumber, null, [feature], feature.Attributes.RoadSegmentId!.Value, RecordType.Identical)
-        ));
+        context.AddRoadSegmentRecords(integrationFeatures
+            .Select(feature =>
+                new RoadSegmentFeatureCompareRecord(FeatureType.Integration, feature.RecordNumber, null, [feature], feature.Attributes.RoadSegmentId!.Value, RecordType.Identical)
+            )
+            .ToList());
 
         var maxUsedRoadSegmentId = integrationFeatures.Select(x => x.Attributes.RoadSegmentId!.Value)
             .Concat(extractFeatures.Select(x => x.Attributes.RoadSegmentId!.Value))
@@ -68,7 +70,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         await dynamicExtractFeaturesTask;
         AddExtractRecordsToContext(dynamicExtractFeaturesTask.Result, context, cancellationToken);
-
         problems.ThrowIfError();
 
         changes = TranslateProcessedRecords(changes, context, cancellationToken);
@@ -408,7 +409,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 .AtDbaseRecord(FeatureType.Change, record.RecordNumber)
                 .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_OIDN), record.Attributes.RoadSegmentId);
 
-            var existingRecords = context.RoadSegmentRecords
+            var existingRecords = context.GetRoadSegmentRecords(FeatureType.Change)
                 .Where(x => x.GetActualId() == record.GetActualId())
                 .ToArray();
 
@@ -425,7 +426,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 continue;
             }
 
-            context.AddRoadSegments([record]);
+            context.AddRoadSegmentRecords([record]);
         }
 
         return problems;
@@ -444,7 +445,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
     private TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
-        foreach (var record in context.RoadSegmentRecords.Where(x => x.FeatureType == FeatureType.Change))
+        foreach (var record in context.GetRoadSegmentRecords(FeatureType.Change))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -526,21 +527,38 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
     private void AddExtractRecordsToContext(List<RoadSegmentFeatureWithDynamicAttributes> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
+        var changeRoadSegmentRecords = context.GetRoadSegmentRecords(FeatureType.Change);
+
         foreach (var extractFeature in extractFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var hasProcessedRoadSegment = context.RoadSegmentRecords.Any(x => x.FeatureType == FeatureType.Change
-                                                                              && x.RoadSegmentId == extractFeature.Attributes.RoadSegmentId
-                                                                              && x.RecordType != RecordType.Added);
+            var hasProcessedRoadSegment = changeRoadSegmentRecords.Any(x =>
+                x.RoadSegmentId == extractFeature.Attributes.RoadSegmentId && x.RecordType != RecordType.Added);
+            var recordType = hasProcessedRoadSegment ? RecordType.Identical : RecordType.Removed;
 
-            context.AddRoadSegments([new RoadSegmentFeatureCompareRecord(
-                FeatureType.Extract,
-                extractFeature.RecordNumber,
-                extractFeature.Attributes,
-                extractFeature.FlatFeatures,
-                extractFeature.Attributes.RoadSegmentId,
-                hasProcessedRoadSegment ? RecordType.Identical : RecordType.Removed)]);
+            context.AddRoadSegmentRecords([
+                new RoadSegmentFeatureCompareRecord(
+                    FeatureType.Extract,
+                    extractFeature.RecordNumber,
+                    extractFeature.Attributes,
+                    extractFeature.FlatFeatures,
+                    extractFeature.Attributes.RoadSegmentId,
+                    recordType)
+            ]);
+
+            if (recordType == RecordType.Removed)
+            {
+                context.AddRoadSegmentRecords([
+                    new RoadSegmentFeatureCompareRecord(
+                        FeatureType.Change,
+                        extractFeature.RecordNumber,
+                        extractFeature.Attributes,
+                        extractFeature.FlatFeatures,
+                        extractFeature.Attributes.RoadSegmentId,
+                        recordType)
+                ]);
+            }
         }
     }
 }

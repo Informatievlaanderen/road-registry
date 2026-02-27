@@ -3,10 +3,10 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
     using System.IO.Compression;
     using System.Text;
     using AutoFixture;
+    using Editor.Schema.Extensions;
+    using Extensions;
     using Microsoft.IO;
     using NetTopologySuite.Geometries;
-    using RoadRegistry.Editor.Schema.Extensions;
-    using RoadRegistry.Extensions;
     using RoadRegistry.Extracts.Schemas.Inwinning;
     using RoadRegistry.Extracts.Schemas.Inwinning.GradeSeparatedJuntions;
     using RoadRegistry.Extracts.Schemas.Inwinning.RoadNodes;
@@ -183,65 +183,6 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
         {
             var fixture = testData.Fixture;
             fixture.CustomizeUniqueInteger();
-
-            fixture.Customize<RoadSegmentEuropeanRoadAttributeDbaseRecord>(composer => composer
-                .FromFactory(random => new RoadSegmentEuropeanRoadAttributeDbaseRecord
-                {
-                    EU_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
-                    WS_TEMPID = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
-                    EUNUMMER = { Value = fixture.Create<EuropeanRoadNumber>().ToString() }
-                })
-                .OmitAutoProperties());
-
-            fixture.Customize<GradeSeparatedJunctionDbaseRecord>(composer => composer
-                .FromFactory(random => new GradeSeparatedJunctionDbaseRecord
-                {
-                    OK_OIDN = { Value = new GradeSeparatedJunctionId(random.Next(1, int.MaxValue)) },
-                    TYPE =
-                        { Value = (short)fixture.Create<GradeSeparatedJunctionTypeV2>().Translation.Identifier },
-                    BO_TEMPID = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
-                    ON_TEMPID = { Value = fixture.Create<RoadSegmentId>().ToInt32() }
-                })
-                .OmitAutoProperties());
-
-            fixture.Customize<RoadSegmentNationalRoadAttributeDbaseRecord>(composer => composer
-                .FromFactory(random => new RoadSegmentNationalRoadAttributeDbaseRecord
-                {
-                    NW_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
-                    WS_TEMPID = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
-                    NWNUMMER = { Value = fixture.Create<NationalRoadNumber>().ToString() }
-                })
-                .OmitAutoProperties());
-
-            fixture.Customize<RoadNodeDbaseRecord>(composer => composer
-                .FromFactory(random => new RoadNodeDbaseRecord
-                {
-                    WK_OIDN = { Value = fixture.Create<RoadNodeId>() },
-                    TYPE = { Value = (short)fixture.Create<RoadNodeTypeV2>().Translation.Identifier }
-                })
-                .OmitAutoProperties());
-
-            fixture.Customize<RoadSegmentDbaseRecord>(composer => composer
-                .FromFactory(random => new RoadSegmentDbaseRecord
-                {
-                    WS_TEMPID = { Value = random.Next(1, int.MaxValue) },
-                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>() },
-                    LBEHEER = { Value = fixture.Create<OrganizationId>() },
-                    RBEHEER = { Value = fixture.Create<OrganizationId>() },
-                    MORF = { Value = fixture.Create<RoadSegmentMorphologyV2>().Translation.Identifier },
-                    STATUS = { Value = fixture.Create<RoadSegmentStatusV2>().Translation.Identifier },
-                    WEGCAT = { Value = fixture.Create<RoadSegmentCategoryV2>().Translation.Identifier },
-                    LSTRNMID = { Value = fixture.Create<StreetNameLocalId>() },
-                    RSTRNMID = { Value = fixture.Create<StreetNameLocalId>() },
-                    TOEGANG = { Value = fixture.Create<RoadSegmentAccessRestrictionV2>().Translation.Identifier },
-                    VERHARDING = { Value = fixture.Create<RoadSegmentSurfaceTypeV2>().Translation.Identifier },
-                    AUTOHEEN = { Value = random.Next(0, 2) },
-                    AUTOTERUG = { Value = random.Next(0, 2) },
-                    FIETSHEEN = { Value = random.Next(0, 2) },
-                    FIETSTERUG = { Value = random.Next(0, 2) },
-                    VOETGANGER = { Value = random.Next(0, 2) }
-                })
-                .OmitAutoProperties());
 
             return fixture;
         }
