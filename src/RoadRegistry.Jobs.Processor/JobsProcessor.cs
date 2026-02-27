@@ -3,6 +3,7 @@ namespace RoadRegistry.Jobs.Processor
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.IO.Compression;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -126,10 +127,8 @@ namespace RoadRegistry.Jobs.Processor
                             await UpdateJobStatus(job, JobStatus.Processing, stoppingToken);
 
                             // Send archive to be further processed
-                            await using var blobStream = await blob.OpenAsync(stoppingToken);
-                            var readStream = await blobStream.CopyToNewMemoryStreamAsync(stoppingToken);
 
-                            var request = await BuildRequest(job, blob, readStream, stoppingToken);
+                            var request = await BuildRequest(job, blob, stoppingToken);
 
                             if (request is EndpointRequest endpointRequest)
                             {
@@ -148,6 +147,7 @@ namespace RoadRegistry.Jobs.Processor
                                 var problem = new UnsupportedMediaType(ex.ContentType.Value).Translate();
                                 throw ToDutchValidationException(problem.ToValidationFailure());
                             }
+
                             throw ToDutchValidationException(ProblemCode.Upload.UnsupportedMediaType);
                         }
                         catch (DownloadExtractNotFoundException)
@@ -200,11 +200,12 @@ namespace RoadRegistry.Jobs.Processor
         private DutchValidationException ToDutchValidationException(ProblemCode problemCode)
         {
             return ToDutchValidationException(new ValidationFailure
-                {
-                    PropertyName = string.Empty,
-                    ErrorCode = problemCode
-                });
+            {
+                PropertyName = string.Empty,
+                ErrorCode = problemCode
+            });
         }
+
         private DutchValidationException ToDutchValidationException(ValidationFailure validationFailure)
         {
             return new ValidationException([
@@ -224,121 +225,181 @@ namespace RoadRegistry.Jobs.Processor
             _logger.LogWarning("Cancelled expired job '{jobId}'.", job.Id);
         }
 
-        private async Task<object> BuildRequest(Job job, BlobObject blob, Stream blobStream, CancellationToken cancellationToken)
+        private async Task<object> BuildRequest(Job job, BlobObject blob, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+
+            await using var readonlyBlobStream = await blob.OpenAsync(cancellationToken);
+            var writeableBlobStream = await readonlyBlobStream.CopyToNewMemoryStreamAsync(cancellationToken);
 
             switch (job.UploadType)
             {
                 case UploadType.Uploads:
-                    {
-                        return new UploadExtractRequest(new UploadExtractArchiveRequest(blob.Name, blobStream, blob.ContentType), job.TicketId);
-                    }
+                {
+                    return new UploadExtractRequest(new UploadExtractArchiveRequest(blob.Name, writeableBlobStream, blob.ContentType), job.TicketId);
+                }
                 case UploadType.Extracts:
+                {
+                    if (job.DownloadId is null)
                     {
-                        if (job.DownloadId is null)
-                        {
-                            throw ToDutchValidationException(ProblemCode.Upload.DownloadIdIsRequired);
-                        }
-
-                        return new BackOffice.Abstractions.Extracts.UploadExtractRequest(new DownloadId(job.DownloadId.Value), new UploadExtractArchiveRequest(blob.Name, blobStream, blob.ContentType), job.TicketId);
+                        throw ToDutchValidationException(ProblemCode.Upload.DownloadIdIsRequired);
                     }
+
+                    return new BackOffice.Abstractions.Extracts.UploadExtractRequest(new DownloadId(job.DownloadId.Value), new UploadExtractArchiveRequest(blob.Name, writeableBlobStream, blob.ContentType), job.TicketId);
+                }
                 case UploadType.ExtractsV2:
+                {
+                    if (job.DownloadId is null)
                     {
-                        if (job.DownloadId is null)
-                        {
-                            throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired);
-                        }
+                        throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired);
+                    }
 
-                        var uploadId = new UploadId(Guid.NewGuid());
-                        var fileNames = blob.Metadata
-                            .Where(pair => pair.Key == new MetadataKey("filename"))
-                            .Select(x => x.Value)
-                            .ToArray();
-                        var fileName = fileNames.Length == 1 ? fileNames.Single() : $"{uploadId}.zip";
-                        var metadata = Metadata.None.Add(
-                            new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), fileName)
-                        );
+                    var uploadId = new UploadId(Guid.NewGuid());
+                    var fileNames = blob.Metadata
+                        .Where(pair => pair.Key == new MetadataKey("filename"))
+                        .Select(x => x.Value)
+                        .ToArray();
+                    var fileName = fileNames.Length == 1 ? fileNames.Single() : $"{uploadId}.zip";
+                    var metadata = Metadata.None.Add(
+                        new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), fileName)
+                    );
 
-                        await _uploadsBlobClient.CreateBlobAsync(
-                            new BlobName(uploadId.ToString()),
-                            metadata,
-                            blob.ContentType,
-                            blobStream,
-                            cancellationToken
-                        );
+                    await _uploadsBlobClient.CreateBlobAsync(
+                        new BlobName(uploadId.ToString()),
+                        metadata,
+                        blob.ContentType,
+                        writeableBlobStream,
+                        cancellationToken
+                    );
 
-                        var extractDownload = await _extractsDbContext.ExtractDownloads
-                            .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
-                        var extractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId);
+                    var extractDownload = await _extractsDbContext.ExtractDownloads
+                        .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
+                    var extractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId);
 
-                        if (extractDownload.ZipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2)
-                        {
-                            var extractRequest = await _extractsDbContext.ExtractRequests
-                                .SingleAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId, cancellationToken);
+                    if (extractDownload.ZipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2)
+                    {
+                        var extractRequest = await _extractsDbContext.ExtractRequests
+                            .SingleAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId, cancellationToken);
 
-                            return new UploadExtractSqsRequestV2
-                            {
-                                TicketId = job.TicketId,
-                                DownloadId = new DownloadId(job.DownloadId.Value),
-                                UploadId = uploadId,
-                                ExtractRequestId = extractRequestId,
-                                SendFailedEmail = extractRequest.ExternalRequestId is not null,
-                                ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description)
-                            };
-                        }
-
-                        return new UploadExtractSqsRequest
+                        return new UploadExtractSqsRequestV2
                         {
                             TicketId = job.TicketId,
                             DownloadId = new DownloadId(job.DownloadId.Value),
                             UploadId = uploadId,
                             ExtractRequestId = extractRequestId,
-                            ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName)
+                            SendFailedEmail = extractRequest.ExternalRequestId is not null,
+                            ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description)
                         };
                     }
-                case UploadType.Inwinning:
+
+                    return new UploadExtractSqsRequest
                     {
-                        if (job.DownloadId is null)
-                        {
-                            throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired);
-                        }
-
-                        var uploadId = new UploadId(Guid.NewGuid());
-                        var fileNames = blob.Metadata
-                            .Where(pair => pair.Key == new MetadataKey("filename"))
-                            .Select(x => x.Value)
-                            .ToArray();
-                        var fileName = fileNames.Length == 1 ? fileNames.Single() : $"{uploadId}.zip";
-                        var metadata = Metadata.None.Add(
-                            new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), fileName)
-                        );
-
-                        await _uploadsBlobClient.CreateBlobAsync(
-                            new BlobName(uploadId.ToString()),
-                            metadata,
-                            blob.ContentType,
-                            blobStream,
-                            cancellationToken
-                        );
-
-                        var extractDownload = await _extractsDbContext.ExtractDownloads
-                            .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
-
-                        var extractRequest = await _extractsDbContext.ExtractRequests
-                            .SingleAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId, cancellationToken);
-
-                        return new UploadInwinningExtractSqsRequest
-                        {
-                            TicketId = job.TicketId,
-                            DownloadId = new DownloadId(job.DownloadId.Value),
-                            UploadId = uploadId,
-                            ExtractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId),
-                            ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description),
-                        };
+                        TicketId = job.TicketId,
+                        DownloadId = new DownloadId(job.DownloadId.Value),
+                        UploadId = uploadId,
+                        ExtractRequestId = extractRequestId,
+                        ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName)
+                    };
+                }
+                case UploadType.Inwinning:
+                {
+                    if (job.DownloadId is null)
+                    {
+                        throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired);
                     }
+
+                    var uploadId = new UploadId(Guid.NewGuid());
+                    var fileNames = blob.Metadata
+                        .Where(pair => pair.Key == new MetadataKey("filename"))
+                        .Select(x => x.Value)
+                        .ToArray();
+                    var fileName = fileNames.Length == 1 ? fileNames.Single() : $"{uploadId}.zip";
+                    var metadata = Metadata.None.Add(
+                        new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), fileName)
+                    );
+
+                    RemoveUnknownFilesForDomainV2(writeableBlobStream);
+
+                    writeableBlobStream.Position = 0;
+                    await _uploadsBlobClient.CreateBlobAsync(
+                        new BlobName(uploadId.ToString()),
+                        metadata,
+                        blob.ContentType,
+                        writeableBlobStream,
+                        cancellationToken
+                    );
+
+                    var extractDownload = await _extractsDbContext.ExtractDownloads
+                        .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
+
+                    var extractRequest = await _extractsDbContext.ExtractRequests
+                        .SingleAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId, cancellationToken);
+
+                    return new UploadInwinningExtractSqsRequest
+                    {
+                        TicketId = job.TicketId,
+                        DownloadId = new DownloadId(job.DownloadId.Value),
+                        UploadId = uploadId,
+                        ExtractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId),
+                        ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description),
+                    };
+                }
                 default:
                     throw new NotSupportedException($"{nameof(UploadType)} {job.UploadType} is not supported.");
+            }
+        }
+
+        private void RemoveUnknownFilesForDomainV2(Stream stream)
+        {
+            try
+            {
+                using var archive = new ZipArchive(stream, ZipArchiveMode.Update, leaveOpen: true);
+
+                var allowedFileNames = Enumerable.Empty<string>()
+                    .Concat(new[] { FeatureType.Change }
+                        .SelectMany(featureType => new[]
+                        {
+                            ExtractFileName.Transactiezones.ToDbaseFileName(featureType),
+                            ExtractFileName.Transactiezones.ToShapeFileName(featureType),
+                            ExtractFileName.Transactiezones.ToShapeIndexFileName(featureType),
+                            ExtractFileName.Transactiezones.ToProjectionFileName(featureType),
+                            ExtractFileName.Transactiezones.ToCpgFileName(featureType)
+                        }))
+                    .Concat(new[] { FeatureType.Change, FeatureType.Extract, FeatureType.Integration }
+                        .SelectMany(featureType => new[]
+                        {
+                            ExtractFileName.Wegknoop.ToDbaseFileName(featureType),
+                            ExtractFileName.Wegknoop.ToShapeFileName(featureType),
+                            ExtractFileName.Wegknoop.ToShapeIndexFileName(featureType),
+                            ExtractFileName.Wegknoop.ToProjectionFileName(featureType),
+                            ExtractFileName.Wegknoop.ToCpgFileName(featureType),
+
+                            ExtractFileName.Wegsegment.ToDbaseFileName(featureType),
+                            ExtractFileName.Wegsegment.ToShapeFileName(featureType),
+                            ExtractFileName.Wegsegment.ToShapeIndexFileName(featureType),
+                            ExtractFileName.Wegsegment.ToProjectionFileName(featureType),
+                            ExtractFileName.Wegsegment.ToCpgFileName(featureType)
+                        }))
+                    .Concat(new[] { FeatureType.Change, FeatureType.Extract }
+                        .SelectMany(featureType => new[]
+                        {
+                            ExtractFileName.AttEuropweg.ToDbaseFileName(featureType),
+                            ExtractFileName.AttNationweg.ToDbaseFileName(featureType),
+                            ExtractFileName.RltOgkruising.ToDbaseFileName(featureType),
+                        }))
+                    .Select(x => x.ToUpper())
+                    .ToArray();
+
+                var archiveFileNames = archive.Entries.Select(x => (FileName: x.Name, Upper: x.Name.ToUpper())).ToArray();
+                var removeFileNames = archiveFileNames.Where(x => !allowedFileNames.Contains(x.Upper)).Select(x => x.FileName).ToArray();
+                foreach (var removeFileName in removeFileNames)
+                {
+                    archive.GetEntry(removeFileName)!.Delete();
+                }
+            }
+            catch (InvalidDataException)
+            {
+                // Do nothing
             }
         }
 

@@ -145,7 +145,8 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
             return archiveStream;
         }
 
-        public ZipArchive Build(MemoryStream archiveStream = null,
+        public ZipArchive Build(
+            MemoryStream archiveStream = null,
             MemoryStream roadSegmentProjectionFormatStream = null,
             MemoryStream roadNodeProjectionFormatStream = null,
             MemoryStream transactionZoneProjectionFormatStream = null)
