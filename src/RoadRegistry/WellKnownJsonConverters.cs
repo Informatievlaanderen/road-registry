@@ -14,6 +14,7 @@ namespace RoadRegistry
             [
                 //common
                 new GeoJSON.Net.Converters.GeoJsonConverter(),
+                new NtsGeometryJsonConverter(),
                 new OrganizationIdConverter(),
                 new EuropeanRoadNumberConverter(),
                 new NationalRoadNumberConverter(),
