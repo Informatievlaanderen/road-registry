@@ -17,11 +17,13 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.DutchTranslations;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Hosts;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using SqlStreamStore;
@@ -181,7 +183,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         catch (ZipArchiveValidationException ex)
         {
             await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
-            throw ex.ToDutchValidationException();
+            throw ex.ToDutchValidationException(FileProblemTranslator.DomainV1);
         }
         catch
         {
@@ -252,7 +254,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
 
     protected override TicketError? InnerMapDomainException(DomainException exception, UploadExtractSqsLambdaRequest request)
     {
-        return ConvertToError(exception)?.ToTicketError()
+        return ConvertToError(exception)?.ToTicketError(WellKnownProblemTranslators.Default)
             ?? base.InnerMapDomainException(exception, request);
     }
 

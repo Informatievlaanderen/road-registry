@@ -8,6 +8,7 @@ using Fixtures;
 using FluentValidation;
 using FluentValidation.Results;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using Xunit.Abstractions;
 
 public abstract class WhenCreateOutlineWithInvalidRequest<TFixture> : IClassFixture<TFixture>
@@ -45,7 +46,7 @@ public abstract class WhenCreateOutlineWithInvalidRequest<TFixture> : IClassFixt
     {
         var ex = Assert.IsType<ValidationException>(Fixture.Exception);
         var err = Assert.IsAssignableFrom<IEnumerable<ValidationFailure>>(ex.Errors);
-        return err.TranslateToDutch();
+        return err.TranslateToDutch(WellKnownProblemTranslators.Default);
     }
 
     [Fact]

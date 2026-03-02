@@ -8,6 +8,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using RoadRegistry.Extracts.DutchTranslations;
 using RoadRegistry.Extracts.Uploads;
 using TicketingService.Abstractions;
 using Uploads;
@@ -81,7 +82,7 @@ public class RoadNetworkExtractUpload
 
             if (ticketId is not null)
             {
-                var errors = problems.Select(x => x.Translate().ToTicketError()).ToArray();
+                var errors = problems.Select(x => x.Translate().ToTicketError(FileProblemTranslator.DomainV1)).ToArray();
                 await ticketing.Error(ticketId.Value, new TicketError(errors), cancellationToken);
             }
 

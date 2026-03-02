@@ -15,6 +15,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
 using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using TicketingService.Abstractions;
 using ValueObjects.ProblemCodes;
 using ValueObjects.Problems;
@@ -72,7 +73,7 @@ public sealed class UploadExtractSqsLambdaRequestV2Handler : SqsLambdaHandler<Up
 
     protected override TicketError? InnerMapDomainException(DomainException exception, UploadExtractSqsLambdaRequestV2 request)
     {
-        return ConvertToDomainError(exception)?.ToTicketError()
+        return ConvertToDomainError(exception)?.ToTicketError(ProblemTranslator)
             ?? base.InnerMapDomainException(exception, request);
     }
 

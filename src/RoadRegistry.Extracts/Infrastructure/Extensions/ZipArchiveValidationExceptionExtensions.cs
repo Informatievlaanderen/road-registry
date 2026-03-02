@@ -8,13 +8,13 @@ using Uploads;
 
 public static class ZipArchiveValidationExceptionExtensions
 {
-    public static DutchValidationException ToDutchValidationException(this ZipArchiveValidationException ex)
+    public static DutchValidationException ToDutchValidationException(this ZipArchiveValidationException ex, FileProblemTranslator translator)
     {
         var validationFailures = ex.Problems
             .Select(problem => problem.Translate())
             .Select(problem =>
                 {
-                    var translatedProblem = problem.TranslateToDutch();
+                    var translatedProblem = translator.Translate(problem);
 
                     return new ValidationFailure(problem.File, translatedProblem.Message)
                     {

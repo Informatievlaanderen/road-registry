@@ -13,6 +13,7 @@ using NetTopologySuite.IO.Esri;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Infrastructure.ShapeFile;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using ShapeFile.V1;
 using ValueObjects.Problems;
 using Polygon = NetTopologySuite.Geometries.Polygon;
@@ -42,7 +43,7 @@ public class ExtractShapefileContourReader : IExtractShapefileContourReader
         {
             throw new ValidationException("Shape file content contains some errors",
                 problems
-                    .Select(problem => problem.TranslateToDutch())
+                    .Select(problem => problem.TranslateToDutch(WellKnownProblemTranslators.Default))
                     .Select(problemTranslation => new ValidationFailure
                     {
                         PropertyName = nameof(ExtractDownloadaanvraagPerBestand.ShpFile),

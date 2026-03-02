@@ -182,8 +182,9 @@ public class ProblemTranslatorTests
             };
             try
             {
-                var problemTranslation = ProblemTranslator.Dutch(problem);
-                if (problemTranslation.Message == ProblemTranslator.CreateMissingTranslationMessage(problemCode))
+                var translator = WellKnownProblemTranslators.Default;
+                var problemTranslation = translator.Translate(problem);
+                if (problemTranslation.Message == ((ProblemTranslatorBase)translator).CreateMissingTranslation(problem).Message)
                 {
                     invalidProblemCodes.Add(problemCode);
                 }

@@ -34,7 +34,7 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
         var problem = Assert.Single(ex.Problems);
         Assert.Equal(nameof(DbaseFileProblems.NationalRoadNotUnique), problem.Reason);
 
-        Assert.Equal(expectedTranslatedProblemMessage, FileProblemTranslator.Dutch(problem.Translate()).Message);
+        Assert.Equal(expectedTranslatedProblemMessage, FileProblemTranslator.DomainV2.Translate(problem.Translate()).Message);
     }
 
     [Fact]

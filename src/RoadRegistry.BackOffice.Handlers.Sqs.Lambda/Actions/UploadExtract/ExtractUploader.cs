@@ -7,6 +7,7 @@ using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Exceptions;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.Extracts.DutchTranslations;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Schema;
@@ -112,7 +113,7 @@ public sealed class ExtractUploader : IExtractUploader
         {
             await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
             await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
-            throw ex.ToDutchValidationException();
+            throw ex.ToDutchValidationException(FileProblemTranslator.DomainV2);
         }
         catch
         {

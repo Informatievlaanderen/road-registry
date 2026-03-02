@@ -20,6 +20,7 @@ namespace RoadRegistry.Jobs.Processor
     using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
     using Extensions;
     using Extracts;
+    using Extracts.DutchTranslations;
     using Extracts.Infrastructure.Extensions;
     using Extracts.Schema;
     using Extracts.Uploads;
@@ -145,34 +146,34 @@ namespace RoadRegistry.Jobs.Processor
                             if (ex.ContentType is not null)
                             {
                                 var problem = new UnsupportedMediaType(ex.ContentType.Value).Translate();
-                                throw ToDutchValidationException(problem.ToValidationFailure());
+                                throw ToDutchValidationException(problem.ToValidationFailure(WellKnownProblemTranslators.Default), WellKnownProblemTranslators.Default);
                             }
 
-                            throw ToDutchValidationException(ProblemCode.Upload.UnsupportedMediaType);
+                            throw ToDutchValidationException(ProblemCode.Upload.UnsupportedMediaType, WellKnownProblemTranslators.Default);
                         }
                         catch (DownloadExtractNotFoundException)
                         {
-                            throw ToDutchValidationException(ProblemCode.Extract.NotFound);
+                            throw ToDutchValidationException(ProblemCode.Extract.NotFound, WellKnownProblemTranslators.Default);
                         }
                         catch (ExtractDownloadNotFoundException)
                         {
-                            throw ToDutchValidationException(ProblemCode.Extract.NotFound);
+                            throw ToDutchValidationException(ProblemCode.Extract.NotFound, WellKnownProblemTranslators.Default);
                         }
                         catch (ExtractRequestMarkedInformativeException)
                         {
-                            throw ToDutchValidationException(ProblemCode.Upload.UploadNotAllowedForInformativeExtract);
+                            throw ToDutchValidationException(ProblemCode.Upload.UploadNotAllowedForInformativeExtract, WellKnownProblemTranslators.Default);
                         }
                         catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException)
                         {
-                            throw ToDutchValidationException(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload);
+                            throw ToDutchValidationException(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload, WellKnownProblemTranslators.Default);
                         }
                         catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException)
                         {
-                            throw ToDutchValidationException(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce);
+                            throw ToDutchValidationException(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce, WellKnownProblemTranslators.Default);
                         }
                         catch (ZipArchiveValidationException ex)
                         {
-                            throw ex.ToDutchValidationException();
+                            throw ex.ToDutchValidationException(FileProblemTranslator.DomainV1);
                         }
                         finally
                         {
@@ -186,7 +187,7 @@ namespace RoadRegistry.Jobs.Processor
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, $"Unexpected exception for job '{job.Id}'");
-                        throw ToDutchValidationException(ProblemCode.Upload.UnexpectedError);
+                        throw ToDutchValidationException(ProblemCode.Upload.UnexpectedError, WellKnownProblemTranslators.Default);
                     }
                 }
                 catch (ValidationException ex)
@@ -197,20 +198,20 @@ namespace RoadRegistry.Jobs.Processor
             }
         }
 
-        private DutchValidationException ToDutchValidationException(ProblemCode problemCode)
+        private DutchValidationException ToDutchValidationException(ProblemCode problemCode, IProblemTranslator translator)
         {
             return ToDutchValidationException(new ValidationFailure
             {
                 PropertyName = string.Empty,
                 ErrorCode = problemCode
-            });
+            }, translator);
         }
 
-        private DutchValidationException ToDutchValidationException(ValidationFailure validationFailure)
+        private DutchValidationException ToDutchValidationException(ValidationFailure validationFailure, IProblemTranslator translator)
         {
             return new ValidationException([
                 validationFailure
-            ]).TranslateToDutch();
+            ]).TranslateToDutch(translator);
         }
 
         private async Task CancelJob(Job job, CancellationToken stoppingToken)
@@ -242,7 +243,7 @@ namespace RoadRegistry.Jobs.Processor
                 {
                     if (job.DownloadId is null)
                     {
-                        throw ToDutchValidationException(ProblemCode.Upload.DownloadIdIsRequired);
+                        throw ToDutchValidationException(ProblemCode.Upload.DownloadIdIsRequired, WellKnownProblemTranslators.Default);
                     }
 
                     return new BackOffice.Abstractions.Extracts.UploadExtractRequest(new DownloadId(job.DownloadId.Value), new UploadExtractArchiveRequest(blob.Name, writeableBlobStream, blob.ContentType), job.TicketId);
@@ -251,7 +252,7 @@ namespace RoadRegistry.Jobs.Processor
                 {
                     if (job.DownloadId is null)
                     {
-                        throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired);
+                        throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired, WellKnownProblemTranslators.Default);
                     }
 
                     var uploadId = new UploadId(Guid.NewGuid());
@@ -305,7 +306,7 @@ namespace RoadRegistry.Jobs.Processor
                 {
                     if (job.DownloadId is null)
                     {
-                        throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired);
+                        throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired, WellKnownProblemTranslators.Default);
                     }
 
                     var uploadId = new UploadId(Guid.NewGuid());
