@@ -18,12 +18,12 @@ namespace RoadRegistry.Tests
             _geometries = geometries.ToList();
         }
 
-        public async Task<IReadOnlyList<OgcFeature>> DownloadFeaturesAsync(IEnumerable<string> collectionIds, Envelope boundingBox, int srid, CancellationToken cancellationToken)
+        public Task<IReadOnlyList<OgcFeature>> DownloadFeaturesAsync(IEnumerable<string> collectionIds, Envelope boundingBox, int srid, CancellationToken cancellationToken)
         {
-            return collectionIds
+            var features = collectionIds
                 .SelectMany(collectionId => _geometries.Select(x => new OgcFeature(collectionId, null, x, null)))
-                .ToList()
-                .AsReadOnly();
+                .ToList();
+            return Task.FromResult<IReadOnlyList<OgcFeature>>(features);
         }
     }
     public class FakeOrganizationCache : IOrganizationCache

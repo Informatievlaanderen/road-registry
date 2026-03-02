@@ -387,10 +387,10 @@ namespace RoadRegistry.Jobs.Processor
                             ExtractFileName.AttNationweg.ToDbaseFileName(featureType),
                             ExtractFileName.RltOgkruising.ToDbaseFileName(featureType),
                         }))
-                    .Select(x => x.ToUpper())
+                    .Select(x => x.ToUpperInvariant())
                     .ToArray();
 
-                var archiveFileNames = archive.Entries.Select(x => (FileName: x.Name, Upper: x.Name.ToUpper())).ToArray();
+                var archiveFileNames = archive.Entries.Select(x => (FileName: x.Name, Upper: x.Name.ToUpperInvariant())).ToArray();
                 var removeFileNames = archiveFileNames.Where(x => !allowedFileNames.Contains(x.Upper)).Select(x => x.FileName).ToArray();
                 foreach (var removeFileName in removeFileNames)
                 {

@@ -379,7 +379,7 @@ public class RoadSegmentUnflattener
 
         public NextRoadSegmentIdProvider(RoadSegmentId initialValue)
         {
-            _nextValue = initialValue;
+            _nextValue = initialValue.Next();
         }
 
         public RoadSegmentId Next()
