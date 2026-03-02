@@ -215,17 +215,6 @@ public static class NetTopologySuiteExtensions
         return geometry;
     }
 
-    public static T FillSridIfMissing<T>(this T geometry)
-        where T : Geometry
-    {
-        if (geometry.SRID == 0)
-        {
-            geometry.SRID = GeometryConfiguration.GeometryFactory.SRID;
-        }
-
-        return geometry;
-    }
-
     public static MultiLineString WithMeasureOrdinates(this MultiLineString multiLineString)
     {
         var lineStrings = multiLineString.Geometries
@@ -392,7 +381,13 @@ public static class NetTopologySuiteExtensions
         if (ReferenceEquals(@this, other)) return true;
         if (@this.IsEmpty && other.IsEmpty) return true;
         if (@this.IsEmpty != other.IsEmpty) return false;
-        return @this.EqualsExact(other, tolerances.GeometryTolerance);
+        return @this.IsReasonablyEqualTo(other.Coordinate, tolerances);
+    }
+
+    public static bool IsReasonablyEqualTo(this Point @this, Coordinate other, VerificationContextTolerances tolerances)
+    {
+        if (ReferenceEquals(@this, other)) return true;
+        return @this.Coordinate.Equals2D(other, tolerances.GeometryTolerance);
     }
 
     public static bool IsReasonablyEqualTo(this Coordinate @this, Coordinate other, VerificationContextTolerances tolerances)

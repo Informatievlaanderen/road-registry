@@ -127,7 +127,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
 
             var ticketId = Guid.NewGuid();
 
-            var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.Extracts, ticketId)
+            var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.ExtractsV2, ticketId)
             {
                 DownloadId = null
             };
@@ -172,7 +172,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
             mockTicketing.Verify(x => x.Error(
                 ticketId,
                 It.Is<TicketError>(ticketError =>
-                    ticketError.Errors.First().ErrorCode == "DownloadIdIsRequired"
+                    ticketError.Errors.First().ErrorCode == "DownloadIdVerplicht"
                     && ticketError.Errors.First().ErrorMessage == "Download id is verplicht."),
                 It.IsAny<CancellationToken>()), Times.Once);
 

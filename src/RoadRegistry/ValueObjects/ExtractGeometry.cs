@@ -1,10 +1,11 @@
 ﻿namespace RoadRegistry.ValueObjects;
 
+using System;
 using Extensions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
-public record ExtractGeometry : GeometryObject
+public sealed record ExtractGeometry : GeometryObject, IEquatable<ExtractGeometry>
 {
     private MultiPolygon? _geometry;
 
@@ -31,5 +32,15 @@ public record ExtractGeometry : GeometryObject
     public static ExtractGeometry Create(MultiPolygon geometry)
     {
         return new ExtractGeometry(geometry);
+    }
+
+    public bool Equals(ExtractGeometry? other)
+    {
+        return base.Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
     }
 }

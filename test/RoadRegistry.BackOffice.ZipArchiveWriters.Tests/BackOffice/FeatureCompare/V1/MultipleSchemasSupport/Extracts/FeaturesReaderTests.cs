@@ -39,7 +39,7 @@ public class FeaturesReaderTests
         var testData = new ExtractV1ZipArchiveTestData();
         var fixture = CreateFixture(testData);
 
-        var projectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+        var projectionFormatStream = fixture.CreateLambert72ProjectionFormatFileWithOneRecord();
 
         var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
         roadSegmentDbaseRecord1.WS_OIDN.Value = 1;
@@ -171,7 +171,7 @@ public class FeaturesReaderTests
                     new RoadNodeId(roadNodeDbaseRecord3.WK_OIDN.Value),
                     new RoadNodeId(roadNodeDbaseRecord3.WK_OIDN.Value),
                     RoadNodeType.ByIdentifier[roadNodeDbaseRecord3.TYPE.Value]
-                ).WithGeometry(GeometryTranslator.ToPoint(roadNodeShapeContent3.Shape))
+                ).WithGeometry(GeometryTranslator.ToPointLambert72(roadNodeShapeContent3.Shape))
             )
             .AppendChange(
                 new AddRoadNode(
@@ -179,7 +179,7 @@ public class FeaturesReaderTests
                     new RoadNodeId(roadNodeDbaseRecord4.WK_OIDN.Value),
                     new RoadNodeId(roadNodeDbaseRecord4.WK_OIDN.Value),
                     RoadNodeType.ByIdentifier[roadNodeDbaseRecord4.TYPE.Value]
-                ).WithGeometry(GeometryTranslator.ToPoint(roadNodeShapeContent4.Shape))
+                ).WithGeometry(GeometryTranslator.ToPointLambert72(roadNodeShapeContent4.Shape))
             )
             .AppendChange(
                 new AddRoadSegment(
@@ -197,7 +197,7 @@ public class FeaturesReaderTests
                     StreetNameLocalId.FromValue(roadSegmentDbaseRecord2.LSTRNMID.Value),
                     StreetNameLocalId.FromValue(roadSegmentDbaseRecord2.RSTRNMID.Value)
                 )
-                .WithGeometry(GeometryTranslator.ToMultiLineString(roadSegmentShapeContent2.Shape))
+                .WithGeometry(GeometryTranslator.ToMultiLineStringLambert72(roadSegmentShapeContent2.Shape))
                 .WithLane(
                     new RoadSegmentLaneAttribute(
                         new AttributeId(laneDbaseRecord2.RS_OIDN.Value),

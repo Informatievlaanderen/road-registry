@@ -54,7 +54,9 @@ public abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttribut
     {
         var processedRecords = new List<Record>();
 
-        var wegsegmentenAdd = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Added).ToList();
+        var wegsegmentenAdd = context.GetRoadSegmentRecords(FeatureType.Change)
+            .Where(x => x.RecordType == RecordType.Added)
+            .ToList();
         foreach (var wegsegment in wegsegmentenAdd)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -82,7 +84,9 @@ public abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttribut
     {
         var processedRecords = new List<Record>();
 
-        var wegsegmentenDelete = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Removed).ToList();
+        var wegsegmentenDelete = context.GetRoadSegmentRecords(FeatureType.Change)
+            .Where(x => x.RecordType == RecordType.Removed)
+            .ToList();
         foreach (var wegsegment in wegsegmentenDelete)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -98,7 +102,9 @@ public abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttribut
     {
         var processedRecords = new List<Record>();
 
-        var wegsegmentenIdentical = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Identical).ToList();
+        var wegsegmentenIdentical = context.GetRoadSegmentRecords(FeatureType.Change)
+            .Where(x => x.RecordType == RecordType.Identical)
+            .ToList();
         foreach (var wegsegment in wegsegmentenIdentical)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -143,7 +149,9 @@ public abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttribut
     {
         var processedRecords = new List<Record>();
 
-        var wegsegmentenUpdate = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Modified).ToList();
+        var wegsegmentenUpdate = context.GetRoadSegmentRecords(FeatureType.Change)
+            .Where(x => x.RecordType == RecordType.Modified)
+            .ToList();
         foreach (var wegsegment in wegsegmentenUpdate)
         {
             cancellationToken.ThrowIfCancellationRequested();

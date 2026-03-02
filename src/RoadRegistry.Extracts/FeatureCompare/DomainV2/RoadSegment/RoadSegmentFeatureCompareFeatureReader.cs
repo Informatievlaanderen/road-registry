@@ -12,10 +12,9 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadSegment;
-using RoadRegistry.RoadSegment.ValueObjects;
 using Schemas.Inwinning.RoadSegments;
 
-public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareAttributes>>
+public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>
 {
     private readonly FileEncoding _encoding;
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
@@ -26,7 +25,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         _encoding = encoding;
     }
 
-    public override (List<Feature<RoadSegmentFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
+    public override (List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
         var (features, problems) = base.Read(archive, featureType, context);
 
@@ -63,16 +62,14 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
                 break;
             case FeatureType.Integration:
-                problems = ZipArchiveProblems.None + problems
-                    .GetMissingOrInvalidFileProblems()
-                    .Where(x => !x.File.Equals(featureType.ToProjectionFileName(FileName), StringComparison.InvariantCultureIgnoreCase));
+                problems = ZipArchiveProblems.Many(problems.GetMissingOrInvalidFileProblems());
 
                 foreach (var feature in features)
                 {
                     if (context.ChangedRoadSegments.TryGetValue(feature.Attributes.TempId, out var knownRoadSegment))
                     {
                         var recordContext = FileName.AtDbaseRecord(featureType, feature.RecordNumber);
-                        problems += recordContext.RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange(feature.Attributes.TempId, knownRoadSegment.RecordNumber);
+                        problems += recordContext.RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange(new RoadSegmentId(feature.Attributes.TempId.ToInt()), knownRoadSegment.RecordNumber);
                     }
                 }
 
@@ -82,7 +79,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         return (features, problems);
     }
 
-    private void AddToContext(List<Feature<RoadSegmentFeatureCompareAttributes>> features, FeatureType featureType, ZipArchiveFeatureReaderContext context)
+    private void AddToContext(List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> features, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
         if (featureType != FeatureType.Change)
         {
@@ -100,14 +97,14 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         }
     }
 
-    private sealed class InwinningFeatureReader : ZipArchiveShapeFeatureReader<RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareAttributes>>
+    private sealed class InwinningFeatureReader : ZipArchiveShapeFeatureReader<RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareWithFlatAttributes>>
     {
         public InwinningFeatureReader(Encoding encoding)
             : base(encoding, RoadSegmentFeatureCompareFeatureReader.FileName, RoadSegmentDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadSegmentDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadSegmentFeatureCompareWithFlatAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadSegmentDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
         {
             return new RecordData
             {
@@ -154,7 +151,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         public required int? FIETSTERUG { get; init; }
         public required int? VOETGANGER { get; init; }
 
-        public (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, ZipArchiveFeatureReaderContext context)
+        public (Feature<RoadSegmentFeatureCompareWithFlatAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, ZipArchiveFeatureReaderContext context)
         {
             var problemBuilder = fileName
                 .AtDbaseRecord(featureType, recordNumber)
@@ -187,7 +184,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     {
                         var line = lines[0];
 
-                        var lineProblems = line.ValidateRoadSegmentGeometry(roadSegmentId);
+                        var lineProblems = line.ValidateRoadSegmentGeometry(new RoadSegmentId(roadSegmentId.ToInt()));
 
                         problems += lineProblems.Select(problem => recordContext
                             .Error(problem.Reason)
@@ -207,15 +204,15 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return MultiLineString.Empty;
             }
 
-            RoadSegmentId ReadId()
+            RoadSegmentTempId ReadId()
             {
                 if (WS_TEMPID is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(WS_TEMPID));
                 }
-                else if (RoadSegmentId.Accepts(WS_TEMPID.Value))
+                else if (RoadSegmentTempId.Accepts(WS_TEMPID.Value))
                 {
-                    return new RoadSegmentId(WS_TEMPID.Value);
+                    return new RoadSegmentTempId(WS_TEMPID.Value);
                 }
                 else
                 {
@@ -229,7 +226,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
             {
                 if (WS_OIDN is null)
                 {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(WS_OIDN));
+                    if (featureType != FeatureType.Change)
+                    {
+                        problems += problemBuilder.RequiredFieldIsNull(nameof(WS_OIDN));
+                    }
                 }
                 else if (RoadSegmentId.Accepts(WS_OIDN.Value))
                 {
@@ -243,7 +243,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return null;
             }
 
-            RoadSegmentGeometryDrawMethodV2? ReadMethod()
+            RoadSegmentGeometryDrawMethodV2 ReadMethod()
             {
                 if (METHODE is null)
                 {
@@ -258,10 +258,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     problems += problemBuilder.RoadSegmentGeometryDrawMethodV2Mismatch(METHODE.Value);
                 }
 
-                return null;
+                return default;
             }
 
-            RoadSegmentCategoryV2? ReadCategory()
+            RoadSegmentCategoryV2 ReadCategory()
             {
                 if (WEGCAT is null)
                 {
@@ -276,10 +276,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     problems += problemBuilder.RoadSegmentCategoryV2Mismatch(WEGCAT);
                 }
 
-                return null;
+                return default;
             }
 
-            RoadSegmentAccessRestrictionV2? ReadAccessRestriction()
+            RoadSegmentAccessRestrictionV2 ReadAccessRestriction()
             {
                 if (TOEGANG is null)
                 {
@@ -294,7 +294,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     problems += problemBuilder.RoadSegmentAccessRestrictionV2Mismatch(TOEGANG.Value);
                 }
 
-                return null;
+                return default;
             }
 
             StreetNameLocalId ReadLeftStreetNameId()
@@ -331,7 +331,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return StreetNameLocalId.NotApplicable;
             }
 
-            OrganizationId? ReadLeftMaintenanceAuthority()
+            OrganizationId ReadLeftMaintenanceAuthority()
             {
                 if (string.IsNullOrEmpty(LBEHEER))
                 {
@@ -346,10 +346,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     problems += problemBuilder.RoadSegmentMaintenanceAuthorityOutOfRange(LBEHEER);
                 }
 
-                return null;
+                return default;
             }
 
-            OrganizationId? ReadRightMaintenanceAuthority()
+            OrganizationId ReadRightMaintenanceAuthority()
             {
                 if (string.IsNullOrEmpty(RBEHEER))
                 {
@@ -364,10 +364,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     problems += problemBuilder.RoadSegmentMaintenanceAuthorityOutOfRange(RBEHEER);
                 }
 
-                return null;
+                return default;
             }
 
-            RoadSegmentStatusV2? ReadStatus()
+            RoadSegmentStatusV2 ReadStatus()
             {
                 if (STATUS is null)
                 {
@@ -382,10 +382,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     problems += problemBuilder.RoadSegmentStatusV2Mismatch(STATUS.Value);
                 }
 
-                return null;
+                return default;
             }
 
-            RoadSegmentMorphologyV2? ReadMorphology()
+            RoadSegmentMorphologyV2 ReadMorphology()
             {
                 if (MORF is null)
                 {
@@ -400,10 +400,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     problems += problemBuilder.RoadSegmentMorphologyV2Mismatch(MORF.Value);
                 }
 
-                return null;
+                return default;
             }
 
-            RoadSegmentSurfaceTypeV2? ReadSurfaceType()
+            RoadSegmentSurfaceTypeV2 ReadSurfaceType()
             {
                 if (VERHARDING is null)
                 {
@@ -418,10 +418,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     problems += problemBuilder.RoadSegmentSurfaceTypeV2Mismatch(VERHARDING.Value);
                 }
 
-                return null;
+                return default;
             }
 
-            bool? ReadCarAccessForward()
+            bool ReadCarAccessForward()
             {
                 if (AUTOHEEN is null)
                 {
@@ -440,10 +440,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     }
                 }
 
-                return null;
+                return default;
             }
 
-            bool? ReadCarAccessBackward()
+            bool ReadCarAccessBackward()
             {
                 if (AUTOTERUG is null)
                 {
@@ -462,10 +462,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     }
                 }
 
-                return null;
+                return default;
             }
 
-            bool? ReadBikeAccessForward()
+            bool ReadBikeAccessForward()
             {
                 if (FIETSHEEN is null)
                 {
@@ -484,10 +484,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     }
                 }
 
-                return null;
+                return default;
             }
 
-            bool? ReadBikeAccessBackward()
+            bool ReadBikeAccessBackward()
             {
                 if (FIETSTERUG is null)
                 {
@@ -506,10 +506,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     }
                 }
 
-                return null;
+                return default;
             }
 
-            bool? ReadPedestrianAccess()
+            bool ReadPedestrianAccess()
             {
                 if (VOETGANGER is null)
                 {
@@ -526,10 +526,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     problems += problemBuilder.RoadSegmentVoetgangerMismatch(VOETGANGER.Value);
                 }
 
-                return null;
+                return default;
             }
 
-            var feature = Feature.New(recordNumber, new RoadSegmentFeatureCompareAttributes
+            var feature = Feature.New(recordNumber, new RoadSegmentFeatureCompareWithFlatAttributes
             {
                 Geometry = ReadGeometry(),
                 TempId = roadSegmentId,

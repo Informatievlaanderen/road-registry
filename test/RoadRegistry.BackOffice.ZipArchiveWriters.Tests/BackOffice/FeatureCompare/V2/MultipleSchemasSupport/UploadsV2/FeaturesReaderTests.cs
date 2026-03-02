@@ -29,7 +29,7 @@ public class FeaturesReaderTests
         var testData = new ExtractV1ZipArchiveTestData();
         var fixture = CreateFixture(testData);
 
-        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+        var roadSegmentProjectionFormatStream = fixture.CreateLambert72ProjectionFormatFileWithOneRecord();
 
         var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
         roadSegmentDbaseRecord1.WS_OIDN.Value = 1;
@@ -92,7 +92,7 @@ public class FeaturesReaderTests
         var surfaceExtractStream = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, new[] { surfaceDbaseRecord1 });
         var surfaceChangeStream = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, new[] { surfaceDbaseRecord1, surfaceDbaseRecord2 });
 
-        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+        var roadNodeProjectionFormatStream = fixture.CreateLambert72ProjectionFormatFileWithOneRecord();
 
         var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
         roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;
@@ -150,7 +150,7 @@ public class FeaturesReaderTests
                     new RoadNodeId(roadNodeDbaseRecord3.WK_OIDN.Value),
                     new RoadNodeId(roadNodeDbaseRecord3.WK_OIDN.Value),
                     RoadNodeType.ByIdentifier[roadNodeDbaseRecord3.TYPE.Value]
-                ).WithGeometry(GeometryTranslator.ToPoint(roadNodeShapeContent3.Shape))
+                ).WithGeometry(GeometryTranslator.ToPointLambert72(roadNodeShapeContent3.Shape))
             )
             .AppendChange(
                 new AddRoadNode(
@@ -158,7 +158,7 @@ public class FeaturesReaderTests
                     new RoadNodeId(roadNodeDbaseRecord4.WK_OIDN.Value),
                     new RoadNodeId(roadNodeDbaseRecord4.WK_OIDN.Value),
                     RoadNodeType.ByIdentifier[roadNodeDbaseRecord4.TYPE.Value]
-                ).WithGeometry(GeometryTranslator.ToPoint(roadNodeShapeContent4.Shape))
+                ).WithGeometry(GeometryTranslator.ToPointLambert72(roadNodeShapeContent4.Shape))
             )
             .AppendChange(
                 new AddRoadSegment(
@@ -175,7 +175,7 @@ public class FeaturesReaderTests
                     RoadSegmentAccessRestriction.ByIdentifier[roadSegmentDbaseRecord2.TGBEP.Value],
                     StreetNameLocalId.FromValue(roadSegmentDbaseRecord2.LSTRNMID.Value),
                     StreetNameLocalId.FromValue(roadSegmentDbaseRecord2.RSTRNMID.Value)
-                ).WithGeometry(GeometryTranslator.ToMultiLineString(roadSegmentShapeContent2.Shape))
+                ).WithGeometry(GeometryTranslator.ToMultiLineStringLambert72(roadSegmentShapeContent2.Shape))
                         .WithLane(
                             new RoadSegmentLaneAttribute(
                                 new AttributeId(laneDbaseRecord2.RS_OIDN.Value),

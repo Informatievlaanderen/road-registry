@@ -25,5 +25,8 @@
     <EmbeddedResource Include="UploadProcessor\valid.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="UploadProcessor\inwinning_unknownfiles.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

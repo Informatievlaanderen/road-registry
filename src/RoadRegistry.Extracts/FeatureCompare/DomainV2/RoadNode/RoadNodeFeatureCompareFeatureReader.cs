@@ -30,7 +30,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
         var (features, problems) = base.Read(archive, featureType, context);
 
         problems += archive.ValidateProjectionFileLambert08(featureType, FileName, _encoding);
-        problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, feature => feature.Attributes.Id);
+        problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, feature => feature.Attributes.RoadNodeId);
 
         switch (featureType)
         {
@@ -49,16 +49,14 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
                 }
                 break;
             case FeatureType.Integration:
-                problems = ZipArchiveProblems.None + problems
-                    .GetMissingOrInvalidFileProblems()
-                    .Where(x => !x.File.Equals(featureType.ToProjectionFileName(FileName), StringComparison.InvariantCultureIgnoreCase));
+                problems = ZipArchiveProblems.Many(problems.GetMissingOrInvalidFileProblems());
 
                 foreach (var feature in features)
                 {
-                    if (context.ChangedRoadNodes.TryGetValue(feature.Attributes.Id, out var knownRoadNode))
+                    if (context.ChangedRoadNodes.TryGetValue(feature.Attributes.RoadNodeId, out var knownRoadNode))
                     {
                         var recordContext = FileName.AtDbaseRecord(featureType, feature.RecordNumber);
-                        problems += recordContext.RoadNodeIdentifierNotUniqueAcrossIntegrationAndChange(feature.Attributes.Id, knownRoadNode.RecordNumber);
+                        problems += recordContext.RoadNodeIdentifierNotUniqueAcrossIntegrationAndChange(feature.Attributes.RoadNodeId, knownRoadNode.RecordNumber);
                     }
                 }
                 break;
@@ -76,12 +74,12 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
 
         foreach (var feature in features)
         {
-            if (context.ChangedRoadNodes.ContainsKey(feature.Attributes.Id))
+            if (context.ChangedRoadNodes.ContainsKey(feature.Attributes.RoadNodeId))
             {
                 continue;
             }
 
-            context.ChangedRoadNodes.Add(feature.Attributes.Id, feature);
+            context.ChangedRoadNodes.Add(feature.Attributes.RoadNodeId, feature);
         }
     }
 
@@ -117,7 +115,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
 
             var problems = ZipArchiveProblems.None;
 
-            Point? ReadGeometry()
+            Point ReadGeometry()
             {
                 if (Geometry is Point point)
                 {
@@ -128,7 +126,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
                     .AtShapeRecord(featureType, recordNumber);
 
                 problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(ShapeType.Point, Geometry.GeometryType);
-                return null;
+                return Point.Empty;
             }
 
             RoadNodeId ReadId()
@@ -172,7 +170,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
             var feature = Feature.New(recordNumber, new RoadNodeFeatureCompareAttributes
             {
                 Geometry = ReadGeometry(),
-                Id = ReadId(),
+                RoadNodeId = ReadId(),
                 Grensknoop = ReadGrensknoop(),
             });
             return (feature, problems);
