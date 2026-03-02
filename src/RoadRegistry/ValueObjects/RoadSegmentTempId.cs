@@ -3,7 +3,7 @@ namespace RoadRegistry.ValueObjects;
 using System;
 using System.Globalization;
 
-public readonly struct RoadSegmentTempId : IEquatable<RoadSegmentTempId>, IComparable<RoadSegmentTempId>
+public readonly struct RoadSegmentTempId : IEquatable<RoadSegmentTempId>
 {
     private readonly int _value;
 
