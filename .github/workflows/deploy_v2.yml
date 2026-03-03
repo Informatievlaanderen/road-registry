@@ -101,7 +101,7 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4.1.0
       with:
-        role-to-assume: ${{ secrets.VBR_AWS_CICD_ROLE }}
+        role-to-assume: arn:aws:iam::${{ github.event.inputs.environment == 'test' && secrets.AWS_ACCOUNT_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_ACCOUNT_ID_STG || secrets.AWS_ACCOUNT_ID_PRD }}:role/github-actions-cicd
         aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
 
     - name: Run
