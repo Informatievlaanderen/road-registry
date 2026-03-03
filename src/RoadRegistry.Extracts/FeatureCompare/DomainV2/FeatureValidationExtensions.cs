@@ -61,7 +61,7 @@ public static class FeatureValidationExtensions
         });
     }
 
-    public static ZipArchiveProblems ValidateUniqueGradeSeperatedJunctions(this ZipArchive archive, List<Feature<GradeSeparatedJunctionFeatureCompareAttributes>> features, FeatureType featureType, ExtractFileName fileName)
+    public static ZipArchiveProblems ValidateUniqueGradeSeparatedJunctions(this ZipArchive archive, List<Feature<GradeSeparatedJunctionFeatureCompareAttributes>> features, FeatureType featureType, ExtractFileName fileName)
     {
         return ValidateUniqueRecords(features,
             (item1, item2) =>

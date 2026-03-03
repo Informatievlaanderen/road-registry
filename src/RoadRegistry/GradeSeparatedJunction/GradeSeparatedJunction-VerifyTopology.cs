@@ -32,19 +32,6 @@ public partial class GradeSeparatedJunction
                 new ProblemParameter("UpperRoadSegmentId", context.IdTranslator.TranslateToTemporaryId(UpperRoadSegmentId).ToString()));
         }
 
-        var otherIdenticalJunctions = context.RoadNetwork.GradeSeparatedJunctions.Values
-            .Where(x => !x.IsRemoved && x.GradeSeparatedJunctionId != GradeSeparatedJunctionId)
-            .Where(x =>
-                (x.LowerRoadSegmentId == LowerRoadSegmentId && x.UpperRoadSegmentId == UpperRoadSegmentId)
-                ||
-                (x.LowerRoadSegmentId == UpperRoadSegmentId && x.UpperRoadSegmentId == LowerRoadSegmentId)
-            )
-            .ToList();
-        foreach (var otherIdenticalJunction in otherIdenticalJunctions)
-        {
-            problems += new GradeSeparatedJunctionNotUnique(GradeSeparatedJunctionId, otherIdenticalJunction.GradeSeparatedJunctionId);
-        }
-
         return problems;
     }
 }

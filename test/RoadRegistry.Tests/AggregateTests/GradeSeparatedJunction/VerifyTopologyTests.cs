@@ -190,8 +190,8 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
             )
             .ThenContainsProblems(new Error("GradeSeparatedJunctionNotUnique",
-                new ProblemParameter("GradeSeparatedJunctionId", TestData.Segment1Added.RoadSegmentId.ToString()),
-                new ProblemParameter("OtherGradeSeparatedJunctionId", TestData.Segment2Added.RoadSegmentId.ToString())
+                new ProblemParameter("GradeSeparatedJunctionId", 1.ToString()),
+                new ProblemParameter("OtherGradeSeparatedJunctionId", 2.ToString())
             ))
         );
     }
@@ -243,8 +243,8 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
             )
             .ThenContainsProblems(new Error("GradeSeparatedJunctionNotUnique",
-                new ProblemParameter("GradeSeparatedJunctionId", TestData.Segment1Added.RoadSegmentId.ToString()),
-                new ProblemParameter("OtherGradeSeparatedJunctionId", TestData.Segment2Added.RoadSegmentId.ToString())
+                new ProblemParameter("GradeSeparatedJunctionId", 1.ToString()),
+                new ProblemParameter("OtherGradeSeparatedJunctionId", 2.ToString())
             ))
         );
     }

@@ -26,7 +26,7 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
         switch (featureType)
         {
             case FeatureType.Change:
-                problems += archive.ValidateUniqueGradeSeperatedJunctions(features, featureType, FileName);
+                problems += archive.ValidateUniqueGradeSeparatedJunctions(features, featureType, FileName);
                 break;
         }
 

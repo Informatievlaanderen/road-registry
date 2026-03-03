@@ -83,18 +83,7 @@ public partial class ScopedRoadNetwork
 
         if (!problems.HasError())
         {
-            problems = _roadNodes.Values.Where(x => x.HasChanges()).Select(x => x.RoadNodeId)
-                .Concat(_roadSegments.Values.Where(x => x.HasChanges()).SelectMany(x => x.Nodes))
-                .Distinct()
-                .Select(x => _roadNodes.GetValueOrDefault(x))
-                .Where(x => x is not null)
-                .Aggregate(problems, (p, x) => p + x!.VerifyTopologyAndDetectType(context));
-            problems = _roadSegments.Values
-                .Where(x => x.HasChanges())
-                .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
-            problems = _gradeSeparatedJunctions.Values
-                .Where(x => x.HasChanges())
-                .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
+            problems += VerifyAfterChange(context);
         }
 
         if (changes.Any())

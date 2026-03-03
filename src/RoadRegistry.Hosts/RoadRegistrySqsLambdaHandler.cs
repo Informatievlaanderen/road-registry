@@ -35,7 +35,7 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
         IRoadRegistryContext roadRegistryContext,
         ILoggerFactory loggerFactory,
         TicketingBehavior ticketingBehavior = TicketingBehavior.All,
-        ProblemTranslatorBase? problemTranslator = null)
+        IProblemTranslator? problemTranslator = null)
         : base(retryPolicy, ticketing, idempotentCommandHandler, ticketingBehavior)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -56,7 +56,7 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
         IRoadRegistryContext roadRegistryContext,
         ILogger logger,
         TicketingBehavior ticketingBehavior = TicketingBehavior.All,
-        ProblemTranslatorBase? problemTranslator = null)
+        IProblemTranslator? problemTranslator = null)
         : base(retryPolicy, ticketing, idempotentCommandHandler, ticketingBehavior)
     {
         ArgumentNullException.ThrowIfNull(options);
