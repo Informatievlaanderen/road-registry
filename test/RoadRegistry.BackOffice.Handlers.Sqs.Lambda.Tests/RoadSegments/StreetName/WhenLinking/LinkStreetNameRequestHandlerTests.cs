@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Requests;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
@@ -89,7 +90,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 
         var validationResult = validator.Validate(new LinkStreetNameRequest(new RoadSegmentId(1), RoadSegmentGeometryDrawMethod.Measured, null, null));
 
-        var error = validationResult.Errors.TranslateToDutch().Single();
+        var error = validationResult.Errors.TranslateToDutch(WellKnownProblemTranslators.Default).Single();
         Xunit.Assert.Equal("request", error.PropertyName);
         Xunit.Assert.Equal("JsonInvalid", error.ErrorCode);
         Xunit.Assert.Equal("Ongeldig JSON formaat.", error.ErrorMessage);

@@ -14,6 +14,7 @@ using Exceptions;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using TicketingService.Abstractions;
 using ValueObjects.Problems;
 using ETag = Be.Vlaanderen.Basisregisters.Api.ETag.ETag;
@@ -28,8 +29,9 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambd
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         ILogger logger,
-        TicketingBehavior ticketingBehavior = TicketingBehavior.All)
-        : base(options, retryPolicy, ticketing, idempotentCommandHandler, roadRegistryContext, logger, ticketingBehavior)
+        TicketingBehavior ticketingBehavior = TicketingBehavior.All,
+        ProblemTranslatorBase? problemTranslator = null)
+        : base(options, retryPolicy, ticketing, idempotentCommandHandler, roadRegistryContext, logger, ticketingBehavior, problemTranslator)
     {
     }
 
@@ -40,8 +42,9 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambd
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         ILoggerFactory loggerFactory,
-        TicketingBehavior ticketingBehavior = TicketingBehavior.All)
-        : base(options, retryPolicy, ticketing, idempotentCommandHandler, roadRegistryContext, loggerFactory, ticketingBehavior)
+        TicketingBehavior ticketingBehavior = TicketingBehavior.All,
+        ProblemTranslatorBase? problemTranslator = null)
+        : base(options, retryPolicy, ticketing, idempotentCommandHandler, roadRegistryContext, loggerFactory, ticketingBehavior, problemTranslator)
     {
     }
 
@@ -65,9 +68,9 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambd
     {
         return exception switch
         {
-            RoadSegmentOutlinedNotFoundException => new RoadSegmentOutlinedNotFound().ToTicketError(),
-            RoadSegmentNotFoundException => new RoadSegmentNotFound().ToTicketError(),
-            ExtractRequestNotFoundException ex => new ExtractNotFound(ex.DownloadId).ToTicketError(),
+            RoadSegmentOutlinedNotFoundException => new RoadSegmentOutlinedNotFound().ToTicketError(WellKnownProblemTranslators.Default),
+            RoadSegmentNotFoundException => new RoadSegmentNotFound().ToTicketError(WellKnownProblemTranslators.Default),
+            ExtractRequestNotFoundException ex => new ExtractNotFound(ex.DownloadId).ToTicketError(WellKnownProblemTranslators.Default),
             _ => null
         };
     }

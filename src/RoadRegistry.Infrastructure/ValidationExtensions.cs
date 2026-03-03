@@ -56,17 +56,17 @@ public static class ValidationExtensions
         return rule;
     }
 
-    public static DutchValidationException TranslateToDutch(this ValidationException ex)
+    public static DutchValidationException TranslateToDutch(this ValidationException ex, IProblemTranslator translator)
     {
         if (ex is DutchValidationException dutchValidationException)
         {
             return dutchValidationException;
         }
 
-        return new DutchValidationException(ex.Errors.TranslateToDutch());
+        return new DutchValidationException(ex.Errors.TranslateToDutch(translator));
     }
 
-    public static IEnumerable<ValidationFailure> TranslateToDutch(this IEnumerable<ValidationFailure> errors)
+    public static IEnumerable<ValidationFailure> TranslateToDutch(this IEnumerable<ValidationFailure> errors, IProblemTranslator translator)
     {
         return errors
             .Select(x => new
@@ -86,7 +86,7 @@ public static class ValidationExtensions
                     return x.ValidationFailure;
                 }
 
-                var problem = ProblemTranslator.Dutch(x.Problem);
+                var problem = translator.Translate(x.Problem);
                 return new ValidationFailure
                 {
                     PropertyName = x.ValidationFailure.PropertyName,
@@ -96,23 +96,23 @@ public static class ValidationExtensions
             });
     }
 
-    public static ProblemTranslation TranslateToDutch(this Problem problem)
+    public static ProblemTranslation TranslateToDutch(this Problem problem, IProblemTranslator translator)
     {
-        return problem.Translate().TranslateToDutch();
+        return problem.Translate().TranslateToDutch(translator);
     }
 
-    public static ProblemTranslation TranslateToDutch(this Infrastructure.Messages.Problem problem)
+    public static ProblemTranslation TranslateToDutch(this Infrastructure.Messages.Problem problem, IProblemTranslator translator)
     {
-        return ProblemTranslator.Dutch(problem);
+        return translator.Translate(problem);
     }
 
-    public static ValidationFailure ToValidationFailure(this Infrastructure.Messages.Problem problem, string? propertyName = null)
+    public static ValidationFailure ToValidationFailure(this Infrastructure.Messages.Problem problem, IProblemTranslator translator, string? propertyName = null)
     {
         return new ValidationFailure
         {
             PropertyName = propertyName ?? string.Empty,
             ErrorCode = problem.Reason,
-            ErrorMessage = ProblemTranslator.Dutch(problem).Message,
+            ErrorMessage = translator.Translate(problem).Message,
             CustomState = ToCustomState(problem.Parameters)
         };
     }

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Threading.Tasks;
 using CommandHandling;
+using RoadRegistry.Extracts.DutchTranslations;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure;
@@ -30,19 +31,19 @@ internal class ValidationFilterAttribute : ActionFilterAttribute
             case DutchValidationException:
                 break;
             case ValidationException validationException:
-                context.Exception = validationException.TranslateToDutch();
+                context.Exception = validationException.TranslateToDutch(WellKnownProblemTranslators.Default);
                 break;
             case AggregateIdIsNotFoundException:
-                context.Exception = new ApiException(new RoadNetworkNotFound().TranslateToDutch().Message, StatusCodes.Status404NotFound);
+                context.Exception = new ApiException(new RoadNetworkNotFound().TranslateToDutch(WellKnownProblemTranslators.Default).Message, StatusCodes.Status404NotFound);
                 break;
             case RoadSegmentOutlinedNotFoundException:
-                context.Exception = new ApiException(new RoadSegmentOutlinedNotFound().TranslateToDutch().Message, StatusCodes.Status404NotFound);
+                context.Exception = new ApiException(new RoadSegmentOutlinedNotFound().TranslateToDutch(WellKnownProblemTranslators.Default).Message, StatusCodes.Status404NotFound);
                 break;
             case RoadSegmentNotFoundException:
-                context.Exception = new ApiException(new RoadSegmentNotFound().TranslateToDutch().Message, StatusCodes.Status404NotFound);
+                context.Exception = new ApiException(new RoadSegmentNotFound().TranslateToDutch(WellKnownProblemTranslators.Default).Message, StatusCodes.Status404NotFound);
                 break;
             case ZipArchiveValidationException zipArchiveValidationException:
-                context.Exception = zipArchiveValidationException.ToDutchValidationException();
+                context.Exception = zipArchiveValidationException.ToDutchValidationException(FileProblemTranslator.DomainV1);
                 break;
         }
     }
@@ -56,7 +57,8 @@ internal class ValidationFilterAttribute : ActionFilterAttribute
 
         context.Result = new BadRequestObjectResult(
             new ValidationProblemDetails(
-                new ValidationException(new[] { new ValidationFailure { PropertyName = "request", ErrorCode = ProblemCode.Common.JsonInvalid } }).TranslateToDutch()));
+                new ValidationException([new ValidationFailure { PropertyName = "request", ErrorCode = ProblemCode.Common.JsonInvalid }])
+                    .TranslateToDutch(WellKnownProblemTranslators.Default)));
         return Task.CompletedTask;
     }
 }

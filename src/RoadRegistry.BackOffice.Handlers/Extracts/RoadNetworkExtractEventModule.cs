@@ -18,6 +18,7 @@ using Newtonsoft.Json;
 using Polly;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.DutchTranslations;
 using RoadRegistry.Extracts.Uploads;
 using SqlStreamStore;
 using TicketingService.Abstractions;
@@ -115,7 +116,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                     if (message.Body.TicketId is not null)
                     {
                         var ticketing = container.Resolve<ITicketing>();
-                        var errors = ex.Problems.Select(x => x.Translate().ToTicketError()).ToArray();
+                        var errors = ex.Problems.Select(x => x.Translate().ToTicketError(FileProblemTranslator.DomainV1)).ToArray();
                         await ticketing.Error(message.Body.TicketId.Value, new TicketError(errors), ct);
                     }
 

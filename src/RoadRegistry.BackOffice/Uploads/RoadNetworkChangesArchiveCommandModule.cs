@@ -12,6 +12,7 @@ using System.IO.Compression;
 using System.Linq;
 using Autofac;
 using FeatureCompare;
+using RoadRegistry.Extracts.DutchTranslations;
 using RoadRegistry.Extracts.Uploads;
 using TicketingService.Abstractions;
 
@@ -70,7 +71,7 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                         if (problems.HasError() && ticketId is not null)
                         {
                             var ticketing = container.Resolve<ITicketing>();
-                            var errors = problems.Select(x => x.Translate().ToTicketError()).ToArray();
+                            var errors = problems.Select(x => x.Translate().ToTicketError(FileProblemTranslator.DomainV1)).ToArray();
                             await ticketing.Error(ticketId.Value, new TicketError(errors), ct);
                         }
 

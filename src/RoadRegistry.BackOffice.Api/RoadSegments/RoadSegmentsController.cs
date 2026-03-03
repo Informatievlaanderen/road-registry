@@ -12,6 +12,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using Swashbuckle.AspNetCore.Filters;
 using ValueObjects.ProblemCodes;
 using ValueObjects.Problems;
@@ -56,7 +57,7 @@ public class RoadSegmentNotFoundResponseExamples : IExamplesProvider<ProblemDeta
             ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:roadsegment:not-found",
             HttpStatus = StatusCodes.Status404NotFound,
             Title = ProblemDetails.DefaultTitle,
-            Detail = new RoadSegmentNotFound().TranslateToDutch().Message,
+            Detail = new RoadSegmentNotFound().TranslateToDutch(WellKnownProblemTranslators.Default).Message,
             ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext, _apiVersion)
         };
     }

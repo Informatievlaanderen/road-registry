@@ -17,6 +17,7 @@ using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Hosts;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using TicketingService.Abstractions;
@@ -93,7 +94,7 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
 
     protected override TicketError? InnerMapDomainException(DomainException exception, UploadInwinningExtractSqsLambdaRequest request)
     {
-        return ConvertToDomainError(exception)?.ToTicketError()
+        return ConvertToDomainError(exception)?.ToTicketError(WellKnownProblemTranslators.Default)
             ?? base.InnerMapDomainException(exception, request);
     }
 

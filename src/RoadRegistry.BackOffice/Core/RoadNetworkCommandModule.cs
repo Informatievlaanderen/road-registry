@@ -174,7 +174,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                         .SelectMany(x => x.Value)
                         .SelectMany(x => x.Changes)
                         .SelectMany(x => x.Problems)
-                        .Select(problem => problem.ToTicketError())
+                        .Select(problem => problem.ToTicketError(WellKnownProblemTranslators.Default))
                         .ToArray();
 
                     await ticketing.Error(ticketId.Value, new TicketError(errors), cancellationToken);
@@ -197,7 +197,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                                 {
                                     Severity = problem.Severity.ToString(),
                                     problem.Reason,
-                                    Text = ProblemTranslator.Dutch(problem).Message
+                                    Text = WellKnownProblemTranslators.Default.Translate(problem).Message
                                 })
                                 .ToArray()
                         })

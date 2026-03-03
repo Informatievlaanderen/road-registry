@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using RoadRegistry.Tests.BackOffice.Scenarios;
@@ -83,7 +84,7 @@ public abstract class ChangeAttributesTestBase
     {
         var ex = Assert.IsType<ValidationException>(exception);
         var err = Assert.IsAssignableFrom<IEnumerable<ValidationFailure>>(ex.Errors);
-        return err.TranslateToDutch();
+        return err.TranslateToDutch(WellKnownProblemTranslators.Default);
     }
 
     protected async Task GivenRoadNetwork()
