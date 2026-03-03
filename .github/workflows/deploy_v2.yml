@@ -98,18 +98,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4.1.0
+      with:
+        role-to-assume: arn:aws:iam::${{ github.event.inputs.environment == 'test' && secrets.AWS_ACCOUNT_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_ACCOUNT_ID_STG || secrets.AWS_ACCOUNT_ID_PRD }}:role/github-actions-cicd
+        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+
     - name: Run
       run: |
         URL=$BACKOFFICE_API_URL/v1/system/healthcheck
 
-        aws configure set default.aws_access_key_id $ACCESS_KEY_ID
-        aws configure set default.aws_secret_access_key $SECRET_ACCESS_KEY_ID
-        aws configure set default.region $REGION
-        aws configure set default.role_session_name "Pipeline"
-
         aws configure set region $REGION --profile cross-account
         aws configure set role_arn arn:aws:iam::$ACCOUNT_ID:role/bastion-ssm-send-command --profile cross-account
-        aws configure set source_profile default --profile cross-account
+        aws configure set credential_source Environment --profile cross-account
 
         CALLER_IDENTITY=$(aws sts get-caller-identity --profile cross-account --output text)
         echo "CallerIdentity: $CALLER_IDENTITY"
@@ -154,12 +155,10 @@ jobs:
         exit 1
       shell: bash
       env:
-        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
-        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
-        INSTANCE_ID: ${{ github.event.inputs.environment == 'tst' && secrets.AWS_BASTION_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_BASTION_ID_STG  || secrets.AWS_BASTION_ID_PRD }}
-        ACCOUNT_ID: ${{ github.event.inputs.environment == 'tst' && secrets.AWS_ACCOUNT_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_ACCOUNT_ID_STG  || secrets.AWS_ACCOUNT_ID_PRD }}
-        BACKOFFICE_API_URL: ${{ github.event.inputs.environment == 'tst' && vars.BACKOFFICE_API_URL_TST || github.event.inputs.environment == 'stg' && vars.BACKOFFICE_API_URL_STG  || vars.BACKOFFICE_API_URL_PRD }}
+        INSTANCE_ID: ${{ github.event.inputs.environment == 'test' && secrets.AWS_BASTION_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_BASTION_ID_STG  || secrets.AWS_BASTION_ID_PRD }}
+        ACCOUNT_ID: ${{ github.event.inputs.environment == 'test' && secrets.AWS_ACCOUNT_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_ACCOUNT_ID_STG  || secrets.AWS_ACCOUNT_ID_PRD }}
+        BACKOFFICE_API_URL: ${{ github.event.inputs.environment == 'test' && vars.BACKOFFICE_API_URL_TST || github.event.inputs.environment == 'stg' && vars.BACKOFFICE_API_URL_STG  || vars.BACKOFFICE_API_URL_PRD }}
         ROAD_API_KEY: ${{ secrets.HEALTHCHECK_APIKEY }}
 
   deploy_finish_slack:
