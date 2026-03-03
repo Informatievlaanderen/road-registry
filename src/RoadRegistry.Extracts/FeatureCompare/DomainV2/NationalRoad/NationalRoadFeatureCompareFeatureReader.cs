@@ -21,7 +21,7 @@ public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
     {
         var (features, problems) = base.Read(archive, featureType, context);
 
-        problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, feature => feature.Attributes.Id);
+        problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, nameof(RoadSegmentNationalRoadAttributeDbaseRecord.NW_OIDN), feature => feature.Attributes.Id);
 
         switch (featureType)
         {
