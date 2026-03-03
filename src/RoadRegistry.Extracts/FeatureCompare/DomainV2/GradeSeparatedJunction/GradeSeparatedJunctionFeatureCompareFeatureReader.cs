@@ -21,7 +21,7 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
     {
         var (features, problems) = base.Read(archive, featureType, context);
 
-        problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, feature => feature.Attributes.Id);
+        problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, nameof(GradeSeparatedJunctionDbaseRecord.OK_OIDN), feature => feature.Attributes.Id);
 
         switch (featureType)
         {

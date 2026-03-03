@@ -17,10 +17,15 @@ public static class DbaseFileProblems
 
     public static IDbaseFileRecordProblemBuilder WithIdentifier(this IDbaseFileRecordProblemBuilder builder, string field, int? value)
     {
+        return WithIdentifier(builder, field, value?.ToString(Provider));
+    }
+
+    public static IDbaseFileRecordProblemBuilder WithIdentifier(this IDbaseFileRecordProblemBuilder builder, string field, string? value)
+    {
         return (IDbaseFileRecordProblemBuilder)builder
             .WithParameters(
                 new ProblemParameter("IdentifierField", field),
-                new ProblemParameter("IdentifierValue", value?.ToString(Provider) ?? string.Empty)
+                new ProblemParameter("IdentifierValue", value ?? string.Empty)
             );
     }
 
@@ -705,6 +710,14 @@ public static class DbaseFileProblems
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+
+    public static FileError RoadSegmentTempIdOutOfRange(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Error(nameof(RoadSegmentTempIdOutOfRange))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
             .Build();
     }
 

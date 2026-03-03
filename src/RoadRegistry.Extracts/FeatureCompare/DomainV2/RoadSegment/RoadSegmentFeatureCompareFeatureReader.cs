@@ -30,7 +30,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         var (features, problems) = base.Read(archive, featureType, context);
 
         problems += archive.ValidateProjectionFileLambert08(featureType, FileName, _encoding);
-        problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, feature => feature.Attributes.TempId);
+        problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, nameof(RoadSegmentDbaseRecord.WS_TEMPID), feature => feature.Attributes.TempId);
 
         switch (featureType)
         {
@@ -216,7 +216,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 }
                 else
                 {
-                    problems += problemBuilder.RoadSegmentIdOutOfRange(WS_TEMPID.Value);
+                    problems += problemBuilder.RoadSegmentTempIdOutOfRange(WS_TEMPID.Value);
                 }
 
                 return default;

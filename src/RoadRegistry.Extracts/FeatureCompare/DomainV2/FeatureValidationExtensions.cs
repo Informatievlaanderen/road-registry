@@ -15,7 +15,7 @@ using RoadSegment;
 
 public static class FeatureValidationExtensions
 {
-    public static ZipArchiveProblems ValidateUniqueIdentifiers<TFeature, TIdentifier>(this ZipArchive archive, List<Feature<TFeature>> features, FeatureType featureType, ExtractFileName fileName, Func<Feature<TFeature>, TIdentifier> getIdentifier)
+    public static ZipArchiveProblems ValidateUniqueIdentifiers<TFeature, TIdentifier>(this ZipArchive archive, List<Feature<TFeature>> features, FeatureType featureType, ExtractFileName fileName, string identifierField, Func<Feature<TFeature>, TIdentifier> getIdentifier)
         where TFeature : class
     {
         var problems = ZipArchiveProblems.None;
@@ -28,7 +28,8 @@ public static class FeatureValidationExtensions
 
             if (knownIdentifiers.TryGetValue(identifier, out var existingRecordNumber))
             {
-                var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
+                var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber)
+                    .WithIdentifier(identifierField, identifier.ToString());
                 problems += recordContext.IdentifierNotUnique(identifier.ToString(), existingRecordNumber);
                 continue;
             }
