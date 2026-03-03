@@ -1,3 +1,10 @@
+# [4.48.0](https://github.com/informatievlaanderen/road-registry/compare/v4.47.3...v4.48.0) (2026-03-02)
+
+
+### Features
+
+* FC validations (VAL1, VAL2, VAL3, VAL5) + un-flatten roadsegment records ([f7189f2](https://github.com/informatievlaanderen/road-registry/commit/f7189f277a3a9604c67a0146a5205ccb9fb3839d))
+
 ## [4.47.3](https://github.com/informatievlaanderen/road-registry/compare/v4.47.2...v4.47.3) (2026-02-25)
 
 
