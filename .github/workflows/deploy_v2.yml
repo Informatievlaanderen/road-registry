@@ -101,26 +101,22 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4.1.0
       with:
-        role-to-assume: arn:aws:iam::${{ github.event.inputs.environment == 'test' && secrets.AWS_ACCOUNT_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_ACCOUNT_ID_STG || secrets.AWS_ACCOUNT_ID_PRD }}:role/github-actions-cicd
+        role-to-assume: arn:aws:iam::${{ github.event.inputs.environment == 'test' && secrets.AWS_ACCOUNT_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_ACCOUNT_ID_STG || secrets.AWS_ACCOUNT_ID_PRD }}:role/grawr-infra-bastion-ssm-run-command
         aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
 
     - name: Run
       run: |
         URL=$BACKOFFICE_API_URL/v1/system/healthcheck
 
-        aws configure set region $REGION --profile cross-account
-        aws configure set role_arn arn:aws:iam::$ACCOUNT_ID:role/bastion-ssm-send-command --profile cross-account
-        aws configure set credential_source Environment --profile cross-account
-
-        CALLER_IDENTITY=$(aws sts get-caller-identity --profile cross-account --output text)
+        CALLER_IDENTITY=$(aws sts get-caller-identity --output text)
         echo "CallerIdentity: $CALLER_IDENTITY"
 
         echo $URL
-        COMMAND_ID=$(aws ssm send-command --profile cross-account --instance-id $INSTANCE_ID --document-name AWS-RunShellScript --parameters "{\"commands\":[\"#!/bin/bash\",\"curl -X POST $URL -H 'x-api-key: $ROAD_API_KEY' --fail\"]}" --query 'Command.CommandId' --output text)
+        COMMAND_ID=$(aws ssm send-command --instance-id $INSTANCE_ID --document-name AWS-RunShellScript --parameters "{\"commands\":[\"#!/bin/bash\",\"curl -X POST $URL -H 'x-api-key: $ROAD_API_KEY' --fail\"]}" --query 'Command.CommandId' --output text)
 
         for i in {1..120}
         do
-          status=$(aws ssm get-command-invocation --profile cross-account --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text)
+          status=$(aws ssm get-command-invocation --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text)
 
           if [[ "$status" == "Failed" ]]; then
             exit 1
@@ -139,7 +135,7 @@ jobs:
           exit 1
         fi
 
-        response=$(aws ssm get-command-invocation --profile cross-account --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'StandardOutputContent' --output text)
+        response=$(aws ssm get-command-invocation --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'StandardOutputContent' --output text)
         echo "$response"
 
         if echo "$response" | grep -q "unhealthy"; then
@@ -157,7 +153,6 @@ jobs:
       env:
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
         INSTANCE_ID: ${{ github.event.inputs.environment == 'test' && secrets.AWS_BASTION_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_BASTION_ID_STG  || secrets.AWS_BASTION_ID_PRD }}
-        ACCOUNT_ID: ${{ github.event.inputs.environment == 'test' && secrets.AWS_ACCOUNT_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_ACCOUNT_ID_STG  || secrets.AWS_ACCOUNT_ID_PRD }}
         BACKOFFICE_API_URL: ${{ github.event.inputs.environment == 'test' && vars.BACKOFFICE_API_URL_TST || github.event.inputs.environment == 'stg' && vars.BACKOFFICE_API_URL_STG  || vars.BACKOFFICE_API_URL_PRD }}
         ROAD_API_KEY: ${{ secrets.HEALTHCHECK_APIKEY }}
 
