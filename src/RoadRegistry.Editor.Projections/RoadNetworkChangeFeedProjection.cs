@@ -193,7 +193,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                             .Select(problem => new ProblemWithFile
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = FileProblemTranslator.Dutch(problem).Message
+                                Text = FileProblemTranslator.DomainV1.Translate(problem).Message
                             })
                             .ToArray()
                     })
@@ -231,7 +231,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                             .Select(problem => new ProblemWithFile
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = FileProblemTranslator.Dutch(problem).Message
+                                Text = FileProblemTranslator.DomainV1.Translate(problem).Message
                             })
                             .ToArray()
                     })
@@ -277,7 +277,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                             .Select(problem => new ProblemWithChange
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = ProblemTranslator.Dutch(problem).Message
+                                Text = WellKnownProblemTranslators.Default.Translate(problem).Message
                             })
                             .ToArray()
                             ?? []
@@ -323,7 +323,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                             .Select(problem => new ProblemWithChange
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = ProblemTranslator.Dutch(problem).Message
+                                Text = WellKnownProblemTranslators.Default.Translate(problem).Message
                             })
                             .ToArray()
                     })

@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using ValueObjects.ProblemCodes;
@@ -80,7 +81,7 @@ public partial class RoadSegmentsController
 
             if (roadSegment.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
             {
-                var problemTranslation = new RoadSegmentGeometryDrawMethodNotOutlined().TranslateToDutch();
+                var problemTranslation = new RoadSegmentGeometryDrawMethodNotOutlined().TranslateToDutch(WellKnownProblemTranslators.Default);
                 throw new ValidationException(new[] {
                     new ValidationFailure
                     {

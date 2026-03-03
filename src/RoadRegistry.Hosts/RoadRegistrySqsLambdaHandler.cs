@@ -13,18 +13,20 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
-using CommandHandling;
 using FluentValidation;
 using FluentValidation.Results;
 using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using TicketingService.Abstractions;
 using ValueObjects.Problems;
 
 public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambdaHandlerBase<TSqsLambdaRequest>
     where TSqsLambdaRequest : SqsLambdaRequest
 {
+    protected IProblemTranslator ProblemTranslator { get; }
+
     protected RoadRegistrySqsLambdaHandler(
         SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
@@ -32,13 +34,15 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         ILoggerFactory loggerFactory,
-        TicketingBehavior ticketingBehavior = TicketingBehavior.All)
+        TicketingBehavior ticketingBehavior = TicketingBehavior.All,
+        IProblemTranslator? problemTranslator = null)
         : base(retryPolicy, ticketing, idempotentCommandHandler, ticketingBehavior)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(roadRegistryContext);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
+        ProblemTranslator = problemTranslator ?? WellKnownProblemTranslators.Default;
         RoadRegistryContext = roadRegistryContext;
         DetailUrlFormat = options.DetailUrl;
         Logger = loggerFactory.CreateLogger(GetType());
@@ -51,13 +55,15 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         ILogger logger,
-        TicketingBehavior ticketingBehavior = TicketingBehavior.All)
+        TicketingBehavior ticketingBehavior = TicketingBehavior.All,
+        IProblemTranslator? problemTranslator = null)
         : base(retryPolicy, ticketing, idempotentCommandHandler, ticketingBehavior)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(roadRegistryContext);
         ArgumentNullException.ThrowIfNull(logger);
 
+        ProblemTranslator = problemTranslator ?? WellKnownProblemTranslators.Default;
         RoadRegistryContext = roadRegistryContext;
         DetailUrlFormat = options.DetailUrl;
         Logger = logger;
@@ -69,7 +75,7 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
 
     protected override TicketError MapValidationException(ValidationException exception, TSqsLambdaRequest request)
     {
-        exception = exception.TranslateToDutch();
+        exception = exception.TranslateToDutch(ProblemTranslator);
 
         if (exception.Errors is not null)
         {
@@ -91,7 +97,7 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
 
     protected override async Task HandleAggregateIdIsNotFoundException(TSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        await Ticketing.Error(request.TicketId, new RoadNetworkNotFound().ToTicketError(), cancellationToken);
+        await Ticketing.Error(request.TicketId, new RoadNetworkNotFound().ToTicketError(ProblemTranslator), cancellationToken);
     }
 
     protected virtual TicketError InnerMapDomainException(DomainException exception, TSqsLambdaRequest request)
@@ -109,8 +115,8 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
 
         var ticketError = exception switch
         {
-            RoadRegistryValidationException validationException => validationException.ToTicketError(),
-            RoadRegistryProblemsException problemsException => problemsException.ToTicketError(),
+            //DutchValidationException validationException => validationException.ToTicketError(),
+            RoadRegistryProblemsException problemsException => problemsException.ToTicketError(ProblemTranslator),
             _ => null
         };
 

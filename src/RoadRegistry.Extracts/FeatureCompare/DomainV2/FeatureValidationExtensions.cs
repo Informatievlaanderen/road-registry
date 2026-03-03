@@ -7,7 +7,9 @@ using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using EuropeanRoad;
 using NationalRoad;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.GradeSeparatedJunction;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Schemas.Inwinning.GradeSeparatedJuntions;
 using RoadRegistry.Extracts.Uploads;
 using RoadSegment;
 
@@ -56,6 +58,22 @@ public static class FeatureValidationExtensions
         {
             var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
             return recordContext.NationalRoadNotUniqueV2(feature.Attributes.Id, duplicateFeature.RecordNumber, duplicateFeature.Attributes.Id);
+        });
+    }
+
+    public static ZipArchiveProblems ValidateUniqueGradeSeparatedJunctions(this ZipArchive archive, List<Feature<GradeSeparatedJunctionFeatureCompareAttributes>> features, FeatureType featureType, ExtractFileName fileName)
+    {
+        return ValidateUniqueRecords(features,
+            (item1, item2) =>
+                (item1.LowerRoadSegmentId == item2.LowerRoadSegmentId && item1.UpperRoadSegmentId == item2.UpperRoadSegmentId)
+                ||
+                (item1.LowerRoadSegmentId == item2.UpperRoadSegmentId && item1.UpperRoadSegmentId == item2.LowerRoadSegmentId),
+            (feature, duplicateFeature) =>
+        {
+            var recordContext = fileName
+                .AtDbaseRecord(featureType, feature.RecordNumber)
+                .WithIdentifier(nameof(GradeSeparatedJunctionDbaseRecord.OK_OIDN), feature.Attributes.Id);
+            return recordContext.GradeSeparatedJunctionNotUnique(feature.Attributes.Id, duplicateFeature.Attributes.Id);
         });
     }
 

@@ -4,27 +4,23 @@ using System.Collections.Generic;
 using System.Linq;
 using BackOffice.Exceptions;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using TicketingService.Abstractions;
 using ValueObjects.Problems;
 
 public static class ExceptionExtensions
 {
-    public static TicketError ToTicketError(this RoadRegistryValidationException exception)
-    {
-        return new TicketError(exception.Message, exception.ErrorCode);
-    }
-
-    public static TicketError ToTicketError(this RoadRegistryProblemsException exception)
+    public static TicketError ToTicketError(this RoadRegistryProblemsException exception, IProblemTranslator translator)
     {
         return new TicketError(exception.Problems
-            .Select(problem => problem.ToTicketError())
+            .Select(problem => problem.ToTicketError(translator))
             .ToArray()
         );
     }
 
-    public static TicketError ToTicketError(this Problem problem)
+    public static TicketError ToTicketError(this Problem problem, IProblemTranslator translator)
     {
-        var translation = problem.TranslateToDutch();
+        var translation = problem.TranslateToDutch(translator);
 
         var errorContext = new Dictionary<string, object>();
         if (problem.Context is not null)

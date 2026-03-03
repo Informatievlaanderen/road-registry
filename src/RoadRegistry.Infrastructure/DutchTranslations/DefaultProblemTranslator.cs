@@ -1,17 +1,14 @@
-namespace RoadRegistry.Infrastructure.DutchTranslations;
+﻿namespace RoadRegistry.Infrastructure.DutchTranslations;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using RoadRegistry.Infrastructure.Messages;
-using RoadRegistry.ValueObjects.ProblemCodes;
-using RoadRegistry.ValueObjects.Problems;
+using ValueObjects.ProblemCodes;
+using ValueObjects.Problems;
 using Problem = Messages.Problem;
 
-public static class ProblemTranslator
+public sealed class DefaultProblemTranslator : ProblemTranslatorBase
 {
-    private static readonly Dictionary<ProblemCode, Converter<Problem, ProblemTranslation>> ProblemCodeDutchTranslators = new()
+    public DefaultProblemTranslator()
+        : base(new()
     {
         {
             ProblemCode.Common.IncorrectObjectId, problem => new(problem.Severity, "IncorrectObjectId",
@@ -153,6 +150,10 @@ public static class ProblemTranslator
         {
             ProblemCode.GradeSeparatedJunction.UpperAndLowerDoNotIntersect, problem => new(problem.Severity, problem.Reason,
                 $"De ongelijkgrondse kruising zijn bovenste wegsegment {problem.GetParameterValue("UpperRoadSegmentId")} en onderste wegsegment {problem.GetParameterValue("LowerRoadSegmentId")} kruisen elkaar niet.")
+        },
+        {
+            ProblemCode.GradeSeparatedJunction.NotUnique, problem => new(problem.Severity, problem.Reason,
+                $"De ongelijkgrondse kruising met id {problem.GetParameterValue("GradeSeparatedJunctionId")} heeft hetzelfde onder- en bovenliggende wegsegment als de ongelijkgrondse kruising met id {problem.GetParameterValue("OtherGradeSeparatedJunctionId")}.")
         },
         {
             ProblemCode.NationalRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason,
@@ -1112,25 +1113,11 @@ public static class ProblemTranslator
             ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes.ValueNotUniqueWithinSegment, problem => new(problem.Severity, problem.Reason,
                 $"De wegverharding bevat meerdere attributen voor dezelfde dekking.")
         },
-    };
-
-    public static readonly Converter<Problem, ProblemTranslation> Dutch = problem =>
+    })
     {
-        var problemCode = ProblemCode.FromReason(problem.Reason);
-        if (problemCode is not null && ProblemCodeDutchTranslators.TryGetValue(problemCode, out Converter<Problem, ProblemTranslation> converter))
-        {
-            return converter(problem);
-        }
-
-        return new ProblemTranslation(problem.Severity, problem.Reason, CreateMissingTranslationMessage(problemCode!));
-    };
-
-    public static string CreateMissingTranslationMessage(ProblemCode problemCode)
-    {
-        return $"'{problemCode}' has no translation. Please fix it.";
     }
 
-    static string GetRoadNodeTypeMismatch(Problem problem)
+    private static string GetRoadNodeTypeMismatch(Problem problem)
     {
         var sb = new StringBuilder();
         sb.AppendFormat("Het opgegeven wegknoop type {0} van knoop {1} komt niet overeen met een van de verwachte wegknoop types: ",
@@ -1153,7 +1140,7 @@ public static class ProblemTranslator
         return sb.ToString();
     }
 
-    static string GetRoadNodeTypeV2Mismatch(Problem problem)
+    private static string GetRoadNodeTypeV2Mismatch(Problem problem)
     {
         var sb = new StringBuilder();
         sb.AppendFormat("Het opgegeven wegknoop type {0} van knoop {1} komt niet overeen met een van de verwachte wegknoop types: ",

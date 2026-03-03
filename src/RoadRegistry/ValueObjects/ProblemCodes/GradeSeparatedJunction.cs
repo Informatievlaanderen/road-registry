@@ -8,5 +8,6 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode LowerSegmentMissing = new("GradeSeparatedJunctionLowerRoadSegmentMissing");
         public static readonly ProblemCode UpperSegmentMissing = new("GradeSeparatedJunctionUpperRoadSegmentMissing");
         public static readonly ProblemCode UpperAndLowerDoNotIntersect = new("GradeSeparatedJunctionUpperAndLowerRoadSegmentDoNotIntersect");
+        public static readonly ProblemCode NotUnique = new("GradeSeparatedJunctionNotUnique");
     }
 }

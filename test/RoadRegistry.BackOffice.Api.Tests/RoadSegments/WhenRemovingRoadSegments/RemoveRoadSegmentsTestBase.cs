@@ -17,6 +17,7 @@ using RoadRegistry.BackOffice.Api.RoadSegments;
 using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.CommandHandling;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 
 public abstract class RemoveRoadSegmentsTestBase
@@ -69,7 +70,7 @@ public abstract class RemoveRoadSegmentsTestBase
     {
         var ex = Assert.IsType<ValidationException>(exception);
         var err = Assert.IsAssignableFrom<IEnumerable<ValidationFailure>>(ex.Errors);
-        return err.TranslateToDutch();
+        return err.TranslateToDutch(WellKnownProblemTranslators.Default);
     }
 
     protected async Task<IActionResult> GetResultAsync(DeleteRoadSegmentsParameters parameters)

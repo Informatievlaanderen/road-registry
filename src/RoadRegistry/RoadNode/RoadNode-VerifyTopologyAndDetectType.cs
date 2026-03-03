@@ -44,9 +44,7 @@ public partial class RoadNode
                 n.Geometry.Value.IsReasonablyEqualTo(Geometry.Value, context.Tolerances));
         if (byOtherNode is not null)
         {
-            problems = problems.Add(new RoadNodeGeometryTaken(
-                context.IdTranslator.TranslateToTemporaryId(byOtherNode.RoadNodeId)
-            ));
+            problems += new RoadNodeGeometryTaken(context.IdTranslator.TranslateToTemporaryId(byOtherNode.RoadNodeId));
         }
 
         problems = context.RoadNetwork.GetNonRemovedRoadSegments()
@@ -55,7 +53,7 @@ public partial class RoadNode
                 && s.Geometry.Value.IsWithinDistance(Geometry.Value, Distances.TooClose)
             )
             .Aggregate(problems, (current, segment) =>
-                    current.Add(new RoadNodeTooClose(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId))));
+                current.Add(new RoadNodeTooClose(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId))));
 
         problems += ValidateTypeAndChangeIfNeeded(context, segments, context.Provenance);
 

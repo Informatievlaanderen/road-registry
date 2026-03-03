@@ -8,6 +8,7 @@ using Fixtures;
 using FluentValidation;
 using FluentValidation.Results;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 
 public abstract class WhenChangeOutlineGeometryWithInvalidRequest<TFixture> : IClassFixture<TFixture>
     where TFixture : WhenChangeOutlineGeometryFixture
@@ -44,7 +45,7 @@ public abstract class WhenChangeOutlineGeometryWithInvalidRequest<TFixture> : IC
     {
         var ex = Assert.IsType<ValidationException>(_fixture.Exception);
         var err = Assert.IsAssignableFrom<IEnumerable<ValidationFailure>>(ex.Errors);
-        return err.TranslateToDutch();
+        return err.TranslateToDutch(WellKnownProblemTranslators.Default);
     }
 
     [Fact]

@@ -653,6 +653,13 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeRoadSegmentTempId(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentTempId>(composer =>
+            composer.FromFactory<int>(_ => new RoadSegmentTempId(fixture.Create<IntegerValue>()))
+        );
+    }
+
     public static void CustomizeRoadSegmentLaneAttribute(this IFixture fixture)
     {
         fixture.Customize<RoadRegistry.BackOffice.Core.RoadSegmentLaneAttribute>(customization =>

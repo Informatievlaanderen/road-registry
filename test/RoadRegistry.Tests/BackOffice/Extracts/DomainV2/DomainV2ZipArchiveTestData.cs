@@ -59,6 +59,7 @@ public class DomainV2ZipArchiveTestData : IDisposable
         fixture.CustomizeRecordType();
         fixture.CustomizeAttributeId();
         fixture.CustomizeRoadSegmentId();
+        fixture.CustomizeRoadSegmentTempId();
         fixture.CustomizeEuropeanRoadNumber();
         fixture.CustomizeNationalRoadNumber();
         fixture.CustomizeGradeSeparatedJunctionId();

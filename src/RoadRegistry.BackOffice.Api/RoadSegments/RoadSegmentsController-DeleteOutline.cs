@@ -23,6 +23,7 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using CommandHandling;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using ValueObjects.Problems;
 
 public partial class RoadSegmentsController
@@ -70,7 +71,7 @@ public partial class RoadSegmentsController
 
             if (roadSegment.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
             {
-                var problemTranslation = new RoadSegmentGeometryDrawMethodNotOutlined().TranslateToDutch();
+                var problemTranslation = new RoadSegmentGeometryDrawMethodNotOutlined().TranslateToDutch(WellKnownProblemTranslators.Default);
                 throw new ValidationException(new[] {
                     new ValidationFailure
                     {

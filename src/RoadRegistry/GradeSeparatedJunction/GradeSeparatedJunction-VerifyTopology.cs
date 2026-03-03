@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.GradeSeparatedJunction;
 
+using System.Linq;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using ScopedRoadNetwork.ValueObjects;

@@ -143,6 +143,15 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError GradeSeparatedJunctionNotUnique(this IDbaseFileRecordProblemBuilder builder, GradeSeparatedJunctionId junctionId, GradeSeparatedJunctionId otherJunctionId)
+    {
+        return builder
+            .Error(nameof(GradeSeparatedJunctionNotUnique))
+            .WithParameter(new ProblemParameter("JunctionId", junctionId.ToString()))
+            .WithParameter(new ProblemParameter("OtherJunctionId", otherJunctionId.ToString()))
+            .Build();
+    }
+
     public static FileError GradeSeparatedJunctionMissing(this IDbaseFileRecordProblemBuilder builder, RoadSegmentId roadSegmentId1, RoadSegmentId roadSegmentId2, double intersectionX, double intersectionY)
     {
         return builder
