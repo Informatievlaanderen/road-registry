@@ -62,8 +62,10 @@ public partial class RoadSegment
             var intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions = intersectingSegments
                 .Where(intersectingSegment =>
                     !context.RoadNetwork.GradeSeparatedJunctions.Values.Any(junction =>
-                        (junction.LowerRoadSegmentId == RoadSegmentId && junction.UpperRoadSegmentId == intersectingSegment.RoadSegmentId) ||
-                        (junction.LowerRoadSegmentId == intersectingSegment.RoadSegmentId && junction.UpperRoadSegmentId == RoadSegmentId)))
+                        (junction.LowerRoadSegmentId == RoadSegmentId && junction.UpperRoadSegmentId == intersectingSegment.RoadSegmentId)
+                        ||
+                        (junction.LowerRoadSegmentId == intersectingSegment.RoadSegmentId && junction.UpperRoadSegmentId == RoadSegmentId)
+                    ))
                 .Select(i =>
                     new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(
                         originalIdOrId,

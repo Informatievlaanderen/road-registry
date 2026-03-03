@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.GradeSeparatedJunction;
 
+using System.Linq;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using ScopedRoadNetwork.ValueObjects;
@@ -29,6 +30,19 @@ public partial class GradeSeparatedJunction
             problems += new Error(ProblemCode.GradeSeparatedJunction.UpperAndLowerDoNotIntersect,
                 new ProblemParameter("LowerRoadSegmentId", context.IdTranslator.TranslateToTemporaryId(LowerRoadSegmentId).ToString()),
                 new ProblemParameter("UpperRoadSegmentId", context.IdTranslator.TranslateToTemporaryId(UpperRoadSegmentId).ToString()));
+        }
+
+        var otherIdenticalJunctions = context.RoadNetwork.GradeSeparatedJunctions.Values
+            .Where(x => !x.IsRemoved && x.GradeSeparatedJunctionId != GradeSeparatedJunctionId)
+            .Where(x =>
+                (x.LowerRoadSegmentId == LowerRoadSegmentId && x.UpperRoadSegmentId == UpperRoadSegmentId)
+                ||
+                (x.LowerRoadSegmentId == UpperRoadSegmentId && x.UpperRoadSegmentId == LowerRoadSegmentId)
+            )
+            .ToList();
+        foreach (var otherIdenticalJunction in otherIdenticalJunctions)
+        {
+            problems += new GradeSeparatedJunctionNotUnique(GradeSeparatedJunctionId, otherIdenticalJunction.GradeSeparatedJunctionId);
         }
 
         return problems;

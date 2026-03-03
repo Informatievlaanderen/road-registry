@@ -3,7 +3,7 @@ namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.Extracts.Uploads;
 
-public class RoadNodeFeatureCompareRecord
+public class RoadNodeFeatureCompareRecord : IFeatureCompareRecord
 {
     public RoadNodeFeatureCompareRecord(FeatureType featureType, RecordNumber recordNumber, RoadNodeFeatureCompareAttributes attributes, RoadNodeId id, RecordType recordType)
     {

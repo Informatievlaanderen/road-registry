@@ -25,7 +25,7 @@ public static class SharedCustomizations
         fixture.Customize<RoadSegmentDbaseRecord>(composer => composer
             .FromFactory(random => new RoadSegmentDbaseRecord
             {
-                WS_TEMPID = { Value = random.Next(1, int.MaxValue) },
+                WS_TEMPID = { Value = fixture.Create<RoadSegmentTempId>().ToInt() },
                 WS_OIDN = { Value = fixture.Create<RoadSegmentId>() },
                 LBEHEER = { Value = fixture.Create<OrganizationId>() },
                 RBEHEER = { Value = fixture.Create<OrganizationId>() },

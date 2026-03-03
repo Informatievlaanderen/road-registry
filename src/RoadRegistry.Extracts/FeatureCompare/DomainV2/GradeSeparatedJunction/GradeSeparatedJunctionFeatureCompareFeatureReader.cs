@@ -23,6 +23,13 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
 
         problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, feature => feature.Attributes.Id);
 
+        switch (featureType)
+        {
+            case FeatureType.Change:
+                problems += archive.ValidateUniqueGradeSeperatedJunctions(features, featureType, FileName);
+                break;
+        }
+
         return (features, problems);
     }
 

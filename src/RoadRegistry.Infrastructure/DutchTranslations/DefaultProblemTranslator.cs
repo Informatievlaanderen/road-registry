@@ -152,6 +152,10 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
                 $"De ongelijkgrondse kruising zijn bovenste wegsegment {problem.GetParameterValue("UpperRoadSegmentId")} en onderste wegsegment {problem.GetParameterValue("LowerRoadSegmentId")} kruisen elkaar niet.")
         },
         {
+            ProblemCode.GradeSeparatedJunction.NotUnique, problem => new(problem.Severity, problem.Reason,
+                $"De ongelijkgrondse kruising met id {problem.GetParameterValue("GradeSeparatedJunctionId")} heeft hetzelfde onder- en bovenliggende wegsegment als de ongelijkgrondse kruising met id {problem.GetParameterValue("OtherGradeSeparatedJunctionId")}.")
+        },
+        {
             ProblemCode.NationalRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason,
                 $"Het wegsegment is reeds geen onderdeel meer van deze nationale weg met nummer {problem.Parameters[0].Value}.")
         },
