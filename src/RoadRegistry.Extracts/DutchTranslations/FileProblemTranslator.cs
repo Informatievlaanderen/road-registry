@@ -2,7 +2,7 @@ namespace RoadRegistry.Extracts.DutchTranslations;
 
 using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.Infrastructure.Messages;
-using FileProblem = Messages.FileProblem;
+using FileProblem = RoadRegistry.Extracts.Messages.FileProblem;
 using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 
 public abstract class FileProblemTranslator

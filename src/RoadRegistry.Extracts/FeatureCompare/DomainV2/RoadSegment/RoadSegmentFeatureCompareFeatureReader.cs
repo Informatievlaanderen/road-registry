@@ -159,38 +159,25 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
             var problems = ZipArchiveProblems.None;
 
-            var roadSegmentId = ReadId();
+            var roadSegmentId = ReadTempId();
 
             MultiLineString ReadGeometry()
             {
                 var recordContext = fileName
-                    .AtShapeRecord(featureType, recordNumber);
+                    .AtShapeRecord(featureType, recordNumber)
+                    .WithIdentifier(nameof(WS_TEMPID), WS_TEMPID);
 
                 try
                 {
                     var multiLineString = Geometry.ToMultiLineString();
+                    var lineProblems = multiLineString.ValidateRoadSegmentGeometryDomainV2(new RoadSegmentId(roadSegmentId.ToInt()));
 
-                    var lines = multiLineString
-                        .WithMeasureOrdinates()
-                        .WithoutDuplicateCoordinates()
-                        .Geometries
-                        .OfType<LineString>()
-                        .ToArray();
-                    if (lines.Length != 1)
-                    {
-                        problems += recordContext.ShapeRecordGeometryLineCountMismatch(1, lines.Length);
-                    }
-                    else
-                    {
-                        var line = lines[0];
-
-                        var lineProblems = line.ValidateRoadSegmentGeometry(new RoadSegmentId(roadSegmentId.ToInt()));
-
-                        problems += lineProblems.Select(problem => recordContext
+                    problems += lineProblems
+                        .Select(problem => recordContext
                             .Error(problem.Reason)
                             .WithParameters(problem.Parameters.ToArray())
-                            .Build());
-                    }
+                            .Build()
+                        );
 
                     return multiLineString;
                 }
@@ -204,7 +191,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return MultiLineString.Empty;
             }
 
-            RoadSegmentTempId ReadId()
+            RoadSegmentTempId ReadTempId()
             {
                 if (WS_TEMPID is null)
                 {
@@ -219,7 +206,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     problems += problemBuilder.RoadSegmentTempIdOutOfRange(WS_TEMPID.Value);
                 }
 
-                return default;
+                return new RoadSegmentTempId(0);
             }
 
             RoadSegmentId? ReadRoadSegmentId()

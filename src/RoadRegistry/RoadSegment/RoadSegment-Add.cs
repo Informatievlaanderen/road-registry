@@ -16,7 +16,7 @@ public partial class RoadSegment
         var originalId = change.OriginalId ?? change.TemporaryId;
         var problems = Problems.For(originalId);
 
-        problems += new RoadSegmentGeometryValidator().Validate(originalId, change.GeometryDrawMethod, change.Geometry.Value);
+        problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2(originalId);
 
         var segmentLength = change.Geometry.Value.Length;
         var attributes = new RoadSegmentAttributes

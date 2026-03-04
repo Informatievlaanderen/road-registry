@@ -1,5 +1,6 @@
 namespace RoadRegistry.RoadSegment;
 
+using System.Linq;
 using Extensions;
 using NetTopologySuite.Geometries;
 using RoadRegistry.ValueObjects.Problems;
@@ -7,53 +8,88 @@ using LineString = NetTopologySuite.Geometries.LineString;
 
 public static class NetTopologySuiteExtensions
 {
-    public static Problems GetProblemsForRoadSegmentOutlinedGeometry(this LineString line, RoadSegmentId id)
+    public static Problems ValidateRoadSegmentGeometryDomainV2(this RoadSegmentGeometry? geometry, RoadSegmentId id)
     {
-        var problems = Problems.None;
-        var contextTolerances = VerificationContextTolerances.Default;
-
-        if (line.Length.IsReasonablyLessThan(Distances.TooClose, contextTolerances))
+        if (geometry is null)
         {
-            problems = problems.Add(new RoadSegmentGeometryLengthIsLessThanMinimum(id, Distances.TooClose));
+            return Problems.None;
         }
 
-        if (!line.Length.IsReasonablyLessThan(Distances.TooLongSegmentLength, contextTolerances))
+        return ValidateRoadSegmentGeometryDomainV2(geometry.Value, id);
+    }
+
+    public static Problems ValidateRoadSegmentGeometryDomainV2(this MultiLineString? multiLineString, RoadSegmentId id)
+    {
+        if (multiLineString is null)
         {
-            problems = problems.Add(new RoadSegmentGeometryLengthIsTooLong(id, Distances.TooLongSegmentLength));
+            return Problems.None;
+        }
+
+        var lines = multiLineString
+            .Geometries
+            .OfType<LineString>()
+            .ToArray();
+        if (lines.Length != 1)
+        {
+            return Problems.Single(new RoadSegmentGeometryLineCountMismatch(id, 1, lines.Length));
+        }
+
+        return ValidateRoadSegmentGeometryDomainV2(multiLineString.GetSingleLineString(), id);
+    }
+
+    private static Problems ValidateRoadSegmentGeometryDomainV2(this LineString? line, RoadSegmentId id)
+    {
+        if (line is null)
+        {
+            return Problems.None;
+        }
+
+        line = line.WithoutDuplicateCoordinates();
+
+        var problems = Problems.None;
+        var tolerances = VerificationContextTolerances.Cm;
+
+        if (line.Length < 1)
+        {
+            problems += new RoadSegmentGeometryLengthIsLessThanMinimum(id, 1);
+        }
+
+        if (!line.Length.IsReasonablyLessThan(Distances.TooLongSegmentLength, tolerances))
+        {
+            problems += new RoadSegmentGeometryLengthIsTooLong(id, Distances.TooLongSegmentLength);
+        }
+
+        if (line.ContainsVertexTooCloseToAnother(0.15))
+        {
+            problems += new RoadSegmentGeometryVerticesTooClose(id);
+        }
+
+        if (line.SelfOverlaps())
+        {
+            problems += new RoadSegmentGeometrySelfOverlaps(id);
+        }
+        else if (line.SelfIntersects())
+        {
+            problems += new RoadSegmentGeometrySelfIntersects(id);
         }
 
         return problems;
     }
 
-    public static Problems ValidateRoadSegmentGeometry(this LineString? line, RoadSegmentId id)
+    private static bool ContainsVertexTooCloseToAnother(this LineString lineString, double minimumDistanceBetweenVertices)
     {
-        var problems = Problems.None;
-        if (line is null)
+        var previousVertex = lineString.Coordinate;
+        for (var i = 1; i < lineString.Count; i++)
         {
-            return problems;
+            var currentVertex = lineString.GetCoordinateN(i);
+            if (currentVertex.Distance(previousVertex) < minimumDistanceBetweenVertices)
+            {
+                return true;
+            }
+
+            previousVertex = currentVertex;
         }
 
-        var contextTolerances = VerificationContextTolerances.Default;
-
-        if (line.Length.IsReasonablyEqualTo(0, contextTolerances))
-        {
-            problems = problems.Add(new RoadSegmentGeometryLengthIsZero(id));
-        }
-
-        if (!line.Length.IsReasonablyLessThan(Distances.TooLongSegmentLength, contextTolerances))
-        {
-            problems = problems.Add(new RoadSegmentGeometryLengthIsTooLong(id, Distances.TooLongSegmentLength));
-        }
-
-        if (line.SelfOverlaps())
-        {
-            problems = problems.Add(new RoadSegmentGeometrySelfOverlaps(id));
-        }
-        else if (line.SelfIntersects())
-        {
-            problems = problems.Add(new RoadSegmentGeometrySelfIntersects(id));
-        }
-
-        return problems;
+        return false;
     }
 }
