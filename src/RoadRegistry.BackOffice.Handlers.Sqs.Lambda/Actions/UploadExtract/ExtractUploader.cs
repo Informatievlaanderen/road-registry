@@ -5,13 +5,17 @@ using Abstractions.Exceptions;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 using Exceptions;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.DutchTranslations;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.ValueObjects.ProblemCodes;
 using TicketingService.Abstractions;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
 
@@ -30,6 +34,7 @@ public sealed class ExtractUploader : IExtractUploader
     };
 
     private readonly RoadNetworkUploadsBlobClient _uploadsBlobClient;
+    private readonly TransactionZoneFeatureCompareFeatureReader _transactionZoneFeatureCompareFeatureReader;
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly IZipArchiveFeatureCompareTranslator _featureCompareTranslator;
     private readonly IExtractUploadFailedEmailClient _extractUploadFailedEmailClient;
@@ -38,12 +43,14 @@ public sealed class ExtractUploader : IExtractUploader
     public ExtractUploader(
         ExtractsDbContext extractsDbContext,
         RoadNetworkUploadsBlobClient uploadsBlobClient,
+        TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureCompareFeatureReader,
         IZipArchiveFeatureCompareTranslator featureCompareTranslator,
         IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
         ITicketing ticketing)
     {
         _extractsDbContext = extractsDbContext;
         _uploadsBlobClient = uploadsBlobClient;
+        _transactionZoneFeatureCompareFeatureReader = transactionZoneFeatureCompareFeatureReader;
         _featureCompareTranslator = featureCompareTranslator;
         _extractUploadFailedEmailClient = extractUploadFailedEmailClient;
         _ticketing = ticketing;
@@ -101,6 +108,21 @@ public sealed class ExtractUploader : IExtractUploader
 
             await using var archiveBlobStream = await archiveBlob.OpenAsync(cancellationToken);
             using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, true);
+
+            if (zipArchiveMetadata.Inwinning)
+            {
+                var (transactionZones, problems) = _transactionZoneFeatureCompareFeatureReader.Read(archive, FeatureType.Change, new ZipArchiveFeatureReaderContext(zipArchiveMetadata));
+                problems.ThrowIfError();
+
+                var transactionZone = transactionZones.Single();
+                if (!transactionZone.Attributes.Geometry.Value.EqualsExact(extractDownload.Contour))
+                {
+                    var error = ExtractFileName.Transactiezones.AtShapeRecord(FeatureType.Change, transactionZone.RecordNumber)
+                        .Error(ProblemCode.TransactionZone.HasChanged)
+                        .Build();
+                    throw new ZipArchiveValidationException(ZipArchiveProblems.Single(error));
+                }
+            }
 
             var translatedChanges = await _featureCompareTranslator.TranslateAsync(archive, zipArchiveMetadata.WithDownloadId(downloadId), cancellationToken);
             return translatedChanges;

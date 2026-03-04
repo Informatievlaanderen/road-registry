@@ -626,6 +626,35 @@ public static class SharedCustomizations
             }).OmitAutoProperties());
     }
 
+    public static void CustomizeExtractGeometry(this IFixture fixture)
+    {
+        fixture.Customize<NetTopologySuite.Geometries.Polygon>(customization =>
+            customization.FromFactory(generator =>
+                {
+                    var x = generator.Next(600000, 700000);
+                    var y = generator.Next(600000, 700000);
+                    var width = generator.Next(10, 1000);
+
+                    return new NetTopologySuite.Geometries.Polygon(new LinearRing([
+                        new(x, y),
+                        new(x, y + width),
+                        new(x + width, y + width),
+                        new(x + width, y),
+                        new(x, y)
+                    ]))
+                    .WithSrid(WellknownSrids.Lambert08);
+                }
+            ).OmitAutoProperties());
+
+        fixture.Customize<ExtractGeometry>(customizer =>
+            customizer.FromFactory(_ =>
+                {
+                    var geometry = fixture.Create<NetTopologySuite.Geometries.Polygon>().ToMultiPolygon();
+                    return ExtractGeometry.Create(geometry);
+                }
+            ).OmitAutoProperties());
+    }
+
     public static void CustomizeRoadSegmentGeometryDrawMethod(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentGeometryDrawMethod>(customization =>

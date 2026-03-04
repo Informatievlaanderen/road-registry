@@ -7,6 +7,7 @@ using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using EuropeanRoad;
 using NationalRoad;
+using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2.GradeSeparatedJunction;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Schemas.Inwinning.GradeSeparatedJuntions;
@@ -15,6 +16,16 @@ using RoadSegment;
 
 public static class FeatureValidationExtensions
 {
+    public static ZipArchiveProblems ValidateGeometryIsAtLeastPartiallyWithinTransactionZone(this ExtractGeometry extractGeometry, Geometry geometry, IShapeFileRecordProblemBuilder builder)
+    {
+        if (extractGeometry.Value.Disjoint(geometry))
+        {
+            return ZipArchiveProblems.Single(builder.ShapeRecordGeometryIsOutsideTransactionZone());
+        }
+
+        return ZipArchiveProblems.None;
+    }
+
     public static ZipArchiveProblems ValidateUniqueIdentifiers<TFeature, TIdentifier>(this ZipArchive archive, List<Feature<TFeature>> features, FeatureType featureType, ExtractFileName fileName, string identifierField, Func<Feature<TFeature>, TIdentifier> getIdentifier)
         where TFeature : class
     {

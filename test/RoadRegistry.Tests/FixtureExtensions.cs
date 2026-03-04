@@ -1178,6 +1178,12 @@ public static class Customizations
             GeometryTranslator.FromGeometryPolygon(polygon)
         );
     }
+    public static PolygonShapeContent ToShapeContent(this MultiPolygon multiPolygon)
+    {
+        return new PolygonShapeContent(
+            GeometryTranslator.FromGeometryMultiPolygon(multiPolygon)
+        );
+    }
 
     public static IEnumerable<RequestedChange> CreateAllRequestedChanges(this Fixture fixture)
     {

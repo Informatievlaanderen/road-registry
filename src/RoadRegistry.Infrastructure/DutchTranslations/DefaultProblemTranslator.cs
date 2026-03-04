@@ -1119,7 +1119,12 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
         },
         {
             ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes.ValueNotUniqueWithinSegment, problem => new(problem.Severity, problem.Reason,
-                $"De wegverharding bevat meerdere attributen voor dezelfde dekking.")
+                "De wegverharding bevat meerdere attributen voor dezelfde dekking.")
+        },
+
+        {
+            ProblemCode.TransactionZone.HasChanged, problem => new(problem.Severity, problem.Reason,
+                "De contour (geometrie) van het extract werd gewijzigd.")
         },
     })
     {

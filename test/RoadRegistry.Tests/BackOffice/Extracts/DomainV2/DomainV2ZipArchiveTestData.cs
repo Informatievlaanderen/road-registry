@@ -132,22 +132,7 @@ public class DomainV2ZipArchiveTestData : IDisposable
                 }
             ).OmitAutoProperties()
         );
-        fixture.Customize<Polygon>(customization =>
-            customization.FromFactory(generator =>
-                {
-                    var x = generator.Next(15000, 99000);
-                    var y = generator.Next(21000, 99000);
-                    var width = generator.Next(10, 1000);
-
-                    return new Polygon(new LinearRing([
-                        new(x, y),
-                        new(x, y + width),
-                        new(x + width, y + width),
-                        new(x + width, y),
-                        new(x, y)
-                    ]));
-                }
-            ).OmitAutoProperties());
+        fixture.CustomizeExtractGeometry();
 
         fixture.Customize<MultiLineString>(customization =>
             customization.FromFactory(_ =>

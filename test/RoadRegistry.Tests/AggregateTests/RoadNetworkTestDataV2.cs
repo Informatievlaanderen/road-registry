@@ -95,6 +95,7 @@ public class RoadNetworkTestDataV2
         Fixture.CustomizeTransactionId();
         Fixture.CustomizeExtractRequestId();
         Fixture.CustomizeScopedRoadNetworkContext();
+        Fixture.CustomizeExtractGeometry();
 
         Fixture.CustomizeRoadNodeWasAdded();
         Fixture.CustomizeRoadNodeWasModified();

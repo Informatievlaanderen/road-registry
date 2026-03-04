@@ -452,23 +452,23 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
             return CreateTransactionZoneShapeRecord(CreateTransactionZoneGeometry());
         }
 
-        public TransactionZoneShapeRecord CreateTransactionZoneShapeRecord(Polygon polygon)
+        public TransactionZoneShapeRecord CreateTransactionZoneShapeRecord(MultiPolygon multiPolygon)
         {
             return new TransactionZoneShapeRecord
             {
-                Geometry = polygon
+                Geometry = multiPolygon
             };
         }
 
-        public Polygon CreateTransactionZoneGeometry()
+        public MultiPolygon CreateTransactionZoneGeometry()
         {
-            return _fixture.Create<Polygon>();
+            return _fixture.Create<Polygon>().ToMultiPolygon();
         }
     }
 
     public class TransactionZoneShapeRecord
     {
-        public Polygon Geometry { get; set; }
+        public MultiPolygon Geometry { get; set; }
 
         public TransactionZoneShapeRecord Clone()
         {

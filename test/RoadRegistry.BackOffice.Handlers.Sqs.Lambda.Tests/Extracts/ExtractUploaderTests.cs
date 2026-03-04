@@ -12,6 +12,9 @@ using Exceptions;
 using FluentAssertions;
 using Moq;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure.DutchTranslations;
@@ -57,6 +60,60 @@ public class ExtractUploaderTests
 
         // Act
         await ProcessUpload(downloadId, uploadId: uploadId);
+
+        // Assert
+        var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
+        extractDownload.LatestUploadId.Should().Be(uploadId.ToGuid());
+
+        var extractUpload = ExtractsDbContext.ExtractUploads.Single(x => x.UploadId == uploadId);
+        extractUpload.Status.Should().Be(ExtractUploadStatus.Processing);
+    }
+
+    [Fact]
+    public async Task WhenInwinning_ThenSucceeded()
+    {
+        // Arrange
+        var downloadId = Fixture.Create<DownloadId>();
+        var uploadId = Fixture.Create<UploadId>();
+        var extractRequestId = Fixture.Create<ExtractRequestId>();
+        var extractGeometry = Fixture.Create<ExtractGeometry>();
+
+        ExtractsDbContext.ExtractRequests.Add(new()
+        {
+            ExtractRequestId = extractRequestId,
+            CurrentDownloadId = downloadId,
+            Description = Fixture.Create<string>()
+        });
+        ExtractsDbContext.ExtractDownloads.Add(new()
+        {
+            DownloadId = downloadId,
+            ExtractRequestId = extractRequestId,
+            Contour = extractGeometry.Value,
+            DownloadedOn = DateTimeOffset.Now
+        });
+        await ExtractsDbContext.SaveChangesAsync();
+
+        var blobClientMock = new Mock<IBlobClient>();
+        blobClientMock
+            .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BlobObject(new BlobName("archive.zip"),
+                Metadata.None,
+                ContentType.Parse("application/zip"),
+                _ =>
+                {
+                    var archiveStream = new DomainV2ZipArchiveBuilder()
+                        .WithChange((builder, _) =>
+                        {
+                            builder.TestData.TransactionZoneShapeRecord.Geometry = extractGeometry.Value;
+                        })
+                        .BuildArchiveStream();
+                    return Task.FromResult<Stream>(archiveStream);
+                }));
+
+        // Act
+        await ProcessUpload(downloadId, uploadId: uploadId,
+            blobClient: blobClientMock.Object,
+            zipArchiveMetadata: ZipArchiveMetadata.Empty.WithInwinning());
 
         // Assert
         var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
@@ -404,6 +461,54 @@ public class ExtractUploaderTests
         extractDownload.Status.Should().Be(ExtractUploadStatus.AutomaticValidationFailed);
     }
 
+    [Fact]
+    public async Task WhenTransactionZoneHasChanged_ThenError()
+    {
+        // Arrange
+        var downloadId = Fixture.Create<DownloadId>();
+        var extractRequestId = Fixture.Create<ExtractRequestId>();
+
+        ExtractsDbContext.ExtractRequests.Add(new()
+        {
+            ExtractRequestId = extractRequestId,
+            CurrentDownloadId = downloadId,
+            Description = Fixture.Create<string>()
+        });
+        ExtractsDbContext.ExtractDownloads.Add(new()
+        {
+            DownloadId = downloadId,
+            ExtractRequestId = extractRequestId,
+            Contour = Polygon.Empty,
+            DownloadedOn = DateTimeOffset.Now
+        });
+        await ExtractsDbContext.SaveChangesAsync();
+
+        var blobClientMock = new Mock<IBlobClient>();
+        blobClientMock
+            .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BlobObject(new BlobName("archive.zip"),
+                Metadata.None,
+                ContentType.Parse("application/zip"),
+                _ =>
+                {
+                    var archiveStream = new DomainV2ZipArchiveBuilder()
+                        .WithChange((builder, _) => { builder.TestData.TransactionZoneShapeRecord.Geometry = builder.TestData.TransactionZoneShapeRecord.Geometry.Buffer(-0.1).ToMultiPolygon(); })
+                        .BuildArchiveStream();
+                    return Task.FromResult<Stream>(archiveStream);
+                }));
+
+        // Act
+        var act = () => ProcessUpload(downloadId,
+            blobClient: blobClientMock.Object,
+            zipArchiveMetadata: ZipArchiveMetadata.Empty.WithInwinning());
+
+        // Assert
+        var ex = (await act.Should().ThrowAsync<DutchValidationException>()).Which;
+
+        ex.Errors.Should().Contain(x => x.ErrorCode == "ErrorTransactionZoneHasChanged"
+                                        && (string)((Dictionary<string, object>)x.CustomState)["Bestand"] == "TRANSACTIEZONES.SHP");
+    }
+
     private sealed class FakeDomainException : DomainException;
 
     private async Task ProcessUpload(
@@ -411,7 +516,8 @@ public class ExtractUploaderTests
         UploadId? uploadId = null,
         IBlobClient? blobClient = null,
         IZipArchiveFeatureCompareTranslator? zipArchiveFeatureCompareTranslator = null,
-        IExtractUploadFailedEmailClient? extractUploadFailedEmailClient = null)
+        IExtractUploadFailedEmailClient? extractUploadFailedEmailClient = null,
+        ZipArchiveMetadata? zipArchiveMetadata = null)
     {
         if (blobClient is null)
         {
@@ -433,12 +539,13 @@ public class ExtractUploaderTests
         var extractUploader = new ExtractUploader(
             ExtractsDbContext,
             new RoadNetworkUploadsBlobClient(blobClient),
+            new TransactionZoneFeatureCompareFeatureReader(FileEncoding.UTF8),
             zipArchiveFeatureCompareTranslator ?? new FakeZipArchiveFeatureCompareTranslator(),
             extractUploadFailedEmailClient ?? new FakeExtractUploadFailedEmailClient(),
             Mock.Of<ITicketing>()
         );
 
-        await extractUploader.ProcessUploadAndDetectChanges(downloadId, uploadId ?? Fixture.Create<UploadId>(), Fixture.Create<TicketId>(), ZipArchiveMetadata.Empty, CancellationToken.None);
+        await extractUploader.ProcessUploadAndDetectChanges(downloadId, uploadId ?? Fixture.Create<UploadId>(), Fixture.Create<TicketId>(), zipArchiveMetadata ?? ZipArchiveMetadata.Empty, CancellationToken.None);
     }
 
     private sealed class FakeZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTranslator
