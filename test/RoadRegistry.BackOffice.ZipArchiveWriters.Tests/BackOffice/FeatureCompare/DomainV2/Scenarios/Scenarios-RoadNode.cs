@@ -30,7 +30,8 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
         var zipArchive = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
-                builder.DataSet.Clear();
+                builder.DataSet.RoadNodeDbaseRecords.Clear();
+                builder.DataSet.RoadNodeShapeRecords.Clear();
             })
             .Build();
 
