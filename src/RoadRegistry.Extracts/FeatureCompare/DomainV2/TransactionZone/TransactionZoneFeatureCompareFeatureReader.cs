@@ -34,7 +34,7 @@ public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFea
     private sealed class InwinningFeatureReader : ZipArchiveShapeFeatureReader<TransactionZoneDbaseRecord, Feature<TransactionZoneFeatureCompareAttributes>>
     {
         public InwinningFeatureReader(Encoding encoding)
-            : base(encoding, TransactionZoneFeatureCompareFeatureReader.FileName, TransactionZoneDbaseRecord.Schema, treatHasNoDbaseRecordsAsError: true)
+            : base(encoding, TransactionZoneFeatureCompareFeatureReader.FileName, TransactionZoneDbaseRecord.Schema, treatHasNoRecordsAsError: true)
         {
         }
 

@@ -55,9 +55,9 @@ public static class ZipArchiveEntryProblems
 
     // shape
 
-    public static FileProblem HasNoShapeRecords(this ZipArchiveEntry entry)
+    public static FileProblem HasNoShapeRecords(this ZipArchiveEntry entry, bool treatAsError = false)
     {
-        return new FileProblemBuilder(entry.Name).HasNoShapeRecords();
+        return new FileProblemBuilder(entry.Name).HasNoShapeRecords(treatAsError);
     }
 
     public static FileError HasShapeRecordFormatError(this ZipArchiveEntry entry, Exception exception)

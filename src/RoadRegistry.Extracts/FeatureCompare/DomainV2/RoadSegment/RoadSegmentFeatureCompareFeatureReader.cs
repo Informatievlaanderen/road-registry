@@ -100,7 +100,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
     private sealed class InwinningFeatureReader : ZipArchiveShapeFeatureReader<RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareWithFlatAttributes>>
     {
         public InwinningFeatureReader(Encoding encoding)
-            : base(encoding, RoadSegmentFeatureCompareFeatureReader.FileName, RoadSegmentDbaseRecord.Schema)
+            : base(encoding, RoadSegmentFeatureCompareFeatureReader.FileName, RoadSegmentDbaseRecord.Schema, treatHasNoRecordsAsError: true)
         {
         }
 

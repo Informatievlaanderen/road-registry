@@ -15,14 +15,14 @@ public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZi
     protected readonly ExtractFileName FileName;
     private readonly Encoding _encoding;
     private readonly DbaseSchema _dbaseSchema;
-    private readonly bool _treatHasNoDbaseRecordsAsError;
+    private readonly bool _treatHasNoRecordsAsError;
 
-    protected ZipArchiveShapeFeatureReader(Encoding encoding, ExtractFileName fileName, DbaseSchema dbaseSchema, bool treatHasNoDbaseRecordsAsError = false)
+    protected ZipArchiveShapeFeatureReader(Encoding encoding, ExtractFileName fileName, DbaseSchema dbaseSchema, bool treatHasNoRecordsAsError = false)
     {
         FileName = fileName;
         _encoding = encoding;
         _dbaseSchema = dbaseSchema;
-        _treatHasNoDbaseRecordsAsError = treatHasNoDbaseRecordsAsError;
+        _treatHasNoRecordsAsError = treatHasNoRecordsAsError;
     }
 
     protected abstract (TFeature, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, TDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context);
@@ -70,8 +70,8 @@ public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZi
             }
             else
             {
-                problems += dbfEntry.HasNoDbaseRecords(_treatHasNoDbaseRecordsAsError);
-                problems += shpEntry.HasNoShapeRecords();
+                problems += dbfEntry.HasNoDbaseRecords(_treatHasNoRecordsAsError);
+                problems += shpEntry.HasNoShapeRecords(_treatHasNoRecordsAsError);
             }
         }
         catch (Exception exception)
