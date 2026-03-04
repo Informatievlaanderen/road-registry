@@ -6,8 +6,12 @@ using RoadRegistry.ValueObjects.Problems;
 
 public static class ShapeFileProblems
 {
-    public static FileProblem HasNoShapeRecords(this IFileProblemBuilder builder)
+    public static FileProblem HasNoShapeRecords(this IFileProblemBuilder builder, bool treatAsError = false)
     {
+        if (treatAsError)
+        {
+            return builder.Error(nameof(HasNoShapeRecords)).Build();
+        }
         return builder.Warning(nameof(HasNoShapeRecords)).Build();
     }
 

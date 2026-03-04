@@ -25,6 +25,22 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     }
 
     [Fact]
+    public async Task WhenEmptyDbfOrShp_ThenError()
+    {
+        var zipArchive = new DomainV2ZipArchiveBuilder()
+            .WithChange((builder, _) =>
+            {
+                builder.DataSet.RoadNodeDbaseRecords.Clear();
+                builder.DataSet.RoadNodeShapeRecords.Clear();
+            })
+            .Build();
+
+        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
+        ex.Problems.Should().Contain(x => x.File == "WEGKNOOP.DBF" && x.Reason == nameof(DbaseFileProblems.HasNoDbaseRecords));
+        ex.Problems.Should().Contain(x => x.File == "WEGKNOOP.SHP" && x.Reason == nameof(ShapeFileProblems.HasNoShapeRecords));
+    }
+
+    [Fact]
     public async Task WhenModifiedGeometrySlightly_ThenIdIsKept()
     {
         // Arrange
