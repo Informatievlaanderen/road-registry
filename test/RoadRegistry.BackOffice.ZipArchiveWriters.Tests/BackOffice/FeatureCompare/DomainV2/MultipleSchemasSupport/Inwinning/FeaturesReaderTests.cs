@@ -229,4 +229,27 @@ public class FeaturesReaderTests
         var ex = (await act.Should().ThrowAsync<ZipArchiveValidationException>()).Which;
         ex.Problems.Should().Contain(x => x.File == "WEGSEGMENT.DBF" && x.Reason == "RoadSegmentIdOutOfRange");
     }
+
+    [Theory]
+    [InlineData(3)] // NietGerealiseerd
+    [InlineData(4)] // BuitenGebruik
+    [InlineData(5)] // Gehistoreerd
+    public async Task WhenRoadSegmentStatusIsDisallowedForInwinning_ThenError(int disallowedStatusIdentifier)
+    {
+        var zipArchive = new DomainV2ZipArchiveBuilder()
+            .WithChange((builder, _) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.STATUS.Value = disallowedStatusIdentifier;
+            })
+            .Build();
+
+        var sut = ZipArchiveFeatureCompareTranslatorV3Builder.Create();
+
+        var act = () => sut.TranslateAsync(zipArchive, ZipArchiveMetadata.Empty.WithInwinning(), CancellationToken.None);
+
+        var ex = (await act.Should().ThrowAsync<ZipArchiveValidationException>()).Which;
+        var problem = ex.Problems.Should().ContainSingle(x => x.File == "WEGSEGMENT.DBF" && x.Reason == "RoadSegmentStatusV2Mismatch").Which;
+        problem.GetParameterValue("ExpectedOneOf").Should().Be($"{RoadSegmentStatusV2.Gepland.Translation.Identifier},{RoadSegmentStatusV2.Gerealiseerd.Translation.Identifier}");
+        problem.GetParameterValue("Actual").Should().Be(disallowedStatusIdentifier.ToString());
+    }
 }

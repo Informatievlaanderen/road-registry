@@ -30,7 +30,7 @@ public static class SharedCustomizations
                 LBEHEER = { Value = fixture.Create<OrganizationId>() },
                 RBEHEER = { Value = fixture.Create<OrganizationId>() },
                 MORF = { Value = fixture.Create<RoadSegmentMorphologyV2>().Translation.Identifier },
-                STATUS = { Value = fixture.Create<RoadSegmentStatusV2>().Translation.Identifier },
+                STATUS = { Value = (random.Next(0, 2) == 0 ? RoadSegmentStatusV2.Gepland : RoadSegmentStatusV2.Gerealiseerd).Translation.Identifier },
                 WEGCAT = { Value = fixture.Create<RoadSegmentCategoryV2>().Translation.Identifier },
                 LSTRNMID = { Value = fixture.Create<StreetNameLocalId>() },
                 RSTRNMID = { Value = fixture.Create<StreetNameLocalId>() },

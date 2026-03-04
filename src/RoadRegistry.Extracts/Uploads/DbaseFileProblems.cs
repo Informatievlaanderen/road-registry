@@ -803,14 +803,14 @@ public static class DbaseFileProblems
             .Build();
     }
 
-    public static FileError RoadSegmentStatusV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    public static FileError RoadSegmentStatusV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int actual, IReadOnlyCollection<RoadSegmentStatusV2> expected)
     {
         return builder
             .Error(nameof(RoadSegmentStatusV2Mismatch))
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",
-                    string.Join(",", RoadSegmentStatusV2.ByIdentifier.Keys.Select(key => key.ToString()))
+                    string.Join(",", expected.Select(x => x.Translation.Identifier.ToString()))
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
