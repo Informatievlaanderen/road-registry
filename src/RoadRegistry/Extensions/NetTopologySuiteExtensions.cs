@@ -254,43 +254,45 @@ public static class NetTopologySuiteExtensions
     {
         var lineStrings = multiLineString.Geometries
             .Cast<LineString>()
-            .Select(lineString =>
-            {
-                if (lineString.Count == 0)
-                {
-                    return lineString;
-                }
-
-                var coordinates = new CoordinateList
-                {
-                    new Coordinate(lineString.StartPoint.X, lineString.StartPoint.Y)
-                };
-
-                for (var i = 1; i < lineString.Count; i++)
-                {
-                    var currentPoint = lineString[i];
-                    var previousPoint = lineString[i - 1];
-
-                    if (currentPoint.Equals2D(previousPoint, DefaultTolerances.DuplicateCoordinatesTolerance))
-                    {
-                        if (i == lineString.Count - 1)
-                        {
-                            coordinates.RemoveAt(coordinates.Count - 1);
-                            coordinates.Add(currentPoint);
-                        }
-                        continue;
-                    }
-
-                    coordinates.Add(currentPoint);
-                }
-
-                return multiLineString.Factory.CreateLineString(coordinates.ToCoordinateArray())
-                    .WithSrid(multiLineString.SRID);
-            })
+            .Select(lineString => lineString.WithoutDuplicateCoordinates())
             .ToArray();
 
         return new MultiLineString(lineStrings, multiLineString.Factory)
             .WithSrid(multiLineString.SRID);
+    }
+
+    public static LineString WithoutDuplicateCoordinates(this LineString lineString)
+    {
+        if (lineString.Count == 0)
+        {
+            return lineString;
+        }
+
+        var coordinates = new CoordinateList
+        {
+            new Coordinate(lineString.StartPoint.X, lineString.StartPoint.Y)
+        };
+
+        for (var i = 1; i < lineString.Count; i++)
+        {
+            var currentPoint = lineString[i];
+            var previousPoint = lineString[i - 1];
+
+            if (currentPoint.Equals2D(previousPoint, DefaultTolerances.DuplicateCoordinatesTolerance))
+            {
+                if (i == lineString.Count - 1)
+                {
+                    coordinates.RemoveAt(coordinates.Count - 1);
+                    coordinates.Add(currentPoint);
+                }
+                continue;
+            }
+
+            coordinates.Add(currentPoint);
+        }
+
+        return lineString.Factory.CreateLineString(coordinates.ToCoordinateArray())
+            .WithSrid(lineString.SRID);
     }
 
     public static bool SelfIntersects(this LineString instance)
@@ -340,12 +342,6 @@ public static class NetTopologySuiteExtensions
             .ToArray();
 
         return overlappings.Any();
-    }
-
-    public static bool HasInvalidMeasureOrdinates(this LineString instance)
-    {
-        var measures = instance.GetOrdinates(Ordinate.M);
-        return measures.Any(value => double.IsNaN(value) || double.IsNegativeInfinity(value) || double.IsPositiveInfinity(value));
     }
 
     public static bool IsReasonablyEqualTo(this MultiLineString @this, MultiLineString other, VerificationContextTolerances tolerances)

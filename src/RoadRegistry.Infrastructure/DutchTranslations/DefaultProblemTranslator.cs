@@ -352,6 +352,10 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
                     : "De lengte van het wegsegment is 0.")
         },
         {
+            ProblemCode.RoadSegment.Geometry.LineCountMismatch, problem => new(problem.Severity, problem.Reason,
+                $"De geometrie van het wegsegment met id {problem.GetParameterValue("Identifier")} heeft meer lijnen dan verwacht.")
+        },
+        {
             ProblemCode.RoadSegment.Geometry.SelfIntersects, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
                 ? $"De geometrie van het wegsegment met id {problem.GetParameterValue("Identifier")} kruist zichzelf."
                 : problem.HasParameter("RecordNumber")
@@ -382,6 +386,10 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
         {
             ProblemCode.RoadSegment.Geometry.Taken, problem => new(problem.Severity, problem.Reason,
                 $"De geometrie werd reeds ingenomen door een ander wegsegment met id {problem.Parameters[0].Value}.")
+        },
+        {
+            ProblemCode.RoadSegment.Geometry.VerticesTooClose, problem => new(problem.Severity, problem.Reason,
+                $"De afstand tussen de vertices van de geometrie van wegsegment met id {problem.GetParameterValue("Identifier")} bedraagt niet overal 15cm of meer.")
         },
         {
             ProblemCode.RoadSegment.GeometryDrawMethod.NotOutlined, problem => new(problem.Severity, "GeometriemethodeNietIngeschetst",

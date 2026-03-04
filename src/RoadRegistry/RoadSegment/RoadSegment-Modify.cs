@@ -13,11 +13,10 @@ public partial class RoadSegment
         var originalId = change.OriginalId ?? change.RoadSegmentId;
         var problems = Problems.For(originalId);
 
-        var geometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod;
         var geometry = (change.Geometry ?? Geometry).Value;
 
         //TODO-pr wanneer de geometry wijzigt, moeten de dynamische attributen die niet werden gewijzigd mee wijzigen
-        problems += new RoadSegmentGeometryValidator().Validate(originalId, geometryDrawMethod, geometry);
+        problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2(originalId);
 
         var segmentLength = geometry.Length;
         var accessRestriction = change.AccessRestriction;

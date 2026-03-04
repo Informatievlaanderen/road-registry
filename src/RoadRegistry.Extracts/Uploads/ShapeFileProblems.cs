@@ -1,11 +1,31 @@
 namespace RoadRegistry.Extracts.Uploads;
 
 using System;
+using System.Globalization;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.ValueObjects.Problems;
 
 public static class ShapeFileProblems
 {
+    private static readonly NumberFormatInfo Provider = new()
+    {
+        NumberDecimalSeparator = "."
+    };
+
+    public static IShapeFileRecordProblemBuilder WithIdentifier(this IShapeFileRecordProblemBuilder builder, string field, int? value)
+    {
+        return WithIdentifier(builder, field, value?.ToString(Provider));
+    }
+
+    public static IShapeFileRecordProblemBuilder WithIdentifier(this IShapeFileRecordProblemBuilder builder, string field, string? value)
+    {
+        return (IShapeFileRecordProblemBuilder)builder
+            .WithParameters(
+                new ProblemParameter("IdentifierField", field),
+                new ProblemParameter("IdentifierValue", value ?? string.Empty)
+            );
+    }
+
     public static FileProblem HasNoShapeRecords(this IFileProblemBuilder builder, bool treatAsError = false)
     {
         if (treatAsError)

@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.SqlTypes;
 using IO;
 using Microsoft.Data.SqlClient;
+using RoadRegistry;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.Extensions;
@@ -15,6 +16,56 @@ using DynamicRoadSegmentAttribute = RoadRegistry.BackOffice.Core.DynamicRoadSegm
 
 public static class NetTopologySuiteExtensions
 {
+    public static Problems GetProblemsForRoadSegmentOutlinedGeometry(this LineString line, RoadSegmentId id)
+    {
+        var problems = Problems.None;
+        var contextTolerances = VerificationContextTolerances.Default;
+
+        if (line.Length.IsReasonablyLessThan(Distances.TooClose, contextTolerances))
+        {
+            problems = problems.Add(new RoadSegmentGeometryLengthIsLessThanMinimum(id, Distances.TooClose));
+        }
+
+        if (!line.Length.IsReasonablyLessThan(Distances.TooLongSegmentLength, contextTolerances))
+        {
+            problems = problems.Add(new RoadSegmentGeometryLengthIsTooLong(id, Distances.TooLongSegmentLength));
+        }
+
+        return problems;
+    }
+
+    public static Problems ValidateRoadSegmentGeometry(this LineString? line, RoadSegmentId id)
+    {
+        var problems = Problems.None;
+        if (line is null)
+        {
+            return problems;
+        }
+
+        var contextTolerances = VerificationContextTolerances.Default;
+
+        if (line.Length.IsReasonablyEqualTo(0, contextTolerances))
+        {
+            problems = problems.Add(new RoadSegmentGeometryLengthIsZero(id));
+        }
+
+        if (!line.Length.IsReasonablyLessThan(Distances.TooLongSegmentLength, contextTolerances))
+        {
+            problems = problems.Add(new RoadSegmentGeometryLengthIsTooLong(id, Distances.TooLongSegmentLength));
+        }
+
+        if (line.SelfOverlaps())
+        {
+            problems = problems.Add(new RoadSegmentGeometrySelfOverlaps(id));
+        }
+        else if (line.SelfIntersects())
+        {
+            problems = problems.Add(new RoadSegmentGeometrySelfIntersects(id));
+        }
+
+        return problems;
+    }
+
     public static Problems GetProblemsForRoadSegmentLanes<T>(this LineString line, IEnumerable<T> lanes, VerificationContextTolerances contextTolerances)
         where T: DynamicRoadSegmentAttribute
     {
