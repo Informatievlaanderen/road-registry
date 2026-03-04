@@ -709,8 +709,8 @@ jobs:
     strategy:
        matrix:
          functions: [
-          'sqsbackofficefunction',
-          'sqssnapshotfunction'
+          'lambda-sqsbackofficefunction',
+          'lambda-sqssnapshotfunction'
          ]
     with:
       deploy-target: 'lambda'
