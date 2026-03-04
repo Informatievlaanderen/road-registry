@@ -369,17 +369,23 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
             RoadSegmentStatusV2 ReadStatus()
             {
+                var expected = context.ZipArchiveMetadata.Inwinning
+                    ? [RoadSegmentStatusV2.Gepland, RoadSegmentStatusV2.Gerealiseerd]
+                    : RoadSegmentStatusV2.All;
+
                 if (STATUS is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(STATUS));
                 }
-                else if (RoadSegmentStatusV2.ByIdentifier.TryGetValue(STATUS.Value, out var value))
-                {
-                    return value;
-                }
                 else
                 {
-                    problems += problemBuilder.RoadSegmentStatusV2Mismatch(STATUS.Value);
+                    var value = expected.SingleOrDefault(x => x.Translation.Identifier == STATUS.Value);
+                    if (value is not null)
+                    {
+                        return value;
+                    }
+
+                    problems += problemBuilder.RoadSegmentStatusV2Mismatch(STATUS.Value, expected);
                 }
 
                 return default;
