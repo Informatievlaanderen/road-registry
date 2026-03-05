@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Exceptions;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.DutchTranslations;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
@@ -115,7 +116,7 @@ public sealed class ExtractUploader : IExtractUploader
                 problems.ThrowIfError();
 
                 var transactionZone = transactionZones.Single();
-                if (!transactionZone.Attributes.Geometry.Value.EqualsExact(extractDownload.Contour))
+                if (!transactionZone.Attributes.Geometry.Value.EqualsTopologically(extractDownload.Contour.ToMultiPolygon()))
                 {
                     var error = ExtractFileName.Transactiezones.AtShapeRecord(FeatureType.Change, transactionZone.RecordNumber)
                         .Error(ProblemCode.TransactionZone.HasChanged)
