@@ -99,7 +99,7 @@ jobs:
 
     steps:
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4.1.0
+      uses: aws-actions/configure-aws-credentials@v4.3.1
       with:
         role-to-assume: arn:aws:iam::${{ github.event.inputs.environment == 'test' && secrets.AWS_ACCOUNT_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_ACCOUNT_ID_STG || secrets.AWS_ACCOUNT_ID_PRD }}:role/grawr-infra-bastion-ssm-run-command
         aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
