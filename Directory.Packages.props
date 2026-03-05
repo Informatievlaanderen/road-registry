@@ -88,7 +88,7 @@
     <PackageVersion Include="Marten" Version="8.13.0" />
     <PackageVersion Include="MediatR" Version="12.5.0" />
     <PackageVersion Include="MediatR.Contracts" Version="2.0.1" />
-    <PackageVersion Include="MessagePack" Version="2.5.192" />
+    <PackageVersion Include="MessagePack" Version="2.5.198" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="9.0.4" />
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.0.2" />
