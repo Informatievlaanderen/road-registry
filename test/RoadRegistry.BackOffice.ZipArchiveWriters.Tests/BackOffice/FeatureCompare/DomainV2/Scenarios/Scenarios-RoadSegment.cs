@@ -47,7 +47,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             .WithChange((builder, context) =>
             {
                 var transactionZoneBoundaryCoordinates = builder.TestData.TransactionZoneShapeRecord.Geometry.Boundary.Coordinates;
-                var pointOutsideTransactionZone = new Coordinate(transactionZoneBoundaryCoordinates.Max(x => x.X), transactionZoneBoundaryCoordinates.Max(x => x.Y));
+                var pointOutsideTransactionZone = new Coordinate(transactionZoneBoundaryCoordinates.Max(x => x.X + 1), transactionZoneBoundaryCoordinates.Max(x => x.Y));
                 builder.TestData.RoadSegment1ShapeRecord.Geometry = new LineString([pointOutsideTransactionZone, new Coordinate(pointOutsideTransactionZone.X + 100, pointOutsideTransactionZone.Y)])
                     .WithSrid(builder.TestData.RoadNode2ShapeRecord.Geometry.SRID)
                     .ToMultiLineString();

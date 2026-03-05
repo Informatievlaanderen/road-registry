@@ -626,7 +626,43 @@ public static class SharedCustomizations
             }).OmitAutoProperties());
     }
 
-    public static void CustomizeExtractGeometry(this IFixture fixture)
+    public static void CustomizeNtsPointLambert08(this IFixture fixture)
+    {
+        fixture.Customize<NetTopologySuite.Geometries.Point>(customization =>
+            customization.FromFactory(generator =>
+                {
+                    var x = generator.Next(600000, 700000);
+                    var y = generator.Next(600000, 700000);
+
+                    return new NetTopologySuite.Geometries.Point(x, y)
+                        .WithSrid(WellknownSrids.Lambert08);
+                }
+            ).OmitAutoProperties()
+        );
+    }
+    public static void CustomizeNtsLineStringLambert08(this IFixture fixture)
+    {
+        fixture.Customize<NetTopologySuite.Geometries.LineString>(customization =>
+            customization.FromFactory(generator =>
+                {
+                    var x = generator.Next(600000, 700000);
+                    var y = generator.Next(600000, 700000);
+                    var m = generator.Next(5, 100);
+
+                    return new NetTopologySuite.Geometries.LineString(
+                        new CoordinateArraySequence(
+                        [
+                            new CoordinateM(x, y, 0),
+                            new CoordinateM(x + m, y, m)
+                        ]),
+                        GeometryConfiguration.GeometryFactory
+                    ).WithSrid(WellknownSrids.Lambert08);
+                }
+            ).OmitAutoProperties()
+        );
+    }
+
+    public static void CustomizeNtsPolygonLambert08(this IFixture fixture)
     {
         fixture.Customize<NetTopologySuite.Geometries.Polygon>(customization =>
             customization.FromFactory(generator =>
@@ -636,15 +672,20 @@ public static class SharedCustomizations
                     var width = generator.Next(10, 1000);
 
                     return new NetTopologySuite.Geometries.Polygon(new LinearRing([
-                        new(x, y),
-                        new(x, y + width),
-                        new(x + width, y + width),
-                        new(x + width, y),
-                        new(x, y)
-                    ]))
-                    .WithSrid(WellknownSrids.Lambert08);
+                            new(x, y),
+                            new(x, y + width),
+                            new(x + width, y + width),
+                            new(x + width, y),
+                            new(x, y)
+                        ]))
+                        .WithSrid(WellknownSrids.Lambert08);
                 }
             ).OmitAutoProperties());
+    }
+
+    public static void CustomizeExtractGeometry(this IFixture fixture)
+    {
+        fixture.CustomizeNtsPolygonLambert08();
 
         fixture.Customize<ExtractGeometry>(customizer =>
             customizer.FromFactory(_ =>

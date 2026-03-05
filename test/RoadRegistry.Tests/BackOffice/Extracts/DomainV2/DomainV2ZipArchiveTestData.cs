@@ -86,27 +86,10 @@ public class DomainV2ZipArchiveTestData : IDisposable
         fixture.CustomizeInwinningGradeSeparatedJunctionDbaseRecord();
         fixture.CustomizeInwinningTransactionZoneDbaseRecord();
 
-        fixture.Customize<Point>(customization =>
-            customization.FromFactory(_ =>
-                new Point(
-                    fixture.Create<double>(),
-                    fixture.Create<double>()
-                ).WithSrid(WellknownSrids.Lambert08)
-            ).OmitAutoProperties()
-        );
-        fixture.Customize<RoadRegistry.BackOffice.Messages.Point>(customization =>
-            customization.FromFactory(_ =>
-                new RoadRegistry.BackOffice.Messages.Point
-                {
-                    X = fixture.Create<double>(),
-                    Y = fixture.Create<double>()
-                }
-            ).OmitAutoProperties()
-        );
-
         fixture.Customize<RecordNumber>(customizer =>
             customizer.FromFactory(random => new RecordNumber(random.Next(1, int.MaxValue))));
 
+        fixture.CustomizeNtsPointLambert08();
         fixture.Customize<PointShapeContent>(customization =>
             customization
                 .FromFactory(_ => new PointShapeContent(
@@ -114,24 +97,7 @@ public class DomainV2ZipArchiveTestData : IDisposable
                 .OmitAutoProperties()
         );
 
-        fixture.Customize<LineString>(customization =>
-            customization.FromFactory(generator =>
-                {
-                    var x = generator.Next(15000, 99000);
-                    var y = generator.Next(21000, 99000);
-                    var m = generator.Next(5, 100);
-
-                    return new LineString(
-                        new CoordinateArraySequence(
-                        [
-                            new CoordinateM(x, y, 0),
-                                new CoordinateM(x + m, y, m)
-                        ]),
-                        GeometryConfiguration.GeometryFactory
-                    ).WithSrid(WellknownSrids.Lambert08);
-                }
-            ).OmitAutoProperties()
-        );
+        fixture.CustomizeNtsLineStringLambert08();
         fixture.CustomizeExtractGeometry();
 
         fixture.Customize<MultiLineString>(customization =>
