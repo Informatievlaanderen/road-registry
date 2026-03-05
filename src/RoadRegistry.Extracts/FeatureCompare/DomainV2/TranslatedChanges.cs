@@ -65,12 +65,12 @@ public sealed class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>,
 
     public TranslatedChanges AppendChange(AddRoadSegmentChange change)
     {
-        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges.SetItem(change.TemporaryId, change), _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
+        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges.SetItem(change.RoadSegmentIdReference.RoadSegmentId, change), _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
     }
 
     public TranslatedChanges AppendChange(ModifyRoadSegmentChange change)
     {
-        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges.SetItem(change.RoadSegmentId, change), _removeRoadSegmentChanges);
+        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges.SetItem(change.RoadSegmentIdReference.RoadSegmentId, change), _removeRoadSegmentChanges);
     }
 
     public TranslatedChanges AppendChange(RemoveRoadSegmentChange change)
@@ -114,7 +114,7 @@ public sealed class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>,
     {
         return new TranslatedChanges(
             _changes.SetItem(_changes.IndexOf(before), after),
-            _addRoadSegmentChanges.SetItem(before.TemporaryId, after), _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
+            _addRoadSegmentChanges.SetItem(before.RoadSegmentIdReference.RoadSegmentId, after), _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
     }
 
     public TranslatedChanges ReplaceChange(ModifyRoadSegmentChange before, ModifyRoadSegmentChange after)
@@ -122,7 +122,7 @@ public sealed class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>,
         //NOTE: ReplaceChange automatically converts a provisional change into a change - by design.
         return new TranslatedChanges(
                 _changes.SetItem(_changes.IndexOf(before), after),
-                _addRoadSegmentChanges, _modifyRoadSegmentChanges.SetItem(before.RoadSegmentId, after), _removeRoadSegmentChanges);
+                _addRoadSegmentChanges, _modifyRoadSegmentChanges.SetItem(before.RoadSegmentIdReference.RoadSegmentId, after), _removeRoadSegmentChanges);
     }
 
     public bool TryFindRoadSegmentChange(RoadSegmentId id, out IRoadNetworkChange? change)

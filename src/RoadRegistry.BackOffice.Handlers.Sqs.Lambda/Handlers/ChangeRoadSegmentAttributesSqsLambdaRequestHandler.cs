@@ -93,7 +93,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
     private async Task<(TranslatedChanges, Problems)> AppendChange(ChangeRoadSegmentAttributeRequest change, TranslatedChanges translatedChanges, CancellationToken cancellationToken)
     {
         var roadSegmentId = change.Id;
-        var problems = Problems.For(roadSegmentId);
+        var problems = Problems.WithContext(roadSegmentId);
 
         var editorRoadSegment = await _editorContext.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentId, cancellationToken);
         if (editorRoadSegment is null)

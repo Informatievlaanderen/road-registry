@@ -44,7 +44,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(change)
             )
-            .ThenProblems(new Error("RoadSegmentNotFound", new ProblemParameter("SegmentId", change.RoadSegmentId.ToString())))
+            .ThenProblems(new Error("RoadSegmentNotFound", new ProblemParameter("WegsegmentId", change.RoadSegmentId.ToString())))
         );
     }
 }

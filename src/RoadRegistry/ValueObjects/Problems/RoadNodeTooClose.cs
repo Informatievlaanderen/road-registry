@@ -5,8 +5,13 @@ using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RoadNodeTooClose : Warning
 {
-    public RoadNodeTooClose(RoadSegmentId toOtherSegment) :
-        base(ProblemCode.RoadNode.TooClose,
+    public RoadNodeTooClose()
+        : base(ProblemCode.RoadNode.TooClose.ToString())
+    {
+    }
+
+    public RoadNodeTooClose(RoadSegmentId toOtherSegment)
+        : base(ProblemCode.RoadNode.TooClose,
             new ProblemParameter(
                 "ToOtherSegment",
                 toOtherSegment.ToInt32().ToString()))

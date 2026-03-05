@@ -89,6 +89,8 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
                 return new RoadSegmentId(Integration.DataSet.RoadSegmentDbaseRecords.Select(x => x.WS_OIDN.Value)
                     .Concat(Extract.DataSet.RoadSegmentDbaseRecords.Select(x => x.WS_OIDN.Value))
                     .Concat(Change.DataSet.RoadSegmentDbaseRecords.Select(x => x.WS_OIDN.Value))
+                    .Where(x => x is not null)
+                    .Select(x => x.Value)
                     .Max());
             }
         }

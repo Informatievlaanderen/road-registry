@@ -44,7 +44,11 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                     RoadNodeId = TestData.Segment1StartNodeAdded.RoadNodeId
                 })
             )
-            .ThenProblems(new Error("RoadSegmentStartNodeMissing", new ProblemParameter("Identifier", "1")))
+            .ThenContainsProblems(
+                new Error("RoadSegmentStartNodeMissing",
+                    new ProblemParameter("WegsegmentId", 1.ToString()),
+                    new ProblemParameter("WegknoopId", TestData.Segment1StartNodeAdded.RoadNodeId.ToString())
+                ))
         );
     }
 
@@ -63,7 +67,11 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                     RoadNodeId = TestData.Segment1EndNodeAdded.RoadNodeId
                 })
             )
-            .ThenProblems(new Error("RoadSegmentEndNodeMissing", new ProblemParameter("Identifier", "1")))
+            .ThenContainsProblems(
+                new Error("RoadSegmentEndNodeMissing",
+                    new ProblemParameter("WegsegmentId", 1.ToString()),
+                    new ProblemParameter("WegknoopId", TestData.Segment1EndNodeAdded.RoadNodeId.ToString())
+                ))
         );
     }
 
@@ -79,7 +87,10 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                     Geometry = new Point(TestData.AddSegment1StartNode.Geometry.Value.X + 0.0001, TestData.AddSegment1StartNode.Geometry.Value.Y).ToRoadNodeGeometry()
                 })
             )
-            .ThenContainsProblems(new Error("RoadNodeGeometryTaken", new ProblemParameter("ByOtherNode", TestData.AddSegment1StartNode.TemporaryId.ToString())))
+            .ThenContainsProblems(new Error("RoadNodeGeometryTaken",
+                new ProblemParameter("ByOtherNode", TestData.AddSegment1StartNode.TemporaryId.ToString()),
+                new ProblemParameter("WegknoopId", TestData.AddSegment1EndNode.TemporaryId.ToString())
+            ))
         );
     }
 
@@ -100,7 +111,10 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                     Grensknoop = Fixture.Create<bool>()
                 })
             )
-            .ThenContainsProblems(new Error("RoadNodeTooClose", new ProblemParameter("ToOtherSegment", TestData.Segment1Added.RoadSegmentId.ToString())))
+            .ThenContainsProblems(new Error("RoadNodeTooClose",
+                new ProblemParameter("WegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
+                new ProblemParameter("WegknoopId", 3.ToString())
+            ))
         );
     }
 
@@ -112,10 +126,13 @@ public class VerifyTopologyTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(TestData.AddSegment1StartNode)
             )
-            .ThenProblems(new Error("RoadNodeNotConnectedToAnySegment", new ProblemParameter("RoadNodeId", TestData.AddSegment1StartNode.TemporaryId.ToString())))
+            .ThenProblems(
+                new Error("RoadNodeNotConnectedToAnySegment",
+                    new ProblemParameter("WegknoopId", TestData.AddSegment1StartNode.TemporaryId.ToString())
+                ))
         );
     }
-    //
+
     // [Theory]
     // [InlineData(nameof(RoadNodeTypeV2.Eindknoop), false)]
     // [InlineData(nameof(RoadNodeTypeV2.Schijnknoop), true)]

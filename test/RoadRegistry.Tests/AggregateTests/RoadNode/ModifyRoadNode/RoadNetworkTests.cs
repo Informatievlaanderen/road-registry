@@ -42,7 +42,10 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(change)
             )
-            .ThenProblems(new Error("RoadNodeNotFound", new ProblemParameter("NodeId", change.RoadNodeId.ToString())))
+            .ThenProblems(new Error("RoadNodeNotFound",
+                new ProblemParameter("NodeId", change.RoadNodeId.ToString()),
+                new ProblemParameter("WegknoopId", change.RoadNodeId.ToString())
+            ))
         );
     }
 }

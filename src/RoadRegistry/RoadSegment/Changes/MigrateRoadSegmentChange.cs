@@ -6,8 +6,7 @@ using ValueObjects;
 
 public sealed record MigrateRoadSegmentChange : IRoadNetworkChange
 {
-    public required RoadSegmentId RoadSegmentId { get; init; }
-    public required RoadSegmentId? OriginalId { get; init; }
+    public required RoadSegmentIdReference RoadSegmentIdReference { get; init; }
     public required RoadSegmentGeometry Geometry { get; init; }
     public required RoadSegmentGeometryDrawMethodV2 GeometryDrawMethod { get; init; }
     public required RoadSegmentStatusV2 Status { get; init; }

@@ -26,10 +26,10 @@ public class RoadSegmentFeatureCompareRecord : IFeatureCompareRecord
     public RecordNumber RecordNumber { get; }
     public RoadSegmentFeatureCompareWithDynamicAttributes Attributes { get; }
     public RoadSegmentId RoadSegmentId { get; set; }
-    public RecordType RecordType { get; }
+    public RecordType RecordType { get; set; }
     public IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> FlatFeatures { get; }
 
-    public bool GeometryChanged { get; init; }
+    public bool GeometryChanged { get; set; }
 
     public RoadSegmentId GetActualId() => RoadSegmentId;
     public RoadSegmentId GetOriginalId() => Attributes.RoadSegmentId;

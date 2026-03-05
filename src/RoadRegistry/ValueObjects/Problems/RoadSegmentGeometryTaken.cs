@@ -1,10 +1,17 @@
 namespace RoadRegistry.ValueObjects.Problems;
 
-using ProblemCodes;
-using RoadRegistry.RoadSegment.ValueObjects;
+using System.Linq;
+using RoadRegistry.Extensions;
+using RoadRegistry.ValueObjects.ProblemCodes;
 
 public class RoadSegmentGeometryTaken : Error
 {
+    public RoadSegmentGeometryTaken(RoadSegmentIdReference byOtherSegment)
+        : base(ProblemCode.RoadSegment.Geometry.Taken.ToString(),
+            byOtherSegment.ToRoadSegmentProblemParameters("ByOtherWegsegment").ToArray())
+    {
+    }
+
     public RoadSegmentGeometryTaken(RoadSegmentId byOtherSegment)
         : base(ProblemCode.RoadSegment.Geometry.Taken,
             new ProblemParameter(

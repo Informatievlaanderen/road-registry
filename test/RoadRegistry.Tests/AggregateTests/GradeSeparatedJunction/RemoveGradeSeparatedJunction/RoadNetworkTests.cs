@@ -48,8 +48,8 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(Fixture.Create<AddGradeSeparatedJunctionChange>() with
                 {
-                    LowerRoadSegmentId = TestData.AddSegment1.TemporaryId,
-                    UpperRoadSegmentId = TestData.AddSegment2.TemporaryId
+                    LowerRoadSegmentId = TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId,
+                    UpperRoadSegmentId = TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId
                 })
             )
             .When(changes => changes

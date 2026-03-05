@@ -1,12 +1,13 @@
 namespace RoadRegistry.RoadSegment.Events.V2;
 
+using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using ValueObjects;
 
 public record RoadSegmentWasModified : IMartenEvent
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
-    public RoadSegmentId? OriginalId { get; init; }
+    public required RoadSegmentIdReference OriginalRoadSegmentIdReference { get; init; }
     public RoadSegmentGeometry? Geometry { get; init; }
     public RoadNodeId? StartNodeId { get; init; }
     public RoadNodeId? EndNodeId { get; init; }

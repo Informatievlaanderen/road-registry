@@ -24,7 +24,8 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
             )
             .ThenContainsProblems(new Error("GradeSeparatedJunctionUpperRoadSegmentMissing",
-                new ProblemParameter("RoadSegmentId", unknownRoadSegmentId.ToString())))
+                new ProblemParameter("WegsegmentId", unknownRoadSegmentId.ToString()),
+                new ProblemParameter("OngelijkGrondseKruisingId", 1.ToString())))
         );
     }
 
@@ -47,7 +48,8 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
             )
             .ThenContainsProblems(new Error("GradeSeparatedJunctionUpperRoadSegmentMissing",
-                new ProblemParameter("RoadSegmentId", TestData.Segment1Added.RoadSegmentId.ToString())))
+                new ProblemParameter("WegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
+                new ProblemParameter("OngelijkGrondseKruisingId", 1.ToString())))
         );
     }
 
@@ -65,7 +67,8 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
             )
             .ThenContainsProblems(new Error("GradeSeparatedJunctionLowerRoadSegmentMissing",
-                new ProblemParameter("RoadSegmentId", unknownRoadSegmentId.ToString())))
+                new ProblemParameter("WegsegmentId", unknownRoadSegmentId.ToString()),
+                new ProblemParameter("OngelijkGrondseKruisingId", 1.ToString())))
         );
     }
 
@@ -88,7 +91,8 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
             )
             .ThenContainsProblems(new Error("GradeSeparatedJunctionLowerRoadSegmentMissing",
-                new ProblemParameter("RoadSegmentId", TestData.Segment1Added.RoadSegmentId.ToString())))
+                new ProblemParameter("WegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
+                new ProblemParameter("OngelijkGrondseKruisingId", 1.ToString())))
         );
     }
 
@@ -137,8 +141,9 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
             )
             .ThenContainsProblems(new Error("GradeSeparatedJunctionUpperAndLowerRoadSegmentDoNotIntersect",
-                new ProblemParameter("LowerRoadSegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
-                new ProblemParameter("UpperRoadSegmentId", TestData.Segment2Added.RoadSegmentId.ToString())
+                new ProblemParameter("LowerWegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
+                new ProblemParameter("UpperWegsegmentId", TestData.Segment2Added.RoadSegmentId.ToString()),
+                new ProblemParameter("OngelijkGrondseKruisingId", 1.ToString())
             ))
         );
     }
@@ -180,13 +185,13 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(Fixture.Create<AddGradeSeparatedJunctionChange>() with
                 {
-                    LowerRoadSegmentId = TestData.AddSegment1.TemporaryId,
-                    UpperRoadSegmentId = TestData.AddSegment2.TemporaryId
+                    LowerRoadSegmentId = TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId,
+                    UpperRoadSegmentId = TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId
                 })
                 .Add(Fixture.Create<AddGradeSeparatedJunctionChange>() with
                 {
-                    LowerRoadSegmentId = TestData.AddSegment1.TemporaryId,
-                    UpperRoadSegmentId = TestData.AddSegment2.TemporaryId
+                    LowerRoadSegmentId = TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId,
+                    UpperRoadSegmentId = TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId
                 })
             )
             .ThenContainsProblems(new Error("GradeSeparatedJunctionNotUnique",
@@ -233,13 +238,13 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(Fixture.Create<AddGradeSeparatedJunctionChange>() with
                 {
-                    LowerRoadSegmentId = TestData.AddSegment1.TemporaryId,
-                    UpperRoadSegmentId = TestData.AddSegment2.TemporaryId
+                    LowerRoadSegmentId = TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId,
+                    UpperRoadSegmentId = TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId
                 })
                 .Add(Fixture.Create<AddGradeSeparatedJunctionChange>() with
                 {
-                    LowerRoadSegmentId = TestData.AddSegment2.TemporaryId,
-                    UpperRoadSegmentId = TestData.AddSegment1.TemporaryId
+                    LowerRoadSegmentId = TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId,
+                    UpperRoadSegmentId = TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId
                 })
             )
             .ThenContainsProblems(new Error("GradeSeparatedJunctionNotUnique",

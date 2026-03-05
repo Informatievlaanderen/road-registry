@@ -39,6 +39,19 @@ public static class ScenarioExtensions
     {
         return builder.ThenException(ex => ex is RoadRegistryProblemsException problemsException && problemsAreAcceptable(problemsException.Problems));
     }
+    public static IScenarioThrowsStateBuilder ThenProblems(this IScenarioWhenStateBuilder builder, Action<Problems> assertProblems)
+    {
+        return builder.ThenException(ex =>
+        {
+            if (ex is RoadRegistryProblemsException problemsException)
+            {
+                assertProblems(problemsException.Problems);
+                return true;
+            }
+
+            return false;
+        });
+    }
 
     public static IScenarioThrowsStateBuilder ThenContainsProblems(this IScenarioWhenStateBuilder builder, params Problem[] problems)
     {

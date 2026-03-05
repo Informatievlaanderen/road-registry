@@ -5,6 +5,11 @@ using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RoadSegmentEndPointDoesNotMatchNodeGeometry : Error
 {
+    public RoadSegmentEndPointDoesNotMatchNodeGeometry()
+        : base(ProblemCode.RoadSegment.EndPoint.DoesNotMatchNodeGeometry.ToString())
+    {
+    }
+
     public RoadSegmentEndPointDoesNotMatchNodeGeometry(RoadSegmentId identifier)
         : base(ProblemCode.RoadSegment.EndPoint.DoesNotMatchNodeGeometry,
             new ProblemParameter("Identifier", identifier.ToString()))

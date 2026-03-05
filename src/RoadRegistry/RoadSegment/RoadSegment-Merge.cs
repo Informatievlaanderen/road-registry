@@ -14,9 +14,9 @@ public partial class RoadSegment
 {
     public static (RoadSegment?, Problems) Merge(MergeRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
     {
-        var problems = Problems.For(change.TemporaryId);
+        var problems = Problems.WithContext(change.TemporaryId);
 
-        problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2(change.TemporaryId);
+        problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2();
 
         var segmentLength = change.Geometry.Value.Length;
         var attributes = new RoadSegmentAttributes
@@ -37,9 +37,9 @@ public partial class RoadSegment
             EuropeanRoadNumbers = change.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = change.NationalRoadNumbers.ToImmutableList()
         };
-        problems += new RoadSegmentAttributesValidator().Validate(change.TemporaryId, attributes, segmentLength);
+        problems += new RoadSegmentAttributesValidator().Validate(attributes, segmentLength);
 
-        var startEndNodes = context.RoadNetwork.FindStartEndNodes(change.TemporaryId, change.GeometryDrawMethod, change.Geometry, context.Tolerances);
+        var startEndNodes = context.RoadNetwork.FindStartEndNodes(change.GeometryDrawMethod, change.Geometry, context.Tolerances);
         problems += startEndNodes.Problems;
 
         if (problems.HasError())

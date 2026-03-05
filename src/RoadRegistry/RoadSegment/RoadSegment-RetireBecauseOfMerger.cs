@@ -8,7 +8,7 @@ public partial class RoadSegment
 {
     public Problems RetireBecauseOfMerger(RoadSegmentId mergedRoadSegmentId, Provenance provenance)
     {
-        var problems = Problems.For(RoadSegmentId);
+        var problems = Problems.WithContext(RoadSegmentId);
 
         Apply(new RoadSegmentWasRetiredBecauseOfMerger
         {

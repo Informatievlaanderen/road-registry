@@ -1,12 +1,11 @@
 namespace RoadRegistry.ValueObjects.Problems;
 
 using ProblemCodes;
-using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RoadSegmentNotFound : Error
 {
     public RoadSegmentNotFound()
-        : base(ProblemCode.RoadSegment.NotFound)
+        : base(ProblemCode.RoadSegment.NotFound.ToString())
     {
     }
 
@@ -14,6 +13,5 @@ public class RoadSegmentNotFound : Error
         : base(ProblemCode.RoadSegment.NotFound,
             new ProblemParameter("SegmentId", segmentId.ToInt32().ToString()))
     {
-        WithContext(ProblemContext.For(segmentId));
     }
 }

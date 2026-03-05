@@ -8,7 +8,7 @@ public partial class RoadNode
 {
     public Problems Remove(Provenance provenance)
     {
-        var problems = Problems.For(RoadNodeId);
+        var problems = Problems.WithContext(RoadNodeId);
 
         if (IsRemoved)
         {

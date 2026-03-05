@@ -12,16 +12,25 @@ public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
     {
         Reason = reason.ThrowIfNull();
         Parameters = parameters.ThrowIfNull();
-        Context = context;
+        WithContext(context);
     }
 
-    public IReadOnlyCollection<ProblemParameter> Parameters { get; }
+    public IReadOnlyCollection<ProblemParameter> Parameters { get; private set; }
     public string Reason { get; }
     public ProblemContext? Context { get; private set; }
 
     public Problem WithContext(ProblemContext? context)
     {
         Context ??= context;
+        if (context?.Parameters.Count > 0)
+        {
+            if (context.Parameters.Any(x => Parameters.Any(y => y.Name == x.Name)))
+            {
+                throw new InvalidOperationException($"Problem context already contains parameter with name {context.Parameters.First(x => Parameters.Any(y => y.Name == x.Name)).Name}");
+            }
+
+            Parameters = Parameters.Concat(context.Parameters.Select(x => new ProblemParameter(x.Name, x.Value.ToInvariantString()))).ToArray();
+        }
         return this;
     }
 

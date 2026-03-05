@@ -5,8 +5,7 @@ using ValueObjects;
 
 public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
 {
-    public required RoadSegmentId RoadSegmentId { get; init; }
-    public RoadSegmentId? OriginalId { get; init; }
+    public required RoadSegmentIdReference RoadSegmentIdReference { get; init; }
     public RoadSegmentGeometry? Geometry { get; init; }
     public RoadSegmentGeometryDrawMethodV2? GeometryDrawMethod { get; init; }
     public RoadSegmentStatusV2? Status { get; init; }

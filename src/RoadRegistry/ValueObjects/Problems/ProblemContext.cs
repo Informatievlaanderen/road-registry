@@ -21,6 +21,24 @@ public class ProblemContext
             Parameters = [new ProblemContextParameter("WegsegmentId", roadSegmentId.ToInt32())]
         };
     }
+    public static ProblemContext For(RoadSegmentIdReference roadSegmentIdReference)
+    {
+        if (roadSegmentIdReference.TempIds?.Count > 0)
+        {
+            return new ProblemContext
+            {
+                Parameters = [
+                    new ProblemContextParameter("WegsegmentId", roadSegmentIdReference.RoadSegmentId.ToInt32()),
+                    new ProblemContextParameter("WegsegmentTempIds", roadSegmentIdReference.GetTempIdsAsString()),
+                ]
+            };
+        }
+
+        return new ProblemContext
+        {
+            Parameters = [new ProblemContextParameter("WegsegmentId", roadSegmentIdReference.RoadSegmentId.ToInt32())]
+        };
+    }
     public static ProblemContext For(GradeSeparatedJunctionId gradeSeparatedJunctionId)
     {
         return new ProblemContext

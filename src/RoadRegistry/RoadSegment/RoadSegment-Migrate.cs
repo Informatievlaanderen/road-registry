@@ -1,7 +1,6 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
 using System.Collections.Immutable;
-using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events.V2;
@@ -12,15 +11,14 @@ using ValueObjects;
 
 public partial class RoadSegment
 {
-    public static (RoadSegment?, Problems) Migrate(MigrateRoadSegmentChange change, ScopedRoadNetworkContext context)
+    public Problems Migrate(MigrateRoadSegmentChange change, ScopedRoadNetworkContext context)
     {
-        var originalId = change.OriginalId ?? change.RoadSegmentId;
-        var problems = Problems.For(originalId);
+        var problems = Problems.WithContext(change.RoadSegmentIdReference);
 
         var geometryDrawMethod = change.GeometryDrawMethod;
         var geometry = change.Geometry.Value;
 
-        problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2(originalId);
+        problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2();
 
         var segmentLength = geometry.Length;
         var status = change.Status;
@@ -55,20 +53,20 @@ public partial class RoadSegment
             EuropeanRoadNumbers = europeanRoadNumbers,
             NationalRoadNumbers = nationalRoadNumbers
         };
-        problems += new RoadSegmentAttributesValidator().Validate(originalId, attributes, segmentLength);
+        problems += new RoadSegmentAttributesValidator().Validate(attributes, segmentLength);
 
-        var startEndNodes = context.RoadNetwork.FindStartEndNodes(originalId, change.GeometryDrawMethod, change.Geometry, context.Tolerances);
+        var startEndNodes = context.RoadNetwork.FindStartEndNodes(change.GeometryDrawMethod, change.Geometry, context.Tolerances);
         problems += startEndNodes.Problems;
 
         if (problems.HasError())
         {
-            return (null, problems);
+            return problems;
         }
 
-        var segment = Create(new RoadSegmentWasMigrated
+        Apply(new RoadSegmentWasMigrated
         {
-            RoadSegmentId = change.RoadSegmentId,
-            OriginalId = change.OriginalId,
+            RoadSegmentId = RoadSegmentId,
+            OriginalRoadSegmentIdReference = change.RoadSegmentIdReference,
             StartNodeId = startEndNodes.StartNodeId!.Value,
             EndNodeId = startEndNodes.EndNodeId!.Value,
             Geometry = geometry.ToRoadSegmentGeometry(),
@@ -90,6 +88,6 @@ public partial class RoadSegment
             Provenance = new ProvenanceData(context.Provenance)
         });
 
-        return (segment, problems);
+        return problems;
     }
 }

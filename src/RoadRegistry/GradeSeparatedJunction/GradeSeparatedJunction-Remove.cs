@@ -8,7 +8,7 @@ public partial class GradeSeparatedJunction
 {
     public Problems Remove(Provenance provenance)
     {
-        var problems = Problems.For(GradeSeparatedJunctionId);
+        var problems = Problems.WithContext(GradeSeparatedJunctionId);
 
         if (IsRemoved)
         {

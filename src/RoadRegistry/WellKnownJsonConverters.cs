@@ -20,6 +20,7 @@ namespace RoadRegistry
                 new NationalRoadNumberConverter(),
                 new RoadNodeIdConverter(),
                 new RoadSegmentIdConverter(),
+                new RoadSegmentTempIdConverter(),
                 new RoadSegmentWidthConverter(),
                 new GradeSeparatedJunctionIdConverter(),
                 new StreetNameLocalIdConverter(),

@@ -45,7 +45,7 @@ public class AggregateTests : AggregateTestBase
         var segmentAdded = (RoadSegmentWasAdded)segment.GetChanges().Single();
         segmentAdded.RoadSegmentId.Should().Be(new RoadSegmentId(1));
         segmentAdded.Geometry.Should().BeEquivalentTo(change.Geometry);
-        segmentAdded.OriginalId.Should().Be(change.OriginalId);
+        segmentAdded.OriginalRoadSegmentIdReference.Should().BeEquivalentTo(change.RoadSegmentIdReference);
         segmentAdded.StartNodeId.Should().Be(TestData.Segment1StartNodeAdded.RoadNodeId);
         segmentAdded.EndNodeId.Should().Be(TestData.Segment1EndNodeAdded.RoadNodeId);
         segmentAdded.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
@@ -85,7 +85,7 @@ public class AggregateTests : AggregateTestBase
         var segmentAdded = (RoadSegmentWasAdded)segment.GetChanges().Single();
         segmentAdded.RoadSegmentId.Should().Be(new RoadSegmentId(1));
         segmentAdded.Geometry.Should().BeEquivalentTo(change.Geometry);
-        segmentAdded.OriginalId.Should().Be(change.OriginalId);
+        segmentAdded.OriginalRoadSegmentIdReference.Should().BeEquivalentTo(change.RoadSegmentIdReference);
         segmentAdded.StartNodeId.Should().Be(new RoadNodeId(0));
         segmentAdded.EndNodeId.Should().Be(new RoadNodeId(0));
         segmentAdded.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
@@ -106,14 +106,20 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         var change = Fixture.Create<AddRoadSegmentChange>() with
         {
-            Geometry = RoadSegmentGeometry.Create(new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString())
+            Geometry = RoadSegmentGeometry.Create(new LineString([new Coordinate(0, 0), new Coordinate(0.9, 0)]).ToMultiLineString())
         };
 
         // Act
         var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), Fixture.Create<ScopedRoadNetworkContext>());
 
         // Assert
-        problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsZero(change.OriginalId!.Value));
+        problems.Should().ContainEquivalentOf(
+            new Error("RoadSegmentGeometryLengthLessThanMinimum",
+                new ProblemParameter("Minimum", 1.ToString()),
+                new ProblemParameter("WegsegmentId", change.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                new ProblemParameter("WegsegmentTempIds", change.RoadSegmentIdReference.GetTempIdsAsString())
+            )
+        );
     }
 
     [Fact]

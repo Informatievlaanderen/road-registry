@@ -98,7 +98,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
         CancellationToken cancellationToken)
     {
         var roadSegmentId = new RoadSegmentId(change.Id);
-        var problems = Problems.For(roadSegmentId);
+        var problems = Problems.WithContext(roadSegmentId);
 
         var editorRoadSegment = await _editorContext.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == change.Id, cancellationToken);
         if (editorRoadSegment is null)

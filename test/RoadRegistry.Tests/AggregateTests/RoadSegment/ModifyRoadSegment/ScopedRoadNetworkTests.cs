@@ -27,8 +27,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(new ModifyRoadSegmentChange
                 {
-                    RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-                    OriginalId = TestData.Segment1Added.RoadSegmentId
+                    RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment1Added.RoadSegmentId)
                 })
             )
             .Then((result, events) =>
@@ -48,7 +47,10 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(change)
             )
-            .ThenProblems(new Error("RoadSegmentNotFound", new ProblemParameter("SegmentId", change.OriginalId.ToString())))
+            .ThenProblems(new Error("RoadSegmentNotFound",
+                new ProblemParameter("WegsegmentId", change.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                new ProblemParameter("WegsegmentTempIds", change.RoadSegmentIdReference.GetTempIdsAsString())
+            ))
         );
     }
 }

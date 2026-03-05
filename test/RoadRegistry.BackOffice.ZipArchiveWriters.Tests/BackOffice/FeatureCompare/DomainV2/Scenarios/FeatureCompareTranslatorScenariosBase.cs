@@ -93,8 +93,7 @@ public abstract class FeatureCompareTranslatorScenariosBase
 
         return new AddRoadSegmentChange
         {
-            TemporaryId = new RoadSegmentId(dbaseRecord.WS_OIDN.Value),
-            OriginalId = new RoadSegmentId(dbaseRecord.WS_OIDN.Value),
+            RoadSegmentIdReference = new RoadSegmentIdReference(new RoadSegmentId(dbaseRecord.WS_OIDN.Value!.Value), [new RoadSegmentTempId(dbaseRecord.WS_TEMPID.Value)]),
             Geometry = geometry,
             GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst,
             Status = RoadSegmentStatusV2.ByIdentifier[dbaseRecord.STATUS.Value],
@@ -120,8 +119,7 @@ public abstract class FeatureCompareTranslatorScenariosBase
 
         return new ModifyRoadSegmentChange
         {
-            RoadSegmentId = new RoadSegmentId(dbaseRecord.WS_OIDN.Value),
-            OriginalId = null,
+            RoadSegmentIdReference = new RoadSegmentIdReference(new RoadSegmentId(dbaseRecord.WS_OIDN.Value!.Value), [new RoadSegmentTempId(dbaseRecord.WS_TEMPID.Value)]),
             Geometry = geometry,
             Status = RoadSegmentStatusV2.ByIdentifier[dbaseRecord.STATUS.Value],
             MaintenanceAuthorityId = BuildOrganizationIdAttributes(new OrganizationId(dbaseRecord.LBEHEER.Value!), new OrganizationId(dbaseRecord.RBEHEER.Value!), geometry),

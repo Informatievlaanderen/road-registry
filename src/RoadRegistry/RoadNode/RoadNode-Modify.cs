@@ -9,7 +9,7 @@ public partial class RoadNode
 {
     public Problems Modify(ModifyRoadNodeChange change, Provenance provenance)
     {
-        var problems = Problems.For(RoadNodeId);
+        var problems = Problems.WithContext(RoadNodeId);
 
         Apply(new RoadNodeWasModified
         {

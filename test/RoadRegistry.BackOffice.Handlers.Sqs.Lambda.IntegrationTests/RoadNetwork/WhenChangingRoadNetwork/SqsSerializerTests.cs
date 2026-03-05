@@ -35,7 +35,7 @@ public class SqsSerializerTests
             },
             ModifyRoadSegment = new ModifyRoadSegmentChange
             {
-                RoadSegmentId = new RoadSegmentId(1)
+                RoadSegmentIdReference = new RoadSegmentIdReference(new RoadSegmentId(1)),
             },
             ModifyGradeSeparatedJunction = new ModifyGradeSeparatedJunctionChange
             {

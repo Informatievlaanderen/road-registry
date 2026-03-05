@@ -5,6 +5,7 @@ using FluentAssertions;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
 using RoadRegistry.RoadNode;
+using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
@@ -105,14 +106,33 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         var change = Fixture.Create<MergeRoadSegmentChange>() with
         {
-            Geometry = RoadSegmentGeometry.Create(new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString())
+            Geometry = RoadSegmentGeometry.Create(new LineString([new Coordinate(0, 0), new Coordinate(0.9, 0)]).ToMultiLineString())
         };
 
+        var roadNetworkContext = new ScopedRoadNetworkContext(
+            new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [
+                RoadNode.Create(Fixture.Create<RoadNodeWasAdded>() with
+                {
+                    Geometry = RoadNodeGeometry.Create(change.Geometry.Value.GetSingleLineString().StartPoint)
+                }),
+                RoadNode.Create(Fixture.Create<RoadNodeWasAdded>() with
+                {
+                    Geometry = RoadNodeGeometry.Create(change.Geometry.Value.GetSingleLineString().EndPoint)
+                })
+            ], [], []),
+            new IdentifierTranslator(),
+            TestData.Provenance);
+
         // Act
-        var (_, problems) = RoadSegment.Merge(change, new FakeRoadNetworkIdGenerator(), Fixture.Create<ScopedRoadNetworkContext>());
+        var (_, problems) = RoadSegment.Merge(change, new FakeRoadNetworkIdGenerator(), roadNetworkContext);
 
         // Assert
-        problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsZero(change.TemporaryId));
+        problems.Should().ContainEquivalentOf(
+            new Error("RoadSegmentGeometryLengthLessThanMinimum",
+                new ProblemParameter("Minimum", 1.ToString()),
+                new ProblemParameter("WegsegmentId", change.TemporaryId.ToString())
+            )
+        );
     }
 
     [Fact]

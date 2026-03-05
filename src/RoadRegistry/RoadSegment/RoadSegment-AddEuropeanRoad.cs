@@ -9,7 +9,7 @@ public partial class RoadSegment
 {
     public Problems AddEuropeanRoad(AddRoadSegmentToEuropeanRoadChange change, Provenance provenance)
     {
-        var problems = Problems.For(RoadSegmentId);
+        var problems = Problems.WithContext(RoadSegmentId);
 
         if (!Attributes.EuropeanRoadNumbers.Contains(change.Number))
         {

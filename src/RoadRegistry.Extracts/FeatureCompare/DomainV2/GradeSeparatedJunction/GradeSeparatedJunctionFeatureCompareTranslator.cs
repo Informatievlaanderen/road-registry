@@ -44,7 +44,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
 
             if (changeFeature.Attributes.LowerRoadSegmentId == changeFeature.Attributes.UpperRoadSegmentId)
             {
-                problems += recordContext.GradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegment(changeFeature.Attributes.LowerRoadSegmentId.ToInt());
+                problems += recordContext.GradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegment(changeFeature.Attributes.LowerRoadSegmentId.ToInt32());
                 continue;
             }
 
@@ -55,12 +55,12 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             {
                 if (boWegsegmentFeature is null)
                 {
-                    problems += recordContext.UpperRoadSegmentIdOutOfRange(changeFeature.Attributes.UpperRoadSegmentId.ToInt());
+                    problems += recordContext.UpperRoadSegmentIdOutOfRange(changeFeature.Attributes.UpperRoadSegmentId.ToInt32());
                 }
 
                 if (onWegsegmentFeature is null)
                 {
-                    problems += recordContext.LowerRoadSegmentIdOutOfRange(changeFeature.Attributes.LowerRoadSegmentId.ToInt());
+                    problems += recordContext.LowerRoadSegmentIdOutOfRange(changeFeature.Attributes.LowerRoadSegmentId.ToInt32());
                 }
 
                 continue;
@@ -279,7 +279,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
         }
 
         public RoadSegmentCombinationKey(RoadSegmentTempId id1, RoadSegmentTempId id2)
-            : this(id1.ToInt(), id2.ToInt())
+            : this(id1.ToInt32(), id2.ToInt32())
         {
         }
 

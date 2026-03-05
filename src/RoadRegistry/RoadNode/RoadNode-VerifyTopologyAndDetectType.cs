@@ -14,7 +14,7 @@ public partial class RoadNode
 {
     public Problems VerifyTopologyAndDetectType(ScopedRoadNetworkContext context)
     {
-        var problems = Problems.For(RoadNodeId);
+        var problems = Problems.WithContext(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
 
         var segments = context.RoadNetwork.GetNonRemovedRoadSegments()
             .Where(x => x.StartNodeId == RoadNodeId || x.EndNodeId == RoadNodeId)
@@ -26,12 +26,14 @@ public partial class RoadNode
             {
                 if (segment.StartNodeId == RoadNodeId)
                 {
-                    problems += new RoadSegmentStartNodeMissing(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId));
+                    problems += new RoadSegmentStartNodeMissing()
+                        .WithContext(ProblemContext.For(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId)));
                 }
 
                 if (segment.EndNodeId == RoadNodeId)
                 {
-                    problems += new RoadSegmentEndNodeMissing(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId));
+                    problems += new RoadSegmentEndNodeMissing()
+                        .WithContext(ProblemContext.For(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId)));
                 }
             }
 
@@ -53,7 +55,8 @@ public partial class RoadNode
                 && s.Geometry.Value.IsWithinDistance(Geometry.Value, Distances.TooClose)
             )
             .Aggregate(problems, (current, segment) =>
-                current.Add(new RoadNodeTooClose(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId))));
+                current.Add(new RoadNodeTooClose()
+                    .WithContext(ProblemContext.For(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId)))));
 
         problems += ValidateTypeAndChangeIfNeeded(context, segments, context.Provenance);
 
@@ -67,7 +70,7 @@ public partial class RoadNode
 
         if (segments.Count == 0)
         {
-            problems += new RoadNodeNotConnectedToAnySegment(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
+            problems += new RoadNodeNotConnectedToAnySegment();
         }
         else if (segments.Count == 1 && Type != RoadNodeTypeV2.Eindknoop)
         {
@@ -96,7 +99,6 @@ public partial class RoadNode
                 if (segment1.Attributes.Equals(segment2.Attributes))
                 {
                     problems += new FakeRoadNodeConnectedSegmentsDoNotDiffer(
-                        context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
                         context.IdTranslator.TranslateToTemporaryId(segment1.RoadSegmentId),
                         context.IdTranslator.TranslateToTemporaryId(segment2.RoadSegmentId)
                     );
