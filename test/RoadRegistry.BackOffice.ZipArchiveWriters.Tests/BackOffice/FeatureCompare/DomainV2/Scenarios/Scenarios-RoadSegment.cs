@@ -38,7 +38,29 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         ex.Problems.Should().Contain(x => x.File == "WEGSEGMENT.DBF" && x.Reason == nameof(DbaseFileProblems.HasNoDbaseRecords));
         ex.Problems.Should().Contain(x => x.File == "WEGSEGMENT.SHP" && x.Reason == nameof(ShapeFileProblems.HasNoShapeRecords));
     }
-    //
+
+    [Fact]
+    public async Task WhenGeometryIsOutsideTransactionZone_ThenProblem()
+    {
+        // Arrange
+        var (zipArchive, context) = new DomainV2ZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                var transactionZoneBoundaryCoordinates = builder.TestData.TransactionZoneShapeRecord.Geometry.Boundary.Coordinates;
+                var pointOutsideTransactionZone = new Coordinate(transactionZoneBoundaryCoordinates.Max(x => x.X + 1), transactionZoneBoundaryCoordinates.Max(x => x.Y));
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = new LineString([pointOutsideTransactionZone, new Coordinate(pointOutsideTransactionZone.X + 100, pointOutsideTransactionZone.Y)])
+                    .WithSrid(builder.TestData.RoadNode2ShapeRecord.Geometry.SRID)
+                    .ToMultiLineString();
+            })
+            .BuildWithContext();
+
+        // Act
+        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateSucceeds(zipArchive));
+
+        // Assert
+        ex.Problems.Should().Contain(x => x.File == "WEGSEGMENT.SHP" && x.Reason == "ShapeRecordGeometryIsOutsideTransactionZone");
+    }
+
     // [Fact]
     // public async Task SegmentWithUnknownMaintenanceAuthorityShouldGiveProblem()
     // {

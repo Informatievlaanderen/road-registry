@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure;
@@ -58,14 +59,17 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             (changeFeatures, var validateProblems) = await ValidateStreetNameAndFixMaintenanceAuthority(changeFeatures, streetNameContext, context, cancellationToken);
             problems += validateProblems;
 
+            problems += ValidateChangeFeaturesAreAtLeastPartiallyWithinTransactionZone(changeFeatures, context);
+
             var dynamicChangeFeaturesTask = Task.Run(() => RoadSegmentUnflattener.Unflatten(FeatureType.Change, changeFeatures, maxUsedRoadSegmentId, ogcFeaturesCache, context, cancellationToken), cancellationToken);
             await Task.WhenAll(dynamicChangeFeaturesTask, dynamicExtractFeaturesTask);
 
             var processedLeveringRecords = ProcessLeveringRecordsInParallel(dynamicChangeFeaturesTask.Result, dynamicExtractFeaturesTask.Result, streetNameContext, context, cancellationToken);
+            problems += processedLeveringRecords.Item2;
 
-            GenerateNewIdForAddedRecords(processedLeveringRecords, maxUsedRoadSegmentId);
+            GenerateNewIdForAddedRecords(processedLeveringRecords.Item1, maxUsedRoadSegmentId);
 
-            problems += AddProcessedRecordsToContext(processedLeveringRecords, context, cancellationToken);
+            problems += AddProcessedRecordsToContext(processedLeveringRecords.Item1, context, cancellationToken);
         }
 
         await dynamicExtractFeaturesTask;
@@ -77,7 +81,21 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         return (changes, problems);
     }
 
-    private List<RoadSegmentFeatureCompareRecord> ProcessLeveringRecordsInParallel(
+    private static ZipArchiveProblems ValidateChangeFeaturesAreAtLeastPartiallyWithinTransactionZone(List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> changeFeatures, ZipArchiveEntryFeatureCompareTranslateContext context)
+    {
+        var problems = ZipArchiveProblems.None;
+
+        foreach (var changeFeature in changeFeatures)
+        {
+            var shapeRecordContext = ExtractFileName.Wegsegment.AtShapeRecord(FeatureType.Change, changeFeature.RecordNumber)
+                .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_TEMPID), changeFeature.Attributes.TempId.ToInt());
+            problems += context.TransactionZone.Geometry.ValidateGeometryIsAtLeastPartiallyWithinTransactionZone(changeFeature.Attributes.Geometry, shapeRecordContext);
+        }
+
+        return problems;
+    }
+
+    private (List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems) ProcessLeveringRecordsInParallel(
         List<RoadSegmentFeatureWithDynamicAttributes> dynamicChangeFeatures,
         List<RoadSegmentFeatureWithDynamicAttributes> dynamicExtractFeatures,
         IRoadSegmentFeatureCompareStreetNameContext streetNameContext,
@@ -86,7 +104,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
     {
         var batchCount = Debugger.IsAttached ? 1 : 4;
 
-        var processedLeveringRecords = new ConcurrentDictionary<int, List<RoadSegmentFeatureCompareRecord>>();
+        var processedLeveringRecords = new ConcurrentDictionary<int, (List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems)>();
         Parallel.Invoke(dynamicChangeFeatures
             .SplitIntoBatches(batchCount)
             .Select((changeFeaturesBatch, index) =>
@@ -99,11 +117,12 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             })
             .ToArray());
 
+        var problems = ZipArchiveProblems.None.AddRange(processedLeveringRecords.SelectMany(x => x.Value.Item2));
         var processedLeveringRecordsList = processedLeveringRecords
             .OrderBy(x => x.Key)
-            .SelectMany(x => x.Value)
+            .SelectMany(x => x.Value.Item1)
             .ToList();
-        return processedLeveringRecordsList;
+        return (processedLeveringRecordsList, problems);
     }
 
     private async Task<(List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> changeFeatures, ZipArchiveProblems problems)> ValidateStreetNameAndFixMaintenanceAuthority(
@@ -181,13 +200,15 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         return problems;
     }
 
-    private List<RoadSegmentFeatureCompareRecord> ProcessLeveringRecords(
+    private (List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems) ProcessLeveringRecords(
         ICollection<RoadSegmentFeatureWithDynamicAttributes> changeFeatures,
         ICollection<RoadSegmentFeatureWithDynamicAttributes> extractFeatures,
         IRoadSegmentFeatureCompareStreetNameContext streetNameContext,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
+        var problems = ZipArchiveProblems.None;
+
         var processedRecords = new List<RoadSegmentFeatureCompareRecord>();
         const double clusterTolerance = 1.0;
 
@@ -301,7 +322,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 RecordType.Added));
         }
 
-        return processedRecords;
+        return (processedRecords, problems);
 
         List<RoadSegmentFeatureCompareWithDynamicAttributes> FindMatchingExtractFeatureAttributes(RoadSegmentFeatureCompareWithDynamicAttributes changeFeatureAttributes)
         {
