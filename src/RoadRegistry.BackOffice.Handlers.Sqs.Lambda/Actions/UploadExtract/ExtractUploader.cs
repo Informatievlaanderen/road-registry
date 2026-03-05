@@ -115,7 +115,7 @@ public sealed class ExtractUploader : IExtractUploader
                 problems.ThrowIfError();
 
                 var transactionZone = transactionZones.Single();
-                if (!transactionZone.Attributes.Geometry.Value.EqualsExact(extractDownload.Contour))
+                if (!transactionZone.Attributes.Geometry.Value.EqualsTopologically(extractDownload.Contour))
                 {
                     var error = ExtractFileName.Transactiezones.AtShapeRecord(FeatureType.Change, transactionZone.RecordNumber)
                         .Error(ProblemCode.TransactionZone.HasChanged)
