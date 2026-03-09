@@ -513,26 +513,41 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var grbOgcDownloader = new FakeGrbOgcApiFeaturesDownloader();
         var translator = ZipArchiveFeatureCompareTranslatorV3Builder.Create(grbOgcApiFeaturesDownloader: grbOgcDownloader);
 
+        var startPoint = new Point(602000, 602000).WithSrid(WellknownSrids.Lambert08);
+        var endPoint = new Point(602100, 602000).WithSrid(WellknownSrids.Lambert08);
+
         var (zipArchive, context) = new DomainV2ZipArchiveBuilder(fixture =>
             {
                 fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
             })
+            .WithExtract((builder, _) =>
+            {
+                var geometry = new LineString([
+                    startPoint.Coordinate,
+                    endPoint.Coordinate
+                ]).WithSrid(WellknownSrids.Lambert08);
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = geometry.ToMultiLineString();
+
+                builder.TestData.RoadNode1ShapeRecord.Geometry = startPoint;
+                builder.TestData.RoadNode2ShapeRecord.Geometry = endPoint;
+            })
             .WithChange((builder, _) =>
             {
-                var lineStringCloseToOther = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
-                lineStringCloseToOther = new LineString([
-                        new Coordinate(lineStringCloseToOther.Coordinates[0].X - 0.5, lineStringCloseToOther.Coordinates[0].Y - 0.05),
-                        new Coordinate(lineStringCloseToOther.Coordinates[1].X + 0.5, lineStringCloseToOther.Coordinates[1].Y - 0.05)
-                    ]).WithSrid(builder.TestData.RoadSegment1ShapeRecord.Geometry.SRID);
-                var roadSegmentShapeRecord = builder.CreateRoadSegmentShapeRecord(lineStringCloseToOther);
+                var segment1Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry;
+
+                var lineStringCloseToOtherButLessOverlapThanExtract = new LineString([
+                    new Coordinate(startPoint.X + 5, startPoint.Y + 0.5),
+                    new Coordinate(endPoint.X - 5, endPoint.Y + 0.5)
+                ]).WithSrid(segment1Geometry.SRID);
+                var roadSegmentShapeRecord = builder.CreateRoadSegmentShapeRecord(lineStringCloseToOtherButLessOverlapThanExtract);
                 builder.DataSet.RoadSegmentShapeRecords.Add(roadSegmentShapeRecord);
                 builder.DataSet.RoadSegmentDbaseRecords.Add(builder.CreateRoadSegmentDbaseRecord());
                 builder.DataSet.RoadSegmentDbaseRecords.Last().WS_OIDN.Value = null;
 
-                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(lineStringCloseToOther.StartPoint));
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(lineStringCloseToOtherButLessOverlapThanExtract.StartPoint));
                 builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord());
 
-                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(lineStringCloseToOther.EndPoint));
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(lineStringCloseToOtherButLessOverlapThanExtract.EndPoint));
                 builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord());
 
                 grbOgcDownloader.AddRange(builder.DataSet.RoadSegmentShapeRecords.Select(x => x.Geometry));
@@ -554,36 +569,50 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var grbOgcDownloader = new FakeGrbOgcApiFeaturesDownloader();
         var translator = ZipArchiveFeatureCompareTranslatorV3Builder.Create(grbOgcApiFeaturesDownloader: grbOgcDownloader);
 
+        var startPoint = new Point(602000, 602000).WithSrid(WellknownSrids.Lambert08);
+        var endPoint = new Point(602100, 602000).WithSrid(WellknownSrids.Lambert08);
+
         var (zipArchive, context) = new DomainV2ZipArchiveBuilder(fixture =>
             {
                 fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
             })
-            .WithChange((builder, _) =>
+            .WithExtract((builder, _) =>
+            {
+                var geometry = new LineString([
+                    startPoint.Coordinate,
+                    endPoint.Coordinate
+                ]).WithSrid(WellknownSrids.Lambert08);
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = geometry.ToMultiLineString();
+
+                builder.TestData.RoadNode1ShapeRecord.Geometry = startPoint;
+                builder.TestData.RoadNode2ShapeRecord.Geometry = endPoint;
+            })
+            .WithChange((builder, context) =>
             {
                 var segment1Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry;
 
                 // modify segment
                 var modifiedGeometryButWithLessOverlapThanNewGeometry = new LineString([
-                    new Coordinate(segment1Geometry.Coordinates[0].X - 0.5, segment1Geometry.Coordinates[0].Y + 0.1),
-                    new Coordinate(segment1Geometry.Coordinates[1].X + 0.5, segment1Geometry.Coordinates[1].Y + 0.1)
+                    new Coordinate(startPoint.X + 5, startPoint.Y - 0.5),
+                    new Coordinate(endPoint.X - 5, endPoint.Y - 0.5)
                 ]).WithSrid(segment1Geometry.SRID);
-                builder.TestData.RoadSegment1ShapeRecord.Geometry = modifiedGeometryButWithLessOverlapThanNewGeometry.ToMultiLineString();
+                var modifiedGeometry = modifiedGeometryButWithLessOverlapThanNewGeometry.ToMultiLineString();
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = modifiedGeometry;
 
                 // add segment
-                var lineStringCloseToOther = segment1Geometry.GetSingleLineString();
-                lineStringCloseToOther = new LineString([
-                        new Coordinate(lineStringCloseToOther.Coordinates[0].X - 0.5, lineStringCloseToOther.Coordinates[0].Y - 0.05),
-                        new Coordinate(lineStringCloseToOther.Coordinates[1].X + 0.5, lineStringCloseToOther.Coordinates[1].Y - 0.05)
+                var lineStringCloseToOtherButMoreOverlapWithExtract = new LineString([
+                        new Coordinate(startPoint.X - 5, startPoint.Y + 0.5),
+                        new Coordinate(endPoint.X + 5, endPoint.Y + 0.5)
                     ]).WithSrid(segment1Geometry.SRID);
-                var roadSegmentShapeRecord = builder.CreateRoadSegmentShapeRecord(lineStringCloseToOther);
+                var roadSegmentShapeRecord = builder.CreateRoadSegmentShapeRecord(lineStringCloseToOtherButMoreOverlapWithExtract);
                 builder.DataSet.RoadSegmentShapeRecords.Add(roadSegmentShapeRecord);
                 builder.DataSet.RoadSegmentDbaseRecords.Add(builder.CreateRoadSegmentDbaseRecord());
                 builder.DataSet.RoadSegmentDbaseRecords.Last().WS_OIDN.Value = null;
 
-                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(lineStringCloseToOther.StartPoint));
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(lineStringCloseToOtherButMoreOverlapWithExtract.StartPoint));
                 builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord());
 
-                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(lineStringCloseToOther.EndPoint));
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(lineStringCloseToOtherButMoreOverlapWithExtract.EndPoint));
                 builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord());
 
                 grbOgcDownloader.AddRange(builder.DataSet.RoadSegmentShapeRecords.Select(x => x.Geometry));
