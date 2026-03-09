@@ -46,7 +46,7 @@ public class IdentifierTranslator : IIdentifierTranslator
     {
         if (!_mapSegmentIdReferenceToPermanentId.TryAdd(idReference, permanentId))
         {
-            return Problems.None + new Error(ProblemCode.RoadSegment.TemporaryIdNotUnique.ToString());
+            return Problems.Single(new Error(ProblemCode.RoadSegment.TemporaryIdNotUnique.ToString()));
         }
 
         _mapSegmentTemporaryIdToPermanentId[idReference.RoadSegmentId] = permanentId;

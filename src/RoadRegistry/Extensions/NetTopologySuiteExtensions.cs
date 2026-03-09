@@ -114,7 +114,7 @@ public static class NetTopologySuiteExtensions
 
         var g1Buf = g1.Buffer(clusterTolerance);
         var overlap = g0.Intersection(g1Buf);
-        var overlapValue = Math.Round(overlap.Length / g1.Length);
+        var overlapValue = overlap.Length / g1.Length;
         return overlapValue;
     }
 
@@ -124,7 +124,7 @@ public static class NetTopologySuiteExtensions
         {
             var g0Buf = g0.Buffer(compareTolerance);
             var overlap = g1.Intersection(g0Buf);
-            var overlapValue = Math.Round(overlap.Length / g0.Length);
+            var overlapValue = overlap.Length / g0.Length;
             if (overlapValue >= threshold)
             {
                 return true;
@@ -136,7 +136,7 @@ public static class NetTopologySuiteExtensions
         {
             //omgekeerde moet ook gecheckt worden (voorkomen vergelijking met verkeerd omvattend feature, overlap = 100%)
             var overlap = g1.Intersection(g0);
-            var overlapValue = Math.Round(overlap.Area / g0.Area);
+            var overlapValue = overlap.Area / g0.Area;
             if (overlapValue >= threshold)
             {
                 return true;

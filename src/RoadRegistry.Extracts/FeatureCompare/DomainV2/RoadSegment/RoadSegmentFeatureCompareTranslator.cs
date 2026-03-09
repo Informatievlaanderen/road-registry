@@ -52,7 +52,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             .Concat(changeFeatures.Where(x => x.Attributes.RoadSegmentId is not null).Select(x => x.Attributes.RoadSegmentId!.Value))
             .Max();
         var ogcFeaturesCache = await GetOgcFeaturesCache(context, cancellationToken);
-        var dynamicExtractFeaturesTask = Task.Run(() => RoadSegmentUnflattener.Unflatten(FeatureType.Extract, extractFeatures, new NextRoadSegmentIdProvider(maxUsedRoadSegmentId), ogcFeaturesCache, context, cancellationToken), cancellationToken);
+        var dynamicExtractFeaturesTask = Task.Run(() => RoadSegmentUnflattener.Unflatten(FeatureType.Extract, extractFeatures, new ExtractRoadSegmentIdProvider(), ogcFeaturesCache, context, cancellationToken), cancellationToken);
 
         var streetNameContext = await _streetNameContextFactory.Create(changeFeatures, cancellationToken);
         (changeFeatures, var validateProblems) = await ValidateStreetNameAndFixMaintenanceAuthority(changeFeatures, streetNameContext, context, cancellationToken);
@@ -453,7 +453,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 if (featureWhoGetsTheExtractId.RecordType != RecordType.Identical)
                 {
                     featureWhoGetsTheExtractId.RecordType = RecordType.Modified;
-                    featureWhoGetsTheExtractId.GeometryChanged = featureWhoGetsTheExtractId.Attributes.Geometry.IsReasonablyEqualTo(extractFeature.Attributes.Geometry, context.Tolerances);
+                    featureWhoGetsTheExtractId.GeometryChanged = !featureWhoGetsTheExtractId.Attributes.Geometry.IsReasonablyEqualTo(extractFeature.Attributes.Geometry, context.Tolerances);
                 }
 
                 foreach (var matchedFeature in matchingFeaturesSortedByOverlapPercentage.Skip(1))
@@ -579,5 +579,13 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         }
 
         return problems;
+    }
+
+    private sealed class ExtractRoadSegmentIdProvider : IRoadSegmentIdProvider
+    {
+        public RoadSegmentId NewId()
+        {
+            throw new InvalidOperationException("It should not be needed to generate a new ID for extract road segments.");
+        }
     }
 }
