@@ -75,7 +75,7 @@ public partial class ScopedRoadNetwork
 
         problems += segment.Remove(provenance);
 
-        if (segment.Attributes.GeometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingeschetst || problems.HasError())
+        if (segment.Attributes.Status != RoadSegmentStatusV2.Gerealiseerd || problems.HasError())
         {
             return problems;
         }

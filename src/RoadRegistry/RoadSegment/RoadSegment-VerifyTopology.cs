@@ -16,7 +16,7 @@ public partial class RoadSegment
         var idReference = context.IdTranslator.TranslateToTemporaryId(RoadSegmentId);
         var problems = Problems.WithContext(idReference);
 
-        if (IsRemoved || Attributes.GeometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingeschetst)
+        if (IsRemoved || Attributes.Status != RoadSegmentStatusV2.Gerealiseerd)
         {
             return problems;
         }
@@ -84,7 +84,7 @@ public partial class RoadSegment
     {
         return roadNetwork
             .GetNonRemovedRoadSegments()
-            .Where(segment => segment.Attributes.GeometryDrawMethod != RoadSegmentGeometryDrawMethodV2.Ingeschetst)
+            .Where(segment => segment.Attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
             .Where(segment => segment.RoadSegmentId != intersectsWithId)
             .Where(segment => segment.Geometry.Value.Intersects(intersectsWithGeometry))
             .Where(segment => !segment.Nodes.Any(roadNodeIdsNotInCommon.Contains));
