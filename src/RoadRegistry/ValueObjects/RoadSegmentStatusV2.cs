@@ -12,7 +12,7 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
         new(
             nameof(Gepland),
             new DutchTranslation(
-                1,
+                10,
                 "gepland",
                 "Er werd een vergunning aangevraagd of verleend voor de weg, of de weg is in aanbouw."
             )
@@ -22,7 +22,7 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
         new(
             nameof(Gerealiseerd),
             new DutchTranslation(
-                2,
+                11,
                 "gerealiseerd",
                 "De weg werd gerealiseerd (werken beëindigd) en in gebruik genomen."
             )
@@ -32,7 +32,7 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
         new(
             nameof(NietGerealiseerd),
             new DutchTranslation(
-                3,
+                12,
                 "niet gerealiseerd",
                 "De weg werd niet gerealiseerd, bijvoorbeeld omdat de vergunning niet verleend werd, vervallen is of ingetrokken werd."
             )
@@ -42,7 +42,7 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
         new(
             nameof(BuitenGebruik),
             new DutchTranslation(
-                4,
+                13,
                 "buiten gebruik",
                 "De weg werd niet opgeheven en bestaat juridisch gezien, maar is niet meer zichtbaar op het terrein of kan niet gebruikt worden."
             )
@@ -52,7 +52,7 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
         new(
             nameof(Gehistoreerd),
             new DutchTranslation(
-                5,
+                14,
                 "gehistoreerd",
                 "De weg werd opgeheven, gesloopt, samengevoegd of gesplitst."
             )
