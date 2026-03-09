@@ -1,3 +1,11 @@
+## [4.49.1](https://github.com/informatievlaanderen/road-registry/compare/v4.49.0...v4.49.1) (2026-03-09)
+
+
+### Bug Fixes
+
+* re-using extract roadsegmentids should not result in errors ([7f0f7de](https://github.com/informatievlaanderen/road-registry/commit/7f0f7de7ea00c2650f1f789765c1ef015667c486))
+* use updated WR2.0 type codes GAWR-7482 ([5488776](https://github.com/informatievlaanderen/road-registry/commit/5488776fbf629c344ca232089c8a532239ca22eb))
+
 # [4.49.0](https://github.com/informatievlaanderen/road-registry/compare/v4.48.0...v4.49.0) (2026-03-09)
 
 
