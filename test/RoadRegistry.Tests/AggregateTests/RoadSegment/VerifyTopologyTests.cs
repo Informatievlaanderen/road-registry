@@ -23,11 +23,13 @@ public class VerifyTopologyTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(TestData.AddSegment2 with
                 {
-                    Geometry = new MultiLineString([new LineString([
-                        TestData.StartPoint1.Coordinate,
-                        TestData.MiddlePoint1.Coordinate,
-                        new Coordinate(TestData.EndPoint1.Coordinate.X + 0.0001, TestData.EndPoint1.Coordinate.Y)
-                    ])]).WithMeasureOrdinates().ToRoadSegmentGeometry(),
+                    Geometry = new MultiLineString([
+                        new LineString([
+                            TestData.StartPoint1.Coordinate,
+                            TestData.MiddlePoint1.Coordinate,
+                            new Coordinate(TestData.EndPoint1.Coordinate.X + 0.0001, TestData.EndPoint1.Coordinate.Y)
+                        ])
+                    ]).WithMeasureOrdinates().ToRoadSegmentGeometry(),
                     RoadSegmentIdReference = TestData.AddSegment2.RoadSegmentIdReference with
                     {
                         TempIds = [new RoadSegmentTempId(3)]
@@ -213,6 +215,53 @@ public class VerifyTopologyTests : RoadNetworkTestBase
             .ThenContainsProblems(new Error("IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction",
                 new ProblemParameter("IntersectingWegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
                 new ProblemParameter("WegsegmentId", TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                new ProblemParameter("WegsegmentTempIds", "3")
+            ))
+        );
+    }
+
+    [Fact]
+    public Task WhenGeometryIntersectsMultipleTimesWithOtherGeometry_ThenError()
+    {
+        var segment1Geometry = BuildRoadSegmentGeometry([new(0, 0), new(8, 0)]);
+        var segment2Geometry = BuildRoadSegmentGeometry([new Point(2, 5), new(4, -5), new(6, 5)]);
+
+        return Run(scenario => scenario
+            .Given(given => given
+                .Add(TestData.AddSegment1StartNode with
+                {
+                    Geometry = segment1Geometry.Value.GetSingleLineString().StartPoint.ToRoadNodeGeometry()
+                })
+                .Add(TestData.AddSegment1EndNode with
+                {
+                    Geometry = segment1Geometry.Value.GetSingleLineString().EndPoint.ToRoadNodeGeometry()
+                })
+                .Add((TestData.AddSegment1 with
+                {
+                    Geometry = segment1Geometry,
+                    RoadSegmentIdReference = TestData.AddSegment1.RoadSegmentIdReference with
+                    {
+                        TempIds = null
+                    }
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
+            )
+            .When(changes => changes
+                .Add(TestData.AddSegment2StartNode with
+                {
+                    Geometry = segment2Geometry.Value.GetSingleLineString().StartPoint.ToRoadNodeGeometry()
+                })
+                .Add(TestData.AddSegment2EndNode with
+                {
+                    Geometry = segment2Geometry.Value.GetSingleLineString().EndPoint.ToRoadNodeGeometry()
+                })
+                .Add((TestData.AddSegment2 with
+                {
+                    Geometry = segment2Geometry,
+                    RoadSegmentIdReference = new(new RoadSegmentId(2), [new RoadSegmentTempId(3)])
+                }).WithDynamicAttributePositionsOnEntireGeometryLength()))
+            .ThenContainsProblems(new Error("RoadSegmentDuplicateIntersections",
+                new ProblemParameter("IntersectingWegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
+                new ProblemParameter("WegsegmentId", "2"),
                 new ProblemParameter("WegsegmentTempIds", "3")
             ))
         );

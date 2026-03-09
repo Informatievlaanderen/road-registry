@@ -9,6 +9,7 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode ChangeAttributesRequestNull = new("RoadSegmentChangeAttributesRequestNull");
         public static readonly ProblemCode ChangeAttributesAttributeNotValid = new("RoadSegmentChangeAttributesAttributeNotValid");
         public static readonly ProblemCode IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction = new("IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction");
+        public static readonly ProblemCode DuplicateIntersections = new("RoadSegmentDuplicateIntersections");
         public static readonly ProblemCode LowerMissing = new("LowerRoadSegmentMissing");
         public static readonly ProblemCode Missing = new("RoadSegmentMissing");
         public static readonly ProblemCode UpperMissing = new("UpperRoadSegmentMissing");

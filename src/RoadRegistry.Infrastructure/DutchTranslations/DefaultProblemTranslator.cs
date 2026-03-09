@@ -238,6 +238,10 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
                     : $"Het wegsegment {problem.Parameters[0].Value} mag niet kruisen met wegsegment {problem.Parameters[1].Value}.")
             },
             {
+                ProblemCode.RoadSegment.DuplicateIntersections, problem => new(problem.Severity, problem.Reason,
+                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} mag niet meermaals kruisen met wegsegment met {GetRoadSegmentIdLabel(problem, "IntersectingWegsegment")}.")
+            },
+            {
                 ProblemCode.RoadSegment.LowerMissing, problem => new(problem.Severity, problem.Reason,
                     "Het onderste wegsegment ontbreekt.")
             },
@@ -403,7 +407,7 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.RoadSegment.Geometry.StartEqualsEnd, problem => new(problem.Severity, problem.Reason,
-                    $"Het begin- en eindvertex van wegsegment met id {problem.GetParameterValue("Identifier")} zijn hetzelfde.")
+                    $"Het begin- en eindvertex van het wegsegment met {GetRoadSegmentIdLabel(problem)} zijn hetzelfde.")
             },
             {
                 ProblemCode.RoadSegment.Geometry.Taken, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")

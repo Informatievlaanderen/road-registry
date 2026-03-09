@@ -18,7 +18,13 @@ public abstract class AggregateTestBase
     protected RoadSegmentGeometry BuildRoadSegmentGeometry(Point start, Point end)
     {
         return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
-            .WithMeasureOrdinates()
+            .WithSrid(WellknownSrids.Lambert08)
+            .ToRoadSegmentGeometry();
+    }
+    protected RoadSegmentGeometry BuildRoadSegmentGeometry(Point[] points)
+    {
+        return new MultiLineString([new LineString(points.Select(x => x.Coordinate).ToArray())])
+            .WithSrid(WellknownSrids.Lambert08)
             .ToRoadSegmentGeometry();
     }
 }

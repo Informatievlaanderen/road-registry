@@ -132,7 +132,7 @@ public partial class ScopedRoadNetwork
         var problems = Problems.None;
 
         return _roadNodes.Values.Where(x => x.HasChanges()).Select(x => x.RoadNodeId)
-            .Concat(_roadSegments.Values.Where(x => x.HasChanges()).SelectMany(x => x.Nodes))
+            .Concat(_roadSegments.Values.Where(x => x.HasChanges()).SelectMany(x => x.GetNodeIds()))
             .Distinct()
             .Select(x => _roadNodes.GetValueOrDefault(x))
             .Where(x => x is not null)
