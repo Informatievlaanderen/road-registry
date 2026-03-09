@@ -1,5 +1,6 @@
 namespace RoadRegistry.RoadSegment;
 
+using System;
 using System.Linq;
 using Extensions;
 using NetTopologySuite.Geometries;
@@ -57,6 +58,11 @@ public static class NetTopologySuiteExtensions
         if (!line.Length.IsReasonablyLessThan(Distances.TooLongSegmentLength, tolerances))
         {
             problems += new RoadSegmentGeometryLengthIsTooLong(Distances.TooLongSegmentLength);
+        }
+
+        if (line.StartPoint.IsReasonablyEqualTo(line.EndPoint, tolerances))
+        {
+            problems += new RoadSegmentGeometryStartEqualsEnd();
         }
 
         if (line.ContainsVertexTooCloseToAnother(0.15))

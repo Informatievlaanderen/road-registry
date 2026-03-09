@@ -54,6 +54,14 @@ public class ValidateRoadSegmentGeometryTests
             expectedErrorCodes: ["RoadSegmentGeometryVerticesTooClose"]);
     }
 
+    [Fact]
+    public void WhenGeometryStartAndEndAreTheSameCoordinate_ThenError()
+    {
+        AssertValidateResult(
+            new LineString([new Coordinate(0, 0), new Coordinate(10, 0), new Coordinate(10, 1), new Coordinate(0, 0.001)]).ToMultiLineString(),
+            expectedErrorCodes: ["RoadSegmentGeometryStartEqualsEnd"]);
+    }
+
     private void AssertValidateResult(MultiLineString geometry, string[] expectedErrorCodes)
     {
         var problems = geometry.ValidateRoadSegmentGeometryDomainV2();

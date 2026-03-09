@@ -57,6 +57,10 @@ public sealed class DomainV2FileProblemTranslator : FileProblemTranslator
                     $"De geometrie van {ShapeRecordLabel()} zijn lengte is groter of gelijk dan {problem.GetParameterValue("TooLongSegmentLength")} meter.")
             },
             {
+                ProblemCode.RoadSegment.Geometry.StartEqualsEnd.ToString(), () => new(problem.Severity, problem.Reason,
+                    $"De geometrie van {ShapeRecordLabel()} zijn begin- en eindvertex zijn hetzelfde.")
+            },
+            {
                 ProblemCode.RoadSegment.Geometry.VerticesTooClose.ToString(), () => new(problem.Severity, problem.Reason,
                     $"De geometrie van {ShapeRecordLabel()} zijn afstand tussen de vertices bedraagt niet overal 15cm of meer.")
             },

@@ -59,7 +59,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         problems += validateProblems;
 
         problems += ValidateChangeFeaturesAreWithinTransactionZone(changeFeatures, context);
-        //TODO-pr validate segments intersecten maar max 1 keer (enkel Status == RoadSegmentStatusV2.Gerealiseerd)
 
         var roadSegmentIdProvider = new NextRoadSegmentIdProvider(maxUsedRoadSegmentId);
         var dynamicChangeFeaturesTask = Task.Run(() => RoadSegmentUnflattener.Unflatten(FeatureType.Change, changeFeatures, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken), cancellationToken);
