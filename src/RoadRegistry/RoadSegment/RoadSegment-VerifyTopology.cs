@@ -59,24 +59,37 @@ public partial class RoadSegment
         {
             //TODO-pr te bekijken indien performance issues bij grote uploads, vroeger werdt hier aparte scopedview voor gemaakt
             var intersectingSegments = FindIntersectingRoadSegments(context.RoadNetwork, RoadSegmentId, Geometry.Value, [StartNodeId, EndNodeId]);
+
+            var duplicateIntersectionsRoadSegmentIds = intersectingSegments
+                .Where(x => x.IntersectingCoordinates?.Length > 1)
+                .Select(x => x.RoadSegment.RoadSegmentId)
+                .ToList();
+            if (duplicateIntersectionsRoadSegmentIds.Any())
+            {
+                foreach (var duplicateIntersectionsRoadSegmentId in duplicateIntersectionsRoadSegmentIds)
+                {
+                    problems += new RoadSegmentDuplicateIntersections(context.IdTranslator.TranslateToTemporaryId(duplicateIntersectionsRoadSegmentId));
+                }
+            }
+
             var intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions = intersectingSegments
                 .Where(intersectingSegment =>
                     !context.RoadNetwork.GradeSeparatedJunctions.Values.Any(junction =>
-                        (junction.LowerRoadSegmentId == RoadSegmentId && junction.UpperRoadSegmentId == intersectingSegment.RoadSegmentId)
+                        (junction.LowerRoadSegmentId == RoadSegmentId && junction.UpperRoadSegmentId == intersectingSegment.RoadSegment.RoadSegmentId)
                         ||
-                        (junction.LowerRoadSegmentId == intersectingSegment.RoadSegmentId && junction.UpperRoadSegmentId == RoadSegmentId)
+                        (junction.LowerRoadSegmentId == intersectingSegment.RoadSegment.RoadSegmentId && junction.UpperRoadSegmentId == RoadSegmentId)
                     ))
                 .Select(i =>
                     new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(
-                        context.IdTranslator.TranslateToTemporaryId(i.RoadSegmentId)));
+                        context.IdTranslator.TranslateToTemporaryId(i.RoadSegment.RoadSegmentId)));
 
-            problems += intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions;
+                problems += intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions;
         }
 
         return problems;
     }
 
-    private static IEnumerable<RoadSegment> FindIntersectingRoadSegments(
+    private static IReadOnlyCollection<(RoadSegment RoadSegment, Coordinate[]? IntersectingCoordinates)> FindIntersectingRoadSegments(
         ScopedRoadNetwork roadNetwork,
         RoadSegmentId intersectsWithId,
         MultiLineString intersectsWithGeometry,
@@ -86,7 +99,12 @@ public partial class RoadSegment
             .GetNonRemovedRoadSegments()
             .Where(segment => segment.Attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
             .Where(segment => segment.RoadSegmentId != intersectsWithId)
-            .Where(segment => segment.Geometry.Value.Intersects(intersectsWithGeometry))
-            .Where(segment => !segment.Nodes.Any(roadNodeIdsNotInCommon.Contains));
+            .Where(segment => !segment.GetNodeIds().Any(roadNodeIdsNotInCommon.Contains))
+            .Select(segment =>
+            {
+                var intersection = segment.Geometry.Value.Intersection(intersectsWithGeometry);
+                return (segment, intersection?.Coordinates);
+            })
+            .ToList();
     }
 }

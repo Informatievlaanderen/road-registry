@@ -15,23 +15,6 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     public RoadSegmentAttributes Attributes { get; private set; }
     public RoadSegmentId? MergedRoadSegmentId { get; private set; }
 
-    [JsonIgnore]
-    public IEnumerable<RoadNodeId> Nodes
-    {
-        get
-        {
-            if (StartNodeId > 0)
-            {
-                yield return StartNodeId;
-            }
-
-            if (EndNodeId > 0)
-            {
-                yield return EndNodeId;
-            }
-        }
-    }
-
     public bool IsRemoved { get; private set; }
 
     public RoadSegment(RoadSegmentId id)
@@ -56,6 +39,19 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         EndNodeId = new RoadNodeId(endNodeId);
         Attributes = attributes;
         IsRemoved = isRemoved;
+    }
+
+    public IEnumerable<RoadNodeId> GetNodeIds()
+    {
+        if (StartNodeId > 0)
+        {
+            yield return StartNodeId;
+        }
+
+        if (EndNodeId > 0)
+        {
+            yield return EndNodeId;
+        }
     }
 
     public static RoadSegment Create(RoadSegmentWasAdded @event)
