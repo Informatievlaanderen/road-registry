@@ -22,21 +22,6 @@ public partial class RoadNode
 
         if (IsRemoved)
         {
-            foreach (var segment in segments)
-            {
-                if (segment.StartNodeId == RoadNodeId)
-                {
-                    problems += new RoadSegmentStartNodeMissing()
-                        .WithContext(ProblemContext.For(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId)));
-                }
-
-                if (segment.EndNodeId == RoadNodeId)
-                {
-                    problems += new RoadSegmentEndNodeMissing()
-                        .WithContext(ProblemContext.For(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId)));
-                }
-            }
-
             return problems;
         }
 
@@ -52,7 +37,7 @@ public partial class RoadNode
         problems = context.RoadNetwork.GetNonRemovedRoadSegments()
             .Where(s =>
                 segments.All(x => x.RoadSegmentId != s.RoadSegmentId)
-                && s.Geometry.Value.IsWithinDistance(Geometry.Value, Distances.TooClose)
+                && s.Geometry.Value.IsWithinDistance(Geometry.Value, Distances.RoadNodeTooClose)
             )
             .Aggregate(problems, (current, segment) =>
                 current.Add(new RoadNodeTooClose()

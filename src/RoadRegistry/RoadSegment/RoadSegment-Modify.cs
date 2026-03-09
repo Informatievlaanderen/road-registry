@@ -53,7 +53,7 @@ public partial class RoadSegment
 
         if (change.Geometry is not null)
         {
-            var startEndNodes = context.RoadNetwork.FindStartEndNodes(attributes.GeometryDrawMethod, change.Geometry, context.Tolerances);
+            var startEndNodes = context.RoadNetwork.FindStartEndNodes(attributes.Status, change.Geometry, context.Tolerances);
             problems += startEndNodes.Problems;
             startNodeId = startEndNodes.StartNodeId;
             endNodeId = startEndNodes.EndNodeId;

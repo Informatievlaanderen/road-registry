@@ -76,9 +76,9 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         return _gradeSeparatedJunctions.Values.Where(x => !x.IsRemoved);
     }
 
-    public (RoadNodeId? StartNodeId, RoadNodeId? EndNodeId, Problems Problems) FindStartEndNodes(RoadSegmentGeometryDrawMethodV2 method, RoadSegmentGeometry geometry, VerificationContextTolerances tolerances)
+    public (RoadNodeId? StartNodeId, RoadNodeId? EndNodeId, Problems Problems) FindStartEndNodes(RoadSegmentStatusV2 status, RoadSegmentGeometry geometry, VerificationContextTolerances tolerances)
     {
-        if (method == RoadSegmentGeometryDrawMethodV2.Ingeschetst)
+        if (status != RoadSegmentStatusV2.Gerealiseerd)
         {
             return (RoadNodeId.Zero, RoadNodeId.Zero, Problems.None);
         }

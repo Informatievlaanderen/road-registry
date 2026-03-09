@@ -59,6 +59,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         problems += validateProblems;
 
         problems += ValidateChangeFeaturesAreWithinTransactionZone(changeFeatures, context);
+        //TODO-pr validate segments intersecten maar max 1 keer (enkel Status == RoadSegmentStatusV2.Gerealiseerd)
 
         var roadSegmentIdProvider = new NextRoadSegmentIdProvider(maxUsedRoadSegmentId);
         var dynamicChangeFeaturesTask = Task.Run(() => RoadSegmentUnflattener.Unflatten(FeatureType.Change, changeFeatures, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken), cancellationToken);
@@ -251,18 +252,18 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         List<RoadSegmentFeatureCompareWithDynamicAttributes> FindMatchingExtractFeatureAttributes(RoadSegmentFeatureCompareWithDynamicAttributes changeFeatureAttributes)
         {
-            if (changeFeatureAttributes.Method == RoadSegmentGeometryDrawMethodV2.Ingeschetst)
+            if (changeFeatureAttributes.Status == RoadSegmentStatusV2.Gerealiseerd)
             {
+                var bufferedGeometry = changeFeatureAttributes.Geometry.Buffer(OverlapClusterTolerance);
                 return extractFeatures
-                    .Where(x => x.Attributes.RoadSegmentId == changeFeatureAttributes.RoadSegmentId)
+                    .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry))
+                    .Where(x => changeFeatureAttributes.Geometry.RoadSegmentOverlapsWith(x.Attributes.Geometry, OverlapClusterTolerance))
                     .Select(x => x.Attributes)
                     .ToList();
             }
 
-            var bufferedGeometry = changeFeatureAttributes.Geometry.Buffer(OverlapClusterTolerance);
             return extractFeatures
-                .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry))
-                .Where(x => changeFeatureAttributes.Geometry.RoadSegmentOverlapsWith(x.Attributes.Geometry, OverlapClusterTolerance))
+                .Where(x => x.Attributes.RoadSegmentId == changeFeatureAttributes.RoadSegmentId)
                 .Select(x => x.Attributes)
                 .ToList();
         }

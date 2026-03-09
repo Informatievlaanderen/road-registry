@@ -38,7 +38,7 @@ public partial class RoadSegment
         };
         problems += new RoadSegmentAttributesValidator().Validate(attributes, segmentLength);
 
-        var startEndNodes = context.RoadNetwork.FindStartEndNodes(change.GeometryDrawMethod, change.Geometry, context.Tolerances);
+        var startEndNodes = context.RoadNetwork.FindStartEndNodes(attributes.Status, change.Geometry, context.Tolerances);
         problems += startEndNodes.Problems;
 
         if (problems.HasError())
