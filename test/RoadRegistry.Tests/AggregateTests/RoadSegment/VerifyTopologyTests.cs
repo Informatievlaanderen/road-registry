@@ -27,10 +27,19 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                         TestData.StartPoint1.Coordinate,
                         TestData.MiddlePoint1.Coordinate,
                         new Coordinate(TestData.EndPoint1.Coordinate.X + 0.0001, TestData.EndPoint1.Coordinate.Y)
-                    ])]).WithMeasureOrdinates().ToRoadSegmentGeometry()
+                    ])]).WithMeasureOrdinates().ToRoadSegmentGeometry(),
+                    RoadSegmentIdReference = TestData.AddSegment2.RoadSegmentIdReference with
+                    {
+                        TempIds = [new RoadSegmentTempId(3)]
+                    }
                 })
             )
-            .ThenContainsProblems(new Error("RoadSegmentGeometryTaken", new ProblemParameter("ByOtherSegment", TestData.Segment1Added.RoadSegmentId.ToString())))
+            .ThenContainsProblems(
+                new Error("RoadSegmentGeometryTaken",
+                    new ProblemParameter("ByOtherWegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
+                    new ProblemParameter("WegsegmentId", TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                    new ProblemParameter("WegsegmentTempIds", "3")
+                ))
         );
     }
 
@@ -43,7 +52,10 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1)
             )
             .ThenContainsProblems(
-                new Error("RoadSegmentStartNodeMissing", new ProblemParameter("Identifier", TestData.AddSegment1.TemporaryId.ToString()))
+                new Error("RoadSegmentStartNodeMissing",
+                    new ProblemParameter("WegsegmentId", TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                    new ProblemParameter("WegsegmentTempIds", TestData.AddSegment1.RoadSegmentIdReference.GetTempIdsAsString())
+                )
             )
         );
     }
@@ -62,7 +74,10 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1)
             )
             .ThenContainsProblems(
-                new Error("RoadSegmentStartNodeMissing", new ProblemParameter("Identifier", TestData.AddSegment1.TemporaryId.ToString()))
+                new Error("RoadSegmentStartNodeMissing",
+                    new ProblemParameter("WegsegmentId", TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                    new ProblemParameter("WegsegmentTempIds", TestData.AddSegment1.RoadSegmentIdReference.GetTempIdsAsString())
+                )
             )
         );
     }
@@ -80,7 +95,10 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1)
             )
             .ThenContainsProblems(
-                new Error("RoadSegmentStartNodeMissing", new ProblemParameter("Identifier", TestData.AddSegment1.TemporaryId.ToString()))
+                new Error("RoadSegmentStartNodeMissing",
+                    new ProblemParameter("WegsegmentId", TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                    new ProblemParameter("WegsegmentTempIds", TestData.AddSegment1.RoadSegmentIdReference.GetTempIdsAsString())
+                )
             )
         );
     }
@@ -94,7 +112,10 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1)
             )
             .ThenContainsProblems(
-                new Error("RoadSegmentEndNodeMissing", new ProblemParameter("Identifier", TestData.AddSegment1.TemporaryId.ToString()))
+                new Error("RoadSegmentEndNodeMissing",
+                    new ProblemParameter("WegsegmentId", TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                    new ProblemParameter("WegsegmentTempIds", TestData.AddSegment1.RoadSegmentIdReference.GetTempIdsAsString())
+                )
             )
         );
     }
@@ -114,7 +135,10 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1)
             )
             .ThenContainsProblems(
-                new Error("RoadSegmentEndNodeMissing", new ProblemParameter("Identifier", TestData.AddSegment1.TemporaryId.ToString()))
+                new Error("RoadSegmentEndNodeMissing",
+                    new ProblemParameter("WegsegmentId", TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                    new ProblemParameter("WegsegmentTempIds", TestData.AddSegment1.RoadSegmentIdReference.GetTempIdsAsString())
+                )
             )
         );
     }
@@ -133,7 +157,10 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1)
             )
             .ThenContainsProblems(
-                new Error("RoadSegmentEndNodeMissing", new ProblemParameter("Identifier", TestData.AddSegment1.TemporaryId.ToString()))
+                new Error("RoadSegmentEndNodeMissing",
+                    new ProblemParameter("WegsegmentId", TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                    new ProblemParameter("WegsegmentTempIds", TestData.AddSegment1.RoadSegmentIdReference.GetTempIdsAsString())
+                )
             )
         );
     }
@@ -158,7 +185,11 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add((TestData.AddSegment1 with
                 {
-                    Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End)
+                    Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End),
+                    RoadSegmentIdReference = TestData.AddSegment1.RoadSegmentIdReference with
+                    {
+                        TempIds = null
+                    }
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
             .When(changes => changes
@@ -172,12 +203,17 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add((TestData.AddSegment2 with
                 {
-                    Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End)
+                    Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End),
+                    RoadSegmentIdReference = TestData.AddSegment2.RoadSegmentIdReference with
+                    {
+                        TempIds = [new RoadSegmentTempId(3)]
+                    }
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
             .ThenContainsProblems(new Error("IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction",
-                new ProblemParameter("ModifiedRoadSegmentId", TestData.AddSegment2.TemporaryId.ToString()),
-                new ProblemParameter("IntersectingRoadSegmentId", TestData.Segment1Added.RoadSegmentId.ToString())
+                new ProblemParameter("IntersectingWegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
+                new ProblemParameter("WegsegmentId", TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                new ProblemParameter("WegsegmentTempIds", "3")
             ))
         );
     }
@@ -197,8 +233,12 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
             )
             .ThenProblems(
-                new Error("RoadNodeNotConnectedToAnySegment", new ProblemParameter("RoadNodeId", TestData.Segment1StartNodeAdded.RoadNodeId.ToString())),
-                new Error("RoadNodeNotConnectedToAnySegment", new ProblemParameter("RoadNodeId", TestData.Segment1EndNodeAdded.RoadNodeId.ToString()))
+                new Error("RoadNodeNotConnectedToAnySegment",
+                    new ProblemParameter("WegknoopId", TestData.Segment1StartNodeAdded.RoadNodeId.ToString())
+                ),
+                new Error("RoadNodeNotConnectedToAnySegment",
+                    new ProblemParameter("WegknoopId", TestData.Segment1EndNodeAdded.RoadNodeId.ToString())
+                )
             )
         );
     }

@@ -25,12 +25,12 @@ public static class SharedCustomizations
         fixture.Customize<RoadSegmentDbaseRecord>(composer => composer
             .FromFactory(random => new RoadSegmentDbaseRecord
             {
-                WS_TEMPID = { Value = fixture.Create<RoadSegmentTempId>().ToInt() },
+                WS_TEMPID = { Value = fixture.Create<RoadSegmentTempId>().ToInt32() },
                 WS_OIDN = { Value = fixture.Create<RoadSegmentId>() },
                 LBEHEER = { Value = fixture.Create<OrganizationId>() },
                 RBEHEER = { Value = fixture.Create<OrganizationId>() },
                 MORF = { Value = fixture.Create<RoadSegmentMorphologyV2>().Translation.Identifier },
-                STATUS = { Value = (random.Next(0, 2) == 0 ? RoadSegmentStatusV2.Gepland : RoadSegmentStatusV2.Gerealiseerd).Translation.Identifier },
+                STATUS = { Value = fixture.Create<RoadSegmentStatusV2>().Translation.Identifier },
                 WEGCAT = { Value = fixture.Create<RoadSegmentCategoryV2>().Translation.Identifier },
                 LSTRNMID = { Value = fixture.Create<StreetNameLocalId>() },
                 RSTRNMID = { Value = fixture.Create<StreetNameLocalId>() },

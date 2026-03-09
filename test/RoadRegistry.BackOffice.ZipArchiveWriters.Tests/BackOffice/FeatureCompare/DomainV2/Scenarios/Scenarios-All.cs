@@ -49,7 +49,8 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         {
                             TemporaryId = new RoadNodeId(context.Change.TestData.RoadNode1DbaseRecord.WK_OIDN.Value),
                             OriginalId = null,
-                            Geometry = context.Change.TestData.RoadNode1ShapeRecord.Geometry.ToRoadNodeGeometry()
+                            Geometry = context.Change.TestData.RoadNode1ShapeRecord.Geometry.ToRoadNodeGeometry(),
+                            Grensknoop = context.Change.TestData.RoadNode1DbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
                         }
                     )
                     .AppendChange(
@@ -57,13 +58,14 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         {
                             TemporaryId = new RoadNodeId(context.Change.TestData.RoadNode2DbaseRecord.WK_OIDN.Value),
                             OriginalId = null,
-                            Geometry = context.Change.TestData.RoadNode2ShapeRecord.Geometry.ToRoadNodeGeometry()
+                            Geometry = context.Change.TestData.RoadNode2ShapeRecord.Geometry.ToRoadNodeGeometry(),
+                            Grensknoop = context.Change.TestData.RoadNode2DbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
                         }
                     )
                     .AppendChange(
                         BuildAddRoadSegmentChange(context.Change.TestData.RoadSegment1DbaseRecord, context.Change.TestData.RoadSegment1ShapeRecord) with
                         {
-                            TemporaryId = roadSegment1TemporaryId,
+                            RoadSegmentIdReference = new RoadSegmentIdReference(roadSegment1TemporaryId, [new RoadSegmentTempId(context.Change.TestData.RoadSegment1DbaseRecord.WS_TEMPID.Value)]),
                             GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst,
                             EuropeanRoadNumbers =
                             [
@@ -83,7 +85,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                             TemporaryId = new GradeSeparatedJunctionId(context.Change.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN.Value),
                             Type = GradeSeparatedJunctionTypeV2.ByIdentifier[context.Change.TestData.GradeSeparatedJunctionDbaseRecord.TYPE.Value],
                             UpperRoadSegmentId = roadSegment1TemporaryId,
-                            LowerRoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value)
+                            LowerRoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value!.Value)
                         }
                     );
             });
@@ -150,28 +152,28 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                     .AppendChange(
                         new AddRoadSegmentToEuropeanRoadChange
                         {
-                            RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+                            RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value!.Value),
                             Number = EuropeanRoadNumber.Parse(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value!)
                         }
                     )
                     .AppendChange(
                         new RemoveRoadSegmentFromEuropeanRoadChange
                         {
-                            RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+                            RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value!.Value),
                             Number = EuropeanRoadNumber.Parse(context.Extract.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value!)
                         }
                     )
                     .AppendChange(
                         new AddRoadSegmentToNationalRoadChange
                         {
-                            RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+                            RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value!.Value),
                             Number = NationalRoadNumber.Parse(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord1.NWNUMMER.Value!)
                         }
                     )
                     .AppendChange(
                         new RemoveRoadSegmentFromNationalRoadChange
                         {
-                            RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+                            RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value!.Value),
                             Number = NationalRoadNumber.Parse(context.Extract.TestData.RoadSegment1NationalRoadDbaseRecord1.NWNUMMER.Value!)
                         }
                     )
@@ -180,8 +182,8 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         {
                             TemporaryId = new GradeSeparatedJunctionId(context.Change.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN.Value),
                             Type = GradeSeparatedJunctionTypeV2.ByIdentifier[context.Change.TestData.GradeSeparatedJunctionDbaseRecord.TYPE.Value],
-                            UpperRoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
-                            LowerRoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value)
+                            UpperRoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value!.Value),
+                            LowerRoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value!.Value)
                         }
                     )
                     .AppendChange(
@@ -234,7 +236,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 .AppendChange(
                     new RemoveRoadSegmentChange
                     {
-                        RoadSegmentId = new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value)
+                        RoadSegmentId = new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value!.Value)
                     }
                 )
                 .AppendChange(

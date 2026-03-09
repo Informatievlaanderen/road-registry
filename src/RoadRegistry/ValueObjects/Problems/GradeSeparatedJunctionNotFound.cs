@@ -5,7 +5,7 @@ using ProblemCodes;
 public class GradeSeparatedJunctionNotFound : Error
 {
     public GradeSeparatedJunctionNotFound()
-        : base(ProblemCode.GradeSeparatedJunction.NotFound)
+        : base(ProblemCode.GradeSeparatedJunction.NotFound.ToString())
     {
     }
 

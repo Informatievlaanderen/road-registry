@@ -11,7 +11,7 @@ public class RoadSegmentDbaseRecord : DbaseRecord
     public RoadSegmentDbaseRecord()
     {
         WS_TEMPID = new DbaseInt32(Schema.WS_TEMPID);
-        WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
+        WS_OIDN = new DbaseNullableInt32(Schema.WS_OIDN);
         STATUS = new DbaseInt32(Schema.STATUS);
         MORF = new DbaseInt32(Schema.MORF);
         WEGCAT = new TrimmedDbaseString(Schema.WEGCAT);
@@ -53,7 +53,7 @@ public class RoadSegmentDbaseRecord : DbaseRecord
     }
 
     public DbaseInt32 WS_TEMPID { get; }
-    public DbaseInt32 WS_OIDN { get; }
+    public DbaseNullableInt32 WS_OIDN { get; }
     public DbaseInt32 STATUS { get; }
     public DbaseInt32 MORF { get; }
     public DbaseString WEGCAT { get; }

@@ -7,7 +7,7 @@ using ValueObjects;
 public record RoadSegmentWasAdded: IMartenEvent, ICreatedEvent
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
-    public RoadSegmentId? OriginalId { get; init; }
+    public required RoadSegmentIdReference OriginalRoadSegmentIdReference { get; init; }
     public required RoadSegmentGeometry Geometry { get; init; }
     public required RoadNodeId StartNodeId { get; init; }
     public required RoadNodeId EndNodeId { get; init; }

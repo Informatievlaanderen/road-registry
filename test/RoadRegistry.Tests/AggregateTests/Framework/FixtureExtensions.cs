@@ -1,14 +1,11 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
 using AutoFixture;
-using BackOffice;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Extensions;
-using NetTopologySuite.Geometries;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
-using Point = NetTopologySuite.Geometries.Point;
+using RoadRegistry.Tests.BackOffice;
 
 public static class FixtureExtensions
 {
@@ -53,7 +50,7 @@ public static class FixtureExtensions
                     return new RoadSegmentWasAdded
                     {
                         RoadSegmentId = fixture.Create<RoadSegmentId>(),
-                        OriginalId = fixture.Create<RoadSegmentId>(),
+                        OriginalRoadSegmentIdReference = new RoadSegmentIdReference(fixture.Create<RoadSegmentId>(), [fixture.Create<RoadSegmentTempId>()]),
                         Geometry = geometry,
                         StartNodeId = fixture.Create<RoadNodeId>(),
                         EndNodeId = fixture.Create<RoadNodeId>(),
@@ -84,13 +81,12 @@ public static class FixtureExtensions
         fixture.Customize<RoadSegmentWasModified>(composer =>
             composer.FromFactory(_ =>
                 {
-                    var roadSegmentId = fixture.Create<RoadSegmentId>();
                     var geometry = fixture.Create<RoadSegmentGeometry>();
 
                     return new RoadSegmentWasModified
                     {
                         RoadSegmentId = fixture.Create<RoadSegmentId>(),
-                        OriginalId = roadSegmentId,
+                        OriginalRoadSegmentIdReference = new RoadSegmentIdReference(fixture.Create<RoadSegmentId>(), [fixture.Create<RoadSegmentTempId>()]),
                         Geometry = geometry,
                         StartNodeId = fixture.Create<RoadNodeId>(),
                         EndNodeId = fixture.Create<RoadNodeId>(),
@@ -156,13 +152,12 @@ public static class FixtureExtensions
         fixture.Customize<RoadSegmentWasMigrated>(composer =>
             composer.FromFactory(_ =>
                 {
-                    var roadSegmentId = fixture.Create<RoadSegmentId>();
                     var geometry = fixture.Create<RoadSegmentGeometry>();
 
                     return new RoadSegmentWasMigrated
                     {
                         RoadSegmentId = fixture.Create<RoadSegmentId>(),
-                        OriginalId = roadSegmentId,
+                        OriginalRoadSegmentIdReference = new RoadSegmentIdReference(fixture.Create<RoadSegmentId>(), [fixture.Create<RoadSegmentTempId>()]),
                         Geometry = geometry,
                         StartNodeId = fixture.Create<RoadNodeId>(),
                         EndNodeId = fixture.Create<RoadNodeId>(),

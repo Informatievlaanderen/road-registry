@@ -75,13 +75,7 @@ public static class NetTopologySuiteExtensions
 
         if (oGisGeometryType == OgcGeometryType.LineString)
         {
-            if (g1.Length < 1.42)
-            {
-                clusterTolerance = g1.Length / 2;
-            }
-            var g1Buf = g1.Buffer(clusterTolerance);
-            overlap = g0.Intersection(g1Buf);
-            var overlapValue = Math.Round(overlap.Length / g1.Length);
+            var overlapValue = CalculateLineStringOverlapPercentage(g0, g1, clusterTolerance);
             if (overlapValue >= minimumOverlapThreshold)
             {
                 return CheckOverlapViceVersa(g0, g1, OgcGeometryType.LineString, minimumOverlapThreshold, clusterTolerance);
@@ -106,13 +100,31 @@ public static class NetTopologySuiteExtensions
         throw new NotSupportedException($"{nameof(OgcGeometryType)}.{oGisGeometryType} is not supported");
     }
 
+    public static double CalculateOverlapPercentage(this MultiLineString g0, MultiLineString g1, double clusterTolerance)
+    {
+        return CalculateLineStringOverlapPercentage(g0, g1, clusterTolerance);
+    }
+
+    private static double CalculateLineStringOverlapPercentage(Geometry g0, Geometry g1, double clusterTolerance)
+    {
+        if (g1.Length < 1.42)
+        {
+            clusterTolerance = g1.Length / 2;
+        }
+
+        var g1Buf = g1.Buffer(clusterTolerance);
+        var overlap = g0.Intersection(g1Buf);
+        var overlapValue = overlap.Length / g1.Length;
+        return overlapValue;
+    }
+
     private static bool CheckOverlapViceVersa(Geometry g0, Geometry g1, OgcGeometryType oGisGeometryType, double threshold, double compareTolerance)
     {
         if (oGisGeometryType == OgcGeometryType.LineString)
         {
             var g0Buf = g0.Buffer(compareTolerance);
             var overlap = g1.Intersection(g0Buf);
-            var overlapValue = Math.Round(overlap.Length / g0.Length);
+            var overlapValue = overlap.Length / g0.Length;
             if (overlapValue >= threshold)
             {
                 return true;
@@ -124,7 +136,7 @@ public static class NetTopologySuiteExtensions
         {
             //omgekeerde moet ook gecheckt worden (voorkomen vergelijking met verkeerd omvattend feature, overlap = 100%)
             var overlap = g1.Intersection(g0);
-            var overlapValue = Math.Round(overlap.Area / g0.Area);
+            var overlapValue = overlap.Area / g0.Area;
             if (overlapValue >= threshold)
             {
                 return true;
@@ -285,6 +297,7 @@ public static class NetTopologySuiteExtensions
                     coordinates.RemoveAt(coordinates.Count - 1);
                     coordinates.Add(currentPoint);
                 }
+
                 continue;
             }
 
@@ -396,10 +409,12 @@ public static class NetTopologySuiteExtensions
     {
         return value.IsReasonablyEqualTo(other, VerificationContextTolerances.Cm);
     }
+
     public static bool IsReasonablyEqualTo(this double value, double other)
     {
         return value.IsReasonablyEqualTo(other, VerificationContextTolerances.Default);
     }
+
     public static bool IsReasonablyEqualTo(this double value, double other, VerificationContextTolerances tolerances)
     {
         return value.IsReasonablyEqualTo(other, tolerances.GeometryTolerance);

@@ -40,6 +40,11 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadNode.NotConnectedToAnySegment, [
+                    new ProblemParameter { Name = "WegknoopId", Value = "1" }
+                ]
+            },
+            {
                 ProblemCode.StreetName.RegistryUnexpectedError, [
                     new ProblemParameter { Name = "StatusCode", Value = "500" }
                 ]
@@ -111,6 +116,22 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadSegment.Geometry.VerticesTooClose, [
+                    new ProblemParameter("Identifier", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.Geometry.LineCountMismatch, [
+                    new ProblemParameter("Identifier", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.Geometry.Taken, [
+                    new ProblemParameter("WegsegmentId", "1"),
+                    new ProblemParameter("ByOtherWegsegmentId", "2")
+                ]
+            },
+            {
                 ProblemCode.RoadSegment.Category.NotChangedBecauseCurrentIsNewerVersion, [
                     new ProblemParameter("Identifier", "1")
                 ]
@@ -159,6 +180,12 @@ public class ProblemTranslatorTests
                 ProblemCode.GradeSeparatedJunction.UpperAndLowerDoNotIntersect, [
                     new ProblemParameter("UpperRoadSegmentId", "1"),
                     new ProblemParameter("LowerRoadSegmentId", "2")
+                ]
+            },
+            {
+                ProblemCode.GradeSeparatedJunction.NotUnique, [
+                    new ProblemParameter("GradeSeparatedJunctionId", "1"),
+                    new ProblemParameter("OtherGradeSeparatedJunctionId", "2"),
                 ]
             },
         };

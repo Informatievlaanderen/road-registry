@@ -153,15 +153,19 @@ public partial class ScopedRoadNetwork
 
     private Problems MigrateRoadSegment(ModifyRoadSegmentChange change, ILookup<RoadSegmentId, IRoadNetworkChange> roadSegmentRoadNumberChanges, ScopedRoadNetworkContext context, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
     {
-        var originalId = change.OriginalId ?? change.RoadSegmentId;
+        var problems = Problems.WithContext(change.RoadSegmentIdReference);
 
-        var europeanRoadNumbers = ReadEuropeanRoadNumbers(roadSegmentRoadNumberChanges[change.RoadSegmentId]);
-        var nationalRoadNumbers = ReadNationalRoadNumbers(roadSegmentRoadNumberChanges[change.RoadSegmentId]);
+        if (!_roadSegments.TryGetValue(change.RoadSegmentIdReference.RoadSegmentId, out var roadSegment))
+        {
+            return problems + new RoadSegmentNotFound();
+        }
+
+        var europeanRoadNumbers = ReadEuropeanRoadNumbers(roadSegmentRoadNumberChanges[change.RoadSegmentIdReference.RoadSegmentId]);
+        var nationalRoadNumbers = ReadNationalRoadNumbers(roadSegmentRoadNumberChanges[change.RoadSegmentIdReference.RoadSegmentId]);
 
         var migrateChange = new MigrateRoadSegmentChange
         {
-            RoadSegmentId = change.RoadSegmentId,
-            OriginalId = change.OriginalId,
+            RoadSegmentIdReference = change.RoadSegmentIdReference,
             Geometry = change.Geometry!,
             GeometryDrawMethod = change.GeometryDrawMethod!,
             AccessRestriction = change.AccessRestriction!,
@@ -180,21 +184,13 @@ public partial class ScopedRoadNetwork
             NationalRoadNumbers = nationalRoadNumbers
         };
 
-        var (roadSegment, problems) = RoadSegment.Migrate(migrateChange, context);
+        problems += roadSegment.Migrate(migrateChange, context);
         if (problems.HasError())
         {
             return problems;
         }
 
-        problems += context.IdTranslator.RegisterMapping(originalId, roadSegment!.RoadSegmentId);
-        if (problems.HasError())
-        {
-            return problems;
-        }
-
-        _roadSegments.Add(roadSegment.RoadSegmentId, roadSegment);
         summary.Modified.Add(roadSegment.RoadSegmentId);
-
         return problems;
     }
 
@@ -240,15 +236,17 @@ public partial class ScopedRoadNetwork
 
     private Problems RetireRoadSegmentBecauseOfMigration(RoadSegmentId roadSegmentId, ScopedRoadNetworkContext context, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
     {
+        var problems = Problems.WithContext(roadSegmentId);
+
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
         {
-            return Problems.Single(new RoadSegmentNotFound(roadSegmentId));
+            return problems + new RoadSegmentNotFound();
         }
 
         //TODO-pr indien segment deel is van een merge dan de nieuwe ID er aan toevoegen
         RoadSegmentId? mergedRoadSegmentId = null;
 
-        var problems = roadSegment.RetireBecauseOfMigration(mergedRoadSegmentId, context.Provenance);
+        problems += roadSegment.RetireBecauseOfMigration(mergedRoadSegmentId, context.Provenance);
         if (problems.HasError())
         {
             return problems;

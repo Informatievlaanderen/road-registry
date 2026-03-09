@@ -46,8 +46,8 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(Fixture.Create<AddGradeSeparatedJunctionChange>() with
                 {
-                    LowerRoadSegmentId = TestData.AddSegment1.TemporaryId,
-                    UpperRoadSegmentId = TestData.AddSegment2.TemporaryId,
+                    LowerRoadSegmentId = TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId,
+                    UpperRoadSegmentId = TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId,
                     Type = GradeSeparatedJunctionTypeV2.Brug
                 })
             )
@@ -75,7 +75,8 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(change)
             )
-            .ThenProblems(new Error("GradeSeparatedJunctionNotFound", new ProblemParameter("Identifier", change.GradeSeparatedJunctionId.ToString())))
+            .ThenProblems(new Error("GradeSeparatedJunctionNotFound",
+                new ProblemParameter("OngelijkGrondseKruisingId", change.GradeSeparatedJunctionId.ToString())))
         );
     }
 }

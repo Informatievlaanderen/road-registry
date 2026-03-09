@@ -69,7 +69,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     if (context.ChangedRoadSegments.TryGetValue(feature.Attributes.TempId, out var knownRoadSegment))
                     {
                         var recordContext = FileName.AtDbaseRecord(featureType, feature.RecordNumber);
-                        problems += recordContext.RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange(new RoadSegmentId(feature.Attributes.TempId.ToInt()), knownRoadSegment.RecordNumber);
+                        problems += recordContext.RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange(new RoadSegmentId(feature.Attributes.TempId.ToInt32()), knownRoadSegment.RecordNumber);
                     }
                 }
 
@@ -170,7 +170,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 try
                 {
                     var multiLineString = Geometry.ToMultiLineString();
-                    var lineProblems = multiLineString.ValidateRoadSegmentGeometryDomainV2(new RoadSegmentId(roadSegmentId.ToInt()));
+                    var lineProblems = multiLineString.ValidateRoadSegmentGeometryDomainV2();
 
                     problems += lineProblems
                         .Select(problem => recordContext

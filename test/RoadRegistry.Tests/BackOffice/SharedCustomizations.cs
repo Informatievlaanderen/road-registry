@@ -631,8 +631,8 @@ public static class SharedCustomizations
         fixture.Customize<NetTopologySuite.Geometries.Point>(customization =>
             customization.FromFactory(generator =>
                 {
-                    var x = generator.Next(600000, 700000);
-                    var y = generator.Next(600000, 700000);
+                    var x = generator.Next(601000, 650000);
+                    var y = generator.Next(601000, 650000);
 
                     return new NetTopologySuite.Geometries.Point(x, y)
                         .WithSrid(WellknownSrids.Lambert08);
@@ -645,8 +645,8 @@ public static class SharedCustomizations
         fixture.Customize<NetTopologySuite.Geometries.LineString>(customization =>
             customization.FromFactory(generator =>
                 {
-                    var x = generator.Next(600000, 700000);
-                    var y = generator.Next(600000, 700000);
+                    var x = generator.Next(601000, 650000);
+                    var y = generator.Next(601000, 650000);
                     var m = generator.Next(5, 100);
 
                     return new NetTopologySuite.Geometries.LineString(
@@ -667,9 +667,9 @@ public static class SharedCustomizations
         fixture.Customize<NetTopologySuite.Geometries.Polygon>(customization =>
             customization.FromFactory(generator =>
                 {
-                    var x = generator.Next(600000, 700000);
-                    var y = generator.Next(600000, 700000);
-                    var width = generator.Next(10, 1000);
+                    var x = generator.Next(600000, 600100);
+                    var y = generator.Next(600000, 600100);
+                    var width = generator.Next(50000, 100000);
 
                     return new NetTopologySuite.Geometries.Polygon(new LinearRing([
                             new(x, y),
@@ -935,6 +935,13 @@ public static class SharedCustomizations
                 RoadSegmentStatusV2.All[generator.Next() % RoadSegmentStatusV2.All.Length]
             )
         );
+    }
+    public static void CustomizeInwinningRoadSegmentStatusV2(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentStatusV2>(customization =>
+            customization.FromFactory(generator =>
+                generator.Next(0, 2) == 0 ? RoadSegmentStatusV2.Gepland : RoadSegmentStatusV2.Gerealiseerd)
+            );
     }
 
     public static void Freeze<T>(this IFixture fixture, T frozenValue)

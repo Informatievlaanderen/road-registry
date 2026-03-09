@@ -69,7 +69,7 @@ public class DomainV2ZipArchiveTestData : IDisposable
         fixture.CustomizeRoadSegmentGeometryDrawMethodV2();
         fixture.CustomizeOrganizationId();
         fixture.CustomizeRoadSegmentMorphologyV2();
-        fixture.CustomizeRoadSegmentStatusV2();
+        fixture.CustomizeInwinningRoadSegmentStatusV2();
         fixture.CustomizeRoadSegmentCategoryV2();
         fixture.CustomizeRoadSegmentAccessRestrictionV2();
         fixture.CustomizeRoadSegmentPosition();

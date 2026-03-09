@@ -13,14 +13,14 @@ public partial class RoadSegment
 {
     public Problems VerifyTopology(ScopedRoadNetworkContext context)
     {
-        var problems = Problems.For(RoadSegmentId);
+        var idReference = context.IdTranslator.TranslateToTemporaryId(RoadSegmentId);
+        var problems = Problems.WithContext(idReference);
 
         if (IsRemoved || Attributes.GeometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingeschetst)
         {
             return problems;
         }
 
-        var originalIdOrId = context.IdTranslator.TranslateToTemporaryId(RoadSegmentId);
         var line = Geometry.Value.GetSingleLineString();
 
         var byOtherSegment = context.RoadNetwork.GetNonRemovedRoadSegments().FirstOrDefault(segment =>
@@ -33,25 +33,25 @@ public partial class RoadSegment
 
         if (!context.RoadNetwork.RoadNodes.TryGetValue(StartNodeId, out var startNode) || startNode.IsRemoved)
         {
-            problems += new RoadSegmentStartNodeMissing(originalIdOrId);
+            problems += new RoadSegmentStartNodeMissing();
         }
         else
         {
             if (!line.StartPoint.IsReasonablyEqualTo(startNode.Geometry.Value, context.Tolerances))
             {
-                problems += new RoadSegmentStartPointDoesNotMatchNodeGeometry(originalIdOrId);
+                problems += new RoadSegmentStartPointDoesNotMatchNodeGeometry();
             }
         }
 
         if (!context.RoadNetwork.RoadNodes.TryGetValue(EndNodeId, out var endNode) || endNode.IsRemoved)
         {
-            problems += new RoadSegmentEndNodeMissing(originalIdOrId);
+            problems += new RoadSegmentEndNodeMissing();
         }
         else
         {
             if (!line.EndPoint.IsReasonablyEqualTo(endNode.Geometry.Value, context.Tolerances))
             {
-                problems += new RoadSegmentEndPointDoesNotMatchNodeGeometry(originalIdOrId);
+                problems += new RoadSegmentEndPointDoesNotMatchNodeGeometry();
             }
         }
 
@@ -68,7 +68,6 @@ public partial class RoadSegment
                     ))
                 .Select(i =>
                     new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(
-                        originalIdOrId,
                         context.IdTranslator.TranslateToTemporaryId(i.RoadSegmentId)));
 
             problems += intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions;

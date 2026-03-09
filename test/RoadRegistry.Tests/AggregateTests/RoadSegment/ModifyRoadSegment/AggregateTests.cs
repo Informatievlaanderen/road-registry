@@ -6,6 +6,7 @@ using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;
 using RoadRegistry.RoadNode;
+using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
@@ -44,9 +45,9 @@ public class AggregateTests : AggregateTestBase
         segment.GetChanges().Should().HaveCount(1);
 
         var segmentModified = (RoadSegmentWasModified)segment.GetChanges().Single();
-        segmentModified.RoadSegmentId.Should().Be(change.RoadSegmentId);
+        segmentModified.RoadSegmentId.Should().Be(change.RoadSegmentIdReference.RoadSegmentId);
         segmentModified.Geometry.Should().BeEquivalentTo(change.Geometry);
-        segmentModified.OriginalId.Should().Be(change.OriginalId);
+        segmentModified.OriginalRoadSegmentIdReference.Should().Be(change.RoadSegmentIdReference);
         segmentModified.StartNodeId.Should().Be(TestData.Segment1StartNodeAdded.RoadNodeId);
         segmentModified.EndNodeId.Should().Be(TestData.Segment1EndNodeAdded.RoadNodeId);
         segmentModified.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
@@ -84,9 +85,9 @@ public class AggregateTests : AggregateTestBase
         segment.GetChanges().Should().HaveCount(1);
 
         var segmentModified = (RoadSegmentWasModified)segment.GetChanges().Single();
-        segmentModified.RoadSegmentId.Should().Be(change.RoadSegmentId);
+        segmentModified.RoadSegmentId.Should().Be(change.RoadSegmentIdReference.RoadSegmentId);;
         segmentModified.Geometry.Should().BeEquivalentTo(change.Geometry);
-        segmentModified.OriginalId.Should().Be(change.OriginalId);
+        segmentModified.OriginalRoadSegmentIdReference.Should().Be(change.RoadSegmentIdReference);
         segmentModified.StartNodeId.Should().Be(new RoadNodeId(0));
         segmentModified.EndNodeId.Should().Be(new RoadNodeId(0));
         segmentModified.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
@@ -109,14 +110,34 @@ public class AggregateTests : AggregateTestBase
             .WithoutChanges();
         var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
-            Geometry = RoadSegmentGeometry.Create(new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString())
+            Geometry = RoadSegmentGeometry.Create(new LineString([new Coordinate(0, 0), new Coordinate(0.9, 0)]).ToMultiLineString())
         };
 
+        var roadNetworkContext = new ScopedRoadNetworkContext(
+            new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [
+                RoadNode.Create(Fixture.Create<RoadNodeWasAdded>() with
+                {
+                    Geometry = RoadNodeGeometry.Create(change.Geometry.Value.GetSingleLineString().StartPoint)
+                }),
+                RoadNode.Create(Fixture.Create<RoadNodeWasAdded>() with
+                {
+                    Geometry = RoadNodeGeometry.Create(change.Geometry.Value.GetSingleLineString().EndPoint)
+                })
+            ], [], []),
+            new IdentifierTranslator(),
+            TestData.Provenance);
+
         // Act
-        var problems = segment.Modify(change, Fixture.Create<ScopedRoadNetworkContext>());
+        var problems = segment.Modify(change, roadNetworkContext);
 
         // Assert
-        problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsZero(change.OriginalId!.Value));
+        problems.Should().ContainEquivalentOf(
+            new Error("RoadSegmentGeometryLengthLessThanMinimum",
+                new ProblemParameter("Minimum", 1.ToString()),
+                new ProblemParameter("WegsegmentId", change.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                new ProblemParameter("WegsegmentTempIds", change.RoadSegmentIdReference.GetTempIdsAsString())
+            )
+        );
     }
 
     [Fact]

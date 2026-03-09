@@ -10,7 +10,6 @@ using ValueObjects;
 public static class ValidationExtensions
 {
     public static Problems Validate<T>(this RoadSegmentDynamicAttributeValues<T> attributeValues,
-        RoadSegmentId roadSegmentId,
         double segmentLength,
         ProblemCode.RoadSegment.DynamicAttributeProblemCodes problemCodes)
         where T : notnull
@@ -40,7 +39,6 @@ public static class ValidationExtensions
                 if (group.Key.From != RoadSegmentPositionV2.Zero)
                 {
                     problems += new Error(problemCodes.FromPositionNotEqualToZero!,
-                        new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
                         new ProblemParameter("FromPosition", group.Key.From.ToString()));
                 }
             }
@@ -49,7 +47,6 @@ public static class ValidationExtensions
                 if (group.Key.From != previousToPosition.Value)
                 {
                     problems += new Error(problemCodes.NotAdjacent!,
-                        new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
                         new ProblemParameter("ToPosition", previousToPosition.Value.ToString()),
                         new ProblemParameter("FromPosition", group.Key.From.ToString()));
                 }
@@ -57,7 +54,6 @@ public static class ValidationExtensions
                 if (group.Key.From == group.Key.To)
                 {
                     problems += new Error(problemCodes.HasLengthOfZero!,
-                        new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
                         new ProblemParameter("FromPosition", group.Key.From.ToString()),
                         new ProblemParameter("ToPosition", group.Key.To.ToString()));
                 }
@@ -71,14 +67,12 @@ public static class ValidationExtensions
             if (both.Count > 1)
             {
                 problems += new Error(problemCodes.ValueNotUniqueWithinSegment!,
-                    new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
                     new ProblemParameter("FromPosition", group.Key.From.ToString()),
                     new ProblemParameter("ToPosition", group.Key.To.ToString()));
             }
             else if (both.Count == 1 && notBoth.Count > 0)
             {
                 problems += new Error(problemCodes.LeftOrRightNotAllowedWhenUsingBoth!,
-                    new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
                     new ProblemParameter("FromPosition", group.Key.From.ToString()),
                     new ProblemParameter("ToPosition", group.Key.To.ToString()));
             }
@@ -90,7 +84,6 @@ public static class ValidationExtensions
                 if (hasNotUniqueRecords)
                 {
                     problems += new Error(problemCodes.ValueNotUniqueWithinSegment!,
-                        new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
                         new ProblemParameter("FromPosition", group.Key.From.ToString()),
                         new ProblemParameter("ToPosition", group.Key.To.ToString()));
                 }
@@ -100,7 +93,6 @@ public static class ValidationExtensions
         if (previousToPosition is not null && !previousToPosition.Value.IsReasonablyEqualTo(segmentLength))
         {
             problems += new Error(problemCodes.ToPositionNotEqualToLength!,
-                new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
                 new ProblemParameter("ToPosition", previousToPosition.Value.ToString()),
                 new ProblemParameter("Length", segmentLength.ToRoundedMeasurementString()));
         }
@@ -109,12 +101,11 @@ public static class ValidationExtensions
     }
 
     public static Problems ValidateCollectionMustBeUnique<T>(this IReadOnlyCollection<T>? collection,
-        RoadSegmentId roadSegmentId,
         ProblemCode notUniqueProblemCode)
     {
         if (collection is not null && collection.Count != collection.Distinct().Count())
         {
-            return Problems.Single(new Error(notUniqueProblemCode!, new ProblemParameter("RoadSegmentId", roadSegmentId.ToString())));
+            return Problems.Single(new Error(notUniqueProblemCode!));
         }
 
         return Problems.None;

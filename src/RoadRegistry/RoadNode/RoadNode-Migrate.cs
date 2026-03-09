@@ -9,7 +9,7 @@ public partial class RoadNode
 {
     public static (RoadNode?, Problems) Migrate(MigrateRoadNodeChange change, Provenance provenance)
     {
-        var problems = Problems.For(change.RoadNodeId);
+        var problems = Problems.WithContext(change.RoadNodeId);
 
         var node = Create(new RoadNodeWasMigrated
         {

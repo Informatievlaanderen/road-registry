@@ -54,11 +54,11 @@ public partial class ScopedRoadNetwork
         IIdentifierTranslator idTranslator,
         Provenance provenance)
     {
-        var problems = Problems.For(roadSegmentId);
+        var problems = Problems.WithContext(roadSegmentId);
 
         if (!_roadSegments.TryGetValue(roadSegmentId, out var segment))
         {
-            return problems + new RoadSegmentNotFound(roadSegmentId);
+            return problems + new RoadSegmentNotFound();
         }
 
         var segmentCategories = segment.Attributes.Category.Values.Select(x => x.Value).ToArray();
@@ -214,7 +214,7 @@ public partial class ScopedRoadNetwork
             return problems;
         }
 
-        problems += context.IdTranslator.RegisterMapping(mergedSegment.TemporaryId, roadSegment!.RoadSegmentId);
+        problems += context.IdTranslator.RegisterMapping(new RoadSegmentIdReference(mergedSegment.TemporaryId), roadSegment!.RoadSegmentId);
         _roadSegments.Add(roadSegment.RoadSegmentId, roadSegment);
 
         problems += segment1.RetireBecauseOfMerger(roadSegment.RoadSegmentId, context.Provenance);

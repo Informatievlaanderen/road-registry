@@ -8,8 +8,7 @@ using ValueObjects;
 
 public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRoadSegmentChange>
 {
-    public required RoadSegmentId TemporaryId { get; init; }
-    public RoadSegmentId? OriginalId { get; init; }
+    public required RoadSegmentIdReference RoadSegmentIdReference { get; init; }
     public required RoadSegmentGeometry Geometry { get; init; }
     public required RoadSegmentGeometryDrawMethodV2 GeometryDrawMethod { get; init; }
     public required RoadSegmentStatusV2 Status { get; init; }
@@ -39,8 +38,7 @@ public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRo
             return true;
         }
 
-        return TemporaryId.Equals(other.TemporaryId)
-               && OriginalId.Equals(other.OriginalId)
+        return RoadSegmentIdReference.Equals(other.RoadSegmentIdReference)
                && Geometry.Equals(other.Geometry)
                && GeometryDrawMethod.Equals(other.GeometryDrawMethod)
                && Status.Equals(other.Status)

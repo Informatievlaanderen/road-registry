@@ -8,17 +8,17 @@ using LineString = NetTopologySuite.Geometries.LineString;
 
 public static class NetTopologySuiteExtensions
 {
-    public static Problems ValidateRoadSegmentGeometryDomainV2(this RoadSegmentGeometry? geometry, RoadSegmentId id)
+    public static Problems ValidateRoadSegmentGeometryDomainV2(this RoadSegmentGeometry? geometry)
     {
         if (geometry is null)
         {
             return Problems.None;
         }
 
-        return ValidateRoadSegmentGeometryDomainV2(geometry.Value, id);
+        return ValidateRoadSegmentGeometryDomainV2(geometry.Value);
     }
 
-    public static Problems ValidateRoadSegmentGeometryDomainV2(this MultiLineString? multiLineString, RoadSegmentId id)
+    public static Problems ValidateRoadSegmentGeometryDomainV2(this MultiLineString? multiLineString)
     {
         if (multiLineString is null)
         {
@@ -31,13 +31,13 @@ public static class NetTopologySuiteExtensions
             .ToArray();
         if (lines.Length != 1)
         {
-            return Problems.Single(new RoadSegmentGeometryLineCountMismatch(id, 1, lines.Length));
+            return Problems.Single(new RoadSegmentGeometryLineCountMismatch(1, lines.Length));
         }
 
-        return ValidateRoadSegmentGeometryDomainV2(multiLineString.GetSingleLineString(), id);
+        return ValidateRoadSegmentGeometryDomainV2(multiLineString.GetSingleLineString());
     }
 
-    private static Problems ValidateRoadSegmentGeometryDomainV2(this LineString? line, RoadSegmentId id)
+    private static Problems ValidateRoadSegmentGeometryDomainV2(this LineString? line)
     {
         if (line is null)
         {
@@ -51,26 +51,26 @@ public static class NetTopologySuiteExtensions
 
         if (line.Length < 1)
         {
-            problems += new RoadSegmentGeometryLengthIsLessThanMinimum(id, 1);
+            problems += new RoadSegmentGeometryLengthIsLessThanMinimum(1);
         }
 
         if (!line.Length.IsReasonablyLessThan(Distances.TooLongSegmentLength, tolerances))
         {
-            problems += new RoadSegmentGeometryLengthIsTooLong(id, Distances.TooLongSegmentLength);
+            problems += new RoadSegmentGeometryLengthIsTooLong(Distances.TooLongSegmentLength);
         }
 
         if (line.ContainsVertexTooCloseToAnother(0.15))
         {
-            problems += new RoadSegmentGeometryVerticesTooClose(id);
+            problems += new RoadSegmentGeometryVerticesTooClose();
         }
 
         if (line.SelfOverlaps())
         {
-            problems += new RoadSegmentGeometrySelfOverlaps(id);
+            problems += new RoadSegmentGeometrySelfOverlaps();
         }
         else if (line.SelfIntersects())
         {
-            problems += new RoadSegmentGeometrySelfIntersects(id);
+            problems += new RoadSegmentGeometrySelfIntersects();
         }
 
         return problems;

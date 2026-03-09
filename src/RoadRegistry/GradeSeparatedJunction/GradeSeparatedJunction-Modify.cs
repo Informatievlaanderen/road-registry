@@ -9,7 +9,7 @@ public partial class GradeSeparatedJunction
 {
     public Problems Modify(ModifyGradeSeparatedJunctionChange change, Provenance provenance)
     {
-        var problems = Problems.For(GradeSeparatedJunctionId);
+        var problems = Problems.WithContext(GradeSeparatedJunctionId);
 
         Apply(new GradeSeparatedJunctionWasModified
         {

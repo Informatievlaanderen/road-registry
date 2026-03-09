@@ -11,6 +11,7 @@ using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
@@ -504,46 +505,126 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     //
     //     await TranslateReturnsExpectedResult(zipArchive, expected);
     // }
-    //
-    // [Fact]
-    // public async Task AddingNewSegmentWith70OverlapToExistingShouldGiveProblem()
-    // {
-    //     var zipArchive = new DomainV2ZipArchiveBuilder()
-    //         .WithChange((builder, context) =>
-    //         {
-    //             var roadNodeDbaseRecord1 = builder.CreateRoadNodeDbaseRecord();
-    //             var roadNodeDbaseRecord2 = builder.CreateRoadNodeDbaseRecord();
-    //             builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord());
-    //             builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord());
-    //             builder.DataSet.RoadNodeDbaseRecords.Add(roadNodeDbaseRecord1);
-    //             builder.DataSet.RoadNodeDbaseRecords.Add(roadNodeDbaseRecord2);
-    //
-    //             var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
-    //             lineString = new LineString([
-    //                 lineString.Coordinates[0],
-    //                 new CoordinateM(lineString.Coordinates[1].X + 0.1, lineString.Coordinates[1].Y, lineString.Coordinates[1].M + 0.1)
-    //             ]);
-    //             var roadSegmentShapeRecord = builder.CreateRoadSegmentShapeRecord(lineString);
-    //             builder.DataSet.RoadSegmentShapeRecords.Add(roadSegmentShapeRecord);
-    //
-    //             var roadSegmentDbaseRecord = builder.CreateRoadSegmentDbaseRecord();
-    //             roadSegmentDbaseRecord.B_WK_OIDN.Value = roadNodeDbaseRecord1.WK_OIDN.Value;
-    //             roadSegmentDbaseRecord.E_WK_OIDN.Value = roadNodeDbaseRecord2.WK_OIDN.Value;
-    //             builder.DataSet.RoadSegmentDbaseRecords.Add(roadSegmentDbaseRecord);
-    //
-    //             var surfaceDbaseRecord = builder.CreateRoadSegmentSurfaceDbaseRecord();
-    //             surfaceDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord.WS_OIDN.Value;
-    //             surfaceDbaseRecord.VANPOS.Value = 0;
-    //             surfaceDbaseRecord.TOTPOS.Value = roadSegmentShapeRecord.Geometry.Length;
-    //             builder.DataSet.SurfaceDbaseRecords.Add(surfaceDbaseRecord);
-    //         })
-    //         .Build();
-    //
-    //     var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
-    //     var problem = Assert.Single(ex.Problems);
-    //     Assert.Equal(nameof(DbaseFileProblems.RoadSegmentIsAlreadyProcessed), problem.Reason);
-    // }
-    //
+
+    [Fact]
+    public async Task WhenAddingNewSegmentWith70OverlapToUnchangedExtractSegment_ThenExtractSegmentKeepsId()
+    {
+        var grbOgcDownloader = new FakeGrbOgcApiFeaturesDownloader();
+        var translator = ZipArchiveFeatureCompareTranslatorV3Builder.Create(grbOgcApiFeaturesDownloader: grbOgcDownloader);
+
+        var startPoint = new Point(602000, 602000).WithSrid(WellknownSrids.Lambert08);
+        var endPoint = new Point(602100, 602000).WithSrid(WellknownSrids.Lambert08);
+
+        var (zipArchive, context) = new DomainV2ZipArchiveBuilder(fixture => { fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd); })
+            .WithExtract((builder, _) =>
+            {
+                var geometry = new LineString([
+                    startPoint.Coordinate,
+                    endPoint.Coordinate
+                ]).WithSrid(WellknownSrids.Lambert08);
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = geometry.ToMultiLineString();
+
+                builder.TestData.RoadNode1ShapeRecord.Geometry = startPoint;
+                builder.TestData.RoadNode2ShapeRecord.Geometry = endPoint;
+            })
+            .WithChange((builder, _) =>
+            {
+                var segment1Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry;
+
+                var lineStringCloseToOtherButLessOverlapThanExtract = new LineString([
+                    new Coordinate(startPoint.X + 5, startPoint.Y + 0.5),
+                    new Coordinate(endPoint.X - 5, endPoint.Y + 0.5)
+                ]).WithSrid(segment1Geometry.SRID);
+                var roadSegmentShapeRecord = builder.CreateRoadSegmentShapeRecord(lineStringCloseToOtherButLessOverlapThanExtract);
+                builder.DataSet.RoadSegmentShapeRecords.Add(roadSegmentShapeRecord);
+                builder.DataSet.RoadSegmentDbaseRecords.Add(builder.CreateRoadSegmentDbaseRecord());
+                builder.DataSet.RoadSegmentDbaseRecords.Last().WS_OIDN.Value = null;
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(lineStringCloseToOtherButLessOverlapThanExtract.StartPoint));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord());
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(lineStringCloseToOtherButLessOverlapThanExtract.EndPoint));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord());
+
+                grbOgcDownloader.AddRange(builder.DataSet.RoadSegmentShapeRecords.Select(x => x.Geometry));
+            })
+            .BuildWithContext();
+
+        var changes = await TranslateSucceeds(zipArchive, translator);
+
+        var extractRoadSegmentId = new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value!.Value);
+
+        var addSegmentChange = changes.OfType<AddRoadSegmentChange>().Single();
+        addSegmentChange.RoadSegmentIdReference.RoadSegmentId.Should().NotBe(extractRoadSegmentId);
+        addSegmentChange.RoadSegmentIdReference.TempIds!.Single().Should().Be(new RoadSegmentTempId(context.Change.DataSet.RoadSegmentDbaseRecords.Last().WS_TEMPID.Value));
+    }
+
+    [Fact]
+    public async Task WhenAddingNewSegmentWith70OverlapToModifiedExtractSegment_ThenSegmentWithLargestOverlapKeepsExtractRoadSegmentId()
+    {
+        var grbOgcDownloader = new FakeGrbOgcApiFeaturesDownloader();
+        var translator = ZipArchiveFeatureCompareTranslatorV3Builder.Create(grbOgcApiFeaturesDownloader: grbOgcDownloader);
+
+        var startPoint = new Point(602000, 602000).WithSrid(WellknownSrids.Lambert08);
+        var endPoint = new Point(602100, 602000).WithSrid(WellknownSrids.Lambert08);
+
+        var (zipArchive, context) = new DomainV2ZipArchiveBuilder(fixture => { fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd); })
+            .WithExtract((builder, _) =>
+            {
+                var geometry = new LineString([
+                    startPoint.Coordinate,
+                    endPoint.Coordinate
+                ]).WithSrid(WellknownSrids.Lambert08);
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = geometry.ToMultiLineString();
+
+                builder.TestData.RoadNode1ShapeRecord.Geometry = startPoint;
+                builder.TestData.RoadNode2ShapeRecord.Geometry = endPoint;
+            })
+            .WithChange((builder, context) =>
+            {
+                var segment1Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry;
+
+                // modify segment
+                var modifiedGeometryButWithLessOverlapThanNewGeometry = new LineString([
+                    new Coordinate(startPoint.X + 5, startPoint.Y - 0.5),
+                    new Coordinate(endPoint.X - 5, endPoint.Y - 0.5)
+                ]).WithSrid(segment1Geometry.SRID);
+                var modifiedGeometry = modifiedGeometryButWithLessOverlapThanNewGeometry.ToMultiLineString();
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = modifiedGeometry;
+
+                // add segment
+                var lineStringCloseToOtherButMoreOverlapWithExtract = new LineString([
+                    new Coordinate(startPoint.X - 5, startPoint.Y + 0.5),
+                    new Coordinate(endPoint.X + 5, endPoint.Y + 0.5)
+                ]).WithSrid(segment1Geometry.SRID);
+                var roadSegmentShapeRecord = builder.CreateRoadSegmentShapeRecord(lineStringCloseToOtherButMoreOverlapWithExtract);
+                builder.DataSet.RoadSegmentShapeRecords.Add(roadSegmentShapeRecord);
+                builder.DataSet.RoadSegmentDbaseRecords.Add(builder.CreateRoadSegmentDbaseRecord());
+                builder.DataSet.RoadSegmentDbaseRecords.Last().WS_OIDN.Value = null;
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(lineStringCloseToOtherButMoreOverlapWithExtract.StartPoint));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord());
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(lineStringCloseToOtherButMoreOverlapWithExtract.EndPoint));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord());
+
+                grbOgcDownloader.AddRange(builder.DataSet.RoadSegmentShapeRecords.Select(x => x.Geometry));
+            })
+            .BuildWithContext();
+
+        var changes = await TranslateSucceeds(zipArchive, translator);
+
+        var extractRoadSegmentId = new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value!.Value);
+
+        var modifySegmentChange = changes.OfType<ModifyRoadSegmentChange>().Single();
+        modifySegmentChange.RoadSegmentIdReference.RoadSegmentId.Should().Be(extractRoadSegmentId);
+        modifySegmentChange.RoadSegmentIdReference.TempIds!.Single().Should().Be(new RoadSegmentTempId(context.Change.DataSet.RoadSegmentDbaseRecords.Last().WS_TEMPID.Value));
+
+        var addSegmentChange = changes.OfType<AddRoadSegmentChange>().Single();
+        addSegmentChange.RoadSegmentIdReference.RoadSegmentId.Should().NotBe(extractRoadSegmentId);
+        addSegmentChange.RoadSegmentIdReference.TempIds!.Single().Should().Be(new RoadSegmentTempId(context.Change.TestData.RoadSegment1DbaseRecord.WS_TEMPID.Value));
+    }
+
     // [Fact]
     // public async Task ConversionFromOutlinedToMeasuredShouldReturnExpectedResult()
     // {

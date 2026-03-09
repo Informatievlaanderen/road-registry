@@ -39,7 +39,7 @@ public readonly struct RoadSegmentTempId : IEquatable<RoadSegmentTempId>
         return _value.ToString(CultureInfo.InvariantCulture);
     }
 
-    public int ToInt()
+    public int ToInt32()
     {
         return _value;
     }

@@ -12,7 +12,7 @@ public class Problems : IReadOnlyCollection<Problem>
     public static readonly Problems None = new(ImmutableList<Problem>.Empty, null);
     private readonly ImmutableList<Problem> _problems;
 
-    public ProblemContext? Context { get; }
+    private ProblemContext? Context { get; }
 
     private Problems(ImmutableList<Problem> problems, ProblemContext? context)
     {
@@ -32,15 +32,19 @@ public class Problems : IReadOnlyCollection<Problem>
         return GetEnumerator();
     }
 
-    public static Problems For(RoadNodeId roadNodeId)
+    public static Problems WithContext(RoadNodeId roadNodeId)
     {
         return None.WithContext(ProblemContext.For(roadNodeId));
     }
-    public static Problems For(RoadSegmentId roadSegmentId)
+    public static Problems WithContext(RoadSegmentId roadSegmentId)
     {
         return None.WithContext(ProblemContext.For(roadSegmentId));
     }
-    public static Problems For(GradeSeparatedJunctionId gradeSeparatedJunctionId)
+    public static Problems WithContext(RoadSegmentIdReference roadSegmentIdReference)
+    {
+        return None.WithContext(ProblemContext.For(roadSegmentIdReference));
+    }
+    public static Problems WithContext(GradeSeparatedJunctionId gradeSeparatedJunctionId)
     {
         return None.WithContext(ProblemContext.For(gradeSeparatedJunctionId));
     }

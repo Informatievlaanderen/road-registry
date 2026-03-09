@@ -1,31 +1,8 @@
 namespace RoadRegistry.Tests
 {
-    using Extracts.FeatureCompare.DomainV2.RoadSegment;
-    using NetTopologySuite.Geometries;
     using RoadRegistry.BackOffice;
     using RoadRegistry.Infrastructure;
 
-    public class FakeGrbOgcApiFeaturesDownloader : IGrbOgcApiFeaturesDownloader
-    {
-        private readonly ICollection<Geometry> _geometries = [];
-
-        public FakeGrbOgcApiFeaturesDownloader()
-        {
-        }
-
-        public FakeGrbOgcApiFeaturesDownloader(IEnumerable<Geometry> geometries)
-        {
-            _geometries = geometries.ToList();
-        }
-
-        public Task<IReadOnlyList<OgcFeature>> DownloadFeaturesAsync(IEnumerable<string> collectionIds, Envelope boundingBox, int srid, CancellationToken cancellationToken)
-        {
-            var features = collectionIds
-                .SelectMany(collectionId => _geometries.Select(x => new OgcFeature(collectionId, null, x, null)))
-                .ToList();
-            return Task.FromResult<IReadOnlyList<OgcFeature>>(features);
-        }
-    }
     public class FakeOrganizationCache : IOrganizationCache
     {
         private readonly Dictionary<OrganizationId, OrganizationDetail> _organizations = new();

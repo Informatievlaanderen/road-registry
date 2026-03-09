@@ -37,7 +37,7 @@ public class RoadSegmentUnflattenerTests
         fixture.Freeze<RoadSegmentStatusV2>();
 
         var featureType = fixture.Create<FeatureType>();
-        var maxUsedRoadSegmentId = new RoadSegmentId(500);
+        var roadSegmentIdProver = new NextRoadSegmentIdProvider(new RoadSegmentId(500));
         var translateContext = new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty);
 
         translateContext.AddRoadNodeRecords([new RoadNodeFeatureCompareRecord(
@@ -70,7 +70,7 @@ public class RoadSegmentUnflattenerTests
         var records = RoadSegmentUnflattener.Unflatten(
             featureType,
             flatRecords,
-            maxUsedRoadSegmentId,
+            roadSegmentIdProver,
             new OgcFeaturesCache([]),
             translateContext,
             CancellationToken.None);
@@ -109,7 +109,7 @@ public class RoadSegmentUnflattenerTests
         var records = RoadSegmentUnflattener.Unflatten(
             fixture.Create<FeatureType>(),
             [new(new RecordNumber(1), flatSegment)],
-            fixture.Create<RoadSegmentId>(),
+            fixture.Create<NextRoadSegmentIdProvider>(),
             new OgcFeaturesCache([]),
             new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
             CancellationToken.None);
@@ -137,7 +137,7 @@ public class RoadSegmentUnflattenerTests
         var records = RoadSegmentUnflattener.Unflatten(
             fixture.Create<FeatureType>(),
             [new(new RecordNumber(1), flatSegment)],
-            fixture.Create<RoadSegmentId>(),
+            fixture.Create<NextRoadSegmentIdProvider>(),
             new OgcFeaturesCache([]),
             new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
             CancellationToken.None);
@@ -168,7 +168,7 @@ public class RoadSegmentUnflattenerTests
         var records = RoadSegmentUnflattener.Unflatten(
             fixture.Create<FeatureType>(),
             [new(new RecordNumber(1), flatSegment)],
-            fixture.Create<RoadSegmentId>(),
+            fixture.Create<NextRoadSegmentIdProvider>(),
             ogcFeaturesCache,
             new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
             CancellationToken.None);
@@ -199,7 +199,7 @@ public class RoadSegmentUnflattenerTests
         var records = RoadSegmentUnflattener.Unflatten(
             fixture.Create<FeatureType>(),
             [new(new RecordNumber(1), flatSegment)],
-            fixture.Create<RoadSegmentId>(),
+            fixture.Create<NextRoadSegmentIdProvider>(),
             ogcFeaturesCache,
             new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
             CancellationToken.None);

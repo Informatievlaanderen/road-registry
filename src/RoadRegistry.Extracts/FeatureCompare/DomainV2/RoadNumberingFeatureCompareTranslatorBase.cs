@@ -145,9 +145,9 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
             {
                 var recordContext = _fileName
                     .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
-                    .WithIdentifier(nameof(RoadSegmentNationalRoadAttributeDbaseRecord.WS_TEMPID), changeFeature.Attributes.RoadSegmentTempId.ToInt());
+                    .WithIdentifier(nameof(RoadSegmentNationalRoadAttributeDbaseRecord.WS_TEMPID), changeFeature.Attributes.RoadSegmentTempId.ToInt32());
 
-                problems += recordContext.RoadSegmentIdOutOfRange(changeFeature.Attributes.RoadSegmentTempId.ToInt());
+                problems += recordContext.RoadSegmentIdOutOfRange(changeFeature.Attributes.RoadSegmentTempId.ToInt32());
             }
         }
 

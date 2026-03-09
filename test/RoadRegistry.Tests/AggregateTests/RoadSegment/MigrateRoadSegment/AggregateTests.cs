@@ -5,6 +5,7 @@ using FluentAssertions;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
 using RoadRegistry.RoadNode;
+using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
@@ -22,6 +23,8 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
+            .WithoutChanges();
         var change = Fixture.Create<MigrateRoadSegmentChange>() with
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
@@ -37,16 +40,16 @@ public class AggregateTests : AggregateTestBase
         var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
         // Act
-        var (segment, problems) = RoadSegment.Migrate(change, roadNetworkContext);
+        var problems = segment.Migrate(change, roadNetworkContext);
 
         // Assert
         problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
         var segmentMigrated = (RoadSegmentWasMigrated)segment.GetChanges().Single();
-        segmentMigrated.RoadSegmentId.Should().Be(change.RoadSegmentId);
+        segmentMigrated.RoadSegmentId.Should().Be(change.RoadSegmentIdReference.RoadSegmentId);
         segmentMigrated.Geometry.Should().BeEquivalentTo(change.Geometry);
-        segmentMigrated.OriginalId.Should().Be(change.OriginalId);
+        segmentMigrated.OriginalRoadSegmentIdReference.Should().BeEquivalentTo(change.RoadSegmentIdReference);
         segmentMigrated.StartNodeId.Should().Be(TestData.Segment1StartNodeAdded.RoadNodeId);
         segmentMigrated.EndNodeId.Should().Be(TestData.Segment1EndNodeAdded.RoadNodeId);
         segmentMigrated.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
@@ -67,6 +70,8 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
+            .WithoutChanges();
         var change = Fixture.Create<MigrateRoadSegmentChange>() with
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst,
@@ -79,16 +84,16 @@ public class AggregateTests : AggregateTestBase
         var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
         // Act
-        var (segment, problems) = RoadSegment.Migrate(change, roadNetworkContext);
+        var problems = segment.Migrate(change, roadNetworkContext);
 
         // Assert
         problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
         var segmentMigrated = (RoadSegmentWasMigrated)segment.GetChanges().Single();
-        segmentMigrated.RoadSegmentId.Should().Be(change.RoadSegmentId);
+        segmentMigrated.RoadSegmentId.Should().Be(change.RoadSegmentIdReference.RoadSegmentId);
         segmentMigrated.Geometry.Should().BeEquivalentTo(change.Geometry);
-        segmentMigrated.OriginalId.Should().Be(change.OriginalId);
+        segmentMigrated.OriginalRoadSegmentIdReference.Should().BeEquivalentTo(change.RoadSegmentIdReference);
         segmentMigrated.StartNodeId.Should().Be(new RoadNodeId(0));
         segmentMigrated.EndNodeId.Should().Be(new RoadNodeId(0));
         segmentMigrated.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
@@ -109,16 +114,38 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
+            .WithoutChanges();
         var change = Fixture.Create<MigrateRoadSegmentChange>() with
         {
-            Geometry = RoadSegmentGeometry.Create(new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString())
+            Geometry = RoadSegmentGeometry.Create(new LineString([new Coordinate(0, 0), new Coordinate(0.9, 0)]).ToMultiLineString())
         };
 
+        var roadNetworkContext = new ScopedRoadNetworkContext(
+            new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [
+                RoadNode.Create(Fixture.Create<RoadNodeWasAdded>() with
+                {
+                    Geometry = RoadNodeGeometry.Create(change.Geometry.Value.GetSingleLineString().StartPoint)
+                }),
+                RoadNode.Create(Fixture.Create<RoadNodeWasAdded>() with
+                {
+                    Geometry = RoadNodeGeometry.Create(change.Geometry.Value.GetSingleLineString().EndPoint)
+                })
+            ], [], []),
+            new IdentifierTranslator(),
+            TestData.Provenance);
+
         // Act
-        var (_, problems) = RoadSegment.Migrate(change, Fixture.Create<ScopedRoadNetworkContext>());
+        var problems = segment.Migrate(change, roadNetworkContext);
 
         // Assert
-        problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsZero(change.OriginalId!.Value));
+        problems.Should().ContainEquivalentOf(
+            new Error("RoadSegmentGeometryLengthLessThanMinimum",
+                new ProblemParameter("Minimum", 1.ToString()),
+                new ProblemParameter("WegsegmentId", change.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                new ProblemParameter("WegsegmentTempIds", change.RoadSegmentIdReference.GetTempIdsAsString())
+            )
+        );
     }
 
     [Fact]
@@ -127,6 +154,8 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
+            .WithoutChanges();
         var change = Fixture.Create<MigrateRoadSegmentChange>() with
         {
             Geometry = new LineString([new Coordinate(0, 0), new Coordinate(1, 0)]).ToMultiLineString().ToRoadSegmentGeometry(),
@@ -136,7 +165,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var (_, problems) = RoadSegment.Migrate(change, Fixture.Create<ScopedRoadNetworkContext>());
+        var problems = segment.Migrate(change, Fixture.Create<ScopedRoadNetworkContext>());
 
         // Assert
         problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryValueNotUniqueWithinSegment");
@@ -148,10 +177,12 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
+        var segmentAdded = Fixture.Create<RoadSegmentWasAdded>();
+        var segment = RoadSegment.Create(segmentAdded);
         var evt = Fixture.Create<RoadSegmentWasMigrated>();
 
         // Act
-        var segment = RoadSegment.Create(evt);
+        segment.Apply(evt);
 
         // Assert
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);

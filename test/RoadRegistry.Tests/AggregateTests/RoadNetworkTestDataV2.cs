@@ -250,8 +250,7 @@ public class RoadNetworkTestDataV2
         var segment1TemporaryId = Fixture.Create<RoadSegmentId>();
         AddSegment1 = new AddRoadSegmentChange
         {
-            TemporaryId = segment1TemporaryId,
-            OriginalId = segment1TemporaryId,
+            RoadSegmentIdReference = new RoadSegmentIdReference(segment1TemporaryId, [Fixture.Create<RoadSegmentTempId>()]),
             Geometry = MultiLineString1.ToRoadSegmentGeometry(),
             GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
             Status = Fixture.Create<RoadSegmentStatusV2>(),
@@ -273,7 +272,7 @@ public class RoadNetworkTestDataV2
         Segment1Added = new RoadSegmentWasAdded
         {
             RoadSegmentId = new RoadSegmentId(1),
-            OriginalId = AddSegment1.OriginalId,
+            OriginalRoadSegmentIdReference = AddSegment1.RoadSegmentIdReference,
             StartNodeId = Segment1StartNodeAdded.RoadNodeId,
             EndNodeId = Segment1EndNodeAdded.RoadNodeId,
             Geometry = AddSegment1.Geometry,
@@ -297,8 +296,7 @@ public class RoadNetworkTestDataV2
 
         AddSegment2 = new AddRoadSegmentChange
         {
-            TemporaryId = new RoadSegmentId(AddSegment1.TemporaryId + 1),
-            OriginalId = new RoadSegmentId(AddSegment1.TemporaryId + 1),
+            RoadSegmentIdReference = new RoadSegmentIdReference(AddSegment1.RoadSegmentIdReference.RoadSegmentId.Next(), [Fixture.Create<RoadSegmentTempId>()]),
             Geometry = MultiLineString2.ToRoadSegmentGeometry(),
             GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
             Status = Fixture.Create<RoadSegmentStatusV2>(),
@@ -320,7 +318,7 @@ public class RoadNetworkTestDataV2
         Segment2Added = new RoadSegmentWasAdded
         {
             RoadSegmentId = new RoadSegmentId(2),
-            OriginalId = AddSegment2.OriginalId,
+            OriginalRoadSegmentIdReference = AddSegment2.RoadSegmentIdReference,
             StartNodeId = Segment2StartNodeAdded.RoadNodeId,
             EndNodeId = Segment2EndNodeAdded.RoadNodeId,
             Geometry = AddSegment2.Geometry,
@@ -344,8 +342,7 @@ public class RoadNetworkTestDataV2
 
         AddSegment3 = new AddRoadSegmentChange
         {
-            TemporaryId = new RoadSegmentId(AddSegment2.TemporaryId + 1),
-            OriginalId = new RoadSegmentId(AddSegment2.TemporaryId + 1),
+            RoadSegmentIdReference = new RoadSegmentIdReference(AddSegment2.RoadSegmentIdReference.RoadSegmentId.Next(), [Fixture.Create<RoadSegmentTempId>()]),
             Geometry = MultiLineString3.ToRoadSegmentGeometry(),
             GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
             Status = Fixture.Create<RoadSegmentStatusV2>(),
@@ -367,7 +364,7 @@ public class RoadNetworkTestDataV2
         Segment3Added = new RoadSegmentWasAdded
         {
             RoadSegmentId = new RoadSegmentId(3),
-            OriginalId = AddSegment3.OriginalId,
+            OriginalRoadSegmentIdReference = AddSegment3.RoadSegmentIdReference,
             StartNodeId = Segment3StartNodeAdded.RoadNodeId,
             EndNodeId = Segment3EndNodeAdded.RoadNodeId,
             Geometry = AddSegment3.Geometry,

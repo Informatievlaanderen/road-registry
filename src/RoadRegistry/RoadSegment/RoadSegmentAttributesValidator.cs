@@ -7,23 +7,23 @@ using ValueObjects;
 
 public class RoadSegmentAttributesValidator
 {
-    public Problems Validate(RoadSegmentId roadSegmentId, RoadSegmentAttributes attributes, double geometryLength)
+    public Problems Validate(RoadSegmentAttributes attributes, double geometryLength)
     {
         var problems = Problems.None;
 
-        problems += attributes.AccessRestriction.Validate(roadSegmentId, geometryLength, ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes);
-        problems += attributes.Category.Validate(roadSegmentId, geometryLength, ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes);
-        problems += attributes.Morphology.Validate(roadSegmentId, geometryLength, ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes);
-        problems += attributes.StreetNameId.Validate(roadSegmentId, geometryLength, ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes);
-        problems += attributes.MaintenanceAuthorityId.Validate(roadSegmentId, geometryLength, ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes);
-        problems += attributes.SurfaceType.Validate(roadSegmentId, geometryLength, ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes);
-        problems += attributes.CarAccessForward.Validate(roadSegmentId, geometryLength, ProblemCode.RoadSegment.CarAccessForward.DynamicAttributeProblemCodes);
-        problems += attributes.CarAccessBackward.Validate(roadSegmentId, geometryLength, ProblemCode.RoadSegment.CarAccessBackward.DynamicAttributeProblemCodes);
-        problems += attributes.BikeAccessForward.Validate(roadSegmentId, geometryLength, ProblemCode.RoadSegment.BikeAccessForward.DynamicAttributeProblemCodes);
-        problems += attributes.BikeAccessBackward.Validate(roadSegmentId, geometryLength, ProblemCode.RoadSegment.BikeAccessBackward.DynamicAttributeProblemCodes);
-        problems += attributes.PedestrianAccess.Validate(roadSegmentId, geometryLength, ProblemCode.RoadSegment.PedestrianAccess.DynamicAttributeProblemCodes);
-        problems += attributes.EuropeanRoadNumbers.ValidateCollectionMustBeUnique(roadSegmentId, ProblemCode.RoadSegment.EuropeanRoads.NotUnique);
-        problems += attributes.NationalRoadNumbers.ValidateCollectionMustBeUnique(roadSegmentId, ProblemCode.RoadSegment.NationalRoads.NotUnique);
+        problems += attributes.AccessRestriction.Validate(geometryLength, ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes);
+        problems += attributes.Category.Validate(geometryLength, ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes);
+        problems += attributes.Morphology.Validate(geometryLength, ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes);
+        problems += attributes.StreetNameId.Validate(geometryLength, ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes);
+        problems += attributes.MaintenanceAuthorityId.Validate(geometryLength, ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes);
+        problems += attributes.SurfaceType.Validate(geometryLength, ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes);
+        problems += attributes.CarAccessForward.Validate(geometryLength, ProblemCode.RoadSegment.CarAccessForward.DynamicAttributeProblemCodes);
+        problems += attributes.CarAccessBackward.Validate(geometryLength, ProblemCode.RoadSegment.CarAccessBackward.DynamicAttributeProblemCodes);
+        problems += attributes.BikeAccessForward.Validate(geometryLength, ProblemCode.RoadSegment.BikeAccessForward.DynamicAttributeProblemCodes);
+        problems += attributes.BikeAccessBackward.Validate(geometryLength, ProblemCode.RoadSegment.BikeAccessBackward.DynamicAttributeProblemCodes);
+        problems += attributes.PedestrianAccess.Validate(geometryLength, ProblemCode.RoadSegment.PedestrianAccess.DynamicAttributeProblemCodes);
+        problems += attributes.EuropeanRoadNumbers.ValidateCollectionMustBeUnique(ProblemCode.RoadSegment.EuropeanRoads.NotUnique);
+        problems += attributes.NationalRoadNumbers.ValidateCollectionMustBeUnique(ProblemCode.RoadSegment.NationalRoads.NotUnique);
 
         return problems;
     }

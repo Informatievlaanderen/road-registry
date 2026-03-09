@@ -49,7 +49,8 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1StartNode)
             )
             .ThenContainsProblems(new Error("RoadNodeTemporaryIdNotUnique",
-                new ProblemParameter("TemporaryId", TestData.AddSegment1StartNode.TemporaryId.ToString())
+                new ProblemParameter("TemporaryId", TestData.AddSegment1StartNode.TemporaryId.ToString()),
+                new ProblemParameter("WegknoopId", TestData.AddSegment1StartNode.TemporaryId.ToString())
             ))
         );
     }

@@ -2,6 +2,7 @@
 
 using AutoFixture;
 using FluentAssertions;
+using RoadRegistry.Extensions;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.Tests.AggregateTests.Framework;
@@ -12,14 +13,14 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
     public Task ThenSummaryIsUpdated()
     {
         return Run(scenario => scenario
-            .Given(given => given)
-            .WhenMigrate(changes => changes
+            .Given(given => given
                 .Add(TestData.AddSegment1StartNode)
                 .Add(TestData.AddSegment1EndNode)
+                .Add(TestData.AddSegment1))
+            .WhenMigrate(changes => changes
                 .Add(new ModifyRoadSegmentChange
                 {
-                    RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-                    OriginalId = TestData.Segment1Added.RoadSegmentId,
+                    RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment1Added.RoadSegmentId),
                     Geometry = TestData.AddSegment1.Geometry,
                     GeometryDrawMethod = TestData.AddSegment1.GeometryDrawMethod,
                     AccessRestriction = TestData.AddSegment1.AccessRestriction,
@@ -50,14 +51,14 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
         var removedNumber = Fixture.CreateWhichIsDifferentThan(linkedNumber);
 
         return Run(scenario => scenario
-            .Given(given => given)
-            .WhenMigrate(changes => changes
+            .Given(given => given
                 .Add(TestData.AddSegment1StartNode)
                 .Add(TestData.AddSegment1EndNode)
+                .Add(TestData.AddSegment1))
+            .WhenMigrate(changes => changes
                 .Add(new ModifyRoadSegmentChange
                 {
-                    RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-                    OriginalId = TestData.Segment1Added.RoadSegmentId,
+                    RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment1Added.RoadSegmentId),
                     Geometry = TestData.AddSegment1.Geometry,
                     GeometryDrawMethod = TestData.AddSegment1.GeometryDrawMethod,
                     AccessRestriction = TestData.AddSegment1.AccessRestriction,
@@ -107,14 +108,14 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
         var removedNumber = Fixture.CreateWhichIsDifferentThan(linkedNumber);
 
         return Run(scenario => scenario
-            .Given(given => given)
-            .WhenMigrate(changes => changes
+            .Given(given => given
                 .Add(TestData.AddSegment1StartNode)
                 .Add(TestData.AddSegment1EndNode)
+                .Add(TestData.AddSegment1))
+            .WhenMigrate(changes => changes
                 .Add(new ModifyRoadSegmentChange
                 {
-                    RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-                    OriginalId = TestData.Segment1Added.RoadSegmentId,
+                    RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment1Added.RoadSegmentId),
                     Geometry = TestData.AddSegment1.Geometry,
                     GeometryDrawMethod = TestData.AddSegment1.GeometryDrawMethod,
                     AccessRestriction = TestData.AddSegment1.AccessRestriction,

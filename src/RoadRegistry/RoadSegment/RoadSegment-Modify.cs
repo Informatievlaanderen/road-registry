@@ -10,13 +10,13 @@ public partial class RoadSegment
 {
     public Problems Modify(ModifyRoadSegmentChange change, ScopedRoadNetworkContext context)
     {
-        var originalId = change.OriginalId ?? change.RoadSegmentId;
-        var problems = Problems.For(originalId);
+        var roadSegmentIdReference = change.RoadSegmentIdReference;
+        var problems = Problems.WithContext(roadSegmentIdReference);
 
         var geometry = (change.Geometry ?? Geometry).Value;
 
         //TODO-pr wanneer de geometry wijzigt, moeten de dynamische attributen die niet werden gewijzigd mee wijzigen
-        problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2(originalId);
+        problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2();
 
         var segmentLength = geometry.Length;
         var accessRestriction = change.AccessRestriction;
@@ -47,13 +47,13 @@ public partial class RoadSegment
             BikeAccessBackward = bikeAccessBackward ?? Attributes.BikeAccessBackward,
             PedestrianAccess = pedestrianAccess ?? Attributes.PedestrianAccess
         };
-        problems += new RoadSegmentAttributesValidator().Validate(originalId, attributes, segmentLength);
+        problems += new RoadSegmentAttributesValidator().Validate(attributes, segmentLength);
 
         RoadNodeId? startNodeId = null, endNodeId = null;
 
         if (change.Geometry is not null)
         {
-            var startEndNodes = context.RoadNetwork.FindStartEndNodes(originalId, attributes.GeometryDrawMethod, change.Geometry, context.Tolerances);
+            var startEndNodes = context.RoadNetwork.FindStartEndNodes(attributes.GeometryDrawMethod, change.Geometry, context.Tolerances);
             problems += startEndNodes.Problems;
             startNodeId = startEndNodes.StartNodeId;
             endNodeId = startEndNodes.EndNodeId;
@@ -67,7 +67,7 @@ public partial class RoadSegment
         Apply(new RoadSegmentWasModified
         {
             RoadSegmentId = RoadSegmentId,
-            OriginalId = change.OriginalId,
+            OriginalRoadSegmentIdReference = roadSegmentIdReference,
             StartNodeId = startNodeId,
             EndNodeId = endNodeId,
             Geometry = change.Geometry,

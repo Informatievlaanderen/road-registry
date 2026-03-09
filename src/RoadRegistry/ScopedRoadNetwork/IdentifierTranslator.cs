@@ -1,6 +1,8 @@
 ﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System.Collections.Generic;
+using System.Linq;
+using RoadRegistry.Extensions;
 using RoadRegistry.ValueObjects;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
@@ -8,9 +10,9 @@ using RoadRegistry.ValueObjects.Problems;
 public interface IIdentifierTranslator
 {
     Problems RegisterMapping(RoadNodeId temporaryId, RoadNodeId permanentId);
-    Problems RegisterMapping(RoadSegmentId temporaryId, RoadSegmentId permanentId);
+    Problems RegisterMapping(RoadSegmentIdReference idReference, RoadSegmentId permanentId);
     RoadNodeId TranslateToTemporaryId(RoadNodeId id);
-    RoadSegmentId TranslateToTemporaryId(RoadSegmentId id);
+    RoadSegmentIdReference TranslateToTemporaryId(RoadSegmentId id);
     RoadNodeId TranslateToPermanentId(RoadNodeId id);
     RoadSegmentId TranslateToPermanentId(RoadSegmentId id);
     bool TryTranslateToPermanent(RoadNodeId id, out RoadNodeId permanent);
@@ -21,14 +23,18 @@ public class IdentifierTranslator : IIdentifierTranslator
 {
     private readonly Dictionary<RoadNodeId, RoadNodeId> _mapToPermanentNodeIdentifiers = [];
     private readonly Dictionary<RoadNodeId, RoadNodeId> _mapToTemporaryNodeIdentifiers = [];
-    private readonly Dictionary<RoadSegmentId, RoadSegmentId> _mapToPermanentSegmentIdentifiers = [];
-    private readonly Dictionary<RoadSegmentId, RoadSegmentId> _mapToTemporarySegmentIdentifiers = [];
+    private readonly Dictionary<RoadSegmentIdReference, RoadSegmentId> _mapSegmentIdReferenceToPermanentId = [];
+    private readonly Dictionary<RoadSegmentId, RoadSegmentId> _mapSegmentTemporaryIdToPermanentId = [];
+    private readonly Dictionary<RoadSegmentId, RoadSegmentIdReference> _mapToTemporarySegmentIdentifiers = [];
 
     public Problems RegisterMapping(RoadNodeId temporaryId, RoadNodeId permanentId)
     {
         if (!_mapToPermanentNodeIdentifiers.TryAdd(temporaryId, permanentId))
         {
-            return Problems.Single(new Error(ProblemCode.RoadNode.TemporaryIdNotUnique, new ProblemParameter("TemporaryId", temporaryId.ToString())));
+            return Problems.Single(
+                new Error(ProblemCode.RoadNode.TemporaryIdNotUnique.ToString(),
+                    new ProblemParameter("TemporaryId", temporaryId.ToString())
+                ));
         }
 
         _mapToTemporaryNodeIdentifiers[permanentId] = temporaryId;
@@ -36,14 +42,15 @@ public class IdentifierTranslator : IIdentifierTranslator
         return Problems.None;
     }
 
-    public Problems RegisterMapping(RoadSegmentId temporaryId, RoadSegmentId permanentId)
+    public Problems RegisterMapping(RoadSegmentIdReference idReference, RoadSegmentId permanentId)
     {
-        if (!_mapToPermanentSegmentIdentifiers.TryAdd(temporaryId, permanentId))
+        if (!_mapSegmentIdReferenceToPermanentId.TryAdd(idReference, permanentId))
         {
-            return Problems.Single(new Error(ProblemCode.RoadSegment.TemporaryIdNotUnique, new ProblemParameter("TemporaryId", temporaryId.ToString())));
+            return Problems.Single(new Error(ProblemCode.RoadSegment.TemporaryIdNotUnique.ToString()));
         }
 
-        _mapToTemporarySegmentIdentifiers[permanentId] = temporaryId;
+        _mapSegmentTemporaryIdToPermanentId[idReference.RoadSegmentId] = permanentId;
+        _mapToTemporarySegmentIdentifiers[permanentId] = idReference;
 
         return Problems.None;
     }
@@ -53,9 +60,9 @@ public class IdentifierTranslator : IIdentifierTranslator
         return _mapToTemporaryNodeIdentifiers.GetValueOrDefault(id, id);
     }
 
-    public RoadSegmentId TranslateToTemporaryId(RoadSegmentId id)
+    public RoadSegmentIdReference TranslateToTemporaryId(RoadSegmentId id)
     {
-        return _mapToTemporarySegmentIdentifiers.GetValueOrDefault(id, id);
+        return _mapToTemporarySegmentIdentifiers.GetValueOrDefault(id, new RoadSegmentIdReference(id));
     }
 
     public RoadNodeId TranslateToPermanentId(RoadNodeId id)
@@ -65,7 +72,7 @@ public class IdentifierTranslator : IIdentifierTranslator
 
     public RoadSegmentId TranslateToPermanentId(RoadSegmentId id)
     {
-        return _mapToPermanentSegmentIdentifiers.GetValueOrDefault(id, id);
+        return _mapSegmentTemporaryIdToPermanentId.GetValueOrDefault(id, id);
     }
 
     public bool TryTranslateToPermanent(RoadNodeId id, out RoadNodeId permanent)
@@ -75,6 +82,6 @@ public class IdentifierTranslator : IIdentifierTranslator
 
     public bool TryTranslateToPermanent(RoadSegmentId id, out RoadSegmentId permanent)
     {
-        return _mapToPermanentSegmentIdentifiers.TryGetValue(id, out permanent);
+        return _mapSegmentTemporaryIdToPermanentId.TryGetValue(id, out permanent);
     }
 }

@@ -56,7 +56,7 @@ public class ValidateRoadSegmentGeometryTests
 
     private void AssertValidateResult(MultiLineString geometry, string[] expectedErrorCodes)
     {
-        var problems = geometry.ValidateRoadSegmentGeometryDomainV2(new RoadSegmentId(1));
+        var problems = geometry.ValidateRoadSegmentGeometryDomainV2();
         foreach (var problem in problems)
         {
             _testOutputHelper.WriteLine(problem.Describe());

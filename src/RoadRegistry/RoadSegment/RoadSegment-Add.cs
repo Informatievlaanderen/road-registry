@@ -13,10 +13,9 @@ public partial class RoadSegment
 {
     public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
     {
-        var originalId = change.OriginalId ?? change.TemporaryId;
-        var problems = Problems.For(originalId);
+        var problems = Problems.WithContext(change.RoadSegmentIdReference);
 
-        problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2(originalId);
+        problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2();
 
         var segmentLength = change.Geometry.Value.Length;
         var attributes = new RoadSegmentAttributes
@@ -37,9 +36,9 @@ public partial class RoadSegment
             EuropeanRoadNumbers = change.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = change.NationalRoadNumbers.ToImmutableList()
         };
-        problems += new RoadSegmentAttributesValidator().Validate(originalId, attributes, segmentLength);
+        problems += new RoadSegmentAttributesValidator().Validate(attributes, segmentLength);
 
-        var startEndNodes = context.RoadNetwork.FindStartEndNodes(originalId, change.GeometryDrawMethod, change.Geometry, context.Tolerances);
+        var startEndNodes = context.RoadNetwork.FindStartEndNodes(change.GeometryDrawMethod, change.Geometry, context.Tolerances);
         problems += startEndNodes.Problems;
 
         if (problems.HasError())
@@ -50,7 +49,7 @@ public partial class RoadSegment
         var segment = Create(new RoadSegmentWasAdded
         {
             RoadSegmentId = idGenerator.NewRoadSegmentId(),
-            OriginalId = change.OriginalId,
+            OriginalRoadSegmentIdReference = change.RoadSegmentIdReference,
             Geometry = change.Geometry,
             StartNodeId = startEndNodes.StartNodeId!.Value,
             EndNodeId = startEndNodes.EndNodeId!.Value,

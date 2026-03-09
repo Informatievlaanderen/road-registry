@@ -207,7 +207,6 @@ public class RoadSegmentAttributesValidatorTests
         var attributes = _fixture.Create<RoadSegmentAttributes>();
 
         var problems = new RoadSegmentAttributesValidator().Validate(
-            new RoadSegmentId(1),
             attributesBuilder(attributes),
             0);
 
@@ -234,7 +233,6 @@ public class RoadSegmentAttributesValidatorTests
     private void AssertValidateResult(RoadSegmentAttributes attributes, string[] expectedErrorCodes, double segmentLength = 0)
     {
         var problems = new RoadSegmentAttributesValidator().Validate(
-            new RoadSegmentId(1),
             attributes,
             segmentLength);
         foreach (var problem in problems)

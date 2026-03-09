@@ -9,18 +9,18 @@ public class RoadSegmentUnflattener
     public static List<RoadSegmentFeatureWithDynamicAttributes> Unflatten(
         FeatureType featureType,
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
-        RoadSegmentId maxUsedRoadSegmentId,
+        IRoadSegmentIdProvider roadSegmentIdProvider,
         OgcFeaturesCache ogcFeaturesCache,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
-        return new RoadSegmentUnflattener().UnflattenRoadSegments(featureType, records, maxUsedRoadSegmentId, ogcFeaturesCache, context, cancellationToken);
+        return new RoadSegmentUnflattener().UnflattenRoadSegments(featureType, records, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken);
     }
 
     private List<RoadSegmentFeatureWithDynamicAttributes> UnflattenRoadSegments(
         FeatureType featureType,
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
-        RoadSegmentId maxUsedRoadSegmentId,
+        IRoadSegmentIdProvider roadSegmentIdProvider,
         OgcFeaturesCache ogcFeaturesCache,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ public class RoadSegmentUnflattener
         var nodeClassifications = ClassifyNodes(featureType, records, segmentsByNode, context, cancellationToken);
 
         // Step 3: Merge segments connected by schijnknopen (nodes with no type assigned)
-        var unflattenedRecords = MergeSegmentsAtSchijnknopen(records, maxUsedRoadSegmentId, segmentsByNode, nodeClassifications, context.Tolerances, ogcFeaturesCache, cancellationToken);
+        var unflattenedRecords = MergeSegmentsAtSchijnknopen(records, roadSegmentIdProvider, segmentsByNode, nodeClassifications, context.Tolerances, ogcFeaturesCache, cancellationToken);
         return unflattenedRecords;
     }
 
@@ -233,7 +233,7 @@ public class RoadSegmentUnflattener
 
     private List<RoadSegmentFeatureWithDynamicAttributes> MergeSegmentsAtSchijnknopen(
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
-        RoadSegmentId maxUsedRoadSegmentId,
+        IRoadSegmentIdProvider roadSegmentIdProvider,
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
         Dictionary<RoadNodeId, RoadNodeTypeV2> nodeClassifications,
         VerificationContextTolerances tolerances,
@@ -242,7 +242,6 @@ public class RoadSegmentUnflattener
     {
         var result = new List<RoadSegmentFeatureWithDynamicAttributes>();
         var processedSegments = new HashSet<RoadSegmentTempId>();
-        var nextRoadSegmentIdProvider = new NextRoadSegmentIdProvider(maxUsedRoadSegmentId);
 
         foreach (var record in records)
         {
@@ -256,7 +255,7 @@ public class RoadSegmentUnflattener
             // Find all segments connected through schijnknopen
             var segmentChain = BuildSegmentChain(record, segmentsByNode, nodeClassifications, processedSegments, tolerances);
 
-            var dynamicRecord = BuildFeatureWithDynamicAttributes(segmentChain, nextRoadSegmentIdProvider, ogcFeaturesCache);
+            var dynamicRecord = BuildFeatureWithDynamicAttributes(segmentChain, roadSegmentIdProvider, ogcFeaturesCache);
             result.Add(dynamicRecord);
         }
 
@@ -332,10 +331,10 @@ public class RoadSegmentUnflattener
 
     private RoadSegmentFeatureWithDynamicAttributes BuildFeatureWithDynamicAttributes(
         List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> segments,
-        NextRoadSegmentIdProvider nextRoadSegmentIdProvider,
+        IRoadSegmentIdProvider roadSegmentIdProvider,
         OgcFeaturesCache ogcFeaturesCache)
     {
-        var firstSegment = segments.First();
+        var longestSegment = segments.OrderByDescending(x => x.Attributes.Geometry.Length).First();
 
         // Merge geometries
         var mergedGeometry = segments.Count > 1
@@ -343,16 +342,16 @@ public class RoadSegmentUnflattener
             : segments.Single().Attributes.Geometry;
 
         var status = segments.Select(x => x.Attributes.Status).Distinct().Single();
-        var method = DetermineMethod(firstSegment.Attributes.Method, status, mergedGeometry, ogcFeaturesCache);
+        var method = DetermineMethod(longestSegment.Attributes.Method, status, mergedGeometry, ogcFeaturesCache);
         var dynamicAttributes = RoadSegmentFeatureCompareWithDynamicAttributes.Build(
-            firstSegment.Attributes.RoadSegmentId ?? nextRoadSegmentIdProvider.Next(),
+            longestSegment.Attributes.RoadSegmentId ?? roadSegmentIdProvider.NewId(),
             mergedGeometry,
             method,
             status,
             segments.Select(x => x.Attributes).ToList());
 
         return new RoadSegmentFeatureWithDynamicAttributes(
-            firstSegment.RecordNumber,
+            longestSegment.RecordNumber,
             dynamicAttributes,
             segments);
     }
@@ -371,22 +370,5 @@ public class RoadSegmentUnflattener
         }
 
         return RoadSegmentGeometryDrawMethodV2.Ingemeten;
-    }
-
-    private sealed class NextRoadSegmentIdProvider
-    {
-        private RoadSegmentId _nextValue;
-
-        public NextRoadSegmentIdProvider(RoadSegmentId initialValue)
-        {
-            _nextValue = initialValue.Next();
-        }
-
-        public RoadSegmentId Next()
-        {
-            var result = _nextValue;
-            _nextValue = _nextValue.Next();
-            return result;
-        }
     }
 }

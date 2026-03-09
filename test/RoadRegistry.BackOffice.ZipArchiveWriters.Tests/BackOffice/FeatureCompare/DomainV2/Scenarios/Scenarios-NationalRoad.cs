@@ -65,7 +65,7 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
                 .AppendChange(
                     new RemoveRoadSegmentFromNationalRoadChange
                     {
-                        RoadSegmentId = new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+                        RoadSegmentId = new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value!.Value),
                         Number = NationalRoadNumber.Parse(context.Extract.TestData.RoadSegment1NationalRoadDbaseRecord1.NWNUMMER.Value!)
                     }
                 ));

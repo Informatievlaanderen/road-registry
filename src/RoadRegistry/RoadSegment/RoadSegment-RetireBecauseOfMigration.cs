@@ -8,7 +8,7 @@ public partial class RoadSegment
 {
     public Problems RetireBecauseOfMigration(RoadSegmentId? mergedRoadSegmentId, Provenance provenance)
     {
-        var problems = Problems.For(RoadSegmentId);
+        var problems = Problems.WithContext(RoadSegmentId);
 
         if (IsRemoved)
         {

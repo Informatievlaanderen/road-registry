@@ -108,7 +108,7 @@ public class FeaturesReaderTests
             transactionZoneShapeStream: transactionZoneShapeStream
         );
 
-        var maxRoadSegmentId = Math.Max(roadSegmentDbaseRecord1.WS_OIDN.Value, roadSegmentDbaseRecord2.WS_OIDN.Value);
+        var maxRoadSegmentId = Math.Max(roadSegmentDbaseRecord1.WS_OIDN.Value!.Value, roadSegmentDbaseRecord2.WS_OIDN.Value!.Value);
         var roadSegment2TemporaryId = new RoadSegmentId(maxRoadSegmentId + 1);
 
         var segment2Geometry = GeometryTranslator.ToMultiLineStringLambert08(roadSegmentShapeContent2.Shape).ToRoadSegmentGeometry();
@@ -130,8 +130,7 @@ public class FeaturesReaderTests
             })
             .AppendChange(new AddRoadSegmentChange
             {
-                TemporaryId = roadSegment2TemporaryId,
-                OriginalId = new RoadSegmentId(roadSegmentDbaseRecord2.WS_OIDN.Value),
+                RoadSegmentIdReference = new RoadSegmentIdReference(roadSegment2TemporaryId, [new RoadSegmentTempId(roadSegmentDbaseRecord2.WS_TEMPID.Value)]),
                 Geometry = segment2Geometry,
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst,
                 Status = RoadSegmentStatusV2.ByIdentifier[roadSegmentDbaseRecord2.STATUS.Value],
@@ -159,7 +158,7 @@ public class FeaturesReaderTests
             {
                 TemporaryId = new GradeSeparatedJunctionId(gradeSeparatedJunctionDbaseRecord.OK_OIDN.Value),
                 Type = GradeSeparatedJunctionTypeV2.ByIdentifier[gradeSeparatedJunctionDbaseRecord.TYPE.Value],
-                UpperRoadSegmentId = new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
+                UpperRoadSegmentId = new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value!.Value),
                 LowerRoadSegmentId = roadSegment2TemporaryId
             });
 
