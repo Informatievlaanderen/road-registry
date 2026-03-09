@@ -402,6 +402,10 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
                     "De opgegeven geometrie heeft niet het coördinatenstelsel Lambert 72.")
             },
             {
+                ProblemCode.RoadSegment.Geometry.StartEqualsEnd, problem => new(problem.Severity, problem.Reason,
+                    $"Het begin- en eindvertex van wegsegment met id {problem.GetParameterValue("Identifier")} zijn hetzelfde.")
+            },
+            {
                 ProblemCode.RoadSegment.Geometry.Taken, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")
                     ? $"De geometrie werd reeds ingenomen door een ander wegsegment met {GetRoadSegmentIdLabel(problem, "ByOtherWegsegment")}."
                     : $"De geometrie werd reeds ingenomen door een ander wegsegment met {problem.Parameters[0].Value}.")
