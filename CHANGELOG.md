@@ -1,3 +1,20 @@
+# [4.49.0](https://github.com/informatievlaanderen/road-registry/compare/v4.48.0...v4.49.0) (2026-03-09)
+
+
+### Bug Fixes
+
+* request extract by file should use BlobRequest to avoid SQS message size limit ([41cddc4](https://github.com/informatievlaanderen/road-registry/commit/41cddc4db970beb42a2a04cac6ea1aaee2b9df1d))
+
+
+### Features
+
+* VAL11 identificators must be valid and unique ([0dc3ec2](https://github.com/informatievlaanderen/road-registry/commit/0dc3ec25453687f79d7921275626635c540f7d97))
+* VAL12 treat no node/segment records as error for Inwinning ([3df6185](https://github.com/informatievlaanderen/road-registry/commit/3df61856845f87891415b97fe0c5ef57e058886d))
+* VAL16 validate dbf values ([b1e6352](https://github.com/informatievlaanderen/road-registry/commit/b1e6352d7528274381e1a993060ce56ac0d9a485))
+* VAL17,21,22 roadsegment geometry validation ([146742d](https://github.com/informatievlaanderen/road-registry/commit/146742de5cf70dacc14505a966a1a85cc086306b))
+* VAL19 segment geometry should be at least partially within transactionzone ([c4d7e74](https://github.com/informatievlaanderen/road-registry/commit/c4d7e74f7bb3ca4e0df9a7b0ae2e9d8831c44d81))
+* VAL6 uploaded entities must be unique + refactor: ability to use different problem translations GAWR-7195 ([a65e44a](https://github.com/informatievlaanderen/road-registry/commit/a65e44aa428ea803450e21f43827d60fb89fec77))
+
 # [4.48.0](https://github.com/informatievlaanderen/road-registry/compare/v4.47.3...v4.48.0) (2026-03-02)
 
 
