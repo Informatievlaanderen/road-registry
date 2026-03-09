@@ -11,7 +11,7 @@ public sealed class RoadSegmentAccessRestrictionV2 : IEquatable<RoadSegmentAcces
         new(
             nameof(OpenbareWeg),
             new DutchTranslation(
-                1,
+                10,
                 "openbare weg",
                 "Elke weg die een bestemming tot openbaar gebruik heeft gekregen."
             )
@@ -21,7 +21,7 @@ public sealed class RoadSegmentAccessRestrictionV2 : IEquatable<RoadSegmentAcces
         new(
             nameof(PrivateWeg),
             new DutchTranslation(
-                2,
+                11,
                 "private weg",
                 "Toegang tot de weg is beperkt aangezien deze een privatief karakter heeft."
             )

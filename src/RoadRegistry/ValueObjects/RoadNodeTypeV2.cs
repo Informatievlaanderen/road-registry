@@ -10,9 +10,9 @@ public sealed class RoadNodeTypeV2 : IEquatable<RoadNodeTypeV2>, IDutchToString
         new(
             nameof(EchteKnoop),
             new DutchTranslation(
-                1,
+                10,
                 "echte knoop",
-            "Een echte knoop is een wegknoop waarin méér dan twee wegsegmenten samenkomen, en waarop uitwisseling van verkeer mogelijk is tussen de verschillende wegsegmenten die erop aansluiten."
+                "Een echte knoop is een wegknoop waarin méér dan twee wegsegmenten samenkomen, en waarop uitwisseling van verkeer mogelijk is tussen de verschillende wegsegmenten die erop aansluiten."
             )
         );
 
@@ -20,7 +20,7 @@ public sealed class RoadNodeTypeV2 : IEquatable<RoadNodeTypeV2>, IDutchToString
         new(
             nameof(Schijnknoop),
             new DutchTranslation(
-                2,
+                11,
                 "schijnknoop",
                 "Punt waar 2 wegsegmenten elkaar raken; slechts twee aansluitende wegsegmenten."
             )
@@ -30,7 +30,7 @@ public sealed class RoadNodeTypeV2 : IEquatable<RoadNodeTypeV2>, IDutchToString
         new(
             nameof(Eindknoop),
             new DutchTranslation(
-                3,
+                12,
                 "eindknoop",
                 "Een eindknoop is een wegknoop waarop precies één wegsegment aansluit. Deze knoop markeert het einde van een weg."
             )
@@ -40,7 +40,7 @@ public sealed class RoadNodeTypeV2 : IEquatable<RoadNodeTypeV2>, IDutchToString
         new(
             nameof(Validatieknoop),
             new DutchTranslation(
-                4,
+                13,
                 "validatieknoop",
                 "Een validatieknoop is een knoop die toegevoegd werd om de integriteit van het wegennetwerk correct te valideren. Validatieknopen hebben steeds twee aansluitende wegsegmenten."
             )

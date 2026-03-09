@@ -101,11 +101,11 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
     {
         var mapping = new Dictionary<int, int>
         {
-            { 1, 1 },
-            { 2, 2 },
-            { 3, 3 },
-            { 4, 1 },
-            { 5, 4 }
+            { 1, 10 },
+            { 2, 11 },
+            { 3, 12 },
+            { 4, 10 },
+            { 5, 13 }
         };
 
         if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))

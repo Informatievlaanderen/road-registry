@@ -11,7 +11,7 @@ public sealed class RoadSegmentSurfaceTypeV2 : IEquatable<RoadSegmentSurfaceType
         new(
             nameof(Verhard),
             new DutchTranslation(
-                1,
+                10,
                 "verhard",
                 "De oppervlakte van de weg is afgedicht door geprefabriceerde elementen zoals tegels, keien of straatstenen, of door een gebonden vorm van granulaten die na het aanbrengen een solide geheel vormt."
             )
@@ -21,7 +21,7 @@ public sealed class RoadSegmentSurfaceTypeV2 : IEquatable<RoadSegmentSurfaceType
         new(
             nameof(Halfverhard),
             new DutchTranslation(
-                2,
+                11,
                 "halfverhard",
                 "De ondergrond van de weg is opgebouwd uit (kleine) losse stukken basismateriaal (granulaat). Deze granulaten werden bij constructie eerst in losse vorm aangebracht en vervolgens al dan niet bewerkt, verstevigd of gebonden."
             )
@@ -31,7 +31,7 @@ public sealed class RoadSegmentSurfaceTypeV2 : IEquatable<RoadSegmentSurfaceType
         new(
             nameof(Onverhard),
             new DutchTranslation(
-                3,
+                12,
                 "onverhard",
                 "De weg is ontstaan door betreding van de ondergrond (door mens of dier) of door een mechanische handeling zoals maaien, herprofileren of beperkte bodembewerkingen. Er werden geen externe materialen toegepast bij de aanleg van de weg."
             )

@@ -103,10 +103,10 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
     {
         var mapping = new Dictionary<int, int>
         {
-            { 1, 1 },
-            { 2, 1 },
-            { 3, 1 },
-            { 4, 2 },
+            { 1, 10 },
+            { 2, 10 },
+            { 3, 10 },
+            { 4, 11 },
             { 5, -5 },
             { -8, -5 }
         };
@@ -156,12 +156,12 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
     {
         var mapping = new Dictionary<int, int>
         {
-            { 1, 1 },
+            { 1, 10 },
             { 2, -2 },
             { 3, -3 },
-            { 4, 2 },
-            { 5, 1 },
-            { 6, 1 }
+            { 4, 11 },
+            { 5, 10 },
+            { 6, 10 }
         };
 
         if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
@@ -216,9 +216,9 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
     {
         var mapping = new Dictionary<int, int>
         {
-            { 1, 1 },
-            { 2, 2 },
-            { -9, 3 },
+            { 1, 10 },
+            { 2, 11 },
+            { -9, 12 },
             { -8, -8 },
         };
 
