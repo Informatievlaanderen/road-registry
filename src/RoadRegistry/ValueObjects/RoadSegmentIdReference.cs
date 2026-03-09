@@ -31,6 +31,17 @@ public sealed record RoadSegmentIdReference : IEquatable<RoadSegmentIdReference>
                && (TempIds ?? []).SequenceEqual(other.TempIds ?? []);
     }
 
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(RoadSegmentId);
+        foreach (var tempId in TempIds ?? [])
+        {
+            hash.Add(tempId);
+        }
+        return hash.ToHashCode();
+    }
+
     public string GetTempIdsAsString()
     {
         return string.Join(",", TempIds!.Select(x => x.ToInt32()));
