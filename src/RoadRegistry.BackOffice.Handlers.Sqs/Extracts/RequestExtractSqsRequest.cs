@@ -1,7 +1,9 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using RoadRegistry.BackOffice.Abstractions;
 
+[BlobRequest]
 public sealed class RequestExtractSqsRequest : SqsRequest
 {
     public required ExtractRequestId ExtractRequestId { get; init; }
