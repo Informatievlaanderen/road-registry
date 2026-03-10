@@ -34,12 +34,12 @@ public partial class RoadNode
             problems += new RoadNodeGeometryTaken(context.IdTranslator.TranslateToTemporaryId(byOtherNode.RoadNodeId));
         }
 
-        problems = context.RoadNetwork.GetNonRemovedRoadSegments()
+        problems += context.RoadNetwork.GetNonRemovedRoadSegments()
             .Where(s =>
                 segments.All(x => x.RoadSegmentId != s.RoadSegmentId)
                 && s.Geometry.Value.IsWithinDistance(Geometry.Value, Distances.RoadNodeTooClose)
             )
-            .Aggregate(problems, (current, segment) =>
+            .Aggregate(Problems.None, (current, segment) =>
                 current.Add(new RoadNodeTooClose()
                     .WithContext(ProblemContext.For(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId)))));
 
@@ -50,7 +50,6 @@ public partial class RoadNode
 
     private Problems ValidateTypeAndChangeIfNeeded(ScopedRoadNetworkContext context, List<RoadSegment> segments, Provenance provenance)
     {
-        //TODO-pr bij upload mee fixen + uncomment unit test VerifyTopologyTests
         var problems = Problems.None;
 
         if (segments.Count == 0)
@@ -68,26 +67,28 @@ public partial class RoadNode
         }
         else if (segments.Count == 2)
         {
-            if (Type != RoadNodeTypeV2.Schijnknoop)
+            var segment1 = segments[0];
+            var segment2 = segments[1];
+
+            if (Grensknoop || !segment1.Attributes.Equals(segment2.Attributes))
             {
-                Apply(new RoadNodeTypeWasChanged
+                // Must be schijnknoop
+                if (Type != RoadNodeTypeV2.Schijnknoop)
                 {
-                    RoadNodeId = RoadNodeId,
-                    Type = RoadNodeTypeV2.Schijnknoop,
-                    Provenance = new ProvenanceData(provenance)
-                });
+                    Apply(new RoadNodeTypeWasChanged
+                    {
+                        RoadNodeId = RoadNodeId,
+                        Type = RoadNodeTypeV2.Schijnknoop,
+                        Provenance = new ProvenanceData(provenance)
+                    });
+                }
             }
             else
             {
-                var segment1 = segments[0];
-                var segment2 = segments[1];
-                if (segment1.Attributes.Equals(segment2.Attributes))
-                {
-                    problems += new FakeRoadNodeConnectedSegmentsDoNotDiffer(
-                        context.IdTranslator.TranslateToTemporaryId(segment1.RoadSegmentId),
-                        context.IdTranslator.TranslateToTemporaryId(segment2.RoadSegmentId)
-                    );
-                }
+                problems += new RoadNodeIsNotAllowed(
+                    context.IdTranslator.TranslateToTemporaryId(segment1.RoadSegmentId),
+                    context.IdTranslator.TranslateToTemporaryId(segment2.RoadSegmentId)
+                );
             }
         }
         else if (segments.Count > 2 && Type != RoadNodeTypeV2.EchteKnoop)

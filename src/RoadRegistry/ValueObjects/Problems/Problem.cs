@@ -24,12 +24,31 @@ public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
         Context ??= context;
         if (context?.Parameters.Count > 0)
         {
-            if (context.Parameters.Any(x => Parameters.Any(y => y.Name == x.Name)))
+            var parametersToAdd = new List<ProblemParameter>();
+
+            foreach (var contextParam in context.Parameters)
             {
-                throw new InvalidOperationException($"Problem context already contains parameter with name {context.Parameters.First(x => Parameters.Any(y => y.Name == x.Name)).Name}");
+                var hasExactParam = Parameters.Any(p => p.Name == contextParam.Name && p.Value == contextParam.Value.ToInvariantString());
+                if (hasExactParam)
+                {
+                    continue;
+                }
+
+                var existingParamWithDifferentValue = Parameters.SingleOrDefault(p => p.Name == contextParam.Name && p.Value != contextParam.Value.ToInvariantString());
+                if (existingParamWithDifferentValue is not null)
+                {
+                    throw new InvalidOperationException(
+                        $"Problem already contains parameter with name '{existingParamWithDifferentValue.Name}' " +
+                        $"with value '{existingParamWithDifferentValue.Value}', which conflicts with context value '{contextParam.Value.ToInvariantString()}'");
+                }
+
+                parametersToAdd.Add(new ProblemParameter(contextParam.Name, contextParam.Value.ToInvariantString()));
             }
 
-            Parameters = Parameters.Concat(context.Parameters.Select(x => new ProblemParameter(x.Name, x.Value.ToInvariantString()))).ToArray();
+            if (parametersToAdd.Count > 0)
+            {
+                Parameters = Parameters.Concat(parametersToAdd).ToArray();
+            }
         }
         return this;
     }

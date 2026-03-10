@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using RoadNetwork;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.Events.V2;
 using ScopedRoadNetwork.ValueObjects;
@@ -47,7 +48,8 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
             idempotentCommandHandler,
             roadRegistryContext,
             loggerFactory,
-            TicketingBehavior.Complete | TicketingBehavior.Error)
+            TicketingBehavior.Complete | TicketingBehavior.Error,
+            problemTranslator: WellKnownProblemTranslators.Extract)
     {
         _store = store;
         _roadNetworkRepository = roadNetworkRepository;
