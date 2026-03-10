@@ -46,8 +46,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
             )
             .ThenContainsProblems(
                 new Error("RoadSegmentStartNodeMissing",
-                    new ProblemParameter("WegsegmentId", 1.ToString()),
-                    new ProblemParameter("WegknoopId", TestData.Segment1StartNodeAdded.RoadNodeId.ToString())
+                    new ProblemParameter("WegsegmentId", 1.ToString())
                 ))
         );
     }
@@ -69,8 +68,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
             )
             .ThenContainsProblems(
                 new Error("RoadSegmentEndNodeMissing",
-                    new ProblemParameter("WegsegmentId", 1.ToString()),
-                    new ProblemParameter("WegknoopId", TestData.Segment1EndNodeAdded.RoadNodeId.ToString())
+                    new ProblemParameter("WegsegmentId", 1.ToString())
                 ))
         );
     }
@@ -106,20 +104,20 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 .Add(new AddRoadNodeChange
                 {
                     TemporaryId = new RoadNodeId(3),
-                    OriginalId = Fixture.Create<RoadNodeId>(),
-                    Geometry = new Point(TestData.AddSegment1StartNode.Geometry.Value.X + 1.99, TestData.AddSegment1StartNode.Geometry.Value.Y).ToRoadNodeGeometry(),
+                    Geometry = new Point(TestData.AddSegment1StartNode.Geometry.Value.X + 0.99, TestData.AddSegment1StartNode.Geometry.Value.Y).ToRoadNodeGeometry(),
+                    OriginalId = new RoadNodeId(99),
                     Grensknoop = Fixture.Create<bool>()
                 })
             )
             .ThenContainsProblems(new Error("RoadNodeTooClose",
                 new ProblemParameter("WegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
-                new ProblemParameter("WegknoopId", 3.ToString())
+                new ProblemParameter("WegknoopId", 99.ToString())
             ))
         );
     }
 
     [Fact]
-    public Task WhenVerifyType_WithNoSegmentsConnected_ThenError()
+    public Task WhenDetectType_WithNoSegmentsConnected_ThenError()
     {
         return Run(scenario => scenario
             .Given(b => b)
@@ -133,158 +131,218 @@ public class VerifyTopologyTests : RoadNetworkTestBase
         );
     }
 
-    // [Theory]
-    // [InlineData(nameof(RoadNodeTypeV2.Eindknoop), false)]
-    // [InlineData(nameof(RoadNodeTypeV2.Schijnknoop), true)]
-    // [InlineData(nameof(RoadNodeTypeV2.EchteKnoop), true)]
-    // //[InlineData(nameof(RoadNodeTypeV2.Validatieknoop), true)] //TODO-pr implement
-    // public Task WhenVerifyType_WithOneSegmentConnectedAndTypeIsNotEndNode_ThenError(string roadNodeType, bool expectError)
-    // {
-    //     var addStartNode1WithWrongType = TestData.AddSegment1StartNode with
-    //     {
-    //         Type = RoadNodeTypeV2.Parse(roadNodeType)
-    //     };
-    //
-    //     return Run(scenario =>
-    //         {
-    //             var when = scenario
-    //                 .Given(b => b)
-    //                 .When(changes => changes
-    //                     .Add(addStartNode1WithWrongType)
-    //                     .Add(TestData.AddSegment1)
-    //                 );
-    //
-    //             if (expectError)
-    //             {
-    //                 return when.ThenContainsProblems(new Error("RoadNodeTypeMismatch",
-    //                     new ProblemParameter("RoadNodeId", TestData.AddSegment1StartNode.TemporaryId.ToString()),
-    //                     new ProblemParameter("ConnectedSegmentCount", "1"),
-    //                     new ProblemParameter("ConnectedSegmentId", TestData.AddSegment1.TemporaryId.ToString()),
-    //                     new ProblemParameter("Actual", addStartNode1WithWrongType.Type.ToString()),
-    //                     new ProblemParameter("Expected", RoadNodeTypeV2.Eindknoop.ToString())
-    //                 ));
-    //             }
-    //
-    //             return when.ThenProblems(problems => problems.All(x => x.Reason != "RoadNodeTypeMismatch"));
-    //         }
-    //     );
-    // }
+    [Fact]
+    public Task WhenDetectType_WithOneSegmentConnected_ThenTypeIsEindknoop()
+    {
+        return Run(scenario => scenario
+            .Given(given => given)
+            .When(changes => changes
+                .Add(TestData.AddSegment1StartNode)
+                .Add(TestData.AddSegment1EndNode)
+                .Add(TestData.AddSegment1 with
+                {
+                    Status = RoadSegmentStatusV2.Gerealiseerd
+                })
+            )
+            .Then((_, events) =>
+            {
+                var wasChanged = events
+                    .OfType<RoadNodeTypeWasChanged>()
+                    .SingleOrDefault(x => x.RoadNodeId == TestData.Segment1StartNodeAdded.RoadNodeId && x.Type == RoadNodeTypeV2.Eindknoop);
+                wasChanged.Should().NotBeNull();
+            })
+        );
+    }
 
-    // [Theory]
-    // [InlineData(nameof(RoadNodeTypeV2.Eindknoop), true)]
-    // [InlineData(nameof(RoadNodeTypeV2.Schijnknoop), false)]
-    // [InlineData(nameof(RoadNodeTypeV2.EchteKnoop), true)]
-    // //[InlineData(nameof(RoadNodeTypeV2.Validatieknoop), false)] //TODO-pr implement
-    // public Task WhenVerifyType_WithTwoSegmentsConnectedAndTypeIsNotFakeNodeOrTurningLoopNode_ThenError(string roadNodeType, bool expectError)
-    // {
-    //     var addStartNode1WithWrongType = TestData.AddSegment1StartNode with
-    //     {
-    //         Type = RoadNodeTypeV2.Parse(roadNodeType)
-    //     };
-    //
-    //     return Run(scenario =>
-    //         {
-    //             var when = scenario
-    //                 .Given(b => b)
-    //                 .When(changes => changes
-    //                     .Add(addStartNode1WithWrongType)
-    //                     .Add(TestData.AddSegment1)
-    //                     .Add(TestData.AddSegment2 with
-    //                     {
-    //                         StartNodeId = addStartNode1WithWrongType.TemporaryId
-    //                     })
-    //                 );
-    //
-    //             if (expectError)
-    //             {
-    //                 return when.ThenContainsProblems(new Error("RoadNodeTypeMismatch",
-    //                     new ProblemParameter("RoadNodeId", TestData.AddSegment1StartNode.TemporaryId.ToString()),
-    //                     new ProblemParameter("ConnectedSegmentCount", "2"),
-    //                     new ProblemParameter("ConnectedSegmentId", TestData.AddSegment1.TemporaryId.ToString()),
-    //                     new ProblemParameter("ConnectedSegmentId", TestData.AddSegment2.TemporaryId.ToString()),
-    //                     new ProblemParameter("Actual", addStartNode1WithWrongType.Type.ToString()),
-    //                     new ProblemParameter("Expected", RoadNodeTypeV2.Schijnknoop.ToString())
-    //                 ));
-    //             }
-    //
-    //             return when.ThenProblems(problems => problems.All(x => x.Reason != "RoadNodeTypeMismatch"));
-    //         }
-    //     );
-    // }
+    [Fact]
+    public Task WhenDetectType_WithTwoDifferentSegmentsConnectedAndNodeIsNotGrensknoop_ThenTypeIsSchijnknoop()
+    {
+        var point1 = new Point(600000, 600000);
+        var point2 = new Point(600010, 600000);
+        var point3 = new Point(600020, 600000);
 
-    // [Fact]
-    // public Task WhenVerifyType_WithTwoSegmentsConnectedAndTypeIsFakeNodeButConnectedSegmentAttributesAreIdentical_ThenError()
-    // {
-    //     var addStartNode1WithWrongType = TestData.AddSegment1StartNode with
-    //     {
-    //         Type = RoadNodeTypeV2.Schijnknoop
-    //     };
-    //
-    //     var addIdenticalSegment = TestData.AddSegment1 with
-    //     {
-    //         TemporaryId = Fixture.CreateWhichIsDifferentThan(TestData.AddSegment1.TemporaryId),
-    //         OriginalId = Fixture.CreateWhichIsDifferentThan(TestData.AddSegment1.TemporaryId, TestData.AddSegment1.OriginalId)
-    //     };
-    //
-    //     return Run(scenario => scenario
-    //         .Given(given => given)
-    //         .When(changes => changes
-    //             .Add(addStartNode1WithWrongType)
-    //             .Add(TestData.AddSegment1)
-    //             .Add(addIdenticalSegment)
-    //         )
-    //         .ThenContainsProblems(new Error("FakeRoadNodeConnectedSegmentsDoNotDiffer",
-    //             new ProblemParameter("RoadNodeId", TestData.AddSegment1StartNode.TemporaryId.ToString()),
-    //             new ProblemParameter("SegmentId", TestData.AddSegment1.OriginalId.ToString()),
-    //             new ProblemParameter("SegmentId", addIdenticalSegment.OriginalId.ToString())
-    //         ))
-    //     );
-    // }
+        return Run(scenario => scenario
+            .Given(b => b)
+            .When(changes => changes
+                .Add(TestData.AddSegment1StartNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point1),
+                    Grensknoop = false
+                })
+                .Add(TestData.AddSegment1EndNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point2),
+                    Grensknoop = false
+                })
+                .Add((TestData.AddSegment1 with
+                {
+                    Geometry = BuildRoadSegmentGeometry(point1, point2),
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                    GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
+                .Add(TestData.AddSegment2EndNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point3),
+                    Grensknoop = false
+                })
+                .Add((TestData.AddSegment2 with
+                {
+                    Geometry = BuildRoadSegmentGeometry(point2, point3),
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                    GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
+            )
+            .Then((_, events) =>
+            {
+                var wasChanged = events
+                    .OfType<RoadNodeTypeWasChanged>()
+                    .SingleOrDefault(x => x.RoadNodeId == TestData.Segment1EndNodeAdded.RoadNodeId && x.Type == RoadNodeTypeV2.Schijnknoop);
+                wasChanged.Should().NotBeNull();
+            })
+        );
+    }
 
-    // [Theory]
-    // [InlineData(nameof(RoadNodeTypeV2.Eindknoop), true)]
-    // [InlineData(nameof(RoadNodeTypeV2.Schijnknoop), true)]
-    // [InlineData(nameof(RoadNodeTypeV2.EchteKnoop), false)]
-    // //[InlineData(nameof(RoadNodeTypeV2.Validatieknoop), true)] //TODO-pr implement
-    // public Task WhenVerifyType_WithThreeOrMoreSegmentsConnectedAndTypeIsNotRealNodeOrMiniRoundabout_ThenError(string roadNodeType, bool expectError)
-    // {
-    //     var addStartNode1WithWrongType = TestData.AddSegment1StartNode with
-    //     {
-    //         Type = RoadNodeTypeV2.Parse(roadNodeType)
-    //     };
-    //
-    //     return Run(scenario =>
-    //         {
-    //             var when = scenario
-    //                 .Given(b => b)
-    //                 .When(changes => changes
-    //                     .Add(addStartNode1WithWrongType)
-    //                     .Add(TestData.AddSegment1)
-    //                     .Add(TestData.AddSegment2 with
-    //                     {
-    //                         StartNodeId = addStartNode1WithWrongType.TemporaryId
-    //                     })
-    //                     .Add(TestData.AddSegment3 with
-    //                     {
-    //                         StartNodeId = addStartNode1WithWrongType.TemporaryId
-    //                     })
-    //                 );
-    //
-    //             if (expectError)
-    //             {
-    //                 return when.ThenContainsProblems(new Error("RoadNodeTypeMismatch",
-    //                     new ProblemParameter("RoadNodeId", TestData.AddSegment1StartNode.TemporaryId.ToString()),
-    //                     new ProblemParameter("ConnectedSegmentCount", "3"),
-    //                     new ProblemParameter("ConnectedSegmentId", TestData.AddSegment1.TemporaryId.ToString()),
-    //                     new ProblemParameter("ConnectedSegmentId", TestData.AddSegment2.TemporaryId.ToString()),
-    //                     new ProblemParameter("ConnectedSegmentId", TestData.AddSegment3.TemporaryId.ToString()),
-    //                     new ProblemParameter("Actual", addStartNode1WithWrongType.Type.ToString()),
-    //                     new ProblemParameter("Expected", RoadNodeTypeV2.EchteKnoop.ToString())
-    //                 ));
-    //             }
-    //
-    //             return when.ThenProblems(problems => problems.All(x => x.Reason != "RoadNodeTypeMismatch"));
-    //         }
-    //     );
-    // }
+    [Fact]
+    public Task WhenDetectType_WithTwoIdenticalSegmentsConnectedAndNodeIsGrensknoop_ThenTypeIsSchijnknoop()
+    {
+        var point1 = new Point(600000, 600000);
+        var point2 = new Point(600010, 600000);
+        var point3 = new Point(600020, 600000);
+
+        return Run(scenario => scenario
+            .Given(b => b)
+            .When(changes => changes
+                .Add(TestData.AddSegment1StartNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point1),
+                    Grensknoop = false
+                })
+                .Add(TestData.AddSegment1EndNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point2),
+                    Grensknoop = true
+                })
+                .Add((TestData.AddSegment1 with
+                {
+                    Geometry = BuildRoadSegmentGeometry(point1, point2),
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
+                .Add(TestData.AddSegment2EndNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point3),
+                    Grensknoop = false
+                })
+                .Add((TestData.AddSegment1 with
+                {
+                    RoadSegmentIdReference = TestData.AddSegment2.RoadSegmentIdReference,
+                    Geometry = BuildRoadSegmentGeometry(point2, point3),
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
+            )
+            .Then((_, events) =>
+            {
+                var wasChanged = events
+                    .OfType<RoadNodeTypeWasChanged>()
+                    .SingleOrDefault(x => x.RoadNodeId == TestData.Segment1EndNodeAdded.RoadNodeId && x.Type == RoadNodeTypeV2.Schijnknoop);
+                wasChanged.Should().NotBeNull();
+            })
+        );
+    }
+
+    [Fact]
+    public Task WhenDetectType_WithTwoIdenticalSegmentsConnectedAndNodeIsNotGrensknoop_ThenError()
+    {
+        var point1 = new Point(600000, 600000);
+        var point2 = new Point(600010, 600000);
+        var point3 = new Point(600020, 600000);
+
+        return Run(scenario => scenario
+            .Given(b => b)
+            .When(changes => changes
+                .Add(TestData.AddSegment1StartNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point1),
+                    Grensknoop = false
+                })
+                .Add(TestData.AddSegment1EndNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point2),
+                    Grensknoop = false
+                })
+                .Add((TestData.AddSegment1 with
+                {
+                    RoadSegmentIdReference = new(TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId),
+                    Geometry = BuildRoadSegmentGeometry(point1, point2),
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
+                .Add(TestData.AddSegment2EndNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point3),
+                    Grensknoop = false
+                })
+                .Add((TestData.AddSegment1 with
+                {
+                    RoadSegmentIdReference = new(TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId),
+                    Geometry = BuildRoadSegmentGeometry(point2, point3),
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
+            )
+            .ThenContainsProblems(new Error("RoadNodeIsNotAllowed",
+                new ProblemParameter("Wegsegment1Id", TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                new ProblemParameter("Wegsegment2Id", TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                new ProblemParameter("WegknoopId", TestData.AddSegment1EndNode.TemporaryId.ToString())
+            ))
+        );
+    }
+
+     [Fact]
+     public Task WhenDetectType_WithThreeOrMoreSegmentsConnected_ThenTypeIsEchteKnoop()
+     {
+         var point1 = new Point(600000, 600000);
+         var point2 = new Point(600010, 600000);
+         var point3 = new Point(600020, 600000);
+         var point4 = new Point(600010, 600010);
+
+         return Run(scenario => scenario
+             .Given(b => b)
+             .When(changes => changes
+                 .Add(TestData.AddSegment1StartNode with
+                 {
+                     Geometry = RoadNodeGeometry.Create(point1)
+                 })
+                 .Add(TestData.AddSegment1EndNode with
+                 {
+                     Geometry = RoadNodeGeometry.Create(point2)
+                 })
+                 .Add((TestData.AddSegment1 with
+                 {
+                     Geometry = BuildRoadSegmentGeometry(point1, point2),
+                     Status = RoadSegmentStatusV2.Gerealiseerd
+                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
+                 .Add(TestData.AddSegment2EndNode with
+                 {
+                     Geometry = RoadNodeGeometry.Create(point3)
+                 })
+                 .Add((TestData.AddSegment2 with
+                 {
+                     Geometry = BuildRoadSegmentGeometry(point2, point3),
+                     Status = RoadSegmentStatusV2.Gerealiseerd
+                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
+                 .Add(TestData.AddSegment3EndNode with
+                 {
+                     Geometry = RoadNodeGeometry.Create(point4)
+                 })
+                 .Add((TestData.AddSegment3 with
+                 {
+                     Geometry = BuildRoadSegmentGeometry(point2, point4),
+                     Status = RoadSegmentStatusV2.Gerealiseerd
+                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
+             )
+             .Then((_, events) =>
+             {
+                 var wasChanged = events
+                     .OfType<RoadNodeTypeWasChanged>()
+                     .SingleOrDefault(x => x.RoadNodeId == TestData.Segment1EndNodeAdded.RoadNodeId && x.Type == RoadNodeTypeV2.EchteKnoop);
+                 wasChanged.Should().NotBeNull();
+             })
+         );
+    }
 }

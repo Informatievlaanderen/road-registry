@@ -47,16 +47,13 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         return roadNode;
     }
 
-    public static RoadNode Create(RoadNodeWasMigrated @event)
+    public void Apply(RoadNodeWasMigrated @event)
     {
-        var roadNode = new RoadNode(@event.RoadNodeId)
-        {
-            Geometry = @event.Geometry,
-            Type = default,
-            Grensknoop = @event.Grensknoop
-        };
-        roadNode.UncommittedEvents.Add(@event);
-        return roadNode;
+        UncommittedEvents.Add(@event);
+
+        Geometry = @event.Geometry;
+        Type = default;
+        Grensknoop = @event.Grensknoop;
     }
 
     public void Apply(RoadNodeTypeWasChanged @event)

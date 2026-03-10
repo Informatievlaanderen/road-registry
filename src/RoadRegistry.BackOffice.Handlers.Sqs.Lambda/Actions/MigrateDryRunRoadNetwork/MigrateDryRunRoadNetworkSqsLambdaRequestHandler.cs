@@ -13,6 +13,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
@@ -44,7 +45,8 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
             idempotentCommandHandler,
             roadRegistryContext,
             loggerFactory,
-            TicketingBehavior.Error)
+            TicketingBehavior.Error,
+            problemTranslator: WellKnownProblemTranslators.Extract)
     {
         _store = store;
         _roadNetworkRepository = roadNetworkRepository;

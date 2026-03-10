@@ -7,11 +7,11 @@ using ValueObjects.Problems;
 
 public partial class RoadNode
 {
-    public static (RoadNode?, Problems) Migrate(MigrateRoadNodeChange change, Provenance provenance)
+    public Problems Migrate(MigrateRoadNodeChange change, Provenance provenance)
     {
         var problems = Problems.WithContext(change.RoadNodeId);
 
-        var node = Create(new RoadNodeWasMigrated
+        Apply(new RoadNodeWasMigrated
         {
             RoadNodeId = change.RoadNodeId,
             Geometry = change.Geometry,
@@ -19,6 +19,6 @@ public partial class RoadNode
             Provenance = new ProvenanceData(provenance)
         });
 
-        return (node, problems);
+        return problems;
     }
 }

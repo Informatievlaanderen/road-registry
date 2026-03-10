@@ -24,7 +24,7 @@ public abstract class ProblemTranslatorBase : IProblemTranslator
         return CreateMissingTranslation(problem);
     }
 
-    public ProblemTranslation CreateMissingTranslation(Problem problem)
+    public virtual ProblemTranslation CreateMissingTranslation(Problem problem)
     {
         return new ProblemTranslation(problem.Severity, problem.Reason, $"'{problem.Reason}' has no translation. Please fix it.");
     }

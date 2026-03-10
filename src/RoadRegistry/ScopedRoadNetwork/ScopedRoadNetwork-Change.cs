@@ -179,7 +179,7 @@ public partial class ScopedRoadNetwork
             return problems;
         }
 
-        problems += context.IdTranslator.RegisterMapping(change.TemporaryId, roadNode!.RoadNodeId);
+        problems += context.IdTranslator.RegisterMapping(change.OriginalId ?? change.TemporaryId, roadNode!.RoadNodeId);
         if (problems.HasError())
         {
             return problems;

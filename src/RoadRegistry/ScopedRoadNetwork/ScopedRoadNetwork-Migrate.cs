@@ -9,7 +9,6 @@ using Events.V2;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Changes;
-using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
@@ -126,6 +125,13 @@ public partial class ScopedRoadNetwork
 
     private Problems MigrateRoadNode(ModifyRoadNodeChange change, ScopedRoadNetworkContext context, RoadNetworkEntityChangesSummary<RoadNodeId> summary)
     {
+        var problems = Problems.WithContext(change.RoadNodeId);
+
+        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
+        {
+            return problems + new RoadNodeNotFound();
+        }
+
         var migrateChange = new MigrateRoadNodeChange
         {
             RoadNodeId = change.RoadNodeId,
@@ -133,19 +139,12 @@ public partial class ScopedRoadNetwork
             Grensknoop = change.Grensknoop!.Value,
         };
 
-        var (roadNode, problems) = RoadNode.Migrate(migrateChange, context.Provenance);
+        problems += roadNode.Migrate(migrateChange, context.Provenance);
         if (problems.HasError())
         {
             return problems;
         }
 
-        problems += context.IdTranslator.RegisterMapping(change.RoadNodeId, roadNode!.RoadNodeId);
-        if (problems.HasError())
-        {
-            return problems;
-        }
-
-        _roadNodes.Add(roadNode.RoadNodeId, roadNode);
         summary.Modified.Add(roadNode.RoadNodeId);
 
         return problems;

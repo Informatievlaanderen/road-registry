@@ -43,6 +43,7 @@ public class RoadSegmentUnflattener
         CancellationToken cancellationToken)
     {
         var segmentsByNode = new Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>>();
+        var nodeRecords = context.GetRoadNodeRecords(featureType).NotRemoved().ToList();
 
         foreach (var record in records)
         {
@@ -53,28 +54,20 @@ public class RoadSegmentUnflattener
             var endPoint = geometry.Coordinates.Last();
 
             // Find nodes at start and end points
-            var startNode = FindNodeAtPoint(featureType, startPoint, context);
-            var endNode = FindNodeAtPoint(featureType, endPoint, context);
+            var startNode = FindNodeAtPoint(startPoint, nodeRecords, context.Tolerances);
+            var endNode = FindNodeAtPoint(endPoint, nodeRecords, context.Tolerances);
 
             if (startNode is not null)
             {
                 var key = (startNode.Id, startNode.Attributes.Geometry);
-                if (!segmentsByNode.ContainsKey(key))
-                {
-                    segmentsByNode[key] = [];
-                }
-
+                segmentsByNode.TryAdd(key, []);
                 segmentsByNode[key].Add(record);
             }
 
             if (endNode is not null)
             {
                 var key = (endNode.Id, endNode.Attributes.Geometry);
-                if (!segmentsByNode.ContainsKey(key))
-                {
-                    segmentsByNode[key] = [];
-                }
-
+                segmentsByNode.TryAdd(key, []);
                 segmentsByNode[key].Add(record);
             }
         }
@@ -82,17 +75,15 @@ public class RoadSegmentUnflattener
         return segmentsByNode;
     }
 
-    private RoadNodeFeatureCompareRecord? FindNodeAtPoint(
-        FeatureType featuretype,
-        Coordinate point,
-        ZipArchiveEntryFeatureCompareTranslateContext context)
+    private static RoadNodeFeatureCompareRecord? FindNodeAtPoint(Coordinate point, IReadOnlyCollection<RoadNodeFeatureCompareRecord> nodeRecords, VerificationContextTolerances tolerances)
     {
-        return context.GetRoadNodeRecords(featuretype)
-            .NotRemoved()
-            .FirstOrDefault(x => x.Attributes.Geometry.IsReasonablyEqualTo(point, context.Tolerances));
+        return nodeRecords
+            .FirstOrDefault(x => x.Attributes.Geometry.IsReasonablyEqualTo(point, tolerances));
     }
 
-    private Dictionary<RoadNodeId, RoadNodeTypeV2> ClassifyNodes(FeatureType featureType, IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
+    private Dictionary<RoadNodeId, RoadNodeTypeV2> ClassifyNodes(
+        FeatureType featureType,
+        IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
@@ -105,7 +96,7 @@ public class RoadSegmentUnflattener
             cancellationToken.ThrowIfCancellationRequested();
 
             var nodeId = node.Item1;
-            var nodeRecord = roadNodeRecords.FirstOrDefault(x => x.Id == nodeId);
+            var nodeRecord = roadNodeRecords.SingleOrDefault(x => x.Id == nodeId);
             if (nodeRecord is null)
             {
                 continue;

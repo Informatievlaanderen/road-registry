@@ -16,18 +16,22 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadNodeId>();
 
+        var nodeAdded = Fixture.Create<RoadNodeWasAdded>();
+        var node = RoadNode.Create(nodeAdded)
+            .WithoutChanges();
         var change = Fixture.Create<MigrateRoadNodeChange>();
 
         // Act
-        var (node, problems) = RoadNode.Migrate(change, TestData.Provenance);
+        var problems = node.Migrate(change, TestData.Provenance);
 
         // Assert
         problems.Should().HaveNoError();
         node.GetChanges().Should().HaveCount(1);
 
-        var nodeModified = (RoadNodeWasMigrated)node.GetChanges().Single();
-        nodeModified.RoadNodeId.Should().Be(node.RoadNodeId);
-        nodeModified.Geometry.Should().BeEquivalentTo(change.Geometry);
+        var nodeMigrated = (RoadNodeWasMigrated)node.GetChanges().Single();
+        nodeMigrated.RoadNodeId.Should().Be(node.RoadNodeId);
+        nodeMigrated.Geometry.Should().BeEquivalentTo(change.Geometry);
+        nodeMigrated.Grensknoop.Should().Be(change.Grensknoop);
     }
 
     [Fact]
@@ -36,13 +40,17 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadNodeId>();
 
+        var nodeAdded = Fixture.Create<RoadNodeWasAdded>();
+        var node = RoadNode.Create(nodeAdded)
+            .WithoutChanges();
         var evt = Fixture.Create<RoadNodeWasMigrated>();
 
         // Act
-        var node = RoadNode.Create(evt);
+        node.Apply(evt);
 
         // Assert
         node.RoadNodeId.Should().Be(evt.RoadNodeId);
         node.Geometry.Should().Be(evt.Geometry);
+        node.Grensknoop.Should().Be(evt.Grensknoop);
     }
 }

@@ -210,6 +210,10 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
                     GetRoadNodeTypeV2Mismatch(problem))
             },
             {
+                ProblemCode.RoadNode.RoadNodeIsNotAllowed, problem => new(problem.Severity, problem.Reason,
+                    $"De wegknoop met {GetRoadNodeIdLabel(problem)} is onterecht.")
+            },
+            {
                 ProblemCode.RoadNode.Fake.ConnectedSegmentsDoNotDiffer, problem => new(problem.Severity, problem.Reason,
                     problem.HasParameter("Wegsegment1Id")
                         ? $"De attributen van de verbonden wegsegmenten ({GetRoadSegmentIdLabel(problem, "Wegsegment1")} en {GetRoadSegmentIdLabel(problem, "Wegsegment2")}) verschillen onvoldoende voor deze schijnknoop."
