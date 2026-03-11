@@ -17,6 +17,7 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode IdsNotUnique = new("RoadSegmentIdsNotUnique");
         public static readonly ProblemCode NotRemovedBecauseCategoryIsInvalid = new("RoadSegmentNotRemovedBecauseCategoryIsInvalid");
         public static readonly ProblemCode TemporaryIdNotUnique = new("RoadSegmentTemporaryIdNotUnique");
+        public static readonly ProblemCode PartiallyOverlapsWithAnotherRoadSegment = new("RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
 
         public static class AccessRestriction
         {

@@ -17,10 +17,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1EndNode)
                 .Add(TestData.AddSegment1)
             )
-            .Then((result, events) =>
-            {
-                result.Summary.RoadNodes.Added.Should().HaveCount(2);
-            })
+            .Then((result, events) => { result.Summary.RoadNodes.Added.Should().HaveCount(2); })
         );
     }
 
@@ -32,10 +29,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(TestData.AddSegment1StartNode)
             )
-            .Then((result, events) =>
-            {
-                result.Problems.Should().Contain(x => x.Reason.StartsWith("RoadNode"));
-            })
+            .Then((result, events) => { result.Problems.Should().Contain(x => x.Reason.StartsWith("RoadNode")); })
         );
     }
 

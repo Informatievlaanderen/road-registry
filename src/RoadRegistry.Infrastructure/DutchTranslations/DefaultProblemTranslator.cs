@@ -1,14 +1,16 @@
 ﻿namespace RoadRegistry.Infrastructure.DutchTranslations;
 
 using System.Text;
+using RoadRegistry.Infrastructure.Messages;
 using ValueObjects.ProblemCodes;
 using ValueObjects.Problems;
 using Problem = Messages.Problem;
 
-public sealed class DefaultProblemTranslator : ProblemTranslatorBase
+public class DefaultProblemTranslator : ProblemTranslatorBase
 {
-    public DefaultProblemTranslator()
-        : base(new()
+    protected override Dictionary<ProblemCode, Func<Problem, ProblemTranslation>> CreateTranslators()
+    {
+        return new()
         {
             {
                 ProblemCode.Common.IncorrectObjectId, problem => new(problem.Severity, "IncorrectObjectId",
@@ -142,17 +144,17 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
                         : "De ongelijkgrondse kruising is niet langer onderdeel van het wegen netwerk.")
             },
             {
-                ProblemCode.GradeSeparatedJunction.LowerSegmentMissing, problem => new(problem.Severity, problem.Reason,problem.HasParameter("OngelijkGrondseKruisingId")
+                ProblemCode.GradeSeparatedJunction.LowerSegmentMissing, problem => new(problem.Severity, problem.Reason, problem.HasParameter("OngelijkGrondseKruisingId")
                     ? $"De ongelijkgrondse kruising met {GetJunctionIdLabel(problem)} zijn onderste wegsegment {GetRoadSegmentIdLabel(problem)}"
                     : $"De ongelijkgrondse kruising zijn onderste wegsegment {problem.GetParameterValue("RoadSegmentId")} ontbreekt.")
             },
             {
-                ProblemCode.GradeSeparatedJunction.UpperSegmentMissing, problem => new(problem.Severity, problem.Reason,problem.HasParameter("OngelijkGrondseKruisingId")
+                ProblemCode.GradeSeparatedJunction.UpperSegmentMissing, problem => new(problem.Severity, problem.Reason, problem.HasParameter("OngelijkGrondseKruisingId")
                     ? $"De ongelijkgrondse kruising met {GetJunctionIdLabel(problem)} zijn bovenste wegsegment {GetRoadSegmentIdLabel(problem)}"
                     : $"De ongelijkgrondse kruising zijn bovenste wegsegment {problem.GetParameterValue("RoadSegmentId")} ontbreekt.")
             },
             {
-                ProblemCode.GradeSeparatedJunction.UpperAndLowerDoNotIntersect, problem => new(problem.Severity, problem.Reason,problem.HasParameter("OngelijkGrondseKruisingId")
+                ProblemCode.GradeSeparatedJunction.UpperAndLowerDoNotIntersect, problem => new(problem.Severity, problem.Reason, problem.HasParameter("OngelijkGrondseKruisingId")
                     ? $"De ongelijkgrondse kruising met {GetJunctionIdLabel(problem)} zijn bovenste wegsegment {GetRoadSegmentIdLabel(problem, "UpperWegsegment")} en onderste wegsegment {GetRoadSegmentIdLabel(problem, "LowerWegsegment")} kruisen elkaar niet."
                     : $"De ongelijkgrondse kruising zijn bovenste wegsegment {problem.GetParameterValue("UpperRoadSegmentId")} en onderste wegsegment {problem.GetParameterValue("LowerRoadSegmentId")} kruisen elkaar niet.")
             },
@@ -210,7 +212,7 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
                     GetRoadNodeTypeV2Mismatch(problem))
             },
             {
-                ProblemCode.RoadNode.RoadNodeIsNotAllowed, problem => new(problem.Severity, problem.Reason,
+                ProblemCode.RoadNode.IsNotAllowed, problem => new(problem.Severity, problem.Reason,
                     $"De wegknoop met {GetRoadNodeIdLabel(problem)} is onterecht.")
             },
             {
@@ -237,7 +239,7 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
                     "De wegsegmenten moeten uniek zijn.")
             },
             {
-                ProblemCode.RoadSegment.IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction, problem => new(problem.Severity, problem.Reason,problem.HasParameter("WegsegmentId")
+                ProblemCode.RoadSegment.IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")
                     ? $"Het wegsegment {GetRoadSegmentIdLabel(problem)} mag niet kruisen met wegsegment {GetRoadSegmentIdLabel(problem, "IntersectingWegsegment")}."
                     : $"Het wegsegment {problem.Parameters[0].Value} mag niet kruisen met wegsegment {problem.Parameters[1].Value}.")
             },
@@ -265,7 +267,7 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
                     "Dit wegsegment bestaat niet of heeft niet de geometriemethode 'ingeschetst'.")
             },
             {
-                ProblemCode.RoadSegment.TemporaryIdNotUnique, problem => new(problem.Severity, problem.Reason,problem.HasParameter("WegsegmentId")
+                ProblemCode.RoadSegment.TemporaryIdNotUnique, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")
                     ? $"De opgegeven tijdelijke wegsegment {GetRoadSegmentIdLabel(problem)} is niet uniek."
                     : $"De opgegeven tijdelijke wegsegment ID {problem.Parameters[0].Value} is niet uniek.")
             },
@@ -280,6 +282,10 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
             {
                 ProblemCode.RoadSegment.NotRemovedBecauseCategoryIsInvalid, problem => new(problem.Severity, "WegsegmentOngeldigeCategorie",
                     $"Wegsegment {problem.GetParameterValue("Identifier")} mag niet verwijderd worden omwille van zijn categorie '{problem.GetParameterValue("Category")}'.")
+            },
+            {
+                ProblemCode.RoadSegment.PartiallyOverlapsWithAnotherRoadSegment, problem => new(problem.Severity, problem.Reason,
+                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} ligt te dicht bij het wegsegment met {GetRoadSegmentIdLabel(problem, "OtherWegsegment")}.")
             },
             {
                 ProblemCode.RoadSegment.EndNode.Missing, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")
@@ -518,8 +524,8 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
                 ProblemCode.RoadSegment.StartNode.Missing, problem => new(problem.Severity, problem.HasParameter("WegsegmentId")
                     ? $"De start wegknoop van het wegsegment met {GetRoadSegmentIdLabel(problem)} ontbreekt."
                     : problem.Reason, problem.HasParameter("Identifier") || problem.HasParameter("Actual")
-                        ? $"De start wegknoop van het wegsegment met id {problem.GetOptionalParameterValue("Identifier") ?? problem.GetOptionalParameterValue("Actual")} ontbreekt."
-                        : "De start wegknoop van het wegsegment ontbreekt.")
+                    ? $"De start wegknoop van het wegsegment met id {problem.GetOptionalParameterValue("Identifier") ?? problem.GetOptionalParameterValue("Actual")} ontbreekt."
+                    : "De start wegknoop van het wegsegment ontbreekt.")
             },
             {
                 ProblemCode.RoadSegment.StartNode.RefersToRemovedNode, problem => new(problem.Severity, problem.Reason,
@@ -1161,8 +1167,7 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
                 ProblemCode.TransactionZone.HasChanged, problem => new(problem.Severity, problem.Reason,
                     "De contour (geometrie) van het extract werd gewijzigd.")
             },
-        })
-    {
+        };
     }
 
     private static string GetRoadNodeTypeMismatch(Problem problem)
@@ -1211,7 +1216,7 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
         return sb.ToString();
     }
 
-    private static string GetRoadSegmentIdLabel(Problem problem, string namePrefix = "Wegsegment")
+    protected virtual string GetRoadSegmentIdLabel(Problem problem, string namePrefix = "Wegsegment")
     {
         if (problem.HasParameter($"{namePrefix}TempIds"))
         {
@@ -1221,12 +1226,12 @@ public sealed class DefaultProblemTranslator : ProblemTranslatorBase
         return $"id {problem.GetParameterValue($"{namePrefix}Id")}";
     }
 
-    private static string GetRoadNodeIdLabel(Problem problem, string namePrefix = "Wegknoop")
+    protected virtual string GetRoadNodeIdLabel(Problem problem, string namePrefix = "Wegknoop")
     {
         return $"id {problem.GetParameterValue($"{namePrefix}Id")}";
     }
 
-    private static string GetJunctionIdLabel(Problem problem, string namePrefix = "OngelijkGrondseKruising")
+    protected virtual string GetJunctionIdLabel(Problem problem, string namePrefix = "OngelijkGrondseKruising")
     {
         return $"id {problem.GetParameterValue($"{namePrefix}Id")}";
     }

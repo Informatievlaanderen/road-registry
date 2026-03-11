@@ -23,14 +23,6 @@ public partial class RoadSegment
 
         var line = Geometry.Value.GetSingleLineString();
 
-        var byOtherSegment = context.RoadNetwork.GetNonRemovedRoadSegments().FirstOrDefault(segment =>
-            segment.RoadSegmentId != RoadSegmentId &&
-            segment.Geometry.Value.IsReasonablyEqualTo(Geometry.Value, context.Tolerances));
-        if (byOtherSegment is not null)
-        {
-            problems += new RoadSegmentGeometryTaken(context.IdTranslator.TranslateToTemporaryId(byOtherSegment.RoadSegmentId));
-        }
-
         if (!context.RoadNetwork.RoadNodes.TryGetValue(StartNodeId, out var startNode) || startNode.IsRemoved)
         {
             problems += new RoadSegmentStartNodeMissing();
@@ -61,7 +53,7 @@ public partial class RoadSegment
             var intersectingSegments = FindIntersectingRoadSegments(context.RoadNetwork, RoadSegmentId, Geometry.Value, [StartNodeId, EndNodeId]);
 
             var duplicateIntersectionsRoadSegmentIds = intersectingSegments
-                .Where(x => x.IntersectingCoordinates?.Length > 1)
+                .Where(x => x.IntersectingCoordinates.Length > 1)
                 .Select(x => x.RoadSegment.RoadSegmentId)
                 .ToList();
             if (duplicateIntersectionsRoadSegmentIds.Any())
@@ -89,7 +81,7 @@ public partial class RoadSegment
         return problems;
     }
 
-    private static IReadOnlyCollection<(RoadSegment RoadSegment, Coordinate[]? IntersectingCoordinates)> FindIntersectingRoadSegments(
+    private static IReadOnlyCollection<(RoadSegment RoadSegment, Coordinate[] IntersectingCoordinates)> FindIntersectingRoadSegments(
         ScopedRoadNetwork roadNetwork,
         RoadSegmentId intersectsWithId,
         MultiLineString intersectsWithGeometry,
@@ -103,8 +95,9 @@ public partial class RoadSegment
             .Select(segment =>
             {
                 var intersection = segment.Geometry.Value.Intersection(intersectsWithGeometry);
-                return (segment, intersection?.Coordinates);
+                return (segment, intersection.Coordinates);
             })
+            .Where(x => x.Coordinates.Length > 0)
             .ToList();
     }
 }

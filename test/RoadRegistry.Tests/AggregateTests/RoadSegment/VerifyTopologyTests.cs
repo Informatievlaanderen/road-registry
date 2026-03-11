@@ -12,40 +12,6 @@ using ValueObjects.Problems;
 public class VerifyTopologyTests : RoadNetworkTestBase
 {
     [Fact]
-    public Task WhenGeometryIsReasonablyEqualToOtherSegmentGeometry_ThenError()
-    {
-        return Run(scenario => scenario
-            .Given(given => given
-                .Add(TestData.AddSegment1StartNode)
-                .Add(TestData.AddSegment1EndNode)
-                .Add(TestData.AddSegment1)
-            )
-            .When(changes => changes
-                .Add(TestData.AddSegment2 with
-                {
-                    Geometry = new MultiLineString([
-                        new LineString([
-                            TestData.StartPoint1.Coordinate,
-                            TestData.MiddlePoint1.Coordinate,
-                            new Coordinate(TestData.EndPoint1.Coordinate.X + 0.0001, TestData.EndPoint1.Coordinate.Y)
-                        ])
-                    ]).WithMeasureOrdinates().ToRoadSegmentGeometry(),
-                    RoadSegmentIdReference = TestData.AddSegment2.RoadSegmentIdReference with
-                    {
-                        TempIds = [new RoadSegmentTempId(3)]
-                    }
-                })
-            )
-            .ThenContainsProblems(
-                new Error("RoadSegmentGeometryTaken",
-                    new ProblemParameter("ByOtherWegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
-                    new ProblemParameter("WegsegmentId", TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId.ToString()),
-                    new ProblemParameter("WegsegmentTempIds", "3")
-                ))
-        );
-    }
-
-    [Fact]
     public Task WhenStartNodeIsUnknown_ThenError()
     {
         return Run(scenario => scenario

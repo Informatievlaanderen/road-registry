@@ -15,7 +15,6 @@ public partial class RoadSegment
 
         var geometry = (change.Geometry ?? Geometry).Value;
 
-        //TODO-pr wanneer de geometry wijzigt, moeten de dynamische attributen die niet werden gewijzigd mee wijzigen
         problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2();
 
         var segmentLength = geometry.Length;
@@ -51,12 +50,19 @@ public partial class RoadSegment
 
         RoadNodeId? startNodeId = null, endNodeId = null;
 
-        if (change.Geometry is not null)
+        if (change.Geometry is not null && attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
         {
-            var startEndNodes = context.RoadNetwork.FindStartEndNodes(attributes.Status, change.Geometry, context.Tolerances);
+            var startEndNodes = context.RoadNetwork.FindStartEndNodes(change.Geometry, context.Tolerances);
             problems += startEndNodes.Problems;
             startNodeId = startEndNodes.StartNodeId;
             endNodeId = startEndNodes.EndNodeId;
+        }
+
+        if ((change.Geometry is not null && attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
+            ||
+            (Attributes.Status != RoadSegmentStatusV2.Gerealiseerd && attributes.Status == RoadSegmentStatusV2.Gerealiseerd))
+        {
+            problems += context.RoadNetwork.ValidatePartiallyOverlappingRoadSegments(change.Geometry ?? Geometry, [RoadSegmentId], context.IdTranslator);
         }
 
         if (problems.HasError())

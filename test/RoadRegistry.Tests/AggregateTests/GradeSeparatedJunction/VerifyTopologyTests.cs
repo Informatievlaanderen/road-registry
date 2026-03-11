@@ -116,7 +116,8 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add((TestData.AddSegment1 with
                 {
-                    Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End)
+                    Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End),
+                    Status = RoadSegmentStatusV2.Gerealiseerd
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(TestData.AddSegment2StartNode with
                 {
@@ -128,7 +129,8 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add((TestData.AddSegment2 with
                 {
-                    Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End)
+                    Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End),
+                    Status = RoadSegmentStatusV2.Gerealiseerd
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
             .When(changes => changes

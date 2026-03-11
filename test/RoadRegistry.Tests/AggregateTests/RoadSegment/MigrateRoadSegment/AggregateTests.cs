@@ -3,6 +3,7 @@
 using AutoFixture;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 using RoadRegistry.Extensions;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Events.V2;
@@ -18,7 +19,7 @@ using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 public class AggregateTests : AggregateTestBase
 {
     [Fact]
-    public void WithMeasured_ThenRoadSegmentMigrated()
+    public void WithStatusGerealiseerd_ThenRoadSegmentMigrated()
     {
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
@@ -27,7 +28,7 @@ public class AggregateTests : AggregateTestBase
             .WithoutChanges();
         var change = Fixture.Create<MigrateRoadSegmentChange>() with
         {
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
+            Status = RoadSegmentStatusV2.Gerealiseerd,
             Geometry = BuildRoadSegmentGeometry(TestData.StartPoint1, TestData.EndPoint1),
             EuropeanRoadNumbers = Fixture.CreateMany<EuropeanRoadNumber>(3).Distinct().ToList(),
             NationalRoadNumbers = Fixture.CreateMany<NationalRoadNumber>(3).Distinct().ToList()
@@ -64,8 +65,12 @@ public class AggregateTests : AggregateTestBase
         segmentMigrated.NationalRoadNumbers.Should().BeEquivalentTo(change.NationalRoadNumbers);
     }
 
-    [Fact]
-    public void WithOutlined_ThenRoadSegmentMigrated()
+    [Theory]
+    [InlineData("Gepland")]
+    [InlineData("NietGerealiseerd")]
+    [InlineData("BuitenGebruik")]
+    [InlineData("Gehistoreerd")]
+    public void WithStatusNotGerealiseerd_ThenRoadSegmentMigrated(string status)
     {
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
@@ -74,7 +79,7 @@ public class AggregateTests : AggregateTestBase
             .WithoutChanges();
         var change = Fixture.Create<MigrateRoadSegmentChange>() with
         {
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst,
+            Status = RoadSegmentStatusV2.Parse(status),
             Geometry = Fixture.Create<RoadSegmentGeometry>(),
             EuropeanRoadNumbers = Fixture.CreateMany<EuropeanRoadNumber>(3).Distinct().ToList(),
             NationalRoadNumbers = Fixture.CreateMany<NationalRoadNumber>(3).Distinct().ToList()
@@ -106,6 +111,54 @@ public class AggregateTests : AggregateTestBase
         segmentMigrated.SurfaceType.Should().Be(change.SurfaceType);
         segmentMigrated.EuropeanRoadNumbers.Should().BeEquivalentTo(change.EuropeanRoadNumbers);
         segmentMigrated.NationalRoadNumbers.Should().BeEquivalentTo(change.NationalRoadNumbers);
+    }
+
+    [Theory]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601004, 601005.01 601004, 601005.01 601006, 601010 601006))"
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005 601000, 601000 601005, 601005 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
+    )]
+    public void GivenPartiallyOverlappingSegments_ThenError(string segment1Geometry, string segment2Geometry)
+    {
+        Fixture.Freeze<RoadSegmentId>();
+
+        var reversedValues = new[] { false, true };
+        foreach (var reversedValue in reversedValues)
+        {
+            // Arrange
+            var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
+                .WithoutChanges();
+            var change = Fixture.Create<MigrateRoadSegmentChange>() with
+            {
+                Status = RoadSegmentStatusV2.Gerealiseerd,
+                Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08)),
+                EuropeanRoadNumbers = [],
+                NationalRoadNumbers = []
+            };
+
+            var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [], [
+                RoadSegment.Create(TestData.Segment2Added with
+                {
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                    Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08))
+                })
+            ], []);
+            var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+
+            // Act
+            var problems = segment.Migrate(change, roadNetworkContext);
+
+            // Assert
+            problems.Should().Contain(x => x.Reason == "RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
+        }
     }
 
     [Fact]

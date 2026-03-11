@@ -18,15 +18,15 @@ public interface IIdentifierTranslator
 
 public class IdentifierTranslator : IIdentifierTranslator
 {
-    private readonly Dictionary<RoadNodeId, RoadNodeId> _mapToPermanentNodeIdentifiers = [];
-    private readonly Dictionary<RoadNodeId, RoadNodeId> _mapToTemporaryNodeIdentifiers = [];
+    private readonly Dictionary<RoadNodeId, RoadNodeId> _mapTemporaryToPermanentNodeIdentifiers = [];
+    private readonly Dictionary<RoadNodeId, RoadNodeId> _mapPermanentToTemporaryNodeIdentifiers = [];
     private readonly Dictionary<RoadSegmentIdReference, RoadSegmentId> _mapSegmentIdReferenceToPermanentId = [];
     private readonly Dictionary<RoadSegmentId, RoadSegmentId> _mapSegmentTemporaryIdToPermanentId = [];
     private readonly Dictionary<RoadSegmentId, RoadSegmentIdReference> _mapToTemporarySegmentIdentifiers = [];
 
     public Problems RegisterMapping(RoadNodeId temporaryId, RoadNodeId permanentId)
     {
-        if (!_mapToPermanentNodeIdentifiers.TryAdd(temporaryId, permanentId))
+        if (!_mapTemporaryToPermanentNodeIdentifiers.TryAdd(temporaryId, permanentId))
         {
             return Problems.Single(
                 new Error(ProblemCode.RoadNode.TemporaryIdNotUnique.ToString(),
@@ -34,7 +34,7 @@ public class IdentifierTranslator : IIdentifierTranslator
                 ));
         }
 
-        _mapToTemporaryNodeIdentifiers[permanentId] = temporaryId;
+        _mapPermanentToTemporaryNodeIdentifiers[permanentId] = temporaryId;
 
         return Problems.None;
     }
@@ -54,7 +54,7 @@ public class IdentifierTranslator : IIdentifierTranslator
 
     public RoadNodeId TranslateToTemporaryId(RoadNodeId id)
     {
-        return _mapToTemporaryNodeIdentifiers.GetValueOrDefault(id, id);
+        return _mapPermanentToTemporaryNodeIdentifiers.GetValueOrDefault(id, id);
     }
 
     public RoadSegmentIdReference TranslateToTemporaryId(RoadSegmentId id)

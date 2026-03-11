@@ -53,7 +53,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1StartNode)
                 .Add(TestData.AddSegment1EndNode)
                 .Add(TestData.AddSegment1)
-                .Add(TestData.AddSegment1)
+                .Add(TestData.AddSegment2StartNode)
+                .Add(TestData.AddSegment2EndNode)
+                .Add(TestData.AddSegment2 with { RoadSegmentIdReference = TestData.AddSegment1.RoadSegmentIdReference })
             )
             .ThenContainsProblems(new Error("RoadSegmentTemporaryIdNotUnique",
                 new ProblemParameter("WegsegmentId", TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId.ToString()),

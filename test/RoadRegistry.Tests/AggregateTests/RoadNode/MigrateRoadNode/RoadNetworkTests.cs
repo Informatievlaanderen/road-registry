@@ -10,7 +10,11 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
     public Task ThenSummaryIsUpdated()
     {
         return Run(scenario => scenario
-            .Given(given => given)
+            .Given(given => given
+                .Add(TestData.AddSegment1StartNode)
+                .Add(TestData.AddSegment1EndNode)
+                .Add(TestData.AddSegment1)
+            )
             .WhenMigrate(changes => changes
                 .Add(new ModifyRoadNodeChange
                 {

@@ -1,28 +1,20 @@
 ﻿namespace RoadRegistry.Infrastructure.DutchTranslations;
 
-using RoadRegistry.Infrastructure.Messages;
-using RoadRegistry.ValueObjects.ProblemCodes;
 using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 
-public sealed class ExtractProblemTranslator : ProblemTranslatorBase
+public sealed class ExtractProblemTranslator : DefaultProblemTranslator
 {
-    public ExtractProblemTranslator()
-        : base(new()
+    protected override string GetRoadSegmentIdLabel(Problem problem, string namePrefix = "Wegsegment")
+    {
+        if (problem.HasParameter($"{namePrefix}TempIds"))
         {
-            {
-                ProblemCode.RoadNode.RoadNodeIsNotAllowed, problem => new(problem.Severity, problem.Reason,
-                    $"De wegknoop met {GetRoadNodeIdLabel(problem)} is onterecht.")
-            }
-        })
-    {
+            return $"WS_TEMPID ({problem.GetParameterValue($"{namePrefix}TempIds")})";
+        }
+
+        return $"WS_OIDN {problem.GetParameterValue($"{namePrefix}Id")}";
     }
 
-    public override ProblemTranslation CreateMissingTranslation(Problem problem)
-    {
-        return WellKnownProblemTranslators.Default.Translate(problem);
-    }
-
-    private static string GetRoadNodeIdLabel(Problem problem, string namePrefix = "Wegknoop")
+    protected override string GetRoadNodeIdLabel(Problem problem, string namePrefix = "Wegknoop")
     {
         return $"WK_OIDN {problem.GetParameterValue($"{namePrefix}Id")}";
     }

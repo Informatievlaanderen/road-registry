@@ -62,7 +62,6 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
                 {
                     problems += recordContext.LowerRoadSegmentIdOutOfRange(changeFeature.Attributes.LowerRoadSegmentId.ToInt32());
                 }
-
                 continue;
             }
 

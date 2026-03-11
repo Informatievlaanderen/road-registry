@@ -8,6 +8,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadSegment;
+using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using ValueObjects;
 
@@ -15,7 +16,6 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
 {
     public ScopedRoadNetworkId RoadNetworkId { get; }
     public RoadNetworkChangesSummary? SummaryOfLastChange { get; private set; }
-
     public IReadOnlyDictionary<RoadNodeId, RoadNode> RoadNodes { get; }
     public IReadOnlyDictionary<RoadSegmentId, RoadSegment> RoadSegments { get; }
     public IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
@@ -67,22 +67,21 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
     {
         return _roadNodes.Values.Where(x => !x.IsRemoved);
     }
+
     public IEnumerable<RoadSegment> GetNonRemovedRoadSegments()
     {
         return _roadSegments.Values.Where(x => !x.IsRemoved);
     }
+
     public IEnumerable<GradeSeparatedJunction> GetNonRemovedGradeSeparatedJunctions()
     {
         return _gradeSeparatedJunctions.Values.Where(x => !x.IsRemoved);
     }
 
-    public (RoadNodeId? StartNodeId, RoadNodeId? EndNodeId, Problems Problems) FindStartEndNodes(RoadSegmentStatusV2 status, RoadSegmentGeometry geometry, VerificationContextTolerances tolerances)
+    public (RoadNodeId StartNodeId, RoadNodeId EndNodeId, Problems Problems) FindStartEndNodes(
+        RoadSegmentGeometry geometry,
+        VerificationContextTolerances tolerances)
     {
-        if (status != RoadSegmentStatusV2.Gerealiseerd)
-        {
-            return (RoadNodeId.Zero, RoadNodeId.Zero, Problems.None);
-        }
-
         var problems = Problems.None;
 
         var startNodeId = FindRoadNode(geometry.Value.Coordinate, tolerances)?.RoadNodeId;
@@ -97,7 +96,86 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
             problems += new RoadSegmentEndNodeMissing();
         }
 
-        return (startNodeId, endNodeId, problems);
+        return (startNodeId ?? RoadNodeId.Zero, endNodeId ?? RoadNodeId.Zero, problems);
+    }
+
+    public Problems ValidatePartiallyOverlappingRoadSegments(
+        RoadSegmentGeometry geometry,
+        IReadOnlyCollection<RoadSegmentId> excludeRoadSegmentIds,
+        IIdentifierTranslator idTranslator)
+    {
+        const double bufferDistance = 0.015;
+
+        var roughGeometry = geometry.Value.Envelope.Buffer(bufferDistance);
+        var nearbyOtherSegments = _roadSegments
+            .Where(x => x.Value.Attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
+            .Where(x => !excludeRoadSegmentIds.Contains(x.Key) && x.Value.Geometry.Value.Intersects(roughGeometry))
+            .Select(x => (x.Key, x.Value.Geometry))
+            .ToList();
+
+        if (!nearbyOtherSegments.Any())
+        {
+            return Problems.None;
+        }
+
+        var overlappingOtherSegmentId = GetOtherRoadSegmentIdWhoOverlapsPartially(geometry, bufferDistance, nearbyOtherSegments)
+                                        ?? nearbyOtherSegments
+                                            .Select(otherSegment => GetOtherRoadSegmentIdWhoOverlapsPartially(otherSegment.Geometry, bufferDistance, [(otherSegment.Key, geometry)]))
+                                            .FirstOrDefault();
+        if (overlappingOtherSegmentId is not null)
+        {
+            return Problems.Single(new Error(
+                ProblemCode.RoadSegment.PartiallyOverlapsWithAnotherRoadSegment.ToString(),
+                idTranslator.TranslateToTemporaryId(overlappingOtherSegmentId.Value).ToRoadSegmentProblemParameters("OtherWegsegment").ToArray()));
+        }
+
+        return Problems.None;
+    }
+
+    private static RoadSegmentId? GetOtherRoadSegmentIdWhoOverlapsPartially(
+        RoadSegmentGeometry selfGeometry,
+        double bufferDistance,
+        IReadOnlyCollection<(RoadSegmentId RoadSegmentId, RoadSegmentGeometry Geometry)> otherSegments)
+    {
+        foreach (var selfLineSegment in selfGeometry.Value.Geometries)
+        {
+            var coordinates = selfLineSegment.Coordinates;
+
+            // Traverse each coordinate starting from the 2nd one
+            for (var i = 1; i < coordinates.Length; i++)
+            {
+                var previousVertex = coordinates[i - 1];
+                var currentVertex = coordinates[i];
+
+                // Create a line segment between previous and current vertex
+                var segmentCoordinates = new[] { previousVertex, currentVertex };
+                var lineSegment = selfGeometry.Value.Factory.CreateLineString(segmentCoordinates);
+
+                // Create buffer around the line segment
+                var bufferedLineSegment = lineSegment.Buffer(bufferDistance);
+
+                // Check if buffered area intersects with at least 2 vertices of another segment
+                foreach (var otherSegment in otherSegments)
+                {
+                    var oneCoordinateIntersected = false;
+
+                    for (var c = 0; c < otherSegment.Geometry.Value.Coordinates.Length; c++)
+                    {
+                        if (otherSegment.Geometry.Value.Factory.CreatePoint(otherSegment.Geometry.Value.Coordinates[c]).Intersects(bufferedLineSegment))
+                        {
+                            if (oneCoordinateIntersected)
+                            {
+                                return otherSegment.RoadSegmentId;
+                            }
+
+                            oneCoordinateIntersected = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     private RoadNode? FindRoadNode(Coordinate coordinate, VerificationContextTolerances tolerance)

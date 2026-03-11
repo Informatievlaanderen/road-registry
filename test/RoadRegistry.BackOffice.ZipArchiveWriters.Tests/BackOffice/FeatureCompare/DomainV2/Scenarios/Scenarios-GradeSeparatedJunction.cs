@@ -200,9 +200,10 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task IntersectingRoadSegmentsInA_TShape_WithoutGradeSeparatedJunctionShouldNotGiveProblem()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder(fixture =>
+        var zipArchive = new DomainV2ZipArchiveBuilder(fixture =>
             {
                 fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
+                fixture.CustomizeUniqueInteger();
             })
             .WithChange((builder, context) =>
             {
@@ -218,7 +219,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
 
                 builder.DataSet.GradeSeparatedJunctionDbaseRecords.Clear();
             })
-            .BuildWithResult(_ => TranslatedChanges.Empty);
+            .Build();
 
         await TranslateSucceeds(zipArchive);
     }
