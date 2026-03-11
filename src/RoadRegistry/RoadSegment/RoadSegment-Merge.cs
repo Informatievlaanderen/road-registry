@@ -39,8 +39,17 @@ public partial class RoadSegment
         };
         problems += new RoadSegmentAttributesValidator().Validate(attributes, segmentLength);
 
-        var startEndNodes = context.RoadNetwork.FindStartEndNodes(attributes.Status, change.Geometry, context.Tolerances);
-        problems += startEndNodes.Problems;
+        var startNodeId = RoadNodeId.Zero;
+        var endNodeId = RoadNodeId.Zero;
+        if (attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
+        {
+            var startEndNodes = context.RoadNetwork.FindStartEndNodes(change.Geometry, context.Tolerances);
+            startNodeId = startEndNodes.StartNodeId;
+            endNodeId = startEndNodes.EndNodeId;
+            problems += startEndNodes.Problems;
+
+            problems += context.RoadNetwork.ValidatePartiallyOverlappingRoadSegments(change.Geometry, change.OriginalIds, context.IdTranslator);
+        }
 
         if (problems.HasError())
         {
@@ -52,8 +61,8 @@ public partial class RoadSegment
             RoadSegmentId = idGenerator.NewRoadSegmentId(),
             OriginalIds = change.OriginalIds,
             Geometry = change.Geometry,
-            StartNodeId = startEndNodes.StartNodeId!.Value,
-            EndNodeId = startEndNodes.EndNodeId!.Value,
+            StartNodeId = startNodeId,
+            EndNodeId = endNodeId,
             GeometryDrawMethod = attributes.GeometryDrawMethod,
             Status = attributes.Status,
             AccessRestriction = attributes.AccessRestriction,

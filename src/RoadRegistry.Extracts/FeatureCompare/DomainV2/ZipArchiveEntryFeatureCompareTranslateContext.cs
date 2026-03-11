@@ -16,7 +16,7 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
     public TransactionZoneFeatureCompareAttributes TransactionZone { get; set; }
     private readonly ConcurrentDictionary<FeatureType, List<RoadNodeFeatureCompareRecord>> _roadNodeRecords = [];
     private readonly ConcurrentDictionary<FeatureType, List<RoadSegmentFeatureCompareRecord>> _roadSegmentRecords = [];
-    private readonly ConcurrentDictionary<(FeatureType, RoadSegmentTempId), RoadSegmentId> _roadSegmentTempIdToActualIdMapping = new();
+    private readonly ConcurrentDictionary<(FeatureType, RoadSegmentTempId), (RoadSegmentId, RecordType)> _roadSegmentTempIdToActualIdMapping = new();
 
     public ZipArchiveEntryFeatureCompareTranslateContext(ZipArchive archive, ZipArchiveMetadata metadata)
         : base(metadata)
@@ -63,15 +63,29 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
 
             foreach (var flatFeature in record.FlatFeatures)
             {
-                if (!_roadSegmentTempIdToActualIdMapping.TryAdd((record.FeatureType, flatFeature.Attributes.TempId), record.GetActualId()))
+                var mappingKey = (record.FeatureType, flatFeature.Attributes.TempId);
+                if (!_roadSegmentTempIdToActualIdMapping.TryAdd(mappingKey, (record.GetActualId(), record.RecordType)))
                 {
-                    throw new InvalidOperationException($"Duplicate road segment temp ID {flatFeature.Attributes.TempId} for feature type {record.FeatureType} and road segment ID {record.GetActualId()}");
+                    if (record.RecordType == RecordType.Removed)
+                    {
+                        continue;
+                    }
+
+                    var existingMapping = _roadSegmentTempIdToActualIdMapping[mappingKey];
+                    if (existingMapping.Item2 == RecordType.Removed)
+                    {
+                        _roadSegmentTempIdToActualIdMapping[mappingKey] = (record.GetActualId(), record.RecordType);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Duplicate road segment temp ID {flatFeature.Attributes.TempId} for feature type {record.FeatureType} and road segment ID {record.GetActualId()}");
+                    }
                 }
             }
         }
     }
 
-    public RoadSegmentId MapToRoadSegmentId(FeatureType featureType, RoadSegmentTempId roadSegmentTempId) => _roadSegmentTempIdToActualIdMapping[(featureType, roadSegmentTempId)];
+    public RoadSegmentId MapToRoadSegmentId(FeatureType featureType, RoadSegmentTempId roadSegmentTempId) => _roadSegmentTempIdToActualIdMapping[(featureType, roadSegmentTempId)].Item1;
 
     public IReadOnlyList<RoadSegmentFeatureCompareRecord> GetRoadSegmentRecords(FeatureType featureType)
     {
@@ -87,7 +101,7 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
             return null;
         }
 
-        return FindNotRemovedRoadSegmentByActualId(featureType, actualId);
+        return FindNotRemovedRoadSegmentByActualId(featureType, actualId.Item1);
     }
 
     private RoadSegmentFeatureCompareRecord? FindNotRemovedRoadSegmentByActualId(FeatureType featureType, RoadSegmentId actualId)

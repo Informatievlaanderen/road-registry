@@ -5,18 +5,20 @@ using RoadRegistry.ValueObjects.ProblemCodes;
 
 public abstract class ProblemTranslatorBase : IProblemTranslator
 {
-    private readonly Dictionary<ProblemCode, Func<Problem, ProblemTranslation>> _translators;
+    private readonly Lazy<Dictionary<ProblemCode, Func<Problem, ProblemTranslation>>> _translators;
 
-    protected ProblemTranslatorBase(Dictionary<ProblemCode, Func<Problem, ProblemTranslation>> translators)
+    protected ProblemTranslatorBase()
     {
-        _translators = translators;
+        _translators = new Lazy<Dictionary<ProblemCode, Func<Problem, ProblemTranslation>>>(CreateTranslators);
     }
+
+    protected abstract Dictionary<ProblemCode, Func<Problem, ProblemTranslation>> CreateTranslators();
 
     public ProblemTranslation Translate(Problem problem)
     {
         var problemCode = ProblemCode.FromReason(problem.Reason);
 
-        if (problemCode is not null && _translators.TryGetValue(problemCode, out Func<Problem, ProblemTranslation> translator))
+        if (problemCode is not null && _translators.Value.TryGetValue(problemCode, out Func<Problem, ProblemTranslation> translator))
         {
             return translator(problem);
         }
@@ -24,7 +26,7 @@ public abstract class ProblemTranslatorBase : IProblemTranslator
         return CreateMissingTranslation(problem);
     }
 
-    public virtual ProblemTranslation CreateMissingTranslation(Problem problem)
+    public ProblemTranslation CreateMissingTranslation(Problem problem)
     {
         return new ProblemTranslation(problem.Severity, problem.Reason, $"'{problem.Reason}' has no translation. Please fix it.");
     }

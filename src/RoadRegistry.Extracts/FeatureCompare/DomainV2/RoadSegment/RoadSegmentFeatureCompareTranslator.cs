@@ -13,6 +13,7 @@ using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ValueObjects.Problems;
 using TranslatedChanges = DomainV2.TranslatedChanges;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareWithFlatAttributes>
@@ -166,13 +167,19 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             {
                 // Test op verschillen in niet kenmerkende attributen
                 var nonCriticalAttributesUnchanged = matchingExtractFeatures.FindAll(extractFeature =>
-                    changeFeatureAttributes.Status == extractFeature.Status &&
-                    changeFeatureAttributes.Category == extractFeature.Category &&
-                    changeFeatureAttributes.StreetNameId == extractFeature.StreetNameId &&
-                    changeFeatureAttributes.MaintenanceAuthorityId == extractFeature.MaintenanceAuthorityId &&
-                    changeFeatureAttributes.Method == extractFeature.Method &&
-                    changeFeatureAttributes.AccessRestriction == extractFeature.AccessRestriction &&
-                    changeFeatureAttributes.Morphology == extractFeature.Morphology
+                    changeFeatureAttributes.Status == extractFeature.Status
+                    && changeFeatureAttributes.AccessRestriction == extractFeature.AccessRestriction
+                    && changeFeatureAttributes.Category == extractFeature.Category
+                    && changeFeatureAttributes.BikeAccessBackward == extractFeature.BikeAccessBackward
+                    && changeFeatureAttributes.BikeAccessForward == extractFeature.BikeAccessForward
+                    && changeFeatureAttributes.CarAccessBackward == extractFeature.CarAccessBackward
+                    && changeFeatureAttributes.CarAccessForward == extractFeature.CarAccessForward
+                    && changeFeatureAttributes.MaintenanceAuthorityId == extractFeature.MaintenanceAuthorityId
+                    && changeFeatureAttributes.Method == extractFeature.Method
+                    && changeFeatureAttributes.Morphology == extractFeature.Morphology
+                    && changeFeatureAttributes.PedestrianAccess == extractFeature.PedestrianAccess
+                    && changeFeatureAttributes.StreetNameId == extractFeature.StreetNameId
+                    && changeFeatureAttributes.SurfaceType == extractFeature.SurfaceType
                 );
                 if (nonCriticalAttributesUnchanged.Any())
                 {

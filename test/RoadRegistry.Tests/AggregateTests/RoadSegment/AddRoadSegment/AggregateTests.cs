@@ -5,6 +5,7 @@ using Extensions;
 using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
@@ -18,12 +19,12 @@ using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 public class AggregateTests : AggregateTestBase
 {
     [Fact]
-    public void WithMeasured_ThenRoadSegmentAdded()
+    public void WithStatusGerealiseerd_ThenRoadSegmentAdded()
     {
         // Arrange
         var change = Fixture.Create<AddRoadSegmentChange>() with
         {
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
+            Status = RoadSegmentStatusV2.Gerealiseerd,
             Geometry = BuildRoadSegmentGeometry(TestData.StartPoint1, TestData.EndPoint1),
             EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
             NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
@@ -60,13 +61,17 @@ public class AggregateTests : AggregateTestBase
         segmentAdded.NationalRoadNumbers.Should().BeEquivalentTo(change.NationalRoadNumbers);
     }
 
-    [Fact]
-    public void WithOutlined_ThenRoadSegmentAdded()
+    [Theory]
+    [InlineData("Gepland")]
+    [InlineData("NietGerealiseerd")]
+    [InlineData("BuitenGebruik")]
+    [InlineData("Gehistoreerd")]
+    public void WithStatusNotGerealiseerd_ThenRoadSegmentAdded(string status)
     {
         // Arrange
         var change = Fixture.Create<AddRoadSegmentChange>() with
         {
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst,
+            Status = RoadSegmentStatusV2.Parse(status),
             Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates().ToRoadSegmentGeometry(),
             EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
             NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
@@ -98,6 +103,90 @@ public class AggregateTests : AggregateTestBase
         segmentAdded.SurfaceType.Should().Be(change.SurfaceType);
         segmentAdded.EuropeanRoadNumbers.Should().BeEquivalentTo(change.EuropeanRoadNumbers);
         segmentAdded.NationalRoadNumbers.Should().BeEquivalentTo(change.NationalRoadNumbers);
+    }
+
+    [Theory]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601004, 601005.01 601004, 601005.01 601006, 601010 601006))"
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005 601000, 601000 601005, 601005 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
+    )]
+    public void GivenPartiallyOverlappingSegments_ThenError(string segment1Geometry, string segment2Geometry)
+    {
+        var reversedValues = new[] { false, true };
+        foreach (var reversedValue in reversedValues)
+        {
+            // Arrange
+            var change = Fixture.Create<AddRoadSegmentChange>() with
+            {
+                Status = RoadSegmentStatusV2.Gerealiseerd,
+                Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08)),
+                EuropeanRoadNumbers = [],
+                NationalRoadNumbers = []
+            };
+
+            var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [], [
+                RoadSegment.Create(TestData.Segment2Added with
+                {
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                    Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08))
+                })
+            ], []);
+            var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+
+            // Act
+            var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), roadNetworkContext);
+
+            // Assert
+            problems.Should().Contain(x => x.Reason == "RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
+        }
+    }
+
+    [Theory]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601005, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
+    )]
+    public void GivenNoPartiallyOverlappingSegments_ThenResult(string segment1Geometry, string segment2Geometry)
+    {
+        var reversedValues = new[] { false, true };
+        foreach (var reversedValue in reversedValues)
+        {
+            // Arrange
+            var change = Fixture.Create<AddRoadSegmentChange>() with
+            {
+                Status = RoadSegmentStatusV2.Gerealiseerd,
+                Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08)),
+                EuropeanRoadNumbers = [],
+                NationalRoadNumbers = []
+            };
+
+            var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [], [
+                RoadSegment.Create(TestData.Segment2Added with
+                {
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                    Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08))
+                })
+            ], []);
+            var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+
+            // Act
+            var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), roadNetworkContext);
+
+            // Assert
+            problems.Should().NotContain(x => x.Reason == "RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
+        }
     }
 
     [Fact]

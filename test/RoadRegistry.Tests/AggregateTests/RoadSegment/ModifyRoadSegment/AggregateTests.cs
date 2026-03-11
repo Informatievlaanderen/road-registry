@@ -5,6 +5,7 @@ using Extensions;
 using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Changes;
@@ -18,7 +19,7 @@ using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 public class AggregateTests : AggregateTestBase
 {
     [Fact]
-    public void WithMeasured_ThenRoadSegmentModified()
+    public void WithStatusGerealiseerd_ThenRoadSegmentModified()
     {
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
@@ -27,7 +28,7 @@ public class AggregateTests : AggregateTestBase
             .WithoutChanges();
         var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
+            Status = RoadSegmentStatusV2.Gerealiseerd,
             Geometry = BuildRoadSegmentGeometry(TestData.StartPoint1, TestData.EndPoint1)
         };
 
@@ -60,8 +61,12 @@ public class AggregateTests : AggregateTestBase
         segmentModified.SurfaceType.Should().Be(change.SurfaceType);
     }
 
-    [Fact]
-    public void WithOutlined_ThenRoadSegmentModified()
+    [Theory]
+    [InlineData("Gepland")]
+    [InlineData("NietGerealiseerd")]
+    [InlineData("BuitenGebruik")]
+    [InlineData("Gehistoreerd")]
+    public void WithStatusNotGerealiseerd_ThenRoadSegmentModified(string status)
     {
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
@@ -70,7 +75,7 @@ public class AggregateTests : AggregateTestBase
             .WithoutChanges();
         var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst,
+            Status = RoadSegmentStatusV2.Parse(status),
             Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates().ToRoadSegmentGeometry()
         };
 
@@ -88,8 +93,8 @@ public class AggregateTests : AggregateTestBase
         segmentModified.RoadSegmentId.Should().Be(change.RoadSegmentIdReference.RoadSegmentId);;
         segmentModified.Geometry.Should().BeEquivalentTo(change.Geometry);
         segmentModified.OriginalRoadSegmentIdReference.Should().Be(change.RoadSegmentIdReference);
-        segmentModified.StartNodeId.Should().Be(new RoadNodeId(0));
-        segmentModified.EndNodeId.Should().Be(new RoadNodeId(0));
+        segmentModified.StartNodeId.Should().BeNull();
+        segmentModified.EndNodeId.Should().BeNull();
         segmentModified.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
         segmentModified.AccessRestriction.Should().Be(change.AccessRestriction);
         segmentModified.Category.Should().Be(change.Category);
@@ -98,6 +103,52 @@ public class AggregateTests : AggregateTestBase
         segmentModified.StreetNameId.Should().Be(change.StreetNameId);
         segmentModified.MaintenanceAuthorityId.Should().Be(change.MaintenanceAuthorityId);
         segmentModified.SurfaceType.Should().Be(change.SurfaceType);
+    }
+
+    [Theory]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601004, 601005.01 601004, 601005.01 601006, 601010 601006))"
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005 601000, 601000 601005, 601005 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
+    )]
+    public void GivenPartiallyOverlappingSegments_ThenError(string segment1Geometry, string segment2Geometry)
+    {
+        Fixture.Freeze<RoadSegmentId>();
+
+        var reversedValues = new[] { false, true };
+        foreach (var reversedValue in reversedValues)
+        {
+            // Arrange
+            var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
+                .WithoutChanges();
+            var change = Fixture.Create<ModifyRoadSegmentChange>() with
+            {
+                Status = RoadSegmentStatusV2.Gerealiseerd,
+                Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08))
+            };
+
+            var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [], [
+                RoadSegment.Create(TestData.Segment2Added with
+                {
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                    Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08))
+                })
+            ], []);
+            var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+
+            // Act
+            var problems = segment.Modify(change, roadNetworkContext);
+
+            // Assert
+            problems.Should().Contain(x => x.Reason == "RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
+        }
     }
 
     [Fact]

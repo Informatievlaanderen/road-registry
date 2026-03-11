@@ -10,7 +10,7 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode TooClose = new("RoadNodeTooClose");
         public static readonly ProblemCode TypeMismatch = new("RoadNodeTypeMismatch");
         public static readonly ProblemCode TypeV2Mismatch = new("RoadNodeTypeV2Mismatch");
-        public static readonly ProblemCode RoadNodeIsNotAllowed = new("RoadNodeIsNotAllowed");
+        public static readonly ProblemCode IsNotAllowed = new("RoadNodeIsNotAllowed");
 
         public static class Geometry
         {

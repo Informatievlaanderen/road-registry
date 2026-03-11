@@ -89,7 +89,9 @@ public class RoadSegmentUnflattener
         CancellationToken cancellationToken)
     {
         var nodeClassifications = new Dictionary<RoadNodeId, RoadNodeTypeV2>();
-        var roadNodeRecords = context.GetRoadNodeRecords(featureType);
+        var roadNodeRecords = context.GetRoadNodeRecords(featureType)
+            .NotRemoved()
+            .ToList();
 
         foreach (var (node, connectedSegments) in segmentsByNode)
         {

@@ -148,7 +148,7 @@ public class RoadNetworkTestDataV2
         AddSegment1StartNode = new AddRoadNodeChange
         {
             TemporaryId = Fixture.Create<RoadNodeId>(),
-            OriginalId = Fixture.Create<RoadNodeId>(),
+            OriginalId = null,
             Geometry = StartPoint1.ToRoadNodeGeometry(),
             Grensknoop = false
         };
@@ -165,7 +165,7 @@ public class RoadNetworkTestDataV2
         AddSegment1EndNode = new AddRoadNodeChange
         {
             TemporaryId = new RoadNodeId(AddSegment1StartNode.TemporaryId + 1),
-            OriginalId = Fixture.Create<RoadNodeId>(),
+            OriginalId = null,
             Geometry = EndPoint1.ToRoadNodeGeometry(),
             Grensknoop = false
         };
@@ -182,7 +182,7 @@ public class RoadNetworkTestDataV2
         AddSegment2StartNode = new AddRoadNodeChange
         {
             TemporaryId = new RoadNodeId(AddSegment1EndNode.TemporaryId + 1),
-            OriginalId = new RoadNodeId(AddSegment1EndNode.TemporaryId + 1),
+            OriginalId = null,
             Geometry = StartPoint2.ToRoadNodeGeometry(),
             Grensknoop = false
         };
@@ -199,7 +199,7 @@ public class RoadNetworkTestDataV2
         AddSegment2EndNode = new AddRoadNodeChange
         {
             TemporaryId = new RoadNodeId(AddSegment2StartNode.TemporaryId + 1),
-            OriginalId = Fixture.Create<RoadNodeId>(),
+            OriginalId = null,
             Geometry = EndPoint2.ToRoadNodeGeometry(),
             Grensknoop = false
         };
@@ -216,7 +216,7 @@ public class RoadNetworkTestDataV2
         AddSegment3StartNode = new AddRoadNodeChange
         {
             TemporaryId = new RoadNodeId(AddSegment2EndNode.TemporaryId + 1),
-            OriginalId = Fixture.Create<RoadNodeId>(),
+            OriginalId = null,
             Geometry = StartPoint3.ToRoadNodeGeometry(),
             Grensknoop = false
         };
@@ -233,7 +233,7 @@ public class RoadNetworkTestDataV2
         AddSegment3EndNode = new AddRoadNodeChange
         {
             TemporaryId = new RoadNodeId(AddSegment3StartNode.TemporaryId + 1),
-            OriginalId = Fixture.Create<RoadNodeId>(),
+            OriginalId = null,
             Geometry = EndPoint3.ToRoadNodeGeometry(),
             Grensknoop = false
         };

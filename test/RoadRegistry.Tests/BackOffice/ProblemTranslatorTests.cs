@@ -45,8 +45,19 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadNode.IsNotAllowed, [
+                    new ProblemParameter { Name = "WegknoopId", Value = "1" }
+                ]
+            },
+            {
                 ProblemCode.StreetName.RegistryUnexpectedError, [
                     new ProblemParameter { Name = "StatusCode", Value = "500" }
+                ]
+            },
+            {
+                ProblemCode.RoadNetwork.Disconnected, [
+                    new ProblemParameter { Name = "StartNodeId", Value = "1" },
+                    new ProblemParameter { Name = "EndNodeId", Value = "1" }
                 ]
             },
             {
@@ -61,9 +72,15 @@ public class ProblemTranslatorTests
                 ]
             },
             {
-                ProblemCode.RoadNetwork.Disconnected, [
-                    new ProblemParameter { Name = "StartNodeId", Value = "1" },
-                    new ProblemParameter { Name = "EndNodeId", Value = "1" }
+                ProblemCode.RoadSegment.DuplicateIntersections, [
+                    new ProblemParameter { Name = "WegsegmentId", Value = "1" },
+                    new ProblemParameter { Name = "IntersectingWegsegmentId", Value = "2" }
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.PartiallyOverlapsWithAnotherRoadSegment, [
+                    new ProblemParameter { Name = "WegsegmentId", Value = "1" },
+                    new ProblemParameter { Name = "OtherWegsegmentId", Value = "2" }
                 ]
             },
             {
@@ -129,6 +146,11 @@ public class ProblemTranslatorTests
                 ProblemCode.RoadSegment.Geometry.Taken, [
                     new ProblemParameter("WegsegmentId", "1"),
                     new ProblemParameter("ByOtherWegsegmentId", "2")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.Geometry.StartEqualsEnd, [
+                    new ProblemParameter("WegsegmentId", "1")
                 ]
             },
             {
