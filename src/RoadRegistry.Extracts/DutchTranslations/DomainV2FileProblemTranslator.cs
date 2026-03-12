@@ -71,6 +71,11 @@ public sealed class DomainV2FileProblemTranslator : FileProblemTranslator
             },
 
             {
+                nameof(DbaseFileProblems.DbaseRecordHasNoGeometry), () =>
+                    translation with { Message = $"De {DbaseRecordLabel()} bevat geen geometrie." }
+            },
+
+            {
                 nameof(DbaseFileProblems.RoadSegmentIdOutOfRange), () =>
                     translation with { Message = $"De {DbaseRecordLabel(nameof(RoadSegmentDbaseRecord.WS_OIDN), problem.GetParameterValue("Actual"))} heeft een ongeldige wegsegment identificator." }
             },

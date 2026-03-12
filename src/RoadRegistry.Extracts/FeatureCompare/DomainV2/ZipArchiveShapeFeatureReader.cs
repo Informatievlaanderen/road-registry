@@ -60,6 +60,13 @@ public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZi
                 while (moved)
                 {
                     var record = records.Current;
+                    if (record.Item2.IsEmpty)
+                    {
+                        problems += dbfEntry.AtDbaseRecord(records.CurrentRecordNumber).DbaseRecordHasNoGeometry();
+                        moved = records.MoveNext();
+                        continue;
+                    }
+
                     var (feature, recordProblems) = ConvertToFeature(featureType, records.CurrentRecordNumber, record.Item1, record.Item2, context);
 
                     problems += recordProblems;
