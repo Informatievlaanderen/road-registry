@@ -1,6 +1,7 @@
 namespace RoadRegistry.Extracts.DutchTranslations;
 
 using System.Text;
+using RoadRegistry.Extracts.Schemas.Inwinning.GradeSeparatedJuntions;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.Infrastructure.Messages;
 using RoadRegistry.ValueObjects.ProblemCodes;
@@ -118,6 +119,18 @@ public sealed class DomainV2FileProblemTranslator : FileProblemTranslator
                     translation with { Message = $"De {DbaseRecordLabel()} bevat een ongeldige waarde in veld {nameof(RoadSegmentDbaseRecord.Schema.VOETGANGER)} ({problem.GetParameterValue("Actual")}). Verwachte 1 van volgende waarden: {problem.GetParameterValue("ExpectedOneOf")}." }
             },
 
+            {
+                nameof(DbaseFileProblems.GradeSeparatedJunctionTypeV2Mismatch), () =>
+                    translation with { Message = $"De {DbaseRecordLabel()} bevat een ongeldig type ongelijkgrondse kruising in veld {nameof(GradeSeparatedJunctionDbaseRecord.Schema.TYPE)} ({problem.GetParameterValue("Actual")}). Verwachte 1 van volgende waarden: {problem.GetParameterValue("ExpectedOneOf")}." }
+            },
+            {
+                nameof(DbaseFileProblems.UpperRoadSegmentIdOutOfRange), () =>
+                    translation with { Message = $"De {DbaseRecordLabel()} heeft een ongeldige bovenliggende wegsegment identificator in veld {nameof(GradeSeparatedJunctionDbaseRecord.Schema.BO_TEMPID)} ({problem.GetParameterValue("Actual")})." }
+            },
+            {
+                nameof(DbaseFileProblems.LowerRoadSegmentIdOutOfRange), () =>
+                    translation with { Message = $"De {DbaseRecordLabel()} heeft een ongeldige onderliggende wegsegment identificator in veld {nameof(GradeSeparatedJunctionDbaseRecord.Schema.ON_TEMPID)} ({problem.GetParameterValue("Actual")})." }
+            },
             {
                 nameof(DbaseFileProblems.GradeSeparatedJunctionNotUnique), () =>
                     translation with { Message = $"De {DbaseRecordLabel()} heeft hetzelfde onder- en bovenliggende wegsegment als de dbase record met {problem.GetParameterValue("IdentifierField")} {problem.GetParameterValue("OtherJunctionId")}" }
