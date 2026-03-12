@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadSegment;
 
@@ -12,11 +11,16 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
     where TAttributes : RoadNumberingFeatureCompareAttributes, new()
 {
     private readonly ExtractFileName _fileName;
+    private readonly string _identifierField;
 
-    protected RoadNumberingFeatureCompareTranslatorBase(IZipArchiveFeatureReader<Feature<TAttributes>> featureReader, ExtractFileName fileName)
+    protected RoadNumberingFeatureCompareTranslatorBase(
+        IZipArchiveFeatureReader<Feature<TAttributes>> featureReader,
+        ExtractFileName fileName,
+        string identifierField)
         : base(featureReader)
     {
         _fileName = fileName;
+        _identifierField = identifierField;
     }
 
     protected abstract void HandleIdenticalRoadSegment(RoadSegmentFeatureCompareRecord wegsegment,
@@ -145,9 +149,9 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
             {
                 var recordContext = _fileName
                     .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
-                    .WithIdentifier(nameof(RoadSegmentNationalRoadAttributeDbaseRecord.WS_TEMPID), changeFeature.Attributes.RoadSegmentTempId.ToInt32());
+                    .WithIdentifier(_identifierField, changeFeature.Attributes.Id.ToInt32());
 
-                problems += recordContext.RoadSegmentIdOutOfRange(changeFeature.Attributes.RoadSegmentTempId.ToInt32());
+                problems += recordContext.NumberedRoadRoadSegmentTempIdOutOfRange(changeFeature.Attributes.RoadSegmentTempId);
             }
         }
 

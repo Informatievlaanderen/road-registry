@@ -2,6 +2,7 @@ namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.EuropeanRoad;
 
 using System.Collections.Generic;
 using System.Linq;
+using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadSegment.Changes;
 using RoadSegment;
@@ -10,7 +11,7 @@ using TranslatedChanges = DomainV2.TranslatedChanges;
 public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareTranslatorBase<EuropeanRoadFeatureCompareAttributes>
 {
     public EuropeanRoadFeatureCompareTranslator(EuropeanRoadFeatureCompareFeatureReader featureReader)
-        : base(featureReader, ExtractFileName.AttEuropweg)
+        : base(featureReader, ExtractFileName.AttEuropweg, nameof(RoadSegmentEuropeanRoadAttributeDbaseRecord.EU_OIDN))
     {
     }
 
