@@ -62,6 +62,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
                 {
                     problems += recordContext.LowerRoadSegmentIdOutOfRange(changeFeature.Attributes.LowerRoadSegmentId.ToInt32());
                 }
+
                 continue;
             }
 
@@ -202,9 +203,13 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
         List<Record> processedRecords,
         ICollection<RoadSegmentFeatureCompareRecord> changedRoadSegments)
     {
+        var gerealiseerdeSegmentRecords = context.GetRoadSegmentRecords(FeatureType.Change)
+            .NotRemoved()
+            .OnlyGerealiseerd()
+            .ToList();
         var uniqueRoadSegmentCombinations = (
             from r1 in changedRoadSegments
-            from r2 in context.GetRoadSegmentRecords(FeatureType.Change).NotRemoved().OnlyGerealiseerd()
+            from r2 in gerealiseerdeSegmentRecords
             where r1.RoadSegmentId != r2.RoadSegmentId && r1.Attributes.Geometry.Envelope.Intersects(r2.Attributes.Geometry.Envelope)
             select new RoadSegmentCombination(r1, r2)
         ).DistinctBy(x => x.Key).ToList();
@@ -251,12 +256,53 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
 
         foreach (var i in roadSegmentIntersectionsWithoutGradeSeparatedJunction)
         {
-            var recordContext = ExtractFileName.Wegsegment.AtDbaseRecord(FeatureType.Change, i.RoadSegment1.RecordNumber);
+            var recordContext = ExtractFileName.Wegsegment
+                .AtDbaseRecord(FeatureType.Change, i.RoadSegment1.RecordNumber);
 
-            problems += recordContext.GradeSeparatedJunctionMissing(i.RoadSegment1.GetOriginalId(), i.RoadSegment2.GetOriginalId(), i.Intersection.X, i.Intersection.Y);
+            var roadSegment1FlatFeatures = GetFlatFeaturesAtLocation(i.RoadSegment1, i.Intersection, context.Tolerances);
+            var roadSegment2FlatFeatures = GetFlatFeaturesAtLocation(i.RoadSegment2, i.Intersection, context.Tolerances);
+
+            var roadSegment1TempIds = roadSegment1FlatFeatures.Select(x => x.TempId).ToList();
+            var roadSegment2TempIds = roadSegment2FlatFeatures.Select(x => x.TempId).ToList();
+
+            if (CarAllowed(roadSegment1FlatFeatures) && CarAllowed(roadSegment2FlatFeatures))
+            {
+                problems += recordContext.GradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
+            }
+
+            if (BikeAllowed(roadSegment1FlatFeatures) && BikeAllowed(roadSegment2FlatFeatures))
+            {
+                problems += recordContext.GradeSeparatedJunctionOrRoadNodeMissingWhenBikesAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
+            }
+
+            if (PedestrianAllowed(roadSegment1FlatFeatures) && PedestrianAllowed(roadSegment2FlatFeatures))
+            {
+                problems += recordContext.GradeSeparatedJunctionOrRoadNodeMissingWhenPedestriansAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
+            }
         }
 
         return problems;
+    }
+
+    private static IReadOnlyCollection<RoadSegmentFeatureCompareWithFlatAttributes> GetFlatFeaturesAtLocation(RoadSegmentFeatureCompareRecord roadSegment, Point intersection, VerificationContextTolerances tolerances)
+    {
+        return roadSegment.FlatFeatures
+            .Where(x => x.Attributes.Geometry.IsWithinDistance(intersection, tolerances.GeometryTolerance))
+            .Select(x => x.Attributes)
+            .ToList();
+    }
+
+    private static bool CarAllowed(IReadOnlyCollection<RoadSegmentFeatureCompareWithFlatAttributes> flatRoadSegments)
+    {
+        return flatRoadSegments.Any(x => x.CarAccessBackward || x.CarAccessForward);
+    }
+    private static bool BikeAllowed(IReadOnlyCollection<RoadSegmentFeatureCompareWithFlatAttributes> flatRoadSegments)
+    {
+        return flatRoadSegments.Any(x => x.BikeAccessBackward || x.BikeAccessForward);
+    }
+    private static bool PedestrianAllowed(IReadOnlyCollection<RoadSegmentFeatureCompareWithFlatAttributes> flatRoadSegments)
+    {
+        return flatRoadSegments.Any(x => x.PedestrianAccess);
     }
 
     private sealed record RoadSegmentCombination(RoadSegmentFeatureCompareRecord RoadSegment1, RoadSegmentFeatureCompareRecord RoadSegment2)
