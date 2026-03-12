@@ -129,7 +129,7 @@ public static class DbaseFileProblems
     public static FileError GradeSeparatedJunctionTypeV2Mismatch(this IDbaseFileRecordProblemBuilder builder, int value)
     {
         return builder
-            .Error(nameof(GradeSeparatedJunctionTypeMismatch))
+            .Error(nameof(GradeSeparatedJunctionTypeV2Mismatch))
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",
