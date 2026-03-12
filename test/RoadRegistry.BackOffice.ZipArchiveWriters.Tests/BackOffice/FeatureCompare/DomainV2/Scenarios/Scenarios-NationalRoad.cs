@@ -50,7 +50,7 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
             .BuildWithResult(_ => TranslatedChanges.Empty);
 
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, expected));
-        Assert.Contains(ex.Problems, x => x.Reason == nameof(DbaseFileProblems.RoadSegmentIdOutOfRange));
+        Assert.Contains(ex.Problems, x => x.Reason == nameof(DbaseFileProblems.NumberedRoadRoadSegmentTempIdOutOfRange));
     }
 
     [Fact]

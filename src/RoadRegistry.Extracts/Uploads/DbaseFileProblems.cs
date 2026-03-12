@@ -713,6 +713,14 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError NumberedRoadRoadSegmentTempIdOutOfRange(this IDbaseFileRecordProblemBuilder builder, RoadSegmentTempId value)
+    {
+        return builder
+            .Error(nameof(NumberedRoadRoadSegmentTempIdOutOfRange))
+            .WithParameter(new ProblemParameter("RoadSegmentTempId", value.ToString()))
+            .Build();
+    }
+
     public static FileError RoadSegmentTempIdOutOfRange(this IDbaseFileRecordProblemBuilder builder, int value)
     {
         return builder

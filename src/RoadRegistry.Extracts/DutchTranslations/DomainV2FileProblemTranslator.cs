@@ -118,6 +118,10 @@ public sealed class DomainV2FileProblemTranslator : FileProblemTranslator
                 nameof(DbaseFileProblems.RoadSegmentVoetgangerMismatch), () =>
                     translation with { Message = $"De {DbaseRecordLabel()} bevat een ongeldige waarde in veld {nameof(RoadSegmentDbaseRecord.Schema.VOETGANGER)} ({problem.GetParameterValue("Actual")}). Verwachte 1 van volgende waarden: {problem.GetParameterValue("ExpectedOneOf")}." }
             },
+            {
+                nameof(DbaseFileProblems.NumberedRoadRoadSegmentTempIdOutOfRange), () =>
+                    translation with { Message = $"De {DbaseRecordLabel()} heeft een ongeldige wegsegment identificator in veld {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("RoadSegmentTempId")}." }
+            },
 
             {
                 nameof(DbaseFileProblems.GradeSeparatedJunctionTypeV2Mismatch), () =>
