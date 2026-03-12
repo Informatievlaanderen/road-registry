@@ -219,6 +219,12 @@ public static class DbaseFileProblems
             .WithParameter(new ProblemParameter("Exception", exception.ToString()))
             .Build();
     }
+    public static FileError DbaseRecordHasNoGeometry(this IDbaseFileRecordProblemBuilder builder)
+    {
+        return builder
+            .Error(nameof(DbaseRecordHasNoGeometry))
+            .Build();
+    }
 
     public static FileError HasDbaseSchemaMismatch(this IFileProblemBuilder builder, DbaseSchema expectedSchema, DbaseSchema actualSchema)
     {

@@ -25,7 +25,7 @@ public sealed class EmbeddedResourceReader
     {
         if (!TryFindEmbeddedResourceName(fileName, out var resourceType, out var resourceName))
         {
-            throw new FileNotFoundException("Embedded resource not found!", fileName);
+            throw new FileNotFoundException($"Embedded resource '{fileName}' was not found.", fileName);
         }
 
         var sourceStream = new MemoryStream();
@@ -56,6 +56,8 @@ public sealed class EmbeddedResourceReader
 
     public static bool TryFindEmbeddedResourceName(string fileName, out Type resourceType, out string resourceName)
     {
+        fileName = fileName.Replace("\\", ".").Replace("-", "_");
+
         var resourceTypes = new[]
         {
             new StackTrace()
