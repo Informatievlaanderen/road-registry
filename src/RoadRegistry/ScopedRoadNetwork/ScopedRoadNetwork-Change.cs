@@ -73,11 +73,11 @@ public partial class ScopedRoadNetwork
                         segment.RemoveNationalRoad(change with
                         {
                             RoadSegmentId = idTranslator.TranslateToPermanentId(change.RoadSegmentId)
-                        }, changes.Provenance), summary.RoadSegments) ;
+                        }, changes.Provenance), summary.RoadSegments);
                     break;
 
                 case AddGradeSeparatedJunctionChange change:
-                    problems += AddGradeSeparatedJunction(change, idGenerator, context, summary.GradeSeparatedJunctions) ;
+                    problems += AddGradeSeparatedJunction(change, idGenerator, context, summary.GradeSeparatedJunctions);
                     break;
                 case ModifyGradeSeparatedJunctionChange change:
                     problems += ModifyGradeSeparatedJunction(change, context, summary.GradeSeparatedJunctions);
@@ -93,7 +93,7 @@ public partial class ScopedRoadNetwork
 
         if (!problems.HasError())
         {
-            problems += VerifyAfterChange(context);
+            problems += AfterChangesApplied(context);
         }
 
         if (changes.Any())
@@ -111,11 +111,12 @@ public partial class ScopedRoadNetwork
         return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), summary);
     }
 
-    private Problems VerifyAfterChange(ScopedRoadNetworkContext context)
+    private Problems AfterChangesApplied(ScopedRoadNetworkContext context)
     {
         return VerifyRoadNodesAfterChange(context)
-            + VerifyRoadSegmentsAfterChange(context)
-            + VerifyGradeSeparatedJunctionsAfterChange(context);
+               + VerifyRoadSegmentsAfterChange(context)
+               + VerifyGradeSeparatedJunctionsAfterChange(context)
+               + AutomaticallyManageGradeJunctions(context);
     }
 
     private Problems VerifyRoadSegmentsAfterChange(ScopedRoadNetworkContext context)
@@ -169,6 +170,27 @@ public partial class ScopedRoadNetwork
 
         return changedJunctions
             .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
+    }
+
+    private Problems AutomaticallyManageGradeJunctions(ScopedRoadNetworkContext context)
+    {
+        //TODO-pr maak automatisch gelijkgrondsekruisingen aan/verwijder ze: (ook in roadnetwork.change)
+        /*Voeg gelijkgrondse kruisingen toe op elk punt waar 2 wegsegmenten elkaar kruisen zonder dat er overlap is in de gecapteerde verkeerstypes*.
+        Er is overlap in gecapteerde verkeerstypes tussen 2 wegsegmenten A en B wanneer
+        (‘auto heen’='1' of ‘auto terug’='1') voor zowel A als B,
+        (‘fiets heen’='1' of ‘fiets terug’='1') voor zowel A als B, of
+        ‘voetganger’='1' voor zowel A als B.*/
+        var gerealiseerdeSegments = GetNonRemovedRoadSegments()
+            .Where(x => x.Attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
+            .ToList();
+
+        //TODO-pr net zoals bij OGK:
+        // eerst intersecting segments zoeken, dan preciezer kijken welk lijnsegment er kruist en wat die zijn verkeerstypes zijn
+        //aan de hand daarvan bepalen of er een GGK moet zijn
+
+        var junctions = _gradeJunctions.Values.Where(x => !x.IsRemoved).ToList();
+
+        throw new NotImplementedException();
     }
 
     private Problems AddRoadNode(AddRoadNodeChange change, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context, RoadNetworkEntityChangesSummary<RoadNodeId> summary)
