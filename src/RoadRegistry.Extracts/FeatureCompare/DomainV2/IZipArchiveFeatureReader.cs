@@ -21,7 +21,7 @@ public class ZipArchiveFeatureReaderContext
     public ZipArchiveFeatureReaderContext(ZipArchiveMetadata metadata)
     {
         ZipArchiveMetadata = metadata;
-        Tolerances = VerificationContextTolerances.Default;
+        Tolerances = VerificationContextTolerances.Cm;
         ChangedRoadSegments = new Dictionary<RoadSegmentTempId, Feature<RoadSegmentFeatureCompareWithFlatAttributes>>();
         ChangedRoadNodes = new Dictionary<RoadNodeId, Feature<RoadNodeFeatureCompareAttributes>>();
     }

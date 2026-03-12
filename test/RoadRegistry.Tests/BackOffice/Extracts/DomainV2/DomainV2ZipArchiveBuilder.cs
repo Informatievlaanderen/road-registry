@@ -388,9 +388,11 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
             _fixture = fixture;
         }
 
-        public RoadNodeDbaseRecord CreateRoadNodeDbaseRecord()
+        public RoadNodeDbaseRecord CreateRoadNodeDbaseRecord(Action<RoadNodeDbaseRecord>? configure = null)
         {
-            return _fixture.Create<RoadNodeDbaseRecord>();
+            var record = _fixture.Create<RoadNodeDbaseRecord>();
+            configure?.Invoke(record);
+            return record;
         }
 
         public RoadNodeShapeRecord CreateRoadNodeShapeRecord()
@@ -406,9 +408,11 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
             };
         }
 
-        public RoadSegmentDbaseRecord CreateRoadSegmentDbaseRecord()
+        public RoadSegmentDbaseRecord CreateRoadSegmentDbaseRecord(Action<RoadSegmentDbaseRecord>? configure = null)
         {
-            return _fixture.Create<RoadSegmentDbaseRecord>();
+            var record = _fixture.Create<RoadSegmentDbaseRecord>();
+            configure?.Invoke(record);
+            return record;
         }
 
         public RoadSegmentShapeRecord CreateRoadSegmentShapeRecord()
@@ -416,11 +420,19 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
             return CreateRoadSegmentShapeRecord(CreateRoadSegmentGeometry());
         }
 
+        public RoadSegmentShapeRecord CreateRoadSegmentShapeRecord(RoadSegmentGeometry geometry)
+        {
+            return CreateRoadSegmentShapeRecord(geometry.Value);
+        }
         public RoadSegmentShapeRecord CreateRoadSegmentShapeRecord(LineString lineString)
+        {
+            return CreateRoadSegmentShapeRecord(lineString.ToMultiLineString());
+        }
+        public RoadSegmentShapeRecord CreateRoadSegmentShapeRecord(MultiLineString lineString)
         {
             return new RoadSegmentShapeRecord
             {
-                Geometry = lineString.ToMultiLineString()
+                Geometry = lineString
             };
         }
 

@@ -10,7 +10,7 @@ using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 using Xunit.Abstractions;
 
-public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenariosBase
+public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenariosBase
 {
     public GradeSeparatedJunctionScenarios(ITestOutputHelper testOutputHelper, ILogger<ZipArchiveFeatureCompareTranslator> logger)
         : base(testOutputHelper, logger)
@@ -100,128 +100,6 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, expected));
         Assert.Contains(ex.Problems, x => x.Reason == nameof(DbaseFileProblems.LowerRoadSegmentIdOutOfRange));
         Assert.Contains(ex.Problems, x => x.Reason == nameof(DbaseFileProblems.UpperRoadSegmentIdOutOfRange));
-    }
-
-    [Fact]
-    public async Task WhenIntersectingGerealiseerdRoadSegmentsWithoutGradeSeparatedJunction_ThenShouldGiveProblem()
-    {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
-            .WithChange(ConfigureIntersectingGerealiseerdRoadSegmentsWithoutGradeSeparatedJunction)
-            .BuildWithResult(_ => TranslatedChanges.Empty);
-
-        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, expected));
-        Assert.Contains(ex.Problems, x => x.Reason == nameof(DbaseFileProblems.GradeSeparatedJunctionMissing));
-    }
-
-    [Fact]
-    public async Task WhenIntersectingGerealiseerdRoadSegmentsWithoutGradeSeparatedJunction_WithChangedRoadSegmentsWithNullGeometry_ThenShouldOnlyReturnProblem()
-    {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
-            .WithChange((builder, context) =>
-            {
-                // trigger partial update
-                builder.TestData.RoadSegment1DbaseRecord.MORF.Value = context.Fixture.CreateWhichIsDifferentThan(RoadSegmentMorphologyV2.ByIdentifier[builder.TestData.RoadSegment1DbaseRecord.MORF.Value]).Translation.Identifier;
-
-                // add segment which intersects with existing segment to trigger checking missing gradeseparatedjunctions
-                var newNode1Dbase = builder.CreateRoadNodeDbaseRecord();
-                var newNode1Shape = builder.CreateRoadNodeShapeRecord();
-                var newNode2Dbase = builder.CreateRoadNodeDbaseRecord();
-                var newNode2Shape = builder.CreateRoadNodeShapeRecord();
-                var newSegment1Dbase = builder.CreateRoadSegmentDbaseRecord();
-                newSegment1Dbase.STATUS.Value = RoadSegmentStatusV2.Gerealiseerd;
-                var newSegment1Shape = builder.CreateRoadSegmentShapeRecord();
-                var intersection = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString().Centroid;
-                var newSegment1GeometryCrossingSegment1 = new LineString([
-                    new(intersection.X, intersection.Y - 1),
-                    new(intersection.X, intersection.Y + 5)
-                ]);
-                newSegment1Shape.Geometry = newSegment1GeometryCrossingSegment1.ToMultiLineString();
-
-                builder.DataSet.RoadNodeDbaseRecords.Add(newNode1Dbase);
-                builder.DataSet.RoadNodeDbaseRecords.Add(newNode2Dbase);
-                builder.DataSet.RoadNodeShapeRecords.Add(newNode1Shape);
-                builder.DataSet.RoadNodeShapeRecords.Add(newNode2Shape);
-                builder.DataSet.RoadSegmentDbaseRecords.Add(newSegment1Dbase);
-                builder.DataSet.RoadSegmentShapeRecords.Add(newSegment1Shape);
-
-                foreach (var roadSegmentDbaseRecord in builder.DataSet.RoadSegmentDbaseRecords)
-                {
-                    roadSegmentDbaseRecord.STATUS.Value = RoadSegmentStatusV2.Gerealiseerd;
-                }
-            })
-            .BuildWithResult(_ => TranslatedChanges.Empty);
-
-        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, expected));
-        Assert.Contains(ex.Problems, x => x.Reason == nameof(DbaseFileProblems.GradeSeparatedJunctionMissing));
-    }
-
-    private static void ConfigureIntersectingGerealiseerdRoadSegmentsWithoutGradeSeparatedJunction(ExtractsZipArchiveExtractDataSetBuilder builder, ExtractsZipArchiveChangeDataSetBuilderContext context)
-    {
-        foreach (var roadSegmentDbaseRecord in builder.DataSet.RoadSegmentDbaseRecords)
-        {
-            roadSegmentDbaseRecord.STATUS.Value = RoadSegmentStatusV2.Gerealiseerd;
-        }
-
-        var roadSegment1Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
-
-        var intersection = roadSegment1Geometry.Centroid;
-
-        var roadSegment2Geometry = new LineString([
-            new(intersection.X, intersection.Y - 1),
-            new(intersection.X, intersection.Y + 5)
-        ]);
-        builder.TestData.RoadSegment2ShapeRecord.Geometry = roadSegment2Geometry.ToMultiLineString();
-
-        builder.DataSet.GradeSeparatedJunctionDbaseRecords.Clear();
-    }
-
-    [Fact]
-    public async Task IntersectingNotGerealiseerdRoadSegmentsWithoutGradeSeparatedJunctionShouldNotGiveProblem()
-    {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder(fixture =>
-            {
-                fixture.CustomizeRoadSegmentOutlineLaneCount();
-                fixture.CustomizeRoadSegmentOutlineMorphology();
-                fixture.CustomizeRoadSegmentOutlineStatus();
-                fixture.CustomizeRoadSegmentOutlineWidth();
-            })
-            .WithChange((builder, context) =>
-            {
-                ConfigureIntersectingGerealiseerdRoadSegmentsWithoutGradeSeparatedJunction(builder, context);
-
-                builder.TestData.RoadSegment1DbaseRecord.STATUS.Value = context.Fixture.CreateWhichIsDifferentThan(RoadSegmentStatusV2.Gerealiseerd);
-                builder.TestData.RoadSegment2DbaseRecord.STATUS.Value = context.Fixture.CreateWhichIsDifferentThan(RoadSegmentStatusV2.Gerealiseerd);
-            })
-            .BuildWithResult(_ => TranslatedChanges.Empty);
-
-        await TranslateSucceeds(zipArchive);
-    }
-
-    [Fact]
-    public async Task IntersectingRoadSegmentsInA_TShape_WithoutGradeSeparatedJunctionShouldNotGiveProblem()
-    {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture =>
-            {
-                fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
-                fixture.CustomizeUniqueInteger();
-            })
-            .WithChange((builder, context) =>
-            {
-                var roadSegment1Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
-
-                var intersection = roadSegment1Geometry.Centroid;
-
-                var roadSegment2Geometry = new LineString([
-                    new(intersection.X, intersection.Y),
-                    new(intersection.X, intersection.Y + 5)
-                ]);
-                builder.TestData.RoadSegment2ShapeRecord.Geometry = roadSegment2Geometry.ToMultiLineString();
-
-                builder.DataSet.GradeSeparatedJunctionDbaseRecords.Clear();
-            })
-            .Build();
-
-        await TranslateSucceeds(zipArchive);
     }
 
     [Fact]

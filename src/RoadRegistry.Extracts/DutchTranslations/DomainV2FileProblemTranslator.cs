@@ -138,6 +138,18 @@ public sealed class DomainV2FileProblemTranslator : FileProblemTranslator
             {
                 nameof(DbaseFileProblems.GradeSeparatedJunctionNotUnique), () =>
                     translation with { Message = $"De {DbaseRecordLabel()} heeft hetzelfde onder- en bovenliggende wegsegment als de dbase record met {problem.GetParameterValue("IdentifierField")} {problem.GetParameterValue("OtherJunctionId")}" }
+            },
+            {
+                nameof(DbaseFileProblems.GradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed), () =>
+                    translation with { Message = $"De wegsegmenten met {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment1TempIds")} en {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment2TempIds")} kruisen elkaar zonder dat er een ongelijkgrondse kruising of wegknoop geplaatst werd voor deze kruising, hoewel auto's toegelaten zijn op beide wegsegmenten." }
+            },
+            {
+                nameof(DbaseFileProblems.GradeSeparatedJunctionOrRoadNodeMissingWhenBikesAreAllowed), () =>
+                    translation with { Message = $"De wegsegmenten met {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment1TempIds")} en {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment2TempIds")} kruisen elkaar zonder dat er een ongelijkgrondse kruising of wegknoop geplaatst werd voor deze kruising, hoewel fietsers toegelaten zijn op beide wegsegmenten." }
+            },
+            {
+                nameof(DbaseFileProblems.GradeSeparatedJunctionOrRoadNodeMissingWhenPedestriansAreAllowed), () =>
+                    translation with { Message = $"De wegsegmenten met {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment1TempIds")} en {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment2TempIds")} kruisen elkaar zonder dat er een ongelijkgrondse kruising of wegknoop geplaatst werd voor deze kruising, hoewel voetgangers toegelaten zijn op beide wegsegmenten." }
             }
         };
 

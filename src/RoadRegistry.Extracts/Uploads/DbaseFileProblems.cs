@@ -168,6 +168,37 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError GradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed(this IDbaseFileRecordProblemBuilder builder,
+        IReadOnlyCollection<RoadSegmentTempId> roadSegment1TempIds,
+        IReadOnlyCollection<RoadSegmentTempId> roadSegment2TempIds)
+    {
+        return builder
+            .Error(nameof(GradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed))
+            .WithParameter(new ProblemParameter("Wegsegment1TempIds", string.Join(",", roadSegment1TempIds.Select(x => x.ToInvariantString()))))
+            .WithParameter(new ProblemParameter("Wegsegment2TempIds", string.Join(",", roadSegment2TempIds.Select(x => x.ToInvariantString()))))
+            .Build();
+    }
+    public static FileError GradeSeparatedJunctionOrRoadNodeMissingWhenBikesAreAllowed(this IDbaseFileRecordProblemBuilder builder,
+        IReadOnlyCollection<RoadSegmentTempId> roadSegment1TempIds,
+        IReadOnlyCollection<RoadSegmentTempId> roadSegment2TempIds)
+    {
+        return builder
+            .Error(nameof(GradeSeparatedJunctionOrRoadNodeMissingWhenBikesAreAllowed))
+            .WithParameter(new ProblemParameter("Wegsegment1TempIds", string.Join(",", roadSegment1TempIds.Select(x => x.ToInvariantString()))))
+            .WithParameter(new ProblemParameter("Wegsegment2TempIds", string.Join(",", roadSegment2TempIds.Select(x => x.ToInvariantString()))))
+            .Build();
+    }
+    public static FileError GradeSeparatedJunctionOrRoadNodeMissingWhenPedestriansAreAllowed(this IDbaseFileRecordProblemBuilder builder,
+        IReadOnlyCollection<RoadSegmentTempId> roadSegment1TempIds,
+        IReadOnlyCollection<RoadSegmentTempId> roadSegment2TempIds)
+    {
+        return builder
+            .Error(nameof(GradeSeparatedJunctionOrRoadNodeMissingWhenPedestriansAreAllowed))
+            .WithParameter(new ProblemParameter("Wegsegment1TempIds", string.Join(",", roadSegment1TempIds.Select(x => x.ToInvariantString()))))
+            .WithParameter(new ProblemParameter("Wegsegment2TempIds", string.Join(",", roadSegment2TempIds.Select(x => x.ToInvariantString()))))
+            .Build();
+    }
+
     public static FileError HasDbaseHeaderFormatError(this IFileProblemBuilder builder, Exception exception)
     {
         if (exception == null) throw new ArgumentNullException(nameof(exception));
