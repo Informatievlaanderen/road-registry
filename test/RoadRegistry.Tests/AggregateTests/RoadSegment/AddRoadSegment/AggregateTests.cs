@@ -1,7 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.AddRoadSegment;
 
 using AutoFixture;
-using Extensions;
+using RoadRegistry.Extensions;
 using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;

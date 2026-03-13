@@ -42,14 +42,6 @@ public partial class GradeJunction : MartenAggregateRootEntity<GradeJunctionId>
         return junction;
     }
 
-    public void Apply(GradeJunctionWasModified @event)
-    {
-        UncommittedEvents.Add(@event);
-
-        RoadSegmentId1 = @event.RoadSegmentId1 ?? RoadSegmentId1;
-        RoadSegmentId2 = @event.RoadSegmentId2 ?? RoadSegmentId2;
-    }
-
     public void Apply(GradeJunctionWasRemoved @event)
     {
         if (IsRemoved)

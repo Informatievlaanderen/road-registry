@@ -1,26 +1,21 @@
 ﻿namespace RoadRegistry.GradeJunction;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Events.V2;
-using RoadRegistry.ValueObjects.Problems;
-using ScopedRoadNetwork;
+using RoadRegistry.GradeJunction.Events.V2;
+using RoadRegistry.ScopedRoadNetwork;
 
 public partial class GradeJunction
 {
-    // public static (GradeJunction?, Problems) Add(AddGradeJunctionChange change, Provenance provenance, IRoadNetworkIdGenerator idGenerator)
-    // {
-    //     var problems = Problems.WithContext(change.TemporaryId);
-    //
-    //     var junction = Create(new GradeJunctionWasAdded
-    //     {
-    //         GradeJunctionId = idGenerator.NewGradeJunctionId(),
-    //         OriginalId = change.TemporaryId,
-    //         RoadSegmentId1 = change.RoadSegmentId1,
-    //         RoadSegmentId2 = change.RoadSegmentId2,
-    //         Type = change.Type,
-    //         Provenance = new ProvenanceData(provenance)
-    //     });
-    //
-    //     return (junction, problems);
-    // }
+    public static GradeJunction Add(RoadSegmentId roadSegmentId1, RoadSegmentId roadSegmentId2, Provenance provenance, IRoadNetworkIdGenerator idGenerator)
+    {
+        var junction = Create(new GradeJunctionWasAdded
+        {
+            GradeJunctionId = idGenerator.NewGradeJunctionId(),
+            RoadSegmentId1 = roadSegmentId1,
+            RoadSegmentId2 = roadSegmentId2,
+            Provenance = new ProvenanceData(provenance)
+        });
+
+        return junction;
+    }
 }

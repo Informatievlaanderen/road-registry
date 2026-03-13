@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RoadRegistry.RoadNetwork.Schema;
 
@@ -10,9 +11,11 @@ using RoadRegistry.RoadNetwork.Schema;
 namespace RoadRegistry.RoadNetwork.Schema.Migrations
 {
     [DbContext(typeof(RoadNetworkDbContext))]
-    partial class RoadNetworkDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260313120358_AddGradeJunctionSequence")]
+    partial class AddGradeJunctionSequence
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,11 +1,11 @@
 ﻿namespace RoadRegistry.Tests.BackOffice.Scenarios.WhenRemovingRoadSegments.WhenMergingFakeNodeSegments;
 
-using Extensions;
-using Framework.Testing;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Extensions;
+using RoadRegistry.Tests.Framework.Testing;
 using LineString = NetTopologySuite.Geometries.LineString;
 using RoadSegmentSideAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes;
 

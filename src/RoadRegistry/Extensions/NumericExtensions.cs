@@ -42,6 +42,11 @@ public static class NumericExtensions
         return other - value > tolerance;
     }
 
+    public static bool IsReasonablyLessOrEqualThan(this double value, double other, double tolerance)
+    {
+        return other - value >= tolerance;
+    }
+
     public static bool IsReasonablyGreaterThan(this double value, double other, double tolerance)
     {
         return value - other > tolerance;
@@ -50,5 +55,10 @@ public static class NumericExtensions
     public static bool IsReasonablyGreaterThan(this decimal value, decimal other, decimal tolerance)
     {
         return value - other > tolerance;
+    }
+
+    public static bool IsReasonablyGreaterOrEqualThan(this double value, double other, double tolerance)
+    {
+        return value - other >= tolerance;
     }
 }
