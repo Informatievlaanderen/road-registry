@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.Tests;
 
-using Extensions;
+using RoadRegistry.Extensions;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 

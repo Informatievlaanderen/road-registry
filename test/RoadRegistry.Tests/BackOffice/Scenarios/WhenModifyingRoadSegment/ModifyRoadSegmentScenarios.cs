@@ -3,8 +3,6 @@ namespace RoadRegistry.Tests.BackOffice.Scenarios.WhenModifyingRoadSegment;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
-using Extensions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Newtonsoft.Json;
@@ -12,9 +10,11 @@ using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
+using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Tests.Framework.Testing;
-using ValueObjects.Problems;
+using RoadRegistry.ValueObjects.Problems;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
 using AddRoadNode = RoadRegistry.BackOffice.Messages.AddRoadNode;
 using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
@@ -24,10 +24,10 @@ using ModifyRoadSegment = RoadRegistry.BackOffice.Messages.ModifyRoadSegment;
 using Point = NetTopologySuite.Geometries.Point;
 using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 using ProblemParameter = RoadRegistry.Infrastructure.Messages.ProblemParameter;
-using ProblemSeverity = RoadRegistry.Infrastructure.Messages.ProblemSeverity;
 using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
 using RemoveOutlinedRoadSegment = RoadRegistry.BackOffice.Messages.RemoveOutlinedRoadSegment;
 using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes;
+using RoadSegmentSideAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes;
 using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 
@@ -533,11 +533,11 @@ public class ModifyRoadSegmentScenarios : RoadNetworkTestBase
                                     Code = ObjectProvider.Create<OrganizationId>(),
                                     Name = ObjectProvider.Create<OrganizationName>()
                                 },
-                                LeftSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
+                                LeftSide = new RoadSegmentSideAttributes
                                 {
                                     StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                                 },
-                                RightSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
+                                RightSide = new RoadSegmentSideAttributes
                                 {
                                     StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                                 },
@@ -644,11 +644,11 @@ public class ModifyRoadSegmentScenarios : RoadNetworkTestBase
                                     Code = ObjectProvider.Create<OrganizationId>(),
                                     Name = ObjectProvider.Create<OrganizationName>()
                                 },
-                                LeftSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
+                                LeftSide = new RoadSegmentSideAttributes
                                 {
                                     StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                                 },
-                                RightSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
+                                RightSide = new RoadSegmentSideAttributes
                                 {
                                     StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                                 },
@@ -922,11 +922,11 @@ public class ModifyRoadSegmentScenarios : RoadNetworkTestBase
                                     Code = ObjectProvider.Create<OrganizationId>(),
                                     Name = ObjectProvider.Create<OrganizationName>()
                                 },
-                                LeftSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
+                                LeftSide = new RoadSegmentSideAttributes
                                 {
                                     StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                                 },
-                                RightSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
+                                RightSide = new RoadSegmentSideAttributes
                                 {
                                     StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                                 },

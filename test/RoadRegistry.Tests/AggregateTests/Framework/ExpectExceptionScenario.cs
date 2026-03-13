@@ -1,7 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
-using Extensions;
 using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.Extensions;
 
 public class ExpectExceptionScenario
 {

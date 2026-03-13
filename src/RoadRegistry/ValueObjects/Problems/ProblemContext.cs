@@ -1,7 +1,6 @@
 ﻿namespace RoadRegistry.ValueObjects.Problems;
 
 using System.Collections.Generic;
-using System.Linq;
 
 public class ProblemContext
 {
@@ -44,6 +43,13 @@ public class ProblemContext
         return new ProblemContext
         {
             Parameters = [new ProblemContextParameter("OngelijkGrondseKruisingId", gradeSeparatedJunctionId.ToInt32())]
+        };
+    }
+    public static ProblemContext For(GradeJunctionId gradeJunctionId)
+    {
+        return new ProblemContext
+        {
+            Parameters = [new ProblemContextParameter("GelijkGrondseKruisingId", gradeJunctionId.ToInt32())]
         };
     }
 }

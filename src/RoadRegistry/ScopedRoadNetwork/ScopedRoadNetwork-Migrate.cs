@@ -74,7 +74,7 @@ public partial class ScopedRoadNetwork
 
         if (!problems.HasError())
         {
-            problems += AfterChangesApplied(context);
+            problems += AfterChangesApplied(idGenerator, context, summary);
         }
 
         if (changes.Any())

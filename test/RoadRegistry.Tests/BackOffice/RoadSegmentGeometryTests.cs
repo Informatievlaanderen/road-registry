@@ -1,17 +1,14 @@
 ﻿namespace RoadRegistry.Tests.BackOffice;
 
 using AutoFixture;
-using Extensions;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-using RoadNetwork;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using RoadSegment;
-using Scenarios;
-using ValueObjects.Problems;
+using RoadRegistry.Extensions;
+using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadRegistry.ValueObjects.Problems;
 
 public class RoadSegmentGeometryTests
 {

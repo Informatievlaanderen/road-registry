@@ -62,6 +62,15 @@ namespace RoadRegistry.Tests
             return Task.FromResult(new GradeSeparatedJunctionId(GetNextValue()));
         }
 
+        public GradeJunctionId NewGradeJunctionId()
+        {
+            return new GradeJunctionId(GetNextValue());
+        }
+        public Task<GradeJunctionId> NewGradeJunctionIdAsync()
+        {
+            return Task.FromResult(new GradeJunctionId(GetNextValue()));
+        }
+
         public AttributeId NewNationalRoadAttributeId()
         {
             return new AttributeId(GetNextValue());
