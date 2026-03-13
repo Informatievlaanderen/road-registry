@@ -15,8 +15,8 @@ public class RoadNetworkRepository : IRoadNetworkRepository
     {
         Store = store;
     }
-
-    public async Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry? geometry = null, RoadNetworkIds? ids = null, bool onlyV2 = false)
+    //TODO-pr load and save GradeJunctions
+    public async Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry? geometry = null, RoadNetworkIds? ids = null)
     {
         if ((geometry is null || geometry.IsEmpty) && (ids is null || ids.IsEmpty))
         {
@@ -172,7 +172,8 @@ LEFT JOIN segment_junction_links sjl
                 .Select(x => x.GradeSeparatedJunctionId!.Value)
                 .Distinct()
                 .Select(x => new GradeSeparatedJunctionId(x))
-                .ToArray()
+                .ToArray(),
+            []
         );
     }
 
@@ -180,7 +181,7 @@ LEFT JOIN segment_junction_links sjl
     {
         if (roadSegmentIds.Count == 0)
         {
-            return new RoadNetworkIds([], [], []);
+            return new RoadNetworkIds([], [], [], []);
         }
 
         var sql = @$"
@@ -220,7 +221,8 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j ON 
                 .Select(x => x.GradeSeparatedJunctionId!.Value)
                 .Distinct()
                 .Select(x => new GradeSeparatedJunctionId(x))
-                .ToArray()
+                .ToArray(),
+            []
         );
     }
 
@@ -231,7 +233,7 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j ON 
         var gradeSeparatedJunctions = await session.LoadManyAsync(ids.GradeSeparatedJunctionIds);
         var roadNetwork = await session.Events.AggregateStreamAsync<ScopedRoadNetwork>(StreamKeyFactory.Create(typeof(ScopedRoadNetwork), roadNetworkId));
 
-        return roadNetwork ?? new ScopedRoadNetwork(roadNetworkId, roadNodes, roadSegments, gradeSeparatedJunctions);
+        return roadNetwork ?? new ScopedRoadNetwork(roadNetworkId, roadNodes, roadSegments, gradeSeparatedJunctions, []);
     }
 
     public async Task Save(ScopedRoadNetwork roadNetwork, string commandName, CancellationToken cancellationToken)

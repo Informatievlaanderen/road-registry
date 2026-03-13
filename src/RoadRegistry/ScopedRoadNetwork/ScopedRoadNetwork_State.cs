@@ -27,31 +27,26 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
     private readonly Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions;
     private readonly Dictionary<GradeJunctionId, GradeJunction> _gradeJunctions;
 
-    public ScopedRoadNetwork(ScopedRoadNetworkId roadNetworkId)
-        : this(roadNetworkId, [], [], [], [])
-    {
-    }
-
     public ScopedRoadNetwork(
         ScopedRoadNetworkId roadNetworkId,
-        IReadOnlyCollection<RoadNode> roadNodes,
-        IReadOnlyCollection<RoadSegment> roadSegments,
-        IReadOnlyCollection<GradeSeparatedJunction> gradeSeparatedJunctions,
-        IReadOnlyCollection<GradeJunction> gradeJunctions)
+        IReadOnlyCollection<RoadNode>? roadNodes = null,
+        IReadOnlyCollection<RoadSegment>? roadSegments = null,
+        IReadOnlyCollection<GradeSeparatedJunction>? gradeSeparatedJunctions = null,
+        IReadOnlyCollection<GradeJunction>? gradeJunctions = null)
         : base(roadNetworkId)
     {
         RoadNetworkId = roadNetworkId;
 
-        _roadNodes = roadNodes.ToDictionary(x => x.RoadNodeId, x => x);
+        _roadNodes = (roadNodes ?? []).ToDictionary(x => x.RoadNodeId, x => x);
         RoadNodes = _roadNodes.AsReadOnly();
 
-        _roadSegments = roadSegments.ToDictionary(x => x.RoadSegmentId, x => x);
+        _roadSegments = (roadSegments ?? []).ToDictionary(x => x.RoadSegmentId, x => x);
         RoadSegments = _roadSegments.AsReadOnly();
 
-        _gradeSeparatedJunctions = gradeSeparatedJunctions.ToDictionary(x => x.GradeSeparatedJunctionId, x => x);
+        _gradeSeparatedJunctions = (gradeSeparatedJunctions ?? []).ToDictionary(x => x.GradeSeparatedJunctionId, x => x);
         GradeSeparatedJunctions = _gradeSeparatedJunctions.AsReadOnly();
 
-        _gradeJunctions = gradeJunctions.ToDictionary(x => x.GradeJunctionId, x => x);
+        _gradeJunctions = (gradeJunctions ?? []).ToDictionary(x => x.GradeJunctionId, x => x);
         GradeJunctions = _gradeJunctions.AsReadOnly();
     }
 

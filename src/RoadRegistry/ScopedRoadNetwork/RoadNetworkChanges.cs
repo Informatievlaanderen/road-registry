@@ -19,7 +19,11 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
     public int Count => _changes.Count;
 
     public Provenance Provenance { get; private set; }
-    public RoadNetworkIds Ids => new(_roadNodeIds.AsReadOnly(),  _roadSegmentIds.AsReadOnly(), _gradeSeparatedJunctionIds.AsReadOnly());
+    public RoadNetworkIds Ids => new(
+        _roadNodeIds.AsReadOnly(),
+        _roadSegmentIds.AsReadOnly(),
+        _gradeSeparatedJunctionIds.AsReadOnly(),
+        []);
 
     private readonly List<Geometry> _geometries = [];
     private readonly List<IRoadNetworkChange> _changes = [];

@@ -6,7 +6,6 @@ using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
@@ -33,7 +32,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [
             RoadNode.Create(TestData.Segment1StartNodeAdded),
             RoadNode.Create(TestData.Segment1EndNodeAdded)
-        ], [], []);
+        ]);
         var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
         // Act

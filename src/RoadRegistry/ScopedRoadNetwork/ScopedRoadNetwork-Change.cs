@@ -181,7 +181,7 @@ public partial class ScopedRoadNetwork
         (‘fiets heen’='1' of ‘fiets terug’='1') voor zowel A als B, of
         ‘voetganger’='1' voor zowel A als B.*/
         var gerealiseerdeSegments = GetNonRemovedRoadSegments()
-            .Where(x => x.Attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
+            .Where(x => x.Attributes.Status == RoadSegmentStatusV2.Gerealiseerd && x.HasChanges())
             .ToList();
 
         //TODO-pr net zoals bij OGK:
