@@ -3,6 +3,7 @@
 using BackOffice;
 using Marten;
 using GradeSeparatedJunction;
+using GradeJunction;
 using JasperFx.Events;
 using Marten.Events;
 using Microsoft.Extensions.Logging;
@@ -53,6 +54,11 @@ public static class SessionExtensions
     public static async Task<IReadOnlyList<GradeSeparatedJunction>> LoadManyAsync(this IDocumentSession session, IEnumerable<GradeSeparatedJunctionId> ids)
     {
         return await session.LoadManyEntitiesAsync<GradeSeparatedJunction, GradeSeparatedJunctionId>(ids);
+    }
+
+    public static async Task<IReadOnlyList<GradeJunction>> LoadManyAsync(this IDocumentSession session, IEnumerable<GradeJunctionId> ids)
+    {
+        return await session.LoadManyEntitiesAsync<GradeJunction, GradeJunctionId>(ids);
     }
 
     private static async Task<IReadOnlyList<TEntity>> LoadManyEntitiesAsync<TEntity, TIdentifier>(this IDocumentSession session, IEnumerable<TIdentifier> ids)

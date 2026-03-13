@@ -9,5 +9,6 @@ public static class SetupExtensions
         RoadNodeProjection.Configure(options);
         RoadSegmentProjection.Configure(options);
         GradeSeparatedJunctionProjection.Configure(options);
+        GradeJunctionProjection.Configure(options);
     }
 }

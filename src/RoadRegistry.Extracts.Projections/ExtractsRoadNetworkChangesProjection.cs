@@ -8,7 +8,12 @@ using Setup;
 public class ExtractsRoadNetworkChangesProjection : RoadNetworkChangesProjection
 {
     public ExtractsRoadNetworkChangesProjection(int batchSize, ILoggerFactory loggerFactory)
-        : base([new RoadNodeProjection(), new RoadSegmentProjection(), new GradeSeparatedJunctionProjection()], loggerFactory,
+        : base([
+                new RoadNodeProjection(),
+                new RoadSegmentProjection(),
+                new GradeSeparatedJunctionProjection(),
+                new GradeJunctionProjection()
+            ], loggerFactory,
             batchSize: batchSize)
     {
     }
