@@ -93,7 +93,7 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
 
         await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
 
-        var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry(), ids: roadNetworkChanges.Ids, onlyV2: true);
+        var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry(), ids: roadNetworkChanges.Ids);
         return await _roadNetworkRepository.Load(
             session,
             ids,
