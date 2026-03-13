@@ -1,20 +1,20 @@
-﻿namespace RoadRegistry.Projections.Tests.Projections.ExtractGradeSeparatedJunction;
+﻿namespace RoadRegistry.Projections.Tests.Projections.ExtractGradeJunction;
 
 using AutoFixture;
-using Extracts.Projections;
 using FluentAssertions;
-using GradeSeparatedJunction.Events.V2;
 using JasperFx.Events;
-using RoadNode.Events.V1;
-using RoadNode.Events.V2;
+using RoadRegistry.Extracts.Projections;
 using RoadRegistry.GradeJunction.Events.V2;
+using RoadRegistry.GradeSeparatedJunction.Events.V2;
+using RoadRegistry.RoadNode.Events.V1;
+using RoadRegistry.RoadNode.Events.V2;
+using RoadRegistry.RoadSegment.Events.V1;
+using RoadRegistry.RoadSegment.Events.V2;
+using RoadRegistry.ScopedRoadNetwork.Events.V1;
+using RoadRegistry.ScopedRoadNetwork.Events.V2;
 using RoadRegistry.Tests.AggregateTests;
-using RoadSegment.Events.V1;
-using RoadSegment.Events.V2;
-using ScopedRoadNetwork.Events.V1;
-using ScopedRoadNetwork.Events.V2;
 
-public class GradeSeparatedJunctionProjectionTests
+public class GradeJunctionProjectionTests
 {
     [Fact]
     public void EnsureAllEventsAreHandledExactlyOnce()
@@ -58,8 +58,9 @@ public class GradeSeparatedJunctionProjectionTests
             typeof(RoadSegmentWasRemoved),
             typeof(RoadSegmentWasRemovedFromEuropeanRoad),
             typeof(RoadSegmentWasRemovedFromNationalRoad),
-            typeof(GradeJunctionWasAdded),
-            typeof(GradeJunctionWasRemoved)
+            typeof(GradeSeparatedJunctionWasAdded),
+            typeof(GradeSeparatedJunctionWasModified),
+            typeof(GradeSeparatedJunctionWasRemoved)
         };
         var allEventTypes = typeof(IMartenEvent).Assembly
             .GetTypes()
@@ -81,29 +82,27 @@ public class GradeSeparatedJunctionProjectionTests
     }
 
     [Fact]
-    public Task WhenGradeSeparatedJunctionWasAdded_ThenSucceeded()
+    public Task WhenGradeJunctionWasAdded_ThenSucceeded()
     {
         var fixture = new RoadNetworkTestDataV2().Fixture;
 
-        var junction1Added = fixture.Create<GradeSeparatedJunctionWasAdded>();
-        var junction2Added = fixture.Create<GradeSeparatedJunctionWasAdded>();
+        var junction1Added = fixture.Create<GradeJunctionWasAdded>();
+        var junction2Added = fixture.Create<GradeJunctionWasAdded>();
 
-        var expectedJunction1 = new GradeSeparatedJunctionExtractItem
+        var expectedJunction1 = new GradeJunctionExtractItem
         {
-            GradeSeparatedJunctionId = junction1Added.GradeSeparatedJunctionId,
-            LowerRoadSegmentId = junction1Added.LowerRoadSegmentId,
-            UpperRoadSegmentId = junction1Added.UpperRoadSegmentId,
-            Type = junction1Added.Type,
+            GradeJunctionId = junction1Added.GradeJunctionId,
+            RoadSegmentId1 = junction1Added.RoadSegmentId1,
+            RoadSegmentId2 = junction1Added.RoadSegmentId2,
             IsV2 = true,
             Origin = junction1Added.Provenance.ToEventTimestamp(),
             LastModified = junction1Added.Provenance.ToEventTimestamp()
         };
-        var expectedJunction2 = new GradeSeparatedJunctionExtractItem
+        var expectedJunction2 = new GradeJunctionExtractItem
         {
-            GradeSeparatedJunctionId = junction2Added.GradeSeparatedJunctionId,
-            LowerRoadSegmentId = junction2Added.LowerRoadSegmentId,
-            UpperRoadSegmentId = junction2Added.UpperRoadSegmentId,
-            Type = junction2Added.Type,
+            GradeJunctionId = junction2Added.GradeJunctionId,
+            RoadSegmentId1 = junction2Added.RoadSegmentId1,
+            RoadSegmentId2 = junction2Added.RoadSegmentId2,
             IsV2 = true,
             Origin = junction2Added.Provenance.ToEventTimestamp(),
             LastModified = junction2Added.Provenance.ToEventTimestamp()
@@ -116,39 +115,13 @@ public class GradeSeparatedJunctionProjectionTests
     }
 
     [Fact]
-    public Task WhenGradeSeparatedJunctionWasModified_ThenSucceeded()
+    public async Task WhenGradeJunctionWasRemoved_ThenNone()
     {
         var fixture = new RoadNetworkTestDataV2().Fixture;
-        fixture.Freeze<GradeSeparatedJunctionId>();
+        fixture.Freeze<GradeJunctionId>();
 
-        var junctionAdded = fixture.Create<GradeSeparatedJunctionWasAdded>();
-        var junctionModified = fixture.Create<GradeSeparatedJunctionWasModified>();
-
-        var expectedRoadNode = new GradeSeparatedJunctionExtractItem
-        {
-            GradeSeparatedJunctionId = junctionAdded.GradeSeparatedJunctionId,
-            LowerRoadSegmentId = junctionModified.LowerRoadSegmentId!.Value,
-            UpperRoadSegmentId = junctionModified.UpperRoadSegmentId!.Value,
-            Type = junctionModified.Type!,
-            IsV2 = true,
-            Origin = junctionAdded.Provenance.ToEventTimestamp(),
-            LastModified = junctionModified.Provenance.ToEventTimestamp()
-        };
-
-        return BuildProjection()
-            .Scenario()
-            .Given(junctionAdded, junctionModified)
-            .Expect(expectedRoadNode);
-    }
-
-    [Fact]
-    public async Task WhenGradeSeparatedJunctionWasRemoved_ThenNone()
-    {
-        var fixture = new RoadNetworkTestDataV2().Fixture;
-        fixture.Freeze<GradeSeparatedJunctionId>();
-
-        var junction1Added = fixture.Create<GradeSeparatedJunctionWasAdded>();
-        var junction1Removed = fixture.Create<GradeSeparatedJunctionWasRemoved>();
+        var junction1Added = fixture.Create<GradeJunctionWasAdded>();
+        var junction1Removed = fixture.Create<GradeJunctionWasRemoved>();
 
         await BuildProjection()
             .Scenario()
@@ -156,8 +129,8 @@ public class GradeSeparatedJunctionProjectionTests
             .ExpectNone();
     }
 
-    private GradeSeparatedJunctionProjection BuildProjection()
+    private GradeJunctionProjection BuildProjection()
     {
-        return new GradeSeparatedJunctionProjection();
+        return new GradeJunctionProjection();
     }
 }
