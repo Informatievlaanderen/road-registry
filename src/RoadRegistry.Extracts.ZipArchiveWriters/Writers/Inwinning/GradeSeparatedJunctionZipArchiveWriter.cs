@@ -33,16 +33,23 @@ public class GradeSeparatedJunctionZipArchiveWriter : IZipArchiveWriter
             .OrderBy(x => x.Id)
             .Select(x =>
             {
-                var intersection = FindFirstIntersectingTempIds(x.UpperRoadSegmentId, x.LowerRoadSegmentId, context);
-
-                return new GradeSeparatedJunctionDbaseRecord
+                try
                 {
-                    OK_OIDN = { Value = x.GradeSeparatedJunctionId },
-                    BO_TEMPID = { Value = intersection.UpperRoadSegmentId },
-                    ON_TEMPID = { Value = intersection.LowerRoadSegmentId },
-                    TYPE = { Value = x.IsV2 ? GradeSeparatedJunctionTypeV2.Parse(x.Type).Translation.Identifier : MigrateToV2(GradeSeparatedJunctionType.Parse(x.Type)) },
-                    CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() }
-                };
+                    var intersection = FindFirstIntersectingTempIds(x.UpperRoadSegmentId, x.LowerRoadSegmentId, context);
+
+                    return new GradeSeparatedJunctionDbaseRecord
+                    {
+                        OK_OIDN = { Value = x.GradeSeparatedJunctionId },
+                        BO_TEMPID = { Value = intersection.UpperRoadSegmentId },
+                        ON_TEMPID = { Value = intersection.LowerRoadSegmentId },
+                        TYPE = { Value = x.IsV2 ? GradeSeparatedJunctionTypeV2.Parse(x.Type).Translation.Identifier : MigrateToV2(GradeSeparatedJunctionType.Parse(x.Type)) },
+                        CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() }
+                    };
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException($"Unable to create a dbase record for grade separated junction id {x.GradeSeparatedJunctionId}: {ex.Message}", ex);
+                }
             })
             .ToList();
 

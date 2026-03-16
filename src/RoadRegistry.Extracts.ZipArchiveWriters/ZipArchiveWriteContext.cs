@@ -24,7 +24,7 @@ public class ZipArchiveWriteContext
             return tempIds;
         }
 
-        throw new InvalidOperationException();
+        throw new InvalidOperationException($"No temp ids were registered for road segment id {roadSegmentId}");
     }
 
     public RoadNodeId NewSchijnknoopId()
