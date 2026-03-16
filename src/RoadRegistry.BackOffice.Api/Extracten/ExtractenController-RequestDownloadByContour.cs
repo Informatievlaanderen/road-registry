@@ -112,7 +112,7 @@ public class ExtractDownloadaanvraagPerContourBodyValidator : AbstractValidator<
 
     private sealed class ExtractContourValidator
     {
-        private const int SquareKmMaximum = 100;
+        private const int SquareKmMaximum = 200; // The UI will limit on 100km2, and GRB as well. This is set higher to ensure the buffered GRB geometry will always be accepted.
 
         public bool IsValid(string contour)
         {
