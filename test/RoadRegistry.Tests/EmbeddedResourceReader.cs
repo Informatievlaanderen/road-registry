@@ -56,7 +56,7 @@ public sealed class EmbeddedResourceReader
 
     public static bool TryFindEmbeddedResourceName(string fileName, out Type resourceType, out string resourceName)
     {
-        fileName = fileName.Replace("\\", ".").Replace("-", "_");
+        fileName = CleanResourcePath(fileName);
 
         var resourceTypes = new[]
         {
@@ -82,7 +82,7 @@ public sealed class EmbeddedResourceReader
                 .GetManifestResourceNames();
 
             resourceName = resourceNames
-                .SingleOrDefault(embeddedResource => embeddedResource.EndsWith($".{fileName}", StringComparison.InvariantCultureIgnoreCase));
+                .SingleOrDefault(embeddedResource => CleanResourcePath(embeddedResource).EndsWith($".{fileName}", StringComparison.InvariantCultureIgnoreCase));
 
             if (resourceName is not null)
             {
@@ -93,5 +93,10 @@ public sealed class EmbeddedResourceReader
         resourceType = null;
         resourceName = null;
         return false;
+    }
+
+    private static string CleanResourcePath(string path)
+    {
+        return path.Replace("\\", ".").Replace("-", "_");
     }
 }
