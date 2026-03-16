@@ -2,7 +2,7 @@ name: 1. Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -23,95 +23,95 @@ jobs:
           - 1433:1433
 
     steps:
-    - name: Delete huge unnecessary tools folder
-      run: rm -rf /opt/hostedtoolcache
+      - name: Delete huge unnecessary tools folder
+        run: rm -rf /opt/hostedtoolcache
 
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    # needed for Sonar, default is 11 and is decprecated
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: 17
-        distribution: 'temurin'
+      # needed for Sonar, default is 11 and is deprecated
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: "temurin"
 
-    - name: Parse repository name
-      run: echo REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//") >> $GITHUB_ENV
-      shell: bash
+      - name: Parse repository name
+        run: echo REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//") >> $GITHUB_ENV
+        shell: bash
 
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
-    - name: .NET version
-      shell: bash
-      run: dotnet --info
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      - name: .NET version
+        shell: bash
+        run: dotnet --info
 
-    - uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj*') }}-${{ hashFiles('Directory.Packages.props') }}
-        restore-keys: ${{ runner.os }}-nuget
+      - uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj*') }}-${{ hashFiles('Directory.Packages.props') }}
+          restore-keys: ${{ runner.os }}-nuget
 
-    - name: Restore packages
-      shell: bash
-      run: |
-        ./pre-restore.sh
-        dotnet tool restore
-        dotnet restore
+      - name: Restore packages
+        shell: bash
+        run: |
+          ./pre-restore.sh
+          dotnet tool restore
+          dotnet restore
 
-    - name: Cache SonarCloud packages
-      uses: actions/cache@v4
-      with:
-        path: ~/sonar/cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
-        
-    - name: Cache SonarCloud scanner
-      id: cache-sonar-scanner
-      uses: actions/cache@v4
-      with:
-        path: ./.sonar/scanner
-        key: ${{ runner.os }}-sonar-scanner
-        restore-keys: ${{ runner.os }}-sonar-scanner
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
 
-    - name: Install DotCover
-      shell: bash
-      run: |
-        dotnet tool install --global JetBrains.dotCover.CommandLineTools
+      - name: Cache SonarCloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: ./.sonar/scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
 
-    - name: Install SonarCloud scanner
-      if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-      shell: bash
-      run: |
-        mkdir .sonar
-        mkdir .sonar/scanner
-        dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
-        
-    - name: Sonar begin build & analyze
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        SONAR_TOKEN: ${{ secrets.VBR_SONAR_TOKEN }}
-      shell: bash
-      run: |
-        ./.sonar/scanner/dotnet-sonarscanner begin /k:"Informatievlaanderen_road-registry" /o:"informatievlaanderen" /d:sonar.token="${{ secrets.VBR_SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html > /dev/null 2>&1
+      - name: Install DotCover
+        shell: bash
+        run: |
+          dotnet tool install --global JetBrains.dotCover.CommandLineTools --version 2025.1.2
 
-    - name: Build
-      shell: bash
-      run: |
-        dotnet build --nologo --no-restore --configuration Debug RoadRegistry.sln
+      - name: Install SonarCloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          mkdir .sonar
+          mkdir .sonar/scanner
+          dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
 
-    - name: Test
-      shell: bash
-      run: dotCover cover-dotnet --ReportType=HTML --Output=dotCover.Output.html -- test --nologo --no-build --filter 'FullyQualifiedName!~IntegrationTests' RoadRegistry.sln
-      env:
-        SA_PASSWORD: E@syP@ssw0rd
-        
-    - name: Sonar end build & analyze
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        SONAR_TOKEN: ${{ secrets.VBR_SONAR_TOKEN }}
-      shell: bash
-      run: |
-        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.VBR_SONAR_TOKEN }}" > /dev/null 2>&1
+      - name: Sonar begin build & analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.VBR_SONAR_TOKEN }}
+        shell: bash
+        run: |
+          ./.sonar/scanner/dotnet-sonarscanner begin /k:"Informatievlaanderen_road-registry" /o:"informatievlaanderen" /d:sonar.token="${{ secrets.VBR_SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html > /dev/null 2>&1
+
+      - name: Build
+        shell: bash
+        run: |
+          dotnet build --nologo --no-restore --configuration Debug RoadRegistry.sln
+
+      - name: Test
+        shell: bash
+        run: dotCover cover-dotnet --ReportType=HTML --Output=dotCover.Output.html -- test --nologo --no-build --filter 'FullyQualifiedName!~IntegrationTests' RoadRegistry.sln
+        env:
+          SA_PASSWORD: E@syP@ssw0rd
+
+      - name: Sonar end build & analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.VBR_SONAR_TOKEN }}
+        shell: bash
+        run: |
+          ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.VBR_SONAR_TOKEN }}" > /dev/null 2>&1
