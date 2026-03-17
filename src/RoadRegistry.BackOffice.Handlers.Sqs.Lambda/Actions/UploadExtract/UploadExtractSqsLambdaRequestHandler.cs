@@ -185,11 +185,13 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         }
         catch (ZipArchiveValidationException ex)
         {
+            await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
             await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
             throw ex.ToDutchValidationException(FileProblemTranslator.DomainV1);
         }
         catch
         {
+            await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
             await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
             throw;
         }
