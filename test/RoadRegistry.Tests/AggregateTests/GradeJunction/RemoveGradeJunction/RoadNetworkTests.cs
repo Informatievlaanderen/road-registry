@@ -1,9 +1,8 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.GradeJunction.RemoveGradeJunction;
 
-using AutoFixture;
 using FluentAssertions;
-using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Extensions;
+using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
@@ -13,7 +12,7 @@ using Point = NetTopologySuite.Geometries.Point;
 public class ScopedRoadNetworkTests : RoadNetworkTestBase
 {
     [Fact]
-    public Task ThenSummaryIsUpdated()
+    public Task GivenGradeJunction_WhenSegmentIsRemoved_ThenGradeJunctionIsRemovedAndSummaryIsUpdated()
     {
         var segment1Start = new Point(0, 0);
         var segment1End = new Point(10, 0);
@@ -73,15 +72,29 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     RoadNodeId = TestData.Segment2EndNodeAdded.RoadNodeId
                 })
             )
-            .Then((result, _) =>
+            .Then((result, events) =>
             {
                 result.Summary.GradeJunctions.Removed.Should().HaveCount(1);
+
+                events.OfType<GradeJunctionWasRemoved>().Should().HaveCount(1);
             })
         );
     }
 
     [Fact]
-    public async Task WhenIntersectionIsRemovedWithGradeJunction_ThenGradeJunctionIsRemoved()
+    public Task GivenGradeJunction_WithChange_WhenSegmentIsNoLongerGerealiseerd_ThenGradeJunctionIsRemovedAndSummaryIsUpdated()
+    {
+        throw new NotImplementedException();
+    }
+
+    [Fact]
+    public Task GivenGradeJunction_WithMigrate_WhenSegmentIsNoLongerGerealiseerd_ThenGradeJunctionIsRemovedAndSummaryIsUpdated()
+    {
+        throw new NotImplementedException();
+    }
+
+    [Fact]
+    public Task GivenGradeJunction_WhenSegmentNoLongerIntersectsWithOtherSegment_ThenGradeJunctionIsRemovedAndSummaryIsUpdated()
     {
         throw new NotImplementedException();
     }

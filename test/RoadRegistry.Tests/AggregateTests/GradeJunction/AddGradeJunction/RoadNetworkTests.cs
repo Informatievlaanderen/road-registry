@@ -1,16 +1,16 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.GradeJunction.AddGradeJunction;
 
-using AutoFixture;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
+using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
 
 public class ScopedRoadNetworkTests : RoadNetworkTestBase
 {
     [Fact]
-    public Task ThenSummaryIsUpdated()
+    public Task WhenIntersectionIsFoundWithoutGradeJunction_ThenGradeJunctionIsAddedAndSummaryUpdated()
     {
         var segment1Start = new Point(0, 0);
         var segment1End = new Point(10, 0);
@@ -57,16 +57,12 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
-            .Then((result, _) =>
+            .Then((result, events) =>
             {
                 result.Summary.GradeJunctions.Added.Should().HaveCount(1);
+
+                events.OfType<GradeJunctionWasAdded>().Should().HaveCount(1);
             })
         );
-    }
-
-    [Fact]
-    public async Task WhenIntersectionIsFoundWithoutGradeSeparatedJunction_ThenGradeJunctionIsAdded()
-    {
-        throw new NotImplementedException();
     }
 }
