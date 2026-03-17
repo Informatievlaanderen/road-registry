@@ -4,7 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
-using RoadRegistry.GradeJunction.Changes;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
 
 public class ScopedRoadNetworkTests : RoadNetworkTestBase
@@ -28,10 +28,16 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     Geometry = segment1End.ToRoadNodeGeometry()
                 })
-                .Add(TestData.AddSegment1 with
+                .Add((TestData.AddSegment1 with
                 {
-                    Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End)
-                })
+                    Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End),
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
+                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
+                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
+                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
+                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry)
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(TestData.AddSegment2StartNode with
                 {
                     Geometry = segment2Start.ToRoadNodeGeometry()
@@ -40,20 +46,27 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     Geometry = segment2End.ToRoadNodeGeometry()
                 })
-                .Add(TestData.AddSegment2 with
+                .Add((TestData.AddSegment2 with
                 {
-                    Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End)
-                })
-                .Add(Fixture.Create<AddGradeJunctionChange>() with
-                {
-                    LowerRoadSegmentId = TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId,
-                    UpperRoadSegmentId = TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId
-                })
+                    Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End),
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
+                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
+                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
+                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
+                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry)
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
-            .Then((result, events) =>
+            .Then((result, _) =>
             {
                 result.Summary.GradeJunctions.Added.Should().HaveCount(1);
             })
         );
+    }
+
+    [Fact]
+    public async Task WhenIntersectionIsFoundWithoutGradeSeparatedJunction_ThenGradeJunctionIsAdded()
+    {
+        throw new NotImplementedException();
     }
 }

@@ -26,6 +26,11 @@ public static class AggregateRootExtensions
         aggregate.ClearUncommittedEvents();
         return aggregate;
     }
+    public static RoadRegistry.GradeJunction.GradeJunction WithoutChanges(this RoadRegistry.GradeJunction.GradeJunction aggregate)
+    {
+        aggregate.ClearUncommittedEvents();
+        return aggregate;
+    }
     private static void ClearUncommittedEvents<TIdentifier>(this MartenAggregateRootEntity<TIdentifier> aggregate)
     {
         ((IList)aggregate.GetType().GetProperty("UncommittedEvents", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(aggregate))!.Clear();

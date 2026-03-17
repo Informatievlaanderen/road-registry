@@ -46,8 +46,7 @@ public class AggregateTests : AggregateTestBase
         // Assert
         junction.GradeJunctionId.Should().Be(evt.GradeJunctionId);
         junction.IsRemoved.Should().BeTrue();
-        junction.Type.Should().Be(junctionAdded.Type);
-        junction.LowerRoadSegmentId.Should().Be(junctionAdded.LowerRoadSegmentId);
-        junction.UpperRoadSegmentId.Should().Be(junctionAdded.UpperRoadSegmentId);
+        junction.RoadSegmentId1.Should().Be(junctionAdded.RoadSegmentId1);
+        junction.RoadSegmentId2.Should().Be(junctionAdded.RoadSegmentId2);
     }
 }

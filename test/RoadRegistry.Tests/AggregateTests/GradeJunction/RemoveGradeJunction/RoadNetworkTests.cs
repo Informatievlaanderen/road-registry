@@ -2,10 +2,13 @@
 
 using AutoFixture;
 using FluentAssertions;
-using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Extensions;
-using RoadRegistry.GradeJunction.Changes;
+using RoadRegistry.RoadNode.Changes;
+using RoadRegistry.RoadSegment.Changes;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
+using Point = NetTopologySuite.Geometries.Point;
 
 public class ScopedRoadNetworkTests : RoadNetworkTestBase
 {
@@ -18,7 +21,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
         var segment2End = new Point(5, -5);
 
         return Run(scenario => scenario
-            .Given(given => given
+            .Given(changes => changes
                 .Add(TestData.AddSegment1StartNode with
                 {
                     Geometry = segment1Start.ToRoadNodeGeometry()
@@ -29,7 +32,13 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 })
                 .Add((TestData.AddSegment1 with
                 {
-                    Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End)
+                    Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End),
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
+                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
+                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
+                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
+                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(TestData.AddSegment2StartNode with
                 {
@@ -41,21 +50,30 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 })
                 .Add((TestData.AddSegment2 with
                 {
-                    Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End)
+                    Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End),
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
+                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
+                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
+                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
+                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
-                .Add(Fixture.Create<AddGradeJunctionChange>() with
-                {
-                    LowerRoadSegmentId = TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId,
-                    UpperRoadSegmentId = TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId
-                })
             )
             .When(changes => changes
-                .Add(new RemoveGradeJunctionChange
+                .Add(new RemoveRoadSegmentChange
                 {
-                    GradeJunctionId = new GradeJunctionId(1)
+                    RoadSegmentId = TestData.Segment2Added.RoadSegmentId
+                })
+                .Add(new RemoveRoadNodeChange
+                {
+                    RoadNodeId = TestData.Segment2StartNodeAdded.RoadNodeId
+                })
+                .Add(new RemoveRoadNodeChange
+                {
+                    RoadNodeId = TestData.Segment2EndNodeAdded.RoadNodeId
                 })
             )
-            .Then((result, events) =>
+            .Then((result, _) =>
             {
                 result.Summary.GradeJunctions.Removed.Should().HaveCount(1);
             })
@@ -63,19 +81,8 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
     }
 
     [Fact]
-    public Task WhenNotFound_ThenNoProblem()
+    public async Task WhenIntersectionIsRemovedWithGradeJunction_ThenGradeJunctionIsRemoved()
     {
-        var change = Fixture.Create<RemoveGradeJunctionChange>();
-
-        return Run(scenario => scenario
-            .Given(given => given)
-            .When(changes => changes
-                .Add(change)
-            )
-            .Then((result, events) =>
-            {
-                result.Problems.HasError().Should().BeFalse();
-            })
-        );
+        throw new NotImplementedException();
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Extensions;
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
 using ScopedRoadNetwork;
@@ -47,57 +48,78 @@ public partial class RoadSegment
             }
         }
 
-        if (!problems.Any())
-        {
-            //TODO-pr te bekijken indien performance issues bij grote uploads, vroeger werdt hier aparte scopedview voor gemaakt
-            var intersectingSegments = FindIntersectingRoadSegments(context.RoadNetwork, RoadSegmentId, Geometry.Value, [StartNodeId, EndNodeId]);
-
-            var duplicateIntersectionsRoadSegmentIds = intersectingSegments
-                .Where(x => x.IntersectingCoordinates.Length > 1)
-                .Select(x => x.RoadSegment.RoadSegmentId)
-                .ToList();
-            if (duplicateIntersectionsRoadSegmentIds.Any())
-            {
-                foreach (var duplicateIntersectionsRoadSegmentId in duplicateIntersectionsRoadSegmentIds)
-                {
-                    problems += new RoadSegmentDuplicateIntersections(context.IdTranslator.TranslateToTemporaryId(duplicateIntersectionsRoadSegmentId));
-                }
-            }
-
-            var intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions = intersectingSegments
-                .Where(intersectingSegment =>
-                    !context.RoadNetwork.GradeSeparatedJunctions.Values.Any(junction =>
-                        (junction.LowerRoadSegmentId == RoadSegmentId && junction.UpperRoadSegmentId == intersectingSegment.RoadSegment.RoadSegmentId)
-                        ||
-                        (junction.LowerRoadSegmentId == intersectingSegment.RoadSegment.RoadSegmentId && junction.UpperRoadSegmentId == RoadSegmentId)
-                    ))
-                .Select(i =>
-                    new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(
-                        context.IdTranslator.TranslateToTemporaryId(i.RoadSegment.RoadSegmentId)));
-
-                problems += intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions;
-        }
-
         return problems;
     }
 
-    private static IReadOnlyCollection<(RoadSegment RoadSegment, Coordinate[] IntersectingCoordinates)> FindIntersectingRoadSegments(
-        ScopedRoadNetwork roadNetwork,
-        RoadSegmentId intersectsWithId,
-        MultiLineString intersectsWithGeometry,
-        RoadNodeId[] roadNodeIdsNotInCommon)
+    public bool HasTrafficOverlap(RoadSegment otherRoadSegment, Point intersection, ScopedRoadNetworkContext context)
     {
-        return roadNetwork
-            .GetNonRemovedRoadSegments()
-            .Where(segment => segment.Attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
-            .Where(segment => segment.RoadSegmentId != intersectsWithId)
-            .Where(segment => !segment.GetNodeIds().Any(roadNodeIdsNotInCommon.Contains))
-            .Select(segment =>
+        // Get the attributes at this specific intersection point for both segments
+        var segment1Access = GetAccessAtPosition(this, intersection, context.Tolerances);
+        var segment2Access = GetAccessAtPosition(otherRoadSegment, intersection, context.Tolerances);
+
+        // Check if there is overlap in traffic types (if there is overlap, NO grade junction needed)
+        var hasOverlapInTrafficTypes =
+            (segment1Access.CarAccess && segment2Access.CarAccess) ||
+            (segment1Access.BikeAccess && segment2Access.BikeAccess) ||
+            (segment1Access.PedestrianAccess && segment2Access.PedestrianAccess);
+        return hasOverlapInTrafficTypes;
+    }
+
+    private static (bool CarAccess, bool BikeAccess, bool PedestrianAccess) GetAccessAtPosition(RoadSegment segment, Point position, VerificationContextTolerances tolerances)
+    {
+        var distance = segment.Geometry.Value.Distance(position);
+        if (distance > tolerances.GeometryTolerance)
+        {
+            return (false, false, false);
+        }
+
+        var lineString = segment.Geometry.Value.GetSingleLineString();
+        var positionAlongLine = FindPositionAlongLine(lineString, position, tolerances);
+        if (positionAlongLine is null)
+        {
+            return (false, false, false);
+        }
+
+        var carAccess = GetAttributeValueAtPosition(segment.Attributes.CarAccessForward, positionAlongLine.Value, tolerances)
+                        || GetAttributeValueAtPosition(segment.Attributes.CarAccessBackward, positionAlongLine.Value, tolerances);
+        var bikeAccess = GetAttributeValueAtPosition(segment.Attributes.BikeAccessForward, positionAlongLine.Value, tolerances)
+                         || GetAttributeValueAtPosition(segment.Attributes.BikeAccessBackward, positionAlongLine.Value, tolerances);
+        var pedestrianAccess = GetAttributeValueAtPosition(segment.Attributes.PedestrianAccess, positionAlongLine.Value, tolerances);
+
+        return (bikeAccess, carAccess, pedestrianAccess);
+    }
+
+    private static bool GetAttributeValueAtPosition(
+        RoadSegmentDynamicAttributeValues<bool> attributeValues,
+        double positionAlongLine,
+        VerificationContextTolerances tolerances)
+    {
+        return attributeValues.Values
+            .Where(attributeValue => positionAlongLine.IsReasonablyGreaterThan(attributeValue.Coverage.From.ToDouble(), tolerances) &&
+                                     positionAlongLine.IsReasonablyLessOrEqualThan(attributeValue.Coverage.To.ToDouble(), tolerances))
+            .Any(x => x.Value);
+    }
+
+    private static double? FindPositionAlongLine(LineString lineString, Point point, VerificationContextTolerances tolerances)
+    {
+        var coordinates = lineString.Coordinates;
+        var cumulativeLength = 0.0;
+
+        for (var i = 0; i < coordinates.Length - 1; i++)
+        {
+            var segmentStart = new Point(coordinates[i]);
+            var segment = new LineString([coordinates[i], coordinates[i + 1]]);
+
+            if (point.IsWithinDistance(segment, tolerances.GeometryTolerance))
             {
-                var intersection = segment.Geometry.Value.Intersection(intersectsWithGeometry);
-                return (segment, intersection.Coordinates);
-            })
-            .Where(x => x.Coordinates.Length > 0)
-            .ToList();
+                // Point is on this segment, calculate exact position
+                var distanceAlongSegment = segmentStart.Distance(point);
+                return cumulativeLength + distanceAlongSegment;
+            }
+
+            cumulativeLength += segment.Length;
+        }
+
+        return null;
     }
 }

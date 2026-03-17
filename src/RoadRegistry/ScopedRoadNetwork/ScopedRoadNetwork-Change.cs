@@ -117,10 +117,16 @@ public partial class ScopedRoadNetwork
 
     private Problems AfterChangesApplied(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
     {
-        return VerifyRoadNodesAfterChange(context)
+        var problems = VerifyRoadNodesAfterChange(context)
                + VerifyRoadSegmentsAfterChange(context)
-               + VerifyGradeSeparatedJunctionsAfterChange(context)
-               + AutomaticallyManageGradeJunctions(idGenerator, context, summary);
+               + VerifyGradeSeparatedJunctionsAfterChange(context);
+
+        if (!problems.HasError())
+        {
+            problems += VerifyAndUpdateJunctions(idGenerator, context, summary);
+        }
+
+        return problems;
     }
 
     private Problems VerifyRoadSegmentsAfterChange(ScopedRoadNetworkContext context)
@@ -174,163 +180,6 @@ public partial class ScopedRoadNetwork
 
         return changedJunctions
             .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
-    }
-
-    //TODO-pr add unit tests to manage gradejunctions
-    private Problems AutomaticallyManageGradeJunctions(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
-    {
-        var problems = Problems.None;
-
-        // Get all "gerealiseerde" segments for comparison
-        var allGerealiseerdeSegments = GetNonRemovedRoadSegments()
-            .Where(x => x.Attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
-            .ToList();
-
-        // Get all "gerealiseerde" segments that have changes
-        var changedGerealiseerdeSegments = allGerealiseerdeSegments
-            .Where(x => x.HasChanges())
-            .ToList();
-
-        if (!changedGerealiseerdeSegments.Any())
-        {
-            return problems;
-        }
-
-        // Find all unique combinations of changed segments with all gerealiseerde segments
-        var segmentCombinations = (
-            from changed in changedGerealiseerdeSegments
-            from other in allGerealiseerdeSegments
-            where changed.RoadSegmentId != other.RoadSegmentId
-                  && changed.Geometry.Value.Envelope.Intersects(other.Geometry.Value.Envelope)
-            select new
-            {
-                Segment1 = changed,
-                Segment2 = other,
-                Key = CreateCombinationKey(changed.RoadSegmentId, other.RoadSegmentId)
-            }
-        ).DistinctBy(x => x.Key).ToList();
-
-        // Get existing grade junctions
-        var existingJunctions = _gradeJunctions.Values
-            .Where(x => !x.IsRemoved)
-            .ToDictionary(x => CreateCombinationKey(x.RoadSegmentId1, x.RoadSegmentId2), x => x);
-
-        // Find actual intersections that are not at road nodes (start/end points)
-        foreach (var combination in segmentCombinations)
-        {
-            var intersectionGeometry = combination.Segment1.Geometry.Value.Intersection(combination.Segment2.Geometry.Value);
-            if (intersectionGeometry is not Point and not MultiPoint)
-            {
-                continue;
-            }
-
-            var intersections = intersectionGeometry.ToMultiPoint();
-            var segment1Geometry = combination.Segment1.Geometry.Value.GetSingleLineString();
-            var segment2Geometry = combination.Segment2.Geometry.Value.GetSingleLineString();
-
-            foreach (var intersection in intersections.OfType<Point>())
-            {
-                // Skip intersections that are at start/end nodes (those are handled by road nodes)
-                var isFarAwayFromNodes = intersection.IsFarEnoughAwayFrom(
-                    [segment1Geometry.StartPoint, segment1Geometry.EndPoint,
-                     segment2Geometry.StartPoint, segment2Geometry.EndPoint],
-                    context.Tolerances.GeometryTolerance);
-
-                if (!isFarAwayFromNodes)
-                {
-                    continue;
-                }
-
-                // Get the attributes at this specific intersection point for both segments
-                var segment1Access = GetAccessAtPosition(combination.Segment1, intersection, context.Tolerances);
-                var segment2Access = GetAccessAtPosition(combination.Segment2, intersection, context.Tolerances);
-
-                // Check if there is overlap in traffic types (if there is overlap, NO grade junction needed)
-                var hasOverlapInTrafficTypes =
-                    (segment1Access.CarAccess && segment2Access.CarAccess) ||
-                    (segment1Access.BikeAccess && segment2Access.BikeAccess) ||
-                    (segment1Access.PedestrianAccess && segment2Access.PedestrianAccess);
-
-                var junctionExists = existingJunctions.ContainsKey(combination.Key);
-
-                if (!hasOverlapInTrafficTypes && !junctionExists)
-                {
-                    problems += AddGradeJunction(combination.Segment1.RoadSegmentId, combination.Segment2.RoadSegmentId, idGenerator, context, summary.GradeJunctions);
-                }
-                else if (hasOverlapInTrafficTypes && junctionExists)
-                {
-                    var existingJunction = existingJunctions[combination.Key];
-                    problems += RemoveGradeJunction(existingJunction.GradeJunctionId, context, summary.GradeJunctions);
-                }
-            }
-        }
-
-        return problems;
-    }
-
-    private static (int, int) CreateCombinationKey(RoadSegmentId id1, RoadSegmentId id2)
-    {
-        var min = Math.Min(id1.ToInt32(), id2.ToInt32());
-        var max = Math.Max(id1.ToInt32(), id2.ToInt32());
-        return (min, max);
-    }
-
-    private static (bool CarAccess, bool BikeAccess, bool PedestrianAccess) GetAccessAtPosition(RoadSegment segment, Point position, VerificationContextTolerances tolerances)
-    {
-        var distance = segment.Geometry.Value.Distance(position);
-        if (distance > tolerances.GeometryTolerance)
-        {
-            return (false, false, false);
-        }
-
-        var lineString = segment.Geometry.Value.GetSingleLineString();
-        var positionAlongLine = FindPositionAlongLine(lineString, position, tolerances);
-        if (positionAlongLine is null)
-        {
-            return (false, false, false);
-        }
-
-        var carAccess = GetAttributeValueAtPosition(segment.Attributes.CarAccessForward, positionAlongLine.Value, tolerances)
-                        || GetAttributeValueAtPosition(segment.Attributes.CarAccessBackward, positionAlongLine.Value, tolerances);
-        var bikeAccess = GetAttributeValueAtPosition(segment.Attributes.BikeAccessForward, positionAlongLine.Value, tolerances)
-                         || GetAttributeValueAtPosition(segment.Attributes.BikeAccessBackward, positionAlongLine.Value, tolerances);
-        var pedestrianAccess = GetAttributeValueAtPosition(segment.Attributes.PedestrianAccess, positionAlongLine.Value, tolerances);
-
-        return (bikeAccess, carAccess, pedestrianAccess);
-    }
-
-    private static bool GetAttributeValueAtPosition(
-        RoadSegmentDynamicAttributeValues<bool> attributeValues,
-        double positionAlongLine,
-        VerificationContextTolerances tolerances)
-    {
-        return attributeValues.Values
-            .Where(attributeValue => positionAlongLine.IsReasonablyGreaterThan(attributeValue.Coverage.From.ToDouble(), tolerances) &&
-                                     positionAlongLine.IsReasonablyLessOrEqualThan(attributeValue.Coverage.To.ToDouble(), tolerances))
-            .Any(x => x.Value);
-    }
-
-    private static double? FindPositionAlongLine(LineString lineString, Point point, VerificationContextTolerances tolerances)
-    {
-        var coordinates = lineString.Coordinates;
-        var cumulativeLength = 0.0;
-
-        for (var i = 0; i < coordinates.Length - 1; i++)
-        {
-            var segmentStart = new Point(coordinates[i]);
-            var segment = new LineString([coordinates[i], coordinates[i + 1]]);
-
-            if (point.IsWithinDistance(segment, tolerances.GeometryTolerance))
-            {
-                // Point is on this segment, calculate exact position
-                var distanceAlongSegment = segmentStart.Distance(point);
-                return cumulativeLength + distanceAlongSegment;
-            }
-
-            cumulativeLength += segment.Length;
-        }
-
-        return null;
     }
 
     private Problems AddRoadNode(AddRoadNodeChange change, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context, RoadNetworkEntityChangesSummary<RoadNodeId> summary)
