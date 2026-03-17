@@ -430,7 +430,10 @@ public class ModifyTheNonExisting : RoadRegistryTestBase
                                 {
                                     Reason = "RoadNodeNotFound",
                                     Severity = ProblemSeverity.Error,
-                                    Parameters = Array.Empty<ProblemParameter>()
+                                    Parameters = [
+                                        new ProblemParameter("NodeId", "1"),
+                                        new ProblemParameter("WegknoopId", "1")
+                                    ]
                                 }
                             }
                         }

@@ -143,6 +143,9 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             throw new UnsupportedMediaTypeException(archiveBlob.ContentType);
         }
 
+        extractDownload.LatestUploadId = uploadId;
+        await _extractsDbContext.SaveChangesAsync(cancellationToken);
+
         var extractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId);
 
         var zipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV1_2;
