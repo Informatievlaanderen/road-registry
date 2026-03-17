@@ -1,3 +1,10 @@
+## [4.49.3](https://github.com/informatievlaanderen/road-registry/compare/v4.49.2...v4.49.3) (2026-03-17)
+
+
+### Bug Fixes
+
+* problem translations + remove upload rejections from activity page ([07b043a](https://github.com/informatievlaanderen/road-registry/commit/07b043ae856cfa3c11da39fc985c42ebd5de7fdc))
+
 ## [4.49.2](https://github.com/informatievlaanderen/road-registry/compare/v4.49.1...v4.49.2) (2026-03-16)
 
 
