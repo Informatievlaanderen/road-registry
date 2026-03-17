@@ -208,7 +208,8 @@ export default defineComponent({
         switch (extract.uploadStatus) {
           case "Processing":
             return "Verwerken";
-          case "Rejected":
+          case "AutomaticValidationFailed":
+          case "ManualValidationFailed":
             return "Geweigerd";
           case "Accepted":
             return "Aanvaard";
@@ -227,7 +228,12 @@ export default defineComponent({
       return "";
     },
     extractIsInError(extract: RoadRegistry.ExtractListItem) {
-      return !extract.gesloten && (extract.downloadStatus === "Error" || extract.uploadStatus == "Rejected");
+      return (
+        !extract.gesloten &&
+        (extract.downloadStatus === "Error" ||
+          extract.uploadStatus == "AutomaticValidationFailed" ||
+          extract.uploadStatus == "ManualValidationFailed")
+      );
     },
     formatDate(iso: string) {
       return DateFormat.format(iso);
