@@ -1,3 +1,10 @@
+## [4.49.4](https://github.com/informatievlaanderen/road-registry/compare/v4.49.3...v4.49.4) (2026-03-17)
+
+
+### Bug Fixes
+
+* extract status in list when rejected ([f3c78b0](https://github.com/informatievlaanderen/road-registry/commit/f3c78b076f4a077f43eb9f2df6e6d8c8fb37a15d))
+
 ## [4.49.3](https://github.com/informatievlaanderen/road-registry/compare/v4.49.2...v4.49.3) (2026-03-17)
 
 
