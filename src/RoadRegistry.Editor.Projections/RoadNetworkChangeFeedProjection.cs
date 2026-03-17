@@ -217,44 +217,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 }, ct);
         });
 
-        When<Envelope<RoadNetworkExtractChangesArchiveRejected>>(async (context, envelope, ct) =>
-        {
-            var content = new RoadNetworkExtractChangesArchiveRejectedEntry
-            {
-                Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },
-                Files = envelope.Message.Problems
-                    .GroupBy(problem => problem.File)
-                    .Select(group => new FileProblems
-                    {
-                        File = group.Key,
-                        Problems = group
-                            .Select(problem => new ProblemWithFile
-                            {
-                                Severity = problem.Severity.ToString(),
-                                Text = FileProblemTranslator.DomainV1.Translate(problem).Message
-                            })
-                            .ToArray()
-                    })
-                    .ToArray()
-            };
-
-            await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
-
-            var description = envelope.Message.Description;
-            var changeRequestId = ChangeRequestId
-                .FromArchiveId(new ArchiveId(envelope.Message.ArchiveId));
-
-            await context.RoadNetworkChanges.AddAsync(
-                new RoadNetworkChange
-                {
-                    Id = envelope.Position,
-                    Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": geweigerd",
-                    Type = nameof(RoadNetworkExtractChangesArchiveRejected),
-                    Content = JsonConvert.SerializeObject(content),
-                    When = envelope.Message.When
-                }, ct);
-        });
-
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, ct) =>
         {
             var changeRequestId = ChangeRequestId.FromString(envelope.Message.RequestId);
@@ -298,51 +260,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                     Id = envelope.Position,
                     Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": aanvaard",
                     Type = nameof(RoadNetworkChangesAccepted) + ":v2",
-                    Content = JsonConvert.SerializeObject(content),
-                    When = envelope.Message.When
-                }, ct);
-        });
-
-        When<Envelope<RoadNetworkChangesRejected>>(async (context, envelope, ct) =>
-        {
-            var changeRequestId = ChangeRequestId.FromString(envelope.Message.RequestId);
-
-            var request = context.RoadNetworkChangeRequestsBasedOnArchive.Local
-                              .FirstOrDefault(r =>
-                                  r.ChangeRequestId == changeRequestId.ToBytes()
-                                      .ToArray())
-                          ?? context.RoadNetworkChangeRequestsBasedOnArchive.Find(changeRequestId.ToBytes().ToArray());
-            var content = new RoadNetworkChangesBasedOnArchiveRejectedEntry
-            {
-                Archive = new ArchiveInfo { Id = request?.ArchiveId },
-                Changes = envelope.Message.Changes
-                    .Select(change => new RejectedChange
-                    {
-                        Change = BackOffice.DutchTranslations.RejectedChange.Translator(change),
-                        Problems = change.Problems
-                            .Select(problem => new ProblemWithChange
-                            {
-                                Severity = problem.Severity.ToString(),
-                                Text = WellKnownProblemTranslators.Default.Translate(problem).Message
-                            })
-                            .ToArray()
-                    })
-                    .ToArray()
-            };
-
-            if (content.Archive.Id != null)
-            {
-                await EnrichWithArchiveInformation(content.Archive.Id, content.Archive, client, ct);
-            }
-
-            var description = envelope.Message.Reason;
-
-            await context.RoadNetworkChanges.AddAsync(
-                new RoadNetworkChange
-                {
-                    Id = envelope.Position,
-                    Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": geweigerd",
-                    Type = nameof(RoadNetworkChangesRejected),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
                 }, ct);
