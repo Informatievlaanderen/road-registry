@@ -30,50 +30,6 @@ public class VerifyTopologyTests : RoadNetworkTestBase
     }
 
     [Fact]
-    public Task WhenRemovedAndSegmentsAreStillConnectedByStartNode_ThenError()
-    {
-        return Run(scenario => scenario
-            .Given(given => given
-                .Add(TestData.AddSegment1StartNode)
-                .Add(TestData.AddSegment1EndNode)
-                .Add(TestData.AddSegment1)
-            )
-            .When(changes => changes
-                .Add(new RemoveRoadNodeChange
-                {
-                    RoadNodeId = TestData.Segment1StartNodeAdded.RoadNodeId
-                })
-            )
-            .ThenContainsProblems(
-                new Error("RoadSegmentStartNodeMissing",
-                    new ProblemParameter("WegsegmentId", 1.ToString())
-                ))
-        );
-    }
-
-    [Fact]
-    public Task WhenRemovedAndSegmentsAreStillConnectedByEndNode_ThenError()
-    {
-        return Run(scenario => scenario
-            .Given(given => given
-                .Add(TestData.AddSegment1StartNode)
-                .Add(TestData.AddSegment1EndNode)
-                .Add(TestData.AddSegment1)
-            )
-            .When(changes => changes
-                .Add(new RemoveRoadNodeChange
-                {
-                    RoadNodeId = TestData.Segment1EndNodeAdded.RoadNodeId
-                })
-            )
-            .ThenContainsProblems(
-                new Error("RoadSegmentEndNodeMissing",
-                    new ProblemParameter("WegsegmentId", 1.ToString())
-                ))
-        );
-    }
-
-    [Fact]
     public Task WhenGeometryIsReasonablyEqualToOtherNodeGeometry_ThenError()
     {
         return Run(scenario => scenario

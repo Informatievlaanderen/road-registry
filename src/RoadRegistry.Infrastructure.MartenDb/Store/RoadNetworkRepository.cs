@@ -31,7 +31,7 @@ input AS (
     ST_SetSRID(ST_GeomFromText(@wkt), @srid)       AS boundary_geom,               -- may be NULL
     @roadsegmentids::bigint[]                      AS roadsegmentids,              -- may be NULL/empty
     @roadnodeids::bigint[]                         AS roadnodeids,                 -- may be NULL/empty
-    @gradeseparatedjunctionids::bigint[]           AS gradeseparatedjunctionids    -- may be NULL/empty
+    @gradeseparatedjunctionids::bigint[]           AS gradeseparatedjunctionids,   -- may be NULL/empty
     @gradejunctionids::bigint[]                    AS gradejunctionids             -- may be NULL/empty
 ),
 

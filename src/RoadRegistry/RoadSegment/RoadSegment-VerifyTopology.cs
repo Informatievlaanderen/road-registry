@@ -86,7 +86,7 @@ public partial class RoadSegment
                          || GetAttributeValueAtPosition(segment.Attributes.BikeAccessBackward, positionAlongLine.Value, tolerances);
         var pedestrianAccess = GetAttributeValueAtPosition(segment.Attributes.PedestrianAccess, positionAlongLine.Value, tolerances);
 
-        return (bikeAccess, carAccess, pedestrianAccess);
+        return (carAccess, bikeAccess, pedestrianAccess);
     }
 
     private static bool GetAttributeValueAtPosition(
