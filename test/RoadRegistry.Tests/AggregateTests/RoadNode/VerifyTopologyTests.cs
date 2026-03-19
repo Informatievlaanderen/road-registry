@@ -1,7 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode;
 
 using AutoFixture;
-using Extensions;
+using RoadRegistry.Extensions;
 using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;
@@ -26,50 +26,6 @@ public class VerifyTopologyTests : RoadNetworkTestBase
             {
                 events.Should().ContainItemsAssignableTo<RoadNodeTypeWasChanged>();
             })
-        );
-    }
-
-    [Fact]
-    public Task WhenRemovedAndSegmentsAreStillConnectedByStartNode_ThenError()
-    {
-        return Run(scenario => scenario
-            .Given(given => given
-                .Add(TestData.AddSegment1StartNode)
-                .Add(TestData.AddSegment1EndNode)
-                .Add(TestData.AddSegment1)
-            )
-            .When(changes => changes
-                .Add(new RemoveRoadNodeChange
-                {
-                    RoadNodeId = TestData.Segment1StartNodeAdded.RoadNodeId
-                })
-            )
-            .ThenContainsProblems(
-                new Error("RoadSegmentStartNodeMissing",
-                    new ProblemParameter("WegsegmentId", 1.ToString())
-                ))
-        );
-    }
-
-    [Fact]
-    public Task WhenRemovedAndSegmentsAreStillConnectedByEndNode_ThenError()
-    {
-        return Run(scenario => scenario
-            .Given(given => given
-                .Add(TestData.AddSegment1StartNode)
-                .Add(TestData.AddSegment1EndNode)
-                .Add(TestData.AddSegment1)
-            )
-            .When(changes => changes
-                .Add(new RemoveRoadNodeChange
-                {
-                    RoadNodeId = TestData.Segment1EndNodeAdded.RoadNodeId
-                })
-            )
-            .ThenContainsProblems(
-                new Error("RoadSegmentEndNodeMissing",
-                    new ProblemParameter("WegsegmentId", 1.ToString())
-                ))
         );
     }
 

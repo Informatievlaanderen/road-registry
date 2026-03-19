@@ -48,6 +48,10 @@ public class Problems : IReadOnlyCollection<Problem>
     {
         return None.WithContext(ProblemContext.For(gradeSeparatedJunctionId));
     }
+    public static Problems WithContext(GradeJunctionId gradeJunctionId)
+    {
+        return None.WithContext(ProblemContext.For(gradeJunctionId));
+    }
     public Problems WithContext(ProblemContext context)
     {
         ArgumentNullException.ThrowIfNull(context);

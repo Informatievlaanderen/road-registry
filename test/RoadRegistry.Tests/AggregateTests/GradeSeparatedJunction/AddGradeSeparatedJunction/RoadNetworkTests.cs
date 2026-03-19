@@ -5,6 +5,7 @@ using Extensions;
 using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 
 public class ScopedRoadNetworkTests : RoadNetworkTestBase

@@ -108,45 +108,59 @@ public class AggregateTests : AggregateTestBase
     [Theory]
     [InlineData(
         "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
-        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
+        "MULTILINESTRING ((601010 601000, 601005.005 601000, 601005.005 601010, 601010 601010))",
+        false
     )]
     [InlineData(
         "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
-        "MULTILINESTRING ((601010 601004, 601005.01 601004, 601005.01 601006, 601010 601006))"
+        "MULTILINESTRING ((601010 601000, 601005.005 601000, 601005.005 601010, 601010 601010))",
+        true
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601004, 601005.005 601004, 601005.005 601006, 601010 601006))",
+        false
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601004, 601005.005 601004, 601005.005 601006, 601010 601006))",
+        true
     )]
     [InlineData(
         "MULTILINESTRING ((601000 601000, 601005 601000, 601000 601005, 601005 601010, 601000 601010))",
-        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
+        "MULTILINESTRING ((601010 601000, 601005.005 601000, 601005.005 601010, 601010 601010))",
+        false
     )]
-    public void GivenPartiallyOverlappingSegments_ThenError(string segment1Geometry, string segment2Geometry)
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005 601000, 601000 601005, 601005 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.005 601000, 601005.005 601010, 601010 601010))",
+        true
+    )]
+    public void GivenPartiallyOverlappingSegments_ThenError(string segment1Geometry, string segment2Geometry, bool reversed)
     {
-        var reversedValues = new[] { false, true };
-        foreach (var reversedValue in reversedValues)
+        // Arrange
+        var change = Fixture.Create<MergeRoadSegmentChange>() with
         {
-            // Arrange
-            var change = Fixture.Create<MergeRoadSegmentChange>() with
+            Status = RoadSegmentStatusV2.Gerealiseerd,
+            Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversed ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08)),
+            EuropeanRoadNumbers = [],
+            NationalRoadNumbers = []
+        };
+
+        var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [], [
+            RoadSegment.Create(TestData.Segment2Added with
             {
                 Status = RoadSegmentStatusV2.Gerealiseerd,
-                Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08)),
-                EuropeanRoadNumbers = [],
-                NationalRoadNumbers = []
-            };
+                Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversed ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08))
+            })
+        ], []);
+        var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
-            var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [], [
-                RoadSegment.Create(TestData.Segment2Added with
-                {
-                    Status = RoadSegmentStatusV2.Gerealiseerd,
-                    Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08))
-                })
-            ], []);
-            var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+        // Act
+        var (_, problems) = RoadSegment.Merge(change, new FakeRoadNetworkIdGenerator(), roadNetworkContext);
 
-            // Act
-            var (_, problems) = RoadSegment.Merge(change, new FakeRoadNetworkIdGenerator(), roadNetworkContext);
-
-            // Assert
-            problems.Should().Contain(x => x.Reason == "RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
-        }
+        // Assert
+        problems.Should().Contain(x => x.Reason == "RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
     }
 
     [Fact]

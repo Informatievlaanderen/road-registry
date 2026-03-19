@@ -13,6 +13,7 @@ using RoadSegment;
 using ScopedRoadNetwork;
 using Xunit.Abstractions;
 
+//TODO-pr add GradeJunction to tests
 [Collection(nameof(DockerFixtureCollection))]
 public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationTest
 {
@@ -97,7 +98,8 @@ public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationT
         var expectedIds = new RoadNetworkIds(
             [new(11), new(12)],
             [new(11)],
-            [new(11)]);
+            [new(11)]
+            ,[]);
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
@@ -184,7 +186,8 @@ public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationT
         var expectedIds = new RoadNetworkIds(
             [roadNode1.RoadNodeId, roadNode2.RoadNodeId, roadNode3.RoadNodeId],
             [roadSegment1.RoadSegmentId, roadSegment2.RoadSegmentId],
-            [junction1.GradeSeparatedJunctionId, junction2.GradeSeparatedJunctionId]);
+            [junction1.GradeSeparatedJunctionId, junction2.GradeSeparatedJunctionId]
+            ,[]);
         ids.Should().BeEquivalentTo(expectedIds);
     }
 

@@ -1,7 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.GradeSeparatedJunction;
 
 using AutoFixture;
-using Extensions;
+using RoadRegistry.Extensions;
 using Framework;
 using NetTopologySuite.Geometries;
 using RoadRegistry.GradeSeparatedJunction.Changes;

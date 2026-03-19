@@ -4,6 +4,7 @@ using GradeSeparatedJunction.Events.V2;
 using JasperFx.Events;
 using Marten;
 using RoadNode.Events.V2;
+using RoadRegistry.GradeJunction.Events.V2;
 using RoadSegment.Events.V2;
 using ScopedRoadNetwork.Events.V2;
 
@@ -153,6 +154,24 @@ public partial class RoadNetworkTopologyProjection
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradeseparatedjunction(?, ?);",
             e.Data.GradeSeparatedJunctionId.ToInt32(),
+            e.Timestamp
+        );
+    }
+
+    public void Project(IEvent<GradeJunctionWasAdded> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand($"INSERT INTO {GradeJunctionsTableName} (id, road_segment_id_1, road_segment_id_2, timestamp, is_v2) VALUES (?, ?, ?, ?, TRUE)",
+            e.Data.GradeJunctionId.ToInt32(),
+            e.Data.RoadSegmentId1.ToInt32(),
+            e.Data.RoadSegmentId2.ToInt32(),
+            e.Timestamp
+        );
+    }
+
+    public void Project(IEvent<GradeJunctionWasRemoved> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradejunction(?, ?);",
+            e.Data.GradeJunctionId.ToInt32(),
             e.Timestamp
         );
     }

@@ -99,3 +99,4 @@ healthcheck.bin
 !.build/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/*.props
 
 packages.lock.json
+.claude

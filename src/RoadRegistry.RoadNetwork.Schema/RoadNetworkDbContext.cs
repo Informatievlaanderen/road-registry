@@ -36,6 +36,7 @@ namespace RoadRegistry.RoadNetwork.Schema
             modelBuilder.HasSequence<int>(WellKnownDbSequences.RoadSegmentId, Schema);
             modelBuilder.HasSequence<int>(WellKnownDbSequences.EuropeanRoadAttributeId, Schema);
             modelBuilder.HasSequence<int>(WellKnownDbSequences.GradeSeparatedJunctionId, Schema);
+            modelBuilder.HasSequence<int>(WellKnownDbSequences.GradeJunctionId, Schema);
             modelBuilder.HasSequence<int>(WellKnownDbSequences.NationalRoadAttributeId, Schema);
             modelBuilder.HasSequence<int>(WellKnownDbSequences.NumberedRoadAttributeId, Schema);
             modelBuilder.HasSequence<int>(WellKnownDbSequences.RoadNodeId, Schema);

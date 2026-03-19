@@ -10,6 +10,7 @@ using JasperFx.Events;
 using NetTopologySuite.Geometries;
 using RoadNode.Events.V1;
 using RoadNode.Events.V2;
+using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.Tests.AggregateTests;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
@@ -45,7 +46,9 @@ public class RoadSegmentProjectionTests
             typeof(RoadNodeWasRemoved),
             typeof(GradeSeparatedJunctionWasAdded),
             typeof(GradeSeparatedJunctionWasModified),
-            typeof(GradeSeparatedJunctionWasRemoved)
+            typeof(GradeSeparatedJunctionWasRemoved),
+            typeof(GradeJunctionWasAdded),
+            typeof(GradeJunctionWasRemoved)
         };
         var allEventTypes = typeof(IMartenEvent).Assembly
             .GetTypes()

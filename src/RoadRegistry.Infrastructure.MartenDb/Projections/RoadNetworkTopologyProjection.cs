@@ -11,12 +11,14 @@ public partial class RoadNetworkTopologyProjection : EventProjection
     public const string RoadNodesTableName = "projections.networktopology_roadnodes";
     public const string RoadSegmentsTableName = "projections.networktopology_roadsegments";
     public const string GradeSeparatedJunctionsTableName = "projections.networktopology_gradeseparatedjunctions";
+    public const string GradeJunctionsTableName = "projections.networktopology_gradejunctions";
 
     public RoadNetworkTopologyProjection()
     {
         ConfigureRoadNode();
         ConfigureRoadSegment();
         ConfigureGradeSeparatedJunction();
+        ConfigureGradeJunction();
     }
 
     private void ConfigureRoadNode()
@@ -216,6 +218,46 @@ BEGIN
 
     IF updated = 0 THEN
         RAISE EXCEPTION 'Concurrency conflict on grade separated junction %', 42
+            USING ERRCODE = '40001';
+    END IF;
+
+    RETURN updated;
+
+END;
+$$ LANGUAGE plpgsql;"));
+    }
+
+    private void ConfigureGradeJunction()
+    {
+        var table = new Table(GradeJunctionsTableName);
+        table.AddColumn<int>("id").AsPrimaryKey();
+        table.AddColumn<int>("road_segment_id_1");
+        table.AddColumn<int>("road_segment_id_2");
+        table.AddColumn<DateTimeOffset>("timestamp");
+        table.AddColumn<bool>("is_v2").DefaultValueByExpression(true.ToString());
+
+        table.Indexes.Add(new IndexDefinition("idx_gradejunctions_road_segment_id_1").AgainstColumns("road_segment_id_1"));
+        table.Indexes.Add(new IndexDefinition("idx_gradejunctions_road_segment_id_2").AgainstColumns("road_segment_id_2"));
+        table.Indexes.Add(new IndexDefinition("idx_gradejunctions_is_v2").AgainstColumns("is_v2"));
+
+        SchemaObjects.Add(table);
+        Options.DeleteDataInTableOnTeardown(table.Identifier.QualifiedName);
+
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_delete_gradejunction"), @$"
+CREATE OR REPLACE FUNCTION projections.networktopology_delete_gradejunction(p_id integer, p_timestamp timestamptz) RETURNS int AS
+$$
+DECLARE
+    updated int;
+BEGIN
+
+    DELETE FROM {GradeJunctionsTableName}
+    WHERE id = p_id
+      AND timestamp < p_timestamp;
+
+    GET DIAGNOSTICS updated = ROW_COUNT;
+
+    IF updated = 0 THEN
+        RAISE EXCEPTION 'Concurrency conflict on grade junction %', 42
             USING ERRCODE = '40001';
     END IF;
 
