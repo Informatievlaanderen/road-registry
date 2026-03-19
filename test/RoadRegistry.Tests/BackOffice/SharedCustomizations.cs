@@ -6,7 +6,6 @@ using AutoFixture.Kernel;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Extensions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NodaTime;
@@ -14,16 +13,17 @@ using NodaTime.Testing;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Uploads;
-using ScopedRoadNetwork;
-using ScopedRoadNetwork.ValueObjects;
+using RoadRegistry.ScopedRoadNetwork;
+using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = RoadRegistry.BackOffice.Messages.Point;
 using Polygon = RoadRegistry.BackOffice.Messages.Polygon;
 using Reason = Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason;
-using RoadNodeGeometry = ValueObjects.RoadNodeGeometry;
-using RoadSegmentGeometry = ValueObjects.RoadSegmentGeometry;
+using RoadNodeGeometry = RoadRegistry.ValueObjects.RoadNodeGeometry;
+using RoadSegmentGeometry = RoadRegistry.ValueObjects.RoadSegmentGeometry;
 using RoadSegmentLaneAttribute = RoadRegistry.BackOffice.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute;
 using RoadSegmentWidthAttribute = RoadRegistry.BackOffice.RoadSegmentWidthAttribute;
@@ -642,14 +642,14 @@ public static class SharedCustomizations
     }
     public static void CustomizeNtsLineStringLambert08(this IFixture fixture)
     {
-        fixture.Customize<NetTopologySuite.Geometries.LineString>(customization =>
+        fixture.Customize<LineString>(customization =>
             customization.FromFactory(generator =>
                 {
                     var x = generator.Next(601000, 650000);
                     var y = generator.Next(601000, 650000);
                     var m = generator.Next(5, 100);
 
-                    return new NetTopologySuite.Geometries.LineString(
+                    return new LineString(
                         new CoordinateArraySequence(
                         [
                             new CoordinateM(x, y, 0),

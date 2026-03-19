@@ -38,11 +38,7 @@ public class ScenarioRunner
 
         try
         {
-            var givenEvents = Enumerable.Empty<object>()
-                .Concat(roadNetwork.RoadNodes.SelectMany(x => x.Value.GetChanges()))
-                .Concat(roadNetwork.RoadSegments.SelectMany(x => x.Value.GetChanges()))
-                .Concat(roadNetwork.GradeSeparatedJunctions.SelectMany(x => x.Value.GetChanges()))
-                .ToList();
+            var givenEvents = GetChildEntitiesChanges(roadNetwork);
 
             var roadNetworkChangeResult = runMigrate
                 ? roadNetwork.Migrate(roadNetworkChanges, null, _roadNetworkIdGenerator)
@@ -58,10 +54,7 @@ public class ScenarioRunner
                 throw new RoadRegistryProblemsException(roadNetworkChangeResult.Problems);
             }
 
-            var recordedEvents = Enumerable.Empty<object>()
-                .Concat(roadNetwork.RoadNodes.SelectMany(x => x.Value.GetChanges()))
-                .Concat(roadNetwork.RoadSegments.SelectMany(x => x.Value.GetChanges()))
-                .Concat(roadNetwork.GradeSeparatedJunctions.SelectMany(x => x.Value.GetChanges()))
+            var recordedEvents = GetChildEntitiesChanges(roadNetwork)
                 .Except(givenEvents)
                 .ToArray();
 
@@ -97,11 +90,7 @@ public class ScenarioRunner
 
         try
         {
-            var givenEvents = Enumerable.Empty<object>()
-                .Concat(roadNetwork.RoadNodes.SelectMany(x => x.Value.GetChanges()))
-                .Concat(roadNetwork.RoadSegments.SelectMany(x => x.Value.GetChanges()))
-                .Concat(roadNetwork.GradeSeparatedJunctions.SelectMany(x => x.Value.GetChanges()))
-                .ToList();
+            var givenEvents = GetChildEntitiesChanges(roadNetwork);
 
             var roadNetworkChangeResult = runMigrate
                 ? roadNetwork.Migrate(roadNetworkChanges, null, _roadNetworkIdGenerator)
@@ -111,10 +100,7 @@ public class ScenarioRunner
                 throw new RoadRegistryProblemsException(roadNetworkChangeResult.Problems);
             }
 
-            var recordedEvents = Enumerable.Empty<object>()
-                .Concat(roadNetwork.RoadNodes.SelectMany(x => x.Value.GetChanges()))
-                .Concat(roadNetwork.RoadSegments.SelectMany(x => x.Value.GetChanges()))
-                .Concat(roadNetwork.GradeSeparatedJunctions.SelectMany(x => x.Value.GetChanges()))
+            var recordedEvents = GetChildEntitiesChanges(roadNetwork)
                 .Except(givenEvents)
                 .ToArray();
 
@@ -280,5 +266,15 @@ public class ScenarioRunner
         {
             return type1 == typeof(Problems) && type2 == typeof(Problems);
         }
+    }
+
+    private static IReadOnlyCollection<object> GetChildEntitiesChanges(ScopedRoadNetwork roadNetwork)
+    {
+        return Enumerable.Empty<object>()
+            .Concat(roadNetwork.RoadNodes.SelectMany(x => x.Value.GetChanges()))
+            .Concat(roadNetwork.RoadSegments.SelectMany(x => x.Value.GetChanges()))
+            .Concat(roadNetwork.GradeSeparatedJunctions.SelectMany(x => x.Value.GetChanges()))
+            .Concat(roadNetwork.GradeJunctions.SelectMany(x => x.Value.GetChanges()))
+            .ToArray();
     }
 }

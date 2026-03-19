@@ -5,7 +5,7 @@ using BackOffice;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Extensions;
+using RoadRegistry.Extensions;
 using Framework;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;

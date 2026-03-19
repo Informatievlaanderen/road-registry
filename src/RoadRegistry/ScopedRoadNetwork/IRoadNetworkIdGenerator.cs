@@ -25,4 +25,5 @@ public interface IRoadNetworkIdGenerator
     Task<AttributeId> NewNumberedRoadAttributeIdAsync();
     GradeSeparatedJunctionId NewGradeSeparatedJunctionId();
     Task<GradeSeparatedJunctionId> NewGradeSeparatedJunctionIdAsync();
+    GradeJunctionId NewGradeJunctionId();
 }

@@ -11,6 +11,7 @@ public sealed class RoadNetworkChangesSummary
     public RoadNetworkEntityChangesSummary<RoadNodeId> RoadNodes { get; init; } = new();
     public RoadNetworkEntityChangesSummary<RoadSegmentId> RoadSegments { get; init; } = new();
     public RoadNetworkEntityChangesSummary<GradeSeparatedJunctionId> GradeSeparatedJunctions { get; init; } = new();
+    public RoadNetworkEntityChangesSummary<GradeJunctionId> GradeJunctions { get; init; } = new();
 }
 
 public sealed class RoadNetworkEntityChangesSummary<TIdentifier>
