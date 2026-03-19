@@ -9,7 +9,6 @@ using RoadRegistry.ValueObjects.Problems;
 
 public partial class ScopedRoadNetwork
 {
-    //TODO-pr add unit tests to manage gradejunctions
     private Problems VerifyAndUpdateJunctions(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
     {
         var problems = Problems.None;
@@ -34,7 +33,6 @@ public partial class ScopedRoadNetwork
             from changed in changedGerealiseerdeSegments
             from other in allGerealiseerdeSegments
             where changed.RoadSegmentId != other.RoadSegmentId
-                  && changed.Geometry.Value.Envelope.Intersects(other.Geometry.Value.Envelope)
             let intersectionPoints = GetIntersectionPoints(changed.Geometry, other.Geometry)
             select (
                 Segment1: changed,
