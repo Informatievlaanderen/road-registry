@@ -36,6 +36,17 @@ namespace RoadRegistry.RoadNetwork.Schema
             return new GradeSeparatedJunctionId(id);
         }
 
+        public GradeJunctionId NewGradeJunctionId()
+        {
+            var id = _dbContext.GetNextSequenceValue(WellKnownDbSequences.GradeJunctionId);
+            return new GradeJunctionId(id);
+        }
+        public async Task<GradeJunctionId> NewGradeJunctionIdAsync()
+        {
+            var id = await _dbContext.GetNextSequenceValueAsync(WellKnownDbSequences.GradeJunctionId);
+            return new GradeJunctionId(id);
+        }
+
         public AttributeId NewNationalRoadAttributeId()
         {
             var id = _dbContext.GetNextSequenceValue(WellKnownDbSequences.NationalRoadAttributeId);

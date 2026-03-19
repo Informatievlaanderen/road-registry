@@ -5,6 +5,7 @@ using System.Linq;
 using Events.V2;
 using Extensions;
 using NetTopologySuite.Geometries;
+using RoadRegistry.GradeJunction;
 using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadSegment;
@@ -19,32 +20,34 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
     public IReadOnlyDictionary<RoadNodeId, RoadNode> RoadNodes { get; }
     public IReadOnlyDictionary<RoadSegmentId, RoadSegment> RoadSegments { get; }
     public IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
+    public IReadOnlyDictionary<GradeJunctionId, GradeJunction> GradeJunctions { get; }
+
     private readonly Dictionary<RoadNodeId, RoadNode> _roadNodes;
     private readonly Dictionary<RoadSegmentId, RoadSegment> _roadSegments;
     private readonly Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions;
-
-    public ScopedRoadNetwork(ScopedRoadNetworkId roadNetworkId)
-        : this(roadNetworkId, [], [], [])
-    {
-    }
+    private readonly Dictionary<GradeJunctionId, GradeJunction> _gradeJunctions;
 
     public ScopedRoadNetwork(
         ScopedRoadNetworkId roadNetworkId,
-        IReadOnlyCollection<RoadNode> roadNodes,
-        IReadOnlyCollection<RoadSegment> roadSegments,
-        IReadOnlyCollection<GradeSeparatedJunction> gradeSeparatedJunctions)
+        IReadOnlyCollection<RoadNode>? roadNodes = null,
+        IReadOnlyCollection<RoadSegment>? roadSegments = null,
+        IReadOnlyCollection<GradeSeparatedJunction>? gradeSeparatedJunctions = null,
+        IReadOnlyCollection<GradeJunction>? gradeJunctions = null)
         : base(roadNetworkId)
     {
         RoadNetworkId = roadNetworkId;
 
-        _roadNodes = roadNodes.ToDictionary(x => x.RoadNodeId, x => x);
+        _roadNodes = (roadNodes ?? []).ToDictionary(x => x.RoadNodeId, x => x);
         RoadNodes = _roadNodes.AsReadOnly();
 
-        _roadSegments = roadSegments.ToDictionary(x => x.RoadSegmentId, x => x);
+        _roadSegments = (roadSegments ?? []).ToDictionary(x => x.RoadSegmentId, x => x);
         RoadSegments = _roadSegments.AsReadOnly();
 
-        _gradeSeparatedJunctions = gradeSeparatedJunctions.ToDictionary(x => x.GradeSeparatedJunctionId, x => x);
+        _gradeSeparatedJunctions = (gradeSeparatedJunctions ?? []).ToDictionary(x => x.GradeSeparatedJunctionId, x => x);
         GradeSeparatedJunctions = _gradeSeparatedJunctions.AsReadOnly();
+
+        _gradeJunctions = (gradeJunctions ?? []).ToDictionary(x => x.GradeJunctionId, x => x);
+        GradeJunctions = _gradeJunctions.AsReadOnly();
     }
 
     public static ScopedRoadNetwork Create(RoadNetworkWasChanged @event)
@@ -71,11 +74,6 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
     public IEnumerable<RoadSegment> GetNonRemovedRoadSegments()
     {
         return _roadSegments.Values.Where(x => !x.IsRemoved);
-    }
-
-    public IEnumerable<GradeSeparatedJunction> GetNonRemovedGradeSeparatedJunctions()
-    {
-        return _gradeSeparatedJunctions.Values.Where(x => !x.IsRemoved);
     }
 
     public (RoadNodeId StartNodeId, RoadNodeId EndNodeId, Problems Problems) FindStartEndNodes(

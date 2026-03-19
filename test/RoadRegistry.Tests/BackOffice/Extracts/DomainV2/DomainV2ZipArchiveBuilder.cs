@@ -3,10 +3,10 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
     using System.IO.Compression;
     using System.Text;
     using AutoFixture;
-    using Editor.Schema.Extensions;
-    using Extensions;
     using Microsoft.IO;
     using NetTopologySuite.Geometries;
+    using RoadRegistry.Editor.Schema.Extensions;
+    using RoadRegistry.Extensions;
     using RoadRegistry.Extracts.Schemas.Inwinning;
     using RoadRegistry.Extracts.Schemas.Inwinning.GradeSeparatedJuntions;
     using RoadRegistry.Extracts.Schemas.Inwinning.RoadNodes;

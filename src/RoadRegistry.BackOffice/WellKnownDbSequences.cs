@@ -5,6 +5,7 @@ public static class WellKnownDbSequences
     public const string RoadSegmentId = "RoadSegmentId";
     public const string EuropeanRoadAttributeId = "EuropeanRoadAttributeId";
     public const string GradeSeparatedJunctionId = "GradeSeparatedJunctionId";
+    public const string GradeJunctionId = "GradeJunctionId";
     public const string NationalRoadAttributeId = "NationalRoadAttributeId";
     public const string NumberedRoadAttributeId = "NumberedRoadAttributeId";
     public const string RoadNodeId = "RoadNodeId";

@@ -1,9 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
-using Extensions;
-using RoadNetwork;
 using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.RoadNetwork;
+using RoadRegistry.Extensions;
 using ScopedRoadNetwork.ValueObjects;
 
 public class ExpectEventsScenario

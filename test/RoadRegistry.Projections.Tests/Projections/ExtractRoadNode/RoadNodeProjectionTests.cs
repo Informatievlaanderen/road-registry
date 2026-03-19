@@ -7,6 +7,7 @@ using GradeSeparatedJunction.Events.V1;
 using GradeSeparatedJunction.Events.V2;
 using JasperFx.Events;
 using RoadNode.Events.V2;
+using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.Tests.AggregateTests;
 using RoadSegment.Events.V1;
 using RoadSegment.Events.V2;
@@ -54,7 +55,9 @@ public class RoadNodeProjectionTests
             typeof(RoadSegmentWasRemovedFromNationalRoad),
             typeof(GradeSeparatedJunctionWasAdded),
             typeof(GradeSeparatedJunctionWasModified),
-            typeof(GradeSeparatedJunctionWasRemoved)
+            typeof(GradeSeparatedJunctionWasRemoved),
+            typeof(GradeJunctionWasAdded),
+            typeof(GradeJunctionWasRemoved)
         };
 
         var allEventTypes = typeof(IMartenEvent).Assembly

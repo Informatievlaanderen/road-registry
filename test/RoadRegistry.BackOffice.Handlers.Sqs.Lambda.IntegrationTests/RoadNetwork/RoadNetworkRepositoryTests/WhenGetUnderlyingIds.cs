@@ -13,6 +13,7 @@ using RoadSegment;
 using ScopedRoadNetwork;
 using Xunit.Abstractions;
 
+//TODO-pr add GradeJunction to tests
 [Collection(nameof(DockerFixtureCollection))]
 public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
 {
@@ -94,14 +95,16 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var requestedIds = new RoadNetworkIds(
             [],
             [new(1), new(11)],
-            []);
+            []
+            ,[]);
         var ids = await GetUnderlyingIds(sp, ids: requestedIds);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
             [new(1), new(2), new(11), new(12)],
             [new(1), new(11)],
-            [new(1), new(11)]);
+            [new(1), new(11)]
+            ,[]);
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
@@ -165,16 +168,18 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var requestIds = new RoadNetworkIds(
             [],
             [new(11)],
-            []);
+            []
+            ,[]);
 
         // Act
-        var ids = await GetUnderlyingIds(sp, ids: requestIds, onlyV2: true);
+        var ids = await GetUnderlyingIds(sp, ids: requestIds);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
             [new(11), new(12)],
             [new(11)],
-            [new(11)]);
+            [new(11)]
+            ,[]);
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
@@ -222,7 +227,8 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var expectedIds = new RoadNetworkIds(
             [new(1), new(2)],
             [new(1)],
-            [new(1)]);
+            [new(1)]
+            ,[]);
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
@@ -264,7 +270,8 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var requestIds = new RoadNetworkIds(
             [new(1)],
             [],
-            []);
+            []
+            ,[]);
 
         // Act
         var ids = await GetUnderlyingIds(sp, ids: requestIds);
@@ -273,7 +280,8 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var expectedIds = new RoadNetworkIds(
             [new(1), new(2)],
             [new(1)],
-            [new(1)]);
+            [new(1)]
+            ,[]);
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
@@ -315,7 +323,8 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var requestIds = new RoadNetworkIds(
             [],
             [new(1)],
-            []);
+            []
+            ,[]);
 
         // Act
         var ids = await GetUnderlyingIds(sp, ids: requestIds);
@@ -324,7 +333,8 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var expectedIds = new RoadNetworkIds(
             [new(1), new(2)],
             [new(1)],
-            [new(1)]);
+            [new(1)]
+            ,[]);
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
@@ -366,7 +376,8 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var requestIds = new RoadNetworkIds(
             [],
             [],
-            [new(1)]);
+            [new(1)]
+            ,[]);
 
         // Act
         var ids = await GetUnderlyingIds(sp, ids: requestIds);
@@ -375,7 +386,8 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var expectedIds = new RoadNetworkIds(
             [new(1), new(2)],
             [new(1)],
-            [new(1)]);
+            [new(1)]
+            ,[]);
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
@@ -416,7 +428,11 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         await session.SaveChangesAsync();
 
         var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).Value;
-        var requestIds = new RoadNetworkIds([], [roadSegmentNotIntersecting.RoadSegmentId], []);
+        var requestIds = new RoadNetworkIds(
+            [],
+            [roadSegmentNotIntersecting.RoadSegmentId],
+            [],
+            []);
 
         // Act
         var ids = await GetUnderlyingIds(sp, requestGeometry, requestIds);
@@ -425,16 +441,17 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var expectedIds = new RoadNetworkIds(
             [new(1), new(2), new(3), new(4)],
             [new(1), new(2)],
-            [new(1)]);
+            [new(1)]
+            ,[]);
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
-    private async Task<RoadNetworkIds> GetUnderlyingIds(IServiceProvider sp, Geometry? geometry = null, RoadNetworkIds? ids = null, bool onlyV2 = false)
+    private async Task<RoadNetworkIds> GetUnderlyingIds(IServiceProvider sp, Geometry? geometry = null, RoadNetworkIds? ids = null)
     {
         var store = sp.GetRequiredService<IDocumentStore>();
         var repo = sp.GetRequiredService<IRoadNetworkRepository>();
 
         await using var session = store.LightweightSession();
-        return await repo.GetUnderlyingIds(session, geometry, ids, onlyV2);
+        return await repo.GetUnderlyingIds(session, geometry, ids);
     }
 }

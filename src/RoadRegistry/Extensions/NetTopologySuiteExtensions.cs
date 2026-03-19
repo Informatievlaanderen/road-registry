@@ -405,16 +405,6 @@ public static class NetTopologySuiteExtensions
         return @this.Equals2D(other, tolerances.GeometryTolerance);
     }
 
-    public static bool IsReasonablyEqualToByCm(this double value, double other)
-    {
-        return value.IsReasonablyEqualTo(other, VerificationContextTolerances.Cm);
-    }
-
-    public static bool IsReasonablyEqualTo(this double value, double other)
-    {
-        return value.IsReasonablyEqualTo(other, VerificationContextTolerances.Default);
-    }
-
     public static bool IsReasonablyEqualTo(this double value, double other, VerificationContextTolerances tolerances)
     {
         return value.IsReasonablyEqualTo(other, tolerances.GeometryTolerance);
@@ -445,6 +435,11 @@ public static class NetTopologySuiteExtensions
         return value.IsReasonablyGreaterThan(other, VerificationContextTolerances.Default);
     }
 
+    public static bool IsReasonablyLessOrEqualThan(this double value, double other, VerificationContextTolerances tolerances)
+    {
+        return value.IsReasonablyLessOrEqualThan(other, tolerances.GeometryTolerance);
+    }
+
     public static bool IsReasonablyGreaterThan(this double value, double other, VerificationContextTolerances tolerances)
     {
         return value.IsReasonablyGreaterThan(other, tolerances.GeometryTolerance);
@@ -453,5 +448,10 @@ public static class NetTopologySuiteExtensions
     public static bool IsReasonablyGreaterThan(this decimal value, decimal other, VerificationContextTolerances tolerances)
     {
         return value.IsReasonablyGreaterThan(other, (decimal)tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyGreaterOrEqualThan(this double value, double other, VerificationContextTolerances tolerances)
+    {
+        return value.IsReasonablyGreaterOrEqualThan(other, tolerances.GeometryTolerance);
     }
 }

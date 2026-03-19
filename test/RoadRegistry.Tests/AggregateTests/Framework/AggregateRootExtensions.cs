@@ -9,6 +9,22 @@ public static class AggregateRootExtensions
     public static ScopedRoadNetwork WithoutChanges(this ScopedRoadNetwork aggregate)
     {
         aggregate.ClearUncommittedEvents();
+        foreach (var childAggregate in aggregate.RoadNodes.Values)
+        {
+            childAggregate.ClearUncommittedEvents();
+        }
+        foreach (var childAggregate in aggregate.RoadSegments.Values)
+        {
+            childAggregate.ClearUncommittedEvents();
+        }
+        foreach (var childAggregate in aggregate.GradeSeparatedJunctions.Values)
+        {
+            childAggregate.ClearUncommittedEvents();
+        }
+        foreach (var childAggregate in aggregate.GradeJunctions.Values)
+        {
+            childAggregate.ClearUncommittedEvents();
+        }
         return aggregate;
     }
     public static RoadRegistry.RoadNode.RoadNode WithoutChanges(this RoadRegistry.RoadNode.RoadNode aggregate)
@@ -22,6 +38,11 @@ public static class AggregateRootExtensions
         return aggregate;
     }
     public static RoadRegistry.GradeSeparatedJunction.GradeSeparatedJunction WithoutChanges(this RoadRegistry.GradeSeparatedJunction.GradeSeparatedJunction aggregate)
+    {
+        aggregate.ClearUncommittedEvents();
+        return aggregate;
+    }
+    public static RoadRegistry.GradeJunction.GradeJunction WithoutChanges(this RoadRegistry.GradeJunction.GradeJunction aggregate)
     {
         aggregate.ClearUncommittedEvents();
         return aggregate;

@@ -1,8 +1,8 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests;
 
 using AutoFixture;
-using Extensions;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
 
 public abstract class AggregateTestBase
 {
