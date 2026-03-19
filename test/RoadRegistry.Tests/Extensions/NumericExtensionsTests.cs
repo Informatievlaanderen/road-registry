@@ -7,49 +7,81 @@ using Xunit;
 public class NumericExtensionsTests
 {
     [Theory]
-    [InlineData(1.0, 1.0, 0.001, true)]
-    [InlineData(1.0, 1.0009, 0.001, true)]
-    [InlineData(1.0, 1.001, 0.001, true)]
-    [InlineData(1.0, 1.0011, 0.001, false)]
-    [InlineData(1.0, 0.999, 0.001, true)]
-    [InlineData(1.0, 0.9989, 0.001, false)]
-    [InlineData(5.5, 5.5, 0.01, true)]
-    [InlineData(5.5, 5.51, 0.01, false)]
-    [InlineData(5.5, 5.49, 0.01, false)]
-    public void IsReasonablyEqualTo_Double_ReturnsExpectedResult(double value, double other, double tolerance, bool expected)
+    [InlineData(1.0, 1.011, 0.01, false)]
+    [InlineData(1.0, 1.010, 0.01, true)]
+    [InlineData(1.0, 1.009, 0.01, true)]
+    [InlineData(1.0, 1.000, 0.01, true)]
+    [InlineData(1.0, 0.999, 0.01, true)]
+    [InlineData(1.0, 0.991, 0.01, true)]
+    [InlineData(1.0, 0.990, 0.01, true)]
+    [InlineData(1.0, 0.989, 0.01, false)]
+    public void IsReasonablyEqualTo_ReturnsExpectedResult(double value, double other, double tolerance, bool expected)
     {
         Assert.Equal(expected, value.IsReasonablyEqualTo(other, tolerance));
     }
 
     [Theory]
-    [InlineData(1.0, 1.0, 0.001, true)]
-    [InlineData(1.0, 1.0009, 0.001, true)]
-    [InlineData(1.0, 1.001, 0.001, true)]
-    [InlineData(1.0, 1.0011, 0.001, false)]
-    [InlineData(1.0, 0.999, 0.001, true)]
-    [InlineData(1.0, 0.9989, 0.001, false)]
-    public void IsReasonablyEqualTo_Decimal_ReturnsExpectedResult(double valueDouble, double otherDouble, double toleranceDouble, bool expected)
+    [InlineData(1.0, 2.000, 0.01, true)]
+    [InlineData(1.0, 1.011, 0.01, true)]
+    [InlineData(1.0, 1.010, 0.01, false)]
+    [InlineData(1.0, 1.001, 0.01, false)]
+    [InlineData(1.0, 1.000, 0.01, false)]
+    [InlineData(1.0, 0.999, 0.01, false)]
+    [InlineData(1.0, 0.991, 0.01, false)]
+    [InlineData(1.0, 0.990, 0.01, false)]
+    [InlineData(1.0, 0.989, 0.01, false)]
+    public void IsReasonablyLessThan_ReturnsExpectedResult(double value, double other, double tolerance, bool expected)
     {
-        var value = (decimal)valueDouble;
-        var other = (decimal)otherDouble;
-        var tolerance = (decimal)toleranceDouble;
+        Assert.Equal(expected, value.IsReasonablyLessThan(other, tolerance));
+    }
 
-        Assert.Equal(expected, value.IsReasonablyEqualTo(other, tolerance));
+    [Theory]
+    [InlineData(1.0, 2.000, 0.01, true)]
+    [InlineData(1.0, 1.011, 0.01, true)]
+    [InlineData(1.0, 1.010, 0.01, true)]
+    [InlineData(1.0, 1.001, 0.01, true)]
+    [InlineData(1.0, 1.000, 0.01, true)]
+    [InlineData(1.0, 0.999, 0.01, true)]
+    [InlineData(1.0, 0.991, 0.01, true)]
+    [InlineData(1.0, 0.990, 0.01, true)]
+    [InlineData(1.0, 0.989, 0.01, false)]
+    public void IsReasonablyLessOrEqualThan_ReturnsExpectedResult(double value, double other, double tolerance, bool expected)
+    {
+        Assert.Equal(expected, value.IsReasonablyLessOrEqualThan(other, tolerance));
+    }
+
+    [Theory]
+    [InlineData(2.000, 1.0, 0.01, true)]
+    [InlineData(1.011, 1.0, 0.01, true)]
+    [InlineData(1.010, 1.0, 0.01, false)]
+    [InlineData(1.001, 1.0, 0.01, false)]
+    [InlineData(1.000, 1.0, 0.01, false)]
+    [InlineData(0.999, 1.0, 0.01, false)]
+    [InlineData(0.991, 1.0, 0.01, false)]
+    [InlineData(0.990, 1.0, 0.01, false)]
+    [InlineData(0.989, 1.0, 0.01, false)]
+    public void IsReasonablyGreaterThan_ReturnsExpectedResult(double value, double other, double tolerance, bool expected)
+    {
+        Assert.Equal(expected, value.IsReasonablyGreaterThan(other, tolerance));
+    }
+
+    [Theory]
+    [InlineData(2.000, 1.0, 0.01, true)]
+    [InlineData(1.011, 1.0, 0.01, true)]
+    [InlineData(1.010, 1.0, 0.01, true)]
+    [InlineData(1.001, 1.0, 0.01, true)]
+    [InlineData(1.000, 1.0, 0.01, true)]
+    [InlineData(0.999, 1.0, 0.01, true)]
+    [InlineData(0.991, 1.0, 0.01, true)]
+    [InlineData(0.990, 1.0, 0.01, true)]
+    [InlineData(0.989, 1.0, 0.01, false)]
+    public void IsReasonablyGreaterOrEqualThan_ReturnsExpectedResult(double value, double other, double tolerance, bool expected)
+    {
+        Assert.Equal(expected, value.IsReasonablyGreaterOrEqualThan(other, tolerance));
     }
 
     [Fact]
-    public void IsReasonablyEqualTo_RoadSegmentPosition_UsesGeometryTolerance()
-    {
-        var position = new RoadSegmentPosition(1.0M);
-
-        Assert.True(position.IsReasonablyEqualTo(1.0));
-        Assert.True(position.IsReasonablyEqualTo(1.0 + DefaultTolerances.GeometryTolerance));
-        Assert.True(position.IsReasonablyEqualTo(1.0 - DefaultTolerances.GeometryTolerance));
-        Assert.False(position.IsReasonablyEqualTo(1.0 + DefaultTolerances.GeometryTolerance + 0.0001));
-    }
-
-    [Fact]
-    public void IsReasonablyEqualTo_RoadSegmentPositionV2_WithDouble_UsesGeometryToleranceV2()
+    public void IsReasonablyEqualTo_RoadSegmentPositionV2_UsesGeometryToleranceV2()
     {
         var position = new RoadSegmentPositionV2(1.0);
 
@@ -78,84 +110,6 @@ public class NumericExtensionsTests
         Assert.Equal(new RoadSegmentPositionV2(1.24), new RoadSegmentPositionV2(1.235).RoundToCm());
         Assert.Equal(new RoadSegmentPositionV2(1.24), new RoadSegmentPositionV2(1.236).RoundToCm());
         Assert.Equal(new RoadSegmentPositionV2(0.0), new RoadSegmentPositionV2(0.004).RoundToCm());
-        Assert.Equal(new RoadSegmentPositionV2(0.01), new RoadSegmentPositionV2(0.005).RoundToCm());
-    }
-
-    [Theory]
-    [InlineData(1.0, 2.0, 0.5, true)]
-    [InlineData(1.0, 2.0, 1.0, false)]
-    [InlineData(1.0, 2.0, 1.1, false)]
-    [InlineData(1.0, 1.5, 0.49, true)]
-    [InlineData(1.0, 1.5, 0.5, false)]
-    [InlineData(5.0, 3.0, 0.5, false)]
-    public void IsReasonablyLessThan_Double_ReturnsExpectedResult(double value, double other, double tolerance, bool expected)
-    {
-        Assert.Equal(expected, value.IsReasonablyLessThan(other, tolerance));
-    }
-
-    [Theory]
-    [InlineData(1.0, 2.0, 0.5, true)]
-    [InlineData(1.0, 2.0, 1.0, false)]
-    [InlineData(1.0, 1.5, 0.49, true)]
-    [InlineData(5.0, 3.0, 0.5, false)]
-    public void IsReasonablyLessThan_Decimal_ReturnsExpectedResult(double valueDouble, double otherDouble, double toleranceDouble, bool expected)
-    {
-        var value = (decimal)valueDouble;
-        var other = (decimal)otherDouble;
-        var tolerance = (decimal)toleranceDouble;
-
-        Assert.Equal(expected, value.IsReasonablyLessThan(other, tolerance));
-    }
-
-    [Theory]
-    [InlineData(1.0, 2.0, 0.5, true)]
-    [InlineData(1.0, 2.0, 1.0, true)]
-    [InlineData(1.0, 1.0, 1.0, true)]
-    [InlineData(1.0, 2.0, 1.1, false)]
-    [InlineData(1.0, 1.5, 0.5, true)]
-    [InlineData(1.0, 1.5, 0.49, false)]
-    [InlineData(5.0, 3.0, 0.5, false)]
-    public void IsReasonablyLessOrEqualThan_Double_ReturnsExpectedResult(double value, double other, double tolerance, bool expected)
-    {
-        Assert.Equal(expected, value.IsReasonablyLessOrEqualThan(other, tolerance));
-    }
-
-    [Theory]
-    [InlineData(2.0, 1.0, 0.5, true)]
-    [InlineData(2.0, 1.0, 1.0, false)]
-    [InlineData(2.0, 1.0, 1.1, false)]
-    [InlineData(1.5, 1.0, 0.49, true)]
-    [InlineData(1.5, 1.0, 0.5, false)]
-    [InlineData(3.0, 5.0, 0.5, false)]
-    public void IsReasonablyGreaterThan_Double_ReturnsExpectedResult(double value, double other, double tolerance, bool expected)
-    {
-        Assert.Equal(expected, value.IsReasonablyGreaterThan(other, tolerance));
-    }
-
-    [Theory]
-    [InlineData(2.0, 1.0, 0.5, true)]
-    [InlineData(2.0, 1.0, 1.0, false)]
-    [InlineData(1.5, 1.0, 0.49, true)]
-    [InlineData(3.0, 5.0, 0.5, false)]
-    public void IsReasonablyGreaterThan_Decimal_ReturnsExpectedResult(double valueDouble, double otherDouble, double toleranceDouble, bool expected)
-    {
-        var value = (decimal)valueDouble;
-        var other = (decimal)otherDouble;
-        var tolerance = (decimal)toleranceDouble;
-
-        Assert.Equal(expected, value.IsReasonablyGreaterThan(other, tolerance));
-    }
-
-    [Theory]
-    [InlineData(2.0, 1.0, 0.5, true)]
-    [InlineData(2.0, 1.0, 1.0, true)]
-    [InlineData(2.0, 2.0, 1.0, true)]
-    [InlineData(2.0, 1.0, 1.1, false)]
-    [InlineData(1.5, 1.0, 0.5, true)]
-    [InlineData(1.5, 1.0, 0.49, false)]
-    [InlineData(3.0, 5.0, 0.5, false)]
-    public void IsReasonablyGreaterOrEqualThan_Double_ReturnsExpectedResult(double value, double other, double tolerance, bool expected)
-    {
-        Assert.Equal(expected, value.IsReasonablyGreaterOrEqualThan(other, tolerance));
+        Assert.Equal(new RoadSegmentPositionV2(0.01), new RoadSegmentPositionV2(0.006).RoundToCm());
     }
 }

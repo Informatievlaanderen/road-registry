@@ -26,8 +26,8 @@ public partial class GradeJunction : MartenAggregateRootEntity<GradeJunctionId>
     )
         : this(new GradeJunctionId(gradeJunctionId))
     {
-        RoadSegmentId1 = new RoadSegmentId(RoadSegmentId1);
-        RoadSegmentId2 = new RoadSegmentId(RoadSegmentId2);
+        RoadSegmentId1 = new RoadSegmentId(roadSegmentId1);
+        RoadSegmentId2 = new RoadSegmentId(roadSegmentId2);
         IsRemoved = isRemoved;
     }
 

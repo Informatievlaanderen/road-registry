@@ -5,14 +5,31 @@ using FluentAssertions;
 using JasperFx.Events;
 using RoadRegistry.Extracts.Projections;
 using RoadRegistry.GradeJunction.Events.V2;
+using RoadRegistry.GradeSeparatedJunction.Events.V1;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
-using RoadRegistry.RoadNode.Events.V1;
 using RoadRegistry.RoadNode.Events.V2;
-using RoadRegistry.RoadSegment.Events.V1;
 using RoadRegistry.RoadSegment.Events.V2;
-using RoadRegistry.ScopedRoadNetwork.Events.V1;
 using RoadRegistry.ScopedRoadNetwork.Events.V2;
 using RoadRegistry.Tests.AggregateTests;
+using ImportedRoadNode = RoadRegistry.RoadNode.Events.V1.ImportedRoadNode;
+using ImportedRoadSegment = RoadRegistry.RoadSegment.Events.V1.ImportedRoadSegment;
+using OutlinedRoadSegmentRemoved = RoadRegistry.RoadSegment.Events.V1.OutlinedRoadSegmentRemoved;
+using RoadNetworkChangesAccepted = RoadRegistry.ScopedRoadNetwork.Events.V1.RoadNetworkChangesAccepted;
+using RoadNodeAdded = RoadRegistry.RoadNode.Events.V1.RoadNodeAdded;
+using RoadNodeModified = RoadRegistry.RoadNode.Events.V1.RoadNodeModified;
+using RoadNodeRemoved = RoadRegistry.RoadNode.Events.V1.RoadNodeRemoved;
+using RoadSegmentAdded = RoadRegistry.RoadSegment.Events.V1.RoadSegmentAdded;
+using RoadSegmentAddedToEuropeanRoad = RoadRegistry.RoadSegment.Events.V1.RoadSegmentAddedToEuropeanRoad;
+using RoadSegmentAddedToNationalRoad = RoadRegistry.RoadSegment.Events.V1.RoadSegmentAddedToNationalRoad;
+using RoadSegmentAddedToNumberedRoad = RoadRegistry.RoadSegment.Events.V1.RoadSegmentAddedToNumberedRoad;
+using RoadSegmentAttributesModified = RoadRegistry.RoadSegment.Events.V1.RoadSegmentAttributesModified;
+using RoadSegmentGeometryModified = RoadRegistry.RoadSegment.Events.V1.RoadSegmentGeometryModified;
+using RoadSegmentModified = RoadRegistry.RoadSegment.Events.V1.RoadSegmentModified;
+using RoadSegmentRemoved = RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemoved;
+using RoadSegmentRemovedFromEuropeanRoad = RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromEuropeanRoad;
+using RoadSegmentRemovedFromNationalRoad = RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromNationalRoad;
+using RoadSegmentRemovedFromNumberedRoad = RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromNumberedRoad;
+using RoadSegmentStreetNamesChanged = RoadRegistry.RoadSegment.Events.V1.RoadSegmentStreetNamesChanged;
 
 public class GradeJunctionProjectionTests
 {
@@ -40,6 +57,10 @@ public class GradeJunctionProjectionTests
             typeof(RoadSegmentRemovedFromNationalRoad),
             typeof(RoadSegmentRemovedFromNumberedRoad),
             typeof(RoadSegmentStreetNamesChanged),
+            typeof(ImportedGradeSeparatedJunction),
+            typeof(GradeSeparatedJunctionAdded),
+            typeof(GradeSeparatedJunctionModified),
+            typeof(GradeSeparatedJunctionRemoved),
 
             typeof(RoadNetworkWasChanged),
             typeof(RoadNodeWasAdded),
