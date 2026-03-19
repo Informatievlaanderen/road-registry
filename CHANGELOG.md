@@ -1,3 +1,37 @@
+## [4.49.4](https://github.com/informatievlaanderen/road-registry/compare/v4.49.3...v4.49.4) (2026-03-17)
+
+
+### Bug Fixes
+
+* extract status in list when rejected ([f3c78b0](https://github.com/informatievlaanderen/road-registry/commit/f3c78b076f4a077f43eb9f2df6e6d8c8fb37a15d))
+
+## [4.49.3](https://github.com/informatievlaanderen/road-registry/compare/v4.49.2...v4.49.3) (2026-03-17)
+
+
+### Bug Fixes
+
+* problem translations + remove upload rejections from activity page ([07b043a](https://github.com/informatievlaanderen/road-registry/commit/07b043ae856cfa3c11da39fc985c42ebd5de7fdc))
+
+## [4.49.2](https://github.com/informatievlaanderen/road-registry/compare/v4.49.1...v4.49.2) (2026-03-16)
+
+
+### Bug Fixes
+
+* dotcover install specify version ([0e221d3](https://github.com/informatievlaanderen/road-registry/commit/0e221d39ecb57399996bdc0e4f8872ebace5aa8b))
+* increase extract contour limit to take GRB buffered size into account ([406d1eb](https://github.com/informatievlaanderen/road-registry/commit/406d1ebed66f3fc2d02f6dbf5c1722a1fd98c400))
+* scheduled pipeline ([ccb0219](https://github.com/informatievlaanderen/road-registry/commit/ccb02190deca9ade76e87f39ddafe7897e842daa))
+* scheduled test run to also include unit tests ([0703622](https://github.com/informatievlaanderen/road-registry/commit/07036229b8745611776fd3e5d7863b07e79405be))
+* test using embedded resources ([5032dec](https://github.com/informatievlaanderen/road-registry/commit/5032dec100ba5fc51abf6a6904a6b72a2618cd76))
+* VAL20 segments should not partially overlap another ([2f9dc74](https://github.com/informatievlaanderen/road-registry/commit/2f9dc74aecc372bf282dcdba2ccd7bee9badf684))
+* VAL23 segments can only intersect the same otherr segment once ([f4f345a](https://github.com/informatievlaanderen/road-registry/commit/f4f345a82d90008605c8688a9d7c8a2b9feed58e))
+* VAL28 validate missing node only from segment pov + convert old Ingeschetst logic as with status Gerealiseerd ([1d7e53d](https://github.com/informatievlaanderen/road-registry/commit/1d7e53d0335148886999b8778cf676a5328eeca9))
+* VAL31 segment start- and end vertices can not be equal ([140cd51](https://github.com/informatievlaanderen/road-registry/commit/140cd516950dabcf9786577c09eef5fb9f22a3a3))
+* VAL32 check if a node is allowed between segments ([d2cdd1c](https://github.com/informatievlaanderen/road-registry/commit/d2cdd1c9142d47e4fa402dd1b4b76ae8ef682c75))
+* VAL33 missing junctions/nodes taking car/bike/pedestrian access into account ([c51578e](https://github.com/informatievlaanderen/road-registry/commit/c51578e1c1faf2136d5bf346285d0052d1dd5ce9))
+* VAL35 junction temp segment ids must be valid ([f33ce8f](https://github.com/informatievlaanderen/road-registry/commit/f33ce8f5bbab094ba51404ae43272c8725a0ab8d))
+* VAL39 valid roadsegment ids for national/european roads ([c54b1d4](https://github.com/informatievlaanderen/road-registry/commit/c54b1d4ddea534f8d6fbbb9373e6c73f092733ca))
+* VAL4 dbf/shp record combinations must be correct ([af5340c](https://github.com/informatievlaanderen/road-registry/commit/af5340c5f9aeb9acfc74fa110c30a7f0c17bd856))
+
 ## [4.49.1](https://github.com/informatievlaanderen/road-registry/compare/v4.49.0...v4.49.1) (2026-03-09)
 
 

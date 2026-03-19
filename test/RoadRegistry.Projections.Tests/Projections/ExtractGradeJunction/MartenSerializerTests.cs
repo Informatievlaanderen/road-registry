@@ -23,11 +23,11 @@ public class MartenSerializerTests
     {
         var fixture = new RoadNetworkTestDataV2().Fixture;
 
-        var original = fixture.Create<GradeSeparatedJunctionExtractItem>();
+        var original = fixture.Create<GradeJunctionExtractItem>();
 
         var serializer = new StoreOptions().ConfigureSerializer().Serializer();
         var originalAsJson = serializer.ToJson(original);
-        var deserialized = serializer.FromJson<GradeSeparatedJunctionExtractItem>(originalAsJson);
+        var deserialized = serializer.FromJson<GradeJunctionExtractItem>(originalAsJson);
 
         _testOutputHelper.WriteLine($"Expected:\n{serializer.ToJson(original)}");
         _testOutputHelper.WriteLine($"\nActual:\n{serializer.ToJson(deserialized)}");

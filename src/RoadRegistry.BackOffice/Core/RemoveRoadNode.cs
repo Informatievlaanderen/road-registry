@@ -62,7 +62,10 @@ public class RemoveRoadNode : IRequestedChange
 
         var problems = Problems.None;
 
-        if (!context.BeforeView.View.Nodes.ContainsKey(Id)) problems = problems.Add(new RoadNodeNotFound());
+        if (!context.BeforeView.View.Nodes.ContainsKey(Id))
+        {
+            problems = problems.Add(new RoadNodeNotFound(Id));
+        }
 
         return problems;
     }

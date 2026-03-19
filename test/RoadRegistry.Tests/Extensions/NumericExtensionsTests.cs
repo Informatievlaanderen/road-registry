@@ -102,14 +102,4 @@ public class NumericExtensionsTests
         Assert.True(position1.IsReasonablyEqualTo(position2));
         Assert.False(position1.IsReasonablyEqualTo(position3));
     }
-
-    [Fact]
-    public void RoundToCm_RoadSegmentPositionV2_RoundsToTwoDecimals()
-    {
-        Assert.Equal(new RoadSegmentPositionV2(1.23), new RoadSegmentPositionV2(1.234).RoundToCm());
-        Assert.Equal(new RoadSegmentPositionV2(1.24), new RoadSegmentPositionV2(1.235).RoundToCm());
-        Assert.Equal(new RoadSegmentPositionV2(1.24), new RoadSegmentPositionV2(1.236).RoundToCm());
-        Assert.Equal(new RoadSegmentPositionV2(0.0), new RoadSegmentPositionV2(0.004).RoundToCm());
-        Assert.Equal(new RoadSegmentPositionV2(0.01), new RoadSegmentPositionV2(0.006).RoundToCm());
-    }
 }

@@ -405,16 +405,6 @@ public static class NetTopologySuiteExtensions
         return @this.Equals2D(other, tolerances.GeometryTolerance);
     }
 
-    public static bool IsReasonablyEqualToByCm(this double value, double other)
-    {
-        return value.IsReasonablyEqualTo(other, VerificationContextTolerances.Cm);
-    }
-
-    public static bool IsReasonablyEqualTo(this double value, double other)
-    {
-        return value.IsReasonablyEqualTo(other, VerificationContextTolerances.Default);
-    }
-
     public static bool IsReasonablyEqualTo(this double value, double other, VerificationContextTolerances tolerances)
     {
         return value.IsReasonablyEqualTo(other, tolerances.GeometryTolerance);

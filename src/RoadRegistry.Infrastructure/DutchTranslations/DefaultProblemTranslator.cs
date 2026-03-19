@@ -190,8 +190,11 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     : $"De wegknoop {problem.Parameters[0].Value} is met geen enkel wegsegment verbonden.")
             },
             {
-                ProblemCode.RoadNode.NotFound, problem => new(problem.Severity, problem.Reason,
-                    "De wegknoop is niet langer onderdeel van het wegen netwerk.")
+                ProblemCode.RoadNode.NotFound, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegknoopId")
+                ? $"De wegknoop {GetRoadNodeIdLabel(problem)} is niet langer onderdeel van het wegen netwerk."
+                : problem.HasParameter("NodeId")
+                    ? $"De wegknoop met id {problem.GetParameterValue("NodeId")} is niet langer onderdeel van het wegen netwerk."
+                    : "De wegknoop is niet langer onderdeel van het wegen netwerk.")
             },
             {
                 ProblemCode.RoadNode.TemporaryIdNotUnique, problem => new(problem.Severity, problem.Reason,

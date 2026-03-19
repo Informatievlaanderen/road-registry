@@ -33,7 +33,7 @@ public class ModifyRoadNode : IRequestedChange
 
         if (!context.BeforeView.Nodes.ContainsKey(Id))
         {
-            problems = problems.Add(new RoadNodeNotFound());
+            problems = problems.Add(new RoadNodeNotFound(Id));
         }
 
         return problems;
