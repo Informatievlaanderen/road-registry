@@ -1,3 +1,10 @@
+# [4.50.0](https://github.com/informatievlaanderen/road-registry/compare/v4.49.4...v4.50.0) (2026-03-20)
+
+
+### Features
+
+* automatically create/delete grade junctions when roadnetwork changes ([4e89115](https://github.com/informatievlaanderen/road-registry/commit/4e891155763be9b4615770aa8f72703267d744f7))
+
 ## [4.49.4](https://github.com/informatievlaanderen/road-registry/compare/v4.49.3...v4.49.4) (2026-03-17)
 
 
