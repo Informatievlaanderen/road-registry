@@ -44,7 +44,7 @@ public class StreetNameEventConsumerContext : SqlServerConsumerDbContext<StreetN
         options
             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
             .UseSqlServer(
-                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.StreetNameEventConsumer),
+                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.StreetNameEventConsumer, WellKnownConnectionNames.RoadRegistry),
                 sqlOptions => sqlOptions
                     .EnableRetryOnFailure()
                     .MigrationsHistoryTable(MigrationTables.StreetNameEventConsumer, WellKnownSchemas.StreetNameEventConsumerSchema));

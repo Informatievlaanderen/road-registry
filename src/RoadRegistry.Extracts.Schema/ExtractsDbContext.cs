@@ -137,7 +137,7 @@ public static class ExtractsDbContextExtensions
             .UseLoggerFactory(sp.GetRequiredService<ILoggerFactory>())
             .UseQueryTrackingBehavior(queryTrackingBehavior)
             .UseSqlServer(
-                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Extracts),
+                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Extracts, WellKnownConnectionNames.RoadRegistry),
                 ExtractsDbContext.ConfigureSqlServerOptions));
     }
 
@@ -148,7 +148,7 @@ public static class ExtractsDbContextExtensions
             .UseLoggerFactory(sp.GetRequiredService<ILoggerFactory>())
             .UseQueryTrackingBehavior(queryTrackingBehavior)
             .UseSqlServer(
-                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(connectionStringName),
+                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(connectionStringName, WellKnownConnectionNames.RoadRegistry),
                 ExtractsDbContext.ConfigureSqlServerOptions));
     }
 }

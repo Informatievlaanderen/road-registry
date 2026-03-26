@@ -46,7 +46,7 @@ public class OrganizationConsumerContext : SqlServerConsumerDbContext<Organizati
         options
             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
             .UseSqlServer(
-                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.OrganizationConsumerProjections),
+                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.OrganizationConsumerProjections, WellKnownConnectionNames.RoadRegistry),
                 sqlOptions => sqlOptions
                     .EnableRetryOnFailure()
                     .MigrationsHistoryTable(MigrationTables.OrganizationConsumer, ConsumerSchema));

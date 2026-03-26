@@ -2,6 +2,9 @@ namespace RoadRegistry.BackOffice;
 
 public static class WellKnownConnectionNames
 {
+    public const string RoadRegistry = "RoadRegistry";
+    public const string RoadRegistryEvents = "RoadRegistryEvents";
+
     public const string CommandHost = "CommandHost";
     public const string CommandHostAdmin = "CommandHostAdmin";
     public const string EditorProjections = "EditorProjections";

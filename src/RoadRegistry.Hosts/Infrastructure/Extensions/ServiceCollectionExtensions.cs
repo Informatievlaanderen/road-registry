@@ -28,7 +28,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IStreamStore>(sp =>
                 new MsSqlStreamStoreV3(
                     new MsSqlStreamStoreV3Settings(
-                        sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Events))
+                        sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Events, WellKnownConnectionNames.RoadRegistryEvents))
                         {
                             Schema = WellKnownSchemas.EventSchema
                         }));
@@ -41,7 +41,7 @@ public static class ServiceCollectionExtensions
                 {
                     var configuration = sp.GetRequiredService<IConfiguration>();
                     var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-                    var connectionString = configuration.GetRequiredConnectionString(WellKnownConnectionNames.EditorProjections);
+                    var connectionString = configuration.GetRequiredConnectionString(WellKnownConnectionNames.EditorProjections, WellKnownConnectionNames.RoadRegistry);
 
                     return () =>
                         new EditorContext(
@@ -58,7 +58,7 @@ public static class ServiceCollectionExtensions
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseSqlServer(
-                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.EditorProjections),
+                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.EditorProjections, WellKnownConnectionNames.RoadRegistry),
                     sqlOptions => sqlOptions
                         .UseNetTopologySuite())
             );
@@ -96,7 +96,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IStreetNameCache, StreetNameCache>()
             .AddDbContextFactory<StreetNameSnapshotProjectionContext>((sp, options) =>
             {
-                var connectionString = sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.StreetNameProjections);
+                var connectionString = sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.StreetNameProjections, WellKnownConnectionNames.RoadRegistry);
                 options
                     .UseSqlServer(connectionString,
                         o => o
@@ -105,7 +105,7 @@ public static class ServiceCollectionExtensions
             })
             .AddDbContextFactory<StreetNameEventProjectionContext>((sp, options) =>
             {
-                var connectionString = sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.StreetNameProjections);
+                var connectionString = sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.StreetNameProjections, WellKnownConnectionNames.RoadRegistry);
                 options
                     .UseSqlServer(connectionString,
                         o => o
@@ -124,7 +124,7 @@ public static class ServiceCollectionExtensions
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseSqlServer(
-                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Events),
+                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Events, WellKnownConnectionNames.RoadRegistryEvents),
                     sqlOptions => sqlOptions
                         .UseNetTopologySuite()
                         .MigrationsHistoryTable(MigrationTables.Default, RoadNetworkDbContext.Schema)
