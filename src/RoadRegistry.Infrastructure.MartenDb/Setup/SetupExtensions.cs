@@ -36,7 +36,7 @@ public static class SetupExtensions
             .AddMarten(sp =>
             {
                 var configuration = sp.GetRequiredService<IConfiguration>();
-                var connectionString = configuration.GetConnectionString("Marten");
+                var connectionString = configuration.GetRequiredConnectionString("Marten");
 
                 var options = new StoreOptions();
                 options.Connection(new NpgsqlDataSourceBuilder(connectionString)

@@ -44,7 +44,7 @@ public class StreetNameSnapshotConsumerContext : SqlServerConsumerDbContext<Stre
         options
             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
             .UseSqlServer(
-                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.StreetNameSnapshotConsumer),
+                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.StreetNameSnapshotConsumer, WellKnownConnectionNames.RoadRegistry),
                 sqlOptions => sqlOptions
                     .EnableRetryOnFailure()
                     .MigrationsHistoryTable(MigrationTables.StreetNameSnapshotConsumer, WellKnownSchemas.StreetNameSnapshotConsumerSchema));

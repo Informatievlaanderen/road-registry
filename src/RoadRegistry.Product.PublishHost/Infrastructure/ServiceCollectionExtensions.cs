@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseSqlServer(
-                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.ProductProjections),
+                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.ProductProjections, WellKnownConnectionNames.RoadRegistry),
                     sqlOptions => sqlOptions
                         .UseNetTopologySuite())
             , ServiceLifetime.Singleton);

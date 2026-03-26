@@ -36,7 +36,7 @@ public class StreetNameEventProjectionContext : RunnerDbContext<StreetNameEventP
         options
             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
             .UseSqlServer(
-                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.StreetNameProjections),
+                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.StreetNameProjections, WellKnownConnectionNames.RoadRegistry),
                 sqlOptions => sqlOptions
                     .EnableRetryOnFailure()
                     .MigrationsHistoryTable(MigrationTables.StreetNameEvent, WellKnownSchemas.StreetNameEventSchema));

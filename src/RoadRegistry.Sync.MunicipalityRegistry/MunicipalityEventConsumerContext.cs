@@ -52,7 +52,7 @@ public class MunicipalityEventConsumerContext : SqlServerConsumerDbContext<Munic
         options
             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
             .UseSqlServer(
-                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.MunicipalityEventConsumer),
+                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.MunicipalityEventConsumer, WellKnownConnectionNames.RoadRegistry),
                 sqlOptions => sqlOptions
                     .EnableRetryOnFailure()
                     .UseNetTopologySuite()

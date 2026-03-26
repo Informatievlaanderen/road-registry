@@ -35,13 +35,13 @@ namespace RoadRegistry.Jobs
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(JobsContext).Assembly);
         }
-        
+
         public static void ConfigureOptions(IServiceProvider sp, DbContextOptionsBuilder options)
         {
             options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseSqlServer(
-                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Jobs),
+                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Jobs, WellKnownConnectionNames.RoadRegistry),
                     sqlOptions => sqlOptions
                         .EnableRetryOnFailure()
                         .MigrationsHistoryTable(MigrationsTableName, Schema));
