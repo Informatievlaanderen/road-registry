@@ -1,3 +1,10 @@
+# [4.51.0](https://github.com/informatievlaanderen/road-registry/compare/v4.50.0...v4.51.0) (2026-03-26)
+
+
+### Features
+
+* add connectionstring fallback to reduce lambda configuration ([7c2d386](https://github.com/informatievlaanderen/road-registry/commit/7c2d386f378c589e61d5fec5216f048b54940c2b))
+
 # [4.50.0](https://github.com/informatievlaanderen/road-registry/compare/v4.49.4...v4.50.0) (2026-03-20)
 
 
