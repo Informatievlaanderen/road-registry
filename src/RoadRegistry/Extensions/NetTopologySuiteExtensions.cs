@@ -308,6 +308,11 @@ public static class NetTopologySuiteExtensions
             .WithSrid(lineString.SRID);
     }
 
+    public static bool SelfIntersects(this MultiLineString instance)
+    {
+        return instance.GetSingleLineString().SelfIntersects();
+    }
+
     public static bool SelfIntersects(this LineString instance)
     {
         if (instance.Length <= 0.0 || instance.NumPoints <= 2)
