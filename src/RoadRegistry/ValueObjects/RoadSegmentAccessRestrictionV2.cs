@@ -28,10 +28,10 @@ public sealed class RoadSegmentAccessRestrictionV2 : IEquatable<RoadSegmentAcces
         );
 
     public static readonly RoadSegmentAccessRestrictionV2[] All =
-    {
+    [
         OpenbareWeg,
         PrivateWeg
-    };
+    ];
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentAccessRestrictionV2> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);

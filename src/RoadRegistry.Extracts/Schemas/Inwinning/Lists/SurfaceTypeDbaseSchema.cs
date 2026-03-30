@@ -11,23 +11,23 @@ public class SurfaceTypeDbaseSchema : DbaseSchema
         Fields = new[]
         {
             DbaseField.CreateNumberField(
-                new DbaseFieldName(nameof(TYPE)),
+                new DbaseFieldName(nameof(VERHARDING)),
                 new DbaseFieldLength(2),
                 new DbaseDecimalCount(0)),
 
             DbaseField
                 .CreateCharacterField(
-                    new DbaseFieldName(nameof(LBLTYPE)),
+                    new DbaseFieldName(nameof(LBLVERHARD)),
                     new DbaseFieldLength(64)),
 
             DbaseField
                 .CreateCharacterField(
-                    new DbaseFieldName(nameof(DEFTYPE)),
+                    new DbaseFieldName(nameof(DEFVERHARD)),
                     new DbaseFieldLength(254))
         };
     }
 
-    public DbaseField DEFTYPE => Fields[2];
-    public DbaseField LBLTYPE => Fields[1];
-    public DbaseField TYPE => Fields[0];
+    public DbaseField DEFVERHARD => Fields[2];
+    public DbaseField LBLVERHARD => Fields[1];
+    public DbaseField VERHARDING => Fields[0];
 }

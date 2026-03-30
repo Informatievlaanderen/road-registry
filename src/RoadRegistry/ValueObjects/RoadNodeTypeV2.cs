@@ -22,7 +22,7 @@ public sealed class RoadNodeTypeV2 : IEquatable<RoadNodeTypeV2>, IDutchToString
             new DutchTranslation(
                 11,
                 "schijnknoop",
-                "Punt waar 2 wegsegmenten elkaar raken; slechts twee aansluitende wegsegmenten."
+                "Een schijnknoop is een wegknoop de geplaatst werd op plaatsen waar domeinwaarden van een wegsegment wijzigen. Schijnknopen hebben steeds twee aansluitende wegsegmenten."
             )
         );
 

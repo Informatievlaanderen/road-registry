@@ -14,10 +14,10 @@ public class RoadSegmentCategoryDbaseRecord : DbaseRecord
         LBLWEGCAT = new TrimmedDbaseString(Schema.LBLWEGCAT);
         DEFWEGCAT = new TrimmedDbaseString(Schema.DEFWEGCAT);
 
-        Values = new DbaseFieldValue[]
-        {
+        Values =
+        [
             WEGCAT, LBLWEGCAT, DEFWEGCAT
-        };
+        ];
     }
 
     public DbaseString DEFWEGCAT { get; }
