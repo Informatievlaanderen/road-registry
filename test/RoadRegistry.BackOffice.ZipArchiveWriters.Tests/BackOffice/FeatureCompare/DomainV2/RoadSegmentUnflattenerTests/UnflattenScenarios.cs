@@ -76,6 +76,101 @@ public class UnflattenScenarios
     }
 
     [Fact]
+    public void With2FlatSegmentsInOppositeDirectionAndFlippedAttributeSidesAnd1Schijnknoop_ThenSuccessWithAttributesOnCorrectSides()
+    {
+        // Arrange
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadSegmentId>();
+        fixture.Freeze<RoadSegmentStatusV2>();
+
+        var flatSegment1 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
+        {
+            Geometry = BuildRoadSegmentGeometry(0, 0, 50, 0),
+            LeftMaintenanceAuthorityId = new OrganizationId("1"),
+            RightMaintenanceAuthorityId = new OrganizationId("2"),
+            LeftSideStreetNameId = new StreetNameLocalId(1),
+            RightSideStreetNameId = new StreetNameLocalId(2),
+            CarAccessBackward = false,
+            CarAccessForward = true,
+            BikeAccessBackward = false,
+            BikeAccessForward = true
+        };
+        var flatSegment2 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
+        {
+            Geometry = BuildRoadSegmentGeometry(100, 0, 50, 0),
+            // attributes below are flipped of segment1
+            LeftMaintenanceAuthorityId = new OrganizationId("2"),
+            RightMaintenanceAuthorityId = new OrganizationId("1"),
+            LeftSideStreetNameId = new StreetNameLocalId(2),
+            RightSideStreetNameId = new StreetNameLocalId(1),
+            CarAccessBackward = true,
+            CarAccessForward = false,
+            BikeAccessBackward = true,
+            BikeAccessForward = false
+        };
+        var flatSegments = new []
+        {
+            flatSegment1,
+            flatSegment2
+        };
+
+        var nodes = new[]
+        {
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = new RoadNodeId(1),
+                Geometry = new Point(50, 0)
+            }
+        };
+
+        // Act
+        var records = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+
+        // Assert
+        records.Should().HaveCount(1);
+        var dynamicRecord = records.Single();
+
+        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[0].Value.Should().Be(flatSegment1.LeftMaintenanceAuthorityId);
+        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Left);
+        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[1].Value.Should().Be(flatSegment1.RightMaintenanceAuthorityId);
+        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Right);
+        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[2].Value.Should().Be(flatSegment1.LeftMaintenanceAuthorityId);
+        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[2].Side.Should().Be(RoadSegmentAttributeSide.Left);
+        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[3].Value.Should().Be(flatSegment1.RightMaintenanceAuthorityId);
+        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[3].Side.Should().Be(RoadSegmentAttributeSide.Right);
+
+        dynamicRecord.Attributes.StreetNameId!.Values[0].Value.Should().Be(flatSegment1.LeftSideStreetNameId);
+        dynamicRecord.Attributes.StreetNameId!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Left);
+        dynamicRecord.Attributes.StreetNameId!.Values[1].Value.Should().Be(flatSegment1.RightSideStreetNameId);
+        dynamicRecord.Attributes.StreetNameId!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Right);
+        dynamicRecord.Attributes.StreetNameId!.Values[2].Value.Should().Be(flatSegment1.LeftSideStreetNameId);
+        dynamicRecord.Attributes.StreetNameId!.Values[2].Side.Should().Be(RoadSegmentAttributeSide.Left);
+        dynamicRecord.Attributes.StreetNameId!.Values[3].Value.Should().Be(flatSegment1.RightSideStreetNameId);
+        dynamicRecord.Attributes.StreetNameId!.Values[3].Side.Should().Be(RoadSegmentAttributeSide.Right);
+
+        dynamicRecord.Attributes.CarAccessBackward!.Values[0].Value.Should().Be(flatSegment1.CarAccessBackward);
+        dynamicRecord.Attributes.CarAccessBackward!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Both);
+        dynamicRecord.Attributes.CarAccessBackward!.Values[1].Value.Should().Be(flatSegment1.CarAccessBackward);
+        dynamicRecord.Attributes.CarAccessBackward!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Both);
+
+        dynamicRecord.Attributes.CarAccessForward!.Values[0].Value.Should().Be(flatSegment1.CarAccessForward);
+        dynamicRecord.Attributes.CarAccessForward!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Both);
+        dynamicRecord.Attributes.CarAccessForward!.Values[1].Value.Should().Be(flatSegment1.CarAccessForward);
+        dynamicRecord.Attributes.CarAccessForward!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Both);
+
+        dynamicRecord.Attributes.BikeAccessBackward!.Values[0].Value.Should().Be(flatSegment1.BikeAccessBackward);
+        dynamicRecord.Attributes.BikeAccessBackward!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Both);
+        dynamicRecord.Attributes.BikeAccessBackward!.Values[1].Value.Should().Be(flatSegment1.BikeAccessBackward);
+        dynamicRecord.Attributes.BikeAccessBackward!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Both);
+
+        dynamicRecord.Attributes.BikeAccessForward!.Values[0].Value.Should().Be(flatSegment1.BikeAccessForward);
+        dynamicRecord.Attributes.BikeAccessForward!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Both);
+        dynamicRecord.Attributes.BikeAccessForward!.Values[1].Value.Should().Be(flatSegment1.BikeAccessForward);
+        dynamicRecord.Attributes.BikeAccessForward!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Both);
+
+    }
+
+    [Fact]
     public void WhenSelfIntersectsAndNodeFoundNearExpectedLocationAndSegmentsHaveEqualGeometryDirections_ThenSuccess()
     {
         // Arrange
