@@ -8,12 +8,12 @@ using Microsoft.Extensions.DependencyInjection;
 using NetTopologySuite.Geometries;
 using RoadNode;
 using RoadRegistry.Extensions;
+using RoadRegistry.GradeJunction;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadSegment;
 using ScopedRoadNetwork;
 using Xunit.Abstractions;
 
-//TODO-pr add GradeJunction to tests
 [Collection(nameof(DockerFixtureCollection))]
 public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationTest
 {
@@ -146,23 +146,41 @@ public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationT
             StartNodeId = roadNode3.RoadNodeId,
             EndNodeId = roadNode4.RoadNodeId
         };
-        var junction1 = TestData.Fixture.Create<RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAdded>() with
+        var gradeSeparatedJunction1 = TestData.Fixture.Create<RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAdded>() with
         {
             GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
             LowerRoadSegmentId = roadSegment1.RoadSegmentId,
             UpperRoadSegmentId = roadSegment2.RoadSegmentId
         };
-        var junction2 = TestData.Fixture.Create<RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAdded>() with
+        var gradeSeparatedJunction2 = TestData.Fixture.Create<RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAdded>() with
         {
             GradeSeparatedJunctionId = new GradeSeparatedJunctionId(2),
             LowerRoadSegmentId = roadSegment2.RoadSegmentId,
             UpperRoadSegmentId = roadSegment3.RoadSegmentId
         };
-        var junction3 = TestData.Fixture.Create<RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAdded>() with
+        var gradeSeparatedJunction3 = TestData.Fixture.Create<RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAdded>() with
         {
             GradeSeparatedJunctionId = new GradeSeparatedJunctionId(3),
             LowerRoadSegmentId = roadSegment3.RoadSegmentId,
             UpperRoadSegmentId = roadSegment3.RoadSegmentId
+        };
+        var gradeJunction1 = TestData.Fixture.Create<RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasAdded>() with
+        {
+            GradeJunctionId = new GradeJunctionId(1),
+            RoadSegmentId1 = roadSegment1.RoadSegmentId,
+            RoadSegmentId2 = roadSegment2.RoadSegmentId
+        };
+        var gradeJunction2 = TestData.Fixture.Create<RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasAdded>() with
+        {
+            GradeJunctionId = new GradeJunctionId(2),
+            RoadSegmentId1 = roadSegment2.RoadSegmentId,
+            RoadSegmentId2 = roadSegment3.RoadSegmentId
+        };
+        var gradeJunction3 = TestData.Fixture.Create<RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasAdded>() with
+        {
+            GradeJunctionId = new GradeJunctionId(3),
+            RoadSegmentId1 = roadSegment3.RoadSegmentId,
+            RoadSegmentId2 = roadSegment3.RoadSegmentId
         };
 
         session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadNode), roadNode1.RoadNodeId), roadNode1);
@@ -172,9 +190,12 @@ public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationT
         session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), roadSegment1.RoadSegmentId), roadSegment1);
         session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), roadSegment2.RoadSegmentId), roadSegment2);
         session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), roadSegment3.RoadSegmentId), roadSegment3);
-        session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), junction1.GradeSeparatedJunctionId), junction1);
-        session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), junction2.GradeSeparatedJunctionId), junction2);
-        session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), junction3.GradeSeparatedJunctionId), junction3);
+        session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), gradeSeparatedJunction1.GradeSeparatedJunctionId), gradeSeparatedJunction1);
+        session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), gradeSeparatedJunction2.GradeSeparatedJunctionId), gradeSeparatedJunction2);
+        session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), gradeSeparatedJunction3.GradeSeparatedJunctionId), gradeSeparatedJunction3);
+        session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeJunction), gradeJunction1.GradeJunctionId), gradeJunction1);
+        session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeJunction), gradeJunction2.GradeJunctionId), gradeJunction2);
+        session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeJunction), gradeJunction3.GradeJunctionId), gradeJunction3);
 
         await session.SaveChangesAsync();
 
@@ -186,8 +207,9 @@ public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationT
         var expectedIds = new RoadNetworkIds(
             [roadNode1.RoadNodeId, roadNode2.RoadNodeId, roadNode3.RoadNodeId],
             [roadSegment1.RoadSegmentId, roadSegment2.RoadSegmentId],
-            [junction1.GradeSeparatedJunctionId, junction2.GradeSeparatedJunctionId]
-            ,[]);
+            [gradeSeparatedJunction1.GradeSeparatedJunctionId, gradeSeparatedJunction2.GradeSeparatedJunctionId],
+            [gradeJunction1.GradeJunctionId, gradeJunction2.GradeJunctionId]
+        );
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
