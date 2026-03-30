@@ -25,13 +25,13 @@ public class DbaseFileZipArchiveWriter : IZipArchiveWriter
     public async Task WriteAsync(
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
-        IZipArchiveDataProvider zipArchiveDataProvider,
+        IZipArchiveDataSession zipArchiveData,
         ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
+        ArgumentNullException.ThrowIfNull(zipArchiveData);
 
         var dbaseRecordWriter = new DbaseRecordWriter(_encoding);
         await dbaseRecordWriter.WriteToArchive(archive, _filename, _schema, _records, cancellationToken);

@@ -11,6 +11,7 @@
     using RoadRegistry.Extracts;
     using RoadRegistry.Extracts.ZipArchiveWriters;
     using RoadRegistry.Extracts.ZipArchiveWriters.Writers.Inwinning;
+    using RoadRegistry.Tests.AggregateTests;
     using RoadRegistry.Tests.BackOffice;
     using RoadRegistry.Tests.BackOffice.Scenarios;
 
@@ -18,14 +19,14 @@
     {
         private readonly RecyclableMemoryStreamManager _memoryStreamManager;
         private readonly ZipArchiveWriterOptions _zipArchiveWriterOptions;
-        private readonly Mock<IZipArchiveDataProvider> _zipArchiveDataProvider;
+        private readonly Mock<IZipArchiveDataSession> _zipArchiveDataProvider;
 
         public RoadNetworkExtractZipArchiveWriterTests(ZipArchiveWriterOptions zipArchiveWriterOptions)
         {
             _memoryStreamManager = new RecyclableMemoryStreamManager();
             _zipArchiveWriterOptions = zipArchiveWriterOptions;
 
-            _zipArchiveDataProvider = new Mock<IZipArchiveDataProvider>();
+            _zipArchiveDataProvider = new Mock<IZipArchiveDataSession>();
             _zipArchiveDataProvider
                 .Setup(x => x.GetOrganizations(It.IsAny<CancellationToken>()))
                 .ReturnsAsync([]);
@@ -195,6 +196,59 @@
            }
 
            fileNames.Should().HaveCount(expectedFileNames.Length);
+        }
+
+        [Fact]
+        public async Task EnsureWriterIsHandledNotInParallel()
+        {
+            // This is required so that Junctions are always processed after RoadSegments to ensure the tempids are registered
+            var fixture = new RoadNetworkTestDataV2().Fixture;
+
+            var messages = new List<string>();
+            var writer = new CompositeZipArchiveWriter(NullLogger.Instance,
+                new SlowWriter(messages),
+                new FastWriter(messages));
+
+            await writer.WriteAsync(new ZipArchive(new MemoryStream(), ZipArchiveMode.Create),
+                new RoadNetworkExtractAssemblyRequest(fixture.Create<DownloadId>(), fixture.Create<ExtractDescription>(), Polygon.Empty, fixture.Create<bool>(), fixture.Create<string>()),
+                Mock.Of<IZipArchiveDataSession>(),
+                new ZipArchiveWriteContext(),
+                CancellationToken.None);
+
+            messages[0].Should().Be("slow");
+            messages[1].Should().Be("fast");
+        }
+
+        private sealed class SlowWriter : IZipArchiveWriter
+        {
+            private readonly List<string> _messages;
+
+            public SlowWriter(List<string> messages)
+            {
+                _messages = messages;
+            }
+
+            public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request, IZipArchiveDataSession zipArchiveData, ZipArchiveWriteContext context, CancellationToken cancellationToken)
+            {
+                await Task.Delay(500, cancellationToken);
+                _messages.Add("slow");
+            }
+        }
+
+        private sealed class FastWriter : IZipArchiveWriter
+        {
+            private readonly List<string> _messages;
+
+            public FastWriter(List<string> messages)
+            {
+                _messages = messages;
+            }
+
+            public Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request, IZipArchiveDataSession zipArchiveData, ZipArchiveWriteContext context, CancellationToken cancellationToken)
+            {
+                _messages.Add("fast");
+                return Task.CompletedTask;
+            }
         }
     }
 }

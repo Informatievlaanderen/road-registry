@@ -8,7 +8,7 @@ public interface IZipArchiveWriter
     Task WriteAsync(
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
-        IZipArchiveDataProvider zipArchiveDataProvider,
+        IZipArchiveDataSession zipArchiveData,
         ZipArchiveWriteContext context,
         CancellationToken cancellationToken);
 }

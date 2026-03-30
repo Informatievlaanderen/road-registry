@@ -1,10 +1,14 @@
 ﻿namespace RoadRegistry.Extracts.ZipArchiveWriters;
 
+using RoadRegistry.Extracts.Projections;
+
 public class ZipArchiveWriteContext
 {
     private readonly Dictionary<RoadSegmentId, List<(RoadSegmentId, RoadSegmentGeometry)>> _roadSegmentTempIds = new();
     private RoadSegmentId _nextTempRoadSegmentId = new(1);
     private RoadNodeId _nextSchijnknoopId = new(5000000);
+
+    public List<RoadSegmentExtractItem>? IntegrationSegments { get; set; }
 
     public RoadSegmentId NewTempId(RoadSegmentId roadSegmentId, RoadSegmentGeometry geometry)
     {

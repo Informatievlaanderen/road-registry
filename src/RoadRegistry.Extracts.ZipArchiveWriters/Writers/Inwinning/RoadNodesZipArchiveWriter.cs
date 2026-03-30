@@ -2,7 +2,6 @@ namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers.Inwinning;
 
 using System.IO.Compression;
 using System.Text;
-using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Infrastructure.ShapeFile;
@@ -24,15 +23,15 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
     public async Task WriteAsync(
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
-        IZipArchiveDataProvider zipArchiveDataProvider,
+        IZipArchiveDataSession zipArchiveData,
         ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
+        ArgumentNullException.ThrowIfNull(zipArchiveData);
 
-        var nodes = (await zipArchiveDataProvider.GetRoadNodes(request.Contour, cancellationToken)).ToList();
+        var nodes = (await zipArchiveData.GetRoadNodes(request.Contour, cancellationToken)).ToList();
 
         const ExtractFileName extractFilename = ExtractFileName.Wegknoop;
         FeatureType[] featureTypes = request.IsInformative
@@ -46,7 +45,7 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
 
         if (nodes.Any())
         {
-            var segments = await zipArchiveDataProvider.GetRoadSegments(request.Contour, cancellationToken);
+            var segments = await zipArchiveData.GetRoadSegments(request.Contour, cancellationToken);
             records.AddRange(BuildSchijnknoopDbaseRecords(segments, context));
         }
 
@@ -54,9 +53,63 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
         {
             await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.Point, RoadNodeDbaseRecord.Schema, records, cancellationToken);
         }
+
+        await WriteIntegration(writer, archive, request, zipArchiveData, context, cancellationToken);
     }
 
-    internal static IEnumerable<(DbaseRecord, Geometry)> ConvertToDbaseRecords(IEnumerable<RoadNodeExtractItem> nodes)
+    private async Task WriteIntegration(
+        ShapeFileRecordWriter writer,
+        ZipArchive archive,
+        RoadNetworkExtractAssemblyRequest request,
+        IZipArchiveDataSession zipArchiveData,
+        ZipArchiveWriteContext context,
+        CancellationToken cancellationToken)
+    {
+        const int IntegrationBufferInMeters = 350;
+
+        var nodesInContour = await zipArchiveData.GetRoadNodes(request.Contour, cancellationToken);
+        var segmentsInContour = await zipArchiveData.GetRoadSegments(request.Contour, cancellationToken);
+
+        var integrationBufferedSegmentsGeometries = segmentsInContour.Select(x => x.Geometry.Value.Buffer(IntegrationBufferInMeters)).ToList();
+
+        var integrationSegments = new List<RoadSegmentExtractItem>();
+        var integrationNodes = new List<RoadNodeExtractItem>();
+
+        if (integrationBufferedSegmentsGeometries.Any())
+        {
+            var integrationBufferedContourGeometry = (IPolygonal)WellKnownGeometryFactories.Lambert08
+                .BuildGeometry(integrationBufferedSegmentsGeometries)
+                .ConvexHull();
+
+            var segmentsInIntegrationBuffer = await zipArchiveData.GetRoadSegments(
+                integrationBufferedContourGeometry,
+                cancellationToken);
+
+            integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentEqualityComparerById()).ToList();
+            integrationSegments = integrationSegments
+                .Where(integrationSegment => integrationBufferedSegmentsGeometries.Any(segmentBufferedGeometry => segmentBufferedGeometry.Intersects(integrationSegment.Geometry.Value)))
+                .ToList();
+
+            // nodes integration
+            var nodesInIntegrationBuffer = await zipArchiveData.GetRoadNodes(
+                integrationBufferedContourGeometry,
+                cancellationToken);
+
+            var integrationNodeIds = integrationSegments.SelectMany(segment => new[] { segment.StartNodeId, segment.EndNodeId }).Distinct().ToList();
+            integrationNodes = nodesInIntegrationBuffer.Where(integrationNode => integrationNodeIds.Contains(integrationNode.RoadNodeId))
+                .ToList();
+            integrationNodes = integrationNodes.Except(nodesInContour, new RoadNodeEqualityComparerById()).ToList();
+        }
+
+        context.IntegrationSegments = integrationSegments;
+
+        var records = ConvertToDbaseRecords(integrationNodes)
+            .Concat(BuildSchijnknoopDbaseRecords(integrationSegments, context));
+
+        await writer.WriteToArchive(archive, ExtractFileName.Wegknoop, FeatureType.Integration, ShapeType.Point, RoadNodeDbaseRecord.Schema, records, cancellationToken);
+    }
+
+    private static IEnumerable<(DbaseRecord, Geometry)> ConvertToDbaseRecords(IEnumerable<RoadNodeExtractItem> nodes)
     {
         return nodes
             .OrderBy(record => record.Id)
@@ -74,7 +127,7 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
             });
     }
 
-    internal static IEnumerable<(DbaseRecord, Geometry)> BuildSchijnknoopDbaseRecords(IEnumerable<RoadSegmentExtractItem> segments, ZipArchiveWriteContext context)
+    private static IEnumerable<(DbaseRecord, Geometry)> BuildSchijnknoopDbaseRecords(IEnumerable<RoadSegmentExtractItem> segments, ZipArchiveWriteContext context)
     {
         return segments
             .SelectMany(x =>
@@ -132,5 +185,39 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
     private static bool IsWithin10MeterOfGrens(RoadNodeGeometry geometry)
     {
         return GewestGrens.IsCloseToBorder(geometry.Value, 10);
+    }
+    
+    private sealed class RoadNodeEqualityComparerById : IEqualityComparer<RoadNodeExtractItem>
+    {
+        public bool Equals(RoadNodeExtractItem? x, RoadNodeExtractItem? y)
+        {
+            if (ReferenceEquals(x, y)) return true;
+            if (ReferenceEquals(x, null)) return false;
+            if (ReferenceEquals(y, null)) return false;
+            if (x.GetType() != y.GetType()) return false;
+            return x.Id == y.Id;
+        }
+
+        public int GetHashCode(RoadNodeExtractItem obj)
+        {
+            return obj.RoadNodeId;
+        }
+    }
+
+    private sealed class RoadSegmentEqualityComparerById : IEqualityComparer<RoadSegmentExtractItem>
+    {
+        public bool Equals(RoadSegmentExtractItem? x, RoadSegmentExtractItem? y)
+        {
+            if (ReferenceEquals(x, y)) return true;
+            if (ReferenceEquals(x, null)) return false;
+            if (ReferenceEquals(y, null)) return false;
+            if (x.GetType() != y.GetType()) return false;
+            return x.Id == y.Id;
+        }
+
+        public int GetHashCode(RoadSegmentExtractItem obj)
+        {
+            return obj.RoadSegmentId;
+        }
     }
 }

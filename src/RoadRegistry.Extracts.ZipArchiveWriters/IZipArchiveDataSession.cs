@@ -4,7 +4,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Editor.Schema.Organizations;
 using RoadRegistry.Extracts.Projections;
 
-public interface IZipArchiveDataProvider
+public interface IZipArchiveDataSession
 {
     Task<IReadOnlyList<RoadNodeExtractItem>> GetRoadNodes(
         IPolygonal contour,

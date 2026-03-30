@@ -20,13 +20,13 @@ public class OrganizationsZipArchiveWriter : IZipArchiveWriter
     public async Task WriteAsync(
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
-        IZipArchiveDataProvider zipArchiveDataProvider,
+        IZipArchiveDataSession zipArchiveData,
         ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
+        ArgumentNullException.ThrowIfNull(zipArchiveData);
 
         var dbaseRecords = new List<OrganizationDbaseRecord>();
 
@@ -38,7 +38,7 @@ public class OrganizationsZipArchiveWriter : IZipArchiveWriter
             dbaseRecords.Add(dbfRecord);
         }
 
-        foreach (var organization in await zipArchiveDataProvider.GetOrganizations(cancellationToken))
+        foreach (var organization in await zipArchiveData.GetOrganizations(cancellationToken))
         {
             var dbfRecord = new OrganizationDbaseRecord();
             dbfRecord.ORG.Value = organization.Code;

@@ -8,14 +8,17 @@
     using RoadRegistry.Extracts.Projections;
     using RoadRegistry.ScopedRoadNetwork;
 
-    public class ZipArchiveDataProvider : IZipArchiveDataProvider
+    public class ZipArchiveDataSession : IZipArchiveDataSession
     {
         private readonly IDocumentSession _session;
         private readonly IRoadNetworkRepository _roadNetworkRepository;
         private readonly EditorContext _editorContext;
-        private readonly Dictionary<Geometry, RoadNetworkIds> _ids = [];
 
-        public ZipArchiveDataProvider(IDocumentSession session, IRoadNetworkRepository roadNetworkRepository, EditorContext editorContext)
+        private readonly Dictionary<Geometry, RoadNetworkIds> _idsCache = [];
+        private readonly Dictionary<IPolygonal, IReadOnlyList<RoadNodeExtractItem>> _roadNodesCache = [];
+        private readonly Dictionary<IPolygonal, IReadOnlyList<RoadSegmentExtractItem>> _roadSegmentsCache = [];
+
+        public ZipArchiveDataSession(IDocumentSession session, IRoadNetworkRepository roadNetworkRepository, EditorContext editorContext)
         {
             _session = session;
             _roadNetworkRepository = roadNetworkRepository;
@@ -26,18 +29,32 @@
             IPolygonal contour,
             CancellationToken cancellationToken)
         {
+            if (_roadNodesCache.TryGetValue(contour, out var roadNodes))
+            {
+                return roadNodes.ToList();
+            }
+
             var ids = await GetUnderlyingRoadNetworkIds((Geometry)contour);
 
-            return await _session.LoadManyAsync<RoadNodeExtractItem>(cancellationToken, ids.RoadNodeIds.Select(x => x.ToInt32()).ToArray());
+            var result = await _session.LoadManyAsync<RoadNodeExtractItem>(cancellationToken, ids.RoadNodeIds.Select(x => x.ToInt32()).ToArray());
+            _roadNodesCache[contour] = result;
+            return result;
         }
 
         public async Task<IReadOnlyList<RoadSegmentExtractItem>> GetRoadSegments(
             IPolygonal contour,
             CancellationToken cancellationToken)
         {
+            if (_roadSegmentsCache.TryGetValue(contour, out var roadSegments))
+            {
+                return roadSegments.ToList();
+            }
+
             var ids = await GetUnderlyingRoadNetworkIds((Geometry)contour);
 
-            return await _session.LoadManyAsync<RoadSegmentExtractItem>(cancellationToken, ids.RoadSegmentIds.Select(x => x.ToInt32()).ToArray());
+            var result = await _session.LoadManyAsync<RoadSegmentExtractItem>(cancellationToken, ids.RoadSegmentIds.Select(x => x.ToInt32()).ToArray());
+            _roadSegmentsCache[contour] = result;
+            return result;
         }
         public async Task<IReadOnlyList<GradeSeparatedJunctionExtractItem>> GetGradeSeparatedJunctions(
             IPolygonal contour,
@@ -57,13 +74,13 @@
 
         private async Task<RoadNetworkIds> GetUnderlyingRoadNetworkIds(Geometry geometry)
         {
-            if (_ids.TryGetValue(geometry, out var roadNetworkIds))
+            if (_idsCache.TryGetValue(geometry, out var roadNetworkIds))
             {
                 return roadNetworkIds;
             }
 
             var ids = await _roadNetworkRepository.GetUnderlyingIds(_session, geometry);
-            _ids[geometry] = ids;
+            _idsCache[geometry] = ids;
             return ids;
         }
     }

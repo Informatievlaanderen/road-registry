@@ -54,7 +54,7 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV2
         await writer.WriteAsync(
             archive,
             request,
-            new ZipArchiveDataProvider(session, _roadNetworkRepository, editorContext),
+            new ZipArchiveDataSession(session, _roadNetworkRepository, editorContext),
             new ZipArchiveWriteContext(),
             cancellationToken);
 

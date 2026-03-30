@@ -22,13 +22,13 @@ public class TransactionZoneZipArchiveWriter : IZipArchiveWriter
     public async Task WriteAsync(
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
-        IZipArchiveDataProvider zipArchiveDataProvider,
+        IZipArchiveDataSession zipArchiveData,
         ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
+        ArgumentNullException.ThrowIfNull(zipArchiveData);
 
         var dbaseRecord = new TransactionZoneDbaseRecord
         {
