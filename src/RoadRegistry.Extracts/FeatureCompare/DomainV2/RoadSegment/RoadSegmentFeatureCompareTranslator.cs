@@ -13,7 +13,6 @@ using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
-using RoadRegistry.ValueObjects.Problems;
 using TranslatedChanges = DomainV2.TranslatedChanges;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareWithFlatAttributes>
