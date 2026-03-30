@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NetTopologySuite.Index.Strtree;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
@@ -105,6 +106,15 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
     {
         var batchCount = Debugger.IsAttached ? 1 : 4;
 
+        var spatialIndex = new STRtree<RoadSegmentFeatureWithDynamicAttributes>();
+        foreach (var feature in dynamicExtractFeatures)
+        {
+            spatialIndex.Insert(feature.Attributes.Geometry.EnvelopeInternal, feature);
+        }
+        spatialIndex.Build();
+
+        var extractFeaturesDictionary = dynamicExtractFeatures.ToDictionary(x => x.Attributes.RoadSegmentId, x => x);
+
         var processedLeveringRecords = new ConcurrentDictionary<int, (List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems)>();
         Parallel.Invoke(dynamicChangeFeatures
             .SplitIntoBatches(batchCount)
@@ -113,7 +123,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 return (Action)(() =>
                 {
                     processedLeveringRecords.TryAdd(index,
-                        ProcessLeveringRecords(changeFeaturesBatch, dynamicExtractFeatures, streetNameContext, context, cancellationToken));
+                        ProcessLeveringRecords(changeFeaturesBatch, extractFeaturesDictionary, spatialIndex, streetNameContext, context, cancellationToken));
                 });
             })
             .ToArray());
@@ -128,7 +138,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
     private (List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems) ProcessLeveringRecords(
         ICollection<RoadSegmentFeatureWithDynamicAttributes> changeFeatures,
-        ICollection<RoadSegmentFeatureWithDynamicAttributes> extractFeatures,
+        IDictionary<RoadSegmentId, RoadSegmentFeatureWithDynamicAttributes> extractFeatures,
+        STRtree<RoadSegmentFeatureWithDynamicAttributes> spatialIndex,
         IRoadSegmentFeatureCompareStreetNameContext streetNameContext,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
@@ -144,10 +155,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             cancellationToken.ThrowIfCancellationRequested();
 
             var changeFeatureAttributes = changeFeature.Attributes;
-            var identicalExtractFeature = extractFeatures.FirstOrDefault(e =>
-                e.Attributes.RoadSegmentId == changeFeatureAttributes.RoadSegmentId
-                && e.Attributes.Equals(changeFeatureAttributes));
-            if (identicalExtractFeature is not null)
+            if (extractFeatures.TryGetValue(changeFeatureAttributes.RoadSegmentId, out var identicalExtractFeature)
+                && identicalExtractFeature.Attributes.Equals(changeFeatureAttributes))
             {
                 processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                     FeatureType.Change,
@@ -260,17 +269,20 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             if (changeFeatureAttributes.Status == RoadSegmentStatusV2.Gerealiseerd)
             {
                 var bufferedGeometry = changeFeatureAttributes.Geometry.Buffer(OverlapClusterTolerance);
-                return extractFeatures
+                return spatialIndex
+                    .Query(bufferedGeometry.EnvelopeInternal)
                     .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry))
                     .Where(x => changeFeatureAttributes.Geometry.RoadSegmentOverlapsWith(x.Attributes.Geometry, OverlapClusterTolerance))
                     .Select(x => x.Attributes)
                     .ToList();
             }
 
-            return extractFeatures
-                .Where(x => x.Attributes.RoadSegmentId == changeFeatureAttributes.RoadSegmentId)
-                .Select(x => x.Attributes)
-                .ToList();
+            if (extractFeatures.TryGetValue(changeFeatureAttributes.RoadSegmentId, out var extractFeature))
+            {
+                return [extractFeature.Attributes];
+            }
+
+            return [];
         }
 
         StreetNameLocalId CorrectStreetNameId(StreetNameLocalId id)
