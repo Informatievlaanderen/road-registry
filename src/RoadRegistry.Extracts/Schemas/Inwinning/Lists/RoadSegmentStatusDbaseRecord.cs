@@ -14,10 +14,10 @@ public class RoadSegmentStatusDbaseRecord : DbaseRecord
         LBLSTATUS = new TrimmedDbaseString(Schema.LBLSTATUS);
         DEFSTATUS = new TrimmedDbaseString(Schema.DEFSTATUS);
 
-        Values = new DbaseFieldValue[]
-        {
+        Values =
+        [
             STATUS, LBLSTATUS, DEFSTATUS
-        };
+        ];
     }
 
     public DbaseString DEFSTATUS { get; }

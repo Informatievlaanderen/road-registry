@@ -11,23 +11,23 @@ public class RoadSegmentAccessRestrictionDbaseSchema : DbaseSchema
         Fields = new[]
         {
             DbaseField.CreateNumberField(
-                new DbaseFieldName(nameof(TYPE)),
+                new DbaseFieldName(nameof(TOEGANG)),
                 new DbaseFieldLength(2),
                 new DbaseDecimalCount(0)),
 
             DbaseField
                 .CreateCharacterField(
-                    new DbaseFieldName(nameof(LBLTYPE)),
+                    new DbaseFieldName(nameof(LBLTOEGANG)),
                     new DbaseFieldLength(64)),
 
             DbaseField
                 .CreateCharacterField(
-                    new DbaseFieldName(nameof(DEFTYPE)),
+                    new DbaseFieldName(nameof(DEFTOEGANG)),
                     new DbaseFieldLength(254))
         };
     }
 
-    public DbaseField DEFTYPE => Fields[2];
-    public DbaseField LBLTYPE => Fields[1];
-    public DbaseField TYPE => Fields[0];
+    public DbaseField DEFTOEGANG => Fields[2];
+    public DbaseField LBLTOEGANG => Fields[1];
+    public DbaseField TOEGANG => Fields[0];
 }

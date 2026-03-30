@@ -12,7 +12,7 @@ public sealed class GradeSeparatedJunctionTypeV2 : IEquatable<GradeSeparatedJunc
             new DutchTranslation(
                 1,
                 "tunnel",
-                "Een tunnel is een doorgang voor een weg die onder de grond, onder water of in een langwerpige, overdekte uitgraving is gelegen.\n\n"
+                "Een tunnel is een doorgang voor een weg die onder de grond, onder water of in een langwerpige, overdekte uitgraving is gelegen."
             )
         );
 

@@ -16,7 +16,7 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
             new DutchTranslation(
                 "EHW",
                 "europese hoofdweg",
-                "Europese hoofdwegen"
+                "Europese wegen vormen de grootste mazen, de fundering van het wegennet."
             )
         );
 
@@ -26,7 +26,7 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
             new DutchTranslation(
                 "VHW",
                 "vlaamse hoofdweg",
-                "Vlaamse hoofdwegen"
+                "De mazen van Europese wegen worden verkleind door de Vlaamse hoofdwegen. Dit zijn wegen die nationale verbindingen mogelijk maken."
             )
         );
 
@@ -36,7 +36,7 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
             new DutchTranslation(
                 "RW",
                 "regionale weg",
-                "Regionale wegen"
+                "Regionale wegen verkleinen de mazen die gevormd worden door Europese en Vlaamse hoofdwegen. Zij staan in voor gewestelijke en regionale verbindingen en zijn de eerste laag van het dragend wegennet."
             )
         );
 
@@ -46,7 +46,7 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
             new DutchTranslation(
                 "IW",
                 "interlokale weg",
-                "Interlokale wegen"
+                "Interlokale wegen verbinden niet-aanpalende gemeenten en vormen het laatste niveau van wegen met een verbindende functie. Binnen de interlokale maas liggen er uitsluitend lokale wegen, die niet voor doorgaand verkeer bedoeld zijn."
             )
         );
 
@@ -56,7 +56,7 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
             new DutchTranslation(
                 "OW",
                 "lokale ontsluitingsweg",
-                "Lokale ontsluitingsweg"
+                "Ontsluitingswegen kunnen kernen en wijken gelegen binnen een interlokale maas verbinden met elkaar, maar maken nooit de verbinding tussen twee wegen die de interlokale maas afbakenen. Ze zorgen voor de ontsluiting van de aantakkende erftoegangswegen."
             )
         );
 
@@ -66,7 +66,7 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
             new DutchTranslation(
                 "EW",
                 "lokale erftoegangsweg",
-                "Lokale erftoegangsweg"
+                "Erftoegangswegen hebben geen verbindende functie en verlenen enkel directe toegang tot percelen langs de weg. Dit kunnen woningen, bedrijven of instellingen zijn."
             )
         );
 

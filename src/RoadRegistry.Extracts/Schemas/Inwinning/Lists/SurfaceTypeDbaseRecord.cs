@@ -10,17 +10,17 @@ public class SurfaceTypeDbaseRecord : DbaseRecord
 
     public SurfaceTypeDbaseRecord()
     {
-        TYPE = new DbaseInt32(Schema.TYPE);
-        LBLTYPE = new TrimmedDbaseString(Schema.LBLTYPE);
-        DEFTYPE = new TrimmedDbaseString(Schema.DEFTYPE);
+        VERHARDING = new DbaseInt32(Schema.VERHARDING);
+        LBLVERHARD = new TrimmedDbaseString(Schema.LBLVERHARD);
+        DEFVERHARD = new TrimmedDbaseString(Schema.DEFVERHARD);
 
-        Values = new DbaseFieldValue[]
-        {
-            TYPE, LBLTYPE, DEFTYPE
-        };
+        Values =
+        [
+            VERHARDING, LBLVERHARD, DEFVERHARD
+        ];
     }
 
-    public DbaseString DEFTYPE { get; }
-    public DbaseString LBLTYPE { get; }
-    public DbaseInt32 TYPE { get; }
+    public DbaseString DEFVERHARD { get; }
+    public DbaseString LBLVERHARD { get; }
+    public DbaseInt32 VERHARDING { get; }
 }

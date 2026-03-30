@@ -10,17 +10,17 @@ public class RoadSegmentAccessRestrictionDbaseRecord : DbaseRecord
 
     public RoadSegmentAccessRestrictionDbaseRecord()
     {
-        TYPE = new DbaseInt32(Schema.TYPE);
-        LBLTYPE = new TrimmedDbaseString(Schema.LBLTYPE);
-        DEFTYPE = new TrimmedDbaseString(Schema.DEFTYPE);
+        TOEGANG = new DbaseInt32(Schema.TOEGANG);
+        LBLTOEGANG = new TrimmedDbaseString(Schema.LBLTOEGANG);
+        DEFTOEGANG = new TrimmedDbaseString(Schema.DEFTOEGANG);
 
-        Values = new DbaseFieldValue[]
-        {
-            TYPE, LBLTYPE, DEFTYPE
-        };
+        Values =
+        [
+            TOEGANG, LBLTOEGANG, DEFTOEGANG
+        ];
     }
 
-    public DbaseString DEFTYPE { get; }
-    public DbaseString LBLTYPE { get; }
-    public DbaseInt32 TYPE { get; }
+    public DbaseString DEFTOEGANG { get; }
+    public DbaseString LBLTOEGANG { get; }
+    public DbaseInt32 TOEGANG { get; }
 }

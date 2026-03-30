@@ -29,9 +29,9 @@ public static class Lists
             RoadSegmentAccessRestrictionV2.All,
             item => new RoadSegmentAccessRestrictionDbaseRecord
             {
-                TYPE = { Value = item.Translation.Identifier },
-                LBLTYPE = { Value = item.Translation.Name },
-                DEFTYPE = { Value = item.Translation.Description }
+                TOEGANG = { Value = item.Translation.Identifier },
+                LBLTOEGANG = { Value = item.Translation.Name },
+                DEFTOEGANG = { Value = item.Translation.Description }
             });
 
     public static RoadSegmentCategoryDbaseRecord[] AllRoadSegmentCategoryDbaseRecords =>
@@ -69,8 +69,8 @@ public static class Lists
             RoadSegmentSurfaceTypeV2.All,
             item => new SurfaceTypeDbaseRecord
             {
-                TYPE = { Value = item.Translation.Identifier },
-                LBLTYPE = { Value = item.Translation.Name },
-                DEFTYPE = { Value = item.Translation.Description }
+                VERHARDING = { Value = item.Translation.Identifier },
+                LBLVERHARD = { Value = item.Translation.Name },
+                DEFVERHARD = { Value = item.Translation.Description }
             });
 }

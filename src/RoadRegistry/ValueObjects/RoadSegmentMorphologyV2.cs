@@ -36,7 +36,7 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
             nameof(WegBestaandeUit1Rijbaan),
             new DutchTranslation(
                 3,
-                "weg bestaande uit 1 rijbaan",
+                "weg bestaande uit één rijbaan",
                 "Een weg bestaande uit één rijbaan stelt de centrale as voor van een rijbaan waarop geen enkele andere morfologie van toepassing is."
             )
         );
@@ -68,7 +68,7 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
             new DutchTranslation(
                 6,
                 "in- of uitrit",
-                "Een in- of uitrit is een weg die speciaal ontworpen is om een plaats te bereiken of te verlaten. In- of uitritten kunnen bvb. opgenomen worden om een station, ziekenhuis, school, openbare dienst, parking, bedrijventerrein, restaurant, etc. te bereiken.\n"
+                "Een in- of uitrit is een weg die speciaal ontworpen is om een plaats te bereiken of te verlaten. In- of uitritten kunnen bvb. opgenomen worden om een station, ziekenhuis, school, openbare dienst, parking, bedrijventerrein, restaurant, etc. te bereiken."
             )
         );
 
@@ -134,7 +134,7 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
 
 
     public static readonly RoadSegmentMorphologyV2[] All =
-    {
+    [
         Autosnelweg,
         WegMetGescheidenRijbanenDieGeenAutosnelwegIs,
         WegBestaandeUit1Rijbaan,
@@ -147,7 +147,7 @@ public sealed class RoadSegmentMorphologyV2 : IEquatable<RoadSegmentMorphologyV2
         Fietspad,
         BeddingOfBaanVoorOpenbaarVervoer,
         Veer
-    };
+    ];
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentMorphologyV2> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);

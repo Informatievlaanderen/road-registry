@@ -14,10 +14,10 @@ public class RoadSegmentMorphologyDbaseRecord : DbaseRecord
         LBLMORF = new TrimmedDbaseString(Schema.LBLMORF);
         DEFMORF = new TrimmedDbaseString(Schema.DEFMORF);
 
-        Values = new DbaseFieldValue[]
-        {
+        Values =
+        [
             MORF, LBLMORF, DEFMORF
-        };
+        ];
     }
 
     public DbaseString DEFMORF { get; }
