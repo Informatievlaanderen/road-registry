@@ -288,7 +288,9 @@ public class RoadSegmentUnflattener
 
         // Merge geometries
         var mergedGeometry = segments.Count > 1
-            ? longestSegment.Attributes.Geometry.Factory.CreateMultiLineString([new LineString(MergeSegmentsCoordinates(segments.Select(x => x.Attributes.Geometry.Coordinates), tolerances))])
+            ? longestSegment.Attributes.Geometry.Factory.CreateMultiLineString([
+                longestSegment.Attributes.Geometry.Factory.CreateLineString(MergeSegmentsCoordinates(segments.Select(x => x.Attributes.Geometry.Coordinates), tolerances))
+            ])
             : segments.Single().Attributes.Geometry;
 
         var status = segments.Select(x => x.Attributes.Status).Distinct().Single();
@@ -455,7 +457,7 @@ public class RoadSegmentUnflattener
         var isValidOp = new IsSimpleOp(geometry);
         if (isValidOp.IsSimple())
         {
-            throw new InvalidOperationException("IsSimpleOp.IsSimple() returns true for self-intersecting geometry, but IsValidOp.ValidationError is null. This should not happen.");
+            throw new InvalidOperationException("IsSimpleOp.IsSimple() returns true for self-intersecting geometry. This should not happen.");
         }
 
         var indexedLine = new LengthIndexedLine(geometry);
