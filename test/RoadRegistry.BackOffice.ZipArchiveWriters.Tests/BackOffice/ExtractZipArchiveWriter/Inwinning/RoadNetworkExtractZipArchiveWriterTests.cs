@@ -205,15 +205,28 @@
             var fixture = new RoadNetworkTestDataV2().Fixture;
 
             var messages = new List<string>();
+            var slowWriter = new SlowWriter(messages);
             var writer = new CompositeZipArchiveWriter(NullLogger.Instance,
-                new SlowWriter(messages),
+                slowWriter,
                 new FastWriter(messages));
 
-            await writer.WriteAsync(new ZipArchive(new MemoryStream(), ZipArchiveMode.Create),
+            using var memoryStream = new MemoryStream();
+            using var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true);
+
+            var writeTask = writer.WriteAsync(
+                zipArchive,
                 new RoadNetworkExtractAssemblyRequest(fixture.Create<DownloadId>(), fixture.Create<ExtractDescription>(), Polygon.Empty, fixture.Create<bool>(), fixture.Create<string>()),
                 Mock.Of<IZipArchiveDataSession>(),
                 new ZipArchiveWriteContext(),
                 CancellationToken.None);
+
+            // Wait until SlowWriter has started, then verify FastWriter has not run yet
+            await slowWriter.Started;
+            messages.Should().BeEmpty();
+
+            // Release SlowWriter to complete, then wait for the entire pipeline to finish
+            slowWriter.Release();
+            await writeTask;
 
             messages[0].Should().Be("slow");
             messages[1].Should().Be("fast");
@@ -222,15 +235,22 @@
         private sealed class SlowWriter : IZipArchiveWriter
         {
             private readonly List<string> _messages;
+            private readonly TaskCompletionSource _started = new();
+            private readonly TaskCompletionSource _gate = new();
 
             public SlowWriter(List<string> messages)
             {
                 _messages = messages;
             }
 
+            public Task Started => _started.Task;
+
+            public void Release() => _gate.TrySetResult();
+
             public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request, IZipArchiveDataSession zipArchiveData, ZipArchiveWriteContext context, CancellationToken cancellationToken)
             {
-                await Task.Delay(500, cancellationToken);
+                _started.SetResult();
+                await _gate.Task;
                 _messages.Add("slow");
             }
         }
