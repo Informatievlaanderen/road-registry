@@ -125,8 +125,8 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
     private static short ToGrensknoopDbfValue(bool grensknoop)
     {
         return grensknoop
-            ? (short)0
-            : (short)-8;
+            ? (short)-8
+            : (short)0;
     }
 
     private static bool IsWithin10MeterOfGrens(RoadNodeGeometry geometry)
