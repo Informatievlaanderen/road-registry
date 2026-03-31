@@ -107,116 +107,21 @@ seed_segments AS (
   WHERE i.gradejunctionids IS NOT NULL
     AND cardinality(i.gradejunctionids) > 0
     AND j.id = ANY(i.gradejunctionids)
-),
-
-/* Seed gradeseparatedjunctions = UNION of:
-   - explicit gradeseparatedjunctionids
-   - junctions touching any seed segment (using UNION ALL branches; dedup after)
-*/
-seed_gradeseparatedjunctions_raw AS (
-  -- explicit gradeseparatedjunctionids
-  SELECT j.id, j.upper_road_segment_id, j.lower_road_segment_id
-  FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j
-  CROSS JOIN input i
-  WHERE i.gradeseparatedjunctionids IS NOT NULL
-    AND cardinality(i.gradeseparatedjunctionids) > 0
-    AND j.id = ANY(i.gradeseparatedjunctionids)
-
-  UNION ALL
-
-  -- junctions where upper segment is in seed
-  SELECT j.id, j.upper_road_segment_id, j.lower_road_segment_id
-  FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j
-  WHERE j.upper_road_segment_id IN (SELECT id FROM seed_segments)
-
-  UNION ALL
-
-  -- junctions where lower segment is in seed
-  SELECT j.id, j.upper_road_segment_id, j.lower_road_segment_id
-  FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j
-  WHERE j.lower_road_segment_id IN (SELECT id FROM seed_segments)
-),
-seed_gradeseparatedjunctions AS (
-  SELECT DISTINCT id, upper_road_segment_id, lower_road_segment_id
-  FROM seed_gradeseparatedjunctions_raw
-),
-
-/* Seed gradejunctions = UNION of:
-   - explicit gradejunctionids
-   - junctions touching any seed segment (using UNION ALL branches; dedup after)
-*/
-seed_gradejunctions_raw AS (
-  -- explicit gradejunctionids
-  SELECT j.id, j.road_segment_id_1, j.road_segment_id_2
-  FROM {RoadNetworkTopologyProjection.GradeJunctionsTableName} j
-  CROSS JOIN input i
-  WHERE i.gradejunctionids IS NOT NULL
-    AND cardinality(i.gradejunctionids) > 0
-    AND j.id = ANY(i.gradejunctionids)
-
-  UNION ALL
-
-  -- junctions where segment 1 is in seed
-  SELECT j.id, j.road_segment_id_1, j.road_segment_id_2
-  FROM {RoadNetworkTopologyProjection.GradeJunctionsTableName} j
-  WHERE j.road_segment_id_1 IN (SELECT id FROM seed_segments)
-
-  UNION ALL
-
-  -- junctions where lower segment is in seed
-  SELECT j.id, j.road_segment_id_1, j.road_segment_id_2
-  FROM {RoadNetworkTopologyProjection.GradeJunctionsTableName} j
-  WHERE j.road_segment_id_2 IN (SELECT id FROM seed_segments)
-),
-seed_gradejunctions AS (
-  SELECT DISTINCT id, road_segment_id_1, road_segment_id_2
-  FROM seed_gradejunctions_raw
-),
-
--- Expanded segments: always include both ends of seed junctions (even if outside spatial boundary)
-expanded_segments AS (
-  SELECT id FROM seed_segments
-  UNION
-  SELECT upper_road_segment_id FROM seed_gradeseparatedjunctions
-  UNION
-  SELECT lower_road_segment_id FROM seed_gradeseparatedjunctions
-  UNION
-  SELECT road_segment_id_1 FROM seed_gradejunctions
-  UNION
-  SELECT road_segment_id_2 FROM seed_gradejunctions
-),
-
--- Segment<->gradeseparatedjunction link rows, but ONLY for seed gradeseparatedjunctions
-segment_gradeseparatedjunction_links AS (
-  SELECT upper_road_segment_id AS road_segment_id, id AS gradeseparatedjunctionid
-  FROM seed_gradeseparatedjunctions
-  UNION ALL
-  SELECT lower_road_segment_id AS road_segment_id, id AS gradeseparatedjunctionid
-  FROM seed_gradeseparatedjunctions
-),
-
--- Segment<->gradejunction link rows, but ONLY for seed gradejunctions
-segment_gradejunction_links AS (
-  SELECT road_segment_id_1 AS road_segment_id, id AS gradejunctionid
-  FROM seed_gradejunctions
-  UNION ALL
-  SELECT road_segment_id_2 AS road_segment_id, id AS gradejunctionid
-  FROM seed_gradejunctions
 )
 
 SELECT
-  rs.id            AS RoadSegmentId,
-  rs.start_node_id AS StartNodeId,
-  rs.end_node_id   AS EndNodeId,
-  sgsjl.gradeseparatedjunctionid AS GradeSeparatedJunctionId,
-  sgjl.gradejunctionid AS GradeJunctionId
-FROM expanded_segments es
+  rs.id                     AS RoadSegmentId,
+  rs.start_node_id          AS StartNodeId,
+  rs.end_node_id            AS EndNodeId,
+  gradeseparatedjunction.id AS GradeSeparatedJunctionId,
+  gradejunction.id          AS GradeJunctionId
+FROM seed_segments es
 JOIN {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
   ON rs.id = es.id
-LEFT JOIN segment_gradeseparatedjunction_links sgsjl
-  ON sgsjl.road_segment_id = rs.id
-LEFT JOIN segment_gradejunction_links sgjl
-  ON sgjl.road_segment_id = rs.id
+LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} gradeseparatedjunction
+  ON gradeseparatedjunction.lower_road_segment_id = rs.id OR gradeseparatedjunction.upper_road_segment_id = rs.id
+LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
+  ON gradejunction.road_segment_id_1 = rs.id OR gradejunction.road_segment_id_2 = rs.id
 ";
         var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql,
             new

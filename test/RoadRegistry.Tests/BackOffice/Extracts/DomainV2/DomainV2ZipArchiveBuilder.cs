@@ -238,24 +238,24 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
         {
             _fixture = fixture;
 
-            TestData.RoadNode1DbaseRecord = CreateRoadNodeDbaseRecord();
-            TestData.RoadNode2DbaseRecord = CreateRoadNodeDbaseRecord();
-            TestData.RoadNode3DbaseRecord = CreateRoadNodeDbaseRecord();
-            TestData.RoadNode4DbaseRecord = CreateRoadNodeDbaseRecord();
+            TestData.RoadSegment1StartNodeDbaseRecord = CreateRoadNodeDbaseRecord();
+            TestData.RoadSegment1EndNodeDbaseRecord = CreateRoadNodeDbaseRecord();
+            TestData.RoadSegment2StartNodeDbaseRecord = CreateRoadNodeDbaseRecord();
+            TestData.RoadSegment2EndNodeDbaseRecord = CreateRoadNodeDbaseRecord();
 
             TestData.RoadSegment1DbaseRecord = CreateRoadSegmentDbaseRecord();
             var roadSegment1LineString = CreateRoadSegmentGeometry();
-            TestData.RoadNode1ShapeRecord = CreateRoadNodeShapeRecord(roadSegment1LineString.StartPoint);
-            TestData.RoadNode2ShapeRecord = CreateRoadNodeShapeRecord(roadSegment1LineString.EndPoint);
+            TestData.RoadSegment1StartNodeShapeRecord = CreateRoadNodeShapeRecord(roadSegment1LineString.StartPoint);
+            TestData.RoadSegment1EndNodeShapeRecord = CreateRoadNodeShapeRecord(roadSegment1LineString.EndPoint);
             TestData.RoadSegment1ShapeRecord = CreateRoadSegmentShapeRecord(roadSegment1LineString);
 
             TestData.RoadSegment2DbaseRecord = CreateRoadSegmentDbaseRecord();
-            var roadSegment2LineString = new LineString([
-                new CoordinateM(roadSegment1LineString.Coordinates[0].X + 1000, roadSegment1LineString.Coordinates[0].Y + 1000, roadSegment1LineString.Coordinates[0].M),
-                new CoordinateM(roadSegment1LineString.Coordinates[1].X + 1000, roadSegment1LineString.Coordinates[1].Y + 1000, roadSegment1LineString.Coordinates[1].M)
-            ]) { SRID = roadSegment1LineString.SRID };
-            TestData.RoadNode3ShapeRecord = CreateRoadNodeShapeRecord(roadSegment2LineString.StartPoint);
-            TestData.RoadNode4ShapeRecord = CreateRoadNodeShapeRecord(roadSegment2LineString.EndPoint);
+            var roadSegment2LineString = roadSegment1LineString.Factory.CreateLineString([
+                new Coordinate(roadSegment1LineString.Coordinates[0].X + 1000, roadSegment1LineString.Coordinates[0].Y + 1000),
+                new Coordinate(roadSegment1LineString.Coordinates[1].X + 1000, roadSegment1LineString.Coordinates[1].Y + 1000)
+            ]);
+            TestData.RoadSegment2StartNodeShapeRecord = CreateRoadNodeShapeRecord(roadSegment2LineString.StartPoint);
+            TestData.RoadSegment2EndNodeShapeRecord = CreateRoadNodeShapeRecord(roadSegment2LineString.EndPoint);
             TestData.RoadSegment2ShapeRecord = CreateRoadSegmentShapeRecord(roadSegment2LineString);
 
             TestData.RoadSegment1EuropeanRoadDbaseRecord1 = CreateRoadSegmentEuropeanRoadDbaseRecord();
@@ -282,8 +282,8 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
         {
             DataSet ??= new ZipArchiveDataSet
             {
-                RoadNodeDbaseRecords = new[] { TestData.RoadNode1DbaseRecord, TestData.RoadNode2DbaseRecord, TestData.RoadNode3DbaseRecord, TestData.RoadNode4DbaseRecord }.ToList(),
-                RoadNodeShapeRecords = new[] { TestData.RoadNode1ShapeRecord, TestData.RoadNode2ShapeRecord, TestData.RoadNode3ShapeRecord, TestData.RoadNode4ShapeRecord }.ToList(),
+                RoadNodeDbaseRecords = new[] { TestData.RoadSegment1StartNodeDbaseRecord, TestData.RoadSegment1EndNodeDbaseRecord, TestData.RoadSegment2StartNodeDbaseRecord, TestData.RoadSegment2EndNodeDbaseRecord }.ToList(),
+                RoadNodeShapeRecords = new[] { TestData.RoadSegment1StartNodeShapeRecord, TestData.RoadSegment1EndNodeShapeRecord, TestData.RoadSegment2StartNodeShapeRecord, TestData.RoadSegment2EndNodeShapeRecord }.ToList(),
                 RoadSegmentDbaseRecords = new[] { TestData.RoadSegment1DbaseRecord, TestData.RoadSegment2DbaseRecord }.ToList(),
                 RoadSegmentShapeRecords = new[] { TestData.RoadSegment1ShapeRecord, TestData.RoadSegment2ShapeRecord }.ToList(),
                 EuropeanRoadDbaseRecords = new[] { TestData.RoadSegment1EuropeanRoadDbaseRecord1, TestData.RoadSegment1EuropeanRoadDbaseRecord2 }.ToList(),
@@ -318,17 +318,17 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
             var encoding = Encoding.UTF8;
 
             var testData = extractBuilder.TestData;
-            TestData.RoadNode1DbaseRecord = testData.RoadNode1DbaseRecord.Clone(manager, encoding);
-            TestData.RoadNode1ShapeRecord = testData.RoadNode1ShapeRecord.Clone();
+            TestData.RoadSegment1StartNodeDbaseRecord = testData.RoadSegment1StartNodeDbaseRecord.Clone(manager, encoding);
+            TestData.RoadSegment1StartNodeShapeRecord = testData.RoadSegment1StartNodeShapeRecord.Clone();
 
-            TestData.RoadNode2DbaseRecord = testData.RoadNode2DbaseRecord.Clone(manager, encoding);
-            TestData.RoadNode2ShapeRecord = testData.RoadNode2ShapeRecord.Clone();
+            TestData.RoadSegment1EndNodeDbaseRecord = testData.RoadSegment1EndNodeDbaseRecord.Clone(manager, encoding);
+            TestData.RoadSegment1EndNodeShapeRecord = testData.RoadSegment1EndNodeShapeRecord.Clone();
 
-            TestData.RoadNode3DbaseRecord = testData.RoadNode3DbaseRecord.Clone(manager, encoding);
-            TestData.RoadNode3ShapeRecord = testData.RoadNode3ShapeRecord.Clone();
+            TestData.RoadSegment2StartNodeDbaseRecord = testData.RoadSegment2StartNodeDbaseRecord.Clone(manager, encoding);
+            TestData.RoadSegment2StartNodeShapeRecord = testData.RoadSegment2StartNodeShapeRecord.Clone();
 
-            TestData.RoadNode4DbaseRecord = testData.RoadNode4DbaseRecord.Clone(manager, encoding);
-            TestData.RoadNode4ShapeRecord = testData.RoadNode4ShapeRecord.Clone();
+            TestData.RoadSegment2EndNodeDbaseRecord = testData.RoadSegment2EndNodeDbaseRecord.Clone(manager, encoding);
+            TestData.RoadSegment2EndNodeShapeRecord = testData.RoadSegment2EndNodeShapeRecord.Clone();
 
             TestData.RoadSegment1DbaseRecord = testData.RoadSegment1DbaseRecord.Clone(manager, encoding);
             TestData.RoadSegment1ShapeRecord = testData.RoadSegment1ShapeRecord.Clone();
@@ -521,14 +521,14 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
 
     public class ZipArchiveDataSetTestData
     {
-        public RoadNodeDbaseRecord RoadNode1DbaseRecord { get; set; }
-        public RoadNodeShapeRecord RoadNode1ShapeRecord { get; set; }
-        public RoadNodeDbaseRecord RoadNode2DbaseRecord { get; set; }
-        public RoadNodeShapeRecord RoadNode2ShapeRecord { get; set; }
-        public RoadNodeDbaseRecord RoadNode3DbaseRecord { get; set; }
-        public RoadNodeShapeRecord RoadNode3ShapeRecord { get; set; }
-        public RoadNodeDbaseRecord RoadNode4DbaseRecord { get; set; }
-        public RoadNodeShapeRecord RoadNode4ShapeRecord { get; set; }
+        public RoadNodeDbaseRecord RoadSegment1StartNodeDbaseRecord { get; set; }
+        public RoadNodeShapeRecord RoadSegment1StartNodeShapeRecord { get; set; }
+        public RoadNodeDbaseRecord RoadSegment1EndNodeDbaseRecord { get; set; }
+        public RoadNodeShapeRecord RoadSegment1EndNodeShapeRecord { get; set; }
+        public RoadNodeDbaseRecord RoadSegment2StartNodeDbaseRecord { get; set; }
+        public RoadNodeShapeRecord RoadSegment2StartNodeShapeRecord { get; set; }
+        public RoadNodeDbaseRecord RoadSegment2EndNodeDbaseRecord { get; set; }
+        public RoadNodeShapeRecord RoadSegment2EndNodeShapeRecord { get; set; }
         public RoadSegmentDbaseRecord RoadSegment1DbaseRecord { get; set; }
         public RoadSegmentShapeRecord RoadSegment1ShapeRecord { get; set; }
         public RoadSegmentDbaseRecord RoadSegment2DbaseRecord { get; set; }
@@ -575,14 +575,14 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
             GradeSeparatedJunctionDbaseRecords.Clear();
         }
 
-        public void RemoveRoadSegment(int id)
+        public void RemoveRoadSegment(int tempId)
         {
-            var roadSegmentDbaseRecordIndex = RoadSegmentDbaseRecords.FindIndex(x => x.WS_OIDN.Value == id);
+            var roadSegmentDbaseRecordIndex = RoadSegmentDbaseRecords.FindIndex(x => x.WS_TEMPID.Value == tempId);
             RoadSegmentDbaseRecords.RemoveAt(roadSegmentDbaseRecordIndex);
             RoadSegmentShapeRecords.RemoveAt(roadSegmentDbaseRecordIndex);
-            EuropeanRoadDbaseRecords.RemoveAll(x => x.WS_TEMPID.Value == id);
-            NationalRoadDbaseRecords.RemoveAll(x => x.WS_TEMPID.Value == id);
-            GradeSeparatedJunctionDbaseRecords.RemoveAll(x => x.BO_TEMPID.Value == id || x.ON_TEMPID.Value == id);
+            EuropeanRoadDbaseRecords.RemoveAll(x => x.WS_TEMPID.Value == tempId);
+            NationalRoadDbaseRecords.RemoveAll(x => x.WS_TEMPID.Value == tempId);
+            GradeSeparatedJunctionDbaseRecords.RemoveAll(x => x.BO_TEMPID.Value == tempId || x.ON_TEMPID.Value == tempId);
         }
     }
 

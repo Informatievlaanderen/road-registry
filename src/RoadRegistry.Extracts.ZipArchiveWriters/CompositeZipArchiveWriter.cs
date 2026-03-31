@@ -20,20 +20,20 @@ public class CompositeZipArchiveWriter : IZipArchiveWriter
     public async Task WriteAsync(
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
-        IZipArchiveDataProvider zipArchiveDataProvider,
+        IZipArchiveDataSession zipArchiveData,
         ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
+        ArgumentNullException.ThrowIfNull(zipArchiveData);
 
         foreach (var writer in _writers)
         {
             var sw = Stopwatch.StartNew();
             _logger.LogInformation("{Type} started...", writer.GetType().Name);
 
-            await writer.WriteAsync(archive, request, zipArchiveDataProvider, context, cancellationToken);
+            await writer.WriteAsync(archive, request, zipArchiveData, context, cancellationToken);
 
             _logger.LogInformation("{Type} completed in {Elapsed}", writer.GetType().Name, sw.Elapsed);
         }

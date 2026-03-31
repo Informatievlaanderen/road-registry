@@ -29,6 +29,14 @@ public static class DbaseFileProblems
             );
     }
 
+    public static FileError Error(this IDbaseFileRecordProblemBuilder builder, Problem problem)
+    {
+        return builder
+            .Error(problem.Reason)
+            .WithParameters(problem.Parameters.Select(x => new ProblemParameter(x.Name, x.Value)).ToArray())
+            .Build();
+    }
+
     public static FileError BeginRoadNodeIdEqualsEndRoadNode(this IDbaseFileRecordProblemBuilder builder,
         int beginNode,
         int endNode)

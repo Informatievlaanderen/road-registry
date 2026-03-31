@@ -148,8 +148,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         var processedRecords = new List<RoadSegmentFeatureCompareRecord>();
 
-        //TODO-pr FC inwinning changes: FC AddRoadSegment moet bij een merge beide original IDs meegeven (context.ZipArchiveMetadata.Inwinning)
-
         foreach (var changeFeature in changeFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();

@@ -90,6 +90,27 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
             ;
     }
 
+    public override int GetHashCode()
+    {
+        var hashCode = new HashCode();
+        hashCode.Add(GeometryDrawMethod);
+        hashCode.Add(Status);
+        hashCode.Add(AccessRestriction);
+        hashCode.Add(Category);
+        hashCode.Add(Morphology);
+        hashCode.Add(StreetNameId);
+        hashCode.Add(MaintenanceAuthorityId);
+        hashCode.Add(SurfaceType);
+        hashCode.Add(CarAccessForward);
+        hashCode.Add(CarAccessBackward);
+        hashCode.Add(BikeAccessForward);
+        hashCode.Add(BikeAccessBackward);
+        hashCode.Add(PedestrianAccess);
+        hashCode.Add(EuropeanRoadNumbers);
+        hashCode.Add(NationalRoadNumbers);
+        return hashCode.ToHashCode();
+    }
+
     public bool EqualsOnlyNonDynamicAttributes(RoadSegmentAttributes? other)
     {
         if (other is null)

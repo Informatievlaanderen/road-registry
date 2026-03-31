@@ -237,10 +237,7 @@ public partial class ScopedRoadNetwork
             return problems + new RoadSegmentNotFound();
         }
 
-        //TODO-pr indien segment deel is van een merge dan de nieuwe ID er aan toevoegen
-        RoadSegmentId? mergedRoadSegmentId = null;
-
-        problems += roadSegment.RetireBecauseOfMigration(mergedRoadSegmentId, context.Provenance);
+        problems += roadSegment.RetireBecauseOfMigration(context.Provenance);
         if (problems.HasError())
         {
             return problems;

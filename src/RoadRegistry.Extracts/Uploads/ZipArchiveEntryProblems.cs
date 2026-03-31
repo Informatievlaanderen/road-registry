@@ -11,6 +11,10 @@ using RoadRegistry.ValueObjects.Problems;
 public static class ZipArchiveEntryProblems
 {
     // builder
+    public static IDbaseFileRecordProblemBuilder AtDbaseRecord(this ExtractFileName file, FeatureType featureType)
+    {
+        return new FileProblemBuilder(featureType.ToDbaseFileName(file));
+    }
     public static IDbaseFileRecordProblemBuilder AtDbaseRecord(this ExtractFileName file, FeatureType featureType, RecordNumber number)
     {
         return new FileProblemBuilder(featureType.ToDbaseFileName(file)).AtDbaseRecord(number);
@@ -94,13 +98,6 @@ public static class ZipArchiveEntryProblems
     public static FileProblem RoadSegmentsWithoutWidthAttributes(this ZipArchiveEntry entry, RoadSegmentId[] segments)
     {
         return new FileProblemBuilder(entry.Name).RoadSegmentsWithoutWidthAttributes(segments);
-    }
-
-    public static IFileWarningBuilder Warning(this ZipArchiveEntry entry, string reason)
-    {
-        ArgumentNullException.ThrowIfNull(reason);
-
-        return new FileProblemBuilder(entry.Name).Warning(reason);
     }
 
     private sealed class FileProblemBuilder : IFileProblemBuilder, IDbaseFileRecordProblemBuilder, IShapeFileRecordProblemBuilder

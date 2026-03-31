@@ -20,15 +20,15 @@ public class RoadSegmentEuropeanRoadAttributesZipArchiveWriter : IZipArchiveWrit
     public async Task WriteAsync(
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
-        IZipArchiveDataProvider zipArchiveDataProvider,
+        IZipArchiveDataSession zipArchiveData,
         ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
+        ArgumentNullException.ThrowIfNull(zipArchiveData);
 
-        var roadSegments = await zipArchiveDataProvider.GetRoadSegments(
+        var roadSegments = await zipArchiveData.GetRoadSegments(
             request.Contour,
             cancellationToken);
 

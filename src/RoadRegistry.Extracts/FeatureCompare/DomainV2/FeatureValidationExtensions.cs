@@ -77,9 +77,9 @@ public static class FeatureValidationExtensions
     {
         return ValidateUniqueRecords(features,
             (item1, item2) =>
-                (item1.LowerRoadSegmentId == item2.LowerRoadSegmentId && item1.UpperRoadSegmentId == item2.UpperRoadSegmentId)
+                (item1.LowerRoadSegmentTempId == item2.LowerRoadSegmentTempId && item1.UpperRoadSegmentTempId == item2.UpperRoadSegmentTempId)
                 ||
-                (item1.LowerRoadSegmentId == item2.UpperRoadSegmentId && item1.UpperRoadSegmentId == item2.LowerRoadSegmentId),
+                (item1.LowerRoadSegmentTempId == item2.UpperRoadSegmentTempId && item1.UpperRoadSegmentTempId == item2.LowerRoadSegmentTempId),
             (feature, duplicateFeature) =>
         {
             var recordContext = fileName

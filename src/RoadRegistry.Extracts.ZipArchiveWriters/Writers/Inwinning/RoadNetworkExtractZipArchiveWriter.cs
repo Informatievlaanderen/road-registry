@@ -30,7 +30,6 @@ public class RoadNetworkExtractZipArchiveWriter : IZipArchiveWriter
             new RoadSegmentNationalRoadAttributesZipArchiveWriter(encoding),
             new RoadSegmentEuropeanRoadAttributesZipArchiveWriter(encoding),
             new GradeSeparatedJunctionZipArchiveWriter(encoding),
-            new IntegrationZipArchiveWriter(encoding),
 
             new DbaseFileZipArchiveWriter("eWegknoopLktType.dbf", RoadNodeTypeDbaseRecord.Schema, Lists.AllRoadNodeTypeDbaseRecords, encoding),
             new DbaseFileZipArchiveWriter("eWegsegmentLktVerharding.dbf", SurfaceTypeDbaseRecord.Schema, Lists.AllSurfaceTypeDbaseRecords, encoding),
@@ -45,10 +44,10 @@ public class RoadNetworkExtractZipArchiveWriter : IZipArchiveWriter
     public Task WriteAsync(
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
-        IZipArchiveDataProvider zipArchiveDataProvider,
+        IZipArchiveDataSession zipArchiveData,
         ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
-        return _writer.WriteAsync(archive, request, zipArchiveDataProvider, context, cancellationToken);
+        return _writer.WriteAsync(archive, request, zipArchiveData, context, cancellationToken);
     }
 }

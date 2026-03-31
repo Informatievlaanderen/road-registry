@@ -8,7 +8,6 @@ using Infrastructure.Dbase;
 using Infrastructure.ShapeFile;
 using NetTopologySuite.Geometries;
 using Projections;
-using RoadSegment.ValueObjects;
 using Schemas.Inwinning.RoadSegments;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
@@ -24,15 +23,15 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
     public async Task WriteAsync(
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
-        IZipArchiveDataProvider zipArchiveDataProvider,
+        IZipArchiveDataSession zipArchiveData,
         ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
+        ArgumentNullException.ThrowIfNull(zipArchiveData);
 
-        var segments = await zipArchiveDataProvider.GetRoadSegments(request.Contour, cancellationToken);
+        var segments = await zipArchiveData.GetRoadSegments(request.Contour, cancellationToken);
         var records = ConvertToDbaseRecords(segments, context);
 
         const ExtractFileName extractFilename = ExtractFileName.Wegsegment;
@@ -46,9 +45,27 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
         {
             await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.PolyLine, RoadSegmentDbaseRecord.Schema, records, cancellationToken);
         }
+
+        await WriteIntegration(writer, archive, context, cancellationToken);
     }
 
-    internal static IReadOnlyCollection<(DbaseRecord, Geometry)> ConvertToDbaseRecords(IEnumerable<RoadSegmentExtractItem> segments, ZipArchiveWriteContext context)
+    private async Task WriteIntegration(
+        ShapeFileRecordWriter writer,
+        ZipArchive archive,
+        ZipArchiveWriteContext context,
+        CancellationToken cancellationToken)
+    {
+        if (context.IntegrationSegments is null)
+        {
+            throw new InvalidOperationException($"{nameof(context.IntegrationSegments)} has not been initialized yet.");
+        }
+
+        var records = ConvertToDbaseRecords(context.IntegrationSegments, context);
+
+        await writer.WriteToArchive(archive, ExtractFileName.Wegsegment, FeatureType.Integration, ShapeType.PolyLine, RoadSegmentDbaseRecord.Schema, records, cancellationToken);
+    }
+
+    private static IReadOnlyCollection<(DbaseRecord, Geometry)> ConvertToDbaseRecords(IEnumerable<RoadSegmentExtractItem> segments, ZipArchiveWriteContext context)
     {
         return segments
             .OrderBy(x => x.Id)

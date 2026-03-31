@@ -242,8 +242,6 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
             .ThenContainsProblems(new Error("RoadNodeIsNotAllowed",
-                new ProblemParameter("Wegsegment1Id", TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId.ToString()),
-                new ProblemParameter("Wegsegment2Id", TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId.ToString()),
                 new ProblemParameter("WegknoopId", TestData.AddSegment1EndNode.TemporaryId.ToString())
             ))
         );

@@ -19,15 +19,15 @@ public class GradeSeparatedJunctionZipArchiveWriter : IZipArchiveWriter
     public async Task WriteAsync(
         ZipArchive archive,
         RoadNetworkExtractAssemblyRequest request,
-        IZipArchiveDataProvider zipArchiveDataProvider,
+        IZipArchiveDataSession zipArchiveData,
         ZipArchiveWriteContext context,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
+        ArgumentNullException.ThrowIfNull(zipArchiveData);
 
-        var junctions = await zipArchiveDataProvider.GetGradeSeparatedJunctions(
+        var junctions = await zipArchiveData.GetGradeSeparatedJunctions(
             request.Contour, cancellationToken);
         var records = junctions
             .OrderBy(x => x.Id)

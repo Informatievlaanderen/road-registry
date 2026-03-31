@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios.Inwinning;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
