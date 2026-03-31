@@ -1,3 +1,14 @@
+## [4.51.1](https://github.com/informatievlaanderen/road-registry/compare/v4.51.0...v4.51.1) (2026-03-31)
+
+
+### Bug Fixes
+
+* **inwinning extract:** only retrieve segments inside contour, not those linked to junctions + tweak segments/grade FC ([#1878](https://github.com/informatievlaanderen/road-registry/issues/1878)) ([14442d9](https://github.com/informatievlaanderen/road-registry/commit/14442d9dea06311afd9842b1939878c42005a92c))
+* **inwinning:** Grensknoop value when writing to dbf ([0b36bf6](https://github.com/informatievlaanderen/road-registry/commit/0b36bf64909db4a22d84278147154e01c70a1acf))
+* **inwinning:** metadata type descriptions ([365bf5a](https://github.com/informatievlaanderen/road-registry/commit/365bf5a0731a74413244cfe0020e7e850c4f64df))
+* logic to determine dynamic segments based on invalid geometry scenarios ([7bf583b](https://github.com/informatievlaanderen/road-registry/commit/7bf583be08adaeb027ab0a00f2d242bf247ec57f))
+* **pipeline:** release pipeline remove confluence step ([5fcae7b](https://github.com/informatievlaanderen/road-registry/commit/5fcae7be3851d98a12c7296b120b54e3f7ee9422))
+
 # [4.51.0](https://github.com/informatievlaanderen/road-registry/compare/v4.50.0...v4.51.0) (2026-03-26)
 
 
