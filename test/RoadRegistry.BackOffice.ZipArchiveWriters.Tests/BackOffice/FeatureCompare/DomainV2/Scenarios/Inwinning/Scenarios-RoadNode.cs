@@ -1,18 +1,18 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios.Inwinning;
 
-using Editor.Schema.Extensions;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
-using RoadNode.Changes;
+using RoadRegistry.Editor.Schema.Extensions;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Infrastructure.Dbase;
 using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.RoadNode.Changes;
+using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
-using RoadSegment.Changes;
 using Xunit.Abstractions;
 using Point = NetTopologySuite.Geometries.Point;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
@@ -59,7 +59,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                     .WithSrid(lineString.SRID);
                 builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
 
-                builder.TestData.RoadNode2ShapeRecord.Geometry = endPointGeometry;
+                builder.TestData.RoadSegment1EndNodeShapeRecord.Geometry = endPointGeometry;
             })
             .BuildWithContext();
 
@@ -72,9 +72,9 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
         actualChanges.ToList()[0].Should().BeOfType<ModifyRoadNodeChange>();
         actualChanges.ToList()[0].Should().BeEquivalentTo(new ModifyRoadNodeChange
         {
-            RoadNodeId = new RoadNodeId(context.Change.TestData.RoadNode2DbaseRecord.WK_OIDN.Value),
-            Geometry = context.Change.TestData.RoadNode2ShapeRecord.Geometry.ToRoadNodeGeometry(),
-            Grensknoop = context.Change.TestData.RoadNode2DbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+            RoadNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1EndNodeDbaseRecord.WK_OIDN.Value),
+            Geometry = context.Change.TestData.RoadSegment1EndNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
+            Grensknoop = context.Change.TestData.RoadSegment1EndNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
         });
 
         actualChanges.ToList()[1].Should().BeOfType<ModifyRoadSegmentChange>();
@@ -98,7 +98,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                     .WithSrid(lineString.SRID);
                 builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
 
-                builder.TestData.RoadNode2ShapeRecord.Geometry = endPointGeometry;
+                builder.TestData.RoadSegment1EndNodeShapeRecord.Geometry = endPointGeometry;
             })
             .BuildWithContext();
 
@@ -109,11 +109,11 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
         actualChanges.Should().HaveCount(3);
 
         var removeRoadNodeChange = actualChanges.ToList()[0].Should().BeOfType<RemoveRoadNodeChange>().Subject;
-        removeRoadNodeChange.RoadNodeId.Should().Be(new RoadNodeId(context.Change.TestData.RoadNode2DbaseRecord.WK_OIDN.Value));
+        removeRoadNodeChange.RoadNodeId.Should().Be(new RoadNodeId(context.Change.TestData.RoadSegment1EndNodeDbaseRecord.WK_OIDN.Value));
 
         var addRoadNodeChange = actualChanges.ToList()[1].Should().BeOfType<AddRoadNodeChange>().Subject;
-        addRoadNodeChange.TemporaryId.Should().Be(new RoadNodeId(context.Change.TestData.RoadNode2DbaseRecord.WK_OIDN.Value));
-        addRoadNodeChange.Geometry.Should().BeEquivalentTo(context.Change.TestData.RoadNode2ShapeRecord.Geometry.ToRoadNodeGeometry());
+        addRoadNodeChange.TemporaryId.Should().Be(new RoadNodeId(context.Change.TestData.RoadSegment1EndNodeDbaseRecord.WK_OIDN.Value));
+        addRoadNodeChange.Geometry.Should().BeEquivalentTo(context.Change.TestData.RoadSegment1EndNodeShapeRecord.Geometry.ToRoadNodeGeometry());
 
         actualChanges.ToList()[2].Should().BeOfType<ModifyRoadSegmentChange>();
     }
@@ -129,7 +129,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                 var nodeDbase = builder.CreateRoadNodeDbaseRecord();
                 nodeDbase.WK_OIDN.Value = maxId.Next();
 
-                var node1Geometry = builder.TestData.RoadNode1ShapeRecord.Geometry;
+                var node1Geometry = builder.TestData.RoadSegment1StartNodeShapeRecord.Geometry;
                 var nodeShape = builder.CreateRoadNodeShapeRecord(new Point(node1Geometry.X + 0.01, node1Geometry.Y));
 
                 builder.DataSet.RoadNodeDbaseRecords.Add(nodeDbase);
@@ -150,7 +150,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
             {
                 var maxId = new RoadNodeId(builder.DataSet.RoadNodeDbaseRecords.Max(x => x.WK_OIDN.Value));
 
-                builder.TestData.RoadNode1DbaseRecord.WK_OIDN.Value = maxId.Next();
+                builder.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value = maxId.Next();
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
@@ -201,8 +201,8 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
         var (zipArchive, context) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
-                var dbaseRecord = builder.TestData.RoadNode1DbaseRecord;
-                var shapeRecord = builder.TestData.RoadNode1ShapeRecord;
+                var dbaseRecord = builder.TestData.RoadSegment1StartNodeDbaseRecord;
+                var shapeRecord = builder.TestData.RoadSegment1StartNodeShapeRecord;
 
                 var maxId = new RoadNodeId(builder.DataSet.RoadNodeDbaseRecords.Max(x => x.WK_OIDN.Value));
 
@@ -228,8 +228,8 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
         actualChanges.Should().HaveCount(2);
 
         var modifyRoadNodeChange = actualChanges.ToList()[0].Should().BeOfType<ModifyRoadNodeChange>().Subject;
-        modifyRoadNodeChange.RoadNodeId.Should().Be(new RoadNodeId(context.Extract.TestData.RoadNode1DbaseRecord.WK_OIDN.Value));
-        modifyRoadNodeChange.Geometry.Should().BeEquivalentTo(context.Change.TestData.RoadNode1ShapeRecord.Geometry.ToRoadNodeGeometry());
+        modifyRoadNodeChange.RoadNodeId.Should().Be(new RoadNodeId(context.Extract.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value));
+        modifyRoadNodeChange.Geometry.Should().BeEquivalentTo(context.Change.TestData.RoadSegment1StartNodeShapeRecord.Geometry.ToRoadNodeGeometry());
 
         actualChanges.ToList()[1].Should().BeOfType<ModifyRoadSegmentChange>();
     }
@@ -242,7 +242,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
             {
                 var integrationRoadNode = context.Integration.DataSet.RoadNodeDbaseRecords.First();
 
-                builder.TestData.RoadNode1DbaseRecord.WK_OIDN.Value = integrationRoadNode.WK_OIDN.Value;
+                builder.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value = integrationRoadNode.WK_OIDN.Value;
             })
             .Build();
 

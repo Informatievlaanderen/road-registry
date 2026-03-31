@@ -67,6 +67,32 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
 
     public bool Equals(RoadSegmentAttributes? other)
     {
+        return Equals(other, false);
+    }
+
+    public override int GetHashCode()
+    {
+        var hashCode = new HashCode();
+        hashCode.Add(GeometryDrawMethod);
+        hashCode.Add(Status);
+        hashCode.Add(AccessRestriction);
+        hashCode.Add(Category);
+        hashCode.Add(Morphology);
+        hashCode.Add(StreetNameId);
+        hashCode.Add(MaintenanceAuthorityId);
+        hashCode.Add(SurfaceType);
+        hashCode.Add(CarAccessForward);
+        hashCode.Add(CarAccessBackward);
+        hashCode.Add(BikeAccessForward);
+        hashCode.Add(BikeAccessBackward);
+        hashCode.Add(PedestrianAccess);
+        hashCode.Add(EuropeanRoadNumbers);
+        hashCode.Add(NationalRoadNumbers);
+        return hashCode.ToHashCode();
+    }
+
+    public bool Equals(RoadSegmentAttributes? other, bool excludeStatus)
+    {
         if (other is null)
         {
             return false;
@@ -76,7 +102,7 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
                && AccessRestriction.Equals(other.AccessRestriction)
                && Category.Equals(other.Category)
                && Morphology.Equals(other.Morphology)
-               && Status.Equals(other.Status)
+               && (excludeStatus || Status.Equals(other.Status))
                && StreetNameId.Equals(other.StreetNameId)
                && MaintenanceAuthorityId.Equals(other.MaintenanceAuthorityId)
                && SurfaceType.Equals(other.SurfaceType)

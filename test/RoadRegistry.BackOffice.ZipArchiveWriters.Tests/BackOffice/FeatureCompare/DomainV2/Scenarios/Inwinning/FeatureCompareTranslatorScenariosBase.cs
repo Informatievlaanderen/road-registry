@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios.Inwinning;
 
 using System.IO.Compression;
 using Microsoft.Extensions.Logging;
@@ -7,9 +7,9 @@ using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Infrastructure.Dbase;
 using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.RoadSegment.Changes;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
-using RoadSegment.Changes;
-using RoadSegment.ValueObjects;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using IZipArchiveFeatureCompareTranslator = RoadRegistry.Extracts.FeatureCompare.DomainV2.IZipArchiveFeatureCompareTranslator;

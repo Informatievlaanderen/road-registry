@@ -70,13 +70,27 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
 
     public bool Equals(RoadSegmentDynamicAttributeValues<T>? other)
     {
-        if (other is null)
+        return Equals(this, other);
+    }
+    private static bool Equals(RoadSegmentDynamicAttributeValues<T>? left, RoadSegmentDynamicAttributeValues<T>? right)
+    {
+        if (left is null && right is null)
+        {
+            return true;
+        }
+
+        if (left is null || right is null)
         {
             return false;
         }
 
-        return Values.SequenceEqual(other.Values);
+        return left.Values.SequenceEqual(right.Values);
     }
+    public static bool operator ==(RoadSegmentDynamicAttributeValues<T>? left, RoadSegmentDynamicAttributeValues<T>? right) =>
+        Equals(left, right);
+
+    public static bool operator !=(RoadSegmentDynamicAttributeValues<T>? left, RoadSegmentDynamicAttributeValues<T>? right) =>
+        !Equals(left, right);
 
     public RoadSegmentDynamicAttributeValues<T> MergeWith(RoadSegmentDynamicAttributeValues<T> otherAttributes,
         double thisGeometryLength, double otherGeometryLength,

@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios.Inwinning;
 
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;

@@ -1,15 +1,15 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios.Inwinning;
 
-using GradeSeparatedJunction.Changes;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
-using RoadNode.Changes;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Infrastructure.Dbase;
+using RoadRegistry.GradeSeparatedJunction.Changes;
+using RoadRegistry.RoadNode.Changes;
+using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
-using RoadSegment.Changes;
 using Xunit.Abstractions;
 using Point = NetTopologySuite.Geometries.Point;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
@@ -30,8 +30,8 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
             })
             .WithExtract((builder, _) =>
             {
-                builder.DataSet.RoadNodeDbaseRecords = new[] { builder.TestData.RoadNode3DbaseRecord, builder.TestData.RoadNode4DbaseRecord }.ToList();
-                builder.DataSet.RoadNodeShapeRecords = new[] { builder.TestData.RoadNode3ShapeRecord, builder.TestData.RoadNode4ShapeRecord }.ToList();
+                builder.DataSet.RoadNodeDbaseRecords = new[] { builder.TestData.RoadSegment2StartNodeDbaseRecord, builder.TestData.RoadSegment2EndNodeDbaseRecord }.ToList();
+                builder.DataSet.RoadNodeShapeRecords = new[] { builder.TestData.RoadSegment2StartNodeShapeRecord, builder.TestData.RoadSegment2EndNodeShapeRecord }.ToList();
                 builder.DataSet.RoadSegmentDbaseRecords = new[] { builder.TestData.RoadSegment2DbaseRecord }.ToList();
                 builder.DataSet.RoadSegmentShapeRecords = new[] { builder.TestData.RoadSegment2ShapeRecord }.ToList();
                 builder.DataSet.EuropeanRoadDbaseRecords.Clear();
@@ -47,19 +47,19 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                     .AppendChange(
                         new AddRoadNodeChange
                         {
-                            TemporaryId = new RoadNodeId(context.Change.TestData.RoadNode1DbaseRecord.WK_OIDN.Value),
+                            TemporaryId = new RoadNodeId(context.Change.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value),
                             OriginalId = null,
-                            Geometry = context.Change.TestData.RoadNode1ShapeRecord.Geometry.ToRoadNodeGeometry(),
-                            Grensknoop = context.Change.TestData.RoadNode1DbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+                            Geometry = context.Change.TestData.RoadSegment1StartNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
+                            Grensknoop = context.Change.TestData.RoadSegment1StartNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
                         }
                     )
                     .AppendChange(
                         new AddRoadNodeChange
                         {
-                            TemporaryId = new RoadNodeId(context.Change.TestData.RoadNode2DbaseRecord.WK_OIDN.Value),
+                            TemporaryId = new RoadNodeId(context.Change.TestData.RoadSegment1EndNodeDbaseRecord.WK_OIDN.Value),
                             OriginalId = null,
-                            Geometry = context.Change.TestData.RoadNode2ShapeRecord.Geometry.ToRoadNodeGeometry(),
-                            Grensknoop = context.Change.TestData.RoadNode2DbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+                            Geometry = context.Change.TestData.RoadSegment1EndNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
+                            Grensknoop = context.Change.TestData.RoadSegment1EndNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
                         }
                     )
                     .AppendChange(
@@ -104,9 +104,9 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
             {
                 var fixture = context.Fixture;
 
-                builder.TestData.RoadNode1DbaseRecord.TYPE.Value = fixture.CreateWhichIsDifferentThan(RoadNodeTypeV2.ByIdentifier[builder.TestData.RoadNode1DbaseRecord.TYPE.Value]).Translation.Identifier;
-                builder.TestData.RoadNode1DbaseRecord.GRENSKNOOP.Value = fixture.CreateWhichIsDifferentThan(builder.TestData.RoadNode1DbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()).ToDbaseShortValue();
-                builder.TestData.RoadNode1ShapeRecord.Geometry = new Point(builder.TestData.RoadNode1ShapeRecord.Geometry.X + 0.01, builder.TestData.RoadNode1ShapeRecord.Geometry.Y)
+                builder.TestData.RoadSegment1StartNodeDbaseRecord.TYPE.Value = fixture.CreateWhichIsDifferentThan(RoadNodeTypeV2.ByIdentifier[builder.TestData.RoadSegment1StartNodeDbaseRecord.TYPE.Value]).Translation.Identifier;
+                builder.TestData.RoadSegment1StartNodeDbaseRecord.GRENSKNOOP.Value = fixture.CreateWhichIsDifferentThan(builder.TestData.RoadSegment1StartNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()).ToDbaseShortValue();
+                builder.TestData.RoadSegment1StartNodeShapeRecord.Geometry = new Point(builder.TestData.RoadSegment1StartNodeShapeRecord.Geometry.X + 0.01, builder.TestData.RoadSegment1StartNodeShapeRecord.Geometry.Y)
                     .WithSrid(WellknownSrids.Lambert08);
 
                 builder.TestData.RoadSegment1DbaseRecord.STATUS.Value = RoadSegmentStatusV2.Gepland;
@@ -118,8 +118,8 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = fixture.CreateWhichIsDifferentThan(new StreetNameLocalId(builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value!.Value));
                 builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = fixture.CreateWhichIsDifferentThan(new StreetNameLocalId(builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value!.Value));
                 var lineString = new LineString([
-                    new CoordinateM(builder.TestData.RoadNode1ShapeRecord.Geometry.X, builder.TestData.RoadNode1ShapeRecord.Geometry.Y, builder.TestData.RoadNode1ShapeRecord.Geometry.X),
-                    new CoordinateM(builder.TestData.RoadNode2ShapeRecord.Geometry.X, builder.TestData.RoadNode2ShapeRecord.Geometry.Y, builder.TestData.RoadNode2ShapeRecord.Geometry.X)
+                    new CoordinateM(builder.TestData.RoadSegment1StartNodeShapeRecord.Geometry.X, builder.TestData.RoadSegment1StartNodeShapeRecord.Geometry.Y, builder.TestData.RoadSegment1StartNodeShapeRecord.Geometry.X),
+                    new CoordinateM(builder.TestData.RoadSegment1EndNodeShapeRecord.Geometry.X, builder.TestData.RoadSegment1EndNodeShapeRecord.Geometry.Y, builder.TestData.RoadSegment1EndNodeShapeRecord.Geometry.X)
                 ]).WithSrid(WellknownSrids.Lambert08);
                 builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
 
@@ -138,9 +138,9 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                     .AppendChange(
                         new ModifyRoadNodeChange
                         {
-                            RoadNodeId = new RoadNodeId(context.Change.TestData.RoadNode1DbaseRecord.WK_OIDN.Value),
-                            Geometry = context.Change.TestData.RoadNode1ShapeRecord.Geometry.ToRoadNodeGeometry(),
-                            Grensknoop = context.Change.TestData.RoadNode1DbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+                            RoadNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value),
+                            Geometry = context.Change.TestData.RoadSegment1StartNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
+                            Grensknoop = context.Change.TestData.RoadSegment1StartNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
                         }
                     )
                     .AppendChange(
@@ -212,8 +212,8 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
         var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
-                builder.DataSet.RoadNodeDbaseRecords = new[] { builder.TestData.RoadNode3DbaseRecord, builder.TestData.RoadNode4DbaseRecord }.ToList();
-                builder.DataSet.RoadNodeShapeRecords = new[] { builder.TestData.RoadNode3ShapeRecord, builder.TestData.RoadNode4ShapeRecord }.ToList();
+                builder.DataSet.RoadNodeDbaseRecords = new[] { builder.TestData.RoadSegment2StartNodeDbaseRecord, builder.TestData.RoadSegment2EndNodeDbaseRecord }.ToList();
+                builder.DataSet.RoadNodeShapeRecords = new[] { builder.TestData.RoadSegment2StartNodeShapeRecord, builder.TestData.RoadSegment2EndNodeShapeRecord }.ToList();
                 builder.DataSet.RoadSegmentDbaseRecords = new[] { builder.TestData.RoadSegment2DbaseRecord }.ToList();
                 builder.DataSet.RoadSegmentShapeRecords = new[] { builder.TestData.RoadSegment2ShapeRecord }.ToList();
                 builder.DataSet.EuropeanRoadDbaseRecords.Clear();
@@ -224,13 +224,13 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 .AppendChange(
                     new RemoveRoadNodeChange
                     {
-                        RoadNodeId = new RoadNodeId(context.Extract.TestData.RoadNode1DbaseRecord.WK_OIDN.Value)
+                        RoadNodeId = new RoadNodeId(context.Extract.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value)
                     }
                 )
                 .AppendChange(
                     new RemoveRoadNodeChange
                     {
-                        RoadNodeId = new RoadNodeId(context.Extract.TestData.RoadNode2DbaseRecord.WK_OIDN.Value)
+                        RoadNodeId = new RoadNodeId(context.Extract.TestData.RoadSegment1EndNodeDbaseRecord.WK_OIDN.Value)
                     }
                 )
                 .AppendChange(

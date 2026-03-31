@@ -1,12 +1,9 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios.Inwinning;
 
 using Microsoft.Extensions.Logging;
-using NetTopologySuite.Geometries;
-using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.GradeSeparatedJunction.Changes;
-using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 using Xunit.Abstractions;
 

@@ -142,8 +142,8 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
             var feature = Feature.New(recordNumber, new GradeSeparatedJunctionFeatureCompareAttributes
             {
                 Id = ReadId(),
-                UpperRoadSegmentId = ReadUpperRoadSegmentId(),
-                LowerRoadSegmentId = ReadLowerRoadSegmentId(),
+                UpperRoadSegmentTempId = ReadUpperRoadSegmentId(),
+                LowerRoadSegmentTempId = ReadLowerRoadSegmentId(),
                 Type = ReadType()
             });
             return (feature, problems);

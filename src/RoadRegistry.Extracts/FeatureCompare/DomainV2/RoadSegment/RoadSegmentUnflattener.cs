@@ -293,7 +293,12 @@ public class RoadSegmentUnflattener
             ])
             : segments.Single().Attributes.Geometry;
 
-        var status = segments.Select(x => x.Attributes.Status).Distinct().Single();
+        var statuses = segments.Select(x => x.Attributes.Status).Distinct().ToArray();
+        var methods = segments.Select(x => x.Attributes.Method).Distinct().ToArray();
+        //TODO-pr when multiple statuses are found, return error
+        //TODO-pr when multiple methods are found, return error
+
+        var status = statuses.Single();
         var method = DetermineMethod(longestSegment.Attributes.Method, status, mergedGeometry, ogcFeaturesCache);
         var dynamicAttributes = RoadSegmentFeatureCompareWithDynamicAttributes.Build(
             longestSegment.Attributes.RoadSegmentId ?? roadSegmentIdProvider.NewId(),

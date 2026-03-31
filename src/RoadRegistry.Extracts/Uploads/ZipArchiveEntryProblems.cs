@@ -96,13 +96,6 @@ public static class ZipArchiveEntryProblems
         return new FileProblemBuilder(entry.Name).RoadSegmentsWithoutWidthAttributes(segments);
     }
 
-    public static IFileWarningBuilder Warning(this ZipArchiveEntry entry, string reason)
-    {
-        ArgumentNullException.ThrowIfNull(reason);
-
-        return new FileProblemBuilder(entry.Name).Warning(reason);
-    }
-
     private sealed class FileProblemBuilder : IFileProblemBuilder, IDbaseFileRecordProblemBuilder, IShapeFileRecordProblemBuilder
     {
         private readonly string _file;

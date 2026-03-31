@@ -1,11 +1,11 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios.Inwinning;
 
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Extracts.DutchTranslations;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
-using RoadSegment.Changes;
 using Xunit.Abstractions;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
 
