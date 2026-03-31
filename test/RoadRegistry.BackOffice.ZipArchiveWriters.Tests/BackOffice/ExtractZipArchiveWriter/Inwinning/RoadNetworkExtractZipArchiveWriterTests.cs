@@ -19,24 +19,24 @@
     {
         private readonly RecyclableMemoryStreamManager _memoryStreamManager;
         private readonly ZipArchiveWriterOptions _zipArchiveWriterOptions;
-        private readonly Mock<IZipArchiveDataSession> _zipArchiveDataProvider;
+        private readonly Mock<IZipArchiveDataSession> _zipArchiveDataSession;
 
         public RoadNetworkExtractZipArchiveWriterTests(ZipArchiveWriterOptions zipArchiveWriterOptions)
         {
             _memoryStreamManager = new RecyclableMemoryStreamManager();
             _zipArchiveWriterOptions = zipArchiveWriterOptions;
 
-            _zipArchiveDataProvider = new Mock<IZipArchiveDataSession>();
-            _zipArchiveDataProvider
+            _zipArchiveDataSession = new Mock<IZipArchiveDataSession>();
+            _zipArchiveDataSession
                 .Setup(x => x.GetOrganizations(It.IsAny<CancellationToken>()))
                 .ReturnsAsync([]);
-            _zipArchiveDataProvider
+            _zipArchiveDataSession
                 .Setup(x => x.GetRoadNodes(It.IsAny<IPolygonal>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync([]);
-            _zipArchiveDataProvider
+            _zipArchiveDataSession
                 .Setup(x => x.GetRoadSegments(It.IsAny<IPolygonal>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync([]);
-            _zipArchiveDataProvider
+            _zipArchiveDataSession
                 .Setup(x => x.GetGradeSeparatedJunctions(It.IsAny<IPolygonal>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync([]);
         }
@@ -62,7 +62,7 @@
                     fixture.Create<IPolygonal>(),
                     isInformative: true,
                     zipArchiveWriterVersion: WellKnownZipArchiveWriterVersions.DomainV2_Inwinning);
-            await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, new ZipArchiveWriteContext(), CancellationToken.None);
+            await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataSession.Object, new ZipArchiveWriteContext(), CancellationToken.None);
 
            var fileNames =  archive.Entries.Select(x => x.FullName).ToList();
 
@@ -134,7 +134,7 @@
                     fixture.Create<IPolygonal>(),
                     isInformative: false,
                     zipArchiveWriterVersion: WellKnownZipArchiveWriterVersions.DomainV2_Inwinning);
-            await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, new ZipArchiveWriteContext(), CancellationToken.None);
+            await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataSession.Object, new ZipArchiveWriteContext(), CancellationToken.None);
 
            var fileNames =  archive.Entries.Select(x => x.FullName).ToList();
 

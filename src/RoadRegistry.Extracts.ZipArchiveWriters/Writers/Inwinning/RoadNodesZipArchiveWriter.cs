@@ -95,8 +95,12 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
                 integrationBufferedContourGeometry,
                 cancellationToken);
 
-            var integrationNodeIds = integrationSegments.SelectMany(segment => new[] { segment.StartNodeId, segment.EndNodeId }).Distinct().ToList();
-            integrationNodes = nodesInIntegrationBuffer.Where(integrationNode => integrationNodeIds.Contains(integrationNode.RoadNodeId))
+            var integrationNodeIds = integrationSegments
+                .SelectMany(segment => new[] { segment.StartNodeId, segment.EndNodeId })
+                .Distinct()
+                .ToHashSet();
+            integrationNodes = nodesInIntegrationBuffer
+                .Where(integrationNode => integrationNodeIds.Contains(integrationNode.RoadNodeId))
                 .ToList();
             integrationNodes = integrationNodes.Except(nodesInContour, new RoadNodeEqualityComparerById()).ToList();
         }
@@ -186,7 +190,7 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
     {
         return GewestGrens.IsCloseToBorder(geometry.Value, 10);
     }
-    
+
     private sealed class RoadNodeEqualityComparerById : IEqualityComparer<RoadNodeExtractItem>
     {
         public bool Equals(RoadNodeExtractItem? x, RoadNodeExtractItem? y)
