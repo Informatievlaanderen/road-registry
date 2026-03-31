@@ -6,7 +6,7 @@ using RoadRegistry.ValueObjects.Problems;
 
 public partial class RoadSegment
 {
-    public Problems RetireBecauseOfMigration(RoadSegmentId? mergedRoadSegmentId, Provenance provenance)
+    public Problems RetireBecauseOfMigration(Provenance provenance)
     {
         var problems = Problems.WithContext(RoadSegmentId);
 
@@ -18,7 +18,6 @@ public partial class RoadSegment
         Apply(new RoadSegmentWasRetiredBecauseOfMigration
         {
             RoadSegmentId = RoadSegmentId,
-            MergedRoadSegmentId = mergedRoadSegmentId,
             Provenance = new ProvenanceData(provenance)
         });
 

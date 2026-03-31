@@ -17,10 +17,9 @@ public class AggregateTests : AggregateTestBase
 
         var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
             .WithoutChanges();
-        var mergedRoadSegmentId = segment.RoadSegmentId.Next();
 
         // Act
-        var problems = segment.RetireBecauseOfMigration(mergedRoadSegmentId, TestData.Provenance);
+        var problems = segment.RetireBecauseOfMigration(TestData.Provenance);
 
         // Assert
         problems.Should().HaveNoError();
@@ -28,7 +27,6 @@ public class AggregateTests : AggregateTestBase
 
         var segmentRetired = (RoadSegmentWasRetiredBecauseOfMigration)segment.GetChanges().Single();
         segmentRetired.RoadSegmentId.Should().Be(segment.RoadSegmentId);
-        segmentRetired.MergedRoadSegmentId.Should().Be(mergedRoadSegmentId);
     }
 
     [Fact]
@@ -47,7 +45,6 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
-        segment.MergedRoadSegmentId.Should().Be(evt.MergedRoadSegmentId);
         segment.Attributes.Status.Should().Be(RoadSegmentStatusV2.Gehistoreerd);
     }
 }

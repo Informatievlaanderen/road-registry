@@ -202,7 +202,6 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     {
         UncommittedEvents.Add(@event);
 
-        MergedRoadSegmentId = @event.MergedRoadSegmentId;
         Attributes = Attributes with
         {
             Status = RoadSegmentStatusV2.Gehistoreerd
