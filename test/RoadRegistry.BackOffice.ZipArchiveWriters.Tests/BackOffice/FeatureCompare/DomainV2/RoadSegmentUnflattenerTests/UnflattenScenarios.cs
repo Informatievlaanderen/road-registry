@@ -407,6 +407,88 @@ POINT (60 -10)
         dynamicRecord5.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((55 10, 60 10, 60 -10))");
     }
 
+    [Fact]
+    public void With2FlatSegmentsWithDifferentStatus_ThenProblem()
+    {
+        // Arrange
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadSegmentId>();
+
+        var flatSegment1 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
+        {
+            Geometry = BuildRoadSegmentGeometry(0, 0, 50, 0),
+            Status = RoadSegmentStatusV2.NietGerealiseerd
+        };
+        var flatSegment2 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
+        {
+            Geometry = BuildRoadSegmentGeometry(50, 0, 100, 0),
+            Status = RoadSegmentStatusV2.BuitenGebruik
+        };
+        var flatSegments = new []
+        {
+            flatSegment1,
+            flatSegment2
+        };
+
+        var nodes = new[]
+        {
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = new RoadNodeId(1),
+                Geometry = new Point(50, 0),
+                Grensknoop = false
+            }
+        };
+
+        // Act
+        var act = () => Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+
+        // Assert
+        var ex = act.Should().Throw<ZipArchiveValidationException>().Which;
+        ex.Problems.Should().Contain(x => x.Reason == "RoadNodeIsNotAllowed");
+    }
+
+    [Fact]
+    public void With2FlatSegmentsWithDifferentMethod_ThenProblem()
+    {
+        // Arrange
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadSegmentId>();
+
+        var flatSegment1 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
+        {
+            Geometry = BuildRoadSegmentGeometry(0, 0, 50, 0),
+            Method = RoadSegmentGeometryDrawMethodV2.Ingeschetst
+        };
+        var flatSegment2 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
+        {
+            Geometry = BuildRoadSegmentGeometry(50, 0, 100, 0),
+            Method = null
+        };
+        var flatSegments = new []
+        {
+            flatSegment1,
+            flatSegment2
+        };
+
+        var nodes = new[]
+        {
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = new RoadNodeId(1),
+                Geometry = new Point(50, 0),
+                Grensknoop = false
+            }
+        };
+
+        // Act
+        var act = () => Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+
+        // Assert
+        var ex = act.Should().Throw<ZipArchiveValidationException>().Which;
+        ex.Problems.Should().Contain(x => x.Reason == "RoadNodeIsNotAllowed");
+    }
+
     private List<RoadSegmentFeatureWithDynamicAttributes> Unflatten(
         IFixture fixture,
         string scenarioWkt)

@@ -7,6 +7,8 @@ using NetTopologySuite.Operation.Valid;
 using RoadNode;
 using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.RoadNode.Errors;
+using RoadRegistry.ValueObjects.Problems;
 
 public class RoadSegmentUnflattener
 {
@@ -36,7 +38,7 @@ public class RoadSegmentUnflattener
         var nodeClassifications = ClassifyNonValidationNodes(featureType, segmentsByNode, context, cancellationToken);
 
         // Step 3: Merge ALL segments connected by nodes that aren't Eindknoop/EchteKnoop/Grensknoop
-        var mergedRecords = MergeSegmentsAtNonStructuralNodes(records, roadSegmentIdProvider, segmentsByNode, nodeClassifications, context.Tolerances, ogcFeaturesCache, cancellationToken);
+        var mergedRecords = MergeSegmentsAtNonStructuralNodes(featureType, records, roadSegmentIdProvider, segmentsByNode, nodeClassifications, context.Tolerances, ogcFeaturesCache, cancellationToken);
 
         // Step 4: Detect invalid geometry conditions and insert Validatieknopen where needed
         var unflattenedRecords = DetectAndFixInvalidGeometries(featureType, nodeClassifications, mergedRecords, roadSegmentIdProvider, context, cancellationToken);
@@ -142,6 +144,7 @@ public class RoadSegmentUnflattener
     }
 
     private List<RoadSegmentFeatureWithDynamicAttributes> MergeSegmentsAtNonStructuralNodes(
+        FeatureType featureType,
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
         IRoadSegmentIdProvider roadSegmentIdProvider,
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
@@ -153,6 +156,8 @@ public class RoadSegmentUnflattener
         var result = new List<RoadSegmentFeatureWithDynamicAttributes>();
         var processedSegments = new HashSet<RoadSegmentTempId>();
 
+        var problems = ZipArchiveProblems.None;
+
         foreach (var record in records)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -162,17 +167,27 @@ public class RoadSegmentUnflattener
                 continue;
             }
 
-            // Find all segments connected through non-structural nodes (not Eindknoop/EchteKnoop/Grensknoop)
-            var segmentChain = BuildSegmentChain(record, segmentsByNode, nodeClassifications, processedSegments, tolerances);
+            try
+            {
+                // Find all segments connected through non-structural nodes (not Eindknoop/EchteKnoop/Grensknoop)
+                var segmentChain = BuildSegmentChain(featureType, record, segmentsByNode, nodeClassifications, processedSegments, tolerances);
 
-            var dynamicRecord = BuildFeatureWithDynamicAttributes(segmentChain, roadSegmentIdProvider, ogcFeaturesCache, tolerances);
-            result.Add(dynamicRecord);
+                var dynamicRecord = BuildFeatureWithDynamicAttributes(segmentChain, roadSegmentIdProvider, ogcFeaturesCache, tolerances);
+                result.Add(dynamicRecord);
+            }
+            catch (ZipArchiveValidationException ex)
+            {
+                problems += ex.Problems;
+            }
         }
+
+        problems.ThrowIfError();
 
         return result;
     }
 
     private List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> BuildSegmentChain(
+        FeatureType featureType,
         Feature<RoadSegmentFeatureCompareWithFlatAttributes> startSegment,
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
         Dictionary<RoadNodeId, RoadNodeTypeV2> nodeClassifications,
@@ -183,15 +198,16 @@ public class RoadSegmentUnflattener
         processedSegments.Add(startSegment.Attributes.TempId);
 
         // Traverse forward from end point
-        TraverseChain(startSegment, segmentsByNode, nodeClassifications, chain, processedSegments, isForward: true, tolerances);
+        TraverseChain(featureType, startSegment, segmentsByNode, nodeClassifications, chain, processedSegments, isForward: true, tolerances);
 
         // Traverse backward from start point
-        TraverseChain(startSegment, segmentsByNode, nodeClassifications, chain, processedSegments, isForward: false, tolerances);
+        TraverseChain(featureType, startSegment, segmentsByNode, nodeClassifications, chain, processedSegments, isForward: false, tolerances);
 
         return chain;
     }
 
     private void TraverseChain(
+        FeatureType featureType,
         Feature<RoadSegmentFeatureCompareWithFlatAttributes> currentSegment,
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
         Dictionary<RoadNodeId, RoadNodeTypeV2> nodeClassifications,
@@ -233,13 +249,16 @@ public class RoadSegmentUnflattener
 
         processedSegments.Add(nextSegment.Attributes.TempId);
 
+        Feature<RoadSegmentFeatureCompareWithFlatAttributes>? previousSegment = null;
         var lastCoordinateInChain = chain.Last().Attributes.Geometry.Coordinates.Last();
         if (lastCoordinateInChain.IsReasonablyEqualTo(nextSegment.Attributes.Geometry.Coordinates.First(), tolerances))
         {
+            previousSegment = chain.LastOrDefault();
             chain.Add(nextSegment);
         }
         else if (lastCoordinateInChain.IsReasonablyEqualTo(nextSegment.Attributes.Geometry.Coordinates.Last(), tolerances))
         {
+            previousSegment = chain.LastOrDefault();
             chain.Add(Reverse(nextSegment));
         }
         else
@@ -247,16 +266,24 @@ public class RoadSegmentUnflattener
             var firstCoordinateInChain = chain.First().Attributes.Geometry.Coordinates.First();
             if (firstCoordinateInChain.IsReasonablyEqualTo(nextSegment.Attributes.Geometry.Coordinates.Last(), tolerances))
             {
+                previousSegment = chain.FirstOrDefault();
                 chain.Insert(0, nextSegment);
             }
             else if (firstCoordinateInChain.IsReasonablyEqualTo(nextSegment.Attributes.Geometry.Coordinates.First(), tolerances))
             {
+                previousSegment = chain.FirstOrDefault();
                 chain.Insert(0, Reverse(nextSegment));
             }
         }
 
+        if (previousSegment is not null && (previousSegment.Attributes.Status != nextSegment.Attributes.Status || previousSegment.Attributes.Method != nextSegment.Attributes.Method))
+        {
+            var recordContext = ExtractFileName.Wegknoop.AtDbaseRecord(featureType);
+            throw new ZipArchiveValidationException(ZipArchiveProblems.Single(recordContext.Error(new RoadNodeIsNotAllowed().WithContext(ProblemContext.For(nodeAtPoint.Item1)))));
+        }
+
         // Continue traversing
-        TraverseChain(nextSegment, segmentsByNode, nodeClassifications, chain, processedSegments, isForward, tolerances);
+        TraverseChain(featureType, nextSegment, segmentsByNode, nodeClassifications, chain, processedSegments, isForward, tolerances);
     }
 
     private static Feature<RoadSegmentFeatureCompareWithFlatAttributes> Reverse(Feature<RoadSegmentFeatureCompareWithFlatAttributes> feature)
@@ -293,12 +320,7 @@ public class RoadSegmentUnflattener
             ])
             : segments.Single().Attributes.Geometry;
 
-        var statuses = segments.Select(x => x.Attributes.Status).Distinct().ToArray();
-        var methods = segments.Select(x => x.Attributes.Method).Distinct().ToArray();
-        //TODO-pr when multiple statuses are found, return error
-        //TODO-pr when multiple methods are found, return error
-
-        var status = statuses.Single();
+        var status = segments.Select(x => x.Attributes.Status).Distinct().Single();
         var method = DetermineMethod(longestSegment.Attributes.Method, status, mergedGeometry, ogcFeaturesCache);
         var dynamicAttributes = RoadSegmentFeatureCompareWithDynamicAttributes.Build(
             longestSegment.Attributes.RoadSegmentId ?? roadSegmentIdProvider.NewId(),

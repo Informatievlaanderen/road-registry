@@ -11,6 +11,10 @@ using RoadRegistry.ValueObjects.Problems;
 public static class ZipArchiveEntryProblems
 {
     // builder
+    public static IDbaseFileRecordProblemBuilder AtDbaseRecord(this ExtractFileName file, FeatureType featureType)
+    {
+        return new FileProblemBuilder(featureType.ToDbaseFileName(file));
+    }
     public static IDbaseFileRecordProblemBuilder AtDbaseRecord(this ExtractFileName file, FeatureType featureType, RecordNumber number)
     {
         return new FileProblemBuilder(featureType.ToDbaseFileName(file)).AtDbaseRecord(number);

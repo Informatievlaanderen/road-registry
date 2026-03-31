@@ -85,10 +85,7 @@ public partial class RoadNode
             }
             else
             {
-                problems += new RoadNodeIsNotAllowed(
-                    context.IdTranslator.TranslateToTemporaryId(segment1.RoadSegmentId),
-                    context.IdTranslator.TranslateToTemporaryId(segment2.RoadSegmentId)
-                );
+                problems += new RoadNodeIsNotAllowed();
             }
         }
         else if (segments.Count > 2 && Type != RoadNodeTypeV2.EchteKnoop)
