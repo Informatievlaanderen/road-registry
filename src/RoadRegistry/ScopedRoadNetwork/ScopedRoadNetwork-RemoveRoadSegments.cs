@@ -162,6 +162,7 @@ public partial class ScopedRoadNetwork
             return Problems.None;
         }
 
+        //TODO-pr uncomment lambda integrationtest
         //TODO-pr TBD roadnodetype logic voor V2?
         // if (segmentOne.GetOppositeNode(nodeId) == segmentTwo.GetOppositeNode(nodeId))
         // {
