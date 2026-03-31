@@ -70,8 +70,7 @@ public partial class RoadNode
             var segment1 = segments[0];
             var segment2 = segments[1];
 
-            //TODO-pr upload add test to exclude status
-            if (Grensknoop || !segment1.Attributes.Equals(segment2.Attributes, excludeStatus: true))
+            if (Grensknoop || !segment1.Attributes.Equals(segment2.Attributes))
             {
                 // Must be schijnknoop
                 if (Type != RoadNodeTypeV2.Schijnknoop)

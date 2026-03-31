@@ -67,7 +67,27 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
 
     public bool Equals(RoadSegmentAttributes? other)
     {
-        return Equals(other, false);
+        if (other is null)
+        {
+            return false;
+        }
+
+        return GeometryDrawMethod.Equals(other.GeometryDrawMethod)
+               && AccessRestriction.Equals(other.AccessRestriction)
+               && Category.Equals(other.Category)
+               && Morphology.Equals(other.Morphology)
+               && Status.Equals(other.Status)
+               && StreetNameId.Equals(other.StreetNameId)
+               && MaintenanceAuthorityId.Equals(other.MaintenanceAuthorityId)
+               && SurfaceType.Equals(other.SurfaceType)
+               && CarAccessForward.Equals(other.CarAccessForward)
+               && CarAccessBackward.Equals(other.CarAccessBackward)
+               && BikeAccessForward.Equals(other.BikeAccessForward)
+               && BikeAccessBackward.Equals(other.BikeAccessBackward)
+               && PedestrianAccess.Equals(other.PedestrianAccess)
+               && EuropeanRoadNumbers.SequenceEqual(other.EuropeanRoadNumbers)
+               && NationalRoadNumbers.SequenceEqual(other.NationalRoadNumbers)
+            ;
     }
 
     public override int GetHashCode()
@@ -89,31 +109,6 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
         hashCode.Add(EuropeanRoadNumbers);
         hashCode.Add(NationalRoadNumbers);
         return hashCode.ToHashCode();
-    }
-
-    public bool Equals(RoadSegmentAttributes? other, bool excludeStatus)
-    {
-        if (other is null)
-        {
-            return false;
-        }
-
-        return GeometryDrawMethod.Equals(other.GeometryDrawMethod)
-               && AccessRestriction.Equals(other.AccessRestriction)
-               && Category.Equals(other.Category)
-               && Morphology.Equals(other.Morphology)
-               && (excludeStatus || Status.Equals(other.Status))
-               && StreetNameId.Equals(other.StreetNameId)
-               && MaintenanceAuthorityId.Equals(other.MaintenanceAuthorityId)
-               && SurfaceType.Equals(other.SurfaceType)
-               && CarAccessForward.Equals(other.CarAccessForward)
-               && CarAccessBackward.Equals(other.CarAccessBackward)
-               && BikeAccessForward.Equals(other.BikeAccessForward)
-               && BikeAccessBackward.Equals(other.BikeAccessBackward)
-               && PedestrianAccess.Equals(other.PedestrianAccess)
-               && EuropeanRoadNumbers.SequenceEqual(other.EuropeanRoadNumbers)
-               && NationalRoadNumbers.SequenceEqual(other.NationalRoadNumbers)
-            ;
     }
 
     public bool EqualsOnlyNonDynamicAttributes(RoadSegmentAttributes? other)
