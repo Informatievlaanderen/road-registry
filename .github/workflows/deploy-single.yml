@@ -1,5 +1,5 @@
 name: 4. Single Deploy
-run-name: 'Deploy ${{ inputs.service || inputs.task || inputs.lambda }} to ${{ inputs.environment }}: ${{ inputs.version }}'
+run-name: "Deploy ${{ inputs.service }} to ${{ inputs.environment }}: ${{ inputs.version }}"
 
 on:
   workflow_dispatch:
@@ -8,9 +8,9 @@ on:
         type: choice
         description: Select the environment
         options:
-        - tst
-        - stg
-        - prd
+          - test
+          - stg
+          - prd
         required: true
       version:
         description: Version
@@ -19,200 +19,134 @@ on:
         type: choice
         description: Select the service to deploy
         options:
-        - ''
-        - road-backoffice-api
-        - road-backoffice-commandhost
-        - road-backoffice-eventhost
-        - road-backoffice-extracthost
-        - road-backoffice-ui
-        - road-editor-projectionhost
-        - road-producer-snapshot-projectionhost
-        - road-product-projectionhost
-        - road-projector
-        - road-synchost
-        - road-wfs-projectionhost
-        - road-wms-projectionhost
-        required: false
-      task:
-        type: choice
-        description: Select the task to deploy
-        options:
-        - ''
-        - road-adminhost
-        - road-jobs-processor
-        - road-product-publishhost
-        required: false
-      lambda:
-        type: choice
-        description: Select the lambda to deploy
-        options:
-        - ''
-        - lambdas
-        required: false
+          - backoffice-api
+          - backoffice-commandhost
+          - backoffice-eventhost
+          - backoffice-extracthost
+          - backoffice-ui
+          - editor-projectionhost
+          - producer-snapshot-projectionhost
+          - product-projectionhost
+          - projector
+          - synchost
+          - wfs-projectionhost
+          - wms-projectionhost
+          - adminhost
+          - jobs-processor
+          - product-publishhost
+          - lambdas
+        required: true
+
+permissions:
+  id-token: write
 
 jobs:
   deploy_start_slack:
-    if: github.repository_owner == 'Informatievlaanderen' && (github.event.inputs.service != '' || github.event.inputs.task != '' || github.event.inputs.lambda != '')
+    if: github.repository_owner == 'Informatievlaanderen' && (github.event.inputs.service != '')
     name: Deploy started
     runs-on: ubuntu-latest
 
     steps:
-    - name: Notify deployment started
-      uses: slackapi/slack-github-action@v2
-      with:
-        method: chat.postMessage
-        token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-        payload: |
-          channel: '#team-dinosaur-dev'
-          text: 'Deployment of ${{ github.event.inputs.service }} ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+      - name: Notify deployment started
+        uses: slackapi/slack-github-action@v2
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+          payload: |
+            channel: '#team-dinosaur-dev'
+            text: 'Deployment of ${{ github.event.inputs.service }} ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
 
   deploy_services:
-    if: github.repository_owner == 'Informatievlaanderen' && github.event.inputs.service != ''
+    if: github.repository_owner == 'Informatievlaanderen' && github.event.inputs.service != 'lambdas'
     needs: [deploy_start_slack]
-    name: Deploy services
-    runs-on: ubuntu-latest
+    name: Deploy service
+    uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.1.yml@main
     strategy:
-       matrix: 
-         services: [
-          '${{github.event.inputs.service}}'
-         ]
+      matrix:
+        services: ["${{github.event.inputs.service}}"]
 
     steps:
-    - name: CD services
-      env:
-        BUILD_URL: ${{ vars.VBR_AWS_BUILD_API_DEVOPS }}/${{matrix.services}}
-        STATUS_URL: ${{ vars.VBR_AWS_BUILD_STATUS_API_DEVOPS }}/${{matrix.services}}
-      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
-      with:
-        environment: ${{ github.event.inputs.environment }}
-        version: ${{ github.event.inputs.version }}
-        status-url: $STATUS_URL
-        deploy-url: $BUILD_URL
-        access-key: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
-        secret-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
-        interval: 2
-        deploy-target: 'agb_ecs_service'
-        domain: 'basisregisters'
-        project: 'basisregisters'
+      - name: CD services
+        env:
+          BUILD_URL: ${{ vars.VBR_AWS_BUILD_API_DEVOPS }}/${{matrix.services}}
+          STATUS_URL: ${{ vars.VBR_AWS_BUILD_STATUS_API_DEVOPS }}/${{matrix.services}}
+        uses: informatievlaanderen/awscurl-polling-action/polling-action@main
+        with:
+          environment: ${{ github.event.inputs.environment }}
+          service-name: ${{ matrix.services }}
+          application: ${{ matrix.services }}
+          version: ${{ github.event.inputs.version }}
+          domain: 'road'
+          project: 'grawr'
+          use-subfolder: true
+        secrets: inherit
 
-    - name: Output CD services
-      shell: bash
-      run: |
-        echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
-        echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
-        echo ${{ steps.awscurl-polling-action.outputs.final-message }}
-
-  deploy_tasks:
-    if: github.repository_owner == 'Informatievlaanderen' && github.event.inputs.task != ''
-    needs: [deploy_start_slack]
-    name: Deploy tasks
-    runs-on: ubuntu-latest
-    strategy:
-       matrix: 
-         services: [
-          '${{github.event.inputs.task}}'
-         ]
-
-    steps:
-    - name: CD services
-      env:
-        BUILD_URL: ${{ vars.VBR_AWS_BUILD_API_DEVOPS }}/${{matrix.services}}
-        STATUS_URL: ${{ vars.VBR_AWS_BUILD_STATUS_API_DEVOPS }}/${{matrix.services}}
-      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
-      with:
-        environment: ${{ github.event.inputs.environment }}
-        version: ${{ github.event.inputs.version }}
-        status-url: $STATUS_URL
-        deploy-url: $BUILD_URL
-        access-key: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
-        secret-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
-        interval: 2
-        deploy-target: 'ecs_scheduled_task'
-        domain: 'basisregisters'
-        project: 'basisregisters'
-
-    - name: Output CD tasks
-      shell: bash
-      run: |
-        echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
-        echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
-        echo ${{ steps.awscurl-polling-action.outputs.final-message }}
+      - name: Output CD services
+        shell: bash
+        run: |
+          echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
+          echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
+          echo ${{ steps.awscurl-polling-action.outputs.final-message }}
 
   deploy_lambda:
-    if: github.repository_owner == 'Informatievlaanderen' && github.event.inputs.lambda != ''
+    if: github.repository_owner == 'Informatievlaanderen' && github.event.inputs.service == 'lambdas'
     needs: [deploy_start_slack]
     name: Deploy lambda(s)
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: CD Lambda(s) Configure credentials
-      uses: aws-actions/configure-aws-credentials@v4.0.2
-      with:
-        aws-access-key-id: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_ACCESS_KEY_ID || github.event.inputs.environment == 'prd' && secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD || ''}}
-        aws-secret-access-key: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_SECRET_ACCESS_KEY || github.event.inputs.environment == 'prd' && secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD || ''}}
-        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-
-    - name: Promote BackOffice Lambda
-      if: github.event.inputs.environment
-      uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda-v4@main
-      with:
-        function-name: rr-sqsbackofficefunction
-        deploy-url: ${{ vars.VBR_AWS_DEPLOY_LAMBDA_DEVOPS_BASEURL }}
-        access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
-        secret-access-key-id: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
-        region: ${{ secrets.VBR_AWS_REGION_PRD }}
-        version: ${{ github.event.inputs.version }}
-        environment: ${{ github.event.inputs.environment }}
-
-    - name: Promote Snapshot Lambda
-      if: github.event.inputs.environment
-      uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda-v4@main
-      with:
-        function-name: rr-sqssnapshotfunction
-        deploy-url: ${{ vars.VBR_AWS_DEPLOY_LAMBDA_DEVOPS_BASEURL }}
-        access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
-        secret-access-key-id: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
-        region: ${{ secrets.VBR_AWS_REGION_PRD }}
-        version: ${{ github.event.inputs.version }}
-        environment: ${{ github.event.inputs.environment }}
+    uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.1.yml@main
+    strategy:
+       matrix:
+         functions: [
+          'lambda-sqsbackofficefunction',
+          'lambda-sqssnapshotfunction'
+         ]
+    with:
+      deploy-target: 'lambda'
+      environment: ${{ github.event.inputs.environment }}
+      service-name: ${{ matrix.functions }}
+      application: 'lambda'
+      version: ${{ github.event.inputs.version }}
+      domain: 'road'
+      project: 'grawr'
+      use-subfolder: true
+    secrets: inherit
 
   deploy_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [deploy_services, deploy_tasks, deploy_lambda]
+    needs: [deploy_services, deploy_lambda]
     name: Notify deployment succeeded
     runs-on: ubuntu-latest
 
     steps:
-    - name: Notify deployment succeeded
-      uses: slackapi/slack-github-action@v2
-      with:
-        method: chat.postMessage
-        token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-        payload: |
-          channel: '#team-dinosaur-dev'
-          text: ':white_check_mark: Deployment of ${{ github.event.inputs.service || github.event.inputs.task || github.event.inputs.lambda }} ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has finished.'
+      - name: Notify deployment succeeded
+        uses: slackapi/slack-github-action@v2
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+          payload: |
+            channel: '#team-dinosaur-dev'
+            text: ':white_check_mark: Deployment of ${{ github.event.inputs.service }} ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has finished.'
 
   deploy_nothing_slack:
-    if: github.repository_owner == 'Informatievlaanderen' && (github.event.inputs.service == '' || github.event.inputs.task == '' || github.event.inputs.lambda == '')
-    needs: [deploy_services, deploy_tasks, deploy_lambda]
+    if: github.repository_owner == 'Informatievlaanderen' && (github.event.inputs.service == '')
+    needs: [deploy_services, deploy_lambda]
     name: Notify deployment cancelled
     runs-on: ubuntu-latest
 
     steps:
-    - name: Notify deployment cancelled
-      uses: slackapi/slack-github-action@v2
-      with:
-        method: chat.postMessage
-        token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-        payload: |
-          channel: '#team-dinosaur-dev'
-          text: ':x: No service/task/lambda was selected to be deployed.'
+      - name: Notify deployment cancelled
+        uses: slackapi/slack-github-action@v2
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+          payload: |
+            channel: '#team-dinosaur-dev'
+            text: ':x: No service/task/lambda was selected to be deployed.'
 
   deployment_notify_failure:
     if: ${{ github.repository_owner == 'Informatievlaanderen' && failure() }}
     name: Notify deployment failed
     runs-on: ubuntu-latest
-    needs: [ deploy_services, deploy_tasks, deploy_lambda ]
+    needs: [deploy_services, deploy_lambda]
     steps:
       - name: Notify deployment failed
         id: slack
