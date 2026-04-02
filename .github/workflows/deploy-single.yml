@@ -64,29 +64,15 @@ jobs:
     strategy:
       matrix:
         services: ["${{github.event.inputs.service}}"]
-
-    steps:
-      - name: CD services
-        env:
-          BUILD_URL: ${{ vars.VBR_AWS_BUILD_API_DEVOPS }}/${{matrix.services}}
-          STATUS_URL: ${{ vars.VBR_AWS_BUILD_STATUS_API_DEVOPS }}/${{matrix.services}}
-        uses: informatievlaanderen/awscurl-polling-action/polling-action@main
-        with:
-          environment: ${{ github.event.inputs.environment }}
-          service-name: ${{ matrix.services }}
-          application: ${{ matrix.services }}
-          version: ${{ github.event.inputs.version }}
-          domain: 'road'
-          project: 'grawr'
-          use-subfolder: true
-        secrets: inherit
-
-      - name: Output CD services
-        shell: bash
-        run: |
-          echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
-          echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
-          echo ${{ steps.awscurl-polling-action.outputs.final-message }}
+    with:
+      environment: ${{ github.event.inputs.environment }}
+      service-name: ${{ matrix.services }}
+      application: ${{ matrix.services }}
+      version: ${{ github.event.inputs.version }}
+      domain: 'road'
+      project: 'grawr'
+      use-subfolder: true
+    secrets: inherit
 
   deploy_lambda:
     if: github.repository_owner == 'Informatievlaanderen' && github.event.inputs.service == 'lambdas'
@@ -94,11 +80,11 @@ jobs:
     name: Deploy lambda(s)
     uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.1.yml@main
     strategy:
-       matrix:
-         functions: [
+      matrix:
+        functions: [
           'lambda-sqsbackofficefunction',
           'lambda-sqssnapshotfunction'
-         ]
+        ]
     with:
       deploy-target: 'lambda'
       environment: ${{ github.event.inputs.environment }}
