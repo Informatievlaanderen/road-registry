@@ -1,3 +1,11 @@
+## [4.51.3](https://github.com/informatievlaanderen/road-registry/compare/v4.51.2...v4.51.3) (2026-04-02)
+
+
+### Bug Fixes
+
+* don't send email on inwinning upload failure ([b1160de](https://github.com/informatievlaanderen/road-registry/commit/b1160de6953cc8bb8617777828d36d045c33a778))
+* unstable unit test ([45a4470](https://github.com/informatievlaanderen/road-registry/commit/45a447095c0816565fae101535ec2d94b786410b))
+
 ## [4.51.2](https://github.com/informatievlaanderen/road-registry/compare/v4.51.1...v4.51.2) (2026-04-02)
 
 
