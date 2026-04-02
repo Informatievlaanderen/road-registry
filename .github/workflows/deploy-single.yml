@@ -97,7 +97,7 @@ jobs:
     secrets: inherit
 
   deploy_finish_slack:
-    if: github.repository_owner == 'Informatievlaanderen' && always() && (github.event.inputs.service != '')
+    if: github.repository_owner == 'Informatievlaanderen' && (needs.deploy_services.result == 'success' || needs.deploy_services.result == 'skipped') && (needs.deploy_lambda.result == 'success' || needs.deploy_lambda.result == 'skipped')
     needs: [deploy_services, deploy_lambda]
     name: Notify deployment succeeded
     runs-on: ubuntu-latest
@@ -111,22 +111,6 @@ jobs:
           payload: |
             channel: '#team-dinosaur-dev'
             text: ':white_check_mark: Deployment of ${{ github.event.inputs.service }} ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has finished.'
-
-  deploy_nothing_slack:
-    if: github.repository_owner == 'Informatievlaanderen' && (github.event.inputs.service == '')
-    needs: [deploy_services, deploy_lambda]
-    name: Notify deployment cancelled
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Notify deployment cancelled
-        uses: slackapi/slack-github-action@v2
-        with:
-          method: chat.postMessage
-          token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-          payload: |
-            channel: '#team-dinosaur-dev'
-            text: ':x: No service/task/lambda was selected to be deployed.'
 
   deployment_notify_failure:
     if: ${{ github.repository_owner == 'Informatievlaanderen' && failure() }}
