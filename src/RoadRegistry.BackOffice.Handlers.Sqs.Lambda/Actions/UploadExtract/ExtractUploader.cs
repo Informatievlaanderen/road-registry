@@ -21,7 +21,13 @@ using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.Translat
 
 public interface IExtractUploader
 {
-    Task<TranslatedChanges> ProcessUploadAndDetectChanges(DownloadId downloadId, UploadId uploadId, TicketId ticketId, ZipArchiveMetadata zipArchiveMetadata, CancellationToken cancellationToken);
+    Task<TranslatedChanges> ProcessUploadAndDetectChanges(
+        DownloadId downloadId,
+        UploadId uploadId,
+        TicketId ticketId,
+        ZipArchiveMetadata zipArchiveMetadata,
+        bool sendFailedEmail,
+        CancellationToken cancellationToken);
 }
 
 public sealed class ExtractUploader : IExtractUploader
@@ -56,7 +62,13 @@ public sealed class ExtractUploader : IExtractUploader
         _ticketing = ticketing;
     }
 
-    public async Task<TranslatedChanges> ProcessUploadAndDetectChanges(DownloadId downloadId, UploadId uploadId, TicketId ticketId, ZipArchiveMetadata zipArchiveMetadata, CancellationToken cancellationToken)
+    public async Task<TranslatedChanges> ProcessUploadAndDetectChanges(
+        DownloadId downloadId,
+        UploadId uploadId,
+        TicketId ticketId,
+        ZipArchiveMetadata zipArchiveMetadata,
+        bool sendFailedEmail,
+        CancellationToken cancellationToken)
     {
         var extractUpload = await EnsureExtractUploadExists(uploadId, downloadId, ticketId, cancellationToken);
         await _ticketing.Pending(ticketId, new TicketResult(new { Status = extractUpload.Status.ToString() }), cancellationToken);
@@ -134,13 +146,19 @@ public sealed class ExtractUploader : IExtractUploader
         catch (ZipArchiveValidationException ex)
         {
             await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
-            await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
+            if (sendFailedEmail)
+            {
+                await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
+            }
             throw ex.ToDutchValidationException(FileProblemTranslator.DomainV2);
         }
         catch
         {
             await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
-            await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
+            if (sendFailedEmail)
+            {
+                await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
+            }
             throw;
         }
     }

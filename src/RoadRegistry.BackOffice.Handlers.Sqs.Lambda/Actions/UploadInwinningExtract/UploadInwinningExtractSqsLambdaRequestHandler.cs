@@ -67,7 +67,13 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
         }
 
         var ticketId = new TicketId(request.TicketId);
-        var translatedChanges = await _extractUploader.ProcessUploadAndDetectChanges(request.Request.DownloadId, request.Request.UploadId, ticketId, ZipArchiveMetadata.Empty.WithInwinning(), cancellationToken);
+        var translatedChanges = await _extractUploader.ProcessUploadAndDetectChanges(
+            request.Request.DownloadId,
+            request.Request.UploadId,
+            ticketId,
+            ZipArchiveMetadata.Empty.WithInwinning(),
+            sendFailedEmail: false,
+            cancellationToken);
 
         var migrateDryRunRoadNetworkSqsRequest = new MigrateDryRunRoadNetworkSqsRequest
         {
