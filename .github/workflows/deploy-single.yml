@@ -97,7 +97,7 @@ jobs:
     secrets: inherit
 
   deploy_finish_slack:
-    if: github.repository_owner == 'Informatievlaanderen'
+    if: github.repository_owner == 'Informatievlaanderen' && always() && (github.event.inputs.service != '')
     needs: [deploy_services, deploy_lambda]
     name: Notify deployment succeeded
     runs-on: ubuntu-latest

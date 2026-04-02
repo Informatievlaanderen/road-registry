@@ -4,6 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Extensions;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Events.V2;
@@ -136,25 +137,29 @@ public class AggregateTests : AggregateTestBase
         "MULTILINESTRING ((601010 601000, 601005.005 601000, 601005.005 601010, 601010 601010))",
         true
     )]
-    public void GivenPartiallyOverlappingSegments_ThenError(string segment1Geometry, string segment2Geometry, bool reversed)
+    public void GivenPartiallyOverlappingSegments_ThenError(string segment1Geometry, string segment2Geometry, bool swapGeometry)
     {
         // Arrange
-        var change = Fixture.Create<MergeRoadSegmentChange>() with
-        {
-            Status = RoadSegmentStatusV2.Gerealiseerd,
-            Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversed ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08)),
-            EuropeanRoadNumbers = [],
-            NationalRoadNumbers = []
-        };
+        var existingGeometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(swapGeometry ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08));
+        var newGeometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(swapGeometry ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08));
 
         var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [], [
-            RoadSegment.Create(TestData.Segment2Added with
+            RoadSegment.Create(TestData.Segment1Added with
             {
                 Status = RoadSegmentStatusV2.Gerealiseerd,
-                Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversed ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08))
+                Geometry = existingGeometry
             })
         ], []);
         var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+
+        Fixture.Freeze(new RoadSegmentId(2));
+        var change = Fixture.Create<MergeRoadSegmentChange>() with
+        {
+            Status = RoadSegmentStatusV2.Gerealiseerd,
+            Geometry = newGeometry,
+            EuropeanRoadNumbers = [],
+            NationalRoadNumbers = []
+        };
 
         // Act
         var (_, problems) = RoadSegment.Merge(change, new FakeRoadNetworkIdGenerator(), roadNetworkContext);
