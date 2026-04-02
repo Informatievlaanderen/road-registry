@@ -1,3 +1,10 @@
+## [4.51.4](https://github.com/informatievlaanderen/road-registry/compare/v4.51.3...v4.51.4) (2026-04-02)
+
+
+### Bug Fixes
+
+* **inwinning:** FC only keep file-related problems for extract files ([7de1546](https://github.com/informatievlaanderen/road-registry/commit/7de1546e3e066fa3606a641535dc5175584a9753))
+
 ## [4.51.3](https://github.com/informatievlaanderen/road-registry/compare/v4.51.2...v4.51.3) (2026-04-02)
 
 
