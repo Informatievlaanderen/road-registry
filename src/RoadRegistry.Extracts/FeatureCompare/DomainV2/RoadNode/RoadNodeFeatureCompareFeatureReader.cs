@@ -40,12 +40,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
             case FeatureType.Extract:
                 if (context.ZipArchiveMetadata.Inwinning)
                 {
-                    var excludeProblems = new List<Func<FileProblem, bool>>
-                    {
-                        p => p.Reason == nameof(DbaseFileProblems.RoadNodeGrensknoopMismatch) && p.GetParameterValue("Actual") == "-8"
-                    };
-                    problems = ZipArchiveProblems.None + problems
-                        .Where(p => excludeProblems.All(x => !x(p)));
+                    problems = ZipArchiveProblems.Many(problems.GetMissingOrInvalidFileProblems());
                 }
                 break;
             case FeatureType.Integration:
