@@ -1,3 +1,10 @@
+## [4.51.2](https://github.com/informatievlaanderen/road-registry/compare/v4.51.1...v4.51.2) (2026-04-02)
+
+
+### Bug Fixes
+
+* single-deploy pipeline ([4597949](https://github.com/informatievlaanderen/road-registry/commit/4597949270ad019554488432c1c3ef4b81fe242a))
+
 ## [4.51.1](https://github.com/informatievlaanderen/road-registry/compare/v4.51.0...v4.51.1) (2026-03-31)
 
 
