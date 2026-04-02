@@ -50,7 +50,13 @@ public sealed class UploadExtractSqsLambdaRequestV2Handler : SqsLambdaHandler<Up
     protected override async Task<object> InnerHandle(UploadExtractSqsLambdaRequestV2 request, CancellationToken cancellationToken)
     {
         var ticketId = new TicketId(request.TicketId);
-        var translatedChanges = await _extractUploader.ProcessUploadAndDetectChanges(request.Request.DownloadId, request.Request.UploadId, ticketId, ZipArchiveMetadata.Empty, cancellationToken);
+        var translatedChanges = await _extractUploader.ProcessUploadAndDetectChanges(
+            request.Request.DownloadId,
+            request.Request.UploadId,
+            ticketId,
+            ZipArchiveMetadata.Empty,
+            sendFailedEmail: request.Request.SendFailedEmail,
+            cancellationToken);
 
         var changeRoadNetworkSqsRequest = new ChangeRoadNetworkSqsRequest
         {

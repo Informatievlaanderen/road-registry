@@ -545,7 +545,7 @@ public class ExtractUploaderTests
             Mock.Of<ITicketing>()
         );
 
-        await extractUploader.ProcessUploadAndDetectChanges(downloadId, uploadId ?? Fixture.Create<UploadId>(), Fixture.Create<TicketId>(), zipArchiveMetadata ?? ZipArchiveMetadata.Empty, CancellationToken.None);
+        await extractUploader.ProcessUploadAndDetectChanges(downloadId, uploadId ?? Fixture.Create<UploadId>(), Fixture.Create<TicketId>(), zipArchiveMetadata ?? ZipArchiveMetadata.Empty, sendFailedEmail: true, CancellationToken.None);
     }
 
     private sealed class FakeZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTranslator
