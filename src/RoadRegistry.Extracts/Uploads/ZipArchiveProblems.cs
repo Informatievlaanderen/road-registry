@@ -119,7 +119,9 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
         {
             nameof(ZipArchiveProblems.RequiredFileMissing),
             nameof(DbaseFileProblems.HasDbaseHeaderFormatError),
-            nameof(DbaseFileProblems.HasDbaseSchemaMismatch)
+            nameof(DbaseFileProblems.HasDbaseSchemaMismatch),
+            nameof(ProjectionFormatFileProblems.ProjectionFormatNotLambert08),
+            nameof(ProjectionFormatFileProblems.ProjectionFormatNotLambert72)
         };
         return _problems.Where(x => allowedIntegrationProblemReasons.Contains(x.Reason));
     }
