@@ -493,10 +493,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var hasProcessedRoadSegment = changeRoadSegmentRecords.Any(x =>
-                x.GetActualId() == extractFeature.Attributes.RoadSegmentId && x.RecordType != RecordType.Added);
-            var recordType = hasProcessedRoadSegment ? RecordType.Identical : RecordType.Removed;
-
             context.AddRoadSegmentRecords([
                 new RoadSegmentFeatureCompareRecord(
                     FeatureType.Extract,
@@ -504,10 +500,12 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     extractFeature.Attributes,
                     extractFeature.FlatFeatures,
                     extractFeature.Attributes.RoadSegmentId,
-                    recordType)
+                    RecordType.Identical)
             ]);
 
-            if (recordType == RecordType.Removed)
+            var hasProcessedRoadSegment = changeRoadSegmentRecords.Any(x =>
+                x.GetActualId() == extractFeature.Attributes.RoadSegmentId && x.RecordType != RecordType.Added);
+            if (!hasProcessedRoadSegment)
             {
                 context.AddRoadSegmentRecords([
                     new RoadSegmentFeatureCompareRecord(
@@ -516,7 +514,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         extractFeature.Attributes,
                         extractFeature.FlatFeatures,
                         extractFeature.Attributes.RoadSegmentId,
-                        recordType)
+                        RecordType.Removed)
                 ]);
             }
         }

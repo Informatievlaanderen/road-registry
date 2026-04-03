@@ -314,6 +314,44 @@ POINT (20 0)
         dynamicRecord3.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((10 0, 20 0))");
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void WhenSameStartEndNodeAndNodeFoundInBetween_RegardlessTheOrderOfSegments_LebbekeScenario_ThenSuccess(bool swapSegments)
+    {
+        // Arrange
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadSegmentStatusV2>();
+
+        var geometry1 = "MULTILINESTRING ((630236.3268711214 685179.3550339863, 630226.2159030889 685179.6738534672, 630223.9267510582 685181.0035841567, 630222.5944110844 685183.7634241804, 630222.3710468117 685186.6523934267, 630222.8543037425 685192.4924403522, 630224.618005435 685202.6436297903, 630225.5646459815 685213.3237230312, 630225.9860405741 685218.0797645478, 630226.0734171955 685222.9967667991))";
+        var geometry2 = "MULTILINESTRING ((630226.0734171955 685222.9967667991, 630231.3261840874 685216.6413904391, 630232.2073024663 685215.6564949136, 630243.3778040812 685203.1658190899, 630250.4817780753 685195.0746611916, 630252.1661178141 685192.297862173, 630252.6453894484 685190.1269215252, 630252.7617249074 685187.4729392678, 630251.9130670413 685184.8208443839, 630250.5833514191 685182.651692599, 630249.013545644 685181.2075116644, 630245.5137229114 685180.0061051091, 630238.276864998 685179.2932616565, 630236.3268711214 685179.3550339863))";
+
+        var firstSegment = swapSegments ? geometry2 : geometry1;
+        var secondSegment = swapSegments ? geometry1 : geometry2;
+        var scenario = @$"
+POINT (630200 685222)
+LINESTRING (630200 685222, 630226.0734171955 685222.9967667991)
+POINT (630226.0734171955 685222.9967667991)
+{firstSegment}
+{secondSegment}
+POINT (630236.3268711214 685179.3550339863)
+";
+
+        // Act
+        var records = Unflatten(fixture, scenario);
+
+        // Assert
+        records.Should().HaveCount(3);
+        var dynamicRecord1 = records[0];
+        dynamicRecord1.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((630200 685222, 630226.0734171955 685222.9967667991))");
+
+        var dynamicRecord2 = records[1];
+        dynamicRecord2.Attributes.Geometry.AsText().Should().Be(firstSegment);
+
+        var dynamicRecord3 = records[2];
+        dynamicRecord3.Attributes.Geometry.AsText().Should().Be(secondSegment);
+    }
+
     [Fact]
     public void WhenSameStartEndNodeAndNoNodeInBetween_ThenImpossibleSituationBecauseSameStartAndEndNodeIsValidatedEarlier()
     {
@@ -514,11 +552,11 @@ POINT (60 -10)
             .ToList();
 
         var flatSegments = scenarioData
-            .Where(x => x.geometry is LineString)
+            .Where(x => x.geometry is LineString or MultiLineString)
             .Select(x => fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
             {
                 RoadSegmentId = new(x.id),
-                Geometry = ((LineString)x.geometry).ToMultiLineString()
+                Geometry = x.geometry.ToMultiLineString()
             })
             .ToList();
 

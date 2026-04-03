@@ -40,25 +40,25 @@ public class RoadSegmentUnflattener
         var mergedRecords = MergeSegmentsAtNonStructuralNodes(featureType, records, roadSegmentIdProvider, segmentsByNode, nodeClassifications, context.Tolerances, ogcFeaturesCache, cancellationToken);
 
         // Step 4: Detect invalid geometry conditions and insert Validatieknopen where needed
-        var unflattenedRecords = DetectAndFixInvalidGeometries(featureType, nodeClassifications, mergedRecords, roadSegmentIdProvider, context, cancellationToken);
+        var unflattenedRecords = DetectAndFixInvalidGeometries(featureType, segmentsByNode, nodeClassifications, mergedRecords, roadSegmentIdProvider, context, cancellationToken);
 
         return unflattenedRecords;
     }
 
     private Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> BuildSegmentNodeGraph(
         FeatureType featureType,
-        IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
+        IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> flatRoadSegments,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
         var segmentsByNode = new Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>>();
         var nodeRecords = context.GetRoadNodeRecords(featureType).NotRemoved().ToList();
 
-        foreach (var record in records)
+        foreach (var flatRoadSegment in flatRoadSegments)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var geometry = record.Attributes.Geometry;
+            var geometry = flatRoadSegment.Attributes.Geometry;
             var startPoint = geometry.Coordinates.First();
             var endPoint = geometry.Coordinates.Last();
 
@@ -70,14 +70,14 @@ public class RoadSegmentUnflattener
             {
                 var key = (startNode.Id, startNode.Attributes.Geometry);
                 segmentsByNode.TryAdd(key, []);
-                segmentsByNode[key].Add(record);
+                segmentsByNode[key].Add(flatRoadSegment);
             }
 
             if (endNode is not null)
             {
                 var key = (endNode.Id, endNode.Attributes.Geometry);
                 segmentsByNode.TryAdd(key, []);
-                segmentsByNode[key].Add(record);
+                segmentsByNode[key].Add(flatRoadSegment);
             }
         }
 
@@ -370,6 +370,7 @@ public class RoadSegmentUnflattener
 
     private List<RoadSegmentFeatureWithDynamicAttributes> DetectAndFixInvalidGeometries(
         FeatureType featureType,
+        Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
         Dictionary<RoadNodeId, RoadNodeTypeV2> nodeClassifications,
         List<RoadSegmentFeatureWithDynamicAttributes> mergedRecords,
         IRoadSegmentIdProvider roadSegmentIdProvider,
@@ -401,7 +402,7 @@ public class RoadSegmentUnflattener
             }
 
             // Condition 2: Same start and end node
-            var tryFixSameStartEndNodeResult = TryFixSameStartEndNode(segment, nonClassifiedNodes, roadSegmentIdProvider, context);
+            var tryFixSameStartEndNodeResult = TryFixSameStartEndNode(segment, segmentsByNode, nodeClassifications, nonClassifiedNodes, roadSegmentIdProvider, context);
             if (EnqueueSplitResult(segment, tryFixSameStartEndNodeResult))
             {
                 continue;
@@ -498,6 +499,8 @@ public class RoadSegmentUnflattener
 
     private (IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> RoadSegments, ZipArchiveProblems Problems) TryFixSameStartEndNode(
         RoadSegmentFeatureWithDynamicAttributes segment,
+        Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
+        Dictionary<RoadNodeId, RoadNodeTypeV2> nodeClassifications,
         IReadOnlyCollection<RoadNodeFeatureCompareRecord> nonClassifiedNodes,
         IRoadSegmentIdProvider roadSegmentIdProvider,
         ZipArchiveEntryFeatureCompareTranslateContext context)
@@ -506,6 +509,25 @@ public class RoadSegmentUnflattener
         if (sameStartEndIntersectionGeometry is null)
         {
             return ([], ZipArchiveProblems.None);
+        }
+
+        // ensure the merged segment is starting at the correct node when the start/end node are the same
+        var tempIds = segment.FlatFeatures.Select(x => x.Attributes.TempId).ToArray();
+        var wantedStartLocation = segmentsByNode
+            .Where(x => x.Value.Any(s => tempIds.Contains(s.Attributes.TempId)))
+            .Where(x => nodeClassifications.ContainsKey(x.Key.Item1))
+            .Select(x => x.Key.Item2)
+            .FirstOrDefault();
+        if (wantedStartLocation is null)
+        {
+            throw new InvalidOperationException($"Merged segment (Id {segment.Attributes.RoadSegmentId}) has the same start and end node, but unable to find the 1 structural node that connects it. TempIds: {string.Join(",", tempIds)}");
+        }
+
+        if (!segment.Attributes.Geometry.GetSingleLineString().StartPoint.IsReasonablyEqualTo(wantedStartLocation, context.Tolerances))
+        {
+            //TODO-pr segment is bij verkeerde node gestart, inverten en splitten adv de structurele node locatie
+            var splitResult2 = SplitGeometryAtNode(segment, wantedStartLocation.Coordinate, roadSegmentIdProvider);
+            return (splitResult2, ZipArchiveProblems.None);
         }
 
         var splitResult = TrySplitAtValidatieknopen(segment, sameStartEndIntersectionGeometry, nonClassifiedNodes, roadSegmentIdProvider, context);
@@ -585,7 +607,7 @@ public class RoadSegmentUnflattener
 
         var geometryLengthIndexedLine = new LengthIndexedLine(geometry);
         var intersectionPositions = intersectionCoordinates
-            .Select(p => geometryLengthIndexedLine.Project(p))
+            .Select(p => geometryLengthIndexedLine.IndexOf(p))
             .OrderBy(x => x)
             .ToList();
 
@@ -625,7 +647,7 @@ public class RoadSegmentUnflattener
         var segmentGeometry = segment.Attributes.Geometry;
 
         var indexedLine = new LengthIndexedLine(segmentGeometry);
-        var splitIndex = indexedLine.Project(splitPoint);
+        var splitIndex = indexedLine.IndexOf(splitPoint);
 
         // Create two new geometries
         var geometry1 = ((LineString)indexedLine.ExtractLine(0, splitIndex)).ToMultiLineString();
@@ -642,6 +664,11 @@ public class RoadSegmentUnflattener
             var flatFeatures = segment.FlatFeatures
                 .Where(x => x.Attributes.Geometry.CalculateOverlapPercentage(geometry, 0.001) >= 0.99)
                 .ToList();
+
+            if (!flatFeatures.Any())
+            {
+                //TODO-pr temp
+            }
 
             var roadSegmentId = flatFeatures
                 .Where(x => excludeId is null || x.Attributes.RoadSegmentId != excludeId)
