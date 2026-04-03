@@ -61,7 +61,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddMartenRoad(options => options
                 .AddRoadNetworkTopologyProjection()
                 .AddRoadAggregatesSnapshots()
-                .ConfigureExtractDocuments())
+                .ConfigureExtractDocuments()).Services
 
             // Extracts-domainv1
             .AddEditorContext()

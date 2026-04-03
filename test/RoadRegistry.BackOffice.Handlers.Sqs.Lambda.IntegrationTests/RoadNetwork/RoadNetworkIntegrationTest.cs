@@ -92,7 +92,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
             .AddSingleton(Mock.Of<IExtractUploadFailedEmailClient>());
 
         services
-            .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots())
+            .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots()).Services
             .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
             .AddSingleton(DataValidationClientMock.Object)
             .AddScoped<ChangeRoadNetworkSqsLambdaRequestHandler>();

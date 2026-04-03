@@ -20,7 +20,8 @@ public static class SetupExtensions
             .AddSingleton<MigrationRoadNetworkRepository>()
             .AddMartenRoad(options => options
                 .AddRoadNetworkTopologyProjection()
-                .AddMartenDbMigration());
+                .AddMartenDbMigration())
+            .ApplyAllDatabaseChangesOnStartup();
 
         services
             .AddDbContextEventProcessorServices<MartenMigrationContextEventProcessor, MartenMigrationContext>(sp => [new MartenMigrationProjection(sp.GetRequiredService<MigrationRoadNetworkRepository>())])

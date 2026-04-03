@@ -22,7 +22,7 @@ using Weasel.Core;
 
 public static class SetupExtensions
 {
-    public static IServiceCollection AddMartenRoad(this IServiceCollection services, Action<StoreOptions>? configure = null)
+    public static MartenServiceCollectionExtensions.MartenConfigurationExpression AddMartenRoad(this IServiceCollection services, Action<StoreOptions>? configure = null)
     {
         return AddMartenRoad(services, (options, _) =>
         {
@@ -30,9 +30,11 @@ public static class SetupExtensions
         });
     }
 
-    public static IServiceCollection AddMartenRoad(this IServiceCollection services, Action<StoreOptions, IServiceProvider>? configure = null)
+    public static MartenServiceCollectionExtensions.MartenConfigurationExpression AddMartenRoad(this IServiceCollection services, Action<StoreOptions, IServiceProvider>? configure = null)
     {
-        services
+        services.AddSingleton<IRoadNetworkRepository, RoadNetworkRepository>();
+
+        return services
             .AddMarten(sp =>
             {
                 var configuration = sp.GetRequiredService<IConfiguration>();
@@ -47,10 +49,6 @@ public static class SetupExtensions
 
                 return options;
             });
-
-        services.AddSingleton<IRoadNetworkRepository, RoadNetworkRepository>();
-
-        return services;
     }
 
     public static void ConfigureRoad(this StoreOptions options)

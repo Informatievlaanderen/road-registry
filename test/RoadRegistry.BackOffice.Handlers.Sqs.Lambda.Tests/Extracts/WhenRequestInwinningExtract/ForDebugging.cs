@@ -134,7 +134,7 @@ public class ForDebugging
             ;
 
         services
-            .AddMartenRoad(options => { options.ConfigureExtractDocuments(); })
+            .AddMartenRoad(options => { options.ConfigureExtractDocuments(); }).Services
             .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
             .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
             .AddEditorContext();
