@@ -255,20 +255,18 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var hasProcessedRoadNode = changeRoadNodeRecords.Any(x => x.Id == extractFeature.Attributes.RoadNodeId
-                                                                      && !x.RecordType.Equals(RecordType.Added));
-            var recordType = hasProcessedRoadNode ? RecordType.Identical : RecordType.Removed;
-
             context.AddRoadNodeRecords([
                 new RoadNodeFeatureCompareRecord(
                     FeatureType.Extract,
                     extractFeature.RecordNumber,
                     extractFeature.Attributes,
                     extractFeature.Attributes.RoadNodeId,
-                    recordType)
+                    RecordType.Identical)
             ]);
 
-            if (recordType == RecordType.Removed)
+            var hasProcessedRoadNode = changeRoadNodeRecords.Any(x => x.Id == extractFeature.Attributes.RoadNodeId
+                                                                      && !x.RecordType.Equals(RecordType.Added));
+            if (!hasProcessedRoadNode)
             {
                 context.AddRoadNodeRecords([
                     new RoadNodeFeatureCompareRecord(
@@ -276,7 +274,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                         extractFeature.RecordNumber,
                         extractFeature.Attributes,
                         extractFeature.Attributes.RoadNodeId,
-                        recordType)
+                        RecordType.Removed)
                 ]);
             }
         }
