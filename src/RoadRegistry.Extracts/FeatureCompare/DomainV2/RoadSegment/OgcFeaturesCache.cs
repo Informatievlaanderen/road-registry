@@ -1,32 +1,57 @@
 ﻿namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Index.Strtree;
 
 public sealed class OgcFeaturesCache
 {
-    private readonly IReadOnlyList<OgcFeature> _features;
+    private readonly STRtree<Geometry> _polygonIndex;
 
     public OgcFeaturesCache(IReadOnlyList<OgcFeature> features)
     {
-        _features = features;
+        _polygonIndex = new STRtree<Geometry>();
+        foreach (var feature in features)
+        {
+            _polygonIndex.Insert(feature.Geometry.EnvelopeInternal, feature.Geometry);
+        }
     }
 
     public bool HasOverlapWithFeatures(MultiLineString geometry, double minimumOverlapPercentage)
     {
-        var source = geometry.Buffer(0.001);
-        var overlappingFeatures = _features
-            .Select(x => (Feature: x, OverlapPercentage: GetOverlapPercentage(source, x)))
-            .Where(x => x.OverlapPercentage > 0)
-            .ToList();
+        var lineString = geometry;
+        var totalLength = lineString.Length;
 
-        return overlappingFeatures.Sum(x => x.OverlapPercentage) >= minimumOverlapPercentage;
+        // Query spatial index for potentially intersecting polygons
+        var candidates = _polygonIndex.Query(lineString.EnvelopeInternal);
+        if (candidates.Count == 0)
+        {
+            return false;
+        }
+
+        // Union all intersecting polygons for this segment
+        var combinedPolygon = UnionPolygons(candidates);
+
+        // Calculate intersection length
+        var intersection = lineString.Intersection(combinedPolygon);
+        var coveredLength = intersection.Length;
+
+        var coveragePercentage = coveredLength / totalLength;
+
+        if (coveragePercentage >= minimumOverlapPercentage)
+        {
+            return true;
+        }
+
+        return false;
     }
 
-    private static double GetOverlapPercentage(Geometry roadSegmentGeometry, OgcFeature ogcFeature)
+    private static Geometry UnionPolygons(IList<Geometry> polygons)
     {
-        var overlap = roadSegmentGeometry.Intersection(ogcFeature.Geometry);
+        if (polygons.Count == 1)
+        {
+            return polygons[0];
+        }
 
-        var overlapValue = overlap.Area / roadSegmentGeometry.Area;
-        return overlapValue;
+        return polygons.Aggregate((a, b) => a.Union(b));
     }
 }
