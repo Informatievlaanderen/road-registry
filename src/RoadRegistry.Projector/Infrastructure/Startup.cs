@@ -45,6 +45,7 @@ using MartenMigration.Projections;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NodaTime;
+using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using Wfs.Schema;
@@ -274,7 +275,7 @@ public class Startup
                 var batchSize = _configuration.GetRequiredValue<int>($"{nameof(ExtractsRoadNetworkChangesProjection)}:BatchSize");
 
                 options.AddRoadNetworkChangesProjection(new ExtractsRoadNetworkChangesProjection(batchSize, sp.GetRequiredService<ILoggerFactory>()));
-            })
+            }).ApplyAllDatabaseChangesOnStartup().Services
 
             .AddSingleton(new IDbContextMigratorFactory[]
             {

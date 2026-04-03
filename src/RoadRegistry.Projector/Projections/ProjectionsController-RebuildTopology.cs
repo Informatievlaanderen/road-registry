@@ -33,7 +33,7 @@ public partial class ProjectionsController
             .AddMartenRoad(options =>
             {
                 options.AddRoadNetworkTopologyProjection();
-            })
+            }).Services
             .BuildServiceProvider();
 
         var store = sp.GetRequiredService<IDocumentStore>();
