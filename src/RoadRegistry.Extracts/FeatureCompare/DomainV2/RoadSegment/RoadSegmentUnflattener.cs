@@ -5,7 +5,6 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.LinearReferencing;
 using NetTopologySuite.Operation.Valid;
 using RoadNode;
-using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadNode.Errors;
 using RoadRegistry.ValueObjects.Problems;

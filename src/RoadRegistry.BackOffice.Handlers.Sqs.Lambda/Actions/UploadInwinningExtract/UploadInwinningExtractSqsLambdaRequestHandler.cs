@@ -55,42 +55,50 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
 
     protected override async Task<object> InnerHandle(UploadInwinningExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        var inwinningszone = await _extractsDbContext.Inwinningszones.SingleOrDefaultAsync(x => x.DownloadId == request.Request.DownloadId.ToGuid(), cancellationToken);
-        if (inwinningszone is null)
+        try
         {
-            throw new InvalidOperationException($"No Inwinningszone found for {request.Request.DownloadId}");
-        }
+            var inwinningszone = await _extractsDbContext.Inwinningszones.SingleOrDefaultAsync(x => x.DownloadId == request.Request.DownloadId.ToGuid(), cancellationToken);
+            if (inwinningszone is null)
+            {
+                throw new InvalidOperationException($"No Inwinningszone found for {request.Request.DownloadId}");
+            }
 
-        if (inwinningszone.Completed)
-        {
-            throw new InwinningszoneCompletedException(request.Request.DownloadId);
-        }
+            if (inwinningszone.Completed)
+            {
+                throw new InwinningszoneCompletedException(request.Request.DownloadId);
+            }
 
-        var ticketId = new TicketId(request.TicketId);
-        var translatedChanges = await _extractUploader.ProcessUploadAndDetectChanges(
-            request.Request.DownloadId,
-            request.Request.UploadId,
-            ticketId,
-            ZipArchiveMetadata.Empty.WithInwinning(),
-            sendFailedEmail: false,
-            cancellationToken);
+            var ticketId = new TicketId(request.TicketId);
+            var translatedChanges = await _extractUploader.ProcessUploadAndDetectChanges(
+                request.Request.DownloadId,
+                request.Request.UploadId,
+                ticketId,
+                ZipArchiveMetadata.Empty.WithInwinning(),
+                sendFailedEmail: false,
+                cancellationToken);
 
-        var migrateDryRunRoadNetworkSqsRequest = new MigrateDryRunRoadNetworkSqsRequest
-        {
-            TicketId = ticketId,
-            ProvenanceData = new ProvenanceData(request.Provenance),
-            MigrateRoadNetworkSqsRequest = new MigrateRoadNetworkSqsRequest
+            var migrateDryRunRoadNetworkSqsRequest = new MigrateDryRunRoadNetworkSqsRequest
             {
                 TicketId = ticketId,
-                DownloadId = request.Request.DownloadId,
-                UploadId = request.Request.UploadId,
-                Changes = translatedChanges.Select(ChangeRoadNetworkItem.Create).ToList(),
-                ProvenanceData = new ProvenanceData(request.Provenance)
-            }
-        };
-        await _mediator.Send(migrateDryRunRoadNetworkSqsRequest, cancellationToken);
+                ProvenanceData = new ProvenanceData(request.Provenance),
+                MigrateRoadNetworkSqsRequest = new MigrateRoadNetworkSqsRequest
+                {
+                    TicketId = ticketId,
+                    DownloadId = request.Request.DownloadId,
+                    UploadId = request.Request.UploadId,
+                    Changes = translatedChanges.Select(ChangeRoadNetworkItem.Create).ToList(),
+                    ProvenanceData = new ProvenanceData(request.Provenance)
+                }
+            };
+            await _mediator.Send(migrateDryRunRoadNetworkSqsRequest, cancellationToken);
 
-        return new object();
+            return new object();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Error while processing upload inwinning extract with download id {request.Request.DownloadId}");
+            throw;
+        }
     }
 
     protected override Task ValidateIfMatchHeaderValue(UploadInwinningExtractSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -101,7 +109,7 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
     protected override TicketError? InnerMapDomainException(DomainException exception, UploadInwinningExtractSqsLambdaRequest request)
     {
         return ConvertToDomainError(exception)?.ToTicketError(WellKnownProblemTranslators.Default)
-            ?? base.InnerMapDomainException(exception, request);
+               ?? base.InnerMapDomainException(exception, request);
     }
 
     private Error? ConvertToDomainError(DomainException exception)
