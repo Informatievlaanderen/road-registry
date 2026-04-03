@@ -2,6 +2,7 @@
 
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Index.Strtree;
+using NetTopologySuite.Operation.Union;
 
 public sealed class OgcFeaturesCache
 {
@@ -52,6 +53,6 @@ public sealed class OgcFeaturesCache
             return polygons[0];
         }
 
-        return polygons.Aggregate((a, b) => a.Union(b));
+        return CascadedPolygonUnion.Union(polygons);
     }
 }
