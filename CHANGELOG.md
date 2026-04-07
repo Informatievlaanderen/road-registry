@@ -1,3 +1,10 @@
+## [4.51.6](https://github.com/informatievlaanderen/road-registry/compare/v4.51.5...v4.51.6) (2026-04-07)
+
+
+### Bug Fixes
+
+* Marten activator service not block system healthcheck ([5d10e30](https://github.com/informatievlaanderen/road-registry/commit/5d10e30a10d8c22c87282858566dd51f2fbb136e))
+
 ## [4.51.5](https://github.com/informatievlaanderen/road-registry/compare/v4.51.4...v4.51.5) (2026-04-03)
 
 
