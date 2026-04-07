@@ -1,3 +1,11 @@
+# [4.53.0](https://github.com/informatievlaanderen/road-registry/compare/v4.52.0...v4.53.0) (2026-04-07)
+
+
+### Features
+
+* add extract upload status history ([7762aa9](https://github.com/informatievlaanderen/road-registry/commit/7762aa981a330d5be988bfd28054f1e6aa7a1a7d))
+* add inwinningsstatus endpoints ([fdfce28](https://github.com/informatievlaanderen/road-registry/commit/fdfce28987770ff12f8f5c5062084895af76ad7b))
+
 # [4.52.0](https://github.com/informatievlaanderen/road-registry/compare/v4.51.6...v4.52.0) (2026-04-07)
 
 
