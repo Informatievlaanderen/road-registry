@@ -8,14 +8,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 internal class HostedServicesStatusHealthCheck : IHealthCheck
 {
     private readonly HostedServicesStatusHealthCheckOptions _options;
+    private readonly ILogger _logger;
 
-    public HostedServicesStatusHealthCheck(HostedServicesStatusHealthCheckOptions options)
+    public HostedServicesStatusHealthCheck(HostedServicesStatusHealthCheckOptions options, ILoggerFactory loggerFactory)
     {
         _options = options;
+        _logger = loggerFactory.CreateLogger(GetType());
     }
 
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
@@ -37,15 +40,15 @@ internal class HostedServicesStatusHealthCheck : IHealthCheck
                 Status = x is IHostedServiceStatus hostedServiceStatus ? hostedServiceStatus.Status : (HostStatus?)null
             }).ToList();
 
+            var hostedServicesWithoutStatus = hostedServices.Where(x => x.Status is null).ToList();
+            foreach (var service in hostedServicesWithoutStatus)
+            {
+                _logger.LogWarning($"Service {service.HostedService.GetType().FullName} did not implement {nameof(IHostedServiceStatus)} and thus is not registered in the health check.");
+            }
+
             var hostedServicesWithStatus = hostedServices
                 .Where(x => x.Status is not null)
                 .ToList();
-            if (hostedServicesWithStatus.Count != hostedServices.Count)
-            {
-                var hostedServicesWithoutStatus = hostedServices.Where(x => x.Status is null).ToList();
-                return HealthCheckResult.Unhealthy($"Services did not implement {nameof(IHostedServiceStatus)}", data: ToDataDictionary(hostedServicesWithoutStatus.Select(x => x.HostedService)));
-            }
-
             var notRunningServices = hostedServicesWithStatus
                 .Where(x => x.Status == HostStatus.Stopping || x.Status == HostStatus.Stopped)
                 .ToList();

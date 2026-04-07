@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Options;
 
 public class HealthCheckInitializer
@@ -25,15 +26,16 @@ public class HealthCheckInitializer
         {
             _builder.Add(new HealthCheckRegistration(
                 "hosted-services-status".ToLowerInvariant(),
-                sp => new HostedServicesStatusHealthCheck(optionsBuilder.With(sp.GetService<IEnumerable<IHostedService>>()
-                ).Build()),
-                default,
-                new[] { "hosts" },
-                default));
+                sp => new HostedServicesStatusHealthCheck(
+                    optionsBuilder.With(sp.GetService<IEnumerable<IHostedService>>()).Build(),
+                    sp.GetRequiredService<ILoggerFactory>()),
+                null,
+                ["hosts"],
+                null));
         }
         return this;
     }
-    
+
     public static HealthCheckInitializer Configure(IHealthChecksBuilder builder)
     {
         return new HealthCheckInitializer(builder);
