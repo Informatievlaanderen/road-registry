@@ -143,6 +143,16 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
 
             session.Delete(node);
         });
+        When<IEvent<RoadNode.Events.V2.RoadNodeWasRemovedBecauseOfMigration>>(async (session, e, _) =>
+        {
+            var node = await session.LoadAsync<RoadNodeExtractItem>(e.Data.RoadNodeId);
+            if (node is null)
+            {
+                throw new InvalidOperationException($"No document found for Id {e.Data.RoadNodeId}");
+            }
+
+            session.Delete(node);
+        });
     }
 
     private static RoadNodeGeometry ToLambert08(RoadNodeGeometry geometry)

@@ -230,6 +230,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             {
                 FillStreetNameCache(builder, streetNameCache);
                 builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = streetNameId;
+                builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = StreetNameLocalId.NotApplicable;
             })
             .Build();
 
@@ -258,6 +259,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             {
                 FillStreetNameCache(builder, streetNameCache);
                 builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = streetNameId;
+                builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = StreetNameLocalId.NotApplicable;
             })
             .Build();
 

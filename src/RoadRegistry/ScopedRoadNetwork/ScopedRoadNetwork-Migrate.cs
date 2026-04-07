@@ -40,7 +40,7 @@ public partial class ScopedRoadNetwork
                     problems += MigrateRoadNode(change, context, summary);
                     break;
                 case RemoveRoadNodeChange change:
-                    problems += RemoveRoadNode(change, context, summary);
+                    problems += RemoveRoadNodeBecauseOfMigration(change, context, summary);
                     break;
 
                 case AddRoadSegmentChange change:
@@ -50,7 +50,7 @@ public partial class ScopedRoadNetwork
                     problems += MigrateRoadSegment(change, roadSegmentRoadNumberChanges, context, summary);
                     break;
                 case RemoveRoadSegmentChange change:
-                    problems += RetireRoadSegmentBecauseOfMigration(change.RoadSegmentId, context, summary);
+                    problems += RemoveRoadSegmentBecauseOfMigration(change.RoadSegmentId, context, summary);
                     break;
 
                 case AddRoadSegmentToEuropeanRoadChange:
@@ -64,7 +64,7 @@ public partial class ScopedRoadNetwork
                     problems += AddGradeSeparatedJunction(change, idGenerator, context, summary);
                     break;
                 case RemoveGradeSeparatedJunctionChange change:
-                    problems += RemoveGradeSeparatedJunction(change, context, summary);
+                    problems += RemoveGradeSeparatedJunctionBecauseOfMigration(change, context, summary);
                     break;
 
                 default:
@@ -139,6 +139,25 @@ public partial class ScopedRoadNetwork
 
         summary.RoadNodes.Modified.Add(roadNode.RoadNodeId);
 
+        return problems;
+    }
+
+    private Problems RemoveRoadNodeBecauseOfMigration(RemoveRoadNodeChange change, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
+    {
+        var problems = Problems.WithContext(change.RoadNodeId);
+
+        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
+        {
+            return problems + new RoadNodeNotFound();
+        }
+
+        problems += roadNode.RemoveBecauseOfMigration(context.Provenance);
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
+        summary.RoadNodes.Removed.Add(roadNode.RoadNodeId);
         return problems;
     }
 
@@ -228,7 +247,7 @@ public partial class ScopedRoadNetwork
         return list.Distinct().ToImmutableList();
     }
 
-    private Problems RetireRoadSegmentBecauseOfMigration(RoadSegmentId roadSegmentId, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
+    private Problems RemoveRoadSegmentBecauseOfMigration(RoadSegmentId roadSegmentId, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
     {
         var problems = Problems.WithContext(roadSegmentId);
 
@@ -237,7 +256,7 @@ public partial class ScopedRoadNetwork
             return problems + new RoadSegmentNotFound();
         }
 
-        problems += roadSegment.RetireBecauseOfMigration(context.Provenance);
+        problems += roadSegment.RemoveBecauseOfMigration(context.Provenance);
         if (problems.HasError())
         {
             return problems;
@@ -245,8 +264,25 @@ public partial class ScopedRoadNetwork
 
         summary.RoadSegments.Removed.Add(roadSegment.RoadSegmentId);
 
-        problems += TryToRemoveLinkedGradeJunctions(roadSegment.RoadSegmentId, context, summary);
+        return problems;
+    }
 
+    private Problems RemoveGradeSeparatedJunctionBecauseOfMigration(RemoveGradeSeparatedJunctionChange change, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
+    {
+        var problems = Problems.WithContext(change.GradeSeparatedJunctionId);
+
+        if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var gradeSeparatedJunction))
+        {
+            return problems + new GradeSeparatedJunctionNotFound();
+        }
+
+        problems += gradeSeparatedJunction.RemoveBecauseOfMigration(context.Provenance);
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
+        summary.GradeSeparatedJunctions.Removed.Add(gradeSeparatedJunction.GradeSeparatedJunctionId);
         return problems;
     }
 }

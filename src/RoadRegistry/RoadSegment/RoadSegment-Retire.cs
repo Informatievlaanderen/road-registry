@@ -6,7 +6,7 @@ using RoadRegistry.ValueObjects.Problems;
 
 public partial class RoadSegment
 {
-    public Problems RetireBecauseOfMigration(Provenance provenance)
+    public Problems Retire(Provenance provenance)
     {
         var problems = Problems.WithContext(RoadSegmentId);
 
@@ -15,7 +15,7 @@ public partial class RoadSegment
             return problems;
         }
 
-        Apply(new RoadSegmentWasRetiredBecauseOfMigration
+        Apply(new RoadSegmentWasRetired
         {
             RoadSegmentId = RoadSegmentId,
             Provenance = new ProvenanceData(provenance)

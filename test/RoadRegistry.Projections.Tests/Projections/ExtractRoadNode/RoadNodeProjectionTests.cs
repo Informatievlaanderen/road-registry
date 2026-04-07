@@ -46,16 +46,19 @@ public class RoadNodeProjectionTests
             typeof(RoadSegmentWasAddedToEuropeanRoad),
             typeof(RoadSegmentWasAddedToNationalRoad),
             typeof(RoadSegmentWasModified),
+            typeof(RoadSegmentGeometryWasModified),
             typeof(RoadSegmentWasMerged),
             typeof(RoadSegmentWasMigrated),
+            typeof(RoadSegmentWasRetired),
             typeof(RoadSegmentWasRetiredBecauseOfMerger),
-            typeof(RoadSegmentWasRetiredBecauseOfMigration),
             typeof(RoadSegmentWasRemoved),
+            typeof(RoadSegmentWasRemovedBecauseOfMigration),
             typeof(RoadSegmentWasRemovedFromEuropeanRoad),
             typeof(RoadSegmentWasRemovedFromNationalRoad),
             typeof(GradeSeparatedJunctionWasAdded),
             typeof(GradeSeparatedJunctionWasModified),
             typeof(GradeSeparatedJunctionWasRemoved),
+            typeof(GradeSeparatedJunctionWasRemovedBecauseOfMigration),
             typeof(GradeJunctionWasAdded),
             typeof(GradeJunctionWasRemoved)
         };
@@ -200,6 +203,21 @@ public class RoadNodeProjectionTests
 
         var roadNode1Added = fixture.Create<RoadNodeWasAdded>();
         var roadNode1Removed = fixture.Create<RoadNodeWasRemoved>();
+
+        await BuildProjection()
+            .Scenario()
+            .Given(roadNode1Added, roadNode1Removed)
+            .ExpectNone();
+    }
+
+    [Fact]
+    public async Task WhenRoadNodeWasRemovedBecauseOfMigration_ThenNone()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadNodeId>();
+
+        var roadNode1Added = fixture.Create<RoadNodeWasAdded>();
+        var roadNode1Removed = fixture.Create<RoadNodeWasRemovedBecauseOfMigration>();
 
         await BuildProjection()
             .Scenario()

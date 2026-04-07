@@ -8,7 +8,7 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
     public GradeSeparatedJunctionId GradeSeparatedJunctionId { get; }
     public RoadSegmentId LowerRoadSegmentId { get; private set; }
     public RoadSegmentId UpperRoadSegmentId { get; private set; }
-    public GradeSeparatedJunctionTypeV2 Type { get; private set; }
+    public GradeSeparatedJunctionTypeV2? Type { get; private set; }
 
     public bool IsRemoved { get; private set; }
 
@@ -23,15 +23,23 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         int gradeSeparatedJunctionId,
         int lowerRoadSegmentId,
         int upperRoadSegmentId,
-        string type,
+        string? type,
         bool isRemoved
     )
         : this(new GradeSeparatedJunctionId(gradeSeparatedJunctionId))
     {
         LowerRoadSegmentId = new RoadSegmentId(lowerRoadSegmentId);
         UpperRoadSegmentId = new RoadSegmentId(upperRoadSegmentId);
-        Type = GradeSeparatedJunctionTypeV2.Parse(type);
+        Type = type is not null ? GradeSeparatedJunctionTypeV2.Parse(type) : null;
         IsRemoved = isRemoved;
+    }
+
+    public static GradeSeparatedJunction CreateForMigration(
+        GradeSeparatedJunctionId gradeSeparatedJunctionId,
+        RoadSegmentId lowerRoadSegmentId,
+        RoadSegmentId upperRoadSegmentId)
+    {
+        return new GradeSeparatedJunction(gradeSeparatedJunctionId, lowerRoadSegmentId, upperRoadSegmentId, null, false);
     }
 
     public static GradeSeparatedJunction Create(GradeSeparatedJunctionWasAdded @event)
@@ -62,6 +70,13 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
             return;
         }
 
+        UncommittedEvents.Add(@event);
+
+        IsRemoved = true;
+    }
+
+    public void Apply(GradeSeparatedJunctionWasRemovedBecauseOfMigration @event)
+    {
         UncommittedEvents.Add(@event);
 
         IsRemoved = true;

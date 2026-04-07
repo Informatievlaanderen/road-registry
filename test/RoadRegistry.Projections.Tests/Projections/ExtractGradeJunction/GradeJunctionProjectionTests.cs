@@ -68,20 +68,24 @@ public class GradeJunctionProjectionTests
             typeof(RoadNodeWasModified),
             typeof(RoadNodeWasMigrated),
             typeof(RoadNodeWasRemoved),
+            typeof(RoadNodeWasRemovedBecauseOfMigration),
             typeof(RoadSegmentWasAdded),
             typeof(RoadSegmentWasAddedToEuropeanRoad),
             typeof(RoadSegmentWasAddedToNationalRoad),
+            typeof(RoadSegmentGeometryWasModified),
             typeof(RoadSegmentWasModified),
             typeof(RoadSegmentWasMerged),
             typeof(RoadSegmentWasMigrated),
+            typeof(RoadSegmentWasRetired),
             typeof(RoadSegmentWasRetiredBecauseOfMerger),
-            typeof(RoadSegmentWasRetiredBecauseOfMigration),
             typeof(RoadSegmentWasRemoved),
+            typeof(RoadSegmentWasRemovedBecauseOfMigration),
             typeof(RoadSegmentWasRemovedFromEuropeanRoad),
             typeof(RoadSegmentWasRemovedFromNationalRoad),
             typeof(GradeSeparatedJunctionWasAdded),
             typeof(GradeSeparatedJunctionWasModified),
-            typeof(GradeSeparatedJunctionWasRemoved)
+            typeof(GradeSeparatedJunctionWasRemoved),
+            typeof(GradeSeparatedJunctionWasRemovedBecauseOfMigration),
         };
         var allEventTypes = typeof(IMartenEvent).Assembly
             .GetTypes()

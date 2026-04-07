@@ -20,6 +20,7 @@ public static class SetupExtensions
             .AddSingleton<MigrationRoadNetworkRepository>()
             .AddMartenRoad(options => options
                 .AddRoadNetworkTopologyProjection()
+                .AddRoadAggregatesSnapshots()
                 .AddMartenDbMigration())
             .ApplyAllDatabaseChangesOnStartup();
 

@@ -3,7 +3,7 @@ namespace RoadRegistry.RoadSegment.Events.V2;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using RoadRegistry.ValueObjects;
 
-public record RoadSegmentWasRetiredBecauseOfMigration : IMartenEvent
+public record RoadSegmentWasRetired : IMartenEvent
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
 
