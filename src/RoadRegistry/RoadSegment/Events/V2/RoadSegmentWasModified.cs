@@ -1,13 +1,12 @@
 namespace RoadRegistry.RoadSegment.Events.V2;
 
-using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using ValueObjects;
 
 public record RoadSegmentWasModified : IMartenEvent
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
-    public required RoadSegmentIdReference OriginalRoadSegmentIdReference { get; init; }
+    public RoadSegmentIdReference OriginalRoadSegmentIdReference { get; init; }
     public RoadSegmentGeometry? Geometry { get; init; }
     public RoadNodeId? StartNodeId { get; init; }
     public RoadNodeId? EndNodeId { get; init; }
@@ -19,11 +18,11 @@ public record RoadSegmentWasModified : IMartenEvent
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId>? StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId>? MaintenanceAuthorityId { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>? SurfaceType { get; init; }
-    public required RoadSegmentDynamicAttributeValues<bool>? CarAccessForward { get; init; }
-    public required RoadSegmentDynamicAttributeValues<bool>? CarAccessBackward { get; init; }
-    public required RoadSegmentDynamicAttributeValues<bool>? BikeAccessForward { get; init; }
-    public required RoadSegmentDynamicAttributeValues<bool>? BikeAccessBackward { get; init; }
-    public required RoadSegmentDynamicAttributeValues<bool>? PedestrianAccess { get; init; }
+    public RoadSegmentDynamicAttributeValues<bool>? CarAccessForward { get; init; }
+    public RoadSegmentDynamicAttributeValues<bool>? CarAccessBackward { get; init; }
+    public RoadSegmentDynamicAttributeValues<bool>? BikeAccessForward { get; init; }
+    public RoadSegmentDynamicAttributeValues<bool>? BikeAccessBackward { get; init; }
+    public RoadSegmentDynamicAttributeValues<bool>? PedestrianAccess { get; init; }
 
     public required ProvenanceData Provenance { get; init; }
 }

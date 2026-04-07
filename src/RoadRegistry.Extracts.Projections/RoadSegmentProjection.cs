@@ -318,6 +318,15 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             return Task.CompletedTask;
         });
+        When<IEvent<RoadSegmentGeometryWasModified>>((session, e, ct) =>
+        {
+            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
+            {
+                segment.Geometry = e.Data.Geometry;
+                segment.StartNodeId = e.Data.StartNodeId;
+                segment.EndNodeId = e.Data.EndNodeId;
+            }, e.Data, ct);
+        });
         When<IEvent<RoadSegmentWasModified>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
@@ -419,7 +428,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             session.Delete(roadSegment);
         });
-        When<IEvent<RoadSegmentWasRetiredBecauseOfMerger>>(async (session, e, _) =>
+        When<IEvent<RoadSegmentWasRemovedBecauseOfMigration>>(async (session, e, _) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)
@@ -429,7 +438,17 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             session.Delete(roadSegment);
         });
-        When<IEvent<RoadSegmentWasRetiredBecauseOfMigration>>(async (session, e, _) =>
+        When<IEvent<RoadSegmentWasRetired>>(async (session, e, _) =>
+        {
+            var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
+            if (roadSegment is null)
+            {
+                throw new InvalidOperationException($"No document found for Id {e.Data.RoadSegmentId}");
+            }
+
+            session.Delete(roadSegment);
+        });
+        When<IEvent<RoadSegmentWasRetiredBecauseOfMerger>>(async (session, e, _) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)

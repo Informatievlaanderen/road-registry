@@ -116,6 +116,16 @@ public class GradeSeparatedJunctionProjection : RoadNetworkChangesConnectedProje
 
             session.Delete(junction);
         });
+        When<IEvent<GradeSeparatedJunctionWasRemovedBecauseOfMigration>>(async (session, e, _) =>
+        {
+            var junction = await session.LoadAsync<GradeSeparatedJunctionExtractItem>(e.Data.GradeSeparatedJunctionId);
+            if (junction is null)
+            {
+                throw new InvalidOperationException($"No document found for Id {e.Data.GradeSeparatedJunctionId}");
+            }
+
+            session.Delete(junction);
+        });
     }
 }
 

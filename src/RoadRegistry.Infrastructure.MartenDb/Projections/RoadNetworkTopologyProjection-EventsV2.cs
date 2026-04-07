@@ -48,6 +48,14 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
+    public void Project(IEvent<RoadNodeWasRemovedBecauseOfMigration> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadnode(?, ?);",
+            e.Data.RoadNodeId.ToInt32(),
+            e.Timestamp
+        );
+    }
+
     public void Project(IEvent<RoadSegmentWasAdded> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?, TRUE)",
@@ -69,6 +77,18 @@ public partial class RoadNetworkTopologyProjection
             e.Data.StartNodeId.ToInt32(),
             e.Data.EndNodeId.ToInt32(),
             e.Timestamp
+        );
+    }
+
+    public void Project(IEvent<RoadSegmentGeometryWasModified> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+            e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp,
+            e.Data.Geometry.WKT,
+            e.Data.Geometry.SRID,
+            e.Data.StartNodeId.ToInt32(),
+            e.Data.EndNodeId.ToInt32()
         );
     }
 
@@ -109,7 +129,7 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<RoadSegmentWasRetiredBecauseOfMerger> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadSegmentWasRemovedBecauseOfMigration> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",
             e.Data.RoadSegmentId.ToInt32(),
@@ -117,7 +137,15 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<RoadSegmentWasRetiredBecauseOfMigration> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadSegmentWasRetired> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",
+            e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp
+        );
+    }
+
+    public void Project(IEvent<RoadSegmentWasRetiredBecauseOfMerger> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",
             e.Data.RoadSegmentId.ToInt32(),
@@ -151,6 +179,14 @@ public partial class RoadNetworkTopologyProjection
     }
 
     public void Project(IEvent<GradeSeparatedJunctionWasRemoved> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradeseparatedjunction(?, ?);",
+            e.Data.GradeSeparatedJunctionId.ToInt32(),
+            e.Timestamp
+        );
+    }
+
+    public void Project(IEvent<GradeSeparatedJunctionWasRemovedBecauseOfMigration> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradeseparatedjunction(?, ?);",
             e.Data.GradeSeparatedJunctionId.ToInt32(),

@@ -7,7 +7,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
 {
     public RoadNodeId RoadNodeId { get; }
     public RoadNodeGeometry Geometry { get; private set; }
-    public RoadNodeTypeV2 Type { get; private set; }
+    public RoadNodeTypeV2? Type { get; private set; }
     public bool Grensknoop { get; private set; }
 
     public bool IsRemoved { get; private set; }
@@ -22,17 +22,22 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
     protected RoadNode(
         int roadNodeId,
         RoadNodeGeometry geometry,
-        string type,
+        string? type,
         bool grensknoop,
-        EventTimestamp origin,
-        EventTimestamp lastModified,
         bool isRemoved)
         : this(new RoadNodeId(roadNodeId))
     {
         Geometry = geometry;
-        Type = RoadNodeTypeV2.Parse(type);
+        Type = type is not null ? RoadNodeTypeV2.Parse(type) : null;
         Grensknoop = grensknoop;
         IsRemoved = isRemoved;
+    }
+
+    public static RoadNode CreateForMigration(
+        RoadNodeId roadNodeId,
+        RoadNodeGeometry geometry)
+    {
+        return new RoadNode(roadNodeId, geometry, null, false, false);
     }
 
     public static RoadNode Create(RoadNodeWasAdded @event)
@@ -40,7 +45,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         var roadNode = new RoadNode(@event.RoadNodeId)
         {
             Geometry = @event.Geometry,
-            Type = default,
+            Type = null,
             Grensknoop = @event.Grensknoop
         };
         roadNode.UncommittedEvents.Add(@event);
@@ -52,7 +57,6 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         UncommittedEvents.Add(@event);
 
         Geometry = @event.Geometry;
-        Type = default;
         Grensknoop = @event.Grensknoop;
     }
 
@@ -78,6 +82,13 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
             return;
         }
 
+        UncommittedEvents.Add(@event);
+
+        IsRemoved = true;
+    }
+
+    public void Apply(RoadNodeWasRemovedBecauseOfMigration @event)
+    {
         UncommittedEvents.Add(@event);
 
         IsRemoved = true;

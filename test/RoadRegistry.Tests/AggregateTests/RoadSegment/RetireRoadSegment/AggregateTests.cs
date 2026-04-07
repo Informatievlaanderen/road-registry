@@ -1,16 +1,15 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.RetireRoadSegmentBecauseOfMigration;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.RetireRoadSegment;
 
 using AutoFixture;
 using FluentAssertions;
 using RoadRegistry.RoadSegment.Events.V2;
-using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 public class AggregateTests : AggregateTestBase
 {
     [Fact]
-    public void WithMeasured_ThenRoadSegmentRetiredBecauseOfMigration()
+    public void WithMeasured_ThenRoadSegmentRetired()
     {
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
@@ -19,13 +18,13 @@ public class AggregateTests : AggregateTestBase
             .WithoutChanges();
 
         // Act
-        var problems = segment.RetireBecauseOfMigration(TestData.Provenance);
+        var problems = segment.Retire(TestData.Provenance);
 
         // Assert
         problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
-        var segmentRetired = (RoadSegmentWasRetiredBecauseOfMigration)segment.GetChanges().Single();
+        var segmentRetired = (RoadSegmentWasRetired)segment.GetChanges().Single();
         segmentRetired.RoadSegmentId.Should().Be(segment.RoadSegmentId);
     }
 
@@ -35,7 +34,7 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         var segmentAdded = Fixture.Create<RoadSegmentWasAdded>();
         var segment = RoadSegment.Create(segmentAdded);
-        var evt = Fixture.Create<RoadSegmentWasRetiredBecauseOfMigration>() with
+        var evt = Fixture.Create<RoadSegmentWasRetired>() with
         {
             RoadSegmentId = segmentAdded.RoadSegmentId
         };
@@ -45,6 +44,6 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
-        segment.Attributes.Status.Should().Be(RoadSegmentStatusV2.Gehistoreerd);
+        segment.Attributes!.Status.Should().Be(RoadSegmentStatusV2.Gehistoreerd);
     }
 }

@@ -47,15 +47,18 @@ public class GradeSeparatedJunctionProjectionTests
             typeof(RoadNodeWasModified),
             typeof(RoadNodeWasMigrated),
             typeof(RoadNodeWasRemoved),
+            typeof(RoadNodeWasRemovedBecauseOfMigration),
             typeof(RoadSegmentWasAdded),
             typeof(RoadSegmentWasAddedToEuropeanRoad),
             typeof(RoadSegmentWasAddedToNationalRoad),
+            typeof(RoadSegmentGeometryWasModified),
             typeof(RoadSegmentWasModified),
             typeof(RoadSegmentWasMerged),
             typeof(RoadSegmentWasMigrated),
+            typeof(RoadSegmentWasRetired),
             typeof(RoadSegmentWasRetiredBecauseOfMerger),
-            typeof(RoadSegmentWasRetiredBecauseOfMigration),
             typeof(RoadSegmentWasRemoved),
+            typeof(RoadSegmentWasRemovedBecauseOfMigration),
             typeof(RoadSegmentWasRemovedFromEuropeanRoad),
             typeof(RoadSegmentWasRemovedFromNationalRoad),
             typeof(GradeJunctionWasAdded),
@@ -149,6 +152,21 @@ public class GradeSeparatedJunctionProjectionTests
 
         var junction1Added = fixture.Create<GradeSeparatedJunctionWasAdded>();
         var junction1Removed = fixture.Create<GradeSeparatedJunctionWasRemoved>();
+
+        await BuildProjection()
+            .Scenario()
+            .Given(junction1Added, junction1Removed)
+            .ExpectNone();
+    }
+
+    [Fact]
+    public async Task WhenGradeSeparatedJunctionWasRemovedBecauseOfMigration_ThenNone()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<GradeSeparatedJunctionId>();
+
+        var junction1Added = fixture.Create<GradeSeparatedJunctionWasAdded>();
+        var junction1Removed = fixture.Create<GradeSeparatedJunctionWasRemovedBecauseOfMigration>();
 
         await BuildProjection()
             .Scenario()
