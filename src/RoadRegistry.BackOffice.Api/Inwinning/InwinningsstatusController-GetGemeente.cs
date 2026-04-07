@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Inwinning;
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -56,39 +58,72 @@ public partial class InwinningsstatusController
             });
         }
 
-        //TODO-pr add historiek niet-informatieve extracten
-        /*
-         "historiekExtracten":
-         [
-             {
-                "downloadId": "4886456fb7604ab5b065cee5419907c3",
-                "historiek": [
-                   {
-                       "status": "beschikbaar",
-                       "datum": "03-12-2026"
-                   },
-                   {
-                       "status": "verworpen",
-                       "datum": "07-02-2027"
-                   },
-                   {
-                       "status": "automatische controles geslaagd",
-                       "datum": "08-02-2027"
-                   },
-                   {
-                       "status": "goedgekeurd",
-                       "datum": "22-02-2027"
-                   }
-                ]
+        var extractDownloads = await (
+            from extractDownload in extractsDbContext.ExtractDownloads
+            join extractRequest in extractsDbContext.ExtractRequests on extractDownload.ExtractRequestId equals extractRequest.ExtractRequestId
+            where extractRequest.ExternalRequestId == $"INWINNING_{inwinningszone.NisCode}" && !extractDownload.IsInformative
+            orderby extractDownload.RequestedOn descending
+            select extractDownload
+        ).ToListAsync(cancellationToken);
+
+        var historiekExtracten = new List<GemeenteInwinningsstatusExtract>();
+
+        foreach (var extractDownload in extractDownloads)
+        {
+            var historiek = new List<GemeenteInwinningsstatusExtractHistoriekItem>();
+            if (extractDownload.Status == ExtractDownloadStatus.Available)
+            {
+                historiek.Add(new GemeenteInwinningsstatusExtractHistoriekItem
+                {
+                    Status = "beschikbaar",
+                    Datum = extractDownload.RequestedOn
+                });
             }
-        ]
-        */
+
+            var uploadStatusHistory = await (
+                from uploadHistory in extractsDbContext.ExtractUploadStatusHistory
+                join upload in extractsDbContext.ExtractUploads on uploadHistory.UploadId equals upload.UploadId
+                where upload.DownloadId == extractDownload.DownloadId && uploadHistory.Status != ExtractUploadStatus.Processing
+                select uploadHistory
+                ).ToListAsync(cancellationToken);
+            foreach (var uploadStatusHistoryItem in uploadStatusHistory)
+            {
+                historiek.Add(new GemeenteInwinningsstatusExtractHistoriekItem
+                {
+                    Status = uploadStatusHistoryItem.Status switch
+                    {
+                        ExtractUploadStatus.AutomaticValidationFailed => "verworpen",
+                        ExtractUploadStatus.AutomaticValidationSucceeded => "automatische controles geslaagd",
+                        ExtractUploadStatus.ManualValidationFailed => "geweigerd",
+                        ExtractUploadStatus.Accepted => "goedgekeurd",
+                        _ => throw new ArgumentOutOfRangeException($"Status {uploadStatusHistoryItem.Status}")
+                    },
+                    Datum = uploadStatusHistoryItem.Timestamp
+                });
+            }
+
+            if (extractDownload.Closed)
+            {
+                historiek.Add(new GemeenteInwinningsstatusExtractHistoriekItem
+                {
+                    Status = "gesloten",
+                    Datum = extractDownload.ClosedOn ?? historiek.Max(x => x.Datum).AddMilliseconds(1)
+                });
+            }
+
+            historiekExtracten.Add(new GemeenteInwinningsstatusExtract
+            {
+                DownloadId = new DownloadId(extractDownload.DownloadId).ToString(),
+                Historiek = historiek.OrderBy(x => x.Datum).ToList()
+            });
+        }
 
         return Ok(new GemeenteInwinningsstatus
         {
             Inwinningsstatus = inwinningszone.Completed
                 ? Inwinningsstatus.Compleet
-                : Inwinningsstatus.Locked
+                : Inwinningsstatus.Locked,
+            HistoriekExtracten = historiekExtracten
         });
     }
 }
@@ -96,5 +131,19 @@ public partial class InwinningsstatusController
 public class GemeenteInwinningsstatus
 {
     [RoadRegistryEnumDataType(typeof(Inwinningsstatus))]
-    public string Inwinningsstatus { get; set; }
+    public string Inwinningsstatus { get; init; }
+
+    public List<GemeenteInwinningsstatusExtract> HistoriekExtracten { get; init; }
+}
+
+public class GemeenteInwinningsstatusExtract
+{
+    public string DownloadId { get; init; }
+    public List<GemeenteInwinningsstatusExtractHistoriekItem> Historiek { get; init; }
+}
+
+public class GemeenteInwinningsstatusExtractHistoriekItem
+{
+    public string Status { get; init; }
+    public DateTimeOffset Datum { get; init; }
 }

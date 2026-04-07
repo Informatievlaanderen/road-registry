@@ -211,12 +211,27 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
                 TicketId = ticketId
             };
             _extractsDbContext.ExtractUploads.Add(extractUpload);
+
+            _extractsDbContext.ExtractUploadStatusHistory.Add(new ExtractUploadStatusHistory
+            {
+                UploadId = uploadId,
+                Status = ExtractUploadStatus.Processing,
+                Timestamp = extractUpload.UploadedOn
+            });
         }
-        else
+        else if(extractUpload.Status != ExtractUploadStatus.Processing)
         {
             extractUpload.Status = ExtractUploadStatus.Processing;
             extractUpload.TicketId = ticketId;
+
+            _extractsDbContext.ExtractUploadStatusHistory.Add(new ExtractUploadStatusHistory
+            {
+                UploadId = uploadId,
+                Status = extractUpload.Status,
+                Timestamp = DateTimeOffset.UtcNow
+            });
         }
+
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
     }
 

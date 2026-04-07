@@ -20,7 +20,14 @@ public class ExtractDownload
     public Guid? LatestUploadId { get; set; }
 
     public bool Closed { get; set; }
+    public DateTimeOffset? ClosedOn { get; set; }
     public Guid? TicketId { get; set; }
+
+    public void Close()
+    {
+        Closed = true;
+        ClosedOn = DateTimeOffset.UtcNow;
+    }
 }
 
 public enum ExtractDownloadStatus
@@ -54,6 +61,7 @@ public class ExtractDownloadConfiguration : IEntityTypeConfiguration<ExtractDown
         b.Property(p => p.DownloadedOn).IsRequired(false);
         b.Property(p => p.TicketId).IsRequired(false);
         b.Property(p => p.Closed).IsRequired();
+        b.Property(p => p.ClosedOn).IsRequired(false);
         b.Property(p => p.ZipArchiveWriterVersion).IsRequired().HasDefaultValue(WellKnownZipArchiveWriterVersions.DomainV1_2);
 
         b.HasIndex(x => x.ExtractRequestId);

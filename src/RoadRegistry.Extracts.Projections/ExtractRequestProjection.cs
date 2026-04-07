@@ -70,7 +70,7 @@ public class ExtractRequestProjection : ConnectedProjection<ExtractsDbContext>
                     .ToListAsync(ct);
                 foreach(var existingOpenDownload in existingOpenDownloads)
                 {
-                    existingOpenDownload.Closed = true;
+                    existingOpenDownload.Close();
                 }
 
                 record.CurrentDownloadId = message.DownloadId;

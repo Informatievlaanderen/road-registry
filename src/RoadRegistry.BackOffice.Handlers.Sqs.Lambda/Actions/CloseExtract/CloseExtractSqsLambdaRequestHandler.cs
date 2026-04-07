@@ -40,7 +40,7 @@ public sealed class CloseExtractSqsLambdaRequestHandler : SqsLambdaHandler<Close
             throw new ExtractRequestNotFoundException(request.Request.DownloadId);
         }
 
-        download.Closed = true;
+        download.Close();
 
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
 

@@ -63,7 +63,7 @@ public class ExtractRequester
                 .ToListAsync(cancellationToken);
             foreach(var existingOpenDownload in existingOpenDownloads)
             {
-                existingOpenDownload.Closed = true;
+                existingOpenDownload.Close();
             }
 
             extractRequest.CurrentDownloadId = downloadId;
@@ -95,7 +95,7 @@ public class ExtractRequester
 
             if (isInformative)
             {
-                extractDownload.Closed = true;
+                extractDownload.Close();
             }
 
             extractDownload.Status = ExtractDownloadStatus.Available;

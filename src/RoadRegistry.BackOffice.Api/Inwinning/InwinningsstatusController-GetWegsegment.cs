@@ -69,5 +69,5 @@ public partial class InwinningsstatusController
 public class WegsegmentInwinningsstatus
 {
     [RoadRegistryEnumDataType(typeof(Inwinningsstatus))]
-    public string Inwinningsstatus { get; set; }
+    public string Inwinningsstatus { get; init; }
 }

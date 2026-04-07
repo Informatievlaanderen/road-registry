@@ -68,7 +68,7 @@ public class ExtractDownloadProjection : ConnectedProjection<ExtractsDbContext>
             var records = await context.ExtractDownloads
                 .IncludeLocalToListAsync(q => q.Where(record => downloadIds.Contains(record.DownloadId)), ct);
 
-            records.ForEach(record => record.Closed = true);
+            records.ForEach(record => record.Close());
         });
 
         When<Envelope<RoadNetworkExtractDownloadBecameAvailable>>(async (context, envelope, ct) =>
@@ -77,7 +77,7 @@ public class ExtractDownloadProjection : ConnectedProjection<ExtractsDbContext>
             record.Status = ExtractDownloadStatus.Available;
             if (record.IsInformative)
             {
-                record.Closed = true;
+                record.Close();
             }
         });
 
