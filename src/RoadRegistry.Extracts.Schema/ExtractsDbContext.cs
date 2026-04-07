@@ -33,6 +33,7 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
     public DbSet<ExtractDownload> ExtractDownloads { get; set; }
     public DbSet<ExtractUpload> ExtractUploads { get; set; }
     public DbSet<Inwinningszone> Inwinningszones { get; set; }
+    public DbSet<InwinningRoadSegment> InwinningRoadSegments { get; set; }
     public DbSet<DataValidationQueueItem> DataValidationQueue { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

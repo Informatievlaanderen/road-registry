@@ -20,5 +20,6 @@ public static class SwaggerExtensions
         options.SchemaFilter<RoadSegmentSurfaceTypeSchemaFilter>();
         options.SchemaFilter<RoadSegmentEuropeanRoadNumberSchemaFilter>();
         options.SchemaFilter<RoadSegmentNumberedRoadDirectionSchemaFilter>();
+        options.SchemaFilter<InwinningsstatusSchemaFilter>();
     }
 }
