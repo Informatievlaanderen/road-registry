@@ -1,3 +1,16 @@
+## [4.51.5](https://github.com/informatievlaanderen/road-registry/compare/v4.51.4...v4.51.5) (2026-04-03)
+
+
+### Bug Fixes
+
+* performance OGC overlap check ([8c1f35d](https://github.com/informatievlaanderen/road-registry/commit/8c1f35dc69596332f6104f4c88f3eeed630a5783))
+* unflatten records when start/end node are the same ([0f52acd](https://github.com/informatievlaanderen/road-registry/commit/0f52acddcc85e712824dec10c45aae160336563b))
+
+
+### Performance Improvements
+
+* use CascadedPolygonUnion instead of sequential Aggregate union ([37c23d5](https://github.com/informatievlaanderen/road-registry/commit/37c23d5008a36056c34aa4904f616b83ff8f07d0))
+
 ## [4.51.4](https://github.com/informatievlaanderen/road-registry/compare/v4.51.3...v4.51.4) (2026-04-02)
 
 

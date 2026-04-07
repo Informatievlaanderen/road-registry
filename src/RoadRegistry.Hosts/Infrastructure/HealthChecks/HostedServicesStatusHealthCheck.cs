@@ -12,13 +12,27 @@ using Microsoft.Extensions.Logging;
 
 internal class HostedServicesStatusHealthCheck : IHealthCheck
 {
-    private readonly HostedServicesStatusHealthCheckOptions _options;
-    private readonly ILogger _logger;
+    private readonly ICollection<IHostedService> _hostedServices;
 
     public HostedServicesStatusHealthCheck(HostedServicesStatusHealthCheckOptions options, ILoggerFactory loggerFactory)
     {
-        _options = options;
-        _logger = loggerFactory.CreateLogger(GetType());
+        var logger = loggerFactory.CreateLogger(GetType());
+
+        var hostedServices = options.HostedServices.Select(x => new
+        {
+            HostedService = x,
+            Status = x is IHostedServiceStatus hostedServiceStatus ? hostedServiceStatus.Status : (HostStatus?)null
+        }).ToArray();
+
+        foreach (var service in hostedServices.Where(x => x.Status is null))
+        {
+            logger.LogWarning("Service {ServiceType} did not implement {InterfaceType} and thus is not registered in the health check.", service!.HostedService.GetType().FullName, nameof(IHostedServiceStatus));
+        }
+
+        _hostedServices = hostedServices
+            .Where(x => x.Status is not null)
+            .Select(x => x.HostedService)
+            .ToArray();
     }
 
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
@@ -29,27 +43,18 @@ internal class HostedServicesStatusHealthCheck : IHealthCheck
     {
         try
         {
-            if (!_options.HostedServices.Any())
+            if (!_hostedServices.Any())
             {
                 return HealthCheckResult.Unhealthy("No hosted services registered.");
             }
 
-            var hostedServices = _options.HostedServices.Select(x => new
+            var hostedServices = _hostedServices.Select(x => new
             {
                 HostedService = x,
-                Status = x is IHostedServiceStatus hostedServiceStatus ? hostedServiceStatus.Status : (HostStatus?)null
+                ((IHostedServiceStatus)x).Status
             }).ToList();
 
-            var hostedServicesWithoutStatus = hostedServices.Where(x => x.Status is null).ToList();
-            foreach (var service in hostedServicesWithoutStatus)
-            {
-                _logger.LogWarning($"Service {service.HostedService.GetType().FullName} did not implement {nameof(IHostedServiceStatus)} and thus is not registered in the health check.");
-            }
-
-            var hostedServicesWithStatus = hostedServices
-                .Where(x => x.Status is not null)
-                .ToList();
-            var notRunningServices = hostedServicesWithStatus
+            var notRunningServices = hostedServices
                 .Where(x => x.Status == HostStatus.Stopping || x.Status == HostStatus.Stopped)
                 .ToList();
             if (notRunningServices.Any())
@@ -57,7 +62,7 @@ internal class HostedServicesStatusHealthCheck : IHealthCheck
                 return HealthCheckResult.Unhealthy("Services are not running.", data: ToDataDictionary(notRunningServices.Select(x => x.HostedService)));
             }
 
-            return HealthCheckResult.Healthy(data: ToDataDictionary(hostedServicesWithStatus.Select(x => x.HostedService)));
+            return HealthCheckResult.Healthy(data: ToDataDictionary(_hostedServices));
         }
         catch (Exception ex)
         {
