@@ -88,7 +88,7 @@ namespace RoadRegistry.Jobs.Processor
             {
                 _logger.LogInformation("Closing extract with DownloadId {DownloadId}", extractDownload.DownloadId);
 
-                extractDownload.Closed = true;
+                extractDownload.Close();
             }
 
             await _extractsDbContext.SaveChangesAsync(cancellationToken);

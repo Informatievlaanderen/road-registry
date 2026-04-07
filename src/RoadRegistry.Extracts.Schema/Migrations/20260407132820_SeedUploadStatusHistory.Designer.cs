@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.Schema;
@@ -12,9 +13,11 @@ using RoadRegistry.Extracts.Schema;
 namespace RoadRegistry.Extracts.Schema.Migrations
 {
     [DbContext(typeof(ExtractsDbContext))]
-    partial class ExtractsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260407132820_SeedUploadStatusHistory")]
+    partial class SeedUploadStatusHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,9 +78,6 @@ namespace RoadRegistry.Extracts.Schema.Migrations
 
                     b.Property<bool>("Closed")
                         .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("ClosedOn")
-                        .HasColumnType("datetimeoffset");
 
                     b.Property<Geometry>("Contour")
                         .IsRequired()

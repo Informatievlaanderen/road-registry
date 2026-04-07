@@ -32,6 +32,7 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
     public DbSet<ExtractRequest> ExtractRequests { get; set; }
     public DbSet<ExtractDownload> ExtractDownloads { get; set; }
     public DbSet<ExtractUpload> ExtractUploads { get; set; }
+    public DbSet<ExtractUploadStatusHistory> ExtractUploadStatusHistory { get; set; }
     public DbSet<Inwinningszone> Inwinningszones { get; set; }
     public DbSet<InwinningRoadSegment> InwinningRoadSegments { get; set; }
     public DbSet<DataValidationQueueItem> DataValidationQueue { get; set; }
@@ -84,7 +85,7 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
             record.Status = ExtractUploadStatus.Accepted;
 
             var extractDownload = await ExtractDownloads.SingleAsync(x => x.DownloadId == record.DownloadId, cancellationToken);
-            extractDownload.Closed = true;
+            extractDownload.Close();
         }, cancellationToken);
     }
 
@@ -123,7 +124,17 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
             throw new UploadExtractNotFoundException($"Could find extractupload with uploadId {uploadId}");
         }
 
+        var currentStatus = record.Status;
         await change(record);
+        if (currentStatus != record.Status)
+        {
+            ExtractUploadStatusHistory.Add(new ExtractUploadStatusHistory
+            {
+                UploadId = uploadId,
+                Status = record.Status,
+                Timestamp = DateTimeOffset.UtcNow
+            });
+        }
 
         await SaveChangesAsync(cancellationToken);
     }

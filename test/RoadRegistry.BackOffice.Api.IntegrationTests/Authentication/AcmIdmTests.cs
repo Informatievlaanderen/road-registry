@@ -102,6 +102,8 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             new(HttpMethod.Get, "v1/inwinning/extracten", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/inwinning/niscodes", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Post, "v1/inwinning/{downloadId}/upload", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Get, "v1/inwinningsstatus/gemeente/{nisCode}"),
+            new(HttpMethod.Get, "v1/inwinningsstatus/wegsegment/{id}"),
         };
         public static IEnumerable<object[]> EndpointsMemberData() => Endpoints.Select(x => new object[] { x.Method, x.Uri, x.RequiredScopes });
 
