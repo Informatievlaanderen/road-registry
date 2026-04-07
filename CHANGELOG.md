@@ -1,3 +1,10 @@
+# [4.52.0](https://github.com/informatievlaanderen/road-registry/compare/v4.51.6...v4.52.0) (2026-04-07)
+
+
+### Features
+
+* create simplified Marten snapshots of V1 events + specifically remove for migration ([6c005d3](https://github.com/informatievlaanderen/road-registry/commit/6c005d34d6cd7fd8cb441a69bf43788fea733486))
+
 ## [4.51.6](https://github.com/informatievlaanderen/road-registry/compare/v4.51.5...v4.51.6) (2026-04-07)
 
 
