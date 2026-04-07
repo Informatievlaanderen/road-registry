@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Projections.Tests;
+﻿namespace RoadRegistry.Tests;
 
 using JasperFx.Events;
 using Marten.Events;
