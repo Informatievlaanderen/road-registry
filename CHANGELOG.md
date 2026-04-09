@@ -1,3 +1,10 @@
+## [4.53.1](https://github.com/informatievlaanderen/road-registry/compare/v4.53.0...v4.53.1) (2026-04-09)
+
+
+### Bug Fixes
+
+* add error logging in lambda ([7124d89](https://github.com/informatievlaanderen/road-registry/commit/7124d8912988cb0d6be5253e427d3edf181e041a))
+
 # [4.53.0](https://github.com/informatievlaanderen/road-registry/compare/v4.52.0...v4.53.0) (2026-04-07)
 
 
