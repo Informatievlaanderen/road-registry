@@ -1,5 +1,5 @@
 name: 3. Deploy
-run-name: 'Deploy road-registry to ${{ github.event.inputs.environment }}: ${{ github.event.inputs.version }}'
+run-name: "Deploy road-registry to ${{ github.event.inputs.environment }}: ${{ github.event.inputs.version }}"
 
 on:
   workflow_dispatch:
@@ -8,9 +8,9 @@ on:
         type: choice
         description: Select the environment
         options:
-        - test
-        - stg
-        - prd
+          - test
+          - stg
+          - prd
         required: true
       version:
         description: Version
@@ -26,14 +26,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Notify deployment started
-      uses: slackapi/slack-github-action@v2
-      with:
-        method: chat.postMessage
-        token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-        payload: |
-          channel: '#team-dinosaur-dev'
-          text: 'Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+      - name: Notify deployment started
+        uses: slackapi/slack-github-action@v2
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+          payload: |
+            channel: '#team-dinosaur-dev'
+            text: 'Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
 
   deploy_services:
     if: github.repository_owner == 'Informatievlaanderen'
@@ -41,31 +41,31 @@ jobs:
     name: Deploy services + tasks
     uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.1.yml@main
     strategy:
-       matrix:
-         services: [
-          'backoffice-api',
-          'backoffice-commandhost',
-          'backoffice-eventhost',
-          'backoffice-extracthost',
-          'backoffice-ui',
-          'editor-projectionhost',
-          'producer-snapshot-projectionhost',
-          'product-projectionhost',
-          'projector',
-          'synchost',
-          'wfs-projectionhost',
-          'wms-projectionhost',
-          'adminhost',
-          'jobs-processor',
-          'product-publishhost',
-         ]
+      matrix:
+        services:
+          [
+            "backoffice-api",
+            "backoffice-commandhost",
+            "backoffice-eventhost",
+            "backoffice-ui",
+            "editor-projectionhost",
+            "producer-snapshot-projectionhost",
+            "product-projectionhost",
+            "projector",
+            "synchost",
+            "wfs-projectionhost",
+            "wms-projectionhost",
+            "adminhost",
+            "jobs-processor",
+            "product-publishhost",
+          ]
     with:
       environment: ${{ github.event.inputs.environment }}
       service-name: ${{ matrix.services }}
       application: ${{ matrix.services }}
       version: ${{ github.event.inputs.version }}
-      domain: 'road'
-      project: 'grawr'
+      domain: "road"
+      project: "grawr"
       use-subfolder: true
     secrets: inherit
 
@@ -75,86 +75,84 @@ jobs:
     name: Deploy lambdas
     uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.1.yml@main
     strategy:
-       matrix:
-         functions: [
-          'lambda-sqsbackofficefunction',
-          'lambda-sqssnapshotfunction'
-         ]
+      matrix:
+        functions:
+          ["lambda-sqsbackofficefunction", "lambda-sqssnapshotfunction"]
     with:
-      deploy-target: 'lambda'
+      deploy-target: "lambda"
       environment: ${{ github.event.inputs.environment }}
       service-name: ${{ matrix.functions }}
-      application: 'lambda'
+      application: "lambda"
       version: ${{ github.event.inputs.version }}
-      domain: 'road'
-      project: 'grawr'
+      domain: "road"
+      project: "grawr"
       use-subfolder: true
     secrets: inherit
 
   system_healthcheck:
-    needs: [ deploy_lambda ]
+    needs: [deploy_lambda]
     if: ${{ github.repository_owner == 'Informatievlaanderen' && always() && (needs.deploy_lambda.result == 'success' || needs.deploy_lambda.result == 'skipped') }}
     name: System healthcheck
     runs-on: ubuntu-latest
 
     steps:
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4.1.0
-      with:
-        role-to-assume: arn:aws:iam::${{ github.event.inputs.environment == 'test' && secrets.AWS_ACCOUNT_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_ACCOUNT_ID_STG || secrets.AWS_ACCOUNT_ID_PRD }}:role/grawr-infra-bastion-ssm-run-command
-        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          role-to-assume: arn:aws:iam::${{ github.event.inputs.environment == 'test' && secrets.AWS_ACCOUNT_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_ACCOUNT_ID_STG || secrets.AWS_ACCOUNT_ID_PRD }}:role/grawr-infra-bastion-ssm-run-command
+          aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
 
-    - name: Run
-      run: |
-        URL=$BACKOFFICE_API_URL/v1/system/healthcheck
+      - name: Run
+        run: |
+          URL=$BACKOFFICE_API_URL/v1/system/healthcheck
 
-        CALLER_IDENTITY=$(aws sts get-caller-identity --output text)
-        echo "CallerIdentity: $CALLER_IDENTITY"
+          CALLER_IDENTITY=$(aws sts get-caller-identity --output text)
+          echo "CallerIdentity: $CALLER_IDENTITY"
 
-        echo $URL
-        COMMAND_ID=$(aws ssm send-command --instance-id $INSTANCE_ID --document-name AWS-RunShellScript --parameters "{\"commands\":[\"#!/bin/bash\",\"curl -X POST $URL -H 'x-api-key: $ROAD_API_KEY' --fail\"]}" --query 'Command.CommandId' --output text)
+          echo $URL
+          COMMAND_ID=$(aws ssm send-command --instance-id $INSTANCE_ID --document-name AWS-RunShellScript --parameters "{\"commands\":[\"#!/bin/bash\",\"curl -X POST $URL -H 'x-api-key: $ROAD_API_KEY' --fail\"]}" --query 'Command.CommandId' --output text)
 
-        for i in {1..120}
-        do
-          status=$(aws ssm get-command-invocation --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text)
+          for i in {1..120}
+          do
+            status=$(aws ssm get-command-invocation --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text)
 
-          if [[ "$status" == "Failed" ]]; then
+            if [[ "$status" == "Failed" ]]; then
+              exit 1
+            fi
+
+            echo $status
+            if [[ "$status" == "Success" ]]; then
+              break
+            fi
+
+            sleep 1
+          done
+
+          if [[ "$status" == "InProgress" ]]; then
+            echo "Timed out"
             exit 1
           fi
 
-          echo $status
-          if [[ "$status" == "Success" ]]; then
-            break
+          response=$(aws ssm get-command-invocation --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'StandardOutputContent' --output text)
+          echo "$response"
+
+          if echo "$response" | grep -q "unhealthy"; then
+            echo "System is unhealthy"
+            exit 1
           fi
 
-          sleep 1
-        done
+          if echo "$response" | grep -q "healthy"; then
+            echo "System is healthy"
+            exit 0
+          fi
 
-        if [[ "$status" == "InProgress" ]]; then
-          echo "Timed out"
           exit 1
-        fi
-
-        response=$(aws ssm get-command-invocation --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'StandardOutputContent' --output text)
-        echo "$response"
-
-        if echo "$response" | grep -q "unhealthy"; then
-          echo "System is unhealthy"
-          exit 1
-        fi
-
-        if echo "$response" | grep -q "healthy"; then
-          echo "System is healthy"
-          exit 0
-        fi
-
-        exit 1
-      shell: bash
-      env:
-        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
-        INSTANCE_ID: ${{ github.event.inputs.environment == 'test' && secrets.AWS_BASTION_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_BASTION_ID_STG  || secrets.AWS_BASTION_ID_PRD }}
-        BACKOFFICE_API_URL: ${{ github.event.inputs.environment == 'test' && vars.BACKOFFICE_API_URL_TST || github.event.inputs.environment == 'stg' && vars.BACKOFFICE_API_URL_STG  || vars.BACKOFFICE_API_URL_PRD }}
-        ROAD_API_KEY: ${{ secrets.HEALTHCHECK_APIKEY }}
+        shell: bash
+        env:
+          REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
+          INSTANCE_ID: ${{ github.event.inputs.environment == 'test' && secrets.AWS_BASTION_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_BASTION_ID_STG  || secrets.AWS_BASTION_ID_PRD }}
+          BACKOFFICE_API_URL: ${{ github.event.inputs.environment == 'test' && vars.BACKOFFICE_API_URL_TST || github.event.inputs.environment == 'stg' && vars.BACKOFFICE_API_URL_STG  || vars.BACKOFFICE_API_URL_PRD }}
+          ROAD_API_KEY: ${{ secrets.HEALTHCHECK_APIKEY }}
 
   deploy_finish_slack:
     needs: [system_healthcheck]
@@ -163,17 +161,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Notify deployment succeeded
-      uses: slackapi/slack-github-action@v2
-      with:
-        method: chat.postMessage
-        token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-        payload: |
-          channel: '#team-dinosaur-dev'
-          text: ':white_check_mark: Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has finished.'
+      - name: Notify deployment succeeded
+        uses: slackapi/slack-github-action@v2
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+          payload: |
+            channel: '#team-dinosaur-dev'
+            text: ':white_check_mark: Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has finished.'
 
   deployment_notify_failure:
-    needs: [ system_healthcheck ]
+    needs: [system_healthcheck]
     if: ${{ github.repository_owner == 'Informatievlaanderen' && failure() }}
     name: Notify deployment failed
     runs-on: ubuntu-latest

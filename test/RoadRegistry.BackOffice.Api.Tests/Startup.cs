@@ -4,11 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Api.Changes;
-using Api.Downloads;
-using Api.Extracts;
 using Api.Information;
 using Api.RoadSegments;
-using Api.Uploads;
 using Autofac;
 using BackOffice.Extracts;
 using BackOffice.Handlers.Sqs;
@@ -29,7 +26,6 @@ using RoadRegistry.BackOffice.Api.Organizations;
 using RoadRegistry.Hosts.Infrastructure.Options;
 using SqlStreamStore;
 using System.Reflection;
-using Api.Grb;
 using Api.Infrastructure.Controllers;
 using FeatureCompare;
 using FeatureCompare.V1.Translators;
@@ -97,12 +93,8 @@ public class Startup : TestStartup
             .AddInMemoryDbContext<MunicipalityEventConsumerContext>()
             .AddSingleton<TicketingOptions>(new FakeTicketingOptions())
             .AddScoped<ChangeFeedController>()
-            .AddScoped<DownloadController>()
-            .AddScoped<ExtractsController>()
-            .AddScoped<GrbController>()
             .AddScoped<InformationController>()
             .AddScoped<OrganizationsController>()
-            .AddScoped<UploadController>()
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddScoped(sp => new BackofficeApiControllerContext(
                 sp.GetRequiredService<TicketingOptions>(),

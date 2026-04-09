@@ -12,16 +12,13 @@ using RoadRegistry.Extracts;
 public class DownloadExtractRequestHandler : ExtractRequestHandler<DownloadExtractRequest, DownloadExtractResponse>
 {
     private readonly WKTReader _reader;
-    private readonly UseGrbExtractZipArchiveWriterV2FeatureToggle _useGrbExtractZipArchiveWriterV2FeatureToggle;
 
     public DownloadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
         WKTReader reader,
-        UseGrbExtractZipArchiveWriterV2FeatureToggle useGrbExtractZipArchiveWriterV2FeatureToggle,
         ILogger<DownloadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
-        _useGrbExtractZipArchiveWriterV2FeatureToggle = useGrbExtractZipArchiveWriterV2FeatureToggle;
     }
 
     protected override async Task<DownloadExtractResponse> HandleRequestAsync(DownloadExtractRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
@@ -33,9 +30,7 @@ public class DownloadExtractRequestHandler : ExtractRequestHandler<DownloadExtra
             DownloadId = downloadId,
             Description = request.RequestId[..(request.RequestId.Length > ExtractDescription.MaxLength ? ExtractDescription.MaxLength : request.RequestId.Length)],
             IsInformative = request.IsInformative,
-            ZipArchiveWriterVersion = _useGrbExtractZipArchiveWriterV2FeatureToggle.FeatureEnabled
-                ? WellKnownZipArchiveWriterVersions.DomainV1_2
-                : WellKnownZipArchiveWriterVersions.DomainV1_1
+            ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV1_2
         };
 
         var command = new Command(message).WithProvenanceData(request.ProvenanceData);

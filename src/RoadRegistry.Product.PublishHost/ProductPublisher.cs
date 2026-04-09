@@ -8,26 +8,23 @@ namespace RoadRegistry.Product.PublishHost
     using System.Threading;
     using System.Threading.Tasks;
     using Autofac;
-    using BackOffice;
-    using BackOffice.Abstractions;
-    using BackOffice.Abstractions.Exceptions;
-    using BackOffice.Extensions;
-    using BackOffice.Uploads;
-    using BackOffice.ZipArchiveWriters.ForProduct;
     using Be.Vlaanderen.Basisregisters.BlobStore;
-    using CloudStorageClients;
-    using Extracts;
-    using Extracts.Infrastructure.Extensions;
-    using Extracts.ZipArchiveWriters;
-    using HttpClients;
-    using Infrastructure;
-    using Infrastructure.Configurations;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Microsoft.IO;
+    using RoadRegistry.BackOffice.Abstractions.Exceptions;
+    using RoadRegistry.BackOffice.Uploads;
+    using RoadRegistry.BackOffice.ZipArchiveWriters.ForProduct;
+    using RoadRegistry.Extracts;
+    using RoadRegistry.Extracts.Infrastructure.Extensions;
+    using RoadRegistry.Extracts.ZipArchiveWriters;
     using RoadRegistry.Infrastructure;
-    using Schema;
+    using RoadRegistry.Product.PublishHost.CloudStorageClients;
+    using RoadRegistry.Product.PublishHost.HttpClients;
+    using RoadRegistry.Product.PublishHost.Infrastructure;
+    using RoadRegistry.Product.PublishHost.Infrastructure.Configurations;
+    using RoadRegistry.Product.Schema;
 
     public class ProductPublisher
     {

@@ -14,16 +14,13 @@ using Sync.MunicipalityRegistry;
 public class DownloadExtractByNisCodeRequestHandler : ExtractRequestHandler<DownloadExtractByNisCodeRequest, DownloadExtractByNisCodeResponse>
 {
     private readonly MunicipalityEventConsumerContext _municipalityContext;
-    private readonly UseExtractZipArchiveWriterV2FeatureToggle _useExtractZipArchiveWriterV2FeatureToggle;
 
     public DownloadExtractByNisCodeRequestHandler(
         MunicipalityEventConsumerContext municipalityContext,
         CommandHandlerDispatcher dispatcher,
-        UseExtractZipArchiveWriterV2FeatureToggle useExtractZipArchiveWriterV2FeatureToggle,
         ILogger<DownloadExtractByNisCodeRequestHandler> logger) : base(dispatcher, logger)
     {
         _municipalityContext = municipalityContext;
-        _useExtractZipArchiveWriterV2FeatureToggle = useExtractZipArchiveWriterV2FeatureToggle;
     }
 
     protected override async Task<DownloadExtractByNisCodeResponse> HandleRequestAsync(DownloadExtractByNisCodeRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
@@ -41,9 +38,7 @@ public class DownloadExtractByNisCodeRequestHandler : ExtractRequestHandler<Down
             DownloadId = downloadId,
             Description = request.Description,
             IsInformative = request.IsInformative,
-            ZipArchiveWriterVersion = _useExtractZipArchiveWriterV2FeatureToggle.FeatureEnabled
-                ? WellKnownZipArchiveWriterVersions.DomainV1_2
-                : WellKnownZipArchiveWriterVersions.DomainV1_1
+            ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV1_2
         };
 
         var command = new Command(message).WithProvenanceData(request.ProvenanceData);
