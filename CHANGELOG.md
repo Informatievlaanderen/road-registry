@@ -1,3 +1,10 @@
+# [4.54.0](https://github.com/informatievlaanderen/road-registry/compare/v4.53.1...v4.54.0) (2026-04-09)
+
+
+### Features
+
+* treat extract data as integration when partially overlaps with inwinning data GAWR-7542 ([2e0259c](https://github.com/informatievlaanderen/road-registry/commit/2e0259c3ab627abb6802c25b1c5fabfd64036c1d))
+
 ## [4.53.1](https://github.com/informatievlaanderen/road-registry/compare/v4.53.0...v4.53.1) (2026-04-09)
 
 
