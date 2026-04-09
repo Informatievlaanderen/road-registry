@@ -57,16 +57,24 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
 
     protected override async Task<object> InnerHandle(MigrateDryRunRoadNetworkSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
-        await MigrateWithoutSaving(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest, cancellationToken);
-
-        await _mediator.Send(new DataValidationSqsRequest
+        try
         {
-            TicketId = sqsLambdaRequest.TicketId,
-            ProvenanceData = new ProvenanceData(sqsLambdaRequest.Provenance),
-            MigrateRoadNetworkSqsRequest = sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest
-        }, cancellationToken);
+            await MigrateWithoutSaving(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest, cancellationToken);
 
-        return new object();
+            await _mediator.Send(new DataValidationSqsRequest
+            {
+                TicketId = sqsLambdaRequest.TicketId,
+                ProvenanceData = new ProvenanceData(sqsLambdaRequest.Provenance),
+                MigrateRoadNetworkSqsRequest = sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest
+            }, cancellationToken);
+
+            return new object();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Error while running migrate dry run with download id {sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.DownloadId}");
+            throw;
+        }
     }
 
     private async Task MigrateWithoutSaving(MigrateRoadNetworkSqsRequest command, CancellationToken cancellationToken)

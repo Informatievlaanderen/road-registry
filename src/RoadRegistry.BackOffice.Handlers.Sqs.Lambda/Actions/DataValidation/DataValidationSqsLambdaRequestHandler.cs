@@ -47,60 +47,68 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
 
     protected override async Task<object> InnerHandle(DataValidationSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
-        var startOfAction = Stopwatch.StartNew();
-
-        var queueItem = await _extractsDbContext.DataValidationQueue.SingleOrDefaultAsync(x => x.UploadId == sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId.ToGuid(), cancellationToken);
-        if (queueItem is null)
+        try
         {
-            queueItem = new DataValidationQueueItem
+            var startOfAction = Stopwatch.StartNew();
+
+            var queueItem = await _extractsDbContext.DataValidationQueue.SingleOrDefaultAsync(x => x.UploadId == sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId.ToGuid(), cancellationToken);
+            if (queueItem is null)
             {
-                UploadId = sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId,
-                SqsRequestJson = _sqsJsonMessageSerializer.Serialize(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest)
-            };
-            _extractsDbContext.DataValidationQueue.Add(queueItem);
-            await _extractsDbContext.SaveChangesAsync(cancellationToken);
-        }
-
-        if (queueItem.DataValidationId is null)
-        {
-            queueItem.DataValidationId = await _dataValidationClient.RequestDataValidationAsync(cancellationToken);
-            await _extractsDbContext.SaveChangesAsync(cancellationToken);
-        }
-
-        bool? automaticValidationSucceed = null;
-        TicketError? ticketError = null;
-
-        while (automaticValidationSucceed is null)
-        {
-            await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
-
-            if (startOfAction.Elapsed.TotalMinutes >= 10)
-            {
-                break;
-            }
-
-            //TODO-pr poll until automatic validation is complete/rejected, when rejected then fill in ticketError
-            //temp accept upload
-            automaticValidationSucceed = true;
-        }
-
-        if (automaticValidationSucceed is not null)
-        {
-            if (automaticValidationSucceed.Value)
-            {
-                await _extractsDbContext.AutomaticValidationSucceededAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, cancellationToken);
-                await Ticketing.Pending(sqsLambdaRequest.TicketId, new TicketResult(new { Status = nameof(ExtractUploadStatus.AutomaticValidationSucceeded) }), cancellationToken);
-            }
-            else
-            {
-                await _extractsDbContext.AutomaticValidationFailedAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, cancellationToken);
-                await Ticketing.Error(sqsLambdaRequest.TicketId, ticketError, cancellationToken);
-
-                queueItem.Completed = true;
+                queueItem = new DataValidationQueueItem
+                {
+                    UploadId = sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId,
+                    SqsRequestJson = _sqsJsonMessageSerializer.Serialize(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest)
+                };
+                _extractsDbContext.DataValidationQueue.Add(queueItem);
                 await _extractsDbContext.SaveChangesAsync(cancellationToken);
             }
-        }
 
-        return new object();
+            if (queueItem.DataValidationId is null)
+            {
+                queueItem.DataValidationId = await _dataValidationClient.RequestDataValidationAsync(cancellationToken);
+                await _extractsDbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            bool? automaticValidationSucceed = null;
+            TicketError? ticketError = null;
+
+            while (automaticValidationSucceed is null)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
+
+                if (startOfAction.Elapsed.TotalMinutes >= 10)
+                {
+                    break;
+                }
+
+                //TODO-pr poll until automatic validation is complete/rejected, when rejected then fill in ticketError
+                //temp accept upload
+                automaticValidationSucceed = true;
+            }
+
+            if (automaticValidationSucceed is not null)
+            {
+                if (automaticValidationSucceed.Value)
+                {
+                    await _extractsDbContext.AutomaticValidationSucceededAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, cancellationToken);
+                    await Ticketing.Pending(sqsLambdaRequest.TicketId, new TicketResult(new { Status = nameof(ExtractUploadStatus.AutomaticValidationSucceeded) }), cancellationToken);
+                }
+                else
+                {
+                    await _extractsDbContext.AutomaticValidationFailedAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, cancellationToken);
+                    await Ticketing.Error(sqsLambdaRequest.TicketId, ticketError, cancellationToken);
+
+                    queueItem.Completed = true;
+                    await _extractsDbContext.SaveChangesAsync(cancellationToken);
+                }
+            }
+
+            return new object();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Error while checking with datavalidation with download id {sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.DownloadId}");
+            throw;
+        }
     }
 }
