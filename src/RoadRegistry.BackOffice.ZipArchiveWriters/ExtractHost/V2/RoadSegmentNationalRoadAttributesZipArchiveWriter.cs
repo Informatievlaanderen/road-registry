@@ -30,9 +30,10 @@ public class RoadSegmentNationalRoadAttributesZipArchiveWriter : IZipArchiveWrit
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
-        var attributes = await zipArchiveDataProvider.GetRoadSegmentNationalRoadAttributes(
-            request.Contour,
-            cancellationToken);
+        var hasInwinningRoadSegments = await zipArchiveDataProvider.HasInwinningRoadSegment(request.Contour, cancellationToken);
+        var attributes = hasInwinningRoadSegments
+            ? []
+            : await zipArchiveDataProvider.GetRoadSegmentNationalRoadAttributes(request.Contour, cancellationToken);
 
         const ExtractFileName extractFilename = ExtractFileName.AttNationweg;
         FeatureType[] featureTypes = request.IsInformative
