@@ -321,7 +321,6 @@ public class Startup
             .AddSystemHealthChecks([
                 typeof(CommandHostSystemHealthCheck),
                 typeof(EventHostSystemHealthCheck),
-                typeof(ExtractHostSystemHealthCheck),
                 typeof(BackOfficeLambdaSystemHealthCheck),
                 typeof(SnapshotLambdaSystemHealthCheck),
             ])

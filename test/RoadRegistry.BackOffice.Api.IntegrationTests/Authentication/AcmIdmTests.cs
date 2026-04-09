@@ -29,9 +29,6 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             new(HttpMethod.Get, "v1/changefeed/next"),
             new(HttpMethod.Get, "v1/changefeed/previous"),
 
-            new(HttpMethod.Get, "v1/download/for-editor"),
-            new(HttpMethod.Get, "v1/download/for-product/{date}"),
-
             new(HttpMethod.Post, "v1/extracten/{downloadId}/sluit", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/extracten/{downloadId}/download", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/extracten/{downloadId}/upload", Scopes.DvWrIngemetenWegBeheer),
@@ -43,22 +40,6 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             new(HttpMethod.Post, "v1/extracten/downloadaanvragen/perniscode", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Post, "v1/extracten/overlapping/perniscode", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Post, "v1/extracten/overlapping/percontour", Scopes.DvWrIngemetenWegBeheer),
-
-            new(HttpMethod.Get, "v1/extracts/{downloadId}", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Put, "v1/extracts/{downloadId}/close", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Post, "v1/extracts/downloadrequests", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Post, "v1/extracts/downloadrequests/bycontour", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Post, "v1/extracts/downloadrequests/byfile", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Post, "v1/extracts/downloadrequests/byniscode", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Get, "v1/extracts/download/{downloadId}", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Get, "v1/extracts/download/{downloadId}/presignedurl", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Post, "v1/extracts/download/{downloadId}/uploads/fc", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Post, "v1/extracts/download/{downloadId}/jobs", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Get, "v1/extracts/upload/{uploadId}/status", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Get, "v1/extracts/overlappingtransactionzones.geojson"),
-            new(HttpMethod.Post, "v1/extracts/overlapping/byniscode", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Post, "v1/extracts/overlapping/bycontour", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Get, "v1/extracts/transactionzones.geojson"),
 
             new(HttpMethod.Get, "v1/information"),
             new(HttpMethod.Post, "v1/information/validate-wkt", Scopes.DvWrIngemetenWegBeheer),
@@ -85,18 +66,6 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             new(HttpMethod.Post, "v1/wegsegmenten/{id}/acties/straatnaamontkoppelen", Scopes.DvWrAttribuutWaardenBeheer),
             new(HttpMethod.Post, "v1/wegsegmenten/{id}/acties/verwijderen/schets", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v1/wegsegmenten/{id}/acties/wijzigen/schetsgeometrie", Scopes.DvWrGeschetsteWegBeheer),
-
-            new(HttpMethod.Post, "v1/upload/fc", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Get, "v1/upload/{identifier}", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Get, "v1/upload/{identifier}/presignedurl", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Post, "v1/upload/jobs", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Get, "v1/upload/jobs", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Get, "v1/upload/jobs/active", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Get, "v1/upload/jobs/{jobId}", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Delete, "v1/upload/jobs/{jobId}", Scopes.DvWrIngemetenWegBeheer),
-
-            new(HttpMethod.Post, "v1/grb/extracts/bycontour", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Post, "v1/grb/download/{downloadId}/upload", Scopes.DvWrIngemetenWegBeheer),
 
             new(HttpMethod.Post, "v1/inwinning/downloadaanvraag", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/inwinning/extracten", Scopes.DvWrIngemetenWegBeheer),

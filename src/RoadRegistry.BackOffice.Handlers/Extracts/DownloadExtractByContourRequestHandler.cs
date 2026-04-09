@@ -13,16 +13,13 @@ using RoadRegistry.Extracts;
 public class DownloadExtractByContourRequestHandler : ExtractRequestHandler<DownloadExtractByContourRequest, DownloadExtractByContourResponse>
 {
     private readonly WKTReader _reader;
-    private readonly UseExtractZipArchiveWriterV2FeatureToggle _useExtractZipArchiveWriterV2FeatureToggle;
 
     public DownloadExtractByContourRequestHandler(
         CommandHandlerDispatcher dispatcher,
         WKTReader reader,
-        UseExtractZipArchiveWriterV2FeatureToggle useExtractZipArchiveWriterV2FeatureToggle,
         ILogger<DownloadExtractByContourRequestHandler> logger) : base(dispatcher, logger)
     {
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
-        _useExtractZipArchiveWriterV2FeatureToggle = useExtractZipArchiveWriterV2FeatureToggle;
     }
 
     protected override async Task<DownloadExtractByContourResponse> HandleRequestAsync(DownloadExtractByContourRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
@@ -36,9 +33,7 @@ public class DownloadExtractByContourRequestHandler : ExtractRequestHandler<Down
             DownloadId = downloadId,
             Description = request.Description,
             IsInformative = request.IsInformative,
-            ZipArchiveWriterVersion = _useExtractZipArchiveWriterV2FeatureToggle.FeatureEnabled
-                ? WellKnownZipArchiveWriterVersions.DomainV1_2
-                : WellKnownZipArchiveWriterVersions.DomainV1_1
+            ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV1_2
         };
 
         var command = new Command(message).WithProvenanceData(request.ProvenanceData);
