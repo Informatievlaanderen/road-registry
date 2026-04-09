@@ -60,12 +60,20 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
 
     protected override async Task<object> InnerHandle(MigrateRoadNetworkSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
-        var changeResult = await Handle(sqsLambdaRequest.Request, cancellationToken);
-
-        return new ChangeRoadNetworkTicketResult
+        try
         {
-            Summary = new RoadNetworkChangedSummary(changeResult.Summary)
-        };
+            var changeResult = await Handle(sqsLambdaRequest.Request, cancellationToken);
+
+            return new ChangeRoadNetworkTicketResult
+            {
+                Summary = new RoadNetworkChangedSummary(changeResult.Summary)
+            };
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Error while migrating roadnetwork with download id {sqsLambdaRequest.Request.DownloadId}");
+            throw;
+        }
     }
 
     private async Task<RoadNetworkChangeResult> Handle(MigrateRoadNetworkSqsRequest command, CancellationToken cancellationToken)

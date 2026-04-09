@@ -525,7 +525,6 @@ public class RoadSegmentUnflattener
 
         if (!segment.Attributes.Geometry.GetSingleLineString().StartPoint.IsReasonablyEqualTo(wantedStartLocation, context.Tolerances))
         {
-            //TODO-pr segment is bij verkeerde node gestart, inverten en splitten adv de structurele node locatie
             var splitResult2 = SplitGeometryAtNode(segment, wantedStartLocation.Coordinate, roadSegmentIdProvider);
             return (splitResult2, ZipArchiveProblems.None);
         }
@@ -664,11 +663,6 @@ public class RoadSegmentUnflattener
             var flatFeatures = segment.FlatFeatures
                 .Where(x => x.Attributes.Geometry.CalculateOverlapPercentage(geometry, 0.001) >= 0.99)
                 .ToList();
-
-            if (!flatFeatures.Any())
-            {
-                //TODO-pr temp
-            }
 
             var roadSegmentId = flatFeatures
                 .Where(x => excludeId is null || x.Attributes.RoadSegmentId != excludeId)
