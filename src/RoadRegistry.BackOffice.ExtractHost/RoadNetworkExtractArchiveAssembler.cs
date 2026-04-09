@@ -33,17 +33,6 @@ public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAsse
 
     public async Task<MemoryStream> AssembleArchive(RoadNetworkExtractAssemblyRequest request, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(request);
-
-        var stream = _manager.GetStream();
-        await using var context = _contextFactory();
-
-        await using var tr = await context.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
-
-        using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
-        var writer = _writerFactory.Create(request.ZipArchiveWriterVersion);
-        await writer.WriteAsync(archive, request, new ZipArchiveDataProvider(context), cancellationToken);
-
-        return stream;
+        throw new NotSupportedException();
     }
 }

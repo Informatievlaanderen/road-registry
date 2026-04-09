@@ -78,6 +78,25 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
         return downloadIds;
     }
 
+    public async Task<bool> HasInwinningRoadSegments(IEnumerable<RoadSegmentId> roadSegmentIds, CancellationToken cancellationToken)
+    {
+        const int batchSize = 2000; // SQL Server handles ~2100 params well
+        var segmentIdsList = roadSegmentIds.ToList();
+
+        for (var i = 0; i < segmentIdsList.Count; i += batchSize)
+        {
+            var batch = segmentIdsList.Skip(i).Take(batchSize).Select(x => x.ToInt32());
+            var hasInwinning = await InwinningRoadSegments
+                .AnyAsync(x => batch.Contains(x.RoadSegmentId), cancellationToken: cancellationToken);
+            if (hasInwinning)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public async Task UploadAcceptedAsync(UploadId uploadId, CancellationToken cancellationToken)
     {
         await UpdateExtractUpload(uploadId, async record =>

@@ -29,9 +29,10 @@ public class RoadSegmentWidthAttributesZipArchiveWriter : IZipArchiveWriter
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
-        var attributes = await zipArchiveDataProvider.GetRoadSegmentWidthAttributes(
-            request.Contour,
-            cancellationToken);
+        var hasInwinningRoadSegments = await zipArchiveDataProvider.HasInwinningRoadSegment(request.Contour, cancellationToken);
+        var attributes = hasInwinningRoadSegments
+            ? []
+            : await zipArchiveDataProvider.GetRoadSegmentWidthAttributes(request.Contour, cancellationToken);
 
         const ExtractFileName extractFilename = ExtractFileName.AttWegbreedte;
         FeatureType[] featureTypes = request.IsInformative

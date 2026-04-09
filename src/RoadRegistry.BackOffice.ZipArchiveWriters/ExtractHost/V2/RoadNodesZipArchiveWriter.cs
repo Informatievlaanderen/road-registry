@@ -31,7 +31,10 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
-        var nodes = await zipArchiveDataProvider.GetRoadNodes(request.Contour, cancellationToken);
+        var hasInwinningRoadSegments = await zipArchiveDataProvider.HasInwinningRoadSegment(request.Contour, cancellationToken);
+        var nodes = hasInwinningRoadSegments
+            ? []
+            : await zipArchiveDataProvider.GetRoadNodes(request.Contour, cancellationToken);
 
         const ExtractFileName extractFilename = ExtractFileName.Wegknoop;
         FeatureType[] featureTypes = request.IsInformative

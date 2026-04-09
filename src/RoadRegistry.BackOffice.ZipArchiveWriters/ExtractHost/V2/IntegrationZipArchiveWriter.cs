@@ -20,7 +20,6 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
     private readonly Encoding _encoding;
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly IStreetNameCache _streetNameCache;
-
     private const int IntegrationBufferInMeters = 350;
 
     public IntegrationZipArchiveWriter(
@@ -54,9 +53,16 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
         var integrationSegments = new List<RoadSegmentRecord>();
         var integrationNodes = new List<RoadNodeRecord>();
 
+        var hasInwinningRoadSegments = await zipArchiveDataProvider.HasInwinningRoadSegment(request.Contour, cancellationToken);
+        if (hasInwinningRoadSegments)
+        {
+            segmentsInContour = [];
+            nodesInContour = [];
+        }
+
         if (integrationBufferedSegmentsGeometries.Any())
         {
-            var integrationBufferedContourGeometry =  (IPolygonal)WellKnownGeometryFactories.Lambert72
+            var integrationBufferedContourGeometry = (IPolygonal)WellKnownGeometryFactories.Lambert72
                 .BuildGeometry(integrationBufferedSegmentsGeometries)
                 .ConvexHull();
 

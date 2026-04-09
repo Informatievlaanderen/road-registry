@@ -8,10 +8,14 @@
     using Extensions;
     using Microsoft.EntityFrameworkCore;
     using NetTopologySuite.Geometries;
+    using RoadRegistry.Extensions;
+    using RoadRegistry.Extracts.Schema;
     using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
 
     public interface IZipArchiveDataProvider
     {
+        Task<bool> HasInwinningRoadSegment(IPolygonal contour, CancellationToken cancellationToken);
+
         Task<IReadOnlyList<RoadNodeRecord>> GetRoadNodes(
             IPolygonal contour,
             CancellationToken cancellationToken);
@@ -55,10 +59,30 @@
     public class ZipArchiveDataProvider : IZipArchiveDataProvider
     {
         private readonly EditorContext _editorContext;
+        private readonly ExtractsDbContext _extractsDbContext;
+        private readonly Dictionary<IPolygonal, bool> _hasInwinningRoadSegmentCache = new();
+        private readonly Dictionary<IPolygonal, IReadOnlyList<RoadSegmentRecord>> _getRoadSegmentCache = new();
 
-        public ZipArchiveDataProvider(EditorContext editorContext)
+        public ZipArchiveDataProvider(EditorContext editorContext, ExtractsDbContext extractsDbContext)
         {
-            _editorContext = editorContext;
+            _editorContext = editorContext.ThrowIfNull();
+            _extractsDbContext = extractsDbContext.ThrowIfNull();
+        }
+
+        public async Task<bool> HasInwinningRoadSegment(IPolygonal contour, CancellationToken cancellationToken)
+        {
+            if (_hasInwinningRoadSegmentCache.TryGetValue(contour, out var hasInwinning))
+            {
+                return hasInwinning;
+            }
+
+            var segments = await GetRoadSegments(
+                contour, cancellationToken);
+
+            hasInwinning = await _extractsDbContext.HasInwinningRoadSegments(segments.Select(x => new RoadSegmentId(x.Id)), cancellationToken);
+            _hasInwinningRoadSegmentCache[contour] = hasInwinning;
+
+            return hasInwinning;
         }
 
         public async Task<IReadOnlyList<RoadNodeRecord>> GetRoadNodes(
@@ -76,11 +100,18 @@
             IPolygonal contour,
             CancellationToken cancellationToken)
         {
-            return await _editorContext.RoadSegments
+            if (_getRoadSegmentCache.TryGetValue(contour, out var roadSegments))
+            {
+                return roadSegments;
+            }
+
+            roadSegments = await _editorContext.RoadSegments
                 .ToListWithPolygonials(contour,
                     (dbSet, polygon) => dbSet.InsideContour(polygon),
                     x => x.Id,
                     cancellationToken);
+            _getRoadSegmentCache[contour] = roadSegments;
+            return roadSegments;
         }
 
         public async Task<IReadOnlyList<GradeSeparatedJunctionRecord>> GetGradeSeparatedJunctions(

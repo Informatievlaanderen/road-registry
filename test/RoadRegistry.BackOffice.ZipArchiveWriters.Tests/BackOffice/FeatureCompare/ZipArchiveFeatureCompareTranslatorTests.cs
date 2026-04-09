@@ -24,6 +24,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
     using RoadRegistry.BackOffice.FeatureCompare.V1.Readers;
     using RoadRegistry.Extensions;
     using RoadRegistry.Extracts;
+    using RoadRegistry.Extracts.Schema;
     using RoadRegistry.Extracts.Uploads;
     using RoadRegistry.Extracts.ZipArchiveWriters;
     using RoadRegistry.Tests.BackOffice.Scenarios;
@@ -249,11 +250,12 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                         .UseSqlServer(connectionString, options =>
                             options.UseNetTopologySuite()
                         ).Options);
+                    var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
 
                     {
                         sw.Restart();
                         using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
-                        await writer.Value.WriteAsync(archive, request, new ZipArchiveDataProvider(context), CancellationToken.None);
+                        await writer.Value.WriteAsync(archive, request, new ZipArchiveDataProvider(context, extractsDbContext), CancellationToken.None);
                         _outputHelper.WriteLine($"{zipArchiveWriterVersion} ZArchiveWriter: {sw.Elapsed}");
                     }
 

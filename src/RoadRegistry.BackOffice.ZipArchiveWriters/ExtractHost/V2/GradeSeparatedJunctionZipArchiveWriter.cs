@@ -29,8 +29,10 @@ public class GradeSeparatedJunctionZipArchiveWriter : IZipArchiveWriter
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
-        var junctions = await zipArchiveDataProvider.GetGradeSeparatedJunctions(
-            request.Contour, cancellationToken);
+        var hasInwinningRoadSegments = await zipArchiveDataProvider.HasInwinningRoadSegment(request.Contour, cancellationToken);
+        var junctions = hasInwinningRoadSegments
+            ? []
+            : await zipArchiveDataProvider.GetGradeSeparatedJunctions(request.Contour, cancellationToken);
 
         const ExtractFileName extractFilename = ExtractFileName.RltOgkruising;
         FeatureType[] featureTypes = request.IsInformative

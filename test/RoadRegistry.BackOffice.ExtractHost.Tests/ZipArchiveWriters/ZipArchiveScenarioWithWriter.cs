@@ -32,6 +32,6 @@ public class ZipArchiveScenarioWithWriter : ZipArchiveScenario
 
     protected override Task Write(ZipArchive archive, CancellationToken ct)
     {
-        return _writer.WriteAsync(archive, _request, new ZipArchiveDataProvider(_context), ct);
+        return _writer.WriteAsync(archive, _request, new ZipArchiveDataProvider(_context, null), ct);
     }
 }

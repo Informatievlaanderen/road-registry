@@ -15,6 +15,7 @@ using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schema;
 using SqlStreamStore;
 
 public class RoadNetworkExtractArchiveAssemblerForDomainV1
@@ -22,12 +23,14 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV1
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly Func<EditorContext> _contextFactory;
     private readonly IZipArchiveWriterFactory _writerFactory;
+    private readonly ExtractsDbContext _extractsDbContext;
     private readonly IStreamStore _streamStore;
     private readonly ILogger _logger;
 
     public RoadNetworkExtractArchiveAssemblerForDomainV1(
         RecyclableMemoryStreamManager manager,
         Func<EditorContext> contextFactory,
+        ExtractsDbContext extractsDbContext,
         IZipArchiveWriterFactory writerFactory,
         IStreamStore streamStore,
         ILoggerFactory loggerFactory)
@@ -35,7 +38,8 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV1
         _manager = manager.ThrowIfNull();
         _contextFactory = contextFactory.ThrowIfNull();
         _writerFactory = writerFactory.ThrowIfNull();
-        _streamStore = streamStore;
+        _extractsDbContext = extractsDbContext.ThrowIfNull();
+        _streamStore = streamStore.ThrowIfNull();
         _logger = loggerFactory.CreateLogger(GetType());
     }
 
@@ -56,7 +60,8 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV1
 
         using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
         var writer = _writerFactory.Create(request.ZipArchiveWriterVersion);
-        await writer.WriteAsync(archive, request, new ZipArchiveDataProvider(context), cancellationToken);
+
+        await writer.WriteAsync(archive, request, new ZipArchiveDataProvider(context, _extractsDbContext), cancellationToken);
 
         return stream;
     }
