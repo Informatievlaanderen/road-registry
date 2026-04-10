@@ -1,13 +1,11 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
-using System.Collections.Generic;
 using System.Linq;
 using Extensions;
 using NetTopologySuite.Geometries;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
-using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
 
 public partial class RoadSegment
@@ -17,7 +15,7 @@ public partial class RoadSegment
         var idReference = context.IdTranslator.TranslateToTemporaryId(RoadSegmentId);
         var problems = Problems.WithContext(idReference);
 
-        if (IsRemoved || Attributes.Status != RoadSegmentStatusV2.Gerealiseerd)
+        if (IsRemoved || Attributes?.Status != RoadSegmentStatusV2.Gerealiseerd)
         {
             return problems;
         }
@@ -80,7 +78,7 @@ public partial class RoadSegment
             return (false, false, false);
         }
 
-        var carAccess = GetAttributeValueAtPosition(segment.Attributes.CarAccessForward, positionAlongLine.Value, tolerances)
+        var carAccess = GetAttributeValueAtPosition(segment.Attributes!.CarAccessForward, positionAlongLine.Value, tolerances)
                         || GetAttributeValueAtPosition(segment.Attributes.CarAccessBackward, positionAlongLine.Value, tolerances);
         var bikeAccess = GetAttributeValueAtPosition(segment.Attributes.BikeAccessForward, positionAlongLine.Value, tolerances)
                          || GetAttributeValueAtPosition(segment.Attributes.BikeAccessBackward, positionAlongLine.Value, tolerances);

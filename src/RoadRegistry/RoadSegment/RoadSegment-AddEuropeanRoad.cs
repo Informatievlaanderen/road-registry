@@ -11,7 +11,7 @@ public partial class RoadSegment
     {
         var problems = Problems.WithContext(RoadSegmentId);
 
-        if (!Attributes.EuropeanRoadNumbers.Contains(change.Number))
+        if (!Attributes!.EuropeanRoadNumbers.Contains(change.Number))
         {
             Apply(new RoadSegmentWasAddedToEuropeanRoad
             {

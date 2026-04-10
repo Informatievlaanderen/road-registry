@@ -104,7 +104,7 @@ public partial class ScopedRoadNetwork
     {
         // Get all "gerealiseerde" segments for comparison
         var allGerealiseerdeSegments = GetNonRemovedRoadSegments()
-            .Where(x => x.Attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
+            .Where(x => x.Attributes?.Status == RoadSegmentStatusV2.Gerealiseerd)
             .ToArray();
 
         // Get all "gerealiseerde" segments that have changes

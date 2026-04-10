@@ -17,7 +17,7 @@ public partial class RoadNode
         var problems = Problems.WithContext(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
 
         var segments = context.RoadNetwork.GetNonRemovedRoadSegments()
-            .Where(x => x.StartNodeId == RoadNodeId || x.EndNodeId == RoadNodeId)
+            .Where(x => x.Attributes is not null && (x.StartNodeId == RoadNodeId || x.EndNodeId == RoadNodeId))
             .ToList();
 
         if (IsRemoved)
@@ -43,12 +43,12 @@ public partial class RoadNode
                 current.Add(new RoadNodeTooClose()
                     .WithContext(ProblemContext.For(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId)))));
 
-        problems += ValidateTypeAndChangeIfNeeded(context, segments, context.Provenance);
+        problems += ValidateTypeAndChangeIfNeeded(segments, context.Provenance);
 
         return problems;
     }
 
-    private Problems ValidateTypeAndChangeIfNeeded(ScopedRoadNetworkContext context, List<RoadSegment> segments, Provenance provenance)
+    private Problems ValidateTypeAndChangeIfNeeded(List<RoadSegment> segments, Provenance provenance)
     {
         var problems = Problems.None;
 
@@ -70,7 +70,7 @@ public partial class RoadNode
             var segment1 = segments[0];
             var segment2 = segments[1];
 
-            if (Grensknoop || !segment1.Attributes.Equals(segment2.Attributes))
+            if (Grensknoop || !segment1.Attributes!.Equals(segment2.Attributes))
             {
                 // Must be schijnknoop
                 if (Type != RoadNodeTypeV2.Schijnknoop)

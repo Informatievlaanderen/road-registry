@@ -328,7 +328,7 @@ public partial class ScopedRoadNetwork
         var problems = Problems.None;
 
         var roadSegment = _roadSegments[roadSegmentId];
-        if (roadSegment.IsRemoved || roadSegment.Attributes.Status != RoadSegmentStatusV2.Gerealiseerd)
+        if (roadSegment.IsRemoved || roadSegment.Attributes?.Status != RoadSegmentStatusV2.Gerealiseerd)
         {
             var linkedGradeJunctions = _gradeJunctions
                 .Where(x => !x.Value.IsRemoved && x.Value.IsConnectedTo(roadSegmentId))
