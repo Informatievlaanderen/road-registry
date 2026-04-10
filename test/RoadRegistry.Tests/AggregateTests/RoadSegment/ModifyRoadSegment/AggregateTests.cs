@@ -5,6 +5,7 @@ using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.Extensions;
+using RoadRegistry.RoadNetwork.Schema;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Changes;
@@ -80,7 +81,7 @@ public class AggregateTests : AggregateTestBase
             Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates().ToRoadSegmentGeometry()
         };
 
-        var roadNetwork = new RoadNetworkBuilder(new FakeRoadNetworkIdGenerator()).Build();
+        var roadNetwork = new RoadNetworkBuilder(new InMemoryRoadNetworkIdGenerator()).Build();
         var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
         // Act

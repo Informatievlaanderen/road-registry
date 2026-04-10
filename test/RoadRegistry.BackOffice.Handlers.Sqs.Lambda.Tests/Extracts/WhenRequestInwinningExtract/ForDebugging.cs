@@ -21,6 +21,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestInwinningExtrac
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.ZipArchiveWriters;
@@ -29,6 +30,7 @@ using RoadRegistry.Hosts;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.Infrastructure.MartenDb.Store;
+using RoadRegistry.RoadNetwork.Schema;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
@@ -93,6 +95,7 @@ public class ForDebugging
                 new RoadNetworkExtractDownloadsBlobClient(Mock.Of<IBlobClient>()),
                 new RoadNetworkExtractArchiveAssembler(sp),
                 new NullLoggerFactory()),
+            new RoadSegmentFeatureCompareFeatureReader(FileEncoding.UTF8),
             new NullLoggerFactory()
         );
 
@@ -135,7 +138,7 @@ public class ForDebugging
 
         services
             .AddMartenRoad(options => { options.ConfigureExtractDocuments(); }).Services
-            .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
+            .AddSingleton<IRoadNetworkIdGenerator>(new InMemoryRoadNetworkIdGenerator())
             .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
             .AddEditorContext();
 

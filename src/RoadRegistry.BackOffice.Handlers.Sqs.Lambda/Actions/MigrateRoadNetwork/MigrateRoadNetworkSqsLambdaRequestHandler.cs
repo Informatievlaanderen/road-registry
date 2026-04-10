@@ -8,12 +8,10 @@ using ChangeRoadNetwork;
 using Exceptions;
 using Hosts;
 using Infrastructure;
-using Marten;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
 using RoadRegistry.Extracts.Schema;
-using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.Events.V2;
@@ -23,10 +21,9 @@ using ValueObjects.Problems;
 
 public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<MigrateRoadNetworkSqsLambdaRequest>
 {
-    private readonly IDocumentStore _store;
+    private readonly Marten.IDocumentStore _store;
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
-    private readonly IExtractRequests _extractRequests;
     private readonly ExtractsDbContext _extractsDbContext;
 
     public MigrateRoadNetworkSqsLambdaRequestHandler(
@@ -35,10 +32,9 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        IDocumentStore store,
+        Marten.IDocumentStore store,
         IRoadNetworkRepository roadNetworkRepository,
         IRoadNetworkIdGenerator roadNetworkIdGenerator,
-        IExtractRequests extractRequests,
         ExtractsDbContext extractsDbContext,
         ILoggerFactory loggerFactory)
         : base(
@@ -54,7 +50,6 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
         _store = store;
         _roadNetworkRepository = roadNetworkRepository;
         _roadNetworkIdGenerator = roadNetworkIdGenerator;
-        _extractRequests = extractRequests;
         _extractsDbContext = extractsDbContext;
     }
 
@@ -86,8 +81,8 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
             ? await ChangeRoadNetwork(command, roadNetwork, roadNetworkChanges, cancellationToken)
             : new RoadNetworkChangeResult(Problems.None, roadNetwork.SummaryOfLastChange);
 
-        await _extractRequests.UploadAcceptedAsync(command.UploadId, cancellationToken);
-        await CompleteInwinningszone(command.DownloadId, cancellationToken);
+        await _extractsDbContext.UploadAcceptedAsync(command.UploadId, cancellationToken);
+        await CompleteInwinningStatuses(command.DownloadId, changeResult, cancellationToken);
 
         return changeResult;
     }
@@ -97,7 +92,7 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
         var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator);
         if (changeResult.Problems.HasError())
         {
-            await _extractRequests.AutomaticValidationFailedAsync(command.UploadId, cancellationToken);
+            await _extractsDbContext.AutomaticValidationFailedAsync(command.UploadId, cancellationToken);
 
             throw new RoadRegistryProblemsException(changeResult.Problems);
         }
@@ -124,11 +119,26 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
         );
     }
 
-    private async Task CompleteInwinningszone(DownloadId downloadId, CancellationToken cancellationToken)
+    private async Task CompleteInwinningStatuses(DownloadId downloadId, RoadNetworkChangeResult changeResult, CancellationToken cancellationToken)
     {
-        var inwinningszone = await EntityFrameworkQueryableExtensions.SingleAsync(_extractsDbContext.Inwinningszones, x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
-
+        var inwinningszone = await _extractsDbContext.Inwinningszones.SingleAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
         inwinningszone.Completed = true;
+
+        var inwinningRoadSegments = await _extractsDbContext.InwinningRoadSegments
+            .Where(x => x.NisCode == inwinningszone.NisCode)
+            .ToListAsync(cancellationToken);
+        foreach (var inwinningRoadSegment in inwinningRoadSegments)
+        {
+            inwinningRoadSegment.Completed = true;
+        }
+
+        _extractsDbContext.InwinningRoadSegments.AddRange(changeResult.Summary.RoadSegments.Added.Select(roadSegmentId => new InwinningRoadSegment
+        {
+            NisCode = inwinningszone.NisCode,
+            RoadSegmentId = roadSegmentId,
+            Completed = true
+        }));
+
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
     }
 }

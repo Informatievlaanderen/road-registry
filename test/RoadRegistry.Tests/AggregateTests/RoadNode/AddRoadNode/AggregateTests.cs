@@ -4,6 +4,7 @@ using AutoFixture;
 using Extensions;
 using FluentAssertions;
 using Framework;
+using RoadRegistry.RoadNetwork.Schema;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadNode.Events;
@@ -19,7 +20,7 @@ public class AggregateTests : AggregateTestBase
         var change = Fixture.Create<AddRoadNodeChange>();
 
         // Act
-        var (node, problems) = RoadNode.Add(change, new FakeProvenance(), new FakeRoadNetworkIdGenerator());
+        var (node, problems) = RoadNode.Add(change, new FakeProvenance(), new InMemoryRoadNetworkIdGenerator());
 
         // Assert
         problems.Should().HaveNoError();

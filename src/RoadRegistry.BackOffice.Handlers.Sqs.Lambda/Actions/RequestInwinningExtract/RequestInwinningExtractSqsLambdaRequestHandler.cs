@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestInwinningExtract;
 
+using System.IO.Compression;
+using System.Text;
 using Abstractions.Extracts.V2;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -10,13 +12,17 @@ using Infrastructure;
 using Microsoft.Extensions.Logging;
 using RequestExtract;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Extracts.Uploads;
 using TicketingService.Abstractions;
 
 public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHandler<RequestInwinningExtractSqsLambdaRequest>
 {
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly ExtractRequester _extractRequester;
+    private readonly RoadSegmentFeatureCompareFeatureReader _roadSegmentFeatureCompareFeatureReader;
 
     public RequestInwinningExtractSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -26,6 +32,7 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
         IRoadRegistryContext roadRegistryContext,
         ExtractsDbContext extractsDbContext,
         ExtractRequester extractRequester,
+        RoadSegmentFeatureCompareFeatureReader roadSegmentFeatureCompareFeatureReader,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -37,6 +44,7 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
     {
         _extractsDbContext = extractsDbContext;
         _extractRequester = extractRequester;
+        _roadSegmentFeatureCompareFeatureReader = roadSegmentFeatureCompareFeatureReader;
     }
 
     protected override async Task<object> InnerHandle(RequestInwinningExtractSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -91,7 +99,26 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
                 ),
                 new TicketId(request.TicketId),
                 WellKnownZipArchiveWriterVersions.DomainV2_Inwinning,
-                request.Provenance, cancellationToken);
+                request.Provenance,
+                onArchiveBuilt: archiveStream =>
+                {
+                    if (archiveStream.Length > 0)
+                    {
+                        using var archive = new ZipArchive(archiveStream, ZipArchiveMode.Read, true, Encoding.UTF8);
+
+                        var (roadSegments, _) = _roadSegmentFeatureCompareFeatureReader.Read(archive, FeatureType.Extract, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+                        _extractsDbContext.InwinningRoadSegments.AddRange(roadSegments
+                            .Select(x => x.Attributes.RoadSegmentId.Value)
+                            .Distinct()
+                            .Select(roadSegmentId => new InwinningRoadSegment
+                            {
+                                NisCode = niscode,
+                                RoadSegmentId = roadSegmentId,
+                                Completed = false
+                            }));
+                    }
+                },
+                cancellationToken);
 
             var downloadId = new DownloadId(request.Request.DownloadId);
             return new RequestExtractResponse(downloadId);

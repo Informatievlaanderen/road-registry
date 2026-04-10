@@ -32,7 +32,13 @@ public class ExtractRequester
         _logger = loggerFactory.CreateLogger<ExtractRequester>();
     }
 
-    public async Task BuildExtract(RequestExtractData request, TicketId ticketId, string zipArchiveWriterVersion, Provenance provenance, CancellationToken cancellationToken)
+    public async Task BuildExtract(
+        RequestExtractData request,
+        TicketId ticketId,
+        string zipArchiveWriterVersion,
+        Provenance provenance,
+        Action<MemoryStream>? onArchiveBuilt,
+        CancellationToken cancellationToken)
     {
         _logger.LogInformation("Building extract for ZipArchiveWriterVersion '{ZipArchiveWriterVersion}'", zipArchiveWriterVersion);
 
@@ -61,7 +67,7 @@ public class ExtractRequester
             var existingOpenDownloads = await _extractsDbContext.ExtractDownloads
                 .Where(x => x.ExtractRequestId == extractRequestId && x.Closed == false && x.DownloadId != downloadId.ToGuid())
                 .ToListAsync(cancellationToken);
-            foreach(var existingOpenDownload in existingOpenDownloads)
+            foreach (var existingOpenDownload in existingOpenDownloads)
             {
                 existingOpenDownload.Close();
             }
@@ -91,7 +97,12 @@ public class ExtractRequester
 
         try
         {
-            await BuildArchive(extractRequest, extractDownload, cancellationToken);
+            await using var archiveStream = await BuildArchive(extractRequest, extractDownload, cancellationToken);
+            if (onArchiveBuilt is not null)
+            {
+                archiveStream.Position = 0;
+                onArchiveBuilt(archiveStream);
+            }
 
             if (isInformative)
             {
@@ -111,7 +122,7 @@ public class ExtractRequester
         }
     }
 
-    private async Task BuildArchive(
+    private async Task<MemoryStream> BuildArchive(
         ExtractRequest extractRequest,
         ExtractDownload extractDownload,
         CancellationToken ct)
@@ -128,7 +139,7 @@ public class ExtractRequester
         try
         {
             _logger.LogInformation("Starting AssembleArchive on type '{AssemblerType}' for ZipArchiveWriterVersion '{ZipArchiveWriterVersion}'", _assembler.GetType().FullName, request.ZipArchiveWriterVersion);
-            using var content = await _assembler.AssembleArchive(request, ct);
+            var content = await _assembler.AssembleArchive(request, ct);
             content.Position = 0L;
 
             await _downloadsBlobClient.CreateBlobAsync(
@@ -137,6 +148,8 @@ public class ExtractRequester
                 ContentType.Parse("application/x-zip-compressed"),
                 content,
                 ct);
+
+            return content;
         }
         catch (SqlException ex) when (ex.Number.Equals(-2))
         {
