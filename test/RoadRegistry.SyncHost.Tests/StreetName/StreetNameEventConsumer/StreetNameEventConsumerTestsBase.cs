@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
 using NodaTime.Testing;
 using RoadNetwork;
+using RoadRegistry.RoadNetwork.Schema;
 using ScopedRoadNetwork;
 using SqlStreamStore;
 using Sync.StreetNameRegistry;
@@ -31,7 +32,7 @@ public class StreetNameEventConsumerTestsBase
         containerBuilder.Register(_ => new ConfigurationBuilder().Build()).As<IConfiguration>();
         containerBuilder.Register(_ => new LoggerFactory()).As<ILoggerFactory>();
         containerBuilder
-            .Register(c => new FakeRoadNetworkIdGenerator())
+            .Register(c => new InMemoryRoadNetworkIdGenerator())
             .As<IRoadNetworkIdGenerator>()
             .SingleInstance();
 

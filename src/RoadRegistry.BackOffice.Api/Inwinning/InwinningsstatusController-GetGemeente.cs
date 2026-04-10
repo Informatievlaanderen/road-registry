@@ -14,6 +14,7 @@ using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Sync.MunicipalityRegistry;
 using RoadRegistry.Sync.MunicipalityRegistry.Models;
 using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
 
 public partial class InwinningsstatusController
 {
@@ -146,4 +147,51 @@ public class GemeenteInwinningsstatusExtractHistoriekItem
 {
     public string Status { get; init; }
     public DateTimeOffset Datum { get; init; }
+}
+
+public class GemeenteInwinningsstatusResponseExamples : IExamplesProvider<GemeenteInwinningsstatus>
+{
+    public GemeenteInwinningsstatus GetExamples()
+    {
+        var startDatum = DateTimeOffset.UtcNow.AddDays(-1);
+
+        return new GemeenteInwinningsstatus
+        {
+            Inwinningsstatus = Inwinningsstatus.Locked.ToDutchString(),
+            HistoriekExtracten = [
+                new GemeenteInwinningsstatusExtract
+                {
+                    DownloadId = "a4c19f2ce7f242f8908c918d0aaaca23",
+                    Historiek =
+                    [
+                        new GemeenteInwinningsstatusExtractHistoriekItem
+                        {
+                            Status = "beschikbaar",
+                            Datum = startDatum
+                        },
+                        new GemeenteInwinningsstatusExtractHistoriekItem
+                        {
+                            Status = "verworpen",
+                            Datum = startDatum.AddHours(1)
+                        },
+                        new GemeenteInwinningsstatusExtractHistoriekItem
+                        {
+                            Status = "automatische controles geslaagd",
+                            Datum = startDatum.AddHours(2)
+                        },
+                        new GemeenteInwinningsstatusExtractHistoriekItem
+                        {
+                            Status = "goedgekeurd",
+                            Datum = startDatum.AddHours(2).AddMinutes(30)
+                        },
+                        new GemeenteInwinningsstatusExtractHistoriekItem
+                        {
+                            Status = "gesloten",
+                            Datum = startDatum.AddHours(2).AddMinutes(31)
+                        }
+                    ]
+                }
+            ]
+        };
+    }
 }

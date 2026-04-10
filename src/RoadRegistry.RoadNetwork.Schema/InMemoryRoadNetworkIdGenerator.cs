@@ -1,15 +1,19 @@
-namespace RoadRegistry.Tests
+namespace RoadRegistry.RoadNetwork.Schema
 {
     using System.Runtime.CompilerServices;
-    using RoadNetwork;
-        using RoadRegistry.BackOffice;
-    using RoadRegistry.BackOffice.Core;
     using RoadRegistry.BackOffice.Messages;
-    using ScopedRoadNetwork;
+    using RoadRegistry.ScopedRoadNetwork;
+    using RoadRegistry.ValueObjects;
 
-    public class FakeRoadNetworkIdGenerator: IRoadNetworkIdGenerator
+    public class InMemoryRoadNetworkIdGenerator: IRoadNetworkIdGenerator
     {
+        private readonly int _initialValue;
         private readonly Dictionary<string, int> _idCounters = new();
+
+        public InMemoryRoadNetworkIdGenerator(int initialValue = 1)
+        {
+            _initialValue = initialValue;
+        }
 
         private int GetNextValue([CallerMemberName] string name = "")
         {
@@ -33,7 +37,7 @@ namespace RoadRegistry.Tests
 
         private void InitializeIdCounter(string name)
         {
-            _idCounters.TryAdd(name, 0);
+            _idCounters.TryAdd(name, _initialValue - 1);
         }
 
         private void SetNextValueIfGreaterThanCurrent(string name, int value)
@@ -144,7 +148,7 @@ namespace RoadRegistry.Tests
             return Task.FromResult(new TransactionId(GetNextValue()));
         }
 
-        internal void SeedEvents(ICollection<object> events)
+        public void SeedEvents(ICollection<object> events)
         {
             var givenTransactionIds = events
                 .OfType<IHaveTransactionId>()

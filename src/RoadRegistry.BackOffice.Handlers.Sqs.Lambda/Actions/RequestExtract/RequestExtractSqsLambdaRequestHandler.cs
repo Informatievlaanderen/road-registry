@@ -39,7 +39,9 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
                 new RequestExtractData(request.Request.ExtractRequestId, request.Request.DownloadId, request.Request.Contour.Value, request.Request.Description, request.Request.IsInformative, request.Request.ExternalRequestId),
                 new TicketId(request.TicketId),
                 request.Request.ZipArchiveWriterVersion,
-                request.Provenance, cancellationToken);
+                request.Provenance,
+                null,
+                cancellationToken);
         }
         catch (Exception ex)
         {

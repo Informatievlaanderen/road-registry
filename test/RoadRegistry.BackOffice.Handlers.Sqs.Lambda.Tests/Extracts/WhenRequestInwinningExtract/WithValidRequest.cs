@@ -11,6 +11,7 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 using Xunit.Abstractions;
 
 public class WithValidRequest : WhenRequestInwinningExtractTestBase
@@ -36,8 +37,13 @@ public class WithValidRequest : WhenRequestInwinningExtractTestBase
 
         var blobClientMock = new Mock<IBlobClient>();
 
+        var archiveAssemblerMock = new Mock<IRoadNetworkExtractArchiveAssembler>();
+        archiveAssemblerMock
+            .Setup(x => x.AssembleArchive(It.IsAny<RoadNetworkExtractAssemblyRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new DomainV2ZipArchiveBuilder().BuildArchiveStream());
+
         // Act
-        var sqsRequest = await HandleRequest(request, nisCode: nisCode, blobClient: blobClientMock.Object);
+        var sqsRequest = await HandleRequest(request, nisCode: nisCode, blobClient: blobClientMock.Object, archiveAssembler: archiveAssemblerMock.Object);
 
         // Assert
         VerifyThatTicketHasCompleted(new RequestExtractResponse(downloadId));
@@ -57,11 +63,15 @@ public class WithValidRequest : WhenRequestInwinningExtractTestBase
         extractDownload.IsInformative.Should().Be(request.IsInformative);
 
         blobClientMock.Verify(x => x.CreateBlobAsync(
-            new BlobName(downloadId),
+            new BlobName(downloadId.ToString()),
             Metadata.None,
             ContentType.Parse("application/x-zip-compressed"),
             It.IsAny<Stream>(),
             It.IsAny<CancellationToken>()));
+
+        var inwinningRoadSegments = ExtractsDbContext.InwinningRoadSegments.Where(x => x.NisCode == nisCode).ToList();
+        inwinningRoadSegments.Should().NotBeEmpty();
+        inwinningRoadSegments.All(x => !x.Completed).Should().BeTrue();
     }
 
     [Fact]

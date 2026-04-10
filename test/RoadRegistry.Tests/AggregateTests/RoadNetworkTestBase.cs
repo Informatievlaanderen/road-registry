@@ -2,6 +2,7 @@
 
 using Framework;
 using RoadRegistry.RoadNetwork;
+using RoadRegistry.RoadNetwork.Schema;
 using ScopedRoadNetwork;
 
 public abstract class RoadNetworkTestBase : AggregateTestBase
@@ -10,7 +11,7 @@ public abstract class RoadNetworkTestBase : AggregateTestBase
 
     protected RoadNetworkTestBase()
     {
-        _roadNetworkIdGenerator = new FakeRoadNetworkIdGenerator();
+        _roadNetworkIdGenerator = new InMemoryRoadNetworkIdGenerator();
     }
 
     protected Task Run(Func<Scenario, IExpectEventsScenarioBuilder> builder)

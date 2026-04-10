@@ -7,6 +7,7 @@ using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.RoadNetwork;
+using RoadRegistry.RoadNetwork.Schema;
 
 public class AggregateTests : AggregateTestBase
 {
@@ -17,7 +18,7 @@ public class AggregateTests : AggregateTestBase
         var change = Fixture.Create<AddGradeSeparatedJunctionChange>();
 
         // Act
-        var (junction, problems) = GradeSeparatedJunction.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator());
+        var (junction, problems) = GradeSeparatedJunction.Add(change, TestData.Provenance, new InMemoryRoadNetworkIdGenerator());
 
         // Assert
         problems.Should().HaveNoError();
