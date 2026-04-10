@@ -14,7 +14,7 @@ using FileProblem = Messages.FileProblem;
 public sealed class DefaultFileProblemTranslator : FileProblemTranslator
 {
     public DefaultFileProblemTranslator()
-        : base(WellKnownProblemTranslators.Default)
+        : base(WellKnownProblemTranslators.Extract)
     {
     }
 

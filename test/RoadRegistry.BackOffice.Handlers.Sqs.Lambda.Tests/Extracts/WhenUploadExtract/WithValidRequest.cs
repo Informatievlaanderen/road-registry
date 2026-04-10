@@ -1,20 +1,18 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Extracts.WhenUploadExtract;
 
 using AutoFixture;
-using BackOffice.Framework;
-using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentAssertions;
-using Messages;
 using Moq;
 using Newtonsoft.Json;
-using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
+using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
+using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Extracts.Schema;
-using RoadRegistry.Tests.BackOffice;
 using SqlStreamStore.Streams;
-using Sqs.Extracts;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 using Polygon = NetTopologySuite.Geometries.Polygon;
+using Position = SqlStreamStore.Streams.Position;
 
 public class WithValidRequest : WhenUploadExtractTestBase
 {

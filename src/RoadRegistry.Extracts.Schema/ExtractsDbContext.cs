@@ -97,6 +97,46 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
         return false;
     }
 
+    public async Task<IReadOnlyCollection<RoadSegmentId>> GetInwinningRoadSegmentIds(IEnumerable<RoadSegmentId> roadSegmentIds, CancellationToken cancellationToken)
+    {
+        const int batchSize = 2000; // SQL Server handles ~2100 params well
+        var segmentIdsList = roadSegmentIds.ToList();
+
+        var inwinningRoadSegmentIds = new List<RoadSegmentId>();
+
+        for (var i = 0; i < segmentIdsList.Count; i += batchSize)
+        {
+            var batch = segmentIdsList.Skip(i).Take(batchSize).Select(x => x.ToInt32());
+            var inwinningIds = await InwinningRoadSegments
+                .Where(x => batch.Contains(x.RoadSegmentId))
+                .Select(x => x.RoadSegmentId)
+                .ToListAsync(cancellationToken);
+            inwinningRoadSegmentIds.AddRange(inwinningIds.Select(x => new RoadSegmentId(x)));
+        }
+
+        return inwinningRoadSegmentIds;
+    }
+
+    public async Task<IReadOnlyCollection<RoadSegmentId>> CheckWhichOverlapWithInwinningszone(IEnumerable<(MultiLineString Geometry, RoadSegmentId TemporaryId)> roadSegments, CancellationToken cancellationToken)
+    {
+        var inwinningszonesGeometries = await Inwinningszones
+            .AsNoTracking()
+            .Select(x => x.Contour)
+            .ToListAsync(cancellationToken);
+
+        var preparedZones = inwinningszonesGeometries
+            .Select(NetTopologySuite.Geometries.Prepared.PreparedGeometryFactory.Prepare)
+            .ToList();
+
+        var overlappingIds = roadSegments
+            .AsParallel()
+            .Where(segment => preparedZones.Any(zone => zone.Intersects(segment.Geometry)))
+            .Select(x => x.TemporaryId)
+            .ToList();
+
+        return overlappingIds;
+    }
+
     public async Task UploadAcceptedAsync(UploadId uploadId, CancellationToken cancellationToken)
     {
         await UpdateExtractUpload(uploadId, async record =>

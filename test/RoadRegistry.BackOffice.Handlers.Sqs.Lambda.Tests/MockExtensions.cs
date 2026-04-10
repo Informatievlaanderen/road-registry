@@ -8,21 +8,19 @@ public static class MockExtensions
 {
     public static void VerifyThatTicketHasError(this Mock<ITicketing> ticketing, string code, string message)
     {
-        var ticketError = GetTicketErrors(ticketing).FirstOrDefault();
-
-        ticketError.Should().NotBeNull();
-        ticketError!.ErrorCode.Should().Be(code);
-        ticketError.ErrorMessage.Should().Be(message);
+        var ticketErrors = GetTicketErrors(ticketing).ToArray();
+        ticketErrors.Should()
+            .Contain(x => x.ErrorCode == code && x.ErrorMessage == message);
     }
 
     public static void VerifyThatTicketHasError(this Mock<ITicketing> ticketing, string code, string message, Dictionary<string, object> errorContext)
     {
-        var ticketError = GetTicketErrors(ticketing).FirstOrDefault();
-
-        ticketError.Should().NotBeNull();
-        ticketError!.ErrorCode.Should().Be(code);
-        ticketError.ErrorMessage.Should().Be(message);
-        ticketError.ErrorContext.Should().BeEquivalentTo(errorContext);
+        var ticketErrors = GetTicketErrors(ticketing).ToArray();
+        ticketErrors.Should()
+            .Contain(x => x.ErrorCode == code
+                          && x.ErrorMessage == message
+                          && x.ErrorContext != null
+                          && x.ErrorContext.EqualsCollection(errorContext));
     }
 
     public static void VerifyThatTicketHasCompleted(this Mock<ITicketing> ticketing, object response)

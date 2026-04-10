@@ -38,6 +38,7 @@ public abstract class WhenUploadExtractTestBase : BackOfficeLambdaTest
     protected async Task<UploadExtractSqsRequest> HandleRequest(
         UploadExtractSqsRequest sqsRequest,
         IBlobClient? blobClient = null,
+        TranslatedChanges? translatedChanges = null,
         IExtractUploadFailedEmailClient? extractUploadFailedEmailClient = null)
     {
         sqsRequest.TicketId = Guid.NewGuid();
@@ -76,7 +77,7 @@ public abstract class WhenUploadExtractTestBase : BackOfficeLambdaTest
             featureCompareValidatorFactory,
             StreamStore,
             new FakeBeforeFeatureCompareZipArchiveCleanerFactory(),
-            new FakeZipArchiveFeatureCompareTranslatorFactory(),
+            new FakeZipArchiveFeatureCompareTranslatorFactory(translatedChanges ?? TranslatedChanges.Empty.WithReason(new Reason("reason"))),
             extractUploadFailedEmailClient ?? new FakeExtractUploadFailedEmailClient(),
             new NullLoggerFactory()
         );
@@ -127,17 +128,31 @@ public abstract class WhenUploadExtractTestBase : BackOfficeLambdaTest
 
     private sealed class FakeZipArchiveFeatureCompareTranslatorFactory : IZipArchiveFeatureCompareTranslatorFactory
     {
+        private readonly TranslatedChanges _result;
+
+        public FakeZipArchiveFeatureCompareTranslatorFactory(TranslatedChanges result)
+        {
+            _result = result;
+        }
+
         public IZipArchiveFeatureCompareTranslator Create(string zipArchiveWriterVersion)
         {
-            return new FakeZipArchiveFeatureCompareTranslator();
+            return new FakeZipArchiveFeatureCompareTranslator(_result);
         }
     }
 
     private sealed class FakeZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTranslator
     {
+        private readonly TranslatedChanges _result;
+
+        public FakeZipArchiveFeatureCompareTranslator(TranslatedChanges result)
+        {
+            _result = result;
+        }
+
         public Task<TranslatedChanges> TranslateAsync(ZipArchive archive, CancellationToken cancellationToken)
         {
-            return Task.FromResult(TranslatedChanges.Empty.WithReason(new Reason("reason")));
+            return Task.FromResult(_result);
         }
     }
 }

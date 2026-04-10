@@ -199,7 +199,7 @@ public class ModifyRoadSegment : ITranslatedChange
             LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces, ConvertedFromOutlined, Version, GeometryVersion, categoryModified: categoryModified);
     }
 
-    public ModifyRoadSegment WithOriginalId(RoadSegmentId originalId)
+    public ModifyRoadSegment WithOriginalId(RoadSegmentId? originalId)
     {
         return new ModifyRoadSegment(
             RecordNumber, Id, GeometryDrawMethod, originalId, StartNodeId, EndNodeId, Geometry,
