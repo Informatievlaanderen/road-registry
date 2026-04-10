@@ -291,8 +291,9 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} ligt te dicht bij het wegsegment met {GetRoadSegmentIdLabel(problem, "OtherWegsegment")}.")
             },
             {
-                ProblemCode.RoadSegment.OverlapsWithInwinningszone, problem => new(problem.Severity, problem.Reason,
-                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} valt (gedeeltelijk) binnen een gemeente die de inwinningsstatus 'locked' of 'compleet' heeft.")
+                ProblemCode.RoadSegment.OverlapsWithInwinningszone, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")
+                    ? $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} valt (gedeeltelijk) binnen een gemeente die de inwinningsstatus 'locked' of 'compleet' heeft."
+                    : $"Het wegsegment valt (gedeeltelijk) binnen een gemeente die de inwinningsstatus 'locked' of 'compleet' heeft.")
             },
             {
                 ProblemCode.RoadSegment.IsInInwinning, problem => new(problem.Severity, problem.Reason,

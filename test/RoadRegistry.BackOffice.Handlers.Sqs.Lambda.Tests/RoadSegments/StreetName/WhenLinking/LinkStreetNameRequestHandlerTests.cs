@@ -15,6 +15,7 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Requests;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.Tests.BackOffice;
@@ -28,7 +29,9 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     public LinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     { }
 
-    private async Task HandleRequest(ITicketing ticketing, LinkStreetNameRequest request)
+    private async Task HandleRequest(ITicketing ticketing,
+        LinkStreetNameRequest request,
+        ExtractsDbContext? extractsDbContext = null)
     {
         var handler = new LinkStreetNameSqsLambdaRequestHandler(
             new FakeSqsLambdaHandlerOptions(),
@@ -39,6 +42,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
             StreetNameClient,
             ScopedContainer.Resolve<IChangeRoadNetworkDispatcher>(),
             new FakeDistributedStreamStoreLockOptions(),
+            extractsDbContext ?? new FakeExtractsDbContextFactory().CreateDbContext(),
             LoggerFactory.CreateLogger<LinkStreetNameSqsLambdaRequestHandler>()
         );
 
@@ -291,5 +295,34 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     public Task WhenProcessing_LinkStreetNameSqsRequest_Then_LinkStreetNameSqsLambdaRequest_IsSent()
     {
         return WhenProcessing_SqsRequest_Then_SqsLambdaRequest_IsSent<LinkStreetNameSqsRequest, LinkStreetNameSqsLambdaRequest, LinkStreetNameRequest>();
+    }
+
+    [Fact]
+    public async Task GivenInwinningRoadSegment_ThenError()
+    {
+        //Arrange
+        var ticketing = new Mock<ITicketing>();
+        var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
+
+        TestData.Segment1Added.LeftSide.StreetNameId = null;
+        TestData.Segment1Added.RightSide.StreetNameId = null;
+
+        await GivenSegment1Added();
+
+        var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
+        extractsDbContext.InwinningRoadSegments.Add(new InwinningRoadSegment
+        {
+            RoadSegmentId = roadSegmentId,
+            Completed = ObjectProvider.Create<bool>()
+        });
+        await extractsDbContext.SaveChangesAsync();
+
+        //Act
+        await HandleRequest(ticketing.Object,
+            new LinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, GetStreetNameIdAsString(WellKnownStreetNameIds.Current), GetStreetNameIdAsString(WellKnownStreetNameIds.Current)),
+            extractsDbContext: extractsDbContext);
+
+        //Assert
+        ticketing.VerifyThatTicketHasError("RoadSegmentIsInInwinning", $"Het wegsegment met id {roadSegmentId} heeft de inwinningsstatus 'locked' of 'compleet'.");
     }
 }

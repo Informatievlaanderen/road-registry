@@ -19,6 +19,7 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Requests;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
@@ -136,7 +137,9 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
         VerifyThatTicketHasError("MiddellijnGeometrieTeLang", "De opgegeven geometrie van wegsegment met id 1 zijn lengte is groter of gelijk dan 100000 meter.");
     }
 
-    private async Task HandleRequest(CreateRoadSegmentOutlineRequest request)
+    private async Task HandleRequest(
+        CreateRoadSegmentOutlineRequest request,
+        ExtractsDbContext? extractsDbContext = null)
     {
         var sqsRequest = new CreateRoadSegmentOutlineSqsRequest
         {
@@ -156,6 +159,7 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
             RoadRegistryContext,
             ScopedContainer.Resolve<IChangeRoadNetworkDispatcher>(),
             OrganizationCache,
+            extractsDbContext ?? new FakeExtractsDbContextFactory().CreateDbContext(),
             new NullLogger<CreateRoadSegmentOutlineSqsLambdaRequestHandler>()
         );
         await handler.Handle(sqsLambdaRequest, CancellationToken.None);

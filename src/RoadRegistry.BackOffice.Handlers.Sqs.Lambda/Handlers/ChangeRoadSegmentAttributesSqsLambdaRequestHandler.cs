@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 using StreetName;
 using TicketingService.Abstractions;
@@ -34,6 +35,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
     private readonly EditorContext _editorContext;
     private readonly IOrganizationCache _organizationCache;
     private readonly IStreetNameClient _streetNameClient;
+    private readonly ExtractsDbContext _extractsDbContext;
 
     public ChangeRoadSegmentAttributesSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -47,6 +49,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         FileEncoding fileEncoding,
         IOrganizationCache organizationCache,
         IStreetNameClient streetNameClient,
+        ExtractsDbContext extractsDbContext,
         ILogger<ChangeRoadSegmentAttributesSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -60,6 +63,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         _editorContext = editorContext;
         _organizationCache = organizationCache;
         _streetNameClient = streetNameClient;
+        _extractsDbContext = extractsDbContext;
     }
 
     protected override async Task<object> InnerHandle(ChangeRoadSegmentAttributesSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -77,6 +81,12 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                 {
                     problems += segmentProblems;
                 }
+            }
+
+            var inwinningRoadSegmentIds = await _extractsDbContext.GetInwinningRoadSegmentIds(request.Request.ChangeRequests.Select(x => x.Id), cancellationToken);
+            foreach (var roadSegmentId in inwinningRoadSegmentIds)
+            {
+                problems += new RoadSegmentIsInInwinning().WithContext(ProblemContext.For(roadSegmentId));
             }
 
             if (problems.Any())

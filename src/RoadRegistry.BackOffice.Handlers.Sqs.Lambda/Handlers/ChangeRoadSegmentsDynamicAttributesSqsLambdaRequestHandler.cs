@@ -18,6 +18,7 @@ using NetTopologySuite.Geometries;
 using Requests;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 using TicketingService.Abstractions;
 using ValueObjects.Problems;
@@ -31,6 +32,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
     private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
     private readonly EditorContext _editorContext;
+    private readonly ExtractsDbContext _extractsDbContext;
     private readonly VerificationContextTolerances _tolerances = VerificationContextTolerances.Default;
 
     public ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler(
@@ -44,6 +46,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
         RecyclableMemoryStreamManager manager,
         FileEncoding fileEncoding,
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
+        ExtractsDbContext extractsDbContext,
         ILogger<ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -55,6 +58,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
     {
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
         _editorContext = editorContext;
+        _extractsDbContext = extractsDbContext;
         _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
     }
 
@@ -76,6 +80,12 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
                     {
                         problems += segmentProblems;
                     }
+                }
+
+                var inwinningRoadSegmentIds = await _extractsDbContext.GetInwinningRoadSegmentIds(request.Request.ChangeRequests.Select(x => x.Id), cancellationToken);
+                foreach (var roadSegmentId in inwinningRoadSegmentIds)
+                {
+                    problems += new RoadSegmentIsInInwinning().WithContext(ProblemContext.For(roadSegmentId));
                 }
 
                 if (problems.Any())

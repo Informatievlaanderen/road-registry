@@ -18,6 +18,7 @@ using Microsoft.IO;
 using NodaTime.Text;
 using Requests;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using RoadRegistry.Tests.BackOffice.Scenarios;
@@ -135,7 +136,75 @@ public class GivenRoadSegment : BackOfficeLambdaTest
             });
     }
 
-    private async Task HandleRequest(ChangeRoadSegmentsDynamicAttributesRequest request)
+    [Fact]
+    public async Task GivenInwinningRoadSegment_ThenError()
+    {
+        // Arrange
+        var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
+        var request = new ChangeRoadSegmentsDynamicAttributesRequest()
+            .Add(roadSegmentId, change =>
+            {
+                var geometryLength = GeometryTranslator.Translate(TestData.Segment1Added.Geometry).Length;
+                var lastToPosition = RoadSegmentPosition.FromDouble(Math.Round(geometryLength, 3));
+
+                var lanePositions = ObjectProvider.Create<Func<double, RoadSegmentPositionAttribute[]>>()(geometryLength);
+                change.Lanes = lanePositions
+                    .Select((x, index) => new ChangeRoadSegmentLaneAttributeRequest
+                    {
+                        FromPosition = RoadSegmentPosition.FromDouble(index),
+                        ToPosition = index != lanePositions.Length - 1 ? RoadSegmentPosition.FromDouble(index + 1) : lastToPosition,
+                        Count = ObjectProvider.Create<RoadSegmentLaneCount>(),
+                        Direction = ObjectProvider.Create<RoadSegmentLaneDirection>()
+                    }).ToArray();
+
+                var surfacePositions = ObjectProvider.Create<Func<double, RoadSegmentPositionAttribute[]>>()(geometryLength);
+                change.Surfaces = surfacePositions
+                    .Select((x, index) => new ChangeRoadSegmentSurfaceAttributeRequest
+                    {
+                        FromPosition = RoadSegmentPosition.FromDouble(index),
+                        ToPosition = index != surfacePositions.Length - 1 ? RoadSegmentPosition.FromDouble(index + 1) : lastToPosition,
+                        Type = ObjectProvider.Create<RoadSegmentSurfaceType>()
+                    }).ToArray();
+
+                var widthPositions = ObjectProvider.Create<Func<double, RoadSegmentPositionAttribute[]>>()(geometryLength);
+                change.Widths = widthPositions
+                    .Select((x, index) => new ChangeRoadSegmentWidthAttributeRequest
+                    {
+                        FromPosition = RoadSegmentPosition.FromDouble(index),
+                        ToPosition = index != widthPositions.Length - 1 ? RoadSegmentPosition.FromDouble(index + 1) : lastToPosition,
+                        Width = ObjectProvider.Create<RoadSegmentWidth>()
+                    }).ToArray();
+            });
+
+        await Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization);
+
+        await Given(RoadNetworks.Stream, new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithRoadNodeAdded(TestData.StartNode1Added)
+            .WithRoadNodeAdded(TestData.EndNode1Added)
+            .WithRoadSegmentAdded(TestData.Segment1Added)
+            .Build());
+
+        await EditorContext.RoadSegments.AddAsync(TestData.Segment1Added.ToRoadSegmentRecord(TestData.ChangedByOrganization, Clock));
+        await EditorContext.SaveChangesAsync();
+
+        var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
+        extractsDbContext.InwinningRoadSegments.Add(new InwinningRoadSegment
+        {
+            RoadSegmentId = roadSegmentId,
+            Completed = ObjectProvider.Create<bool>()
+        });
+        await extractsDbContext.SaveChangesAsync();
+
+        // Act
+        await HandleRequest(request, extractsDbContext: extractsDbContext);
+
+        // Assert
+        VerifyThatTicketHasError("RoadSegmentIsInInwinning", $"Het wegsegment met id {roadSegmentId} heeft de inwinningsstatus 'locked' of 'compleet'.");
+    }
+
+    private async Task HandleRequest(
+        ChangeRoadSegmentsDynamicAttributesRequest request,
+        ExtractsDbContext? extractsDbContext = null)
     {
         var sqsRequest = new ChangeRoadSegmentsDynamicAttributesSqsRequest
         {
@@ -158,6 +227,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
             new RecyclableMemoryStreamManager(),
             FileEncoding.UTF8,
             new FakeDistributedStreamStoreLockOptions(),
+            extractsDbContext ?? new FakeExtractsDbContextFactory().CreateDbContext(),
             new NullLogger<ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler>()
         );
 
