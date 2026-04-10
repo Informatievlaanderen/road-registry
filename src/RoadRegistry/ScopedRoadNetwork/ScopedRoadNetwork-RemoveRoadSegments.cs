@@ -61,7 +61,7 @@ public partial class ScopedRoadNetwork
             return problems + new RoadSegmentNotFound();
         }
 
-        var segmentCategories = segment.Attributes.Category.Values.Select(x => x.Value).ToArray();
+        var segmentCategories = segment.Attributes!.Category.Values.Select(x => x.Value).ToArray();
         var segmentInvalidCategories = invalidCategories.Intersect(segmentCategories).ToArray();
         if (segmentInvalidCategories.Any())
         {
@@ -157,7 +157,7 @@ public partial class ScopedRoadNetwork
         var segmentTwo = nodeSegments.Last();
 
         var anyConnectedSegmentIsMarkedForRemoval = removingRoadSegmentIds.Contains(segmentOne.RoadSegmentId) || removingRoadSegmentIds.Contains(segmentTwo.RoadSegmentId);
-        if (anyConnectedSegmentIsMarkedForRemoval || !segmentOne.Attributes.EqualsOnlyNonDynamicAttributes(segmentTwo.Attributes))
+        if (anyConnectedSegmentIsMarkedForRemoval || !segmentOne.Attributes!.EqualsOnlyNonDynamicAttributes(segmentTwo.Attributes))
         {
             return Problems.None;
         }
@@ -192,9 +192,9 @@ public partial class ScopedRoadNetwork
             TemporaryId = _roadSegments.Keys.Max().Next(),
             OriginalIds = [segment1.RoadSegmentId, segment2.RoadSegmentId],
             Geometry = geometry.ToRoadSegmentGeometry(),
-            GeometryDrawMethod = segment1.Attributes.GeometryDrawMethod,
+            GeometryDrawMethod = segment1.Attributes!.GeometryDrawMethod,
             Status = segment1.Attributes.Status,
-            AccessRestriction = segment1.Attributes.AccessRestriction.MergeWith(segment2.Attributes.AccessRestriction, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
+            AccessRestriction = segment1.Attributes.AccessRestriction.MergeWith(segment2.Attributes!.AccessRestriction, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
             Category = segment1.Attributes.Category.MergeWith(segment2.Attributes.Category, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
             Morphology = segment1.Attributes.Morphology.MergeWith(segment2.Attributes.Morphology, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
             StreetNameId = segment1.Attributes.StreetNameId.MergeWith(segment2.Attributes.StreetNameId, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),

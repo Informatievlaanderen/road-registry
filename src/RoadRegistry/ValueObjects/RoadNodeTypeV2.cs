@@ -96,12 +96,12 @@ public sealed class RoadNodeTypeV2 : IEquatable<RoadNodeTypeV2>, IDutchToString
         return types.Contains(this);
     }
 
-    public static bool operator ==(RoadNodeTypeV2 left, RoadNodeTypeV2 right)
+    public static bool operator ==(RoadNodeTypeV2? left, RoadNodeTypeV2? right)
     {
         return Equals(left, right);
     }
 
-    public static bool operator !=(RoadNodeTypeV2 left, RoadNodeTypeV2 right)
+    public static bool operator !=(RoadNodeTypeV2? left, RoadNodeTypeV2? right)
     {
         return !Equals(left, right);
     }

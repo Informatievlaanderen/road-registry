@@ -30,7 +30,7 @@ public partial class RoadSegment
         var bikeAccessForward = change.BikeAccessForward;
         var bikeAccessBackward = change.BikeAccessBackward;
         var pedestrianAccess = change.PedestrianAccess;
-        var attributes = Attributes with
+        var attributes = Attributes! with
         {
             GeometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,
             AccessRestriction = accessRestriction ?? Attributes.AccessRestriction,
