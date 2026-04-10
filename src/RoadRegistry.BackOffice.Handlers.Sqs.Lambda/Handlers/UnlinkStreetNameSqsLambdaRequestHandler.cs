@@ -12,6 +12,7 @@ using Infrastructure;
 using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using Requests;
+using RoadRegistry.Extracts.Schema;
 using TicketingService.Abstractions;
 using ValueObjects.Problems;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
@@ -23,6 +24,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
 {
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
     private readonly DistributedStreamStoreLockOptions _distributedStreamStoreLockOptions;
+    private readonly ExtractsDbContext _extractsDbContext;
 
     public UnlinkStreetNameSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -32,6 +34,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
         IRoadRegistryContext roadRegistryContext,
         IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
+        ExtractsDbContext extractsDbContext,
         ILogger<UnlinkStreetNameSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -43,6 +46,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
     {
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
         _distributedStreamStoreLockOptions = distributedStreamStoreLockOptions;
+        _extractsDbContext = extractsDbContext;
     }
 
     protected override async Task<object> InnerHandle(UnlinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -118,6 +122,12 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                     }
 
                     translatedChanges = translatedChanges.AppendChange(modifyRoadSegment);
+                }
+
+                var roadSegmentIsInInwinning = await _extractsDbContext.HasInwinningRoadSegments([roadSegmentId], cancellationToken);
+                if (roadSegmentIsInInwinning)
+                {
+                    problems += new RoadSegmentIsInInwinning().WithContext(ProblemContext.For(roadSegmentId));
                 }
 
                 if (problems.Any())

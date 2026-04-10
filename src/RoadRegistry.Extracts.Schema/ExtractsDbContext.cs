@@ -81,7 +81,7 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
     public async Task<bool> HasInwinningRoadSegments(IEnumerable<RoadSegmentId> roadSegmentIds, CancellationToken cancellationToken)
     {
         const int batchSize = 2000; // SQL Server handles ~2100 params well
-        var segmentIdsList = roadSegmentIds.ToList();
+        var segmentIdsList = roadSegmentIds.Distinct().ToList();
 
         for (var i = 0; i < segmentIdsList.Count; i += batchSize)
         {
@@ -100,7 +100,7 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
     public async Task<IReadOnlyCollection<RoadSegmentId>> GetInwinningRoadSegmentIds(IEnumerable<RoadSegmentId> roadSegmentIds, CancellationToken cancellationToken)
     {
         const int batchSize = 2000; // SQL Server handles ~2100 params well
-        var segmentIdsList = roadSegmentIds.ToList();
+        var segmentIdsList = roadSegmentIds.Distinct().ToList();
 
         var inwinningRoadSegmentIds = new List<RoadSegmentId>();
 

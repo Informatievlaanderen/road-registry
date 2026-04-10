@@ -9,12 +9,16 @@ using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
+using RoadRegistry.BackOffice.Exceptions;
+using RoadRegistry.Extracts.Schema;
+using RoadRegistry.ValueObjects.Problems;
 using TicketingService.Abstractions;
 using RemoveRoadSegment = BackOffice.Uploads.RemoveRoadSegment;
 
 public sealed class DeleteRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaHandler<DeleteRoadSegmentOutlineSqsLambdaRequest>
 {
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
+    private readonly ExtractsDbContext _extractsDbContext;
 
     public DeleteRoadSegmentOutlineSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -23,6 +27,7 @@ public sealed class DeleteRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
+        ExtractsDbContext extractsDbContext,
         ILogger<DeleteRoadSegmentOutlineSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -33,6 +38,7 @@ public sealed class DeleteRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
             logger)
     {
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
+        _extractsDbContext = extractsDbContext;
     }
 
     protected override async Task<object> InnerHandle(DeleteRoadSegmentOutlineSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -47,6 +53,13 @@ public sealed class DeleteRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
             if (roadSegment == null || roadSegment.AttributeHash.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
             {
                 throw new RoadSegmentOutlinedNotFoundException();
+            }
+
+            var roadSegmentIsInInwinning = await _extractsDbContext.HasInwinningRoadSegments([roadSegmentId], cancellationToken);
+            if (roadSegmentIsInInwinning)
+            {
+                var problems = Problems.Single(new RoadSegmentIsInInwinning().WithContext(ProblemContext.For(roadSegmentId)));
+                throw new RoadRegistryProblemsException(problems);
             }
 
             var recordNumber = RecordNumber.Initial;

@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Requests;
 using RoadRegistry.Extensions;
-using RoadSegment;
+using RoadRegistry.Extracts.Schema;
 using TicketingService.Abstractions;
 using ValueObjects.Problems;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
@@ -24,6 +24,7 @@ using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : SqsLambdaHandler<ChangeRoadSegmentOutlineGeometrySqsLambdaRequest>
 {
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
+    private readonly ExtractsDbContext _extractsDbContext;
 
     public ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -32,6 +33,7 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
+        ExtractsDbContext extractsDbContext,
         ILogger<ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -42,6 +44,7 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
             logger)
     {
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
+        _extractsDbContext = extractsDbContext;
     }
 
     protected override async Task<object> InnerHandle(ChangeRoadSegmentOutlineGeometrySqsLambdaRequest request, CancellationToken cancellationToken)
@@ -70,6 +73,13 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
 
             var geometry = GeometryTranslator.Translate(request.Request.Geometry);
             problems += geometry.GetSingleLineString().GetProblemsForRoadSegmentOutlinedGeometry(roadSegmentId);
+
+            var roadSegmentIsInInwinning = await _extractsDbContext.HasInwinningRoadSegments([roadSegmentId], cancellationToken);
+            if (roadSegmentIsInInwinning)
+            {
+                problems += new RoadSegmentIsInInwinning().WithContext(ProblemContext.For(roadSegmentId));
+            }
+
             if (problems.Any())
             {
                 throw new RoadRegistryProblemsException(problems);
