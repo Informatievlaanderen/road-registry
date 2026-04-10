@@ -18,6 +18,7 @@ using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.DataValidation;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
+using RoadRegistry.RoadNetwork.Schema;
 using ScopedRoadNetwork;
 using Sqs.RoadNetwork;
 using Tests.AggregateTests;
@@ -93,7 +94,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
 
         services
             .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots()).Services
-            .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
+            .AddSingleton<IRoadNetworkIdGenerator>(new InMemoryRoadNetworkIdGenerator())
             .AddSingleton(DataValidationClientMock.Object)
             .AddScoped<ChangeRoadNetworkSqsLambdaRequestHandler>();
 

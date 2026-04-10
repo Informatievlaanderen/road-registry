@@ -14,6 +14,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestExtract;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
@@ -68,6 +69,7 @@ public abstract class WhenRequestInwinningExtractTestBase : BackOfficeLambdaTest
                 new RoadNetworkExtractDownloadsBlobClient(blobClient ?? Mock.Of<IBlobClient>()),
                 archiveAssembler ?? archiveAssemblerMock.Object,
                 new NullLoggerFactory()),
+            new RoadSegmentFeatureCompareFeatureReader(FileEncoding.UTF8),
             new NullLoggerFactory()
         );
 

@@ -10,7 +10,7 @@ using Infrastructure;
 using Marten;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
-using RoadRegistry.Infrastructure;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.Events.V2;
@@ -23,7 +23,7 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
     private readonly IDocumentStore _store;
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
-    private readonly IExtractRequests _extractRequests;
+    private readonly ExtractsDbContext _extractsDbContext;
     private readonly IExtractUploadFailedEmailClient _extractUploadFailedEmailClient;
 
     public ChangeRoadNetworkSqsLambdaRequestHandler(
@@ -35,7 +35,7 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
         IDocumentStore store,
         IRoadNetworkRepository roadNetworkRepository,
         IRoadNetworkIdGenerator roadNetworkIdGenerator,
-        IExtractRequests extractRequests,
+        ExtractsDbContext extractsDbContext,
         IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
         ILoggerFactory loggerFactory)
         : base(
@@ -51,7 +51,7 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
         _store = store;
         _roadNetworkRepository = roadNetworkRepository;
         _roadNetworkIdGenerator = roadNetworkIdGenerator;
-        _extractRequests = extractRequests;
+        _extractsDbContext = extractsDbContext;
         _extractUploadFailedEmailClient = extractUploadFailedEmailClient;
     }
 
@@ -75,7 +75,13 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
             ? await ChangeRoadNetwork(command, roadNetwork, roadNetworkChanges, cancellationToken)
             : new RoadNetworkChangeResult(Problems.None, roadNetwork.SummaryOfLastChange);
 
-        await _extractRequests.UploadAcceptedAsync(command.UploadId, cancellationToken);
+        _extractsDbContext.InwinningRoadSegments.AddRange(changeResult.Summary.RoadSegments.Added
+            .Select(roadSegmentId => new InwinningRoadSegment
+            {
+                RoadSegmentId = roadSegmentId,
+                Completed = true
+            }));
+        await _extractsDbContext.UploadAcceptedAsync(command.UploadId, cancellationToken);
 
         return changeResult;
     }
@@ -85,7 +91,7 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
         var changeResult = roadNetwork.Change(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator);
         if (changeResult.Problems.HasError())
         {
-            await _extractRequests.AutomaticValidationFailedAsync(command.UploadId, cancellationToken);
+            await _extractsDbContext.AutomaticValidationFailedAsync(command.UploadId, cancellationToken);
 
             if (command.SendFailedEmail)
             {

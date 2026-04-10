@@ -55,12 +55,20 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         };
 
         var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        var nisCode = "12345";
         extractsDbContext.Inwinningszones.Add(new Inwinningszone
         {
             DownloadId = command.DownloadId,
-            NisCode = "12345",
+            NisCode = nisCode,
             Contour = new WKTReader().Read(GeometryTranslatorTestCases.ValidPolygon),
             Operator = provenanceData.Operator,
+            Completed = false
+        });
+        var existingRoadSegmentId = new RoadSegmentId(2);
+        extractsDbContext.InwinningRoadSegments.Add(new InwinningRoadSegment
+        {
+            RoadSegmentId = existingRoadSegmentId,
+            NisCode = nisCode,
             Completed = false
         });
         await extractsDbContext.SaveChangesAsync(CancellationToken.None);
@@ -87,6 +95,15 @@ public class WithValidRequest : RoadNetworkIntegrationTest
 
         var inwinningsZone = extractsDbContext.Inwinningszones.Single(x => x.DownloadId == command.DownloadId.ToGuid());
         inwinningsZone.Completed.Should().BeTrue();
+
+        var existingInwinningRoadSegment = extractsDbContext.InwinningRoadSegments
+            .Single(x => x.RoadSegmentId == existingRoadSegmentId);
+        existingInwinningRoadSegment.Completed.Should().BeTrue();
+
+        var newInwinningRoadSegment = extractsDbContext.InwinningRoadSegments
+            .Single(x => x.RoadSegmentId == TestData.Segment1Added.RoadSegmentId);
+        newInwinningRoadSegment.NisCode.Should().Be(nisCode);
+        newInwinningRoadSegment.Completed.Should().BeTrue();
     }
 
     [Fact]

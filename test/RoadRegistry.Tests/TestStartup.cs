@@ -31,6 +31,7 @@ using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning.V1;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.RoadNetwork.Schema;
 using ScopedRoadNetwork;
 using SqlStreamStore;
 
@@ -95,7 +96,7 @@ public abstract class TestStartup
                     .AddSingleton(new ExtractDownloadsOptions())
                     .AddSingleton(new ExtractUploadsOptions())
                     .AddSingleton(FileEncoding.UTF8)
-                    .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
+                    .AddSingleton<IRoadNetworkIdGenerator>(new InMemoryRoadNetworkIdGenerator())
                     .AddTransient<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
                     .AddSingleton<IBeforeFeatureCompareZipArchiveCleanerFactory, BeforeFeatureCompareZipArchiveCleanerFactory>()
                     .AddFeatureCompare()

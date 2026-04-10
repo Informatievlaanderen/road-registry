@@ -7,9 +7,6 @@ using Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac;
 using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
-using Extensions;
-using Framework.Testing;
-using Hosts;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -18,17 +15,18 @@ using Moq;
 using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Testing;
-using RoadNetwork;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.FeatureCompare;
-using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Infrastructure.Modules;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Extensions;
-using ScopedRoadNetwork;
+using RoadRegistry.Hosts;
+using RoadRegistry.RoadNetwork.Schema;
+using RoadRegistry.ScopedRoadNetwork;
+using RoadRegistry.Tests.Framework.Testing;
 using SqlStreamStore;
 using TicketingService.Abstractions;
 
@@ -66,7 +64,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         containerBuilder.RegisterModule<ContextModule>();
 
         containerBuilder.RegisterInstance(new EventSourcedEntityMap());
-        containerBuilder.RegisterInstance(new FakeRoadNetworkIdGenerator()).As<IRoadNetworkIdGenerator>();
+        containerBuilder.RegisterInstance(new InMemoryRoadNetworkIdGenerator()).As<IRoadNetworkIdGenerator>();
         containerBuilder.RegisterInstance(TicketingMock.Object);
         containerBuilder.RegisterInstance(Store);
         containerBuilder.RegisterInstance(LoggerFactory);
@@ -124,7 +122,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
 
     public Task Given(RecordedEvent[] events)
     {
-        var idGenerator = (FakeRoadNetworkIdGenerator)ScopedContainer.Resolve<IRoadNetworkIdGenerator>();
+        var idGenerator = (InMemoryRoadNetworkIdGenerator)ScopedContainer.Resolve<IRoadNetworkIdGenerator>();
         idGenerator.SeedEvents(events
             .Select(x => x.Event)
             .ToList());
@@ -151,7 +149,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
 
         var scenarioBuilder = builder(new Scenario());
 
-        var idGenerator = (FakeRoadNetworkIdGenerator)ScopedContainer.Resolve<IRoadNetworkIdGenerator>();
+        var idGenerator = (InMemoryRoadNetworkIdGenerator)ScopedContainer.Resolve<IRoadNetworkIdGenerator>();
         idGenerator.SeedEvents(scenarioBuilder.Build()
             .Givens
             .Select(x => x.Event)
