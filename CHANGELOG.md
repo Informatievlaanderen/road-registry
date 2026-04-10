@@ -1,3 +1,16 @@
+# [4.55.0](https://github.com/informatievlaanderen/road-registry/compare/v4.54.0...v4.55.0) (2026-04-10)
+
+
+### Bug Fixes
+
+* nullability of roadsegment attributes ([ad5b9e8](https://github.com/informatievlaanderen/road-registry/commit/ad5b9e8e83d4ca3ee3fa301f6706ce78303e4175))
+
+
+### Features
+
+* validate inwinningsstatus in roadsegment edit endpoints ([c046ebf](https://github.com/informatievlaanderen/road-registry/commit/c046ebfcf2242eff8a8f7fde6bc754eae7a7b50c))
+* validate inwinningsstatus on upload ([7c7c7d5](https://github.com/informatievlaanderen/road-registry/commit/7c7c7d5ec189be5aee39db17ce28d18c22746bdb))
+
 # [4.54.0](https://github.com/informatievlaanderen/road-registry/compare/v4.53.1...v4.54.0) (2026-04-09)
 
 
