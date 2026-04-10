@@ -13,6 +13,7 @@ using Handlers;
 using Hosts;
 using Microsoft.Extensions.Logging.Abstractions;
 using Requests;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
@@ -25,7 +26,9 @@ public abstract class WhenDeleteOutlineTestBase : BackOfficeLambdaTest
         ObjectProvider.CustomizeRoadSegmentOutline();
     }
 
-    protected async Task HandleRequest(DeleteRoadSegmentOutlineRequest request)
+    protected async Task HandleRequest(
+        DeleteRoadSegmentOutlineRequest request,
+        ExtractsDbContext? extractsDbContext = null)
     {
         var sqsRequest = new DeleteRoadSegmentOutlineSqsRequest
         {
@@ -44,6 +47,7 @@ public abstract class WhenDeleteOutlineTestBase : BackOfficeLambdaTest
             ScopedContainer.Resolve<IIdempotentCommandHandler>(),
             RoadRegistryContext,
             ScopedContainer.Resolve<IChangeRoadNetworkDispatcher>(),
+            extractsDbContext ?? new FakeExtractsDbContextFactory().CreateDbContext(),
             new NullLogger<DeleteRoadSegmentOutlineSqsLambdaRequestHandler>()
         );
 

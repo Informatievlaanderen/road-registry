@@ -15,6 +15,7 @@ using Microsoft.IO;
 using Moq;
 using Requests;
 using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.StreetName;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
@@ -26,7 +27,8 @@ public class WhenChangeAttributesTestBase : BackOfficeLambdaTest
     {
     }
 
-    protected async Task<IReadOnlyList<ITranslatedChange>> HandleRequest(ChangeRoadSegmentAttributesRequest request)
+    protected async Task<IReadOnlyList<ITranslatedChange>> HandleRequest(ChangeRoadSegmentAttributesRequest request,
+        ExtractsDbContext? extractsDbContext = null)
     {
         var sqsRequest = new ChangeRoadSegmentAttributesSqsRequest
         {
@@ -69,6 +71,7 @@ public class WhenChangeAttributesTestBase : BackOfficeLambdaTest
                 .AddStreetName(WellKnownStreetNameIds.Retired, "Retired street", "gehistoreerd")
                 .AddStreetName(WellKnownStreetNameIds.Null, "Not found street", null)
             ),
+            extractsDbContext ?? new FakeExtractsDbContextFactory().CreateDbContext(),
             new NullLogger<ChangeRoadSegmentAttributesSqsLambdaRequestHandler>());
 
         await sqsLambdaRequestHandler.Handle(sqsLambdaRequest, CancellationToken.None);

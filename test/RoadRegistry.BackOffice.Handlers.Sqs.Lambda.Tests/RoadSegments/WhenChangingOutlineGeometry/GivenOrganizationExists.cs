@@ -17,6 +17,7 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Requests;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
@@ -121,7 +122,43 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
             "De opgegeven geometrie van wegsegment met id 1 heeft niet de minimale lengte van 2 meter.");
     }
 
-    private async Task<IReadOnlyList<ITranslatedChange>> HandleRequest(ChangeRoadSegmentOutlineGeometryRequest request)
+    [Fact]
+    public async Task GivenInwinningRoadSegment_ThenError()
+    {
+        // Arrange
+        await GivenOrganization();
+
+        var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
+        await AddOutlinedRoadSegment(roadSegmentId);
+
+        var lineString = new LineString(
+                new CoordinateArraySequence([new CoordinateM(0, 0, 0), new CoordinateM(2, 0, 2)]),
+                GeometryConfiguration.GeometryFactory)
+            .ToMultiLineString();
+
+        var request = new ChangeRoadSegmentOutlineGeometryRequest(
+            roadSegmentId,
+            GeometryTranslator.Translate(lineString)
+        );
+
+        var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
+        extractsDbContext.InwinningRoadSegments.Add(new InwinningRoadSegment
+        {
+            RoadSegmentId = roadSegmentId,
+            Completed = ObjectProvider.Create<bool>()
+        });
+        await extractsDbContext.SaveChangesAsync();
+
+        // Act
+        await HandleRequest(request, extractsDbContext: extractsDbContext);
+
+        // Assert
+        VerifyThatTicketHasError("RoadSegmentIsInInwinning", $"Het wegsegment met id {roadSegmentId} heeft de inwinningsstatus 'locked' of 'compleet'.");
+    }
+
+    private async Task<IReadOnlyList<ITranslatedChange>> HandleRequest(
+        ChangeRoadSegmentOutlineGeometryRequest request,
+        ExtractsDbContext? extractsDbContext = null)
     {
         var sqsRequest = new ChangeRoadSegmentOutlineGeometrySqsRequest
         {
@@ -154,6 +191,7 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
             Mock.Of<IIdempotentCommandHandler>(),
             RoadRegistryContext,
             changeRoadNetworkDispatcherMock.Object,
+            extractsDbContext ?? new FakeExtractsDbContextFactory().CreateDbContext(),
             new NullLogger<ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler>()
         );
 

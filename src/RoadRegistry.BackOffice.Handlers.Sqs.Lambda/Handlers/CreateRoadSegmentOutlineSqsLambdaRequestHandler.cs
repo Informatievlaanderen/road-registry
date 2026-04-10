@@ -11,6 +11,7 @@ using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 using TicketingService.Abstractions;
 using ValueObjects.Problems;
@@ -23,6 +24,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
 {
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
     private readonly IOrganizationCache _organizationCache;
+    private readonly ExtractsDbContext _extractsDbContext;
 
     public CreateRoadSegmentOutlineSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -32,6 +34,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
         IRoadRegistryContext roadRegistryContext,
         IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
         IOrganizationCache organizationCache,
+        ExtractsDbContext extractsDbContext,
         ILogger<CreateRoadSegmentOutlineSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -43,6 +46,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
     {
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
         _organizationCache = organizationCache;
+        _extractsDbContext = extractsDbContext;
     }
 
     protected override async Task<object> InnerHandle(CreateRoadSegmentOutlineSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
@@ -69,11 +73,24 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
             var (maintenanceAuthority, maintenanceAuthorityProblems) = await FindOrganizationId(request.MaintenanceAuthority, cancellationToken);
             problems += maintenanceAuthorityProblems;
 
+            var temporaryId = new RoadSegmentId(1);
+            var overlapWithInwinningszone = (await _extractsDbContext.CheckWhichOverlapWithInwinningszone(
+                [(geometry, temporaryId)], cancellationToken)).Any();
+            if (overlapWithInwinningszone)
+            {
+                problems += new RoadSegmentOverlapsWithInwinningszone();
+            }
+
+            if (problems.Any())
+            {
+                throw new RoadRegistryProblemsException(problems);
+            }
+
             translatedChanges = translatedChanges.AppendChange(
                 new AddRoadSegment(
                         recordNumber,
-                        new RoadSegmentId(1),
-                        new RoadSegmentId(1),
+                        temporaryId,
+                        temporaryId,
                         RoadNodeId.Zero,
                         RoadNodeId.Zero,
                         maintenanceAuthority,
@@ -89,11 +106,6 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
                     .WithWidth(new RoadSegmentWidthAttribute(AttributeId.Initial, request.Width, fromPosition, toPosition))
                     .WithLane(new RoadSegmentLaneAttribute(AttributeId.Initial, request.LaneCount, request.LaneDirection, fromPosition, toPosition))
             );
-
-            if (problems.Any())
-            {
-                throw new RoadRegistryProblemsException(problems);
-            }
 
             Logger.LogInformation("TIMETRACKING handler: converting request to TranslatedChanges took {Elapsed}", sw.Elapsed);
             return translatedChanges;
