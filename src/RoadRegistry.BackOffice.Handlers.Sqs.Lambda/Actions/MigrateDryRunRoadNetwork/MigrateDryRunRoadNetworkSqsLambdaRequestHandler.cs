@@ -8,22 +8,22 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Exceptions;
 using Hosts;
 using Infrastructure;
-using Marten;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
-using RoadRegistry.Infrastructure;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure.DutchTranslations;
+using RoadRegistry.RoadNetwork.Schema;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 
 public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<MigrateDryRunRoadNetworkSqsLambdaRequest>
 {
-    private readonly IDocumentStore _store;
+    private readonly Marten.IDocumentStore _store;
     private readonly IRoadNetworkRepository _roadNetworkRepository;
-    private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
-    private readonly IExtractRequests _extractRequests;
+    private readonly ExtractsDbContext _extractsDbContext;
     private readonly IMediator _mediator;
 
     public MigrateDryRunRoadNetworkSqsLambdaRequestHandler(
@@ -32,10 +32,9 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        IDocumentStore store,
+        Marten.IDocumentStore store,
         IRoadNetworkRepository roadNetworkRepository,
-        IRoadNetworkIdGenerator roadNetworkIdGenerator,
-        IExtractRequests extractRequests,
+        ExtractsDbContext extractsDbContext,
         IMediator mediator,
         ILoggerFactory loggerFactory)
         : base(
@@ -50,8 +49,7 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
     {
         _store = store;
         _roadNetworkRepository = roadNetworkRepository;
-        _roadNetworkIdGenerator = roadNetworkIdGenerator;
-        _extractRequests = extractRequests;
+        _extractsDbContext = extractsDbContext;
         _mediator = mediator;
     }
 
@@ -83,12 +81,33 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
 
         var roadNetwork = await Load(roadNetworkChanges, new ScopedRoadNetworkId(command.DownloadId.ToGuid()));
 
-        var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator);
+        var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, new InMemoryRoadNetworkIdGenerator(initialValue: 1000000000));
         if (changeResult.Problems.HasError())
         {
-            await _extractRequests.AutomaticValidationFailedAsync(command.UploadId, cancellationToken);
+            await _extractsDbContext.AutomaticValidationFailedAsync(command.UploadId, cancellationToken);
 
             throw new RoadRegistryProblemsException(changeResult.Problems);
+        }
+
+        await EnsureAllInwinningRoadSegmentsAreUploaded(command, changeResult, cancellationToken);
+    }
+
+    private async Task EnsureAllInwinningRoadSegmentsAreUploaded(MigrateRoadNetworkSqsRequest command, RoadNetworkChangeResult changeResult, CancellationToken cancellationToken)
+    {
+        var inwinningszone = await _extractsDbContext.Inwinningszones.SingleAsync(x => x.DownloadId == command.DownloadId.ToGuid(), cancellationToken);
+
+        var inwinningRoadSegmentIds = await _extractsDbContext.InwinningRoadSegments
+            .Where(x => x.NisCode == inwinningszone.NisCode)
+            .Select(x => x.RoadSegmentId)
+            .ToListAsync(cancellationToken);
+        var modifiedOrRemovedRoadSegmentIds = changeResult.Summary.RoadSegments.Modified
+            .Concat(changeResult.Summary.RoadSegments.Removed)
+            .Select(x => x.ToInt32())
+            .ToList();
+        var missingRoadSegmentIds = inwinningRoadSegmentIds.Except(modifiedOrRemovedRoadSegmentIds).ToArray();
+        if (missingRoadSegmentIds.Any())
+        {
+            throw new InvalidOperationException($"Inwinning road segment ids are missing from the upload (most likely bug in FeatureCompare, DownloadId {command.DownloadId}): {string.Join(",", missingRoadSegmentIds)}");
         }
     }
 

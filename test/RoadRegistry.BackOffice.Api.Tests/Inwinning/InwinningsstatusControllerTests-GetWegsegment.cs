@@ -11,8 +11,10 @@ using RoadRegistry.Infrastructure.MartenDb.Setup;
 
 public partial class InwinningsstatusControllerTests
 {
-    [Fact]
-    public async Task GivenCompletedInwinningsRoadSegment_WhenGettingWegsegmentInwinningsstatus_ThenCompleet()
+    [Theory]
+    [InlineData(null)]
+    [InlineData("12345")]
+    public async Task GivenCompletedInwinningRoadSegment_WhenGettingWegsegmentInwinningsstatus_ThenCompleet(string nisCode)
     {
         // Arrange
         var roadSegmentId = Fixture.Create<RoadSegmentId>();
@@ -20,6 +22,7 @@ public partial class InwinningsstatusControllerTests
         _extractsDbContext.InwinningRoadSegments.Add(new InwinningRoadSegment
         {
             RoadSegmentId = roadSegmentId,
+            NisCode = nisCode,
             Completed = true
         });
         await _extractsDbContext.SaveChangesAsync();
@@ -41,7 +44,7 @@ public partial class InwinningsstatusControllerTests
     }
 
     [Fact]
-    public async Task GivenNotCompletedInwinningsRoadSegment_WhenGettingWegsegmentInwinningsstatus_ThenLocked()
+    public async Task GivenNotCompletedInwinningRoadSegment_WhenGettingWegsegmentInwinningsstatus_ThenLocked()
     {
         // Arrange
         var roadSegmentId = Fixture.Create<RoadSegmentId>();
@@ -49,6 +52,7 @@ public partial class InwinningsstatusControllerTests
         _extractsDbContext.InwinningRoadSegments.Add(new InwinningRoadSegment
         {
             RoadSegmentId = roadSegmentId,
+            NisCode = null,
             Completed = false
         });
         await _extractsDbContext.SaveChangesAsync();
@@ -70,7 +74,43 @@ public partial class InwinningsstatusControllerTests
     }
 
     [Fact]
-    public async Task GivenNoInwinningsRoadSegmentButExistingRoadSegment_WhenGettingWegsegmentInwinningsstatus_ThenNietGestart()
+    public async Task GivenNotCompletedAndCompletedInwinningRoadSegments_WhenGettingWegsegmentInwinningsstatus_ThenLocked()
+    {
+        // Arrange
+        var roadSegmentId = Fixture.Create<RoadSegmentId>();
+
+        _extractsDbContext.InwinningRoadSegments.Add(new InwinningRoadSegment
+        {
+            RoadSegmentId = roadSegmentId,
+            NisCode = "12345",
+            Completed = true
+        });
+        _extractsDbContext.InwinningRoadSegments.Add(new InwinningRoadSegment
+        {
+            RoadSegmentId = roadSegmentId,
+            NisCode = null,
+            Completed = false
+        });
+        await _extractsDbContext.SaveChangesAsync();
+
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+
+        // Act
+        var result = await Controller.GetWegsegmentInwinningsstatus(
+            roadSegmentId,
+            _extractsDbContext,
+            store,
+            CancellationToken.None);
+
+        // Assert
+        var okObjectResult = Assert.IsType<OkObjectResult>(result);
+        var responseObject = Assert.IsType<WegsegmentInwinningsstatus>(okObjectResult.Value);
+
+        responseObject.Inwinningsstatus.Should().Be(Inwinningsstatus.Locked);
+    }
+
+    [Fact]
+    public async Task GivenNoInwinningRoadSegmentButExistingRoadSegment_WhenGettingWegsegmentInwinningsstatus_ThenNietGestart()
     {
         // Arrange
         var roadSegmentId = Fixture.Create<RoadSegmentId>();
@@ -99,7 +139,7 @@ public partial class InwinningsstatusControllerTests
     }
 
     [Fact]
-    public async Task GivenNoInwinningsRoadSegmentAndNoExtractRoadSegment_WhenGettingWegsegmentInwinningsstatus_ThenNotFound()
+    public async Task GivenNoInwinningRoadSegmentAndNoExtractRoadSegment_WhenGettingWegsegmentInwinningsstatus_ThenNotFound()
     {
         // Arrange
         var roadSegmentId = Fixture.Create<RoadSegmentId>();

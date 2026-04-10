@@ -5,6 +5,7 @@ using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.Extensions;
+using RoadRegistry.RoadNetwork.Schema;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
@@ -37,7 +38,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
         // Act
-        var (segment, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), roadNetworkContext);
+        var (segment, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), roadNetworkContext);
 
         // Assert
         problems.Should().HaveNoError();
@@ -77,11 +78,11 @@ public class AggregateTests : AggregateTestBase
             NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
         };
 
-        var roadNetwork = new RoadNetworkBuilder(new FakeRoadNetworkIdGenerator()).Build();
+        var roadNetwork = new RoadNetworkBuilder(new InMemoryRoadNetworkIdGenerator()).Build();
         var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
         // Act
-        var (segment, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), roadNetworkContext);
+        var (segment, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), roadNetworkContext);
 
         // Assert
         problems.Should().HaveNoError();
@@ -161,7 +162,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), roadNetworkContext);
+        var (_, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), roadNetworkContext);
 
         // Assert
         problems.Should().Contain(x => x.Reason == "RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
@@ -200,7 +201,7 @@ public class AggregateTests : AggregateTestBase
             var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
             // Act
-            var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), roadNetworkContext);
+            var (_, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), roadNetworkContext);
 
             // Assert
             problems.Should().NotContain(x => x.Reason == "RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
@@ -217,7 +218,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), Fixture.Create<ScopedRoadNetworkContext>());
+        var (_, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), Fixture.Create<ScopedRoadNetworkContext>());
 
         // Assert
         problems.Should().ContainEquivalentOf(
@@ -242,7 +243,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), Fixture.Create<ScopedRoadNetworkContext>());
+        var (_, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), Fixture.Create<ScopedRoadNetworkContext>());
 
         // Assert
         problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryValueNotUniqueWithinSegment");

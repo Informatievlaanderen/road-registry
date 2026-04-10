@@ -37,11 +37,12 @@ public partial class InwinningsstatusController
         [FromServices] Marten.IDocumentStore documentStore,
         CancellationToken cancellationToken = default)
     {
-        var inwinningRoadSegment = await extractsDbContext.InwinningRoadSegments
+        var inwinningRoadSegmentsCompleted = await extractsDbContext.InwinningRoadSegments
             .Where(x => x.RoadSegmentId == id)
-            .SingleOrDefaultAsync(cancellationToken);
+            .Select(x => x.Completed)
+            .ToListAsync(cancellationToken);
 
-        if (inwinningRoadSegment is null)
+        if (inwinningRoadSegmentsCompleted.Count == 0)
         {
             await using var session = documentStore.LightweightSession();
 
@@ -59,7 +60,7 @@ public partial class InwinningsstatusController
 
         return Ok(new WegsegmentInwinningsstatus
         {
-            Inwinningsstatus = inwinningRoadSegment.Completed
+            Inwinningsstatus = inwinningRoadSegmentsCompleted.All(completed => completed)
                 ? Inwinningsstatus.Compleet
                 : Inwinningsstatus.Locked
         });

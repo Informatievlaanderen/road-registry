@@ -7,6 +7,7 @@ using Marten;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadSegment.Changes;
@@ -75,6 +76,12 @@ public class WithValidRequest : RoadNetworkIntegrationTest
 
         var roadSegments = await session.LoadManyAsync([TestData.Segment1Added.RoadSegmentId]);
         roadSegments.Should().HaveCount(1);
+
+        await using var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        var inwinningRoadSegment = extractsDbContext.InwinningRoadSegments
+            .Single(x => x.RoadSegmentId == TestData.Segment1Added.RoadSegmentId);
+        inwinningRoadSegment.NisCode.Should().BeNull();
+        inwinningRoadSegment.Completed.Should().BeTrue();
     }
 
     [Fact]
