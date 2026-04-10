@@ -167,6 +167,8 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, cancellationToken);
             translatedChanges = translatedChanges.WithOperatorName(new OperatorName(request.Provenance.Operator));
 
+            await ValidateInwinningsstatus(translatedChanges, cancellationToken);
+
             var requestId = ChangeRequestId.FromUploadId(uploadId);
             var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(
                 Logger,
@@ -195,6 +197,51 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         }
 
         return new object();
+    }
+
+    private async Task ValidateInwinningsstatus(TranslatedChanges translatedChanges, CancellationToken cancellationToken)
+    {
+        var newSegments = translatedChanges.OfType<AddRoadSegment>().ToList();
+        var modifiedSegmentIds = Enumerable.Empty<RoadSegmentId>()
+            .Concat(translatedChanges.OfType<ModifyRoadSegment>().Select(x => x.Id))
+            .Concat(translatedChanges.OfType<RemoveRoadSegment>().Select(x => x.Id))
+            .Concat(translatedChanges.OfType<RemoveOutlinedRoadSegment>().Select(x => x.Id))
+            .Concat(translatedChanges.OfType<RemoveOutlinedRoadSegmentFromRoadNetwork>().Select(x => x.Id))
+            .Concat(translatedChanges.OfType<AddRoadSegmentToEuropeanRoad>().Select(x => x.SegmentId))
+            .Concat(translatedChanges.OfType<AddRoadSegmentToNationalRoad>().Select(x => x.SegmentId))
+            .Concat(translatedChanges.OfType<AddRoadSegmentToNumberedRoad>().Select(x => x.SegmentId))
+            .Concat(translatedChanges.OfType<RemoveRoadSegmentFromEuropeanRoad>().Select(x => x.SegmentId))
+            .Concat(translatedChanges.OfType<RemoveRoadSegmentFromNationalRoad>().Select(x => x.SegmentId))
+            .Concat(translatedChanges.OfType<RemoveRoadSegmentFromNumberedRoad>().Select(x => x.SegmentId))
+            .Distinct()
+            .ToList();
+
+        var problems = ZipArchiveProblems.None;
+
+        var invalidNewRoadSegmentIds = await _extractsDbContext.CheckWhichOverlapWithInwinningszone(newSegments.Select(x => (x.Geometry, x.OriginalId ?? x.TemporaryId)), cancellationToken);
+        foreach (var roadSegmentId in invalidNewRoadSegmentIds)
+        {
+            var recordContext = ExtractFileName.Wegsegment.AtDbaseRecord(FeatureType.Change);
+            problems += recordContext.Error(new RoadSegmentOverlapsWithInwinningszone().WithContext(ProblemContext.For(roadSegmentId)));
+        }
+
+        var invalidModifiedRoadSegmentIds = await _extractsDbContext.GetInwinningRoadSegmentIds(modifiedSegmentIds, cancellationToken);
+        if (invalidModifiedRoadSegmentIds.Any())
+        {
+            var actualToOriginalIdMapping = translatedChanges.OfType<ModifyRoadSegment>()
+                .Where(x => x.OriginalId is not null)
+                .ToDictionary(x => x.Id, x => x.OriginalId!.Value);
+
+            foreach (var roadSegmentId in invalidModifiedRoadSegmentIds)
+            {
+                var originalId = actualToOriginalIdMapping.GetValueOrDefault(roadSegmentId, roadSegmentId);
+
+                var recordContext = ExtractFileName.Wegsegment.AtDbaseRecord(FeatureType.Change);
+                problems += recordContext.Error(new RoadSegmentIsInInwinning().WithContext(ProblemContext.For(originalId)));
+            }
+        }
+
+        problems.ThrowIfError();
     }
 
     private async Task EnsureExtractUploadExists(UploadId uploadId, DownloadId downloadId, TicketId ticketId, CancellationToken cancellationToken)

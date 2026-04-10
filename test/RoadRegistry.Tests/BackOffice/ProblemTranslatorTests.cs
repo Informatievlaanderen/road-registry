@@ -84,6 +84,16 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadSegment.OverlapsWithInwinningszone, [
+                    new ProblemParameter { Name = "WegsegmentId", Value = "1" }
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.IsInInwinning, [
+                    new ProblemParameter { Name = "WegsegmentId", Value = "1" }
+                ]
+            },
+            {
                 ProblemCode.RoadSegment.StartPoint.MeasureValueNotEqualToZero, [
                     new ProblemParameter("Identifier", "1"),
                     new ProblemParameter("PointX", "1.0"),

@@ -13,7 +13,7 @@ using FileProblem = Messages.FileProblem;
 public sealed class DomainV2FileProblemTranslator : FileProblemTranslator
 {
     public DomainV2FileProblemTranslator()
-        : base(WellKnownProblemTranslators.Default)
+        : base(WellKnownProblemTranslators.Extract)
     {
     }
 
