@@ -1,3 +1,10 @@
+# [4.56.0](https://github.com/informatievlaanderen/road-registry/compare/v4.55.0...v4.56.0) (2026-04-13)
+
+
+### Features
+
+* update roadsegment inwinningsstatus on extract/upload ([b089eb1](https://github.com/informatievlaanderen/road-registry/commit/b089eb1bdac5c003ff1656f0d3d2f4cbe5cf7a4b))
+
 # [4.55.0](https://github.com/informatievlaanderen/road-registry/compare/v4.54.0...v4.55.0) (2026-04-10)
 
 
