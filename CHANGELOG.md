@@ -1,3 +1,10 @@
+## [4.56.1](https://github.com/informatievlaanderen/road-registry/compare/v4.56.0...v4.56.1) (2026-04-13)
+
+
+### Bug Fixes
+
+* **UI:** handle ticket errors from domain v2 ([9551c3d](https://github.com/informatievlaanderen/road-registry/commit/9551c3dc22bd6ade173a80785d24dcf88e83dbd4))
+
 # [4.56.0](https://github.com/informatievlaanderen/road-registry/compare/v4.55.0...v4.56.0) (2026-04-13)
 
 
