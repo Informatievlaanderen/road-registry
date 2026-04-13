@@ -457,12 +457,21 @@ export default defineComponent({
       let errors = ticketError.Errors?.length > 0 ? [...ticketError.Errors] : [ticketError];
       errors = uniqBy(errors, (x) => `${x.ErrorCode}_${x.ErrorMessage}`);
       let problems = errors.map((error) => {
-        let codeParts = (error.ErrorCode ?? "").split("_");
-        let file = codeParts.length > 1 ? codeParts[0] : null;
-        if (error.ErrorContext && error.ErrorContext["Bestand"]) {
-          file = error.ErrorContext["Bestand"];
+        let file = null;
+        if (error.ErrorContext) {
+          if (error.ErrorContext["Bestand"]) {
+            file = error.ErrorContext["Bestand"];
+          } else if (error.ErrorContext["WegknoopId"]) {
+            file = `Wegknoop ${error.ErrorContext["WegknoopId"]}`;
+          } else if (error.ErrorContext["WegsegmentId"]) {
+            file = `Wegsegment ${error.ErrorContext["WegsegmentId"]}`;
+          } else if (error.ErrorContext["OngelijkGrondseKruisingId"]) {
+            file = `Ongelijkgrondse kruising ${error.ErrorContext["OngelijkGrondseKruisingId"]}`;
+          } else if (error.ErrorContext["GelijkGrondseKruisingId"]) {
+            file = `Gelijkgrondse kruising ${error.ErrorContext["GelijkGrondseKruisingId"]}`;
+          }
         }
-        let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
+        let code = error.ErrorCode ?? "";
         let severity = code.startsWith("Warning") ? "Warning" : "Error";
         let text = error.ErrorMessage;
         return { file, code, severity, text };
