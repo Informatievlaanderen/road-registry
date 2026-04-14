@@ -56,8 +56,10 @@ using Options;
 using Product.Schema;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.DataValidation;
+using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.ZipArchiveWriters;
+using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadSegments;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
@@ -356,6 +358,8 @@ public class Startup
             .AddScoped<IDataValidationApiClient, DataValidationApiClient>()
             .AddScoped<DataValidationPollingService>()
             .AddScheduledJob<DataValidationPollingService>(_configuration.GetRequiredValue<TimeSpan>("DataValidationPollingOptions:Period"))
+            .AddMartenRoad(options => options
+                .ConfigureExtractDocuments()).Services
 
             .AddDistributedMemoryCache()
             .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)
