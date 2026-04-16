@@ -1,3 +1,10 @@
+## [4.56.2](https://github.com/informatievlaanderen/road-registry/compare/v4.56.1...v4.56.2) (2026-04-14)
+
+
+### Bug Fixes
+
+* register Marten in API for Inwinningsstatus ([e4d4fe6](https://github.com/informatievlaanderen/road-registry/commit/e4d4fe64682b9df11f1bfce3db155fcc7e5ebad1))
+
 ## [4.56.1](https://github.com/informatievlaanderen/road-registry/compare/v4.56.0...v4.56.1) (2026-04-13)
 
 
