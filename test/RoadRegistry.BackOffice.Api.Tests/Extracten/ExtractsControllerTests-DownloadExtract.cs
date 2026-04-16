@@ -19,9 +19,10 @@ public partial class ExtractsControllerTests
         var downloadId = Fixture.Create<DownloadId>();
 
         var presignedUrl = Fixture.Create<string>();
+        var fileName = Fixture.Create<string>();
         Mediator
             .Setup(x => x.Send(It.IsAny<GetDownloadExtractPresignedUrlRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetDownloadExtractPresignedUrlResponse(presignedUrl));
+            .ReturnsAsync(new GetDownloadExtractPresignedUrlResponse(presignedUrl, fileName));
 
         // Act
         var result = await Controller.DownloadExtract(
@@ -31,6 +32,7 @@ public partial class ExtractsControllerTests
         var okObjectResult = Assert.IsType<OkObjectResult>(result);
         var response = Assert.IsType<ExtractenController.DownloadExtractResponse>(okObjectResult.Value);
         response.DownloadUrl.Should().Be(presignedUrl);
+        response.FileName.Should().Be(fileName);
     }
 
     [Fact]

@@ -1,6 +1,5 @@
 import apiClient, { AxiosHttpApiClient, convertError } from "./api-client";
 import RoadRegistry from "@/types/road-registry";
-import RoadRegistryExceptions from "@/types/road-registry-exceptions";
 import axios from "axios";
 import { trimEnd } from "lodash";
 import { featureToggles, API_OLDENDPOINT } from "@/environment";
@@ -38,57 +37,6 @@ export const BackOfficeApi = {
         filter,
       });
       return response.data;
-    },
-  },
-  Downloads: {
-    getForEditor: async () => {
-      const path = `${apiEndpoint}/v1/download/for-editor`;
-      await apiClient.download("application/zip", "wegenregister.zip", path, "GET");
-    },
-    getForProduct: async (date: string) => {
-      const path = `${apiEndpoint}/v1/download/for-product/${date}`;
-      await apiClient.download("application/zip", `wegenregister-${date}.zip`, path, "GET");
-    },
-  },
-  Uploads: {
-    uploadFeatureCompare: async (file: Blob, filename: string): Promise<RoadRegistry.UploadExtractResponseBody> => {
-      const path = `${apiEndpoint}/v1/upload/fc`;
-      const data = new FormData();
-      data.append("archive", file, filename);
-      const response = await apiClient.post<RoadRegistry.UploadExtractResponseBody>(path, data);
-      if (response.data) {
-        response.data.status = response.status;
-      }
-      return response.data;
-    },
-    uploadUsingPresignedUrl: async (
-      file: Blob,
-      filename: string
-    ): Promise<RoadRegistry.UploadPresignedUrlResponse | null> => {
-      const path = `${apiEndpoint}/v1/upload/jobs`;
-      const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
-
-      const data = new FormData();
-      if (response.data.uploadUrlFormData) {
-        for (const key in response.data.uploadUrlFormData) {
-          data.append(key, response.data.uploadUrlFormData[key]);
-        }
-      }
-      data.append("file", file, filename);
-
-      const awsHttp = axios.create();
-      const uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
-
-      const status = uploadFileResponse.status as any;
-      if (status !== 204) {
-        return null;
-      }
-
-      return response.data;
-    },
-    download: async (identifier: string): Promise<void> => {
-      const path = `${apiEndpoint}/v1/upload/${identifier}`;
-      await apiClient.download("application/zip", `${identifier}.zip`, path, "GET");
     },
   },
   Extracts: {
@@ -221,96 +169,6 @@ export const BackOfficeApi = {
           ticketUrl: response.headers.location,
         };
       },
-    },
-    getDetails: async (downloadId: string) => {
-      const path = `${apiEndpoint}/v1/extracts/${downloadId}`;
-      const response = await apiClient.get<RoadRegistry.ExtractDetails>(path);
-      return response.data;
-    },
-    download: async (downloadid: string) => {
-      const path = `${apiEndpoint}/v1/extracts/download/${downloadid}`;
-      await apiClient.download("application/zip", `${downloadid}.zip`, path, "GET");
-    },
-    upload: async (downloadid: string, file: Blob, filename: string) => {
-      const path = `${apiEndpoint}/v1/extracts/download/${downloadid}/uploads`;
-      const data = new FormData();
-      data.append(downloadid, file, filename);
-      const response = await apiClient.post<RoadRegistry.UploadExtractResponseBody>(path, data);
-      return response.data;
-    },
-    getUploadStatus: async (uploadid: string): Promise<{ status: string }> => {
-      const path = `${apiEndpoint}/v1/extracts/upload/${uploadid}/status`;
-      const response = await apiClient.get<{ status: string }>(path);
-      return response.data;
-    },
-    postDownloadRequest: async (
-      downloadRequest: RoadRegistry.DownloadExtractRequest
-    ): Promise<RoadRegistry.DownloadExtractResponseBody> => {
-      const path = `${apiEndpoint}/v1/extracts/downloadrequests`;
-      const response = await apiClient.post<RoadRegistry.DownloadExtractResponseBody>(path, downloadRequest);
-      return response.data;
-    },
-    postDownloadRequestByContour: async (
-      downloadRequest: RoadRegistry.DownloadExtractByContourRequest
-    ): Promise<RoadRegistry.DownloadExtractResponseBody> => {
-      const path = `${apiEndpoint}/v1/extracts/downloadrequests/bycontour`;
-      const response = await apiClient.post<RoadRegistry.DownloadExtractResponseBody>(path, downloadRequest);
-      return response.data;
-    },
-    postDownloadRequestByFile: async (
-      downloadRequest: RoadRegistry.DownloadExtractByFileRequest
-    ): Promise<RoadRegistry.DownloadExtractResponseBody> => {
-      const path = `${apiEndpoint}/v1/extracts/downloadrequests/byfile`;
-
-      const data = new FormData();
-      data.append("description", downloadRequest.description);
-      data.append("isInformative", downloadRequest.isInformative.toString());
-      downloadRequest.files.forEach((file) => {
-        data.append("files", file, file.name);
-      });
-
-      try {
-        const response = await apiClient.post<RoadRegistry.DownloadExtractResponseBody>(path, data);
-        return response.data;
-      } catch (exception) {
-        if (axios.isAxiosError(exception)) {
-          const response = exception?.response;
-          if (response && response.status === 400) {
-            // HTTP Bad Request
-            const error = response?.data as RoadRegistry.BadRequestResponse;
-            throw new RoadRegistryExceptions.BadRequestError(error);
-          }
-        }
-
-        throw new Error("Unknown error");
-      }
-    },
-    postDownloadRequestByNisCode: async (
-      downloadRequest: RoadRegistry.DownloadExtractByNisCodeRequest
-    ): Promise<RoadRegistry.DownloadExtractResponseBody> => {
-      const path = `${apiEndpoint}/v1/extracts/downloadrequests/byniscode`;
-      const response = await apiClient.post<RoadRegistry.DownloadExtractResponseBody>(path, downloadRequest);
-      return response.data;
-    },
-    getOverlappingExtractRequestsByNisCode: async (
-      nisCode: string
-    ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
-      const request = {
-        nisCode,
-      } as RoadRegistry.ListOverlappingExtractsByNisCodeRequest;
-      const path = `${apiEndpoint}/v1/extracts/overlapping/byniscode`;
-      const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
-      return response.data;
-    },
-    getOverlappingExtractRequestsByContour: async (
-      contour: string
-    ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
-      const request = {
-        contour,
-      } as RoadRegistry.ListOverlappingExtractsByContourRequest;
-      const path = `${apiEndpoint}/v1/extracts/overlapping/bycontour`;
-      const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
-      return response.data;
     },
   },
   Inwinning: {

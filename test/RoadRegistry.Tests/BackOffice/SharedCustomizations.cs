@@ -1078,7 +1078,7 @@ public static class SharedCustomizations
     public static void CustomizeStreetNameLocalId(this IFixture fixture)
     {
         fixture.Customize<StreetNameLocalId>(composer =>
-            composer.FromFactory<int>(value => new StreetNameLocalId(Math.Abs(value)))
+            composer.FromFactory<int>(value => new StreetNameLocalId(fixture.Create<IntegerValue>()))
         );
     }
 

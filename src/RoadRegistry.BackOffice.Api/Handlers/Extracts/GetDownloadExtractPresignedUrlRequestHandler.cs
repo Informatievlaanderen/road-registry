@@ -55,6 +55,6 @@ public class GetDownloadExtractPresignedUrlRequestHandler : EndpointRequestHandl
         record.DownloadedOn = DateTimeOffset.UtcNow;
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
 
-        return new GetDownloadExtractPresignedUrlResponse(presignedUrl.Url.ToString());
+        return new GetDownloadExtractPresignedUrlResponse(presignedUrl.Url.ToString(), presignedUrl.FileName);
     }
 }

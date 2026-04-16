@@ -118,6 +118,7 @@ export namespace RoadRegistry {
   }
   export interface DownloadExtractResponse {
     downloadUrl: string;
+    fileName: string;
   }
   export interface DownloadExtractResponseBody {
     downloadId: string;
