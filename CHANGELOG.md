@@ -1,3 +1,10 @@
+## [4.56.4](https://github.com/informatievlaanderen/road-registry/compare/v4.56.3...v4.56.4) (2026-04-16)
+
+
+### Bug Fixes
+
+* **ui:** remove unused code (usage of old endpoints, bijwerkingszones) ([63cb94f](https://github.com/informatievlaanderen/road-registry/commit/63cb94fb43d306f4183fe0298388380799a2a681))
+
 ## [4.56.3](https://github.com/informatievlaanderen/road-registry/compare/v4.56.2...v4.56.3) (2026-04-16)
 
 
