@@ -45,7 +45,8 @@ public partial class ExtractenController
 
             return Ok(new DownloadExtractResponse
             {
-                DownloadUrl = response.PresignedUrl
+                DownloadUrl = response.PresignedUrl,
+                FileName = response.FileName
             });
         }
         catch (ExtractDownloadNotFoundException)
@@ -61,5 +62,6 @@ public partial class ExtractenController
     public class DownloadExtractResponse
     {
         public string DownloadUrl { get; init; }
+        public string FileName { get; init; }
     }
 }

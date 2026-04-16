@@ -63,8 +63,8 @@ public class GetDownloadUploadPresignedUrlRequestHandler : EndpointRequestHandle
             .SingleOrDefault()
             ?? $"{uploadId}.zip";
 
-        var preSignedUrl = await _downloadFileUrlPresigner.CreatePresignedDownloadUrl(WellKnownBuckets.UploadsBucket, blobName, fileName);
+        var presignedUrl = await _downloadFileUrlPresigner.CreatePresignedDownloadUrl(WellKnownBuckets.UploadsBucket, blobName, fileName);
 
-        return new GetDownloadUploadPresignedUrlResponse(preSignedUrl.Url.ToString(), preSignedUrl.FileName);
+        return new GetDownloadUploadPresignedUrlResponse(presignedUrl.Url.ToString(), presignedUrl.FileName);
     }
 }

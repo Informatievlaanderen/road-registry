@@ -34,38 +34,17 @@
               <div data-vl-tabs data-vl-tabs-responsive-label="Navigatie">
                 <div class="vl-tabs__wrapper">
                   <div class="vl-tabs" data-vl-tabs-list role="tablist">
-                    <router-link v-if="isInwinner" :to="`/inwinning`" class="vl-tab" role="tab"
-                      >Inwinning</router-link
+                    <router-link v-if="isInwinner" :to="`/inwinning`" class="vl-tab" role="tab">Inwinning</router-link>
+                    <router-link v-if="!isInwinner" :to="`/extracten`" class="vl-tab" role="tab">Extracten</router-link>
+                    <router-link v-if="!isInwinner" :to="`/activiteit`" class="vl-tab" role="tab"
+                      >Activiteit</router-link
                     >
-                    <router-link v-if="featureToggles.useExtractsV2 && !isInwinner" :to="`/extracten`" class="vl-tab" role="tab"
-                      >Extracten</router-link
+                    <router-link v-if="!isInwinner" :to="`/informatie`" class="vl-tab" role="tab"
+                      >Informatie</router-link
                     >
-                    <router-link v-if="!isInwinner" :to="`/activiteit`" class="vl-tab" role="tab">Activiteit</router-link>
-                    <router-link v-if="!isInwinner" :to="`/informatie`" class="vl-tab" role="tab">Informatie</router-link>
-                    <router-link
-                      v-if="userCanEdit && !featureToggles.useExtractsV2 && !isInwinner"
-                      :to="`/download-extract`"
-                      class="vl-tab"
-                      role="tab"
+                    <a v-if="!isInwinner" @click="downloadProduct" class="vl-tab" role="tab" style="cursor: pointer"
+                      >Download Product</a
                     >
-                      Download Extract
-                    </router-link>
-                    <a v-if="!isInwinner" @click="downloadProduct" class="vl-tab" role="tab" style="cursor: pointer;">Download Product</a>
-                    <router-link
-                      v-if="userCanEdit && !featureToggles.useExtractsV2 && !isInwinner"
-                      :to="`/uploads`"
-                      class="vl-tab"
-                      role="tab"
-                      >Uploads</router-link
-                    >
-                    <router-link
-                      v-if="userCanEdit && featureToggles.useTransactionZonesTab && !isInwinner"
-                      :to="`/bijwerkingszones`"
-                      class="vl-tab"
-                      role="tab"
-                    >
-                      Bijwerkingszones
-                    </router-link>
                   </div>
                 </div>
               </div>
@@ -86,17 +65,11 @@ import RoadRegistry from "@/types/road-registry";
 export default defineComponent({
   name: "Header",
   computed: {
-    featureToggles() {
-      return environment.featureToggles;
-    },
     isAuthenticated() {
       return HasAuth.state;
     },
     userFullName() {
       return `${user.state.firstName ?? ""} ${user.state.lastName ?? ""}`.trim();
-    },
-    userCanEdit() {
-      return AuthService.userHasAnyContext([RoadRegistry.UserContext.Editeerder, RoadRegistry.UserContext.Admin]);
     },
     isInwinner() {
       return user.state.isInwinner;

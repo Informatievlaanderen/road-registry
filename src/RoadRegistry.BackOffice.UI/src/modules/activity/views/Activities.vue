@@ -77,11 +77,6 @@
                           ].some((x) => x === activity.changeFeedEntry.type)
                         "
                       >
-                        <span v-if="activity.changeFeedContent.content.archive.id">
-                          <vl-button v-if="isDownloading" mod-loading> Download... </vl-button>
-                          <vl-button v-else @click="downloadUpload(activity)"> Download </vl-button>
-                        </span>
-
                         <span
                           style="margin-left: 1rem"
                           v-if="
@@ -110,10 +105,6 @@
                           </vl-alert>
                           <br />
                         </div>
-                        <div>
-                          <vl-button v-if="isDownloading" mod-loading> Download... </vl-button>
-                          <vl-button v-else @click="downloadExtract(activity)"> Download </vl-button>
-                        </div>
                       </div>
 
                       <div
@@ -136,10 +127,6 @@
                           <ActivityProblems :problems="file.problems" />
                           <br />
                         </div>
-                        <div v-if="activity.changeFeedContent.content.archive.id">
-                          <vl-button v-if="isDownloading" mod-loading> Download... </vl-button>
-                          <vl-button v-else @click="downloadUpload(activity)"> Download </vl-button>
-                        </div>
                       </div>
                       <div
                         v-else-if="['RoadNetworkChangesAccepted:v2'].some((x) => x === activity.changeFeedEntry.type)"
@@ -153,10 +140,6 @@
                           <ActivityProblems :problems="change.problems" />
                           <br />
                         </div>
-                        <div v-if="activity.changeFeedContent.content.archive.id">
-                          <vl-button v-if="isDownloading" mod-loading> Download... </vl-button>
-                          <vl-button v-else @click="downloadUpload(activity)"> Download </vl-button>
-                        </div>
                       </div>
                       <div v-else-if="['RoadNetworkChangesRejected'].some((x) => x === activity.changeFeedEntry.type)">
                         <div v-for="change in activity.changeFeedContent.content.changes" :key="change.change">
@@ -165,10 +148,6 @@
                           </h3>
                           <ActivityProblems :problems="change.problems" />
                           <br />
-                        </div>
-                        <div v-if="activity.changeFeedContent.content.archive.id">
-                          <vl-button v-if="isDownloading" mod-loading> Download... </vl-button>
-                          <vl-button v-else @click="downloadUpload(activity)"> Download </vl-button>
                         </div>
                       </div>
                     </div>
@@ -210,11 +189,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { debounce } from "lodash";
-import { BackOfficeApi, PublicApi } from "../../../services";
+import { PublicApi } from "../../../services";
 import RoadRegistry from "../../../types/road-registry";
 import ActivityProblems from "../components/ActivityProblems.vue";
 import ActivitySummary from "../components/ActivitySummary.vue";
-import { featureToggles } from "@/environment";
 
 export default defineComponent({
   components: {
@@ -311,30 +289,6 @@ export default defineComponent({
         this.activities = this.activities.concat(response.entries.map((entry) => new Activity(entry)));
       } finally {
         this.pagination.isLoading = false;
-      }
-    },
-    async downloadUpload(activity: any): Promise<void> {
-      this.isDownloading = true;
-      try {
-        if (featureToggles.usePresignedEndpoints) {
-          await PublicApi.Uploads.downloadUsingPresignedUrl(activity.changeFeedContent.content.archive.id);
-        } else {
-          await BackOfficeApi.Uploads.download(activity.changeFeedContent.content.archive.id);
-        }
-      } finally {
-        this.isDownloading = false;
-      }
-    },
-    async downloadExtract(activity: any): Promise<void> {
-      this.isDownloading = true;
-      try {
-        if (featureToggles.usePresignedEndpoints) {
-          await PublicApi.Extracts.downloadUsingPresignedUrl(activity.changeFeedContent.content.archive.id);
-        } else {
-          await BackOfficeApi.Extracts.download(activity.changeFeedContent.content.archive.id);
-        }
-      } finally {
-        this.isDownloading = false;
       }
     },
     setQueryParams(params: any) {
