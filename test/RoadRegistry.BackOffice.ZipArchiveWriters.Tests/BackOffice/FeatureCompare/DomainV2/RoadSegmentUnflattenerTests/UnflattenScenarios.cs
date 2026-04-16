@@ -595,7 +595,7 @@ POINT (60 -10)
             roadSegmentIdProver,
             new OgcFeaturesCache([]),
             translateContext,
-            CancellationToken.None);
+            CancellationToken.None).RoadSegments;
 
         TestOutputHelper.WriteLine(string.Empty);
         TestOutputHelper.WriteLine("-->");

@@ -30,6 +30,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
         {
             _testData = new DomainV2ZipArchiveTestData();
             Fixture = CreateFixture(_testData);
+            Fixture.CustomizeUniqueInteger();
             customize?.Invoke(Fixture);
             Records = new RecordBuilder(Fixture);
         }
@@ -238,10 +239,22 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
         {
             _fixture = fixture;
 
-            TestData.RoadSegment1StartNodeDbaseRecord = CreateRoadNodeDbaseRecord();
-            TestData.RoadSegment1EndNodeDbaseRecord = CreateRoadNodeDbaseRecord();
-            TestData.RoadSegment2StartNodeDbaseRecord = CreateRoadNodeDbaseRecord();
-            TestData.RoadSegment2EndNodeDbaseRecord = CreateRoadNodeDbaseRecord();
+            TestData.RoadSegment1StartNodeDbaseRecord = CreateRoadNodeDbaseRecord(x =>
+            {
+                x.TYPE.Value = RoadNodeTypeV2.Eindknoop;
+            });
+            TestData.RoadSegment1EndNodeDbaseRecord = CreateRoadNodeDbaseRecord(x =>
+            {
+                x.TYPE.Value = RoadNodeTypeV2.Eindknoop;
+            });
+            TestData.RoadSegment2StartNodeDbaseRecord = CreateRoadNodeDbaseRecord(x =>
+            {
+                x.TYPE.Value = RoadNodeTypeV2.Eindknoop;
+            });
+            TestData.RoadSegment2EndNodeDbaseRecord = CreateRoadNodeDbaseRecord(x =>
+            {
+                x.TYPE.Value = RoadNodeTypeV2.Eindknoop;
+            });
 
             TestData.RoadSegment1DbaseRecord = CreateRoadSegmentDbaseRecord();
             var roadSegment1LineString = CreateRoadSegmentGeometry();

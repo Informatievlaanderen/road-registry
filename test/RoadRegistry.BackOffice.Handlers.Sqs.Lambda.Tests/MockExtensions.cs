@@ -6,21 +6,13 @@ using TicketingService.Abstractions;
 
 public static class MockExtensions
 {
-    public static void VerifyThatTicketHasError(this Mock<ITicketing> ticketing, string code, string message)
-    {
-        var ticketErrors = GetTicketErrors(ticketing).ToArray();
-        ticketErrors.Should()
-            .Contain(x => x.ErrorCode == code && x.ErrorMessage == message);
-    }
-
-    public static void VerifyThatTicketHasError(this Mock<ITicketing> ticketing, string code, string message, Dictionary<string, object> errorContext)
+    public static void VerifyThatTicketHasError(this Mock<ITicketing> ticketing, string code, string? message = null, Dictionary<string, object>? errorContext = null)
     {
         var ticketErrors = GetTicketErrors(ticketing).ToArray();
         ticketErrors.Should()
             .Contain(x => x.ErrorCode == code
-                          && x.ErrorMessage == message
-                          && x.ErrorContext != null
-                          && x.ErrorContext.EqualsCollection(errorContext));
+                          && (message == null || x.ErrorMessage == message)
+                          && (errorContext == null || (x.ErrorContext != null && x.ErrorContext.EqualsCollection(errorContext))));
     }
 
     public static void VerifyThatTicketHasCompleted(this Mock<ITicketing> ticketing, object response)

@@ -13,7 +13,7 @@ public static class SharedCustomizations
         fixture.Customize<RoadNodeDbaseRecord>(composer => composer
             .FromFactory(random => new RoadNodeDbaseRecord
             {
-                WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
+                WK_OIDN = { Value = fixture.Create<RoadNodeId>() },
                 TYPE = { Value = (short)fixture.Create<RoadNodeTypeV2>().Translation.Identifier },
                 GRENSKNOOP = { Value = (short)random.Next(0, 2) }
             })

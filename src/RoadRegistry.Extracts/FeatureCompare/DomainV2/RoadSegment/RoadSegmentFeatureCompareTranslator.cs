@@ -9,9 +9,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetTopologySuite.Index.Strtree;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
 using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 using TranslatedChanges = DomainV2.TranslatedChanges;
@@ -65,22 +67,37 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         var dynamicChangeFeaturesTask = Task.Run(() => RoadSegmentUnflattener.Unflatten(FeatureType.Change, changeFeatures, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken), cancellationToken);
         await Task.WhenAll(dynamicChangeFeaturesTask, dynamicExtractFeaturesTask);
 
-        var processedLeveringRecords = ProcessLeveringRecordsInParallel(dynamicChangeFeaturesTask.Result, dynamicExtractFeaturesTask.Result, streetNameContext, context, cancellationToken);
+        changes = RemoveConsumedSchijnknopen(changes, dynamicChangeFeaturesTask.Result.ConsumedRoadNodeIds);
+
+        var processedLeveringRecords = ProcessLeveringRecordsInParallel(dynamicChangeFeaturesTask.Result.RoadSegments, dynamicExtractFeaturesTask.Result.RoadSegments, streetNameContext, context, cancellationToken);
         problems += processedLeveringRecords.Item2;
 
         GenerateNewIdForAddedRecords(processedLeveringRecords.Item1, roadSegmentIdProvider);
 
         await dynamicExtractFeaturesTask;
-        FixMultipleReUsesOfRoadSegmentIds(processedLeveringRecords.Item1, dynamicExtractFeaturesTask.Result, roadSegmentIdProvider, context, cancellationToken);
+        FixMultipleReUsesOfRoadSegmentIds(processedLeveringRecords.Item1, dynamicExtractFeaturesTask.Result.RoadSegments, roadSegmentIdProvider, context, cancellationToken);
 
         context.AddRoadSegmentRecords(processedLeveringRecords.Item1);
 
-        AddExtractRecordsToContext(dynamicExtractFeaturesTask.Result, context, cancellationToken);
+        AddExtractRecordsToContext(dynamicExtractFeaturesTask.Result.RoadSegments, context, cancellationToken);
         problems.ThrowIfError();
 
         changes = TranslateProcessedRecords(changes, context, cancellationToken);
 
         return (changes, problems);
+    }
+
+    private static TranslatedChanges RemoveConsumedSchijnknopen(TranslatedChanges changes, List<RoadNodeId> consumedRoadNodeIds)
+    {
+        var roadNodeIdsToRemove = consumedRoadNodeIds
+            .Where(x => x < RoadNodeConstants.InitialTemporarySchijnknoopId)
+            .ToArray();
+        foreach (var roadNodeId in roadNodeIdsToRemove)
+        {
+            changes = changes.AppendChange(new RemoveRoadNodeChange { RoadNodeId = roadNodeId });
+        }
+
+        return changes;
     }
 
     private static ZipArchiveProblems ValidateChangeFeaturesAreWithinTransactionZone(List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> changeFeatures, ZipArchiveEntryFeatureCompareTranslateContext context)

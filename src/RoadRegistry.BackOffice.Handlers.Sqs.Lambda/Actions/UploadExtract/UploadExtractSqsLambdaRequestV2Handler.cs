@@ -56,7 +56,7 @@ public sealed class UploadExtractSqsLambdaRequestV2Handler : SqsLambdaHandler<Up
             ticketId,
             ZipArchiveMetadata.Empty,
             sendFailedEmail: request.Request.SendFailedEmail,
-            cancellationToken);
+            cancellationToken: cancellationToken);
 
         var changeRoadNetworkSqsRequest = new ChangeRoadNetworkSqsRequest
         {

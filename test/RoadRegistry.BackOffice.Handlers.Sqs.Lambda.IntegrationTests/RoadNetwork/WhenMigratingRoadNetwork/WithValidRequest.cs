@@ -1,25 +1,22 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenMigratingRoadNetwork;
 
-using Actions.MigrateRoadNetwork;
 using AutoFixture;
 using FluentAssertions;
 using Marten;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
 using RoadRegistry.Extracts.Schema;
-using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
-using Sqs.RoadNetwork;
-using Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 
 [Collection(nameof(DockerFixtureCollection))]
 public class WithValidRequest : RoadNetworkIntegrationTest
 {
-    private readonly Mock<IExtractRequests> _extractRequestsMock = new();
-
     public WithValidRequest(DatabaseFixture databaseFixture, ITestOutputHelper testOutputHelper)
         : base(databaseFixture, testOutputHelper)
     {
@@ -54,7 +51,9 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             ProvenanceData = provenanceData
         };
 
-        var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        await using var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        await AddExtractDownloadAndUpload(extractsDbContext, command);
+
         var nisCode = "12345";
         extractsDbContext.Inwinningszones.Add(new Inwinningszone
         {
@@ -135,7 +134,8 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             ProvenanceData = provenanceData
         };
 
-        var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        await using var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        await AddExtractDownloadAndUpload(extractsDbContext, command);
         extractsDbContext.Inwinningszones.Add(new Inwinningszone
         {
             DownloadId = command.DownloadId,
@@ -146,34 +146,18 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         });
         await extractsDbContext.SaveChangesAsync(CancellationToken.None);
 
-        var uploadAcceptedCount = 0;
-        _extractRequestsMock
-            .Setup(x => x.UploadAcceptedAsync(It.IsAny<UploadId>(), It.IsAny<CancellationToken>()))
-            .Returns(() =>
-            {
-                uploadAcceptedCount++;
-
-                if (uploadAcceptedCount == 1)
-                {
-                    throw new Exception("Unexpected error");
-                }
-
-                return Task.CompletedTask;
-            });
         var handler = sp.GetRequiredService<MigrateRoadNetworkSqsLambdaRequestHandler>();
 
         // Act
-        var actFirstRun = () => handler.Handle(new MigrateRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
-        await actFirstRun.Should().ThrowAsync<Exception>();
-
+        await handler.Handle(new MigrateRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
         await handler.Handle(new MigrateRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
 
         // Assert
-        var ticketResult = TicketingMock.Invocations
+        var ticketResults = TicketingMock.Invocations
             .Where(x => x.Method.Name == nameof(ITicketing.Complete) && x.Arguments[0].Equals(command.TicketId))
             .Select(x => (TicketResult)x.Arguments[1])
-            .SingleOrDefault();
-        ticketResult.Should().NotBeNull();
+            .ToArray();
+        ticketResults.Should().HaveCount(2);
 
         var store = sp.GetRequiredService<IDocumentStore>();
         await using var session = store.LightweightSession();
@@ -191,8 +175,26 @@ public class WithValidRequest : RoadNetworkIntegrationTest
     protected override void ConfigureServices(IServiceCollection services)
     {
         services
-            .AddSingleton(_extractRequestsMock.Object)
             .AddSingleton(new FakeExtractsDbContextFactory().CreateDbContext())
             .AddScoped<MigrateRoadNetworkSqsLambdaRequestHandler>();
+    }
+
+    private async Task AddExtractDownloadAndUpload(ExtractsDbContext extractsDbContext, MigrateRoadNetworkSqsRequest command)
+    {
+        extractsDbContext.ExtractDownloads.Add(new ExtractDownload
+        {
+            DownloadId = command.DownloadId,
+            Contour = Polygon.Empty,
+            ExtractRequestId = TestData.Fixture.Create<ExtractRequestId>()
+        });
+        extractsDbContext.ExtractUploads.Add(new ExtractUpload
+        {
+            UploadId = command.UploadId,
+            DownloadId = command.DownloadId,
+            UploadedOn = DateTimeOffset.UtcNow,
+            Status = ExtractUploadStatus.Processing,
+            TicketId = command.TicketId
+        });
+        await extractsDbContext.SaveChangesAsync();
     }
 }

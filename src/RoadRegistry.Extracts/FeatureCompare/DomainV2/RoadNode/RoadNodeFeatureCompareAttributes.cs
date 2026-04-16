@@ -6,6 +6,7 @@ public record RoadNodeFeatureCompareAttributes
 {
     public required RoadNodeId RoadNodeId { get; init; }
     public required Point Geometry { get; init; }
+    public RoadNodeTypeV2? Type { get; init; }
     public bool? Grensknoop { get; init; }
 
     public RoadNodeFeatureCompareAttributes OnlyChangedAttributes(RoadNodeFeatureCompareAttributes other, Point extractGeometry)
@@ -14,7 +15,8 @@ public record RoadNodeFeatureCompareAttributes
         {
             RoadNodeId = RoadNodeId,
             Geometry = Geometry.EqualsExact(other.Geometry) ? extractGeometry : Geometry,
-            Grensknoop = Grensknoop == other.Grensknoop ? null : Grensknoop
+            Grensknoop = Grensknoop == other.Grensknoop ? null : Grensknoop,
+            // exclude RoadNodeType
         };
     }
 }

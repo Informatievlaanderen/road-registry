@@ -1,12 +1,13 @@
 ﻿namespace RoadRegistry.Extracts.ZipArchiveWriters;
 
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
 using RoadRegistry.Extracts.Projections;
 
 public class ZipArchiveWriteContext
 {
     private readonly Dictionary<RoadSegmentId, List<(RoadSegmentId, RoadSegmentGeometry)>> _roadSegmentTempIds = new();
     private RoadSegmentId _nextTempRoadSegmentId = new(1);
-    private RoadNodeId _nextSchijnknoopId = new(5000000);
+    private RoadNodeId _nextSchijnknoopId = RoadNodeConstants.InitialTemporarySchijnknoopId;
 
     public List<RoadSegmentExtractItem>? IntegrationSegments { get; set; }
 

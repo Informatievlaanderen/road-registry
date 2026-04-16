@@ -1,26 +1,23 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenChangingRoadNetwork;
 
-using Actions.ChangeRoadNetwork;
 using AutoFixture;
 using FluentAssertions;
 using Marten;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Schema;
-using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
-using RoadSegment.Changes;
-using RoadSegment.ValueObjects;
-using Sqs.RoadNetwork;
+using RoadRegistry.RoadSegment.Changes;
+using RoadRegistry.RoadSegment.ValueObjects;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 
 [Collection(nameof(DockerFixtureCollection))]
 public class WithValidRequest : RoadNetworkIntegrationTest
 {
-    private readonly Mock<IExtractRequests> _extractRequestsMock = new();
-
     public WithValidRequest(DatabaseFixture databaseFixture, ITestOutputHelper testOutputHelper)
         : base(databaseFixture, testOutputHelper)
     {
@@ -55,6 +52,9 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             ProvenanceData = provenanceData
         };
 
+        await using var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        await AddExtractDownloadAndUpload(extractsDbContext, command);
+
         // Act
         var handler = sp.GetRequiredService<ChangeRoadNetworkSqsLambdaRequestHandler>();
         await handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
@@ -77,7 +77,6 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         var roadSegments = await session.LoadManyAsync([TestData.Segment1Added.RoadSegmentId]);
         roadSegments.Should().HaveCount(1);
 
-        await using var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
         var inwinningRoadSegment = extractsDbContext.InwinningRoadSegments
             .Single(x => x.RoadSegmentId == TestData.Segment1Added.RoadSegmentId);
         inwinningRoadSegment.NisCode.Should().BeNull();
@@ -116,6 +115,10 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             ],
             ProvenanceData = provenanceData
         };
+
+        using var scope = sp.CreateScope();
+        await using var extractsDbContext = scope.ServiceProvider.GetRequiredService<ExtractsDbContext>();
+        await AddExtractDownloadAndUpload(extractsDbContext, command);
 
         // Act
         await handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
@@ -165,36 +168,23 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             ProvenanceData = provenanceData
         };
 
-        var uploadAcceptedCount = 0;
-        _extractRequestsMock
-            .Setup(x => x.UploadAcceptedAsync(It.IsAny<UploadId>(), It.IsAny<CancellationToken>()))
-            .Returns(() =>
-            {
-                uploadAcceptedCount++;
+        await using var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        await AddExtractDownloadAndUpload(extractsDbContext, command);
 
-                if (uploadAcceptedCount == 1)
-                {
-                    throw new Exception("Unexpected error");
-                }
-
-                return Task.CompletedTask;
-            });
         var handler = sp.GetRequiredService<ChangeRoadNetworkSqsLambdaRequestHandler>();
 
         // Act
-        var actFirstRun = () => handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
-        await actFirstRun.Should().ThrowAsync<Exception>();
-
+        await handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
         await handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
 
         // Assert
         PrintTicketErrorsIfAvailable(command.TicketId);
 
-        var ticketResult = TicketingMock.Invocations
+        var ticketResults = TicketingMock.Invocations
             .Where(x => x.Method.Name == nameof(ITicketing.Complete) && x.Arguments[0].Equals(command.TicketId))
             .Select(x => (TicketResult)x.Arguments[1])
-            .SingleOrDefault();
-        ticketResult.Should().NotBeNull();
+            .ToArray();
+        ticketResults.Should().HaveCount(2);
 
         var store = sp.GetRequiredService<IDocumentStore>();
         await using var session = store.LightweightSession();
@@ -204,11 +194,5 @@ public class WithValidRequest : RoadNetworkIntegrationTest
 
         var roadSegments = await session.LoadManyAsync([TestData.Segment1Added.RoadSegmentId]);
         roadSegments.Should().HaveCount(1);
-    }
-
-    protected override void ConfigureServices(IServiceCollection services)
-    {
-        services
-            .AddSingleton(_extractRequestsMock.Object);
     }
 }
