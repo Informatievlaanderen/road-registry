@@ -39,7 +39,7 @@ public class DetermineMethodTests
             fixture.Create<NextRoadSegmentIdProvider>(),
             new OgcFeaturesCache([]),
             new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
-            CancellationToken.None);
+            CancellationToken.None).RoadSegments;
 
         // Assert
         records.Should().HaveCount(1);
@@ -67,7 +67,7 @@ public class DetermineMethodTests
             fixture.Create<NextRoadSegmentIdProvider>(),
             new OgcFeaturesCache([]),
             new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
-            CancellationToken.None);
+            CancellationToken.None).RoadSegments;
 
         // Assert
         records.Should().HaveCount(1);
@@ -98,7 +98,7 @@ public class DetermineMethodTests
             fixture.Create<NextRoadSegmentIdProvider>(),
             ogcFeaturesCache,
             new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
-            CancellationToken.None);
+            CancellationToken.None).RoadSegments;
 
         // Assert
         records.Should().HaveCount(1);
@@ -129,7 +129,7 @@ public class DetermineMethodTests
             fixture.Create<NextRoadSegmentIdProvider>(),
             ogcFeaturesCache,
             new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
-            CancellationToken.None);
+            CancellationToken.None).RoadSegments;
 
         // Assert
         records.Should().HaveCount(1);

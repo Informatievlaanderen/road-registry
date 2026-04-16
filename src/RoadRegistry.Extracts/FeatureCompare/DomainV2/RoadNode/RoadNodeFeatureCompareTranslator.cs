@@ -59,9 +59,12 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
         {
             spatialIndex.Insert(feature.Attributes.Geometry.EnvelopeInternal, feature);
         }
+
         spatialIndex.Build();
 
-        var extractFeaturesDictionary = extractFeatures.ToDictionary(x => x.Attributes.RoadNodeId, x => x);
+        var extractFeaturesDictionary = extractFeatures
+            .Where(x => x.Attributes.RoadNodeId < RoadNodeConstants.InitialTemporarySchijnknoopId)
+            .ToDictionary(x => x.Attributes.RoadNodeId, x => x);
 
         var processedLeveringRecords = new ConcurrentDictionary<int, List<RoadNodeFeatureCompareRecord>>();
         Parallel.Invoke(changeFeatures
@@ -164,7 +167,8 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
 
     private TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
-        foreach (var record in context.GetRoadNodeRecords(FeatureType.Change))
+        var roadNodeFeatureCompareRecords = context.GetRoadNodeRecords(FeatureType.Change);
+        foreach (var record in roadNodeFeatureCompareRecords)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -264,18 +268,21 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                     RecordType.Identical)
             ]);
 
-            var hasProcessedRoadNode = changeRoadNodeRecords.Any(x => x.Id == extractFeature.Attributes.RoadNodeId
-                                                                      && !x.RecordType.Equals(RecordType.Added));
-            if (!hasProcessedRoadNode)
+            if (extractFeature.Attributes.RoadNodeId < RoadNodeConstants.InitialTemporarySchijnknoopId)
             {
-                context.AddRoadNodeRecords([
-                    new RoadNodeFeatureCompareRecord(
-                        FeatureType.Change,
-                        extractFeature.RecordNumber,
-                        extractFeature.Attributes,
-                        extractFeature.Attributes.RoadNodeId,
-                        RecordType.Removed)
-                ]);
+                var hasProcessedRoadNode = changeRoadNodeRecords.Any(x => x.Id == extractFeature.Attributes.RoadNodeId
+                                                                          && !x.RecordType.Equals(RecordType.Added));
+                if (!hasProcessedRoadNode)
+                {
+                    context.AddRoadNodeRecords([
+                        new RoadNodeFeatureCompareRecord(
+                            FeatureType.Change,
+                            extractFeature.RecordNumber,
+                            extractFeature.Attributes,
+                            extractFeature.Attributes.RoadNodeId,
+                            RecordType.Removed)
+                    ]);
+                }
             }
         }
     }

@@ -1,21 +1,17 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadExtract;
 
 using System.IO.Compression;
-using Abstractions.Exceptions;
-using BackOffice.Extracts;
-using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using Exceptions;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.Extracts;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
+using RoadRegistry.BackOffice.Exceptions;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extracts.DutchTranslations;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
-using RoadRegistry.ValueObjects.ProblemCodes;
 using TicketingService.Abstractions;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
 
@@ -27,7 +23,9 @@ public interface IExtractUploader
         TicketId ticketId,
         ZipArchiveMetadata zipArchiveMetadata,
         bool sendFailedEmail,
-        CancellationToken cancellationToken);
+        Func<ZipArchive, Task>? beforeFeatureCompare = null,
+        Func<ZipArchive, TranslatedChanges, Task>? afterFeatureCompare = null,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class ExtractUploader : IExtractUploader
@@ -40,7 +38,6 @@ public sealed class ExtractUploader : IExtractUploader
     };
 
     private readonly RoadNetworkUploadsBlobClient _uploadsBlobClient;
-    private readonly TransactionZoneFeatureCompareFeatureReader _transactionZoneFeatureCompareFeatureReader;
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly IZipArchiveFeatureCompareTranslator _featureCompareTranslator;
     private readonly IExtractUploadFailedEmailClient _extractUploadFailedEmailClient;
@@ -49,14 +46,12 @@ public sealed class ExtractUploader : IExtractUploader
     public ExtractUploader(
         ExtractsDbContext extractsDbContext,
         RoadNetworkUploadsBlobClient uploadsBlobClient,
-        TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureCompareFeatureReader,
         IZipArchiveFeatureCompareTranslator featureCompareTranslator,
         IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
         ITicketing ticketing)
     {
         _extractsDbContext = extractsDbContext;
         _uploadsBlobClient = uploadsBlobClient;
-        _transactionZoneFeatureCompareFeatureReader = transactionZoneFeatureCompareFeatureReader;
         _featureCompareTranslator = featureCompareTranslator;
         _extractUploadFailedEmailClient = extractUploadFailedEmailClient;
         _ticketing = ticketing;
@@ -68,7 +63,9 @@ public sealed class ExtractUploader : IExtractUploader
         TicketId ticketId,
         ZipArchiveMetadata zipArchiveMetadata,
         bool sendFailedEmail,
-        CancellationToken cancellationToken)
+        Func<ZipArchive, Task>? beforeFeatureCompare = null,
+        Func<ZipArchive, TranslatedChanges, Task>? afterFeatureCompare = null,
+        CancellationToken cancellationToken = default)
     {
         var extractUpload = await EnsureExtractUploadExists(uploadId, downloadId, ticketId, cancellationToken);
         await _ticketing.Pending(ticketId, new TicketResult(new { Status = extractUpload.Status.ToString() }), cancellationToken);
@@ -121,22 +118,18 @@ public sealed class ExtractUploader : IExtractUploader
             await using var archiveBlobStream = await archiveBlob.OpenAsync(cancellationToken);
             using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, true);
 
-            if (zipArchiveMetadata.Inwinning)
+            if (beforeFeatureCompare is not null)
             {
-                var (transactionZones, problems) = _transactionZoneFeatureCompareFeatureReader.Read(archive, FeatureType.Change, new ZipArchiveFeatureReaderContext(zipArchiveMetadata));
-                problems.ThrowIfError();
-
-                var transactionZone = transactionZones.Single();
-                if (!transactionZone.Attributes.Geometry.Value.EqualsTopologically(extractDownload.Contour))
-                {
-                    var error = ExtractFileName.Transactiezones.AtShapeRecord(FeatureType.Change, transactionZone.RecordNumber)
-                        .Error(ProblemCode.TransactionZone.HasChanged)
-                        .Build();
-                    throw new ZipArchiveValidationException(ZipArchiveProblems.Single(error));
-                }
+                await beforeFeatureCompare(archive);
             }
 
             var translatedChanges = await _featureCompareTranslator.TranslateAsync(archive, zipArchiveMetadata.WithDownloadId(downloadId), cancellationToken);
+
+            if (afterFeatureCompare is not null)
+            {
+                await afterFeatureCompare(archive, translatedChanges);
+            }
+
             return translatedChanges;
         }
         catch (InvalidDataException)
@@ -150,6 +143,7 @@ public sealed class ExtractUploader : IExtractUploader
             {
                 await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
             }
+
             throw ex.ToDutchValidationException(FileProblemTranslator.DomainV2);
         }
         catch
@@ -159,6 +153,7 @@ public sealed class ExtractUploader : IExtractUploader
             {
                 await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
             }
+
             throw;
         }
     }
@@ -185,7 +180,7 @@ public sealed class ExtractUploader : IExtractUploader
                 Timestamp = extractUpload.UploadedOn
             });
         }
-        else if(extractUpload.Status != ExtractUploadStatus.Processing)
+        else if (extractUpload.Status != ExtractUploadStatus.Processing)
         {
             extractUpload.Status = ExtractUploadStatus.Processing;
             extractUpload.TicketId = ticketId;

@@ -1,20 +1,17 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Extracts;
 
 using System.IO.Compression;
-using Abstractions.Exceptions;
-using Actions.UploadExtract;
 using AutoFixture;
-using BackOffice.Extracts;
-using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Exceptions;
 using FluentAssertions;
 using Moq;
 using NetTopologySuite.Geometries;
-using RoadRegistry.Extensions;
-using RoadRegistry.Extracts;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
+using RoadRegistry.BackOffice.Exceptions;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadExtract;
+using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure.DutchTranslations;
@@ -22,7 +19,6 @@ using RoadRegistry.Tests.AggregateTests;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 using TicketingService.Abstractions;
 using IZipArchiveFeatureCompareTranslator = RoadRegistry.Extracts.FeatureCompare.DomainV2.IZipArchiveFeatureCompareTranslator;
-using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
 
 public class ExtractUploaderTests
 {
@@ -461,54 +457,6 @@ public class ExtractUploaderTests
         extractDownload.Status.Should().Be(ExtractUploadStatus.AutomaticValidationFailed);
     }
 
-    [Fact]
-    public async Task WhenTransactionZoneHasChanged_ThenError()
-    {
-        // Arrange
-        var downloadId = Fixture.Create<DownloadId>();
-        var extractRequestId = Fixture.Create<ExtractRequestId>();
-
-        ExtractsDbContext.ExtractRequests.Add(new()
-        {
-            ExtractRequestId = extractRequestId,
-            CurrentDownloadId = downloadId,
-            Description = Fixture.Create<string>()
-        });
-        ExtractsDbContext.ExtractDownloads.Add(new()
-        {
-            DownloadId = downloadId,
-            ExtractRequestId = extractRequestId,
-            Contour = Polygon.Empty,
-            DownloadedOn = DateTimeOffset.Now
-        });
-        await ExtractsDbContext.SaveChangesAsync();
-
-        var blobClientMock = new Mock<IBlobClient>();
-        blobClientMock
-            .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new BlobObject(new BlobName("archive.zip"),
-                Metadata.None,
-                ContentType.Parse("application/zip"),
-                _ =>
-                {
-                    var archiveStream = new DomainV2ZipArchiveBuilder()
-                        .WithChange((builder, _) => { builder.TestData.TransactionZoneShapeRecord.Geometry = builder.TestData.TransactionZoneShapeRecord.Geometry.Buffer(-0.1).ToMultiPolygon(); })
-                        .BuildArchiveStream();
-                    return Task.FromResult<Stream>(archiveStream);
-                }));
-
-        // Act
-        var act = () => ProcessUpload(downloadId,
-            blobClient: blobClientMock.Object,
-            zipArchiveMetadata: ZipArchiveMetadata.Empty.WithInwinning());
-
-        // Assert
-        var ex = (await act.Should().ThrowAsync<DutchValidationException>()).Which;
-
-        ex.Errors.Should().Contain(x => x.ErrorCode == "ErrorTransactionZoneHasChanged"
-                                        && (string)((Dictionary<string, object>)x.CustomState)["Bestand"] == "TRANSACTIEZONES.SHP");
-    }
-
     private sealed class FakeDomainException : DomainException;
 
     private async Task ProcessUpload(
@@ -539,20 +487,11 @@ public class ExtractUploaderTests
         var extractUploader = new ExtractUploader(
             ExtractsDbContext,
             new RoadNetworkUploadsBlobClient(blobClient),
-            new TransactionZoneFeatureCompareFeatureReader(FileEncoding.UTF8),
             zipArchiveFeatureCompareTranslator ?? new FakeZipArchiveFeatureCompareTranslator(),
             extractUploadFailedEmailClient ?? new FakeExtractUploadFailedEmailClient(),
             Mock.Of<ITicketing>()
         );
 
-        await extractUploader.ProcessUploadAndDetectChanges(downloadId, uploadId ?? Fixture.Create<UploadId>(), Fixture.Create<TicketId>(), zipArchiveMetadata ?? ZipArchiveMetadata.Empty, sendFailedEmail: true, CancellationToken.None);
-    }
-
-    private sealed class FakeZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTranslator
-    {
-        public Task<TranslatedChanges> TranslateAsync(ZipArchive archive, ZipArchiveMetadata zipArchiveMetadata, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(TranslatedChanges.Empty);
-        }
+        await extractUploader.ProcessUploadAndDetectChanges(downloadId, uploadId ?? Fixture.Create<UploadId>(), Fixture.Create<TicketId>(), zipArchiveMetadata ?? ZipArchiveMetadata.Empty, sendFailedEmail: true);
     }
 }

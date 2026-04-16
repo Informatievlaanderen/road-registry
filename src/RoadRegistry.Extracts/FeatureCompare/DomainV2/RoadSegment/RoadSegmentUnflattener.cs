@@ -9,9 +9,15 @@ using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadNode.Errors;
 using RoadRegistry.ValueObjects.Problems;
 
+public sealed record UnflattenRoadSegmentsResult
+{
+    public required List<RoadSegmentFeatureWithDynamicAttributes> RoadSegments { get; init; }
+    public required List<RoadNodeId> ConsumedRoadNodeIds { get; init; }
+}
+
 public class RoadSegmentUnflattener
 {
-    public static List<RoadSegmentFeatureWithDynamicAttributes> Unflatten(
+    public static UnflattenRoadSegmentsResult Unflatten(
         FeatureType featureType,
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
         IRoadSegmentIdProvider roadSegmentIdProvider,
@@ -22,7 +28,7 @@ public class RoadSegmentUnflattener
         return new RoadSegmentUnflattener().UnflattenRoadSegments(featureType, records, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken);
     }
 
-    private List<RoadSegmentFeatureWithDynamicAttributes> UnflattenRoadSegments(
+    private UnflattenRoadSegmentsResult UnflattenRoadSegments(
         FeatureType featureType,
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
         IRoadSegmentIdProvider roadSegmentIdProvider,
@@ -37,12 +43,16 @@ public class RoadSegmentUnflattener
         var nodeClassifications = ClassifyNonValidationNodes(featureType, segmentsByNode, context, cancellationToken);
 
         // Step 3: Merge ALL segments connected by nodes that aren't Eindknoop/EchteKnoop/Grensknoop
-        var mergedRecords = MergeSegmentsAtNonStructuralNodes(featureType, records, roadSegmentIdProvider, segmentsByNode, nodeClassifications, context.Tolerances, ogcFeaturesCache, cancellationToken);
+        var mergedResult = MergeSegmentsAtNonStructuralNodes(featureType, records, roadSegmentIdProvider, segmentsByNode, nodeClassifications, context.Tolerances, ogcFeaturesCache, cancellationToken);
 
         // Step 4: Detect invalid geometry conditions and insert Validatieknopen where needed
-        var unflattenedRecords = DetectAndFixInvalidGeometries(featureType, segmentsByNode, nodeClassifications, mergedRecords, roadSegmentIdProvider, context, cancellationToken);
+        var unflattenedRecords = DetectAndFixInvalidGeometries(featureType, segmentsByNode, nodeClassifications, mergedResult.RoadSegments, mergedResult.ConsumedRoadNodeIds, roadSegmentIdProvider, context, cancellationToken);
 
-        return unflattenedRecords;
+        return new UnflattenRoadSegmentsResult
+        {
+            RoadSegments = unflattenedRecords,
+            ConsumedRoadNodeIds = mergedResult.ConsumedRoadNodeIds.ToList()
+        };
     }
 
     private Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> BuildSegmentNodeGraph(
@@ -142,7 +152,7 @@ public class RoadSegmentUnflattener
         return nodeClassifications;
     }
 
-    private List<RoadSegmentFeatureWithDynamicAttributes> MergeSegmentsAtNonStructuralNodes(
+    private (List<RoadSegmentFeatureWithDynamicAttributes> RoadSegments, HashSet<RoadNodeId> ConsumedRoadNodeIds) MergeSegmentsAtNonStructuralNodes(
         FeatureType featureType,
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
         IRoadSegmentIdProvider roadSegmentIdProvider,
@@ -154,6 +164,7 @@ public class RoadSegmentUnflattener
     {
         var result = new List<RoadSegmentFeatureWithDynamicAttributes>();
         var processedSegments = new HashSet<RoadSegmentTempId>();
+        var consumedNodes = new HashSet<RoadNodeId>();
 
         var problems = ZipArchiveProblems.None;
 
@@ -169,7 +180,7 @@ public class RoadSegmentUnflattener
             try
             {
                 // Find all segments connected through non-structural nodes (not Eindknoop/EchteKnoop/Grensknoop)
-                var segmentChain = BuildSegmentChain(featureType, record, segmentsByNode, nodeClassifications, processedSegments, tolerances);
+                var segmentChain = BuildSegmentChain(featureType, record, segmentsByNode, nodeClassifications, processedSegments, consumedNodes, tolerances);
 
                 var dynamicRecord = BuildFeatureWithDynamicAttributes(segmentChain, roadSegmentIdProvider, ogcFeaturesCache, tolerances);
                 result.Add(dynamicRecord);
@@ -182,7 +193,7 @@ public class RoadSegmentUnflattener
 
         problems.ThrowIfError();
 
-        return result;
+        return (result, consumedNodes);
     }
 
     private List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> BuildSegmentChain(
@@ -191,16 +202,17 @@ public class RoadSegmentUnflattener
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
         Dictionary<RoadNodeId, RoadNodeTypeV2> nodeClassifications,
         HashSet<RoadSegmentTempId> processedSegments,
+        HashSet<RoadNodeId> consumedNodes,
         VerificationContextTolerances tolerances)
     {
         var chain = new List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> { startSegment };
         processedSegments.Add(startSegment.Attributes.TempId);
 
         // Traverse forward from end point
-        TraverseChain(featureType, startSegment, segmentsByNode, nodeClassifications, chain, processedSegments, isForward: true, tolerances);
+        TraverseChain(featureType, startSegment, segmentsByNode, nodeClassifications, chain, processedSegments, consumedNodes, isForward: true, tolerances);
 
         // Traverse backward from start point
-        TraverseChain(featureType, startSegment, segmentsByNode, nodeClassifications, chain, processedSegments, isForward: false, tolerances);
+        TraverseChain(featureType, startSegment, segmentsByNode, nodeClassifications, chain, processedSegments, consumedNodes, isForward: false, tolerances);
 
         return chain;
     }
@@ -212,6 +224,7 @@ public class RoadSegmentUnflattener
         Dictionary<RoadNodeId, RoadNodeTypeV2> nodeClassifications,
         List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> chain,
         HashSet<RoadSegmentTempId> processedSegments,
+        HashSet<RoadNodeId> consumedNodes,
         bool isForward,
         VerificationContextTolerances tolerances)
     {
@@ -247,6 +260,7 @@ public class RoadSegmentUnflattener
         }
 
         processedSegments.Add(nextSegment.Attributes.TempId);
+        consumedNodes.Add(nodeAtPoint.Item1);
 
         Feature<RoadSegmentFeatureCompareWithFlatAttributes>? previousSegment = null;
         var lastCoordinateInChain = chain.Last().Attributes.Geometry.Coordinates.Last();
@@ -282,7 +296,7 @@ public class RoadSegmentUnflattener
         }
 
         // Continue traversing
-        TraverseChain(featureType, nextSegment, segmentsByNode, nodeClassifications, chain, processedSegments, isForward, tolerances);
+        TraverseChain(featureType, nextSegment, segmentsByNode, nodeClassifications, chain, processedSegments, consumedNodes, isForward, tolerances);
     }
 
     private static Feature<RoadSegmentFeatureCompareWithFlatAttributes> Reverse(Feature<RoadSegmentFeatureCompareWithFlatAttributes> feature)
@@ -373,6 +387,7 @@ public class RoadSegmentUnflattener
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
         Dictionary<RoadNodeId, RoadNodeTypeV2> nodeClassifications,
         List<RoadSegmentFeatureWithDynamicAttributes> mergedRecords,
+        HashSet<RoadNodeId> consumedRoadNodeIds,
         IRoadSegmentIdProvider roadSegmentIdProvider,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
@@ -395,21 +410,21 @@ public class RoadSegmentUnflattener
             var segment = segmentsQueue.Dequeue();
 
             // Condition 1: Self-intersecting segment
-            var tryFixSelfIntersectingResult = TryFixSelfIntersecting(segment, nonClassifiedNodes, roadSegmentIdProvider, context);
+            var tryFixSelfIntersectingResult = TryFixSelfIntersecting(segment, consumedRoadNodeIds, nonClassifiedNodes, roadSegmentIdProvider, context);
             if (EnqueueSplitResult(segment, tryFixSelfIntersectingResult))
             {
                 continue;
             }
 
             // Condition 2: Same start and end node
-            var tryFixSameStartEndNodeResult = TryFixSameStartEndNode(segment, segmentsByNode, nodeClassifications, nonClassifiedNodes, roadSegmentIdProvider, context);
+            var tryFixSameStartEndNodeResult = TryFixSameStartEndNode(segment, consumedRoadNodeIds, segmentsByNode, nodeClassifications, nonClassifiedNodes, roadSegmentIdProvider, context);
             if (EnqueueSplitResult(segment, tryFixSameStartEndNodeResult))
             {
                 continue;
             }
 
             // Condition 3: Multiple intersections with other segments
-            var tryFixMultipleIntersectionsWithOtherSegmentsResult = TryFixMultipleIntersectionsWithOtherSegments(segment, result, nonClassifiedNodes, roadSegmentIdProvider, context);
+            var tryFixMultipleIntersectionsWithOtherSegmentsResult = TryFixMultipleIntersectionsWithOtherSegments(segment, consumedRoadNodeIds, result, nonClassifiedNodes, roadSegmentIdProvider, context);
             if (EnqueueSplitResult(segment, tryFixMultipleIntersectionsWithOtherSegmentsResult))
             {
                 continue;
@@ -448,6 +463,7 @@ public class RoadSegmentUnflattener
 
     private (IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> RoadSegments, ZipArchiveProblems Problems) TryFixSelfIntersecting(
         RoadSegmentFeatureWithDynamicAttributes segment,
+        HashSet<RoadNodeId> consumedRoadNodeIds,
         IReadOnlyCollection<RoadNodeFeatureCompareRecord> nonClassifiedNodes,
         IRoadSegmentIdProvider roadSegmentIdProvider,
         ZipArchiveEntryFeatureCompareTranslateContext context)
@@ -463,7 +479,7 @@ public class RoadSegmentUnflattener
             return ([], problems);
         }
 
-        var splitResult = TrySplitAtValidatieknopen(segment, intersection, nonClassifiedNodes, roadSegmentIdProvider, context);
+        var splitResult = TrySplitAtValidatieknopen(segment, consumedRoadNodeIds, intersection, nonClassifiedNodes, roadSegmentIdProvider, context);
         if (splitResult is null)
         {
             throw new InvalidOperationException($"Impossible scenario: at this moment a node should always be found because of earlier validations. TempIds: {string.Join(",", segment.FlatFeatures.Select(x => x.Attributes.TempId.ToInt32()))}, IntersectionLocation: {intersection.Intersection.X.ToRoundedMeasurementString()}{intersection.Intersection.Y.ToRoundedMeasurementString()}");
@@ -499,6 +515,7 @@ public class RoadSegmentUnflattener
 
     private (IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> RoadSegments, ZipArchiveProblems Problems) TryFixSameStartEndNode(
         RoadSegmentFeatureWithDynamicAttributes segment,
+        HashSet<RoadNodeId> consumedRoadNodeIds,
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
         Dictionary<RoadNodeId, RoadNodeTypeV2> nodeClassifications,
         IReadOnlyCollection<RoadNodeFeatureCompareRecord> nonClassifiedNodes,
@@ -516,20 +533,21 @@ public class RoadSegmentUnflattener
         var wantedStartLocation = segmentsByNode
             .Where(x => x.Value.Any(s => tempIds.Contains(s.Attributes.TempId)))
             .Where(x => nodeClassifications.ContainsKey(x.Key.Item1))
-            .Select(x => x.Key.Item2)
+            .Select(x => x.Key)
             .FirstOrDefault();
-        if (wantedStartLocation is null)
+        if (wantedStartLocation.Item2 is null)
         {
             throw new InvalidOperationException($"Merged segment (Id {segment.Attributes.RoadSegmentId}) has the same start and end node, but unable to find the 1 structural node that connects it. TempIds: {string.Join(",", tempIds)}");
         }
 
-        if (!segment.Attributes.Geometry.GetSingleLineString().StartPoint.IsReasonablyEqualTo(wantedStartLocation, context.Tolerances))
+        if (!segment.Attributes.Geometry.GetSingleLineString().StartPoint.IsReasonablyEqualTo(wantedStartLocation.Item2, context.Tolerances))
         {
-            var splitResult2 = SplitGeometryAtNode(segment, wantedStartLocation.Coordinate, roadSegmentIdProvider);
+            var splitResult2 = SplitGeometryAtNode(segment, wantedStartLocation.Item2.Coordinate, roadSegmentIdProvider);
+            consumedRoadNodeIds.Remove(wantedStartLocation.Item1);
             return (splitResult2, ZipArchiveProblems.None);
         }
 
-        var splitResult = TrySplitAtValidatieknopen(segment, sameStartEndIntersectionGeometry, nonClassifiedNodes, roadSegmentIdProvider, context);
+        var splitResult = TrySplitAtValidatieknopen(segment, consumedRoadNodeIds, sameStartEndIntersectionGeometry, nonClassifiedNodes, roadSegmentIdProvider, context);
         if (splitResult is null)
         {
             throw new InvalidOperationException($"Impossible scenario: at this moment a node should always be found because of earlier validations. TempIds: {string.Join(",", segment.FlatFeatures.Select(x => x.Attributes.TempId.ToInt32()))}, IntersectionLocation: {sameStartEndIntersectionGeometry.Intersection.X.ToRoundedMeasurementString()}{sameStartEndIntersectionGeometry.Intersection.Y.ToRoundedMeasurementString()}");
@@ -558,12 +576,13 @@ public class RoadSegmentUnflattener
 
     private (IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> RoadSegments, ZipArchiveProblems Problems) TryFixMultipleIntersectionsWithOtherSegments(
         RoadSegmentFeatureWithDynamicAttributes segment,
+        HashSet<RoadNodeId> consumedRoadNodeIds,
         IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> segments,
         IReadOnlyCollection<RoadNodeFeatureCompareRecord> nonClassifiedNodes,
         IRoadSegmentIdProvider roadSegmentIdProvider,
         ZipArchiveEntryFeatureCompareTranslateContext context)
     {
-        var otherSegments = segments.Where(x => x != segment).ToList();
+        var otherSegments = segments.Where(x => x != segment).ToArray();
 
         foreach (var otherSegment in otherSegments)
         {
@@ -578,7 +597,7 @@ public class RoadSegmentUnflattener
                 return ([], problems);
             }
 
-            var splitResult = TrySplitAtValidatieknopen(segment, intersection, nonClassifiedNodes, roadSegmentIdProvider, context);
+            var splitResult = TrySplitAtValidatieknopen(segment, consumedRoadNodeIds, intersection, nonClassifiedNodes, roadSegmentIdProvider, context);
             return (splitResult ?? [], ZipArchiveProblems.None);
         }
 
@@ -621,6 +640,7 @@ public class RoadSegmentUnflattener
 
     private IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes>? TrySplitAtValidatieknopen(
         RoadSegmentFeatureWithDynamicAttributes segment,
+        HashSet<RoadNodeId> consumedRoadNodeIds,
         IntersectionGeometry intersection,
         IReadOnlyCollection<RoadNodeFeatureCompareRecord> nonClassifiedNodes,
         IRoadSegmentIdProvider roadSegmentIdProvider,
@@ -635,6 +655,8 @@ public class RoadSegmentUnflattener
 
         // Split the geometry at the found knoop
         var splitResult = SplitGeometryAtNode(segment, nearestNode.Attributes.Geometry.Coordinate, roadSegmentIdProvider);
+        consumedRoadNodeIds.Remove(nearestNode.Id);
+
         return splitResult;
     }
 

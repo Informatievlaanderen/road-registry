@@ -31,7 +31,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
         [Fact(Skip = "For debugging purposes, run feature compare v3 on a local archive")]
         public async Task RunFeatureCompareV3()
         {
-            var path = @"C:\Users\RikDePeuter\Downloads\be5bf26d75e4414fb32243f0565a9cdb.zip";
+            var path = @"C:\Users\RikDePeuter\Downloads\1acecb107bcc44be91ded9cb7291b9ee.zip";
 
             var loggerFactory = new LoggerFactory([new XUnitLoggerProvider(_outputHelper, new XUnitLoggerOptions())]);
 
@@ -44,7 +44,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                 {
                     var archive = new ZipArchive(fileStream);
 
-                    await translator.TranslateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
+                    var translatedChanges = await translator.TranslateAsync(archive, ZipArchiveMetadata.Empty.WithInwinning(), CancellationToken.None);
                 }
             }
             catch (ZipArchiveValidationException ex)

@@ -10,6 +10,7 @@ using FluentAssertions;
 using Hosts;
 using Marten;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -17,6 +18,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.DataValidation;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.RoadNetwork.Schema;
 using ScopedRoadNetwork;
@@ -57,7 +59,12 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
             ProvenanceData = provenanceData
         };
 
-        var handler = sp.GetRequiredService<ChangeRoadNetworkSqsLambdaRequestHandler>();
+        using var scope = sp.CreateScope();
+
+        await using var extractsDbContext = scope.ServiceProvider.GetRequiredService<ExtractsDbContext>();
+        await AddExtractDownloadAndUpload(extractsDbContext, sqsRequest);
+
+        var handler = scope.ServiceProvider.GetRequiredService<ChangeRoadNetworkSqsLambdaRequestHandler>();
         await handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, sqsRequest), CancellationToken.None);
 
         PrintTicketErrorsIfAvailable(sqsRequest.TicketId);
@@ -96,6 +103,8 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
             .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots()).Services
             .AddSingleton<IRoadNetworkIdGenerator>(new InMemoryRoadNetworkIdGenerator())
             .AddSingleton(DataValidationClientMock.Object)
+            .AddDbContext<ExtractsDbContext>((_, options) => options
+                .UseInMemoryDatabase(GetType().FullName))
             .AddScoped<ChangeRoadNetworkSqsLambdaRequestHandler>();
 
         ConfigureServices(services);
@@ -145,5 +154,24 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
         return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
             .WithMeasureOrdinates()
             .ToRoadSegmentGeometry();
+    }
+
+    protected async Task AddExtractDownloadAndUpload(ExtractsDbContext extractsDbContext, ChangeRoadNetworkSqsRequest command)
+    {
+        extractsDbContext.ExtractDownloads.Add(new ExtractDownload
+        {
+            DownloadId = command.DownloadId,
+            Contour = Polygon.Empty,
+            ExtractRequestId = TestData.Fixture.Create<ExtractRequestId>()
+        });
+        extractsDbContext.ExtractUploads.Add(new ExtractUpload
+        {
+            UploadId = command.UploadId,
+            DownloadId = command.DownloadId,
+            UploadedOn = DateTimeOffset.UtcNow,
+            Status = ExtractUploadStatus.Processing,
+            TicketId = command.TicketId
+        });
+        await extractsDbContext.SaveChangesAsync();
     }
 }

@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Extracts.WhenUploadInwinningExtract;
 
+using System.IO.Compression;
 using Actions.UploadExtract;
 using Actions.UploadInwinningExtract;
 using AutoFixture;
@@ -9,8 +10,11 @@ using Framework;
 using MediatR;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.Tests.AggregateTests;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Sqs.Extracts;
@@ -21,16 +25,19 @@ public abstract class WhenUploadInwinningExtractTestBase : BackOfficeLambdaTest
 {
     protected ExtractsDbContext ExtractsDbContext { get; }
     protected Mock<IMediator> MediatorMock { get; }
+    protected IFixture Fixture { get; }
 
     protected WhenUploadInwinningExtractTestBase(ITestOutputHelper outputHelper)
         : base(outputHelper)
     {
         ExtractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
         MediatorMock = new Mock<IMediator>();
+        Fixture = new RoadNetworkTestDataV2().Fixture;
     }
 
     protected async Task<UploadInwinningExtractSqsRequest> HandleRequest(
-        UploadInwinningExtractSqsRequest sqsRequest)
+        UploadInwinningExtractSqsRequest sqsRequest,
+        IExtractUploader? extractUploader = null)
     {
         sqsRequest.TicketId = Guid.NewGuid();
         sqsRequest.Metadata = new Dictionary<string, object?>();
@@ -45,7 +52,9 @@ public abstract class WhenUploadInwinningExtractTestBase : BackOfficeLambdaTest
             Mock.Of<IIdempotentCommandHandler>(),
             RoadRegistryContext,
             ExtractsDbContext,
-            new FakeExtractUploader(),
+            extractUploader ?? new FakeExtractUploader(),
+            new TransactionZoneFeatureCompareFeatureReader(FileEncoding),
+            new RoadNodeFeatureCompareFeatureReader(FileEncoding),
             MediatorMock.Object,
             new NullLoggerFactory()
         );
@@ -57,7 +66,7 @@ public abstract class WhenUploadInwinningExtractTestBase : BackOfficeLambdaTest
 
     private sealed class FakeExtractUploader : IExtractUploader
     {
-        public Task<TranslatedChanges> ProcessUploadAndDetectChanges(DownloadId downloadId, UploadId uploadId, TicketId ticketId, ZipArchiveMetadata zipArchiveMetadata, bool sendFailedEmail, CancellationToken cancellationToken)
+        public Task<TranslatedChanges> ProcessUploadAndDetectChanges(DownloadId downloadId, UploadId uploadId, TicketId ticketId, ZipArchiveMetadata zipArchiveMetadata, bool sendFailedEmail, Func<ZipArchive, Task>? beforeFeatureCompare = null, Func<ZipArchive, TranslatedChanges, Task>? afterFeatureCompare = null, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(TranslatedChanges.Empty);
         }

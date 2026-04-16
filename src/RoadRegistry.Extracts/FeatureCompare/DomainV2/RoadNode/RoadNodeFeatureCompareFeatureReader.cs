@@ -3,7 +3,6 @@ namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Infrastructure.Dbase;
@@ -91,6 +90,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
             {
                 Geometry = geometry,
                 WK_OIDN = dbaseRecord.WK_OIDN.GetValue(),
+                TYPE = dbaseRecord.TYPE.GetValue(),
                 GRENSKNOOP = dbaseRecord.GRENSKNOOP.GetValue(),
             }.ToFeature(featureType, FileName, recordNumber);
         }
@@ -100,6 +100,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
     {
         public required Geometry Geometry { get; init; }
         public required int? WK_OIDN { get; init; }
+        public required int? TYPE { get; init; }
         public required int? GRENSKNOOP { get; init; }
 
         public (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
@@ -142,6 +143,17 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
                 return default;
             }
 
+            RoadNodeTypeV2? ReadType()
+            {
+                // only informative, not used for any processing except for inwinning extract data validation
+                if (TYPE is not null && RoadNodeTypeV2.ByIdentifier.TryGetValue(TYPE.Value, out var value))
+                {
+                    return value;
+                }
+
+                return null;
+            }
+
             bool? ReadGrensknoop()
             {
                 if (GRENSKNOOP is null)
@@ -166,6 +178,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
             {
                 Geometry = ReadGeometry(),
                 RoadNodeId = ReadId(),
+                Type = ReadType(),
                 Grensknoop = ReadGrensknoop(),
             });
             return (feature, problems);

@@ -13,11 +13,16 @@ using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Hosts;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
 using RoadRegistry.Infrastructure.DutchTranslations;
+using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using TicketingService.Abstractions;
@@ -27,6 +32,8 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
 {
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly IExtractUploader _extractUploader;
+    private readonly TransactionZoneFeatureCompareFeatureReader _transactionZoneFeatureCompareFeatureReader;
+    private readonly RoadNodeFeatureCompareFeatureReader _roadNodeFeatureCompareFeatureReader;
     private readonly IMediator _mediator;
 
     public UploadInwinningExtractSqsLambdaRequestHandler(
@@ -37,6 +44,8 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
         IRoadRegistryContext roadRegistryContext,
         ExtractsDbContext extractsDbContext,
         IExtractUploader extractUploader,
+        TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureCompareFeatureReader,
+        RoadNodeFeatureCompareFeatureReader roadNodeFeatureCompareFeatureReader,
         IMediator mediator,
         ILoggerFactory loggerFactory)
         : base(
@@ -50,6 +59,8 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
     {
         _extractsDbContext = extractsDbContext;
         _extractUploader = extractUploader;
+        _transactionZoneFeatureCompareFeatureReader = transactionZoneFeatureCompareFeatureReader;
+        _roadNodeFeatureCompareFeatureReader = roadNodeFeatureCompareFeatureReader;
         _mediator = mediator;
     }
 
@@ -69,12 +80,57 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
             }
 
             var ticketId = new TicketId(request.TicketId);
+            var zipArchiveMetadata = ZipArchiveMetadata.Empty.WithInwinning();
             var translatedChanges = await _extractUploader.ProcessUploadAndDetectChanges(
                 request.Request.DownloadId,
                 request.Request.UploadId,
                 ticketId,
-                ZipArchiveMetadata.Empty.WithInwinning(),
+                zipArchiveMetadata,
                 sendFailedEmail: false,
+                beforeFeatureCompare: async archive =>
+                {
+                    var (transactionZones, problems) = _transactionZoneFeatureCompareFeatureReader.Read(archive, FeatureType.Change, new ZipArchiveFeatureReaderContext(zipArchiveMetadata));
+                    problems.ThrowIfError();
+
+                    var extractDownload = await _extractsDbContext.ExtractDownloads.SingleAsync(x => x.DownloadId == request.Request.DownloadId.ToGuid(), cancellationToken);
+                    var transactionZone = transactionZones.Single();
+                    if (!transactionZone.Attributes.Geometry.Value.EqualsTopologically(extractDownload.Contour))
+                    {
+                        var error = ExtractFileName.Transactiezones.AtShapeRecord(FeatureType.Change, transactionZone.RecordNumber)
+                            .Error(ProblemCode.TransactionZone.HasChanged)
+                            .Build();
+                        throw new ZipArchiveValidationException(ZipArchiveProblems.Single(error));
+                    }
+                },
+                afterFeatureCompare: (archive, changes) =>
+                {
+                    var (extractRoadNodes, _) = _roadNodeFeatureCompareFeatureReader.Read(archive, FeatureType.Extract, new ZipArchiveFeatureReaderContext(zipArchiveMetadata));
+                    var actualSchijnknoopIds = extractRoadNodes
+                        .Where(x => x.Attributes.Type == RoadNodeTypeV2.Schijnknoop && x.Attributes.RoadNodeId < RoadNodeConstants.InitialTemporarySchijnknoopId)
+                        .Select(x => x.Attributes.RoadNodeId)
+                        .ToArray();
+
+                    if (actualSchijnknoopIds.Length == 0)
+                    {
+                        return Task.CompletedTask;
+                    }
+
+                    var removedRoadNodeIds = changes.OfType<RemoveRoadNodeChange>()
+                        .Where(x => actualSchijnknoopIds.Contains(x.RoadNodeId))
+                        .Select(x => x.RoadNodeId)
+                        .ToArray();
+
+                    var notRemovedRoadNodeIds = actualSchijnknoopIds
+                        .Except(removedRoadNodeIds)
+                        .ToArray();
+
+                    if (notRemovedRoadNodeIds.Any())
+                    {
+                        throw new InvalidOperationException($"BUG: schijnknopen {string.Join(",", notRemovedRoadNodeIds)} are not removed from the extract");
+                    }
+
+                    return Task.CompletedTask;
+                },
                 cancellationToken);
 
             var migrateDryRunRoadNetworkSqsRequest = new MigrateDryRunRoadNetworkSqsRequest

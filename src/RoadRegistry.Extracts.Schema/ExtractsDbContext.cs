@@ -205,21 +205,21 @@ public static class ExtractsDbContextExtensions
     {
         return services
             .AddDbContext<ExtractsDbContext>((sp, options) => options
-            .UseLoggerFactory(sp.GetRequiredService<ILoggerFactory>())
-            .UseQueryTrackingBehavior(queryTrackingBehavior)
-            .UseSqlServer(
-                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Extracts, WellKnownConnectionNames.RoadRegistry),
-                ExtractsDbContext.ConfigureSqlServerOptions));
+                .UseLoggerFactory(sp.GetRequiredService<ILoggerFactory>())
+                .UseQueryTrackingBehavior(queryTrackingBehavior)
+                .UseSqlServer(
+                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Extracts, WellKnownConnectionNames.RoadRegistry),
+                    ExtractsDbContext.ConfigureSqlServerOptions));
     }
 
     public static IServiceCollection AddExtractsDbContextFactory(this IServiceCollection services, QueryTrackingBehavior queryTrackingBehavior, string connectionStringName)
     {
         return services
             .AddDbContextFactory<ExtractsDbContext>((sp, options) => options
-            .UseLoggerFactory(sp.GetRequiredService<ILoggerFactory>())
-            .UseQueryTrackingBehavior(queryTrackingBehavior)
-            .UseSqlServer(
-                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(connectionStringName, WellKnownConnectionNames.RoadRegistry),
-                ExtractsDbContext.ConfigureSqlServerOptions));
+                .UseLoggerFactory(sp.GetRequiredService<ILoggerFactory>())
+                .UseQueryTrackingBehavior(queryTrackingBehavior)
+                .UseSqlServer(
+                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(connectionStringName, WellKnownConnectionNames.RoadRegistry),
+                    ExtractsDbContext.ConfigureSqlServerOptions));
     }
 }

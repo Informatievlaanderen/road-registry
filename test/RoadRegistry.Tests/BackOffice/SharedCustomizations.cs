@@ -506,7 +506,7 @@ public static class SharedCustomizations
     public static void CustomizeRoadNodeId(this IFixture fixture)
     {
         fixture.Customize<RoadNodeId>(composer =>
-            composer.FromFactory(generator => new RoadNodeId(generator.Next(1, 1000000)))
+            composer.FromFactory(_ => new RoadNodeId(fixture.Create<IntegerValue>()))
         );
     }
 
