@@ -1,3 +1,10 @@
+## [4.56.3](https://github.com/informatievlaanderen/road-registry/compare/v4.56.2...v4.56.3) (2026-04-16)
+
+
+### Bug Fixes
+
+* exclude temporary schijnknoop IDs on upload + ensure all existing schijnknopen are removed ([e13b0a0](https://github.com/informatievlaanderen/road-registry/commit/e13b0a01657eb4340c1b5218007e30aab8b2b90c))
+
 ## [4.56.2](https://github.com/informatievlaanderen/road-registry/compare/v4.56.1...v4.56.2) (2026-04-14)
 
 
