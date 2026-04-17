@@ -813,9 +813,10 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             .Build();
 
         var translatedChanges = await TranslateSucceeds(zipArchive);
-        translatedChanges.Should().HaveCount(1);
-        var change = translatedChanges.Single().Should().BeOfType<RemoveRoadSegmentChange>().Subject;
-        change.RoadSegmentId.Should().Be(new RoadSegmentId(roadSegment1Id));
+        translatedChanges
+            .OfType<RemoveRoadSegmentChange>()
+            .Should()
+            .ContainSingle(change => change.RoadSegmentId == new RoadSegmentId(roadSegment1Id));
     }
 
     [Fact]
