@@ -108,7 +108,7 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
 
                         var (roadSegments, _) = _roadSegmentFeatureCompareFeatureReader.Read(archive, FeatureType.Extract, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
                         _extractsDbContext.InwinningRoadSegments.AddRange(roadSegments
-                            .Select(x => x.Attributes.RoadSegmentId.Value)
+                            .Select(x => x.Attributes.RoadSegmentId!.Value)
                             .Distinct()
                             .Select(roadSegmentId => new InwinningRoadSegment
                             {

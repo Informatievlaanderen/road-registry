@@ -23,45 +23,45 @@ public static class SessionExtensions
         return operations.Append(streamKey, @event);
     }
 
-    public static async Task<RoadNode?> LoadAsync(this IDocumentSession session, RoadNodeId id)
+    public static async Task<RoadNode?> LoadAsync(this IDocumentSession session, RoadNodeId id, CancellationToken cancellationToken = default)
     {
-        var result = await session.LoadManyAsync([id]);
+        var result = await session.LoadManyAsync([id], cancellationToken);
         return result.SingleOrDefault();
     }
 
-    public static async Task<RoadSegment?> LoadAsync(this IDocumentSession session, RoadSegmentId id)
+    public static async Task<RoadSegment?> LoadAsync(this IDocumentSession session, RoadSegmentId id, CancellationToken cancellationToken = default)
     {
-        var result = await session.LoadManyAsync([id]);
+        var result = await session.LoadManyAsync([id], cancellationToken);
         return result.SingleOrDefault();
     }
 
-    public static async Task<GradeSeparatedJunction?> LoadAsync(this IDocumentSession session, GradeSeparatedJunctionId id)
+    public static async Task<GradeSeparatedJunction?> LoadAsync(this IDocumentSession session, GradeSeparatedJunctionId id, CancellationToken cancellationToken = default)
     {
-        var result = await session.LoadManyAsync([id]);
+        var result = await session.LoadManyAsync([id], cancellationToken);
         return result.SingleOrDefault();
     }
 
-    public static async Task<IReadOnlyList<RoadSegment>> LoadManyAsync(this IDocumentSession session, IEnumerable<RoadSegmentId> ids)
+    public static async Task<IReadOnlyList<RoadSegment>> LoadManyAsync(this IDocumentSession session, IEnumerable<RoadSegmentId> ids, CancellationToken cancellationToken = default)
     {
-        return await session.LoadManyEntitiesAsync<RoadSegment, RoadSegmentId>(ids);
+        return await session.LoadManyEntitiesAsync<RoadSegment, RoadSegmentId>(ids, cancellationToken);
     }
 
-    public static async Task<IReadOnlyList<RoadNode>> LoadManyAsync(this IDocumentSession session, IEnumerable<RoadNodeId> ids)
+    public static async Task<IReadOnlyList<RoadNode>> LoadManyAsync(this IDocumentSession session, IEnumerable<RoadNodeId> ids, CancellationToken cancellationToken = default)
     {
-        return await session.LoadManyEntitiesAsync<RoadNode, RoadNodeId>(ids);
+        return await session.LoadManyEntitiesAsync<RoadNode, RoadNodeId>(ids, cancellationToken);
     }
 
-    public static async Task<IReadOnlyList<GradeSeparatedJunction>> LoadManyAsync(this IDocumentSession session, IEnumerable<GradeSeparatedJunctionId> ids)
+    public static async Task<IReadOnlyList<GradeSeparatedJunction>> LoadManyAsync(this IDocumentSession session, IEnumerable<GradeSeparatedJunctionId> ids, CancellationToken cancellationToken = default)
     {
-        return await session.LoadManyEntitiesAsync<GradeSeparatedJunction, GradeSeparatedJunctionId>(ids);
+        return await session.LoadManyEntitiesAsync<GradeSeparatedJunction, GradeSeparatedJunctionId>(ids, cancellationToken);
     }
 
-    public static async Task<IReadOnlyList<GradeJunction>> LoadManyAsync(this IDocumentSession session, IEnumerable<GradeJunctionId> ids)
+    public static async Task<IReadOnlyList<GradeJunction>> LoadManyAsync(this IDocumentSession session, IEnumerable<GradeJunctionId> ids, CancellationToken cancellationToken = default)
     {
-        return await session.LoadManyEntitiesAsync<GradeJunction, GradeJunctionId>(ids);
+        return await session.LoadManyEntitiesAsync<GradeJunction, GradeJunctionId>(ids, cancellationToken);
     }
 
-    private static async Task<IReadOnlyList<TEntity>> LoadManyEntitiesAsync<TEntity, TIdentifier>(this IDocumentSession session, IEnumerable<TIdentifier> ids)
+    private static async Task<IReadOnlyList<TEntity>> LoadManyEntitiesAsync<TEntity, TIdentifier>(this IDocumentSession session, IEnumerable<TIdentifier> ids, CancellationToken cancellationToken = default)
         where TEntity : MartenAggregateRootEntity<TIdentifier>
     {
         var streamKeys = ids.Select(x => StreamKeyFactory.Create(typeof(TEntity), x)).ToList();
@@ -70,11 +70,11 @@ public static class SessionExtensions
             return [];
         }
 
-        var aggregates = (await session.LoadManyAsync<TEntity>(streamKeys)).ToList();
+        var aggregates = (await session.LoadManyAsync<TEntity>(cancellationToken, streamKeys)).ToList();
 
         foreach (var streamKey in streamKeys.Where(x => aggregates.All(snapshot => snapshot.Id != x)))
         {
-            var aggregate = await session.Events.AggregateStreamAsync<TEntity>(streamKey);
+            var aggregate = await session.Events.AggregateStreamAsync<TEntity>(streamKey, token: cancellationToken);
             if (aggregate is not null)
             {
                 aggregate.RequestToSaveSnapshot();

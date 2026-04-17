@@ -24,7 +24,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
     private readonly IRoadSegmentFeatureCompareStreetNameContextFactory _streetNameContextFactory;
     private readonly IOrganizationCache _organizationCache;
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
-
     private const double OverlapClusterTolerance = 1.0;
 
     public RoadSegmentFeatureCompareTranslator(
@@ -46,7 +45,17 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         context.AddRoadSegmentRecords(integrationFeatures
             .Select(feature =>
-                new RoadSegmentFeatureCompareRecord(FeatureType.Integration, feature.RecordNumber, null, [feature], feature.Attributes.RoadSegmentId!.Value, RecordType.Identical)
+                new RoadSegmentFeatureCompareRecord(
+                    FeatureType.Integration,
+                    feature.RecordNumber,
+                    new RoadSegmentFeatureCompareWithDynamicAttributes
+                    {
+                        RoadSegmentId = feature.Attributes.RoadSegmentId!.Value,
+                        Geometry = feature.Attributes.Geometry,
+                    },
+                    [feature],
+                    feature.Attributes.RoadSegmentId!.Value,
+                    RecordType.Identical)
             )
             .ToList());
 
@@ -68,6 +77,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         await Task.WhenAll(dynamicChangeFeaturesTask, dynamicExtractFeaturesTask);
 
         changes = RemoveConsumedSchijnknopen(changes, dynamicChangeFeaturesTask.Result.ConsumedRoadNodeIds);
+        var usedExtractRoadSegmentIds = dynamicExtractFeaturesTask.Result.RoadSegments.Select(x => x.Attributes.RoadSegmentId).ToArray();
+        var consumedRoadSegmentFlatFeatures = extractFeatures
+            .Where(x => !usedExtractRoadSegmentIds.Contains(x.Attributes.RoadSegmentId!.Value))
+            .ToArray();
+        RemoveConsumedRoadSegments(consumedRoadSegmentFlatFeatures, context);
 
         var processedLeveringRecords = ProcessLeveringRecordsInParallel(dynamicChangeFeaturesTask.Result.RoadSegments, dynamicExtractFeaturesTask.Result.RoadSegments, streetNameContext, context, cancellationToken);
         problems += processedLeveringRecords.Item2;
@@ -85,6 +99,26 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         changes = TranslateProcessedRecords(changes, context, cancellationToken);
 
         return (changes, problems);
+    }
+
+    private void RemoveConsumedRoadSegments(IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> consumedRoadSegmentFlatFeatures, ZipArchiveEntryFeatureCompareTranslateContext context)
+    {
+        foreach(var roadSegment in consumedRoadSegmentFlatFeatures.GroupBy(x => x.Attributes.RoadSegmentId!.Value))
+        {
+            context.AddRoadSegmentRecords([
+                new RoadSegmentFeatureCompareRecord(
+                    FeatureType.Change,
+                    roadSegment.First().RecordNumber,
+                    new RoadSegmentFeatureCompareWithDynamicAttributes
+                    {
+                        RoadSegmentId = roadSegment.Key,
+                        Geometry = roadSegment.First().Attributes.Geometry,
+                    },
+                    roadSegment.ToArray(),
+                    roadSegment.Key,
+                    RecordType.Removed)
+            ]);
+        }
     }
 
     private static TranslatedChanges RemoveConsumedSchijnknopen(TranslatedChanges changes, List<RoadNodeId> consumedRoadNodeIds)
@@ -128,6 +162,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         {
             spatialIndex.Insert(feature.Attributes.Geometry.EnvelopeInternal, feature);
         }
+
         spatialIndex.Build();
 
         var extractFeaturesDictionary = dynamicExtractFeatures.ToDictionary(x => x.Attributes.RoadSegmentId, x => x);
@@ -390,8 +425,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
             switch (record.RecordType.Translation.Identifier)
             {
-                case RecordType.IdenticalIdentifier:
-                    break;
                 case RecordType.ModifiedIdentifier:
                 {
                     var geometry = record.Attributes.Geometry.ToRoadSegmentGeometry();

@@ -81,7 +81,7 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
 
         var roadNetwork = await Load(roadNetworkChanges, new ScopedRoadNetworkId(command.DownloadId.ToGuid()));
 
-        var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, new InMemoryRoadNetworkIdGenerator(initialValue: 1000000000));
+        var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, new InMemoryRoadNetworkIdGenerator(initialValue: 1_000_000_000));
         if (changeResult.Problems.HasError())
         {
             await _extractsDbContext.AutomaticValidationFailedAsync(command.UploadId, cancellationToken);
