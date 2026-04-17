@@ -1,8 +1,11 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios.Inwinning;
 
+using System.Text;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Microsoft.IO;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Editor.Schema.Extensions;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
@@ -829,6 +832,55 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
 
+    [Fact]
+    public async Task WhenRoadSegmentIsConsumedDuringUnflatten_ThenRoadSegmentIsRemoved()
+    {
+        var roadSegment1Id = 1;
+        var roadSegment2Id = 2;
+
+        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+            .WithExtract((builder, _) =>
+            {
+                ConfigureScenario(builder);
+            })
+            .WithChange((builder, _) =>
+            {
+                ConfigureScenario(builder);
+            })
+            .Build();
+
+        var translatedChanges = await TranslateSucceeds(zipArchive);
+        var removeChange = translatedChanges.OfType<RemoveRoadSegmentChange>().Single();
+        removeChange.RoadSegmentId.Should().Be(new RoadSegmentId(roadSegment2Id));
+        var modifyChange = translatedChanges.OfType<ModifyRoadSegmentChange>().Single();
+        modifyChange.RoadSegmentIdReference.RoadSegmentId.Should().Be(new RoadSegmentId(roadSegment1Id));
+
+        void ConfigureScenario(ExtractsZipArchiveExtractDataSetBuilder builder)
+        {
+            builder.DataSet.Clear();
+
+            var segment1Shape = builder.CreateRoadSegmentShapeRecord(new LineString([new Coordinate(650000, 650000), new Coordinate(651000, 650000)]));
+            var segment2Shape = builder.CreateRoadSegmentShapeRecord(new LineString([new Coordinate(651000, 650000), new Coordinate(651003, 650000)]));
+
+            var newSegment1Dbase = builder.CreateRoadSegmentDbaseRecord();
+            newSegment1Dbase.WS_OIDN.Value = roadSegment1Id;
+            builder.DataSet.RoadSegmentDbaseRecords.Add(newSegment1Dbase);
+            builder.DataSet.RoadSegmentShapeRecords.Add(segment1Shape);
+
+            var newSegment2Dbase = newSegment1Dbase.Clone(new RecyclableMemoryStreamManager(), Encoding.UTF8);
+            newSegment2Dbase.WS_OIDN.Value = roadSegment2Id;
+            newSegment2Dbase.WS_TEMPID.Value++;
+            builder.DataSet.RoadSegmentDbaseRecords.Add(newSegment2Dbase);
+            builder.DataSet.RoadSegmentShapeRecords.Add(segment2Shape);
+
+            builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord());
+            builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord());
+            builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord());
+            builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(segment1Shape.Geometry.GetSingleLineString().StartPoint));
+            builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(segment1Shape.Geometry.GetSingleLineString().EndPoint));
+            builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(segment2Shape.Geometry.GetSingleLineString().EndPoint));
+        }
+    }
 
     private static void FillStreetNameCache(ExtractsZipArchiveExtractDataSetBuilder builder, FakeStreetNameCache streetNameCache)
     {
