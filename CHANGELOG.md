@@ -1,3 +1,10 @@
+## [4.56.6](https://github.com/informatievlaanderen/road-registry/compare/v4.56.5...v4.56.6) (2026-04-17)
+
+
+### Bug Fixes
+
+* **ui:** display Accepted status when upload completed + summary of changes ([e581a0f](https://github.com/informatievlaanderen/road-registry/commit/e581a0f5660397c0bfe6f828b6c9aa68c2bdddb8))
+
 ## [4.56.5](https://github.com/informatievlaanderen/road-registry/compare/v4.56.4...v4.56.5) (2026-04-17)
 
 
