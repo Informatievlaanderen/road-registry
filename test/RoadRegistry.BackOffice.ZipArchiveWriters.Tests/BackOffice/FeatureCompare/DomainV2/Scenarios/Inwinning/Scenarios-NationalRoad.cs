@@ -1,9 +1,12 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios.Inwinning;
 
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.DutchTranslations;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
+using RoadRegistry.Extracts.Infrastructure.Dbase;
 using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 using Xunit.Abstractions;
@@ -62,6 +65,38 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
                 builder.DataSet.NationalRoadDbaseRecords.RemoveAt(0);
             })
             .BuildWithResult(context => TranslatedChanges.Empty
+                .AppendChange(
+                    new ModifyRoadNodeChange
+                    {
+                        RoadNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value),
+                        Geometry = context.Change.TestData.RoadSegment1StartNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
+                        Grensknoop = context.Change.TestData.RoadSegment1StartNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+                    }
+                )
+                .AppendChange(
+                    new ModifyRoadNodeChange
+                    {
+                        RoadNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1EndNodeDbaseRecord.WK_OIDN.Value),
+                        Geometry = context.Change.TestData.RoadSegment1EndNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
+                        Grensknoop = context.Change.TestData.RoadSegment1EndNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+                    }
+                )
+                .AppendChange(
+                    new ModifyRoadNodeChange
+                    {
+                        RoadNodeId = new RoadNodeId(context.Change.TestData.RoadSegment2StartNodeDbaseRecord.WK_OIDN.Value),
+                        Geometry = context.Change.TestData.RoadSegment2StartNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
+                        Grensknoop = context.Change.TestData.RoadSegment2StartNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+                    }
+                )
+                .AppendChange(
+                    new ModifyRoadNodeChange
+                    {
+                        RoadNodeId = new RoadNodeId(context.Change.TestData.RoadSegment2EndNodeDbaseRecord.WK_OIDN.Value),
+                        Geometry = context.Change.TestData.RoadSegment2EndNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
+                        Grensknoop = context.Change.TestData.RoadSegment2EndNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+                    }
+                )
                 .AppendChange(
                     new RemoveRoadSegmentFromNationalRoadChange
                     {

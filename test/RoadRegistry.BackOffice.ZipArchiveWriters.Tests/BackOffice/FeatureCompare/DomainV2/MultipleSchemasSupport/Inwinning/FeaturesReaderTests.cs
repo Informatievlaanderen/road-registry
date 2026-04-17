@@ -114,6 +114,18 @@ public class FeaturesReaderTests
         var segment2Geometry = GeometryTranslator.ToMultiLineStringLambert08(roadSegmentShapeContent2.Shape).ToRoadSegmentGeometry();
 
         var expected = TranslatedChanges.Empty
+            .AppendChange(new ModifyRoadNodeChange
+            {
+                RoadNodeId = new RoadNodeId(roadNodeDbaseRecord1.WK_OIDN.Value),
+                Geometry = GeometryTranslator.ToPointLambert08(roadNodeShapeContent1.Shape).ToRoadNodeGeometry(),
+                Grensknoop = roadNodeDbaseRecord1.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+            })
+            .AppendChange(new ModifyRoadNodeChange
+            {
+                RoadNodeId = new RoadNodeId(roadNodeDbaseRecord2.WK_OIDN.Value),
+                Geometry = GeometryTranslator.ToPointLambert08(roadNodeShapeContent2.Shape).ToRoadNodeGeometry(),
+                Grensknoop = roadNodeDbaseRecord2.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+            })
             .AppendChange(new AddRoadNodeChange
             {
                 TemporaryId = new RoadNodeId(roadNodeDbaseRecord3.WK_OIDN.Value),
