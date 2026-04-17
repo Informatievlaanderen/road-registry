@@ -1,17 +1,15 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracten;
 
-using System.Collections.Generic;
 using System.Linq;
-using Abstractions.Jobs;
-using Api.Extracten;
 using AutoFixture;
 using FluentAssertions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.Abstractions.Jobs;
+using RoadRegistry.BackOffice.Api.Extracten;
 using RoadRegistry.Extracts.Schema;
-using TicketingService.Abstractions;
 
 public partial class ExtractsControllerTests
 {
@@ -37,8 +35,7 @@ public partial class ExtractsControllerTests
         // Act
         var result = await Controller.UploadExtract(
             downloadId,
-            _extractsDbContext,
-            Mock.Of<ITicketing>());
+            _extractsDbContext);
 
         // Assert
         var okObjectResult = Assert.IsType<OkObjectResult>(result);
@@ -54,8 +51,7 @@ public partial class ExtractsControllerTests
     {
         var act = () => Controller.UploadExtract(
             "not_a_guid_without_dashes",
-            _extractsDbContext,
-            Mock.Of<ITicketing>());
+            _extractsDbContext);
 
         await act.Should().ThrowAsync<ValidationException>();
     }
@@ -66,16 +62,15 @@ public partial class ExtractsControllerTests
         var downloadId = Fixture.Create<DownloadId>();
         var response = await Controller.UploadExtract(
             downloadId,
-            _extractsDbContext,
-            Mock.Of<ITicketing>());
+            _extractsDbContext);
 
         Assert.IsType<NotFoundResult>(response);
     }
 
     [Theory]
-    [InlineData(TicketStatus.Created)]
-    [InlineData(TicketStatus.Pending)]
-    public async Task WhenUploadingExtract_WithPreviousUploadNotCompleted_ThenValidationException(TicketStatus incompleteTicketStatus)
+    [InlineData(ExtractUploadStatus.Processing)]
+    [InlineData(ExtractUploadStatus.AutomaticValidationSucceeded)]
+    public async Task WhenUploadingExtract_WithPreviousUploadNotCompleted_ThenValidationException(ExtractUploadStatus incompleteUploadStatus)
     {
         // Arrange
         var downloadId = Fixture.Create<DownloadId>();
@@ -85,25 +80,29 @@ public partial class ExtractsControllerTests
             .Setup(x => x.Send(It.IsAny<GetPresignedUploadUrlRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetPresignedUploadUrlResponse(Guid.NewGuid(), presignedUrl, [], Guid.NewGuid(), string.Empty));
 
+        var uploadId = Fixture.Create<UploadId>();
         _extractsDbContext.ExtractDownloads.Add(new ExtractDownload
         {
             DownloadId = downloadId,
             Contour = Polygon.Empty,
             ExtractRequestId = Fixture.Create<ExtractRequestId>(),
+            TicketId = Guid.NewGuid(),
+            LatestUploadId = uploadId
+        });
+        _extractsDbContext.ExtractUploads.Add(new ExtractUpload
+        {
+            UploadId = uploadId,
+            DownloadId = downloadId,
+            Status = incompleteUploadStatus,
+            UploadedOn = DateTimeOffset.UtcNow,
             TicketId = Guid.NewGuid()
         });
         await _extractsDbContext.SaveChangesAsync();
 
-        var ticketing = new Mock<ITicketing>();
-        ticketing
-            .Setup(x => x.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Ticket(Guid.NewGuid(), incompleteTicketStatus, new Dictionary<string, string>()));
-
         // Act
         var act = () => Controller.UploadExtract(
             downloadId,
-            _extractsDbContext,
-            ticketing.Object);
+            _extractsDbContext);
 
         // Assert
         var assertion = await act.Should().ThrowAsync<ValidationException>();
@@ -113,9 +112,9 @@ public partial class ExtractsControllerTests
     }
 
     [Theory]
-    [InlineData(TicketStatus.Complete)]
-    [InlineData(TicketStatus.Error)]
-    public async Task WhenUploadingExtract_WithPreviousUploadCompleted_ThenSucceeded(TicketStatus completedTicketStatus)
+    [InlineData(ExtractUploadStatus.AutomaticValidationFailed)]
+    [InlineData(ExtractUploadStatus.ManualValidationFailed)]
+    public async Task WhenUploadingExtract_WithPreviousUploadFailed_ThenSucceeded(ExtractUploadStatus uploadFailedStatus)
     {
         // Arrange
         var downloadId = Fixture.Create<DownloadId>();
@@ -125,25 +124,29 @@ public partial class ExtractsControllerTests
             .Setup(x => x.Send(It.IsAny<GetPresignedUploadUrlRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetPresignedUploadUrlResponse(Guid.NewGuid(), presignedUrl, [], Guid.NewGuid(), string.Empty));
 
+        var uploadId = Fixture.Create<UploadId>();
         _extractsDbContext.ExtractDownloads.Add(new ExtractDownload
         {
             DownloadId = downloadId,
             Contour = Polygon.Empty,
             ExtractRequestId = Fixture.Create<ExtractRequestId>(),
+            TicketId = Guid.NewGuid(),
+            LatestUploadId = uploadId
+        });
+        _extractsDbContext.ExtractUploads.Add(new ExtractUpload
+        {
+            UploadId = uploadId,
+            DownloadId = downloadId,
+            Status = uploadFailedStatus,
+            UploadedOn = DateTimeOffset.UtcNow,
             TicketId = Guid.NewGuid()
         });
         await _extractsDbContext.SaveChangesAsync();
 
-        var ticketing = new Mock<ITicketing>();
-        ticketing
-            .Setup(x => x.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Ticket(Guid.NewGuid(), completedTicketStatus, new Dictionary<string, string>()));
-
         // Act
         var result = await Controller.UploadExtract(
             downloadId,
-            _extractsDbContext,
-            ticketing.Object);
+            _extractsDbContext);
 
         // Assert
         var okObjectResult = Assert.IsType<OkObjectResult>(result);
