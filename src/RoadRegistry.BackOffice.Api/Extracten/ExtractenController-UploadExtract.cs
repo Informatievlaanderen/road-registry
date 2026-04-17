@@ -69,6 +69,7 @@ public partial class ExtractenController
         cancellationToken.ThrowIfCancellationRequested();
 
         record.TicketId = response.TicketId;
+        record.LatestUploadId = null;
         await extractsDbContext.SaveChangesAsync(cancellationToken);
 
         return Ok(new UploadExtractResponse(response.UploadUrl, response.UploadUrlFormData, response.TicketUrl));

@@ -12,6 +12,8 @@ public sealed class RoadNetworkChangesSummary
     public RoadNetworkEntityChangesSummary<RoadSegmentId> RoadSegments { get; init; } = new();
     public RoadNetworkEntityChangesSummary<GradeSeparatedJunctionId> GradeSeparatedJunctions { get; init; } = new();
     public RoadNetworkEntityChangesSummary<GradeJunctionId> GradeJunctions { get; init; } = new();
+
+    public bool HasChanges() => RoadNodes.HasChanges() || RoadSegments.HasChanges() || GradeSeparatedJunctions.HasChanges() || GradeJunctions.HasChanges();
 }
 
 public sealed class RoadNetworkEntityChangesSummary<TIdentifier>
@@ -19,6 +21,8 @@ public sealed class RoadNetworkEntityChangesSummary<TIdentifier>
     public UniqueList<TIdentifier> Added { get; init; } = [];
     public UniqueList<TIdentifier> Modified { get; init;} = [];
     public UniqueList<TIdentifier> Removed { get; init; } = [];
+
+    public bool HasChanges() => Added.Count > 0 || Modified.Count > 0 || Removed.Count > 0;
 }
 
 public sealed class UniqueList<T> : IReadOnlyCollection<T>

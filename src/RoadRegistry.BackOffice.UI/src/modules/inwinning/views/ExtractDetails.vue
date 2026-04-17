@@ -32,7 +32,11 @@
                   <vl-button v-else @click="downloadExtract()"> Download extract </vl-button>
                 </span>
                 <span
-                  v-if="downloadAvailable && !extract.informatief && !extract.uploadStatus"
+                  v-if="
+                    downloadAvailable &&
+                    !extract.informatief &&
+                    (!extract.uploadStatus || allowRequestExtractWhenUploaded)
+                  "
                   style="margin-left: 1rem"
                 >
                   <vl-button v-if="isSubmitting" mod-loading> Genereer extract opnieuw... </vl-button>
@@ -93,15 +97,8 @@
                 </div>
               </div>
 
-              <div v-if="changes.length > 0">
-                <ActivitySummary v-if="summary" :summary="summary" />
-                <div v-for="change in changes" :key="change.change">
-                  <h3>
-                    <strong>{{ change.change }}</strong>
-                  </h3>
-                  <ActivityProblems :problems="change.problems" />
-                  <br />
-                </div>
+              <div v-if="summary">
+                <ActivitySummary :summary="summary" />
               </div>
             </div>
           </vl-column>
@@ -122,6 +119,7 @@ import DateFormat from "@/core/utils/date-format";
 import RoadRegistry from "@/types/road-registry";
 import RoadRegistryExceptions from "@/types/road-registry-exceptions";
 import ValidationUtils from "@/core/utils/validation-utils";
+import { featureToggles } from "@/environment";
 
 const camelizeKeys: any = (obj: any) => {
   if (Array.isArray(obj)) {
@@ -163,7 +161,6 @@ export default defineComponent({
       ticketStatus: undefined as string | undefined,
       ticketResponseCode: 0 as number,
       fileProblems: [] as Array<any>,
-      changes: [] as Array<any>,
       summary: undefined as any | undefined,
       municipalityFlow: {
         validationErrors: [] as RoadRegistry.ValidationError[],
@@ -173,6 +170,9 @@ export default defineComponent({
     };
   },
   computed: {
+    allowRequestExtractWhenUploaded() {
+      return featureToggles.inwinningAllowRequestExtractWhenUploaded;
+    },
     extractTitle(): string {
       return `Extract${this.extract?.informatief ? " (informatief)" : ""}${
         this.extract?.beschrijving ? `: ${this.extract?.beschrijving}` : ""
@@ -184,6 +184,10 @@ export default defineComponent({
     status() {
       if (!this.extract) {
         return "";
+      }
+
+      if (this.extract.uploadStatus == "Accepted") {
+        return "Aanvaard";
       }
 
       if (this.extract.gesloten) {
@@ -200,8 +204,6 @@ export default defineComponent({
             return "Automatische controles geslaagd";
           case "ManualValidationFailed":
             return "Geweigerd";
-          case "Accepted":
-            return "Aanvaard";
         }
       }
 
@@ -468,13 +470,8 @@ export default defineComponent({
             this.trackProgress = false;
             let uploadResult = camelizeKeys(JSON.parse(ticketResult.result.json));
 
-            if (uploadResult.changes.length > 0) {
-              this.ticketResponseCode = 1102;
-              this.changes = uploadResult.changes;
-              this.summary = uploadResult.summary;
-            } else {
-              this.ticketResponseCode = 1103;
-            }
+            this.ticketResponseCode = 1102;
+            this.summary = uploadResult.summary;
           }
           break;
         case "error":
@@ -619,9 +616,10 @@ export default defineComponent({
       }
     },
     resetUploadFeedback() {
+      this.ticketId = "";
       this.ticketResponseCode = 0;
       this.fileProblems = [];
-      this.changes = [];
+      this.summary = null;
     },
     handleUploadStart() {
       this.resetUploadFeedback();

@@ -18,9 +18,12 @@ public record RoadNetworkWasChanged : IMartenEvent, ICreatedEvent
 
 public sealed class RoadNetworkChangedSummary
 {
+    public bool HasChanges { get; init; }
+
     public RoadNetworkChangedEntitySummary RoadNodes { get; init; }
     public RoadNetworkChangedEntitySummary RoadSegments { get; init; }
     public RoadNetworkChangedEntitySummary GradeSeparatedJunctions { get; init; }
+    public RoadNetworkChangedEntitySummary GradeJunctions { get; init; }
 
     public RoadNetworkChangedSummary()
     {
@@ -28,6 +31,7 @@ public sealed class RoadNetworkChangedSummary
 
     public RoadNetworkChangedSummary(RoadNetworkChangesSummary summary)
     {
+        HasChanges = summary.HasChanges();
         RoadNodes = new()
         {
             Added = summary.RoadNodes.Added.Select(x => x.ToInt32()).ToList(),
@@ -46,6 +50,12 @@ public sealed class RoadNetworkChangedSummary
             Modified = summary.GradeSeparatedJunctions.Modified.Select(x => x.ToInt32()).ToList(),
             Removed = summary.GradeSeparatedJunctions.Removed.Select(x => x.ToInt32()).ToList()
         };
+        GradeJunctions = new()
+        {
+            Added = summary.GradeJunctions.Added.Select(x => x.ToInt32()).ToList(),
+            Modified = summary.GradeJunctions.Modified.Select(x => x.ToInt32()).ToList(),
+            Removed = summary.GradeJunctions.Removed.Select(x => x.ToInt32()).ToList()
+        };
     }
 
     public RoadNetworkChangesSummary ToRoadNetworkChangesSummary()
@@ -55,6 +65,7 @@ public sealed class RoadNetworkChangedSummary
             RoadNodes = RoadNodes.ToRoadNetworkEntityChangesSummary(x => new RoadNodeId(x)),
             RoadSegments = RoadSegments.ToRoadNetworkEntityChangesSummary(x => new RoadSegmentId(x)),
             GradeSeparatedJunctions = GradeSeparatedJunctions.ToRoadNetworkEntityChangesSummary(x => new GradeSeparatedJunctionId(x)),
+            GradeJunctions = GradeJunctions.ToRoadNetworkEntityChangesSummary(x => new GradeJunctionId(x)),
         };
     }
 }

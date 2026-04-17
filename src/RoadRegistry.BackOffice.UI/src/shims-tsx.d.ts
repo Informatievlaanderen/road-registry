@@ -13,6 +13,7 @@ declare global {
     useAcmIdm: boolean;
     useDirectApiCalls: boolean;
     useOverlapCheck: boolean;
+    inwinningAllowRequestExtractWhenUploaded: boolean;
   }
 
   interface Window {
