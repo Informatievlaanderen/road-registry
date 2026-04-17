@@ -64,7 +64,7 @@ public static class SessionExtensions
     private static async Task<IReadOnlyList<TEntity>> LoadManyEntitiesAsync<TEntity, TIdentifier>(this IDocumentSession session, IEnumerable<TIdentifier> ids, CancellationToken cancellationToken = default)
         where TEntity : MartenAggregateRootEntity<TIdentifier>
     {
-        var streamKeys = ids.Select(x => StreamKeyFactory.Create(typeof(TEntity), x)).ToList();
+        var streamKeys = ids.Select(x => StreamKeyFactory.Create(typeof(TEntity), x)).ToArray();
         if (!streamKeys.Any())
         {
             return [];

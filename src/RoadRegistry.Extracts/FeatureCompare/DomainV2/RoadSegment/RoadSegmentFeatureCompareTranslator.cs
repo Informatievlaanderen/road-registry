@@ -77,11 +77,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         await Task.WhenAll(dynamicChangeFeaturesTask, dynamicExtractFeaturesTask);
 
         changes = RemoveConsumedSchijnknopen(changes, dynamicChangeFeaturesTask.Result.ConsumedRoadNodeIds);
-        var usedExtractRoadSegmentIds = dynamicExtractFeaturesTask.Result.RoadSegments.Select(x => x.Attributes.RoadSegmentId).ToArray();
-        var consumedRoadSegmentFlatFeatures = extractFeatures
-            .Where(x => !usedExtractRoadSegmentIds.Contains(x.Attributes.RoadSegmentId!.Value))
-            .ToArray();
-        RemoveConsumedRoadSegments(consumedRoadSegmentFlatFeatures, context);
+        RemoveConsumedRoadSegments(extractFeatures, dynamicExtractFeaturesTask.Result.RoadSegments, context);
 
         var processedLeveringRecords = ProcessLeveringRecordsInParallel(dynamicChangeFeaturesTask.Result.RoadSegments, dynamicExtractFeaturesTask.Result.RoadSegments, streetNameContext, context, cancellationToken);
         problems += processedLeveringRecords.Item2;
@@ -101,8 +97,16 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         return (changes, problems);
     }
 
-    private void RemoveConsumedRoadSegments(IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> consumedRoadSegmentFlatFeatures, ZipArchiveEntryFeatureCompareTranslateContext context)
+    private void RemoveConsumedRoadSegments(
+        IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> extractFeatures,
+        IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> dynamicExtractFeatures,
+        ZipArchiveEntryFeatureCompareTranslateContext context)
     {
+        var usedExtractRoadSegmentIds = dynamicExtractFeatures.Select(x => x.Attributes.RoadSegmentId).ToHashSet();
+        var consumedRoadSegmentFlatFeatures = extractFeatures
+            .Where(x => !usedExtractRoadSegmentIds.Contains(x.Attributes.RoadSegmentId!.Value))
+            .ToArray();
+
         foreach(var roadSegment in consumedRoadSegmentFlatFeatures.GroupBy(x => x.Attributes.RoadSegmentId!.Value))
         {
             context.AddRoadSegmentRecords([

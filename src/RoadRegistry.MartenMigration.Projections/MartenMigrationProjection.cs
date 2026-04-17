@@ -1278,8 +1278,6 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     Provenance = new ProvenanceData(provenance)
                 };
                 session.Events.Append(streamKey, legacyEvent);
-
-                return Task.CompletedTask;
             }, token);
         }
     }

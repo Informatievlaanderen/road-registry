@@ -47,7 +47,7 @@ public class ForDebugging
     public async Task WithCustomRequestOnActualServer()
     {
         // Arrange
-        var zipPath = @"C:\Users\RikDePeuter\Downloads\1acecb107bcc44be91ded9cb7291b9ee\1acecb107bcc44be91ded9cb7291b9ee.zip";
+        var zipPath = @"1acecb107bcc44be91ded9cb7291b9ee.zip";
         var nisCode = "42011";
         var downloadId = new DownloadId(Guid.NewGuid());
 

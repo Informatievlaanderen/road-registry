@@ -31,7 +31,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
         [Fact(Skip = "For debugging purposes, run feature compare v3 on a local archive")]
         public async Task RunFeatureCompareV3()
         {
-            var path = @"C:\Users\RikDePeuter\Downloads\1acecb107bcc44be91ded9cb7291b9ee.zip";
+            var path = @"1acecb107bcc44be91ded9cb7291b9ee.zip";
 
             var loggerFactory = new LoggerFactory([new XUnitLoggerProvider(_outputHelper, new XUnitLoggerOptions())]);
 
