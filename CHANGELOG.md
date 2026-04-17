@@ -1,3 +1,10 @@
+## [4.56.5](https://github.com/informatievlaanderen/road-registry/compare/v4.56.4...v4.56.5) (2026-04-17)
+
+
+### Bug Fixes
+
+* **inwinning:** mark identical nodes as modified for migration + remove consumed roadsegments during unflatten ([d6568e8](https://github.com/informatievlaanderen/road-registry/commit/d6568e8ae5fcc29ef59aecaad3c07f0015bc7bbb))
+
 ## [4.56.4](https://github.com/informatievlaanderen/road-registry/compare/v4.56.3...v4.56.4) (2026-04-16)
 
 
