@@ -1,7 +1,6 @@
 namespace RoadRegistry.ValueObjects.Problems;
 
-using ProblemCodes;
-using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ValueObjects.ProblemCodes;
 
 public class RoadSegmentStartNodeMissing : Error
 {

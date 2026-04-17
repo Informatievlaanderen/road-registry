@@ -174,6 +174,19 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
 
             switch (record.RecordType.Translation.Identifier)
             {
+                case RecordType.IdenticalIdentifier:
+                    if (context.ZipArchiveMetadata.Inwinning)
+                    {
+                        changes = changes.AppendChange(
+                            new ModifyRoadNodeChange
+                            {
+                                RoadNodeId = record.Id,
+                                Geometry = record.Attributes.Geometry.ToRoadNodeGeometry(),
+                                Grensknoop = record.Attributes.Grensknoop
+                            }
+                        );
+                    }
+                    break;
                 case RecordType.AddedIdentifier:
                     changes = changes.AppendChange(
                         new AddRoadNodeChange

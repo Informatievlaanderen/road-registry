@@ -16,6 +16,7 @@ using NodaTime;
 using NodaTime.Text;
 using RoadNode;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
@@ -504,7 +505,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 };
                 session.Events.Append(streamKey, legacyEvent);
 
-                var roadNode = await session.LoadAsync(roadNodeId)
+                var roadNode = await session.LoadAsync(roadNodeId, cancellationToken: token)
                     ?? throw new InvalidOperationException($"Road node {change.Id} not found");
                 roadNode.Apply(new RoadNodeWasModified
                 {
@@ -541,7 +542,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             };
             session.Events.Append(streamKey, legacyEvent);
 
-            var roadNode = await session.LoadAsync(roadNodeId)
+            var roadNode = await session.LoadAsync(roadNodeId, cancellationToken: token)
                            ?? throw new InvalidOperationException($"Road node {change.Id} not found");
             roadNode.Apply(new RoadNodeWasRemoved
             {
@@ -748,7 +749,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var legacyEvent = getLegacyEvent(provenance);
             session.Events.Append(streamKey, legacyEvent);
 
-            var roadSegment = await session.LoadAsync(roadSegmentId)
+            var roadSegment = await session.LoadAsync(roadSegmentId, cancellationToken: token)
                               ?? throw new InvalidOperationException($"Road segment {roadSegmentId} not found");
             applyModification(roadSegment, provenance);
             session.Store(roadSegment);
@@ -1083,7 +1084,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             };
             session.Events.Append(streamKey, legacyEvent);
 
-            var roadSegment = await session.LoadAsync(roadSegmentId)
+            var roadSegment = await session.LoadAsync(roadSegmentId, cancellationToken: token)
                               ?? throw new InvalidOperationException($"Road segment {change.Id} not found");
             roadSegment.Apply(new RoadSegmentWasRemoved
             {
@@ -1119,7 +1120,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             };
             session.Events.Append(streamKey, legacyEvent);
 
-            var roadSegment = await session.LoadAsync(roadSegmentId)
+            var roadSegment = await session.LoadAsync(roadSegmentId, cancellationToken: token)
                               ?? throw new InvalidOperationException($"Road segment {change.Id} not found");
             roadSegment.Apply(new RoadSegmentWasRemoved
             {
@@ -1192,7 +1193,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             };
             session.Events.Append(streamKey, legacyEvent);
 
-            var gradeSeparatedJunction = await session.LoadAsync(gradeSeparatedJunctionId)
+            var gradeSeparatedJunction = await session.LoadAsync(gradeSeparatedJunctionId, cancellationToken: token)
                                            ?? throw new InvalidOperationException($"Grade separated junction {change.Id} not found");
             gradeSeparatedJunction.Apply(new GradeSeparatedJunctionWasRemoved
             {
@@ -1231,7 +1232,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             };
             session.Events.Append(streamKey, legacyEvent);
 
-            var gradeSeparatedJunction = await session.LoadAsync(gradeSeparatedJunctionId)
+            var gradeSeparatedJunction = await session.LoadAsync(gradeSeparatedJunctionId, cancellationToken: token)
                                          ?? throw new InvalidOperationException($"Grade separated junction {change.Id} not found");
             gradeSeparatedJunction.Apply(new GradeSeparatedJunctionWasModified
             {
@@ -1253,7 +1254,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         {
             var eventIdentifier = BuildEventIdentifier(envelope, index);
 
-            await _repo.InIdempotentSession(eventIdentifier, async session =>
+            await _repo.InIdempotentSession(eventIdentifier, session =>
             {
                 session.CorrelationId = roadNetworkId;
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
