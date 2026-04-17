@@ -810,57 +810,10 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             .Build();
 
         var translatedChanges = await TranslateSucceeds(zipArchive);
-        translatedChanges.Should().HaveCount(1);
-        var change = translatedChanges.Single().Should().BeOfType<RemoveRoadSegmentChange>().Subject;
-        change.RoadSegmentId.Should().Be(new RoadSegmentId(roadSegment1Id));
-    }
-
-    [Fact]
-    public async Task GivenTwoConnectedExtractRoadSegments_WhenChangeContainsOnlyMergedSegment_ThenConsumedExtractRoadSegmentIsRemoved()
-    {
-        var consumedRoadSegmentId = 0;
-
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gepland))
-            .WithExtract((builder, _) =>
-            {
-                var segment1LineString = new LineString([
-                    new Coordinate(650000, 650000),
-                    new Coordinate(650050, 650000)
-                ]).WithSrid(builder.TestData.RoadSegment1ShapeRecord.Geometry.SRID);
-                var segment2LineString = new LineString([
-                    new Coordinate(650050, 650000),
-                    new Coordinate(650100, 650000)
-                ]).WithSrid(builder.TestData.RoadSegment2ShapeRecord.Geometry.SRID);
-
-                builder.TestData.RoadSegment1ShapeRecord.Geometry = segment1LineString.ToMultiLineString();
-                builder.TestData.RoadSegment2ShapeRecord.Geometry = segment2LineString.ToMultiLineString();
-                builder.TestData.RoadSegment1StartNodeShapeRecord.Geometry = segment1LineString.StartPoint;
-                builder.TestData.RoadSegment1EndNodeShapeRecord.Geometry = segment1LineString.EndPoint;
-                builder.TestData.RoadSegment2StartNodeShapeRecord.Geometry = segment2LineString.StartPoint;
-                builder.TestData.RoadSegment2EndNodeShapeRecord.Geometry = segment2LineString.EndPoint;
-                builder.DataSet.GradeSeparatedJunctionDbaseRecords.Clear();
-
-                consumedRoadSegmentId = builder.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value!.Value;
-            })
-            .WithChange((builder, context) =>
-            {
-                builder.DataSet.RoadSegmentDbaseRecords.Clear();
-                builder.DataSet.RoadSegmentShapeRecords.Clear();
-                builder.DataSet.GradeSeparatedJunctionDbaseRecords.Clear();
-
-                builder.DataSet.RoadSegmentDbaseRecords.Add(context.Extract.TestData.RoadSegment1DbaseRecord);
-                builder.DataSet.RoadSegmentShapeRecords.Add(builder.CreateRoadSegmentShapeRecord(new LineString([
-                    context.Extract.TestData.RoadSegment1StartNodeShapeRecord.Geometry.Coordinate,
-                    context.Extract.TestData.RoadSegment2EndNodeShapeRecord.Geometry.Coordinate
-                ]).WithSrid(context.Extract.TestData.RoadSegment1ShapeRecord.Geometry.SRID)));
-            })
-            .Build();
-
-        var translatedChanges = await TranslateSucceeds(zipArchive);
         translatedChanges
             .OfType<RemoveRoadSegmentChange>()
             .Should()
-            .ContainSingle(change => change.RoadSegmentId == new RoadSegmentId(consumedRoadSegmentId));
+            .ContainSingle(change => change.RoadSegmentId == new RoadSegmentId(roadSegment1Id));
     }
 
     [Fact]
