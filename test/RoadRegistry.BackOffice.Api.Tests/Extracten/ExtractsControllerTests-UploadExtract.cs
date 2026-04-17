@@ -67,6 +67,39 @@ public partial class ExtractsControllerTests
         Assert.IsType<NotFoundResult>(response);
     }
 
+    [Fact]
+    public async Task WhenExtractClosed_WThenValidationException()
+    {
+        // Arrange
+        var downloadId = Fixture.Create<DownloadId>();
+
+        var presignedUrl = Fixture.Create<string>();
+        Mediator
+            .Setup(x => x.Send(It.IsAny<GetPresignedUploadUrlRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetPresignedUploadUrlResponse(Guid.NewGuid(), presignedUrl, [], Guid.NewGuid(), string.Empty));
+
+        _extractsDbContext.ExtractDownloads.Add(new ExtractDownload
+        {
+            DownloadId = downloadId,
+            Contour = Polygon.Empty,
+            ExtractRequestId = Fixture.Create<ExtractRequestId>(),
+            TicketId = Guid.NewGuid(),
+            Closed = true
+        });
+        await _extractsDbContext.SaveChangesAsync();
+
+        // Act
+        var act = () => Controller.UploadExtract(
+            downloadId,
+            _extractsDbContext);
+
+        // Assert
+        var assertion = await act.Should().ThrowAsync<ValidationException>();
+        var ex = assertion.Which;
+        ex.Errors.Count().Should().Be(1);
+        ex.Errors.First().ErrorCode.Should().Be("ExtractGesloten");
+    }
+
     [Theory]
     [InlineData(ExtractUploadStatus.Processing)]
     [InlineData(ExtractUploadStatus.AutomaticValidationSucceeded)]
