@@ -200,6 +200,10 @@ export default defineComponent({
       this.$router.push({ name: "extractDetailsV2", params: { downloadId: downloadId } });
     },
     getStatus(extract: RoadRegistry.ExtractListItem) {
+      if (extract.uploadStatus == "Accepted") {
+        return "Aanvaard";
+      }
+
       if (extract.gesloten) {
         return "Gesloten";
       }

@@ -11,4 +11,7 @@ export const featureToggles = {
     `${window.featureToggles?.useDirectApiCalls ?? process.env.VUE_APP_FEATURETOGGLES_USEDIRECTAPICALLS}` === "true",
   useOverlapCheck:
     `${window.featureToggles?.useOverlapCheck ?? process.env.VUE_APP_FEATURETOGGLES_USEOVERLAPCHECK}` === "true",
+  inwinningAllowRequestExtractWhenUploaded:
+    `${window.featureToggles?.inwinningAllowRequestExtractWhenUploaded ?? process.env.VUE_APP_FEATURETOGGLES_INWINNINGALLOWREQUESTEXTRACTWHENUPLOADED}` ===
+    "true",
 };

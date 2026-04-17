@@ -79,15 +79,8 @@
                 </div>
               </div>
 
-              <div v-if="changes.length > 0">
-                <ActivitySummary v-if="summary" :summary="summary" />
-                <div v-for="change in changes" :key="change.change">
-                  <h3>
-                    <strong>{{ change.change }}</strong>
-                  </h3>
-                  <ActivityProblems :problems="change.problems" />
-                  <br />
-                </div>
+              <div v-if="summary">
+                <ActivitySummary :summary="summary" />
               </div>
             </div>
           </vl-column>
@@ -148,7 +141,6 @@ export default defineComponent({
       ticketStatus: undefined as string | undefined,
       ticketResponseCode: 0 as number,
       fileProblems: [] as Array<any>,
-      changes: [] as Array<any>,
       summary: undefined as any | undefined,
       uploadDisabled: false,
     };
@@ -167,6 +159,10 @@ export default defineComponent({
         return "";
       }
 
+      if (this.extract.uploadStatus == "Accepted") {
+        return "Aanvaard";
+      }
+
       if (this.extract.gesloten) {
         return "Gesloten";
       }
@@ -178,8 +174,6 @@ export default defineComponent({
           case "AutomaticValidationFailed":
           case "ManualValidationFailed":
             return "Geweigerd";
-          case "Accepted":
-            return "Aanvaard";
         }
       }
 
@@ -423,9 +417,8 @@ export default defineComponent({
             this.uploadDisabled = false;
             let uploadResult = camelizeKeys(JSON.parse(ticketResult.result.json));
 
-            if (uploadResult.changes.length > 0) {
+            if (uploadResult.Summary.hasChanges) {
               this.ticketResponseCode = 1102;
-              this.changes = uploadResult.changes;
               this.summary = uploadResult.summary;
             } else {
               this.ticketResponseCode = 1103;
@@ -571,9 +564,10 @@ export default defineComponent({
       }
     },
     resetUploadFeedback() {
+      this.ticketId = "";
       this.ticketResponseCode = 0;
       this.fileProblems = [];
-      this.changes = [];
+      this.summary = null;
     },
     handleUploadStart() {
       this.resetUploadFeedback();
