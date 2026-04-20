@@ -1,3 +1,11 @@
+## [4.56.8](https://github.com/informatievlaanderen/road-registry/compare/v4.56.7...v4.56.8) (2026-04-20)
+
+
+### Bug Fixes
+
+* add InwinnerController tests ([86780cf](https://github.com/informatievlaanderen/road-registry/commit/86780cfde634bdf197b955ba81b16be83ffef4d8))
+* **ui:** disable upload when opening extract where upload is being processed ([6a68648](https://github.com/informatievlaanderen/road-registry/commit/6a686488fe98afb887a01b96e0afbe9408772892))
+
 ## [4.56.7](https://github.com/informatievlaanderen/road-registry/compare/v4.56.6...v4.56.7) (2026-04-20)
 
 
