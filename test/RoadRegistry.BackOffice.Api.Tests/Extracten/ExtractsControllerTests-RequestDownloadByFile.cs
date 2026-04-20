@@ -116,7 +116,7 @@ public class ExtractDownloadaanvraagPerBestandValidatorTests : IAsyncLifetime
 
     [Theory]
     [MemberData(nameof(ValidDescriptionCases))]
-    public async Task WhenBescrijvingIsValid_ThenNone(string givenDescription)
+    public async Task WhenbeschrijvingIsValid_ThenNone(string givenDescription)
     {
         var result = await _validator.ValidateAsync(new ExtractDownloadaanvraagPerBestand(_shpFilePolygon, _prjFilePolygon, givenDescription, false));
 
@@ -149,9 +149,9 @@ public class ExtractDownloadaanvraagPerBestandValidatorTests : IAsyncLifetime
     [Theory]
     [InlineData(null)]
     [InlineData("")]
-    public async Task WhenBeschrijvingIsEmpty_ThenError(string bescrijving)
+    public async Task WhenBeschrijvingIsEmpty_ThenError(string beschrijving)
     {
-        var result = await _validator.ValidateAsync(new ExtractDownloadaanvraagPerBestand(_shpFilePolygon, _prjFilePolygon, bescrijving, false));
+        var result = await _validator.ValidateAsync(new ExtractDownloadaanvraagPerBestand(_shpFilePolygon, _prjFilePolygon, beschrijving, false));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Count.Should().Be(1);
