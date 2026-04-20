@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Tests.Extracten;
+namespace RoadRegistry.BackOffice.Api.Tests.Inwinning;
 
 using System.Linq;
 using AutoFixture;
@@ -8,10 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Abstractions.Jobs;
-using RoadRegistry.BackOffice.Api.Extracten;
+using RoadRegistry.BackOffice.Api.Inwinning;
 using RoadRegistry.Extracts.Schema;
 
-public partial class ExtractsControllerTests
+public partial class InwinningControllerTests
 {
     [Fact]
     public async Task WhenUploadingExtract_ThenSucceeded()
@@ -33,13 +33,13 @@ public partial class ExtractsControllerTests
         await _extractsDbContext.SaveChangesAsync();
 
         // Act
-        var result = await Controller.UploadExtract(
+        var result = await Controller.UploadInwinningExtract(
             downloadId,
             _extractsDbContext);
 
         // Assert
         var okObjectResult = Assert.IsType<OkObjectResult>(result);
-        var response = Assert.IsType<ExtractenController.UploadExtractResponse>(okObjectResult.Value);
+        var response = Assert.IsType<InwinningController.UploadInwinningExtractResponse>(okObjectResult.Value);
         response.UploadUrl.Should().Be(presignedUrl);
 
         var extractDownload = _extractsDbContext.ExtractDownloads.Single();
@@ -49,7 +49,7 @@ public partial class ExtractsControllerTests
     [Fact]
     public async Task WhenUploadingExtract_WithInvalidDownloadId_ThenValidationException()
     {
-        var act = () => Controller.UploadExtract(
+        var act = () => Controller.UploadInwinningExtract(
             "not_a_guid_without_dashes",
             _extractsDbContext);
 
@@ -60,7 +60,7 @@ public partial class ExtractsControllerTests
     public async Task WhenUploadingExtract_WithUnknownDownloadId_ThenNotFound()
     {
         var downloadId = Fixture.Create<DownloadId>();
-        var response = await Controller.UploadExtract(
+        var response = await Controller.UploadInwinningExtract(
             downloadId,
             _extractsDbContext);
 
@@ -89,7 +89,7 @@ public partial class ExtractsControllerTests
         await _extractsDbContext.SaveChangesAsync();
 
         // Act
-        var act = () => Controller.UploadExtract(
+        var act = () => Controller.UploadInwinningExtract(
             downloadId,
             _extractsDbContext);
 
@@ -133,7 +133,7 @@ public partial class ExtractsControllerTests
         await _extractsDbContext.SaveChangesAsync();
 
         // Act
-        var act = () => Controller.UploadExtract(
+        var act = () => Controller.UploadInwinningExtract(
             downloadId,
             _extractsDbContext);
 
@@ -177,13 +177,13 @@ public partial class ExtractsControllerTests
         await _extractsDbContext.SaveChangesAsync();
 
         // Act
-        var result = await Controller.UploadExtract(
+        var result = await Controller.UploadInwinningExtract(
             downloadId,
             _extractsDbContext);
 
         // Assert
         var okObjectResult = Assert.IsType<OkObjectResult>(result);
-        var response = Assert.IsType<ExtractenController.UploadExtractResponse>(okObjectResult.Value);
+        var response = Assert.IsType<InwinningController.UploadInwinningExtractResponse>(okObjectResult.Value);
         response.UploadUrl.Should().Be(presignedUrl);
     }
 }

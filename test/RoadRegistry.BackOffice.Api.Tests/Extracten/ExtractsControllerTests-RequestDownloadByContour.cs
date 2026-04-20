@@ -115,9 +115,9 @@ public class ExtractDownloadaanvraagPerContourBodyValidatorTests
     [Theory]
     [InlineData(null)]
     [InlineData("")]
-    public async Task WhenBeschrijvingIsEmpty_ThenError(string bescrijving)
+    public async Task WhenBeschrijvingIsEmpty_ThenError(string beschrijving)
     {
-        var result = await _validator.ValidateAsync(new ExtractDownloadaanvraagPerContourBody(ValidContour, bescrijving, false, null));
+        var result = await _validator.ValidateAsync(new ExtractDownloadaanvraagPerContourBody(ValidContour, beschrijving, false, null));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Count.Should().Be(1);
@@ -128,8 +128,8 @@ public class ExtractDownloadaanvraagPerContourBodyValidatorTests
     [Fact]
     public async Task WhenBeschrijvingTooLong_ThenError()
     {
-        var bescrijving = new string(Enumerable.Repeat('a', ExtractDescription.MaxLength + 1).ToArray());
-        var result = await _validator.ValidateAsync(new ExtractDownloadaanvraagPerContourBody(ValidContour, bescrijving, false, null));
+        var beschrijving = new string(Enumerable.Repeat('a', ExtractDescription.MaxLength + 1).ToArray());
+        var result = await _validator.ValidateAsync(new ExtractDownloadaanvraagPerContourBody(ValidContour, beschrijving, false, null));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Count.Should().Be(1);

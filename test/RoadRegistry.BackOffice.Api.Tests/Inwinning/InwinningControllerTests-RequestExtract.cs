@@ -1,49 +1,55 @@
-namespace RoadRegistry.BackOffice.Api.Tests.Extracten;
+namespace RoadRegistry.BackOffice.Api.Tests.Inwinning;
 
 using System.Collections.Generic;
 using System.Linq;
-using Api.Extracten;
 using AutoFixture;
-using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using FeatureToggles;
 using FluentAssertions;
 using FluentValidation;
-using Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Moq;
 using NetTopologySuite.Geometries;
-using Sync.MunicipalityRegistry.Models;
+using RoadRegistry.BackOffice.Api.Extracten;
+using RoadRegistry.BackOffice.Api.Infrastructure.Options;
+using RoadRegistry.BackOffice.Api.Inwinning;
+using RoadRegistry.BackOffice.Api.Tests.Infrastructure;
+using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
+using RoadRegistry.Sync.MunicipalityRegistry.Models;
 
-public partial class ExtractsControllerTests
+public partial class InwinningControllerTests
 {
     [Fact]
-    public async Task WhenRequestExtractByNisCode_ThenAcceptedResult()
+    public async Task WhenRequestInwinningExtract_ThenAcceptedResult()
     {
         // Arrange
         var locationResult = Fixture.Create<LocationResult>();
         Mediator
-            .Setup(x => x.Send(It.IsAny<RequestExtractSqsRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.Send(It.IsAny<RequestInwinningExtractSqsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(locationResult);
 
         var municipalityContext = _dbContextBuilder.CreateMunicipalityEventConsumerContext();
+        var nisCode = "12345";
         municipalityContext.Municipalities.Add(new Municipality
         {
             MunicipalityId = Fixture.Create<string>(),
-            NisCode = "12345",
+            NisCode = nisCode,
             Geometry = Polygon.Empty,
             Status = MunicipalityStatus.Current
         });
         await municipalityContext.SaveChangesAsync();
 
-        var validator = new ExtractDownloadaanvraagPerNisCodeBodyValidator(municipalityContext);
+        var validator = new InwinningExtractDownloadaanvraagBodyValidator(municipalityContext);
 
         // Act
-        var result = await Controller.ExtractDownloadaanvraagPerNisCode(
-            new ExtractDownloadaanvraagPerNisCodeBody("12345", Fixture.Create<string>(), true),
+        var result = await Controller.RequestInwinningExtract(
+            new InwinningExtractDownloadaanvraagBody(nisCode, Fixture.Create<string>(), true),
             validator,
             municipalityContext,
-            new UseDomainV2FeatureToggle(false));
+            new OptionsWrapper<InwinningOrganizationNisCodesOptions>(new InwinningOrganizationNisCodesOptions
+            {
+                {TestOrgCode, [nisCode]}
+            }));
 
         // Assert
         var acceptedResult = Assert.IsType<AcceptedResult>(result);
@@ -53,27 +59,46 @@ public partial class ExtractsControllerTests
     }
 
     [Fact]
-    public async Task WhenRequestExtractByNisCode_WithInvalidRequest_ThenValidationException()
+    public async Task WhenRequestInwinningExtract_WithInvalidRequest_ThenValidationException()
     {
         var municipalityContext = _dbContextBuilder.CreateMunicipalityEventConsumerContext();
-        var validator = new ExtractDownloadaanvraagPerNisCodeBodyValidator(municipalityContext);
+        var validator = new InwinningExtractDownloadaanvraagBodyValidator(municipalityContext);
 
-        var act = () => Controller.ExtractDownloadaanvraagPerNisCode(
-            new ExtractDownloadaanvraagPerNisCodeBody(default, default, default),
+        var nisCode = "12345";
+        var act = () => Controller.RequestInwinningExtract(
+            new InwinningExtractDownloadaanvraagBody(nisCode, default, default),
             validator,
             municipalityContext,
-            new UseDomainV2FeatureToggle(false));
+            new OptionsWrapper<InwinningOrganizationNisCodesOptions>(new InwinningOrganizationNisCodesOptions
+            {
+                {TestOrgCode, [nisCode]}
+            }));
 
         await act.Should().ThrowAsync<ValidationException>();
     }
+
+    [Fact]
+    public async Task WhenRequestInwinningExtract_WithOrgNoAccess_ThenForbidden()
+    {
+        var municipalityContext = _dbContextBuilder.CreateMunicipalityEventConsumerContext();
+        var validator = new InwinningExtractDownloadaanvraagBodyValidator(municipalityContext);
+
+        var result = await Controller.RequestInwinningExtract(
+            new InwinningExtractDownloadaanvraagBody("12345", default, default),
+            validator,
+            municipalityContext,
+            new OptionsWrapper<InwinningOrganizationNisCodesOptions>(new InwinningOrganizationNisCodesOptions()));
+
+        result.Should().BeOfType<ForbidResult>();
+    }
 }
 
-public class ExtractDownloadaanvraagPerNisCodeBodyValidatorTests
+public class InwinningExtractDownloadaanvraagBodyValidatorTests
 {
     private const string ValidDescription = "description";
     private readonly DbContextBuilder _dbContextBuilderFixture;
 
-    public ExtractDownloadaanvraagPerNisCodeBodyValidatorTests(DbContextBuilder dbContextBuilderFixture)
+    public InwinningExtractDownloadaanvraagBodyValidatorTests(DbContextBuilder dbContextBuilderFixture)
     {
         _dbContextBuilderFixture = dbContextBuilderFixture;
     }
@@ -93,9 +118,9 @@ public class ExtractDownloadaanvraagPerNisCodeBodyValidatorTests
         });
         await context.SaveChangesAsync();
 
-        var validator = new ExtractDownloadaanvraagPerNisCodeBodyValidator(context);
+        var validator = new InwinningExtractDownloadaanvraagBodyValidator(context);
 
-        var result = await validator.ValidateAsync(new ExtractDownloadaanvraagPerNisCodeBody(nisCode, ValidDescription, false));
+        var result = await validator.ValidateAsync(new InwinningExtractDownloadaanvraagBody(nisCode, ValidDescription, false));
 
         result.IsValid.Should().BeTrue();
     }
@@ -116,9 +141,9 @@ public class ExtractDownloadaanvraagPerNisCodeBodyValidatorTests
         });
         await context.SaveChangesAsync();
 
-        var validator = new ExtractDownloadaanvraagPerNisCodeBodyValidator(context);
+        var validator = new InwinningExtractDownloadaanvraagBodyValidator(context);
 
-        var result = await validator.ValidateAsync(new ExtractDownloadaanvraagPerNisCodeBody(validNisCode, givenDescription, false));
+        var result = await validator.ValidateAsync(new InwinningExtractDownloadaanvraagBody(validNisCode, givenDescription, false));
 
         result.IsValid.Should().BeTrue();
     }
@@ -129,9 +154,9 @@ public class ExtractDownloadaanvraagPerNisCodeBodyValidatorTests
     public async Task WhenNisCodeIsEmpty_ThenError(string givenNisCode)
     {
         await using var context = _dbContextBuilderFixture.CreateMunicipalityEventConsumerContext();
-        var validator = new ExtractDownloadaanvraagPerNisCodeBodyValidator(context);
+        var validator = new InwinningExtractDownloadaanvraagBodyValidator(context);
 
-        var result = await validator.ValidateAsync(new ExtractDownloadaanvraagPerNisCodeBody(givenNisCode, ValidDescription, false));
+        var result = await validator.ValidateAsync(new InwinningExtractDownloadaanvraagBody(givenNisCode, ValidDescription, false));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Count.Should().Be(1);
@@ -147,9 +172,9 @@ public class ExtractDownloadaanvraagPerNisCodeBodyValidatorTests
     public async Task WhenNisCodeIsInvalid_ThenError(string givenNisCode)
     {
         await using var context = _dbContextBuilderFixture.CreateMunicipalityEventConsumerContext();
-        var validator = new ExtractDownloadaanvraagPerNisCodeBodyValidator(context);
+        var validator = new InwinningExtractDownloadaanvraagBodyValidator(context);
 
-        var result = await validator.ValidateAsync(new ExtractDownloadaanvraagPerNisCodeBody(
+        var result = await validator.ValidateAsync(new InwinningExtractDownloadaanvraagBody(
             givenNisCode,
             ValidDescription,
             false
@@ -165,8 +190,8 @@ public class ExtractDownloadaanvraagPerNisCodeBodyValidatorTests
     public async Task WhenNisCodeIsUnknown_ThenError()
     {
         await using var context = _dbContextBuilderFixture.CreateMunicipalityEventConsumerContext();
-        var validator = new ExtractDownloadaanvraagPerNisCodeBodyValidator(context);
-        var result = await validator.ValidateAsync(new ExtractDownloadaanvraagPerNisCodeBody("12345", ValidDescription, false));
+        var validator = new InwinningExtractDownloadaanvraagBodyValidator(context);
+        var result = await validator.ValidateAsync(new InwinningExtractDownloadaanvraagBody("12345", ValidDescription, false));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Count.Should().Be(1);
@@ -191,9 +216,9 @@ public class ExtractDownloadaanvraagPerNisCodeBodyValidatorTests
         });
         await context.SaveChangesAsync();
 
-        var validator = new ExtractDownloadaanvraagPerNisCodeBodyValidator(context);
+        var validator = new InwinningExtractDownloadaanvraagBodyValidator(context);
 
-        var result = await validator.ValidateAsync(new ExtractDownloadaanvraagPerNisCodeBody(validNisCode, beschrijving, false));
+        var result = await validator.ValidateAsync(new InwinningExtractDownloadaanvraagBody(validNisCode, beschrijving, false));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Count.Should().Be(1);
@@ -218,9 +243,9 @@ public class ExtractDownloadaanvraagPerNisCodeBodyValidatorTests
         });
         await context.SaveChangesAsync();
 
-        var validator = new ExtractDownloadaanvraagPerNisCodeBodyValidator(context);
+        var validator = new InwinningExtractDownloadaanvraagBodyValidator(context);
 
-        var result = await validator.ValidateAsync(new ExtractDownloadaanvraagPerNisCodeBody(validNisCode, beschrijving, false));
+        var result = await validator.ValidateAsync(new InwinningExtractDownloadaanvraagBody(validNisCode, beschrijving, false));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Count.Should().Be(1);
