@@ -48,11 +48,16 @@ public sealed class OgcFeaturesCache
 
     private static Geometry UnionPolygons(IList<Geometry> polygons)
     {
-        if (polygons.Count == 1)
+        var union = polygons.Count > 1
+            ? CascadedPolygonUnion.Union(polygons)
+            : polygons[0];
+
+        if (!union.IsValid)
         {
-            return polygons[0];
+            // Fix any topology issues in the polygon (e.g. non-noded intersections)
+            union = union.Buffer(0);
         }
 
-        return CascadedPolygonUnion.Union(polygons);
+        return union;
     }
 }

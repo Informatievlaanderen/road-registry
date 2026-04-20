@@ -13,6 +13,7 @@ using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.AggregateTests;
+using RoadRegistry.Tests.BackOffice;
 using RoadSegment.ValueObjects;
 using Xunit.Abstractions;
 using Point = NetTopologySuite.Geometries.Point;
@@ -42,7 +43,7 @@ public class UnflattenScenarios
         {
             Geometry = BuildRoadSegmentGeometry(50, 0, 100, 0)
         };
-        var flatSegments = new []
+        var flatSegments = new[]
         {
             flatSegment1,
             flatSegment2
@@ -108,7 +109,7 @@ public class UnflattenScenarios
             BikeAccessBackward = true,
             BikeAccessForward = false
         };
-        var flatSegments = new []
+        var flatSegments = new[]
         {
             flatSegment1,
             flatSegment2
@@ -167,7 +168,6 @@ public class UnflattenScenarios
         dynamicRecord.Attributes.BikeAccessForward!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Both);
         dynamicRecord.Attributes.BikeAccessForward!.Values[1].Value.Should().Be(flatSegment1.BikeAccessForward);
         dynamicRecord.Attributes.BikeAccessForward!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Both);
-
     }
 
     [Fact]
@@ -312,6 +312,48 @@ POINT (20 0)
 
         var dynamicRecord3 = records[2];
         dynamicRecord3.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((10 0, 20 0))");
+    }
+
+    [Fact]
+    public void WhenSameStartEndNodeAndMultipleNodesFoundInBetween_ThenSuccess()
+    {
+        // Arrange
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
+
+        var scenario = @"
+POINT (0 10)
+LINESTRING (0 10, 10 10)
+POINT (10 10)
+LINESTRING (10 10, 10 0)
+POINT (10 0)
+LINESTRING (10 0, 0 0)
+POINT (0 0)
+LINESTRING (0 0, 0 10)
+
+LINESTRING (10 0, 20 0)
+POINT (20 0)
+LINESTRING (10 0, 20 -10)
+POINT (20 -10)
+";
+        var flatSegment = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>();
+
+        // Act
+        var records = Unflatten(fixture, scenario, flatSegmentFactory: () => flatSegment);
+
+        // Assert
+        records.Should().HaveCount(4);
+        var dynamicRecord1 = records[0];
+        dynamicRecord1.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((10 0, 0 0))");
+
+        var dynamicRecord2 = records[1];
+        dynamicRecord2.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((0 0, 0 10, 10 10, 10 0))");
+
+        var dynamicRecord3 = records[2];
+        dynamicRecord3.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((10 0, 20 0))");
+
+        var dynamicRecord4 = records[3];
+        dynamicRecord4.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((10 0, 20 -10))");
     }
 
     [Theory]
@@ -462,7 +504,7 @@ POINT (60 -10)
             Geometry = BuildRoadSegmentGeometry(50, 0, 100, 0),
             Status = RoadSegmentStatusV2.BuitenGebruik
         };
-        var flatSegments = new []
+        var flatSegments = new[]
         {
             flatSegment1,
             flatSegment2
@@ -503,7 +545,7 @@ POINT (60 -10)
             Geometry = BuildRoadSegmentGeometry(50, 0, 100, 0),
             Method = null
         };
-        var flatSegments = new []
+        var flatSegments = new[]
         {
             flatSegment1,
             flatSegment2
@@ -529,7 +571,8 @@ POINT (60 -10)
 
     private List<RoadSegmentFeatureWithDynamicAttributes> Unflatten(
         IFixture fixture,
-        string scenarioWkt)
+        string scenarioWkt,
+        Func<RoadSegmentFeatureCompareWithFlatAttributes> flatSegmentFactory = null)
     {
         var idCounter = 0;
         var scenarioData = scenarioWkt
@@ -553,8 +596,9 @@ POINT (60 -10)
 
         var flatSegments = scenarioData
             .Where(x => x.geometry is LineString or MultiLineString)
-            .Select(x => fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
+            .Select(x => (flatSegmentFactory ?? fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>)() with
             {
+                TempId = new(x.id),
                 RoadSegmentId = new(x.id),
                 Geometry = x.geometry.ToMultiLineString()
             })
@@ -580,12 +624,14 @@ POINT (60 -10)
 
         for (var i = 0; i < roadNodes.Count; i++)
         {
-            translateContext.AddRoadNodeRecords([new RoadNodeFeatureCompareRecord(
-                featureType,
-                new RecordNumber(i + 1),
-                roadNodes[i],
-                roadNodes[i].RoadNodeId,
-                RecordType.Identical)]);
+            translateContext.AddRoadNodeRecords([
+                new RoadNodeFeatureCompareRecord(
+                    featureType,
+                    new RecordNumber(i + 1),
+                    roadNodes[i],
+                    roadNodes[i].RoadNodeId,
+                    RecordType.Identical)
+            ]);
             TestOutputHelper.WriteLine($"Node {roadNodes[i].RoadNodeId}: {JsonConvert.SerializeObject(roadNodes[i], Formatting.Indented, SqsJsonSerializerSettingsProvider.CreateSerializerSettings())}");
         }
 
@@ -608,10 +654,12 @@ POINT (60 -10)
     {
         return BuildRoadSegmentGeometry(new Coordinate(x1, y1), new Coordinate(x2, y2));
     }
+
     private static MultiLineString BuildRoadSegmentGeometry(Coordinate start, Coordinate end)
     {
         return BuildRoadSegmentGeometry([start, end]);
     }
+
     private static MultiLineString BuildRoadSegmentGeometry(params Coordinate[] coordinates)
     {
         return new MultiLineString([new LineString(coordinates)]);
