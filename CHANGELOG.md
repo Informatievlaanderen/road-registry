@@ -1,3 +1,10 @@
+## [4.56.9](https://github.com/informatievlaanderen/road-registry/compare/v4.56.8...v4.56.9) (2026-04-20)
+
+
+### Bug Fixes
+
+* ogc features downloader deal with non-noded intersections and self intersecting with multiple nodes ([4e336ec](https://github.com/informatievlaanderen/road-registry/commit/4e336ec5b771912c33f9fdf31eafecc6fca3bc0f))
+
 ## [4.56.8](https://github.com/informatievlaanderen/road-registry/compare/v4.56.7...v4.56.8) (2026-04-20)
 
 
