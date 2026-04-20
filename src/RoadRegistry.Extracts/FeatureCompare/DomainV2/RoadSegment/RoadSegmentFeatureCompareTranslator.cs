@@ -423,7 +423,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
     private TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
-        foreach (var record in context.GetRoadSegmentRecords(FeatureType.Change))
+        var roadSegmentFeatureCompareRecords = context.GetRoadSegmentRecords(FeatureType.Change);
+        foreach (var record in roadSegmentFeatureCompareRecords)
         {
             cancellationToken.ThrowIfCancellationRequested();
 

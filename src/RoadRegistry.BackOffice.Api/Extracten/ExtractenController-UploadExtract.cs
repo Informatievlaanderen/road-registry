@@ -21,7 +21,6 @@ public partial class ExtractenController
     /// </summary>
     /// <param name="downloadId"></param>
     /// <param name="extractsDbContext"></param>
-    /// <param name="ticketing"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als de url is aangemaakt.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>

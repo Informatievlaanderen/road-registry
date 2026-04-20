@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Inwinning;
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +12,6 @@ using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Abstractions.Jobs;
 using RoadRegistry.Extracts.Schema;
 using Swashbuckle.AspNetCore.Annotations;
-using TicketingService.Abstractions;
 
 public partial class InwinningController
 {
@@ -22,7 +20,6 @@ public partial class InwinningController
     /// </summary>
     /// <param name="downloadId"></param>
     /// <param name="extractsDbContext"></param>
-    /// <param name="ticketing"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als de url is aangemaakt.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
@@ -36,7 +33,6 @@ public partial class InwinningController
     public async Task<IActionResult> UploadInwinningExtract(
         [FromRoute] string downloadId,
         [FromServices] ExtractsDbContext extractsDbContext,
-        [FromServices] ITicketing ticketing,
         CancellationToken cancellationToken = default)
     {
         if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
@@ -44,16 +40,28 @@ public partial class InwinningController
             throw new InvalidGuidValidationException("DownloadId");
         }
 
-        var record = await extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == parsedDownloadId.ToGuid(), cancellationToken);
-        if (record is null)
+        var extractDownload = await extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == parsedDownloadId.ToGuid(), cancellationToken);
+        if (extractDownload is null)
         {
             return NotFound();
         }
 
-        if (record.TicketId is not null)
+        if (extractDownload.Closed)
         {
-            var ticket = await ticketing.Get(record.TicketId.Value, cancellationToken);
-            if (ticket is not null && ticket.Status != TicketStatus.Complete && ticket.Status != TicketStatus.Error)
+            throw new ValidationException([
+                new ValidationFailure
+                {
+                    PropertyName = string.Empty,
+                    ErrorCode = "ExtractGesloten",
+                    ErrorMessage = "Het extract is gesloten.",
+                }
+            ]);
+        }
+
+        if (extractDownload.LatestUploadId is not null)
+        {
+            var extractUpload = await extractsDbContext.ExtractUploads.SingleAsync(x => x.UploadId == extractDownload.LatestUploadId.Value, cancellationToken);
+            if (extractUpload.Status is ExtractUploadStatus.Processing or ExtractUploadStatus.AutomaticValidationSucceeded)
             {
                 throw new ValidationException([
                     new ValidationFailure
@@ -69,7 +77,8 @@ public partial class InwinningController
         var response = await _mediator.Send(GetPresignedUploadUrlRequest.ForInwinning(parsedDownloadId), cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
 
-        record.TicketId = response.TicketId;
+        extractDownload.TicketId = response.TicketId;
+        extractDownload.LatestUploadId = null;
         await extractsDbContext.SaveChangesAsync(cancellationToken);
 
         return Ok(new UploadInwinningExtractResponse(response.UploadUrl, response.UploadUrlFormData, response.TicketUrl));
