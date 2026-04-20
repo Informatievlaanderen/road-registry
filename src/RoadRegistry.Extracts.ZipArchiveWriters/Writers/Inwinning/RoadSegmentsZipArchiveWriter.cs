@@ -105,7 +105,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
                                 VERSIE = { Value = x.LastModified.Timestamp.ToBrusselsDateTime() }
                             };
 
-                            return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value);
+                            return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value.RemoveCoordinateSegmentsLessThan15Cm());
                         }
                         catch (Exception ex)
                         {

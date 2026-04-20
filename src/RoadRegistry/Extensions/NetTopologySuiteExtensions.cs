@@ -459,4 +459,35 @@ public static class NetTopologySuiteExtensions
     {
         return value.IsReasonablyGreaterOrEqualThan(other, tolerances.GeometryTolerance);
     }
+
+    public static MultiLineString RemoveCoordinateSegmentsLessThan15Cm(this MultiLineString geometry)
+    {
+        var coordinates = geometry.GetSingleLineString().Coordinates;
+        var previousCoordinate = coordinates[0];
+        var fixedCoordinates = new List<Coordinate> { previousCoordinate };
+        var distance = 0.0;
+        for (var i = 1; i < coordinates.Length; i++)
+        {
+            var currentCoordinate = coordinates[i];
+            distance += currentCoordinate.Distance(previousCoordinate);
+
+            if (distance < 0.15)
+            {
+                if (i == coordinates.Length - 1) // last one, delete previous coordinate
+                {
+                    fixedCoordinates.RemoveAt(fixedCoordinates.Count - 1);
+                    fixedCoordinates.Add(currentCoordinate);
+                }
+
+                previousCoordinate = currentCoordinate;
+                continue;
+            }
+
+            fixedCoordinates.Add(currentCoordinate);
+            previousCoordinate = currentCoordinate;
+            distance = 0;
+        }
+
+        return geometry.Factory.CreateLineString(fixedCoordinates.ToArray()).ToMultiLineString();
+    }
 }

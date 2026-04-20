@@ -8,6 +8,8 @@
     using Microsoft.IO;
     using Moq;
     using NetTopologySuite.Geometries;
+    using NetTopologySuite.IO;
+    using RoadRegistry.Extensions;
     using RoadRegistry.Extracts;
     using RoadRegistry.Extracts.ZipArchiveWriters;
     using RoadRegistry.Extracts.ZipArchiveWriters.Writers.Inwinning;
@@ -230,6 +232,26 @@
 
             messages[0].Should().Be("slow");
             messages[1].Should().Be("fast");
+        }
+
+        [Theory]
+        [InlineData("0 0, 1 0", "0 0, 1 0")]
+        [InlineData("0 0, 0.10 0, 1 0", "0 0, 1 0")]
+        [InlineData("0 0, 0.10 0, 0.12 0, 1 0", "0 0, 1 0")]
+        [InlineData("0 0, 0.10 0, 0.12 0, 0.2 0, 1 0", "0 0, 0.2 0, 1 0")]
+        [InlineData("0 0, 0.8 0, 1 0", "0 0, 0.8 0, 1 0")]
+        [InlineData("0 0, 0.8 0, 0.9 0, 1 0", "0 0, 0.8 0, 1 0")]
+        [InlineData("0 0, 0.8 0, 0.95 0, 1 0", "0 0, 0.8 0, 1 0")]
+        [InlineData("0 0, 0.8 0, 0.95 0, 0.98 0, 1 0", "0 0, 0.8 0, 1 0")]
+        [InlineData("0 0, 0.9 0, 1 0", "0 0, 1 0")]
+        public void RemoveCoordinateSegmentsLessThan15CmTests(string coordinates, string expectedCoordinates)
+        {
+            var geometry = new WKTReader().Read($"MULTILINESTRING (({coordinates}))");
+            var expectedGeometry = new WKTReader().Read($"MULTILINESTRING (({expectedCoordinates}))");
+
+            var fixedGeometry = ((MultiLineString)geometry).RemoveCoordinateSegmentsLessThan15Cm();
+
+            fixedGeometry.AsText().Should().Be(expectedGeometry.AsText());
         }
 
         private sealed class SlowWriter : IZipArchiveWriter

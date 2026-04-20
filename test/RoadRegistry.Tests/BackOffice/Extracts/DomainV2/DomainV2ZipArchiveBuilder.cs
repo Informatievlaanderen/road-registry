@@ -5,6 +5,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
     using AutoFixture;
     using Microsoft.IO;
     using NetTopologySuite.Geometries;
+    using NetTopologySuite.Operation.Polygonize;
     using RoadRegistry.Editor.Schema.Extensions;
     using RoadRegistry.Extensions;
     using RoadRegistry.Extracts.Schemas.Inwinning;
@@ -291,6 +292,11 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
             TestData.TransactionZoneShapeRecord = CreateTransactionZoneShapeRecord();
         }
 
+        public void CopyFrom(ExtractsZipArchiveExtractDataSetBuilder other)
+        {
+            DataSet = other.DataSet;
+        }
+
         public ExtractsZipArchiveExtractDataSetBuilder ConfigureExtract(Action<ExtractsZipArchiveExtractDataSetBuilder, ExtractsZipArchiveDataSetBuilderContext> configure)
         {
             DataSet ??= new ZipArchiveDataSet
@@ -491,6 +497,25 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
         {
             return _fixture.Create<Polygon>().ToMultiPolygon();
         }
+
+        public MultiPolygon CreateTransactionZoneGeometry(IEnumerable<MultiLineString> multiLineStrings)
+        {
+            var multiLineStringsArray = multiLineStrings.ToArray();
+            if (multiLineStringsArray.Length == 0)
+            {
+                throw new ArgumentException("multiLineStrings");
+            }
+
+            var factory = multiLineStringsArray.First().Factory;
+            var mp = factory.CreateMultiPolygon();
+
+            foreach (var multiLineString in multiLineStringsArray)
+            {
+                mp = mp.Union(multiLineString.Buffer(0.01)).ToMultiPolygon();
+            }
+
+            return mp;
+        }
     }
 
     public class TransactionZoneShapeRecord
@@ -586,6 +611,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
             EuropeanRoadDbaseRecords.Clear();
             NationalRoadDbaseRecords.Clear();
             GradeSeparatedJunctionDbaseRecords.Clear();
+            // exclude TransactionZone
         }
 
         public void RemoveRoadSegment(int tempId)
