@@ -407,9 +407,11 @@ export default defineComponent({
     handleTicketForUpload(ticketResult: RoadRegistry.TicketDetails): void {
       switch (ticketResult.status) {
         case "created":
+          this.uploadDisabled = true;
           this.ticketResponseCode = 1100;
           break;
         case "pending":
+          this.uploadDisabled = true;
           this.ticketResponseCode = 1101;
           break;
         case "complete":
