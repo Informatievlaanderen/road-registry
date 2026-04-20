@@ -683,8 +683,18 @@ public class RoadSegmentUnflattener
         RoadSegmentFeatureWithDynamicAttributes BuildRoadSegmentFeatureWithDynamicAttributes(MultiLineString geometry, RoadSegmentId? excludeId)
         {
             var flatFeatures = segment.FlatFeatures
-                .Where(x => x.Attributes.Geometry.CalculateOverlapPercentage(geometry, 0.001) >= 0.99)
-                .ToList();
+                .Select(x =>
+                {
+                    var clusterTolerance = 0.001;
+                    return (
+                        Feature: x,
+                        OverlapSelfToOther: x.Attributes.Geometry.CalculateOverlapPercentage(geometry, clusterTolerance),
+                        OverlapOtherToSelf: geometry.CalculateOverlapPercentage(x.Attributes.Geometry, clusterTolerance)
+                    );
+                })
+                .Where(x => x.OverlapSelfToOther >= 0.99 || x.OverlapOtherToSelf >= 0.99)
+                .Select(x => x.Feature)
+                .ToArray();
 
             var roadSegmentId = flatFeatures
                 .Where(x => excludeId is null || x.Attributes.RoadSegmentId != excludeId)
