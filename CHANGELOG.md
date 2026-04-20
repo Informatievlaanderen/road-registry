@@ -1,3 +1,10 @@
+## [4.56.7](https://github.com/informatievlaanderen/road-registry/compare/v4.56.6...v4.56.7) (2026-04-20)
+
+
+### Bug Fixes
+
+* **inwinning:** remove coordinate segments less than 15cm from extract ([9117ce9](https://github.com/informatievlaanderen/road-registry/commit/9117ce9a98c35d7da6819d14f8eb758e7be402a0))
+
 ## [4.56.6](https://github.com/informatievlaanderen/road-registry/compare/v4.56.5...v4.56.6) (2026-04-17)
 
 
