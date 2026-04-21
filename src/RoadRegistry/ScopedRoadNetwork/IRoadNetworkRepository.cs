@@ -10,6 +10,7 @@ using ValueObjects;
 public interface IRoadNetworkRepository
 {
     Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry? geometry = null, RoadNetworkIds? ids = null);
+    Task<RoadNetworkIds> GetUnderlyingIdsForExtract(IDocumentSession session, Geometry geometry);
     Task<RoadNetworkIds> GetUnderlyingIdsWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds);
     Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, ScopedRoadNetworkId roadNetworkId);
     Task Save(ScopedRoadNetwork roadNetwork, string commandName, CancellationToken cancellationToken);

@@ -79,7 +79,7 @@
                 return roadNetworkIds;
             }
 
-            var ids = await _roadNetworkRepository.GetUnderlyingIds(_session, geometry);
+            var ids = await _roadNetworkRepository.GetUnderlyingIdsForExtract(_session, geometry);
             _idsCache[geometry] = ids;
             return ids;
         }

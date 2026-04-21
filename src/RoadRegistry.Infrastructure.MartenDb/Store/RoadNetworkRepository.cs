@@ -156,6 +156,56 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
         );
     }
 
+    public async Task<RoadNetworkIds> GetUnderlyingIdsForExtract(IDocumentSession session, Geometry geometry)
+    {
+        if (geometry is null || geometry.IsEmpty)
+        {
+            throw new ArgumentException("Geometry must be specified.");
+        }
+
+        var sql = $@"
+SELECT
+  rs.id                     AS RoadSegmentId,
+  rs.start_node_id          AS StartNodeId,
+  rs.end_node_id            AS EndNodeId,
+  gradeseparatedjunction.id AS GradeSeparatedJunctionId,
+  gradejunction.id          AS GradeJunctionId
+FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
+LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} gradeseparatedjunction
+  ON gradeseparatedjunction.lower_road_segment_id = rs.id OR gradeseparatedjunction.upper_road_segment_id = rs.id
+LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
+  ON gradejunction.road_segment_id_1 = rs.id OR gradejunction.road_segment_id_2 = rs.id
+WHERE ST_Intersects(rs.geometry, ST_SetSRID(ST_GeomFromText(@wkt), @srid))
+";
+        var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql,
+            new
+            {
+                wkt = geometry.AsText(),
+                srid = geometry.SRID
+            })).ToList();
+
+        return new RoadNetworkIds(
+            segments.SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })
+                .Distinct()
+                .Select(x => new RoadNodeId(x))
+                .ToArray(),
+            segments.Select(x => x.RoadSegmentId)
+                .Distinct()
+                .Select(x => new RoadSegmentId(x))
+                .ToArray(),
+            segments.Where(x => x.GradeSeparatedJunctionId is not null)
+                .Select(x => x.GradeSeparatedJunctionId!.Value)
+                .Distinct()
+                .Select(x => new GradeSeparatedJunctionId(x))
+                .ToArray(),
+            segments.Where(x => x.GradeJunctionId is not null)
+                .Select(x => x.GradeJunctionId!.Value)
+                .Distinct()
+                .Select(x => new GradeJunctionId(x))
+                .ToArray()
+        );
+    }
+
     public async Task<RoadNetworkIds> GetUnderlyingIdsWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds)
     {
         if (roadSegmentIds.Count == 0)
