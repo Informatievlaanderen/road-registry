@@ -75,6 +75,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         var roadSegmentIdProvider = new NextRoadSegmentIdProvider(maxUsedRoadSegmentId);
         var dynamicChangeFeaturesTask = Task.Run(() => RoadSegmentUnflattener.Unflatten(FeatureType.Change, changeFeatures, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken), cancellationToken);
         await Task.WhenAll(dynamicChangeFeaturesTask, dynamicExtractFeaturesTask);
+        problems += dynamicChangeFeaturesTask.Result.Problems;
+        problems.ThrowIfError();
 
         changes = RemoveConsumedSchijnknopen(changes, dynamicChangeFeaturesTask.Result.ConsumedRoadNodeIds);
         RemoveConsumedRoadSegments(extractFeatures, dynamicExtractFeaturesTask.Result.RoadSegments, context);
