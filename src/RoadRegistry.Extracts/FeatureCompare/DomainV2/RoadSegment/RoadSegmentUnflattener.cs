@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 
+using System.Diagnostics;
 using Extensions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.LinearReferencing;
@@ -66,43 +67,86 @@ public class RoadSegmentUnflattener
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
-        var segmentsByNode = new Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>>();
         var nodeRecords = context.GetRoadNodeRecords(featureType).NotRemoved().ToList();
 
-        foreach (var flatRoadSegment in flatRoadSegments)
+        // Build spatial index for nodes for faster lookups
+        var nodesByLocation = new Dictionary<Coordinate, RoadNodeFeatureCompareRecord>(new CoordinateEqualityComparer(context.Tolerances));
+        foreach (var node in nodeRecords)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            nodesByLocation[node.Attributes.Geometry.Coordinate] = node;
+        }
 
-            var geometry = flatRoadSegment.Attributes.Geometry;
-            var startPoint = geometry.Coordinates.First();
-            var endPoint = geometry.Coordinates.Last();
-
-            // Find nodes at start and end points
-            var startNode = FindNodeAtPoint(startPoint, nodeRecords, context.Tolerances);
-            var endNode = FindNodeAtPoint(endPoint, nodeRecords, context.Tolerances);
-
-            if (startNode is not null)
+        // Process segments in parallel to find their start/end nodes
+        var segmentNodePairs = flatRoadSegments
+            .AsParallel()
+            .WithCancellation(cancellationToken)
+            .SelectMany(flatRoadSegment =>
             {
-                var key = (startNode.Id, startNode.Attributes.Geometry);
-                segmentsByNode.TryAdd(key, []);
-                segmentsByNode[key].Add(flatRoadSegment);
-            }
+                var geometry = flatRoadSegment.Attributes.Geometry;
+                var startPoint = geometry.Coordinates.First();
+                var endPoint = geometry.Coordinates.Last();
 
-            if (endNode is not null)
+                var pairs = new List<(RoadNodeId NodeId, Point NodeGeometry, Feature<RoadSegmentFeatureCompareWithFlatAttributes> Segment)>(2);
+
+                // Find nodes at start and end points using spatial index
+                if (nodesByLocation.TryGetValue(startPoint, out var startNode))
+                {
+                    pairs.Add((startNode.Id, startNode.Attributes.Geometry, flatRoadSegment));
+                }
+
+                if (nodesByLocation.TryGetValue(endPoint, out var endNode))
+                {
+                    pairs.Add((endNode.Id, endNode.Attributes.Geometry, flatRoadSegment));
+                }
+
+                return pairs;
+            })
+            .ToList();
+
+        // Group segments by node (sequential, but the heavy lifting was done in parallel)
+        var segmentsByNode = new Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>>();
+        foreach (var pair in segmentNodePairs)
+        {
+            var key = (pair.NodeId, pair.NodeGeometry);
+            if (!segmentsByNode.TryGetValue(key, out var list))
             {
-                var key = (endNode.Id, endNode.Attributes.Geometry);
-                segmentsByNode.TryAdd(key, []);
-                segmentsByNode[key].Add(flatRoadSegment);
+                list = new List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>();
+                segmentsByNode[key] = list;
             }
+            list.Add(pair.Segment);
         }
 
         return segmentsByNode;
     }
 
-    private static RoadNodeFeatureCompareRecord? FindNodeAtPoint(Coordinate point, IReadOnlyCollection<RoadNodeFeatureCompareRecord> nodeRecords, VerificationContextTolerances tolerances)
+    private sealed class CoordinateEqualityComparer : IEqualityComparer<Coordinate>
     {
-        return nodeRecords
-            .FirstOrDefault(x => x.Attributes.Geometry.IsReasonablyEqualTo(point, tolerances));
+        private readonly VerificationContextTolerances _tolerances;
+
+        public CoordinateEqualityComparer(VerificationContextTolerances tolerances)
+        {
+            _tolerances = tolerances;
+        }
+
+        public bool Equals(Coordinate? x, Coordinate? y)
+        {
+            if (x is null || y is null)
+            {
+                return x == y;
+            }
+
+            return x.IsReasonablyEqualTo(y, _tolerances);
+        }
+
+        public int GetHashCode(Coordinate obj)
+        {
+            // Use rounded coordinates for hash to ensure nearby points hash to same bucket
+            var tolerance = _tolerances.GeometryTolerance;
+            var bucketSize = tolerance * 10; // Larger bucket to handle tolerance range
+            var xBucket = (int)(obj.X / bucketSize);
+            var yBucket = (int)(obj.Y / bucketSize);
+            return HashCode.Combine(xBucket, yBucket);
+        }
     }
 
     private Dictionary<RoadNodeId, RoadNodeTypeV2> ClassifyNonValidationNodes(
@@ -167,37 +211,118 @@ public class RoadSegmentUnflattener
         OgcFeaturesCache ogcFeaturesCache,
         CancellationToken cancellationToken)
     {
-        var result = new List<RoadSegmentFeatureWithDynamicAttributes>();
-        var processedSegments = new HashSet<RoadSegmentTempId>();
-        var consumedNodes = new HashSet<RoadNodeId>();
+        // Build connected component groups that can be processed independently
+        var componentGroups = BuildConnectedComponents(records, segmentsByNode, nodeClassifications, tolerances);
 
+        // Process each component group in parallel
+        var processedComponents = componentGroups
+            .AsParallel()
+            .WithCancellation(cancellationToken)
+            .Select(componentRecords =>
+            {
+                var componentResult = new List<RoadSegmentFeatureWithDynamicAttributes>(componentRecords.Count);
+                var componentProcessedSegments = new HashSet<RoadSegmentTempId>(componentRecords.Count);
+                var componentConsumedNodes = new HashSet<RoadNodeId>();
+                var componentProblems = ZipArchiveProblems.None;
+
+                foreach (var record in componentRecords)
+                {
+                    if (componentProcessedSegments.Contains(record.Attributes.TempId))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        var segmentChain = BuildSegmentChain(featureType, record, segmentsByNode, nodeClassifications, componentProcessedSegments, componentConsumedNodes, tolerances);
+                        componentProblems += segmentChain.Problems;
+
+                        var dynamicRecord = BuildFeatureWithDynamicAttributes(segmentChain.FlatRoadSegments, roadSegmentIdProvider, ogcFeaturesCache, tolerances);
+                        componentResult.Add(dynamicRecord);
+                    }
+                    catch (ZipArchiveValidationException ex)
+                    {
+                        componentProblems += ex.Problems;
+                    }
+                }
+
+                return (Result: componentResult, ConsumedNodes: componentConsumedNodes, Problems: componentProblems);
+            })
+            .ToList();
+
+        // Merge all component results
+        var result = new List<RoadSegmentFeatureWithDynamicAttributes>(records.Count);
+        var consumedNodes = new HashSet<RoadNodeId>();
         var problems = ZipArchiveProblems.None;
+
+        foreach (var component in processedComponents)
+        {
+            result.AddRange(component.Result);
+            consumedNodes.UnionWith(component.ConsumedNodes);
+            problems += component.Problems;
+        }
+
+        return (result, consumedNodes, problems);
+    }
+
+    private List<List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> BuildConnectedComponents(
+        IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
+        Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
+        Dictionary<RoadNodeId, RoadNodeTypeV2> nodeClassifications,
+        VerificationContextTolerances tolerances)
+    {
+        var visited = new HashSet<RoadSegmentTempId>();
+        var components = new List<List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>>();
 
         foreach (var record in records)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (processedSegments.Contains(record.Attributes.TempId))
+            if (visited.Contains(record.Attributes.TempId))
             {
                 continue;
             }
 
-            try
-            {
-                // Find all segments connected through non-structural nodes (not Eindknoop/EchteKnoop/Grensknoop)
-                var segmentChain = BuildSegmentChain(featureType, record, segmentsByNode, nodeClassifications, processedSegments, consumedNodes, tolerances);
-                problems += segmentChain.Problems;
+            // Find all segments in this connected component using BFS
+            var component = new List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>();
+            var queue = new Queue<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>();
+            queue.Enqueue(record);
+            visited.Add(record.Attributes.TempId);
 
-                var dynamicRecord = BuildFeatureWithDynamicAttributes(segmentChain.FlatRoadSegments, roadSegmentIdProvider, ogcFeaturesCache, tolerances);
-                result.Add(dynamicRecord);
-            }
-            catch (ZipArchiveValidationException ex)
+            while (queue.Count > 0)
             {
-                problems += ex.Problems;
+                var current = queue.Dequeue();
+                component.Add(current);
+
+                // Find all connected segments through shared nodes
+                var geometry = current.Attributes.Geometry;
+                var startPoint = geometry.Coordinates.First();
+                var endPoint = geometry.Coordinates.Last();
+
+                foreach (var nodeKey in segmentsByNode.Keys)
+                {
+                    if (!nodeKey.Item2.IsReasonablyEqualTo(startPoint, tolerances) && !nodeKey.Item2.IsReasonablyEqualTo(endPoint, tolerances))
+                    {
+                        continue;
+                    }
+
+                    // If this is a structural node, don't traverse through it to other components
+                    if (nodeClassifications.ContainsKey(nodeKey.Item1))
+                    {
+                        continue;
+                    }
+
+                    foreach (var connectedSegment in segmentsByNode[nodeKey]
+                                 .Where(x => !visited.Contains(x.Attributes.TempId)))
+                    {
+                        visited.Add(connectedSegment.Attributes.TempId);
+                        queue.Enqueue(connectedSegment);
+                    }
+                }
             }
+
+            components.Add(component);
         }
 
-        return (result, consumedNodes, problems);
+        return components;
     }
 
     private (List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> FlatRoadSegments, ZipArchiveProblems Problems) BuildSegmentChain(
@@ -232,93 +357,105 @@ public class RoadSegmentUnflattener
         bool isForward,
         VerificationContextTolerances tolerances)
     {
-        var nextNodeCoordinate = isForward
-            ? currentSegment.Attributes.Geometry.Coordinates.Last()
-            : currentSegment.Attributes.Geometry.Coordinates.First();
-
-        var nodeAtPoint = segmentsByNode
-            .FirstOrDefault(kvp => kvp.Value.Contains(currentSegment) && kvp.Key.Item2.IsReasonablyEqualTo(nextNodeCoordinate, tolerances))
-            .Key;
-
-        if (nodeAtPoint == default)
+        while (true)
         {
-            return ZipArchiveProblems.None;
-        }
+            var nextNodeCoordinate = isForward
+                ? currentSegment.Attributes.Geometry.Coordinates.Last()
+                : currentSegment.Attributes.Geometry.Coordinates.First();
 
-        // Stop if this node is a structural node (Eindknoop, EchteKnoop, or Grensknoop/Validatieknoop)
-        if (nodeClassifications.TryGetValue(nodeAtPoint.Item1, out _))
-        {
-            // Stop at structural nodes
-            return ZipArchiveProblems.None;
-        }
+            // Find node at point using faster lookup
+            var nodeAtPoint = segmentsByNode
+                .Where(kvp => kvp.Value.Contains(currentSegment) && kvp.Key.Item2.IsReasonablyEqualTo(nextNodeCoordinate, tolerances))
+                .Select(x => x.Key)
+                .FirstOrDefault();
 
-        // Otherwise, continue through this non-structural node
-
-        // Find the other segment connected to this schijnknoop
-        var connectedSegments = segmentsByNode[nodeAtPoint];
-        var nextSegment = connectedSegments.FirstOrDefault(s =>
-            s.Attributes.TempId != currentSegment.Attributes.TempId && !processedSegments.Contains(s.Attributes.TempId));
-        if (nextSegment is null)
-        {
-            return ZipArchiveProblems.None;
-        }
-
-        Feature<RoadSegmentFeatureCompareWithFlatAttributes>? previousSegment;
-        bool appendAtEnd, appendReverse;
-        var lastCoordinateInChain = chain.Last().Attributes.Geometry.Coordinates.Last();
-        if (lastCoordinateInChain.IsReasonablyEqualTo(nextSegment.Attributes.Geometry.Coordinates.First(), tolerances))
-        {
-            previousSegment = chain.LastOrDefault();
-            appendAtEnd = true;
-            appendReverse = false;
-        }
-        else if (lastCoordinateInChain.IsReasonablyEqualTo(nextSegment.Attributes.Geometry.Coordinates.Last(), tolerances))
-        {
-            previousSegment = chain.LastOrDefault();
-            appendAtEnd = true;
-            appendReverse = true;
-        }
-        else
-        {
-            var firstCoordinateInChain = chain.First().Attributes.Geometry.Coordinates.First();
-            if (firstCoordinateInChain.IsReasonablyEqualTo(nextSegment.Attributes.Geometry.Coordinates.Last(), tolerances))
+            if (nodeAtPoint == default)
             {
-                previousSegment = chain.FirstOrDefault();
-                appendAtEnd = false;
+                return ZipArchiveProblems.None;
+            }
+
+            // Stop if this node is a structural node (Eindknoop, EchteKnoop, or Grensknoop/Validatieknoop)
+            if (nodeClassifications.ContainsKey(nodeAtPoint.Item1))
+            {
+                return ZipArchiveProblems.None;
+            }
+
+            // Find the other segment connected to this schijnknoop
+            var connectedSegments = segmentsByNode[nodeAtPoint];
+            Feature<RoadSegmentFeatureCompareWithFlatAttributes>? nextSegment = null;
+            foreach (var s in connectedSegments)
+            {
+                if (s.Attributes.TempId != currentSegment.Attributes.TempId && !processedSegments.Contains(s.Attributes.TempId))
+                {
+                    nextSegment = s;
+                    break;
+                }
+            }
+
+            if (nextSegment is null)
+            {
+                return ZipArchiveProblems.None;
+            }
+
+            Feature<RoadSegmentFeatureCompareWithFlatAttributes>? previousSegment;
+            bool appendAtEnd, appendReverse;
+            var lastCoordinateInChain = chain[chain.Count - 1].Attributes.Geometry.Coordinates.Last();
+            var nextSegmentCoords = nextSegment.Attributes.Geometry.Coordinates;
+
+            if (lastCoordinateInChain.IsReasonablyEqualTo(nextSegmentCoords.First(), tolerances))
+            {
+                previousSegment = chain[chain.Count - 1];
+                appendAtEnd = true;
                 appendReverse = false;
             }
-            else if (firstCoordinateInChain.IsReasonablyEqualTo(nextSegment.Attributes.Geometry.Coordinates.First(), tolerances))
+            else if (lastCoordinateInChain.IsReasonablyEqualTo(nextSegmentCoords.Last(), tolerances))
             {
-                previousSegment = chain.FirstOrDefault();
-                appendAtEnd = false;
+                previousSegment = chain[chain.Count - 1];
+                appendAtEnd = true;
                 appendReverse = true;
             }
             else
             {
-                return ZipArchiveProblems.None;
+                var firstCoordinateInChain = chain[0].Attributes.Geometry.Coordinates.First();
+                if (firstCoordinateInChain.IsReasonablyEqualTo(nextSegmentCoords.Last(), tolerances))
+                {
+                    previousSegment = chain[0];
+                    appendAtEnd = false;
+                    appendReverse = false;
+                }
+                else if (firstCoordinateInChain.IsReasonablyEqualTo(nextSegmentCoords.First(), tolerances))
+                {
+                    previousSegment = chain[0];
+                    appendAtEnd = false;
+                    appendReverse = true;
+                }
+                else
+                {
+                    return ZipArchiveProblems.None;
+                }
             }
-        }
 
-        if (previousSegment is not null && (previousSegment.Attributes.Status != nextSegment.Attributes.Status || previousSegment.Attributes.Method != nextSegment.Attributes.Method))
-        {
-            var recordContext = ExtractFileName.Wegknoop.AtDbaseRecord(featureType);
-            return ZipArchiveProblems.Single(recordContext.Error(new RoadNodeIsNotAllowed().WithContext(ProblemContext.For(nodeAtPoint.Item1))));
-        }
+            if (previousSegment is not null && (previousSegment.Attributes.Status != nextSegment.Attributes.Status || previousSegment.Attributes.Method != nextSegment.Attributes.Method))
+            {
+                var recordContext = ExtractFileName.Wegknoop.AtDbaseRecord(featureType);
+                return ZipArchiveProblems.Single(recordContext.Error(new RoadNodeIsNotAllowed().WithContext(ProblemContext.For(nodeAtPoint.Item1))));
+            }
 
-        if (appendAtEnd)
-        {
-            chain.Add(appendReverse ? Reverse(nextSegment) : nextSegment);
-        }
-        else
-        {
-            chain.Insert(0, appendReverse ? Reverse(nextSegment) : nextSegment);
-        }
+            if (appendAtEnd)
+            {
+                chain.Add(appendReverse ? Reverse(nextSegment) : nextSegment);
+            }
+            else
+            {
+                chain.Insert(0, appendReverse ? Reverse(nextSegment) : nextSegment);
+            }
 
-        processedSegments.Add(nextSegment.Attributes.TempId);
-        consumedNodes.Add(nodeAtPoint.Item1);
+            processedSegments.Add(nextSegment.Attributes.TempId);
+            consumedNodes.Add(nodeAtPoint.Item1);
 
-        // Continue traversing
-        return TraverseChain(featureType, nextSegment, segmentsByNode, nodeClassifications, chain, processedSegments, consumedNodes, isForward, tolerances);
+            // Continue traversing (tail recursion converted to loop)
+            currentSegment = nextSegment;
+        }
     }
 
     private static Feature<RoadSegmentFeatureCompareWithFlatAttributes> Reverse(Feature<RoadSegmentFeatureCompareWithFlatAttributes> feature)
@@ -419,8 +556,65 @@ public class RoadSegmentUnflattener
             .Where(x => !nodeClassifications.ContainsKey(x.Id))
             .ToList();
 
-        var result = mergedRecords.ToList();
-        var segmentsQueue = new Queue<RoadSegmentFeatureWithDynamicAttributes>(mergedRecords);
+        // Phase 1: Fix self-intersecting and same start/end node issues in parallel
+        // These don't require checking other segments, so they can be parallelized
+        var phase1Results = mergedRecords
+            .AsParallel()
+            .WithCancellation(cancellationToken)
+            .SelectMany(segment =>
+            {
+                var processedSegments = new List<RoadSegmentFeatureWithDynamicAttributes> { segment };
+                var localConsumedNodes = new HashSet<RoadNodeId>();
+                var segmentsQueue = new Queue<RoadSegmentFeatureWithDynamicAttributes>();
+                segmentsQueue.Enqueue(segment);
+
+                while (segmentsQueue.Count > 0)
+                {
+                    var currentSegment = segmentsQueue.Dequeue();
+
+                    // Condition 1: Self-intersecting segment
+                    var tryFixSelfIntersectingResult = TryFixSelfIntersecting(currentSegment, localConsumedNodes, nonClassifiedNodes, roadSegmentIdProvider, context);
+                    if (tryFixSelfIntersectingResult.Count > 0)
+                    {
+                        processedSegments.Remove(currentSegment);
+                        processedSegments.AddRange(tryFixSelfIntersectingResult);
+                        foreach (var splitSegment in tryFixSelfIntersectingResult)
+                        {
+                            segmentsQueue.Enqueue(splitSegment);
+                        }
+                        continue;
+                    }
+
+                    // Condition 2: Same start and end node
+                    var tryFixSameStartEndNodeResult = TryFixSameStartEndNode(currentSegment, localConsumedNodes, segmentsByNode, nodeClassifications, nonClassifiedNodes, roadSegmentIdProvider, context);
+                    if (tryFixSameStartEndNodeResult.Count > 0)
+                    {
+                        processedSegments.Remove(currentSegment);
+                        processedSegments.AddRange(tryFixSameStartEndNodeResult);
+                        foreach (var splitSegment in tryFixSameStartEndNodeResult)
+                        {
+                            segmentsQueue.Enqueue(splitSegment);
+                        }
+                        continue;
+                    }
+                }
+
+                return processedSegments.Select(s => (Segment: s, ConsumedNodes: localConsumedNodes));
+            })
+            .ToList();
+
+        // Merge consumed nodes from parallel processing
+        foreach (var (_, nodes) in phase1Results)
+        {
+            consumedRoadNodeIds.UnionWith(nodes);
+        }
+
+        var result = phase1Results.Select(x => x.Segment).ToList();
+
+        // Phase 2: Fix multiple intersections with other segments using spatial index
+        var spatialIndex = BuildSpatialIndex(result);
+        var segmentsQueue = new Queue<RoadSegmentFeatureWithDynamicAttributes>(result);
+        result = result.ToList(); // Create a new list to track current state
 
         while (segmentsQueue.Count > 0)
         {
@@ -428,48 +622,31 @@ public class RoadSegmentUnflattener
 
             var segment = segmentsQueue.Dequeue();
 
-            // Condition 1: Self-intersecting segment
-            var tryFixSelfIntersectingResult = TryFixSelfIntersecting(segment, consumedRoadNodeIds, nonClassifiedNodes, roadSegmentIdProvider, context);
-            if (EnqueueSplitResult(segment, tryFixSelfIntersectingResult))
-            {
-                continue;
-            }
+            var tryFixMultipleIntersectionsWithOtherSegmentsResult = TryFixMultipleIntersectionsWithOtherSegmentsUsingSpatialIndex(
+                segment,
+                consumedRoadNodeIds,
+                spatialIndex,
+                nonClassifiedNodes,
+                roadSegmentIdProvider,
+                context);
 
-            // Condition 2: Same start and end node
-            var tryFixSameStartEndNodeResult = TryFixSameStartEndNode(segment, consumedRoadNodeIds, segmentsByNode, nodeClassifications, nonClassifiedNodes, roadSegmentIdProvider, context);
-            if (EnqueueSplitResult(segment, tryFixSameStartEndNodeResult))
+            if (tryFixMultipleIntersectionsWithOtherSegmentsResult.Count > 0)
             {
-                continue;
-            }
+                // Remove old segment from spatial index
+                RemoveFromSpatialIndex(spatialIndex, segment);
+                result.Remove(segment);
 
-            // Condition 3: Multiple intersections with other segments
-            var tryFixMultipleIntersectionsWithOtherSegmentsResult = TryFixMultipleIntersectionsWithOtherSegments(segment, consumedRoadNodeIds, result, nonClassifiedNodes, roadSegmentIdProvider, context);
-            if (EnqueueSplitResult(segment, tryFixMultipleIntersectionsWithOtherSegmentsResult))
-            {
-                continue;
+                // Add new segments to result and spatial index
+                foreach (var splitSegment in tryFixMultipleIntersectionsWithOtherSegmentsResult)
+                {
+                    result.Add(splitSegment);
+                    AddToSpatialIndex(spatialIndex, splitSegment);
+                    segmentsQueue.Enqueue(splitSegment);
+                }
             }
         }
 
         return result.OrderBy(x => x.RecordNumber.ToInt32()).ToList();
-
-        bool EnqueueSplitResult(RoadSegmentFeatureWithDynamicAttributes segment, IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> roadSegments)
-        {
-            // When segments are split, add the split segments to the queue to be processed again
-            if (roadSegments.Count > 0)
-            {
-                result.Remove(segment);
-                result.AddRange(roadSegments);
-
-                foreach (var splitSegment in roadSegments)
-                {
-                    segmentsQueue.Enqueue(splitSegment);
-                }
-
-                return true;
-            }
-
-            return false;
-        }
     }
 
     private IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> TryFixSelfIntersecting(
@@ -619,19 +796,129 @@ public class RoadSegmentUnflattener
         return null;
     }
 
-    private IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> TryFixMultipleIntersectionsWithOtherSegments(
+    private Dictionary<(int GridX, int GridY), List<RoadSegmentFeatureWithDynamicAttributes>> BuildSpatialIndex(
+        List<RoadSegmentFeatureWithDynamicAttributes> segments)
+    {
+        var spatialIndex = new Dictionary<(int, int), List<RoadSegmentFeatureWithDynamicAttributes>>();
+        const double gridSize = 100.0; // Adjust based on your coordinate system scale
+
+        foreach (var segment in segments)
+        {
+            var envelope = segment.Attributes.Geometry.EnvelopeInternal;
+            var minGridX = (int)(envelope.MinX / gridSize);
+            var maxGridX = (int)(envelope.MaxX / gridSize);
+            var minGridY = (int)(envelope.MinY / gridSize);
+            var maxGridY = (int)(envelope.MaxY / gridSize);
+
+            for (var gx = minGridX; gx <= maxGridX; gx++)
+            {
+                for (var gy = minGridY; gy <= maxGridY; gy++)
+                {
+                    var key = (gx, gy);
+                    if (!spatialIndex.TryGetValue(key, out var list))
+                    {
+                        list = new List<RoadSegmentFeatureWithDynamicAttributes>();
+                        spatialIndex[key] = list;
+                    }
+                    list.Add(segment);
+                }
+            }
+        }
+
+        return spatialIndex;
+    }
+
+    private void AddToSpatialIndex(
+        Dictionary<(int GridX, int GridY), List<RoadSegmentFeatureWithDynamicAttributes>> spatialIndex,
+        RoadSegmentFeatureWithDynamicAttributes segment)
+    {
+        const double gridSize = 100.0;
+        var envelope = segment.Attributes.Geometry.EnvelopeInternal;
+        var minGridX = (int)(envelope.MinX / gridSize);
+        var maxGridX = (int)(envelope.MaxX / gridSize);
+        var minGridY = (int)(envelope.MinY / gridSize);
+        var maxGridY = (int)(envelope.MaxY / gridSize);
+
+        for (var gx = minGridX; gx <= maxGridX; gx++)
+        {
+            for (var gy = minGridY; gy <= maxGridY; gy++)
+            {
+                var key = (gx, gy);
+                if (!spatialIndex.TryGetValue(key, out var list))
+                {
+                    list = new List<RoadSegmentFeatureWithDynamicAttributes>();
+                    spatialIndex[key] = list;
+                }
+                list.Add(segment);
+            }
+        }
+    }
+
+    private void RemoveFromSpatialIndex(
+        Dictionary<(int GridX, int GridY), List<RoadSegmentFeatureWithDynamicAttributes>> spatialIndex,
+        RoadSegmentFeatureWithDynamicAttributes segment)
+    {
+        const double gridSize = 100.0;
+        var envelope = segment.Attributes.Geometry.EnvelopeInternal;
+        var minGridX = (int)(envelope.MinX / gridSize);
+        var maxGridX = (int)(envelope.MaxX / gridSize);
+        var minGridY = (int)(envelope.MinY / gridSize);
+        var maxGridY = (int)(envelope.MaxY / gridSize);
+
+        for (var gx = minGridX; gx <= maxGridX; gx++)
+        {
+            for (var gy = minGridY; gy <= maxGridY; gy++)
+            {
+                var key = (gx, gy);
+                if (spatialIndex.TryGetValue(key, out var list))
+                {
+                    list.Remove(segment);
+                }
+            }
+        }
+    }
+
+    private IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> TryFixMultipleIntersectionsWithOtherSegmentsUsingSpatialIndex(
         RoadSegmentFeatureWithDynamicAttributes segment,
         HashSet<RoadNodeId> consumedRoadNodeIds,
-        IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> segments,
+        Dictionary<(int GridX, int GridY), List<RoadSegmentFeatureWithDynamicAttributes>> spatialIndex,
         IReadOnlyCollection<RoadNodeFeatureCompareRecord> nonClassifiedNodes,
         IRoadSegmentIdProvider roadSegmentIdProvider,
         ZipArchiveEntryFeatureCompareTranslateContext context)
     {
-        var otherSegments = segments.Where(x => x != segment).ToArray();
+        // Find candidate segments using spatial index
+        const double gridSize = 100.0;
+        var envelope = segment.Attributes.Geometry.EnvelopeInternal;
+        var minGridX = (int)(envelope.MinX / gridSize);
+        var maxGridX = (int)(envelope.MaxX / gridSize);
+        var minGridY = (int)(envelope.MinY / gridSize);
+        var maxGridY = (int)(envelope.MaxY / gridSize);
 
-        foreach (var otherSegment in otherSegments)
+        var candidateSegments = new HashSet<RoadSegmentFeatureWithDynamicAttributes>();
+        for (var gx = minGridX; gx <= maxGridX; gx++)
         {
-            var intersection = GetFirstMultipleIntersectionsIntersectionGeometry(segment.Attributes.Geometry, otherSegment.Attributes.Geometry, context.Tolerances);
+            for (var gy = minGridY; gy <= maxGridY; gy++)
+            {
+                var key = (gx, gy);
+                if (spatialIndex.TryGetValue(key, out var list))
+                {
+                    foreach (var candidate in list
+                                 .Where(candidate => candidate != segment))
+                    {
+                        candidateSegments.Add(candidate);
+                    }
+                }
+            }
+        }
+
+        // Check only candidate segments for intersections
+        foreach (var otherSegment in candidateSegments)
+        {
+            var intersection = GetFirstMultipleIntersectionsIntersectionGeometry(
+                segment.Attributes.Geometry,
+                otherSegment.Attributes.Geometry,
+                context.Tolerances);
+
             if (intersection is null)
             {
                 continue;

@@ -15,8 +15,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
     using RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2;
     using RoadRegistry.Extensions;
     using RoadRegistry.Extracts;
+    using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
     using RoadRegistry.Extracts.Uploads;
     using Xunit.Abstractions;
+    using RoadSegmentFeatureCompareFeatureReader = RoadRegistry.BackOffice.FeatureCompare.V1.Readers.RoadSegmentFeatureCompareFeatureReader;
 
     public class ZipArchiveFeatureCompareTranslatorTests
     {
@@ -35,7 +37,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 
             var loggerFactory = new LoggerFactory([new XUnitLoggerProvider(_outputHelper, new XUnitLoggerOptions())]);
 
-            var translator = ZipArchiveFeatureCompareTranslatorV3Builder.Create(loggerFactory: loggerFactory);
+            var translator = ZipArchiveFeatureCompareTranslatorV3Builder.Create(loggerFactory: loggerFactory,
+                grbOgcApiFeaturesDownloader: new GrbOgcApiFeaturesDownloader(new HttpClient(), "https://geo.api.vlaanderen.be/GRB/ogc/features/v1"));
 
             var sw = Stopwatch.StartNew();
             try
@@ -105,45 +108,6 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 
                     //var elapsed = sw2.Elapsed;
                     //_outputHelper.WriteLine($"Total duration translator 10 runs: {sw2.Elapsed}");
-                }
-            }
-            catch (ZipArchiveValidationException ex)
-            {
-                foreach (var problem in ex.Problems)
-                {
-                    _outputHelper.WriteLine(problem.Describe());
-                }
-
-                throw;
-            }
-
-            _outputHelper.WriteLine($"Duration: {sw.Elapsed}");
-        }
-
-        //[Fact]
-        [Fact(Skip = "For debugging purposes, run feature compare v1 on a local archive")]
-        public async Task RunFeatureCompareV1()
-        {
-            var path = @"C:\Users\RikDePeuter\Downloads\portaal_upload.zip";
-
-            var validator = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create();
-            var translator = ZipArchiveFeatureCompareTranslatorV1Builder.Create();
-            /*
-            var translator = ZipArchiveFeatureCompareTranslator.Create([
-                new RoadNodeFeatureCompareTranslator(new RoadNodeFeatureCompareFeatureReader(FileEncoding.UTF8)),
-                new RoadSegmentFeatureCompareTranslator(new RoadSegmentFeatureCompareFeatureReader(FileEncoding.UTF8), new FakeOrganizationCache(), new FakeStreetNameCache()),
-                new GradeSeparatedJunctionFeatureCompareTranslator(new GradeSeparatedJunctionFeatureCompareFeatureReader(FileEncoding.UTF8)),
-            ], new NullLogger<ZipArchiveFeatureCompareTranslator>());
-            */
-            var sw = Stopwatch.StartNew();
-            try
-            {
-                using (var fileStream = File.OpenRead(path))
-                {
-                    var archive = new ZipArchive(fileStream);
-                    await validator.ValidateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
-
-                    var changes = await translator.TranslateAsync(archive, CancellationToken.None);
                 }
             }
             catch (ZipArchiveValidationException ex)
