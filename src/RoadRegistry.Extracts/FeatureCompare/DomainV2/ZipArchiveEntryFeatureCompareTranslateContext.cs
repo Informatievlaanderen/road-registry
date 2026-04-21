@@ -107,14 +107,23 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
             : [];
     }
 
-    public RoadSegmentFeatureCompareRecord? FindNotRemovedRoadSegmentByTempId(FeatureType featureType, RoadSegmentTempId originalTempId)
+    public RoadSegmentFeatureCompareRecord? FindNotRemovedRoadSegmentByTempId(FeatureType[] featureTypes, RoadSegmentTempId originalTempId)
     {
-        if (!_roadSegmentTempIdToActualIdMapping.TryGetValue((featureType, originalTempId), out var actualId))
+        foreach (var featureType in featureTypes)
         {
-            return null;
+            if (!_roadSegmentTempIdToActualIdMapping.TryGetValue((featureType, originalTempId), out var actualId))
+            {
+                continue;
+            }
+
+            var roadSegment = FindNotRemovedRoadSegmentByActualId(featureType, actualId.Item1);
+            if (roadSegment is not null)
+            {
+                return roadSegment;
+            }
         }
 
-        return FindNotRemovedRoadSegmentByActualId(featureType, actualId.Item1);
+        return null;
     }
 
     private RoadSegmentFeatureCompareRecord? FindNotRemovedRoadSegmentByActualId(FeatureType featureType, RoadSegmentId actualId)
