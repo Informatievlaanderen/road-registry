@@ -9,6 +9,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Hosts;
 using Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RequestExtract;
 using RoadRegistry.Extracts;
@@ -100,22 +101,36 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
                 new TicketId(request.TicketId),
                 WellKnownZipArchiveWriterVersions.DomainV2_Inwinning,
                 request.Provenance,
-                onArchiveBuilt: archiveStream =>
+                onArchiveBuilt: async archiveStream =>
                 {
                     if (archiveStream.Length > 0)
                     {
+                        var inwinningRoadSegments = await _extractsDbContext.InwinningRoadSegments
+                            .Where(x => x.NisCode == niscode)
+                            .ToListAsync(cancellationToken);
+                        var existingInwinningRoadSegmentIds = inwinningRoadSegments.Select(x => x.RoadSegmentId).ToArray();
+
                         using var archive = new ZipArchive(archiveStream, ZipArchiveMode.Read, true, Encoding.UTF8);
 
                         var (roadSegments, _) = _roadSegmentFeatureCompareFeatureReader.Read(archive, FeatureType.Extract, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
                         _extractsDbContext.InwinningRoadSegments.AddRange(roadSegments
-                            .Select(x => x.Attributes.RoadSegmentId!.Value)
+                            .Select(x => x.Attributes.RoadSegmentId!.Value.ToInt32())
                             .Distinct()
+                            .Except(existingInwinningRoadSegmentIds)
                             .Select(roadSegmentId => new InwinningRoadSegment
                             {
                                 NisCode = niscode,
                                 RoadSegmentId = roadSegmentId,
                                 Completed = false
                             }));
+
+                        var inwinningRoadSegmentsToRemove = inwinningRoadSegments
+                            .Where(x => roadSegments.All(y => y.Attributes.RoadSegmentId != x.RoadSegmentId))
+                            .ToArray();
+                        foreach (var inwinningRoadSegment in inwinningRoadSegmentsToRemove)
+                        {
+                            _extractsDbContext.InwinningRoadSegments.Remove(inwinningRoadSegment);
+                        }
                     }
                 },
                 cancellationToken);

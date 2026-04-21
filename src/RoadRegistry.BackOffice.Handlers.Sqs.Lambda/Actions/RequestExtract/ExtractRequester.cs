@@ -37,7 +37,7 @@ public class ExtractRequester
         TicketId ticketId,
         string zipArchiveWriterVersion,
         Provenance provenance,
-        Action<MemoryStream>? onArchiveBuilt,
+        Func<MemoryStream, Task>? onArchiveBuilt,
         CancellationToken cancellationToken)
     {
         _logger.LogInformation("Building extract for ZipArchiveWriterVersion '{ZipArchiveWriterVersion}'", zipArchiveWriterVersion);
@@ -101,7 +101,7 @@ public class ExtractRequester
             if (onArchiveBuilt is not null)
             {
                 archiveStream.Position = 0;
-                onArchiveBuilt(archiveStream);
+                await onArchiveBuilt(archiveStream);
             }
 
             if (isInformative)

@@ -51,11 +51,10 @@ public class RoadSegmentUnflattener
 
         // Step 4: Detect invalid geometry conditions and insert Validatieknopen where needed
         var unflattenedRecords = DetectAndFixInvalidGeometries(featureType, segmentsByNode, nodeClassifications, mergedResult.RoadSegments, mergedResult.ConsumedRoadNodeIds, roadSegmentIdProvider, context, cancellationToken);
-        problems += unflattenedRecords.Problems;
 
         return new UnflattenRoadSegmentsResult
         {
-            RoadSegments = unflattenedRecords.RoadSegments,
+            RoadSegments = unflattenedRecords,
             ConsumedRoadNodeIds = mergedResult.ConsumedRoadNodeIds.ToList(),
             Problems = problems
         };
@@ -405,7 +404,7 @@ public class RoadSegmentUnflattener
         return RoadSegmentGeometryDrawMethodV2.Ingemeten;
     }
 
-    private (List<RoadSegmentFeatureWithDynamicAttributes> RoadSegments, ZipArchiveProblems Problems) DetectAndFixInvalidGeometries(
+    private List<RoadSegmentFeatureWithDynamicAttributes> DetectAndFixInvalidGeometries(
         FeatureType featureType,
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
         Dictionary<RoadNodeId, RoadNodeTypeV2> nodeClassifications,
@@ -419,8 +418,6 @@ public class RoadSegmentUnflattener
             .NotRemoved()
             .Where(x => !nodeClassifications.ContainsKey(x.Id))
             .ToList();
-
-        var problems = ZipArchiveProblems.None;
 
         var result = mergedRecords.ToList();
         var segmentsQueue = new Queue<RoadSegmentFeatureWithDynamicAttributes>(mergedRecords);
@@ -453,7 +450,7 @@ public class RoadSegmentUnflattener
             }
         }
 
-        return (result.OrderBy(x => x.RecordNumber.ToInt32()).ToList(), problems);
+        return result.OrderBy(x => x.RecordNumber.ToInt32()).ToList();
 
         bool EnqueueSplitResult(RoadSegmentFeatureWithDynamicAttributes segment, IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> roadSegments)
         {
