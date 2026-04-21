@@ -1,3 +1,10 @@
+## [4.56.10](https://github.com/informatievlaanderen/road-registry/compare/v4.56.9...v4.56.10) (2026-04-21)
+
+
+### Bug Fixes
+
+* **unflatten:** handle self-intersecting loops ([3e82b96](https://github.com/informatievlaanderen/road-registry/commit/3e82b9600692ff9338e983a970483e57bf3314d8))
+
 ## [4.56.9](https://github.com/informatievlaanderen/road-registry/compare/v4.56.8...v4.56.9) (2026-04-20)
 
 
