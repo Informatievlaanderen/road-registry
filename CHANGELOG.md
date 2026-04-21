@@ -1,3 +1,10 @@
+## [4.56.12](https://github.com/informatievlaanderen/road-registry/compare/v4.56.11...v4.56.12) (2026-04-21)
+
+
+### Bug Fixes
+
+* **fc:** check within transaction work on dynamic segments ([1261c88](https://github.com/informatievlaanderen/road-registry/commit/1261c887fc238ebc7a0036a7d6e08290d5c9e115))
+
 ## [4.56.11](https://github.com/informatievlaanderen/road-registry/compare/v4.56.10...v4.56.11) (2026-04-21)
 
 
