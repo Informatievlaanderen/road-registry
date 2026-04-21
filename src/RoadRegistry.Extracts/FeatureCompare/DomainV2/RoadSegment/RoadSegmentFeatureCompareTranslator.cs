@@ -70,12 +70,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         (changeFeatures, var validateProblems) = await ValidateStreetNameAndFixMaintenanceAuthority(changeFeatures, streetNameContext, context, cancellationToken);
         problems += validateProblems;
 
-        problems += ValidateChangeFeaturesAreWithinTransactionZone(changeFeatures, context);
-
         var roadSegmentIdProvider = new NextRoadSegmentIdProvider(maxUsedRoadSegmentId);
         var dynamicChangeFeaturesTask = Task.Run(() => RoadSegmentUnflattener.Unflatten(FeatureType.Change, changeFeatures, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken), cancellationToken);
         await Task.WhenAll(dynamicChangeFeaturesTask, dynamicExtractFeaturesTask);
         problems += dynamicChangeFeaturesTask.Result.Problems;
+        problems += ValidateChangeFeaturesAreWithinTransactionZone(dynamicChangeFeaturesTask.Result.RoadSegments, context);
         problems.ThrowIfError();
 
         changes = RemoveConsumedSchijnknopen(changes, dynamicChangeFeaturesTask.Result.ConsumedRoadNodeIds);
@@ -140,15 +139,24 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         return changes;
     }
 
-    private static ZipArchiveProblems ValidateChangeFeaturesAreWithinTransactionZone(List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> changeFeatures, ZipArchiveEntryFeatureCompareTranslateContext context)
+    private static ZipArchiveProblems ValidateChangeFeaturesAreWithinTransactionZone(IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> changeFeatures, ZipArchiveEntryFeatureCompareTranslateContext context)
     {
-        var problems = ZipArchiveProblems.None;
+        var problemsList = changeFeatures
+            .AsParallel()
+            .AsOrdered()
+            .Select(changeFeature =>
+            {
+                var tempIds = changeFeature.FlatFeatures.Select(x => x.Attributes.TempId.ToInt32()).OrderBy(x => x).ToArray();
+                var shapeRecordContext = FileName.AtShapeRecord(FeatureType.Change, changeFeature.RecordNumber)
+                    .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_TEMPID), string.Join(",", tempIds));
+                return context.TransactionZone.Geometry.ValidateGeometryIsAtLeastPartiallyWithinTransactionZone(changeFeature.Attributes.Geometry, shapeRecordContext);
+            })
+            .ToList();
 
-        foreach (var changeFeature in changeFeatures)
+        var problems = ZipArchiveProblems.None;
+        foreach (var problem in problemsList)
         {
-            var shapeRecordContext = ExtractFileName.Wegsegment.AtShapeRecord(FeatureType.Change, changeFeature.RecordNumber)
-                .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_TEMPID), changeFeature.Attributes.TempId.ToInt32());
-            problems += context.TransactionZone.Geometry.ValidateGeometryIsAtLeastPartiallyWithinTransactionZone(changeFeature.Attributes.Geometry, shapeRecordContext);
+            problems += problem;
         }
 
         return problems;
@@ -171,7 +179,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         spatialIndex.Build();
 
-        var extractFeaturesDictionary = dynamicExtractFeatures.ToDictionary(x => x.Attributes.RoadSegmentId, x => x);
+        var extractFeaturesDictionary = dynamicExtractFeatures.ToLookup(x => x.Attributes.RoadSegmentId, x => x);
 
         var processedLeveringRecords = new ConcurrentDictionary<int, (List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems)>();
         Parallel.Invoke(dynamicChangeFeatures
@@ -196,7 +204,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
     private (List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems) ProcessLeveringRecords(
         ICollection<RoadSegmentFeatureWithDynamicAttributes> changeFeatures,
-        IDictionary<RoadSegmentId, RoadSegmentFeatureWithDynamicAttributes> extractFeatures,
+        ILookup<RoadSegmentId, RoadSegmentFeatureWithDynamicAttributes> extractFeatures,
         STRtree<RoadSegmentFeatureWithDynamicAttributes> spatialIndex,
         IRoadSegmentFeatureCompareStreetNameContext streetNameContext,
         ZipArchiveEntryFeatureCompareTranslateContext context,
@@ -211,8 +219,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             cancellationToken.ThrowIfCancellationRequested();
 
             var changeFeatureAttributes = changeFeature.Attributes;
-            if (extractFeatures.TryGetValue(changeFeatureAttributes.RoadSegmentId, out var identicalExtractFeature)
-                && identicalExtractFeature.Attributes.Equals(changeFeatureAttributes))
+            if (extractFeatures[changeFeatureAttributes.RoadSegmentId].Any(extractFeature => extractFeature.Attributes.Equals(changeFeatureAttributes)))
             {
                 processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                     FeatureType.Change,
@@ -333,12 +340,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     .ToList();
             }
 
-            if (extractFeatures.TryGetValue(changeFeatureAttributes.RoadSegmentId, out var extractFeature))
-            {
-                return [extractFeature.Attributes];
-            }
-
-            return [];
+            var matchingExtractFeatures = extractFeatures[changeFeatureAttributes.RoadSegmentId]
+                .Take(1)
+                .Select(x => x.Attributes)
+                .ToList();
+            return matchingExtractFeatures;
         }
 
         StreetNameLocalId CorrectStreetNameId(StreetNameLocalId id)

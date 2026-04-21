@@ -144,7 +144,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var wegsegmentFeature = context.FindNotRemovedRoadSegmentByTempId(FeatureType.Change, changeFeature.Attributes.RoadSegmentTempId);
+            var wegsegmentFeature = context.FindNotRemovedRoadSegmentByTempId([FeatureType.Change], changeFeature.Attributes.RoadSegmentTempId);
             if (wegsegmentFeature is null)
             {
                 var recordContext = _fileName

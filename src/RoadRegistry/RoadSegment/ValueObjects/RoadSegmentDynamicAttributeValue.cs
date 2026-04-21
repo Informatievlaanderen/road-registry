@@ -12,7 +12,7 @@ public sealed class RoadSegmentDynamicAttributeValue<T> : IEquatable<RoadSegment
 
     public required RoadSegmentPositionCoverage Coverage { get; init; }
 
-    public required T Value { get; init; }
+    public required T? Value { get; init; }
 
     public bool Equals(RoadSegmentDynamicAttributeValue<T>? other)
     {
@@ -23,7 +23,7 @@ public sealed class RoadSegmentDynamicAttributeValue<T> : IEquatable<RoadSegment
 
         return Side.Equals(other.Side)
                && object.Equals(Coverage, other.Coverage)
-               && Value.Equals(other.Value)
+               && Value is not null && other.Value is not null && Value.Equals(other.Value)
             ;
     }
 }
