@@ -1,3 +1,11 @@
+## [4.56.11](https://github.com/informatievlaanderen/road-registry/compare/v4.56.10...v4.56.11) (2026-04-21)
+
+
+### Bug Fixes
+
+* performance RoadSegmentUnflattener ([519e9c3](https://github.com/informatievlaanderen/road-registry/commit/519e9c39366968a508f8d6348a46714709559245))
+* separate simplified query for extracts through MartenDB ([334ebae](https://github.com/informatievlaanderen/road-registry/commit/334ebae5119205a5a098374cae25871ebb5f7354))
+
 ## [4.56.10](https://github.com/informatievlaanderen/road-registry/compare/v4.56.9...v4.56.10) (2026-04-21)
 
 
