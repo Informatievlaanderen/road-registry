@@ -1,3 +1,10 @@
+## [4.56.13](https://github.com/informatievlaanderen/road-registry/compare/v4.56.12...v4.56.13) (2026-04-23)
+
+
+### Bug Fixes
+
+* **domain v1:** missing roadsegment errors for junction ([38da6da](https://github.com/informatievlaanderen/road-registry/commit/38da6da18564e53d92cf21813d387474c91c5a10))
+
 ## [4.56.12](https://github.com/informatievlaanderen/road-registry/compare/v4.56.11...v4.56.12) (2026-04-21)
 
 
