@@ -1,3 +1,10 @@
+## [4.56.14](https://github.com/informatievlaanderen/road-registry/compare/v4.56.13...v4.56.14) (2026-04-23)
+
+
+### Bug Fixes
+
+* remove warning logs when service is not registered in system healthcheck ([8519c45](https://github.com/informatievlaanderen/road-registry/commit/8519c459851cd5082f874d2d30a37cde6abe3a80))
+
 ## [4.56.13](https://github.com/informatievlaanderen/road-registry/compare/v4.56.12...v4.56.13) (2026-04-23)
 
 
