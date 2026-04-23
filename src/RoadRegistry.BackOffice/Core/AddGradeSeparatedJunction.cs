@@ -2,8 +2,11 @@ namespace RoadRegistry.BackOffice.Core;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Messages;
+using RoadRegistry.Extensions;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ValueObjects.ProblemCodes;
 using ValueObjects.Problems;
 using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 
@@ -68,16 +71,31 @@ public class AddGradeSeparatedJunction : IRequestedChange
     {
         if (context == null) throw new ArgumentNullException(nameof(context));
 
-        var problems = Problems.None;
+        var problems = Problems.None.WithContext(ProblemContext.For(TemporaryId));
 
-        if (!context.AfterView.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment)) problems = problems.Add(new UpperRoadSegmentMissing());
+        if (!context.AfterView.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
+        {
+            problems += new Error(ProblemCode.GradeSeparatedJunction.UpperSegmentMissing.ToString(),
+                new RoadSegmentIdReference(context.Translator.TranslateToOriginalOrTemporaryOrId(TemporaryUpperSegmentId ?? UpperSegmentId))
+                    .ToRoadSegmentProblemParameters().ToArray());
+        }
 
-        if (!context.AfterView.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment)) problems = problems.Add(new LowerRoadSegmentMissing());
+        if (!context.AfterView.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
+        {
+            problems += new Error(ProblemCode.GradeSeparatedJunction.LowerSegmentMissing.ToString(),
+                new RoadSegmentIdReference(context.Translator.TranslateToOriginalOrTemporaryOrId(TemporaryLowerSegmentId ?? LowerSegmentId))
+                    .ToRoadSegmentProblemParameters().ToArray());
+        }
 
         if (upperSegment != null
             && lowerSegment != null
             && !upperSegment.Geometry.Intersects(lowerSegment.Geometry))
-            problems = problems.Add(new UpperAndLowerRoadSegmentDoNotIntersect());
+        {
+            problems += new Error(ProblemCode.GradeSeparatedJunction.UpperAndLowerDoNotIntersect.ToString(), Enumerable.Empty<ProblemParameter>()
+                .Concat(new RoadSegmentIdReference(context.Translator.TranslateToOriginalOrTemporaryOrId(TemporaryLowerSegmentId ?? LowerSegmentId)).ToRoadSegmentProblemParameters("LowerWegsegment"))
+                .Concat(new RoadSegmentIdReference(context.Translator.TranslateToOriginalOrTemporaryOrId(TemporaryUpperSegmentId ?? UpperSegmentId)).ToRoadSegmentProblemParameters("UpperWegsegment"))
+                .ToArray());
+        }
 
         return VerifyAfterResult.WithAcceptedChanges(problems, TranslateTo);
     }

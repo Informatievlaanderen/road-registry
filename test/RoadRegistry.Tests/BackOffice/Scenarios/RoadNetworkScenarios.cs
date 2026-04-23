@@ -426,8 +426,20 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                         {
                             new Problem
                             {
-                                Reason = "LowerRoadSegmentMissing",
-                                Parameters = Array.Empty<ProblemParameter>()
+                                Reason = "GradeSeparatedJunctionLowerRoadSegmentMissing",
+                                Parameters =
+                                [
+                                    new ProblemParameter
+                                    {
+                                        Name = "WegsegmentId",
+                                        Value = addGradeSeparatedJunction.LowerSegmentId.ToString()
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "OngelijkGrondseKruisingId",
+                                        Value = addGradeSeparatedJunction.TemporaryId.ToString()
+                                    }
+                                ]
                             }
                         }
                     }
@@ -503,8 +515,20 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                         {
                             new Problem
                             {
-                                Reason = "UpperRoadSegmentMissing",
-                                Parameters = Array.Empty<ProblemParameter>()
+                                Reason = "GradeSeparatedJunctionUpperRoadSegmentMissing",
+                                Parameters =
+                                [
+                                    new ProblemParameter
+                                    {
+                                        Name = "WegsegmentId",
+                                        Value = addGradeSeparatedJunction.UpperSegmentId.ToString()
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "OngelijkGrondseKruisingId",
+                                        Value = addGradeSeparatedJunction.TemporaryId.ToString()
+                                    }
+                                ]
                             }
                         }
                     }
@@ -592,8 +616,25 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                         {
                             new Problem
                             {
-                                Reason = "UpperAndLowerRoadSegmentDoNotIntersect",
-                                Parameters = Array.Empty<ProblemParameter>()
+                                Reason = "GradeSeparatedJunctionUpperAndLowerRoadSegmentDoNotIntersect",
+                                Parameters =
+                                [
+                                    new ProblemParameter
+                                    {
+                                        Name = "LowerWegsegmentId",
+                                        Value = addGradeSeparatedJunction.LowerSegmentId.ToString()
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "UpperWegsegmentId",
+                                        Value = addGradeSeparatedJunction.UpperSegmentId.ToString()
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "OngelijkGrondseKruisingId",
+                                        Value = addGradeSeparatedJunction.TemporaryId.ToString()
+                                    }
+                                ]
                             }
                         }
                     }
