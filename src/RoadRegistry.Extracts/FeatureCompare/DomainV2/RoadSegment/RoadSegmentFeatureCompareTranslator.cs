@@ -65,6 +65,10 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             .Max();
         var ogcFeaturesCache = await GetOgcFeaturesCache(context, cancellationToken);
         var dynamicExtractFeaturesTask = Task.Run(() => RoadSegmentUnflattener.Unflatten(FeatureType.Extract, extractFeatures, new ExtractRoadSegmentIdProvider(), ogcFeaturesCache, context, cancellationToken), cancellationToken);
+        if (Debugger.IsAttached)
+        {
+            await dynamicExtractFeaturesTask;
+        }
 
         var streetNameContext = await _streetNameContextFactory.Create(changeFeatures, cancellationToken);
         (changeFeatures, var validateProblems) = await ValidateStreetNameAndFixMaintenanceAuthority(changeFeatures, streetNameContext, context, cancellationToken);
