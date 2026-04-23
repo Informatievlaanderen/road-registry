@@ -13,9 +13,11 @@ using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
@@ -104,7 +106,7 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
                 },
                 afterFeatureCompare: (archive, changes) =>
                 {
-                    var (extractRoadNodes, _) = _roadNodeFeatureCompareFeatureReader.Read(archive, FeatureType.Extract, new ZipArchiveFeatureReaderContext(zipArchiveMetadata));
+                    var extractRoadNodes = _roadNodeFeatureCompareFeatureReader.Read(archive, FeatureType.Extract, new ZipArchiveFeatureReaderContext(zipArchiveMetadata)).Item1;
                     var actualSchijnknoopIds = extractRoadNodes
                         .Where(x => x.Attributes.Type == RoadNodeTypeV2.Schijnknoop && x.Attributes.RoadNodeId < RoadNodeConstants.InitialTemporarySchijnknoopId)
                         .Select(x => x.Attributes.RoadNodeId)
@@ -115,18 +117,22 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
                         return Task.CompletedTask;
                     }
 
-                    var removedRoadNodeIds = changes.OfType<RemoveRoadNodeChange>()
+                    var removedSchijnknoopIds = changes.OfType<RemoveRoadNodeChange>()
                         .Where(x => actualSchijnknoopIds.Contains(x.RoadNodeId))
                         .Select(x => x.RoadNodeId)
                         .ToArray();
-
-                    var notRemovedRoadNodeIds = actualSchijnknoopIds
-                        .Except(removedRoadNodeIds)
+                    var modifiedSchijnknoopIds = changes.OfType<ModifyRoadNodeChange>()
+                        .Where(x => actualSchijnknoopIds.Contains(x.RoadNodeId))
+                        .Select(x => x.RoadNodeId)
+                        .ToArray();
+                    var unrecognizedActualSchijnknoopIds = actualSchijnknoopIds
+                        .Except(removedSchijnknoopIds)
+                        .Except(modifiedSchijnknoopIds)
                         .ToArray();
 
-                    if (notRemovedRoadNodeIds.Any())
+                    if (unrecognizedActualSchijnknoopIds.Any())
                     {
-                        throw new InvalidOperationException($"BUG: schijnknopen {string.Join(",", notRemovedRoadNodeIds)} are not removed from the extract");
+                        throw new InvalidOperationException($"BUG: upload inwinning extract (niscode {inwinningszone.NisCode}) schijnknopen {string.Join(",", unrecognizedActualSchijnknoopIds)} are not removed/modified from the extract");
                     }
 
                     return Task.CompletedTask;
