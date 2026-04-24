@@ -6,6 +6,8 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Errors;
 using Events.V2;
 using Extensions;
+using NetTopologySuite.Geometries;
+using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ValueObjects.Problems;
 using RoadSegment;
 using ScopedRoadNetwork.ValueObjects;
@@ -43,12 +45,12 @@ public partial class RoadNode
                 current.Add(new RoadNodeTooClose()
                     .WithContext(ProblemContext.For(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId)))));
 
-        problems += ValidateTypeAndChangeIfNeeded(segments, context.Provenance);
+        problems += ValidateTypeAndChangeIfNeeded(segments, context);
 
         return problems;
     }
 
-    private Problems ValidateTypeAndChangeIfNeeded(List<RoadSegment> segments, Provenance provenance)
+    private Problems ValidateTypeAndChangeIfNeeded(List<RoadSegment> segments, ScopedRoadNetworkContext context)
     {
         var problems = Problems.None;
 
@@ -56,57 +58,50 @@ public partial class RoadNode
         {
             problems += new RoadNodeNotConnectedToAnySegment();
         }
-        else if (segments.Count == 1 && Type != RoadNodeTypeV2.Eindknoop)
+        else if (segments.Count == 1)
         {
-            Apply(new RoadNodeTypeWasChanged
-            {
-                RoadNodeId = RoadNodeId,
-                Type = RoadNodeTypeV2.Eindknoop,
-                Provenance = new ProvenanceData(provenance)
-            });
+            SetTypeIfDifferent(RoadNodeTypeV2.Eindknoop, context.Provenance);
         }
         else if (segments.Count == 2)
         {
             var segment1 = segments[0];
             var segment2 = segments[1];
 
-            //TODO-pr logica:
-            //RoadSegmentConstants
-            /*
-             * indien grensknoop -> validatieknoop
-             * indien knoop een geometrische invalidatie tegenhoudt -> validatieknoop (zie unflattener voor logica)
-             * anders merge de 2 segmenten:
-             *      - nieuwe ID logica zelfde als in FC
-             *      - indien methode verschillend is, neem Ingemeten indien 75% van de lengte Ingemeten is (zie OGC overlap logica)
-             */
-            if (Grensknoop || !segment1.Attributes!.Equals(segment2.Attributes))
+            if (Grensknoop)
             {
-                // Must be validatieknoop
-                if (Type != RoadNodeTypeV2.Validatieknoop)
-                {
-                    Apply(new RoadNodeTypeWasChanged
-                    {
-                        RoadNodeId = RoadNodeId,
-                        Type = RoadNodeTypeV2.Validatieknoop,
-                        Provenance = new ProvenanceData(provenance)
-                    });
-                }
+                SetTypeIfDifferent(RoadNodeTypeV2.Validatieknoop, context.Provenance);
             }
             else
             {
+                //TODO-pr logica validatieknoop
+                /*
+                 * indien grensknoop -> validatieknoop
+                 * indien knoop een geometrische invalidatie tegenhoudt -> validatieknoop (zie unflattener voor logica)
+                 * anders merge de 2 segmenten:
+                 *      - nieuwe ID logica zelfde als in FC
+                 *      - indien methode verschillend is, neem Ingemeten indien 75% van de lengte Ingemeten is (zie OGC overlap logica)
+                 */
                 problems += new RoadNodeIsNotAllowed();
             }
         }
-        else if (segments.Count > 2 && Type != RoadNodeTypeV2.EchteKnoop)
+        else
+        {
+            SetTypeIfDifferent(RoadNodeTypeV2.EchteKnoop, context.Provenance);
+        }
+
+        return problems;
+    }
+
+    private void SetTypeIfDifferent(RoadNodeTypeV2 type, Provenance provenance)
+    {
+        if (Type != type)
         {
             Apply(new RoadNodeTypeWasChanged
             {
                 RoadNodeId = RoadNodeId,
-                Type = RoadNodeTypeV2.EchteKnoop,
+                Type = type,
                 Provenance = new ProvenanceData(provenance)
             });
         }
-
-        return problems;
     }
 }
