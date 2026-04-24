@@ -173,10 +173,10 @@ public partial class ScopedRoadNetwork
         //     }, provenance);
         // }
 
-        return MergeSegments(segmentOne, segmentTwo, idGenerator, context);
+        return MergeRoadSegments(segmentOne, segmentTwo, idGenerator, context);
     }
 
-    private Problems MergeSegments(RoadSegment segment1, RoadSegment segment2, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
+    public Problems MergeRoadSegments(RoadSegment segment1, RoadSegment segment2, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
     {
         var commonNodeId = segment1.GetCommonNode(segment2)!.Value;
         var startNodeId = segment1.GetOppositeNode(commonNodeId)!.Value;
@@ -185,7 +185,9 @@ public partial class ScopedRoadNetwork
         var segment1HasIdealDirection = startNodeId == segment1.StartNodeId;
         var segment2HasIdealDirection = endNodeId == segment2.EndNodeId;
 
-        var geometry = MergeGeometries(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection, startNodeId, endNodeId, commonNodeId);
+        var geometry = RoadSegmentGeometryHelper.MergeGeometries(segment1, segment2, commonNodeId, context);
+
+        //TODO-pr niet altijd een nieuwe ID aanmaken, enkel indien de verandering te groot is (zie FC logica)
 
         var mergedSegment = new MergeRoadSegmentChange
         {
@@ -255,29 +257,5 @@ public partial class ScopedRoadNetwork
         }
 
         return problems;
-    }
-
-    private MultiLineString MergeGeometries(
-        RoadSegment segment1, RoadSegment segment2,
-        bool segment1HasIdealDirection, bool segment2HasIdealDirection,
-        RoadNodeId startNode, RoadNodeId endNode, RoadNodeId commonNode)
-    {
-        var geometry1Coordinates = segment1.Geometry.Value.GetSingleLineString().Coordinates;
-        var geometry2Coordinates = segment2.Geometry.Value.GetSingleLineString().Coordinates;
-
-        var startNodeCoordinate = _roadNodes[startNode].Geometry.Value.Coordinate;
-        var endNodeCoordinate = _roadNodes[endNode].Geometry.Value.Coordinate;
-        var commonNodeCoordinate = _roadNodes[commonNode].Geometry.Value.Coordinate;
-
-        var coordinates = Enumerable.Empty<Coordinate>()
-            .Concat([startNodeCoordinate])
-            .Concat((segment1HasIdealDirection ? geometry1Coordinates : geometry1Coordinates.Reverse()).ExcludeFirstAndLast())
-            .Concat([commonNodeCoordinate])
-            .Concat((segment2HasIdealDirection ? geometry2Coordinates : geometry2Coordinates.Reverse()).ExcludeFirstAndLast())
-            .Concat([endNodeCoordinate])
-            .ToArray();
-
-        return new MultiLineString([new LineString(coordinates)])
-            .WithSrid(segment1.Geometry.SRID);
     }
 }
