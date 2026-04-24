@@ -2,6 +2,7 @@
 
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.Tests.BackOffice;

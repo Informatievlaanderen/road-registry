@@ -5,29 +5,62 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Events.V2;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
+using RoadRegistry.ScopedRoadNetwork.Events.V2;
+using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
-using ValueObjects;
 
 public partial class ScopedRoadNetwork
 {
-    public RoadNetworkChangeResult Migrate(RoadNetworkChanges changes, DownloadId? downloadId, IRoadNetworkIdGenerator idGenerator)
+    public RoadNetworkChangeResult Migrate(RoadNetworkChanges changes, DownloadId? downloadId, IRoadNetworkIdGenerator idGenerator, ILogger? logger = null)
     {
-        var problems = Problems.None;
+        logger ??= NullLogger.Instance;
+        using var _ = logger.TimeAction();
+
         var summary = new RoadNetworkChangesSummary();
         var idTranslator = new IdentifierTranslator();
+        var context = new ScopedRoadNetworkContext(this, idTranslator, changes.Provenance, logger);
 
-        if (!changes.Any())
+        var problems = ApplyMigrateChanges(changes, idGenerator, context, summary);
+
+        if (!problems.HasError())
         {
-            problems += Problems.Single(new Error(ProblemCode.RoadNetwork.NoChanges.ToString()));
+            problems += AfterChangesApplied(idGenerator, context, summary);
+        }
+
+        if (!problems.HasError() && changes.Any())
+        {
+            Apply(new RoadNetworkWasChanged
+            {
+                RoadNetworkId = RoadNetworkId,
+                ScopeGeometry = changes.BuildScopeGeometry()?.ToGeometryObject(),
+                DownloadId = downloadId,
+                Summary = new RoadNetworkChangedSummary(summary),
+                Provenance = new ProvenanceData(changes.Provenance)
+            });
+        }
+
+        return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), summary);
+    }
+
+    private Problems ApplyMigrateChanges(RoadNetworkChanges changes, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
+    {
+        using var _ = context.Logger.TimeAction();
+
+        if (changes.Count == 0)
+        {
+            return Problems.Single(new Error(ProblemCode.RoadNetwork.NoChanges.ToString()));
         }
 
         var roadSegmentRoadNumberChanges = GetRoadSegmentRoadNumberChanges(changes);
-        var context = new ScopedRoadNetworkContext(this, idTranslator, changes.Provenance);
+
+        var problems = Problems.None;
 
         foreach (var roadNetworkChange in changes)
         {
@@ -72,24 +105,7 @@ public partial class ScopedRoadNetwork
             }
         }
 
-        if (!problems.HasError())
-        {
-            problems += AfterChangesApplied(idGenerator, context, summary);
-        }
-
-        if (!problems.HasError() && changes.Any())
-        {
-            Apply(new RoadNetworkWasChanged
-            {
-                RoadNetworkId = RoadNetworkId,
-                ScopeGeometry = changes.BuildScopeGeometry()?.ToGeometryObject(),
-                DownloadId = downloadId,
-                Summary = new RoadNetworkChangedSummary(summary),
-                Provenance = new ProvenanceData(changes.Provenance)
-            });
-        }
-
-        return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), summary);
+        return problems;
     }
 
     private static ILookup<RoadSegmentId, IRoadNetworkChange> GetRoadSegmentRoadNumberChanges(RoadNetworkChanges changes)

@@ -15,6 +15,8 @@ public partial class ScopedRoadNetwork
 {
     private Problems VerifyAndUpdateJunctions(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
     {
+        using var _ = context.Logger.TimeAction();
+
         var problems = Problems.None;
 
         // Get existing junctions
@@ -74,6 +76,7 @@ public partial class ScopedRoadNetwork
                 {
                     problems += RemoveGradeJunction(gradeJunction.GradeJunctionId, context, summary);
                 }
+
                 continue;
             }
 

@@ -1,32 +1,60 @@
 ﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Events.V2;
-using NetTopologySuite.Geometries;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
-using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ScopedRoadNetwork.Events.V2;
+using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
-using ValueObjects;
-using RoadNode = RoadNode.RoadNode;
-using GradeSeparatedJunction = GradeSeparatedJunction.GradeSeparatedJunction;
-using GradeJunction = GradeJunction.GradeJunction;
+using RoadNode = RoadRegistry.RoadNode.RoadNode;
+using GradeSeparatedJunction = RoadRegistry.GradeSeparatedJunction.GradeSeparatedJunction;
+using GradeJunction = RoadRegistry.GradeJunction.GradeJunction;
 
 public partial class ScopedRoadNetwork
 {
-    public RoadNetworkChangeResult Change(RoadNetworkChanges changes, DownloadId? downloadId, IRoadNetworkIdGenerator idGenerator)
+    public RoadNetworkChangeResult Change(RoadNetworkChanges changes, DownloadId? downloadId, IRoadNetworkIdGenerator idGenerator, ILogger? logger = null)
     {
-        var problems = Problems.None;
+        logger ??= NullLogger.Instance;
+        using var _ = logger.TimeAction();
+
         var summary = new RoadNetworkChangesSummary();
         var idTranslator = new IdentifierTranslator();
+        var context = new ScopedRoadNetworkContext(this, idTranslator, changes.Provenance, logger);
 
-        var context = new ScopedRoadNetworkContext(this, idTranslator, changes.Provenance);
+        var problems = ApplyChanges(changes, idGenerator, context, summary);
+
+        if (!problems.HasError())
+        {
+            problems += AfterChangesApplied(idGenerator, context, summary);
+        }
+
+        if (!problems.HasError() && changes.Any())
+        {
+            Apply(new RoadNetworkWasChanged
+            {
+                RoadNetworkId = RoadNetworkId,
+                ScopeGeometry = changes.BuildScopeGeometry()?.ToGeometryObject(),
+                DownloadId = downloadId,
+                Summary = new RoadNetworkChangedSummary(summary),
+                Provenance = new ProvenanceData(changes.Provenance)
+            });
+        }
+
+        return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), summary);
+}
+
+    private Problems ApplyChanges(RoadNetworkChanges changes, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
+    {
+        using var _ = context.Logger.TimeAction();
+
+        var problems = Problems.None;
 
         foreach (var roadNetworkChange in changes)
         {
@@ -55,28 +83,28 @@ public partial class ScopedRoadNetwork
                     problems += ModifyRoadSegmentRoads(change.RoadSegmentId, segment =>
                         segment.AddEuropeanRoad(change with
                         {
-                            RoadSegmentId = idTranslator.TranslateToPermanentId(change.RoadSegmentId)
+                            RoadSegmentId = context.IdTranslator.TranslateToPermanentId(change.RoadSegmentId)
                         }, changes.Provenance), summary);
                     break;
                 case RemoveRoadSegmentFromEuropeanRoadChange change:
                     problems += ModifyRoadSegmentRoads(change.RoadSegmentId, segment =>
                         segment.RemoveEuropeanRoad(change with
                         {
-                            RoadSegmentId = idTranslator.TranslateToPermanentId(change.RoadSegmentId)
+                            RoadSegmentId = context.IdTranslator.TranslateToPermanentId(change.RoadSegmentId)
                         }, changes.Provenance), summary);
                     break;
                 case AddRoadSegmentToNationalRoadChange change:
                     problems += ModifyRoadSegmentRoads(change.RoadSegmentId, segment =>
                         segment.AddNationalRoad(change with
                         {
-                            RoadSegmentId = idTranslator.TranslateToPermanentId(change.RoadSegmentId)
+                            RoadSegmentId = context.IdTranslator.TranslateToPermanentId(change.RoadSegmentId)
                         }, changes.Provenance), summary);
                     break;
                 case RemoveRoadSegmentFromNationalRoadChange change:
                     problems += ModifyRoadSegmentRoads(change.RoadSegmentId, segment =>
                         segment.RemoveNationalRoad(change with
                         {
-                            RoadSegmentId = idTranslator.TranslateToPermanentId(change.RoadSegmentId)
+                            RoadSegmentId = context.IdTranslator.TranslateToPermanentId(change.RoadSegmentId)
                         }, changes.Provenance), summary);
                     break;
 
@@ -95,29 +123,12 @@ public partial class ScopedRoadNetwork
             }
         }
 
-        if (!problems.HasError())
-        {
-            problems += AfterChangesApplied(idGenerator, context, summary);
-        }
-
-        if (!problems.HasError() && changes.Any())
-        {
-            Apply(new RoadNetworkWasChanged
-            {
-                RoadNetworkId = RoadNetworkId,
-                ScopeGeometry = changes.BuildScopeGeometry()?.ToGeometryObject(),
-                DownloadId = downloadId,
-                Summary = new RoadNetworkChangedSummary(summary),
-                Provenance = new ProvenanceData(changes.Provenance)
-            });
-        }
-
-        return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), summary);
+        return problems;
     }
 
     private Problems AfterChangesApplied(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
     {
-        var problems = VerifyRoadNodesAfterChange(context)
+        var problems = VerifyRoadNodesAfterChange(idGenerator, context)
                + VerifyRoadSegmentsAfterChange(context)
                + VerifyGradeSeparatedJunctionsAfterChange(context);
 
@@ -129,29 +140,38 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
+    private Problems VerifyRoadNodesAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
+    {
+        using var _ = context.Logger.TimeAction();
+
+        var problems = Problems.None;
+
+        var roadNodes = _roadNodes.Values.Where(x => x.HasChanges()).Select(x => x.RoadNodeId)
+            .Concat(_roadSegments.Values.Where(x => x.HasChanges()).SelectMany(x => x.GetNodeIds()))
+            .Distinct()
+            .Select(x => _roadNodes[x])
+            .ToArray();
+
+        var roadSegmentsSpatialIndex = new RoadSegmentsSpatialIndex<RoadSegment>(context.RoadNetwork.RoadSegments.Values
+            .Select(x => (x.Geometry.Value, x)));
+
+        return roadNodes
+            .Aggregate(problems, (p, x) => p + x.VerifyTopologyAndUpdateType(roadSegmentsSpatialIndex, idGenerator, context));
+    }
+
     private Problems VerifyRoadSegmentsAfterChange(ScopedRoadNetworkContext context)
     {
-        var problems = Problems.None;
+        using var _ = context.Logger.TimeAction();
 
         return _roadSegments.Values
             .Where(x => x.HasChanges())
-            .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
-    }
-
-    private Problems VerifyRoadNodesAfterChange(ScopedRoadNetworkContext context)
-    {
-        var problems = Problems.None;
-
-        return _roadNodes.Values.Where(x => x.HasChanges()).Select(x => x.RoadNodeId)
-            .Concat(_roadSegments.Values.Where(x => x.HasChanges()).SelectMany(x => x.GetNodeIds()))
-            .Distinct()
-            .Select(x => _roadNodes.GetValueOrDefault(x))
-            .Where(x => x is not null)
-            .Aggregate(problems, (p, x) => p + x!.VerifyTopologyAndDetectType(context));
+            .Aggregate(Problems.None, (p, x) => p + x.VerifyTopology(context));
     }
 
     private Problems VerifyGradeSeparatedJunctionsAfterChange(ScopedRoadNetworkContext context)
     {
+        using var _ = context.Logger.TimeAction();
+
         var problems = Problems.None;
 
         var changedJunctions = _gradeSeparatedJunctions.Values

@@ -1,5 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.BackOffice.Exceptions;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
