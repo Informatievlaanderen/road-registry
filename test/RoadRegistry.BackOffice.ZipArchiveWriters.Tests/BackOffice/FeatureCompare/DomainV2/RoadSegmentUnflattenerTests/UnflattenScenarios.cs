@@ -398,18 +398,15 @@ POINT (30 -30)
         var records = Unflatten(fixture, scenario);
 
         // Assert
-        records.Should().HaveCount(4);
+        records.Should().HaveCount(3);
         var dynamicRecord1 = records[0];
         dynamicRecord1.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((0 0, 10 0, 10 -30))");
 
         var dynamicRecord2 = records[1];
-        dynamicRecord2.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((20 -10, 0 -10, 0 0))");
+        dynamicRecord2.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((40 0, 40 -10, 20 -10, 0 -10, 0 0))");
 
         var dynamicRecord3 = records[2];
-        dynamicRecord3.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((20 -10, 40 -10, 40 0))");
-
-        var dynamicRecord4 = records[3];
-        dynamicRecord4.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((40 0, 30 0, 30 -30))");
+        dynamicRecord3.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((30 -30, 30 0, 40 0))");
     }
 
     [Fact]

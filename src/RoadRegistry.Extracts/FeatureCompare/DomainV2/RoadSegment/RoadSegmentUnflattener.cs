@@ -435,7 +435,7 @@ public class RoadSegmentUnflattener
                 }
             }
 
-            if (previousSegment.Attributes.Status != nextSegment.Attributes.Status || previousSegment.Attributes.Method != nextSegment.Attributes.Method)
+            if (previousSegment.Attributes.Status != nextSegment.Attributes.Status)
             {
                 var recordContext = ExtractFileName.Wegknoop.AtDbaseRecord(featureType);
                 return ZipArchiveProblems.Single(recordContext.Error(new RoadNodeIsNotAllowed().WithContext(ProblemContext.For(nodeAtPoint.Item1))));
@@ -498,7 +498,8 @@ public class RoadSegmentUnflattener
             : segments.Single().Attributes.Geometry;
 
         var status = segments.Select(x => x.Attributes.Status).Distinct().Single();
-        var method = DetermineMethod(longestSegment.Attributes.Method, status, mergedGeometry, ogcFeaturesCache);
+        var methodFromSegments = RoadSegmentGeometryHelper.DetermineMethod(segments.Select(x => (x.Attributes.Geometry, x.Attributes.Method)).ToArray(), mergedGeometry);
+        var method = DetermineMethodFromOgcOverlap(methodFromSegments, status, mergedGeometry, ogcFeaturesCache);
         var dynamicAttributes = RoadSegmentFeatureCompareWithDynamicAttributes.Build(
             longestSegment.Attributes.RoadSegmentId ?? roadSegmentIdProvider.NewId(),
             mergedGeometry,
@@ -530,7 +531,7 @@ public class RoadSegmentUnflattener
         return coordinates.ToArray();
     }
 
-    private RoadSegmentGeometryDrawMethodV2 DetermineMethod(RoadSegmentGeometryDrawMethodV2? method, RoadSegmentStatusV2 status, MultiLineString geometry, OgcFeaturesCache ogcFeaturesCache)
+    private RoadSegmentGeometryDrawMethodV2 DetermineMethodFromOgcOverlap(RoadSegmentGeometryDrawMethodV2? method, RoadSegmentStatusV2 status, MultiLineString geometry, OgcFeaturesCache ogcFeaturesCache)
     {
         if (method is not null)
         {

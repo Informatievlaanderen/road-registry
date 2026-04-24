@@ -92,8 +92,8 @@ public class AggregateTests : AggregateTestBase
         segmentAdded.RoadSegmentId.Should().Be(new RoadSegmentId(1));
         segmentAdded.Geometry.Should().BeEquivalentTo(change.Geometry);
         segmentAdded.OriginalRoadSegmentIdReference.Should().BeEquivalentTo(change.RoadSegmentIdReference);
-        segmentAdded.StartNodeId.Should().Be(new RoadNodeId(0));
-        segmentAdded.EndNodeId.Should().Be(new RoadNodeId(0));
+        segmentAdded.StartNodeId.Should().BeNull();
+        segmentAdded.EndNodeId.Should().BeNull();
         segmentAdded.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
         segmentAdded.AccessRestriction.Should().Be(change.AccessRestriction);
         segmentAdded.Category.Should().Be(change.Category);
