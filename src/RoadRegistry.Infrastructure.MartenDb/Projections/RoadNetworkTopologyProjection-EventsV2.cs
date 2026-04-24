@@ -62,8 +62,8 @@ public partial class RoadNetworkTopologyProjection
             e.Data.RoadSegmentId.ToInt32(),
             e.Data.Geometry.WKT,
             e.Data.Geometry.SRID,
-            e.Data.StartNodeId.ToInt32(),
-            e.Data.EndNodeId.ToInt32(),
+            e.Data.StartNodeId?.ToInt32() ?? 0,
+            e.Data.EndNodeId?.ToInt32() ?? 0,
             e.Timestamp
         );
     }
@@ -74,8 +74,8 @@ public partial class RoadNetworkTopologyProjection
             e.Data.RoadSegmentId.ToInt32(),
             e.Data.Geometry.WKT,
             e.Data.Geometry.SRID,
-            e.Data.StartNodeId.ToInt32(),
-            e.Data.EndNodeId.ToInt32(),
+            e.Data.StartNodeId?.ToInt32() ?? 0,
+            e.Data.EndNodeId?.ToInt32() ?? 0,
             e.Timestamp
         );
     }
@@ -87,8 +87,8 @@ public partial class RoadNetworkTopologyProjection
             e.Timestamp,
             e.Data.Geometry.WKT,
             e.Data.Geometry.SRID,
-            e.Data.StartNodeId.ToInt32(),
-            e.Data.EndNodeId.ToInt32()
+            e.Data.StartNodeId?.ToInt32() ?? 0,
+            e.Data.EndNodeId?.ToInt32() ?? 0
         );
     }
 
@@ -116,8 +116,8 @@ public partial class RoadNetworkTopologyProjection
             e.Timestamp,
             e.Data.Geometry.WKT ,
             e.Data.Geometry.SRID,
-            e.Data.StartNodeId.ToInt32(),
-            e.Data.EndNodeId.ToInt32()
+            e.Data.StartNodeId?.ToInt32() ?? 0,
+            e.Data.EndNodeId?.ToInt32() ?? 0
         );
     }
 

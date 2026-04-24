@@ -10,8 +10,8 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 {
     public RoadSegmentId RoadSegmentId { get; }
     public RoadSegmentGeometry Geometry { get; private set; }
-    public RoadNodeId StartNodeId { get; private set; }
-    public RoadNodeId EndNodeId { get; private set; }
+    public RoadNodeId? StartNodeId { get; private set; }
+    public RoadNodeId? EndNodeId { get; private set; }
     public RoadSegmentAttributes? Attributes { get; private set; }
     public RoadSegmentId? MergedRoadSegmentId { get; private set; }
 
@@ -27,16 +27,16 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     protected RoadSegment(
         int roadSegmentId,
         RoadSegmentGeometry geometry,
-        int startNodeId,
-        int endNodeId,
+        int? startNodeId,
+        int? endNodeId,
         RoadSegmentAttributes? attributes,
         bool isRemoved
     )
         : this(new RoadSegmentId(roadSegmentId))
     {
         Geometry = geometry;
-        StartNodeId = new RoadNodeId(startNodeId);
-        EndNodeId = new RoadNodeId(endNodeId);
+        StartNodeId = RoadNodeId.FromValue(startNodeId);
+        EndNodeId = RoadNodeId.FromValue(endNodeId);
         Attributes = attributes;
         IsRemoved = isRemoved;
     }
@@ -45,20 +45,20 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     {
         if (StartNodeId > 0)
         {
-            yield return StartNodeId;
+            yield return StartNodeId.Value;
         }
 
         if (EndNodeId > 0)
         {
-            yield return EndNodeId;
+            yield return EndNodeId.Value;
         }
     }
 
     public static RoadSegment CreateForMigration(
         RoadSegmentId roadSegmentId,
         RoadSegmentGeometry geometry,
-        RoadNodeId startNodeId,
-        RoadNodeId endNodeId)
+        RoadNodeId? startNodeId,
+        RoadNodeId? endNodeId)
     {
         return new RoadSegment(roadSegmentId, geometry, startNodeId, endNodeId, null, false);
     }

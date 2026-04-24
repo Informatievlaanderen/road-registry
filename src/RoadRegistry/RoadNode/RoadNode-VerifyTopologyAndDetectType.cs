@@ -70,15 +70,24 @@ public partial class RoadNode
             var segment1 = segments[0];
             var segment2 = segments[1];
 
+            //TODO-pr logica:
+            //RoadSegmentConstants
+            /*
+             * indien grensknoop -> validatieknoop
+             * indien knoop een geometrische invalidatie tegenhoudt -> validatieknoop (zie unflattener voor logica)
+             * anders merge de 2 segmenten:
+             *      - nieuwe ID logica zelfde als in FC
+             *      - indien methode verschillend is, neem Ingemeten indien 75% van de lengte Ingemeten is (zie OGC overlap logica)
+             */
             if (Grensknoop || !segment1.Attributes!.Equals(segment2.Attributes))
             {
-                // Must be schijnknoop
-                if (Type != RoadNodeTypeV2.Schijnknoop)
+                // Must be validatieknoop
+                if (Type != RoadNodeTypeV2.Validatieknoop)
                 {
                     Apply(new RoadNodeTypeWasChanged
                     {
                         RoadNodeId = RoadNodeId,
-                        Type = RoadNodeTypeV2.Schijnknoop,
+                        Type = RoadNodeTypeV2.Validatieknoop,
                         Provenance = new ProvenanceData(provenance)
                     });
                 }

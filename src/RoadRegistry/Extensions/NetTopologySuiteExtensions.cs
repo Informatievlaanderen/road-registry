@@ -6,6 +6,7 @@ using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
+using RoadRegistry.RoadSegment;
 
 public static class NetTopologySuiteExtensions
 {
@@ -43,7 +44,7 @@ public static class NetTopologySuiteExtensions
     public static bool RoadSegmentOverlapsWith(this MultiLineString g0, MultiLineString g1, double clusterTolerance)
     {
         var openGisGeometryType = OgcGeometryType.LineString;
-        var criticalOverlapPercentage = 0.7;
+        var criticalOverlapPercentage = RoadSegmentConstants.MinimumPercentageToKeepIdentifier;
 
         return OverlapsWith(g0, g1, criticalOverlapPercentage, openGisGeometryType, clusterTolerance);
     }

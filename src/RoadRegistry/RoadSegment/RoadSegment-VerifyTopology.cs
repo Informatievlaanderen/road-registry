@@ -22,27 +22,33 @@ public partial class RoadSegment
 
         var line = Geometry.Value.GetSingleLineString();
 
-        if (!context.RoadNetwork.RoadNodes.TryGetValue(StartNodeId, out var startNode) || startNode.IsRemoved)
+        if (StartNodeId is not null)
         {
-            problems += new RoadSegmentStartNodeMissing();
-        }
-        else
-        {
-            if (!line.StartPoint.IsReasonablyEqualTo(startNode.Geometry.Value, context.Tolerances))
+            if (!context.RoadNetwork.RoadNodes.TryGetValue(StartNodeId.Value, out var startNode) || startNode.IsRemoved)
             {
-                problems += new RoadSegmentStartPointDoesNotMatchNodeGeometry();
+                problems += new RoadSegmentStartNodeMissing();
+            }
+            else
+            {
+                if (!line.StartPoint.IsReasonablyEqualTo(startNode.Geometry.Value, context.Tolerances))
+                {
+                    problems += new RoadSegmentStartPointDoesNotMatchNodeGeometry();
+                }
             }
         }
 
-        if (!context.RoadNetwork.RoadNodes.TryGetValue(EndNodeId, out var endNode) || endNode.IsRemoved)
+        if (EndNodeId is not null)
         {
-            problems += new RoadSegmentEndNodeMissing();
-        }
-        else
-        {
-            if (!line.EndPoint.IsReasonablyEqualTo(endNode.Geometry.Value, context.Tolerances))
+            if (!context.RoadNetwork.RoadNodes.TryGetValue(EndNodeId.Value, out var endNode) || endNode.IsRemoved)
             {
-                problems += new RoadSegmentEndPointDoesNotMatchNodeGeometry();
+                problems += new RoadSegmentEndNodeMissing();
+            }
+            else
+            {
+                if (!line.EndPoint.IsReasonablyEqualTo(endNode.Geometry.Value, context.Tolerances))
+                {
+                    problems += new RoadSegmentEndPointDoesNotMatchNodeGeometry();
+                }
             }
         }
 

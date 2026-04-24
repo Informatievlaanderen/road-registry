@@ -55,8 +55,7 @@ public partial class RoadSegment
         };
         problems += new RoadSegmentAttributesValidator().Validate(attributes, segmentLength);
 
-        var startNodeId = RoadNodeId.Zero;
-        var endNodeId = RoadNodeId.Zero;
+        RoadNodeId? startNodeId = null, endNodeId = null;
         if (attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
         {
             var startEndNodes = context.RoadNetwork.FindStartEndNodes(change.Geometry, context.Tolerances);

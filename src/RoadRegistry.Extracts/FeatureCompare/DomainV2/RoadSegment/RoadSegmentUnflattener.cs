@@ -7,6 +7,7 @@ using NetTopologySuite.Operation.Valid;
 using RoadNode;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadNode.Errors;
+using RoadRegistry.RoadSegment;
 using RoadRegistry.ValueObjects.Problems;
 
 public sealed record UnflattenRoadSegmentsResult
@@ -537,7 +538,7 @@ public class RoadSegmentUnflattener
         }
 
         if (status == RoadSegmentStatusV2.Gepland
-            || !ogcFeaturesCache.HasOverlapWithFeatures(geometry, 0.75))
+            || !ogcFeaturesCache.HasOverlapWithFeatures(geometry, RoadSegmentConstants.MinimumPercentageForIngemeten))
         {
             return RoadSegmentGeometryDrawMethodV2.Ingeschetst;
         }
