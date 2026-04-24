@@ -6,6 +6,7 @@ using AutoFixture.Kernel;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NodaTime;
@@ -94,7 +95,7 @@ public static class SharedCustomizations
     public static void CustomizeScopedRoadNetworkContext(this IFixture fixture)
     {
         fixture.Customize<ScopedRoadNetworkContext>(composer =>
-            composer.FromFactory(g => new ScopedRoadNetworkContext(new ScopedRoadNetwork(fixture.Create<ScopedRoadNetworkId>()), new IdentifierTranslator(), new FakeProvenance()))
+            composer.FromFactory(g => new ScopedRoadNetworkContext(new ScopedRoadNetwork(fixture.Create<ScopedRoadNetworkId>()), new IdentifierTranslator(), new FakeProvenance(), NullLogger.Instance))
         );
     }
 

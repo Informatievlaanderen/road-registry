@@ -3,10 +3,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Errors;
 using Events.V2;
 using Extensions;
-using NetTopologySuite.Geometries;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ValueObjects.Problems;
 using RoadSegment;
@@ -14,7 +12,7 @@ using ScopedRoadNetwork.ValueObjects;
 
 public partial class RoadNode
 {
-    public Problems VerifyTopologyAndDetectType(ScopedRoadNetworkContext context)
+    public Problems VerifyTopologyAndUpdateType(RoadSegmentsSpatialIndex<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
     {
         var problems = Problems.WithContext(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
 
@@ -45,12 +43,12 @@ public partial class RoadNode
                 current.Add(new RoadNodeTooClose()
                     .WithContext(ProblemContext.For(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId)))));
 
-        problems += ValidateTypeAndChangeIfNeeded(segments, context);
+        problems += ValidateTypeAndChangeIfNeeded(segments, roadSegmentsSpatialIndex, idGenerator, context);
 
         return problems;
     }
 
-    private Problems ValidateTypeAndChangeIfNeeded(List<RoadSegment> segments, ScopedRoadNetworkContext context)
+    private Problems ValidateTypeAndChangeIfNeeded(List<RoadSegment> segments, RoadSegmentsSpatialIndex<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
     {
         var problems = Problems.None;
 
@@ -60,39 +58,79 @@ public partial class RoadNode
         }
         else if (segments.Count == 1)
         {
-            SetTypeIfDifferent(RoadNodeTypeV2.Eindknoop, context.Provenance);
+            ChangeTypeTo(RoadNodeTypeV2.Eindknoop, context.Provenance);
         }
         else if (segments.Count == 2)
         {
-            var segment1 = segments[0];
-            var segment2 = segments[1];
-
             if (Grensknoop)
             {
-                SetTypeIfDifferent(RoadNodeTypeV2.Validatieknoop, context.Provenance);
+                ChangeTypeTo(RoadNodeTypeV2.Validatieknoop, context.Provenance);
             }
             else
             {
-                //TODO-pr logica validatieknoop
-                /*
-                 * indien grensknoop -> validatieknoop
-                 * indien knoop een geometrische invalidatie tegenhoudt -> validatieknoop (zie unflattener voor logica)
-                 * anders merge de 2 segmenten:
-                 *      - nieuwe ID logica zelfde als in FC
-                 *      - indien methode verschillend is, neem Ingemeten indien 75% van de lengte Ingemeten is (zie OGC overlap logica)
-                 */
-                problems += new RoadNodeIsNotAllowed();
+                var segment1 = segments[0];
+                var segment2 = segments[1];
+
+                problems += MergeRoadSegmentsIfNodeIsNotNeeded(segment1, segment2, roadSegmentsSpatialIndex, idGenerator, context);
             }
         }
         else
         {
-            SetTypeIfDifferent(RoadNodeTypeV2.EchteKnoop, context.Provenance);
+            ChangeTypeTo(RoadNodeTypeV2.EchteKnoop, context.Provenance);
         }
 
         return problems;
     }
 
-    private void SetTypeIfDifferent(RoadNodeTypeV2 type, Provenance provenance)
+    private Problems MergeRoadSegmentsIfNodeIsNotNeeded(RoadSegment segment1, RoadSegment segment2, RoadSegmentsSpatialIndex<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
+    {
+        var roadNodeIsNeeded = RoadNodePreventsInvalidRoadSegmentGeometry(segment1, segment2, roadSegmentsSpatialIndex, context);
+        if (roadNodeIsNeeded)
+        {
+            ChangeTypeTo(RoadNodeTypeV2.Validatieknoop, context.Provenance);
+            return Problems.None;
+        }
+
+        var (mergedSegment, problems) = context.RoadNetwork.MergeRoadSegments(segment1, segment2, idGenerator, context);
+        if (mergedSegment is not null)
+        {
+            roadSegmentsSpatialIndex.Remove(segment1.Geometry.Value, segment1);
+            roadSegmentsSpatialIndex.Remove(segment2.Geometry.Value, segment2);
+            roadSegmentsSpatialIndex.Add(mergedSegment.Geometry.Value, mergedSegment);
+        }
+
+        return problems;
+    }
+
+    private bool RoadNodePreventsInvalidRoadSegmentGeometry(RoadSegment segment1, RoadSegment segment2, RoadSegmentsSpatialIndex<RoadSegment> roadSegmentsSpatialIndex, ScopedRoadNetworkContext context)
+    {
+        var mergedGeometry = RoadSegmentGeometryHelper.MergeGeometries(segment1, segment2, RoadNodeId, context);
+
+        if (RoadSegmentGeometryHelper.GetSameStartEndNodeInvalidGeometrySection(mergedGeometry, context.Tolerances) is not null)
+        {
+            return true;
+        }
+
+        if (RoadSegmentGeometryHelper.GetSelfIntersectingInvalidGeometrySection(mergedGeometry, context.Tolerances) is not null)
+        {
+            return true;
+        }
+
+        var candidateSegments = roadSegmentsSpatialIndex.Query(mergedGeometry)
+            .Where(x => x.RoadSegmentId != segment1.RoadSegmentId && x.RoadSegmentId != segment2.RoadSegmentId)
+            .ToArray();
+        foreach (var otherSegment in candidateSegments)
+        {
+            if (RoadSegmentGeometryHelper.GetFirstMultipleIntersectionsInvalidGeometrySection(mergedGeometry, otherSegment.Geometry.Value, context.Tolerances) is not null)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void ChangeTypeTo(RoadNodeTypeV2 type, Provenance provenance)
     {
         if (Type != type)
         {

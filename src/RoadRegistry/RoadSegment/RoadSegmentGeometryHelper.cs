@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.LinearReferencing;
+using NetTopologySuite.Operation.Valid;
 using RoadRegistry.BackOffice;
 using RoadRegistry.Extensions;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
@@ -66,27 +68,121 @@ public static class RoadSegmentGeometryHelper
             .WithSrid(segment1.Geometry.SRID);
     }
 
-    private static Coordinate[] MergeSegmentsCoordinates(IEnumerable<Coordinate[]> segments, VerificationContextTolerances tolerances)
+    public static InvalidGeometrySection? GetSelfIntersectingInvalidGeometrySection(
+        MultiLineString geometry,
+        VerificationContextTolerances tolerances)
     {
-        var coordinates = new List<Coordinate>();
-
-        foreach (var segment in segments)
+        if (!geometry.SelfIntersects())
         {
-            foreach (var coordinate in segment)
+            return null;
+        }
+
+        var isValidOp = new IsSimpleOp(geometry);
+        if (isValidOp.IsSimple())
+        {
+            throw new InvalidOperationException("IsSimpleOp.IsSimple() returns true for self-intersecting geometry. This should not happen.");
+        }
+
+        var geometryWhichMustContainNode = ExtractLoop(geometry.GetSingleLineString(), isValidOp.NonSimpleLocation, tolerances.GeometryTolerance);
+        var loopIndexedLine = new LengthIndexedLine(geometryWhichMustContainNode);
+        var middlePoint = loopIndexedLine.ExtractPoint(geometryWhichMustContainNode.Length / 2.0);
+
+        return new InvalidGeometrySection(isValidOp.NonSimpleLocation, geometryWhichMustContainNode, geometry.Factory.CreatePoint(middlePoint));
+    }
+
+    public static InvalidGeometrySection? GetSameStartEndNodeInvalidGeometrySection(MultiLineString geometry, VerificationContextTolerances tolerances)
+    {
+        var coords = geometry.Coordinates;
+        var startPoint = coords.First();
+        var endPoint = coords.Last();
+
+        if (startPoint.IsReasonablyEqualTo(endPoint, tolerances))
+        {
+            var geometryLengthIndexedLine = new LengthIndexedLine(geometry);
+            var geometryWhichMustContainNode = (LineString)geometryLengthIndexedLine.ExtractLine(tolerances.GeometryTolerance, geometry.Length - tolerances.GeometryTolerance);
+            var middlePoint = geometryLengthIndexedLine.ExtractPoint(geometry.Length / 2.0);
+
+            return new InvalidGeometrySection(startPoint, geometryWhichMustContainNode, geometry.Factory.CreatePoint(middlePoint));
+        }
+
+        return null;
+    }
+
+    public static InvalidGeometrySection? GetFirstMultipleIntersectionsInvalidGeometrySection(
+        MultiLineString geometry,
+        MultiLineString otherGeometry,
+        VerificationContextTolerances tolerances)
+    {
+        if (!geometry.Intersects(otherGeometry))
+        {
+            return null;
+        }
+
+        var startEndCoordinates = new[] { geometry.Coordinates.First(), geometry.Coordinates.Last() };
+        var intersectionCoordinates = geometry.Intersection(otherGeometry).Coordinates
+            .Where(x => startEndCoordinates.All(startEndCoordinate => !startEndCoordinate.IsReasonablyEqualTo(x, tolerances))) // exclude start-end coordinates
+            .ToArray();
+        if (intersectionCoordinates.Length < 2)
+        {
+            return null;
+        }
+
+        var geometryLengthIndexedLine = new LengthIndexedLine(geometry);
+        var intersectionPositions = intersectionCoordinates
+            .Select(p => geometryLengthIndexedLine.IndexOf(p))
+            .OrderBy(x => x)
+            .ToList();
+
+        var startPosition = intersectionPositions[0];
+        var endPosition = intersectionPositions[1];
+
+        var geometryWhichMustContainNode = (LineString)geometryLengthIndexedLine.ExtractLine(startPosition + tolerances.GeometryTolerance, endPosition - tolerances.GeometryTolerance);
+        var middlePoint = geometryLengthIndexedLine.ExtractPoint((endPosition - startPosition) / 2.0);
+
+        return new InvalidGeometrySection(intersectionCoordinates[0], geometryWhichMustContainNode, geometry.Factory.CreatePoint(middlePoint));
+    }
+
+    private static LineString ExtractLoop(LineString geometry, Coordinate intersectionPoint, double tolerance)
+    {
+        var coords = geometry.Coordinates;
+        var factory = geometry.Factory;
+
+        // Find all segments that contain the intersection point
+        var segmentIndices = new List<int>();
+
+        for (var i = 0; i < coords.Length - 1; i++)
+        {
+            var segment = new LineSegment(coords[i], coords[i + 1]);
+            var distance = segment.Distance(intersectionPoint);
+
+            if (distance < tolerance)
             {
-                if (coordinates.Count == 0 || !coordinate.IsReasonablyEqualTo(coordinates.Last(), tolerances))
-                {
-                    coordinates.Add(coordinate);
-                }
+                segmentIndices.Add(i);
             }
         }
 
-        return coordinates.ToArray();
+        if (segmentIndices.Count < 2)
+        {
+            throw new InvalidOperationException($"No loop found. Intersection point: {intersectionPoint.X.ToRoundedMeasurementString()} {intersectionPoint.Y.ToRoundedMeasurementString()}");
+        }
+
+        // Build the loop coordinates
+        var loopCoords = new List<Coordinate>();
+
+        // Add the intersection point at the start
+        loopCoords.Add(intersectionPoint.Copy());
+
+        // Add all coordinates between the two segments
+        for (var i = segmentIndices[0] + 1; i <= segmentIndices[1]; i++)
+        {
+            loopCoords.Add(coords[i].Copy());
+        }
+
+        // Close the loop with the intersection point
+        loopCoords.Add(intersectionPoint.Copy());
+
+        return factory.CreateLineString(loopCoords.ToArray());
     }
 }
 
-public sealed record MergeRoadSegmentsResult
-{
-    public required RoadSegmentGeometry Geometry { get; init; }
-    public required IReadOnlyCollection<RoadSegment> RoadSegments { get; init; }
-}
+public sealed record InvalidGeometrySection(Coordinate Intersection, LineString GeometrySection, Point IdealNodeLocation);

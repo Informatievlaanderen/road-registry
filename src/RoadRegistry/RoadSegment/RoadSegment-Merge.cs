@@ -1,7 +1,6 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
 using System.Collections.Immutable;
-using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events.V2;

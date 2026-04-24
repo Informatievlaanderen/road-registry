@@ -618,7 +618,7 @@ public class RoadSegmentUnflattener
         var result = phase1Results.Select(x => x.Segment).ToList();
 
         // Phase 2: Fix multiple intersections with other segments using spatial index
-        var spatialIndex = BuildSpatialIndex(result);
+        var spatialIndex = new RoadSegmentsSpatialIndex<RoadSegmentFeatureWithDynamicAttributes>(result.Select(x => (x.Attributes.Geometry, x)));
         var segmentsQueue = new Queue<RoadSegmentFeatureWithDynamicAttributes>(result);
         result = result.ToList(); // Create a new list to track current state
 
@@ -639,14 +639,14 @@ public class RoadSegmentUnflattener
             if (tryFixMultipleIntersectionsWithOtherSegmentsResult.Count > 0)
             {
                 // Remove old segment from spatial index
-                RemoveFromSpatialIndex(spatialIndex, segment);
+                spatialIndex.Remove(segment.Attributes.Geometry, segment);
                 result.Remove(segment);
 
                 // Add new segments to result and spatial index
                 foreach (var splitSegment in tryFixMultipleIntersectionsWithOtherSegmentsResult)
                 {
                     result.Add(splitSegment);
-                    AddToSpatialIndex(spatialIndex, splitSegment);
+                    spatialIndex.Add(splitSegment.Attributes.Geometry, splitSegment);
                     segmentsQueue.Enqueue(splitSegment);
                 }
             }
@@ -662,7 +662,7 @@ public class RoadSegmentUnflattener
         IRoadSegmentIdProvider roadSegmentIdProvider,
         ZipArchiveEntryFeatureCompareTranslateContext context)
     {
-        var intersection = GetSelfIntersectingIntersectionGeometry(segment.Attributes.Geometry, context.Tolerances);
+        var intersection = RoadSegmentGeometryHelper.GetSelfIntersectingInvalidGeometrySection(segment.Attributes.Geometry, context.Tolerances);
         if (intersection is null)
         {
             return [];
@@ -677,70 +677,6 @@ public class RoadSegmentUnflattener
         return splitResult;
     }
 
-    private IntersectionGeometry? GetSelfIntersectingIntersectionGeometry(
-        MultiLineString geometry,
-        VerificationContextTolerances tolerances)
-    {
-        if (!geometry.SelfIntersects())
-        {
-            return null;
-        }
-
-        var isValidOp = new IsSimpleOp(geometry);
-        if (isValidOp.IsSimple())
-        {
-            throw new InvalidOperationException("IsSimpleOp.IsSimple() returns true for self-intersecting geometry. This should not happen.");
-        }
-
-        var geometryWhichMustContainNode = ExtractLoop(geometry.GetSingleLineString(), isValidOp.NonSimpleLocation, tolerances.GeometryTolerance);
-        var loopIndexedLine = new LengthIndexedLine(geometryWhichMustContainNode);
-        var middlePoint = loopIndexedLine.ExtractPoint(geometryWhichMustContainNode.Length / 2.0);
-
-        return new IntersectionGeometry(isValidOp.NonSimpleLocation, geometryWhichMustContainNode, geometry.Factory.CreatePoint(middlePoint));
-    }
-
-    private static LineString ExtractLoop(LineString geometry, Coordinate intersectionPoint, double tolerance)
-    {
-        var coords = geometry.Coordinates;
-        var factory = geometry.Factory;
-
-        // Find all segments that contain the intersection point
-        var segmentIndices = new List<int>();
-
-        for (var i = 0; i < coords.Length - 1; i++)
-        {
-            var segment = new LineSegment(coords[i], coords[i + 1]);
-            var distance = segment.Distance(intersectionPoint);
-
-            if (distance < tolerance)
-            {
-                segmentIndices.Add(i);
-            }
-        }
-
-        if (segmentIndices.Count < 2)
-        {
-            throw new InvalidOperationException($"No loop found. Intersection point: {intersectionPoint.X.ToRoundedMeasurementString()} {intersectionPoint.Y.ToRoundedMeasurementString()}");
-        }
-
-        // Build the loop coordinates
-        var loopCoords = new List<Coordinate>();
-
-        // Add the intersection point at the start
-        loopCoords.Add(intersectionPoint.Copy());
-
-        // Add all coordinates between the two segments
-        for (var i = segmentIndices[0] + 1; i <= segmentIndices[1]; i++)
-        {
-            loopCoords.Add(coords[i].Copy());
-        }
-
-        // Close the loop with the intersection point
-        loopCoords.Add(intersectionPoint.Copy());
-
-        return factory.CreateLineString(loopCoords.ToArray());
-    }
-
     private IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> TryFixSameStartEndNode(
         RoadSegmentFeatureWithDynamicAttributes segment,
         HashSet<RoadNodeId> consumedNodes,
@@ -750,7 +686,7 @@ public class RoadSegmentUnflattener
         IRoadSegmentIdProvider roadSegmentIdProvider,
         ZipArchiveEntryFeatureCompareTranslateContext context)
     {
-        var sameStartEndIntersectionGeometry = DetectSameStartEndNode(segment.Attributes.Geometry, context.Tolerances);
+        var sameStartEndIntersectionGeometry = RoadSegmentGeometryHelper.GetSameStartEndNodeInvalidGeometrySection(segment.Attributes.Geometry, context.Tolerances);
         if (sameStartEndIntersectionGeometry is null)
         {
             return [];
@@ -784,143 +720,22 @@ public class RoadSegmentUnflattener
         return splitResult;
     }
 
-    private IntersectionGeometry? DetectSameStartEndNode(MultiLineString geometry, VerificationContextTolerances tolerances)
-    {
-        var coords = geometry.Coordinates;
-        var startPoint = coords.First();
-        var endPoint = coords.Last();
-
-        if (startPoint.IsReasonablyEqualTo(endPoint, tolerances))
-        {
-            var geometryLengthIndexedLine = new LengthIndexedLine(geometry);
-            var geometryWhichMustContainNode = (LineString)geometryLengthIndexedLine.ExtractLine(tolerances.GeometryTolerance, geometry.Length - tolerances.GeometryTolerance);
-            var middlePoint = geometryLengthIndexedLine.ExtractPoint(geometry.Length / 2.0);
-
-            return new IntersectionGeometry(startPoint, geometryWhichMustContainNode, geometry.Factory.CreatePoint(middlePoint));
-        }
-
-        return null;
-    }
-
-    private Dictionary<(int GridX, int GridY), List<RoadSegmentFeatureWithDynamicAttributes>> BuildSpatialIndex(
-        List<RoadSegmentFeatureWithDynamicAttributes> segments)
-    {
-        var spatialIndex = new Dictionary<(int, int), List<RoadSegmentFeatureWithDynamicAttributes>>();
-        const double gridSize = 100.0; // Adjust based on your coordinate system scale
-
-        foreach (var segment in segments)
-        {
-            var envelope = segment.Attributes.Geometry.EnvelopeInternal;
-            var minGridX = (int)(envelope.MinX / gridSize);
-            var maxGridX = (int)(envelope.MaxX / gridSize);
-            var minGridY = (int)(envelope.MinY / gridSize);
-            var maxGridY = (int)(envelope.MaxY / gridSize);
-
-            for (var gx = minGridX; gx <= maxGridX; gx++)
-            {
-                for (var gy = minGridY; gy <= maxGridY; gy++)
-                {
-                    var key = (gx, gy);
-                    if (!spatialIndex.TryGetValue(key, out var list))
-                    {
-                        list = new List<RoadSegmentFeatureWithDynamicAttributes>();
-                        spatialIndex[key] = list;
-                    }
-                    list.Add(segment);
-                }
-            }
-        }
-
-        return spatialIndex;
-    }
-
-    private void AddToSpatialIndex(
-        Dictionary<(int GridX, int GridY), List<RoadSegmentFeatureWithDynamicAttributes>> spatialIndex,
-        RoadSegmentFeatureWithDynamicAttributes segment)
-    {
-        const double gridSize = 100.0;
-        var envelope = segment.Attributes.Geometry.EnvelopeInternal;
-        var minGridX = (int)(envelope.MinX / gridSize);
-        var maxGridX = (int)(envelope.MaxX / gridSize);
-        var minGridY = (int)(envelope.MinY / gridSize);
-        var maxGridY = (int)(envelope.MaxY / gridSize);
-
-        for (var gx = minGridX; gx <= maxGridX; gx++)
-        {
-            for (var gy = minGridY; gy <= maxGridY; gy++)
-            {
-                var key = (gx, gy);
-                if (!spatialIndex.TryGetValue(key, out var list))
-                {
-                    list = new List<RoadSegmentFeatureWithDynamicAttributes>();
-                    spatialIndex[key] = list;
-                }
-                list.Add(segment);
-            }
-        }
-    }
-
-    private void RemoveFromSpatialIndex(
-        Dictionary<(int GridX, int GridY), List<RoadSegmentFeatureWithDynamicAttributes>> spatialIndex,
-        RoadSegmentFeatureWithDynamicAttributes segment)
-    {
-        const double gridSize = 100.0;
-        var envelope = segment.Attributes.Geometry.EnvelopeInternal;
-        var minGridX = (int)(envelope.MinX / gridSize);
-        var maxGridX = (int)(envelope.MaxX / gridSize);
-        var minGridY = (int)(envelope.MinY / gridSize);
-        var maxGridY = (int)(envelope.MaxY / gridSize);
-
-        for (var gx = minGridX; gx <= maxGridX; gx++)
-        {
-            for (var gy = minGridY; gy <= maxGridY; gy++)
-            {
-                var key = (gx, gy);
-                if (spatialIndex.TryGetValue(key, out var list))
-                {
-                    list.Remove(segment);
-                }
-            }
-        }
-    }
-
     private IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> TryFixMultipleIntersectionsWithOtherSegmentsUsingSpatialIndex(
         RoadSegmentFeatureWithDynamicAttributes segment,
         HashSet<RoadNodeId> consumedNodes,
-        Dictionary<(int GridX, int GridY), List<RoadSegmentFeatureWithDynamicAttributes>> spatialIndex,
+        RoadSegmentsSpatialIndex<RoadSegmentFeatureWithDynamicAttributes> spatialIndex,
         IReadOnlyCollection<RoadNodeFeatureCompareRecord> nonClassifiedNodes,
         IRoadSegmentIdProvider roadSegmentIdProvider,
         ZipArchiveEntryFeatureCompareTranslateContext context)
     {
-        // Find candidate segments using spatial index
-        const double gridSize = 100.0;
-        var envelope = segment.Attributes.Geometry.EnvelopeInternal;
-        var minGridX = (int)(envelope.MinX / gridSize);
-        var maxGridX = (int)(envelope.MaxX / gridSize);
-        var minGridY = (int)(envelope.MinY / gridSize);
-        var maxGridY = (int)(envelope.MaxY / gridSize);
-
-        var candidateSegments = new HashSet<RoadSegmentFeatureWithDynamicAttributes>();
-        for (var gx = minGridX; gx <= maxGridX; gx++)
-        {
-            for (var gy = minGridY; gy <= maxGridY; gy++)
-            {
-                var key = (gx, gy);
-                if (spatialIndex.TryGetValue(key, out var list))
-                {
-                    foreach (var candidate in list
-                                 .Where(candidate => candidate != segment))
-                    {
-                        candidateSegments.Add(candidate);
-                    }
-                }
-            }
-        }
+        var candidateSegments = spatialIndex.Query(segment.Attributes.Geometry)
+            .Where(x => x != segment)
+            .ToArray();
 
         // Check only candidate segments for intersections
         foreach (var otherSegment in candidateSegments)
         {
-            var intersection = GetFirstMultipleIntersectionsIntersectionGeometry(
+            var intersection = RoadSegmentGeometryHelper.GetFirstMultipleIntersectionsInvalidGeometrySection(
                 segment.Attributes.Geometry,
                 otherSegment.Attributes.Geometry,
                 context.Tolerances);
@@ -937,50 +752,16 @@ public class RoadSegmentUnflattener
         return [];
     }
 
-    private IntersectionGeometry? GetFirstMultipleIntersectionsIntersectionGeometry(
-        MultiLineString geometry,
-        MultiLineString otherGeometry,
-        VerificationContextTolerances tolerances)
-    {
-        if (!geometry.Intersects(otherGeometry))
-        {
-            return null;
-        }
-
-        var startEndCoordinates = new[] { geometry.Coordinates.First(), geometry.Coordinates.Last() };
-        var intersectionCoordinates = geometry.Intersection(otherGeometry).Coordinates
-            .Where(x => startEndCoordinates.All(startEndCoordinate => !startEndCoordinate.IsReasonablyEqualTo(x, tolerances))) // exclude start-end coordinates
-            .ToArray();
-        if (intersectionCoordinates.Length < 2)
-        {
-            return null;
-        }
-
-        var geometryLengthIndexedLine = new LengthIndexedLine(geometry);
-        var intersectionPositions = intersectionCoordinates
-            .Select(p => geometryLengthIndexedLine.IndexOf(p))
-            .OrderBy(x => x)
-            .ToList();
-
-        var startPosition = intersectionPositions[0];
-        var endPosition = intersectionPositions[1];
-
-        var geometryWhichMustContainNode = (LineString)geometryLengthIndexedLine.ExtractLine(startPosition + tolerances.GeometryTolerance, endPosition - tolerances.GeometryTolerance);
-        var middlePoint = geometryLengthIndexedLine.ExtractPoint((endPosition - startPosition) / 2.0);
-
-        return new IntersectionGeometry(intersectionCoordinates[0], geometryWhichMustContainNode, geometry.Factory.CreatePoint(middlePoint));
-    }
-
     private IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes>? TrySplitAtValidatieknopen(
         RoadSegmentFeatureWithDynamicAttributes segment,
         HashSet<RoadNodeId> consumedNodes,
-        IntersectionGeometry intersection,
+        InvalidGeometrySection invalid,
         IReadOnlyCollection<RoadNodeFeatureCompareRecord> nonClassifiedNodes,
         IRoadSegmentIdProvider roadSegmentIdProvider,
         ZipArchiveEntryFeatureCompareTranslateContext context)
     {
         // Find the nearest knoop to the optimal position
-        var nearestNode = FindNearestNodeToPosition(intersection.GeometryWhichMustContainNode, intersection.IdealNodeLocation, nonClassifiedNodes, context.Tolerances);
+        var nearestNode = FindNearestNodeToPosition(invalid.GeometrySection, invalid.IdealNodeLocation, nonClassifiedNodes, context.Tolerances);
         if (nearestNode is null)
         {
             return null;
@@ -1056,6 +837,4 @@ public class RoadSegmentUnflattener
             .OrderBy(node => node.Attributes.Geometry.Distance(point))
             .FirstOrDefault();
     }
-
-    private sealed record IntersectionGeometry(Coordinate Intersection, LineString GeometryWhichMustContainNode, Point IdealNodeLocation);
 }

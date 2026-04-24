@@ -3,11 +3,11 @@ namespace RoadRegistry.Tests.AggregateTests.Framework;
 using FluentValidation.Results;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.RoadNetwork;
-using ScopedRoadNetwork;
-using Problems = ValueObjects.Problems.Problems;
+using RoadRegistry.ScopedRoadNetwork;
+using Problems = RoadRegistry.ValueObjects.Problems.Problems;
 
 public class ScenarioRunner
 {
