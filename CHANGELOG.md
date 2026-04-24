@@ -1,3 +1,10 @@
+## [4.56.17](https://github.com/informatievlaanderen/road-registry/compare/v4.56.16...v4.56.17) (2026-04-24)
+
+
+### Bug Fixes
+
+* **ci:** release pipeline docker image tag ([b197f1f](https://github.com/informatievlaanderen/road-registry/commit/b197f1f12c7759506e743a4b74adc7387210ad80))
+
 ## [4.56.16](https://github.com/informatievlaanderen/road-registry/compare/v4.56.15...v4.56.16) (2026-04-24)
 
 
