@@ -74,7 +74,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-backoffice-api-image.tar
       image-name: backoffice-api
       test-project: RoadRegistry.BackOffice.Api.Tests
@@ -91,7 +91,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-backoffice-ui-image.tar
       image-name: backoffice-ui
       build-project: RoadRegistry.BackOffice.UI
@@ -104,7 +104,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-backoffice-eventhost-image.tar
       image-name: backoffice-eventhost
       test-project: RoadRegistry.BackOffice.EventHost.Tests
@@ -121,7 +121,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-backoffice-commandhost-image.tar
       image-name: backoffice-commandhost
       test-project: RoadRegistry.BackOffice.CommandHost.Tests
@@ -138,7 +138,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-adminhost-image.tar
       image-name: adminhost
       test-project: RoadRegistry.Empty.Tests
@@ -155,7 +155,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-jobs-processor-image.tar
       image-name: jobs-processor
       test-project: RoadRegistry.Jobs.Processor.Tests
@@ -172,7 +172,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-projector-image.tar
       image-name: projector
       test-project: RoadRegistry.Projector.Tests
@@ -189,7 +189,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-editor-projectionhost-image.tar
       image-name: editor-projectionhost
       test-project: RoadRegistry.Editor.ProjectionHost.Tests
@@ -206,7 +206,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-integration-projectionhost-image.tar
       image-name: integration-projectionhost
       test-project: RoadRegistry.Integration.ProjectionHost.Tests
@@ -223,7 +223,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-product-projectionhost-image.tar
       image-name: product-projectionhost
       test-project: RoadRegistry.Product.ProjectionHost.Tests
@@ -240,7 +240,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-product-publishhost-image.tar
       image-name: product-publishhost
       test-project: RoadRegistry.Empty.Tests
@@ -257,7 +257,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-producer-snapshot-projectionhost-image.tar
       image-name: producer-snapshot-projectionhost
       test-project: RoadRegistry.Producer.Snapshot.ProjectionHost.Tests
@@ -274,7 +274,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-synchost-image.tar
       image-name: synchost
       test-project: RoadRegistry.SyncHost.Tests
@@ -291,7 +291,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-wms-projectionhost-image.tar
       image-name: wms-projectionhost
       test-project: RoadRegistry.Wms.ProjectionHost.Tests
@@ -308,7 +308,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-wfs-projectionhost-image.tar
       image-name: wfs-projectionhost
       test-project: RoadRegistry.Wfs.ProjectionHost.Tests
@@ -340,7 +340,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-lambda-sqsbackofficefunction-image.tar
       image-name: lambda-sqsbackofficefunction
       test-project: RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests
@@ -357,7 +357,7 @@ jobs:
     needs: [set-release-version]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road
       image-file: rr-lambda-sqssnapshotfunction-image.tar
       image-name: lambda-sqssnapshotfunction
       test-project: RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests
@@ -604,8 +604,7 @@ jobs:
         shell: bash
         run: |
           echo $IMAGE:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
-          docker tag $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER $BUILD_DOCKER_REGISTRY/road/$IMAGE:$SEMVER
+          docker tag $BUILD_DOCKER_REGISTRY/road/$IMAGE:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road/$IMAGE:$SEMVER
         env:
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_DEVOPS_DOCKER_REGISTRY }}
