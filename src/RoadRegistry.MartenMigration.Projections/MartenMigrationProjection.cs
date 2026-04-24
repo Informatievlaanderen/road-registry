@@ -16,7 +16,6 @@ using NodaTime;
 using NodaTime.Text;
 using RoadNode;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
-using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
@@ -268,8 +267,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var roadSegment = RoadSegment.CreateForMigration(
                     roadSegmentId: roadSegmentId,
                     geometry: geometry.ToRoadSegmentGeometry(),
-                    startNodeId: new RoadNodeId(envelope.Message.StartNodeId),
-                    endNodeId: new RoadNodeId(envelope.Message.EndNodeId)
+                    startNodeId: envelope.Message.StartNodeId > 0 ? new RoadNodeId(envelope.Message.StartNodeId) : null,
+                    endNodeId: envelope.Message.EndNodeId > 0 ? new RoadNodeId(envelope.Message.EndNodeId) : null
                 );
                 session.Store(roadSegment);
             }, token);
@@ -634,8 +633,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var roadSegment = RoadSegment.CreateForMigration(
                 roadSegmentId: roadSegmentId,
                 geometry: geometry.ToRoadSegmentGeometry(),
-                startNodeId: new RoadNodeId(change.StartNodeId),
-                endNodeId: new RoadNodeId(change.EndNodeId)
+                startNodeId: change.StartNodeId > 0 ? new RoadNodeId(change.StartNodeId) : null,
+                endNodeId: change.EndNodeId > 0 ? new RoadNodeId(change.EndNodeId) : null
             );
             session.Store(roadSegment);
         }, token);
@@ -718,8 +717,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 roadSegment.Apply(new RoadSegmentGeometryWasModified
                 {
                     RoadSegmentId = roadSegmentId,
-                    StartNodeId = new RoadNodeId(change.StartNodeId),
-                    EndNodeId = new RoadNodeId(change.EndNodeId),
+                    StartNodeId = change.StartNodeId > 0 ? new RoadNodeId(change.StartNodeId) : null,
+                    EndNodeId = change.EndNodeId > 0 ? new RoadNodeId(change.EndNodeId) : null,
                     Geometry = geometry.ToRoadSegmentGeometry(),
                     Provenance = new ProvenanceData(provenance)
                 });
@@ -1049,8 +1048,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 roadSegment.Apply(new RoadSegmentGeometryWasModified
                 {
                     RoadSegmentId = roadSegmentId,
-                    StartNodeId = roadSegment.StartNodeId,
-                    EndNodeId = roadSegment.EndNodeId,
+                    StartNodeId = roadSegment.StartNodeId > 0 ? roadSegment.StartNodeId : null,
+                    EndNodeId = roadSegment.EndNodeId > 0 ? roadSegment.EndNodeId : null,
                     Geometry = geometry.ToRoadSegmentGeometry(),
                     Provenance = new ProvenanceData(provenance)
                 });

@@ -260,8 +260,8 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             {
                 RoadSegmentId = roadSegmentId,
                 Geometry = e.Data.Geometry,
-                StartNodeId = new RoadNodeId(e.Data.StartNodeId),
-                EndNodeId = new RoadNodeId(e.Data.EndNodeId),
+                StartNodeId = e.Data.StartNodeId,
+                EndNodeId = e.Data.EndNodeId,
                 GeometryDrawMethod = e.Data.GeometryDrawMethod,
                 Status = e.Data.Status,
                 AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString()),
@@ -293,8 +293,8 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             {
                 RoadSegmentId = roadSegmentId,
                 Geometry = e.Data.Geometry,
-                StartNodeId = new RoadNodeId(e.Data.StartNodeId),
-                EndNodeId = new RoadNodeId(e.Data.EndNodeId),
+                StartNodeId = e.Data.StartNodeId,
+                EndNodeId = e.Data.EndNodeId,
                 GeometryDrawMethod = e.Data.GeometryDrawMethod,
                 Status = e.Data.Status,
                 AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString()),
@@ -536,8 +536,8 @@ public sealed class RoadSegmentExtractItem
     }
 
     public required RoadSegmentGeometry Geometry { get; set; }
-    public required RoadNodeId StartNodeId { get; set; }
-    public required RoadNodeId EndNodeId { get; set; }
+    public required RoadNodeId? StartNodeId { get; set; }
+    public required RoadNodeId? EndNodeId { get; set; }
     public required string GeometryDrawMethod { get; set; }
     public required string Status { get; set; }
     public required ExtractRoadSegmentDynamicAttribute<string> AccessRestriction { get; set; }

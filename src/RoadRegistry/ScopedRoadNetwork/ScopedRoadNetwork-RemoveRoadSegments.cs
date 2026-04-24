@@ -80,8 +80,8 @@ public partial class ScopedRoadNetwork
             return problems;
         }
 
-        problems += TryFixNodeType(segment.StartNodeId, removingRoadSegmentIds, idGenerator, idTranslator, provenance);
-        problems += TryFixNodeType(segment.EndNodeId, removingRoadSegmentIds, idGenerator, idTranslator, provenance);
+        problems += TryFixNodeType(segment.StartNodeId!.Value, removingRoadSegmentIds, idGenerator, idTranslator, provenance);
+        problems += TryFixNodeType(segment.EndNodeId!.Value, removingRoadSegmentIds, idGenerator, idTranslator, provenance);
 
         var junctions = _gradeSeparatedJunctions
             .Where(x => x.Value.IsConnectedTo(roadSegmentId))
