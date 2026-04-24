@@ -1,3 +1,13 @@
+## [4.56.15](https://github.com/informatievlaanderen/road-registry/compare/v4.56.14...v4.56.15) (2026-04-24)
+
+
+### Bug Fixes
+
+* **domain v2:** make segment NodeIds nullable ([24ed170](https://github.com/informatievlaanderen/road-registry/commit/24ed170eb55cd1c583194f5e7c290692ef14239e))
+* **domain v2:** merge segments when node is not needed anymore (WIP) ([93d7e00](https://github.com/informatievlaanderen/road-registry/commit/93d7e00770390995889a8746b117348697890439))
+* **inwinning:** logic to determine Method of flat segments ([776e468](https://github.com/informatievlaanderen/road-registry/commit/776e468b2310a93b328b1b8283a05a3d1af9f354))
+* **inwinning:** unflatten when middle segment is reversed ([a8086e3](https://github.com/informatievlaanderen/road-registry/commit/a8086e343444995161611d1150c7b8bca4523b11))
+
 ## [4.56.14](https://github.com/informatievlaanderen/road-registry/compare/v4.56.13...v4.56.14) (2026-04-23)
 
 
