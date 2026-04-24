@@ -1,3 +1,10 @@
+## [4.56.16](https://github.com/informatievlaanderen/road-registry/compare/v4.56.15...v4.56.16) (2026-04-24)
+
+
+### Bug Fixes
+
+* version bump ([9706915](https://github.com/informatievlaanderen/road-registry/commit/97069158e5ce3811ae7654a1a251fde51a49fba5))
+
 ## [4.56.15](https://github.com/informatievlaanderen/road-registry/compare/v4.56.14...v4.56.15) (2026-04-24)
 
 
