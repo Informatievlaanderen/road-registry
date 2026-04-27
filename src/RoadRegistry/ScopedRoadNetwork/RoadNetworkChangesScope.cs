@@ -13,7 +13,7 @@ internal static class RoadNetworkChangesScope
 {
     public static MultiPolygon? Build(IReadOnlyCollection<Geometry> geometries)
     {
-        if (!geometries.Any())
+        if (geometries.Count == 0)
         {
             return null;
         }

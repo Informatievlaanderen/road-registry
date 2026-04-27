@@ -113,6 +113,7 @@ public class RoadSegmentUnflattener
                 list = new List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>();
                 segmentsByNode[key] = list;
             }
+
             list.Add(pair.Segment);
         }
 
@@ -588,6 +589,7 @@ public class RoadSegmentUnflattener
                         {
                             segmentsQueue.Enqueue(splitSegment);
                         }
+
                         continue;
                     }
 
@@ -601,6 +603,7 @@ public class RoadSegmentUnflattener
                         {
                             segmentsQueue.Enqueue(splitSegment);
                         }
+
                         continue;
                     }
                 }
@@ -699,12 +702,7 @@ public class RoadSegmentUnflattener
             .Where(x => nodeClassifications.ContainsKey(x.Key.Item1))
             .Select(x => x.Key)
             .FirstOrDefault();
-        if (wantedStartLocation.Item2 is null)
-        {
-            throw new InvalidOperationException($"Merged segment (Id {segment.Attributes.RoadSegmentId}) has the same start and end node, but unable to find the 1 structural node that connects it. TempIds: {string.Join(",", tempIds)}");
-        }
-
-        if (!segment.Attributes.Geometry.GetSingleLineString().StartPoint.IsReasonablyEqualTo(wantedStartLocation.Item2, context.Tolerances))
+        if (wantedStartLocation.Item2 is not null && !segment.Attributes.Geometry.GetSingleLineString().StartPoint.IsReasonablyEqualTo(wantedStartLocation.Item2, context.Tolerances))
         {
             var splitResult2 = SplitGeometryAtNode(segment, wantedStartLocation.Item2.Coordinate, roadSegmentIdProvider);
             consumedNodes.Remove(wantedStartLocation.Item1);
@@ -755,13 +753,13 @@ public class RoadSegmentUnflattener
     private IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes>? TrySplitAtValidatieknopen(
         RoadSegmentFeatureWithDynamicAttributes segment,
         HashSet<RoadNodeId> consumedNodes,
-        InvalidGeometrySection invalid,
+        InvalidGeometrySection invalidSection,
         IReadOnlyCollection<RoadNodeFeatureCompareRecord> nonClassifiedNodes,
         IRoadSegmentIdProvider roadSegmentIdProvider,
         ZipArchiveEntryFeatureCompareTranslateContext context)
     {
         // Find the nearest knoop to the optimal position
-        var nearestNode = FindNearestNodeToPosition(invalid.GeometrySection, invalid.IdealNodeLocation, nonClassifiedNodes, context.Tolerances);
+        var nearestNode = FindNearestNodeToPosition(invalidSection.GeometrySection, invalidSection.IdealNodeLocation, nonClassifiedNodes, context.Tolerances);
         if (nearestNode is null)
         {
             return null;

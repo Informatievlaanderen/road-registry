@@ -82,7 +82,6 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
         return RoadNetworkChangesScope.Build(_geometries);
     }
 
-
     public RoadNetworkChanges Add(AddRoadNodeChange change)
     {
         _geometries.Add(change.Geometry.Value);
