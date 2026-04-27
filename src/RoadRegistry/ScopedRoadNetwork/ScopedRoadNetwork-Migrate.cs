@@ -61,7 +61,7 @@ public partial class ScopedRoadNetwork
         }
 
         // Ensure spatial indexes are built once at the start for optimal performance
-        RebuildSpatialIndexes();
+        RebuildSpatialIndexes(context.Logger);
 
         var roadSegmentRoadNumberChanges = GetRoadSegmentRoadNumberChanges(changes);
 
@@ -70,6 +70,11 @@ public partial class ScopedRoadNetwork
         // Track timing per action type
         var actionTimings = new Dictionary<string, long>();
         var actionCounts = new Dictionary<string, int>();
+
+        var totalChanges = changes.Count;
+        var processedChanges = 0;
+        var lastLoggedProgress = 0;
+        const int progressLogInterval = 10; // Log progress every 1000 changes
 
         foreach (var roadNetworkChange in changes)
         {
@@ -124,18 +129,34 @@ public partial class ScopedRoadNetwork
             actionTimings[actionName] += stopwatch.ElapsedMilliseconds;
             actionCounts[actionName]++;
 
-            // Log timing summary
-            var sb = new StringBuilder();
-            sb.AppendLine("Migration action timings:");
-            foreach (var actionName2 in actionTimings.Keys.OrderByDescending(k => actionTimings[k]))
+            processedChanges++;
+
+            // Log progress periodically to survive Lambda timeout
+            if (processedChanges - lastLoggedProgress >= progressLogInterval)
             {
-                var totalMs = actionTimings[actionName2];
-                var count = actionCounts[actionName2];
-                var avgMs = count > 0 ? totalMs / (double)count : 0;
-                sb.AppendLine($"  {actionName2}: {count} actions, {totalMs}ms total, {avgMs:F2}ms avg");
+                var progressPercent = (processedChanges * 100.0) / totalChanges;
+                var logMessage = $"Migration progress: {processedChanges}/{totalChanges} ({progressPercent:F1}%)";
+
+                context.Logger.LogWarning(logMessage);
+                Console.WriteLine(logMessage);
+
+                lastLoggedProgress = processedChanges;
+
+                {
+                    // Log final timing summary
+                    var sb = new StringBuilder();
+                    sb.AppendLine("Action timings:");
+                    foreach (var actionName2 in actionTimings.Keys.OrderByDescending(k => actionTimings[k]))
+                    {
+                        var totalMs = actionTimings[actionName2];
+                        var count = actionCounts[actionName2];
+                        var avgMs = count > 0 ? totalMs / (double)count : 0;
+                        sb.AppendLine($"  {actionName2}: {count} actions, {totalMs}ms total, {avgMs:F2}ms avg");
+                    }
+                    context.Logger.LogWarning(sb.ToString());
+                    Console.WriteLine(sb.ToString());
+                }
             }
-            context.Logger.LogWarning(sb.ToString());
-            Console.WriteLine(sb.ToString());
         }
 
         return problems;
