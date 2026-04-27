@@ -1,3 +1,11 @@
+## [4.57.3](https://github.com/informatievlaanderen/road-registry/compare/v4.57.2...v4.57.3) (2026-04-27)
+
+
+### Bug Fixes
+
+* **inwinning:** detect same start/end when segment is not connected to the roadnetwork ([5e37fac](https://github.com/informatievlaanderen/road-registry/commit/5e37fac8efaffeda54291be60bdee20f135018d9))
+* performance BuildScopeGeometry ([44f42cc](https://github.com/informatievlaanderen/road-registry/commit/44f42cc97943f2f7f33055be8d852328dd11ad27))
+
 ## [4.57.2](https://github.com/informatievlaanderen/road-registry/compare/v4.57.1...v4.57.2) (2026-04-27)
 
 
