@@ -1,3 +1,11 @@
+## [4.57.2](https://github.com/informatievlaanderen/road-registry/compare/v4.57.1...v4.57.2) (2026-04-27)
+
+
+### Bug Fixes
+
+* log action timings summary every 10 actions ([87f01a7](https://github.com/informatievlaanderen/road-registry/commit/87f01a7cf726572db5b953ab2a70406f0ed35a1b))
+* timing logging ([5b61157](https://github.com/informatievlaanderen/road-registry/commit/5b611570c890a353368c9e3a8e0eaa005b191fa9))
+
 ## [4.57.1](https://github.com/informatievlaanderen/road-registry/compare/v4.57.0...v4.57.1) (2026-04-27)
 
 
