@@ -2,31 +2,31 @@ namespace RoadRegistry.BackOffice.CommandHost;
 
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions;
 using Autofac;
-using Core;
-using Extensions;
-using Extracts;
-using FeatureCompare;
-using Framework;
-using Handlers.Extracts;
-using Handlers.Sqs;
-using Hosts;
-using Hosts.Infrastructure.Extensions;
-using Jobs;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NodaTime;
-using RoadNetwork.Schema;
+using RoadRegistry.BackOffice.Abstractions;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Extensions;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.FeatureCompare;
+using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Handlers.Extracts;
+using RoadRegistry.BackOffice.Handlers.Sqs;
+using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Hosts;
+using RoadRegistry.Hosts.Infrastructure.Extensions;
 using RoadRegistry.Infrastructure;
-using Snapshot.Handlers.Sqs;
+using RoadRegistry.Jobs;
+using RoadRegistry.RoadNetwork.Schema;
+using RoadRegistry.Snapshot.Handlers.Sqs;
 using SqlStreamStore;
-using Uploads;
-using MediatorModule = Snapshot.Handlers.Sqs.MediatorModule;
+using MediatorModule = RoadRegistry.Snapshot.Handlers.Sqs.MediatorModule;
 
 public class Program
 {
@@ -66,7 +66,6 @@ public class Program
 
                 .AddHostedService<HealthCommandProcessor>()
                 .AddHostedService<RoadNetworkCommandProcessor>()
-                .AddHostedService<RoadNetworkExtractCommandProcessor>()
                 .AddHostedService<OrganizationCommandProcessor>()
 
                 .AddSingleton(new IDbContextMigratorFactory[]
