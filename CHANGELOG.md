@@ -1,3 +1,10 @@
+## [4.57.1](https://github.com/informatievlaanderen/road-registry/compare/v4.57.0...v4.57.1) (2026-04-27)
+
+
+### Bug Fixes
+
+* use spatial indexes for performance in migrate/change ScopedRoadNetwork ([a0c4b9b](https://github.com/informatievlaanderen/road-registry/commit/a0c4b9b741ca3b3fed6bca0ffe220afe275202ee))
+
 # [4.57.0](https://github.com/informatievlaanderen/road-registry/compare/v4.56.17...v4.57.0) (2026-04-27)
 
 
