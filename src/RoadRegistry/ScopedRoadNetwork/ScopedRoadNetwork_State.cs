@@ -27,6 +27,9 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
     private readonly Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions;
     private readonly Dictionary<GradeJunctionId, GradeJunction> _gradeJunctions;
 
+    private readonly LazyQuadtree<RoadNode> _roadNodesSpatialIndex;
+    private readonly LazyQuadtree<RoadSegment> _roadSegmentsSpatialIndex;
+
     public ScopedRoadNetwork(
         ScopedRoadNetworkId roadNetworkId,
         IReadOnlyCollection<RoadNode>? roadNodes = null,
@@ -48,6 +51,23 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
 
         _gradeJunctions = (gradeJunctions ?? []).ToDictionary(x => x.GradeJunctionId, x => x);
         GradeJunctions = _gradeJunctions.AsReadOnly();
+
+        _roadNodesSpatialIndex = new LazyQuadtree<RoadNode>(tree=>
+        {
+            foreach (var roadNode in _roadNodes.Values.Where(x => !x.IsRemoved))
+            {
+                tree.Insert(roadNode.Geometry.Value.EnvelopeInternal, roadNode);
+            }
+        });
+        _roadSegmentsSpatialIndex = new LazyQuadtree<RoadSegment>(tree=>
+        {
+            foreach (var roadSegment in _roadSegments.Values.Where(x => !x.IsRemoved))
+            {
+                tree.Insert(
+                    roadSegment.Geometry.Value.EnvelopeInternal,
+                    roadSegment);
+            }
+        });
     }
 
     public static ScopedRoadNetwork Create(RoadNetworkWasChanged @event)
@@ -104,11 +124,16 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
     {
         const double bufferDistance = 0.015;
 
+        var envelope = new Envelope(geometry.Value.EnvelopeInternal);
+        envelope.ExpandBy(bufferDistance);
+
         var roughGeometry = geometry.Value.Envelope.Buffer(bufferDistance);
-        var nearbyOtherSegments = _roadSegments
-            .Where(x => x.Value.Attributes?.Status == RoadSegmentStatusV2.Gerealiseerd)
-            .Where(x => !excludeRoadSegmentIds.Contains(x.Key) && x.Value.Geometry.Value.Intersects(roughGeometry))
-            .Select(x => (x.Key, x.Value.Geometry))
+        var nearbyOtherSegments = _roadSegmentsSpatialIndex
+            .Query(envelope)
+            .Where(x => x.Attributes?.Status == RoadSegmentStatusV2.Gerealiseerd)
+            .Where(x => !excludeRoadSegmentIds.Contains(x.RoadSegmentId))
+            .Where(x => x.Geometry.Value.Intersects(roughGeometry))
+            .Select(x => (x.RoadSegmentId, x.Geometry))
             .ToList();
 
         if (!nearbyOtherSegments.Any())
@@ -118,7 +143,7 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
 
         var overlappingOtherSegmentId = GetOtherRoadSegmentIdWhoOverlapsPartially(geometry, bufferDistance, nearbyOtherSegments)
                                         ?? nearbyOtherSegments
-                                            .Select(otherSegment => GetOtherRoadSegmentIdWhoOverlapsPartially(otherSegment.Geometry, bufferDistance, [(otherSegment.Key, geometry)]))
+                                            .Select(otherSegment => GetOtherRoadSegmentIdWhoOverlapsPartially(otherSegment.Geometry, bufferDistance, [(otherSegment.RoadSegmentId, geometry)]))
                                             .FirstOrDefault();
         if (overlappingOtherSegmentId is not null)
         {
@@ -135,6 +160,9 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         double bufferDistance,
         IReadOnlyCollection<(RoadSegmentId RoadSegmentId, RoadSegmentGeometry Geometry)> otherSegments)
     {
+        // Pre-cache buffered line segments to avoid repeated geometry operations
+        var bufferedSegments = new List<Geometry>();
+
         foreach (var selfLineSegment in selfGeometry.Value.Geometries)
         {
             var coordinates = selfLineSegment.Coordinates;
@@ -150,24 +178,34 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
                 var lineSegment = selfGeometry.Value.Factory.CreateLineString(segmentCoordinates);
 
                 // Create buffer around the line segment
-                var bufferedLineSegment = lineSegment.Buffer(bufferDistance);
+                bufferedSegments.Add(lineSegment.Buffer(bufferDistance));
+            }
+        }
 
-                // Check if buffered area intersects with at least 2 vertices of another segment
-                foreach (var otherSegment in otherSegments)
+        // Pre-cache other segment points to avoid repeated Point creation
+        var otherSegmentsWithPoints = otherSegments
+            .Select(otherSegment => (
+                otherSegment.RoadSegmentId,
+                Points: otherSegment.Geometry.Value.Coordinates
+                    .Select(coord => otherSegment.Geometry.Value.Factory.CreatePoint(coord))
+                    .ToList()
+            ))
+            .ToList();
+
+        // Check if buffered area intersects with at least 2 vertices of another segment
+        foreach (var bufferedLineSegment in bufferedSegments)
+        {
+            foreach (var otherSegment in otherSegmentsWithPoints)
+            {
+                var intersectionCount = 0;
+
+                foreach (var _ in otherSegment.Points
+                             .Where(point => point.Intersects(bufferedLineSegment)))
                 {
-                    var oneCoordinateIntersected = false;
-
-                    for (var c = 0; c < otherSegment.Geometry.Value.Coordinates.Length; c++)
+                    intersectionCount++;
+                    if (intersectionCount >= 2)
                     {
-                        if (otherSegment.Geometry.Value.Factory.CreatePoint(otherSegment.Geometry.Value.Coordinates[c]).Intersects(bufferedLineSegment))
-                        {
-                            if (oneCoordinateIntersected)
-                            {
-                                return otherSegment.RoadSegmentId;
-                            }
-
-                            oneCoordinateIntersected = true;
-                        }
+                        return otherSegment.RoadSegmentId;
                     }
                 }
             }
@@ -176,10 +214,20 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         return null;
     }
 
+    private void RebuildSpatialIndexes()
+    {
+        _roadNodesSpatialIndex.Rebuild();
+        _roadSegmentsSpatialIndex.Rebuild();
+    }
+
     private RoadNode? FindRoadNode(Coordinate coordinate, VerificationContextTolerances tolerance)
     {
+        var envelope = new Envelope(coordinate);
+        envelope.ExpandBy(tolerance.GeometryTolerance);
+
+        var candidates = _roadNodesSpatialIndex.Query(envelope);
         var point = new Point(coordinate.X, coordinate.Y);
-        return _roadNodes.Values
-            .FirstOrDefault(x => !x.IsRemoved && x.Geometry.Value.IsReasonablyEqualTo(point, tolerance));
+
+        return candidates.FirstOrDefault(x => x.Geometry.Value.IsReasonablyEqualTo(point, tolerance));
     }
 }

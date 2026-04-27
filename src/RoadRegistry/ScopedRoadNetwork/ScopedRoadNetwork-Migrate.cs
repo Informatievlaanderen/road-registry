@@ -3,7 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -58,12 +60,22 @@ public partial class ScopedRoadNetwork
             return Problems.Single(new Error(ProblemCode.RoadNetwork.NoChanges.ToString()));
         }
 
+        // Ensure spatial indexes are built once at the start for optimal performance
+        RebuildSpatialIndexes();
+
         var roadSegmentRoadNumberChanges = GetRoadSegmentRoadNumberChanges(changes);
 
         var problems = Problems.None;
 
+        // Track timing per action type
+        var actionTimings = new Dictionary<string, long>();
+        var actionCounts = new Dictionary<string, int>();
+
         foreach (var roadNetworkChange in changes)
         {
+            var actionName = roadNetworkChange.GetType().Name;
+            var stopwatch = Stopwatch.StartNew();
+
             switch (roadNetworkChange)
             {
                 case AddRoadNodeChange change:
@@ -103,6 +115,26 @@ public partial class ScopedRoadNetwork
                 default:
                     throw new NotImplementedException($"{roadNetworkChange.GetType().Name} is not implemented.");
             }
+
+            stopwatch.Stop();
+
+            // Accumulate timing data
+            actionTimings.TryAdd(actionName, 0);
+            actionCounts.TryAdd(actionName, 0);
+            actionTimings[actionName] += stopwatch.ElapsedMilliseconds;
+            actionCounts[actionName]++;
+
+            // Log timing summary
+            var sb = new StringBuilder();
+            sb.AppendLine("Migration action timings:");
+            foreach (var actionName2 in actionTimings.Keys.OrderByDescending(k => actionTimings[k]))
+            {
+                var totalMs = actionTimings[actionName2];
+                var count = actionCounts[actionName2];
+                var avgMs = count > 0 ? totalMs / (double)count : 0;
+                sb.AppendLine($"  {actionName2}: {count} actions, {totalMs}ms total, {avgMs:F2}ms avg");
+            }
+            context.Logger.LogInformation(sb.ToString());
         }
 
         return problems;
@@ -147,12 +179,14 @@ public partial class ScopedRoadNetwork
             Grensknoop = change.Grensknoop!.Value,
         };
 
+        var oldEnvelope = roadNode.Geometry.Value.EnvelopeInternal;
         problems += roadNode.Migrate(migrateChange, context.Provenance);
         if (problems.HasError())
         {
             return problems;
         }
 
+        _roadNodesSpatialIndex.Update(oldEnvelope, roadNode.Geometry.Value.EnvelopeInternal, roadNode);
         summary.RoadNodes.Modified.Add(roadNode.RoadNodeId);
 
         return problems;
@@ -173,6 +207,7 @@ public partial class ScopedRoadNetwork
             return problems;
         }
 
+        _roadNodesSpatialIndex.Remove(roadNode.Geometry.Value.EnvelopeInternal, roadNode);
         summary.RoadNodes.Removed.Add(roadNode.RoadNodeId);
         return problems;
     }
@@ -210,12 +245,14 @@ public partial class ScopedRoadNetwork
             NationalRoadNumbers = nationalRoadNumbers
         };
 
+        var oldEnvelope = roadSegment.Geometry.Value.EnvelopeInternal;
         problems += roadSegment.Migrate(migrateChange, context);
         if (problems.HasError())
         {
             return problems;
         }
 
+        _roadSegmentsSpatialIndex.Update(oldEnvelope, roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
         summary.RoadSegments.Modified.Add(roadSegment.RoadSegmentId);
 
         problems += TryToRemoveLinkedGradeJunctions(roadSegment.RoadSegmentId, context, summary);
@@ -278,6 +315,7 @@ public partial class ScopedRoadNetwork
             return problems;
         }
 
+        _roadSegmentsSpatialIndex.Remove(roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
         summary.RoadSegments.Removed.Add(roadSegment.RoadSegmentId);
 
         return problems;

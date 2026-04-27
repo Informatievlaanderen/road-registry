@@ -12,7 +12,7 @@ using ScopedRoadNetwork.ValueObjects;
 
 public partial class RoadNode
 {
-    public Problems VerifyTopologyAndUpdateType(RoadSegmentsSpatialIndex<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
+    public Problems VerifyTopologyAndUpdateType(LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
     {
         var problems = Problems.WithContext(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
 
@@ -48,7 +48,7 @@ public partial class RoadNode
         return problems;
     }
 
-    private Problems ValidateTypeAndChangeIfNeeded(List<RoadSegment> segments, RoadSegmentsSpatialIndex<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
+    private Problems ValidateTypeAndChangeIfNeeded(List<RoadSegment> segments, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
     {
         var problems = Problems.None;
 
@@ -82,7 +82,7 @@ public partial class RoadNode
         return problems;
     }
 
-    private Problems MergeRoadSegmentsIfNodeIsNotNeeded(RoadSegment segment1, RoadSegment segment2, RoadSegmentsSpatialIndex<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
+    private Problems MergeRoadSegmentsIfNodeIsNotNeeded(RoadSegment segment1, RoadSegment segment2, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
     {
         var roadNodeIsNeeded = RoadNodePreventsInvalidRoadSegmentGeometry(segment1, segment2, roadSegmentsSpatialIndex, context);
         if (roadNodeIsNeeded)
@@ -94,15 +94,15 @@ public partial class RoadNode
         var (mergedSegment, problems) = context.RoadNetwork.MergeRoadSegments(segment1, segment2, idGenerator, context);
         if (mergedSegment is not null)
         {
-            roadSegmentsSpatialIndex.Remove(segment1.Geometry.Value, segment1);
-            roadSegmentsSpatialIndex.Remove(segment2.Geometry.Value, segment2);
-            roadSegmentsSpatialIndex.Add(mergedSegment.Geometry.Value, mergedSegment);
+            roadSegmentsSpatialIndex.Remove(segment1.Geometry.Value.EnvelopeInternal, segment1);
+            roadSegmentsSpatialIndex.Remove(segment2.Geometry.Value.EnvelopeInternal, segment2);
+            roadSegmentsSpatialIndex.Insert(mergedSegment.Geometry.Value.EnvelopeInternal, mergedSegment);
         }
 
         return problems;
     }
 
-    private bool RoadNodePreventsInvalidRoadSegmentGeometry(RoadSegment segment1, RoadSegment segment2, RoadSegmentsSpatialIndex<RoadSegment> roadSegmentsSpatialIndex, ScopedRoadNetworkContext context)
+    private bool RoadNodePreventsInvalidRoadSegmentGeometry(RoadSegment segment1, RoadSegment segment2, LazyQuadtree<RoadSegment> roadSegmentGridSpatialIndex, ScopedRoadNetworkContext context)
     {
         var mergedGeometry = RoadSegmentGeometryHelper.MergeGeometries(segment1, segment2, RoadNodeId, context);
 
@@ -116,7 +116,7 @@ public partial class RoadNode
             return true;
         }
 
-        var candidateSegments = roadSegmentsSpatialIndex.Query(mergedGeometry)
+        var candidateSegments = roadSegmentGridSpatialIndex.Query(mergedGeometry.EnvelopeInternal)
             .Where(x => x.RoadSegmentId != segment1.RoadSegmentId && x.RoadSegmentId != segment2.RoadSegmentId)
             .ToArray();
         foreach (var otherSegment in candidateSegments)
