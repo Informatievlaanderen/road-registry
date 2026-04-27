@@ -3,7 +3,6 @@ namespace RoadRegistry.ValueObjects.Problems;
 using System.Globalization;
 using ProblemCodes;
 using RoadRegistry.Extensions;
-using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RoadSegmentGeometryLengthIsLessThanMinimum : Error
 {

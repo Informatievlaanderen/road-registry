@@ -593,7 +593,7 @@ public static class DbaseFileProblems
 
     public static FileError RequiredFieldIsNull(this IDbaseFileRecordProblemBuilder builder, DbaseField field)
     {
-        return RequiredFieldIsNull(builder, field?.Name.ToString());
+        return RequiredFieldIsNull(builder, field.Name.ToString());
     }
 
     public static FileError RequiredFieldIsNull(this IDbaseFileRecordProblemBuilder builder, string field)

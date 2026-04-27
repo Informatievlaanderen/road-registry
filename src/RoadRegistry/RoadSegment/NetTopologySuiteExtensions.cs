@@ -19,7 +19,7 @@ public static class NetTopologySuiteExtensions
         return ValidateRoadSegmentGeometryDomainV2(geometry.Value);
     }
 
-    public static Problems ValidateRoadSegmentGeometryDomainV2(this MultiLineString? multiLineString)
+    public static Problems ValidateRoadSegmentGeometryDomainV2(this MultiLineString? multiLineString, bool skipMinimumLengthCheck = false)
     {
         if (multiLineString is null)
         {
@@ -35,10 +35,20 @@ public static class NetTopologySuiteExtensions
             return Problems.Single(new RoadSegmentGeometryLineCountMismatch(1, lines.Length));
         }
 
-        return ValidateRoadSegmentGeometryDomainV2(multiLineString.GetSingleLineString());
+        return ValidateRoadSegmentGeometryDomainV2(multiLineString.GetSingleLineString(), skipMinimumLengthCheck);
     }
 
-    private static Problems ValidateRoadSegmentGeometryDomainV2(this LineString? line)
+    public static Error? ValidateRoadSegmentGeometryMinimumLength(this LineString line)
+    {
+        if (line.Length < 1)
+        {
+            return new RoadSegmentGeometryLengthIsLessThanMinimum(1);
+        }
+
+        return null;
+    }
+
+    private static Problems ValidateRoadSegmentGeometryDomainV2(this LineString? line, bool skipMinimumLengthCheck)
     {
         if (line is null)
         {
@@ -50,9 +60,13 @@ public static class NetTopologySuiteExtensions
         var problems = Problems.None;
         var tolerances = VerificationContextTolerances.Cm;
 
-        if (line.Length < 1)
+        if (!skipMinimumLengthCheck)
         {
-            problems += new RoadSegmentGeometryLengthIsLessThanMinimum(1);
+            var error = ValidateRoadSegmentGeometryMinimumLength(line);
+            if (error is not null)
+            {
+                problems += error;
+            }
         }
 
         if (!line.Length.IsReasonablyLessThan(Distances.TooLongSegmentLength, tolerances))

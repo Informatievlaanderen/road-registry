@@ -152,7 +152,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 try
                 {
                     var multiLineString = Geometry.ToMultiLineString();
-                    var lineProblems = multiLineString.ValidateRoadSegmentGeometryDomainV2();
+                    var lineProblems = multiLineString.ValidateRoadSegmentGeometryDomainV2(skipMinimumLengthCheck: true);
 
                     problems += lineProblems
                         .Select(problem => recordContext
