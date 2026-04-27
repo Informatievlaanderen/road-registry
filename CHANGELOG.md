@@ -1,3 +1,15 @@
+# [4.57.0](https://github.com/informatievlaanderen/road-registry/compare/v4.56.17...v4.57.0) (2026-04-27)
+
+
+### Bug Fixes
+
+* build ([56334ae](https://github.com/informatievlaanderen/road-registry/commit/56334aea751ddab7236eb7f3c76f44e3617f471b))
+
+
+### Features
+
+* **domain-v2:** automatically merge segments when node is no longer required ([03efd6a](https://github.com/informatievlaanderen/road-registry/commit/03efd6a7bbed484f77269d2c4443358052501c5e))
+
 ## [4.56.17](https://github.com/informatievlaanderen/road-registry/compare/v4.56.16...v4.56.17) (2026-04-24)
 
 
