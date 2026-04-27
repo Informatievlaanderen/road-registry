@@ -11,7 +11,9 @@ using Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 using RoadNetwork;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.RoadNetwork.Schema;
@@ -120,11 +122,25 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
 
         await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
 
-        var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry(), ids: roadNetworkChanges.Ids);
-        return await _roadNetworkRepository.Load(
-            session,
-            ids,
-            roadNetworkId
-        );
+        MultiPolygon geometry;
+        using (var _ = Logger.TimeAction(action: "RoadNetworkChanges.BuildScopeGeometry"))
+        {
+            geometry = roadNetworkChanges.BuildScopeGeometry();
+        }
+
+        RoadNetworkIds ids;
+        using (var _ = Logger.TimeAction(action: "RoadNetworkRepository.GetUnderlyingIds"))
+        {
+            ids = await _roadNetworkRepository.GetUnderlyingIds(session, geometry, ids: roadNetworkChanges.Ids);
+        }
+
+        using (var _ = Logger.TimeAction(action: "RoadNetworkRepository.Load"))
+        {
+            return await _roadNetworkRepository.Load(
+                session,
+                ids,
+                roadNetworkId
+            );
+        }
     }
 }
