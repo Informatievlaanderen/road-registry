@@ -54,7 +54,7 @@ public class Program
                 if (string.IsNullOrEmpty(configuration.GetConnectionString(WellKnownConnectionNames.Marten)))
                 {
                     loggerFactory.CreateLogger<Program>()
-                        .LogError($"{nameof(MartenMigrationContextEventProcessor)} is not registered.");
+                        .LogWarning("Marten connection string is missing or empty; migration projection will be skipped.");
                 }
 
                 var migratorFactories = sp.GetRequiredService<IRunnerDbContextMigratorFactory[]>();
