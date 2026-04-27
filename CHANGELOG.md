@@ -1,3 +1,11 @@
+## [4.57.4](https://github.com/informatievlaanderen/road-registry/compare/v4.57.3...v4.57.4) (2026-04-27)
+
+
+### Bug Fixes
+
+* **inwinning:** exclude temporary schijnknoop ids in FC changes result ([ee86fc3](https://github.com/informatievlaanderen/road-registry/commit/ee86fc3dcc50e995a7f61ff27ff24efceae87393))
+* **inwinning:** minimum length validation on unflattened segment + error translations ([0397649](https://github.com/informatievlaanderen/road-registry/commit/03976499bc0b15e94c9912f61f789832894b50b3))
+
 ## [4.57.3](https://github.com/informatievlaanderen/road-registry/compare/v4.57.2...v4.57.3) (2026-04-27)
 
 
