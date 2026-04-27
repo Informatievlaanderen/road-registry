@@ -3,13 +3,13 @@
 using System.Collections.Generic;
 using NetTopologySuite.Geometries;
 
-public class RoadSegmentsSpatialIndex<T>
+public class RoadSegmentGridSpatialIndex<T>
 {
     private readonly Dictionary<(int, int), List<(MultiLineString Geometry, T RoadSegment)>> _spatialIndex;
 
     private const double GridSize = 100.0;
 
-    public RoadSegmentsSpatialIndex(IEnumerable<(MultiLineString Geometry, T RoadSegment)> segments)
+    public RoadSegmentGridSpatialIndex(IEnumerable<(MultiLineString Geometry, T RoadSegment)> segments)
     {
         _spatialIndex = new Dictionary<(int, int), List<(MultiLineString Geometry, T RoadSegment)>>();
 

@@ -618,7 +618,7 @@ public class RoadSegmentUnflattener
         var result = phase1Results.Select(x => x.Segment).ToList();
 
         // Phase 2: Fix multiple intersections with other segments using spatial index
-        var spatialIndex = new RoadSegmentsSpatialIndex<RoadSegmentFeatureWithDynamicAttributes>(result.Select(x => (x.Attributes.Geometry, x)));
+        var spatialIndex = new RoadSegmentGridSpatialIndex<RoadSegmentFeatureWithDynamicAttributes>(result.Select(x => (x.Attributes.Geometry, x)));
         var segmentsQueue = new Queue<RoadSegmentFeatureWithDynamicAttributes>(result);
         result = result.ToList(); // Create a new list to track current state
 
@@ -723,7 +723,7 @@ public class RoadSegmentUnflattener
     private IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> TryFixMultipleIntersectionsWithOtherSegmentsUsingSpatialIndex(
         RoadSegmentFeatureWithDynamicAttributes segment,
         HashSet<RoadNodeId> consumedNodes,
-        RoadSegmentsSpatialIndex<RoadSegmentFeatureWithDynamicAttributes> spatialIndex,
+        RoadSegmentGridSpatialIndex<RoadSegmentFeatureWithDynamicAttributes> spatialIndex,
         IReadOnlyCollection<RoadNodeFeatureCompareRecord> nonClassifiedNodes,
         IRoadSegmentIdProvider roadSegmentIdProvider,
         ZipArchiveEntryFeatureCompareTranslateContext context)

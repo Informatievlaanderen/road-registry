@@ -1,10 +1,12 @@
 ﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using NetTopologySuite.Index.Strtree;
 using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
@@ -23,6 +25,9 @@ public partial class ScopedRoadNetwork
     {
         logger ??= NullLogger.Instance;
         using var _ = logger.TimeAction();
+
+        // Ensure spatial indexes are built once at the start for optimal performance
+        RebuildSpatialIndexes();
 
         var summary = new RoadNetworkChangesSummary();
         var idTranslator = new IdentifierTranslator();
@@ -128,9 +133,11 @@ public partial class ScopedRoadNetwork
 
     private Problems AfterChangesApplied(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
     {
-        var problems = VerifyRoadNodesAfterChange(idGenerator, context)
-               + VerifyRoadSegmentsAfterChange(context)
-               + VerifyGradeSeparatedJunctionsAfterChange(context);
+        var problems = VerifyRoadNodesAndUpdateTypeAfterChange(idGenerator, context);
+
+        problems = problems
+                   + VerifyRoadSegmentsAfterChange(context)
+                   + VerifyGradeSeparatedJunctionsAfterChange(context);
 
         if (!problems.HasError())
         {
@@ -140,7 +147,7 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
-    private Problems VerifyRoadNodesAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
+    private Problems VerifyRoadNodesAndUpdateTypeAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
     {
         using var _ = context.Logger.TimeAction();
 
@@ -152,11 +159,8 @@ public partial class ScopedRoadNetwork
             .Select(x => _roadNodes[x])
             .ToArray();
 
-        var roadSegmentsSpatialIndex = new RoadSegmentsSpatialIndex<RoadSegment>(context.RoadNetwork.RoadSegments.Values
-            .Select(x => (x.Geometry.Value, x)));
-
         return roadNodes
-            .Aggregate(problems, (p, x) => p + x.VerifyTopologyAndUpdateType(roadSegmentsSpatialIndex, idGenerator, context));
+            .Aggregate(problems, (p, x) => p + x.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context));
     }
 
     private Problems VerifyRoadSegmentsAfterChange(ScopedRoadNetworkContext context)
@@ -165,7 +169,12 @@ public partial class ScopedRoadNetwork
 
         return _roadSegments.Values
             .Where(x => x.HasChanges())
-            .Aggregate(Problems.None, (p, x) => p + x.VerifyTopology(context));
+            .AsParallel()
+            .Aggregate(
+                Problems.None,
+                (p, x) => p + x.VerifyTopology(context),
+                (p1, p2) => p1 + p2,
+                finalResult => finalResult);
     }
 
     private Problems VerifyGradeSeparatedJunctionsAfterChange(ScopedRoadNetworkContext context)
@@ -178,28 +187,48 @@ public partial class ScopedRoadNetwork
             .Where(x => x.HasChanges())
             .ToList();
 
-        var identicalJunctions = context.RoadNetwork.GradeSeparatedJunctions.Values
-            .Where(x => !x.IsRemoved)
-            .GroupBy(x => new
-            {
-                Segment1 = Math.Min(x.LowerRoadSegmentId, x.UpperRoadSegmentId),
-                Segment2 = Math.Max(x.LowerRoadSegmentId, x.UpperRoadSegmentId)
-            })
-            .Where(x => x.Count() > 1)
-            .ToList();
-        foreach (var identicalJunctionGrouping in identicalJunctions)
-        {
-            var junctionId = identicalJunctionGrouping.First().GradeSeparatedJunctionId;
-            var otherIdenticalJunctionIds = identicalJunctionGrouping.Skip(1).Select(x => x.GradeSeparatedJunctionId).ToList();
+        // Optimize: Use Dictionary for O(n) duplicate detection instead of O(n log n) GroupBy
+        var junctionsBySegmentPair = new Dictionary<(int Min, int Max), List<GradeSeparatedJunction>>();
 
-            foreach (var otherIdenticalJunctionId in otherIdenticalJunctionIds)
+        foreach (var junction in context.RoadNetwork.GradeSeparatedJunctions.Values.Where(x => !x.IsRemoved))
+        {
+            var key = (
+                Math.Min(junction.LowerRoadSegmentId.ToInt32(), junction.UpperRoadSegmentId.ToInt32()),
+                Math.Max(junction.LowerRoadSegmentId.ToInt32(), junction.UpperRoadSegmentId.ToInt32())
+            );
+
+            if (!junctionsBySegmentPair.TryGetValue(key, out var list))
             {
-                problems += new GradeSeparatedJunctionNotUnique(junctionId, otherIdenticalJunctionId);
+                list = [];
+                junctionsBySegmentPair[key] = list;
+            }
+            list.Add(junction);
+        }
+
+        // Find duplicates
+        foreach (var pair in junctionsBySegmentPair)
+        {
+            var junctionsList = pair.Value;
+            if (junctionsList.Count <= 1)
+            {
+                continue;
+            }
+
+            var firstJunctionId = junctionsList[0].GradeSeparatedJunctionId;
+
+            for (var i = 1; i < junctionsList.Count; i++)
+            {
+                problems += new GradeSeparatedJunctionNotUnique(firstJunctionId, junctionsList[i].GradeSeparatedJunctionId);
             }
         }
 
         return changedJunctions
-            .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
+            .AsParallel()
+            .Aggregate(
+                problems,
+                (p, x) => p + x.VerifyTopology(context),
+                (p1, p2) => p1 + p2,
+                finalResult => finalResult);
     }
 
     private Problems AddRoadNode(AddRoadNodeChange change, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
@@ -217,6 +246,7 @@ public partial class ScopedRoadNetwork
         }
 
         _roadNodes.Add(roadNode.RoadNodeId, roadNode);
+        _roadNodesSpatialIndex.Insert(roadNode.Geometry.Value.EnvelopeInternal, roadNode);
         summary.RoadNodes.Added.Add(roadNode.RoadNodeId);
 
         return problems;
@@ -229,13 +259,16 @@ public partial class ScopedRoadNetwork
             return Problems.Single(new RoadNodeNotFound(change.RoadNodeId));
         }
 
+        var oldEnvelope = roadNode.Geometry.Value.EnvelopeInternal;
         var problems = roadNode.Modify(change, context.Provenance);
         if (problems.HasError())
         {
             return problems;
         }
 
+        _roadNodesSpatialIndex.Update(oldEnvelope, roadNode.Geometry.Value.EnvelopeInternal, roadNode);
         summary.RoadNodes.Modified.Add(roadNode.RoadNodeId);
+
         return problems;
     }
 
@@ -252,7 +285,9 @@ public partial class ScopedRoadNetwork
             return problems;
         }
 
+        _roadNodesSpatialIndex.Remove(roadNode.Geometry.Value.EnvelopeInternal, roadNode);
         summary.RoadNodes.Removed.Add(roadNode.RoadNodeId);
+
         return problems;
     }
 
@@ -271,6 +306,7 @@ public partial class ScopedRoadNetwork
         }
 
         _roadSegments.Add(roadSegment.RoadSegmentId, roadSegment);
+        _roadSegmentsSpatialIndex.Insert(roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
         summary.RoadSegments.Added.Add(roadSegment.RoadSegmentId);
 
         return problems;
@@ -291,12 +327,14 @@ public partial class ScopedRoadNetwork
             return problems;
         }
 
+        var oldEnvelope = roadSegment.Geometry.Value.EnvelopeInternal;
         problems = roadSegment.Modify(change, context);
         if (problems.HasError())
         {
             return problems;
         }
 
+        _roadSegmentsSpatialIndex.Update(oldEnvelope, roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
         summary.RoadSegments.Modified.Add(roadSegment.RoadSegmentId);
 
         problems += TryToRemoveLinkedGradeJunctions(roadSegment.RoadSegmentId, context, summary);
@@ -313,12 +351,14 @@ public partial class ScopedRoadNetwork
             return problems + new RoadSegmentNotFound();
         }
 
+        var oldEnvelope = roadSegment.Geometry.Value.EnvelopeInternal;
         problems += modify(roadSegment);
         if (problems.HasError())
         {
             return problems;
         }
 
+        _roadSegmentsSpatialIndex.Update(oldEnvelope, roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
         summary.RoadSegments.Modified.Add(roadSegmentId);
         return problems;
     }
@@ -336,6 +376,7 @@ public partial class ScopedRoadNetwork
             return problems;
         }
 
+        _roadSegmentsSpatialIndex.Remove(roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
         summary.RoadSegments.Removed.Add(roadSegment.RoadSegmentId);
 
         problems += TryToRemoveLinkedGradeJunctions(roadSegmentId, context, summary);
