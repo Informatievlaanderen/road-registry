@@ -269,27 +269,9 @@ public class ApiModule : Module
 
         RegisterProjection<BackOfficeProcessorDbContext>(new ProjectionDetail
         {
-            Id = WellKnownQueues.ExtractQueue,
-            Description = "Verwerker van extract events",
-            Name = "BackOffice Processor - Extract Event",
-            WellKnownConnectionName = WellKnownConnectionNames.Events,
-            FallbackDesiredState = "subscribed"
-        });
-
-        RegisterProjection<BackOfficeProcessorDbContext>(new ProjectionDetail
-        {
             Id = WellKnownQueues.CommandQueue,
             Description = "Verwerker van commando's",
             Name = "BackOffice Processor - Command",
-            WellKnownConnectionName = WellKnownConnectionNames.Events,
-            FallbackDesiredState = "subscribed"
-        });
-
-        RegisterProjection<BackOfficeProcessorDbContext>(new ProjectionDetail
-        {
-            Id = WellKnownQueues.ExtractCommandQueue,
-            Description = "Verwerker van extract commando's",
-            Name = "BackOffice Processor - Extract Command",
             WellKnownConnectionName = WellKnownConnectionNames.Events,
             FallbackDesiredState = "subscribed"
         });
