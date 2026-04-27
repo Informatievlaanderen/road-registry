@@ -14,6 +14,7 @@ using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadNode.Changes;
+using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 using TranslatedChanges = DomainV2.TranslatedChanges;
@@ -221,6 +222,15 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         foreach (var changeFeature in changeFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();
+
+            var minimumLengthError = changeFeature.Attributes.Geometry.GetSingleLineString().ValidateRoadSegmentGeometryMinimumLength();
+            if (minimumLengthError is not null)
+            {
+                problems += FileName
+                    .AtShapeRecord(FeatureType.Change, changeFeature.RecordNumber)
+                    .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_TEMPID), string.Join(",", changeFeature.FlatFeatures.Select(x => x.Attributes.TempId.ToInt32()).ToArray()))
+                    .Error(minimumLengthError);
+            }
 
             var changeFeatureAttributes = changeFeature.Attributes;
             if (extractFeatures[changeFeatureAttributes.RoadSegmentId].Any(extractFeature => extractFeature.Attributes.Equals(changeFeatureAttributes)))

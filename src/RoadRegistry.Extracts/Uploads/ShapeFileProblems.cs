@@ -26,6 +26,14 @@ public static class ShapeFileProblems
             );
     }
 
+    public static FileError Error(this IShapeFileRecordProblemBuilder builder, Problem problem)
+    {
+        return builder
+            .Error(problem.Reason)
+            .WithParameters(problem.Parameters.Select(x => new ProblemParameter(x.Name, x.Value)).ToArray())
+            .Build();
+    }
+
     public static FileProblem HasNoShapeRecords(this IFileProblemBuilder builder, bool treatAsError = false)
     {
         if (treatAsError)
