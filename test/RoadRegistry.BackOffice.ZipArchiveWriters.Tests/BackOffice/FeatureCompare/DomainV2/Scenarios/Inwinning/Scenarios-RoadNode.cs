@@ -304,6 +304,8 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
         changes.Should().Contain(x => x is ModifyRoadSegmentChange && ((ModifyRoadSegmentChange)x).RoadSegmentIdReference.RoadSegmentId == 1);
         changes.Should().Contain(x => x is RemoveRoadNodeChange && ((RemoveRoadNodeChange)x).RoadNodeId == 2);
         changes.Should().NotContain(x => x is RemoveRoadNodeChange && ((RemoveRoadNodeChange)x).RoadNodeId == 1_000_000_000);
+        changes.Should().NotContain(x => x is ModifyRoadNodeChange && ((ModifyRoadNodeChange)x).RoadNodeId == 1_000_000_000);
+        changes.Should().NotContain(x => x is AddRoadNodeChange && ((AddRoadNodeChange)x).TemporaryId == 1_000_000_000);
 
         void ConfigureExtractScenario(ExtractsZipArchiveExtractDataSetBuilder builder)
         {
