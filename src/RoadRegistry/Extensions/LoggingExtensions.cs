@@ -20,7 +20,7 @@ public static class LoggingExtensions
         private readonly Stopwatch _stopwatch;
         private readonly bool _enabled;
 
-        public TimedAction(ILogger logger, string action, LogLevel loglevel = LogLevel.Information)
+        public TimedAction(ILogger logger, string action, LogLevel loglevel = LogLevel.Warning)
         {
             _enabled = logger.IsEnabled(loglevel);
             if (!_enabled)

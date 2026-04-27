@@ -134,7 +134,8 @@ public partial class ScopedRoadNetwork
                 var avgMs = count > 0 ? totalMs / (double)count : 0;
                 sb.AppendLine($"  {actionName2}: {count} actions, {totalMs}ms total, {avgMs:F2}ms avg");
             }
-            context.Logger.LogInformation(sb.ToString());
+            context.Logger.LogWarning(sb.ToString());
+            Console.WriteLine(sb.ToString());
         }
 
         return problems;
