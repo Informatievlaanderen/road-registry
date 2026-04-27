@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Events.V2;
 using Extensions;
+using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using RoadRegistry.GradeJunction;
 using RoadRegistry.GradeSeparatedJunction;
@@ -214,8 +215,10 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         return null;
     }
 
-    private void RebuildSpatialIndexes()
+    private void RebuildSpatialIndexes(ILogger logger)
     {
+        using var _ = logger.TimeAction();
+
         _roadNodesSpatialIndex.Rebuild();
         _roadSegmentsSpatialIndex.Rebuild();
     }

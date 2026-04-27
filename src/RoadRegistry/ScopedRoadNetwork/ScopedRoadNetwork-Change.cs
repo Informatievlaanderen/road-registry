@@ -27,7 +27,7 @@ public partial class ScopedRoadNetwork
         using var _ = logger.TimeAction();
 
         // Ensure spatial indexes are built once at the start for optimal performance
-        RebuildSpatialIndexes();
+        RebuildSpatialIndexes(logger);
 
         var summary = new RoadNetworkChangesSummary();
         var idTranslator = new IdentifierTranslator();
