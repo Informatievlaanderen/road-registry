@@ -6,13 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.Operation.Union;
-using NetTopologySuite.Operation.Valid;
-using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
-using RoadRegistry.ValueObjects;
 
 public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
 {
@@ -83,50 +79,9 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
 
     public MultiPolygon? BuildScopeGeometry()
     {
-        if (!_geometries.Any())
-        {
-            return null;
-        }
-
-        var scopes = new List<Polygon>();
-
-        foreach (var geometry in _geometries)
-        {
-            var boundingBox = (Polygon)geometry.Buffer(1).ConvexHull();
-
-            var scope = scopes.FirstOrDefault(x => x.Intersects(boundingBox));
-            if (scope is not null)
-            {
-                scopes.Remove(scope);
-                scope = (Polygon)scope.Union(boundingBox);
-            }
-            else
-            {
-                scope = boundingBox;
-            }
-
-            scopes.Add(scope);
-        }
-
-        var mp = MergeOverlappingScopes(scopes);
-        return mp;
+        return RoadNetworkChangesScope.Build(_geometries);
     }
 
-    private MultiPolygon MergeOverlappingScopes(List<Polygon> scopes)
-    {
-        var factory = scopes[0].Factory;
-        var geom = factory.BuildGeometry(scopes);
-        var unioned = UnaryUnionOp.Union(geom);
-
-        // Keep separate islands as polygons
-        var mergedPolys = new List<Polygon>();
-        for (var i = 0; i < unioned.NumGeometries; i++)
-            if (unioned.GetGeometryN(i) is Polygon p)
-                mergedPolys.Add(p);
-
-        return new MultiPolygon(mergedPolys.ToArray(), _geometries.First().Factory)
-            .WithSrid(_geometries.First().SRID);
-    }
 
     public RoadNetworkChanges Add(AddRoadNodeChange change)
     {
