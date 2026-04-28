@@ -571,6 +571,93 @@ POINT (630236.3268711214 685179.3550339863)
         dynamicRecord3.Attributes.Geometry.AsText().Should().Be(secondSegment);
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void WhenSameStartEndNodeButNotConnectedToStructuralNode_ThenRoadSegmentIdsAreUsedForSplittingCoordinatesRegardlessOfTheOrderOfSegments(int moveSegmentsCount)
+    {
+        // Arrange
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
+
+        var flatSegment1 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
+        {
+            TempId = new(1),
+            RoadSegmentId = new(1),
+            Geometry = BuildRoadSegmentGeometry((0, 0), (2.5, 2.5), (5, 5))
+        };
+        var flatSegment2a = flatSegment1 with
+        {
+            TempId = new(2),
+            RoadSegmentId = new(2),
+            Geometry = BuildRoadSegmentGeometry((5, 5), (7.5, 7.5), (10, 0))
+        };
+        var flatSegment2b = flatSegment2a with
+        {
+            TempId = new(3),
+            Geometry = BuildRoadSegmentGeometry(10, 0, 5, -5)
+        };
+        var flatSegment2c = flatSegment2a with
+        {
+            TempId = new(4),
+            Geometry = BuildRoadSegmentGeometry(5, -5, 0, 0)
+        };
+        var flatSegments = new[]
+        {
+            flatSegment1,
+            flatSegment2a,
+            flatSegment2b,
+            flatSegment2c,
+        };
+        // to ensure the order of records does not matter
+        flatSegments = flatSegments.Skip(flatSegments.Length - moveSegmentsCount).Take(moveSegmentsCount)
+            .Concat(flatSegments.Take(flatSegments.Length - moveSegmentsCount))
+            .ToArray();
+
+        var nodes = new[]
+        {
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = new RoadNodeId(1),
+                Geometry = new Point(0, 0)
+            },
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = new RoadNodeId(2),
+                Geometry = new Point(5, 5)
+            },
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = new RoadNodeId(3),
+                Geometry = new Point(10, 0)
+            },
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = new RoadNodeId(4),
+                Geometry = new Point(5, -5)
+            },
+        };
+
+        // Act
+        var (records, consumedRoadNodeIds) = Unflatten(FeatureType.Extract, flatSegments, nodes,
+            roadSegmentIdProvider: new ExtractRoadSegmentIdProvider());
+
+        // Assert
+        records.Should().HaveCount(2);
+        consumedRoadNodeIds.Should().NotContain(new RoadNodeId(1));
+        consumedRoadNodeIds.Should().NotContain(new RoadNodeId(2));
+        consumedRoadNodeIds.Should().Contain(new RoadNodeId(3));
+        consumedRoadNodeIds.Should().Contain(new RoadNodeId(4));
+
+        var dynamicRecord1 = records.Single(x => x.Attributes.RoadSegmentId == new RoadSegmentId(1));
+        dynamicRecord1.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((0 0, 2.5 2.5, 5 5))");
+
+        var dynamicRecord2 = records.Single(x => x.Attributes.RoadSegmentId == new RoadSegmentId(2));
+        dynamicRecord2.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((5 5, 7.5 7.5, 10 0, 5 -5, 0 0))");
+    }
+
     [Fact]
     public void WhenSameStartEndNodeAndNoNodeInBetween_ThenImpossibleSituationBecauseSameStartAndEndNodeIsValidatedEarlier()
     {
@@ -788,7 +875,8 @@ POINT (60 -10)
     private (List<RoadSegmentFeatureWithDynamicAttributes> RoadSegments, List<RoadNodeId> ConsumedRoadNodeIds) Unflatten(
         FeatureType featureType,
         IReadOnlyList<RoadSegmentFeatureCompareWithFlatAttributes> flatSegments,
-        IReadOnlyList<RoadNodeFeatureCompareAttributes> roadNodes)
+        IReadOnlyList<RoadNodeFeatureCompareAttributes> roadNodes,
+        IRoadSegmentIdProvider? roadSegmentIdProvider = null)
     {
         var flatRecords = new List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>();
         for (var i = 0; i < flatSegments.Count; i++)
@@ -797,7 +885,7 @@ POINT (60 -10)
             TestOutputHelper.WriteLine($"Flat segment {flatSegments[i].RoadSegmentId}: {JsonConvert.SerializeObject(flatSegments[i], Formatting.Indented, SqsJsonSerializerSettingsProvider.CreateSerializerSettings())}");
         }
 
-        var roadSegmentIdProver = new NextRoadSegmentIdProvider(new RoadSegmentId(10000));
+        roadSegmentIdProvider ??= new NextRoadSegmentIdProvider(new RoadSegmentId(10000));
         var translateContext = new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty);
 
         for (var i = 0; i < roadNodes.Count; i++)
@@ -816,7 +904,7 @@ POINT (60 -10)
         var unflattenedRecords = RoadSegmentUnflattener.Unflatten(
             featureType,
             flatRecords,
-            roadSegmentIdProver,
+            roadSegmentIdProvider,
             new OgcFeaturesCache([]),
             translateContext,
             CancellationToken.None);
@@ -833,6 +921,11 @@ POINT (60 -10)
     private static MultiLineString BuildRoadSegmentGeometry(int x1, int y1, int x2, int y2)
     {
         return BuildRoadSegmentGeometry(new Coordinate(x1, y1), new Coordinate(x2, y2));
+    }
+
+    private static MultiLineString BuildRoadSegmentGeometry(params (int X, int Y)[] coordinates)
+    {
+        return BuildRoadSegmentGeometry(coordinates.Select(c => new Coordinate(c.X, c.Y)).ToArray());
     }
 
     private static MultiLineString BuildRoadSegmentGeometry(Coordinate start, Coordinate end)
