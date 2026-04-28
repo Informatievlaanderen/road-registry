@@ -1,3 +1,10 @@
+## [4.57.5](https://github.com/informatievlaanderen/road-registry/compare/v4.57.4...v4.57.5) (2026-04-28)
+
+
+### Bug Fixes
+
+* **inwinning:** keep wrongfully consumed node ([8f31532](https://github.com/informatievlaanderen/road-registry/commit/8f31532eebc4c5458d6f805e5fb36500747a6ff9))
+
 ## [4.57.4](https://github.com/informatievlaanderen/road-registry/compare/v4.57.3...v4.57.4) (2026-04-27)
 
 
