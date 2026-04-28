@@ -654,7 +654,8 @@ public class RoadSegmentUnflattener
             }
         }
 
-        return result.OrderBy(x => x.RecordNumber.ToInt32()).ToList();
+        var orderedResult = result.OrderBy(x => x.RecordNumber.ToInt32()).ToList();
+        return orderedResult;
     }
 
     private sealed class ConsumedNodes
@@ -706,7 +707,7 @@ public class RoadSegmentUnflattener
             return [];
         }
 
-        var splitResult = TrySplitAtValidatieknopen(segment, consumedNodes, intersection, nonClassifiedNodes, roadSegmentIdProvider, context);
+        var splitResult = TrySplitAtNearestNodeOnInvalidGeometrySection(segment, consumedNodes, intersection, nonClassifiedNodes, roadSegmentIdProvider, context);
         if (splitResult is null)
         {
             throw new InvalidOperationException($"Impossible scenario: at this moment a node should always be found because of earlier validations. TempIds: {string.Join(",", segment.FlatFeatures.Select(x => x.Attributes.TempId.ToInt32()))}, IntersectionLocation: {intersection.Intersection.X.ToRoundedMeasurementString()} {intersection.Intersection.Y.ToRoundedMeasurementString()}");
@@ -737,6 +738,17 @@ public class RoadSegmentUnflattener
             .Where(x => nodeClassifications.ContainsKey(x.Key.Item1))
             .Select(x => x.Key)
             .FirstOrDefault();
+        if (wantedStartLocation == default)
+        {
+            // Segment is its own island not connected to the actual road network
+            var splitResultFromCompleteReArranging = RebuildLoopGeometryWhereStartAndEndAreTheSameAndUseMinimumCoordinateAsStartPoint(
+                segment, consumedNodes, segmentsByNode, roadSegmentIdProvider, context);
+            if (splitResultFromCompleteReArranging is not null)
+            {
+                return splitResultFromCompleteReArranging;
+            }
+        }
+
         if (wantedStartLocation.Item2 is not null && !segment.Attributes.Geometry.GetSingleLineString().StartPoint.IsReasonablyEqualTo(wantedStartLocation.Item2, context.Tolerances))
         {
             // undo removal of consumed wrong node
@@ -755,13 +767,113 @@ public class RoadSegmentUnflattener
             return splitResult2;
         }
 
-        var splitResult = TrySplitAtValidatieknopen(segment, consumedNodes, sameStartEndIntersectionGeometry, nonClassifiedNodes, roadSegmentIdProvider, context);
+        var splitResult = TrySplitAtNearestNodeOnInvalidGeometrySection(segment, consumedNodes, sameStartEndIntersectionGeometry, nonClassifiedNodes, roadSegmentIdProvider, context);
         if (splitResult is null)
         {
+            //TODO-pr maybe return problem that no node was found but is needed?
             throw new InvalidOperationException($"Impossible scenario: at this moment a node should always be found because of earlier validations. TempIds: {string.Join(",", segment.FlatFeatures.Select(x => x.Attributes.TempId.ToInt32()))}, IntersectionLocation: {sameStartEndIntersectionGeometry.Intersection.X.ToRoundedMeasurementString()} {sameStartEndIntersectionGeometry.Intersection.Y.ToRoundedMeasurementString()}");
         }
 
         return splitResult;
+    }
+
+    private IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes>? RebuildLoopGeometryWhereStartAndEndAreTheSameAndUseMinimumCoordinateAsStartPoint(
+        RoadSegmentFeatureWithDynamicAttributes segment,
+        ConsumedNodes consumedNodes,
+        Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
+        IRoadSegmentIdProvider roadSegmentIdProvider,
+        ZipArchiveEntryFeatureCompareTranslateContext context)
+    {
+        var tempIds = segment.FlatFeatures.Select(x => x.Attributes.TempId).ToArray();
+        var nodes = segmentsByNode
+            .Where(x => x.Value.Any(s =>
+                tempIds.Contains(s.Attributes.TempId)))
+            .Select(x => x.Key)
+            .ToArray();
+
+        var segmentCoordinates = segment.Attributes.Geometry.Coordinates.ToList();
+        var startNode = nodes
+            .OrderBy(x => x.Item2.Coordinate.X)
+            .ThenBy(x => x.Item2.Coordinate.Y)
+            .First();
+
+        var segmentCoordinateStartIndex = segmentCoordinates.FindIndex(x => x.IsReasonablyEqualTo(startNode.Item2.Coordinate, context.Tolerances));
+        if (segmentCoordinateStartIndex == -1)
+        {
+            return null;
+        }
+
+        // re-arrange the segment coordinates to start at the minimum coordinate
+        segmentCoordinates = segmentCoordinates
+            .Skip(segmentCoordinateStartIndex)
+            .Concat(segmentCoordinates.Take(segmentCoordinateStartIndex))
+            .Distinct()
+            .ToList();
+        for (var i = 1; i < segmentCoordinates.Count; i++)
+        {
+            var nextNode = nodes.SingleOrDefault(x => x.Item2.Coordinate.IsReasonablyEqualTo(segmentCoordinates[i], context.Tolerances));
+            if (nextNode != default)
+            {
+                foreach (var node in nodes)
+                {
+                    if (node.Item1 == startNode.Item1 || node.Item1 == nextNode.Item1)
+                    {
+                        consumedNodes.Remove(node.Item1);
+                    }
+                    else
+                    {
+                        consumedNodes.Add(node.Item1);
+                    }
+                }
+
+                var firstSegmentCoordinates = segmentCoordinates.Take(i + 1).ToArray();
+                var nextSegmentCoordinates = segmentCoordinates.Skip(i).Concat([startNode.Item2.Coordinate]).ToArray();
+
+                var geometry1 = segment.Attributes.Geometry.Factory.CreateLineString(firstSegmentCoordinates).ToMultiLineString();
+                var geometry2 = segment.Attributes.Geometry.Factory.CreateLineString(nextSegmentCoordinates).ToMultiLineString();
+
+                var segment1FlatFeature = segment.FlatFeatures.Single(x =>
+                {
+                    var coordinates = x.Attributes.Geometry.Coordinates;
+                    var containsAllCoordinates = firstSegmentCoordinates.All(c1 => coordinates.Any(c2 => c1.IsReasonablyEqualTo(c2, context.Tolerances)));
+                    return containsAllCoordinates;
+                });
+                var segment2FlatFeatures = segment.FlatFeatures
+                    .Where(x => x.Attributes.TempId != segment1FlatFeature.Attributes.TempId)
+                    .ToArray();
+
+                var usedRoadSegmentIds = segment.FlatFeatures
+                    .Select(x => x.Attributes.RoadSegmentId)
+                    .Distinct()
+                    .ToArray();
+                var segment2RoadSegmentId = usedRoadSegmentIds
+                    .FirstOrDefault(x => x != segment1FlatFeature.Attributes.RoadSegmentId);
+
+                // Create new segments with split geometries
+                var segment1 = BuildRoadSegmentFeatureWithDynamicAttributes(geometry1, [segment1FlatFeature], segment1FlatFeature.Attributes.RoadSegmentId);
+                var segment2 = BuildRoadSegmentFeatureWithDynamicAttributes(geometry2, segment2FlatFeatures, segment2RoadSegmentId);
+
+                return [segment1, segment2];
+
+                RoadSegmentFeatureWithDynamicAttributes BuildRoadSegmentFeatureWithDynamicAttributes(
+                    MultiLineString geometry,
+                    IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> flatFeatures,
+                    RoadSegmentId? roadSegmentId)
+                {
+                    return new RoadSegmentFeatureWithDynamicAttributes(
+                        flatFeatures.First().RecordNumber,
+                        RoadSegmentFeatureCompareWithDynamicAttributes.Build(
+                            roadSegmentId ?? roadSegmentIdProvider.NewId(),
+                            geometry,
+                            segment.Attributes.Method!,
+                            segment.Attributes.Status!,
+                            flatFeatures.Select(x => x.Attributes).ToList()),
+                        flatFeatures);
+                }
+            }
+        }
+
+        throw new InvalidOperationException("Impossible scenario: no 2nd node found to rebuild segment loop geometry");
     }
 
     private IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes> TryFixMultipleIntersectionsWithOtherSegmentsUsingSpatialIndex(
@@ -789,14 +901,14 @@ public class RoadSegmentUnflattener
                 continue;
             }
 
-            var splitResult = TrySplitAtValidatieknopen(segment, consumedNodes, intersection, nonClassifiedNodes, roadSegmentIdProvider, context);
+            var splitResult = TrySplitAtNearestNodeOnInvalidGeometrySection(segment, consumedNodes, intersection, nonClassifiedNodes, roadSegmentIdProvider, context);
             return splitResult ?? [];
         }
 
         return [];
     }
 
-    private IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes>? TrySplitAtValidatieknopen(
+    private IReadOnlyCollection<RoadSegmentFeatureWithDynamicAttributes>? TrySplitAtNearestNodeOnInvalidGeometrySection(
         RoadSegmentFeatureWithDynamicAttributes segment,
         ConsumedNodes consumedNodes,
         InvalidGeometrySection invalidSection,

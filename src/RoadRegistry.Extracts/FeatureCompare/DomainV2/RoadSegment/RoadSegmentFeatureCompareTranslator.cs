@@ -671,12 +671,12 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         return problems;
     }
+}
 
-    private sealed class ExtractRoadSegmentIdProvider : IRoadSegmentIdProvider
+public sealed class ExtractRoadSegmentIdProvider : IRoadSegmentIdProvider
+{
+    public RoadSegmentId NewId()
     {
-        public RoadSegmentId NewId()
-        {
-            throw new InvalidOperationException("It should not be needed to generate a new ID for extract road segments.");
-        }
+        throw new InvalidOperationException("It should not be needed to generate a new ID for extract road segments.");
     }
 }

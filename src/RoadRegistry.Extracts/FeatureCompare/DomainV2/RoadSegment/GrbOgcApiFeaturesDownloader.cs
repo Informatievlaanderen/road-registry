@@ -79,7 +79,7 @@ public sealed class GrbOgcApiFeaturesDownloader : IGrbOgcApiFeaturesDownloader
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var response = await _httpClient.GetAsync(nextUrl, cancellationToken);
+            var response = await GetAsyncWithRetries(nextUrl, 5, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -96,6 +96,23 @@ public sealed class GrbOgcApiFeaturesDownloader : IGrbOgcApiFeaturesDownloader
             {
                 nextUrl = AdvanceOffsetUrl(BuildItemsUrl(collectionId, boundingBox, srid, offset: 0), collection);
             }
+        }
+    }
+
+    private async Task<HttpResponseMessage> GetAsyncWithRetries(string url, int retryCount, CancellationToken cancellationToken)
+    {
+        var attemptCount = 0;
+
+        while (true)
+        {
+            attemptCount++;
+            var response = await _httpClient.GetAsync(url, cancellationToken);
+            if (response.IsSuccessStatusCode || attemptCount >= retryCount)
+            {
+                return response;
+            }
+
+            await Task.Delay(200, cancellationToken);
         }
     }
 
@@ -156,7 +173,7 @@ public sealed class GrbOgcApiFeaturesDownloader : IGrbOgcApiFeaturesDownloader
 public sealed class OgcFeature
 {
     public string CollectionId { get; }
-    public string? Id { get;  }
+    public string? Id { get; }
     public Geometry Geometry { get; }
     public Dictionary<string, object>? Properties { get; }
 
