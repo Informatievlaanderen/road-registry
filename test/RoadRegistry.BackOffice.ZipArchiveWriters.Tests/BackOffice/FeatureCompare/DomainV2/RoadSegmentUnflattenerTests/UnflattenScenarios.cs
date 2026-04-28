@@ -60,7 +60,7 @@ public class UnflattenScenarios
         };
 
         // Act
-        var records = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var (records, _) = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
 
         // Assert
         records.Should().HaveCount(1);
@@ -125,7 +125,7 @@ public class UnflattenScenarios
         };
 
         // Act
-        var records = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var (records, _) = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
 
         // Assert
         records.Should().HaveCount(1);
@@ -233,7 +233,7 @@ public class UnflattenScenarios
         };
 
         // Act
-        var records = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var (records, _) = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
 
         // Assert
         records.Should().HaveCount(1);
@@ -310,7 +310,7 @@ POINT (20 -10)
 ";
 
         // Act
-        var records = Unflatten(fixture, scenario);
+        var (records, _) = Unflatten(fixture, scenario);
 
         // Assert
         records.Should().HaveCount(2);
@@ -337,7 +337,7 @@ POINT (654032.4523215394 709447.5770450002)
 ";
 
         // Act
-        var records = Unflatten(fixture, scenario);
+        var (records, _) = Unflatten(fixture, scenario);
 
         // Assert
         records.Should().HaveCount(2);
@@ -364,7 +364,7 @@ POINT (20 -10)
 ";
 
         // Act
-        var records = Unflatten(fixture, scenario);
+        var (records, _) = Unflatten(fixture, scenario);
 
         // Assert
         records.Should().HaveCount(2);
@@ -395,7 +395,7 @@ POINT (30 -30)
 ";
 
         // Act
-        var records = Unflatten(fixture, scenario);
+        var (records, _) = Unflatten(fixture, scenario);
 
         // Assert
         records.Should().HaveCount(3);
@@ -448,7 +448,7 @@ POINT (20 0)
 ";
 
         // Act
-        var records = Unflatten(fixture, scenario);
+        var (records, _) = Unflatten(fixture, scenario);
 
         // Assert
         records.Should().HaveCount(3);
@@ -487,7 +487,7 @@ POINT (20 -10)
         var flatSegment = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>();
 
         // Act
-        var records = Unflatten(fixture, scenario, flatSegmentFactory: () => flatSegment);
+        var (records, _) = Unflatten(fixture, scenario, flatSegmentFactory: () => flatSegment);
 
         // Assert
         records.Should().HaveCount(4);
@@ -528,10 +528,12 @@ POINT (630236.3268711214 685179.3550339863)
 ";
 
         // Act
-        var records = Unflatten(fixture, scenario);
+        var (records, consumedRoadNodeIds) = Unflatten(fixture, scenario);
 
         // Assert
         records.Should().HaveCount(3);
+        consumedRoadNodeIds.Should().BeEmpty();
+
         var dynamicRecord1 = records[0];
         dynamicRecord1.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((630200 685222, 630226.0734171955 685222.9967667991))");
 
@@ -579,7 +581,7 @@ POINT (20 -10)
 ";
 
         // Act
-        var records = Unflatten(fixture, scenario);
+        var (records, _) = Unflatten(fixture, scenario);
 
         // Assert
         records.Should().HaveCount(3);
@@ -615,7 +617,7 @@ POINT (60 -10)
 ";
 
         // Act
-        var records = Unflatten(fixture, scenario);
+        var (records, _) = Unflatten(fixture, scenario);
 
         // Assert
         records.Should().HaveCount(5);
@@ -711,14 +713,14 @@ POINT (60 -10)
         };
 
         // Act
-        var result = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var (result, _) = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
 
         // Assert
         result.Should().HaveCount(1);
         result[0].Attributes.Method.Should().Be(RoadSegmentGeometryDrawMethodV2.Ingemeten);
     }
 
-    private List<RoadSegmentFeatureWithDynamicAttributes> Unflatten(
+    private (List<RoadSegmentFeatureWithDynamicAttributes> RoadSegments, List<RoadNodeId> ConsumedRoadNodeIds) Unflatten(
         IFixture fixture,
         string scenarioWkt,
         Func<RoadSegmentFeatureCompareWithFlatAttributes> flatSegmentFactory = null)
@@ -756,7 +758,7 @@ POINT (60 -10)
         return Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
     }
 
-    private List<RoadSegmentFeatureWithDynamicAttributes> Unflatten(
+    private (List<RoadSegmentFeatureWithDynamicAttributes> RoadSegments, List<RoadNodeId> ConsumedRoadNodeIds) Unflatten(
         FeatureType featureType,
         IReadOnlyList<RoadSegmentFeatureCompareWithFlatAttributes> flatSegments,
         IReadOnlyList<RoadNodeFeatureCompareAttributes> roadNodes)
@@ -798,7 +800,7 @@ POINT (60 -10)
 
         unflattenedRecords.Problems.ThrowIfError();
 
-        return unflattenedRecords.RoadSegments;
+        return (unflattenedRecords.RoadSegments, unflattenedRecords.ConsumedRoadNodeIds);
     }
 
     private static MultiLineString BuildRoadSegmentGeometry(int x1, int y1, int x2, int y2)
