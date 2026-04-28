@@ -106,6 +106,11 @@ public partial class RoadNode
     {
         var mergedGeometry = RoadSegmentGeometryHelper.MergeGeometries(segment1, segment2, RoadNodeId, context);
 
+        if (mergedGeometry.GetSingleLineString().SelfOverlaps())
+        {
+            return true;
+        }
+
         if (RoadSegmentGeometryHelper.GetSameStartEndNodeInvalidGeometrySection(mergedGeometry, context.Tolerances) is not null)
         {
             return true;

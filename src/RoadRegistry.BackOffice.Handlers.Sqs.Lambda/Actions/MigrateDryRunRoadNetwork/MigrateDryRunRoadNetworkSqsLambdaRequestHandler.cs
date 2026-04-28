@@ -57,6 +57,8 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
 
     protected override async Task<object> InnerHandle(MigrateDryRunRoadNetworkSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
+        using var _ = Logger.TimeAction(GetType().Name);
+
         try
         {
             await MigrateWithoutSaving(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest, cancellationToken);
