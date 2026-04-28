@@ -83,7 +83,7 @@ public static class RoadSegmentGeometryHelper
             throw new InvalidOperationException("IsSimpleOp.IsSimple() returns true for self-intersecting geometry. This should not happen.");
         }
 
-        var geometryWhichMustContainNode = ExtractLoop(geometry.GetSingleLineString(), isValidOp.NonSimpleLocation, tolerances.GeometryTolerance);
+        var geometryWhichMustContainNode = ExtractLoop(geometry.GetSingleLineString(), isValidOp.NonSimpleLocation, tolerances);
         var loopIndexedLine = new LengthIndexedLine(geometryWhichMustContainNode);
         var middlePoint = loopIndexedLine.ExtractPoint(geometryWhichMustContainNode.Length / 2.0);
 
@@ -142,44 +142,69 @@ public static class RoadSegmentGeometryHelper
         return new InvalidGeometrySection(intersectionCoordinates[0], geometryWhichMustContainNode, geometry.Factory.CreatePoint(middlePoint));
     }
 
-    private static LineString ExtractLoop(LineString geometry, Coordinate intersectionPoint, double tolerance)
+    private static LineString ExtractLoop(LineString geometry, Coordinate intersectionPoint, VerificationContextTolerances tolerances)
     {
         var coords = geometry.Coordinates;
         var factory = geometry.Factory;
 
-        // Find all segments that contain the intersection point
-        var segmentIndices = new List<int>();
+        // Build the loop coordinates
+        var loopCoords = new List<Coordinate>();
+        var isInLoop = false;
 
+        Coordinate? previousCoord = null;
         for (var i = 0; i < coords.Length - 1; i++)
         {
-            var segment = new LineSegment(coords[i], coords[i + 1]);
+            var currentCoord = coords[i];
+            if (previousCoord is not null && previousCoord.IsReasonablyEqualTo(currentCoord, tolerances))
+            {
+                continue;
+            }
+
+            if (loopCoords.Count > 0 && loopCoords[^1].IsReasonablyEqualTo(currentCoord, tolerances))
+            {
+                continue;
+            }
+
+            var nextCoord = coords[i + 1];
+
+            var segment = new LineSegment(currentCoord, nextCoord);
             var distance = segment.Distance(intersectionPoint);
 
-            if (distance < tolerance)
+            if (distance < tolerances.GeometryTolerance)
             {
-                segmentIndices.Add(i);
+                if (isInLoop)
+                {
+                    // end the loop
+                    isInLoop = false;
+                    if (!intersectionPoint.IsReasonablyEqualTo(currentCoord, tolerances))
+                    {
+                        loopCoords.Add(currentCoord.Copy());
+                    }
+                    loopCoords.Add(intersectionPoint.Copy());
+                    break;
+                }
+
+                // start the loop
+                isInLoop = true;
+                loopCoords.Add(intersectionPoint.Copy());
+                if (!intersectionPoint.IsReasonablyEqualTo(nextCoord, tolerances))
+                {
+                    loopCoords.Add(nextCoord.Copy());
+                }
             }
+            else if (isInLoop)
+            {
+                // add coord to loop
+                loopCoords.Add(currentCoord.Copy());
+            }
+
+            previousCoord = currentCoord;
         }
 
-        if (segmentIndices.Count < 2)
+        if (isInLoop || loopCoords.Count == 0)
         {
             throw new InvalidOperationException($"No loop found. Intersection point: {intersectionPoint.X.ToRoundedMeasurementString()} {intersectionPoint.Y.ToRoundedMeasurementString()}");
         }
-
-        // Build the loop coordinates
-        var loopCoords = new List<Coordinate>();
-
-        // Add the intersection point at the start
-        loopCoords.Add(intersectionPoint.Copy());
-
-        // Add all coordinates between the two segments
-        for (var i = segmentIndices[0] + 1; i <= segmentIndices[1]; i++)
-        {
-            loopCoords.Add(coords[i].Copy());
-        }
-
-        // Close the loop with the intersection point
-        loopCoords.Add(intersectionPoint.Copy());
 
         return factory.CreateLineString(loopCoords.ToArray());
     }

@@ -11,6 +11,7 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using ScopedRoadNetwork;
@@ -55,6 +56,8 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
 
     protected override async Task<object> InnerHandle(MigrateRoadNetworkSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
+        using var _ = Logger.TimeAction(GetType().Name);
+
         try
         {
             var changeResult = await Handle(sqsLambdaRequest.Request, cancellationToken);

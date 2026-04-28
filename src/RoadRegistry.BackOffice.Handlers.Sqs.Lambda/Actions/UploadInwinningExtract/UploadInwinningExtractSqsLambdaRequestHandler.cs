@@ -13,6 +13,7 @@ using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
@@ -66,6 +67,8 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
 
     protected override async Task<object> InnerHandle(UploadInwinningExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
+        using var _ = Logger.TimeAction(GetType().Name);
+
         try
         {
             var inwinningszone = await _extractsDbContext.Inwinningszones.SingleOrDefaultAsync(x => x.DownloadId == request.Request.DownloadId.ToGuid(), cancellationToken);
