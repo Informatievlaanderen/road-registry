@@ -92,7 +92,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
-        var clusterTolerance = 0.05; // cfr WVB in GRB
+        var clusterTolerance = VerificationContextTolerances.RoadNodeBuffer.GeometryTolerance;
 
         var processedRecords = new List<RoadNodeFeatureCompareRecord>();
 

@@ -69,7 +69,7 @@ public class RoadSegmentUnflattener
         var nodeRecords = context.GetRoadNodeRecords(featureType).NotRemoved().ToList();
 
         // Build spatial index for nodes for faster lookups
-        var nodesByLocation = new Dictionary<Coordinate, RoadNodeFeatureCompareRecord>(new CoordinateEqualityComparer(context.Tolerances));
+        var nodesByLocation = new Dictionary<Coordinate, RoadNodeFeatureCompareRecord>(new CoordinateEqualityComparer(VerificationContextTolerances.WithinRoadNodeBuffer));
         foreach (var node in nodeRecords)
         {
             nodesByLocation[node.Attributes.Geometry.Coordinate] = node;

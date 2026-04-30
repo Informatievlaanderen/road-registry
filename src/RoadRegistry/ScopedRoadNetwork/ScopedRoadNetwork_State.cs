@@ -98,9 +98,9 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
     }
 
     public (RoadNodeId StartNodeId, RoadNodeId EndNodeId, Problems Problems) FindStartEndNodes(
-        RoadSegmentGeometry geometry,
-        VerificationContextTolerances tolerances)
+        RoadSegmentGeometry geometry)
     {
+        var tolerances = VerificationContextTolerances.WithinRoadNodeBuffer;
         var problems = Problems.None;
 
         var startNodeId = FindRoadNode(geometry.Value.Coordinate, tolerances)?.RoadNodeId;
@@ -211,6 +211,65 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
                 }
             }
         }
+
+        //TODO-pr potential fix for new scenario
+        // // Pre-cache buffered line segments to avoid repeated geometry operations
+        // var bufferedSegments = new List<(Geometry Geometry, Coordinate Start, Coordinate End)>();
+        //
+        // foreach (var selfLineSegment in selfGeometry.Value.Geometries)
+        // {
+        //     var coordinates = selfLineSegment.Coordinates;
+        //
+        //     // Traverse each coordinate starting from the 2nd one
+        //     for (var i = 1; i < coordinates.Length; i++)
+        //     {
+        //         var previousVertex = coordinates[i - 1];
+        //         var currentVertex = coordinates[i];
+        //
+        //         // Create a line segment between previous and current vertex
+        //         var segmentCoordinates = new[] { previousVertex, currentVertex };
+        //         var lineSegment = selfGeometry.Value.Factory.CreateLineString(segmentCoordinates);
+        //
+        //         // Create buffer around the line segment
+        //         bufferedSegments.Add((lineSegment.Buffer(bufferDistance), previousVertex, currentVertex));
+        //     }
+        // }
+        //
+        // // Pre-cache other segment points to avoid repeated Point creation
+        // var otherSegmentsWithPoints = otherSegments
+        //     .Select(otherSegment => (
+        //         otherSegment.RoadSegmentId,
+        //         Points: otherSegment.Geometry.Value.Coordinates
+        //             .Select(coord => otherSegment.Geometry.Value.Factory.CreatePoint(coord))
+        //             .ToArray()
+        //     ))
+        //     .ToList();
+        //
+        // // Check if buffered area intersects with at least 2 vertices of another segment
+        // foreach (var bufferedLineSegment in bufferedSegments)
+        // {
+        //     foreach (var otherSegment in otherSegmentsWithPoints)
+        //     {
+        //         var previousPointIntersects = false;
+        //
+        //         foreach(var point in otherSegment.Points)
+        //         {
+        //             if (point.Intersects(bufferedLineSegment.Geometry))
+        //             {
+        //                 if (previousPointIntersects)
+        //                 {
+        //                     return otherSegment.RoadSegmentId;
+        //                 }
+        //
+        //                 previousPointIntersects = true;
+        //             }
+        //             else
+        //             {
+        //                 previousPointIntersects = false;
+        //             }
+        //         }
+        //     }
+        // }
 
         return null;
     }
