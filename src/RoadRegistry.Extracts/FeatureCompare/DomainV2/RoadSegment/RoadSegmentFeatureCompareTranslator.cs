@@ -138,7 +138,10 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             .ToArray();
         foreach (var roadNodeId in roadNodeIdsToRemove)
         {
-            changes = changes.AppendChange(new RemoveRoadNodeChange { RoadNodeId = roadNodeId });
+            var removeRoadNodeChange = new RemoveRoadNodeChange { RoadNodeId = roadNodeId };
+            changes = changes.TryFindModifyRoadNodeChange(roadNodeId, out var modifyRoadNodeChange)
+                ? changes.ReplaceChange(modifyRoadNodeChange, removeRoadNodeChange)
+                : changes.AppendChange(removeRoadNodeChange);
         }
 
         return changes;

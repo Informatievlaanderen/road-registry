@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
@@ -110,6 +111,13 @@ public sealed class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>,
             _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
     }
 
+    public TranslatedChanges ReplaceChange(ModifyRoadNodeChange before, RemoveRoadNodeChange after)
+    {
+        return new TranslatedChanges(
+            _changes.SetItem(_changes.IndexOf(before), after),
+            _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
+    }
+
     public TranslatedChanges ReplaceChange(AddRoadSegmentChange before, AddRoadSegmentChange after)
     {
         return new TranslatedChanges(
@@ -123,6 +131,12 @@ public sealed class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>,
         return new TranslatedChanges(
                 _changes.SetItem(_changes.IndexOf(before), after),
                 _addRoadSegmentChanges, _modifyRoadSegmentChanges.SetItem(before.RoadSegmentIdReference.RoadSegmentId, after), _removeRoadSegmentChanges);
+    }
+
+    public bool TryFindModifyRoadNodeChange(RoadNodeId id, [NotNullWhen(true)] out ModifyRoadNodeChange? change)
+    {
+        change = _changes.OfType<ModifyRoadNodeChange>().SingleOrDefault(x => x.RoadNodeId == id);
+        return change != null;
     }
 
     public bool TryFindRoadSegmentChange(RoadSegmentId id, out IRoadNetworkChange? change)
