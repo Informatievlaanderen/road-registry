@@ -1,3 +1,11 @@
+## [4.57.6](https://github.com/informatievlaanderen/road-registry/compare/v4.57.5...v4.57.6) (2026-04-30)
+
+
+### Bug Fixes
+
+* **inwinning:** merging segments when not connected to actual road network ([8ebb303](https://github.com/informatievlaanderen/road-registry/commit/8ebb303a2933ef9df8769b2355c051526f6887e9))
+* **inwinning:** unflatten geometry loop detection ([892f04a](https://github.com/informatievlaanderen/road-registry/commit/892f04abfe6298f15799be8357ee6bce77644661))
+
 ## [4.57.5](https://github.com/informatievlaanderen/road-registry/compare/v4.57.4...v4.57.5) (2026-04-28)
 
 
