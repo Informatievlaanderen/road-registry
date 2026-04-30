@@ -2,7 +2,6 @@
 
 using AutoFixture;
 using FluentAssertions;
-using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.Extensions;
@@ -179,6 +178,42 @@ public class AggregateTests : AggregateTestBase
         "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
     )]
     public void GivenNoPartiallyOverlappingSegments_ThenResult(string segment1Geometry, string segment2Geometry)
+    {
+        var reversedValues = new[] { false, true };
+        foreach (var reversedValue in reversedValues)
+        {
+            // Arrange
+            var change = Fixture.Create<AddRoadSegmentChange>() with
+            {
+                Status = RoadSegmentStatusV2.Gerealiseerd,
+                Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08)),
+                EuropeanRoadNumbers = [],
+                NationalRoadNumbers = []
+            };
+
+            var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [], [
+                RoadSegment.Create(TestData.Segment2Added with
+                {
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                    Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08))
+                })
+            ], []);
+            var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+
+            // Act
+            var (_, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), roadNetworkContext);
+
+            // Assert
+            problems.Should().NotContain(x => x.Reason == "RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
+        }
+    }
+
+    [Theory]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601050 601000))",
+        "MULTILINESTRING ((601000 601000, 601000 601020, 601050 601020, 601050 601000))"
+    )]
+    public void GivenNoPartiallyOverlappingSegments_SpecialCaseIntersectionsAreEqualToStartEndVerticesOfBothSegments_ThenResult(string segment1Geometry, string segment2Geometry)
     {
         var reversedValues = new[] { false, true };
         foreach (var reversedValue in reversedValues)
