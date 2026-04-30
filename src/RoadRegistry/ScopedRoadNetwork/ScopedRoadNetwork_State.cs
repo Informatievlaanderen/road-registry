@@ -22,12 +22,10 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
     public IReadOnlyDictionary<RoadSegmentId, RoadSegment> RoadSegments { get; }
     public IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
     public IReadOnlyDictionary<GradeJunctionId, GradeJunction> GradeJunctions { get; }
-
     private readonly Dictionary<RoadNodeId, RoadNode> _roadNodes;
     private readonly Dictionary<RoadSegmentId, RoadSegment> _roadSegments;
     private readonly Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions;
     private readonly Dictionary<GradeJunctionId, GradeJunction> _gradeJunctions;
-
     private readonly LazyQuadtree<RoadNode> _roadNodesSpatialIndex;
     private readonly LazyQuadtree<RoadSegment> _roadSegmentsSpatialIndex;
 
@@ -53,14 +51,14 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         _gradeJunctions = (gradeJunctions ?? []).ToDictionary(x => x.GradeJunctionId, x => x);
         GradeJunctions = _gradeJunctions.AsReadOnly();
 
-        _roadNodesSpatialIndex = new LazyQuadtree<RoadNode>(tree=>
+        _roadNodesSpatialIndex = new LazyQuadtree<RoadNode>(tree =>
         {
             foreach (var roadNode in _roadNodes.Values.Where(x => !x.IsRemoved))
             {
                 tree.Insert(roadNode.Geometry.Value.EnvelopeInternal, roadNode);
             }
         });
-        _roadSegmentsSpatialIndex = new LazyQuadtree<RoadSegment>(tree=>
+        _roadSegmentsSpatialIndex = new LazyQuadtree<RoadSegment>(tree =>
         {
             foreach (var roadSegment in _roadSegments.Values.Where(x => !x.IsRemoved))
             {
@@ -198,78 +196,30 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         {
             foreach (var otherSegment in otherSegmentsWithPoints)
             {
-                var intersectionCount = 0;
+                var intersectionPoints = otherSegment.Points
+                    .Where(point => point.Intersects(bufferedLineSegment))
+                    .Take(3)
+                    .ToArray();
 
-                foreach (var _ in otherSegment.Points
-                             .Where(point => point.Intersects(bufferedLineSegment)))
+                if (intersectionPoints.Length > 1)
                 {
-                    intersectionCount++;
-                    if (intersectionCount >= 2)
+                    // Special case: exclude if both intersection points are all end vertices of both segments
+                    if (intersectionPoints.Length == 2)
                     {
-                        return otherSegment.RoadSegmentId;
+                        var selfStartEndCoordinates = new[] { selfGeometry.Value.Coordinates.First(), selfGeometry.Value.Coordinates.Last() };
+                        var otherStartEndCoordinates = new[] { otherSegment.Points.First().Coordinate, otherSegment.Points.Last().Coordinate };
+
+                        if (intersectionPoints.All(ip => selfStartEndCoordinates.Any(c => c.IsReasonablyEqualTo(ip.Coordinate, bufferDistance)))
+                            && intersectionPoints.All(ip => otherStartEndCoordinates.Any(c => c.IsReasonablyEqualTo(ip.Coordinate, bufferDistance))))
+                        {
+                            continue;
+                        }
                     }
+
+                    return otherSegment.RoadSegmentId;
                 }
             }
         }
-
-        //TODO-pr potential fix for new scenario
-        // // Pre-cache buffered line segments to avoid repeated geometry operations
-        // var bufferedSegments = new List<(Geometry Geometry, Coordinate Start, Coordinate End)>();
-        //
-        // foreach (var selfLineSegment in selfGeometry.Value.Geometries)
-        // {
-        //     var coordinates = selfLineSegment.Coordinates;
-        //
-        //     // Traverse each coordinate starting from the 2nd one
-        //     for (var i = 1; i < coordinates.Length; i++)
-        //     {
-        //         var previousVertex = coordinates[i - 1];
-        //         var currentVertex = coordinates[i];
-        //
-        //         // Create a line segment between previous and current vertex
-        //         var segmentCoordinates = new[] { previousVertex, currentVertex };
-        //         var lineSegment = selfGeometry.Value.Factory.CreateLineString(segmentCoordinates);
-        //
-        //         // Create buffer around the line segment
-        //         bufferedSegments.Add((lineSegment.Buffer(bufferDistance), previousVertex, currentVertex));
-        //     }
-        // }
-        //
-        // // Pre-cache other segment points to avoid repeated Point creation
-        // var otherSegmentsWithPoints = otherSegments
-        //     .Select(otherSegment => (
-        //         otherSegment.RoadSegmentId,
-        //         Points: otherSegment.Geometry.Value.Coordinates
-        //             .Select(coord => otherSegment.Geometry.Value.Factory.CreatePoint(coord))
-        //             .ToArray()
-        //     ))
-        //     .ToList();
-        //
-        // // Check if buffered area intersects with at least 2 vertices of another segment
-        // foreach (var bufferedLineSegment in bufferedSegments)
-        // {
-        //     foreach (var otherSegment in otherSegmentsWithPoints)
-        //     {
-        //         var previousPointIntersects = false;
-        //
-        //         foreach(var point in otherSegment.Points)
-        //         {
-        //             if (point.Intersects(bufferedLineSegment.Geometry))
-        //             {
-        //                 if (previousPointIntersects)
-        //                 {
-        //                     return otherSegment.RoadSegmentId;
-        //                 }
-        //
-        //                 previousPointIntersects = true;
-        //             }
-        //             else
-        //             {
-        //                 previousPointIntersects = false;
-        //             }
-        //         }
-        //     }
-        // }
 
         return null;
     }

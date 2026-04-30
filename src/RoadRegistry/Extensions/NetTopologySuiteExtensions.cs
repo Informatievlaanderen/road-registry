@@ -401,14 +401,18 @@ public static class NetTopologySuiteExtensions
 
     public static bool IsReasonablyEqualTo(this Point @this, Coordinate other, VerificationContextTolerances tolerances)
     {
-        if (ReferenceEquals(@this, other)) return true;
-        return @this.Coordinate.Equals2D(other, tolerances.GeometryTolerance);
+        return IsReasonablyEqualTo(@this.Coordinate, other, tolerances.GeometryTolerance);
     }
 
     public static bool IsReasonablyEqualTo(this Coordinate @this, Coordinate other, VerificationContextTolerances tolerances)
     {
+        return IsReasonablyEqualTo(@this, other, tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyEqualTo(this Coordinate @this, Coordinate other, double geometryTolerance)
+    {
         if (ReferenceEquals(@this, other)) return true;
-        return @this.Equals2D(other, tolerances.GeometryTolerance);
+        return @this.Equals2D(other, geometryTolerance);
     }
 
     public static bool IsReasonablyEqualTo(this double value, double other, VerificationContextTolerances tolerances)
