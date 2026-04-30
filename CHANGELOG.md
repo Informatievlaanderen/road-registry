@@ -1,3 +1,12 @@
+## [4.57.7](https://github.com/informatievlaanderen/road-registry/compare/v4.57.6...v4.57.7) (2026-04-30)
+
+
+### Bug Fixes
+
+* **inwinning:** add special case to partial overlap check for same start/end vertices as the intersection points ([785a32a](https://github.com/informatievlaanderen/road-registry/commit/785a32a1260b2d8a458360ad81f02ba6e9e32a2a))
+* **inwinning:** don't modify roadnodes when being removed due to unflatten ([c876420](https://github.com/informatievlaanderen/road-registry/commit/c8764209490e6346fd888fe9a6f42537e2f91144))
+* **inwinning:** roadnode tolerance less than 5cm ([4211f44](https://github.com/informatievlaanderen/road-registry/commit/4211f44aa4d50f1a0a16540586f7b4a680c4c330))
+
 ## [4.57.6](https://github.com/informatievlaanderen/road-registry/compare/v4.57.5...v4.57.6) (2026-04-30)
 
 
