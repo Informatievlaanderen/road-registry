@@ -1,8 +1,10 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
 
 using Extensions;
+using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.Extensions;
@@ -184,6 +186,50 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 new ProblemParameter("WegsegmentId", TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId.ToString()),
                 new ProblemParameter("WegsegmentTempIds", "3")
             ))
+        );
+    }
+
+    [Fact]
+    public Task WhenGeometryIntersectsWithOtherGeometryWithoutGradeSeparatedJunction_WithIntersectionAtStartOrEndNodes_ThenNoProblems()
+    {
+        var segment1 = (MultiLineString)new WKTReader().Read("MULTILINESTRING ((536627.5295948688 702836.7157694297, 536638.5271524577 702839.9221909177, 536639.3131051877 702840.2792924363, 536651.2433877937 702845.69883323, 536660.6638213166 702849.9780495809))")
+            .WithSrid(WellknownSrids.Lambert08);
+        var segment2 = (MultiLineString)new WKTReader().Read("MULTILINESTRING ((536627.5295948688 702836.7157694297, 536627.5095197514 702837.3307665754, 536627.7776916977 702844.090798418, 536628.3371573288 702848.4388689501, 536631.8132410124 702883.8846881427, 536641.5456949207 702874.8630351247, 536655.0459321577 702857.4573191172, 536660.6638213166 702849.9780495809))")
+            .WithSrid(WellknownSrids.Lambert08);
+
+        return Run(scenario => scenario
+            .Given(given => given
+                .Add(TestData.AddSegment1StartNode with
+                {
+                    Geometry = segment1.GetSingleLineString().StartPoint.ToRoadNodeGeometry()
+                })
+                .Add(TestData.AddSegment1EndNode with
+                {
+                    Geometry = segment1.GetSingleLineString().EndPoint.ToRoadNodeGeometry()
+                })
+                .Add((TestData.AddSegment1 with
+                {
+                    Geometry = segment1.ToRoadSegmentGeometry(),
+                    RoadSegmentIdReference = TestData.AddSegment1.RoadSegmentIdReference with
+                    {
+                        TempIds = null
+                    }
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
+            )
+            .When(changes => changes
+                .Add((TestData.AddSegment2 with
+                {
+                    Geometry = segment2.ToRoadSegmentGeometry(),
+                    RoadSegmentIdReference = TestData.AddSegment2.RoadSegmentIdReference with
+                    {
+                        TempIds = [new RoadSegmentTempId(3)]
+                    }
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
+            )
+            .Then((result, _) =>
+            {
+                result.Problems.Should().BeEmpty();
+            })
         );
     }
 
