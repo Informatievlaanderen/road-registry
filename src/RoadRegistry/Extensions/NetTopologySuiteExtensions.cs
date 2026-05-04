@@ -177,6 +177,12 @@ public static class NetTopologySuiteExtensions
             .Count() == 1;
     }
 
+    public static IReadOnlyCollection<Point> GetStartAndEndPoints(this MultiLineString geometry)
+    {
+        var ls = geometry.GetSingleLineString();
+        return [ls.StartPoint, ls.EndPoint];
+    }
+
     public static LineString GetSingleLineString(this MultiLineString geometry)
     {
         return geometry.Geometries

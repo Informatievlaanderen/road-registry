@@ -28,7 +28,7 @@ public partial class ScopedRoadNetwork
             .ToDictionary(x => CreateCombinationKey(x.RoadSegmentId1, x.RoadSegmentId2), x => x);
 
         // Find all unique combinations of changed segments with all gerealiseerde segments
-        var segmentCombinationsOfChangedSegments = GetSegmentCombinationsOfChangedSegments(existingGradeJunctions);
+        var segmentCombinationsOfChangedSegments = GetSegmentCombinationsOfChangedSegments(existingGradeJunctions, context.Tolerances);
         if (!segmentCombinationsOfChangedSegments.Any())
         {
             return problems;
@@ -103,7 +103,8 @@ public partial class ScopedRoadNetwork
     }
 
     private List<(RoadSegment Segment1, RoadSegment Segment2, (int, int) Key, Point[] IntersectingPoints)> GetSegmentCombinationsOfChangedSegments(
-        Dictionary<(int, int), GradeJunction> existingGradeJunctions)
+        Dictionary<(int, int), GradeJunction> existingGradeJunctions,
+        VerificationContextTolerances tolerances)
     {
         // Get all "gerealiseerde" segments for comparison
         var allGerealiseerdeSegments = GetNonRemovedRoadSegments()
@@ -178,15 +179,28 @@ public partial class ScopedRoadNetwork
             if (!processedPairs.Add(key))
                 return;
 
-            var intersectionPoints = GetIntersectionPoints(segment1.Geometry, segment2.Geometry);
+            var intersectionPoints = GetIntersectionPoints(segment1.Geometry, segment2.Geometry, tolerances);
             segmentCombinationsOfChangedSegments.Add((segment1, segment2, key, intersectionPoints));
         }
     }
 
-    private static Point[] GetIntersectionPoints(RoadSegmentGeometry geometry1, RoadSegmentGeometry geometry2)
+    private static Point[] GetIntersectionPoints(RoadSegmentGeometry geometry1, RoadSegmentGeometry geometry2, VerificationContextTolerances tolerances)
     {
+        var geometry1EndNodes = geometry1.Value.GetStartAndEndPoints();
+        var geometry2EndNodes = geometry2.Value.GetStartAndEndPoints();
+
         return geometry1.Value.Intersection(geometry2.Value).Coordinates
             .Select(c => geometry1.Value.Factory.CreatePoint(c))
+            .Where(intersection =>
+            {
+                if (geometry1EndNodes.Any(c => intersection.IsReasonablyEqualTo(c, tolerances))
+                    && geometry2EndNodes.Any(c => intersection.IsReasonablyEqualTo(c, tolerances)))
+                {
+                    return false;
+                }
+
+                return true;
+            })
             .ToArray();
     }
 
