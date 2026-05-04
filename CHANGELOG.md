@@ -1,3 +1,10 @@
+## [4.57.10](https://github.com/informatievlaanderen/road-registry/compare/v4.57.9...v4.57.10) (2026-05-04)
+
+
+### Bug Fixes
+
+* **inwinning:** use RoadSegmentId for missing junction check ([c754eb4](https://github.com/informatievlaanderen/road-registry/commit/c754eb4e99e4f9786158c950f2de701508adb35f))
+
 ## [4.57.9](https://github.com/informatievlaanderen/road-registry/compare/v4.57.8...v4.57.9) (2026-05-04)
 
 
