@@ -20,27 +20,6 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
     }
 
     [Fact]
-    public async Task RecordsShouldBeUnique()
-    {
-        string expectedTranslatedProblemMessage = null;
-
-        var zipArchive = new DomainV2ZipArchiveBuilder()
-            .WithChange((builder, context) =>
-            {
-                builder.TestData.RoadSegment1NationalRoadDbaseRecord2.NWNUMMER.Value = builder.TestData.RoadSegment1NationalRoadDbaseRecord1.NWNUMMER.Value;
-
-                expectedTranslatedProblemMessage = $"De dbase record 1 met NW_OIDN {builder.TestData.RoadSegment1NationalRoadDbaseRecord1.NW_OIDN.Value} heeft hetzelfde WS_TEMPID en NWNUMMER als de dbase record 2 met NW_OIDN {builder.TestData.RoadSegment1NationalRoadDbaseRecord2.NW_OIDN.Value}.";
-            })
-            .Build();
-
-        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
-        var problem = Assert.Single(ex.Problems);
-        Assert.Equal(nameof(DbaseFileProblems.NationalRoadNotUnique), problem.Reason);
-
-        Assert.Equal(expectedTranslatedProblemMessage, FileProblemTranslator.DomainV2.Translate(problem.Translate()).Message);
-    }
-
-    [Fact]
     public async Task UnknownRoadSegmentShouldGiveProblem()
     {
         var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
