@@ -67,7 +67,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
             )
             .ThenContainsProblems(new Error("RoadNodeTooClose",
-                new ProblemParameter("WegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
+                new ProblemParameter("OtherSegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
                 new ProblemParameter("WegknoopId", 99.ToString())
             ))
         );

@@ -202,8 +202,8 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.RoadNode.TooClose, problem => new(problem.Severity, problem.Reason,
-                    problem.HasParameter("WegsegmentId")
-                        ? $"De geometrie ligt te dicht bij wegsegment met {GetRoadSegmentIdLabel(problem)}."
+                    problem.HasParameter("OtherSegmentId")
+                        ? $"De wegknoop {GetRoadNodeIdLabel(problem)} ligt te dicht bij wegsegment met {GetRoadSegmentIdLabel(problem, "OtherSegment")}."
                         : $"De geometrie ligt te dicht bij wegsegment met id {problem.Parameters[0].Value}.")
             },
             {

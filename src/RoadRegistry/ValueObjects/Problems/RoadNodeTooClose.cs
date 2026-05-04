@@ -1,12 +1,14 @@
 namespace RoadRegistry.ValueObjects.Problems;
 
+using System.Linq;
 using ProblemCodes;
-using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.Extensions;
 
 public class RoadNodeTooClose : Warning
 {
-    public RoadNodeTooClose()
-        : base(ProblemCode.RoadNode.TooClose.ToString())
+    public RoadNodeTooClose(RoadSegmentIdReference otherSegment)
+        : base(ProblemCode.RoadNode.TooClose.ToString(),
+            otherSegment.ToRoadSegmentProblemParameters("OtherSegment").ToArray())
     {
     }
 
