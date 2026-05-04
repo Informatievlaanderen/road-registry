@@ -227,14 +227,14 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             .Select(x => new
             {
                 x.Feature.Attributes,
-                CombinationKey = new RoadSegmentCombinationKey(x.Feature.Attributes.LowerRoadSegmentTempId, x.Feature.Attributes.UpperRoadSegmentTempId)
+                CombinationKey = new RoadSegmentCombinationKey(x.LowerRoadSegmentId, x.UpperRoadSegmentId)
             })
             .ToList();
 
         var roadSegmentIntersections = (
                 from combination in uniqueRoadSegmentCombinations
                 let intersectionGeometry = combination.RoadSegment1.Attributes.Geometry.Intersection(combination.RoadSegment2.Attributes.Geometry)
-                where intersectionGeometry is Point || intersectionGeometry is MultiPoint
+                where intersectionGeometry is Point or MultiPoint
                 let intersections = intersectionGeometry.ToMultiPoint()
                 let gradeSeparatedJunctionsCount = gradeSeparatedJunctions.Count(grade => grade.CombinationKey.Equals(combination.Key))
                 let r1Geometry = combination.RoadSegment1.Attributes.Geometry.GetSingleLineString()
@@ -331,12 +331,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
         {
         }
 
-        public RoadSegmentCombinationKey(RoadSegmentTempId id1, RoadSegmentTempId id2)
-            : this(id1.ToInt32(), id2.ToInt32())
-        {
-        }
-
-        private RoadSegmentCombinationKey(int id1, int id2)
+        public RoadSegmentCombinationKey(RoadSegmentId id1, RoadSegmentId id2)
         {
             _min = Math.Min(id1, id2);
             _max = Math.Max(id1, id2);
