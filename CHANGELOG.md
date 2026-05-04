@@ -1,3 +1,10 @@
+## [4.57.9](https://github.com/informatievlaanderen/road-registry/compare/v4.57.8...v4.57.9) (2026-05-04)
+
+
+### Bug Fixes
+
+* **inwinning:** RoadNodeTooClose translation ([6d0d8b2](https://github.com/informatievlaanderen/road-registry/commit/6d0d8b2a309687198c112319141fa811ca56ce83))
+
 ## [4.57.8](https://github.com/informatievlaanderen/road-registry/compare/v4.57.7...v4.57.8) (2026-05-04)
 
 
