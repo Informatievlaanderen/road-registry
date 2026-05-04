@@ -1,3 +1,10 @@
+## [4.57.11](https://github.com/informatievlaanderen/road-registry/compare/v4.57.10...v4.57.11) (2026-05-04)
+
+
+### Bug Fixes
+
+* **inwinning:** exclude intersections on ends of both segments ([e123895](https://github.com/informatievlaanderen/road-registry/commit/e12389548f1c86ec36d544d086368481453ace8f))
+
 ## [4.57.10](https://github.com/informatievlaanderen/road-registry/compare/v4.57.9...v4.57.10) (2026-05-04)
 
 
