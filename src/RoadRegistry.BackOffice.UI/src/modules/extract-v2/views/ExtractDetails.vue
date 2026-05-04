@@ -462,6 +462,10 @@ export default defineComponent({
             file = `Gelijkgrondse kruising ${error.ErrorContext["GelijkGrondseKruisingId"]}`;
           } else if (error.ErrorContext["WegsegmentId"]) {
             file = `Wegsegment ${error.ErrorContext["WegsegmentId"]}`;
+            let tempIds = error.ErrorContext["WegsegmentTempIds"];
+            if (tempIds) {
+              file += ` (WS_TEMPID ${tempIds})`;
+            }
           } else if (error.ErrorContext["WegknoopId"]) {
             file = `Wegknoop ${error.ErrorContext["WegknoopId"]}`;
           }
