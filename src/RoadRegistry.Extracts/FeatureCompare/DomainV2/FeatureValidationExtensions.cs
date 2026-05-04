@@ -51,28 +51,6 @@ public static class FeatureValidationExtensions
         return problems;
     }
 
-    public static ZipArchiveProblems ValidateUniqueEuropeanRoads(this ZipArchive archive, List<Feature<EuropeanRoadFeatureCompareAttributes>> features, FeatureType featureType, ExtractFileName fileName)
-    {
-        return ValidateUniqueRecords(features,
-            (item1, item2) => item1.RoadSegmentTempId == item2.RoadSegmentTempId && item1.Number == item2.Number,
-            (feature, duplicateFeature) =>
-            {
-                var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
-                return recordContext.EuropeanRoadNotUniqueV2(feature.Attributes.Id, duplicateFeature.RecordNumber, duplicateFeature.Attributes.Id);
-            });
-    }
-
-    public static ZipArchiveProblems ValidateUniqueNationalRoads(this ZipArchive archive, List<Feature<NationalRoadFeatureCompareAttributes>> features, FeatureType featureType, ExtractFileName fileName)
-    {
-        return ValidateUniqueRecords(features,
-            (item1, item2) => item1.RoadSegmentTempId == item2.RoadSegmentTempId && item1.Number == item2.Number,
-            (feature, duplicateFeature) =>
-        {
-            var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
-            return recordContext.NationalRoadNotUniqueV2(feature.Attributes.Id, duplicateFeature.RecordNumber, duplicateFeature.Attributes.Id);
-        });
-    }
-
     public static ZipArchiveProblems ValidateUniqueGradeSeparatedJunctions(this ZipArchive archive, List<Feature<GradeSeparatedJunctionFeatureCompareAttributes>> features, FeatureType featureType, ExtractFileName fileName)
     {
         return ValidateUniqueRecords(features,

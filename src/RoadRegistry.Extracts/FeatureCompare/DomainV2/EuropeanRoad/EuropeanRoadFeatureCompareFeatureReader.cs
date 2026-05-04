@@ -23,13 +23,6 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
 
         problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, nameof(RoadSegmentEuropeanRoadAttributeDbaseRecord.EU_OIDN), feature => feature.Attributes.Id);
 
-        switch (featureType)
-        {
-            case FeatureType.Change:
-                problems += archive.ValidateUniqueEuropeanRoads(features, featureType, FileName);
-                break;
-        }
-
         return (features, problems);
     }
 
