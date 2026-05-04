@@ -1,3 +1,12 @@
+## [4.57.8](https://github.com/informatievlaanderen/road-registry/compare/v4.57.7...v4.57.8) (2026-05-04)
+
+
+### Bug Fixes
+
+* add missing unit test ([f291bf3](https://github.com/informatievlaanderen/road-registry/commit/f291bf351d7e42df4f35fe015237edce921481a9))
+* **inwinning:** only Gerealiseerd roadsegments have nodes ([731c710](https://github.com/informatievlaanderen/road-registry/commit/731c7103c88dbda901ededb44389eac862178938))
+* **inwinning:** remove european/national numbers unique validation, FC must do it automatically ([3760cbe](https://github.com/informatievlaanderen/road-registry/commit/3760cbeca6c92f12a28fb2f60240877c92caf294))
+
 ## [4.57.7](https://github.com/informatievlaanderen/road-registry/compare/v4.57.6...v4.57.7) (2026-04-30)
 
 
