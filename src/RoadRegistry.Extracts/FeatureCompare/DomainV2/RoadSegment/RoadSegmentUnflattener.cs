@@ -77,6 +77,7 @@ public class RoadSegmentUnflattener
 
         // Process segments in parallel to find their start/end nodes
         var segmentNodePairs = flatRoadSegments
+            .Where(x => x.Attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
             .AsParallel()
             .WithCancellation(cancellationToken)
             .SelectMany(flatRoadSegment =>

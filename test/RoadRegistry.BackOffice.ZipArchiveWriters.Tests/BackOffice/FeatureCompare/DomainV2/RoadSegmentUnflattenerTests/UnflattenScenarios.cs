@@ -33,7 +33,7 @@ public class UnflattenScenarios
         // Arrange
         var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadSegmentId>();
-        fixture.Freeze<RoadSegmentStatusV2>();
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
 
         var flatSegment1 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
         {
@@ -82,7 +82,7 @@ public class UnflattenScenarios
         // Arrange
         var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadSegmentId>();
-        fixture.Freeze<RoadSegmentStatusV2>();
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
 
         var flatSegment1 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
         {
@@ -299,7 +299,7 @@ public class UnflattenScenarios
     {
         // Arrange
         var fixture = new RoadNetworkTestDataV2().Fixture;
-        fixture.Freeze<RoadSegmentStatusV2>();
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
 
         var scenario = @"
 POINT (0 0)
@@ -326,7 +326,7 @@ POINT (20 -10)
     {
         // Arrange
         var fixture = new RoadNetworkTestDataV2().Fixture;
-        fixture.Freeze<RoadSegmentStatusV2>();
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
 
         var scenario = @"
 POINT (654110.9845983858 709308.409759216)
@@ -380,7 +380,7 @@ POINT (608043.8853908601 697648.009161504)
     {
         // Arrange
         var fixture = new RoadNetworkTestDataV2().Fixture;
-        fixture.Freeze<RoadSegmentStatusV2>();
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
 
         var scenario = @"
 POINT (0 0)
@@ -407,7 +407,7 @@ POINT (20 -10)
     {
         // Arrange
         var fixture = new RoadNetworkTestDataV2().Fixture;
-        fixture.Freeze<RoadSegmentStatusV2>();
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
 
         var scenario = @"
 POINT (0 0)
@@ -441,7 +441,7 @@ POINT (30 -30)
     {
         // Arrange
         var fixture = new RoadNetworkTestDataV2().Fixture;
-        fixture.Freeze<RoadSegmentStatusV2>();
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
 
         var scenario = @"
 LINESTRING (20 -10, 0 -10, 0 0, 10 0, 10 -30)
@@ -463,7 +463,7 @@ POINT (30 -10)
     {
         // Arrange
         var fixture = new RoadNetworkTestDataV2().Fixture;
-        fixture.Freeze<RoadSegmentStatusV2>();
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
 
         var scenario = @"
 POINT (10 0)
@@ -538,7 +538,7 @@ POINT (20 -10)
     {
         // Arrange
         var fixture = new RoadNetworkTestDataV2().Fixture;
-        fixture.Freeze<RoadSegmentStatusV2>();
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
 
         var geometry1 = "MULTILINESTRING ((630236.3268711214 685179.3550339863, 630226.2159030889 685179.6738534672, 630223.9267510582 685181.0035841567, 630222.5944110844 685183.7634241804, 630222.3710468117 685186.6523934267, 630222.8543037425 685192.4924403522, 630224.618005435 685202.6436297903, 630225.5646459815 685213.3237230312, 630225.9860405741 685218.0797645478, 630226.0734171955 685222.9967667991))";
         var geometry2 = "MULTILINESTRING ((630226.0734171955 685222.9967667991, 630231.3261840874 685216.6413904391, 630232.2073024663 685215.6564949136, 630243.3778040812 685203.1658190899, 630250.4817780753 685195.0746611916, 630252.1661178141 685192.297862173, 630252.6453894484 685190.1269215252, 630252.7617249074 685187.4729392678, 630251.9130670413 685184.8208443839, 630250.5833514191 685182.651692599, 630249.013545644 685181.2075116644, 630245.5137229114 685180.0061051091, 630238.276864998 685179.2932616565, 630236.3268711214 685179.3550339863))";
@@ -663,7 +663,7 @@ POINT (630236.3268711214 685179.3550339863)
     {
         // Arrange
         var fixture = new RoadNetworkTestDataV2().Fixture;
-        fixture.Freeze<RoadSegmentStatusV2>();
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
 
         var scenario = @"
 POINT (0 0)
@@ -682,7 +682,7 @@ LINESTRING (0 0, 10 0, 10 10, 0 10, 0 0)
     {
         // Arrange
         var fixture = new RoadNetworkTestDataV2().Fixture;
-        fixture.Freeze<RoadSegmentStatusV2>();
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
 
         var scenario = @"
 LINESTRING (0 0, 40 0)
@@ -714,7 +714,7 @@ POINT (20 -10)
     {
         // Arrange
         var fixture = new RoadNetworkTestDataV2().Fixture;
-        fixture.Freeze<RoadSegmentStatusV2>();
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
 
         var scenario = @"
 LINESTRING (0 0, 100 0)
@@ -751,8 +751,11 @@ POINT (60 -10)
         dynamicRecord5.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((55 10, 60 10, 60 -10))");
     }
 
-    [Fact]
-    public void With2FlatSegmentsWithDifferentStatus_ThenProblem()
+    [Theory]
+    [InlineData(nameof(RoadSegmentStatusV2.BuitenGebruik))]
+    [InlineData(nameof(RoadSegmentStatusV2.Gehistoreerd))]
+    [InlineData(nameof(RoadSegmentStatusV2.NietGerealiseerd))]
+    public void With2FlatSegmentsWithStatusNotGerealiseerd_ThenReadWithoutNodes(string status)
     {
         // Arrange
         var fixture = new RoadNetworkTestDataV2().Fixture;
@@ -761,12 +764,12 @@ POINT (60 -10)
         var flatSegment1 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
         {
             Geometry = BuildRoadSegmentGeometry(0, 0, 50, 0),
-            Status = RoadSegmentStatusV2.NietGerealiseerd
+            Status = RoadSegmentStatusV2.Gerealiseerd
         };
         var flatSegment2 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
         {
             Geometry = BuildRoadSegmentGeometry(50, 0, 100, 0),
-            Status = RoadSegmentStatusV2.BuitenGebruik
+            Status = RoadSegmentStatusV2.Parse(status)
         };
         var flatSegments = new[]
         {
@@ -779,17 +782,31 @@ POINT (60 -10)
             new RoadNodeFeatureCompareAttributes
             {
                 RoadNodeId = new RoadNodeId(1),
-                Geometry = new Point(50, 0),
-                Grensknoop = false
-            }
+                Geometry = new Point(0, 0)
+            },
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = new RoadNodeId(2),
+                Geometry = new Point(50, 0)
+            },
         };
 
         // Act
-        var act = () => Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var (records, consumedRoadNodeIds) = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
 
         // Assert
-        var ex = act.Should().Throw<ZipArchiveValidationException>().Which;
-        ex.Problems.Should().Contain(x => x.Reason == "RoadNodeIsNotAllowed");
+        consumedRoadNodeIds.Should().NotContain(new RoadNodeId(1));
+        consumedRoadNodeIds.Should().NotContain(new RoadNodeId(2));
+
+        records.Should().HaveCount(2);
+
+        var dynamicRecord1 = records[0];
+        dynamicRecord1.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((0 0, 50 0))");
+        dynamicRecord1.Attributes.Status.Should().Be(RoadSegmentStatusV2.Gerealiseerd);
+
+        var dynamicRecord2 = records[1];
+        dynamicRecord2.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((50 0, 100 0))");
+        dynamicRecord2.Attributes.Status!.ToString().Should().Be(status);
     }
 
     [Fact]
