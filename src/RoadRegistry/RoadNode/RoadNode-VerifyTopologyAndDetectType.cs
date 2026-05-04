@@ -40,8 +40,9 @@ public partial class RoadNode
                 && s.Geometry.Value.IsWithinDistance(Geometry.Value, Distances.RoadNodeTooClose)
             )
             .Aggregate(Problems.None, (current, segment) =>
-                current.Add(new RoadNodeTooClose()
-                    .WithContext(ProblemContext.For(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId)))));
+                current.Add(new RoadNodeTooClose(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId))
+                    .WithContext(ProblemContext.For(context.IdTranslator.TranslateToTemporaryId(RoadNodeId))
+                )));
 
         problems += ValidateTypeAndChangeIfNeeded(segments, roadSegmentsSpatialIndex, idGenerator, context);
 

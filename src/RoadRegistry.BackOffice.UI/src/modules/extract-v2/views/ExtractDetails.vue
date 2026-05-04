@@ -456,14 +456,14 @@ export default defineComponent({
         if (error.ErrorContext) {
           if (error.ErrorContext["Bestand"]) {
             file = error.ErrorContext["Bestand"];
-          } else if (error.ErrorContext["WegknoopId"]) {
-            file = `Wegknoop ${error.ErrorContext["WegknoopId"]}`;
-          } else if (error.ErrorContext["WegsegmentId"]) {
-            file = `Wegsegment ${error.ErrorContext["WegsegmentId"]}`;
           } else if (error.ErrorContext["OngelijkGrondseKruisingId"]) {
             file = `Ongelijkgrondse kruising ${error.ErrorContext["OngelijkGrondseKruisingId"]}`;
           } else if (error.ErrorContext["GelijkGrondseKruisingId"]) {
             file = `Gelijkgrondse kruising ${error.ErrorContext["GelijkGrondseKruisingId"]}`;
+          } else if (error.ErrorContext["WegsegmentId"]) {
+            file = `Wegsegment ${error.ErrorContext["WegsegmentId"]}`;
+          } else if (error.ErrorContext["WegknoopId"]) {
+            file = `Wegknoop ${error.ErrorContext["WegknoopId"]}`;
           }
         }
         let code = error.ErrorCode ?? "";
