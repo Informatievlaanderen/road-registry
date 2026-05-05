@@ -1,3 +1,12 @@
+## [4.57.13](https://github.com/informatievlaanderen/road-registry/compare/v4.57.12...v4.57.13) (2026-05-05)
+
+
+### Bug Fixes
+
+* **inwinning:** add temporary Schijnknopen when they become a real node ([12ad71e](https://github.com/informatievlaanderen/road-registry/commit/12ad71ed80bcb2771338afc7294f42cafe1627af))
+* **inwinning:** node becomes Validatieknoop when 1 of 2 connected segments is V1 instead of being merged ([7505f00](https://github.com/informatievlaanderen/road-registry/commit/7505f00f7340cf8238007947e4e90a6d36687d64))
+* **inwinning:** removal of non-existant entities should not give problem ([150e735](https://github.com/informatievlaanderen/road-registry/commit/150e7351aa1b7eb8747e144ccb156e900e92b4c6))
+
 ## [4.57.12](https://github.com/informatievlaanderen/road-registry/compare/v4.57.11...v4.57.12) (2026-05-04)
 
 
