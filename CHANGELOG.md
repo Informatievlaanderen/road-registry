@@ -1,3 +1,10 @@
+## [4.57.14](https://github.com/informatievlaanderen/road-registry/compare/v4.57.13...v4.57.14) (2026-05-05)
+
+
+### Bug Fixes
+
+* **inwinning:** segments bordering integration segments should not get merged ([5f01c99](https://github.com/informatievlaanderen/road-registry/commit/5f01c99e111b0fe5410cca8941a5612ca9044e10))
+
 ## [4.57.13](https://github.com/informatievlaanderen/road-registry/compare/v4.57.12...v4.57.13) (2026-05-05)
 
 
