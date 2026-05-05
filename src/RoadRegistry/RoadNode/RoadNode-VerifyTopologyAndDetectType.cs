@@ -17,7 +17,7 @@ public partial class RoadNode
         var problems = Problems.WithContext(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
 
         var segments = context.RoadNetwork.GetNonRemovedRoadSegments()
-            .Where(x => x.Attributes is not null && (x.StartNodeId == RoadNodeId || x.EndNodeId == RoadNodeId))
+            .Where(x => x.StartNodeId == RoadNodeId || x.EndNodeId == RoadNodeId)
             .ToList();
 
         if (IsRemoved)
@@ -85,7 +85,9 @@ public partial class RoadNode
 
     private Problems MergeRoadSegmentsIfNodeIsNotNeeded(RoadSegment segment1, RoadSegment segment2, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
     {
-        var roadNodeIsNeeded = RoadNodePreventsInvalidRoadSegmentGeometry(segment1, segment2, roadSegmentsSpatialIndex, context);
+        var roadNodeIsNeeded = segment1.Attributes is null
+                               || segment2.Attributes is null
+                               || RoadNodePreventsInvalidRoadSegmentGeometry(segment1, segment2, roadSegmentsSpatialIndex, context);
         if (roadNodeIsNeeded)
         {
             ChangeTypeTo(RoadNodeTypeV2.Validatieknoop, context.Provenance);

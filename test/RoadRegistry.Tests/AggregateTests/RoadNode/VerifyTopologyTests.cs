@@ -5,10 +5,16 @@ using RoadRegistry.Extensions;
 using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadNetwork.Schema;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadNode.Events.V2;
+using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
+using RoadRegistry.ScopedRoadNetwork;
+using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using ValueObjects.Problems;
+using RoadNode = RoadRegistry.RoadNode.RoadNode;
+using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 public class VerifyTopologyTests : RoadNetworkTestBase
 {
@@ -208,6 +214,68 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 wasChanged.Should().NotBeNull();
             })
         );
+    }
+
+    [Fact]
+    public void WhenDetectType_WithTwoSegmentsWhereOneIsV1_ThenValidatieknoop()
+    {
+        var point1 = new Point(600000, 600000);
+        var point2 = new Point(600010, 600000);
+        var point3 = new Point(600020, 600000);
+
+        // v1 situation
+        var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
+            roadNodes: [
+                RoadNode.CreateForMigration(TestData.Segment1StartNodeAdded.RoadNodeId, RoadNodeGeometry.Create(point1)),
+                RoadNode.CreateForMigration(TestData.Segment1EndNodeAdded.RoadNodeId, RoadNodeGeometry.Create(point2)),
+                RoadNode.CreateForMigration(TestData.Segment2EndNodeAdded.RoadNodeId, RoadNodeGeometry.Create(point3)),
+            ],
+            roadSegments: [
+                RoadSegment.CreateForMigration(TestData.Segment1Added.RoadSegmentId, BuildRoadSegmentGeometry(point1, point2), TestData.Segment1StartNodeAdded.RoadNodeId, TestData.Segment1EndNodeAdded.RoadNodeId),
+                RoadSegment.CreateForMigration(TestData.Segment2Added.RoadSegmentId, BuildRoadSegmentGeometry(point2, point3), TestData.Segment1EndNodeAdded.RoadNodeId, TestData.Segment2EndNodeAdded.RoadNodeId),
+            ]);
+
+        // Act
+        var result = roadNetwork.Migrate(RoadNetworkChanges.Start()
+                .WithProvenance(new FakeProvenance())
+                .Add(new ModifyRoadNodeChange
+                {
+                    RoadNodeId = TestData.Segment1EndNodeAdded.RoadNodeId,
+                    Geometry = RoadNodeGeometry.Create(point2),
+                    Grensknoop = false,
+                })
+                .Add(new ModifyRoadNodeChange
+                {
+                    RoadNodeId = TestData.Segment2EndNodeAdded.RoadNodeId,
+                    Geometry = RoadNodeGeometry.Create(point3),
+                    Grensknoop = false
+                })
+                .Add((new ModifyRoadSegmentChange
+                {
+                    RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment2Added.RoadSegmentId),
+                    Geometry = BuildRoadSegmentGeometry(point2, point3),
+                    GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                    AccessRestriction = TestData.Segment2Added.AccessRestriction,
+                    Category = TestData.Segment2Added.Category,
+                    MaintenanceAuthorityId = TestData.Segment2Added.MaintenanceAuthorityId,
+                    Morphology = TestData.Segment2Added.Morphology,
+                    StreetNameId = TestData.Segment2Added.StreetNameId,
+                    SurfaceType = TestData.Segment2Added.SurfaceType,
+                    CarAccessBackward = TestData.Segment2Added.CarAccessBackward,
+                    CarAccessForward = TestData.Segment2Added.CarAccessForward,
+                    BikeAccessBackward = TestData.Segment2Added.BikeAccessBackward,
+                    BikeAccessForward = TestData.Segment2Added.BikeAccessForward,
+                    PedestrianAccess = TestData.Segment2Added.PedestrianAccess
+                }).WithDynamicAttributePositionsOnEntireGeometryLength()),
+            TestData.Fixture.Create<DownloadId>(),
+            new InMemoryRoadNetworkIdGenerator());
+
+        // Assert
+        result.Problems.Should().BeEmpty();
+
+        roadNetwork.RoadNodes[new RoadNodeId(2)].Type.Should().Be(RoadNodeTypeV2.Validatieknoop);
+        roadNetwork.RoadNodes[new RoadNodeId(4)].Type.Should().Be(RoadNodeTypeV2.Eindknoop);
     }
 
     [Fact]
