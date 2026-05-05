@@ -82,7 +82,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         problems += ValidateChangeFeaturesAreWithinTransactionZone(dynamicChangeFeaturesTask.Result.RoadSegments, context);
         problems.ThrowIfError();
 
-        changes = RemoveConsumedSchijnknopen(changes, dynamicChangeFeaturesTask.Result.ConsumedRoadNodeIds);
+        changes = ProcessSchijnknopen(changes, dynamicChangeFeaturesTask.Result.ConsumedRoadNodeIds, dynamicChangeFeaturesTask.Result.UsedRoadNodeIds, context);
         RemoveConsumedRoadSegments(extractFeatures, dynamicExtractFeaturesTask.Result.RoadSegments, context);
 
         var processedLeveringRecords = ProcessLeveringRecordsInParallel(dynamicChangeFeaturesTask.Result.RoadSegments, dynamicExtractFeaturesTask.Result.RoadSegments, streetNameContext, context, cancellationToken);
@@ -131,8 +131,22 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         }
     }
 
-    private static TranslatedChanges RemoveConsumedSchijnknopen(TranslatedChanges changes, List<RoadNodeId> consumedRoadNodeIds)
+    private static TranslatedChanges ProcessSchijnknopen(TranslatedChanges changes,
+        IReadOnlyCollection<RoadNodeId> consumedRoadNodeIds,
+        IReadOnlyCollection<RoadNodeId> usedRoadNodeIds,
+        ZipArchiveEntryFeatureCompareTranslateContext context)
     {
+        // remove temporary schijnknopen which are not used
+        var usedRoadNodeIdsHashSet = usedRoadNodeIds.ToHashSet();
+        foreach (var temporarySchijnknoopId in context.TemporarySchijnknoopIds.Keys)
+        {
+            if (!usedRoadNodeIdsHashSet.Contains(temporarySchijnknoopId))
+            {
+                changes = changes.RemoveAddedRoadNodeChange(temporarySchijnknoopId);
+            }
+        }
+
+        // remove actual schijnknopen which are consumed during unflatten
         var roadNodeIdsToRemove = consumedRoadNodeIds
             .Where(x => x < RoadNodeConstants.InitialTemporarySchijnknoopId)
             .ToArray();
