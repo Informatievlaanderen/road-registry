@@ -36,4 +36,22 @@ public static class RoadNetworkChangeExtensions
             PedestrianAccess = change.PedestrianAccess.ForEntireGeometry(change.Geometry)
         };
     }
+
+    public static ModifyRoadSegmentChange WithDynamicAttributePositionsOnEntireGeometryLength(this ModifyRoadSegmentChange change)
+    {
+        return change with
+        {
+            AccessRestriction = change.AccessRestriction.ForEntireGeometry(change.Geometry),
+            Category = change.Category.ForEntireGeometry(change.Geometry),
+            Morphology = change.Morphology.ForEntireGeometry(change.Geometry),
+            StreetNameId = change.StreetNameId.ForEntireGeometry(change.Geometry),
+            MaintenanceAuthorityId = change.MaintenanceAuthorityId.ForEntireGeometry(change.Geometry),
+            SurfaceType = change.SurfaceType.ForEntireGeometry(change.Geometry),
+            CarAccessForward = change.CarAccessForward.ForEntireGeometry(change.Geometry),
+            CarAccessBackward = change.CarAccessBackward.ForEntireGeometry(change.Geometry),
+            BikeAccessForward = change.BikeAccessForward.ForEntireGeometry(change.Geometry),
+            BikeAccessBackward = change.BikeAccessBackward.ForEntireGeometry(change.Geometry),
+            PedestrianAccess = change.PedestrianAccess.ForEntireGeometry(change.Geometry)
+        };
+    }
 }
