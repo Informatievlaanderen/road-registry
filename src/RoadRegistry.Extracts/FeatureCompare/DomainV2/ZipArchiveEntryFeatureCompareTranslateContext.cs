@@ -14,6 +14,8 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
 {
     public ZipArchive Archive { get; }
     public TransactionZoneFeatureCompareAttributes TransactionZone { get; set; }
+    public ConcurrentDictionary<RoadNodeId, byte> TemporarySchijnknoopIds { get; }
+
     private readonly ConcurrentDictionary<FeatureType, List<RoadNodeFeatureCompareRecord>> _roadNodeRecords = [];
     private readonly ConcurrentDictionary<FeatureType, List<RoadSegmentFeatureCompareRecord>> _roadSegmentRecords = [];
     private readonly ConcurrentDictionary<(FeatureType, RoadSegmentTempId), (RoadSegmentId, RecordType)> _roadSegmentTempIdToActualIdMapping = new();
@@ -22,6 +24,7 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
         : base(metadata)
     {
         Archive = archive;
+        TemporarySchijnknoopIds = [];
     }
 
     public void AddRoadNodeRecords(IReadOnlyCollection<RoadNodeFeatureCompareRecord> records)

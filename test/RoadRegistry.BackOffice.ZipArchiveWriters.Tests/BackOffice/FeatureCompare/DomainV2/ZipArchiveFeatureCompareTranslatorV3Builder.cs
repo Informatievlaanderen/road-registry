@@ -2,8 +2,6 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 {
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
-    using Moq;
-    using NetTopologySuite.Geometries;
     using RoadRegistry.Extracts;
     using RoadRegistry.Extracts.FeatureCompare.DomainV2;
     using RoadRegistry.Extracts.FeatureCompare.DomainV2.EuropeanRoad;

@@ -1,6 +1,5 @@
 namespace RoadRegistry.Extracts.FeatureCompare.DomainV2;
 
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO.Compression;
 using RoadNode;
@@ -18,7 +17,6 @@ public class ZipArchiveFeatureReaderContext
     public VerificationContextTolerances Tolerances { get; }
     public IDictionary<RoadSegmentTempId, Feature<RoadSegmentFeatureCompareWithFlatAttributes>> ChangedRoadSegments { get; }
     public IDictionary<RoadNodeId, Feature<RoadNodeFeatureCompareAttributes>> ChangedRoadNodes { get; }
-    public ConcurrentDictionary<RoadNodeId, byte> TemporarySchijnknoopIds { get; }
 
     public ZipArchiveFeatureReaderContext(ZipArchiveMetadata metadata)
     {
@@ -26,6 +24,5 @@ public class ZipArchiveFeatureReaderContext
         Tolerances = VerificationContextTolerances.Cm;
         ChangedRoadSegments = new Dictionary<RoadSegmentTempId, Feature<RoadSegmentFeatureCompareWithFlatAttributes>>();
         ChangedRoadNodes = new Dictionary<RoadNodeId, Feature<RoadNodeFeatureCompareAttributes>>();
-        TemporarySchijnknoopIds = [];
     }
 }

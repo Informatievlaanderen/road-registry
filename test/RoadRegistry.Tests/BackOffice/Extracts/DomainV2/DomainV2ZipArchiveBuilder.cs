@@ -199,33 +199,32 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
         }
     }
 
-    public class ExtractsZipArchiveIntegrationDataSetBuilder
+    public class ExtractsZipArchiveIntegrationDataSetBuilder : RecordBuilder
     {
         public ZipArchiveIntegrationDataSet DataSet { get; private set; }
-        private readonly Fixture _fixture;
 
         public ExtractsZipArchiveIntegrationDataSetBuilder(Fixture fixture)
+            : base(fixture)
         {
-            _fixture = fixture;
         }
 
         public ExtractsZipArchiveIntegrationDataSetBuilder ConfigureIntegration(Action<ExtractsZipArchiveIntegrationDataSetBuilder, ExtractsZipArchiveDataSetBuilderContext> configure)
         {
             DataSet ??= new ZipArchiveIntegrationDataSet
             {
-                RoadNodeDbaseRecords = new[] { _fixture.Create<RoadNodeDbaseRecord>() }.ToList(),
-                RoadNodeShapeRecords = new[] { _fixture.Create<RoadNodeShapeRecord>() }.ToList(),
-                RoadSegmentDbaseRecords = new[] { _fixture.Create<RoadSegmentDbaseRecord>() }.ToList(),
-                RoadSegmentShapeRecords = new[] { _fixture.Create<RoadSegmentShapeRecord>() }.ToList()
+                RoadNodeDbaseRecords = new[] { Fixture.Create<RoadNodeDbaseRecord>() }.ToList(),
+                RoadNodeShapeRecords = new[] { Fixture.Create<RoadNodeShapeRecord>() }.ToList(),
+                RoadSegmentDbaseRecords = new[] { Fixture.Create<RoadSegmentDbaseRecord>() }.ToList(),
+                RoadSegmentShapeRecords = new[] { Fixture.Create<RoadSegmentShapeRecord>() }.ToList()
             };
 
-            configure(this, new ExtractsZipArchiveDataSetBuilderContext(_fixture));
+            configure(this, new ExtractsZipArchiveDataSetBuilderContext(Fixture));
             return this;
         }
 
         public ZipArchiveIntegrationDataSetStreams Build()
         {
-            return new ZipArchiveIntegrationDataSetStreams(_fixture, DataSet);
+            return new ZipArchiveIntegrationDataSetStreams(Fixture, DataSet);
         }
     }
 
@@ -233,13 +232,10 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
     {
         public ZipArchiveDataSetTestData TestData { get; } = new();
         public ZipArchiveDataSet DataSet { get; private set; }
-        private readonly Fixture _fixture;
 
         public ExtractsZipArchiveExtractDataSetBuilder(Fixture fixture)
             : base(fixture)
         {
-            _fixture = fixture;
-
             TestData.RoadSegment1StartNodeDbaseRecord = CreateRoadNodeDbaseRecord(x =>
             {
                 x.TYPE.Value = RoadNodeTypeV2.Eindknoop;
@@ -312,13 +308,13 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
                 TransactionZoneShapeRecords = new[] { TestData.TransactionZoneShapeRecord }.ToList(),
             };
 
-            configure(this, new ExtractsZipArchiveDataSetBuilderContext(_fixture));
+            configure(this, new ExtractsZipArchiveDataSetBuilderContext(Fixture));
             return this;
         }
 
         public ZipArchiveDataSetStreams Build()
         {
-            return new ZipArchiveDataSetStreams(_fixture, DataSet);
+            return new ZipArchiveDataSetStreams(Fixture, DataSet);
         }
     }
 
@@ -400,23 +396,23 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
 
     public class RecordBuilder
     {
-        private readonly Fixture _fixture;
+        protected Fixture Fixture { get; }
 
         public RecordBuilder(Fixture fixture)
         {
-            _fixture = fixture;
+            Fixture = fixture;
         }
 
         public RoadNodeDbaseRecord CreateRoadNodeDbaseRecord(Action<RoadNodeDbaseRecord>? configure = null)
         {
-            var record = _fixture.Create<RoadNodeDbaseRecord>();
+            var record = Fixture.Create<RoadNodeDbaseRecord>();
             configure?.Invoke(record);
             return record;
         }
 
         public RoadNodeShapeRecord CreateRoadNodeShapeRecord()
         {
-            return CreateRoadNodeShapeRecord(_fixture.Create<Point>());
+            return CreateRoadNodeShapeRecord(Fixture.Create<Point>());
         }
 
         public RoadNodeShapeRecord CreateRoadNodeShapeRecord(Point point)
@@ -429,7 +425,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
 
         public RoadSegmentDbaseRecord CreateRoadSegmentDbaseRecord(Action<RoadSegmentDbaseRecord>? configure = null)
         {
-            var record = _fixture.Create<RoadSegmentDbaseRecord>();
+            var record = Fixture.Create<RoadSegmentDbaseRecord>();
             configure?.Invoke(record);
             return record;
         }
@@ -457,27 +453,27 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
 
         public LineString CreateRoadSegmentGeometry()
         {
-            return _fixture.Create<LineString>();
+            return Fixture.Create<LineString>();
         }
 
         public RoadSegmentEuropeanRoadAttributeDbaseRecord CreateRoadSegmentEuropeanRoadDbaseRecord()
         {
-            return _fixture.Create<RoadSegmentEuropeanRoadAttributeDbaseRecord>();
+            return Fixture.Create<RoadSegmentEuropeanRoadAttributeDbaseRecord>();
         }
 
         public RoadSegmentNationalRoadAttributeDbaseRecord CreateRoadSegmentNationalRoadDbaseRecord()
         {
-            return _fixture.Create<RoadSegmentNationalRoadAttributeDbaseRecord>();
+            return Fixture.Create<RoadSegmentNationalRoadAttributeDbaseRecord>();
         }
 
         public GradeSeparatedJunctionDbaseRecord CreateGradeSeparatedJunctionDbaseRecord()
         {
-            return _fixture.Create<GradeSeparatedJunctionDbaseRecord>();
+            return Fixture.Create<GradeSeparatedJunctionDbaseRecord>();
         }
 
         public TransactionZoneDbaseRecord CreateTransactionZoneDbaseRecord()
         {
-            return _fixture.Create<TransactionZoneDbaseRecord>();
+            return Fixture.Create<TransactionZoneDbaseRecord>();
         }
 
         public TransactionZoneShapeRecord CreateTransactionZoneShapeRecord()
@@ -495,7 +491,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
 
         public MultiPolygon CreateTransactionZoneGeometry()
         {
-            return _fixture.Create<Polygon>().ToMultiPolygon();
+            return Fixture.Create<Polygon>().ToMultiPolygon();
         }
 
         public MultiPolygon CreateTransactionZoneGeometry(IEnumerable<MultiLineString> multiLineStrings)

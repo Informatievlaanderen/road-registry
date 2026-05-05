@@ -297,12 +297,71 @@ public class UnflattenScenarios
         dynamicRecord.Attributes.BikeAccessForward!.Values[2].Side.Should().Be(RoadSegmentAttributeSide.Both);
     }
 
-    // [Fact]
-    // public void WhenSegmentsConnectToIntegrationSegment_ThenNotMerged()
-    // {
-    //     //TODO-pr zie Mol WEGSEGMENT 72849 (WS_TEMPID 6174,3350)
-    //     throw new NotImplementedException();
-    // }
+    [Fact]
+    public void WhenSegmentsConnectToIntegrationSegment_ThenNotMerged()
+    {
+        // Arrange
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadSegmentGeometryDrawMethodV2>();
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
+
+        var flatSegment1 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
+        {
+            TempId = new(1),
+            RoadSegmentId = new (1),
+            Geometry = BuildRoadSegmentGeometry(650000, 650000, 650010, 650000),
+            CarAccessForward = false
+        };
+        var flatSegment2 = flatSegment1 with
+        {
+            TempId = new (2),
+            RoadSegmentId = new (2),
+            Geometry = BuildRoadSegmentGeometry(650010, 650000, 650010, 650010),
+            CarAccessForward = true
+        };
+        var flatSegments = new[]
+        {
+            flatSegment1,
+            flatSegment2
+        };
+
+        var nodes = new[]
+        {
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = new RoadNodeId(1),
+                Geometry = new Point(650000, 650000)
+            },
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = new RoadNodeId(2),
+                Geometry = new Point(650010, 650000)
+            },
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = new RoadNodeId(3),
+                Geometry = new Point(650010, 650010)
+            },
+        };
+
+        var nodeLocationsConnectedToIntegrationSegment = new[]
+        {
+            new Point(650010.01, 650000)
+        };
+
+        // Act
+        var unflattenResult = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes,
+            overrideStructuralNodeLocations: nodeLocationsConnectedToIntegrationSegment);
+        var records = unflattenResult.RoadSegments;
+
+        // Assert
+        records.Should().HaveCount(2);
+        var segment1 = records[0];
+        segment1.Attributes.RoadSegmentId.Should().Be(new RoadSegmentId(1));
+
+        var segment2 = records[1];
+        segment2.Attributes.RoadSegmentId.Should().Be(new RoadSegmentId(2));
+    }
 
     [Fact]
     public void WhenSelfIntersectsAndNodeFoundNearExpectedLocationAndSegmentsHaveEqualGeometryDirections_ThenSuccess()
@@ -1004,7 +1063,8 @@ POINT (60 -10)
         FeatureType featureType,
         IReadOnlyList<RoadSegmentFeatureCompareWithFlatAttributes> flatSegments,
         IReadOnlyList<RoadNodeFeatureCompareAttributes> roadNodes,
-        IRoadSegmentIdProvider? roadSegmentIdProvider = null)
+        IRoadSegmentIdProvider? roadSegmentIdProvider = null,
+        IReadOnlyCollection<Point>? overrideStructuralNodeLocations = null)
     {
         var flatRecords = new List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>();
         for (var i = 0; i < flatSegments.Count; i++)
@@ -1032,6 +1092,7 @@ POINT (60 -10)
         var unflattenedRecords = RoadSegmentUnflattener.Unflatten(
             featureType,
             flatRecords,
+            overrideStructuralNodeLocations ?? [],
             roadSegmentIdProvider,
             new OgcFeaturesCache([]),
             translateContext,
