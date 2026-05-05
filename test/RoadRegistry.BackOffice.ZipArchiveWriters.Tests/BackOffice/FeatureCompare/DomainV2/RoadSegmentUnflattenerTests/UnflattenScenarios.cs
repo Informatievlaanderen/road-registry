@@ -60,7 +60,8 @@ public class UnflattenScenarios
         };
 
         // Act
-        var (records, _) = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var unflattenResult = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var records = unflattenResult.RoadSegments;
 
         // Assert
         records.Should().HaveCount(1);
@@ -125,7 +126,8 @@ public class UnflattenScenarios
         };
 
         // Act
-        var (records, _) = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var unflattenResult = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var records = unflattenResult.RoadSegments;
 
         // Assert
         records.Should().HaveCount(1);
@@ -233,7 +235,8 @@ public class UnflattenScenarios
         };
 
         // Act
-        var (records, _) = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var unflattenResult = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var records = unflattenResult.RoadSegments;
 
         // Assert
         records.Should().HaveCount(1);
@@ -294,6 +297,13 @@ public class UnflattenScenarios
         dynamicRecord.Attributes.BikeAccessForward!.Values[2].Side.Should().Be(RoadSegmentAttributeSide.Both);
     }
 
+    // [Fact]
+    // public void WhenSegmentsConnectToIntegrationSegment_ThenNotMerged()
+    // {
+    //     //TODO-pr zie Mol WEGSEGMENT 72849 (WS_TEMPID 6174,3350)
+    //     throw new NotImplementedException();
+    // }
+
     [Fact]
     public void WhenSelfIntersectsAndNodeFoundNearExpectedLocationAndSegmentsHaveEqualGeometryDirections_ThenSuccess()
     {
@@ -310,7 +320,8 @@ POINT (20 -10)
 ";
 
         // Act
-        var (records, _) = Unflatten(fixture, scenario);
+        var unflattenResult = Unflatten(fixture, scenario);
+        var records = unflattenResult.RoadSegments;
 
         // Assert
         records.Should().HaveCount(2);
@@ -337,7 +348,8 @@ POINT (654032.4523215394 709447.5770450002)
 ";
 
         // Act
-        var (records, _) = Unflatten(fixture, scenario);
+        var unflattenResult = Unflatten(fixture, scenario);
+        var records = unflattenResult.RoadSegments;
 
         // Assert
         records.Should().HaveCount(2);
@@ -364,7 +376,8 @@ POINT (608043.8853908601 697648.009161504)
 ";
 
         // Act
-        var (records, _) = Unflatten(fixture, scenario);
+        var unflattenResult = Unflatten(fixture, scenario);
+        var records = unflattenResult.RoadSegments;
 
         // Assert
         records.Should().HaveCount(2);
@@ -391,7 +404,8 @@ POINT (20 -10)
 ";
 
         // Act
-        var (records, _) = Unflatten(fixture, scenario);
+        var unflattenResult = Unflatten(fixture, scenario);
+        var records = unflattenResult.RoadSegments;
 
         // Assert
         records.Should().HaveCount(2);
@@ -422,7 +436,8 @@ POINT (30 -30)
 ";
 
         // Act
-        var (records, _) = Unflatten(fixture, scenario);
+        var unflattenResult = Unflatten(fixture, scenario);
+        var records = unflattenResult.RoadSegments;
 
         // Assert
         records.Should().HaveCount(3);
@@ -475,7 +490,8 @@ POINT (20 0)
 ";
 
         // Act
-        var (records, _) = Unflatten(fixture, scenario);
+        var unflattenResult = Unflatten(fixture, scenario);
+        var records = unflattenResult.RoadSegments;
 
         // Assert
         records.Should().HaveCount(3);
@@ -514,7 +530,8 @@ POINT (20 -10)
         var flatSegment = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>();
 
         // Act
-        var (records, _) = Unflatten(fixture, scenario, flatSegmentFactory: () => flatSegment);
+        var unflattenResult = Unflatten(fixture, scenario, flatSegmentFactory: () => flatSegment);
+        var records = unflattenResult.RoadSegments;
 
         // Assert
         records.Should().HaveCount(4);
@@ -555,7 +572,9 @@ POINT (630236.3268711214 685179.3550339863)
 ";
 
         // Act
-        var (records, consumedRoadNodeIds) = Unflatten(fixture, scenario);
+        var unflattenResult = Unflatten(fixture, scenario);
+        var records = unflattenResult.RoadSegments;
+        var consumedRoadNodeIds = unflattenResult.ConsumedRoadNodeIds;
 
         // Assert
         records.Should().HaveCount(3);
@@ -641,8 +660,10 @@ POINT (630236.3268711214 685179.3550339863)
         };
 
         // Act
-        var (records, consumedRoadNodeIds) = Unflatten(FeatureType.Extract, flatSegments, nodes,
+        var unflattenResult = Unflatten(FeatureType.Extract, flatSegments, nodes,
             roadSegmentIdProvider: new ExtractRoadSegmentIdProvider());
+        var records = unflattenResult.RoadSegments;
+        var consumedRoadNodeIds = unflattenResult.ConsumedRoadNodeIds;
 
         // Assert
         records.Should().HaveCount(2);
@@ -650,6 +671,91 @@ POINT (630236.3268711214 685179.3550339863)
         consumedRoadNodeIds.Should().NotContain(new RoadNodeId(2));
         consumedRoadNodeIds.Should().Contain(new RoadNodeId(3));
         consumedRoadNodeIds.Should().Contain(new RoadNodeId(4));
+
+        var dynamicRecord1 = records.Single(x => x.Attributes.RoadSegmentId == new RoadSegmentId(1));
+        dynamicRecord1.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((0 0, 2.5 2.5, 5 5))");
+
+        var dynamicRecord2 = records.Single(x => x.Attributes.RoadSegmentId == new RoadSegmentId(2));
+        dynamicRecord2.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((5 5, 7.5 7.5, 10 0, 5 -5, 0 0))");
+    }
+
+    [Fact]
+    public void WhenSameStartEndNodeButNotConnectedToStructuralNode_AndOriginalTemporarySchijnknoopBecomesStructuralNode_ThenTemporarySchijnknoopIsUsed()
+    {
+        // Arrange
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
+
+        var flatSegment1 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
+        {
+            TempId = new(1),
+            RoadSegmentId = new(1),
+            Geometry = BuildRoadSegmentGeometry((0, 0), (2.5, 2.5), (5, 5))
+        };
+        var flatSegment2a = flatSegment1 with
+        {
+            TempId = new(2),
+            RoadSegmentId = new(2),
+            Geometry = BuildRoadSegmentGeometry((5, 5), (7.5, 7.5), (10, 0))
+        };
+        var flatSegment2b = flatSegment2a with
+        {
+            TempId = new(3),
+            Geometry = BuildRoadSegmentGeometry(10, 0, 5, -5)
+        };
+        var flatSegment2c = flatSegment2a with
+        {
+            TempId = new(4),
+            Geometry = BuildRoadSegmentGeometry(5, -5, 0, 0)
+        };
+        var flatSegments = new[]
+        {
+            flatSegment1,
+            flatSegment2a,
+            flatSegment2b,
+            flatSegment2c,
+        };
+
+        var nodes = new[]
+        {
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = RoadNodeConstants.InitialTemporarySchijnknoopId,
+                Geometry = new Point(0, 0)
+            },
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = new RoadNodeId(2),
+                Geometry = new Point(5, 5)
+            },
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = new RoadNodeId(3),
+                Geometry = new Point(10, 0)
+            },
+            new RoadNodeFeatureCompareAttributes
+            {
+                RoadNodeId = new RoadNodeId(4),
+                Geometry = new Point(5, -5)
+            },
+        };
+
+        // Act
+        var unflattenResult = Unflatten(FeatureType.Extract, flatSegments, nodes,
+            roadSegmentIdProvider: new ExtractRoadSegmentIdProvider());
+        var records = unflattenResult.RoadSegments;
+        var consumedRoadNodeIds = unflattenResult.ConsumedRoadNodeIds;
+        var usedRoadNodeIds = unflattenResult.UsedRoadNodeIds;
+
+        // Assert
+        records.Should().HaveCount(2);
+        consumedRoadNodeIds.Should().NotContain(new RoadNodeId(1_000_000_000));
+        consumedRoadNodeIds.Should().NotContain(new RoadNodeId(2));
+        consumedRoadNodeIds.Should().Contain(new RoadNodeId(3));
+        consumedRoadNodeIds.Should().Contain(new RoadNodeId(4));
+        usedRoadNodeIds.Should().HaveCount(2);
+        usedRoadNodeIds.Should().Contain(new RoadNodeId(1_000_000_000));
+        usedRoadNodeIds.Should().Contain(new RoadNodeId(2));
 
         var dynamicRecord1 = records.Single(x => x.Attributes.RoadSegmentId == new RoadSegmentId(1));
         dynamicRecord1.Attributes.Geometry.AsText().Should().Be("MULTILINESTRING ((0 0, 2.5 2.5, 5 5))");
@@ -695,7 +801,8 @@ POINT (20 -10)
 ";
 
         // Act
-        var (records, _) = Unflatten(fixture, scenario);
+        var unflattenResult = Unflatten(fixture, scenario);
+        var records = unflattenResult.RoadSegments;
 
         // Assert
         records.Should().HaveCount(3);
@@ -731,7 +838,8 @@ POINT (60 -10)
 ";
 
         // Act
-        var (records, _) = Unflatten(fixture, scenario);
+        var unflattenResult = Unflatten(fixture, scenario);
+        var records = unflattenResult.RoadSegments;
 
         // Assert
         records.Should().HaveCount(5);
@@ -792,7 +900,9 @@ POINT (60 -10)
         };
 
         // Act
-        var (records, consumedRoadNodeIds) = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var unflattenResult = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var records = unflattenResult.RoadSegments;
+        var consumedRoadNodeIds = unflattenResult.ConsumedRoadNodeIds;
 
         // Assert
         consumedRoadNodeIds.Should().NotContain(new RoadNodeId(1));
@@ -844,14 +954,15 @@ POINT (60 -10)
         };
 
         // Act
-        var (result, _) = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var unflattenResult = Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
+        var result = unflattenResult.RoadSegments;
 
         // Assert
         result.Should().HaveCount(1);
         result[0].Attributes.Method.Should().Be(RoadSegmentGeometryDrawMethodV2.Ingemeten);
     }
 
-    private (List<RoadSegmentFeatureWithDynamicAttributes> RoadSegments, List<RoadNodeId> ConsumedRoadNodeIds) Unflatten(
+    private (List<RoadSegmentFeatureWithDynamicAttributes> RoadSegments, List<RoadNodeId> ConsumedRoadNodeIds, List<RoadNodeId> UsedRoadNodeIds) Unflatten(
         IFixture fixture,
         string scenarioWkt,
         Func<RoadSegmentFeatureCompareWithFlatAttributes> flatSegmentFactory = null)
@@ -889,7 +1000,7 @@ POINT (60 -10)
         return Unflatten(fixture.Create<FeatureType>(), flatSegments, nodes);
     }
 
-    private (List<RoadSegmentFeatureWithDynamicAttributes> RoadSegments, List<RoadNodeId> ConsumedRoadNodeIds) Unflatten(
+    private (List<RoadSegmentFeatureWithDynamicAttributes> RoadSegments, List<RoadNodeId> ConsumedRoadNodeIds, List<RoadNodeId> UsedRoadNodeIds) Unflatten(
         FeatureType featureType,
         IReadOnlyList<RoadSegmentFeatureCompareWithFlatAttributes> flatSegments,
         IReadOnlyList<RoadNodeFeatureCompareAttributes> roadNodes,
@@ -928,11 +1039,11 @@ POINT (60 -10)
 
         TestOutputHelper.WriteLine(string.Empty);
         TestOutputHelper.WriteLine("-->");
-        TestOutputHelper.WriteLine($"Dynamic segments: {JsonConvert.SerializeObject(unflattenedRecords, Formatting.Indented, SqsJsonSerializerSettingsProvider.CreateSerializerSettings())}");
+        TestOutputHelper.WriteLine($"Unflatten result: {JsonConvert.SerializeObject(unflattenedRecords, Formatting.Indented, SqsJsonSerializerSettingsProvider.CreateSerializerSettings())}");
 
         unflattenedRecords.Problems.ThrowIfError();
 
-        return (unflattenedRecords.RoadSegments, unflattenedRecords.ConsumedRoadNodeIds);
+        return (unflattenedRecords.RoadSegments, unflattenedRecords.ConsumedRoadNodeIds.ToList(), unflattenedRecords.UsedRoadNodeIds.ToList());
     }
 
     private static MultiLineString BuildRoadSegmentGeometry(int x1, int y1, int x2, int y2)

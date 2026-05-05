@@ -118,7 +118,8 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                         changeFeature.Attributes,
                         extractFeature.Attributes.RoadNodeId,
                         RecordType.Identical));
-                    if (extractFeature.Attributes.RoadNodeId >= RoadNodeConstants.InitialTemporarySchijnknoopId)
+                    var isTemporarySchijnknoop = extractFeature.Attributes.RoadNodeId >= RoadNodeConstants.InitialTemporarySchijnknoopId;
+                    if (isTemporarySchijnknoop)
                     {
                         context.TemporarySchijnknoopIds.TryAdd(extractFeature.Attributes.RoadNodeId, 0);
                     }
@@ -137,7 +138,8 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                     {
                         GeometryChanged = true
                     });
-                    if (extractFeature.Attributes.RoadNodeId >= RoadNodeConstants.InitialTemporarySchijnknoopId)
+                    var isTemporarySchijnknoop = extractFeature.Attributes.RoadNodeId >= RoadNodeConstants.InitialTemporarySchijnknoopId;
+                    if (isTemporarySchijnknoop)
                     {
                         context.TemporarySchijnknoopIds.TryAdd(extractFeature.Attributes.RoadNodeId, 0);
                     }
@@ -153,7 +155,8 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                         extractFeature.Attributes,
                         extractFeature.Attributes.RoadNodeId,
                         RecordType.Removed));
-                    if (extractFeature.Attributes.RoadNodeId >= RoadNodeConstants.InitialTemporarySchijnknoopId)
+                    var isTemporarySchijnknoop = extractFeature.Attributes.RoadNodeId >= RoadNodeConstants.InitialTemporarySchijnknoopId;
+                    if (isTemporarySchijnknoop)
                     {
                         context.TemporarySchijnknoopIds.TryAdd(extractFeature.Attributes.RoadNodeId, 0);
                     }
@@ -182,14 +185,25 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
         var roadNodeFeatureCompareRecords = context.GetRoadNodeRecords(FeatureType.Change);
         foreach (var record in roadNodeFeatureCompareRecords)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            var recordType = record.RecordType;
 
-            if (context.TemporarySchijnknoopIds.ContainsKey(record.Id))
+            var isTemporarySchijnknoop = record.Id >= RoadNodeConstants.InitialTemporarySchijnknoopId;
+            if (isTemporarySchijnknoop)
             {
-                continue;
+                if (recordType == RecordType.Identical || recordType == RecordType.Modified)
+                {
+                    recordType = RecordType.Added;
+                }
+
+                if (recordType == RecordType.Removed)
+                {
+                    continue;
+                }
             }
 
-            switch (record.RecordType.Translation.Identifier)
+            cancellationToken.ThrowIfCancellationRequested();
+
+            switch (recordType.Translation.Identifier)
             {
                 case RecordType.IdenticalIdentifier:
                     if (context.ZipArchiveMetadata.Inwinning)

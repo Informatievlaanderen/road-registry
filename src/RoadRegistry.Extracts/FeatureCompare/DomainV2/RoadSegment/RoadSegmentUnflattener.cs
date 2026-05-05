@@ -12,7 +12,8 @@ using RoadRegistry.ValueObjects.Problems;
 public sealed record UnflattenRoadSegmentsResult
 {
     public required List<RoadSegmentFeatureWithDynamicAttributes> RoadSegments { get; init; }
-    public required List<RoadNodeId> ConsumedRoadNodeIds { get; init; }
+    public required IReadOnlyCollection<RoadNodeId> UsedRoadNodeIds { get; init; }
+    public required IReadOnlyCollection<RoadNodeId> ConsumedRoadNodeIds { get; init; }
     public required ZipArchiveProblems Problems { get; init; }
 }
 
@@ -55,6 +56,7 @@ public class RoadSegmentUnflattener
         return new UnflattenRoadSegmentsResult
         {
             RoadSegments = unflattenedRecords,
+            UsedRoadNodeIds = structuralNodes.Keys.Union(mergedResult.ConsumedNodes.GetRemoved()).ToArray(),
             ConsumedRoadNodeIds = mergedResult.ConsumedNodes.GetConsumed(),
             Problems = problems
         };
@@ -689,9 +691,14 @@ public class RoadSegmentUnflattener
             }
         }
 
-        public List<RoadNodeId> GetConsumed()
+        public IReadOnlyCollection<RoadNodeId> GetConsumed()
         {
-            return _added.Except(_removed).ToList();
+            return _added.Except(_removed).ToArray();
+        }
+
+        public IReadOnlyCollection<RoadNodeId> GetRemoved()
+        {
+            return _removed.Except(_added).ToArray();
         }
     }
 
@@ -771,7 +778,6 @@ public class RoadSegmentUnflattener
         var splitResult = TrySplitAtNearestNodeOnInvalidGeometrySection(segment, consumedNodes, sameStartEndIntersectionGeometry, nonClassifiedNodes, roadSegmentIdProvider, context);
         if (splitResult is null)
         {
-            //TODO-pr maybe return problem that no node was found but is needed?
             throw new InvalidOperationException($"Impossible scenario: at this moment a node should always be found because of earlier validations. TempIds: {string.Join(",", segment.FlatFeatures.Select(x => x.Attributes.TempId.ToInt32()))}, IntersectionLocation: {sameStartEndIntersectionGeometry.Intersection.X.ToRoundedMeasurementString()} {sameStartEndIntersectionGeometry.Intersection.Y.ToRoundedMeasurementString()}");
         }
 
