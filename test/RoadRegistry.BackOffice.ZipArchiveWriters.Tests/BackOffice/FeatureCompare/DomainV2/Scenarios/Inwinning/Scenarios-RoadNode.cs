@@ -491,7 +491,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     }
 
     [Fact]
-    public async Task GivenTempSchijnknoopAndRealSchijnknoop_WhenTempBecomesStructuralAndRealIsConsumed_ThenKeepTempAddAndRemoveConsumedRealNode()
+    public async Task WhenTempSchijnknoopBecomesStructural_ThenKeepAddAndRemoveConsumedRealNode()
     {
         // Arrange: extract with a real schijnknoop (node 2) and a temporary schijnknoop (node 1_000_000_000)
         // Change: same topology, but a new branch segment connects at the temp schijnknoop position,
@@ -574,7 +574,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                 var end = new Point(650030, 650000).WithSrid(WellknownSrids.Lambert08);
                 var branchEnd = new Point(650020, 650010).WithSrid(WellknownSrids.Lambert08);
 
-                // Nodes: same as extract, plus a new node at branchEnd
+                // Nodes: recreate the same four nodes from extract, plus a new node at branchEnd
                 builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(start));
                 builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
                 {
