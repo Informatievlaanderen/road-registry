@@ -60,12 +60,17 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             )
             .ToList());
 
+        var integrationNodeLocations = integrationFeatures
+            .SelectMany(x => x.Attributes.Geometry.GetStartAndEndPoints())
+            .Distinct()
+            .ToArray();
+
         var maxUsedRoadSegmentId = integrationFeatures.Select(x => x.Attributes.RoadSegmentId!.Value)
             .Concat(extractFeatures.Select(x => x.Attributes.RoadSegmentId!.Value))
             .Concat(changeFeatures.Where(x => x.Attributes.RoadSegmentId is not null).Select(x => x.Attributes.RoadSegmentId!.Value))
             .Max();
         var ogcFeaturesCache = await GetOgcFeaturesCache(context, cancellationToken);
-        var dynamicExtractFeaturesTask = Task.Run(() => RoadSegmentUnflattener.Unflatten(FeatureType.Extract, extractFeatures, new ExtractRoadSegmentIdProvider(), ogcFeaturesCache, context, cancellationToken), cancellationToken);
+        var dynamicExtractFeaturesTask = Task.Run(() => RoadSegmentUnflattener.Unflatten(FeatureType.Extract, extractFeatures, integrationNodeLocations, new ExtractRoadSegmentIdProvider(), ogcFeaturesCache, context, cancellationToken), cancellationToken);
         if (Debugger.IsAttached)
         {
             await dynamicExtractFeaturesTask;
@@ -76,7 +81,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         problems += validateProblems;
 
         var roadSegmentIdProvider = new NextRoadSegmentIdProvider(maxUsedRoadSegmentId);
-        var dynamicChangeFeaturesTask = Task.Run(() => RoadSegmentUnflattener.Unflatten(FeatureType.Change, changeFeatures, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken), cancellationToken);
+        var dynamicChangeFeaturesTask = Task.Run(() => RoadSegmentUnflattener.Unflatten(FeatureType.Change, changeFeatures, integrationNodeLocations, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken), cancellationToken);
         await Task.WhenAll(dynamicChangeFeaturesTask, dynamicExtractFeaturesTask);
         problems += dynamicChangeFeaturesTask.Result.Problems;
         problems += ValidateChangeFeaturesAreWithinTransactionZone(dynamicChangeFeaturesTask.Result.RoadSegments, context);

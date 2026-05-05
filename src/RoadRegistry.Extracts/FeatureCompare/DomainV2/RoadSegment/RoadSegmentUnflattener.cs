@@ -2,6 +2,7 @@
 
 using Extensions;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Index.Strtree;
 using NetTopologySuite.LinearReferencing;
 using RoadNode;
 using RoadRegistry.Extracts.Uploads;
@@ -22,17 +23,19 @@ public class RoadSegmentUnflattener
     public static UnflattenRoadSegmentsResult Unflatten(
         FeatureType featureType,
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
+        IReadOnlyCollection<Point> overrideStructuralNodeLocations,
         IRoadSegmentIdProvider roadSegmentIdProvider,
         OgcFeaturesCache ogcFeaturesCache,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
-        return new RoadSegmentUnflattener().UnflattenRoadSegments(featureType, records, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken);
+        return new RoadSegmentUnflattener().UnflattenRoadSegments(featureType, records, overrideStructuralNodeLocations, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken);
     }
 
     private UnflattenRoadSegmentsResult UnflattenRoadSegments(
         FeatureType featureType,
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
+        IReadOnlyCollection<Point> overrideStructuralNodeLocations,
         IRoadSegmentIdProvider roadSegmentIdProvider,
         OgcFeaturesCache ogcFeaturesCache,
         ZipArchiveEntryFeatureCompareTranslateContext context,
@@ -44,7 +47,7 @@ public class RoadSegmentUnflattener
         var segmentsByNode = BuildSegmentNodeGraph(featureType, records, context, cancellationToken);
 
         // Step 2: Classify only nodes that are NOT used for validation (Eindknoop, EchteKnoop, Grensknoop)
-        var structuralNodes = ClassifyStructuralNodes(featureType, segmentsByNode, context, cancellationToken);
+        var structuralNodes = ClassifyStructuralNodes(featureType, segmentsByNode, overrideStructuralNodeLocations, context, cancellationToken);
 
         // Step 3: Merge ALL segments connected by nodes that aren't Eindknoop/EchteKnoop/Grensknoop
         var mergedResult = MergeSegmentsAtNonStructuralNodes(featureType, records, roadSegmentIdProvider, segmentsByNode, structuralNodes, context.Tolerances, ogcFeaturesCache, cancellationToken);
@@ -155,6 +158,7 @@ public class RoadSegmentUnflattener
     private Dictionary<RoadNodeId, RoadNodeTypeV2> ClassifyStructuralNodes(
         FeatureType featureType,
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
+        IReadOnlyCollection<Point> overrideStructuralNodeLocations,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
@@ -162,6 +166,14 @@ public class RoadSegmentUnflattener
         var roadNodeRecords = context.GetRoadNodeRecords(featureType)
             .NotRemoved()
             .ToList();
+
+        var overrideStructuralNodeLocationsSpatialIndex = new STRtree<Point>();
+        foreach (var point in overrideStructuralNodeLocations)
+        {
+            overrideStructuralNodeLocationsSpatialIndex.Insert(point.EnvelopeInternal, point);
+        }
+
+        overrideStructuralNodeLocationsSpatialIndex.Build();
 
         foreach (var (node, connectedSegments) in segmentsByNode)
         {
@@ -194,6 +206,14 @@ public class RoadSegmentUnflattener
             if (segmentCount == 2 && nodeRecord.Attributes.Grensknoop == true)
             {
                 nodeClassifications[nodeId] = RoadNodeTypeV2.Validatieknoop;
+                continue;
+            }
+
+            var overrides = overrideStructuralNodeLocationsSpatialIndex
+                .Query(nodeRecord.Attributes.Geometry.Buffer(VerificationContextTolerances.RoadNodeBuffer.GeometryTolerance / 2.0).EnvelopeInternal);
+            if (overrides.Any())
+            {
+                nodeClassifications[nodeId] = RoadNodeTypeV2.EchteKnoop;
                 continue;
             }
 

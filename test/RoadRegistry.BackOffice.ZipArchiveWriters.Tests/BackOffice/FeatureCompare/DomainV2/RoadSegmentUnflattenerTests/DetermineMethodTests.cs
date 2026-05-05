@@ -36,6 +36,7 @@ public class DetermineMethodTests
         var records = RoadSegmentUnflattener.Unflatten(
             fixture.Create<FeatureType>(),
             [new(new RecordNumber(1), flatSegment)],
+            [],
             fixture.Create<NextRoadSegmentIdProvider>(),
             new OgcFeaturesCache([]),
             new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
@@ -64,6 +65,7 @@ public class DetermineMethodTests
         var records = RoadSegmentUnflattener.Unflatten(
             fixture.Create<FeatureType>(),
             [new(new RecordNumber(1), flatSegment)],
+            [],
             fixture.Create<NextRoadSegmentIdProvider>(),
             new OgcFeaturesCache([]),
             new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
@@ -95,6 +97,7 @@ public class DetermineMethodTests
         var records = RoadSegmentUnflattener.Unflatten(
             fixture.Create<FeatureType>(),
             [new(new RecordNumber(1), flatSegment)],
+            [],
             fixture.Create<NextRoadSegmentIdProvider>(),
             ogcFeaturesCache,
             new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
@@ -126,6 +129,7 @@ public class DetermineMethodTests
         var records = RoadSegmentUnflattener.Unflatten(
             fixture.Create<FeatureType>(),
             [new(new RecordNumber(1), flatSegment)],
+            [],
             fixture.Create<NextRoadSegmentIdProvider>(),
             ogcFeaturesCache,
             new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
