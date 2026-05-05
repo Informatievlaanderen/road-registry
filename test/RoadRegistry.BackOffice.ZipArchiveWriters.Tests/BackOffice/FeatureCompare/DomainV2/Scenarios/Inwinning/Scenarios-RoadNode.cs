@@ -489,4 +489,172 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
         changes.Should().Contain(x => x is RemoveRoadNodeChange && ((RemoveRoadNodeChange)x).RoadNodeId == 2);
         changes.Should().NotContain(x => x is RemoveRoadNodeChange && ((RemoveRoadNodeChange)x).RoadNodeId == 1_000_000_000);
     }
+
+    [Fact]
+    public async Task GivenTempSchijnknoopAndRealSchijnknoop_WhenTempBecomesStructuralAndRealIsConsumed_ThenKeepTempAddAndRemoveConsumedRealNode()
+    {
+        // Arrange: extract with a real schijnknoop (node 2) and a temporary schijnknoop (node 1_000_000_000)
+        // Change: same topology, but a new branch segment connects at the temp schijnknoop position,
+        // making it a 3-way junction (structural/EchteKnoop). The real schijnknoop is consumed by unflattening.
+        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+            .WithIntegration((builder, _) =>
+            {
+                builder.DataSet.Clear();
+            })
+            .WithExtract((builder, _) =>
+            {
+                builder.DataSet.Clear();
+
+                var start = new Point(650000, 650000).WithSrid(WellknownSrids.Lambert08);
+                var realSchijnknoop = new Point(650010, 650000).WithSrid(WellknownSrids.Lambert08);
+                var tempSchijnknoop = new Point(650020, 650000).WithSrid(WellknownSrids.Lambert08);
+                var end = new Point(650030, 650000).WithSrid(WellknownSrids.Lambert08);
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(start));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
+                {
+                    x.WK_OIDN.Value = 1;
+                    x.TYPE.Value = RoadNodeTypeV2.Eindknoop;
+                    x.GRENSKNOOP.Value = 0;
+                }));
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(realSchijnknoop));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
+                {
+                    x.WK_OIDN.Value = 2;
+                    x.TYPE.Value = RoadNodeTypeV2.Schijnknoop;
+                    x.GRENSKNOOP.Value = 0;
+                }));
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(tempSchijnknoop));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
+                {
+                    x.WK_OIDN.Value = 1_000_000_000;
+                    x.TYPE.Value = RoadNodeTypeV2.Schijnknoop;
+                    x.GRENSKNOOP.Value = 0;
+                }));
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(end));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
+                {
+                    x.WK_OIDN.Value = 4;
+                    x.TYPE.Value = RoadNodeTypeV2.Eindknoop;
+                    x.GRENSKNOOP.Value = 0;
+                }));
+
+                var seg1 = builder.CreateRoadSegmentDbaseRecord(x =>
+                {
+                    x.WS_TEMPID.Value = 1;
+                    x.WS_OIDN.Value = 1;
+                });
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.CreateRoadSegmentShapeRecord(new LineString([start.Coordinate, realSchijnknoop.Coordinate])));
+                builder.DataSet.RoadSegmentDbaseRecords.Add(seg1);
+
+                var seg2 = seg1.Clone(new RecyclableMemoryStreamManager(), FileEncoding.UTF8);
+                seg2.WS_TEMPID.Value = 2;
+                seg2.WS_OIDN.Value = 2;
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.CreateRoadSegmentShapeRecord(new LineString([realSchijnknoop.Coordinate, tempSchijnknoop.Coordinate])));
+                builder.DataSet.RoadSegmentDbaseRecords.Add(seg2);
+
+                var seg3 = seg1.Clone(new RecyclableMemoryStreamManager(), FileEncoding.UTF8);
+                seg3.WS_TEMPID.Value = 3;
+                seg3.WS_OIDN.Value = 3;
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.CreateRoadSegmentShapeRecord(new LineString([tempSchijnknoop.Coordinate, end.Coordinate])));
+                builder.DataSet.RoadSegmentDbaseRecords.Add(seg3);
+
+                builder.DataSet.TransactionZoneShapeRecords[0].Geometry = ((NetTopologySuite.Geometries.Polygon)start.Buffer(100)).ToMultiPolygon();
+            })
+            .WithChange((builder, context) =>
+            {
+                builder.DataSet.Clear();
+
+                var start = new Point(650000, 650000).WithSrid(WellknownSrids.Lambert08);
+                var realSchijnknoop = new Point(650010, 650000).WithSrid(WellknownSrids.Lambert08);
+                var tempSchijnknoop = new Point(650020, 650000).WithSrid(WellknownSrids.Lambert08);
+                var end = new Point(650030, 650000).WithSrid(WellknownSrids.Lambert08);
+                var branchEnd = new Point(650020, 650010).WithSrid(WellknownSrids.Lambert08);
+
+                // Nodes: same as extract, plus a new node at branchEnd
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(start));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
+                {
+                    x.WK_OIDN.Value = 1;
+                    x.TYPE.Value = RoadNodeTypeV2.Eindknoop;
+                    x.GRENSKNOOP.Value = 0;
+                }));
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(realSchijnknoop));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
+                {
+                    x.WK_OIDN.Value = 2;
+                    x.TYPE.Value = RoadNodeTypeV2.Schijnknoop;
+                    x.GRENSKNOOP.Value = 0;
+                }));
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(tempSchijnknoop));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
+                {
+                    x.WK_OIDN.Value = 1_000_000_000;
+                    x.TYPE.Value = RoadNodeTypeV2.Schijnknoop;
+                    x.GRENSKNOOP.Value = 0;
+                }));
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(end));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
+                {
+                    x.WK_OIDN.Value = 4;
+                    x.TYPE.Value = RoadNodeTypeV2.Eindknoop;
+                    x.GRENSKNOOP.Value = 0;
+                }));
+
+                // New node at branch end — causes temp schijnknoop to become a 3-way junction
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(branchEnd));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
+                {
+                    x.WK_OIDN.Value = 5;
+                    x.TYPE.Value = RoadNodeTypeV2.Eindknoop;
+                    x.GRENSKNOOP.Value = 0;
+                }));
+
+                // Segments: same 3 as extract, plus a new branch from the temp schijnknoop
+                var baseRecord = context.Extract.DataSet.RoadSegmentDbaseRecords[0];
+
+                var seg1 = baseRecord.Clone(new RecyclableMemoryStreamManager(), FileEncoding.UTF8);
+                seg1.WS_TEMPID.Value = 1;
+                seg1.WS_OIDN.Value = 1;
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.CreateRoadSegmentShapeRecord(new LineString([start.Coordinate, realSchijnknoop.Coordinate])));
+                builder.DataSet.RoadSegmentDbaseRecords.Add(seg1);
+
+                var seg2 = baseRecord.Clone(new RecyclableMemoryStreamManager(), FileEncoding.UTF8);
+                seg2.WS_TEMPID.Value = 2;
+                seg2.WS_OIDN.Value = 2;
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.CreateRoadSegmentShapeRecord(new LineString([realSchijnknoop.Coordinate, tempSchijnknoop.Coordinate])));
+                builder.DataSet.RoadSegmentDbaseRecords.Add(seg2);
+
+                var seg3 = baseRecord.Clone(new RecyclableMemoryStreamManager(), FileEncoding.UTF8);
+                seg3.WS_TEMPID.Value = 3;
+                seg3.WS_OIDN.Value = 3;
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.CreateRoadSegmentShapeRecord(new LineString([tempSchijnknoop.Coordinate, end.Coordinate])));
+                builder.DataSet.RoadSegmentDbaseRecords.Add(seg3);
+
+                // New branch segment — makes node 1_000_000_000 a 3-way structural junction
+                var seg4 = baseRecord.Clone(new RecyclableMemoryStreamManager(), FileEncoding.UTF8);
+                seg4.WS_TEMPID.Value = 4;
+                seg4.WS_OIDN.Value = null;
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.CreateRoadSegmentShapeRecord(new LineString([tempSchijnknoop.Coordinate, branchEnd.Coordinate])));
+                builder.DataSet.RoadSegmentDbaseRecords.Add(seg4);
+
+                builder.DataSet.TransactionZoneShapeRecords[0].Geometry = ((NetTopologySuite.Geometries.Polygon)start.Buffer(100)).ToMultiPolygon();
+            })
+            .Build();
+
+        // Act
+        var changes = await TranslateSucceeds(zipArchive);
+
+        // Assert: the temp schijnknoop becomes structural (EchteKnoop), so its AddRoadNodeChange is kept
+        changes.Should().Contain(x => x is AddRoadNodeChange && ((AddRoadNodeChange)x).TemporaryId == 1_000_000_000);
+        // The real schijnknoop is consumed by unflattening (its two segments merge), so it gets a RemoveRoadNodeChange
+        changes.Should().Contain(x => x is RemoveRoadNodeChange && ((RemoveRoadNodeChange)x).RoadNodeId == 2);
+        changes.Should().NotContain(x => x is ModifyRoadNodeChange && ((ModifyRoadNodeChange)x).RoadNodeId == 2);
+    }
 }
