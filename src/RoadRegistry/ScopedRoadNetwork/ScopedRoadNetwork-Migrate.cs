@@ -216,14 +216,12 @@ public partial class ScopedRoadNetwork
 
     private Problems RemoveRoadNodeBecauseOfMigration(RemoveRoadNodeChange change, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
     {
-        var problems = Problems.WithContext(change.RoadNodeId);
-
         if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
         {
-            return problems + new RoadNodeNotFound();
+            return Problems.None;
         }
 
-        problems += roadNode.RemoveBecauseOfMigration(context.Provenance);
+        var problems = roadNode.RemoveBecauseOfMigration(context.Provenance);
         if (problems.HasError())
         {
             return problems;
@@ -324,14 +322,12 @@ public partial class ScopedRoadNetwork
 
     private Problems RemoveRoadSegmentBecauseOfMigration(RoadSegmentId roadSegmentId, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
     {
-        var problems = Problems.WithContext(roadSegmentId);
-
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
         {
-            return problems + new RoadSegmentNotFound();
+            return Problems.None;
         }
 
-        problems += roadSegment.RemoveBecauseOfMigration(context.Provenance);
+        var problems = roadSegment.RemoveBecauseOfMigration(context.Provenance);
         if (problems.HasError())
         {
             return problems;
@@ -345,14 +341,12 @@ public partial class ScopedRoadNetwork
 
     private Problems RemoveGradeSeparatedJunctionBecauseOfMigration(RemoveGradeSeparatedJunctionChange change, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
     {
-        var problems = Problems.WithContext(change.GradeSeparatedJunctionId);
-
         if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var gradeSeparatedJunction))
         {
-            return problems + new GradeSeparatedJunctionNotFound();
+            return Problems.None;
         }
 
-        problems += gradeSeparatedJunction.RemoveBecauseOfMigration(context.Provenance);
+        var problems = gradeSeparatedJunction.RemoveBecauseOfMigration(context.Provenance);
         if (problems.HasError())
         {
             return problems;
