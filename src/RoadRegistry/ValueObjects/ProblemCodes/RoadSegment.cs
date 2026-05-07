@@ -35,7 +35,6 @@ public sealed partial record ProblemCode
                 NotAdjacent = new("RoadSegmentAccessRestrictionNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentAccessRestrictionToPositionNotEqualToLength"),
                 ValueNotUniqueWithinSegment = new("RoadSegmentAccessRestrictionValueNotUniqueWithinSegment"),
-                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentAccessRestrictionLeftOrRightNotAllowedWhenUsingBoth"),
             };
         }
 
@@ -53,7 +52,6 @@ public sealed partial record ProblemCode
                 NotAdjacent = new("RoadSegmentBikeAccessForwardAttributeNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentBikeAccessForwardAttributeToPositionNotEqualToLength"),
                 ValueNotUniqueWithinSegment = new("RoadSegmentBikeAccessForwardAttributeValueNotUniqueWithinSegment"),
-                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentBikeAccessForwardAttributeLeftOrRightNotAllowedWhenUsingBoth"),
             };
         }
 
@@ -71,7 +69,6 @@ public sealed partial record ProblemCode
                 NotAdjacent = new("RoadSegmentBikeAccessBackwardAttributeNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentBikeAccessBackwardAttributeToPositionNotEqualToLength"),
                 ValueNotUniqueWithinSegment = new("RoadSegmentBikeAccessBackwardAttributeValueNotUniqueWithinSegment"),
-                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentBikeAccessBackwardAttributeLeftOrRightNotAllowedWhenUsingBoth"),
             };
         }
 
@@ -90,7 +87,6 @@ public sealed partial record ProblemCode
                 NotAdjacent = new("RoadSegmentCategoryNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentCategoryToPositionNotEqualToLength"),
                 ValueNotUniqueWithinSegment = new("RoadSegmentCategoryValueNotUniqueWithinSegment"),
-                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentCategoryLeftOrRightNotAllowedWhenUsingBoth"),
             };
         }
 
@@ -108,7 +104,6 @@ public sealed partial record ProblemCode
                 NotAdjacent = new("RoadSegmentCarAccessForwardAttributeNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentCarAccessForwardAttributeToPositionNotEqualToLength"),
                 ValueNotUniqueWithinSegment = new("RoadSegmentCarAccessForwardAttributeValueNotUniqueWithinSegment"),
-                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentCarAccessForwardAttributeLeftOrRightNotAllowedWhenUsingBoth"),
             };
         }
 
@@ -126,7 +121,6 @@ public sealed partial record ProblemCode
                 NotAdjacent = new("RoadSegmentCarAccessBackwardAttributeNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentCarAccessBackwardAttributeToPositionNotEqualToLength"),
                 ValueNotUniqueWithinSegment = new("RoadSegmentCarAccessBackwardAttributeValueNotUniqueWithinSegment"),
-                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentCarAccessBackwardAttributeLeftOrRightNotAllowedWhenUsingBoth"),
             };
         }
 
@@ -241,7 +235,6 @@ public sealed partial record ProblemCode
                 NotAdjacent = new("RoadSegmentMaintenanceAuthorityNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentMaintenanceAuthorityToPositionNotEqualToLength"),
                 ValueNotUniqueWithinSegment = new("RoadSegmentMaintenanceAuthorityValueNotUniqueWithinSegment"),
-                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentMaintenanceAuthorityLeftOrRightNotAllowedWhenUsingBoth"),
             };
         }
 
@@ -259,7 +252,6 @@ public sealed partial record ProblemCode
                 NotAdjacent = new("RoadSegmentMorphologyNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentMorphologyToPositionNotEqualToLength"),
                 ValueNotUniqueWithinSegment = new("RoadSegmentMorphologyValueNotUniqueWithinSegment"),
-                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentMorphologyLeftOrRightNotAllowedWhenUsingBoth"),
             };
         }
 
@@ -277,7 +269,6 @@ public sealed partial record ProblemCode
                 NotAdjacent = new("RoadSegmentPedestrianAccessAttributeNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentPedestrianAccessAttributeToPositionNotEqualToLength"),
                 ValueNotUniqueWithinSegment = new("RoadSegmentPedestrianAccessAttributeValueNotUniqueWithinSegment"),
-                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentPedestrianAccessAttributeLeftOrRightNotAllowedWhenUsingBoth"),
             };
         }
 
@@ -332,7 +323,6 @@ public sealed partial record ProblemCode
                 NotAdjacent = new("RoadSegmentSurfaceAttributeNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentSurfaceAttributeToPositionNotEqualToLength"),
                 ValueNotUniqueWithinSegment = new("RoadSegmentSurfaceAttributeValueNotUniqueWithinSegment"),
-                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentSurfaceAttributeLeftOrRightNotAllowedWhenUsingBoth"),
             };
         }
 
@@ -367,7 +357,6 @@ public sealed partial record ProblemCode
                 NotAdjacent = new("RoadSegmentStreetNameNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentStreetNameToPositionNotEqualToLength"),
                 ValueNotUniqueWithinSegment = new("RoadSegmentStreetNameValueNotUniqueWithinSegment"),
-                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentStreetNameLeftOrRightNotAllowedWhenUsingBoth"),
             };
         }
 
@@ -410,7 +399,6 @@ public sealed partial record ProblemCode
             public required ProblemCode NotAdjacent { get; init; }
             public required ProblemCode ToPositionNotEqualToLength { get; init; }
             public required ProblemCode ValueNotUniqueWithinSegment { get; init; }
-            public required ProblemCode LeftOrRightNotAllowedWhenUsingBoth { get; init; }
         }
     }
 

@@ -14,23 +14,33 @@ public static class ValidationExtensions
         ProblemCode.RoadSegment.DynamicAttributeProblemCodes problemCodes)
         where T : notnull
     {
-        var problems = Problems.None;
-
         if (!attributeValues.Values.Any())
         {
-            return problems;
+            return Problems.None;
         }
 
-        var sortedAttributes = attributeValues.Values
+        var problems = ValidateSide(attributeValues, segmentLength, problemCodes, true)
+                       + ValidateSide(attributeValues, segmentLength, problemCodes, false);
+
+        return problems;
+    }
+
+    private static Problems ValidateSide<T>(
+        RoadSegmentDynamicAttributeValues<T> attributeValues,
+        double segmentLength,
+        ProblemCode.RoadSegment.DynamicAttributeProblemCodes problemCodes,
+        bool leftSide)
+        where T : notnull
+    {
+        var problems = Problems.None;
+
+        var valuesGroupedByPositionSegment = attributeValues.Values
+            .Where(x => x.Side == (leftSide ? RoadSegmentAttributeSide.Left : RoadSegmentAttributeSide.Right) || x.Side == RoadSegmentAttributeSide.Both)
             .OrderBy(x => x.Coverage.From)
             .ThenBy(x => x.Coverage.To)
-            .ThenBy(x => x.Side)
-            .ToList();
+            .ToLookup(x => x.Coverage, x => x.Value);
 
-        var valuesGroupedByPositionSegment = sortedAttributes
-            .ToLookup(x => x.Coverage, x => (x.Side, x.Value));
-
-        // ensure each position segment has correct amount of values per side
+        // ensure each position segment has correct amount of values
         RoadSegmentPositionV2? previousToPosition = null;
         foreach (var group in valuesGroupedByPositionSegment)
         {
@@ -47,11 +57,10 @@ public static class ValidationExtensions
                 if (group.Key.From != previousToPosition.Value)
                 {
                     problems += new Error(problemCodes.NotAdjacent!,
-                        new ProblemParameter("ToPosition", previousToPosition.Value.ToString()),
-                        new ProblemParameter("FromPosition", group.Key.From.ToString()));
+                        new ProblemParameter("FromPosition", group.Key.From.ToString()),
+                        new ProblemParameter("ToPosition", previousToPosition.Value.ToString()));
                 }
-
-                if (group.Key.From == group.Key.To)
+                else if (group.Key.From == group.Key.To)
                 {
                     problems += new Error(problemCodes.HasLengthOfZero!,
                         new ProblemParameter("FromPosition", group.Key.From.ToString()),
@@ -59,35 +68,14 @@ public static class ValidationExtensions
                 }
             }
 
-            previousToPosition = group.Key.To;
-
-            var both = group.Where(x => x.Side == RoadSegmentAttributeSide.Both).ToList();
-            var notBoth = group.Where(x => x.Side != RoadSegmentAttributeSide.Both).ToList();
-
-            if (both.Count > 1)
+            if (group.Count() > 1)
             {
                 problems += new Error(problemCodes.ValueNotUniqueWithinSegment!,
                     new ProblemParameter("FromPosition", group.Key.From.ToString()),
                     new ProblemParameter("ToPosition", group.Key.To.ToString()));
             }
-            else if (both.Count == 1 && notBoth.Count > 0)
-            {
-                problems += new Error(problemCodes.LeftOrRightNotAllowedWhenUsingBoth!,
-                    new ProblemParameter("FromPosition", group.Key.From.ToString()),
-                    new ProblemParameter("ToPosition", group.Key.To.ToString()));
-            }
-            else if (both.Count == 0)
-            {
-                var hasNotUniqueRecords = notBoth
-                    .GroupBy(x => x.Side)
-                    .Any(x => x.Count() > 1);
-                if (hasNotUniqueRecords)
-                {
-                    problems += new Error(problemCodes.ValueNotUniqueWithinSegment!,
-                        new ProblemParameter("FromPosition", group.Key.From.ToString()),
-                        new ProblemParameter("ToPosition", group.Key.To.ToString()));
-                }
-            }
+
+            previousToPosition = group.Key.To;
         }
 
         if (previousToPosition is not null && !previousToPosition.Value.IsReasonablyEqualTo(segmentLength))
