@@ -16,6 +16,56 @@ public class RoadSegmentAttributesValidatorTests
         _fixture = new RoadNetworkTestDataV2().Fixture;
     }
 
+    [Theory]
+    [MemberData(nameof(HappyFlowTestsCases))]
+    public void HappyFlow(HappyFlowTestCase testCase)
+    {
+        AssertValidateResult(
+            testCase.Values,
+            segmentLength: testCase.Values.Max(x => x.To),
+            expectedErrorCodes: []);
+    }
+    public static IEnumerable<object[]> HappyFlowTestsCases()
+    {
+        yield return [new HappyFlowTestCase(
+        [
+            (0, 10, RoadSegmentAttributeSide.Both, 1)
+        ])];
+        yield return [new HappyFlowTestCase(
+        [
+            (0, 10, RoadSegmentAttributeSide.Left, 1),
+            (0, 10, RoadSegmentAttributeSide.Right, 1),
+        ])];
+        yield return [new HappyFlowTestCase(
+        [
+            (0, 10, RoadSegmentAttributeSide.Left, 1),
+            (0, 10, RoadSegmentAttributeSide.Right, 2),
+        ])];
+        yield return [new HappyFlowTestCase(
+        [
+            (0, 5, RoadSegmentAttributeSide.Left, 1),
+            (0, 10, RoadSegmentAttributeSide.Right, 2),
+            (5, 10, RoadSegmentAttributeSide.Left, 3),
+        ])];
+        yield return [new HappyFlowTestCase(
+        [
+            (0, 5, RoadSegmentAttributeSide.Left, 1),
+            (5, 10, RoadSegmentAttributeSide.Both, 2),
+            (0, 5, RoadSegmentAttributeSide.Right, 2),
+            (10, 15, RoadSegmentAttributeSide.Left, 1),
+            (10, 15, RoadSegmentAttributeSide.Right, 1),
+        ])];
+    }
+    public sealed class HappyFlowTestCase
+    {
+        public IReadOnlyCollection<(double From, double To, RoadSegmentAttributeSide Side, int Value)> Values { get; }
+
+        public HappyFlowTestCase(ICollection<(int, int, RoadSegmentAttributeSide, int)> values)
+        {
+            Values = values.Select(x => ((double)x.Item1, (double)x.Item2, x.Item3, x.Item4)).ToArray();
+        }
+    }
+
     [Fact]
     public void FirstFromMustBeZero()
     {
@@ -87,8 +137,8 @@ public class RoadSegmentAttributesValidatorTests
         EnsureValidatorIsUsedForAttribute(change => change with
         {
             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<RoadSegmentAccessRestrictionV2>())
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<RoadSegmentAccessRestrictionV2>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, RoadSegmentAccessRestrictionV2.OpenbareWeg)
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, RoadSegmentAccessRestrictionV2.PrivateWeg)
         });
     }
 
@@ -98,8 +148,8 @@ public class RoadSegmentAttributesValidatorTests
         EnsureValidatorIsUsedForAttribute(change => change with
         {
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<RoadSegmentCategoryV2>())
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<RoadSegmentCategoryV2>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, RoadSegmentCategoryV2.EuropeseHoofdweg)
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, RoadSegmentCategoryV2.InterlokaleWeg)
         });
     }
 
@@ -109,8 +159,8 @@ public class RoadSegmentAttributesValidatorTests
         EnsureValidatorIsUsedForAttribute(change => change with
         {
             Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<RoadSegmentMorphologyV2>())
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<RoadSegmentMorphologyV2>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, RoadSegmentMorphologyV2.Aardeweg)
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, RoadSegmentMorphologyV2.Autosnelweg)
         });
     }
 
@@ -120,8 +170,8 @@ public class RoadSegmentAttributesValidatorTests
         EnsureValidatorIsUsedForAttribute(change => change with
         {
             StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<StreetNameLocalId>())
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<StreetNameLocalId>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, StreetNameLocalId.NotApplicable)
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, StreetNameLocalId.Unknown)
         });
     }
 
@@ -131,8 +181,8 @@ public class RoadSegmentAttributesValidatorTests
         EnsureValidatorIsUsedForAttribute(change => change with
         {
             MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<OrganizationId>())
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<OrganizationId>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, OrganizationId.Unknown)
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, OrganizationId.DigitaalVlaanderen)
         });
     }
 
@@ -142,8 +192,8 @@ public class RoadSegmentAttributesValidatorTests
         EnsureValidatorIsUsedForAttribute(change => change with
         {
             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<RoadSegmentSurfaceTypeV2>())
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<RoadSegmentSurfaceTypeV2>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, RoadSegmentSurfaceTypeV2.Halfverhard)
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, RoadSegmentSurfaceTypeV2.Onverhard)
         });
     }
 
@@ -153,8 +203,8 @@ public class RoadSegmentAttributesValidatorTests
         EnsureValidatorIsUsedForAttribute(change => change with
         {
             CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, false)
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, true)
         });
     }
 
@@ -164,8 +214,8 @@ public class RoadSegmentAttributesValidatorTests
         EnsureValidatorIsUsedForAttribute(change => change with
         {
             CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, false)
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, true)
         });
     }
 
@@ -175,8 +225,8 @@ public class RoadSegmentAttributesValidatorTests
         EnsureValidatorIsUsedForAttribute(change => change with
         {
             BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, false)
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, true)
         });
     }
 
@@ -186,8 +236,8 @@ public class RoadSegmentAttributesValidatorTests
         EnsureValidatorIsUsedForAttribute(change => change with
         {
             BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, false)
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, true)
         });
     }
 
@@ -197,8 +247,8 @@ public class RoadSegmentAttributesValidatorTests
         EnsureValidatorIsUsedForAttribute(change => change with
         {
             PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, _fixture.Create<bool>())
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, false)
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, true)
         });
     }
 
@@ -213,7 +263,7 @@ public class RoadSegmentAttributesValidatorTests
         problems.Should().Contain(x => x.Reason.EndsWith("ValueNotUniqueWithinSegment"));
     }
 
-    private void AssertValidateResult((double From, double To, RoadSegmentAttributeSide Side, int Value)[] attributeValues, string[] expectedErrorCodes, double segmentLength = 0)
+    private void AssertValidateResult(IReadOnlyCollection<(double From, double To, RoadSegmentAttributeSide Side, int Value)> attributeValues, string[] expectedErrorCodes, double segmentLength = 0)
     {
         var attributes = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>();
 

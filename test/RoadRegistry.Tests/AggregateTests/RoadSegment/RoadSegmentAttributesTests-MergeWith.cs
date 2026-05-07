@@ -109,6 +109,24 @@ public class RoadSegmentAttributesMergeWithTests
             Segment2HasIdealDirection = false,
             ExpectedAttributes = new AttributeValues([(0, 8, "b"), (8, 10, "a"), (10, 13, "b"), (13, 15, "a")])
         }];
+        yield return [new MergeWithTestCase("identical attributes with left and right; in opposite direction")
+        {
+            Segment1Length = 5,
+            Segment1Attributes = new AttributeValues([
+                (0, 5, RoadSegmentAttributeSide.Left, "a"),
+                (0, 5, RoadSegmentAttributeSide.Right, "a"),
+            ]),
+            Segment1HasIdealDirection = true,
+            Segment2Length = 5,
+            Segment2Attributes = new AttributeValues([
+                (0, 5, RoadSegmentAttributeSide.Left, "a"),
+                (0, 5, RoadSegmentAttributeSide.Right, "a"),
+            ]),
+            Segment2HasIdealDirection = false,
+            ExpectedAttributes = new AttributeValues([
+                (0, 10, RoadSegmentAttributeSide.Both, "a"),
+            ])
+        }];
     }
 
     public sealed class MergeWithTestCase

@@ -5,7 +5,7 @@ using ProblemCodes;
 public class RoadNodeNotFound : Error
 {
     public RoadNodeNotFound()
-        : base(ProblemCode.RoadNode.NotFound)
+        : base(ProblemCode.RoadNode.NotFound.ToString())
     {
     }
 

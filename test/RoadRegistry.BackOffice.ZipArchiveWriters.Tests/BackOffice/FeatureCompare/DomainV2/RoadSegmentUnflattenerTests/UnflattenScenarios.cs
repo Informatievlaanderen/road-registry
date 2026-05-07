@@ -37,11 +37,13 @@ public class UnflattenScenarios
 
         var flatSegment1 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
         {
-            Geometry = BuildRoadSegmentGeometry(0, 0, 50, 0)
+            Geometry = BuildRoadSegmentGeometry(0, 0, 50, 0),
+            AccessRestriction = RoadSegmentAccessRestrictionV2.OpenbareWeg
         };
         var flatSegment2 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
         {
-            Geometry = BuildRoadSegmentGeometry(50, 0, 100, 0)
+            Geometry = BuildRoadSegmentGeometry(50, 0, 100, 0),
+            AccessRestriction = RoadSegmentAccessRestrictionV2.PrivateWeg
         };
         var flatSegments = new[]
         {
@@ -133,43 +135,27 @@ public class UnflattenScenarios
         records.Should().HaveCount(1);
         var dynamicRecord = records.Single();
 
-        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[0].Value.Should().Be(flatSegment1.LeftMaintenanceAuthorityId);
         dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Left);
-        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[1].Value.Should().Be(flatSegment1.RightMaintenanceAuthorityId);
+        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[0].Value.Should().Be(flatSegment1.LeftMaintenanceAuthorityId);
         dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Right);
-        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[2].Value.Should().Be(flatSegment1.LeftMaintenanceAuthorityId);
-        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[2].Side.Should().Be(RoadSegmentAttributeSide.Left);
-        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[3].Value.Should().Be(flatSegment1.RightMaintenanceAuthorityId);
-        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[3].Side.Should().Be(RoadSegmentAttributeSide.Right);
+        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[1].Value.Should().Be(flatSegment1.RightMaintenanceAuthorityId);
 
-        dynamicRecord.Attributes.StreetNameId!.Values[0].Value.Should().Be(flatSegment1.LeftSideStreetNameId);
         dynamicRecord.Attributes.StreetNameId!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Left);
-        dynamicRecord.Attributes.StreetNameId!.Values[1].Value.Should().Be(flatSegment1.RightSideStreetNameId);
+        dynamicRecord.Attributes.StreetNameId!.Values[0].Value.Should().Be(flatSegment1.LeftSideStreetNameId);
         dynamicRecord.Attributes.StreetNameId!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Right);
-        dynamicRecord.Attributes.StreetNameId!.Values[2].Value.Should().Be(flatSegment1.LeftSideStreetNameId);
-        dynamicRecord.Attributes.StreetNameId!.Values[2].Side.Should().Be(RoadSegmentAttributeSide.Left);
-        dynamicRecord.Attributes.StreetNameId!.Values[3].Value.Should().Be(flatSegment1.RightSideStreetNameId);
-        dynamicRecord.Attributes.StreetNameId!.Values[3].Side.Should().Be(RoadSegmentAttributeSide.Right);
+        dynamicRecord.Attributes.StreetNameId!.Values[1].Value.Should().Be(flatSegment1.RightSideStreetNameId);
 
-        dynamicRecord.Attributes.CarAccessBackward!.Values[0].Value.Should().Be(flatSegment1.CarAccessBackward);
         dynamicRecord.Attributes.CarAccessBackward!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Both);
-        dynamicRecord.Attributes.CarAccessBackward!.Values[1].Value.Should().Be(flatSegment1.CarAccessBackward);
-        dynamicRecord.Attributes.CarAccessBackward!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Both);
+        dynamicRecord.Attributes.CarAccessBackward!.Values[0].Value.Should().Be(flatSegment1.CarAccessBackward);
 
-        dynamicRecord.Attributes.CarAccessForward!.Values[0].Value.Should().Be(flatSegment1.CarAccessForward);
         dynamicRecord.Attributes.CarAccessForward!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Both);
-        dynamicRecord.Attributes.CarAccessForward!.Values[1].Value.Should().Be(flatSegment1.CarAccessForward);
-        dynamicRecord.Attributes.CarAccessForward!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Both);
+        dynamicRecord.Attributes.CarAccessForward!.Values[0].Value.Should().Be(flatSegment1.CarAccessForward);
 
-        dynamicRecord.Attributes.BikeAccessBackward!.Values[0].Value.Should().Be(flatSegment1.BikeAccessBackward);
         dynamicRecord.Attributes.BikeAccessBackward!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Both);
-        dynamicRecord.Attributes.BikeAccessBackward!.Values[1].Value.Should().Be(flatSegment1.BikeAccessBackward);
-        dynamicRecord.Attributes.BikeAccessBackward!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Both);
+        dynamicRecord.Attributes.BikeAccessBackward!.Values[0].Value.Should().Be(flatSegment1.BikeAccessBackward);
 
-        dynamicRecord.Attributes.BikeAccessForward!.Values[0].Value.Should().Be(flatSegment1.BikeAccessForward);
         dynamicRecord.Attributes.BikeAccessForward!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Both);
-        dynamicRecord.Attributes.BikeAccessForward!.Values[1].Value.Should().Be(flatSegment1.BikeAccessForward);
-        dynamicRecord.Attributes.BikeAccessForward!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Both);
+        dynamicRecord.Attributes.BikeAccessForward!.Values[0].Value.Should().Be(flatSegment1.BikeAccessForward);
     }
 
     [Fact]
@@ -246,55 +232,23 @@ public class UnflattenScenarios
         dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Left);
         dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[1].Value.Should().Be(flatSegment1.RightMaintenanceAuthorityId);
         dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Right);
-        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[2].Value.Should().Be(flatSegment1.LeftMaintenanceAuthorityId);
-        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[2].Side.Should().Be(RoadSegmentAttributeSide.Left);
-        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[3].Value.Should().Be(flatSegment1.RightMaintenanceAuthorityId);
-        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[3].Side.Should().Be(RoadSegmentAttributeSide.Right);
-        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[4].Value.Should().Be(flatSegment1.LeftMaintenanceAuthorityId);
-        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[4].Side.Should().Be(RoadSegmentAttributeSide.Left);
-        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[5].Value.Should().Be(flatSegment1.RightMaintenanceAuthorityId);
-        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values[5].Side.Should().Be(RoadSegmentAttributeSide.Right);
 
         dynamicRecord.Attributes.StreetNameId!.Values[0].Value.Should().Be(flatSegment1.LeftSideStreetNameId);
         dynamicRecord.Attributes.StreetNameId!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Left);
         dynamicRecord.Attributes.StreetNameId!.Values[1].Value.Should().Be(flatSegment1.RightSideStreetNameId);
         dynamicRecord.Attributes.StreetNameId!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Right);
-        dynamicRecord.Attributes.StreetNameId!.Values[2].Value.Should().Be(flatSegment1.LeftSideStreetNameId);
-        dynamicRecord.Attributes.StreetNameId!.Values[2].Side.Should().Be(RoadSegmentAttributeSide.Left);
-        dynamicRecord.Attributes.StreetNameId!.Values[3].Value.Should().Be(flatSegment1.RightSideStreetNameId);
-        dynamicRecord.Attributes.StreetNameId!.Values[3].Side.Should().Be(RoadSegmentAttributeSide.Right);
-        dynamicRecord.Attributes.StreetNameId!.Values[4].Value.Should().Be(flatSegment1.LeftSideStreetNameId);
-        dynamicRecord.Attributes.StreetNameId!.Values[4].Side.Should().Be(RoadSegmentAttributeSide.Left);
-        dynamicRecord.Attributes.StreetNameId!.Values[5].Value.Should().Be(flatSegment1.RightSideStreetNameId);
-        dynamicRecord.Attributes.StreetNameId!.Values[5].Side.Should().Be(RoadSegmentAttributeSide.Right);
 
         dynamicRecord.Attributes.CarAccessBackward!.Values[0].Value.Should().Be(flatSegment1.CarAccessBackward);
         dynamicRecord.Attributes.CarAccessBackward!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Both);
-        dynamicRecord.Attributes.CarAccessBackward!.Values[1].Value.Should().Be(flatSegment1.CarAccessBackward);
-        dynamicRecord.Attributes.CarAccessBackward!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Both);
-        dynamicRecord.Attributes.CarAccessBackward!.Values[2].Value.Should().Be(flatSegment1.CarAccessBackward);
-        dynamicRecord.Attributes.CarAccessBackward!.Values[2].Side.Should().Be(RoadSegmentAttributeSide.Both);
 
         dynamicRecord.Attributes.CarAccessForward!.Values[0].Value.Should().Be(flatSegment1.CarAccessForward);
         dynamicRecord.Attributes.CarAccessForward!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Both);
-        dynamicRecord.Attributes.CarAccessForward!.Values[1].Value.Should().Be(flatSegment1.CarAccessForward);
-        dynamicRecord.Attributes.CarAccessForward!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Both);
-        dynamicRecord.Attributes.CarAccessForward!.Values[2].Value.Should().Be(flatSegment1.CarAccessForward);
-        dynamicRecord.Attributes.CarAccessForward!.Values[2].Side.Should().Be(RoadSegmentAttributeSide.Both);
 
         dynamicRecord.Attributes.BikeAccessBackward!.Values[0].Value.Should().Be(flatSegment1.BikeAccessBackward);
         dynamicRecord.Attributes.BikeAccessBackward!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Both);
-        dynamicRecord.Attributes.BikeAccessBackward!.Values[1].Value.Should().Be(flatSegment1.BikeAccessBackward);
-        dynamicRecord.Attributes.BikeAccessBackward!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Both);
-        dynamicRecord.Attributes.BikeAccessBackward!.Values[2].Value.Should().Be(flatSegment1.BikeAccessBackward);
-        dynamicRecord.Attributes.BikeAccessBackward!.Values[2].Side.Should().Be(RoadSegmentAttributeSide.Both);
 
         dynamicRecord.Attributes.BikeAccessForward!.Values[0].Value.Should().Be(flatSegment1.BikeAccessForward);
         dynamicRecord.Attributes.BikeAccessForward!.Values[0].Side.Should().Be(RoadSegmentAttributeSide.Both);
-        dynamicRecord.Attributes.BikeAccessForward!.Values[1].Value.Should().Be(flatSegment1.BikeAccessForward);
-        dynamicRecord.Attributes.BikeAccessForward!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Both);
-        dynamicRecord.Attributes.BikeAccessForward!.Values[2].Value.Should().Be(flatSegment1.BikeAccessForward);
-        dynamicRecord.Attributes.BikeAccessForward!.Values[2].Side.Should().Be(RoadSegmentAttributeSide.Both);
     }
 
     [Fact]
