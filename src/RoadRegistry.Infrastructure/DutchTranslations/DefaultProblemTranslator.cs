@@ -145,12 +145,12 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.GradeSeparatedJunction.LowerSegmentMissing, problem => new(problem.Severity, problem.Reason, problem.HasParameter("OngelijkGrondseKruisingId")
-                    ? $"De ongelijkgrondse kruising met {GetJunctionIdLabel(problem)} zijn onderste wegsegment {GetRoadSegmentIdLabel(problem)}"
+                    ? $"De ongelijkgrondse kruising met {GetJunctionIdLabel(problem)} zijn onderste wegsegment {GetRoadSegmentIdLabel(problem)} ontbreekt."
                     : $"De ongelijkgrondse kruising zijn onderste wegsegment {problem.GetParameterValue("RoadSegmentId")} ontbreekt.")
             },
             {
                 ProblemCode.GradeSeparatedJunction.UpperSegmentMissing, problem => new(problem.Severity, problem.Reason, problem.HasParameter("OngelijkGrondseKruisingId")
-                    ? $"De ongelijkgrondse kruising met {GetJunctionIdLabel(problem)} zijn bovenste wegsegment {GetRoadSegmentIdLabel(problem)}"
+                    ? $"De ongelijkgrondse kruising met {GetJunctionIdLabel(problem)} zijn bovenste wegsegment {GetRoadSegmentIdLabel(problem)} ontbreekt."
                     : $"De ongelijkgrondse kruising zijn bovenste wegsegment {problem.GetParameterValue("RoadSegmentId")} ontbreekt.")
             },
             {

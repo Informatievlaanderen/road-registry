@@ -24,8 +24,8 @@ public partial class GradeSeparatedJunction
                 context.IdTranslator.TranslateToTemporaryId(LowerRoadSegmentId).ToRoadSegmentProblemParameters().ToArray());
         }
 
-        if (upperSegment is not null
-            && lowerSegment is not null
+        if (upperSegment is not null && !upperSegment.IsRemoved
+            && lowerSegment is not null && !lowerSegment.IsRemoved
             && !upperSegment.Geometry.Value.Intersects(lowerSegment.Geometry.Value))
         {
             problems += new Error(ProblemCode.GradeSeparatedJunction.UpperAndLowerDoNotIntersect.ToString(), Enumerable.Empty<ProblemParameter>()
