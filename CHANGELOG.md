@@ -1,3 +1,10 @@
+## [4.57.15](https://github.com/informatievlaanderen/road-registry/compare/v4.57.14...v4.57.15) (2026-05-07)
+
+
+### Bug Fixes
+
+* translations ([9f4d989](https://github.com/informatievlaanderen/road-registry/commit/9f4d989f1047e54121cc60235b3c7b7ac5b10ab1))
+
 ## [4.57.14](https://github.com/informatievlaanderen/road-registry/compare/v4.57.13...v4.57.14) (2026-05-05)
 
 
