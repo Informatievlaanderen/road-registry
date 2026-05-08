@@ -169,7 +169,7 @@ public class InwinningExtractDownloadaanvraagBodyValidatorTests
     [InlineData("1234")]
     [InlineData("123456")]
     [InlineData("1234A")]
-    public async Task WhenNisCodeIsInvalid_ThenError(string givenNisCode)
+    public async Task WhenNisCodeIsNotExpectedFormat_ThenNotFound(string givenNisCode)
     {
         await using var context = _dbContextBuilderFixture.CreateMunicipalityEventConsumerContext();
         var validator = new InwinningExtractDownloadaanvraagBodyValidator(context);
@@ -183,7 +183,7 @@ public class InwinningExtractDownloadaanvraagBodyValidatorTests
         result.IsValid.Should().BeFalse();
         result.Errors.Count.Should().Be(1);
         var error = result.Errors.First();
-        error.ErrorCode.Should().Be("ExtractNisCodeInvalid");
+        error.ErrorCode.Should().Be("NotFound");
     }
 
     [Fact]

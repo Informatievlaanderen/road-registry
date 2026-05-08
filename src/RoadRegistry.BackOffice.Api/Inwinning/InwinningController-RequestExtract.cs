@@ -111,7 +111,6 @@ public class InwinningExtractDownloadaanvraagBodyValidator : AbstractValidator<I
         RuleFor(c => c.NisCode)
             .Cascade(CascadeMode.Stop)
             .NotEmpty().WithProblemCode(ProblemCode.Extract.NisCodeIsRequired)
-            .Must(BeNisCodeWithExpectedFormat).WithProblemCode(ProblemCode.Extract.NisCodeInvalid)
             .Must(BeKnownNisCode).WithErrorCode("NotFound").WithMessage(body => $"Er werd geen gemeente/stad gevonden voor de NIS-code '{body.NisCode}'");
 
         RuleFor(c => c.Beschrijving)
@@ -123,10 +122,5 @@ public class InwinningExtractDownloadaanvraagBodyValidator : AbstractValidator<I
     {
         // FluentValidation does not support async validators in this context
         return _municipalityContext.CurrentMunicipalityExistsByNisCode(nisCode, CancellationToken.None).GetAwaiter().GetResult();
-    }
-
-    private static bool BeNisCodeWithExpectedFormat(string nisCode)
-    {
-        return new Regex(@"^\d{5}$").IsMatch(nisCode);
     }
 }
