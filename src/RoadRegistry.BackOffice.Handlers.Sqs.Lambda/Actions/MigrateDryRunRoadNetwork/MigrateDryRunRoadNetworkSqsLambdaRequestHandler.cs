@@ -108,7 +108,10 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
             .Concat(changeResult.Summary.RoadSegments.Removed)
             .Select(x => x.ToInt32())
             .ToList();
-        var missingRoadSegmentIds = inwinningRoadSegmentIds.Except(modifiedOrRemovedRoadSegmentIds).ToArray();
+        var missingRoadSegmentIds = inwinningRoadSegmentIds
+            .Except(modifiedOrRemovedRoadSegmentIds)
+            .Except(command.IdenticalRoadSegmentIds.Select(x => x.ToInt32()))
+            .ToArray();
         if (missingRoadSegmentIds.Any())
         {
             throw new InvalidOperationException($"Inwinning road segment ids are missing from the upload (most likely bug in FeatureCompare, DownloadId {command.DownloadId}): {string.Join(",", missingRoadSegmentIds)}");

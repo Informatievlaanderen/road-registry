@@ -47,9 +47,9 @@ public class ForDebugging
     public async Task WithCustomRequestOnActualServer()
     {
         // Arrange
-        var zipPath = @"1acecb107bcc44be91ded9cb7291b9ee.zip";
-        var nisCode = "42011";
-        var downloadId = new DownloadId(Guid.NewGuid());
+        var zipPath = @"01b55c6f420c4e97b67cf8ca79c53a19\01b55c6f420c4e97b67cf8ca79c53a19.zip";
+        var nisCode = "44021_095500-197000_500x500";
+        var downloadId = DownloadId.Parse("01b55c6f420c4e97b67cf8ca79c53a19");
 
         var sp = BuildServiceProvider();
 
@@ -65,7 +65,7 @@ public class ForDebugging
         extractsDbContext.Inwinningszones.Add(inwinningsZone);
         var provenanceData = new RoadRegistryProvenanceData(operatorName: inwinningsZone.Operator);
 
-        ICollection<ChangeRoadNetworkItem> changes;
+        TranslatedChanges translatedChanges;
         using (var fileStream = File.OpenRead(zipPath))
         {
             var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
@@ -77,8 +77,7 @@ public class ForDebugging
             var archive = new ZipArchive(fileStream);
 
             var zipArchiveMetadata = ZipArchiveMetadata.Empty.WithInwinning();
-            var translatedChanges = await translator.TranslateAsync(archive, zipArchiveMetadata, CancellationToken.None);
-            changes = translatedChanges.Select(ChangeRoadNetworkItem.Create).ToList();
+            translatedChanges = await translator.TranslateAsync(archive, zipArchiveMetadata, CancellationToken.None);
 
             var extractRoadSegments = new RoadSegmentFeatureCompareFeatureReader(FileEncoding.UTF8)
                 .Read(archive, FeatureType.Extract, new ZipArchiveFeatureReaderContext(zipArchiveMetadata)).Item1;
@@ -101,7 +100,8 @@ public class ForDebugging
             {
                 UploadId = new UploadId(Guid.NewGuid()),
                 DownloadId = downloadId,
-                Changes = changes,
+                Changes = translatedChanges.Select(ChangeRoadNetworkItem.Create).ToList(),
+                IdenticalRoadSegmentIds = translatedChanges.GetIdenticalRoadSegmentIds(),
                 TicketId = Guid.NewGuid(),
                 Metadata = new Dictionary<string, object?>(),
                 ProvenanceData = provenanceData

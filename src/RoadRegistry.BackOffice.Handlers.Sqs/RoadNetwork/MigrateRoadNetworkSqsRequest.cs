@@ -9,4 +9,5 @@ public sealed class MigrateRoadNetworkSqsRequest : SqsRequest
     public required ICollection<ChangeRoadNetworkItem> Changes { get; set; } = [];
     public required DownloadId DownloadId { get; set; }
     public required UploadId UploadId { get; set; }
+    public IReadOnlyCollection<RoadSegmentId> IdenticalRoadSegmentIds { get; set; } = [];
 }
