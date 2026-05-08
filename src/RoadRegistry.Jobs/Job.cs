@@ -15,6 +15,7 @@ namespace RoadRegistry.Jobs
         public UploadType UploadType { get; set; }
         public Guid? DownloadId { get; set; }
         public string? OperatorName { get; set; }
+        public bool DryRun { get; set; }
 
         public string UploadBlobName => $"upload_{Id:D}";
         public string ReceivedBlobName => $"received/{Id:D}";
@@ -55,6 +56,7 @@ namespace RoadRegistry.Jobs
             builder.Property(x => x.Status);
             builder.Property(x => x.TicketId);
             builder.Property(x => x.OperatorName).HasMaxLength(20);
+            builder.Property(x => x.DryRun).IsRequired().HasDefaultValue(false);
 
             builder.HasIndex(x => x.Status);
         }

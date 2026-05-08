@@ -17,6 +17,8 @@ using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.RoadNetwork.Schema;
+using RoadRegistry.ValueObjects.ProblemCodes;
+using RoadRegistry.ValueObjects.Problems;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
@@ -61,7 +63,7 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
 
         try
         {
-            await MigrateWithoutSaving(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest, cancellationToken);
+            await MigrateWithoutSaving(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest, sqsLambdaRequest.Request.OnlyDryRun, cancellationToken);
 
             await _mediator.Send(new DataValidationSqsRequest
             {
@@ -79,18 +81,24 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
         }
     }
 
-    private async Task MigrateWithoutSaving(MigrateRoadNetworkSqsRequest command, CancellationToken cancellationToken)
+    private async Task MigrateWithoutSaving(MigrateRoadNetworkSqsRequest command, bool onlyDryRun, CancellationToken cancellationToken)
     {
         var roadNetworkChanges = command.Changes.ToRoadNetworkChanges(command.ProvenanceData);
 
         var roadNetwork = await Load(roadNetworkChanges, new ScopedRoadNetworkId(command.DownloadId.ToGuid()));
 
         var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, new InMemoryRoadNetworkIdGenerator(initialValue: 1_000_000_000), Logger);
-        if (changeResult.Problems.HasError())
+        var problems = changeResult.Problems;
+        if (!problems.HasError() && onlyDryRun)
+        {
+            problems += new Error(ProblemCode.Upload.DryRunSuccessful);
+        }
+
+        if (problems.HasError())
         {
             await _extractsDbContext.AutomaticValidationFailedAsync(command.UploadId, cancellationToken);
 
-            throw new RoadRegistryProblemsException(changeResult.Problems);
+            throw new RoadRegistryProblemsException(problems);
         }
 
         await EnsureAllInwinningRoadSegmentsAreUploaded(command, changeResult, cancellationToken);

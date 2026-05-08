@@ -19,6 +19,7 @@ public partial class InwinningController
     ///     Vraag een pre-signed url aan voor een zip van een extract download te uploaden.
     /// </summary>
     /// <param name="downloadId"></param>
+    /// <param name="dryRun"></param>
     /// <param name="extractsDbContext"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als de url is aangemaakt.</response>
@@ -33,6 +34,7 @@ public partial class InwinningController
     public async Task<IActionResult> UploadInwinningExtract(
         [FromRoute] string downloadId,
         [FromServices] ExtractsDbContext extractsDbContext,
+        [FromQuery] bool dryRun = false,
         CancellationToken cancellationToken = default)
     {
         if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
@@ -74,7 +76,8 @@ public partial class InwinningController
             }
         }
 
-        var response = await _mediator.Send(GetPresignedUploadUrlRequest.ForInwinning(parsedDownloadId), cancellationToken);
+        var response = await _mediator.Send(GetPresignedUploadUrlRequest.ForInwinning(parsedDownloadId,
+            dryRun: dryRun), cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
 
         extractDownload.TicketId = response.TicketId;

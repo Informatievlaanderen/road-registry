@@ -278,14 +278,23 @@ export const PublicApi = {
     upload: async (
       downloadId: string,
       file: Blob,
-      filename: string
+      filename: string,
+      dryRun: boolean
     ): Promise<RoadRegistry.UploadPresignedUrlResponse | null> => {
       if (useBackOfficeApi) {
-        return BackOfficeApi.Inwinning.upload(downloadId, file, filename);
+        return BackOfficeApi.Inwinning.upload(downloadId, file, filename, dryRun);
       }
 
       const path = `${apiEndpoint}/v2/wegen/inwinning/${downloadId}/upload`;
-      const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
+      const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(
+        path,
+        undefined,
+        undefined,
+        undefined,
+        {
+          dryRun,
+        }
+      );
 
       const data = new FormData();
       if (response.data.uploadUrlFormData) {

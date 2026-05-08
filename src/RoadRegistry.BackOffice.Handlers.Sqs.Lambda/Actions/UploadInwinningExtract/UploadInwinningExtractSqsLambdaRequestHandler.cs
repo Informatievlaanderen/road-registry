@@ -152,7 +152,8 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
                     Changes = translatedChanges.Select(ChangeRoadNetworkItem.Create).ToList(),
                     IdenticalRoadSegmentIds = translatedChanges.GetIdenticalRoadSegmentIds(),
                     ProvenanceData = new ProvenanceData(request.Provenance)
-                }
+                },
+                OnlyDryRun = request.Request.DryRun
             };
             await _mediator.Send(migrateDryRunRoadNetworkSqsRequest, cancellationToken);
 

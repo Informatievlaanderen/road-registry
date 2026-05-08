@@ -342,6 +342,7 @@ namespace RoadRegistry.Jobs.Processor
                         DownloadId = new DownloadId(job.DownloadId.Value),
                         UploadId = uploadId,
                         ExtractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId),
+                        DryRun = job.DryRun,
                         ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description),
                     };
                 }

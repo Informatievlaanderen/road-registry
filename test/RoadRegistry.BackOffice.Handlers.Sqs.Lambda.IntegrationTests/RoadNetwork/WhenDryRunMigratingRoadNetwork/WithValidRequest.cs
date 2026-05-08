@@ -7,7 +7,6 @@ using Marten;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NetTopologySuite.IO;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
@@ -101,6 +100,76 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             It.Is<DataValidationSqsRequest>(r => r.MigrateRoadNetworkSqsRequest == command.MigrateRoadNetworkSqsRequest && r.TicketId == command.TicketId),
             It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task WhenOnlyDryRunAndValidRequest_ThenError()
+    {
+        // Arrange
+        var sp = await BuildServiceProvider();
+
+        var provenanceData = new RoadRegistryProvenanceData();
+        var ticketId = TestData.Fixture.Create<TicketId>();
+        var command = new MigrateDryRunRoadNetworkSqsRequest
+        {
+            OnlyDryRun = true,
+            MigrateRoadNetworkSqsRequest = new MigrateRoadNetworkSqsRequest
+            {
+                UploadId = TestData.Fixture.Create<UploadId>(),
+                DownloadId = TestData.Fixture.Create<DownloadId>(),
+                Changes =
+                [
+                    new ChangeRoadNetworkItem
+                    {
+                        AddRoadNode = TestData.AddSegment1StartNode
+                    },
+                    new ChangeRoadNetworkItem
+                    {
+                        AddRoadNode = TestData.AddSegment1EndNode
+                    },
+                    new ChangeRoadNetworkItem
+                    {
+                        AddRoadSegment = TestData.AddSegment1
+                    }
+                ],
+                TicketId = ticketId,
+                ProvenanceData = provenanceData
+            },
+            TicketId = ticketId,
+            ProvenanceData = provenanceData
+        };
+
+        var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        var nisCode = "12345";
+        extractsDbContext.Inwinningszones.Add(new Inwinningszone
+        {
+            DownloadId = command.MigrateRoadNetworkSqsRequest.DownloadId,
+            NisCode = nisCode,
+            Contour = new WKTReader().Read(GeometryTranslatorTestCases.ValidPolygon),
+            Operator = provenanceData.Operator,
+            Completed = false
+        });
+        extractsDbContext.ExtractUploads.Add(new ExtractUpload
+        {
+            UploadId = command.MigrateRoadNetworkSqsRequest.UploadId,
+            DownloadId = command.MigrateRoadNetworkSqsRequest.DownloadId,
+            Status = ExtractUploadStatus.Processing,
+            TicketId = command.TicketId,
+            UploadedOn = DateTimeOffset.UtcNow
+        });
+        await extractsDbContext.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var handler = sp.GetRequiredService<MigrateDryRunRoadNetworkSqsLambdaRequestHandler>();
+        await handler.Handle(new MigrateDryRunRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
+
+        // Assert
+        TicketingMock.VerifyThatTicketHasError(code: "UploadDryRunSuccessful");
+
+        MediatorMock.Verify(x => x.Send(
+            It.Is<DataValidationSqsRequest>(r => r.MigrateRoadNetworkSqsRequest == command.MigrateRoadNetworkSqsRequest && r.TicketId == command.TicketId),
+            It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

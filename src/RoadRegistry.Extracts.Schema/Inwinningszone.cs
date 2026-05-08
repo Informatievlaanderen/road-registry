@@ -27,7 +27,7 @@ public class InwinningszoneConfiguration : IEntityTypeConfiguration<Inwinningszo
 
         b.Property(p => p.NisCode)
             .ValueGeneratedNever()
-            .HasMaxLength(20)
+            .HasMaxLength(30)
             .IsRequired();
 
         b.Property(p => p.Contour)

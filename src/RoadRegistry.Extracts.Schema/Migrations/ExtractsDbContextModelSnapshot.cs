@@ -210,8 +210,8 @@ namespace RoadRegistry.Extracts.Schema.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("NisCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<int>("RoadSegmentId")
                         .HasColumnType("int");
@@ -230,8 +230,8 @@ namespace RoadRegistry.Extracts.Schema.Migrations
             modelBuilder.Entity("RoadRegistry.Extracts.Schema.Inwinningszone", b =>
                 {
                     b.Property<string>("NisCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<bool>("Completed")
                         .HasColumnType("bit");
