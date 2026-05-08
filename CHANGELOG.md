@@ -1,3 +1,10 @@
+## [4.58.3](https://github.com/informatievlaanderen/road-registry/compare/v4.58.2...v4.58.3) (2026-05-08)
+
+
+### Bug Fixes
+
+* **inwinning:** register identical roadsegments to mark as completed ([24d6423](https://github.com/informatievlaanderen/road-registry/commit/24d64238ee4fc36fbdf6713f461360c6db3af186))
+
 ## [4.58.2](https://github.com/informatievlaanderen/road-registry/compare/v4.58.1...v4.58.2) (2026-05-08)
 
 
