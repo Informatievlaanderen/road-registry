@@ -1,3 +1,10 @@
+## [4.58.1](https://github.com/informatievlaanderen/road-registry/compare/v4.58.0...v4.58.1) (2026-05-08)
+
+
+### Bug Fixes
+
+* **inwinning:** allow invalid niscode format for custom mini municipalities ([7398797](https://github.com/informatievlaanderen/road-registry/commit/7398797b283faba7621a11f36dca36f141b37845))
+
 # [4.58.0](https://github.com/informatievlaanderen/road-registry/compare/v4.57.15...v4.58.0) (2026-05-08)
 
 
