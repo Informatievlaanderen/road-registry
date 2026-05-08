@@ -1,3 +1,15 @@
+# [4.58.0](https://github.com/informatievlaanderen/road-registry/compare/v4.57.15...v4.58.0) (2026-05-08)
+
+
+### Bug Fixes
+
+* **inwinning:** shrink roadsegment attribute values when merging ([bda0a8b](https://github.com/informatievlaanderen/road-registry/commit/bda0a8bd42a03a3cb429aed3ac2a91d05d2c6eff))
+
+
+### Features
+
+* **inwinning:** fictional mini municipalities ([5c7e081](https://github.com/informatievlaanderen/road-registry/commit/5c7e081944f04460a4540d91cb31c3069ff8f681))
+
 ## [4.57.15](https://github.com/informatievlaanderen/road-registry/compare/v4.57.14...v4.57.15) (2026-05-07)
 
 
