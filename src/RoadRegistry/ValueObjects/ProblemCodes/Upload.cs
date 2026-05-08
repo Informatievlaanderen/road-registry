@@ -10,5 +10,6 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode UnexpectedError = new("UploadUnexpectedError");
         public static readonly ProblemCode UnsupportedMediaType = new("UploadUnsupportedMediaType");
         public static readonly ProblemCode DownloadIdIsRequired = new("UploadDownloadIdIsRequired");
+        public static readonly ProblemCode DryRunSuccessful = new("UploadDryRunSuccessful");
     }
 }

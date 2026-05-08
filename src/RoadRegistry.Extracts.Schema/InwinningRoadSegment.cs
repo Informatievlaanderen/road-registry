@@ -26,7 +26,7 @@ public class InwinningRoadSegmentConfiguration : IEntityTypeConfiguration<Inwinn
         b.Property(p => p.Id).ValueGeneratedOnAdd();
 
         b.Property(p => p.RoadSegmentId).IsRequired();
-        b.Property(p => p.NisCode).HasMaxLength(20).IsRequired(false);
+        b.Property(p => p.NisCode).HasMaxLength(30).IsRequired(false);
         b.Property(p => p.Completed).IsRequired();
 
         b.HasIndex(x => x.RoadSegmentId);

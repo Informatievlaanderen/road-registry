@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
+﻿namespace RoadRegistry.Tests;
 
 using FluentAssertions;
 using Moq;

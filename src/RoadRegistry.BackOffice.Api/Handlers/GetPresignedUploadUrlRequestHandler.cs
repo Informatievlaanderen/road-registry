@@ -49,7 +49,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
 
                 try
                 {
-                    var job = await CreateJob(request.UploadType, request.DownloadId, cancellationToken);
+                    var job = await CreateJob(request.UploadType, request.DownloadId, request.DryRun, cancellationToken);
 
                     var preSignedUrl = _urlPresigner.CreatePresignedUploadUrl(job);
 
@@ -59,7 +59,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                             { "Registry", "RoadRegistry" },
                             { "Action", "Upload" },
                             { "UploadType", request.UploadType.ToString() },
-                            { "DownloadId", request.DownloadId?.ToString() }
+                            { "DownloadId", request.DownloadId?.ToString() },
                         },
                         cancellationToken);
 
@@ -81,6 +81,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
         private async Task<Job> CreateJob(
             UploadType uploadType,
             DownloadId? downloadId,
+            bool dryRun,
             CancellationToken cancellationToken)
         {
             var @operator = _httpContextAccessor.HttpContext!.GetOperator();
@@ -93,6 +94,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
             {
                 DownloadId = downloadId,
                 OperatorName = @operator,
+                DryRun = dryRun
             };
 
             await _jobsContext.Jobs.AddAsync(job, cancellationToken);

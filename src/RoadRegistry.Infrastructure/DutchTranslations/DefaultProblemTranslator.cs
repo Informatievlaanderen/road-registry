@@ -766,6 +766,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     "Download id is verplicht.")
             },
             {
+                ProblemCode.Upload.DryRunSuccessful, problem => new(problem.Severity, "UploadDryRunSuccessful",
+                    "Upload is succesvol beëindigd, maar de wijzigingen zijn alleen gesimuleerd.")
+            },
+            {
                 ProblemCode.Width.IsRequired, problem => new(problem.Severity, "BreedteVerplicht",
                     "Breedte is verplicht.")
             },

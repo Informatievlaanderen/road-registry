@@ -27,11 +27,11 @@ public class InwinningSplitMunicipalityIntoGrids
     {
         const DbEnvironment env = DbEnvironment.DEV;
         // const DbEnvironment env = DbEnvironment.STG;
-        const string nisCode = "45068"; //Gent 44021  Kruisem 45068
-        const int gridSize = 1000;
+        const string nisCode = "44021"; //Gent 44021  Kruisem 45068
+        var gridSizes = new[] { 500 }; //, 500, 1000 };
         var orgCode = "0425258688";
         var configOrgStartIndex = 10;
-        var maxMunis = 10;
+        var maxMunisPerGridSize = 10;
 
         var sp = GetServiceProvider(env);
 
@@ -40,43 +40,51 @@ public class InwinningSplitMunicipalityIntoGrids
         var municipality = await dbContext.Municipalities.SingleAsync(m => m.NisCode == nisCode);
         var municipalityGeometry = municipality.Geometry!.EnvelopeInternal;
 
+        var y = Math.Round((municipalityGeometry.MaxY + municipalityGeometry.MinY) / 2 / 1000.0) * 1000;
         var minX = Math.Round(municipalityGeometry.MinX / 1000.0) * 1000;
-        var y = Math.Round((municipalityGeometry.MaxY - municipalityGeometry.MinY) / 2 / 1000.0) * 1000;
-
-        var x = minX;
 
         var gridNisCodes = new List<string>();
-        while (x < municipalityGeometry.MaxX)
+
+        foreach (var gridSize in gridSizes)
         {
-            if (gridNisCodes.Count == maxMunis)
-            {
-                break;
-            }
+            var createdCount = 0;
+            var x = minX;
 
-            var gridGeometry = municipality.Geometry.Factory.CreatePolygon([
-                new Coordinate(x, y),
-                new Coordinate(x, y + gridSize),
-                new Coordinate(x + gridSize, y + gridSize),
-                new Coordinate(x + gridSize, y),
-                new Coordinate(x, y),
-            ]).ToMultiPolygon();
-
-            var gridNiscode = $"{municipality.NisCode}_{x}_{y}";
-            var existingGrid = await dbContext.Municipalities.SingleOrDefaultAsync(m => m.NisCode == gridNiscode);
-            if (existingGrid is null)
+            while (x < municipalityGeometry.MaxX)
             {
-                dbContext.Municipalities.Add(new Municipality
+                if (createdCount == maxMunisPerGridSize)
                 {
-                    MunicipalityId = Guid.NewGuid().ToString(),
-                    NisCode = gridNiscode,
-                    Geometry = gridGeometry,
-                    Status = MunicipalityStatus.Current
-                });
+                    break;
+                }
 
-                gridNisCodes.Add(gridNiscode);
+                var gridGeometry = municipality.Geometry.Factory.CreatePolygon([
+                    new Coordinate(x, y),
+                    new Coordinate(x, y + gridSize),
+                    new Coordinate(x + gridSize, y + gridSize),
+                    new Coordinate(x + gridSize, y),
+                    new Coordinate(x, y),
+                ]).ToMultiPolygon();
+
+                var gridNiscode = $"{municipality.NisCode}_{x:000000}-{y:000000}_{gridSize}x{gridSize}";
+                var existingGrid = await dbContext.Municipalities.SingleOrDefaultAsync(m => m.NisCode == gridNiscode);
+                if (existingGrid is null)
+                {
+                    dbContext.Municipalities.Add(new Municipality
+                    {
+                        MunicipalityId = Guid.NewGuid().ToString(),
+                        NisCode = gridNiscode,
+                        Geometry = gridGeometry,
+                        Status = MunicipalityStatus.Current
+                    });
+
+                    gridNisCodes.Add(gridNiscode);
+                    createdCount++;
+                }
+
+                x += gridSize;
             }
 
-            x += gridSize;
+            y -= 1000;
         }
 
         await dbContext.SaveChangesAsync();

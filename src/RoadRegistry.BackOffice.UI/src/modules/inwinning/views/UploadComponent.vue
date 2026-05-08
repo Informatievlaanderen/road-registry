@@ -60,9 +60,15 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    dryRun: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     disabled: {
       type: Boolean,
       required: false,
+      default: false,
     },
   },
   data() {
@@ -222,7 +228,7 @@ export default defineComponent({
       try {
         this.$emit("upload-start");
 
-        let presignedUploadResponse = await PublicApi.Inwinning.upload(this.downloadId, file, file.name);
+        let presignedUploadResponse = await PublicApi.Inwinning.upload(this.downloadId, file, file.name, this.dryRun);
         if (!presignedUploadResponse) {
           return {
             uploadResponseCode: 1000,

@@ -67,13 +67,29 @@
               </vl-alert>
 
               <br />
-              <UploadComponent
-                v-if="userCanUpload"
-                :download-id="downloadId"
-                :disabled="uploadDisabled"
-                @upload-start="handleUploadStart"
-                @upload-complete="handleUploadComplete"
-              />
+              <div v-if="userCanUpload">
+                <label class="vl-checkbox" for="upload-dry-run" v-if="inwinningUploadDryRun">
+                  <input
+                    class="vl-checkbox__toggle"
+                    type="checkbox"
+                    id="upload-dry-run"
+                    v-model="uploadDryRun"
+                    :disabled="uploadDisabled"
+                  />
+                  <span class="vl-checkbox__label" :disabled="uploadDisabled ? 'disabled' : undefined">
+                    <i class="vl-checkbox__box" aria-hidden="true"></i>
+                    Dry-run
+                  </span>
+                </label>
+                <br />
+                <UploadComponent
+                  :download-id="downloadId"
+                  :dry-run="uploadDryRun"
+                  :disabled="uploadDisabled"
+                  @upload-start="handleUploadStart"
+                  @upload-complete="handleUploadComplete"
+                />
+              </div>
 
               <div v-if="ticketId && uploadStatus.text">
                 <vl-alert
@@ -167,11 +183,15 @@ export default defineComponent({
         hasGenericError: false,
       },
       uploadDisabled: false,
+      uploadDryRun: false,
     };
   },
   computed: {
     allowRequestExtractWhenUploaded() {
       return featureToggles.inwinningAllowRequestExtractWhenUploaded;
+    },
+    inwinningUploadDryRun() {
+      return featureToggles.inwinningUploadDryRun;
     },
     extractTitle(): string {
       return `Extract${this.extract?.informatief ? " (informatief)" : ""}${

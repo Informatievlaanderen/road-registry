@@ -12,7 +12,7 @@ namespace RoadRegistry.Extracts.Schema.Migrations
         {
             migrationBuilder.Sql(@"
 ALTER TABLE [RoadRegistryExtracts].[InwinningRoadSegments]
-ALTER COLUMN [NisCode] nvarchar(20) null
+ALTER COLUMN [NisCode] nvarchar(30) null
 GO
 
 DROP INDEX [SPATIAL_Inwinningszones] ON [RoadRegistryExtracts].[Inwinningszones]
@@ -22,7 +22,7 @@ ALTER TABLE [RoadRegistryExtracts].[Inwinningszones] DROP CONSTRAINT [PK_Inwinni
 GO
 
 ALTER TABLE [RoadRegistryExtracts].[Inwinningszones]
-ALTER COLUMN [NisCode] nvarchar(20) not null
+ALTER COLUMN [NisCode] nvarchar(30) not null
 GO
 
 ALTER TABLE [RoadRegistryExtracts].[Inwinningszones] ADD  CONSTRAINT [PK_Inwinningszones] PRIMARY KEY CLUSTERED

@@ -7,4 +7,5 @@ using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 public sealed class MigrateDryRunRoadNetworkSqsRequest : SqsRequest
 {
     public required MigrateRoadNetworkSqsRequest MigrateRoadNetworkSqsRequest { get; set; }
+    public bool OnlyDryRun { get; set; }
 }

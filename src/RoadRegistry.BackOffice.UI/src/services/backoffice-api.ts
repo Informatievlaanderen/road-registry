@@ -199,10 +199,19 @@ export const BackOfficeApi = {
     upload: async (
       downloadId: string,
       file: Blob,
-      filename: string
+      filename: string,
+      dryRun: boolean
     ): Promise<RoadRegistry.UploadPresignedUrlResponse | null> => {
       const path = `${apiEndpoint}/v1/inwinning/${downloadId}/upload`;
-      const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
+      const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(
+        path,
+        undefined,
+        undefined,
+        undefined,
+        {
+          dryRun,
+        }
+      );
 
       const data = new FormData();
       if (response.data.uploadUrlFormData) {

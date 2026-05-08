@@ -14,4 +14,7 @@ export const featureToggles = {
   inwinningAllowRequestExtractWhenUploaded:
     `${window.featureToggles?.inwinningAllowRequestExtractWhenUploaded ?? process.env.VUE_APP_FEATURETOGGLES_INWINNINGALLOWREQUESTEXTRACTWHENUPLOADED}` ===
     "true",
+  inwinningUploadDryRun:
+    `${window.featureToggles?.inwinningUploadDryRun ?? process.env.VUE_APP_FEATURETOGGLES_INWINNINGUPLOADDRYRUN}` ===
+    "true",
 };
