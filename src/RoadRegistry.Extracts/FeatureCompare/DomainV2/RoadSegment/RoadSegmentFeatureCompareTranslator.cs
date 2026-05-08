@@ -474,6 +474,14 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
             switch (record.RecordType.Translation.Identifier)
             {
+                case RecordType.IdenticalIdentifier:
+                {
+                    if (context.ZipArchiveMetadata.Inwinning)
+                    {
+                        changes = changes.AppendIdenticalRoadSegmentId(record.RoadSegmentId);
+                    }
+                    break;
+                }
                 case RecordType.ModifiedIdentifier:
                 {
                     var geometry = record.Attributes.Geometry.ToRoadSegmentGeometry();

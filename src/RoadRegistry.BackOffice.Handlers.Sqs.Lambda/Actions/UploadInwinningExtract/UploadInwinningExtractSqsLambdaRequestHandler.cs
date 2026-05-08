@@ -150,6 +150,7 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
                     DownloadId = request.Request.DownloadId,
                     UploadId = request.Request.UploadId,
                     Changes = translatedChanges.Select(ChangeRoadNetworkItem.Create).ToList(),
+                    IdenticalRoadSegmentIds = translatedChanges.GetIdenticalRoadSegmentIds(),
                     ProvenanceData = new ProvenanceData(request.Provenance)
                 }
             };
