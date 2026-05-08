@@ -1,3 +1,10 @@
+## [4.58.2](https://github.com/informatievlaanderen/road-registry/compare/v4.58.1...v4.58.2) (2026-05-08)
+
+
+### Bug Fixes
+
+* **inwinning:** request mini municipality ([0b48b04](https://github.com/informatievlaanderen/road-registry/commit/0b48b046b81f4373550b10bc22bccc0ecac15fdb))
+
 ## [4.58.1](https://github.com/informatievlaanderen/road-registry/compare/v4.58.0...v4.58.1) (2026-05-08)
 
 
