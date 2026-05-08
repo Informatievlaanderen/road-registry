@@ -53,46 +53,39 @@
           </div>
           <div class="vl-form-col--12-12">
             <label>
-              <input
-                v-model="municipalityFlow.isInformative"
-                type="radio"
-                :value="false"
-              />
+              <input v-model="municipalityFlow.isInformative" type="radio" :value="false" />
               Ja, ik wens een oplading uit te voeren
             </label>
           </div>
           <div class="vl-form-col--12-12">
             <label>
-              <input
-                v-model="municipalityFlow.isInformative"
-                type="radio"
-                :value="true"
-              />
+              <input v-model="municipalityFlow.isInformative" type="radio" :value="true" />
               Nee, ik vraag een informatief extract aan
             </label>
           </div>
           <div class="vl-form-col--12-12">
             <label for="municipality-referentie" class="vl-form__label __field__label">
-              De beschrijving van uw extract begint met de naam van de gekozen gemeente. Voeg indien gewenst een eigen referentie toe aan deze beschrijving (max. 100 karakters):
+              De beschrijving van uw extract begint met de naam van de gekozen gemeente. Voeg indien gewenst een eigen
+              referentie toe aan deze beschrijving (max. 100 karakters):
             </label>
           </div>
           <div class="vl-form-col--12-12">
             <input
               id="municipality-referentie"
               v-model="municipalityFlow.referentie"
-              class="vl-input-field vl-input-field--block" />
+              class="vl-input-field vl-input-field--block"
+            />
 
             <div v-if="!isReferentieValid(municipalityFlow.referentie)">
               <vl-alert mod-warning mod-small>
-                Gelieve een optionele referentie mee te geven van maximaal {{validation.referentie.maxLength}} karakters.
+                Gelieve een optionele referentie mee te geven van maximaal
+                {{ validation.referentie.maxLength }} karakters.
               </vl-alert>
             </div>
-          <div class="vl-form-col--12-12">
-            <label class="vl-form__label __field__label">
-              Beschrijving van het extract:
-            </label>
-          </div>
-            <div class="vl-form-col--12-12">{{municipalityFlowDescription}}</div>
+            <div class="vl-form-col--12-12">
+              <label class="vl-form__label __field__label"> Beschrijving van het extract: </label>
+            </div>
+            <div class="vl-form-col--12-12">{{ municipalityFlowDescription }}</div>
           </div>
 
           <div class="vl-form-col--12-12">
@@ -101,9 +94,7 @@
               <vl-button
                 @click="submitMunicipalityRequest"
                 :mod-disabled="
-                  isSubmitting ||
-                  !isReferentieValid(municipalityFlow.referentie) ||
-                  !municipalityFlowHasIsInformative
+                  isSubmitting || !isReferentieValid(municipalityFlow.referentie) || !municipalityFlowHasIsInformative
                 "
               >
                 Extract aanvragen
@@ -230,6 +221,23 @@ export default defineComponent({
 
       let availableNisCodes = await PublicApi.Inwinning.getNisCodes();
       municipalities = municipalities.filter((x) => ~availableNisCodes.indexOf(x.identificator.objectId));
+
+      let fictionalNisCodes = availableNisCodes.filter(
+        (nisCode) => municipalities.filter((m) => m.identificator.objectId == nisCode).length === 0
+      );
+      municipalities.push(
+        ...fictionalNisCodes.map((nisCode) => ({
+          identificator: { id: "", naamruimte: "", objectId: nisCode, versieId: "" },
+          detail: "",
+          gemeentenaam: {
+            geografischeNaam: {
+              spelling: nisCode,
+              taal: Municipalities.Taal.Nl,
+            },
+          },
+          gemeenteStatus: Municipalities.GemeenteStatus.InGebruik,
+        }))
+      );
 
       this.municipalities = municipalities.sort((m1, m2) => {
         if (m1.gemeentenaam.geografischeNaam.spelling > m2.gemeentenaam.geografischeNaam.spelling) {
