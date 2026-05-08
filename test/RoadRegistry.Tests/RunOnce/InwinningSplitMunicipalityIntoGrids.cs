@@ -25,10 +25,9 @@ public class InwinningSplitMunicipalityIntoGrids
     [Fact(Skip = "For debugging purposes only")]
     public async Task Run()
     {
-        const DbEnvironment env = DbEnvironment.TST;
+        const DbEnvironment env = DbEnvironment.DEV;
         // const DbEnvironment env = DbEnvironment.STG;
-        const string nisCode = "44021"; //Gent
-        //const string nisCode = "45068"; //Kruisem
+        const string nisCode = "45068"; //Gent 44021  Kruisem 45068
         const int gridSize = 1000;
         var orgCode = "0425258688";
         var configOrgStartIndex = 10;
@@ -79,6 +78,8 @@ public class InwinningSplitMunicipalityIntoGrids
 
             x += gridSize;
         }
+
+        await dbContext.SaveChangesAsync();
 
         TestOutputHelper.WriteLine($"Added grids: {gridNisCodes.Count}");
         TestOutputHelper.WriteLine("");
