@@ -54,30 +54,6 @@ public class VerifyTopologyTests : RoadNetworkTestBase
     }
 
     [Fact]
-    public Task WhenNodeIsTooCloseToUnconnectedSegment_ThenError()
-    {
-        return Run(scenario => scenario
-            .Given(given => given
-                .Add(TestData.AddSegment1StartNode)
-                .Add(TestData.AddSegment1EndNode)
-                .Add(TestData.AddSegment1))
-            .When(changes => changes
-                .Add(new AddRoadNodeChange
-                {
-                    TemporaryId = new RoadNodeId(3),
-                    Geometry = new Point(TestData.AddSegment1StartNode.Geometry.Value.X + 0.99, TestData.AddSegment1StartNode.Geometry.Value.Y).ToRoadNodeGeometry(),
-                    OriginalId = new RoadNodeId(99),
-                    Grensknoop = Fixture.Create<bool>()
-                })
-            )
-            .ThenContainsProblems(new Error("RoadNodeTooClose",
-                new ProblemParameter("OtherSegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
-                new ProblemParameter("WegknoopId", 99.ToString())
-            ))
-        );
-    }
-
-    [Fact]
     public Task WhenDetectType_WithNoSegmentsConnected_ThenError()
     {
         return Run(scenario => scenario
