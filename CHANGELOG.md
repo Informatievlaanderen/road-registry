@@ -1,3 +1,10 @@
+# [4.59.0](https://github.com/informatievlaanderen/road-registry/compare/v4.58.4...v4.59.0) (2026-05-12)
+
+
+### Features
+
+* **inwinning:** upload as a dry-run ([50951aa](https://github.com/informatievlaanderen/road-registry/commit/50951aa2562e4778a888247d832825d54290ed13))
+
 ## [4.58.4](https://github.com/informatievlaanderen/road-registry/compare/v4.58.3...v4.58.4) (2026-05-12)
 
 
