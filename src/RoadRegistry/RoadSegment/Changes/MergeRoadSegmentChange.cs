@@ -6,8 +6,8 @@ using ValueObjects;
 
 public sealed record MergeRoadSegmentChange : IRoadNetworkChange
 {
-    public required RoadSegmentId TemporaryId { get; init; }
-    public required IReadOnlyCollection<RoadSegmentId> OriginalIds { get; init; }
+    public required RoadSegmentId RoadSegmentId { get; init; }
+    public required RoadSegmentId OtherRoadSegmentId { get; init; }
     public required RoadSegmentGeometry Geometry { get; init; }
     public required RoadSegmentGeometryDrawMethodV2 GeometryDrawMethod { get; init; }
     public required RoadSegmentStatusV2 Status { get; init; }

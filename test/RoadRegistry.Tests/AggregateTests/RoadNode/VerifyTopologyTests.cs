@@ -119,7 +119,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
     public Task WhenDetectType_WithTwoDifferentSegmentsConnectedAndNodeIsNotGrensknoop_ThenSegmentsMerged()
     {
         var point1 = new Point(600000, 600000).WithSrid(WellknownSrids.Lambert08);
-        var point2 = new Point(600010, 600000).WithSrid(WellknownSrids.Lambert08);
+        var point2 = new Point(600011, 600000).WithSrid(WellknownSrids.Lambert08);
         var point3 = new Point(600020, 600000).WithSrid(WellknownSrids.Lambert08);
 
         return Run(scenario => scenario
@@ -160,9 +160,14 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                     .SingleOrDefault(x => x.RoadNodeId == 2);
                 roadNodeWasRemoved.Should().NotBeNull();
 
+                var roadSegmentWasAdded = events
+                    .OfType<RoadSegmentWasAdded>()
+                    .SingleOrDefault(x => x.RoadSegmentId == new RoadSegmentId(1));
+                roadSegmentWasAdded.Should().NotBeNull();
+
                 var roadSegmentWasMerged = events
                     .OfType<RoadSegmentWasMerged>()
-                    .SingleOrDefault(x => x.OriginalIds.SequenceEqual([new RoadSegmentId(1), new RoadSegmentId(2)]));
+                    .SingleOrDefault(x => x.OtherRoadSegmentId == new RoadSegmentId(2));
                 roadSegmentWasMerged.Should().NotBeNull();
             })
         );
@@ -282,7 +287,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
     public Task WhenDetectType_WithTwoIdenticalSegmentsConnectedAndNodeIsNotGrensknoop_ThenSegmentsMerged()
     {
         var point1 = new Point(600000, 600000);
-        var point2 = new Point(600010, 600000);
+        var point2 = new Point(600011, 600000);
         var point3 = new Point(600020, 600000);
 
         return Run(scenario => scenario
@@ -322,9 +327,14 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                     .SingleOrDefault(x => x.RoadNodeId == 2);
                 roadNodeWasRemoved.Should().NotBeNull();
 
+                var roadSegmentWasAdded = events
+                    .OfType<RoadSegmentWasAdded>()
+                    .SingleOrDefault(x => x.RoadSegmentId == new RoadSegmentId(1));
+                roadSegmentWasAdded.Should().NotBeNull();
+
                 var roadSegmentWasMerged = events
                     .OfType<RoadSegmentWasMerged>()
-                    .SingleOrDefault(x => x.OriginalIds.SequenceEqual([new RoadSegmentId(1), new RoadSegmentId(2)]));
+                    .SingleOrDefault(x => x.OtherRoadSegmentId == new RoadSegmentId(2));
                 roadSegmentWasMerged.Should().NotBeNull();
             })
         );

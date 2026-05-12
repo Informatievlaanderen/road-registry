@@ -10,7 +10,7 @@ using ScopedRoadNetwork.ValueObjects;
 
 public partial class RoadSegment
 {
-    public Problems VerifyTopology(ScopedRoadNetworkContext context)
+    public Problems VerifyTopology(ScopedRoadNetworkChangeContext context)
     {
         var idReference = context.IdTranslator.TranslateToTemporaryId(RoadSegmentId);
         var problems = Problems.WithContext(idReference);
@@ -55,7 +55,7 @@ public partial class RoadSegment
         return problems;
     }
 
-    public bool HasTrafficOverlap(RoadSegment otherRoadSegment, Point intersection, ScopedRoadNetworkContext context)
+    public bool HasTrafficOverlap(RoadSegment otherRoadSegment, Point intersection, ScopedRoadNetworkChangeContext context)
     {
         // Get the attributes at this specific intersection point for both segments
         var segment1Access = GetAccessAtPosition(this, intersection, context.Tolerances);

@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using ValueObjects;
 
-public record RoadSegmentWasMerged: IMartenEvent, ICreatedEvent
+public record RoadSegmentWasMerged: IMartenEvent
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
-    public required IReadOnlyCollection<RoadSegmentId> OriginalIds { get; init; }
+    public required RoadSegmentId OtherRoadSegmentId { get; init; }
     public required RoadSegmentGeometry Geometry { get; init; }
     public required RoadNodeId? StartNodeId { get; init; }
     public required RoadNodeId? EndNodeId { get; init; }

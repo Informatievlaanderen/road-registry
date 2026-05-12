@@ -5,15 +5,14 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events.V2;
 using RoadRegistry.ValueObjects.Problems;
-using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
 using ValueObjects;
 
 public partial class RoadSegment
 {
-    public static (RoadSegment?, Problems) Merge(MergeRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
+    public Problems Merge(MergeRoadSegmentChange change, ScopedRoadNetworkChangeContext context)
     {
-        var problems = Problems.WithContext(change.TemporaryId);
+        var problems = Problems.WithContext(RoadSegmentId);
 
         problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2();
 
@@ -45,19 +44,17 @@ public partial class RoadSegment
             startNodeId = startEndNodes.StartNodeId;
             endNodeId = startEndNodes.EndNodeId;
             problems += startEndNodes.Problems;
-
-            problems += context.RoadNetwork.ValidatePartiallyOverlappingRoadSegments(change.Geometry, change.OriginalIds, context.IdTranslator);
         }
 
         if (problems.HasError())
         {
-            return (null, problems);
+            return problems;
         }
 
-        var segment = Create(new RoadSegmentWasMerged
+        var @event = new RoadSegmentWasMerged
         {
-            RoadSegmentId = idGenerator.NewRoadSegmentId(),
-            OriginalIds = change.OriginalIds,
+            RoadSegmentId = RoadSegmentId,
+            OtherRoadSegmentId = change.OtherRoadSegmentId,
             Geometry = change.Geometry,
             StartNodeId = startNodeId,
             EndNodeId = endNodeId,
@@ -77,8 +74,10 @@ public partial class RoadSegment
             EuropeanRoadNumbers = attributes.EuropeanRoadNumbers,
             NationalRoadNumbers = attributes.NationalRoadNumbers,
             Provenance = new ProvenanceData(context.Provenance)
-        });
+        };
 
-        return (segment, problems);
+        Apply(@event);
+
+        return problems;
     }
 }
