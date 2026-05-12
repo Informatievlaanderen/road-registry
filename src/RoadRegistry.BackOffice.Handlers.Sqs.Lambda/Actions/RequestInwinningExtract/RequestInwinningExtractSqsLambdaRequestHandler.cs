@@ -103,7 +103,7 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
                 request.Provenance,
                 onArchiveBuilt: async archiveStream =>
                 {
-                    if (archiveStream.Length > 0)
+                    if (!request.Request.IsInformative && archiveStream.Length > 0)
                     {
                         var inwinningRoadSegments = await _extractsDbContext.InwinningRoadSegments
                             .Where(x => x.NisCode == niscode)
