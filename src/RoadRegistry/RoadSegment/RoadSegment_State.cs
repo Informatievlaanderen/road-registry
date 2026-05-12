@@ -125,13 +125,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         };
     }
 
-    public static RoadSegment Create(RoadSegmentWasMerged @event)
-    {
-        var segment = new RoadSegment(@event.RoadSegmentId);
-        segment.Apply(@event);
-        return segment;
-    }
-    private void Apply(RoadSegmentWasMerged @event)
+    public void Apply(RoadSegmentWasMerged @event)
     {
         UncommittedEvents.Add(@event);
 

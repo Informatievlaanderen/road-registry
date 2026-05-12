@@ -3,6 +3,7 @@
 using System.Linq;
 using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
+using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
@@ -10,10 +11,10 @@ using RoadRegistry.ValueObjects.Problems;
 
 public partial class ScopedRoadNetwork
 {
-    public (RoadSegment?, Problems) MergeRoadSegments(
+    public Problems MergeRoadSegments(
         RoadSegment segment1, RoadSegment segment2,
         IRoadNetworkIdGenerator idGenerator,
-        ScopedRoadNetworkContext context)
+        ScopedRoadNetworkChangeContext context)
     {
         var commonNodeId = segment1.GetCommonNode(segment2)!.Value;
         var startNodeId = segment1.GetOppositeNode(commonNodeId)!.Value;
@@ -29,13 +30,14 @@ public partial class ScopedRoadNetwork
             (segment2.Geometry.Value, segment2.Attributes!.GeometryDrawMethod),
         ], geometry)!;
 
-        //TODO-pr niet altijd een nieuwe ID aanmaken, enkel indien de verandering te groot is (zie FC logica maar dan enkel op lengte)
-        //RoadSegmentConstants.MinimumPercentageToKeepIdentifier
+        var segmentWithLongestLength = segment1.Geometry.Value.Length > segment2.Geometry.Value.Length ? segment1 : segment2;
+        var overlapPercentage = segmentWithLongestLength.Geometry.Value.Length / geometry.Length;
+        var modifyLongestSegment = overlapPercentage >= RoadSegmentConstants.MinimumPercentageToKeepIdentifier;
 
-        var mergedSegment = new MergeRoadSegmentChange
+        var mergeSegmentChange = new MergeRoadSegmentChange
         {
-            TemporaryId = _roadSegments.Keys.Max().Next(),
-            OriginalIds = [segment1.RoadSegmentId, segment2.RoadSegmentId],
+            RoadSegmentId = segmentWithLongestLength.RoadSegmentId,
+            OtherRoadSegmentId = segmentWithLongestLength.RoadSegmentId == segment1.RoadSegmentId ? segment2.RoadSegmentId : segment1.RoadSegmentId,
             Geometry = geometry.ToRoadSegmentGeometry(),
             GeometryDrawMethod = method,
             Status = segment1.Attributes.Status,
@@ -54,18 +56,72 @@ public partial class ScopedRoadNetwork
             NationalRoadNumbers = segment1.Attributes.NationalRoadNumbers
         };
 
-        var (roadSegment, problems) = RoadSegment.Merge(mergedSegment, idGenerator, context);
-        if (problems.HasError())
+        Problems problems;
+        RoadSegment roadSegment;
+
+        if (modifyLongestSegment)
         {
-            return (null, problems);
+            roadSegment = segmentWithLongestLength;
+            problems = Problems.None;
+        }
+        else
+        {
+            problems = AddRoadSegment(new AddRoadSegmentChange
+            {
+                RoadSegmentIdReference = context.IdTranslator.TranslateToTemporaryId(_roadSegments.Keys.Max().Next()),
+                Geometry = mergeSegmentChange.Geometry,
+                GeometryDrawMethod = mergeSegmentChange.GeometryDrawMethod,
+                Status = mergeSegmentChange.Status,
+                AccessRestriction = mergeSegmentChange.AccessRestriction,
+                Category = mergeSegmentChange.Category,
+                Morphology = mergeSegmentChange.Morphology,
+                StreetNameId = mergeSegmentChange.StreetNameId,
+                MaintenanceAuthorityId = mergeSegmentChange.MaintenanceAuthorityId,
+                SurfaceType = mergeSegmentChange.SurfaceType,
+                CarAccessForward = mergeSegmentChange.CarAccessForward,
+                CarAccessBackward = mergeSegmentChange.CarAccessBackward,
+                BikeAccessForward = mergeSegmentChange.BikeAccessForward,
+                BikeAccessBackward = mergeSegmentChange.BikeAccessBackward,
+                PedestrianAccess = mergeSegmentChange.PedestrianAccess,
+                EuropeanRoadNumbers = mergeSegmentChange.EuropeanRoadNumbers,
+                NationalRoadNumbers = mergeSegmentChange.NationalRoadNumbers
+            }, idGenerator, context, skipValidatePartiallyOverlappingRoadSegments: true);
+            if (problems.HasError())
+            {
+                return problems;
+            }
+
+            var addedRoadSegmentId = context.Summary.RoadSegments.Added.Last();
+            roadSegment = _roadSegments[addedRoadSegmentId];
+            mergeSegmentChange = mergeSegmentChange with
+            {
+                RoadSegmentId = roadSegment.RoadSegmentId
+            };
         }
 
-        problems += context.IdTranslator.RegisterMapping(new RoadSegmentIdReference(mergedSegment.TemporaryId), roadSegment!.RoadSegmentId);
-        _roadSegments.Add(roadSegment.RoadSegmentId, roadSegment);
+        if (segment1.RoadSegmentId != roadSegment.RoadSegmentId)
+        {
+            problems += segment1.RetireBecauseOfMerger(roadSegment.RoadSegmentId, context.Provenance);
+            _roadSegmentsSpatialIndex.Remove(segment1.Geometry.Value.EnvelopeInternal, segment1);
+            context.Summary.RoadSegments.Removed.Add(segment1.RoadSegmentId);
+        }
 
-        problems += segment1.RetireBecauseOfMerger(roadSegment.RoadSegmentId, context.Provenance);
-        problems += segment2.RetireBecauseOfMerger(roadSegment.RoadSegmentId, context.Provenance);
-        problems += _roadNodes[commonNodeId].Remove(context.Provenance);
+        if (segment2.RoadSegmentId != roadSegment.RoadSegmentId)
+        {
+            problems += segment2.RetireBecauseOfMerger(roadSegment.RoadSegmentId, context.Provenance);
+            _roadSegmentsSpatialIndex.Remove(segment2.Geometry.Value.EnvelopeInternal, segment2);
+            context.Summary.RoadSegments.Removed.Add(segment2.RoadSegmentId);
+        }
+
+        var oldEnvelope = roadSegment.Geometry.Value.EnvelopeInternal;
+        problems += roadSegment.Merge(mergeSegmentChange, context);
+        _roadSegmentsSpatialIndex.Update(oldEnvelope, roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
+        context.Summary.RoadSegments.Modified.Add(roadSegment.RoadSegmentId);
+
+        problems += RemoveRoadNode(new RemoveRoadNodeChange
+        {
+            RoadNodeId = commonNodeId
+        }, context);
 
         var nodeSegmentIds = new[] { segment1.RoadSegmentId, segment2.RoadSegmentId };
         var connectedJunctions = _gradeSeparatedJunctions
@@ -84,7 +140,7 @@ public partial class ScopedRoadNetwork
             {
                 modify = modify with
                 {
-                    LowerRoadSegmentId = mergedSegment.TemporaryId
+                    LowerRoadSegmentId = mergeSegmentChange.RoadSegmentId
                 };
             }
 
@@ -92,13 +148,14 @@ public partial class ScopedRoadNetwork
             {
                 modify = modify with
                 {
-                    UpperRoadSegmentId = mergedSegment.TemporaryId
+                    UpperRoadSegmentId = mergeSegmentChange.RoadSegmentId
                 };
             }
 
             problems += junction.Modify(modify, context.Provenance);
+            context.Summary.GradeSeparatedJunctions.Modified.Add(junction.GradeSeparatedJunctionId);
         }
 
-        return (roadSegment, problems);
+        return problems;
     }
 }

@@ -35,7 +35,7 @@ public class AggregateTests : AggregateTestBase
             RoadNode.Create(TestData.Segment1StartNodeAdded),
             RoadNode.Create(TestData.Segment1EndNodeAdded)
         ]);
-        var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
         // Act
         var (segment, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), roadNetworkContext);
@@ -79,7 +79,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         var roadNetwork = new RoadNetworkBuilder(new InMemoryRoadNetworkIdGenerator()).Build();
-        var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
         // Act
         var (segment, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), roadNetworkContext);
@@ -150,7 +150,7 @@ public class AggregateTests : AggregateTestBase
                 Geometry = existingGeometry
             })
         ], []);
-        var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
         Fixture.Freeze(new RoadSegmentId(2));
         var change = Fixture.Create<AddRoadSegmentChange>() with
@@ -198,7 +198,7 @@ public class AggregateTests : AggregateTestBase
                     Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08))
                 })
             ], []);
-            var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+            var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
             // Act
             var (_, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), roadNetworkContext);
@@ -234,7 +234,7 @@ public class AggregateTests : AggregateTestBase
                     Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08))
                 })
             ], []);
-            var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+            var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
             // Act
             var (_, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), roadNetworkContext);
@@ -254,7 +254,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var (_, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), Fixture.Create<ScopedRoadNetworkContext>());
+        var (_, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), Fixture.Create<ScopedRoadNetworkChangeContext>());
 
         // Assert
         problems.Should().ContainEquivalentOf(
@@ -279,7 +279,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var (_, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), Fixture.Create<ScopedRoadNetworkContext>());
+        var (_, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), Fixture.Create<ScopedRoadNetworkChangeContext>());
 
         // Assert
         problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryValueNotUniqueWithinSegment");

@@ -13,7 +13,7 @@ using RoadRegistry.ValueObjects.Problems;
 
 public partial class ScopedRoadNetwork
 {
-    private Problems VerifyAndUpdateJunctions(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
+    private Problems VerifyAndUpdateJunctions(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
     {
         using var _ = context.Logger.TimeAction();
 
@@ -40,7 +40,7 @@ public partial class ScopedRoadNetwork
         {
             if (existingGradeJunctions.TryGetValue(combination.Key, out var gradeJunction))
             {
-                problems += RemoveGradeJunction(gradeJunction.GradeJunctionId, context, summary);
+                problems += RemoveGradeJunction(gradeJunction.GradeJunctionId, context);
             }
         }
 
@@ -74,7 +74,7 @@ public partial class ScopedRoadNetwork
             {
                 if (existingGradeJunctions.TryGetValue(combination.Key, out var gradeJunction))
                 {
-                    problems += RemoveGradeJunction(gradeJunction.GradeJunctionId, context, summary);
+                    problems += RemoveGradeJunction(gradeJunction.GradeJunctionId, context);
                 }
 
                 continue;
@@ -91,11 +91,11 @@ public partial class ScopedRoadNetwork
 
             if (!hasOverlapInTrafficTypes && !existingGradeJunctions.ContainsKey(combination.Key))
             {
-                problems += AddGradeJunction(combination.Segment1.RoadSegmentId, combination.Segment2.RoadSegmentId, idGenerator, context, summary);
+                problems += AddGradeJunction(combination.Segment1.RoadSegmentId, combination.Segment2.RoadSegmentId, idGenerator, context);
             }
             else if (hasOverlapInTrafficTypes && existingGradeJunctions.TryGetValue(combination.Key, out var gradeJunction))
             {
-                problems += RemoveGradeJunction(gradeJunction.GradeJunctionId, context, summary);
+                problems += RemoveGradeJunction(gradeJunction.GradeJunctionId, context);
             }
         }
 

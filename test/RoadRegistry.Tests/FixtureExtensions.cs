@@ -202,9 +202,16 @@ public static class Customizations
     public static T CreateUntil<T>(this IFixture fixture, Predicate<T> predicate)
     {
         var value = fixture.Create<T>();
+        var attemptCounter = 0;
 
         while (!predicate(value))
         {
+            if (attemptCounter == 50)
+            {
+                throw new Exception("Could not create a value which is different than the illegal values.");
+            }
+
+            attemptCounter++;
             value = fixture.Create<T>();
         }
 

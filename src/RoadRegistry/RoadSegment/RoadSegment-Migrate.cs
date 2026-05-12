@@ -11,7 +11,7 @@ using ValueObjects;
 
 public partial class RoadSegment
 {
-    public Problems Migrate(MigrateRoadSegmentChange change, ScopedRoadNetworkContext context)
+    public Problems Migrate(MigrateRoadSegmentChange change, ScopedRoadNetworkChangeContext context)
     {
         var problems = Problems.WithContext(change.RoadSegmentIdReference);
 

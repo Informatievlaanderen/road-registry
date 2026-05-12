@@ -115,13 +115,13 @@ public static class FixtureExtensions
         fixture.Customize<RoadSegmentWasMerged>(composer =>
             composer.FromFactory(_ =>
                 {
-                    var roadSegmentIds = fixture.CreateMany<RoadSegmentId>().ToArray();
                     var geometry = fixture.Create<RoadSegmentGeometry>();
+                    var roadSegmentId = fixture.Create<RoadSegmentId>();
 
                     return new RoadSegmentWasMerged
                     {
-                        RoadSegmentId = fixture.Create<RoadSegmentId>(),
-                        OriginalIds = roadSegmentIds,
+                        RoadSegmentId = roadSegmentId,
+                        OtherRoadSegmentId = fixture.CreateWhichIsDifferentThan(roadSegmentId),
                         Geometry = geometry,
                         StartNodeId = fixture.Create<RoadNodeId>(),
                         EndNodeId = fixture.Create<RoadNodeId>(),

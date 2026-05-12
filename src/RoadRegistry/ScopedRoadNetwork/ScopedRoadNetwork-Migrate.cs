@@ -25,15 +25,14 @@ public partial class ScopedRoadNetwork
         logger ??= NullLogger.Instance;
         using var _ = logger.TimeAction();
 
-        var summary = new RoadNetworkChangesSummary();
         var idTranslator = new IdentifierTranslator();
-        var context = new ScopedRoadNetworkContext(this, idTranslator, changes.Provenance, logger);
+        var context = new ScopedRoadNetworkChangeContext(this, idTranslator, changes.Provenance, logger);
 
-        var problems = ApplyMigrateChanges(changes, idGenerator, context, summary);
+        var problems = ApplyMigrateChanges(changes, idGenerator, context);
 
         if (!problems.HasError())
         {
-            problems += AfterChangesApplied(idGenerator, context, summary);
+            problems += AfterChangesApplied(idGenerator, context);
         }
 
         if (!problems.HasError() && changes.Any())
@@ -43,15 +42,15 @@ public partial class ScopedRoadNetwork
                 RoadNetworkId = RoadNetworkId,
                 ScopeGeometry = changes.BuildScopeGeometry()?.ToGeometryObject(),
                 DownloadId = downloadId,
-                Summary = new RoadNetworkChangedSummary(summary),
+                Summary = new RoadNetworkChangedSummary(context.Summary),
                 Provenance = new ProvenanceData(changes.Provenance)
             });
         }
 
-        return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), summary);
+        return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), context.Summary);
     }
 
-    private Problems ApplyMigrateChanges(RoadNetworkChanges changes, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
+    private Problems ApplyMigrateChanges(RoadNetworkChanges changes, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
     {
         using var _ = context.Logger.TimeAction();
 
@@ -84,23 +83,23 @@ public partial class ScopedRoadNetwork
             switch (roadNetworkChange)
             {
                 case AddRoadNodeChange change:
-                    problems += AddRoadNode(change, idGenerator, context, summary);
+                    problems += AddRoadNode(change, idGenerator, context);
                     break;
                 case ModifyRoadNodeChange change:
-                    problems += MigrateRoadNode(change, context, summary);
+                    problems += MigrateRoadNode(change, context);
                     break;
                 case RemoveRoadNodeChange change:
-                    problems += RemoveRoadNodeBecauseOfMigration(change, context, summary);
+                    problems += RemoveRoadNodeBecauseOfMigration(change, context);
                     break;
 
                 case AddRoadSegmentChange change:
-                    problems += AddRoadSegment(change, idGenerator, context, summary);
+                    problems += AddRoadSegment(change, idGenerator, context);
                     break;
                 case ModifyRoadSegmentChange change:
-                    problems += MigrateRoadSegment(change, roadSegmentRoadNumberChanges, context, summary);
+                    problems += MigrateRoadSegment(change, roadSegmentRoadNumberChanges, context);
                     break;
                 case RemoveRoadSegmentChange change:
-                    problems += RemoveRoadSegmentBecauseOfMigration(change.RoadSegmentId, context, summary);
+                    problems += RemoveRoadSegmentBecauseOfMigration(change.RoadSegmentId, context);
                     break;
 
                 case AddRoadSegmentToEuropeanRoadChange:
@@ -111,10 +110,10 @@ public partial class ScopedRoadNetwork
                     break;
 
                 case AddGradeSeparatedJunctionChange change:
-                    problems += AddGradeSeparatedJunction(change, idGenerator, context, summary);
+                    problems += AddGradeSeparatedJunction(change, idGenerator, context);
                     break;
                 case RemoveGradeSeparatedJunctionChange change:
-                    problems += RemoveGradeSeparatedJunctionBecauseOfMigration(change, context, summary);
+                    problems += RemoveGradeSeparatedJunctionBecauseOfMigration(change, context);
                     break;
 
                 default:
@@ -185,7 +184,7 @@ public partial class ScopedRoadNetwork
             .ToLookup(x => x.RoadSegmentId, x => x.roadNetworkChange);
     }
 
-    private Problems MigrateRoadNode(ModifyRoadNodeChange change, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
+    private Problems MigrateRoadNode(ModifyRoadNodeChange change, ScopedRoadNetworkChangeContext context)
     {
         var problems = Problems.WithContext(change.RoadNodeId);
 
@@ -209,12 +208,12 @@ public partial class ScopedRoadNetwork
         }
 
         _roadNodesSpatialIndex.Update(oldEnvelope, roadNode.Geometry.Value.EnvelopeInternal, roadNode);
-        summary.RoadNodes.Modified.Add(roadNode.RoadNodeId);
+        context.Summary.RoadNodes.Modified.Add(roadNode.RoadNodeId);
 
         return problems;
     }
 
-    private Problems RemoveRoadNodeBecauseOfMigration(RemoveRoadNodeChange change, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
+    private Problems RemoveRoadNodeBecauseOfMigration(RemoveRoadNodeChange change, ScopedRoadNetworkChangeContext context)
     {
         if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
         {
@@ -228,11 +227,11 @@ public partial class ScopedRoadNetwork
         }
 
         _roadNodesSpatialIndex.Remove(roadNode.Geometry.Value.EnvelopeInternal, roadNode);
-        summary.RoadNodes.Removed.Add(roadNode.RoadNodeId);
+        context.Summary.RoadNodes.Removed.Add(roadNode.RoadNodeId);
         return problems;
     }
 
-    private Problems MigrateRoadSegment(ModifyRoadSegmentChange change, ILookup<RoadSegmentId, IRoadNetworkChange> roadSegmentRoadNumberChanges, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
+    private Problems MigrateRoadSegment(ModifyRoadSegmentChange change, ILookup<RoadSegmentId, IRoadNetworkChange> roadSegmentRoadNumberChanges, ScopedRoadNetworkChangeContext context)
     {
         var problems = Problems.WithContext(change.RoadSegmentIdReference);
 
@@ -273,9 +272,9 @@ public partial class ScopedRoadNetwork
         }
 
         _roadSegmentsSpatialIndex.Update(oldEnvelope, roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
-        summary.RoadSegments.Modified.Add(roadSegment.RoadSegmentId);
+        context.Summary.RoadSegments.Modified.Add(roadSegment.RoadSegmentId);
 
-        problems += TryToRemoveLinkedGradeJunctions(roadSegment.RoadSegmentId, context, summary);
+        problems += TryToRemoveLinkedGradeJunctions(roadSegment.RoadSegmentId, context);
 
         return problems;
     }
@@ -320,7 +319,7 @@ public partial class ScopedRoadNetwork
         return list.Distinct().ToImmutableList();
     }
 
-    private Problems RemoveRoadSegmentBecauseOfMigration(RoadSegmentId roadSegmentId, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
+    private Problems RemoveRoadSegmentBecauseOfMigration(RoadSegmentId roadSegmentId, ScopedRoadNetworkChangeContext context)
     {
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
         {
@@ -334,12 +333,12 @@ public partial class ScopedRoadNetwork
         }
 
         _roadSegmentsSpatialIndex.Remove(roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
-        summary.RoadSegments.Removed.Add(roadSegment.RoadSegmentId);
+        context.Summary.RoadSegments.Removed.Add(roadSegment.RoadSegmentId);
 
         return problems;
     }
 
-    private Problems RemoveGradeSeparatedJunctionBecauseOfMigration(RemoveGradeSeparatedJunctionChange change, ScopedRoadNetworkContext context, RoadNetworkChangesSummary summary)
+    private Problems RemoveGradeSeparatedJunctionBecauseOfMigration(RemoveGradeSeparatedJunctionChange change, ScopedRoadNetworkChangeContext context)
     {
         if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var gradeSeparatedJunction))
         {
@@ -352,7 +351,7 @@ public partial class ScopedRoadNetwork
             return problems;
         }
 
-        summary.GradeSeparatedJunctions.Removed.Add(gradeSeparatedJunction.GradeSeparatedJunctionId);
+        context.Summary.GradeSeparatedJunctions.Removed.Add(gradeSeparatedJunction.GradeSeparatedJunctionId);
         return problems;
     }
 }

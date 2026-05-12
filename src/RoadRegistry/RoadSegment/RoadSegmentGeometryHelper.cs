@@ -42,7 +42,7 @@ public static class RoadSegmentGeometryHelper
     public static MultiLineString MergeGeometries(
         RoadSegment segment1, RoadSegment segment2,
         RoadNodeId commonNodeId,
-        ScopedRoadNetworkContext context)
+        ScopedRoadNetworkChangeContext context)
     {
         var startNodeId = segment1.GetOppositeNode(commonNodeId)!.Value;
         var endNodeId = segment2.GetOppositeNode(commonNodeId)!.Value;

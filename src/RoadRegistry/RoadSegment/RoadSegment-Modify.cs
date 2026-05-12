@@ -8,7 +8,7 @@ using ScopedRoadNetwork.ValueObjects;
 
 public partial class RoadSegment
 {
-    public Problems Modify(ModifyRoadSegmentChange change, ScopedRoadNetworkContext context)
+    public Problems Modify(ModifyRoadSegmentChange change, ScopedRoadNetworkChangeContext context)
     {
         var roadSegmentIdReference = change.RoadSegmentIdReference;
         var problems = Problems.WithContext(roadSegmentIdReference);

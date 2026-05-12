@@ -39,7 +39,7 @@ public class AggregateTests : AggregateTestBase
             RoadNode.Create(TestData.Segment1StartNodeAdded),
             RoadNode.Create(TestData.Segment1EndNodeAdded)
         ], [], []);
-        var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
         // Act
         var problems = segment.Modify(change, roadNetworkContext);
@@ -83,7 +83,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         var roadNetwork = new RoadNetworkBuilder(new InMemoryRoadNetworkIdGenerator()).Build();
-        var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
         // Act
         var problems = segment.Modify(change, roadNetworkContext);
@@ -152,7 +152,7 @@ public class AggregateTests : AggregateTestBase
                 Geometry = existingGeometry
             })
         ], []);
-        var roadNetworkContext = new ScopedRoadNetworkContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
 
         Fixture.Freeze(new RoadSegmentId(2));
         var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
@@ -183,7 +183,7 @@ public class AggregateTests : AggregateTestBase
             Geometry = RoadSegmentGeometry.Create(new LineString([new Coordinate(0, 0), new Coordinate(0.9, 0)]).ToMultiLineString())
         };
 
-        var roadNetworkContext = new ScopedRoadNetworkContext(
+        var roadNetworkContext = new ScopedRoadNetworkChangeContext(
             new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [
                 RoadNode.Create(Fixture.Create<RoadNodeWasAdded>() with
                 {
@@ -227,7 +227,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var problems = segment.Modify(change, Fixture.Create<ScopedRoadNetworkContext>());
+        var problems = segment.Modify(change, Fixture.Create<ScopedRoadNetworkChangeContext>());
 
         // Assert
         problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryValueNotUniqueWithinSegment");

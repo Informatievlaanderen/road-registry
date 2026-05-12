@@ -8,7 +8,7 @@ using ScopedRoadNetwork.ValueObjects;
 
 public partial class GradeSeparatedJunction
 {
-    public Problems VerifyTopology(ScopedRoadNetworkContext context)
+    public Problems VerifyTopology(ScopedRoadNetworkChangeContext context)
     {
         var problems = Problems.WithContext(GradeSeparatedJunctionId);
 

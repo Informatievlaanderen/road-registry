@@ -11,7 +11,7 @@ using ValueObjects;
 
 public partial class RoadSegment
 {
-    public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkContext context)
+    public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool skipValidatePartiallyOverlappingRoadSegments = false)
     {
         var problems = Problems.WithContext(change.RoadSegmentIdReference);
 
@@ -46,7 +46,10 @@ public partial class RoadSegment
             endNodeId = startEndNodes.EndNodeId;
             problems += startEndNodes.Problems;
 
-            problems += context.RoadNetwork.ValidatePartiallyOverlappingRoadSegments(change.Geometry, [], context.IdTranslator);
+            if (!skipValidatePartiallyOverlappingRoadSegments)
+            {
+                problems += context.RoadNetwork.ValidatePartiallyOverlappingRoadSegments(change.Geometry, [], context.IdTranslator);
+            }
         }
 
         if (problems.HasError())

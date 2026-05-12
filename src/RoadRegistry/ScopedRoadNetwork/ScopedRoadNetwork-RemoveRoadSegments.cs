@@ -144,7 +144,7 @@ public partial class ScopedRoadNetwork
         IReadOnlyCollection<RoadSegment> nodeSegments,
         IReadOnlyCollection<RoadSegmentId> removingRoadSegmentIds,
         IRoadNetworkIdGenerator idGenerator,
-        ScopedRoadNetworkContext context)
+        ScopedRoadNetworkChangeContext context)
     {
         var node = _roadNodes[nodeId];
 
@@ -173,6 +173,6 @@ public partial class ScopedRoadNetwork
         //     }, provenance);
         // }
 
-        return MergeRoadSegments(segmentOne, segmentTwo, idGenerator, context).Item2;
+        return MergeRoadSegments(segmentOne, segmentTwo, idGenerator, context);
     }
 }

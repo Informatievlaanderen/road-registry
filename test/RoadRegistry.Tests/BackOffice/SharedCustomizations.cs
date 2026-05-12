@@ -94,8 +94,8 @@ public static class SharedCustomizations
 
     public static void CustomizeScopedRoadNetworkContext(this IFixture fixture)
     {
-        fixture.Customize<ScopedRoadNetworkContext>(composer =>
-            composer.FromFactory(g => new ScopedRoadNetworkContext(new ScopedRoadNetwork(fixture.Create<ScopedRoadNetworkId>()), new IdentifierTranslator(), new FakeProvenance(), NullLogger.Instance))
+        fixture.Customize<ScopedRoadNetworkChangeContext>(composer =>
+            composer.FromFactory(g => new ScopedRoadNetworkChangeContext(new ScopedRoadNetwork(fixture.Create<ScopedRoadNetworkId>()), new IdentifierTranslator(), new FakeProvenance(), NullLogger.Instance))
         );
     }
 
