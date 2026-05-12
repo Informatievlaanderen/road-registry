@@ -1,3 +1,11 @@
+## [4.58.4](https://github.com/informatievlaanderen/road-registry/compare/v4.58.3...v4.58.4) (2026-05-12)
+
+
+### Bug Fixes
+
+* **inwinning:** remove roadnode too close to unconnected roadsegments validation ([8eedc8b](https://github.com/informatievlaanderen/road-registry/commit/8eedc8b96d3cde7ff4e5a6aba34354890f5ee1ee))
+* **inwinning:** use geometry length to determine a new roadsegment id or not when merging ([7e5c873](https://github.com/informatievlaanderen/road-registry/commit/7e5c873e11067be4658d44233e2272b1817a32dd))
+
 ## [4.58.3](https://github.com/informatievlaanderen/road-registry/compare/v4.58.2...v4.58.3) (2026-05-08)
 
 
