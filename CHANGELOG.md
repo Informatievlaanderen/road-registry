@@ -1,3 +1,11 @@
+## [4.59.2](https://github.com/informatievlaanderen/road-registry/compare/v4.59.1...v4.59.2) (2026-05-12)
+
+
+### Bug Fixes
+
+* **domain-v1:** return empty extract when locked roadsegments are found ([9da8aeb](https://github.com/informatievlaanderen/road-registry/commit/9da8aebaa23f9c991b0b6a428d9d5be4fb75a9d1))
+* **inwinning:** only add inwinningroadsegments when non-informative extract is created ([02574e9](https://github.com/informatievlaanderen/road-registry/commit/02574e9a3898a4da96ca562a7c7781bc557ee0e4))
+
 ## [4.59.1](https://github.com/informatievlaanderen/road-registry/compare/v4.59.0...v4.59.1) (2026-05-12)
 
 
