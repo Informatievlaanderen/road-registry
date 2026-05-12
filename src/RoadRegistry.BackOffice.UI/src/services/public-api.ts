@@ -285,16 +285,11 @@ export const PublicApi = {
         return BackOfficeApi.Inwinning.upload(downloadId, file, filename, dryRun);
       }
 
-      const path = `${apiEndpoint}/v2/wegen/inwinning/${downloadId}/upload`;
-      const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(
-        path,
-        undefined,
-        undefined,
-        undefined,
-        {
-          dryRun,
-        }
-      );
+      let path = `${apiEndpoint}/v2/wegen/inwinning/${downloadId}/upload`;
+      if (dryRun) {
+        path += "?dryRun=true";
+      }
+      const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
 
       const data = new FormData();
       if (response.data.uploadUrlFormData) {
