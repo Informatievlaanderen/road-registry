@@ -1,3 +1,10 @@
+## [4.59.1](https://github.com/informatievlaanderen/road-registry/compare/v4.59.0...v4.59.1) (2026-05-12)
+
+
+### Bug Fixes
+
+* **inwinning:** pass dryrun to API call ([9f5fbff](https://github.com/informatievlaanderen/road-registry/commit/9f5fbff40b67e4d1fefb9dbcb7bb2479d11d2a47))
+
 # [4.59.0](https://github.com/informatievlaanderen/road-registry/compare/v4.58.4...v4.59.0) (2026-05-12)
 
 
