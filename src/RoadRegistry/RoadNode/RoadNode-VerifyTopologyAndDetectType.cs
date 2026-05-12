@@ -34,16 +34,6 @@ public partial class RoadNode
             problems += new RoadNodeGeometryTaken(context.IdTranslator.TranslateToTemporaryId(byOtherNode.RoadNodeId));
         }
 
-        problems += context.RoadNetwork.GetNonRemovedRoadSegments()
-            .Where(s =>
-                segments.All(x => x.RoadSegmentId != s.RoadSegmentId)
-                && s.Geometry.Value.IsWithinDistance(Geometry.Value, Distances.RoadNodeTooClose)
-            )
-            .Aggregate(Problems.None, (current, segment) =>
-                current.Add(new RoadNodeTooClose(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId))
-                    .WithContext(ProblemContext.For(context.IdTranslator.TranslateToTemporaryId(RoadNodeId))
-                )));
-
         problems += ValidateTypeAndChangeIfNeeded(segments, roadSegmentsSpatialIndex, idGenerator, context);
 
         return problems;
