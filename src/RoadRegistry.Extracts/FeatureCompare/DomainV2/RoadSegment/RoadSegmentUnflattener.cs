@@ -81,6 +81,8 @@ public class RoadSegmentUnflattener
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
+        using var _ = _logger.TimeAction();
+
         var problems = ZipArchiveProblems.None;
 
         // Step 1: Build a graph of road segments and nodes

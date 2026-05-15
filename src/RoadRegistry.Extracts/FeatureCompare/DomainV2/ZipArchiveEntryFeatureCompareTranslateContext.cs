@@ -19,6 +19,10 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
     private readonly ConcurrentDictionary<FeatureType, List<RoadNodeFeatureCompareRecord>> _roadNodeRecords = [];
     private readonly ConcurrentDictionary<FeatureType, List<RoadSegmentFeatureCompareRecord>> _roadSegmentRecords = [];
     private readonly ConcurrentDictionary<(FeatureType, RoadSegmentTempId), (RoadSegmentId, RecordType)> _roadSegmentTempIdToActualIdMapping = new();
+    // Index of non-removed road segment records by (FeatureType, actual RoadSegmentId).
+    // Lets FindNotRemovedRoadSegmentByActualId run in O(1) instead of scanning every record per call,
+    // which was making ValidateRoadSegmentTempIds and the GradeSeparatedJunction translator quadratic on big uploads.
+    private readonly ConcurrentDictionary<(FeatureType, RoadSegmentId), RoadSegmentFeatureCompareRecord> _notRemovedRoadSegmentByActualId = new();
 
     public ZipArchiveEntryFeatureCompareTranslateContext(ZipArchive archive, ZipArchiveMetadata metadata)
         : base(metadata)
@@ -63,6 +67,19 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
         {
             _roadSegmentRecords.TryAdd(featureType, new());
             _roadSegmentRecords[featureType].Add(record);
+
+            if (record.RecordType != RecordType.Removed)
+            {
+                var actualIdKey = (record.FeatureType, record.GetActualId());
+                if (!_notRemovedRoadSegmentByActualId.TryAdd(actualIdKey, record))
+                {
+                    var existing = _notRemovedRoadSegmentByActualId[actualIdKey];
+                    throw new InvalidOperationException(
+                        $"Found 2 processed road segments with actual ID {actualIdKey.Item2} while only 1 is expected.\n" +
+                        $"RoadSegment #{existing.RecordNumber}, ID: {existing.RoadSegmentId}, FeatureType: {existing.FeatureType}, RecordType: {existing.RecordType}\n" +
+                        $"RoadSegment #{record.RecordNumber}, ID: {record.RoadSegmentId}, FeatureType: {record.FeatureType}, RecordType: {record.RecordType}");
+                }
+            }
 
             foreach (var flatFeature in record.FlatFeatures)
             {
@@ -119,7 +136,7 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
                 continue;
             }
 
-            var roadSegment = FindNotRemovedRoadSegmentByActualId(featureType, actualId.Item1);
+            var roadSegment = _notRemovedRoadSegmentByActualId.GetValueOrDefault((featureType, actualId.Item1));
             if (roadSegment is not null)
             {
                 return roadSegment;
@@ -127,21 +144,5 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
         }
 
         return null;
-    }
-
-    private RoadSegmentFeatureCompareRecord? FindNotRemovedRoadSegmentByActualId(FeatureType featureType, RoadSegmentId actualId)
-    {
-        var matchingFeatures = GetRoadSegmentRecords(featureType)
-            .NotRemoved()
-            .Where(x => x.GetActualId() == actualId)
-            .ToList();
-
-        if (matchingFeatures.Count > 1)
-        {
-            var matchingFeaturesInfo = string.Join("\n", matchingFeatures.Select(feature => $"RoadSegment #{feature.RecordNumber}, ID: {feature.RoadSegmentId}, FeatureType: {feature.FeatureType}, RecordType: {feature.RecordType}"));
-            throw new InvalidOperationException($"Found {matchingFeatures.Count} processed road segments with actual ID {actualId} while only 1 is expected.\n{matchingFeaturesInfo}");
-        }
-
-        return matchingFeatures.SingleOrDefault();
     }
 }
