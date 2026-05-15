@@ -1,3 +1,10 @@
+## [4.59.4](https://github.com/informatievlaanderen/road-registry/compare/v4.59.3...v4.59.4) (2026-05-15)
+
+
+### Bug Fixes
+
+* **inwinning:** FC performance ([42a1a63](https://github.com/informatievlaanderen/road-registry/commit/42a1a6343cb58b69d5aa941253261eda5b16d8e5))
+
 ## [4.59.3](https://github.com/informatievlaanderen/road-registry/compare/v4.59.2...v4.59.3) (2026-05-15)
 
 
