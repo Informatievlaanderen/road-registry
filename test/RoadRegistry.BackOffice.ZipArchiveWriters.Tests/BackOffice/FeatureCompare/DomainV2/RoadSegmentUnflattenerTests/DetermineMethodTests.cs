@@ -33,7 +33,7 @@ public class DetermineMethodTests
         };
 
         // Act
-        var records = RoadSegmentUnflattener.Unflatten(
+        var records = RoadSegmentUnflattener.UnflattenByTopology(
             fixture.Create<FeatureType>(),
             [new(new RecordNumber(1), flatSegment)],
             [],
@@ -62,7 +62,7 @@ public class DetermineMethodTests
         };
 
         // Act
-        var records = RoadSegmentUnflattener.Unflatten(
+        var records = RoadSegmentUnflattener.UnflattenByTopology(
             fixture.Create<FeatureType>(),
             [new(new RecordNumber(1), flatSegment)],
             [],
@@ -94,7 +94,7 @@ public class DetermineMethodTests
         var ogcFeaturesCache = new OgcFeaturesCache([]);
 
         // Act
-        var records = RoadSegmentUnflattener.Unflatten(
+        var records = RoadSegmentUnflattener.UnflattenByTopology(
             fixture.Create<FeatureType>(),
             [new(new RecordNumber(1), flatSegment)],
             [],
@@ -126,7 +126,7 @@ public class DetermineMethodTests
         var ogcFeaturesCache = new OgcFeaturesCache([new OgcFeature(fixture.Create<string>(), null, flatSegment.Geometry.Buffer(100), null)]);
 
         // Act
-        var records = RoadSegmentUnflattener.Unflatten(
+        var records = RoadSegmentUnflattener.UnflattenByTopology(
             fixture.Create<FeatureType>(),
             [new(new RecordNumber(1), flatSegment)],
             [],

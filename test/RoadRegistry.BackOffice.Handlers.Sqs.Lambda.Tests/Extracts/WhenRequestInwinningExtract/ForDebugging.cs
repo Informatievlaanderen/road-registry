@@ -49,7 +49,7 @@ public class ForDebugging
     public async Task WithCustomRequestOnActualServer()
     {
         // Arrange
-        var downloadId = new DownloadId(Guid.Parse("96652eb6-2527-41a7-bc59-241fab70e3aa"));
+        var downloadId = DownloadId.Parse("099fcc817c4143609a274a00d2d5cabe");
         var nisCode = "71016";
 
         var sp = BuildServiceProvider();
@@ -62,7 +62,7 @@ public class ForDebugging
             downloadId,
             (MultiPolygon)inwinningszone.Contour,
             "Rik test",
-            false,
+            true,
             $"INWINNING_{nisCode}"
         );
         var provenanceData = new RoadRegistryProvenanceData(operatorName: inwinningszone.Operator);

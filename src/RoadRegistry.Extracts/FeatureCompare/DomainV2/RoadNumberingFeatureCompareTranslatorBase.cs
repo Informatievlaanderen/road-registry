@@ -105,7 +105,10 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         return processedRecords;
     }
 
-    private List<Record> ProcessIdenticalSegments(ILookup<RoadSegmentId, Feature<TAttributes>> extractFeaturesLookup, ILookup<RoadSegmentId, Feature<TAttributes>> changeFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private List<Record> ProcessIdenticalSegments(
+        ILookup<RoadSegmentId, Feature<TAttributes>> extractFeaturesLookup,
+        ILookup<RoadSegmentId, Feature<TAttributes>> changeFeaturesLookup,
+        ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
         var processedRecords = new List<Record>();
 

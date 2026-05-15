@@ -5,6 +5,7 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Marten;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting.Internal;
@@ -53,16 +54,18 @@ public class ForDebugging
 
         var sp = BuildServiceProvider();
 
-        await using var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
-        var inwinningsZone = new Inwinningszone
-        {
-            DownloadId = downloadId,
-            Completed = false,
-            Contour = Polygon.Empty,
-            NisCode = nisCode,
-            Operator = "0425258688"
-        };
-        extractsDbContext.Inwinningszones.Add(inwinningsZone);
+        await using var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        var inwinningsZone = extractsDbContext.Inwinningszones.Single(x => x.DownloadId == downloadId);
+        // await using var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
+        // var inwinningsZone = new Inwinningszone
+        // {
+        //     DownloadId = downloadId,
+        //     Completed = false,
+        //     Contour = Polygon.Empty,
+        //     NisCode = nisCode,
+        //     Operator = "0425258688"
+        // };
+        // extractsDbContext.Inwinningszones.Add(inwinningsZone);
         var provenanceData = new RoadRegistryProvenanceData(operatorName: inwinningsZone.Operator);
 
         TranslatedChanges translatedChanges;
@@ -79,17 +82,17 @@ public class ForDebugging
             var zipArchiveMetadata = ZipArchiveMetadata.Empty.WithInwinning();
             translatedChanges = await translator.TranslateAsync(archive, zipArchiveMetadata, CancellationToken.None);
 
-            var extractRoadSegments = new RoadSegmentFeatureCompareFeatureReader(FileEncoding.UTF8)
-                .Read(archive, FeatureType.Extract, new ZipArchiveFeatureReaderContext(zipArchiveMetadata)).Item1;
-            extractsDbContext.InwinningRoadSegments.AddRange(extractRoadSegments
-                .Select(x => x.Attributes.RoadSegmentId!.Value)
-                .Distinct()
-                .Select(x => new InwinningRoadSegment
-                {
-                    RoadSegmentId = x,
-                    NisCode = nisCode,
-                    Completed = false
-                }));
+            // var extractRoadSegments = new RoadSegmentFeatureCompareFeatureReader(FileEncoding.UTF8)
+            //     .Read(archive, FeatureType.Extract, new ZipArchiveFeatureReaderContext(zipArchiveMetadata)).Item1;
+            // extractsDbContext.InwinningRoadSegments.AddRange(extractRoadSegments
+            //     .Select(x => x.Attributes.RoadSegmentId!.Value)
+            //     .Distinct()
+            //     .Select(x => new InwinningRoadSegment
+            //     {
+            //         RoadSegmentId = x,
+            //         NisCode = nisCode,
+            //         Completed = false
+            //     }));
         }
 
         await extractsDbContext.SaveChangesAsync();
@@ -156,6 +159,7 @@ public class ForDebugging
                 .AddRoadAggregatesSnapshots()
                 .ConfigureExtractDocuments()).Services
             .AddSingleton<IRoadNetworkIdGenerator>(new InMemoryRoadNetworkIdGenerator())
+            .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
             ;
 
         var sp = services.BuildServiceProvider();

@@ -1,20 +1,15 @@
 namespace RoadRegistry.Extracts.FeatureCompare.DomainV2;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO.Compression;
-using System.Threading;
-using System.Threading.Tasks;
-using EuropeanRoad;
-using GradeSeparatedJunction;
 using Microsoft.Extensions.Logging;
-using NationalRoad;
-using RoadNode;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.EuropeanRoad;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.GradeSeparatedJunction;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.NationalRoad;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
 using RoadRegistry.Extracts.Uploads;
-using RoadSegment;
-using TransactionZone;
 
 public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTranslator
 {
@@ -69,13 +64,10 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var sw = Stopwatch.StartNew();
-            _logger.LogInformation("{Type} started...", translator.GetType().Name);
+            using var _ = _logger.TimeAction(translator.GetType().Name);
 
             (changes, var problems) = await translator.TranslateAsync(context, changes, cancellationToken);
             problems.ThrowIfError();
-
-            _logger.LogInformation("{Type} completed in {Elapsed}", translator.GetType().Name, sw.Elapsed);
         }
 
         return changes;
