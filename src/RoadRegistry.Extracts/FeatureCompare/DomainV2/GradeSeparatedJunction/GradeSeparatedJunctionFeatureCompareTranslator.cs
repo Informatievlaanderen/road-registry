@@ -190,7 +190,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             .Where(x => x.RecordType == RecordType.Added || (x.RecordType == RecordType.Modified && x.GeometryChanged))
             .ToList();
 
-        var batchCount = Debugger.IsAttached ? 1 : 4;
+        var batchCount = Debugger.IsAttached ? 1 : Math.Max(2, Environment.ProcessorCount);
 
         var allProblemsForMissingGradeSeparatedJunctions = new ConcurrentDictionary<int, ZipArchiveProblems>();
         Parallel.Invoke(changedRoadSegments

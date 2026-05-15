@@ -101,42 +101,50 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
         {
             var roadSegmentId = group.Key;
 
-            foreach (var number in group.Where(x => x.RecordType == RecordType.Removed).Select(x => x.Feature.Attributes.Number).Distinct())
+            var removedNumbers = group.Where(x => x.RecordType == RecordType.Removed).Select(x => x.Feature.Attributes.Number).Distinct().ToArray();
+            if (removedNumbers.Any())
             {
                 if (changes.TryFindRoadSegmentChange(roadSegmentId, out var roadSegmentChange) && roadSegmentChange is RemoveRoadSegmentChange)
                 {
-                    // Do not register removal of number
+                    // Do not register removal of numbers
                 }
                 else
                 {
-                    changes = changes.AppendChange(
-                        new RemoveRoadSegmentFromEuropeanRoadChange
-                        {
-                            RoadSegmentId = roadSegmentId,
-                            Number = number
-                        }
-                    );
+                    foreach (var number in removedNumbers)
+                    {
+                        changes = changes.AppendChange(
+                            new RemoveRoadSegmentFromEuropeanRoadChange
+                            {
+                                RoadSegmentId = roadSegmentId,
+                                Number = number
+                            }
+                        );
+                    }
                 }
             }
 
-            foreach (var number in group.Where(x => x.RecordType == RecordType.Added).Select(x => x.Feature.Attributes.Number).Distinct())
+            var addedNumbers = group.Where(x => x.RecordType == RecordType.Added).Select(x => x.Feature.Attributes.Number).Distinct().ToArray();
+            if (addedNumbers.Any())
             {
                 if (changes.TryFindRoadSegmentChange(roadSegmentId, out var roadSegmentChange) && roadSegmentChange is AddRoadSegmentChange addRoadSegmentChange)
                 {
                     changes = changes.ReplaceChange(addRoadSegmentChange, addRoadSegmentChange with
                     {
-                        EuropeanRoadNumbers = addRoadSegmentChange.EuropeanRoadNumbers.Union([number]).ToArray()
+                        EuropeanRoadNumbers = addRoadSegmentChange.EuropeanRoadNumbers.Union(addedNumbers).ToArray()
                     });
                 }
                 else
                 {
-                    changes = changes.AppendChange(
-                        new AddRoadSegmentToEuropeanRoadChange
-                        {
-                            RoadSegmentId = roadSegmentId,
-                            Number = number
-                        }
-                    );
+                    foreach (var number in addedNumbers)
+                    {
+                        changes = changes.AppendChange(
+                            new AddRoadSegmentToEuropeanRoadChange
+                            {
+                                RoadSegmentId = roadSegmentId,
+                                Number = number
+                            }
+                        );
+                    }
                 }
             }
         }

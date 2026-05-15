@@ -52,7 +52,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
-        var batchCount = Debugger.IsAttached ? 1 : 4;
+        var batchCount = Debugger.IsAttached ? 1 : Math.Max(2, Environment.ProcessorCount);
 
         var spatialIndex = new STRtree<Feature<RoadNodeFeatureCompareAttributes>>();
         foreach (var feature in extractFeatures)
@@ -100,10 +100,12 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var bufferedGeometry = changeFeature.Attributes.Geometry.Buffer(clusterTolerance);
+            var geometryEnvelope = changeFeature.Attributes.Geometry.EnvelopeInternal.Copy();
+            geometryEnvelope.ExpandBy(clusterTolerance);
+
             var intersectingGeometries = extractFeaturesSpatialIndex
-                .Query(bufferedGeometry.EnvelopeInternal)
-                .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry))
+                .Query(geometryEnvelope)
+                .Where(x => x.Attributes.Geometry.IsWithinDistance(changeFeature.Attributes.Geometry, clusterTolerance))
                 .ToList();
 
             if (intersectingGeometries.Any())
@@ -260,6 +262,8 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
     private ZipArchiveProblems AddProcessedRecordsToContext(ICollection<RoadNodeFeatureCompareRecord> processedRecords, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
         var problems = ZipArchiveProblems.None;
+        var seenByActualId = new Dictionary<RoadNodeId, RoadNodeFeatureCompareRecord>();
+        var toAdd = new List<RoadNodeFeatureCompareRecord>(processedRecords.Count);
 
         foreach (var record in processedRecords)
         {
@@ -267,30 +271,21 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
 
             if (record.RecordType != RecordType.Removed)
             {
-                var recordContext = FileName
-                    .AtDbaseRecord(FeatureType.Change, record.RecordNumber)
-                    .WithIdentifier(nameof(RoadNodeDbaseRecord.WK_OIDN), record.GetOriginalId());
-
-                var existingRecords = context.GetRoadNodeRecords(FeatureType.Change)
-                    .Where(x => x.RecordType != RecordType.Removed && x.GetActualId() == record.GetActualId())
-                    .ToArray();
-
-                if (existingRecords.Length > 1)
+                var actualId = record.GetActualId();
+                if (seenByActualId.TryGetValue(actualId, out var existing))
                 {
-                    problems += recordContext.IdentifierNotUnique(record.GetActualId(), record.RecordNumber);
+                    var recordContext = FileName
+                        .AtDbaseRecord(FeatureType.Change, record.RecordNumber)
+                        .WithIdentifier(nameof(RoadNodeDbaseRecord.WK_OIDN), record.GetOriginalId());
+                    problems += recordContext.RoadNodeIsAlreadyProcessed(record.GetOriginalId(), existing.GetOriginalId());
                     continue;
                 }
-
-                var existingRecord = existingRecords.SingleOrDefault();
-                if (existingRecord is not null)
-                {
-                    problems += recordContext.RoadNodeIsAlreadyProcessed(record.GetOriginalId(), existingRecord.GetOriginalId());
-                    continue;
-                }
+                seenByActualId[actualId] = record;
             }
-
-            context.AddRoadNodeRecords([record]);
+            toAdd.Add(record);
         }
+
+        context.AddRoadNodeRecords(toAdd);
 
         return problems;
     }

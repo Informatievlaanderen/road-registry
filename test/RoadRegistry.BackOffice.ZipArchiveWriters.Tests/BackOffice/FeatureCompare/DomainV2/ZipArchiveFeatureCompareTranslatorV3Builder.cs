@@ -30,7 +30,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                     new RoadSegmentFeatureCompareFeatureReader(Encoding),
                     streetNameContextFactory ?? new FakeRoadSegmentFeatureCompareStreetNameContextFactoryV3(),
                     organizationCache ?? new FakeOrganizationCache(),
-                    grbOgcApiFeaturesDownloader ?? new FakeGrbOgcApiFeaturesDownloader()
+                    grbOgcApiFeaturesDownloader ?? new FakeGrbOgcApiFeaturesDownloader(),
+                    loggerFactory
                 ),
                 new EuropeanRoadFeatureCompareTranslator(new EuropeanRoadFeatureCompareFeatureReader(Encoding)),
                 new NationalRoadFeatureCompareTranslator(new NationalRoadFeatureCompareFeatureReader(Encoding)),

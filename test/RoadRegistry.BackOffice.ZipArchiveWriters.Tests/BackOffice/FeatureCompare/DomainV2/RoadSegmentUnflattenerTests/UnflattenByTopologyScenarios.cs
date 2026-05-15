@@ -18,11 +18,11 @@ using RoadSegment.ValueObjects;
 using Xunit.Abstractions;
 using Point = NetTopologySuite.Geometries.Point;
 
-public class UnflattenScenarios
+public class UnflattenByTopologyScenarios
 {
     private ITestOutputHelper TestOutputHelper { get; }
 
-    public UnflattenScenarios(ITestOutputHelper testOutputHelper)
+    public UnflattenByTopologyScenarios(ITestOutputHelper testOutputHelper)
     {
         TestOutputHelper = testOutputHelper;
     }
@@ -1043,7 +1043,7 @@ POINT (60 -10)
             TestOutputHelper.WriteLine($"Node {roadNodes[i].RoadNodeId}: {JsonConvert.SerializeObject(roadNodes[i], Formatting.Indented, SqsJsonSerializerSettingsProvider.CreateSerializerSettings())}");
         }
 
-        var unflattenedRecords = RoadSegmentUnflattener.Unflatten(
+        var unflattenedRecords = RoadSegmentUnflattener.UnflattenByTopology(
             featureType,
             flatRecords,
             overrideStructuralNodeLocations ?? [],

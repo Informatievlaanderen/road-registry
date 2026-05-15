@@ -25,12 +25,13 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
         var wegsegmentChangeFeatures = changeFeatures[wegsegment.GetOriginalId()].ToList();
         var wegsegmentExtractFeatures = extractFeatures[wegsegment.GetOriginalId()].ToList();
 
+        var changeFeaturesByNumber = wegsegmentChangeFeatures.ToLookup(x => x.Attributes.Number);
+        var extractFeaturesByNumber = wegsegmentExtractFeatures.ToLookup(x => x.Attributes.Number);
+
         foreach (var changeFeature in wegsegmentChangeFeatures)
         {
             var roadSegmentId = context.MapToRoadSegmentId(FeatureType.Change, changeFeature.Attributes.RoadSegmentTempId);
-            var leveringExtractFeatures = extractFeatures[roadSegmentId]
-                .Where(x => x.Attributes.Number == changeFeature.Attributes.Number)
-                .ToList();
+            var leveringExtractFeatures = extractFeaturesByNumber[changeFeature.Attributes.Number].ToArray();
             if (!leveringExtractFeatures.Any())
             {
                 processedRecords.Add(new Record(changeFeature, RecordType.Added, roadSegmentId));
@@ -39,7 +40,7 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
             {
                 processedRecords.Add(new Record(changeFeature, RecordType.Identical, roadSegmentId));
 
-                if (leveringExtractFeatures.Count > 1)
+                if (leveringExtractFeatures.Length > 1)
                 {
                     foreach (var extractFeature in leveringExtractFeatures.Skip(1))
                     {
@@ -52,10 +53,8 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
         foreach (var extractFeature in wegsegmentExtractFeatures)
         {
             var roadSegmentId = context.MapToRoadSegmentId(FeatureType.Extract, extractFeature.Attributes.RoadSegmentTempId);
-            var extractChangeFeatures = changeFeatures[roadSegmentId]
-                .Where(x => x.Attributes.Number == extractFeature.Attributes.Number)
-                .ToList();
-            if (!extractChangeFeatures.Any())
+            var hasExtractChangeFeatures = changeFeaturesByNumber[extractFeature.Attributes.Number].Any();
+            if (!hasExtractChangeFeatures)
             {
                 processedRecords.Add(new Record(extractFeature, RecordType.Removed, roadSegmentId));
             }
@@ -72,11 +71,12 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
         var wegsegmentChangeFeatures = changeFeatures[wegsegment.GetOriginalId()].ToList();
         var wegsegmentExtractFeatures = extractFeatures[wegsegment.GetOriginalId()].ToList();
 
+        var changeFeaturesByNumber = wegsegmentChangeFeatures.ToLookup(x => x.Attributes.Number);
+        var extractFeaturesByNumber = wegsegmentExtractFeatures.ToLookup(x => x.Attributes.Number);
+
         foreach (var changeFeature in wegsegmentChangeFeatures)
         {
-            var leveringExtractFeatures = extractFeatures[wegsegment.GetOriginalId()]
-                .Where(x => x.Attributes.Number == changeFeature.Attributes.Number)
-                .ToList();
+            var leveringExtractFeatures = extractFeaturesByNumber[changeFeature.Attributes.Number].ToArray();
             processedRecords.Add(leveringExtractFeatures.Any()
                 ? new Record(leveringExtractFeatures.First(), RecordType.Identical, wegsegment.GetActualId())
                 : new Record(changeFeature, RecordType.Added, wegsegment.GetActualId()));
@@ -84,11 +84,8 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
 
         foreach (var extractFeature in wegsegmentExtractFeatures)
         {
-            var extractChangeFeatures = changeFeatures[wegsegment.GetOriginalId()]
-                .Where(x => x.Attributes.Number == extractFeature.Attributes.Number)
-                .ToList();
-
-            if (!extractChangeFeatures.Any())
+            var hasExtractChangeFeatures = changeFeaturesByNumber[extractFeature.Attributes.Number].Any();
+            if (!hasExtractChangeFeatures)
             {
                 processedRecords.Add(new Record(extractFeature, RecordType.Removed, wegsegment.GetOriginalId()));
             }
@@ -101,42 +98,50 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
         {
             var roadSegmentId = group.Key;
 
-            foreach (var number in group.Where(x => x.RecordType == RecordType.Removed).Select(x => x.Feature.Attributes.Number).Distinct())
+            var removedNumbers = group.Where(x => x.RecordType == RecordType.Removed).Select(x => x.Feature.Attributes.Number).Distinct().ToArray();
+            if (removedNumbers.Any())
             {
                 if (changes.TryFindRoadSegmentChange(roadSegmentId, out var roadSegmentChange) && roadSegmentChange is RemoveRoadSegmentChange)
                 {
-                    // Do not register removal of number
+                    // Do not register removal of numbers
                 }
                 else
                 {
-                    changes = changes.AppendChange(
-                        new RemoveRoadSegmentFromNationalRoadChange
-                        {
-                            RoadSegmentId = roadSegmentId,
-                            Number = number
-                        }
-                    );
+                    foreach (var number in removedNumbers)
+                    {
+                        changes = changes.AppendChange(
+                            new RemoveRoadSegmentFromNationalRoadChange
+                            {
+                                RoadSegmentId = roadSegmentId,
+                                Number = number
+                            }
+                        );
+                    }
                 }
             }
 
-            foreach (var number in group.Where(x => x.RecordType == RecordType.Added).Select(x => x.Feature.Attributes.Number).Distinct())
+            var addedNumbers = group.Where(x => x.RecordType == RecordType.Added).Select(x => x.Feature.Attributes.Number).Distinct().ToArray();
+            if (addedNumbers.Any())
             {
                 if (changes.TryFindRoadSegmentChange(roadSegmentId, out var roadSegmentChange) && roadSegmentChange is AddRoadSegmentChange addRoadSegmentChange)
                 {
                     changes = changes.ReplaceChange(addRoadSegmentChange, addRoadSegmentChange with
                     {
-                        NationalRoadNumbers = addRoadSegmentChange.NationalRoadNumbers.Union([number]).ToArray()
+                        NationalRoadNumbers = addRoadSegmentChange.NationalRoadNumbers.Union(addedNumbers).ToArray()
                     });
                 }
                 else
                 {
-                    changes = changes.AppendChange(
-                        new AddRoadSegmentToNationalRoadChange
-                        {
-                            RoadSegmentId = roadSegmentId,
-                            Number = number
-                        }
-                    );
+                    foreach (var number in addedNumbers)
+                    {
+                        changes = changes.AppendChange(
+                            new AddRoadSegmentToNationalRoadChange
+                            {
+                                RoadSegmentId = roadSegmentId,
+                                Number = number
+                            }
+                        );
+                    }
                 }
             }
         }

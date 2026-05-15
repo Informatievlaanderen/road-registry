@@ -58,10 +58,11 @@ public class GradeSeparatedJunctionZipArchiveWriter : IZipArchiveWriter
             ? [FeatureType.Extract]
             : [FeatureType.Extract, FeatureType.Change];
 
+        var writer = new DbaseRecordWriter(_encoding);
+
         foreach (var featureType in featureTypes)
         {
-            var dbaseRecordWriter = new DbaseRecordWriter(_encoding);
-            await dbaseRecordWriter.WriteToArchive(archive, extractFilename, featureType, GradeSeparatedJunctionDbaseRecord.Schema, records, cancellationToken);
+            await writer.WriteToArchive(archive, extractFilename, featureType, GradeSeparatedJunctionDbaseRecord.Schema, records, cancellationToken);
         }
     }
 

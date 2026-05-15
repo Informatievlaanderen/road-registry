@@ -1,6 +1,8 @@
 ﻿namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 
 using Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Index.Strtree;
 using NetTopologySuite.LinearReferencing;
@@ -20,20 +22,58 @@ public sealed record UnflattenRoadSegmentsResult
 
 public class RoadSegmentUnflattener
 {
-    public static UnflattenRoadSegmentsResult Unflatten(
+    private readonly ILogger _logger;
+
+    private RoadSegmentUnflattener(ILogger logger)
+    {
+        _logger = logger;
+    }
+
+    public static List<RoadSegmentFeatureWithDynamicAttributes> UnflattenByRoadSegmentId(
+        IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
+        OgcFeaturesCache ogcFeaturesCache,
+        ZipArchiveEntryFeatureCompareTranslateContext context,
+        ILogger? logger = null)
+    {
+        return new RoadSegmentUnflattener(logger ?? NullLogger.Instance)
+            .UnflattenRoadSegmentsByRoadSegmentId(records, ogcFeaturesCache, context);
+    }
+
+    public static UnflattenRoadSegmentsResult UnflattenByTopology(
         FeatureType featureType,
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
         IReadOnlyCollection<Point> overrideStructuralNodeLocations,
         IRoadSegmentIdProvider roadSegmentIdProvider,
         OgcFeaturesCache ogcFeaturesCache,
         ZipArchiveEntryFeatureCompareTranslateContext context,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        ILogger? logger = null)
     {
-        return new RoadSegmentUnflattener().UnflattenRoadSegments(featureType, records, overrideStructuralNodeLocations, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken);
+        return new RoadSegmentUnflattener(logger ?? NullLogger.Instance)
+            .UnflattenRoadSegmentsByTopology(featureType, records, overrideStructuralNodeLocations, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken);
     }
 
-    private UnflattenRoadSegmentsResult UnflattenRoadSegments(
-        FeatureType featureType,
+    private List<RoadSegmentFeatureWithDynamicAttributes> UnflattenRoadSegmentsByRoadSegmentId(
+        IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
+        OgcFeaturesCache ogcFeaturesCache,
+        ZipArchiveEntryFeatureCompareTranslateContext context)
+    {
+        using var _ = _logger.TimeAction();
+
+        var unflattenedRecords = records
+            .GroupBy(x => x.Attributes.RoadSegmentId!.Value)
+            .Select(flatSegments =>
+            {
+                var segments = flatSegments.OrderBy(x => x.Attributes.TempId.ToInt32()).ToList();
+
+                return BuildFeatureWithDynamicAttributes(segments, null, ogcFeaturesCache, context.Tolerances);
+            })
+            .ToList();
+
+        return unflattenedRecords;
+    }
+
+    private UnflattenRoadSegmentsResult UnflattenRoadSegmentsByTopology(FeatureType featureType,
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
         IReadOnlyCollection<Point> overrideStructuralNodeLocations,
         IRoadSegmentIdProvider roadSegmentIdProvider,
@@ -71,6 +111,8 @@ public class RoadSegmentUnflattener
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
+        using var _ = _logger.TimeAction();
+
         var nodeRecords = context.GetRoadNodeRecords(featureType).NotRemoved().ToList();
 
         // Build spatial index for nodes for faster lookups
@@ -162,6 +204,8 @@ public class RoadSegmentUnflattener
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
+        using var _ = _logger.TimeAction();
+
         var nodeClassifications = new Dictionary<RoadNodeId, RoadNodeTypeV2>();
         var roadNodeRecords = context.GetRoadNodeRecords(featureType)
             .NotRemoved()
@@ -209,8 +253,14 @@ public class RoadSegmentUnflattener
                 continue;
             }
 
+            var clusterTolerance = VerificationContextTolerances.RoadNodeBuffer.GeometryTolerance / 2.0;
+            var geometryEnvelope = nodeRecord.Attributes.Geometry.EnvelopeInternal.Copy();
+            geometryEnvelope.ExpandBy(clusterTolerance);
+
             var overrides = overrideStructuralNodeLocationsSpatialIndex
-                .Query(nodeRecord.Attributes.Geometry.Buffer(VerificationContextTolerances.RoadNodeBuffer.GeometryTolerance / 2.0).EnvelopeInternal);
+                .Query(geometryEnvelope)
+                .Where(x => x.IsWithinDistance(nodeRecord.Attributes.Geometry, clusterTolerance))
+                .ToList();
             if (overrides.Any())
             {
                 nodeClassifications[nodeId] = RoadNodeTypeV2.EchteKnoop;
@@ -234,8 +284,30 @@ public class RoadSegmentUnflattener
         OgcFeaturesCache ogcFeaturesCache,
         CancellationToken cancellationToken)
     {
+        using var _ = _logger.TimeAction();
+
+        // Map: segment TempId -> (startNodeKey?, endNodeKey?)
+        var segmentEndpoints = new Dictionary<RoadSegmentTempId, ((RoadNodeId, Point)? Start, (RoadNodeId, Point)? End)>();
+        foreach (var (nodeKey, segments) in segmentsByNode)
+        {
+            foreach (var seg in segments)
+            {
+                var coords = seg.Attributes.Geometry.Coordinates;
+                var start = coords[0];
+                var end = coords[^1];
+                segmentEndpoints.TryGetValue(seg.Attributes.TempId, out var current);
+
+                if (nodeKey.Item2.Coordinate.IsReasonablyEqualTo(start, tolerances))
+                    current.Start = nodeKey;
+                if (nodeKey.Item2.Coordinate.IsReasonablyEqualTo(end, tolerances))
+                    current.End = nodeKey;
+
+                segmentEndpoints[seg.Attributes.TempId] = current;
+            }
+        }
+
         // Build connected component groups that can be processed independently
-        var componentGroups = BuildConnectedComponents(records, segmentsByNode, structuralNodes, tolerances);
+        var componentGroups = BuildConnectedComponents(records, segmentsByNode, segmentEndpoints, structuralNodes);
 
         // Process each component group in parallel
         var processedComponents = componentGroups
@@ -257,7 +329,7 @@ public class RoadSegmentUnflattener
 
                     try
                     {
-                        var segmentChain = BuildSegmentChain(featureType, record, segmentsByNode, structuralNodes, componentProcessedSegments, componentConsumedNodes, tolerances);
+                        var segmentChain = BuildSegmentChain(featureType, record, segmentsByNode, segmentEndpoints, structuralNodes, componentProcessedSegments, componentConsumedNodes, tolerances);
                         componentProblems += segmentChain.Problems;
 
                         var dynamicRecord = BuildFeatureWithDynamicAttributes(segmentChain.FlatRoadSegments, roadSegmentIdProvider, ogcFeaturesCache, tolerances);
@@ -291,8 +363,8 @@ public class RoadSegmentUnflattener
     private List<List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> BuildConnectedComponents(
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
-        Dictionary<RoadNodeId, RoadNodeTypeV2> structuralNodes,
-        VerificationContextTolerances tolerances)
+        Dictionary<RoadSegmentTempId, ((RoadNodeId, Point)? Start, (RoadNodeId, Point)? End)> segmentEndpoints,
+        Dictionary<RoadNodeId, RoadNodeTypeV2> structuralNodes)
     {
         var visited = new HashSet<RoadSegmentTempId>();
         var components = new List<List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>>();
@@ -316,24 +388,25 @@ public class RoadSegmentUnflattener
                 component.Add(current);
 
                 // Find all connected segments through shared nodes
-                var geometry = current.Attributes.Geometry;
-                var startPoint = geometry.Coordinates.First();
-                var endPoint = geometry.Coordinates.Last();
-
-                foreach (var nodeKey in segmentsByNode.Keys)
+                if (!segmentEndpoints.TryGetValue(current.Attributes.TempId, out var endpoints))
                 {
-                    if (!nodeKey.Item2.IsReasonablyEqualTo(startPoint, tolerances) && !nodeKey.Item2.IsReasonablyEqualTo(endPoint, tolerances))
+                    continue;
+                }
+
+                foreach (var nodeKey in new[] { endpoints.Start, endpoints.End })
+                {
+                    if (nodeKey is null)
                     {
                         continue;
                     }
 
                     // If this is a structural node, don't traverse through it to other components
-                    if (structuralNodes.ContainsKey(nodeKey.Item1))
+                    if (structuralNodes.ContainsKey(nodeKey.Value.Item1))
                     {
                         continue;
                     }
 
-                    foreach (var connectedSegment in segmentsByNode[nodeKey]
+                    foreach (var connectedSegment in segmentsByNode[nodeKey.Value]
                                  .Where(x => !visited.Contains(x.Attributes.TempId)))
                     {
                         visited.Add(connectedSegment.Attributes.TempId);
@@ -352,6 +425,7 @@ public class RoadSegmentUnflattener
         FeatureType featureType,
         Feature<RoadSegmentFeatureCompareWithFlatAttributes> startSegment,
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
+        Dictionary<RoadSegmentTempId, ((RoadNodeId, Point)? Start, (RoadNodeId, Point)? End)> segmentEndpoints,
         Dictionary<RoadNodeId, RoadNodeTypeV2> structuralNodes,
         HashSet<RoadSegmentTempId> processedSegments,
         ConsumedNodes consumedNodes,
@@ -361,10 +435,10 @@ public class RoadSegmentUnflattener
         processedSegments.Add(startSegment.Attributes.TempId);
 
         // Traverse forward from end point
-        var problems = TraverseChain(featureType, startSegment, segmentsByNode, structuralNodes, chain, processedSegments, consumedNodes, isForward: true, tolerances);
+        var problems = TraverseChain(featureType, startSegment, segmentsByNode, segmentEndpoints, structuralNodes, chain, processedSegments, consumedNodes, isForward: true, tolerances);
 
         // Traverse backward from start point
-        problems += TraverseChain(featureType, startSegment, segmentsByNode, structuralNodes, chain, processedSegments, consumedNodes, isForward: false, tolerances);
+        problems += TraverseChain(featureType, startSegment, segmentsByNode, segmentEndpoints, structuralNodes, chain, processedSegments, consumedNodes, isForward: false, tolerances);
 
         return (chain, problems);
     }
@@ -373,6 +447,7 @@ public class RoadSegmentUnflattener
         FeatureType featureType,
         Feature<RoadSegmentFeatureCompareWithFlatAttributes> currentSegment,
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
+        Dictionary<RoadSegmentTempId, ((RoadNodeId, Point)? Start, (RoadNodeId, Point)? End)> segmentEndpoints,
         Dictionary<RoadNodeId, RoadNodeTypeV2> structuralNodes,
         List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> chain,
         HashSet<RoadSegmentTempId> processedSegments,
@@ -387,10 +462,14 @@ public class RoadSegmentUnflattener
                 : currentSegment.Attributes.Geometry.Coordinates.First();
 
             // Find node at point using faster lookup
-            var nodeAtPoint = segmentsByNode
-                .Where(kvp => kvp.Value.Any(rs => currentSegment.Attributes.TempId == rs.Attributes.TempId) && kvp.Key.Item2.IsReasonablyEqualTo(nextNodeCoordinate, tolerances))
-                .Select(x => x.Key)
-                .FirstOrDefault();
+            if (!segmentEndpoints.TryGetValue(currentSegment.Attributes.TempId, out var endpoints))
+            {
+                return ZipArchiveProblems.None;
+            }
+
+            var nodeAtPoint = endpoints.End is { } e && e.Item2.Coordinate.IsReasonablyEqualTo(nextNodeCoordinate, tolerances) ? e :
+                endpoints.Start is { } s && s.Item2.Coordinate.IsReasonablyEqualTo(nextNodeCoordinate, tolerances) ? s :
+                default;
 
             if (nodeAtPoint == default)
             {
@@ -406,11 +485,11 @@ public class RoadSegmentUnflattener
             // Find the other segment connected to this schijnknoop
             var connectedSegments = segmentsByNode[nodeAtPoint];
             Feature<RoadSegmentFeatureCompareWithFlatAttributes>? nextSegment = null;
-            foreach (var s in connectedSegments)
+            foreach (var connectedSegment in connectedSegments)
             {
-                if (s.Attributes.TempId != currentSegment.Attributes.TempId && !processedSegments.Contains(s.Attributes.TempId))
+                if (connectedSegment.Attributes.TempId != currentSegment.Attributes.TempId && !processedSegments.Contains(connectedSegment.Attributes.TempId))
                 {
-                    nextSegment = s;
+                    nextSegment = connectedSegment;
                     break;
                 }
             }
@@ -507,11 +586,11 @@ public class RoadSegmentUnflattener
 
     private RoadSegmentFeatureWithDynamicAttributes BuildFeatureWithDynamicAttributes(
         List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> segments,
-        IRoadSegmentIdProvider roadSegmentIdProvider,
+        IRoadSegmentIdProvider? roadSegmentIdProvider,
         OgcFeaturesCache ogcFeaturesCache,
         VerificationContextTolerances tolerances)
     {
-        var longestSegment = segments.OrderByDescending(x => x.Attributes.Geometry.Length).First();
+        var longestSegment = segments.MaxBy(x => x.Attributes.Geometry.Length)!;
 
         // Merge geometries
         var mergedGeometry = segments.Count > 1
@@ -524,7 +603,7 @@ public class RoadSegmentUnflattener
         var methodFromSegments = RoadSegmentGeometryHelper.DetermineMethod(segments.Select(x => (x.Attributes.Geometry, x.Attributes.Method)).ToArray(), mergedGeometry);
         var method = DetermineMethodFromOgcOverlap(methodFromSegments, status, mergedGeometry, ogcFeaturesCache);
         var dynamicAttributes = RoadSegmentFeatureCompareWithDynamicAttributes.Build(
-            longestSegment.Attributes.RoadSegmentId ?? roadSegmentIdProvider.NewId(),
+            longestSegment.Attributes.RoadSegmentId ?? (roadSegmentIdProvider ?? throw new ArgumentNullException(nameof(roadSegmentIdProvider))).NewId(),
             mergedGeometry,
             method,
             status,
@@ -580,6 +659,8 @@ public class RoadSegmentUnflattener
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
+        using var _ = _logger.TimeAction();
+
         var nonClassifiedNodes = context.GetRoadNodeRecords(featureType)
             .NotRemoved()
             .Where(x => !nodeClassifications.ContainsKey(x.Id))
