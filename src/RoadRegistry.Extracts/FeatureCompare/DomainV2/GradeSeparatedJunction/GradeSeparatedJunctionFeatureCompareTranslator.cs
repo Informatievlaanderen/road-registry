@@ -7,7 +7,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Index.Strtree;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schemas.Inwinning.GradeSeparatedJuntions;
 using RoadRegistry.Extracts.Uploads;
@@ -19,11 +22,14 @@ using TranslatedChanges = DomainV2.TranslatedChanges;
 public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTranslatorBase<GradeSeparatedJunctionFeatureCompareAttributes>
 {
     private const ExtractFileName FileName = ExtractFileName.RltOgkruising;
+    private readonly ILogger _logger;
 
     public GradeSeparatedJunctionFeatureCompareTranslator(
-        GradeSeparatedJunctionFeatureCompareFeatureReader featureReader)
+        GradeSeparatedJunctionFeatureCompareFeatureReader featureReader,
+        ILoggerFactory? loggerFactory = null)
         : base(featureReader)
     {
+        _logger = loggerFactory?.CreateLogger(GetType()) ?? NullLogger.Instance;
     }
 
     public override async Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
@@ -190,12 +196,32 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             .Where(x => x.RecordType == RecordType.Added || (x.RecordType == RecordType.Modified && x.GeometryChanged))
             .ToList();
 
+        // Pre-compute shared state once so it isn't rebuilt per parallel batch.
+        var gerealiseerdeSegmentRecords = context.GetRoadSegmentRecords(FeatureType.Change)
+            .NotRemoved()
+            .OnlyGerealiseerd()
+            .ToList();
+
+        // Spatial index over all not-removed gerealiseerd segments. STRtree is thread-safe for reads after Build().
+        var spatialIndex = new STRtree<RoadSegmentFeatureCompareRecord>();
+        foreach (var segment in gerealiseerdeSegmentRecords)
+        {
+            spatialIndex.Insert(segment.Attributes.Geometry.EnvelopeInternal, segment);
+        }
+        spatialIndex.Build();
+
+        // Pre-aggregate grade-separated-junction counts by combination key for O(1) lookup.
+        var gradeSeparatedJunctionCountByKey = processedRecords
+            .Where(x => x.RecordType != RecordType.Removed)
+            .GroupBy(x => new RoadSegmentCombinationKey(x.LowerRoadSegmentId, x.UpperRoadSegmentId))
+            .ToDictionary(g => g.Key, g => g.Count());
+
         var batchCount = Debugger.IsAttached ? 1 : Math.Max(2, Environment.ProcessorCount);
 
         var allProblemsForMissingGradeSeparatedJunctions = new ConcurrentDictionary<int, ZipArchiveProblems>();
         Parallel.Invoke(changedRoadSegments
             .SplitIntoBatches(batchCount)
-            .Select((changedRoadSegmentsBatch, index) => { return (Action)(() => { allProblemsForMissingGradeSeparatedJunctions.TryAdd(index, GetProblemsForMissingGradeSeparatedJunctions(context, processedRecords, changedRoadSegmentsBatch)); }); })
+            .Select((changedRoadSegmentsBatch, index) => { return (Action)(() => { allProblemsForMissingGradeSeparatedJunctions.TryAdd(index, GetProblemsForMissingGradeSeparatedJunctions(context, spatialIndex, gradeSeparatedJunctionCountByKey, changedRoadSegmentsBatch)); }); })
             .ToArray());
 
         foreach (var problemsForMissingGradeSeparatedJunctions in allProblemsForMissingGradeSeparatedJunctions.OrderBy(x => x.Key).Select(x => x.Value))
@@ -208,35 +234,38 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
 
     private ZipArchiveProblems GetProblemsForMissingGradeSeparatedJunctions(
         ZipArchiveEntryFeatureCompareTranslateContext context,
-        List<Record> processedRecords,
+        STRtree<RoadSegmentFeatureCompareRecord> spatialIndex,
+        Dictionary<RoadSegmentCombinationKey, int> gradeSeparatedJunctionCountByKey,
         ICollection<RoadSegmentFeatureCompareRecord> changedRoadSegments)
     {
-        var gerealiseerdeSegmentRecords = context.GetRoadSegmentRecords(FeatureType.Change)
-            .NotRemoved()
-            .OnlyGerealiseerd()
-            .ToList();
-        var uniqueRoadSegmentCombinations = (
-            from r1 in changedRoadSegments
-            from r2 in gerealiseerdeSegmentRecords
-            where r1.RoadSegmentId != r2.RoadSegmentId && r1.Attributes.Geometry.Envelope.Intersects(r2.Attributes.Geometry.Envelope)
-            select new RoadSegmentCombination(r1, r2)
-        ).DistinctBy(x => x.Key).ToList();
-
-        var gradeSeparatedJunctions = processedRecords
-            .Where(x => x.RecordType != RecordType.Removed)
-            .Select(x => new
+        // Use the precomputed spatial index to find candidate pairs (envelope intersects)
+        // instead of doing a full cartesian product against all gerealiseerd segments.
+        var seenKeys = new HashSet<RoadSegmentCombinationKey>();
+        var uniqueRoadSegmentCombinations = new List<RoadSegmentCombination>();
+        foreach (var r1 in changedRoadSegments)
+        {
+            var candidates = spatialIndex.Query(r1.Attributes.Geometry.EnvelopeInternal);
+            foreach (var r2 in candidates)
             {
-                x.Feature.Attributes,
-                CombinationKey = new RoadSegmentCombinationKey(x.LowerRoadSegmentId, x.UpperRoadSegmentId)
-            })
-            .ToList();
+                if (r1.RoadSegmentId == r2.RoadSegmentId)
+                {
+                    continue;
+                }
+
+                var combination = new RoadSegmentCombination(r1, r2);
+                if (seenKeys.Add(combination.Key))
+                {
+                    uniqueRoadSegmentCombinations.Add(combination);
+                }
+            }
+        }
 
         var roadSegmentIntersections = (
                 from combination in uniqueRoadSegmentCombinations
                 let intersectionGeometry = combination.RoadSegment1.Attributes.Geometry.Intersection(combination.RoadSegment2.Attributes.Geometry)
                 where intersectionGeometry is Point or MultiPoint
                 let intersections = intersectionGeometry.ToMultiPoint()
-                let gradeSeparatedJunctionsCount = gradeSeparatedJunctions.Count(grade => grade.CombinationKey.Equals(combination.Key))
+                let gradeSeparatedJunctionsCount = gradeSeparatedJunctionCountByKey.GetValueOrDefault(combination.Key)
                 let r1Geometry = combination.RoadSegment1.Attributes.Geometry.GetSingleLineString()
                 let r2Geometry = combination.RoadSegment2.Attributes.Geometry.GetSingleLineString()
                 from intersection in intersections.OfType<Point>()

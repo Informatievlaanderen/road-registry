@@ -2,6 +2,7 @@ namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.NationalRoad;
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadSegment.Changes;
@@ -10,8 +11,10 @@ using TranslatedChanges = DomainV2.TranslatedChanges;
 
 public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareTranslatorBase<NationalRoadFeatureCompareAttributes>
 {
-    public NationalRoadFeatureCompareTranslator(NationalRoadFeatureCompareFeatureReader featureReader)
-        : base(featureReader, ExtractFileName.AttNationweg, nameof(RoadSegmentNationalRoadAttributeDbaseRecord.NW_OIDN))
+    public NationalRoadFeatureCompareTranslator(
+        NationalRoadFeatureCompareFeatureReader featureReader,
+        ILoggerFactory? loggerFactory = null)
+        : base(featureReader, ExtractFileName.AttNationweg, nameof(RoadSegmentNationalRoadAttributeDbaseRecord.NW_OIDN), loggerFactory)
     {
     }
 

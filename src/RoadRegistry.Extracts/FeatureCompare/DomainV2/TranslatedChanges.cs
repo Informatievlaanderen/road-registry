@@ -3,10 +3,8 @@ namespace RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
@@ -14,184 +12,205 @@ using RoadRegistry.ScopedRoadNetwork;
 
 public sealed class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>, IEquatable<TranslatedChanges>
 {
-    public static readonly TranslatedChanges Empty = new(
-        ImmutableList<IRoadNetworkChange>.Empty,
-        ImmutableDictionary<RoadNodeId, AddRoadNodeChange>.Empty,
-        ImmutableDictionary<RoadNodeId, ModifyRoadNodeChange>.Empty,
-        ImmutableDictionary<RoadSegmentId, AddRoadSegmentChange>.Empty,
-        ImmutableDictionary<RoadSegmentId, ModifyRoadSegmentChange>.Empty,
-        ImmutableDictionary<RoadSegmentId, RemoveRoadSegmentChange>.Empty,
-        ImmutableList<RoadSegmentId>.Empty
-        );
+    public static TranslatedChanges Empty => new();
 
-    private readonly ImmutableList<IRoadNetworkChange> _changes;
-    private readonly ImmutableDictionary<RoadNodeId, AddRoadNodeChange> _addRoadNodeChanges;
-    private readonly ImmutableDictionary<RoadNodeId, ModifyRoadNodeChange> _modifyRoadNodeChanges;
-    private readonly ImmutableDictionary<RoadSegmentId, AddRoadSegmentChange> _addRoadSegmentChanges;
-    private readonly ImmutableDictionary<RoadSegmentId, ModifyRoadSegmentChange> _modifyRoadSegmentChanges;
-    private readonly ImmutableDictionary<RoadSegmentId, RemoveRoadSegmentChange> _removeRoadSegmentChanges;
-    private readonly ImmutableList<RoadSegmentId> _identicalRoadSegmentIds;
+    private readonly List<IRoadNetworkChange> _changes = new();
+    private readonly Dictionary<RoadNodeId, AddRoadNodeChange> _addRoadNodeChanges = new();
+    private readonly Dictionary<RoadNodeId, ModifyRoadNodeChange> _modifyRoadNodeChanges = new();
+    private readonly Dictionary<RoadSegmentId, IndexedAddRoadSegmentChange> _addRoadSegmentChanges = new();
+    private readonly Dictionary<RoadSegmentId, ModifyRoadSegmentChange> _modifyRoadSegmentChanges = new();
+    private readonly Dictionary<RoadSegmentId, RemoveRoadSegmentChange> _removeRoadSegmentChanges = new();
+    private readonly List<RoadSegmentId> _identicalRoadSegmentIds = new();
 
-    private TranslatedChanges(
-        ImmutableList<IRoadNetworkChange> changes,
-        ImmutableDictionary<RoadNodeId, AddRoadNodeChange> addRoadNodeChanges,
-        ImmutableDictionary<RoadNodeId, ModifyRoadNodeChange> modifyRoadNodeChanges,
-        ImmutableDictionary<RoadSegmentId, AddRoadSegmentChange> addRoadSegmentChanges,
-        ImmutableDictionary<RoadSegmentId, ModifyRoadSegmentChange> modifyRoadSegmentChanges,
-        ImmutableDictionary<RoadSegmentId, RemoveRoadSegmentChange> removeRoadSegmentChanges,
-        ImmutableList<RoadSegmentId> identicalRoadSegmentIds
-    )
+    private readonly record struct IndexedAddRoadSegmentChange(int Index, AddRoadSegmentChange Change);
+
+    private TranslatedChanges()
     {
-        _changes = changes ?? throw new ArgumentNullException(nameof(changes));
-        _addRoadNodeChanges = addRoadNodeChanges.ThrowIfNull();
-        _modifyRoadNodeChanges = modifyRoadNodeChanges.ThrowIfNull();
-        _addRoadSegmentChanges = addRoadSegmentChanges.ThrowIfNull();
-        _modifyRoadSegmentChanges = modifyRoadSegmentChanges.ThrowIfNull();
-        _removeRoadSegmentChanges = removeRoadSegmentChanges.ThrowIfNull();
-        _identicalRoadSegmentIds = identicalRoadSegmentIds.ThrowIfNull();
     }
 
     public int Count => _changes.Count;
 
-    public IEnumerator<IRoadNetworkChange> GetEnumerator()
-    {
-        return _changes.GetEnumerator();
-    }
+    public IEnumerator<IRoadNetworkChange> GetEnumerator() => _changes.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IReadOnlyCollection<RoadSegmentId> GetIdenticalRoadSegmentIds() => _identicalRoadSegmentIds;
 
     public TranslatedChanges AppendChange(AddRoadNodeChange change)
     {
-        return new TranslatedChanges(_changes.Add(change), _addRoadNodeChanges.SetItem(change.TemporaryId, change), _modifyRoadNodeChanges, _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+        _changes.Add(change);
+        _addRoadNodeChanges[change.TemporaryId] = change;
+        return this;
     }
 
     public TranslatedChanges AppendChange(ModifyRoadNodeChange change)
     {
-        return new TranslatedChanges(_changes.Add(change), _addRoadNodeChanges, _modifyRoadNodeChanges.SetItem(change.RoadNodeId, change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+        _changes.Add(change);
+        _modifyRoadNodeChanges[change.RoadNodeId] = change;
+        return this;
     }
 
     public TranslatedChanges AppendChange(RemoveRoadNodeChange change)
     {
-        return new TranslatedChanges(_changes.Add(change), _addRoadNodeChanges, _modifyRoadNodeChanges, _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+        _changes.Add(change);
+        return this;
     }
 
     public TranslatedChanges AppendChange(AddRoadSegmentChange change)
     {
-        return new TranslatedChanges(_changes.Add(change), _addRoadNodeChanges, _modifyRoadNodeChanges, _addRoadSegmentChanges.SetItem(change.RoadSegmentIdReference.RoadSegmentId, change), _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+        var roadSegmentId = change.RoadSegmentIdReference.RoadSegmentId;
+        _addRoadSegmentChanges[roadSegmentId] = new IndexedAddRoadSegmentChange(_changes.Count, change);
+        _changes.Add(change);
+        return this;
     }
 
     public TranslatedChanges AppendChange(ModifyRoadSegmentChange change)
     {
-        return new TranslatedChanges(_changes.Add(change), _addRoadNodeChanges, _modifyRoadNodeChanges, _addRoadSegmentChanges, _modifyRoadSegmentChanges.SetItem(change.RoadSegmentIdReference.RoadSegmentId, change), _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+        _changes.Add(change);
+        _modifyRoadSegmentChanges[change.RoadSegmentIdReference.RoadSegmentId] = change;
+        return this;
     }
 
     public TranslatedChanges AppendChange(RemoveRoadSegmentChange change)
     {
-        return new TranslatedChanges(_changes.Add(change), _addRoadNodeChanges, _modifyRoadNodeChanges, _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges.SetItem(change.RoadSegmentId, change), _identicalRoadSegmentIds);
+        _changes.Add(change);
+        _removeRoadSegmentChanges[change.RoadSegmentId] = change;
+        return this;
     }
 
     public TranslatedChanges AppendChange(AddRoadSegmentToEuropeanRoadChange change)
     {
-        return new TranslatedChanges(_changes.Add(change), _addRoadNodeChanges, _modifyRoadNodeChanges, _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+        _changes.Add(change);
+        return this;
     }
 
     public TranslatedChanges AppendChange(RemoveRoadSegmentFromEuropeanRoadChange change)
     {
-        return new TranslatedChanges(_changes.Add(change), _addRoadNodeChanges, _modifyRoadNodeChanges, _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+        _changes.Add(change);
+        return this;
     }
 
     public TranslatedChanges AppendChange(AddRoadSegmentToNationalRoadChange change)
     {
-        return new TranslatedChanges(_changes.Add(change), _addRoadNodeChanges, _modifyRoadNodeChanges, _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+        _changes.Add(change);
+        return this;
     }
 
     public TranslatedChanges AppendChange(RemoveRoadSegmentFromNationalRoadChange change)
     {
-        return new TranslatedChanges(_changes.Add(change), _addRoadNodeChanges, _modifyRoadNodeChanges, _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+        _changes.Add(change);
+        return this;
     }
 
     public TranslatedChanges AppendChange(AddGradeSeparatedJunctionChange change)
     {
-        return new TranslatedChanges(_changes.Add(change), _addRoadNodeChanges, _modifyRoadNodeChanges, _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+        _changes.Add(change);
+        return this;
     }
 
     public TranslatedChanges AppendChange(RemoveGradeSeparatedJunctionChange change)
     {
-        return new TranslatedChanges(
-            _changes.Add(change),
-            _addRoadNodeChanges, _modifyRoadNodeChanges,
-            _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+        _changes.Add(change);
+        return this;
     }
 
     public TranslatedChanges AppendIdenticalRoadSegmentId(RoadSegmentId roadSegmentId)
     {
-        return new TranslatedChanges(
-            _changes,
-            _addRoadNodeChanges, _modifyRoadNodeChanges,
-            _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _identicalRoadSegmentIds.Add(roadSegmentId));
+        _identicalRoadSegmentIds.Add(roadSegmentId);
+        return this;
     }
 
     public TranslatedChanges ReplaceChange(ModifyRoadNodeChange before, RemoveRoadNodeChange after)
     {
-        return new TranslatedChanges(
-            _changes.SetItem(_changes.IndexOf(before), after),
-            _addRoadNodeChanges, _modifyRoadNodeChanges,
-            _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+        // Not on the hot path: called once per consumed road node in ProcessSchijnknopen.
+        var index = _changes.IndexOf(before);
+        _changes[index] = after;
+        return this;
     }
 
     public TranslatedChanges ReplaceChange(AddRoadSegmentChange before, AddRoadSegmentChange after)
     {
-        return new TranslatedChanges(
-            _changes.SetItem(_changes.IndexOf(before), after),
-            _addRoadNodeChanges, _modifyRoadNodeChanges,
-            _addRoadSegmentChanges.SetItem(before.RoadSegmentIdReference.RoadSegmentId, after), _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+        // Hot path: called once per uploaded road segment from the European/National road translators.
+        // We rely on the stored index so this is O(1) instead of O(N) via _changes.IndexOf.
+        var roadSegmentId = before.RoadSegmentIdReference.RoadSegmentId;
+        var indexed = _addRoadSegmentChanges[roadSegmentId];
+        _changes[indexed.Index] = after;
+        _addRoadSegmentChanges[roadSegmentId] = indexed with { Change = after };
+        return this;
     }
 
     public TranslatedChanges ReplaceChange(ModifyRoadSegmentChange before, ModifyRoadSegmentChange after)
     {
-        //NOTE: ReplaceChange automatically converts a provisional change into a change - by design.
-        return new TranslatedChanges(
-                _changes.SetItem(_changes.IndexOf(before), after),
-                _addRoadNodeChanges, _modifyRoadNodeChanges,
-                _addRoadSegmentChanges, _modifyRoadSegmentChanges.SetItem(before.RoadSegmentIdReference.RoadSegmentId, after), _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+        // NOTE: ReplaceChange automatically converts a provisional change into a change - by design.
+        // Not on the hot path: ModifyRoadSegmentChange has no replace caller in production today, only tests.
+        var index = _changes.IndexOf(before);
+        _changes[index] = after;
+        _modifyRoadSegmentChanges[before.RoadSegmentIdReference.RoadSegmentId] = after;
+        return this;
     }
 
     public bool TryFindModifyRoadNodeChange(RoadNodeId id, [NotNullWhen(true)] out ModifyRoadNodeChange? change)
     {
         change = _modifyRoadNodeChanges.GetValueOrDefault(id);
-        return change != null;
-    }
-
-    public bool TryFindAddRoadNodeChange(RoadNodeId id, [NotNullWhen(true)] out AddRoadNodeChange? change)
-    {
-        change = _addRoadNodeChanges.GetValueOrDefault(id);
-        return change != null;
+        return change is not null;
     }
 
     public TranslatedChanges RemoveAddedRoadNodeChange(RoadNodeId id)
     {
-        if (TryFindAddRoadNodeChange(id, out var change))
+        if (!_addRoadNodeChanges.TryGetValue(id, out var change))
         {
-            return new TranslatedChanges(
-                _changes.Remove(change),
-                _addRoadNodeChanges.Remove(id), _modifyRoadNodeChanges,
-                _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _identicalRoadSegmentIds);
+            return this;
         }
 
+        // _changes.IndexOf + RemoveAt is O(N), but this is called only for unused temporary schijnknopen
+        // — a tiny fraction of all changes — so it stays out of the hot path.
+        var removedIndex = _changes.IndexOf(change);
+        _changes.RemoveAt(removedIndex);
+        _addRoadNodeChanges.Remove(id);
+        ShiftAddRoadSegmentIndexesAfter(removedIndex);
         return this;
+    }
+
+    /// <summary>
+    /// Keeps the tracked positions in <c>_addRoadSegmentChanges</c> aligned with <c>_changes</c> after a
+    /// remove-at shifted everything past <paramref name="removedIndex"/> down by one.
+    /// </summary>
+    private void ShiftAddRoadSegmentIndexesAfter(int removedIndex)
+    {
+        // ToList() to avoid mutating the dictionary while enumerating its keys.
+        var keys = _addRoadSegmentChanges.Keys.ToList();
+        foreach (var key in keys)
+        {
+            var indexed = _addRoadSegmentChanges[key];
+            if (indexed.Index > removedIndex)
+            {
+                _addRoadSegmentChanges[key] = indexed with { Index = indexed.Index - 1 };
+            }
+        }
     }
 
     public bool TryFindRoadSegmentChange(RoadSegmentId id, out IRoadNetworkChange? change)
     {
-        change = _addRoadSegmentChanges.GetValueOrDefault(id)
-                 ?? (IRoadNetworkChange?)_modifyRoadSegmentChanges.GetValueOrDefault(id)
-                 ?? _removeRoadSegmentChanges.GetValueOrDefault(id);
-        return change != null;
+        if (_addRoadSegmentChanges.TryGetValue(id, out var addIndexed))
+        {
+            change = addIndexed.Change;
+            return true;
+        }
+
+        if (_modifyRoadSegmentChanges.TryGetValue(id, out var modify))
+        {
+            change = modify;
+            return true;
+        }
+
+        if (_removeRoadSegmentChanges.TryGetValue(id, out var remove))
+        {
+            change = remove;
+            return true;
+        }
+
+        change = null;
+        return false;
     }
 
     public bool Equals(TranslatedChanges? other)
@@ -232,6 +251,8 @@ public sealed class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>,
 
     public override int GetHashCode()
     {
-        return _changes.GetHashCode();
+        // Reference-based via the default object hash code. Mutable instances cannot have a stable structural hash,
+        // and nothing in the codebase uses TranslatedChanges as a dictionary key.
+        return base.GetHashCode();
     }
 }

@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Uploads;
 using RoadSegment;
 
@@ -12,15 +15,18 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
 {
     private readonly ExtractFileName _fileName;
     private readonly string _identifierField;
+    protected readonly ILogger Logger;
 
     protected RoadNumberingFeatureCompareTranslatorBase(
         IZipArchiveFeatureReader<Feature<TAttributes>> featureReader,
         ExtractFileName fileName,
-        string identifierField)
+        string identifierField,
+        ILoggerFactory? loggerFactory = null)
         : base(featureReader)
     {
         _fileName = fileName;
         _identifierField = identifierField;
+        Logger = loggerFactory?.CreateLogger(GetType()) ?? NullLogger.Instance;
     }
 
     protected abstract void HandleIdenticalRoadSegment(RoadSegmentFeatureCompareRecord wegsegment,
@@ -62,11 +68,16 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
             .Concat(modifiedRecords)
             .ToList();
 
-        return Task.FromResult((TranslateProcessedRecords(changes, processedRecords), problems));
+        using (var _ = Logger.TimeAction(nameof(TranslateProcessedRecords)))
+        {
+            return Task.FromResult((TranslateProcessedRecords(changes, processedRecords), problems));
+        }
     }
 
-    private static List<Record> ProcessAddedSegments(ILookup<RoadSegmentId, Feature<TAttributes>> changeFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private List<Record> ProcessAddedSegments(ILookup<RoadSegmentId, Feature<TAttributes>> changeFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
+        using var _ = Logger.TimeAction();
+
         var processedRecords = new List<Record>();
 
         var wegsegmentenAdd = context.GetRoadSegmentRecords(FeatureType.Change)
@@ -86,8 +97,10 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         return processedRecords;
     }
 
-    private static List<Record> ProcessRemovedSegments(ILookup<RoadSegmentId, Feature<TAttributes>> extractFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private List<Record> ProcessRemovedSegments(ILookup<RoadSegmentId, Feature<TAttributes>> extractFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
+        using var _ = Logger.TimeAction();
+
         var processedRecords = new List<Record>();
 
         var wegsegmentenDelete = context.GetRoadSegmentRecords(FeatureType.Change)
@@ -110,6 +123,8 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         ILookup<RoadSegmentId, Feature<TAttributes>> changeFeaturesLookup,
         ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
+        using var _ = Logger.TimeAction();
+
         var processedRecords = new List<Record>();
 
         var wegsegmentenIdentical = context.GetRoadSegmentRecords(FeatureType.Change)
@@ -126,6 +141,8 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
 
     private List<Record> ProcessModifiedSegments(ILookup<RoadSegmentId, Feature<TAttributes>> extractFeaturesLookup, ILookup<RoadSegmentId, Feature<TAttributes>> changeFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
+        using var _ = Logger.TimeAction();
+
         var processedRecords = new List<Record>();
 
         var wegsegmentenUpdate = context.GetRoadSegmentRecords(FeatureType.Change)
@@ -143,6 +160,8 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
 
     private ZipArchiveProblems ValidateRoadSegmentTempIds(List<Feature<TAttributes>> changeFeatures, ZipArchiveProblems problems, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
+        using var _ = Logger.TimeAction();
+
         foreach (var changeFeature in changeFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();

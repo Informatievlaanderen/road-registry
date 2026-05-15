@@ -34,8 +34,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                     loggerFactory
                 ),
                 new EuropeanRoadFeatureCompareTranslator(new EuropeanRoadFeatureCompareFeatureReader(Encoding)),
-                new NationalRoadFeatureCompareTranslator(new NationalRoadFeatureCompareFeatureReader(Encoding)),
-                new GradeSeparatedJunctionFeatureCompareTranslator(new GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding)),
+                new NationalRoadFeatureCompareTranslator(new NationalRoadFeatureCompareFeatureReader(Encoding), loggerFactory),
+                new GradeSeparatedJunctionFeatureCompareTranslator(new GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding), loggerFactory),
                 loggerFactory ?? new NullLoggerFactory()
             );
         }
