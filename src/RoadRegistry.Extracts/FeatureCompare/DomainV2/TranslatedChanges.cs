@@ -155,11 +155,11 @@ public sealed class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>,
         return change is not null;
     }
 
-    public TranslatedChanges RemoveAddedRoadNodeChange(RoadNodeId id)
+    public bool TryRemoveAddRoadNodeChange(RoadNodeId id)
     {
         if (!_addRoadNodeChanges.TryGetValue(id, out var change))
         {
-            return this;
+            return false;
         }
 
         // _changes.IndexOf + RemoveAt is O(N), but this is called only for unused temporary schijnknopen
@@ -168,7 +168,7 @@ public sealed class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>,
         _changes.RemoveAt(removedIndex);
         _addRoadNodeChanges.Remove(id);
         ShiftAddRoadSegmentIndexesAfter(removedIndex);
-        return this;
+        return true;
     }
 
     /// <summary>
