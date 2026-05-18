@@ -1193,23 +1193,23 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     }
 
     [Fact]
-    public async Task WhenIntegrationContainsMultipleFlatSegmentsWithSameRoadSegmentId_ThenOnlyOneIntegrationRecordIsRegistered()
+    public async Task WhenIntegrationHasDuplicateFlattenedSegments_ThenOnlyOneRecordRegistered()
     {
         var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithIntegration((builder, _) =>
             {
                 var firstDbaseRecord = builder.DataSet.RoadSegmentDbaseRecords.Single();
-                var secondDbaseRecord = firstDbaseRecord.Clone(new RecyclableMemoryStreamManager(), Encoding.UTF8);
-                secondDbaseRecord.WS_TEMPID.Value++;
+                var duplicateDbaseRecord = firstDbaseRecord.Clone(new RecyclableMemoryStreamManager(), Encoding.UTF8);
+                duplicateDbaseRecord.WS_TEMPID.Value = firstDbaseRecord.WS_TEMPID.Value + 1;
 
                 var firstGeometry = builder.DataSet.RoadSegmentShapeRecords.Single().Geometry.GetSingleLineString();
-                var secondGeometry = builder.CreateRoadSegmentShapeRecord(new LineString([
+                var duplicateGeometry = builder.CreateRoadSegmentShapeRecord(new LineString([
                     firstGeometry.EndPoint.Coordinate,
                     new Coordinate(firstGeometry.EndPoint.X + 10, firstGeometry.EndPoint.Y)
                 ]));
 
-                builder.DataSet.RoadSegmentDbaseRecords.Add(secondDbaseRecord);
-                builder.DataSet.RoadSegmentShapeRecords.Add(secondGeometry);
+                builder.DataSet.RoadSegmentDbaseRecords.Add(duplicateDbaseRecord);
+                builder.DataSet.RoadSegmentShapeRecords.Add(duplicateGeometry);
             })
             .BuildWithContext();
 
@@ -1230,8 +1230,10 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             new FakeRoadSegmentFeatureCompareStreetNameContextFactoryV3(),
             new FakeOrganizationCache(),
             new FakeGrbOgcApiFeaturesDownloader());
-        (_, var roadSegmentProblems) = await roadSegmentTranslator.TranslateAsync(context, changes, CancellationToken.None);
+        TranslatedChanges translatedChanges;
+        (translatedChanges, var roadSegmentProblems) = await roadSegmentTranslator.TranslateAsync(context, changes, CancellationToken.None);
         roadSegmentProblems.ThrowIfError();
+        translatedChanges.Should().NotBeNull();
 
         context.GetRoadSegmentRecords(FeatureType.Integration)
             .Count(x => x.RoadSegmentId == integrationRoadSegmentId)
