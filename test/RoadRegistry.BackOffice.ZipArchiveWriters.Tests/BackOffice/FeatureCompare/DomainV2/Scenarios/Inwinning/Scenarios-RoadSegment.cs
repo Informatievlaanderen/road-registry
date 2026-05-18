@@ -7,8 +7,11 @@ using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Editor.Schema.Extensions;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
 using RoadRegistry.Extracts.Infrastructure.Dbase;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.GradeSeparatedJunction.Changes;
@@ -1187,6 +1190,52 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         modifyRoadSegmentChanges[0].RoadSegmentIdReference.TempIds!.Single().Should().Be(new RoadSegmentTempId(roadSegment1Id));
         modifyRoadSegmentChanges[1].RoadSegmentIdReference.RoadSegmentId.Should().Be(new RoadSegmentId(roadSegment2Id));
         modifyRoadSegmentChanges[1].RoadSegmentIdReference.TempIds!.Single().Should().Be(new RoadSegmentTempId(roadSegment2Id));
+    }
+
+    [Fact]
+    public async Task WhenIntegrationContainsMultipleFlatSegmentsWithSameRoadSegmentId_ThenOnlyOneIntegrationRecordIsRegistered()
+    {
+        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+            .WithIntegration((builder, _) =>
+            {
+                var firstDbaseRecord = builder.DataSet.RoadSegmentDbaseRecords.Single();
+                var secondDbaseRecord = firstDbaseRecord.Clone(new RecyclableMemoryStreamManager(), Encoding.UTF8);
+                secondDbaseRecord.WS_TEMPID.Value++;
+
+                var firstGeometry = builder.DataSet.RoadSegmentShapeRecords.Single().Geometry.GetSingleLineString();
+                var secondGeometry = builder.CreateRoadSegmentShapeRecord(new LineString([
+                    firstGeometry.EndPoint.Coordinate,
+                    new Coordinate(firstGeometry.EndPoint.X + 10, firstGeometry.EndPoint.Y)
+                ]));
+
+                builder.DataSet.RoadSegmentDbaseRecords.Add(secondDbaseRecord);
+                builder.DataSet.RoadSegmentShapeRecords.Add(secondGeometry);
+            })
+            .BuildWithContext();
+
+        var integrationRoadSegmentId = new RoadSegmentId(zipArchive.Item2.Integration.DataSet.RoadSegmentDbaseRecords.First().WS_OIDN.Value!.Value);
+        var context = new ZipArchiveEntryFeatureCompareTranslateContext(zipArchive.Item1, ZipArchiveMetadata.Empty.WithInwinning());
+        var changes = TranslatedChanges.Empty;
+
+        var transactionZoneTranslator = new TransactionZoneFeatureCompareTranslator(new TransactionZoneFeatureCompareFeatureReader(FileEncoding.UTF8));
+        (changes, var transactionZoneProblems) = await transactionZoneTranslator.TranslateAsync(context, changes, CancellationToken.None);
+        transactionZoneProblems.ThrowIfError();
+
+        var roadNodeTranslator = new RoadNodeFeatureCompareTranslator(new RoadNodeFeatureCompareFeatureReader(FileEncoding.UTF8));
+        (changes, var roadNodeProblems) = await roadNodeTranslator.TranslateAsync(context, changes, CancellationToken.None);
+        roadNodeProblems.ThrowIfError();
+
+        var roadSegmentTranslator = new RoadSegmentFeatureCompareTranslator(
+            new RoadSegmentFeatureCompareFeatureReader(FileEncoding.UTF8),
+            new FakeRoadSegmentFeatureCompareStreetNameContextFactoryV3(),
+            new FakeOrganizationCache(),
+            new FakeGrbOgcApiFeaturesDownloader());
+        (_, var roadSegmentProblems) = await roadSegmentTranslator.TranslateAsync(context, changes, CancellationToken.None);
+        roadSegmentProblems.ThrowIfError();
+
+        context.GetRoadSegmentRecords(FeatureType.Integration)
+            .Count(x => x.RoadSegmentId == integrationRoadSegmentId)
+            .Should().Be(1);
     }
 
     private static void FillStreetNameCache(ExtractsZipArchiveExtractDataSetBuilder builder, FakeStreetNameCache streetNameCache)
