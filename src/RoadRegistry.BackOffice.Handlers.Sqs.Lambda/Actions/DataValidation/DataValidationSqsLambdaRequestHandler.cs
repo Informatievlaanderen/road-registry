@@ -65,7 +65,7 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
 
             if (queueItem.DataValidationId is null)
             {
-                queueItem.DataValidationId = await _dataValidationClient.RequestDataValidationAsync(cancellationToken);
+                queueItem.DataValidationId = await _dataValidationClient.RequestDataValidationAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, cancellationToken);
                 await _extractsDbContext.SaveChangesAsync(cancellationToken);
             }
 

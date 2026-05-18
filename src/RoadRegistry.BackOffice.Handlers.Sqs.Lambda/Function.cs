@@ -93,6 +93,8 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddScoped<IExtractRequests, ExtractRequests>()
             .AddScoped<ExtractRequester>()
             .AddScoped<IExtractUploader, ExtractUploader>()
+            .RegisterOptions<DataValidationOptions>()
+            .AddSingleton<IDataValidationTokenProvider, DataValidationTokenProvider>()
             .AddScoped<IDataValidationApiClient, DataValidationApiClient>()
             .RegisterOptions<ZipArchiveWriterOptions>()
             .AddScoped<RoadNetworkExtractArchiveAssemblerForDomainV2>()
