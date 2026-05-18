@@ -147,7 +147,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         {
             if (!usedRoadNodeIdsHashSet.Contains(temporarySchijnknoopId))
             {
-                changes = changes.RemoveAddedRoadNodeChange(temporarySchijnknoopId);
+                changes.TryRemoveAddRoadNodeChange(temporarySchijnknoopId);
             }
         }
 
@@ -158,9 +158,19 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         foreach (var roadNodeId in roadNodeIdsToRemove)
         {
             var removeRoadNodeChange = new RemoveRoadNodeChange { RoadNodeId = roadNodeId };
-            changes = changes.TryFindModifyRoadNodeChange(roadNodeId, out var modifyRoadNodeChange)
-                ? changes.ReplaceChange(modifyRoadNodeChange, removeRoadNodeChange)
-                : changes.AppendChange(removeRoadNodeChange);
+            if (changes.TryRemoveAddRoadNodeChange(roadNodeId))
+            {
+                continue;
+            }
+
+            if (changes.TryFindModifyRoadNodeChange(roadNodeId, out var modifyRoadNodeChange))
+            {
+                changes.ReplaceChange(modifyRoadNodeChange, removeRoadNodeChange);
+            }
+            else
+            {
+                changes.AppendChange(removeRoadNodeChange);
+            }
         }
 
         return changes;
