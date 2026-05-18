@@ -1,3 +1,10 @@
+## [4.59.5](https://github.com/informatievlaanderen/road-registry/compare/v4.59.4...v4.59.5) (2026-05-18)
+
+
+### Bug Fixes
+
+* **inwinning:** unflatten integration roadsegments to avoid duplicate records ([d6a6335](https://github.com/informatievlaanderen/road-registry/commit/d6a6335a92f60e65d7fb55576579731919f84c69))
+
 ## [4.59.4](https://github.com/informatievlaanderen/road-registry/compare/v4.59.3...v4.59.4) (2026-05-15)
 
 
