@@ -49,18 +49,15 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         var (extractFeatures, changeFeatures, integrationFeatures, problems) = ReadExtractAndChangeAndIntegrationFeatures(context.Archive, context);
         problems.ThrowIfError();
 
-        context.AddRoadSegmentRecords(integrationFeatures
+        var dynamicIntegrationFeatures = RoadSegmentUnflattener.UnflattenByRoadSegmentId(integrationFeatures, new OgcFeaturesCache([]), context, _logger);
+        context.AddRoadSegmentRecords(dynamicIntegrationFeatures
             .Select(feature =>
                 new RoadSegmentFeatureCompareRecord(
                     FeatureType.Integration,
                     feature.RecordNumber,
-                    new RoadSegmentFeatureCompareWithDynamicAttributes
-                    {
-                        RoadSegmentId = feature.Attributes.RoadSegmentId!.Value,
-                        Geometry = feature.Attributes.Geometry,
-                    },
-                    [feature],
-                    feature.Attributes.RoadSegmentId!.Value,
+                    feature.Attributes,
+                    feature.FlatFeatures,
+                    feature.Attributes.RoadSegmentId,
                     RecordType.Identical)
             )
             .ToList());
