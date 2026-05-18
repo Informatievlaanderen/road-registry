@@ -1,3 +1,11 @@
+## [4.59.6](https://github.com/informatievlaanderen/road-registry/compare/v4.59.5...v4.59.6) (2026-05-18)
+
+
+### Bug Fixes
+
+* **inwinning:** don't try to remove consumed roadnodes which were originally added ([8334cc7](https://github.com/informatievlaanderen/road-registry/commit/8334cc79f51e0e89e6687ecc54705d1faf978224))
+* **inwinning:** VerifyTopology should return no problems when junction is removed ([99e25f9](https://github.com/informatievlaanderen/road-registry/commit/99e25f9b317b98784e448efef29355139d39afa4))
+
 ## [4.59.5](https://github.com/informatievlaanderen/road-registry/compare/v4.59.4...v4.59.5) (2026-05-18)
 
 
