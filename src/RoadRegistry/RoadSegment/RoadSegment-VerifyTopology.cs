@@ -1,25 +1,23 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
 using System.Linq;
-using Extensions;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
 using RoadRegistry.RoadSegment.ValueObjects;
-using RoadRegistry.ValueObjects;
+using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
-using ScopedRoadNetwork.ValueObjects;
 
 public partial class RoadSegment
 {
     public Problems VerifyTopology(ScopedRoadNetworkChangeContext context)
     {
-        var idReference = context.IdTranslator.TranslateToTemporaryId(RoadSegmentId);
-        var problems = Problems.WithContext(idReference);
-
         if (IsRemoved || Attributes?.Status != RoadSegmentStatusV2.Gerealiseerd)
         {
-            return problems;
+            return Problems.None;
         }
 
+        var idReference = context.IdTranslator.TranslateToTemporaryId(RoadSegmentId);
+        var problems = Problems.WithContext(idReference);
         var line = Geometry.Value.GetSingleLineString();
 
         if (StartNodeId is not null)
