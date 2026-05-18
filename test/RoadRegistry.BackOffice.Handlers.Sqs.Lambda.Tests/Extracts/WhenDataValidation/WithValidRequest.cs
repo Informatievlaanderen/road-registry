@@ -21,7 +21,7 @@ public class WithValidRequest : WhenDataValidationTestBase
         var ticketId = ObjectProvider.Create<TicketId>();
 
         DataValidationApiClientMock
-            .Setup(x => x.RequestDataValidationAsync(It.IsAny<UploadId>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.RequestDataValidationAsync(It.IsAny<UploadId>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => ObjectProvider.Create<string>());
 
         ExtractsDbContext.ExtractUploads.Add(new ExtractUpload
@@ -43,6 +43,6 @@ public class WithValidRequest : WhenDataValidationTestBase
         dataValidationQueueItem.DataValidationId.Should().NotBeNull();
 
         DataValidationApiClientMock.Verify(x =>
-            x.RequestDataValidationAsync(It.IsAny<UploadId>(), It.IsAny<CancellationToken>()));
+            x.RequestDataValidationAsync(It.IsAny<UploadId>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()));
     }
 }

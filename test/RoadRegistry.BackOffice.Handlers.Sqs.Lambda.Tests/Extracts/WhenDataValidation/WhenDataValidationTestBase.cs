@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Extracts.WhenDataVal
 using Actions.DataValidation;
 using AutoFixture;
 using BackOffice.Uploads;
+using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Framework;
@@ -50,6 +51,7 @@ public abstract class WhenDataValidationTestBase : BackOfficeLambdaTest
             DataValidationApiClientMock.Object,
             ExtractsDbContext,
             new SqsJsonMessageSerializer(new FakeSqsOptions(), SqsJsonMessageAssemblies.Assemblies),
+            new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
             new NullLoggerFactory()
         );
 

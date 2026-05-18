@@ -43,14 +43,14 @@ public class ForDebugging
         _outputHelper = outputHelper;
     }
 
-    //[Fact]
-    [Fact(Skip = "For debugging purposes only")]
+    [Fact]
+    //[Fact(Skip = "For debugging purposes only")]
     public async Task WithCustomRequestOnActualServer()
     {
         // Arrange
-        var zipPath = @"01b55c6f420c4e97b67cf8ca79c53a19\01b55c6f420c4e97b67cf8ca79c53a19.zip";
-        var nisCode = "44021_095500-197000_500x500";
-        var downloadId = DownloadId.Parse("01b55c6f420c4e97b67cf8ca79c53a19");
+        var zipPath = @"C:\Users\RikDePeuter\Downloads\e8e504cbf2b044b0a44f5babdfdb71aa.zip";
+        var nisCode = "44021_101000-197000_1000x1000";
+        var downloadId = DownloadId.Parse("ceff9962155e463b81b26ceb26456793");
 
         var sp = BuildServiceProvider();
 

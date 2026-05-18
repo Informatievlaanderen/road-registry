@@ -36,7 +36,7 @@ public class DataValidationPollingService : IScheduledJob
 
     public async Task RunAsync(CancellationToken cancellationToken)
     {
-        var queueItems =  await _extractsDbContext.DataValidationQueue
+        var queueItems = await _extractsDbContext.DataValidationQueue
             .Where(x => !x.Completed && x.DataValidationId != null)
             .ToListAsync(cancellationToken);
 
@@ -47,10 +47,44 @@ public class DataValidationPollingService : IScheduledJob
             {
                 bool? uploadAccepted = null;
                 TicketError? ticketError = null;
+                string? qualityReportUrl = null;
 
-                //TODO-pr poll datavalidation, update extract status if needed
-                //temp force to true to be able to continue
-                uploadAccepted = true;
+                var pollResult = await _dataValidationApiClient.PollDeliveryAsync(queueItem.DataValidationId!, cancellationToken);
+                switch (pollResult.Status)
+                {
+                    case ValidationJobStatus.Received:
+                        _logger.LogInformation("Data validation delivery '{DataValidationId} has been received, awaiting to be processed", queueItem.DataValidationId!);
+                        break;
+                    case ValidationJobStatus.Processing:
+                        // keep on waiting
+                        break;
+                    case ValidationJobStatus.Processed:
+                        switch (pollResult.Result)
+                        {
+                            case ValidationResult.Approved:
+                            case ValidationResult.ApprovedWithRemarks:
+                                uploadAccepted = true;
+                                break;
+                            case ValidationResult.Rejected:
+                            case ValidationResult.AutomaticallyRejected:
+                                qualityReportUrl = $"https://geckoqualityreportstest.blob.core.windows.net/kwaliteitsrapporten/{queueItem.DataValidationId!}.html";
+                                //var detailResult = await _dataValidationClient.GetDeliveryResultAsync(queueItem.DataValidationId!, cancellationToken);
+                                //TODO-pr read qualityReportUrl from detailResult once it's been added
+
+                                ticketError = new TicketError("De oplading is mislukt. Gelieve het kwaliteitsrapport te openen voor meer informatie.", "DataValidationRejected");
+                                uploadAccepted = false;
+                                break;
+                        }
+                        break;
+
+                    case ValidationJobStatus.Error:
+                        _logger.LogError("UNEXPECTED data validation status '{Status}' for delivery '{DataValidationId}'", queueItem.DataValidationId!, pollResult.Status);
+                        break;
+                    default:
+                        _logger.LogError("Unknown data validation status '{Status}' for delivery '{DataValidationId}'", queueItem.DataValidationId!, pollResult.Status);
+                        break;
+                }
+                //uploadAccepted = true;
 
                 if (uploadAccepted is not null)
                 {
@@ -62,8 +96,8 @@ public class DataValidationPollingService : IScheduledJob
                     }
                     else
                     {
-                        await _extractsDbContext.ManualValidationFailedAsync(new UploadId(queueItem.UploadId), cancellationToken);
-                        await _ticketing.Error(sqsRequest.TicketId, ticketError, cancellationToken);
+                        await _extractsDbContext.ManualValidationFailedAsync(new UploadId(queueItem.UploadId), qualityReportUrl, cancellationToken);
+                        await _ticketing.Error(sqsRequest.TicketId, ticketError!, cancellationToken);
                     }
 
                     queueItem.Completed = true;
