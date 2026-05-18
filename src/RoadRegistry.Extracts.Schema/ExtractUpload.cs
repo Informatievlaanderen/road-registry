@@ -12,6 +12,7 @@ public class ExtractUpload
     public required DateTimeOffset UploadedOn { get; set; }
     public required ExtractUploadStatus Status { get; set; }
     public required Guid TicketId { get; set; }
+    public string? QualityReportUrl { get; set; }
 }
 
 public enum ExtractUploadStatus
@@ -42,5 +43,6 @@ public class ExtractUploadConfiguration : IEntityTypeConfiguration<ExtractUpload
         b.Property(p => p.UploadedOn).IsRequired();
         b.Property(p => p.Status).IsRequired();
         b.Property(p => p.TicketId).IsRequired();
+        b.Property(p => p.QualityReportUrl).IsRequired(false);
     }
 }

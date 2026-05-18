@@ -3,12 +3,10 @@ namespace RoadRegistry.Extracts.DataValidation;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.BlobStore;
 
 public interface IDataValidationApiClient
 {
-    Task<string> RequestDataValidationAsync(UploadId uploadId, CancellationToken cancellationToken);
+    Task<string> RequestDataValidationAsync(UploadId uploadId, Stream blobStream, CancellationToken cancellationToken);
     Task<PollDeliveryResponse> PollDeliveryAsync(string deliveryId, CancellationToken cancellationToken);
     Task<GetDeliveryResultResponse> GetDeliveryResultAsync(string deliveryId, CancellationToken cancellationToken);
 }
@@ -23,25 +21,19 @@ public class DataValidationApiClient : IDataValidationApiClient
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly DataValidationOptions _options;
     private readonly IDataValidationTokenProvider _tokenProvider;
-    private readonly RoadNetworkUploadsBlobClient _uploadsBlobClient;
 
     public DataValidationApiClient(
         IHttpClientFactory httpClientFactory,
         DataValidationOptions options,
-        IDataValidationTokenProvider tokenProvider,
-        RoadNetworkUploadsBlobClient uploadsBlobClient)
+        IDataValidationTokenProvider tokenProvider)
     {
         _httpClientFactory = httpClientFactory;
         _options = options;
         _tokenProvider = tokenProvider;
-        _uploadsBlobClient = uploadsBlobClient;
     }
 
-    public async Task<string> RequestDataValidationAsync(UploadId uploadId, CancellationToken cancellationToken)
+    public async Task<string> RequestDataValidationAsync(UploadId uploadId, Stream blobStream, CancellationToken cancellationToken)
     {
-        var blob = await _uploadsBlobClient.GetBlobAsync(new BlobName(uploadId.ToString()), cancellationToken);
-        var blobStream = await blob.OpenAsync(cancellationToken);
-
         var formContent = new MultipartFormDataContent();
         formContent.Add(new StringContent(_options.SpecificationCode), "specificationCode");
         formContent.Add(new StreamContent(blobStream), "delivery", "delivery.zip");

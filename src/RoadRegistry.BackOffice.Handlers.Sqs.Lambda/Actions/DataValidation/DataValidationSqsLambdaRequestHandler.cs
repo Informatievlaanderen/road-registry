@@ -2,24 +2,24 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.DataValidation;
 
 using System.Diagnostics;
 using BackOffice.Uploads;
+using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Hosts;
 using Infrastructure;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Extracts.DataValidation;
 using RoadRegistry.Extracts.Schema;
-using RoadRegistry.Infrastructure;
 using TicketingService.Abstractions;
 
 public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<DataValidationSqsLambdaRequest>
 {
-    private readonly IDataValidationApiClient _dataValidationClient;
+    private readonly IDataValidationApiClient _dataValidationApiClient;
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly SqsJsonMessageSerializer _sqsJsonMessageSerializer;
+    private readonly RoadNetworkUploadsBlobClient _uploadsBlobClient;
 
     public DataValidationSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -27,9 +27,10 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        IDataValidationApiClient dataValidationClient,
+        IDataValidationApiClient dataValidationApiClient,
         ExtractsDbContext extractsDbContext,
         SqsJsonMessageSerializer sqsJsonMessageSerializer,
+        RoadNetworkUploadsBlobClient uploadsBlobClient,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -40,9 +41,10 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
             loggerFactory,
             TicketingBehavior.Error)
     {
-        _dataValidationClient = dataValidationClient;
+        _dataValidationApiClient = dataValidationApiClient;
         _extractsDbContext = extractsDbContext;
         _sqsJsonMessageSerializer = sqsJsonMessageSerializer;
+        _uploadsBlobClient = uploadsBlobClient;
     }
 
     protected override async Task<object> InnerHandle(DataValidationSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
@@ -65,25 +67,86 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
 
             if (queueItem.DataValidationId is null)
             {
-                queueItem.DataValidationId = await _dataValidationClient.RequestDataValidationAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, cancellationToken);
+                try
+                {
+                    var blob = await _uploadsBlobClient.GetBlobAsync(new BlobName(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId.ToString()), cancellationToken);
+                    await using var blobStream = await blob.OpenAsync(cancellationToken);
+
+                    queueItem.DataValidationId = await _dataValidationApiClient.RequestDataValidationAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, blobStream, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, $"Error while requesting datavalidation for download id {sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.DownloadId}");
+                    throw;
+                }
+
                 await _extractsDbContext.SaveChangesAsync(cancellationToken);
             }
 
             bool? automaticValidationSucceed = null;
             TicketError? ticketError = null;
+            string? qualityReportUrl = null;
 
             while (automaticValidationSucceed is null)
             {
-                await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
+                await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
 
                 if (startOfAction.Elapsed.TotalMinutes >= 10)
                 {
                     break;
                 }
 
-                //TODO-pr poll until automatic validation is complete/rejected, when rejected then fill in ticketError
-                //temp accept upload
-                automaticValidationSucceed = true;
+                try
+                {
+                    var pollResult = await _dataValidationApiClient.PollDeliveryAsync(queueItem.DataValidationId!, cancellationToken);
+                    switch (pollResult.Status)
+                    {
+                        case ValidationJobStatus.Received:
+                            Logger.LogInformation("Data validation delivery '{DataValidationId} has been received, awaiting to be processed", queueItem.DataValidationId!);
+                            break;
+                        case ValidationJobStatus.Processing:
+                            Logger.LogInformation("Data validation delivery '{DataValidationId} is being processed", queueItem.DataValidationId!);
+
+                            if (pollResult.Stage == "automaticchecks")
+                            {
+                                Logger.LogInformation("Data validation delivery '{DataValidationId} automatic check has completed", queueItem.DataValidationId!);
+                                automaticValidationSucceed = true;
+                            }
+                            break;
+                        case ValidationJobStatus.Processed:
+                            switch (pollResult.Result)
+                            {
+                                case ValidationResult.Approved:
+                                case ValidationResult.ApprovedWithRemarks:
+                                    automaticValidationSucceed = true;
+                                    break;
+                                case ValidationResult.Rejected:
+                                case ValidationResult.AutomaticallyRejected:
+                                    qualityReportUrl = $"https://geckoqualityreportstest.blob.core.windows.net/kwaliteitsrapporten/{queueItem.DataValidationId!}.html";
+                                    //var detailResult = await _dataValidationClient.GetDeliveryResultAsync(queueItem.DataValidationId!, cancellationToken);
+                                    //TODO-pr read qualityReportUrl from detailResult once it's been added
+
+                                    ticketError = new TicketError("De oplading is mislukt. Gelieve het kwaliteitsrapport te openen voor meer informatie.", "DataValidationRejected");
+                                    automaticValidationSucceed = false;
+                                    break;
+                            }
+                            break;
+
+                        case ValidationJobStatus.Error:
+                            Logger.LogError("UNEXPECTED data validation status '{Status}' for delivery '{DataValidationId}'", queueItem.DataValidationId!, pollResult.Status);
+                            ticketError = new TicketError("Een onbekend probleem heeft zich voorgedaan bij de validatie. Wij zijn hiervan op de hoogte gebracht.", "DataValidationError");
+                            automaticValidationSucceed = false;
+                            break;
+                        default:
+                            Logger.LogError("Unknown data validation status '{Status}' for delivery '{DataValidationId}'", queueItem.DataValidationId!, pollResult.Status);
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, $"Error while polling data validation [UploadId={queueItem.UploadId}, DownloadId={sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.DownloadId}, DataValidationId={queueItem.DataValidationId}]: {ex.Message}");
+                    throw;
+                }
             }
 
             if (automaticValidationSucceed is not null)
@@ -91,12 +154,15 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
                 if (automaticValidationSucceed.Value)
                 {
                     await _extractsDbContext.AutomaticValidationSucceededAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, cancellationToken);
-                    await Ticketing.Pending(sqsLambdaRequest.TicketId, new TicketResult(new { Status = nameof(ExtractUploadStatus.AutomaticValidationSucceeded) }), cancellationToken);
+                    await Ticketing.Pending(sqsLambdaRequest.TicketId, new TicketResult(new
+                    {
+                        Status = nameof(ExtractUploadStatus.AutomaticValidationSucceeded)
+                    }), cancellationToken);
                 }
                 else
                 {
-                    await _extractsDbContext.AutomaticValidationFailedAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, cancellationToken);
-                    await Ticketing.Error(sqsLambdaRequest.TicketId, ticketError, cancellationToken);
+                    await _extractsDbContext.AutomaticValidationFailedAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, qualityReportUrl, cancellationToken);
+                    await Ticketing.Error(sqsLambdaRequest.TicketId, ticketError!, cancellationToken);
 
                     queueItem.Completed = true;
                     await _extractsDbContext.SaveChangesAsync(cancellationToken);
