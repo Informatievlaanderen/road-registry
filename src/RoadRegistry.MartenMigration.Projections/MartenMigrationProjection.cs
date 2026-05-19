@@ -267,6 +267,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var roadSegment = RoadSegment.CreateForMigration(
                     roadSegmentId: roadSegmentId,
                     geometry: geometry.ToRoadSegmentGeometry(),
+                    status: RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod) == RoadSegmentGeometryDrawMethod.Outlined ? RoadSegmentStatusV2.Gepland : RoadSegmentStatusV2.Gerealiseerd,
                     startNodeId: envelope.Message.StartNodeId > 0 ? new RoadNodeId(envelope.Message.StartNodeId) : null,
                     endNodeId: envelope.Message.EndNodeId > 0 ? new RoadNodeId(envelope.Message.EndNodeId) : null
                 );
@@ -633,6 +634,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var roadSegment = RoadSegment.CreateForMigration(
                 roadSegmentId: roadSegmentId,
                 geometry: geometry.ToRoadSegmentGeometry(),
+                status: RoadSegmentGeometryDrawMethod.Parse(change.GeometryDrawMethod) == RoadSegmentGeometryDrawMethod.Outlined ? RoadSegmentStatusV2.Gepland : RoadSegmentStatusV2.Gerealiseerd,
                 startNodeId: change.StartNodeId > 0 ? new RoadNodeId(change.StartNodeId) : null,
                 endNodeId: change.EndNodeId > 0 ? new RoadNodeId(change.EndNodeId) : null
             );

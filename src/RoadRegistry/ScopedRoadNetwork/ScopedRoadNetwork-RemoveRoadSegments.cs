@@ -4,16 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.Extensions;
-using RoadRegistry.GradeSeparatedJunction.Changes;
-using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment;
-using RoadRegistry.RoadSegment.Changes;
+using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
-using ValueObjects;
 
 public partial class ScopedRoadNetwork
 {
@@ -75,7 +69,7 @@ public partial class ScopedRoadNetwork
 
         problems += segment.Remove(provenance);
 
-        if (segment.Attributes.Status != RoadSegmentStatusV2.Gerealiseerd || problems.HasError())
+        if (segment.Status != RoadSegmentStatusV2.Gerealiseerd || problems.HasError())
         {
             return problems;
         }

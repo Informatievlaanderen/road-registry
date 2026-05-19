@@ -5,12 +5,12 @@ using ValueObjects;
 
 public class RoadNodeAdded : IMartenEvent
 {
-    public required RoadNodeGeometry Geometry { get; set; }
-    public required int RoadNodeId { get; set; }
-    public required int Version { get; set; }
-    public required int TemporaryId { get; set; }
-    public required int? OriginalId { get; set; }
-    public required string Type { get; set; }
+    public RoadNodeGeometry Geometry { get; set; }
+    public int RoadNodeId { get; set; }
+    public int Version { get; set; }
+    public int TemporaryId { get; set; }
+    public int? OriginalId { get; set; }
+    public string Type { get; set; }
 
-    public required ProvenanceData Provenance { get; set; }
+    public ProvenanceData Provenance { get; set; }
 }

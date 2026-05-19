@@ -40,7 +40,7 @@ public partial class ScopedRoadNetwork
             OtherRoadSegmentId = segmentWithLongestLength.RoadSegmentId == segment1.RoadSegmentId ? segment2.RoadSegmentId : segment1.RoadSegmentId,
             Geometry = geometry.ToRoadSegmentGeometry(),
             GeometryDrawMethod = method,
-            Status = segment1.Attributes.Status,
+            Status = segment1.Status,
             AccessRestriction = segment1.Attributes.AccessRestriction.MergeWith(segment2.Attributes!.AccessRestriction, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
             Category = segment1.Attributes.Category.MergeWith(segment2.Attributes.Category, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
             Morphology = segment1.Attributes.Morphology.MergeWith(segment2.Attributes.Morphology, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),

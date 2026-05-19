@@ -48,6 +48,6 @@ public class AggregateTests : AggregateTestBase
         // Assert
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
         segment.MergedRoadSegmentId.Should().Be(evt.MergedRoadSegmentId);
-        segment.Attributes.Status.Should().Be(RoadSegmentStatusV2.Gehistoreerd);
+        segment.Status.Should().Be(RoadSegmentStatusV2.Gehistoreerd);
     }
 }

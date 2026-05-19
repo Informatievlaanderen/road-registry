@@ -21,7 +21,6 @@ public partial class RoadSegment
         var accessRestriction = change.AccessRestriction;
         var category = change.Category;
         var morphology = change.Morphology;
-        var status = change.Status;
         var streetNameId = change.StreetNameId;
         var maintenanceAuthorityId = change.MaintenanceAuthorityId;
         var surfaceType = change.SurfaceType;
@@ -36,7 +35,6 @@ public partial class RoadSegment
             AccessRestriction = accessRestriction ?? Attributes.AccessRestriction,
             Category = category ?? Attributes.Category,
             Morphology = morphology ?? Attributes.Morphology,
-            Status = status ?? Attributes.Status,
             StreetNameId = streetNameId ?? Attributes.StreetNameId,
             MaintenanceAuthorityId = maintenanceAuthorityId ?? Attributes.MaintenanceAuthorityId,
             SurfaceType = surfaceType ?? Attributes.SurfaceType,
@@ -50,7 +48,8 @@ public partial class RoadSegment
 
         RoadNodeId? startNodeId = null, endNodeId = null;
 
-        if (change.Geometry is not null && attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
+        var status = change.Status ?? Status;
+        if (change.Geometry is not null && status == RoadSegmentStatusV2.Gerealiseerd)
         {
             var startEndNodes = context.RoadNetwork.FindStartEndNodes(change.Geometry);
             problems += startEndNodes.Problems;
@@ -58,9 +57,9 @@ public partial class RoadSegment
             endNodeId = startEndNodes.EndNodeId;
         }
 
-        if ((change.Geometry is not null && attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
+        if ((change.Geometry is not null && status == RoadSegmentStatusV2.Gerealiseerd)
             ||
-            (Attributes.Status != RoadSegmentStatusV2.Gerealiseerd && attributes.Status == RoadSegmentStatusV2.Gerealiseerd))
+            (Status != RoadSegmentStatusV2.Gerealiseerd && change.Status == RoadSegmentStatusV2.Gerealiseerd))
         {
             problems += context.RoadNetwork.ValidatePartiallyOverlappingRoadSegments(change.Geometry ?? Geometry, [RoadSegmentId], context.IdTranslator);
         }
@@ -74,14 +73,14 @@ public partial class RoadSegment
         {
             RoadSegmentId = RoadSegmentId,
             OriginalRoadSegmentIdReference = roadSegmentIdReference,
+            Geometry = change.Geometry,
+            Status = change.Status,
             StartNodeId = startNodeId,
             EndNodeId = endNodeId,
-            Geometry = change.Geometry,
             GeometryDrawMethod = change.GeometryDrawMethod,
             AccessRestriction = accessRestriction,
             Category = category,
             Morphology = morphology,
-            Status = status,
             StreetNameId = streetNameId,
             MaintenanceAuthorityId = maintenanceAuthorityId,
             SurfaceType = surfaceType,

@@ -129,7 +129,7 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         var roughGeometry = geometry.Value.Envelope.Buffer(bufferDistance);
         var nearbyOtherSegments = _roadSegmentsSpatialIndex
             .Query(envelope)
-            .Where(x => x.Attributes?.Status == RoadSegmentStatusV2.Gerealiseerd)
+            .Where(x => x.Status == RoadSegmentStatusV2.Gerealiseerd)
             .Where(x => !excludeRoadSegmentIds.Contains(x.RoadSegmentId))
             .Where(x => x.Geometry.Value.Intersects(roughGeometry))
             .Select(x => (x.RoadSegmentId, x.Geometry))

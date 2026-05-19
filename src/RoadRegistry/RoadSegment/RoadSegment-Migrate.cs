@@ -21,7 +21,6 @@ public partial class RoadSegment
         problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2();
 
         var segmentLength = geometry.Length;
-        var status = change.Status;
         var accessRestriction = change.AccessRestriction;
         var category = change.Category;
         var morphology = change.Morphology;
@@ -38,7 +37,6 @@ public partial class RoadSegment
         var attributes = new RoadSegmentAttributes
         {
             GeometryDrawMethod = geometryDrawMethod,
-            Status = status,
             AccessRestriction = accessRestriction,
             Category = category,
             Morphology = morphology,
@@ -56,7 +54,7 @@ public partial class RoadSegment
         problems += new RoadSegmentAttributesValidator().Validate(attributes, segmentLength);
 
         RoadNodeId? startNodeId = null, endNodeId = null;
-        if (attributes.Status == RoadSegmentStatusV2.Gerealiseerd)
+        if (change.Status == RoadSegmentStatusV2.Gerealiseerd)
         {
             var startEndNodes = context.RoadNetwork.FindStartEndNodes(change.Geometry);
             startNodeId = startEndNodes.StartNodeId;
@@ -78,8 +76,8 @@ public partial class RoadSegment
             StartNodeId = startNodeId,
             EndNodeId = endNodeId,
             Geometry = geometry.ToRoadSegmentGeometry(),
+            Status = change.Status,
             GeometryDrawMethod = geometryDrawMethod,
-            Status = status,
             AccessRestriction = accessRestriction,
             Category = category,
             Morphology = morphology,
