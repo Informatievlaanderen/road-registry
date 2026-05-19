@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Extracts.WhenDataValidation;
 
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting.Internal;
@@ -9,7 +10,8 @@ using RoadRegistry.Hosts.Infrastructure.Extensions;
 
 public class DataValidationApiClientTests
 {
-    [Fact]
+    //[Fact]
+    [Fact(Skip = "For debugging")]
     public async Task WhenRequestDataValidation_ThenDeliveryId()
     {
         var configuration = new ConfigurationBuilder()
@@ -27,11 +29,29 @@ public class DataValidationApiClientTests
 
         var apiClient = sp.GetRequiredService<IDataValidationApiClient>();
 
-        var deliveryId = "b96ef20c-8823-472f-b8a4-7e1d49fd0056";
+        var fileStream = File.OpenRead(@"27ad54a9778a4b51a1b3e35a5211032f.zip");
+        var deliveryId = await apiClient.RequestDataValidationAsync(new UploadId(Guid.NewGuid()), fileStream, CancellationToken.None);
+        //var deliveryId = "8114d8a4-6ffb-47f1-ac68-85448a379954";
 
-        var fileStream = File.OpenRead(@"C:\Users\RikDePeuter\Downloads\e8e504cbf2b044b0a44f5babdfdb71aa.zip");
-        var result = await apiClient.RequestDataValidationAsync(new UploadId(Guid.NewGuid()), fileStream, CancellationToken.None);
+        deliveryId.Should().NotBeNullOrEmpty();
 
-        //TODO-pr test polling and status report
+        while (true)
+        {
+            var pollResult = await apiClient.PollDeliveryAsync(deliveryId, CancellationToken.None);
+            if (pollResult.Result != ValidationResult.NotYetAvailable)
+            {
+                var detailResult = await apiClient.GetDeliveryResultAsync(deliveryId, CancellationToken.None);
+            }
+
+            switch (pollResult.Status)
+            {
+                case ValidationJobStatus.Processing:
+                    if (pollResult.Stage == "automaticchecks")
+                    {
+                        var detailResult = await apiClient.GetDeliveryResultAsync(deliveryId, CancellationToken.None);
+                    }
+                    break;
+            }
+        }
     }
 }

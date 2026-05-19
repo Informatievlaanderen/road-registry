@@ -11,6 +11,7 @@ using MediatR;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using RoadNetwork;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Extracts.DataValidation;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Tests.BackOffice;
@@ -30,7 +31,8 @@ public abstract class WhenDataValidationTestBase : BackOfficeLambdaTest
 
     protected async Task<DataValidationSqsRequest> HandleRequest(
         MigrateRoadNetworkSqsRequest? migrateRoadNetworkSqsRequest = null,
-        TicketId? ticketId = null)
+        TicketId? ticketId = null,
+        bool featureEnabled = false)
     {
         var sqsRequest = new DataValidationSqsRequest
         {
@@ -42,6 +44,15 @@ public abstract class WhenDataValidationTestBase : BackOfficeLambdaTest
 
         var sqsLambdaRequest = new DataValidationSqsLambdaRequest(sqsRequest.MigrateRoadNetworkSqsRequest.DownloadId.ToString(), sqsRequest);
 
+        var blobClientMock = new Mock<IBlobClient>();
+        blobClientMock
+            .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BlobObject(
+                new BlobName("abc"),
+                Metadata.None,
+                ContentType.Parse("X-multipart/abc"),
+                _ => Task.FromResult<Stream>(new MemoryStream())));
+
         var sqsLambdaRequestHandler = new DataValidationSqsLambdaRequestHandler(
             new FakeSqsLambdaHandlerOptions(),
             new FakeRetryPolicy(),
@@ -51,7 +62,8 @@ public abstract class WhenDataValidationTestBase : BackOfficeLambdaTest
             DataValidationApiClientMock.Object,
             ExtractsDbContext,
             new SqsJsonMessageSerializer(new FakeSqsOptions(), SqsJsonMessageAssemblies.Assemblies),
-            new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
+            new RoadNetworkUploadsBlobClient(blobClientMock.Object),
+            new UseDataValidationFeatureToggle(featureEnabled),
             new NullLoggerFactory()
         );
 

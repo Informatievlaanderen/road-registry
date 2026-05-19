@@ -5,6 +5,7 @@ using BackOffice.Uploads;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Infrastructure;
 using Schema;
 using TicketingService.Abstractions;
@@ -16,6 +17,7 @@ public class DataValidationPollingService : IScheduledJob
     private readonly IMediator _mediator;
     private readonly SqsJsonMessageSerializer _sqsJsonMessageSerializer;
     private readonly ITicketing _ticketing;
+    private readonly UseDataValidationFeatureToggle _useDataValidationFeatureToggle;
     private readonly ILogger _logger;
 
     public DataValidationPollingService(
@@ -24,6 +26,7 @@ public class DataValidationPollingService : IScheduledJob
         IMediator mediator,
         SqsJsonMessageSerializer sqsJsonMessageSerializer,
         ITicketing ticketing,
+        UseDataValidationFeatureToggle useDataValidationFeatureToggle,
         ILoggerFactory loggerFactory)
     {
         _extractsDbContext = extractsDbContext;
@@ -31,6 +34,7 @@ public class DataValidationPollingService : IScheduledJob
         _mediator = mediator;
         _sqsJsonMessageSerializer = sqsJsonMessageSerializer;
         _ticketing = ticketing;
+        _useDataValidationFeatureToggle = useDataValidationFeatureToggle;
         _logger = loggerFactory.CreateLogger(GetType());
     }
 
@@ -49,42 +53,47 @@ public class DataValidationPollingService : IScheduledJob
                 TicketError? ticketError = null;
                 string? qualityReportUrl = null;
 
-                var pollResult = await _dataValidationApiClient.PollDeliveryAsync(queueItem.DataValidationId!, cancellationToken);
-                switch (pollResult.Status)
+                if (_useDataValidationFeatureToggle.FeatureEnabled)
                 {
-                    case ValidationJobStatus.Received:
-                        _logger.LogInformation("Data validation delivery '{DataValidationId} has been received, awaiting to be processed", queueItem.DataValidationId!);
-                        break;
-                    case ValidationJobStatus.Processing:
-                        // keep on waiting
-                        break;
-                    case ValidationJobStatus.Processed:
-                        switch (pollResult.Result)
-                        {
-                            case ValidationResult.Approved:
-                            case ValidationResult.ApprovedWithRemarks:
-                                uploadAccepted = true;
-                                break;
-                            case ValidationResult.Rejected:
-                            case ValidationResult.AutomaticallyRejected:
-                                qualityReportUrl = $"https://geckoqualityreportstest.blob.core.windows.net/kwaliteitsrapporten/{queueItem.DataValidationId!}.html";
-                                //var detailResult = await _dataValidationClient.GetDeliveryResultAsync(queueItem.DataValidationId!, cancellationToken);
-                                //TODO-pr read qualityReportUrl from detailResult once it's been added
+                    var pollResult = await _dataValidationApiClient.PollDeliveryAsync(queueItem.DataValidationId!, cancellationToken);
+                    switch (pollResult.Status)
+                    {
+                        case ValidationJobStatus.Received:
+                        case ValidationJobStatus.Processing:
+                            // keep on waiting
+                            break;
+                        case ValidationJobStatus.Processed:
+                            switch (pollResult.Result)
+                            {
+                                case ValidationResult.Approved:
+                                case ValidationResult.ApprovedWithRemarks:
+                                    uploadAccepted = true;
+                                    break;
+                                case ValidationResult.Rejected:
+                                case ValidationResult.AutomaticallyRejected:
+                                    qualityReportUrl = $"https://geckoqualityreportstest.blob.core.windows.net/kwaliteitsrapporten/{queueItem.DataValidationId!}.html";
+                                    //var detailResult = await _dataValidationClient.GetDeliveryResultAsync(queueItem.DataValidationId!, cancellationToken);
+                                    //TODO-pr read qualityReportUrl from detailResult once it's been added
 
-                                ticketError = new TicketError("De oplading is mislukt. Gelieve het kwaliteitsrapport te openen voor meer informatie.", "DataValidationRejected");
-                                uploadAccepted = false;
-                                break;
-                        }
-                        break;
+                                    ticketError = new TicketError("De oplading is mislukt. Gelieve het kwaliteitsrapport te openen voor meer informatie.", "DataValidationRejected");
+                                    uploadAccepted = false;
+                                    break;
+                            }
 
-                    case ValidationJobStatus.Error:
-                        _logger.LogError("UNEXPECTED data validation status '{Status}' for delivery '{DataValidationId}'", queueItem.DataValidationId!, pollResult.Status);
-                        break;
-                    default:
-                        _logger.LogError("Unknown data validation status '{Status}' for delivery '{DataValidationId}'", queueItem.DataValidationId!, pollResult.Status);
-                        break;
+                            break;
+
+                        case ValidationJobStatus.Error:
+                            _logger.LogError("UNEXPECTED data validation status '{Status}' for delivery '{DataValidationId}'", pollResult.Status, queueItem.DataValidationId!);
+                            break;
+                        default:
+                            _logger.LogError("Unknown data validation status '{Status}' for delivery '{DataValidationId}'", pollResult.Status, queueItem.DataValidationId!);
+                            break;
+                    }
                 }
-                //uploadAccepted = true;
+                else
+                {
+                    uploadAccepted = true;
+                }
 
                 if (uploadAccepted is not null)
                 {

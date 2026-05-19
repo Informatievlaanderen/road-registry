@@ -10,6 +10,7 @@ using Hosts;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Extracts.DataValidation;
 using RoadRegistry.Extracts.Schema;
 using TicketingService.Abstractions;
@@ -20,6 +21,7 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly SqsJsonMessageSerializer _sqsJsonMessageSerializer;
     private readonly RoadNetworkUploadsBlobClient _uploadsBlobClient;
+    private readonly UseDataValidationFeatureToggle _useDataValidationFeatureToggle;
 
     public DataValidationSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -31,6 +33,7 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
         ExtractsDbContext extractsDbContext,
         SqsJsonMessageSerializer sqsJsonMessageSerializer,
         RoadNetworkUploadsBlobClient uploadsBlobClient,
+        UseDataValidationFeatureToggle useDataValidationFeatureToggle,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -45,6 +48,7 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
         _extractsDbContext = extractsDbContext;
         _sqsJsonMessageSerializer = sqsJsonMessageSerializer;
         _uploadsBlobClient = uploadsBlobClient;
+        _useDataValidationFeatureToggle = useDataValidationFeatureToggle;
     }
 
     protected override async Task<object> InnerHandle(DataValidationSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
@@ -72,7 +76,14 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
                     var blob = await _uploadsBlobClient.GetBlobAsync(new BlobName(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId.ToString()), cancellationToken);
                     await using var blobStream = await blob.OpenAsync(cancellationToken);
 
-                    queueItem.DataValidationId = await _dataValidationApiClient.RequestDataValidationAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, blobStream, cancellationToken);
+                    if (_useDataValidationFeatureToggle.FeatureEnabled)
+                    {
+                        queueItem.DataValidationId = await _dataValidationApiClient.RequestDataValidationAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, blobStream, cancellationToken);
+                    }
+                    else
+                    {
+                        queueItem.DataValidationId = $"DUMMY_{Guid.NewGuid()}";
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -93,59 +104,48 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
 
                 if (startOfAction.Elapsed.TotalMinutes >= 10)
                 {
+                    Logger.LogInformation("Stop waiting, switching to slow polling");
                     break;
                 }
 
-                try
+                if (_useDataValidationFeatureToggle.FeatureEnabled)
                 {
-                    var pollResult = await _dataValidationApiClient.PollDeliveryAsync(queueItem.DataValidationId!, cancellationToken);
-                    switch (pollResult.Status)
+                    try
                     {
-                        case ValidationJobStatus.Received:
-                            Logger.LogInformation("Data validation delivery '{DataValidationId} has been received, awaiting to be processed", queueItem.DataValidationId!);
-                            break;
-                        case ValidationJobStatus.Processing:
-                            Logger.LogInformation("Data validation delivery '{DataValidationId} is being processed", queueItem.DataValidationId!);
+                        var pollResult = await _dataValidationApiClient.PollDeliveryAsync(queueItem.DataValidationId!, cancellationToken);
+                        switch (pollResult.Status)
+                        {
+                            case ValidationJobStatus.Received:
+                                Logger.LogInformation("Data validation delivery '{DataValidationId} has been received, awaiting to be processed", queueItem.DataValidationId!);
+                                break;
+                            case ValidationJobStatus.Processing:
+                                Logger.LogInformation("Data validation delivery '{DataValidationId} is being processed", queueItem.DataValidationId!);
 
-                            if (pollResult.Stage == "automaticchecks")
-                            {
-                                Logger.LogInformation("Data validation delivery '{DataValidationId} automatic check has completed", queueItem.DataValidationId!);
-                                automaticValidationSucceed = true;
-                            }
-                            break;
-                        case ValidationJobStatus.Processed:
-                            switch (pollResult.Result)
-                            {
-                                case ValidationResult.Approved:
-                                case ValidationResult.ApprovedWithRemarks:
+                                if (DataValidationConstants.ManualStages.Contains(pollResult.Stage))
+                                {
+                                    Logger.LogInformation("Data validation delivery '{DataValidationId} automatic checks have completed, switching to slow polling", queueItem.DataValidationId!);
                                     automaticValidationSucceed = true;
-                                    break;
-                                case ValidationResult.Rejected:
-                                case ValidationResult.AutomaticallyRejected:
-                                    qualityReportUrl = $"https://geckoqualityreportstest.blob.core.windows.net/kwaliteitsrapporten/{queueItem.DataValidationId!}.html";
-                                    //var detailResult = await _dataValidationClient.GetDeliveryResultAsync(queueItem.DataValidationId!, cancellationToken);
-                                    //TODO-pr read qualityReportUrl from detailResult once it's been added
-
-                                    ticketError = new TicketError("De oplading is mislukt. Gelieve het kwaliteitsrapport te openen voor meer informatie.", "DataValidationRejected");
-                                    automaticValidationSucceed = false;
-                                    break;
-                            }
-                            break;
-
-                        case ValidationJobStatus.Error:
-                            Logger.LogError("UNEXPECTED data validation status '{Status}' for delivery '{DataValidationId}'", queueItem.DataValidationId!, pollResult.Status);
-                            ticketError = new TicketError("Een onbekend probleem heeft zich voorgedaan bij de validatie. Wij zijn hiervan op de hoogte gebracht.", "DataValidationError");
-                            automaticValidationSucceed = false;
-                            break;
-                        default:
-                            Logger.LogError("Unknown data validation status '{Status}' for delivery '{DataValidationId}'", queueItem.DataValidationId!, pollResult.Status);
-                            break;
+                                }
+                                break;
+                            case ValidationJobStatus.Error:
+                                Logger.LogError("UNEXPECTED data validation status '{Status}' for delivery '{DataValidationId}'", pollResult.Status, queueItem.DataValidationId!);
+                                ticketError = new TicketError("Een onbekend probleem heeft zich voorgedaan bij de validatie. Wij zijn hiervan op de hoogte gebracht.", "DataValidationError");
+                                automaticValidationSucceed = false;
+                                break;
+                            default:
+                                Logger.LogError("Unknown data validation status '{Status}' for delivery '{DataValidationId}'", pollResult.Status, queueItem.DataValidationId!);
+                                break;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, $"Error while polling data validation [UploadId={queueItem.UploadId}, DownloadId={sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.DownloadId}, DataValidationId={queueItem.DataValidationId}]: {ex.Message}");
+                        throw;
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Logger.LogError(ex, $"Error while polling data validation [UploadId={queueItem.UploadId}, DownloadId={sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.DownloadId}, DataValidationId={queueItem.DataValidationId}]: {ex.Message}");
-                    throw;
+                    automaticValidationSucceed = true;
                 }
             }
 

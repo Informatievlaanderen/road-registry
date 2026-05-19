@@ -13,10 +13,12 @@ public class DataValidationTokenProvider : IDataValidationTokenProvider
 {
     private string? _cachedToken;
     private DateTime _tokenExpiresAt;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly DataValidationOptions _options;
 
-    public DataValidationTokenProvider(DataValidationOptions options)
+    public DataValidationTokenProvider(IHttpClientFactory httpClientFactory, DataValidationOptions options)
     {
+        _httpClientFactory = httpClientFactory;
         _options = options;
     }
 
@@ -30,7 +32,7 @@ public class DataValidationTokenProvider : IDataValidationTokenProvider
         var parameters = new Parameters();
 
         var tokenClient = new TokenClient(
-            () => new HttpClient(),
+            () => _httpClientFactory.CreateClient(),
             new TokenClientOptions
             {
                 Address = _options.TokenEndPoint,
