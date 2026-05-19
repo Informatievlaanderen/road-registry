@@ -35,6 +35,7 @@ public partial class ExtractenController
                 throw new InvalidGuidValidationException("DownloadId");
             }
 
+            //TODO-pr return upload qualityreports with their timestamp
             var request = new ExtractDetailsRequest(parsedDownloadId);
             var response = await _mediator.Send(request, cancellationToken);
 

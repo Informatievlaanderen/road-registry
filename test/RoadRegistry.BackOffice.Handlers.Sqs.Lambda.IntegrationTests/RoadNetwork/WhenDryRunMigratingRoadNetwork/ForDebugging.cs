@@ -43,12 +43,12 @@ public class ForDebugging
         _outputHelper = outputHelper;
     }
 
-    [Fact]
-    //[Fact(Skip = "For debugging purposes only")]
+    //[Fact]
+    [Fact(Skip = "For debugging purposes only")]
     public async Task WithCustomRequestOnActualServer()
     {
         // Arrange
-        var zipPath = @"C:\Users\RikDePeuter\Downloads\e8e504cbf2b044b0a44f5babdfdb71aa.zip";
+        var zipPath = @"e8e504cbf2b044b0a44f5babdfdb71aa.zip";
         var nisCode = "44021_101000-197000_1000x1000";
         var downloadId = DownloadId.Parse("ceff9962155e463b81b26ceb26456793");
 
