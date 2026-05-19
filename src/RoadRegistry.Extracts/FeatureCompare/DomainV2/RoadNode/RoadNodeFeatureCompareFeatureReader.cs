@@ -131,7 +131,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(WK_OIDN));
                 }
-                else if (RoadNodeId.Accepts(WK_OIDN.Value))
+                else if (WK_OIDN.Value > 0 && RoadNodeId.Accepts(WK_OIDN.Value))
                 {
                     return new RoadNodeId(WK_OIDN.Value);
                 }

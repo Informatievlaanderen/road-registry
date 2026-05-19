@@ -312,7 +312,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 }
                 else
                 {
-                    problems += problemBuilder.RoadSegmentMaintenanceAuthorityOutOfRange(LBEHEER);
+                    problems += problemBuilder.RoadSegmentMaintenanceAuthorityOutOfRange(nameof(LBEHEER), LBEHEER);
                 }
 
                 return default;
@@ -330,7 +330,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 }
                 else
                 {
-                    problems += problemBuilder.RoadSegmentMaintenanceAuthorityOutOfRange(RBEHEER);
+                    problems += problemBuilder.RoadSegmentMaintenanceAuthorityOutOfRange(nameof(RBEHEER), RBEHEER);
                 }
 
                 return default;
