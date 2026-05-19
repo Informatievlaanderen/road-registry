@@ -11,7 +11,7 @@ public partial class RoadSegment
 {
     public Problems VerifyTopology(ScopedRoadNetworkChangeContext context)
     {
-        if (IsRemoved || Attributes?.Status != RoadSegmentStatusV2.Gerealiseerd)
+        if (IsRemoved || Status != RoadSegmentStatusV2.Gerealiseerd)
         {
             return Problems.None;
         }

@@ -10,6 +10,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 {
     public RoadSegmentId RoadSegmentId { get; }
     public RoadSegmentGeometry Geometry { get; private set; }
+    public RoadSegmentStatusV2 Status { get; private set; }
     public RoadNodeId? StartNodeId { get; private set; }
     public RoadNodeId? EndNodeId { get; private set; }
     public RoadSegmentAttributes? Attributes { get; private set; }
@@ -27,6 +28,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     protected RoadSegment(
         int roadSegmentId,
         RoadSegmentGeometry geometry,
+        string status,
         int? startNodeId,
         int? endNodeId,
         RoadSegmentAttributes? attributes,
@@ -35,6 +37,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         : this(new RoadSegmentId(roadSegmentId))
     {
         Geometry = geometry;
+        Status = RoadSegmentStatusV2.Parse(status);
         StartNodeId = RoadNodeId.FromValue(startNodeId);
         EndNodeId = RoadNodeId.FromValue(endNodeId);
         Attributes = attributes;
@@ -57,10 +60,11 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     public static RoadSegment CreateForMigration(
         RoadSegmentId roadSegmentId,
         RoadSegmentGeometry geometry,
+        RoadSegmentStatusV2 status,
         RoadNodeId? startNodeId,
         RoadNodeId? endNodeId)
     {
-        return new RoadSegment(roadSegmentId, geometry, startNodeId, endNodeId, null, false);
+        return new RoadSegment(roadSegmentId, geometry, status.ToString(), startNodeId, endNodeId, null, false);
     }
 
     public static RoadSegment Create(RoadSegmentWasAdded @event)
@@ -75,12 +79,12 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
         IsRemoved = false;
         Geometry = @event.Geometry;
+        Status = @event.Status;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
         Attributes = new RoadSegmentAttributes
         {
             GeometryDrawMethod = @event.GeometryDrawMethod,
-            Status = @event.Status,
             AccessRestriction = @event.AccessRestriction,
             Category = @event.Category,
             Morphology = @event.Morphology,
@@ -103,12 +107,12 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
         IsRemoved = false;
         Geometry = @event.Geometry;
+        Status = @event.Status;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
         Attributes = new RoadSegmentAttributes
         {
             GeometryDrawMethod = @event.GeometryDrawMethod,
-            Status = @event.Status,
             AccessRestriction = @event.AccessRestriction,
             Category = @event.Category,
             Morphology = @event.Morphology,
@@ -131,12 +135,12 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
         IsRemoved = false;
         Geometry = @event.Geometry;
+        Status = @event.Status;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
         Attributes = new RoadSegmentAttributes
         {
             GeometryDrawMethod = @event.GeometryDrawMethod,
-            Status = @event.Status,
             AccessRestriction = @event.AccessRestriction,
             Category = @event.Category,
             Morphology = @event.Morphology,
@@ -158,12 +162,12 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         Geometry = @event.Geometry ?? Geometry;
+        Status = @event.Status ?? Status;
         StartNodeId = @event.StartNodeId ?? StartNodeId;
         EndNodeId = @event.EndNodeId ?? EndNodeId;
         Attributes = Attributes! with
         {
             GeometryDrawMethod = @event.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,
-            Status = @event.Status ?? Attributes.Status,
             AccessRestriction = @event.AccessRestriction ?? Attributes.AccessRestriction,
             Category = @event.Category ?? Attributes.Category,
             Morphology = @event.Morphology ?? Attributes.Morphology,
@@ -210,10 +214,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     {
         UncommittedEvents.Add(@event);
 
-        Attributes = Attributes! with
-        {
-            Status = RoadSegmentStatusV2.Gehistoreerd
-        };
+        Status = RoadSegmentStatusV2.Gehistoreerd;
     }
 
     public void Apply(RoadSegmentWasRetiredBecauseOfMerger @event)
@@ -221,10 +222,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         MergedRoadSegmentId = @event.MergedRoadSegmentId;
-        Attributes = Attributes! with
-        {
-            Status = RoadSegmentStatusV2.Gehistoreerd
-        };
+        Status = RoadSegmentStatusV2.Gehistoreerd;
     }
 
     public void Apply(RoadSegmentWasAddedToEuropeanRoad @event)

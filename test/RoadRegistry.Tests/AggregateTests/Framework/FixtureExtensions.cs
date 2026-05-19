@@ -191,7 +191,6 @@ public static class FixtureExtensions
                     new RoadSegmentAttributes
                     {
                         GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
-                        Status = fixture.Create<RoadSegmentStatusV2>(),
                         AccessRestriction = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>>(),
                         Category = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>>(),
                         Morphology = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>>(),

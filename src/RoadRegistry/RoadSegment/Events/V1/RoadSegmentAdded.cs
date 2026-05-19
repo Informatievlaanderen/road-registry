@@ -5,25 +5,25 @@ using ValueObjects;
 
 public class RoadSegmentAdded : IMartenEvent
 {
-    public required string AccessRestriction { get; set; }
-    public required string Category { get; set; }
-    public required int EndNodeId { get; set; }
-    public required RoadSegmentGeometry Geometry { get; set; }
-    public required string GeometryDrawMethod { get; set; }
-    public required int GeometryVersion { get; set; }
-    public required int RoadSegmentId { get; set; }
-    public required RoadSegmentLaneAttributes[] Lanes { get; set; }
-    public required RoadSegmentSideAttributes LeftSide { get; set; }
-    public required MaintenanceAuthority MaintenanceAuthority { get; set; }
-    public required string Morphology { get; set; }
-    public required RoadSegmentSideAttributes RightSide { get; set; }
-    public required int StartNodeId { get; set; }
-    public required string Status { get; set; }
-    public required RoadSegmentSurfaceAttributes[] Surfaces { get; set; }
-    public required int TemporaryId { get; set; }
-    public required int? OriginalId { get; set; }
-    public required int Version { get; set; }
-    public required RoadSegmentWidthAttributes[] Widths { get; set; }
+    public string AccessRestriction { get; set; }
+    public string Category { get; set; }
+    public int EndNodeId { get; set; }
+    public RoadSegmentGeometry Geometry { get; set; }
+    public string GeometryDrawMethod { get; set; }
+    public int GeometryVersion { get; set; }
+    public int RoadSegmentId { get; set; }
+    public RoadSegmentLaneAttributes[] Lanes { get; set; }
+    public RoadSegmentSideAttributes LeftSide { get; set; }
+    public MaintenanceAuthority MaintenanceAuthority { get; set; }
+    public string Morphology { get; set; }
+    public RoadSegmentSideAttributes RightSide { get; set; }
+    public int StartNodeId { get; set; }
+    public string Status { get; set; }
+    public RoadSegmentSurfaceAttributes[] Surfaces { get; set; }
+    public int TemporaryId { get; set; }
+    public int? OriginalId { get; set; }
+    public int Version { get; set; }
+    public RoadSegmentWidthAttributes[] Widths { get; set; }
 
-    public required ProvenanceData Provenance { get; set; }
+    public ProvenanceData Provenance { get; set; }
 }

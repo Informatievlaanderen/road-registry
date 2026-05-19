@@ -15,7 +15,6 @@ public class RoadSegmentAttributesEqualsTests
         var attributes1 = new RoadSegmentAttributes
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
-            Status = RoadSegmentStatusV2.Gepland,
             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>()
                 .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Both, RoadSegmentAccessRestrictionV2.OpenbareWeg),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>()
@@ -37,7 +36,6 @@ public class RoadSegmentAttributesEqualsTests
         var attributes2 = new RoadSegmentAttributes
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
-            Status = RoadSegmentStatusV2.Gepland,
             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>()
                 .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Both, RoadSegmentAccessRestrictionV2.OpenbareWeg),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>()
@@ -67,7 +65,6 @@ public class RoadSegmentAttributesEqualsTests
         var attributes1 = new RoadSegmentAttributes
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
-            Status = RoadSegmentStatusV2.Gepland,
             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>()
                 .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Both, RoadSegmentAccessRestrictionV2.OpenbareWeg),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>()
@@ -89,7 +86,6 @@ public class RoadSegmentAttributesEqualsTests
         var attributes2 = new RoadSegmentAttributes
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
-            Status = RoadSegmentStatusV2.Gepland,
             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>()
                 .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Both, RoadSegmentAccessRestrictionV2.OpenbareWeg),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>()

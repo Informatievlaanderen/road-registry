@@ -10,7 +10,6 @@ using RoadRegistry.ValueObjects;
 public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
 {
     public RoadSegmentGeometryDrawMethodV2 GeometryDrawMethod { get; init; }
-    public RoadSegmentStatusV2 Status { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> AccessRestriction { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2> Category { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> Morphology { get; init; }
@@ -49,7 +48,6 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
     )
     {
         GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Parse(geometryDrawMethod);
-        Status = RoadSegmentStatusV2.Parse(status);
         AccessRestriction = accessRestriction;
         Category = category;
         Morphology = morphology;
@@ -76,7 +74,6 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
                && AccessRestriction.Equals(other.AccessRestriction)
                && Category.Equals(other.Category)
                && Morphology.Equals(other.Morphology)
-               && Status.Equals(other.Status)
                && StreetNameId.Equals(other.StreetNameId)
                && MaintenanceAuthorityId.Equals(other.MaintenanceAuthorityId)
                && SurfaceType.Equals(other.SurfaceType)
@@ -94,7 +91,6 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
     {
         var hashCode = new HashCode();
         hashCode.Add(GeometryDrawMethod);
-        hashCode.Add(Status);
         hashCode.Add(AccessRestriction);
         hashCode.Add(Category);
         hashCode.Add(Morphology);
@@ -119,7 +115,6 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
         }
 
         return GeometryDrawMethod.Equals(other.GeometryDrawMethod)
-               && Status.Equals(other.Status)
                && EuropeanRoadNumbers.SequenceEqual(other.EuropeanRoadNumbers)
                && NationalRoadNumbers.SequenceEqual(other.NationalRoadNumbers)
             ;

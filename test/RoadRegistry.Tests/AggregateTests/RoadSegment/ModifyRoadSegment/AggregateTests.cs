@@ -249,13 +249,13 @@ public class AggregateTests : AggregateTestBase
         // Assert
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
         segment.Geometry.Should().BeEquivalentTo(evt.Geometry);
+        segment.Status.Should().Be(evt.Status);
         segment.StartNodeId.Should().Be(evt.StartNodeId!.Value);
         segment.EndNodeId.Should().Be(evt.EndNodeId!.Value);
         segment.Attributes.GeometryDrawMethod.Should().Be(evt.GeometryDrawMethod);
         segment.Attributes.AccessRestriction.Should().Be(evt.AccessRestriction);
         segment.Attributes.Category.Should().Be(evt.Category);
         segment.Attributes.Morphology.Should().Be(evt.Morphology);
-        segment.Attributes.Status.Should().Be(evt.Status);
         segment.Attributes.StreetNameId.Should().Be(evt.StreetNameId);
         segment.Attributes.MaintenanceAuthorityId.Should().Be(evt.MaintenanceAuthorityId);
         segment.Attributes.SurfaceType.Should().Be(evt.SurfaceType);
