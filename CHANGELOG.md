@@ -1,3 +1,11 @@
+## [4.59.7](https://github.com/informatievlaanderen/road-registry/compare/v4.59.6...v4.59.7) (2026-05-19)
+
+
+### Bug Fixes
+
+* **inwinning:** save Status for V1 RoadSegments to ensure Gerealiseerde segments are found when checking for overlaps ([01d8e60](https://github.com/informatievlaanderen/road-registry/commit/01d8e6032d6e0e088180c8bcb9c60760db7851a9))
+* **inwinning:** validation messages for LBEHEER/RBEHEER + RoadNodeId value of 0 is invalid ([07babea](https://github.com/informatievlaanderen/road-registry/commit/07babea80aced1f29d5beb2e780ab859a3b55a29))
+
 ## [4.59.6](https://github.com/informatievlaanderen/road-registry/compare/v4.59.5...v4.59.6) (2026-05-18)
 
 
