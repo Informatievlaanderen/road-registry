@@ -856,10 +856,28 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError RoadSegmentMaintenanceAuthorityOutOfRange(this IDbaseFileRecordProblemBuilder builder, string field, string value)
+    {
+        return builder
+            .Error(nameof(RoadSegmentMaintenanceAuthorityOutOfRange))
+            .WithParameter(new ProblemParameter("Actual", value))
+            .WithParameter(new ProblemParameter("Field", field))
+            .Build();
+    }
+
     public static FileError RoadSegmentMaintenanceAuthorityNotKnown(this IDbaseFileRecordProblemBuilder builder, OrganizationId organizationId)
     {
         return builder
             .Error(nameof(RoadSegmentMaintenanceAuthorityNotKnown))
+            .WithParameter(new ProblemParameter(MaintenanceAuthorityNotKnown.ParameterName.OrganizationId, organizationId.ToString()))
+            .Build();
+    }
+
+    public static FileError RoadSegmentMaintenanceAuthorityNotKnown(this IDbaseFileRecordProblemBuilder builder, string field, OrganizationId organizationId)
+    {
+        return builder
+            .Error(nameof(RoadSegmentMaintenanceAuthorityNotKnown))
+            .WithParameter(new ProblemParameter("Field", field))
             .WithParameter(new ProblemParameter(MaintenanceAuthorityNotKnown.ParameterName.OrganizationId, organizationId.ToString()))
             .Build();
     }

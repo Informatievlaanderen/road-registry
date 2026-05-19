@@ -437,8 +437,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         foreach (var changeFeature in changeFeatures)
         {
-            var leftMaintenanceAuthorityCode = await ValidateAndGetMaintenanceAuthorityode(changeFeature, changeFeature.Attributes.LeftMaintenanceAuthorityId);
-            var rightMaintenanceAuthorityCode = await ValidateAndGetMaintenanceAuthorityode(changeFeature, changeFeature.Attributes.RightMaintenanceAuthorityId);
+            var leftMaintenanceAuthorityCode = await ValidateAndGetMaintenanceAuthorityode(changeFeature, nameof(RoadSegmentDbaseRecord.LBEHEER), changeFeature.Attributes.LeftMaintenanceAuthorityId);
+            var rightMaintenanceAuthorityCode = await ValidateAndGetMaintenanceAuthorityode(changeFeature, nameof(RoadSegmentDbaseRecord.RBEHEER), changeFeature.Attributes.RightMaintenanceAuthorityId);
 
             result.Add(changeFeature with
             {
@@ -452,7 +452,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         return (result, problems);
 
-        async Task<OrganizationId> ValidateAndGetMaintenanceAuthorityode(Feature<RoadSegmentFeatureCompareWithFlatAttributes> changeFeature, OrganizationId maintenanceAuthorityCode)
+        async Task<OrganizationId> ValidateAndGetMaintenanceAuthorityode(Feature<RoadSegmentFeatureCompareWithFlatAttributes> changeFeature, string field, OrganizationId maintenanceAuthorityCode)
         {
             var maintenanceAuthority = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(maintenanceAuthorityCode, cancellationToken);
             if (maintenanceAuthority is null)
@@ -461,7 +461,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
                     .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_TEMPID), changeFeature.Attributes.TempId.ToInt32());
 
-                problems += recordContext.RoadSegmentMaintenanceAuthorityNotKnown(maintenanceAuthorityCode);
+                problems += recordContext.RoadSegmentMaintenanceAuthorityNotKnown(field, maintenanceAuthorityCode);
                 return maintenanceAuthorityCode;
             }
 
