@@ -103,6 +103,38 @@ public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorS
     }
 
     [Fact]
+    public async Task WhenJunctionReferencesIntegrationOnlyRoadSegments_ThenTranslationSucceeds()
+    {
+        const int integrationRoadSegmentId1 = 9_000_001;
+        const int integrationRoadSegmentId2 = 9_000_002;
+
+        var zipArchive = new DomainV2ZipArchiveBuilder()
+            .WithIntegration((builder, _) =>
+            {
+                builder.DataSet.RoadSegmentDbaseRecords[0].WS_OIDN.Value = integrationRoadSegmentId1;
+                builder.DataSet.RoadSegmentDbaseRecords[0].WS_TEMPID.Value = integrationRoadSegmentId1;
+
+                var integrationRoadSegmentDbaseRecord = builder.CreateRoadSegmentDbaseRecord();
+                integrationRoadSegmentDbaseRecord.WS_OIDN.Value = integrationRoadSegmentId2;
+                integrationRoadSegmentDbaseRecord.WS_TEMPID.Value = integrationRoadSegmentId2;
+                builder.DataSet.RoadSegmentDbaseRecords.Add(integrationRoadSegmentDbaseRecord);
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.CreateRoadSegmentShapeRecord());
+            })
+            .WithChange((builder, _) =>
+            {
+                builder.TestData.GradeSeparatedJunctionDbaseRecord.BO_TEMPID.Value = integrationRoadSegmentId1;
+                builder.TestData.GradeSeparatedJunctionDbaseRecord.ON_TEMPID.Value = integrationRoadSegmentId2;
+            })
+            .Build();
+
+        var translatedChanges = await TranslateSucceeds(zipArchive);
+        Assert.Contains(translatedChanges, x =>
+            x is AddGradeSeparatedJunctionChange addChange
+            && (addChange.LowerRoadSegmentId == new RoadSegmentId(integrationRoadSegmentId1) || addChange.UpperRoadSegmentId == new RoadSegmentId(integrationRoadSegmentId1))
+            && (addChange.LowerRoadSegmentId == new RoadSegmentId(integrationRoadSegmentId2) || addChange.UpperRoadSegmentId == new RoadSegmentId(integrationRoadSegmentId2)));
+    }
+
+    [Fact]
     public async Task WhenChangingSegments_ThenNewId()
     {
         var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
