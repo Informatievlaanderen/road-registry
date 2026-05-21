@@ -22,8 +22,24 @@
                 </vl-alert>
               </div>
 
-              <div>Aangevraagd op: {{ formatDate(extract.aangevraagdOp) }}</div>
-              <div>Status: {{ status }}</div>
+              <div style="display: grid; grid-template-columns: 18rem 1fr; row-gap: 0.25rem">
+                <div>Aangevraagd op:</div>
+                <div>{{ formatDate(extract.aangevraagdOp) }}</div>
+
+                <div>Status:</div>
+                <div>{{ status }}</div>
+
+                <template v-if="extract.kwaliteitsrapporten.length > 0">
+                  <div>Kwaliteitsrapport(en):</div>
+                  <div>
+                    <div v-for="kwaliteitsrapport in extract.kwaliteitsrapporten" :key="kwaliteitsrapport.geuploadOp">
+                      <a :href="kwaliteitsrapport.url" target="_blank">{{
+                        formatDate(kwaliteitsrapport.geuploadOp)
+                      }}</a>
+                    </div>
+                  </div>
+                </template>
+              </div>
 
               <div>
                 <br />

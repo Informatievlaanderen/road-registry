@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Extracten;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GeoJSON.Net.Geometry;
@@ -35,9 +37,13 @@ public partial class ExtractenController
                 throw new InvalidGuidValidationException("DownloadId");
             }
 
-            //TODO-pr return upload qualityreports with their timestamp
             var request = new ExtractDetailsRequest(parsedDownloadId);
             var response = await _mediator.Send(request, cancellationToken);
+            var kwaliteitsrapporten = response.QualityReports.Select(x => new Kwaliteitsrapport
+            {
+                GeuploadOp = x.UploadedOn,
+                Url = x.QualityReportUrl
+            }).ToArray();
 
             return Ok(new ExtractDetailsResponseBody
             {
@@ -53,6 +59,7 @@ public partial class ExtractenController
                 UploadId = response.UploadId,
                 TicketId = response.TicketId,
                 Gesloten = response.Closed,
+                Kwaliteitsrapporten = kwaliteitsrapporten
             });
         }
         catch (ExtractRequestNotFoundException)
@@ -76,4 +83,11 @@ public record ExtractDetailsResponseBody
     public string? UploadId { get; init; }
     public string? TicketId { get; init; }
     public bool Gesloten { get; init; }
+    public IReadOnlyCollection<Kwaliteitsrapport> Kwaliteitsrapporten { get; init; }
+}
+
+public record Kwaliteitsrapport
+{
+    public required DateTimeOffset GeuploadOp { get; init; }
+    public required string Url { get; init; }
 }
