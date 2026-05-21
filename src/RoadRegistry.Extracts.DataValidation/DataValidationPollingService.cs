@@ -105,7 +105,7 @@ public class DataValidationPollingService : IScheduledJob
                     }
                     else
                     {
-                        await _extractsDbContext.ManualValidationFailedAsync(new UploadId(queueItem.UploadId), qualityReportUrl, cancellationToken);
+                        await _extractsDbContext.ManualValidationFailedAsync(new UploadId(queueItem.UploadId), qualityReportUrl!, cancellationToken);
                         await _ticketing.Error(sqsRequest.TicketId, ticketError!, cancellationToken);
                     }
 
