@@ -11,8 +11,11 @@ public interface IDataValidationTokenProvider
 
 public class DataValidationTokenProvider : IDataValidationTokenProvider
 {
+    private const int ExpirationOffsetSeconds = 10;
+
     private string? _cachedToken;
     private DateTime _tokenExpiresAt;
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly DataValidationOptions _options;
 
@@ -24,32 +27,46 @@ public class DataValidationTokenProvider : IDataValidationTokenProvider
 
     public async Task<string> GetAccessTokenAsync()
     {
-        if (_cachedToken is not null && DateTime.Now < _tokenExpiresAt)
+        if (_cachedToken is not null && DateTime.UtcNow < _tokenExpiresAt)
         {
             return _cachedToken;
         }
 
-        var parameters = new Parameters();
-
-        var tokenClient = new TokenClient(
-            () => _httpClientFactory.CreateClient(),
-            new TokenClientOptions
-            {
-                Address = _options.TokenEndPoint,
-                ClientId = _options.ClientId,
-                ClientSecret = _options.ClientSecret,
-                Parameters = parameters
-            });
-
-        var response = await tokenClient.RequestTokenAsync(OidcConstants.GrantTypes.ClientCredentials);
-
-        if (response.IsError)
+        await _semaphore.WaitAsync();
+        try
         {
-            throw new AuthenticationException(response.ErrorDescription);
-        }
+            if (_cachedToken is not null && DateTime.UtcNow < _tokenExpiresAt)
+            {
+                return _cachedToken;
+            }
 
-        _cachedToken = response.AccessToken!;
-        _tokenExpiresAt = DateTime.Now.AddSeconds(response.ExpiresIn - 10);
-        return _cachedToken;
+            var parameters = new Parameters();
+
+            var tokenClient = new TokenClient(
+                () => _httpClientFactory.CreateClient(),
+                new TokenClientOptions
+                {
+                    Address = _options.TokenEndPoint,
+                    ClientId = _options.ClientId,
+                    ClientSecret = _options.ClientSecret,
+                    Parameters = parameters
+                });
+
+            var response = await tokenClient.RequestTokenAsync(OidcConstants.GrantTypes.ClientCredentials);
+
+            if (response.IsError)
+            {
+                throw new AuthenticationException(response.ErrorDescription);
+            }
+
+            var expiresInSeconds = response.ExpiresIn > ExpirationOffsetSeconds ? response.ExpiresIn - ExpirationOffsetSeconds : 0;
+            _cachedToken = response.AccessToken!;
+            _tokenExpiresAt = DateTime.UtcNow.AddSeconds(expiresInSeconds);
+            return _cachedToken;
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 }
