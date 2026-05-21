@@ -5,6 +5,7 @@ using BackOffice.Uploads;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Infrastructure;
 using Schema;
 using TicketingService.Abstractions;
@@ -16,6 +17,7 @@ public class DataValidationPollingService : IScheduledJob
     private readonly IMediator _mediator;
     private readonly SqsJsonMessageSerializer _sqsJsonMessageSerializer;
     private readonly ITicketing _ticketing;
+    private readonly UseDataValidationFeatureToggle _useDataValidationFeatureToggle;
     private readonly ILogger _logger;
 
     public DataValidationPollingService(
@@ -24,6 +26,7 @@ public class DataValidationPollingService : IScheduledJob
         IMediator mediator,
         SqsJsonMessageSerializer sqsJsonMessageSerializer,
         ITicketing ticketing,
+        UseDataValidationFeatureToggle useDataValidationFeatureToggle,
         ILoggerFactory loggerFactory)
     {
         _extractsDbContext = extractsDbContext;
@@ -31,12 +34,13 @@ public class DataValidationPollingService : IScheduledJob
         _mediator = mediator;
         _sqsJsonMessageSerializer = sqsJsonMessageSerializer;
         _ticketing = ticketing;
+        _useDataValidationFeatureToggle = useDataValidationFeatureToggle;
         _logger = loggerFactory.CreateLogger(GetType());
     }
 
     public async Task RunAsync(CancellationToken cancellationToken)
     {
-        var queueItems =  await _extractsDbContext.DataValidationQueue
+        var queueItems = await _extractsDbContext.DataValidationQueue
             .Where(x => !x.Completed && x.DataValidationId != null)
             .ToListAsync(cancellationToken);
 
@@ -47,10 +51,48 @@ public class DataValidationPollingService : IScheduledJob
             {
                 bool? uploadAccepted = null;
                 TicketError? ticketError = null;
+                string? qualityReportUrl = null;
 
-                //TODO-pr poll datavalidation, update extract status if needed
-                //temp force to true to be able to continue
-                uploadAccepted = true;
+                if (_useDataValidationFeatureToggle.FeatureEnabled)
+                {
+                    var pollResult = await _dataValidationApiClient.PollDeliveryAsync(queueItem.DataValidationId!, cancellationToken);
+                    switch (pollResult.Status)
+                    {
+                        case ValidationJobStatus.Received:
+                        case ValidationJobStatus.Processing:
+                            // keep on waiting
+                            break;
+                        case ValidationJobStatus.Processed:
+                            switch (pollResult.Result)
+                            {
+                                case ValidationResult.Approved:
+                                case ValidationResult.ApprovedWithRemarks:
+                                    uploadAccepted = true;
+                                    break;
+                                case ValidationResult.Rejected:
+                                case ValidationResult.AutomaticallyRejected:
+                                    qualityReportUrl = $"https://geckoqualityreportstest.blob.core.windows.net/kwaliteitsrapporten/{queueItem.DataValidationId!}.html";
+                                    //var detailResult = await _dataValidationClient.GetDeliveryResultAsync(queueItem.DataValidationId!, cancellationToken);
+                                    //TODO-pr read qualityReportUrl from detailResult once it's been added
+
+                                    ticketError = new TicketError("De oplading is mislukt. Gelieve het kwaliteitsrapport te openen voor meer informatie.", "DataValidationRejected");
+                                    uploadAccepted = false;
+                                    break;
+                            }
+                            break;
+
+                        case ValidationJobStatus.Error:
+                            _logger.LogError("OPGEPAST! Data Validation is in Error voor levering '{DataValidationId}. Contacteer DataValidatie hiervoor.'", pollResult.Status);
+                            break;
+                        default:
+                            _logger.LogError("Unknown data validation status '{Status}' for delivery '{DataValidationId}'", pollResult.Status, queueItem.DataValidationId!);
+                            break;
+                    }
+                }
+                else
+                {
+                    uploadAccepted = true;
+                }
 
                 if (uploadAccepted is not null)
                 {
@@ -62,8 +104,8 @@ public class DataValidationPollingService : IScheduledJob
                     }
                     else
                     {
-                        await _extractsDbContext.ManualValidationFailedAsync(new UploadId(queueItem.UploadId), cancellationToken);
-                        await _ticketing.Error(sqsRequest.TicketId, ticketError, cancellationToken);
+                        await _extractsDbContext.ManualValidationFailedAsync(new UploadId(queueItem.UploadId), qualityReportUrl!, cancellationToken);
+                        await _ticketing.Error(sqsRequest.TicketId, ticketError!, cancellationToken);
                     }
 
                     queueItem.Completed = true;

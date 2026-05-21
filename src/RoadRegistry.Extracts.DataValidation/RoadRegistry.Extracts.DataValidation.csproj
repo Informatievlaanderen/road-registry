@@ -7,6 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Duende.IdentityModel" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers.Sqs\RoadRegistry.BackOffice.Handlers.Sqs.csproj" />
     <ProjectReference Include="..\RoadRegistry.Extracts.Schema\RoadRegistry.Extracts.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj"/>

@@ -21,9 +21,4 @@ public class ExtractRequests : IExtractRequests
     {
         await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
     }
-
-    public async Task ManualValidationFailedAsync(UploadId uploadId, CancellationToken cancellationToken)
-    {
-        await _extractsDbContext.ManualValidationFailedAsync(uploadId, cancellationToken);
-    }
 }
