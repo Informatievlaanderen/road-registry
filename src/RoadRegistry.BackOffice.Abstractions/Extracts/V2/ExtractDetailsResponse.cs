@@ -17,7 +17,7 @@ public sealed record ExtractDetailsResponse : EndpointResponse
     public UploadId? UploadId { get; init; }
     public TicketId? TicketId { get; init; }
     public bool Closed { get; init; }
-    public IReadOnlyCollection<QualityReport> QualityReports { get; init; }
+    public IReadOnlyCollection<QualityReport> QualityReports { get; init; } = [];
 }
 
 public class QualityReport
