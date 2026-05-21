@@ -37,7 +37,7 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
             from extractUpload in extractUploads.DefaultIfEmpty()
             where extractDownload.DownloadId == request.DownloadId.ToGuid()
             let qualityReports = _extractsDbContext.ExtractUploads
-                .Where(x => x.QualityReportUrl != null)
+                .Where(x => x.DownloadId == request.DownloadId.ToGuid() && x.QualityReportUrl != null)
                 .Select(x => new QualityReport { UploadedOn = x.UploadedOn, QualityReportUrl = x.QualityReportUrl})
                 .ToArray()
             select new

@@ -73,11 +73,11 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
             {
                 try
                 {
-                    var blob = await _uploadsBlobClient.GetBlobAsync(new BlobName(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId.ToString()), cancellationToken);
-                    await using var blobStream = await blob.OpenAsync(cancellationToken);
-
                     if (_useDataValidationFeatureToggle.FeatureEnabled)
                     {
+                        var blob = await _uploadsBlobClient.GetBlobAsync(new BlobName(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId.ToString()), cancellationToken);
+                        await using var blobStream = await blob.OpenAsync(cancellationToken);
+
                         queueItem.DataValidationId = await _dataValidationApiClient.RequestDataValidationAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, blobStream, cancellationToken);
                     }
                     else
