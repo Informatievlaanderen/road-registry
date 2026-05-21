@@ -1,3 +1,10 @@
+# [4.60.0](https://github.com/informatievlaanderen/road-registry/compare/v4.59.8...v4.60.0) (2026-05-21)
+
+
+### Features
+
+* **inwinning:** integration with DataValidation APIs ([3750d3e](https://github.com/informatievlaanderen/road-registry/commit/3750d3e7ce3a8a727f20fa03feb7a9e77b2c5ef6))
+
 ## [4.59.8](https://github.com/informatievlaanderen/road-registry/compare/v4.59.7...v4.59.8) (2026-05-21)
 
 
