@@ -156,6 +156,15 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
             return Task.CompletedTask;
         }, cancellationToken);
     }
+    public async Task AutomaticValidationFailedAsync(UploadId uploadId, string qualityReportUrl, CancellationToken cancellationToken)
+    {
+        await UpdateExtractUpload(uploadId, record =>
+        {
+            record.Status = ExtractUploadStatus.AutomaticValidationFailed;
+            record.QualityReportUrl = qualityReportUrl;
+            return Task.CompletedTask;
+        }, cancellationToken);
+    }
 
     public async Task AutomaticValidationSucceededAsync(UploadId uploadId, CancellationToken cancellationToken)
     {
@@ -166,11 +175,12 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
         }, cancellationToken);
     }
 
-    public async Task ManualValidationFailedAsync(UploadId uploadId, CancellationToken cancellationToken)
+    public async Task ManualValidationFailedAsync(UploadId uploadId, string qualityReportUrl, CancellationToken cancellationToken)
     {
         await UpdateExtractUpload(uploadId, record =>
         {
             record.Status = ExtractUploadStatus.ManualValidationFailed;
+            record.QualityReportUrl = qualityReportUrl;
             return Task.CompletedTask;
         }, cancellationToken);
     }

@@ -355,6 +355,8 @@ public class Startup
 
             // Inwinning
             .Configure<InwinningOrganizationNisCodesOptions>(_configuration.GetSection(InwinningOrganizationNisCodesOptions.ConfigKey))
+            .RegisterOptions<DataValidationOptions>()
+            .AddSingleton<IDataValidationTokenProvider, DataValidationTokenProvider>()
             .AddScoped<IDataValidationApiClient, DataValidationApiClient>()
             .AddScoped<DataValidationPollingService>()
             .AddScheduledJob<DataValidationPollingService>(_configuration.GetRequiredValue<TimeSpan>("DataValidationPollingOptions:Period"))

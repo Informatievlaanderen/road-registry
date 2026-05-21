@@ -23,8 +23,8 @@
             </div>
 
             <div v-if="extract">
-              <div>Aangevraagd op: {{ formatDate(extract.aangevraagdOp) }}</div>
-              <div>Status: {{ status }}</div>
+              <div><span style="display: inline-block; width: 15rem">Aangevraagd op:</span>{{ formatDate(extract.aangevraagdOp) }}</div>
+              <div><span style="display: inline-block; width: 15rem">Status:</span>{{ status }}</div>
 
               <div>
                 <br />
