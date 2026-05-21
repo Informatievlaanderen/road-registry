@@ -36,7 +36,18 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
                 into extractUploads
             from extractUpload in extractUploads.DefaultIfEmpty()
             where extractDownload.DownloadId == request.DownloadId.ToGuid()
-            select new { Download = extractDownload, extractRequest.Description, extractRequest.ExternalRequestId, Upload = extractUpload }
+            let qualityReports = _extractsDbContext.ExtractUploads
+                .Where(x => x.QualityReportUrl != null)
+                .Select(x => new QualityReport { UploadedOn = x.UploadedOn, QualityReportUrl = x.QualityReportUrl})
+                .ToArray()
+            select new
+            {
+                Download = extractDownload,
+                extractRequest.Description,
+                extractRequest.ExternalRequestId,
+                Upload = extractUpload,
+                QualityReports = qualityReports
+            }
         ).SingleOrDefaultAsync(cancellationToken);
         if (record is null)
         {
@@ -59,7 +70,10 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
             DownloadStatus = record.Download.Status.ToString(),
             DownloadedOn = record.Download.DownloadedOn,
             UploadStatus = record.Upload?.Status.ToString(),
-            Closed = record.Download.Closed
+            Closed = record.Download.Closed,
+            QualityReports = record.QualityReports
+                .OrderByDescending(x => x.UploadedOn)
+                .ToArray()
         };
     }
 }

@@ -97,6 +97,11 @@ export namespace RoadRegistry {
     uploadStatus: string;
     gesloten: boolean;
     ticketId: string;
+    kwaliteitsrapporten: Kwaliteitsrapport[];
+  }
+  export interface Kwaliteitsrapport {
+    geuploadOp: string;
+    url: string;
   }
   export interface ExtractListResponse {
     items: ExtractListItem[];
