@@ -167,8 +167,8 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
                         new AddGradeSeparatedJunctionChange
                         {
                             TemporaryId = record.Feature.Attributes.Id,
-                            LowerRoadSegmentId = context.MapToRoadSegmentId(FeatureType.Change, record.Feature.Attributes.LowerRoadSegmentTempId),
-                            UpperRoadSegmentId = context.MapToRoadSegmentId(FeatureType.Change, record.Feature.Attributes.UpperRoadSegmentTempId),
+                            LowerRoadSegmentId = record.LowerRoadSegmentId,
+                            UpperRoadSegmentId = record.UpperRoadSegmentId,
                             Type = record.Feature.Attributes.Type
                         }
                     );

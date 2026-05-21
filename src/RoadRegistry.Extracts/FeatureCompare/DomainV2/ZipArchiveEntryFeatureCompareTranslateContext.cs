@@ -105,7 +105,15 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
         }
     }
 
-    public RoadSegmentId MapToRoadSegmentId(FeatureType featureType, RoadSegmentTempId roadSegmentTempId) => _roadSegmentTempIdToActualIdMapping[(featureType, roadSegmentTempId)].Item1;
+    public RoadSegmentId MapToRoadSegmentId(FeatureType featureType, RoadSegmentTempId roadSegmentTempId)
+    {
+        if (_roadSegmentTempIdToActualIdMapping.TryGetValue((featureType, roadSegmentTempId), out var mapping))
+        {
+            return mapping.Item1;
+        }
+
+        throw new InvalidOperationException($"Could not find road segment ID for road segment temp ID {roadSegmentTempId} in feature type {featureType}");
+    }
 
     public RoadSegmentId MapToRoadSegmentId(FeatureType[] featureTypes, RoadSegmentTempId roadSegmentTempId)
     {
