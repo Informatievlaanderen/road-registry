@@ -4,11 +4,11 @@ using RoadRegistry.BackOffice;
 
 public class DataValidationOptions : IHasConfigurationKey
 {
-    public string ApiBaseUrl { get; set; }
-    public string SpecificationCode { get; set; }
-    public string ClientId { get; set; }
-    public string ClientSecret { get; set; }
-    public string TokenEndPoint { get; set; }
+    public string ApiBaseUrl { get; set; } = string.Empty;
+    public string SpecificationCode { get; set; } = string.Empty;
+    public string ClientId { get; set; } = string.Empty;
+    public string ClientSecret { get; set; } = string.Empty;
+    public string TokenEndPoint { get; set; } = string.Empty;
 
     public string GetConfigurationKey()
     {
