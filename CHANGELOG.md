@@ -1,3 +1,10 @@
+## [4.59.8](https://github.com/informatievlaanderen/road-registry/compare/v4.59.7...v4.59.8) (2026-05-21)
+
+
+### Bug Fixes
+
+* **inwinning-fc:** use validated RoadSegmentIds for Junctions ([1a5002f](https://github.com/informatievlaanderen/road-registry/commit/1a5002f99c62b7b14ffe32666c18e166c3d50cee))
+
 ## [4.59.7](https://github.com/informatievlaanderen/road-registry/compare/v4.59.6...v4.59.7) (2026-05-19)
 
 
