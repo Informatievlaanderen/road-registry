@@ -33,7 +33,7 @@
                   <div>Kwaliteitsrapport(en):</div>
                   <div>
                     <div v-for="kwaliteitsrapport in extract.kwaliteitsrapporten" :key="kwaliteitsrapport.geuploadOp">
-                      <a :href="kwaliteitsrapport.url" target="_blank">{{
+                      <a :href="kwaliteitsrapport.url" target="_blank" rel="noopener noreferrer">{{
                         formatDate(kwaliteitsrapport.geuploadOp)
                       }}</a>
                     </div>
