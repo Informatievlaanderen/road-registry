@@ -14,11 +14,6 @@ public partial class RoadNode
 {
     public Problems VerifyTopologyAndUpdateType(LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
     {
-        if (IsRemoved)
-        {
-            return Problems.None;
-        }
-
         var problems = Problems.WithContext(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
 
         var segments = context.RoadNetwork.GetNonRemovedRoadSegments()

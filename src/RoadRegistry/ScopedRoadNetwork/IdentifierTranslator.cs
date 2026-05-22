@@ -1,8 +1,6 @@
 ﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System.Collections.Generic;
-using System.Linq;
-using RoadRegistry.Extensions;
 using RoadRegistry.ValueObjects;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
@@ -11,8 +9,10 @@ public interface IIdentifierTranslator
 {
     Problems RegisterMapping(RoadNodeId temporaryId, RoadNodeId permanentId);
     Problems RegisterMapping(RoadSegmentIdReference idReference, RoadSegmentId permanentId);
+    Problems RegisterMapping(GradeSeparatedJunctionId temporaryId, GradeSeparatedJunctionId permanentId);
     RoadNodeId TranslateToTemporaryId(RoadNodeId id);
     RoadSegmentIdReference TranslateToTemporaryId(RoadSegmentId id);
+    GradeSeparatedJunctionId TranslateToTemporaryId(GradeSeparatedJunctionId id);
     RoadSegmentId TranslateToPermanentId(RoadSegmentId id);
 }
 
@@ -23,6 +23,8 @@ public class IdentifierTranslator : IIdentifierTranslator
     private readonly Dictionary<RoadSegmentIdReference, RoadSegmentId> _mapSegmentIdReferenceToPermanentId = [];
     private readonly Dictionary<RoadSegmentId, RoadSegmentId> _mapSegmentTemporaryIdToPermanentId = [];
     private readonly Dictionary<RoadSegmentId, RoadSegmentIdReference> _mapToTemporarySegmentIdentifiers = [];
+    private readonly Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId> _mapTemporaryToPermanentJunctionIdentifiers = [];
+    private readonly Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId> _mapPermanentToTemporaryJunctionIdentifiers = [];
 
     public Problems RegisterMapping(RoadNodeId temporaryId, RoadNodeId permanentId)
     {
@@ -52,6 +54,21 @@ public class IdentifierTranslator : IIdentifierTranslator
         return Problems.None;
     }
 
+    public Problems RegisterMapping(GradeSeparatedJunctionId temporaryId, GradeSeparatedJunctionId permanentId)
+    {
+        if (!_mapTemporaryToPermanentJunctionIdentifiers.TryAdd(temporaryId, permanentId))
+        {
+            return Problems.Single(
+                new Error(ProblemCode.GradeSeparatedJunction.TemporaryIdNotUnique.ToString(),
+                    new ProblemParameter("TemporaryId", temporaryId.ToString())
+                ));
+        }
+
+        _mapPermanentToTemporaryJunctionIdentifiers[permanentId] = temporaryId;
+
+        return Problems.None;
+    }
+
     public RoadNodeId TranslateToTemporaryId(RoadNodeId id)
     {
         return _mapPermanentToTemporaryNodeIdentifiers.GetValueOrDefault(id, id);
@@ -60,6 +77,11 @@ public class IdentifierTranslator : IIdentifierTranslator
     public RoadSegmentIdReference TranslateToTemporaryId(RoadSegmentId id)
     {
         return _mapToTemporarySegmentIdentifiers.GetValueOrDefault(id, new RoadSegmentIdReference(id));
+    }
+
+    public GradeSeparatedJunctionId TranslateToTemporaryId(GradeSeparatedJunctionId id)
+    {
+        return _mapPermanentToTemporaryJunctionIdentifiers.GetValueOrDefault(id, id);
     }
 
     public RoadSegmentId TranslateToPermanentId(RoadSegmentId id)

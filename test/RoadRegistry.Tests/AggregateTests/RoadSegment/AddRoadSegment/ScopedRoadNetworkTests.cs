@@ -1,12 +1,9 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.AddRoadSegment;
 
-using AutoFixture;
 using FluentAssertions;
-using Framework;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadSegment.ValueObjects;
-using ValueObjects.Problems;
+using RoadRegistry.Tests.AggregateTests.Framework;
+using RoadRegistry.ValueObjects.Problems;
 
 public class ScopedRoadNetworkTests : RoadNetworkTestBase
 {
@@ -20,10 +17,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1EndNode)
                 .Add(TestData.AddSegment1)
             )
-            .Then((result, events) =>
-            {
-                result.Summary.RoadSegments.Added.Should().HaveCount(1);
-            })
+            .Then((result, events) => { result.Summary.RoadSegments.Added.Should().HaveCount(1); })
         );
     }
 

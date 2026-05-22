@@ -47,10 +47,11 @@
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.EventHandling" Version="7.0.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.EventHandling.Autofac" Version="7.0.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic" Version="5.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Contracts" Version="22.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Import" Version="22.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Legacy" Version="22.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Provenance" Version="22.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Contracts" Version="22.11.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.CrsTransform" Version="22.11.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Import" Version="22.11.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Legacy" Version="22.11.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Provenance" Version="22.11.0" />
 
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple" Version="6.0.4" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer" Version="6.0.4" />

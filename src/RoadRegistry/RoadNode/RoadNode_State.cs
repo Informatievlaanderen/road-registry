@@ -2,6 +2,7 @@
 
 using Events.V2;
 using Newtonsoft.Json;
+using RoadRegistry.Extensions;
 
 public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
 {
@@ -27,7 +28,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         bool isRemoved)
         : this(new RoadNodeId(roadNodeId))
     {
-        Geometry = geometry;
+        Geometry = geometry.EnsureLambert08();
         Type = type is not null ? RoadNodeTypeV2.Parse(type) : null;
         Grensknoop = grensknoop;
         IsRemoved = isRemoved;

@@ -4,6 +4,7 @@ using GradeSeparatedJunction.Events.V1;
 using JasperFx.Events;
 using Marten;
 using RoadNode.Events.V1;
+using RoadRegistry.Extensions;
 using RoadSegment.Events.V1;
 using ScopedRoadNetwork.Events.V1;
 
@@ -11,7 +12,7 @@ public partial class RoadNetworkTopologyProjection
 {
     public void Project(IEvent<ImportedRoadNode> e, IDocumentOperations ops)
     {
-        var geometry = e.Data.Geometry.ToLambert08();
+        var geometry = e.Data.Geometry.EnsureLambert08();
 
         ops.QueueSqlCommand($"INSERT INTO {RoadNodesTableName} (id, geometry, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, FALSE)",
             e.Data.RoadNodeId,
@@ -23,7 +24,7 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadNodeAdded> e, IDocumentOperations ops)
     {
-        var geometry = e.Data.Geometry.ToLambert08();
+        var geometry = e.Data.Geometry.EnsureLambert08();
 
         ops.QueueSqlCommand($"INSERT INTO {RoadNodesTableName} (id, geometry, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, FALSE)",
             e.Data.RoadNodeId,
@@ -35,7 +36,7 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadNodeModified> e, IDocumentOperations ops)
     {
-        var geometry = e.Data.Geometry.ToLambert08();
+        var geometry = e.Data.Geometry.EnsureLambert08();
 
         ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, FALSE);",
             e.Data.RoadNodeId,
@@ -55,7 +56,7 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<ImportedRoadSegment> e, IDocumentOperations ops)
     {
-        var geometry = e.Data.Geometry.ToLambert08();
+        var geometry = e.Data.Geometry.EnsureLambert08();
 
         ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?, FALSE)",
             e.Data.RoadSegmentId,
@@ -69,7 +70,7 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadSegmentAdded> e, IDocumentOperations ops)
     {
-        var geometry = e.Data.Geometry.ToLambert08();
+        var geometry = e.Data.Geometry.EnsureLambert08();
 
         ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?, FALSE)",
             e.Data.RoadSegmentId,
@@ -83,7 +84,7 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadSegmentModified> e, IDocumentOperations ops)
     {
-        var geometry = e.Data.Geometry.ToLambert08();
+        var geometry = e.Data.Geometry.EnsureLambert08();
 
         ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, FALSE);",
             e.Data.RoadSegmentId,
@@ -97,7 +98,7 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadSegmentGeometryModified> e, IDocumentOperations ops)
     {
-        var geometry = e.Data.Geometry.ToLambert08();
+        var geometry = e.Data.Geometry.EnsureLambert08();
 
         ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, null, null, FALSE);",
             e.Data.RoadSegmentId,

@@ -304,4 +304,125 @@ public class VerifyTopologyTests : RoadNetworkTestBase
             )
         );
     }
+
+    [Theory]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))",
+        false
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))",
+        true
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601004, 601005.01 601004, 601005.01 601006, 601010 601006))",
+        false
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601004, 601005.01 601004, 601005.01 601006, 601010 601006))",
+        true
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005 601000, 601000 601005, 601005 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))",
+        false
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005 601000, 601000 601005, 601005 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))",
+        true
+    )]
+    public Task GivenPartiallyOverlappingSegments_ThenError(string segment1Geometry, string segment2Geometry, bool swapGeometry)
+    {
+        // Arrange
+        var existingGeometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(swapGeometry ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08));
+        var newGeometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(swapGeometry ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08));
+
+        return Run(scenario => scenario
+            .Given(given => given
+                .Add(TestData.AddSegment1StartNode with { Geometry = existingGeometry.Value.GetSingleLineString().StartPoint.ToRoadNodeGeometry() })
+                .Add(TestData.AddSegment1EndNode with { Geometry = existingGeometry.Value.GetSingleLineString().EndPoint.ToRoadNodeGeometry() })
+                .Add((TestData.AddSegment1 with { Geometry = existingGeometry }).WithDynamicAttributePositionsOnEntireGeometryLength()))
+            .When(changes => changes
+                .Add(TestData.AddSegment2StartNode with { Geometry = newGeometry.Value.GetSingleLineString().StartPoint.ToRoadNodeGeometry() })
+                .Add(TestData.AddSegment2EndNode with { Geometry = newGeometry.Value.GetSingleLineString().EndPoint.ToRoadNodeGeometry() })
+                .Add((TestData.AddSegment2 with { Geometry = newGeometry }).WithDynamicAttributePositionsOnEntireGeometryLength())
+            )
+            .ThenContainsProblems(new Error("RoadSegmentPartiallyOverlapsWithAnotherRoadSegment",
+                new ProblemParameter("OtherWegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
+                new ProblemParameter("WegsegmentId", TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId.ToString()),
+                new ProblemParameter("WegsegmentTempIds", TestData.AddSegment2.RoadSegmentIdReference.GetTempIdsAsString())
+            ))
+        );
+    }
+
+    [Theory]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601010, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
+    )]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601005.00 601005, 601000 601010))",
+        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
+    )]
+    public async Task GivenNoPartiallyOverlappingSegments_ThenResult(string segment1Geometry, string segment2Geometry)
+    {
+        var reversedValues = new[] { false, true };
+        foreach (var reversedValue in reversedValues)
+        {
+            var existingGeometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08));
+            var newGeometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08));
+
+            await Run(scenario => scenario
+                .Given(given => given
+                    .Add(TestData.AddSegment1StartNode with { Geometry = existingGeometry.Value.GetSingleLineString().StartPoint.ToRoadNodeGeometry() })
+                    .Add(TestData.AddSegment1EndNode with { Geometry = existingGeometry.Value.GetSingleLineString().EndPoint.ToRoadNodeGeometry() })
+                    .Add((TestData.AddSegment1 with { Geometry = existingGeometry }).WithDynamicAttributePositionsOnEntireGeometryLength()))
+                .When(changes => changes
+                    .Add(TestData.AddSegment2StartNode with { Geometry = newGeometry.Value.GetSingleLineString().StartPoint.ToRoadNodeGeometry() })
+                    .Add(TestData.AddSegment2EndNode with { Geometry = newGeometry.Value.GetSingleLineString().EndPoint.ToRoadNodeGeometry() })
+                    .Add((TestData.AddSegment2 with { Geometry = newGeometry }).WithDynamicAttributePositionsOnEntireGeometryLength())
+                )
+                .Then((result, _) =>
+                {
+                    result.Problems.Should().NotContain(x => x.Reason == "RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
+                })
+            );
+        }
+    }
+
+    [Theory]
+    [InlineData(
+        "MULTILINESTRING ((601000 601000, 601050 601000))",
+        "MULTILINESTRING ((601000 601000, 601000 601020, 601050 601020, 601050 601000))"
+    )]
+    public async Task GivenNoPartiallyOverlappingSegments_SpecialCaseIntersectionsAreEqualToStartEndVerticesOfBothSegments_ThenResult(string segment1Geometry, string segment2Geometry)
+    {
+        var reversedValues = new[] { false, true };
+        foreach (var reversedValue in reversedValues)
+        {
+            var existingGeometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08));
+            var newGeometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08));
+
+            await Run(scenario => scenario
+                .Given(given => given
+                    .Add(TestData.AddSegment1StartNode with { Geometry = existingGeometry.Value.GetSingleLineString().StartPoint.ToRoadNodeGeometry() })
+                    .Add(TestData.AddSegment1EndNode with { Geometry = existingGeometry.Value.GetSingleLineString().EndPoint.ToRoadNodeGeometry() })
+                    .Add((TestData.AddSegment1 with { Geometry = existingGeometry }).WithDynamicAttributePositionsOnEntireGeometryLength()))
+                .When(changes => changes
+                    .Add(TestData.AddSegment2StartNode with { Geometry = newGeometry.Value.GetSingleLineString().StartPoint.ToRoadNodeGeometry() })
+                    .Add(TestData.AddSegment2EndNode with { Geometry = newGeometry.Value.GetSingleLineString().EndPoint.ToRoadNodeGeometry() })
+                    .Add((TestData.AddSegment2 with { Geometry = newGeometry }).WithDynamicAttributePositionsOnEntireGeometryLength())
+                )
+                .Then((result, _) =>
+                {
+                    result.Problems.Should().NotContain(x => x.Reason == "RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
+                })
+            );
+        }
+    }
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -89,7 +90,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
                 var roadNode = RoadNode.CreateForMigration(
                     roadNodeId: roadNodeId,
-                    geometry: point.ToRoadNodeGeometry()
+                    geometry: point.TransformFromLambert72To08().ToRoadNodeGeometry()
                 );
                 session.Store(roadNode);
             }, token);
@@ -266,7 +267,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
                 var roadSegment = RoadSegment.CreateForMigration(
                     roadSegmentId: roadSegmentId,
-                    geometry: geometry.ToRoadSegmentGeometry(),
+                    geometry: geometry.TransformFromLambert72To08().ToRoadSegmentGeometry(),
                     status: RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod) == RoadSegmentGeometryDrawMethod.Outlined ? RoadSegmentStatusV2.Gepland : RoadSegmentStatusV2.Gerealiseerd,
                     startNodeId: envelope.Message.StartNodeId > 0 ? new RoadNodeId(envelope.Message.StartNodeId) : null,
                     endNodeId: envelope.Message.EndNodeId > 0 ? new RoadNodeId(envelope.Message.EndNodeId) : null
@@ -470,7 +471,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
             var roadNode = RoadNode.CreateForMigration(
                 roadNodeId: roadNodeId,
-                geometry: point.ToRoadNodeGeometry()
+                geometry: point.TransformFromLambert72To08().ToRoadNodeGeometry()
             );
             session.Store(roadNode);
         }, token);
@@ -510,7 +511,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 roadNode.Apply(new RoadNodeWasModified
                 {
                     RoadNodeId = roadNodeId,
-                    Geometry = point.ToRoadNodeGeometry(),
+                    Geometry = point.TransformFromLambert72To08().ToRoadNodeGeometry(),
                     Provenance = new ProvenanceData(provenance)
                 });
             },
@@ -633,7 +634,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
             var roadSegment = RoadSegment.CreateForMigration(
                 roadSegmentId: roadSegmentId,
-                geometry: geometry.ToRoadSegmentGeometry(),
+                geometry: geometry.TransformFromLambert72To08().ToRoadSegmentGeometry(),
                 status: RoadSegmentGeometryDrawMethod.Parse(change.GeometryDrawMethod) == RoadSegmentGeometryDrawMethod.Outlined ? RoadSegmentStatusV2.Gepland : RoadSegmentStatusV2.Gerealiseerd,
                 startNodeId: change.StartNodeId > 0 ? new RoadNodeId(change.StartNodeId) : null,
                 endNodeId: change.EndNodeId > 0 ? new RoadNodeId(change.EndNodeId) : null
@@ -721,7 +722,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     RoadSegmentId = roadSegmentId,
                     StartNodeId = change.StartNodeId > 0 ? new RoadNodeId(change.StartNodeId) : null,
                     EndNodeId = change.EndNodeId > 0 ? new RoadNodeId(change.EndNodeId) : null,
-                    Geometry = geometry.ToRoadSegmentGeometry(),
+                    Geometry = geometry.TransformFromLambert72To08().ToRoadSegmentGeometry(),
                     Provenance = new ProvenanceData(provenance)
                 });
             },
@@ -1052,7 +1053,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     RoadSegmentId = roadSegmentId,
                     StartNodeId = roadSegment.StartNodeId > 0 ? roadSegment.StartNodeId : null,
                     EndNodeId = roadSegment.EndNodeId > 0 ? roadSegment.EndNodeId : null,
-                    Geometry = geometry.ToRoadSegmentGeometry(),
+                    Geometry = geometry.TransformFromLambert72To08().ToRoadSegmentGeometry(),
                     Provenance = new ProvenanceData(provenance)
                 });
             },

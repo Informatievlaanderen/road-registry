@@ -10,12 +10,7 @@ public partial class GradeSeparatedJunction
 {
     public Problems VerifyTopology(ScopedRoadNetworkChangeContext context)
     {
-        if (IsRemoved)
-        {
-            return Problems.None;
-        }
-
-        var problems = Problems.WithContext(GradeSeparatedJunctionId);
+        var problems = Problems.WithContext(context.IdTranslator.TranslateToTemporaryId(GradeSeparatedJunctionId));
 
         if (!context.RoadNetwork.RoadSegments.TryGetValue(UpperRoadSegmentId, out var upperSegment) || upperSegment.IsRemoved)
         {
