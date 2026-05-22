@@ -33,6 +33,79 @@ public partial class GradeSeparatedJunctionScenarios
         ex.Problems.Should().Contain(x => x.Reason == nameof(DbaseFileProblems.GradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed));
     }
 
+
+    [Fact]
+    public async Task WhenIntersectingGerealiseerdRoadSegments_AcrossChangeAndIntegration_WithoutJunctionOrNodeAndTrafficIsAllowed_ThenError()
+    {
+        var zipArchive = new DomainV2ZipArchiveBuilder()
+            .WithIntegration((builder, context) =>
+            {
+                builder.DataSet.Clear();
+
+                // Create an integration segment (horizontal) that will be intersected by the change segment
+                var integrationSegmentStartPoint = new Point(601000, 601050);
+                var integrationSegmentEndPoint = new Point(601030, 601050);
+
+                builder.DataSet.RoadSegmentShapeRecords.Add(
+                    builder.CreateRoadSegmentShapeRecord(BuildRoadSegmentGeometry(integrationSegmentStartPoint, integrationSegmentEndPoint)));
+
+                builder.DataSet.RoadSegmentDbaseRecords.Add(
+                    builder.CreateRoadSegmentDbaseRecord(record =>
+                    {
+                        record.STATUS.Value = RoadSegmentStatusV2.Gerealiseerd;
+                        record.AUTOHEEN.Value = 1;
+                        record.AUTOTERUG.Value = 1;
+                        record.FIETSHEEN.Value = 0;
+                        record.FIETSTERUG.Value = 0;
+                        record.VOETGANGER.Value = 0;
+                    }));
+
+                builder.DataSet.RoadNodeShapeRecords.AddRange([
+                    builder.CreateRoadNodeShapeRecord(integrationSegmentStartPoint),
+                    builder.CreateRoadNodeShapeRecord(integrationSegmentEndPoint)
+                ]);
+                builder.DataSet.RoadNodeDbaseRecords.AddRange([
+                    builder.CreateRoadNodeDbaseRecord(),
+                    builder.CreateRoadNodeDbaseRecord()
+                ]);
+            })
+            .WithChange((builder, context) =>
+            {
+                builder.DataSet.Clear();
+
+                // Create a change segment (vertical) that intersects the integration segment
+                var changeSegmentStartPoint = new Point(601015, 601040);
+                var changeSegmentEndPoint = new Point(601015, 601060);
+
+                builder.DataSet.RoadSegmentShapeRecords.Add(
+                    builder.CreateRoadSegmentShapeRecord(BuildRoadSegmentGeometry(changeSegmentStartPoint, changeSegmentEndPoint)));
+
+                builder.DataSet.RoadSegmentDbaseRecords.Add(
+                    builder.CreateRoadSegmentDbaseRecord(record =>
+                    {
+                        record.STATUS.Value = RoadSegmentStatusV2.Gerealiseerd;
+                        record.AUTOHEEN.Value = 1;
+                        record.AUTOTERUG.Value = 1;
+                        record.FIETSHEEN.Value = 0;
+                        record.FIETSTERUG.Value = 0;
+                        record.VOETGANGER.Value = 0;
+                    }));
+
+                builder.DataSet.RoadNodeShapeRecords.AddRange([
+                    builder.CreateRoadNodeShapeRecord(changeSegmentStartPoint),
+                    builder.CreateRoadNodeShapeRecord(changeSegmentEndPoint)
+                ]);
+                builder.DataSet.RoadNodeDbaseRecords.AddRange([
+                    builder.CreateRoadNodeDbaseRecord(),
+                    builder.CreateRoadNodeDbaseRecord()
+                ]);
+            })
+            .Build();
+
+        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateSucceeds(zipArchive));
+        ex.Problems.Should().Contain(x => x.Reason == nameof(DbaseFileProblems.GradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed));
+    }
+
     [Theory]
     [InlineData(true, true)]
     [InlineData(false, true)]
