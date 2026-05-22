@@ -1,30 +1,30 @@
-﻿namespace RoadRegistry.Extracts.Projections;
+﻿namespace RoadRegistry.Read.Projections;
 
 using System;
 using System.Threading.Tasks;
-using BackOffice;
-using GradeJunction.Events.V2;
 using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice;
+using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 
-public class GradeJunctionProjection : RoadNetworkChangesConnectedProjection
+public class GradeJunctionReadProjection : RoadNetworkChangesConnectedProjection
 {
     public static void Configure(StoreOptions options)
     {
-        options.Schema.For<GradeJunctionExtractItem>()
+        options.Schema.For<GradeJunctionReadItem>()
             .DatabaseSchemaName(WellKnownSchemas.MartenProjections)
-            .DocumentAlias("extract_gradejunctions")
+            .DocumentAlias("read_gradejunctions")
             .Identity(x => x.Id);
     }
 
-    public GradeJunctionProjection()
+    public GradeJunctionReadProjection()
     {
         // V2
         When<IEvent<GradeJunctionWasAdded>>((session, e, _) =>
         {
-            session.Store(new GradeJunctionExtractItem
+            session.Store(new GradeJunctionReadItem
             {
                 GradeJunctionId = e.Data.GradeJunctionId,
                 RoadSegmentId1 = new RoadSegmentId(e.Data.RoadSegmentId1),
@@ -37,7 +37,7 @@ public class GradeJunctionProjection : RoadNetworkChangesConnectedProjection
         });
         When<IEvent<GradeJunctionWasRemoved>>(async (session, e, _) =>
         {
-            var junction = await session.LoadAsync<GradeJunctionExtractItem>(e.Data.GradeJunctionId);
+            var junction = await session.LoadAsync<GradeJunctionReadItem>(e.Data.GradeJunctionId);
             if (junction is null)
             {
                 throw new InvalidOperationException($"No document found for Id {e.Data.GradeJunctionId}");
@@ -48,7 +48,7 @@ public class GradeJunctionProjection : RoadNetworkChangesConnectedProjection
     }
 }
 
-public sealed class GradeJunctionExtractItem
+public sealed class GradeJunctionReadItem
 {
     [JsonIgnore]
     public int Id { get; private set; }

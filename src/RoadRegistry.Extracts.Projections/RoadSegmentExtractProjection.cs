@@ -16,7 +16,7 @@ using RoadSegment.Events.V1;
 using RoadSegment.Events.V2;
 using RoadSegment.ValueObjects;
 
-public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
+public class RoadSegmentExtractProjection : RoadNetworkChangesConnectedProjection
 {
     public static void Configure(StoreOptions options)
     {
@@ -26,7 +26,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             .Identity(x => x.Id);
     }
 
-    public RoadSegmentProjection()
+    public RoadSegmentExtractProjection()
     {
         // V1
         When<IEvent<ImportedRoadSegment>>((session, e, ct) =>

@@ -14,7 +14,7 @@ using RoadSegment.Events.V2;
 using ScopedRoadNetwork.Events.V1;
 using ScopedRoadNetwork.Events.V2;
 
-public class GradeSeparatedJunctionProjectionTests
+public class GradeSeparatedJunctionExtractProjectionTests
 {
     [Fact]
     public void EnsureAllEventsAreHandledExactlyOnce()
@@ -174,8 +174,8 @@ public class GradeSeparatedJunctionProjectionTests
             .ExpectNone();
     }
 
-    private GradeSeparatedJunctionProjection BuildProjection()
+    private GradeSeparatedJunctionExtractProjection BuildProjection()
     {
-        return new GradeSeparatedJunctionProjection();
+        return new GradeSeparatedJunctionExtractProjection();
     }
 }

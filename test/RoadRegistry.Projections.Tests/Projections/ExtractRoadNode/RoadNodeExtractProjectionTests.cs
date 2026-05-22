@@ -14,7 +14,7 @@ using RoadSegment.Events.V2;
 using ScopedRoadNetwork.Events.V1;
 using ScopedRoadNetwork.Events.V2;
 
-public class RoadNodeProjectionTests
+public class RoadNodeExtractProjectionTests
 {
     [Fact]
     public void EnsureAllEventsAreHandledExactlyOnce()
@@ -225,8 +225,8 @@ public class RoadNodeProjectionTests
             .ExpectNone();
     }
 
-    private RoadNodeProjection BuildProjection()
+    private RoadNodeExtractProjection BuildProjection()
     {
-        return new RoadNodeProjection();
+        return new RoadNodeExtractProjection();
     }
 }

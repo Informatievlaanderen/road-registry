@@ -10,7 +10,7 @@ using RoadNode.Events.V1;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 
-public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
+public class RoadNodeExtractProjection : RoadNetworkChangesConnectedProjection
 {
     public static void Configure(StoreOptions options)
     {
@@ -20,7 +20,7 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
             .Identity(x => x.Id);
     }
 
-    public RoadNodeProjection()
+    public RoadNodeExtractProjection()
     {
         // V1
         When<IEvent<ImportedRoadNode>>((session, e, _) =>

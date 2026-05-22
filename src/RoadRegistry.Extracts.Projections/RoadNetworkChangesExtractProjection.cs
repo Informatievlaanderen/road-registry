@@ -5,14 +5,14 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using Setup;
 
-public class ExtractsRoadNetworkChangesProjection : RoadNetworkChangesProjection
+public class RoadNetworkChangesExtractProjection : RoadNetworkChangesProjection
 {
-    public ExtractsRoadNetworkChangesProjection(int batchSize, ILoggerFactory loggerFactory)
+    public RoadNetworkChangesExtractProjection(int batchSize, ILoggerFactory loggerFactory)
         : base([
-                new RoadNodeProjection(),
-                new RoadSegmentProjection(),
-                new GradeSeparatedJunctionProjection(),
-                new GradeJunctionProjection()
+                new RoadNodeExtractProjection(),
+                new RoadSegmentExtractProjection(),
+                new GradeSeparatedJunctionExtractProjection(),
+                new GradeJunctionExtractProjection()
             ], loggerFactory,
             batchSize: batchSize)
     {
