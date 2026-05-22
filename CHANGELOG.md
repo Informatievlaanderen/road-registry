@@ -1,3 +1,11 @@
+## [4.60.1](https://github.com/informatievlaanderen/road-registry/compare/v4.60.0...v4.60.1) (2026-05-22)
+
+
+### Bug Fixes
+
+* **inwinning-fc:** missing junction validation should take already ingewonnen Integration segments into account ([57746d4](https://github.com/informatievlaanderen/road-registry/commit/57746d4a5929a58510da950acd5cfda37855aefe))
+* **inwinning:** same start/end node check must be before self-intersection check to avoid false-positives due to tolerances ([8fb366f](https://github.com/informatievlaanderen/road-registry/commit/8fb366fa9477d1f4b7012b2719b164195bfe2e70))
+
 # [4.60.0](https://github.com/informatievlaanderen/road-registry/compare/v4.59.8...v4.60.0) (2026-05-21)
 
 
