@@ -36,7 +36,7 @@ public readonly struct DownloadId : IEquatable<DownloadId>
     }
     public static bool TryParse(string value, out DownloadId downloadId)
     {
-        if (Guid.TryParseExact(value, "N", out var guid) && Accepts(guid))
+        if (Guid.TryParseExact(value?.Trim(), "N", out var guid) && Accepts(guid))
         {
             downloadId = new DownloadId(guid);
             return true;

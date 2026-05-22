@@ -139,6 +139,8 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>,
     {
         ArgumentNullException.ThrowIfNull(value);
 
+        value = value.Trim();
+
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;
     }

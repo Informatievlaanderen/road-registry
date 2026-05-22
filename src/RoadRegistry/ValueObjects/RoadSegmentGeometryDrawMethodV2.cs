@@ -111,7 +111,9 @@ public sealed class RoadSegmentGeometryDrawMethodV2 : IEquatable<RoadSegmentGeom
 
     public static bool TryParse(string value, out RoadSegmentGeometryDrawMethodV2 parsed)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
+
+        value = value.Trim();
 
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;

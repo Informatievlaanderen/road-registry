@@ -121,6 +121,8 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
     {
         ArgumentNullException.ThrowIfNull(value);
 
+        value = value.Trim();
+
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;
     }

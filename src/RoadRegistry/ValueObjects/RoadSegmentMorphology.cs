@@ -315,6 +315,8 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>, I
     {
         ArgumentNullException.ThrowIfNull(value);
 
+        value = value.Trim();
+
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;
     }

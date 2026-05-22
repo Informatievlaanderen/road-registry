@@ -46,7 +46,9 @@ public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>, ICom
 
     public static bool TryParse(string value, out NationalRoadNumber parsed)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
+
+        value = value.Trim();
 
         // Must adhere to the length constraints
         if (!(value.Length >= MinimumLength

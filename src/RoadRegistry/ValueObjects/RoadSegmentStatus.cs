@@ -165,6 +165,8 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
     {
         ArgumentNullException.ThrowIfNull(value);
 
+        value = value.Trim();
+
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;
     }

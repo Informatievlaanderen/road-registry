@@ -24,7 +24,9 @@ public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>, IComparable<N
 
     public static bool TryParse(string value, out NumberedRoadNumber parsed)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
+
+        value = value.Trim();
 
         if (value.Length != 8)
         {
