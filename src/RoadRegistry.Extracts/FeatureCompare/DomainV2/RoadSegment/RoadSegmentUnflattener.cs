@@ -684,20 +684,6 @@ public class RoadSegmentUnflattener
                 {
                     var currentSegment = segmentsQueue.Dequeue();
 
-                    // Condition 1: Self-intersecting segment
-                    var tryFixSelfIntersectingResult = TryFixSelfIntersecting(currentSegment, localConsumedNodes, nonClassifiedNodes, roadSegmentIdProvider, context);
-                    if (tryFixSelfIntersectingResult.Count > 0)
-                    {
-                        processedSegments.Remove(currentSegment);
-                        processedSegments.AddRange(tryFixSelfIntersectingResult);
-                        foreach (var splitSegment in tryFixSelfIntersectingResult)
-                        {
-                            segmentsQueue.Enqueue(splitSegment);
-                        }
-
-                        continue;
-                    }
-
                     // Condition 2: Same start and end node
                     var tryFixSameStartEndNodeResult = TryFixSameStartEndNode(currentSegment, localConsumedNodes, segmentsByNode, nodeClassifications, nonClassifiedNodes, roadSegmentIdProvider, context);
                     if (tryFixSameStartEndNodeResult.Count > 0)
@@ -705,6 +691,20 @@ public class RoadSegmentUnflattener
                         processedSegments.Remove(currentSegment);
                         processedSegments.AddRange(tryFixSameStartEndNodeResult);
                         foreach (var splitSegment in tryFixSameStartEndNodeResult)
+                        {
+                            segmentsQueue.Enqueue(splitSegment);
+                        }
+
+                        continue;
+                    }
+
+                    // Condition 1: Self-intersecting segment
+                    var tryFixSelfIntersectingResult = TryFixSelfIntersecting(currentSegment, localConsumedNodes, nonClassifiedNodes, roadSegmentIdProvider, context);
+                    if (tryFixSelfIntersectingResult.Count > 0)
+                    {
+                        processedSegments.Remove(currentSegment);
+                        processedSegments.AddRange(tryFixSelfIntersectingResult);
+                        foreach (var splitSegment in tryFixSelfIntersectingResult)
                         {
                             segmentsQueue.Enqueue(splitSegment);
                         }
