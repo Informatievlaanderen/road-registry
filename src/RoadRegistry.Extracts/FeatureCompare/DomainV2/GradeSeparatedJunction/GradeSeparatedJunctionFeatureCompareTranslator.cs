@@ -198,6 +198,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
 
         // Pre-compute shared state once so it isn't rebuilt per parallel batch.
         var gerealiseerdeSegmentRecords = context.GetRoadSegmentRecords(FeatureType.Change)
+            .Concat(context.GetRoadSegmentRecords(FeatureType.Integration))
             .NotRemoved()
             .OnlyGerealiseerd()
             .ToList();
