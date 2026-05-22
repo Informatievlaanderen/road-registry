@@ -142,10 +142,9 @@ public sealed class RoadNodeTypeV2 : IEquatable<RoadNodeTypeV2>, IDutchToString
 
     public static bool TryParse(string value, out RoadNodeTypeV2 parsed)
     {
-        if (value == null)
-        {
-            throw new ArgumentNullException(nameof(value));
-        }
+        ArgumentNullException.ThrowIfNull(value);
+
+        value = value.Trim();
 
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;

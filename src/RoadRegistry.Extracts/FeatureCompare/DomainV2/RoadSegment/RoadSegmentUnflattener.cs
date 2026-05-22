@@ -668,7 +668,7 @@ public class RoadSegmentUnflattener
             .Where(x => !nodeClassifications.ContainsKey(x.Id))
             .ToList();
 
-        // Phase 1: Fix self-intersecting and same start/end node issues in parallel
+        // Phase 1: Fix same start/end node and self-intersecting issues in parallel
         // These don't require checking other segments, so they can be parallelized
         var phase1Results = mergedRecords
             .AsParallel()
@@ -684,7 +684,7 @@ public class RoadSegmentUnflattener
                 {
                     var currentSegment = segmentsQueue.Dequeue();
 
-                    // Condition 2: Same start and end node
+                    // Condition 1: Same start and end node
                     var tryFixSameStartEndNodeResult = TryFixSameStartEndNode(currentSegment, localConsumedNodes, segmentsByNode, nodeClassifications, nonClassifiedNodes, roadSegmentIdProvider, context);
                     if (tryFixSameStartEndNodeResult.Count > 0)
                     {
@@ -698,7 +698,7 @@ public class RoadSegmentUnflattener
                         continue;
                     }
 
-                    // Condition 1: Self-intersecting segment
+                    // Condition 2: Self-intersecting segment
                     var tryFixSelfIntersectingResult = TryFixSelfIntersecting(currentSegment, localConsumedNodes, nonClassifiedNodes, roadSegmentIdProvider, context);
                     if (tryFixSelfIntersectingResult.Count > 0)
                     {

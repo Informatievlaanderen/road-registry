@@ -111,7 +111,9 @@ public sealed class GradeSeparatedJunctionTypeV2 : IEquatable<GradeSeparatedJunc
 
     public static bool TryParse(string value, out GradeSeparatedJunctionTypeV2 parsed)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
+
+        value = value.Trim();
 
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;

@@ -186,7 +186,9 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
 
     public static bool TryParse(string value, out RoadSegmentCategoryV2 parsed)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
+
+        value = value.Trim();
 
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;
