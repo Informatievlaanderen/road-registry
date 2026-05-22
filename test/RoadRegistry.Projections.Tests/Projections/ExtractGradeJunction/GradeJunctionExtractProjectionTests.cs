@@ -31,7 +31,7 @@ using RoadSegmentRemovedFromNationalRoad = RoadRegistry.RoadSegment.Events.V1.Ro
 using RoadSegmentRemovedFromNumberedRoad = RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromNumberedRoad;
 using RoadSegmentStreetNamesChanged = RoadRegistry.RoadSegment.Events.V1.RoadSegmentStreetNamesChanged;
 
-public class GradeJunctionProjectionTests
+public class GradeJunctionExtractProjectionTests
 {
     [Fact]
     public void EnsureAllEventsAreHandledExactlyOnce()
@@ -154,8 +154,8 @@ public class GradeJunctionProjectionTests
             .ExpectNone();
     }
 
-    private GradeJunctionProjection BuildProjection()
+    private GradeJunctionExtractProjection BuildProjection()
     {
-        return new GradeJunctionProjection();
+        return new GradeJunctionExtractProjection();
     }
 }

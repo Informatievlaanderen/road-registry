@@ -21,7 +21,7 @@ using RoadSegment.ValueObjects;
 using ScopedRoadNetwork.Events.V1;
 using ScopedRoadNetwork.Events.V2;
 
-public class RoadSegmentProjectionTests
+public class RoadSegmentExtractProjectionTests
 {
     [Fact]
     public void EnsureAllEventsAreHandledExactlyOnce()
@@ -612,9 +612,9 @@ public class RoadSegmentProjectionTests
         return new ExtractRoadSegmentDynamicAttribute<T>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Both, value)]);
     }
 
-    private RoadSegmentProjection BuildProjection()
+    private RoadSegmentExtractProjection BuildProjection()
     {
-        return new RoadSegmentProjection();
+        return new RoadSegmentExtractProjection();
     }
 
     protected static RoadSegmentGeometry BuildRoadSegmentGeometryLambert72(int x1, int y1, int x2, int y2)

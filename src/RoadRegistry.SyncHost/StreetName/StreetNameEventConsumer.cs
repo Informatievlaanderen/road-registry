@@ -195,5 +195,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             DestinationStreetNameLocalId = destinationStreetNameLocalId
         });
         await _streetNameEventWriter.WriteAsync(streetNameEvent, CancellationToken.None);
+
+        //TODO-pr write also to Marten eventstore
     }
 }
