@@ -1,3 +1,10 @@
+## [4.60.2](https://github.com/informatievlaanderen/road-registry/compare/v4.60.1...v4.60.2) (2026-06-02)
+
+
+### Bug Fixes
+
+* **inwinning:** MartenMigrationProjection project to LB08 for domain snapshot records ([707614c](https://github.com/informatievlaanderen/road-registry/commit/707614c5324dec28a46e8318b776130c140e774c))
+
 ## [4.60.1](https://github.com/informatievlaanderen/road-registry/compare/v4.60.0...v4.60.1) (2026-05-22)
 
 
