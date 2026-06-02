@@ -72,10 +72,12 @@ public class RoadSegmentProjectionTests
     }
 
     [Theory]
+    [InlineData(100.03, false)]
     [InlineData(100.02, true)]
     [InlineData(100.01, true)]
     [InlineData(99.99, true)]
     [InlineData(99.98, true)]
+    [InlineData(99.97, false)]
     [InlineData(120.00, true)]
     public Task V1_WhenLastSurfaceTypeToPosition_ThenGeometryLengthIsUsed(double surfaceTypeToPosition, bool expectGeometryLength)
     {
@@ -103,7 +105,7 @@ public class RoadSegmentProjectionTests
         var expectedRoadSegment1 = new RoadSegmentExtractItem
         {
             RoadSegmentId = new RoadSegmentId(roadSegment1Added.RoadSegmentId),
-            Geometry = new RoadSegmentGeometry(3812, "MULTILINESTRING ((500021.1630189456 499983.874557483, 500121.16222940787 499983.88650196977))"),
+            Geometry = roadSegment1Added.Geometry.EnsureLambert08(),
             StartNodeId = new RoadNodeId(roadSegment1Added.StartNodeId),
             EndNodeId = new RoadNodeId(roadSegment1Added.EndNodeId),
             GeometryDrawMethod = roadSegment1Added.GeometryDrawMethod,
