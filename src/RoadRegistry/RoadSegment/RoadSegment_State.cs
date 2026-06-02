@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Events.V2;
 using Newtonsoft.Json;
+using RoadRegistry.Extensions;
 using ValueObjects;
 
 public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
@@ -36,7 +37,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     )
         : this(new RoadSegmentId(roadSegmentId))
     {
-        Geometry = geometry;
+        Geometry = geometry.EnsureLambert08();
         Status = RoadSegmentStatusV2.Parse(status);
         StartNodeId = RoadNodeId.FromValue(startNodeId);
         EndNodeId = RoadNodeId.FromValue(endNodeId);

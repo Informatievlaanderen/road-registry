@@ -85,7 +85,7 @@ public partial class ScopedRoadNetwork
                 PedestrianAccess = mergeSegmentChange.PedestrianAccess,
                 EuropeanRoadNumbers = mergeSegmentChange.EuropeanRoadNumbers,
                 NationalRoadNumbers = mergeSegmentChange.NationalRoadNumbers
-            }, idGenerator, context, skipValidatePartiallyOverlappingRoadSegments: true);
+            }, idGenerator, context);
             if (problems.HasError())
             {
                 return problems;

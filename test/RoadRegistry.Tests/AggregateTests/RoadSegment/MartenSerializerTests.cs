@@ -4,6 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using Framework;
 using Marten;
+using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Events.V2;
@@ -22,7 +23,11 @@ public class MartenSerializerTests
     {
         var fixture = new RoadNetworkTestDataV2().Fixture;
 
-        var original = RoadSegment.Create(fixture.Create<RoadSegmentWasAdded>());
+        var evt = fixture.Create<RoadSegmentWasAdded>();
+        var original = RoadSegment.Create(evt with
+        {
+            Geometry = evt.Geometry.EnsureLambert08()
+        });
 
         var serializer = new StoreOptions().ConfigureSerializer().Serializer();
         var originalAsJson = serializer.ToJson(original);

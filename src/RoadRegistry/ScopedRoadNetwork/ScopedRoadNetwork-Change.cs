@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Microsoft.Extensions.Logging;
@@ -155,6 +156,7 @@ public partial class ScopedRoadNetwork
             .Concat(_roadSegments.Values.Where(x => x.HasChanges()).SelectMany(x => x.GetNodeIds()))
             .Distinct()
             .Select(x => _roadNodes[x])
+            .Where(x => !x.IsRemoved)
             .ToArray();
 
         return roadNodes
@@ -166,8 +168,9 @@ public partial class ScopedRoadNetwork
         using var _ = context.Logger.TimeAction();
 
         return _roadSegments.Values
-            .Where(x => x.HasChanges())
+            .Where(x => x.HasChanges() && !x.IsRemoved && x.Status == RoadSegmentStatusV2.Gerealiseerd)
             .AsParallel()
+            .WithDegreeOfParallelism(Debugger.IsAttached ? 1 : Environment.ProcessorCount)
             .Aggregate(
                 Problems.None,
                 (p, x) => p + x.VerifyTopology(context),
@@ -182,7 +185,7 @@ public partial class ScopedRoadNetwork
         var problems = Problems.None;
 
         var changedJunctions = _gradeSeparatedJunctions.Values
-            .Where(x => x.HasChanges())
+            .Where(x => x.HasChanges() && !x.IsRemoved)
             .ToList();
 
         // Optimize: Use Dictionary for O(n) duplicate detection instead of O(n log n) GroupBy
@@ -222,6 +225,7 @@ public partial class ScopedRoadNetwork
 
         return changedJunctions
             .AsParallel()
+            .WithDegreeOfParallelism(Debugger.IsAttached ? 1 : Environment.ProcessorCount)
             .Aggregate(
                 problems,
                 (p, x) => p + x.VerifyTopology(context),
@@ -289,9 +293,9 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
-    private Problems AddRoadSegment(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool skipValidatePartiallyOverlappingRoadSegments = false)
+    private Problems AddRoadSegment(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
     {
-        var (roadSegment, problems) = RoadSegment.Add(change, idGenerator, context, skipValidatePartiallyOverlappingRoadSegments);
+        var (roadSegment, problems) = RoadSegment.Add(change, idGenerator, context);
         if (problems.HasError())
         {
             return problems;
@@ -416,7 +420,13 @@ public partial class ScopedRoadNetwork
             return problems;
         }
 
-        _gradeSeparatedJunctions.Add(gradeSeparatedJunction!.GradeSeparatedJunctionId, gradeSeparatedJunction);
+        problems += context.IdTranslator.RegisterMapping(change.TemporaryId, gradeSeparatedJunction!.GradeSeparatedJunctionId);
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
+        _gradeSeparatedJunctions.Add(gradeSeparatedJunction.GradeSeparatedJunctionId, gradeSeparatedJunction);
         context.Summary.GradeSeparatedJunctions.Added.Add(gradeSeparatedJunction.GradeSeparatedJunctionId);
 
         return problems;

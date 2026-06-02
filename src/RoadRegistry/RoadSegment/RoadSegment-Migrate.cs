@@ -60,8 +60,6 @@ public partial class RoadSegment
             startNodeId = startEndNodes.StartNodeId;
             endNodeId = startEndNodes.EndNodeId;
             problems += startEndNodes.Problems;
-
-            problems += context.RoadNetwork.ValidatePartiallyOverlappingRoadSegments(change.Geometry, [change.RoadSegmentIdReference.RoadSegmentId], context.IdTranslator);
         }
 
         if (problems.HasError())

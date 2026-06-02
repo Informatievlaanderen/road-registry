@@ -72,10 +72,12 @@ public class RoadSegmentProjectionTests
     }
 
     [Theory]
+    [InlineData(100.03, false)]
     [InlineData(100.02, true)]
     [InlineData(100.01, true)]
     [InlineData(99.99, true)]
     [InlineData(99.98, true)]
+    [InlineData(99.97, false)]
     [InlineData(120.00, true)]
     public Task V1_WhenLastSurfaceTypeToPosition_ThenGeometryLengthIsUsed(double surfaceTypeToPosition, bool expectGeometryLength)
     {
@@ -87,7 +89,7 @@ public class RoadSegmentProjectionTests
         roadSegment1Added.RightSide = new RoadSegmentSideAttributes { StreetNameId = StreetNameLocalId.NotApplicable };
         roadSegment1Added.MaintenanceAuthority.Code = OrganizationId.Unknown.ToString();
 
-        roadSegment1Added.Geometry = BuildRoadSegmentGeometry(0, 0, 100, 0);
+        roadSegment1Added.Geometry = BuildRoadSegmentGeometryLambert72(0, 0, 100, 0);
         roadSegment1Added.Surfaces =
         [
             new RoadSegmentSurfaceAttributes
@@ -103,7 +105,7 @@ public class RoadSegmentProjectionTests
         var expectedRoadSegment1 = new RoadSegmentExtractItem
         {
             RoadSegmentId = new RoadSegmentId(roadSegment1Added.RoadSegmentId),
-            Geometry = new RoadSegmentGeometry(3812, "MULTILINESTRING ((500021.1638673437 499983.87319930363, 500121.1630778698 499983.8851437904))"),
+            Geometry = roadSegment1Added.Geometry.EnsureLambert08(),
             StartNodeId = new RoadNodeId(roadSegment1Added.StartNodeId),
             EndNodeId = new RoadNodeId(roadSegment1Added.EndNodeId),
             GeometryDrawMethod = roadSegment1Added.GeometryDrawMethod,
@@ -637,15 +639,15 @@ public class RoadSegmentProjectionTests
         return new RoadSegmentProjection();
     }
 
-    protected static RoadSegmentGeometry BuildRoadSegmentGeometry(int x1, int y1, int x2, int y2)
+    protected static RoadSegmentGeometry BuildRoadSegmentGeometryLambert72(int x1, int y1, int x2, int y2)
     {
-        return BuildRoadSegmentGeometry(new Point(x1, y1), new Point(x2, y2));
+        return BuildRoadSegmentGeometryLambert72(new Point(x1, y1), new Point(x2, y2));
     }
 
-    protected static RoadSegmentGeometry BuildRoadSegmentGeometry(Point start, Point end)
+    protected static RoadSegmentGeometry BuildRoadSegmentGeometryLambert72(Point start, Point end)
     {
         return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
-            .WithMeasureOrdinates()
+            .WithSrid(WellknownSrids.Lambert72)
             .ToRoadSegmentGeometry();
     }
 }

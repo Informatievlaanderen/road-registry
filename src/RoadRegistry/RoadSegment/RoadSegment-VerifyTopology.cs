@@ -11,11 +11,6 @@ public partial class RoadSegment
 {
     public Problems VerifyTopology(ScopedRoadNetworkChangeContext context)
     {
-        if (IsRemoved || Status != RoadSegmentStatusV2.Gerealiseerd)
-        {
-            return Problems.None;
-        }
-
         var idReference = context.IdTranslator.TranslateToTemporaryId(RoadSegmentId);
         var problems = Problems.WithContext(idReference);
         var line = Geometry.Value.GetSingleLineString();
@@ -50,6 +45,8 @@ public partial class RoadSegment
             }
         }
 
+        problems += context.RoadNetwork.ValidatePartiallyOverlappingRoadSegments(Geometry, [RoadSegmentId], context.IdTranslator);
+
         return problems;
     }
 
@@ -82,11 +79,11 @@ public partial class RoadSegment
             return (false, false, false);
         }
 
-        var carAccess = GetAttributeValueAtPosition(segment.Attributes!.CarAccessForward, positionAlongLine.Value, tolerances)
-                        || GetAttributeValueAtPosition(segment.Attributes.CarAccessBackward, positionAlongLine.Value, tolerances);
-        var bikeAccess = GetAttributeValueAtPosition(segment.Attributes.BikeAccessForward, positionAlongLine.Value, tolerances)
-                         || GetAttributeValueAtPosition(segment.Attributes.BikeAccessBackward, positionAlongLine.Value, tolerances);
-        var pedestrianAccess = GetAttributeValueAtPosition(segment.Attributes.PedestrianAccess, positionAlongLine.Value, tolerances);
+        var carAccess = GetAttributeValueAtPosition(segment.Attributes?.CarAccessForward ?? new(), positionAlongLine.Value, tolerances)
+                        || GetAttributeValueAtPosition(segment.Attributes?.CarAccessBackward ?? new(), positionAlongLine.Value, tolerances);
+        var bikeAccess = GetAttributeValueAtPosition(segment.Attributes?.BikeAccessForward ?? new(), positionAlongLine.Value, tolerances)
+                         || GetAttributeValueAtPosition(segment.Attributes?.BikeAccessBackward ?? new(), positionAlongLine.Value, tolerances);
+        var pedestrianAccess = GetAttributeValueAtPosition(segment.Attributes?.PedestrianAccess ?? new(), positionAlongLine.Value, tolerances);
 
         return (carAccess, bikeAccess, pedestrianAccess);
     }
