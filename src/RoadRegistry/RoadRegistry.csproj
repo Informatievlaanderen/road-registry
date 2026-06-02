@@ -19,6 +19,7 @@
     <PackageReference Include="Be.Vlaanderen.Basisregisters.EventHandling.Autofac" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.GrAr.Provenance" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.GrAr.CrsTransform" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector" />

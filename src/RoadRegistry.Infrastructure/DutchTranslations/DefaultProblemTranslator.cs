@@ -163,6 +163,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"De ongelijkgrondse kruising met id {problem.GetParameterValue("GradeSeparatedJunctionId")} heeft hetzelfde onder- en bovenliggende wegsegment als de ongelijkgrondse kruising met id {problem.GetParameterValue("OtherGradeSeparatedJunctionId")}.")
             },
             {
+                ProblemCode.GradeSeparatedJunction.TemporaryIdNotUnique, problem => new(problem.Severity, problem.Reason,
+                    $"De opgegeven tijdelijke ongelijkgrondse kruising ID {problem.Parameters[0].Value} is niet uniek.")
+            },
+            {
                 ProblemCode.NationalRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason,
                     $"Het wegsegment is reeds geen onderdeel meer van deze nationale weg met nummer {problem.Parameters[0].Value}.")
             },

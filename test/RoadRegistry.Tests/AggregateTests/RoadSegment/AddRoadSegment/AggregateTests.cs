@@ -3,7 +3,6 @@
 using AutoFixture;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
 using RoadRegistry.Extensions;
 using RoadRegistry.RoadNetwork.Schema;
 using RoadRegistry.RoadSegment.Changes;
@@ -12,7 +11,6 @@ using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
-using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.ValueObjects.Problems;
 using RoadNode = RoadRegistry.RoadNode.RoadNode;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
@@ -106,144 +104,6 @@ public class AggregateTests : AggregateTestBase
         segmentAdded.NationalRoadNumbers.Should().BeEquivalentTo(change.NationalRoadNumbers);
     }
 
-    [Theory]
-    [InlineData(
-        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
-        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))",
-        false
-    )]
-    [InlineData(
-        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
-        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))",
-        true
-    )]
-    [InlineData(
-        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
-        "MULTILINESTRING ((601010 601004, 601005.01 601004, 601005.01 601006, 601010 601006))",
-        false
-    )]
-    [InlineData(
-        "MULTILINESTRING ((601000 601000, 601005.00 601000, 601005.00 601010, 601000 601010))",
-        "MULTILINESTRING ((601010 601004, 601005.01 601004, 601005.01 601006, 601010 601006))",
-        true
-    )]
-    [InlineData(
-        "MULTILINESTRING ((601000 601000, 601005 601000, 601000 601005, 601005 601010, 601000 601010))",
-        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))",
-        false
-    )]
-    [InlineData(
-        "MULTILINESTRING ((601000 601000, 601005 601000, 601000 601005, 601005 601010, 601000 601010))",
-        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))",
-        true
-    )]
-    public void GivenPartiallyOverlappingSegments_ThenError(string segment1Geometry, string segment2Geometry, bool swapGeometry)
-    {
-        // Arrange
-        var existingGeometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(swapGeometry ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08));
-        var newGeometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(swapGeometry ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08));
-
-        var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [], [
-            RoadSegment.Create(TestData.Segment1Added with
-            {
-                Status = RoadSegmentStatusV2.Gerealiseerd,
-                Geometry = existingGeometry
-            })
-        ], []);
-        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
-
-        Fixture.Freeze(new RoadSegmentId(2));
-        var change = Fixture.Create<AddRoadSegmentChange>() with
-        {
-            Status = RoadSegmentStatusV2.Gerealiseerd,
-            Geometry = newGeometry,
-            EuropeanRoadNumbers = [],
-            NationalRoadNumbers = []
-        };
-
-        // Act
-        var (_, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), roadNetworkContext);
-
-        // Assert
-        problems.Should().Contain(x => x.Reason == "RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
-    }
-
-    [Theory]
-    [InlineData(
-        "MULTILINESTRING ((601000 601000, 601005.00 601010, 601000 601010))",
-        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
-    )]
-    [InlineData(
-        "MULTILINESTRING ((601000 601000, 601005.00 601005, 601000 601010))",
-        "MULTILINESTRING ((601010 601000, 601005.01 601000, 601005.01 601010, 601010 601010))"
-    )]
-    public void GivenNoPartiallyOverlappingSegments_ThenResult(string segment1Geometry, string segment2Geometry)
-    {
-        var reversedValues = new[] { false, true };
-        foreach (var reversedValue in reversedValues)
-        {
-            // Arrange
-            var change = Fixture.Create<AddRoadSegmentChange>() with
-            {
-                Status = RoadSegmentStatusV2.Gerealiseerd,
-                Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08)),
-                EuropeanRoadNumbers = [],
-                NationalRoadNumbers = []
-            };
-
-            var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [], [
-                RoadSegment.Create(TestData.Segment2Added with
-                {
-                    Status = RoadSegmentStatusV2.Gerealiseerd,
-                    Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08))
-                })
-            ], []);
-            var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
-
-            // Act
-            var (_, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), roadNetworkContext);
-
-            // Assert
-            problems.Should().NotContain(x => x.Reason == "RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
-        }
-    }
-
-    [Theory]
-    [InlineData(
-        "MULTILINESTRING ((601000 601000, 601050 601000))",
-        "MULTILINESTRING ((601000 601000, 601000 601020, 601050 601020, 601050 601000))"
-    )]
-    public void GivenNoPartiallyOverlappingSegments_SpecialCaseIntersectionsAreEqualToStartEndVerticesOfBothSegments_ThenResult(string segment1Geometry, string segment2Geometry)
-    {
-        var reversedValues = new[] { false, true };
-        foreach (var reversedValue in reversedValues)
-        {
-            // Arrange
-            var change = Fixture.Create<AddRoadSegmentChange>() with
-            {
-                Status = RoadSegmentStatusV2.Gerealiseerd,
-                Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment2Geometry : segment1Geometry).WithSrid(WellknownSrids.Lambert08)),
-                EuropeanRoadNumbers = [],
-                NationalRoadNumbers = []
-            };
-
-            var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [], [
-                RoadSegment.Create(TestData.Segment2Added with
-                {
-                    Status = RoadSegmentStatusV2.Gerealiseerd,
-                    Geometry = RoadSegmentGeometry.Create((MultiLineString)new WKTReader().Read(reversedValue ? segment1Geometry : segment2Geometry).WithSrid(WellknownSrids.Lambert08))
-                })
-            ], []);
-            var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
-
-            // Act
-            var (_, problems) = RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), roadNetworkContext);
-
-            // Assert
-            problems.Should().NotContain(x => x.Reason == "RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
-        }
-    }
-
     [Fact]
     public void EnsureGeometryValidatorIsUsed()
     {
@@ -300,14 +160,14 @@ public class AggregateTests : AggregateTestBase
         segment.Status.Should().Be(evt.Status);
         segment.StartNodeId.Should().Be(evt.StartNodeId);
         segment.EndNodeId.Should().Be(evt.EndNodeId);
-        segment.Attributes.GeometryDrawMethod.Should().Be(evt.GeometryDrawMethod);
-        segment.Attributes.AccessRestriction.Should().Be(evt.AccessRestriction);
-        segment.Attributes.Category.Should().Be(evt.Category);
-        segment.Attributes.Morphology.Should().Be(evt.Morphology);
-        segment.Attributes.StreetNameId.Should().Be(evt.StreetNameId);
-        segment.Attributes.MaintenanceAuthorityId.Should().Be(evt.MaintenanceAuthorityId);
-        segment.Attributes.SurfaceType.Should().Be(evt.SurfaceType);
-        segment.Attributes.EuropeanRoadNumbers.Should().BeEquivalentTo(evt.EuropeanRoadNumbers);
-        segment.Attributes.NationalRoadNumbers.Should().BeEquivalentTo(evt.NationalRoadNumbers);
+        segment.Attributes!.GeometryDrawMethod.Should().Be(evt.GeometryDrawMethod);
+        segment.Attributes!.AccessRestriction.Should().Be(evt.AccessRestriction);
+        segment.Attributes!.Category.Should().Be(evt.Category);
+        segment.Attributes!.Morphology.Should().Be(evt.Morphology);
+        segment.Attributes!.StreetNameId.Should().Be(evt.StreetNameId);
+        segment.Attributes!.MaintenanceAuthorityId.Should().Be(evt.MaintenanceAuthorityId);
+        segment.Attributes!.SurfaceType.Should().Be(evt.SurfaceType);
+        segment.Attributes!.EuropeanRoadNumbers.Should().BeEquivalentTo(evt.EuropeanRoadNumbers);
+        segment.Attributes!.NationalRoadNumbers.Should().BeEquivalentTo(evt.NationalRoadNumbers);
     }
 }

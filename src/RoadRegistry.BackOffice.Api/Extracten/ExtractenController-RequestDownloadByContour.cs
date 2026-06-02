@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using FeatureToggles;

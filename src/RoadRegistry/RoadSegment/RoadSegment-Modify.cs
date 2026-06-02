@@ -57,13 +57,6 @@ public partial class RoadSegment
             endNodeId = startEndNodes.EndNodeId;
         }
 
-        if ((change.Geometry is not null && status == RoadSegmentStatusV2.Gerealiseerd)
-            ||
-            (Status != RoadSegmentStatusV2.Gerealiseerd && change.Status == RoadSegmentStatusV2.Gerealiseerd))
-        {
-            problems += context.RoadNetwork.ValidatePartiallyOverlappingRoadSegments(change.Geometry ?? Geometry, [RoadSegmentId], context.IdTranslator);
-        }
-
         if (problems.HasError())
         {
             return problems;

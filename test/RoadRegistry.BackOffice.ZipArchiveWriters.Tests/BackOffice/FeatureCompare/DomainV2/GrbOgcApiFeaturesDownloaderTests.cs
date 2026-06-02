@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2;
 
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using FluentAssertions;
 using NetTopologySuite.IO;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;

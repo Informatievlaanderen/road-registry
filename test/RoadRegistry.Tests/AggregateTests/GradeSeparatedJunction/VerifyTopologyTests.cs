@@ -14,24 +14,28 @@ public class VerifyTopologyTests : RoadNetworkTestBase
     public Task WhenUpperRoadSegmentIsUnknown_ThenError()
     {
         var unknownRoadSegmentId = Fixture.Create<RoadSegmentId>();
+        var temporaryId = Fixture.Create<GradeSeparatedJunctionId>();
 
         return Run(scenario => scenario
             .Given(given => given)
             .When(changes => changes
                 .Add(Fixture.Create<AddGradeSeparatedJunctionChange>() with
                 {
+                    TemporaryId = temporaryId,
                     UpperRoadSegmentId = unknownRoadSegmentId
                 })
             )
             .ThenContainsProblems(new Error("GradeSeparatedJunctionUpperRoadSegmentMissing",
                 new ProblemParameter("WegsegmentId", unknownRoadSegmentId.ToString()),
-                new ProblemParameter("OngelijkGrondseKruisingId", 1.ToString())))
+                new ProblemParameter("OngelijkGrondseKruisingId", temporaryId.ToString())))
         );
     }
 
     [Fact]
     public Task WhenUpperRoadSegmentIsRemoved_ThenError()
     {
+        var temporaryId = Fixture.Create<GradeSeparatedJunctionId>();
+
         return Run(scenario => scenario
             .Given(given => given
                 .Add(TestData.AddSegment1StartNode)
@@ -44,12 +48,13 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add(Fixture.Create<AddGradeSeparatedJunctionChange>() with
                 {
+                    TemporaryId = temporaryId,
                     UpperRoadSegmentId = TestData.Segment1Added.RoadSegmentId
                 })
             )
             .ThenContainsProblems(new Error("GradeSeparatedJunctionUpperRoadSegmentMissing",
                 new ProblemParameter("WegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
-                new ProblemParameter("OngelijkGrondseKruisingId", 1.ToString())))
+                new ProblemParameter("OngelijkGrondseKruisingId", temporaryId.ToString())))
         );
     }
 
@@ -57,24 +62,28 @@ public class VerifyTopologyTests : RoadNetworkTestBase
     public Task WhenLowerRoadSegmentIsUnknown_ThenError()
     {
         var unknownRoadSegmentId = Fixture.Create<RoadSegmentId>();
+        var temporaryId = Fixture.Create<GradeSeparatedJunctionId>();
 
         return Run(scenario => scenario
             .Given(given => given)
             .When(changes => changes
                 .Add(Fixture.Create<AddGradeSeparatedJunctionChange>() with
                 {
+                    TemporaryId = temporaryId,
                     LowerRoadSegmentId = unknownRoadSegmentId
                 })
             )
             .ThenContainsProblems(new Error("GradeSeparatedJunctionLowerRoadSegmentMissing",
                 new ProblemParameter("WegsegmentId", unknownRoadSegmentId.ToString()),
-                new ProblemParameter("OngelijkGrondseKruisingId", 1.ToString())))
+                new ProblemParameter("OngelijkGrondseKruisingId", temporaryId.ToString())))
         );
     }
 
     [Fact]
     public Task WhenLowerRoadSegmentIsRemoved_ThenError()
     {
+        var temporaryId = Fixture.Create<GradeSeparatedJunctionId>();
+
         return Run(scenario => scenario
             .Given(given => given
                 .Add(TestData.AddSegment1StartNode)
@@ -87,12 +96,13 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add(Fixture.Create<AddGradeSeparatedJunctionChange>() with
                 {
+                    TemporaryId = temporaryId,
                     LowerRoadSegmentId = TestData.Segment1Added.RoadSegmentId
                 })
             )
             .ThenContainsProblems(new Error("GradeSeparatedJunctionLowerRoadSegmentMissing",
                 new ProblemParameter("WegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
-                new ProblemParameter("OngelijkGrondseKruisingId", 1.ToString())))
+                new ProblemParameter("OngelijkGrondseKruisingId", temporaryId.ToString())))
         );
     }
 
@@ -103,6 +113,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
         var segment1End = new Point(10, 0);
         var segment2Start = new Point(0, 5);
         var segment2End = new Point(10, 5);
+        var temporaryId = Fixture.Create<GradeSeparatedJunctionId>();
 
         return Run(scenario => scenario
             .Given(given => given
@@ -136,7 +147,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(new AddGradeSeparatedJunctionChange
                 {
-                    TemporaryId = Fixture.Create<GradeSeparatedJunctionId>(),
+                    TemporaryId = temporaryId,
                     LowerRoadSegmentId = TestData.Segment1Added.RoadSegmentId,
                     UpperRoadSegmentId = TestData.Segment2Added.RoadSegmentId,
                     Type = Fixture.Create<GradeSeparatedJunctionTypeV2>()
@@ -145,7 +156,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
             .ThenContainsProblems(new Error("GradeSeparatedJunctionUpperAndLowerRoadSegmentDoNotIntersect",
                 new ProblemParameter("LowerWegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
                 new ProblemParameter("UpperWegsegmentId", TestData.Segment2Added.RoadSegmentId.ToString()),
-                new ProblemParameter("OngelijkGrondseKruisingId", 1.ToString())
+                new ProblemParameter("OngelijkGrondseKruisingId", temporaryId.ToString())
             ))
         );
     }

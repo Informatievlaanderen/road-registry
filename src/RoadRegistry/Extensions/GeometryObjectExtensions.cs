@@ -1,8 +1,11 @@
-﻿namespace RoadRegistry.Infrastructure;
+﻿namespace RoadRegistry.Extensions;
+
+using System;
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 
 public static class GeometryObjectExtensions
 {
-    public static RoadNodeGeometry ToLambert08(this RoadNodeGeometry geometry)
+    public static RoadNodeGeometry EnsureLambert08(this RoadNodeGeometry geometry)
     {
         if (geometry.Value.IsLambert08())
         {
@@ -17,7 +20,7 @@ public static class GeometryObjectExtensions
         throw new InvalidCastException($"Geometry SRID {geometry.SRID} is not Lambert72 or Lambert08");
     }
 
-    public static RoadSegmentGeometry ToLambert08(this RoadSegmentGeometry geometry)
+    public static RoadSegmentGeometry EnsureLambert08(this RoadSegmentGeometry geometry)
     {
         if (geometry.Value.IsLambert08())
         {
@@ -32,7 +35,7 @@ public static class GeometryObjectExtensions
         throw new InvalidCastException($"Geometry SRID {geometry.SRID} is not Lambert72 or Lambert08");
     }
 
-    public static ExtractGeometry ToLambert08(this ExtractGeometry geometry)
+    public static ExtractGeometry EnsureLambert08(this ExtractGeometry geometry)
     {
         if (geometry.Value.IsLambert08())
         {
