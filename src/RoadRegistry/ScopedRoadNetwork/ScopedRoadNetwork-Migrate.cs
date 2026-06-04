@@ -193,6 +193,11 @@ public partial class ScopedRoadNetwork
             return problems + new RoadNodeNotFound();
         }
 
+        if (roadNode.HasMigrated())
+        {
+            return ModifyRoadNode(change, context);
+        }
+
         var migrateChange = new MigrateRoadNodeChange
         {
             RoadNodeId = change.RoadNodeId,
@@ -238,6 +243,11 @@ public partial class ScopedRoadNetwork
         if (!_roadSegments.TryGetValue(change.RoadSegmentIdReference.RoadSegmentId, out var roadSegment))
         {
             return problems + new RoadSegmentNotFound();
+        }
+
+        if (roadSegment.HasMigrated())
+        {
+            return ModifyRoadSegment(change, context);
         }
 
         var europeanRoadNumbers = ReadEuropeanRoadNumbers(roadSegmentRoadNumberChanges[change.RoadSegmentIdReference.RoadSegmentId]);

@@ -11,6 +11,13 @@ public partial class RoadNode
     {
         var problems = Problems.WithContext(RoadNodeId);
 
+        var hasChanges = (change.Geometry is not null && Geometry != change.Geometry)
+                         || (change.Grensknoop is not null && Grensknoop != change.Grensknoop);
+        if (!hasChanges)
+        {
+            return problems;
+        }
+
         Apply(new RoadNodeWasModified
         {
             RoadNodeId = RoadNodeId,

@@ -20,7 +20,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     RoadNodeId = TestData.Segment1StartNodeAdded.RoadNodeId,
                     Geometry = TestData.Segment1StartNodeAdded.Geometry,
-                    Grensknoop = TestData.Segment1StartNodeAdded.Grensknoop
+                    Grensknoop = !TestData.Segment1StartNodeAdded.Grensknoop
                 })
             )
             .Then((result, events) =>

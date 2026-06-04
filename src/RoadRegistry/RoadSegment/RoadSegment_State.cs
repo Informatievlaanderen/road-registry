@@ -19,6 +19,8 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
     public bool IsRemoved { get; private set; }
 
+    public bool HasMigrated() => Attributes is not null;
+
     public RoadSegment(RoadSegmentId id)
         : base(id)
     {

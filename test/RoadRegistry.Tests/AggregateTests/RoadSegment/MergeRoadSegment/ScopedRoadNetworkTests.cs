@@ -23,7 +23,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment1Added.RoadSegmentId),
                     Geometry = TestData.AddSegment1.Geometry,
-                    GeometryDrawMethod = TestData.AddSegment1.GeometryDrawMethod,
+                    GeometryDrawMethod = TestData.AddSegment1.GeometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingemeten
+                        ? RoadSegmentGeometryDrawMethodV2.Ingeschetst
+                        : RoadSegmentGeometryDrawMethodV2.Ingemeten,
                     AccessRestriction = TestData.AddSegment1.AccessRestriction,
                     Category = TestData.AddSegment1.Category,
                     Morphology = TestData.AddSegment1.Morphology,
