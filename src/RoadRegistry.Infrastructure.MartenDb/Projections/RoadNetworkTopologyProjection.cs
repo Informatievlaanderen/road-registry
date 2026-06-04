@@ -38,6 +38,32 @@ public partial class RoadNetworkTopologyProjection : EventProjection
         SchemaObjects.Add(table);
         Options.DeleteDataInTableOnTeardown(table.Identifier.QualifiedName);
 
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_insert_roadnode"), @$"
+CREATE OR REPLACE FUNCTION projections.networktopology_insert_roadnode(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer, p_is_v2 boolean) RETURNS int AS
+$$
+DECLARE
+    existing_timestamp timestamptz;
+BEGIN
+
+    -- Check if road node already exists
+    SELECT timestamp INTO existing_timestamp
+    FROM {RoadNodesTableName}
+    WHERE id = p_id;
+
+    IF FOUND THEN
+        RAISE EXCEPTION 'Road node % already exists in topology projection (existing timestamp: %, new timestamp: %)',
+            p_id, existing_timestamp, p_timestamp
+            USING ERRCODE = '23505';
+    END IF;
+
+    INSERT INTO {RoadNodesTableName} (id, geometry, timestamp, is_v2)
+    VALUES (p_id, ST_GeomFromText(p_wkt, p_srid), p_timestamp, p_is_v2);
+
+    RETURN 1;
+
+END;
+$$ LANGUAGE plpgsql;"));
+
         SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_delete_roadnode"), @$"
 CREATE OR REPLACE FUNCTION projections.networktopology_delete_roadnode(p_id integer, p_timestamp timestamptz) RETURNS int AS
 $$
@@ -109,6 +135,32 @@ $$ LANGUAGE plpgsql;"));
         SchemaObjects.Add(table);
         Options.DeleteDataInTableOnTeardown(table.Identifier.QualifiedName);
 
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_insert_roadsegment"), @$"
+CREATE OR REPLACE FUNCTION projections.networktopology_insert_roadsegment(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer, p_start_node_id integer, p_end_node_id integer, p_is_v2 boolean) RETURNS int AS
+$$
+DECLARE
+    existing_timestamp timestamptz;
+BEGIN
+
+    -- Check if road segment already exists
+    SELECT timestamp INTO existing_timestamp
+    FROM {RoadSegmentsTableName}
+    WHERE id = p_id;
+
+    IF FOUND THEN
+        RAISE EXCEPTION 'Road segment % already exists in topology projection (existing timestamp: %, new timestamp: %)',
+            p_id, existing_timestamp, p_timestamp
+            USING ERRCODE = '23505';
+    END IF;
+
+    INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp, is_v2)
+    VALUES (p_id, ST_GeomFromText(p_wkt, p_srid), p_start_node_id, p_end_node_id, p_timestamp, p_is_v2);
+
+    RETURN 1;
+
+END;
+$$ LANGUAGE plpgsql;"));
+
         SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_delete_roadsegment"), @$"
 CREATE OR REPLACE FUNCTION projections.networktopology_delete_roadsegment(p_id integer, p_timestamp timestamptz) RETURNS int AS
 $$
@@ -177,6 +229,32 @@ $$ LANGUAGE plpgsql;"));
         SchemaObjects.Add(table);
         Options.DeleteDataInTableOnTeardown(table.Identifier.QualifiedName);
 
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_insert_gradeseparatedjunction"), @$"
+CREATE OR REPLACE FUNCTION projections.networktopology_insert_gradeseparatedjunction(p_id integer, p_timestamp timestamptz, p_lower_road_segment_id integer, p_upper_road_segment_id integer, p_is_v2 boolean) RETURNS int AS
+$$
+DECLARE
+    existing_timestamp timestamptz;
+BEGIN
+
+    -- Check if grade separated junction already exists
+    SELECT timestamp INTO existing_timestamp
+    FROM {GradeSeparatedJunctionsTableName}
+    WHERE id = p_id;
+
+    IF FOUND THEN
+        RAISE EXCEPTION 'Grade separated junction % already exists in topology projection (existing timestamp: %, new timestamp: %)',
+            p_id, existing_timestamp, p_timestamp
+            USING ERRCODE = '23505';
+    END IF;
+
+    INSERT INTO {GradeSeparatedJunctionsTableName} (id, lower_road_segment_id, upper_road_segment_id, timestamp, is_v2)
+    VALUES (p_id, p_lower_road_segment_id, p_upper_road_segment_id, p_timestamp, p_is_v2);
+
+    RETURN 1;
+
+END;
+$$ LANGUAGE plpgsql;"));
+
         SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_delete_gradeseparatedjunction"), @$"
 CREATE OR REPLACE FUNCTION projections.networktopology_delete_gradeseparatedjunction(p_id integer, p_timestamp timestamptz) RETURNS int AS
 $$
@@ -242,6 +320,32 @@ $$ LANGUAGE plpgsql;"));
 
         SchemaObjects.Add(table);
         Options.DeleteDataInTableOnTeardown(table.Identifier.QualifiedName);
+
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_insert_gradejunction"), @$"
+CREATE OR REPLACE FUNCTION projections.networktopology_insert_gradejunction(p_id integer, p_timestamp timestamptz, p_road_segment_id_1 integer, p_road_segment_id_2 integer, p_is_v2 boolean) RETURNS int AS
+$$
+DECLARE
+    existing_timestamp timestamptz;
+BEGIN
+
+    -- Check if grade junction already exists
+    SELECT timestamp INTO existing_timestamp
+    FROM {GradeJunctionsTableName}
+    WHERE id = p_id;
+
+    IF FOUND THEN
+        RAISE EXCEPTION 'Grade junction % already exists in topology projection (existing timestamp: %, new timestamp: %)',
+            p_id, existing_timestamp, p_timestamp
+            USING ERRCODE = '23505';
+    END IF;
+
+    INSERT INTO {GradeJunctionsTableName} (id, road_segment_id_1, road_segment_id_2, timestamp, is_v2)
+    VALUES (p_id, p_road_segment_id_1, p_road_segment_id_2, p_timestamp, p_is_v2);
+
+    RETURN 1;
+
+END;
+$$ LANGUAGE plpgsql;"));
 
         SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_delete_gradejunction"), @$"
 CREATE OR REPLACE FUNCTION projections.networktopology_delete_gradejunction(p_id integer, p_timestamp timestamptz) RETURNS int AS
