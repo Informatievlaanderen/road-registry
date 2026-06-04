@@ -1,3 +1,10 @@
+## [4.60.5](https://github.com/informatievlaanderen/road-registry/compare/v4.60.4...v4.60.5) (2026-06-04)
+
+
+### Bug Fixes
+
+* **inwinning:** clear error when record already exists during insert of network topology projection ([45731ae](https://github.com/informatievlaanderen/road-registry/commit/45731ae0a47eb31d266c31bb08157b7ba1a5c38c))
+
 ## [4.60.4](https://github.com/informatievlaanderen/road-registry/compare/v4.60.3...v4.60.4) (2026-06-04)
 
 
