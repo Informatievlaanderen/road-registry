@@ -1,3 +1,11 @@
+## [4.60.3](https://github.com/informatievlaanderen/road-registry/compare/v4.60.2...v4.60.3) (2026-06-04)
+
+
+### Bug Fixes
+
+* **inwinning:** ID in db error message ([bcd48f9](https://github.com/informatievlaanderen/road-registry/commit/bcd48f9d24979c324e1456edd3055d07b1d33474))
+* **inwinning:** start TempId counting from Integration ([f9ee5c6](https://github.com/informatievlaanderen/road-registry/commit/f9ee5c6ef99fe16f8011a69c450cd09cdb8c3ce5))
+
 ## [4.60.2](https://github.com/informatievlaanderen/road-registry/compare/v4.60.1...v4.60.2) (2026-06-02)
 
 
