@@ -52,7 +52,7 @@ BEGIN
     GET DIAGNOSTICS updated = ROW_COUNT;
 
     IF updated = 0 THEN
-        RAISE EXCEPTION 'Concurrency conflict on road node %', 42
+        RAISE EXCEPTION 'Concurrency conflict on road node %', p_id
             USING ERRCODE = '40001';
     END IF;
 
@@ -78,7 +78,7 @@ BEGIN
     GET DIAGNOSTICS updated = ROW_COUNT;
 
     IF updated = 0 THEN
-        RAISE EXCEPTION 'Concurrency conflict on road node %', 42
+        RAISE EXCEPTION 'Concurrency conflict on road node %', p_id
             USING ERRCODE = '40001';
     END IF;
 
@@ -123,7 +123,7 @@ BEGIN
     GET DIAGNOSTICS updated = ROW_COUNT;
 
     IF updated = 0 THEN
-        RAISE EXCEPTION 'Concurrency conflict on road segment %', 42
+        RAISE EXCEPTION 'Concurrency conflict on road segment %', p_id
             USING ERRCODE = '40001';
     END IF;
 
@@ -151,7 +151,7 @@ BEGIN
     GET DIAGNOSTICS updated = ROW_COUNT;
 
     IF updated = 0 THEN
-        RAISE EXCEPTION 'Concurrency conflict on road segment %', 42
+        RAISE EXCEPTION 'Concurrency conflict on road segment %', p_id
             USING ERRCODE = '40001';
     END IF;
 
@@ -191,7 +191,7 @@ BEGIN
     GET DIAGNOSTICS updated = ROW_COUNT;
 
     IF updated = 0 THEN
-        RAISE EXCEPTION 'Concurrency conflict on grade separated junction %', 42
+        RAISE EXCEPTION 'Concurrency conflict on grade separated junction %', p_id
             USING ERRCODE = '40001';
     END IF;
 
@@ -217,7 +217,7 @@ BEGIN
     GET DIAGNOSTICS updated = ROW_COUNT;
 
     IF updated = 0 THEN
-        RAISE EXCEPTION 'Concurrency conflict on grade separated junction %', 42
+        RAISE EXCEPTION 'Concurrency conflict on grade separated junction %', p_id
             USING ERRCODE = '40001';
     END IF;
 
@@ -257,7 +257,7 @@ BEGIN
     GET DIAGNOSTICS updated = ROW_COUNT;
 
     IF updated = 0 THEN
-        RAISE EXCEPTION 'Concurrency conflict on grade junction %', 42
+        RAISE EXCEPTION 'Concurrency conflict on grade junction %', p_id
             USING ERRCODE = '40001';
     END IF;
 
