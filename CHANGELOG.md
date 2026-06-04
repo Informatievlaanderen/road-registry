@@ -1,3 +1,10 @@
+## [4.60.4](https://github.com/informatievlaanderen/road-registry/compare/v4.60.3...v4.60.4) (2026-06-04)
+
+
+### Bug Fixes
+
+* **inwinning:** avoid duplicate Migrated events and only register Modified events when RoadNode/RoadSegment actually has modifications ([98ba0f9](https://github.com/informatievlaanderen/road-registry/commit/98ba0f99b4d93f615b61efba7b1e49c3d13b3f05))
+
 ## [4.60.3](https://github.com/informatievlaanderen/road-registry/compare/v4.60.2...v4.60.3) (2026-06-04)
 
 
