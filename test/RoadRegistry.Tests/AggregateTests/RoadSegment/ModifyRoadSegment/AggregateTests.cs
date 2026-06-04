@@ -106,6 +106,34 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
+    public void WhenNoChangeDetected_ThenNone()
+    {
+        // Arrange
+        Fixture.Freeze<RoadSegmentId>();
+
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
+            .WithoutChanges();
+        var change = new ModifyRoadSegmentChange
+        {
+            RoadSegmentIdReference = new RoadSegmentIdReference(segment.RoadSegmentId),
+            Status = segment.Status
+        };
+
+        var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [
+            RoadNode.Create(TestData.Segment1StartNodeAdded),
+            RoadNode.Create(TestData.Segment1EndNodeAdded)
+        ], [], []);
+        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+
+        // Act
+        var problems = segment.Modify(change, roadNetworkContext);
+
+        // Assert
+        problems.Should().HaveNoError();
+        segment.GetChanges().Should().BeEmpty();
+    }
+
+    [Fact]
     public void EnsureGeometryValidatorIsUsed()
     {
         // Arrange

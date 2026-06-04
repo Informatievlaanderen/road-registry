@@ -27,7 +27,10 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(new ModifyRoadSegmentChange
                 {
-                    RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment1Added.RoadSegmentId)
+                    RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment1Added.RoadSegmentId),
+                    GeometryDrawMethod = TestData.AddSegment1.GeometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingemeten
+                        ? RoadSegmentGeometryDrawMethodV2.Ingeschetst
+                        : RoadSegmentGeometryDrawMethodV2.Ingemeten
                 })
             )
             .Then((result, events) =>

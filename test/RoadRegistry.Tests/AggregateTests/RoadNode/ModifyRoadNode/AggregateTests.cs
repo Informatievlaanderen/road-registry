@@ -34,6 +34,30 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
+    public void WhenNoChangeDetected_ThenNone()
+    {
+        // Arrange
+        Fixture.Freeze<RoadNodeId>();
+
+        var nodeAdded = Fixture.Create<RoadNodeWasAdded>();
+        var node = RoadNode.Create(nodeAdded)
+            .WithoutChanges();
+        var change = new ModifyRoadNodeChange
+        {
+            RoadNodeId = nodeAdded.RoadNodeId,
+            Geometry = nodeAdded.Geometry,
+            Grensknoop = nodeAdded.Grensknoop
+        };
+
+        // Act
+        var problems = node.Modify(change, TestData.Provenance);
+
+        // Assert
+        problems.Should().HaveNoError();
+        node.GetChanges().Should().BeEmpty();
+    }
+
+    [Fact]
     public void StateCheck()
     {
         // Arrange

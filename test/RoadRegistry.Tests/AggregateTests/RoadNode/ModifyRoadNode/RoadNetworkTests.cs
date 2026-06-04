@@ -14,7 +14,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
     {
         return Run(scenario => scenario
             .Given(given => given
-                .Add(TestData.AddSegment1StartNode)
+                .Add(TestData.AddSegment1StartNode with { Grensknoop = true })
                 .Add(TestData.AddSegment1EndNode)
                 .Add(TestData.AddSegment1)
             )
@@ -22,7 +22,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 .Add(new ModifyRoadNodeChange
                 {
                     RoadNodeId = TestData.Segment1StartNodeAdded.RoadNodeId,
-                    Geometry = null
+                    Grensknoop = false
                 })
             )
             .Then((result, events) =>

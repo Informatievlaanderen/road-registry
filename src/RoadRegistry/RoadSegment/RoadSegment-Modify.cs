@@ -62,6 +62,16 @@ public partial class RoadSegment
             return problems;
         }
 
+        var hasChanges = (change.Geometry is not null && Geometry != change.Geometry)
+                         || (change.Status is not null && Status != change.Status)
+                         || (startNodeId is not null && StartNodeId != startNodeId)
+                         || (endNodeId is not null && EndNodeId != endNodeId)
+                         || !Attributes.Equals(attributes);
+        if (!hasChanges)
+        {
+            return problems;
+        }
+
         Apply(new RoadSegmentWasModified
         {
             RoadSegmentId = RoadSegmentId,

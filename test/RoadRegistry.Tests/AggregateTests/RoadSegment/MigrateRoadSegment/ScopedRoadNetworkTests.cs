@@ -2,10 +2,15 @@
 
 using AutoFixture;
 using FluentAssertions;
-using RoadRegistry.Extensions;
+using RoadRegistry.RoadNetwork.Schema;
+using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
+using RoadRegistry.ScopedRoadNetwork;
+using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
+using RoadNode = RoadRegistry.RoadNode.RoadNode;
+using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 public class ScopedRoadNetworkTests : RoadNetworkTestBase
 {
@@ -22,7 +27,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment1Added.RoadSegmentId),
                     Geometry = TestData.AddSegment1.Geometry,
-                    GeometryDrawMethod = TestData.AddSegment1.GeometryDrawMethod,
+                    GeometryDrawMethod = TestData.AddSegment1.GeometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingemeten
+                        ? RoadSegmentGeometryDrawMethodV2.Ingeschetst
+                        : RoadSegmentGeometryDrawMethodV2.Ingemeten,
                     AccessRestriction = TestData.AddSegment1.AccessRestriction,
                     Category = TestData.AddSegment1.Category,
                     Morphology = TestData.AddSegment1.Morphology,
@@ -45,34 +52,57 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
     }
 
     [Fact]
-    public Task WithEuropeanRoadNumbers_ThenIncludedInEvent()
+    public void WithEuropeanRoadNumbers_ThenIncludedInEvent()
     {
         var linkedNumber = Fixture.Create<EuropeanRoadNumber>();
         var removedNumber = Fixture.CreateWhichIsDifferentThan(linkedNumber);
 
-        return Run(scenario => scenario
-            .Given(given => given
-                .Add(TestData.AddSegment1StartNode)
-                .Add(TestData.AddSegment1EndNode)
-                .Add(TestData.AddSegment1))
-            .WhenMigrate(changes => changes
+        // v1 situation
+        var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
+            roadNodes:
+            [
+                RoadNode.CreateForMigration(TestData.Segment1StartNodeAdded.RoadNodeId, TestData.Segment1StartNodeAdded.Geometry),
+                RoadNode.CreateForMigration(TestData.Segment1EndNodeAdded.RoadNodeId, TestData.Segment1EndNodeAdded.Geometry),
+            ],
+            roadSegments:
+            [
+                RoadSegment.CreateForMigration(TestData.Segment1Added.RoadSegmentId, TestData.Segment1Added.Geometry, TestData.Segment1Added.Status, TestData.Segment1StartNodeAdded.RoadNodeId, TestData.Segment1EndNodeAdded.RoadNodeId),
+            ]);
+
+        // Act
+        var result = roadNetwork.Migrate(RoadNetworkChanges.Start()
+                .WithProvenance(new FakeProvenance())
+                .Add(new ModifyRoadNodeChange
+                {
+                    RoadNodeId = TestData.Segment1StartNodeAdded.RoadNodeId,
+                    Geometry = TestData.Segment1StartNodeAdded.Geometry,
+                    Grensknoop = false
+                })
+                .Add(new ModifyRoadNodeChange
+                {
+                    RoadNodeId = TestData.Segment1EndNodeAdded.RoadNodeId,
+                    Geometry = TestData.Segment1EndNodeAdded.Geometry,
+                    Grensknoop = false
+                })
                 .Add(new ModifyRoadSegmentChange
                 {
                     RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment1Added.RoadSegmentId),
-                    Geometry = TestData.AddSegment1.Geometry,
-                    GeometryDrawMethod = TestData.AddSegment1.GeometryDrawMethod,
-                    AccessRestriction = TestData.AddSegment1.AccessRestriction,
-                    Category = TestData.AddSegment1.Category,
-                    Morphology = TestData.AddSegment1.Morphology,
-                    Status = TestData.AddSegment1.Status,
-                    StreetNameId = TestData.AddSegment1.StreetNameId,
-                    MaintenanceAuthorityId = TestData.AddSegment1.MaintenanceAuthorityId,
-                    SurfaceType = TestData.AddSegment1.SurfaceType,
-                    CarAccessForward = TestData.AddSegment1.CarAccessForward,
-                    CarAccessBackward = TestData.AddSegment1.CarAccessBackward,
-                    BikeAccessForward = TestData.AddSegment1.BikeAccessForward,
-                    BikeAccessBackward = TestData.AddSegment1.BikeAccessBackward,
-                    PedestrianAccess = TestData.AddSegment1.PedestrianAccess
+                    Geometry = TestData.Segment1Added.Geometry,
+                    GeometryDrawMethod = TestData.Segment1Added.GeometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingemeten
+                        ? RoadSegmentGeometryDrawMethodV2.Ingeschetst
+                        : RoadSegmentGeometryDrawMethodV2.Ingemeten,
+                    AccessRestriction = TestData.Segment1Added.AccessRestriction,
+                    Category = TestData.Segment1Added.Category,
+                    Morphology = TestData.Segment1Added.Morphology,
+                    Status = TestData.Segment1Added.Status,
+                    StreetNameId = TestData.Segment1Added.StreetNameId,
+                    MaintenanceAuthorityId = TestData.Segment1Added.MaintenanceAuthorityId,
+                    SurfaceType = TestData.Segment1Added.SurfaceType,
+                    CarAccessForward = TestData.Segment1Added.CarAccessForward,
+                    CarAccessBackward = TestData.Segment1Added.CarAccessBackward,
+                    BikeAccessForward = TestData.Segment1Added.BikeAccessForward,
+                    BikeAccessBackward = TestData.Segment1Added.BikeAccessBackward,
+                    PedestrianAccess = TestData.Segment1Added.PedestrianAccess
                 })
                 .Add(new AddRoadSegmentToEuropeanRoadChange
                 {
@@ -88,48 +118,72 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
                     Number = removedNumber
-                })
-            )
-            .Then((result, events) =>
-            {
-                var roadSegmentWasMigrated = events.OfType<RoadSegmentWasMigrated>().Single();
+                }),
+            TestData.Fixture.Create<DownloadId>(),
+            new InMemoryRoadNetworkIdGenerator());
 
-                roadSegmentWasMigrated.EuropeanRoadNumbers.Should().HaveCount(1);
-                roadSegmentWasMigrated.EuropeanRoadNumbers.Should().Contain(linkedNumber);
-                roadSegmentWasMigrated.NationalRoadNumbers.Should().BeEmpty();
-            })
-        );
+        result.Problems.Should().HaveNoError();
+
+        var events = roadNetwork.RoadSegments[TestData.Segment1Added.RoadSegmentId].GetChanges();
+        var roadSegmentWasMigrated = events.OfType<RoadSegmentWasMigrated>().Single();
+
+        roadSegmentWasMigrated.EuropeanRoadNumbers.Should().HaveCount(1);
+        roadSegmentWasMigrated.EuropeanRoadNumbers.Should().Contain(linkedNumber);
+        roadSegmentWasMigrated.NationalRoadNumbers.Should().BeEmpty();
     }
 
     [Fact]
-    public Task WithNationalRoadNumbers_ThenIncludedInEvent()
+    public void WithNationalRoadNumbers_ThenIncludedInEvent()
     {
         var linkedNumber = Fixture.Create<NationalRoadNumber>();
         var removedNumber = Fixture.CreateWhichIsDifferentThan(linkedNumber);
 
-        return Run(scenario => scenario
-            .Given(given => given
-                .Add(TestData.AddSegment1StartNode)
-                .Add(TestData.AddSegment1EndNode)
-                .Add(TestData.AddSegment1))
-            .WhenMigrate(changes => changes
+        // v1 situation
+        var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
+            roadNodes:
+            [
+                RoadNode.CreateForMigration(TestData.Segment1StartNodeAdded.RoadNodeId, TestData.Segment1StartNodeAdded.Geometry),
+                RoadNode.CreateForMigration(TestData.Segment1EndNodeAdded.RoadNodeId, TestData.Segment1EndNodeAdded.Geometry),
+            ],
+            roadSegments:
+            [
+                RoadSegment.CreateForMigration(TestData.Segment1Added.RoadSegmentId, TestData.Segment1Added.Geometry, TestData.Segment1Added.Status, TestData.Segment1StartNodeAdded.RoadNodeId, TestData.Segment1EndNodeAdded.RoadNodeId),
+            ]);
+
+        // Act
+        var result = roadNetwork.Migrate(RoadNetworkChanges.Start()
+                .WithProvenance(new FakeProvenance())
+                .Add(new ModifyRoadNodeChange
+                {
+                    RoadNodeId = TestData.Segment1StartNodeAdded.RoadNodeId,
+                    Geometry = TestData.Segment1StartNodeAdded.Geometry,
+                    Grensknoop = false
+                })
+                .Add(new ModifyRoadNodeChange
+                {
+                    RoadNodeId = TestData.Segment1EndNodeAdded.RoadNodeId,
+                    Geometry = TestData.Segment1EndNodeAdded.Geometry,
+                    Grensknoop = false
+                })
                 .Add(new ModifyRoadSegmentChange
                 {
                     RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment1Added.RoadSegmentId),
-                    Geometry = TestData.AddSegment1.Geometry,
-                    GeometryDrawMethod = TestData.AddSegment1.GeometryDrawMethod,
-                    AccessRestriction = TestData.AddSegment1.AccessRestriction,
-                    Category = TestData.AddSegment1.Category,
-                    Morphology = TestData.AddSegment1.Morphology,
-                    Status = TestData.AddSegment1.Status,
-                    StreetNameId = TestData.AddSegment1.StreetNameId,
-                    MaintenanceAuthorityId = TestData.AddSegment1.MaintenanceAuthorityId,
-                    SurfaceType = TestData.AddSegment1.SurfaceType,
-                    CarAccessForward = TestData.AddSegment1.CarAccessForward,
-                    CarAccessBackward = TestData.AddSegment1.CarAccessBackward,
-                    BikeAccessForward = TestData.AddSegment1.BikeAccessForward,
-                    BikeAccessBackward = TestData.AddSegment1.BikeAccessBackward,
-                    PedestrianAccess = TestData.AddSegment1.PedestrianAccess
+                    Geometry = TestData.Segment1Added.Geometry,
+                    GeometryDrawMethod = TestData.Segment1Added.GeometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingemeten
+                        ? RoadSegmentGeometryDrawMethodV2.Ingeschetst
+                        : RoadSegmentGeometryDrawMethodV2.Ingemeten,
+                    AccessRestriction = TestData.Segment1Added.AccessRestriction,
+                    Category = TestData.Segment1Added.Category,
+                    Morphology = TestData.Segment1Added.Morphology,
+                    Status = TestData.Segment1Added.Status,
+                    StreetNameId = TestData.Segment1Added.StreetNameId,
+                    MaintenanceAuthorityId = TestData.Segment1Added.MaintenanceAuthorityId,
+                    SurfaceType = TestData.Segment1Added.SurfaceType,
+                    CarAccessForward = TestData.Segment1Added.CarAccessForward,
+                    CarAccessBackward = TestData.Segment1Added.CarAccessBackward,
+                    BikeAccessForward = TestData.Segment1Added.BikeAccessForward,
+                    BikeAccessBackward = TestData.Segment1Added.BikeAccessBackward,
+                    PedestrianAccess = TestData.Segment1Added.PedestrianAccess
                 })
                 .Add(new AddRoadSegmentToNationalRoadChange
                 {
@@ -145,16 +199,17 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
                     Number = removedNumber
-                })
-            )
-            .Then((result, events) =>
-            {
-                var roadSegmentWasMigrated = events.OfType<RoadSegmentWasMigrated>().Single();
+                }),
+            TestData.Fixture.Create<DownloadId>(),
+            new InMemoryRoadNetworkIdGenerator());
 
-                roadSegmentWasMigrated.NationalRoadNumbers.Should().HaveCount(1);
-                roadSegmentWasMigrated.NationalRoadNumbers.Should().Contain(linkedNumber);
-                roadSegmentWasMigrated.EuropeanRoadNumbers.Should().BeEmpty();
-            })
-        );
+        result.Problems.Should().HaveNoError();
+
+        var events = roadNetwork.RoadSegments[TestData.Segment1Added.RoadSegmentId].GetChanges();
+        var roadSegmentWasMigrated = events.OfType<RoadSegmentWasMigrated>().Single();
+
+        roadSegmentWasMigrated.NationalRoadNumbers.Should().HaveCount(1);
+        roadSegmentWasMigrated.NationalRoadNumbers.Should().Contain(linkedNumber);
+        roadSegmentWasMigrated.EuropeanRoadNumbers.Should().BeEmpty();
     }
 }

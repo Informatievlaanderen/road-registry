@@ -13,6 +13,8 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
 
     public bool IsRemoved { get; private set; }
 
+    public bool HasMigrated() => Type is not null;
+
     public RoadNode(RoadNodeId id)
         : base(id)
     {

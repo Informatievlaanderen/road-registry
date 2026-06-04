@@ -73,7 +73,7 @@ BEGIN
         is_v2 = p_is_v2,
         timestamp = p_timestamp
     WHERE id = p_id
-      AND timestamp < p_timestamp;
+      AND timestamp <= p_timestamp;
 
     GET DIAGNOSTICS updated = ROW_COUNT;
 
@@ -146,7 +146,7 @@ BEGIN
         is_v2 = p_is_v2,
         timestamp = p_timestamp
     WHERE id = p_id
-      AND timestamp < p_timestamp;
+      AND timestamp <= p_timestamp;
 
     GET DIAGNOSTICS updated = ROW_COUNT;
 
@@ -212,7 +212,7 @@ BEGIN
         upper_road_segment_id = (CASE WHEN p_upper_road_segment_id > 0 THEN p_upper_road_segment_id ELSE upper_road_segment_id END),
         timestamp = p_timestamp
     WHERE id = p_id
-      AND timestamp < p_timestamp;
+      AND timestamp <= p_timestamp;
 
     GET DIAGNOSTICS updated = ROW_COUNT;
 
