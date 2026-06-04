@@ -41,12 +41,12 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
 
         var writer = new Lambert08ShapeFileRecordWriter(_encoding);
 
+        await WriteIntegration(writer, archive, context, cancellationToken);
+
         foreach (var featureType in featureTypes)
         {
             await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.PolyLine, RoadSegmentDbaseRecord.Schema, records, cancellationToken);
         }
-
-        await WriteIntegration(writer, archive, context, cancellationToken);
     }
 
     private async Task WriteIntegration(

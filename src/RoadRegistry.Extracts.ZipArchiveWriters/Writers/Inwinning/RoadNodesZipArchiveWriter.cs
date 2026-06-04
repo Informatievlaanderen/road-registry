@@ -49,12 +49,12 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
             records.AddRange(BuildSchijnknoopDbaseRecords(segments, context));
         }
 
+        await WriteIntegration(writer, archive, request, zipArchiveData, context, cancellationToken);
+
         foreach (var featureType in featureTypes)
         {
             await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.Point, RoadNodeDbaseRecord.Schema, records, cancellationToken);
         }
-
-        await WriteIntegration(writer, archive, request, zipArchiveData, context, cancellationToken);
     }
 
     private async Task WriteIntegration(
