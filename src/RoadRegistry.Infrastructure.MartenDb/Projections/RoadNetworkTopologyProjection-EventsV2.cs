@@ -12,11 +12,11 @@ public partial class RoadNetworkTopologyProjection
 {
     public void Project(IEvent<RoadNodeWasAdded> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"INSERT INTO {RoadNodesTableName} (id, geometry, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, TRUE)",
+        ops.QueueSqlCommand("SELECT projections.networktopology_insert_roadnode(?, ?, ?, ?, TRUE);",
             e.Data.RoadNodeId.ToInt32(),
+            e.Timestamp,
             e.Data.Geometry.WKT,
-            e.Data.Geometry.SRID,
-            e.Timestamp
+            e.Data.Geometry.SRID
         );
     }
 
@@ -58,25 +58,25 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadSegmentWasAdded> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?, TRUE)",
+        ops.QueueSqlCommand("SELECT projections.networktopology_insert_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
             e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp,
             e.Data.Geometry.WKT,
             e.Data.Geometry.SRID,
             e.Data.StartNodeId?.ToInt32() ?? 0,
-            e.Data.EndNodeId?.ToInt32() ?? 0,
-            e.Timestamp
+            e.Data.EndNodeId?.ToInt32() ?? 0
         );
     }
 
     public void Project(IEvent<RoadSegmentWasMerged> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?, TRUE)",
+        ops.QueueSqlCommand("SELECT projections.networktopology_insert_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
             e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp,
             e.Data.Geometry.WKT,
             e.Data.Geometry.SRID,
             e.Data.StartNodeId?.ToInt32() ?? 0,
-            e.Data.EndNodeId?.ToInt32() ?? 0,
-            e.Timestamp
+            e.Data.EndNodeId?.ToInt32() ?? 0
         );
     }
 
@@ -155,11 +155,11 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<GradeSeparatedJunctionWasAdded> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"INSERT INTO {GradeSeparatedJunctionsTableName} (id, lower_road_segment_id, upper_road_segment_id, timestamp, is_v2) VALUES (?, ?, ?, ?, TRUE)",
+        ops.QueueSqlCommand("SELECT projections.networktopology_insert_gradeseparatedjunction(?, ?, ?, ?, TRUE);",
             e.Data.GradeSeparatedJunctionId.ToInt32(),
+            e.Timestamp,
             e.Data.LowerRoadSegmentId.ToInt32(),
-            e.Data.UpperRoadSegmentId.ToInt32(),
-            e.Timestamp
+            e.Data.UpperRoadSegmentId.ToInt32()
         );
     }
 
@@ -196,11 +196,11 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<GradeJunctionWasAdded> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"INSERT INTO {GradeJunctionsTableName} (id, road_segment_id_1, road_segment_id_2, timestamp, is_v2) VALUES (?, ?, ?, ?, TRUE)",
+        ops.QueueSqlCommand("SELECT projections.networktopology_insert_gradejunction(?, ?, ?, ?, TRUE);",
             e.Data.GradeJunctionId.ToInt32(),
+            e.Timestamp,
             e.Data.RoadSegmentId1.ToInt32(),
-            e.Data.RoadSegmentId2.ToInt32(),
-            e.Timestamp
+            e.Data.RoadSegmentId2.ToInt32()
         );
     }
 
