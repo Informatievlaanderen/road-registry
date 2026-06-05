@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Extracts.WhenUploadI
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadExtract;
@@ -54,7 +55,7 @@ public class WithInvalidRequest : WhenUploadInwinningExtractTestBase
         blobClientMock
             .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new BlobObject(new BlobName("archive.zip"),
-                Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
+                Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware-found"), "false")),
                 ContentType.Parse("application/zip"),
                 _ =>
                 {

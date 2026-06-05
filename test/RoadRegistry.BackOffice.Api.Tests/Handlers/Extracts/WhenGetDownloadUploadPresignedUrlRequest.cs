@@ -54,7 +54,7 @@ public class WhenGetDownloadUploadPresignedUrlRequest
             .ReturnsAsync(new BlobObject(new BlobName("archive.zip"),
                 Metadata.None
                     .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), _fixture.Create<string>()))
-                    .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
+                    .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware-found"), "false")),
                 ContentType.Parse("application/octet-stream"),
                 async _ => new MemoryStream()));
 

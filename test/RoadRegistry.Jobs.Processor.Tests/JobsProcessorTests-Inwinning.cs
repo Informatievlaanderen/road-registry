@@ -58,7 +58,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                     blobName,
                     Metadata.None
                         .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), blobFileName))
-                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
+                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware-found"), "false")),
                     ContentType.Parse("X-multipart/abc"),
                     _ => Task.FromResult<Stream>(EmbeddedResourceReader.Read("valid.zip"))));
 
@@ -113,7 +113,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
             var blobMetadataMalwareFound = createBlobInvocation
                 .Arguments.OfType<Metadata>()
                 .Single()
-                .Single(x => x.Key == "malware_found");
+                .Single(x => x.Key == "malware-found");
             blobMetadataMalwareFound.Value.Should().Be("false");
 
             var executedRequest = Assert.IsType<UploadInwinningExtractSqsRequest>(mockMediator.Invocations.Single().Arguments.First());
@@ -230,7 +230,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                     blobName,
                     Metadata.None
                         .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), blobFileName))
-                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
+                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware-found"), "false")),
                     ContentType.Parse("X-multipart/abc"),
                     _ => Task.FromResult<Stream>(EmbeddedResourceReader.Read("inwinning_unknownfiles.zip"))));
 
