@@ -10,18 +10,22 @@ namespace RoadRegistry.BackOffice.Infrastructure
     using Amazon.S3;
     using Amazon.S3.Model;
     using Be.Vlaanderen.Basisregisters.BlobStore;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Logging.Abstractions;
 
     public class S3BlobClient : IBlobClient
     {
         private readonly IAmazonS3 _client;
         private readonly string _bucket;
         private readonly bool _malwareScan;
+        private readonly ILogger _logger;
 
-        public S3BlobClient(IAmazonS3 client, string bucket, bool malwareScan)
+        public S3BlobClient(IAmazonS3 client, string bucket, bool malwareScan, ILogger? logger = null)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _bucket = bucket ?? throw new ArgumentNullException(nameof(bucket));
             _malwareScan = malwareScan;
+            _logger = logger ?? NullLogger.Instance;
         }
 
         public async Task<BlobObject> GetBlobAsync(BlobName name, CancellationToken cancellationToken = default)
@@ -73,27 +77,22 @@ namespace RoadRegistry.BackOffice.Infrastructure
 
         private async Task<bool> BlobHasMalwareAsync(BlobName name, CancellationToken cancellationToken = default)
         {
-            try
+            var response = await _client.GetObjectTaggingAsync(new GetObjectTaggingRequest
             {
-                var response = await _client.GetObjectTaggingAsync(new GetObjectTaggingRequest
-                {
-                    BucketName = _bucket,
-                    Key = name.ToString()
-                }, cancellationToken);
+                BucketName = _bucket,
+                Key = name.ToString()
+            }, cancellationToken);
 
-                var scanStatus = response.Tagging.SingleOrDefault(x => x.Key == "GuardDutyMalwareScanStatus")?.Value;
+            _logger.LogInformation("Blob '{Name}' tags: {Tags}", name, string.Join(", ", response.Tagging.Select(x => $"{x.Key}={x.Value}")));
 
-                return scanStatus switch
-                {
-                    "NO_THREATS_FOUND" => false,
-                    "THREATS_FOUND" => true,
-                    _ => throw new Exception($"Unexpected GuardDutyMalwareScanStatus: {scanStatus}")
-                };
-            }
-            catch (AmazonS3Exception exception) when (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
+            var scanStatus = response.Tagging.SingleOrDefault(x => x.Key == "GuardDutyMalwareScanStatus")?.Value;
+
+            return scanStatus switch
             {
-                throw;
-            }
+                "NO_THREATS_FOUND" => false,
+                "THREATS_FOUND" => true,
+                _ => throw new Exception($"Unexpected GuardDutyMalwareScanStatus: {scanStatus}")
+            };
         }
 
         public async Task<bool> BlobExistsAsync(BlobName name, CancellationToken cancellationToken = default)
