@@ -1,3 +1,10 @@
+# [4.61.0](https://github.com/informatievlaanderen/road-registry/compare/v4.60.6...v4.61.0) (2026-06-05)
+
+
+### Features
+
+* **datavalidation:** read QualityReport url from artifacts endpoint ([d3035d2](https://github.com/informatievlaanderen/road-registry/commit/d3035d2f660bc39a32266655990504f7e32adc34))
+
 ## [4.60.6](https://github.com/informatievlaanderen/road-registry/compare/v4.60.5...v4.60.6) (2026-06-05)
 
 
