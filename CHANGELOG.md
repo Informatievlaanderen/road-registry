@@ -1,3 +1,10 @@
+# [4.62.0](https://github.com/informatievlaanderen/road-registry/compare/v4.61.0...v4.62.0) (2026-06-05)
+
+
+### Features
+
+* **upload:** reject upload when malware is detected ([8d09eeb](https://github.com/informatievlaanderen/road-registry/commit/8d09eebd3a5252c34ebbb4831bc0d80cbd478900))
+
 # [4.61.0](https://github.com/informatievlaanderen/road-registry/compare/v4.60.6...v4.61.0) (2026-06-05)
 
 
