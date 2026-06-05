@@ -208,64 +208,42 @@ public class RoadSegmentProjectionTests
         var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.CustomizeUniqueInteger();
 
-        var roadSegment1Added = fixture.Create<RoadSegmentWasMerged>();
-        var roadSegment2Added = fixture.Create<RoadSegmentWasMerged>();
-
-        var expectedRoadSegment1 = new RoadSegmentExtractItem
+        var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegmentMerged = fixture.Create<RoadSegmentWasMerged>() with
         {
-            RoadSegmentId = roadSegment1Added.RoadSegmentId,
-            Geometry = roadSegment1Added.Geometry,
-            StartNodeId = roadSegment1Added.StartNodeId,
-            EndNodeId = roadSegment1Added.EndNodeId,
-            GeometryDrawMethod = roadSegment1Added.GeometryDrawMethod,
-            Status = roadSegment1Added.Status,
-            AccessRestriction = ForEntireLength(roadSegment1Added.AccessRestriction.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
-            Category = ForEntireLength(roadSegment1Added.Category.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
-            Morphology = ForEntireLength(roadSegment1Added.Morphology.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
-            StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegment1Added.StreetNameId),
-            MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegment1Added.MaintenanceAuthorityId),
-            SurfaceType = ForEntireLength(roadSegment1Added.SurfaceType.Values.Single().Value.ToString(), roadSegment1Added.Geometry),
-            CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment1Added.CarAccessForward),
-            CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment1Added.CarAccessBackward),
-            BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment1Added.BikeAccessForward),
-            BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment1Added.BikeAccessBackward),
-            PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment1Added.PedestrianAccess),
-            EuropeanRoadNumbers = roadSegment1Added.EuropeanRoadNumbers.ToList(),
-            NationalRoadNumbers = roadSegment1Added.NationalRoadNumbers.ToList(),
-            Origin = roadSegment1Added.Provenance.ToEventTimestamp(),
-            LastModified = roadSegment1Added.Provenance.ToEventTimestamp(),
-            IsV2 = true
+            RoadSegmentId = roadSegmentAdded.RoadSegmentId
         };
-        var expectedRoadSegment2 = new RoadSegmentExtractItem
+
+        var expectedRoadSegment = new RoadSegmentExtractItem
         {
-            RoadSegmentId = roadSegment2Added.RoadSegmentId,
-            Geometry = roadSegment2Added.Geometry,
-            StartNodeId = roadSegment2Added.StartNodeId,
-            EndNodeId = roadSegment2Added.EndNodeId,
-            GeometryDrawMethod = roadSegment2Added.GeometryDrawMethod,
-            Status = roadSegment2Added.Status,
-            AccessRestriction = ForEntireLength(roadSegment2Added.AccessRestriction.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
-            Category = ForEntireLength(roadSegment2Added.Category.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
-            Morphology = ForEntireLength(roadSegment2Added.Morphology.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
-            StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegment2Added.StreetNameId),
-            MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegment2Added.MaintenanceAuthorityId),
-            SurfaceType = ForEntireLength(roadSegment2Added.SurfaceType.Values.Single().Value.ToString(), roadSegment2Added.Geometry),
-            CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment2Added.CarAccessForward),
-            CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment2Added.CarAccessBackward),
-            BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment2Added.BikeAccessForward),
-            BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment2Added.BikeAccessBackward),
-            PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegment2Added.PedestrianAccess),
-            EuropeanRoadNumbers = roadSegment2Added.EuropeanRoadNumbers.ToList(),
-            NationalRoadNumbers = roadSegment2Added.NationalRoadNumbers.ToList(),
-            Origin = roadSegment2Added.Provenance.ToEventTimestamp(),
-            LastModified = roadSegment2Added.Provenance.ToEventTimestamp(),
+            RoadSegmentId = roadSegmentMerged.RoadSegmentId,
+            Geometry = roadSegmentMerged.Geometry,
+            StartNodeId = roadSegmentMerged.StartNodeId,
+            EndNodeId = roadSegmentMerged.EndNodeId,
+            GeometryDrawMethod = roadSegmentMerged.GeometryDrawMethod,
+            Status = roadSegmentMerged.Status,
+            AccessRestriction = ForEntireLength(roadSegmentMerged.AccessRestriction.Values.Single().Value!.ToString(), roadSegmentMerged.Geometry),
+            Category = ForEntireLength(roadSegmentMerged.Category.Values.Single().Value!.ToString(), roadSegmentMerged.Geometry),
+            Morphology = ForEntireLength(roadSegmentMerged.Morphology.Values.Single().Value!.ToString(), roadSegmentMerged.Geometry),
+            StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegmentMerged.StreetNameId),
+            MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegmentMerged.MaintenanceAuthorityId),
+            SurfaceType = ForEntireLength(roadSegmentMerged.SurfaceType.Values.Single().Value!.ToString(), roadSegmentMerged.Geometry),
+            CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegmentMerged.CarAccessForward),
+            CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegmentMerged.CarAccessBackward),
+            BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegmentMerged.BikeAccessForward),
+            BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegmentMerged.BikeAccessBackward),
+            PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(roadSegmentMerged.PedestrianAccess),
+            EuropeanRoadNumbers = roadSegmentMerged.EuropeanRoadNumbers.ToList(),
+            NationalRoadNumbers = roadSegmentMerged.NationalRoadNumbers.ToList(),
+            Origin = roadSegmentAdded.Provenance.ToEventTimestamp(),
+            LastModified = roadSegmentMerged.Provenance.ToEventTimestamp(),
             IsV2 = true
         };
 
         return BuildProjection()
             .Scenario()
-            .Given(roadSegment1Added, roadSegment2Added)
-            .Expect(expectedRoadSegment1, expectedRoadSegment2);
+            .Given(roadSegmentAdded, roadSegmentMerged)
+            .Expect(expectedRoadSegment);
     }
 
     [Fact]

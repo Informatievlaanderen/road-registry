@@ -286,38 +286,30 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             return Task.CompletedTask;
         });
-        When<IEvent<RoadSegmentWasMerged>>((session, e, _) =>
+        When<IEvent<RoadSegmentWasMerged>>((session, e, ct) =>
         {
-            var roadSegmentId = e.Data.RoadSegmentId;
-
-            var roadSegment = new RoadSegmentExtractItem
+            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
             {
-                RoadSegmentId = roadSegmentId,
-                Geometry = e.Data.Geometry,
-                StartNodeId = e.Data.StartNodeId,
-                EndNodeId = e.Data.EndNodeId,
-                GeometryDrawMethod = e.Data.GeometryDrawMethod,
-                Status = e.Data.Status,
-                AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString()),
-                Category = e.Data.Category.ToStringAttributeValues(x => x.ToString()),
-                Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString()),
-                StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId),
-                MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId),
-                SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x.ToString()),
-                CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessForward),
-                CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessBackward),
-                BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessForward),
-                BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessBackward),
-                PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.PedestrianAccess),
-                EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList(),
-                NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList(),
-                Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp(),
-                IsV2 = true
-            };
-            session.Store(roadSegment);
-
-            return Task.CompletedTask;
+                segment.Geometry = e.Data.Geometry;
+                segment.StartNodeId = e.Data.StartNodeId;
+                segment.EndNodeId = e.Data.EndNodeId;
+                segment.GeometryDrawMethod = e.Data.GeometryDrawMethod;
+                segment.Status = e.Data.Status;
+                segment.AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString());
+                segment.Category = e.Data.Category.ToStringAttributeValues(x => x.ToString());
+                segment.Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString());
+                segment.StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId);
+                segment.MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId);
+                segment.SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x.ToString());
+                segment.CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessForward);
+                segment.CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessBackward);
+                segment.BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessForward);
+                segment.BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessBackward);
+                segment.PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(e.Data.PedestrianAccess);
+                segment.EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList();
+                segment.NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList();
+                segment.IsV2 = true;
+            }, e.Data, ct);
         });
         When<IEvent<RoadSegmentGeometryWasModified>>((session, e, ct) =>
         {
