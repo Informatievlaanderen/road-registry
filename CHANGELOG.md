@@ -1,3 +1,10 @@
+## [4.60.6](https://github.com/informatievlaanderen/road-registry/compare/v4.60.5...v4.60.6) (2026-06-05)
+
+
+### Bug Fixes
+
+* **inwinning:** projections for RoadSegmentWasMerged event is an update instead of create ([aa21209](https://github.com/informatievlaanderen/road-registry/commit/aa21209aae2fd44ec16fc0fde388ddf0431f7688))
+
 ## [4.60.5](https://github.com/informatievlaanderen/road-registry/compare/v4.60.4...v4.60.5) (2026-06-04)
 
 
