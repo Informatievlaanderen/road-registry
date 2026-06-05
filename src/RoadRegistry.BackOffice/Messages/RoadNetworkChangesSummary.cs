@@ -5,6 +5,8 @@ using System.Linq;
 
 public class RoadNetworkChangesSummary
 {
+    public bool HasChanges { get; set; }
+
     public RoadNetworkChangeCounters GradeSeparatedJunctions { get; set; }
     public RoadNetworkChangeCounters RoadNodes { get; set; }
     public RoadNetworkChangeCounters RoadSegments { get; set; }
@@ -13,6 +15,7 @@ public class RoadNetworkChangesSummary
     {
         var summary = new RoadNetworkChangesSummary
         {
+            HasChanges = changes.Length > 0,
             RoadNodes = new RoadNetworkChangeCounters(),
             RoadSegments = new RoadNetworkChangeCounters(),
             GradeSeparatedJunctions = new RoadNetworkChangeCounters()

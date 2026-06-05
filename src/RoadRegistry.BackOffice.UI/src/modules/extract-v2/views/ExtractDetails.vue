@@ -419,7 +419,7 @@ export default defineComponent({
             this.uploadDisabled = false;
             let uploadResult = camelizeKeys(JSON.parse(ticketResult.result.json));
 
-            if (uploadResult.Summary.hasChanges) {
+            if (uploadResult.summary.hasChanges) {
               this.ticketResponseCode = 1102;
               this.summary = uploadResult.summary;
             } else {
