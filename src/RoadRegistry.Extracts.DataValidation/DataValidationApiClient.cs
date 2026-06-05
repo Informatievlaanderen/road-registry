@@ -9,6 +9,7 @@ public interface IDataValidationApiClient
     Task<string> RequestDataValidationAsync(UploadId uploadId, Stream blobStream, CancellationToken cancellationToken);
     Task<PollDeliveryResponse> PollDeliveryAsync(string deliveryId, CancellationToken cancellationToken);
     Task<GetDeliveryResultResponse> GetDeliveryResultAsync(string deliveryId, CancellationToken cancellationToken);
+    Task<GetDeliveryArtifactsResponse> GetDeliveryArtifactsAsync(string deliveryId, CancellationToken cancellationToken);
 }
 
 public class DataValidationApiClient : IDataValidationApiClient
@@ -77,6 +78,19 @@ public class DataValidationApiClient : IDataValidationApiClient
         return JsonSerializer.Deserialize<GetDeliveryResultResponse>(json, JsonOptions)!;
     }
 
+    public async Task<GetDeliveryArtifactsResponse> GetDeliveryArtifactsAsync(string deliveryId, CancellationToken cancellationToken)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"{_options.ApiBaseUrl.TrimEnd('/')}/deliveries/{deliveryId}/artifacts");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", await _tokenProvider.GetAccessTokenAsync());
+
+        var httpClient = _httpClientFactory.CreateClient();
+        using var response = await httpClient.SendAsync(request, cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        return JsonSerializer.Deserialize<GetDeliveryArtifactsResponse>(json, JsonOptions)!;
+    }
+
     private sealed record CreateValidationJobResponse([property: JsonPropertyName("id")] Guid Id);
 }
 
@@ -132,3 +146,17 @@ public sealed record DeliveryValidationError(
     string TestDescription,
     string ErrorType,
     string? Remark);
+
+public sealed record GetDeliveryArtifactsResponse(
+    IReadOnlyList<DeliveryArtifact> Artifacts);
+
+public sealed record DeliveryArtifact(
+    string Type,
+    string Url);
+
+
+public static class DeliveryArtifactType
+{
+    public const string QualityReport = "QualityReport";
+    public const string ErrorGeometries = "ErrorGeometries";
+}

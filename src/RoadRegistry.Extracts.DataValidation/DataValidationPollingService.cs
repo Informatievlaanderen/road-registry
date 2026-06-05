@@ -71,9 +71,9 @@ public class DataValidationPollingService : IScheduledJob
                                     break;
                                 case ValidationResult.Rejected:
                                 case ValidationResult.AutomaticallyRejected:
-                                    qualityReportUrl = $"https://geckoqualityreportstest.blob.core.windows.net/kwaliteitsrapporten/{queueItem.DataValidationId!}.html";
-                                    //var detailResult = await _dataValidationClient.GetDeliveryResultAsync(queueItem.DataValidationId!, cancellationToken);
-                                    //TODO-pr read qualityReportUrl from detailResult once it's been added
+                                    //qualityReportUrl = $"https://geckoqualityreportstest.blob.core.windows.net/kwaliteitsrapporten/{queueItem.DataValidationId!}.html";
+                                    var artifactsResponse = await _dataValidationApiClient.GetDeliveryArtifactsAsync(queueItem.DataValidationId!, cancellationToken);
+                                    qualityReportUrl = artifactsResponse.Artifacts.Single(x => x.Type == DeliveryArtifactType.QualityReport).Url;
 
                                     ticketError = new TicketError("De oplading is mislukt. Gelieve het kwaliteitsrapport te openen voor meer informatie.", "DataValidationRejected");
                                     uploadAccepted = false;
