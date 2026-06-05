@@ -1,3 +1,10 @@
+## [4.62.1](https://github.com/informatievlaanderen/road-registry/compare/v4.62.0...v4.62.1) (2026-06-05)
+
+
+### Bug Fixes
+
+* **ui:** show result when upload accepted ([b7bf11a](https://github.com/informatievlaanderen/road-registry/commit/b7bf11a421e29c658b84890d047055dd172a6828))
+
 # [4.62.0](https://github.com/informatievlaanderen/road-registry/compare/v4.61.0...v4.62.0) (2026-06-05)
 
 
