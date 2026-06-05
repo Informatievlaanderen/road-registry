@@ -138,6 +138,8 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             throw new BlobNotFoundException(blobName);
         }
 
+        archiveBlob.ThrowIfMalwareFound();
+
         if (!ContentType.TryParse(archiveBlob.ContentType, out var parsed) || !SupportedContentTypes.Contains(parsed))
         {
             throw new UnsupportedMediaTypeException(archiveBlob.ContentType);
