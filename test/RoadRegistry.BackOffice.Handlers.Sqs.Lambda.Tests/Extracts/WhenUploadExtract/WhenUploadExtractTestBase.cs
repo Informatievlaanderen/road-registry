@@ -55,7 +55,7 @@ public abstract class WhenUploadExtractTestBase : BackOfficeLambdaTest
             blobClientMock
                 .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new BlobObject(new BlobName("archive.zip"),
-                    Metadata.None,
+                    Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware-found"), "false")),
                     ContentType.Parse("application/zip"),
                     _ =>
                     {

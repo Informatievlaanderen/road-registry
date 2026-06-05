@@ -131,7 +131,7 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
         var blobClient = new Mock<IBlobClient>();
         blobClient
             .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => new BlobObject(ObjectProvider.Create<BlobName>(), Metadata.None, ContentType.Parse("application/text"), _ => throw new NotSupportedException()));
+            .ReturnsAsync(() => new BlobObject(ObjectProvider.Create<BlobName>(), Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware-found"), "false")), ContentType.Parse("application/text"), _ => throw new NotSupportedException()));
 
         // Act
         await HandleRequest(request, blobClient: blobClient.Object);
@@ -309,7 +309,7 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
         var blobClient = new Mock<IBlobClient>();
         blobClient
             .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => new BlobObject(ObjectProvider.Create<BlobName>(), Metadata.None, ContentType.Parse("binary/octet-stream"), _ => throw new CorruptArchiveException()));
+            .ReturnsAsync(() => new BlobObject(ObjectProvider.Create<BlobName>(), Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware-found"), "false")), ContentType.Parse("binary/octet-stream"), _ => throw new CorruptArchiveException()));
 
         // Act
         await HandleRequest(request, blobClient: blobClient.Object);
@@ -351,7 +351,7 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
             .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new BlobObject(
                 ObjectProvider.Create<BlobName>(),
-                Metadata.None,
+                Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware-found"), "false")),
                 ContentType.Parse("binary/octet-stream"),
                 _ => throw new ZipArchiveValidationException(ZipArchiveProblems.None.Add(new FileError(ObjectProvider.Create<string>(), ObjectProvider.Create<string>())))));
 
@@ -406,7 +406,7 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
             .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new BlobObject(
                 ObjectProvider.Create<BlobName>(),
-                Metadata.None,
+                Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware-found"), "false")),
                 ContentType.Parse("binary/octet-stream"),
                 _ => throw new Exception()));
 
