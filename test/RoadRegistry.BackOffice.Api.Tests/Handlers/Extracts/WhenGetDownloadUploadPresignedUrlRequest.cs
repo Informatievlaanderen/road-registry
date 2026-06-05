@@ -52,7 +52,9 @@ public class WhenGetDownloadUploadPresignedUrlRequest
         blobClient
             .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new BlobObject(new BlobName("archive.zip"),
-                Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), _fixture.Create<string>())),
+                Metadata.None
+                    .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), _fixture.Create<string>()))
+                    .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
                 ContentType.Parse("application/octet-stream"),
                 async _ => new MemoryStream()));
 

@@ -17,7 +17,7 @@ namespace RoadRegistry.Jobs
         public string? OperatorName { get; set; }
         public bool DryRun { get; set; }
 
-        public string UploadBlobName => $"upload_{Id:D}";
+        public string UploadBlobName => $"unscanned/{Id:D}";
         public string ReceivedBlobName => $"received/{Id:D}";
         private Job() { }
 

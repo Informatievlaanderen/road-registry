@@ -770,6 +770,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     "Download id is verplicht.")
             },
             {
+                ProblemCode.Upload.MalwareFound, problem => new(problem.Severity, "UploadMalwareFound",
+                    "Upload mislukt: dit bestand kon niet worden geüpload omdat het onze beveiligingsscan niet heeft doorstaan. Probeer een ander bestand.")
+            },
+            {
                 ProblemCode.Upload.DryRunSuccessful, problem => new(problem.Severity, "UploadDryRunSuccessful",
                     "Upload is succesvol beëindigd, maar de wijzigingen zijn alleen gesimuleerd.")
             },

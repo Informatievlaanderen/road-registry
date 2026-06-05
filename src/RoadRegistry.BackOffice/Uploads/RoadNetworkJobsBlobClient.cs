@@ -20,8 +20,7 @@ public class RoadNetworkJobsBlobClient : IBlobClient
         return _client.BlobExistsAsync(name, cancellationToken);
     }
 
-    public Task CreateBlobAsync(BlobName name, Metadata metadata, ContentType contentType, Stream content,
-        CancellationToken cancellationToken = default)
+    public Task CreateBlobAsync(BlobName name, Metadata metadata, ContentType contentType, Stream content, CancellationToken cancellationToken = default)
     {
         return _client.CreateBlobAsync(name, metadata, contentType, content, cancellationToken);
     }

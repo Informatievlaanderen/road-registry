@@ -54,7 +54,7 @@ public partial class FilesController
         }
 
         var metadata = Metadata.None.Add(
-            new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"),
+            new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.FileName),
                 string.IsNullOrEmpty(archiveRequest.FileName)
                     ? job.Id + ".zip"
                     : archiveRequest.FileName)

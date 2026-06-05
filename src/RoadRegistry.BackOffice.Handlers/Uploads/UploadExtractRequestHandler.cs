@@ -60,7 +60,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
 
         var metadata = Metadata.None.Add(
-            new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"),
+            new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.FileName),
                 string.IsNullOrEmpty(request.Archive.FileName)
                     ? archiveId + ".zip"
                     : request.Archive.FileName)

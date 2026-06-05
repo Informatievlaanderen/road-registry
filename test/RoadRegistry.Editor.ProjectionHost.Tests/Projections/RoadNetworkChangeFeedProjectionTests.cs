@@ -46,7 +46,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         var archiveId = _fixture.Create<ArchiveId>();
         var filename = _fixture.Create<string>();
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
-            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
+            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename))
+                .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
             ContentType.Parse("application/zip"), Stream.Null);
 
         var changeRequestId = ChangeRequestId
@@ -119,7 +120,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         var archiveId = _fixture.Create<ArchiveId>();
         var filename = _fixture.Create<string>();
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
-            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
+            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename))
+                .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
             ContentType.Parse("application/zip"), Stream.Null);
 
         var changeRequestId = ChangeRequestId
@@ -185,7 +187,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         var archiveId = _fixture.Create<ArchiveId>();
         var filename = _fixture.Create<string>();
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
-            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
+            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename))
+                .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
             ContentType.Parse("application/zip"), Stream.Null);
 
         var changeRequestId = ChangeRequestId
@@ -278,7 +281,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         var overlapsWithDownloadIds = _fixture.CreateMany<Guid>().ToList();
 
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
-            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
+            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename))
+                .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
             ContentType.Parse("application/zip"), Stream.Null);
 
         await new RoadNetworkChangeFeedProjection(_client)
@@ -321,7 +325,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         var archiveId = _fixture.Create<ArchiveId>();
         var filename = _fixture.Create<string>();
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
-            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
+            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename))
+                .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
             ContentType.Parse("application/zip"), Stream.Null);
 
         await new RoadNetworkChangeFeedProjection(_client)
@@ -481,7 +486,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         var filename = _fixture.Create<string>();
         var ticketId = _fixture.Create<Guid>();
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
-            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
+            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename))
+                .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
             ContentType.Parse("application/zip"), Stream.Null);
 
         var changeRequestId = ChangeRequestId
@@ -529,7 +535,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         var filename = _fixture.Create<string>();
         var ticketId = _fixture.Create<Guid>();
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
-            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
+            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename))
+                .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
             ContentType.Parse("application/zip"), Stream.Null);
 
         var changeRequestId = ChangeRequestId

@@ -182,6 +182,7 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
         return exception switch
         {
             UnsupportedMediaTypeException ex => ex.ContentType is not null ? new UnsupportedMediaType(ex.ContentType.Value) : new UnsupportedMediaType(),
+            BlobHasMalwareException => new Error(ProblemCode.Upload.MalwareFound),
             CorruptArchiveException => new Error(ProblemCode.Extract.CorruptArchive),
             ExtractDownloadNotFoundException ex => new ExtractNotFound(ex.DownloadId),
             ExtractRequestMarkedInformativeException => new Error(ProblemCode.Extract.CanNotUploadForInformativeExtract),

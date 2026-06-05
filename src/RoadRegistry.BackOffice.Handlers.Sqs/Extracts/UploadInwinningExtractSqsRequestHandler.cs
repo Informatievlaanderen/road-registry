@@ -4,11 +4,11 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
 using TicketingService.Abstractions;
 
-public class UploadInwinningExtractSqsRequestV2Handler : SqsHandler<UploadInwinningExtractSqsRequest>
+public class UploadInwinningExtractSqsRequestHandler : SqsHandler<UploadInwinningExtractSqsRequest>
 {
     public const string Action = "UploadInwinningExtract";
 
-    public UploadInwinningExtractSqsRequestV2Handler(IBackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl)
+    public UploadInwinningExtractSqsRequestHandler(IBackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl)
         : base(sqsQueue, ticketing, ticketingUrl)
     {
     }

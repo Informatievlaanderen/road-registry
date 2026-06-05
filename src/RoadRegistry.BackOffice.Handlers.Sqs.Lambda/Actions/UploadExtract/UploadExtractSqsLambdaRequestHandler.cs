@@ -328,6 +328,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         return exception switch
         {
             UnsupportedMediaTypeException ex => ex.ContentType is not null ? new UnsupportedMediaType(ex.ContentType.Value) : new UnsupportedMediaType(),
+            BlobHasMalwareException => new Error(ProblemCode.Upload.MalwareFound),
             CorruptArchiveException => new Error(ProblemCode.Extract.CorruptArchive),
             ExtractDownloadNotFoundException ex => new ExtractNotFound(ex.DownloadId),
             ExtractRequestMarkedInformativeException => new Error(ProblemCode.Extract.CanNotUploadForInformativeExtract),

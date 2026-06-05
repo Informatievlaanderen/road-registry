@@ -58,7 +58,7 @@ public class GetDownloadUploadPresignedUrlRequestHandler : EndpointRequestHandle
         var blob = await _client.GetBlobAsync(blobName, cancellationToken);
 
         var fileName = blob.Metadata
-            .Where(pair => pair.Key == new MetadataKey("filename"))
+            .Where(pair => pair.Key == new MetadataKey(WellKnownBlobMetadataKeys.FileName))
             .Select(x => x.Value)
             .SingleOrDefault()
             ?? $"{uploadId}.zip";

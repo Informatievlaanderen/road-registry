@@ -48,7 +48,7 @@ public class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadExtr
         }
 
         var blob = await _client.GetBlobAsync(blobName, cancellationToken);
-        var metadata = blob.Metadata.Where(pair => pair.Key == new MetadataKey("filename")).ToArray();
+        var metadata = blob.Metadata.Where(pair => pair.Key == new MetadataKey(WellKnownBlobMetadataKeys.FileName)).ToArray();
         var filename = metadata.Length == 1 ? metadata[0].Value : archiveId + ".zip";
 
         return new DownloadExtractResponse(
