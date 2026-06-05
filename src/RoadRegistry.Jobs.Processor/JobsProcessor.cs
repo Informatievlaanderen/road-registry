@@ -46,7 +46,7 @@ namespace RoadRegistry.Jobs.Processor
         private readonly JobsProcessorOptions _uploadProcessorOptions;
         private readonly JobsContext _jobsContext;
         private readonly ITicketing _ticketing;
-        private readonly IBlobClient _blobClient;
+        private readonly RoadNetworkJobsBlobClient _jobsBlobClient;
         private readonly IMediator _mediator;
         private readonly ILogger<JobsProcessor> _logger;
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
@@ -66,7 +66,7 @@ namespace RoadRegistry.Jobs.Processor
             _uploadProcessorOptions = hostOptions.ThrowIfNull();
             _jobsContext = jobsContext.ThrowIfNull();
             _ticketing = ticketing.ThrowIfNull();
-            _blobClient = blobClient.ThrowIfNull();
+            _jobsBlobClient = blobClient.ThrowIfNull();
             _mediator = mediator.ThrowIfNull();
             _extractRequestCleaner = extractRequestCleaner.ThrowIfNull();
             _uploadsBlobClient = uploadsBlobClient;
@@ -177,7 +177,7 @@ namespace RoadRegistry.Jobs.Processor
                         }
                         finally
                         {
-                            await _blobClient.DeleteBlobAsync(blob.Name, stoppingToken);
+                            await _jobsBlobClient.DeleteBlobAsync(blob.Name, stoppingToken);
                         }
                     }
                     catch (ValidationException)
@@ -255,6 +255,8 @@ namespace RoadRegistry.Jobs.Processor
                         throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired, WellKnownProblemTranslators.Default);
                     }
 
+                    _logger.LogInformation("Malware found: {Malware}", blob.MalwareFound());
+
                     var uploadId = new UploadId(Guid.NewGuid());
                     var fileNames = blob.Metadata
                         .Where(pair => pair.Key == new MetadataKey(WellKnownBlobMetadataKeys.FileName))
@@ -308,6 +310,8 @@ namespace RoadRegistry.Jobs.Processor
                     {
                         throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired, WellKnownProblemTranslators.Default);
                     }
+
+                    _logger.LogInformation("Malware found: {Malware}", blob.MalwareFound());
 
                     var uploadId = new UploadId(Guid.NewGuid());
                     var fileNames = blob.Metadata
@@ -416,12 +420,12 @@ namespace RoadRegistry.Jobs.Processor
             try
             {
                 var blobName = new BlobName(job.ReceivedBlobName);
-                if (!await _blobClient.BlobExistsAsync(blobName, cancellationToken))
+                if (!await _jobsBlobClient.BlobExistsAsync(blobName, cancellationToken))
                 {
                     throw new BlobNotFoundException(blobName);
                 }
 
-                var blobObject = await _blobClient.GetBlobAsync(blobName, cancellationToken);
+                var blobObject = await _jobsBlobClient.GetBlobAsync(blobName, cancellationToken);
                 return blobObject;
             }
             catch (BlobNotFoundException)
