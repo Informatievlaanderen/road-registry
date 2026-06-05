@@ -15,11 +15,13 @@ namespace RoadRegistry.BackOffice.Infrastructure
     {
         private readonly IAmazonS3 _client;
         private readonly string _bucket;
+        private readonly bool _malwareScan;
 
-        public S3BlobClient(IAmazonS3 client, string bucket)
+        public S3BlobClient(IAmazonS3 client, string bucket, bool malwareScan)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _bucket = bucket ?? throw new ArgumentNullException(nameof(bucket));
+            _malwareScan = malwareScan;
         }
 
         public async Task<BlobObject> GetBlobAsync(BlobName name, CancellationToken cancellationToken = default)
@@ -31,9 +33,18 @@ namespace RoadRegistry.BackOffice.Infrastructure
                     BucketName = _bucket,
                     Key = name.ToString()
                 }, cancellationToken);
+
+                var metadata = ConvertMetadataFromMetadataCollection(response);
+
+                if (_malwareScan)
+                {
+                    var hasMalware = await BlobHasMalwareAsync(name, cancellationToken);
+                    metadata = metadata.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.MalwareFound), hasMalware.ToString().ToLower()));
+                }
+
                 return new BlobObject(
                     name,
-                    ConvertMetadataFromMetadataCollection(response),
+                    metadata,
                     ContentType.Parse(response.Headers.ContentType),
                     async contentCancellationToken =>
                     {
@@ -57,6 +68,31 @@ namespace RoadRegistry.BackOffice.Infrastructure
             catch (AmazonS3Exception exception) when (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 return null;
+            }
+        }
+
+        private async Task<bool> BlobHasMalwareAsync(BlobName name, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var response = await _client.GetObjectTaggingAsync(new GetObjectTaggingRequest
+                {
+                    BucketName = _bucket,
+                    Key = name.ToString()
+                }, cancellationToken);
+
+                var scanStatus = response.Tagging.SingleOrDefault(x => x.Key == "GuardDutyMalwareScanStatus")?.Value;
+
+                return scanStatus switch
+                {
+                    "NO_THREATS_FOUND" => false,
+                    "THREATS_FOUND" => true,
+                    _ => throw new Exception($"Unexpected GuardDutyMalwareScanStatus: {scanStatus}")
+                };
+            }
+            catch (AmazonS3Exception exception) when (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                throw;
             }
         }
 

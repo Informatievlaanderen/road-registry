@@ -257,19 +257,19 @@ namespace RoadRegistry.Jobs.Processor
 
                     var uploadId = new UploadId(Guid.NewGuid());
                     var fileNames = blob.Metadata
-                        .Where(pair => pair.Key == new MetadataKey("filename"))
+                        .Where(pair => pair.Key == new MetadataKey(WellKnownBlobMetadataKeys.FileName))
                         .Select(x => x.Value)
                         .ToArray();
                     var fileName = fileNames.Length == 1 ? fileNames.Single() : $"{uploadId}.zip";
-                    var metadata = Metadata.None.Add(
-                        new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), fileName)
-                    );
+                    var metadata = Metadata.None
+                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.FileName), fileName))
+                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.MalwareFound), blob.MalwareFound().ToString().ToLower()));
 
                     await _uploadsBlobClient.CreateBlobAsync(
                         new BlobName(uploadId.ToString()),
                         metadata,
                         blob.ContentType,
-                        writeableBlobStream,
+                        blob.MalwareFound() ? new MemoryStream() : writeableBlobStream,
                         cancellationToken
                     );
 
@@ -311,13 +311,13 @@ namespace RoadRegistry.Jobs.Processor
 
                     var uploadId = new UploadId(Guid.NewGuid());
                     var fileNames = blob.Metadata
-                        .Where(pair => pair.Key == new MetadataKey("filename"))
+                        .Where(pair => pair.Key == new MetadataKey(WellKnownBlobMetadataKeys.FileName))
                         .Select(x => x.Value)
                         .ToArray();
                     var fileName = fileNames.Length == 1 ? fileNames.Single() : $"{uploadId}.zip";
-                    var metadata = Metadata.None.Add(
-                        new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), fileName)
-                    );
+                    var metadata = Metadata.None
+                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.FileName), fileName))
+                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.MalwareFound), blob.MalwareFound().ToString().ToLower()));
 
                     RemoveUnknownFilesForDomainV2(writeableBlobStream);
 
@@ -326,7 +326,7 @@ namespace RoadRegistry.Jobs.Processor
                         new BlobName(uploadId.ToString()),
                         metadata,
                         blob.ContentType,
-                        writeableBlobStream,
+                        blob.MalwareFound() ? new MemoryStream() : writeableBlobStream,
                         cancellationToken
                     );
 

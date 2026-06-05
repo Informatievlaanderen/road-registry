@@ -52,7 +52,9 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 .Setup(x => x.GetBlobAsync(blobName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new BlobObject(
                     blobName,
-                    Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), blobFileName)),
+                    Metadata.None
+                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), blobFileName))
+                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
                     ContentType.Parse("X-multipart/abc"),
                     _ => Task.FromResult<Stream>(EmbeddedResourceReader.Read("valid.zip"))));
 
@@ -95,9 +97,13 @@ namespace RoadRegistry.Jobs.Processor.Tests
             var blobMetadataFilename = createBlobInvocation
                 .Arguments.OfType<Metadata>()
                 .Single()
-                .Single();
-            blobMetadataFilename.Key.ToString().Should().Be("filename");
+                .Single(x => x.Key == "filename");
             blobMetadataFilename.Value.Should().Be(blobFileName);
+            var blobMetadataMalwareFound = createBlobInvocation
+                .Arguments.OfType<Metadata>()
+                .Single()
+                .Single(x => x.Key == "malware_found");
+            blobMetadataMalwareFound.Value.Should().Be("false");
 
             var executedRequest = Assert.IsType<UploadExtractSqsRequest>(mockMediator.Invocations.Single().Arguments.First());
             executedRequest.TicketId.Should().Be(ticketId);

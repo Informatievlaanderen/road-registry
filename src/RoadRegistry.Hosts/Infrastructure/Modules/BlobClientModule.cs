@@ -87,7 +87,7 @@ public class BlobClientModule : Module
         builder.Register(c => new RoadNetworkUploadsBlobClient(c.Resolve<IBlobClientFactory>().Create(WellKnownBuckets.UploadsBucket))).SingleInstance();
         builder.Register(c => new RoadNetworkExtractUploadsBlobClient(c.Resolve<IBlobClientFactory>().Create(WellKnownBuckets.UploadsBucket))).SingleInstance();
         builder.Register(c => new RoadNetworkExtractDownloadsBlobClient(c.Resolve<IBlobClientFactory>().Create(WellKnownBuckets.ExtractDownloadsBucket))).SingleInstance();
-        builder.Register(c => new RoadNetworkJobsBlobClient(c.Resolve<IBlobClientFactory>().Create(WellKnownBuckets.JobsBucket))).SingleInstance();
+        builder.Register(c => new RoadNetworkJobsBlobClient(c.Resolve<IBlobClientFactory>().Create(WellKnownBuckets.JobsBucket, malwareScan: true))).SingleInstance();
         builder.Register(c => new RoadNetworkProductBlobClient(c.Resolve<IBlobClientFactory>().Create(WellKnownBuckets.ProductBucket))).SingleInstance();
     }
 }

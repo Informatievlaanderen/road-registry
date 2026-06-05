@@ -93,7 +93,7 @@ public class ExtractUploaderTests
         blobClientMock
             .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new BlobObject(new BlobName("archive.zip"),
-                Metadata.None,
+                Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
                 ContentType.Parse("application/zip"),
                 _ =>
                 {
@@ -291,7 +291,7 @@ public class ExtractUploaderTests
         var blobClient = new Mock<IBlobClient>();
         blobClient
             .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => new BlobObject(Fixture.Create<BlobName>(), Metadata.None, ContentType.Parse("application/text"), _ => throw new NotSupportedException()));
+            .ReturnsAsync(() => new BlobObject(Fixture.Create<BlobName>(), Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")), ContentType.Parse("application/text"), _ => throw new NotSupportedException()));
 
         // Act
         var act = () => ProcessUpload(downloadId, blobClient: blobClient.Object);
@@ -325,7 +325,7 @@ public class ExtractUploaderTests
         var blobClient = new Mock<IBlobClient>();
         blobClient
             .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => new BlobObject(Fixture.Create<BlobName>(), Metadata.None, ContentType.Parse("binary/octet-stream"), _ => throw new CorruptArchiveException()));
+            .ReturnsAsync(() => new BlobObject(Fixture.Create<BlobName>(), Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")), ContentType.Parse("binary/octet-stream"), _ => throw new CorruptArchiveException()));
 
         // Act
         var act = () => ProcessUpload(downloadId, blobClient: blobClient.Object);
@@ -362,7 +362,7 @@ public class ExtractUploaderTests
             .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new BlobObject(
                 Fixture.Create<BlobName>(),
-                Metadata.None,
+                Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
                 ContentType.Parse("binary/octet-stream"),
                 _ => throw new ZipArchiveValidationException(ZipArchiveProblems.None.Add(new FileError(Fixture.Create<string>(), Fixture.Create<string>())))));
 
@@ -405,7 +405,7 @@ public class ExtractUploaderTests
             .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new BlobObject(
                 Fixture.Create<BlobName>(),
-                Metadata.None,
+                Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
                 ContentType.Parse("binary/octet-stream"),
                 _ => throw new Exception()));
 
@@ -473,7 +473,7 @@ public class ExtractUploaderTests
             blobClientMock
                 .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new BlobObject(new BlobName("archive.zip"),
-                    Metadata.None,
+                    Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware_found"), "false")),
                     ContentType.Parse("application/zip"),
                     _ =>
                     {

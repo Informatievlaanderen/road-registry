@@ -61,7 +61,7 @@ public class GetUploadFilePreSignedUrlRequestHandler : EndpointRequestHandler<Ge
 
         var blob = await _client.GetBlobAsync(blobName, cancellationToken);
 
-        var metadata = blob.Metadata.Where(pair => pair.Key == new MetadataKey("filename")).ToArray();
+        var metadata = blob.Metadata.Where(pair => pair.Key == new MetadataKey(WellKnownBlobMetadataKeys.FileName)).ToArray();
         var fileName = metadata.Length == 1 ? metadata[0].Value : archiveId + ".zip";
 
         var bucketName = _s3BlobClientOptions.GetBucketName(WellKnownBuckets.UploadsBucket);

@@ -62,7 +62,7 @@ internal static class Extensions
     internal static async Task CreateDummyFile(this IBlobClient blobClient, string fileName, CancellationToken cancellationToken)
     {
         var metadata = Metadata.None.Add(
-            new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), fileName)
+            new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.FileName), fileName)
         );
 
         var blobName = new BlobName(fileName);
