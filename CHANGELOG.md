@@ -1,3 +1,11 @@
+## [4.62.2](https://github.com/informatievlaanderen/road-registry/compare/v4.62.1...v4.62.2) (2026-06-05)
+
+
+### Bug Fixes
+
+* **malwarescan:** detect on upload ([3e359e1](https://github.com/informatievlaanderen/road-registry/commit/3e359e1a5cb61cd007537863c2a4c189c8c6e563))
+* unit tests ([535aaa7](https://github.com/informatievlaanderen/road-registry/commit/535aaa7e37f2425ebeae79a712b252335bdbc816))
+
 ## [4.62.1](https://github.com/informatievlaanderen/road-registry/compare/v4.62.0...v4.62.1) (2026-06-05)
 
 
