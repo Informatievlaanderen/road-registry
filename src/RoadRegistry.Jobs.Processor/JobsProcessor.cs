@@ -279,6 +279,11 @@ namespace RoadRegistry.Jobs.Processor
                         .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
                     var extractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId);
 
+                    if (blob.MalwareFound())
+                    {
+                        _logger.LogError("Malware found in blob '{Blob}' for download id '{DownloadId}'.", blob.Name, extractDownload.DownloadId.ToString("N"));
+                    }
+
                     if (extractDownload.ZipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2)
                     {
                         var extractRequest = await _extractsDbContext.ExtractRequests
@@ -339,6 +344,11 @@ namespace RoadRegistry.Jobs.Processor
 
                     var extractRequest = await _extractsDbContext.ExtractRequests
                         .SingleAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId, cancellationToken);
+
+                    if (blob.MalwareFound())
+                    {
+                        _logger.LogError("Malware found in blob '{Blob}' for download id '{DownloadId}'.", blob.Name, extractDownload.DownloadId.ToString("N"));
+                    }
 
                     return new UploadInwinningExtractSqsRequest
                     {
