@@ -1,3 +1,11 @@
+## [4.62.3](https://github.com/informatievlaanderen/road-registry/compare/v4.62.2...v4.62.3) (2026-06-08)
+
+
+### Bug Fixes
+
+* **inwinning:** gemeente inwinningsstatus ([3aed9f0](https://github.com/informatievlaanderen/road-registry/commit/3aed9f04476090ba906c741cbc890fb80a5f75d5))
+* **malware:** log error when malware detected ([597fee4](https://github.com/informatievlaanderen/road-registry/commit/597fee416a3425ba499a03c5198f52f346ae0b1d))
+
 ## [4.62.2](https://github.com/informatievlaanderen/road-registry/compare/v4.62.1...v4.62.2) (2026-06-05)
 
 
