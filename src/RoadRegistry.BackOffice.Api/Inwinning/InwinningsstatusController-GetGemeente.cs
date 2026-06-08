@@ -108,7 +108,7 @@ public partial class InwinningsstatusController
                 historiek.Add(new GemeenteInwinningsstatusExtractHistoriekItem
                 {
                     Status = "gesloten",
-                    Datum = extractDownload.ClosedOn ?? historiek.Max(x => x.Datum).AddMilliseconds(1)
+                    Datum = extractDownload.ClosedOn ?? (historiek.Any() ? historiek.Max(x => x.Datum).AddMilliseconds(1) : extractDownload.RequestedOn)
                 });
             }
 
