@@ -55,7 +55,7 @@ public class WithInvalidRequest : WhenUploadInwinningExtractTestBase
         blobClientMock
             .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new BlobObject(new BlobName("archive.zip"),
-                Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware-found"), "false")),
+                Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("guardduty-malware-scan-status"), "NO_THREATS_FOUND")),
                 ContentType.Parse("application/zip"),
                 _ =>
                 {

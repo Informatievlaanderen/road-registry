@@ -54,7 +54,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                     blobName,
                     Metadata.None
                         .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), blobFileName))
-                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("malware-found"), "false")),
+                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("guardduty-malware-scan-status"), "NO_THREATS_FOUND")),
                     ContentType.Parse("X-multipart/abc"),
                     _ => Task.FromResult<Stream>(EmbeddedResourceReader.Read("valid.zip"))));
 
@@ -102,8 +102,8 @@ namespace RoadRegistry.Jobs.Processor.Tests
             var blobMetadataMalwareFound = createBlobInvocation
                 .Arguments.OfType<Metadata>()
                 .Single()
-                .Single(x => x.Key == "malware-found");
-            blobMetadataMalwareFound.Value.Should().Be("false");
+                .Single(x => x.Key == "guardduty-malware-scan-status");
+            blobMetadataMalwareFound.Value.Should().Be("NO_THREATS_FOUND");
 
             var executedRequest = Assert.IsType<UploadExtractSqsRequest>(mockMediator.Invocations.Single().Arguments.First());
             executedRequest.TicketId.Should().Be(ticketId);
