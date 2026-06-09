@@ -1,3 +1,10 @@
+## [4.62.4](https://github.com/informatievlaanderen/road-registry/compare/v4.62.3...v4.62.4) (2026-06-09)
+
+
+### Bug Fixes
+
+* **malware:** read scan status from metadata instead of tags ([63e9f26](https://github.com/informatievlaanderen/road-registry/commit/63e9f2683fbd2fb23aaaef9b6fc5bc9904480e01))
+
 ## [4.62.3](https://github.com/informatievlaanderen/road-registry/compare/v4.62.2...v4.62.3) (2026-06-08)
 
 
