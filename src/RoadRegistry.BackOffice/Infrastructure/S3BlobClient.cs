@@ -17,14 +17,12 @@ namespace RoadRegistry.BackOffice.Infrastructure
     {
         private readonly IAmazonS3 _client;
         private readonly string _bucket;
-        private readonly bool _malwareScan;
         private readonly ILogger _logger;
 
-        public S3BlobClient(IAmazonS3 client, string bucket, bool malwareScan, ILogger? logger = null)
+        public S3BlobClient(IAmazonS3 client, string bucket, ILogger? logger = null)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _bucket = bucket ?? throw new ArgumentNullException(nameof(bucket));
-            _malwareScan = malwareScan;
             _logger = logger ?? NullLogger.Instance;
         }
 
@@ -39,12 +37,6 @@ namespace RoadRegistry.BackOffice.Infrastructure
                 }, cancellationToken);
 
                 var metadata = ConvertMetadataFromMetadataCollection(response);
-
-                if (_malwareScan)
-                {
-                    var hasMalware = await BlobHasMalwareAsync(name, cancellationToken);
-                    metadata = metadata.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.MalwareFound), hasMalware.ToString().ToLower()));
-                }
 
                 return new BlobObject(
                     name,
@@ -73,26 +65,6 @@ namespace RoadRegistry.BackOffice.Infrastructure
             {
                 return null;
             }
-        }
-
-        private async Task<bool> BlobHasMalwareAsync(BlobName name, CancellationToken cancellationToken = default)
-        {
-            var response = await _client.GetObjectTaggingAsync(new GetObjectTaggingRequest
-            {
-                BucketName = _bucket,
-                Key = name.ToString()
-            }, cancellationToken);
-
-            _logger.LogInformation("Blob '{Name}' tags: {Tags}", name, string.Join(", ", response.Tagging.Select(x => $"{x.Key}={x.Value}")));
-
-            var scanStatus = response.Tagging.SingleOrDefault(x => x.Key == "GuardDutyMalwareScanStatus")?.Value;
-
-            return scanStatus switch
-            {
-                "NO_THREATS_FOUND" => false,
-                "THREATS_FOUND" => true,
-                _ => throw new Exception($"Unexpected GuardDutyMalwareScanStatus: {scanStatus}")
-            };
         }
 
         public async Task<bool> BlobExistsAsync(BlobName name, CancellationToken cancellationToken = default)
