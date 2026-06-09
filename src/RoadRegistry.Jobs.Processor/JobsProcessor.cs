@@ -263,9 +263,12 @@ namespace RoadRegistry.Jobs.Processor
                         .Select(x => x.Value)
                         .ToArray();
                     var fileName = fileNames.Length == 1 ? fileNames.Single() : $"{uploadId}.zip";
-                    var metadata = Metadata.None
-                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.FileName), fileName))
-                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.MalwareFound), blob.MalwareFound().ToString().ToLower()));
+                    var metadata = Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.FileName), fileName));
+
+                    var malwareScanStatus = blob.Metadata.Single(x => x.Key == new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanStatus)).Value;
+                    metadata = metadata.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanStatus) ,malwareScanStatus));
+                    var malwareScanThreat = blob.Metadata.Where(x => x.Key == new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanThreat)).Select(x => x.Value).SingleOrDefault();
+                    metadata = metadata.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanThreat), malwareScanThreat ?? string.Empty));
 
                     await _uploadsBlobClient.CreateBlobAsync(
                         new BlobName(uploadId.ToString()),
@@ -324,9 +327,12 @@ namespace RoadRegistry.Jobs.Processor
                         .Select(x => x.Value)
                         .ToArray();
                     var fileName = fileNames.Length == 1 ? fileNames.Single() : $"{uploadId}.zip";
-                    var metadata = Metadata.None
-                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.FileName), fileName))
-                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.MalwareFound), blob.MalwareFound().ToString().ToLower()));
+                    var metadata = Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.FileName), fileName));
+
+                    var malwareScanStatus = blob.Metadata.Single(x => x.Key == new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanStatus)).Value;
+                    metadata = metadata.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanStatus) ,malwareScanStatus));
+                    var malwareScanThreat = blob.Metadata.Where(x => x.Key == new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanThreat)).Select(x => x.Value).SingleOrDefault();
+                    metadata = metadata.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanThreat), malwareScanThreat ?? string.Empty));
 
                     RemoveUnknownFilesForDomainV2(writeableBlobStream);
 

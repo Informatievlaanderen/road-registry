@@ -10,7 +10,7 @@ using S3BlobClient = Infrastructure.S3BlobClient;
 
 public interface IBlobClientFactory
 {
-    IBlobClient Create(string bucketKey, bool malwareScan = false);
+    IBlobClient Create(string bucketKey);
 }
 
 public class BlobClientFactory: IBlobClientFactory
@@ -30,12 +30,12 @@ public class BlobClientFactory: IBlobClientFactory
         _logger = loggerFactory.CreateLogger<BlobClientFactory>();
     }
 
-    public IBlobClient Create(string bucketKey, bool malwareScan = false)
+    public IBlobClient Create(string bucketKey)
     {
         switch (_blobClientOptions.BlobClientType)
         {
             case nameof(S3BlobClient):
-                return new S3BlobClient(_amazonS3Client.Value, _s3BlobClientOptions.Value.GetBucketName(bucketKey), malwareScan, _logger);
+                return new S3BlobClient(_amazonS3Client.Value, _s3BlobClientOptions.Value.GetBucketName(bucketKey), _logger);
             case nameof(FileBlobClient):
                 return _fileBlobClient.Value;
         }
