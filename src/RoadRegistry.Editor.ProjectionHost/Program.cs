@@ -50,6 +50,13 @@ public class Program
             .RunAsync(async (sp, host, configuration) =>
             {
                 var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
+
+                if (string.IsNullOrEmpty(configuration.GetConnectionString(WellKnownConnectionNames.Marten)))
+                {
+                    loggerFactory.CreateLogger<Program>()
+                        .LogError("Marten connection string is missing or empty; migration projection will be skipped.");
+                }
+
                 var migratorFactories = sp.GetRequiredService<IRunnerDbContextMigratorFactory[]>();
 
                 foreach (var migratorFactory in migratorFactories)
@@ -118,8 +125,12 @@ public class Program
                 [
                     new RoadSegmentVersionRecordProjection(sp.GetRequiredService<ILogger<RoadSegmentVersionRecordProjection>>())
                 ])
-                .AddMartenDbMigrationEventProcessor()
                 ;
+
+            if (!string.IsNullOrEmpty(hostContext.Configuration.GetConnectionString(WellKnownConnectionNames.Marten)))
+            {
+                services.AddMartenDbMigrationEventProcessor();
+            }
         })
         .ConfigureHealthChecks(HostingPort, builder => builder
             .AddHostedServicesStatus()
