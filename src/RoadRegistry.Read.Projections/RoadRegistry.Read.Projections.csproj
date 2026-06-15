@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>RoadRegistry.Read.Projections</RootNamespace>
     <AssemblyName>RoadRegistry.Read.Projections</AssemblyName>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>

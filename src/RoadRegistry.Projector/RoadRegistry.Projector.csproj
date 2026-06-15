@@ -21,6 +21,7 @@
     <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
     <ProjectReference Include="..\RoadRegistry.Integration.Schema\RoadRegistry.Integration.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.MartenMigration.Projections\RoadRegistry.MartenMigration.Projections.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Read.Projections\RoadRegistry.Read.Projections.csproj" />
     <ProjectReference Include="..\RoadRegistry.Sync.StreetNameRegistry\RoadRegistry.Sync.StreetNameRegistry.csproj" />
     <ProjectReference Include="..\RoadRegistry.Sync.OrganizationRegistry\RoadRegistry.Sync.OrganizationRegistry.csproj" />
     <ProjectReference Include="..\RoadRegistry.Wfs.Schema\RoadRegistry.Wfs.Schema.csproj" />

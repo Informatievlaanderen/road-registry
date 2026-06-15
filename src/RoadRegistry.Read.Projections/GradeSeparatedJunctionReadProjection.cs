@@ -70,10 +70,11 @@ public class GradeSeparatedJunctionReadProjection : RoadNetworkChangesConnectedP
             var junction = await session.LoadAsync<GradeSeparatedJunctionReadItem>(e.Data.Id);
             if (junction is null)
             {
-                throw new InvalidOperationException($"No document found for Id {e.Data.Id}");
+                throw new InvalidOperationException($"No grade separated junction found for Id {e.Data.Id}");
             }
 
-            session.Delete(junction);
+            junction.IsRemoved = true;
+            session.Store(junction);
         });
 
         // V2
@@ -84,7 +85,7 @@ public class GradeSeparatedJunctionReadProjection : RoadNetworkChangesConnectedP
                 GradeSeparatedJunctionId = e.Data.GradeSeparatedJunctionId,
                 LowerRoadSegmentId = new RoadSegmentId(e.Data.LowerRoadSegmentId),
                 UpperRoadSegmentId = new RoadSegmentId(e.Data.UpperRoadSegmentId),
-                Type = e.Data.Type,
+                Type = e.Data.Type.ToString(),
                 Origin = e.Data.Provenance.ToEventTimestamp(),
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = true
@@ -96,11 +97,11 @@ public class GradeSeparatedJunctionReadProjection : RoadNetworkChangesConnectedP
             var junction = await session.LoadAsync<GradeSeparatedJunctionReadItem>(e.Data.GradeSeparatedJunctionId);
             if (junction is null)
             {
-                throw new InvalidOperationException($"No document found for Id {e.Data.GradeSeparatedJunctionId}");
+                throw new InvalidOperationException($"No grade separated junction found for Id {e.Data.GradeSeparatedJunctionId}");
             }
 
             junction.LastModified = e.Data.Provenance.ToEventTimestamp();
-            junction.Type = e.Data.Type ?? junction.Type;
+            junction.Type = e.Data.Type?.ToString() ?? junction.Type;
             junction.LowerRoadSegmentId = e.Data.LowerRoadSegmentId ?? junction.LowerRoadSegmentId;
             junction.UpperRoadSegmentId = e.Data.UpperRoadSegmentId ?? junction.UpperRoadSegmentId;
 
@@ -111,20 +112,22 @@ public class GradeSeparatedJunctionReadProjection : RoadNetworkChangesConnectedP
             var junction = await session.LoadAsync<GradeSeparatedJunctionReadItem>(e.Data.GradeSeparatedJunctionId);
             if (junction is null)
             {
-                throw new InvalidOperationException($"No document found for Id {e.Data.GradeSeparatedJunctionId}");
+                throw new InvalidOperationException($"No grade separated junction found for Id {e.Data.GradeSeparatedJunctionId}");
             }
 
-            session.Delete(junction);
+            junction.IsRemoved = true;
+            session.Store(junction);
         });
         When<IEvent<GradeSeparatedJunctionWasRemovedBecauseOfMigration>>(async (session, e, _) =>
         {
             var junction = await session.LoadAsync<GradeSeparatedJunctionReadItem>(e.Data.GradeSeparatedJunctionId);
             if (junction is null)
             {
-                throw new InvalidOperationException($"No document found for Id {e.Data.GradeSeparatedJunctionId}");
+                throw new InvalidOperationException($"No grade separated junction found for Id {e.Data.GradeSeparatedJunctionId}");
             }
 
-            session.Delete(junction);
+            junction.IsRemoved = true;
+            session.Store(junction);
         });
     }
 }
@@ -148,4 +151,5 @@ public sealed class GradeSeparatedJunctionReadItem
     public required EventTimestamp LastModified { get; set; }
 
     public required bool IsV2 { get; set; }
+    public bool IsRemoved { get; set; }
 }

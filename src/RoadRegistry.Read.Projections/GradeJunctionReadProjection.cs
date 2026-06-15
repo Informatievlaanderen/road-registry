@@ -40,10 +40,11 @@ public class GradeJunctionReadProjection : RoadNetworkChangesConnectedProjection
             var junction = await session.LoadAsync<GradeJunctionReadItem>(e.Data.GradeJunctionId);
             if (junction is null)
             {
-                throw new InvalidOperationException($"No document found for Id {e.Data.GradeJunctionId}");
+                throw new InvalidOperationException($"No grade junction found for Id {e.Data.GradeJunctionId}");
             }
 
-            session.Delete(junction);
+            junction.IsRemoved = true;
+            session.Store(junction);
         });
     }
 }
@@ -66,4 +67,5 @@ public sealed class GradeJunctionReadItem
     public required EventTimestamp LastModified { get; set; }
 
     public required bool IsV2 { get; set; }
+    public bool IsRemoved { get; set; }
 }

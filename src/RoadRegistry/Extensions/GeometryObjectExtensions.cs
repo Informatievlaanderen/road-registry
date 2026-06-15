@@ -19,6 +19,20 @@ public static class GeometryObjectExtensions
 
         throw new InvalidCastException($"Geometry SRID {geometry.SRID} is not Lambert72 or Lambert08");
     }
+    public static RoadNodeGeometry EnsureLambert72(this RoadNodeGeometry geometry)
+    {
+        if (geometry.Value.IsLambert72())
+        {
+            return geometry;
+        }
+
+        if (geometry.Value.IsLambert08())
+        {
+            return RoadNodeGeometry.Create(geometry.Value.TransformFromLambert08To72());
+        }
+
+        throw new InvalidCastException($"Geometry SRID {geometry.SRID} is not Lambert72 or Lambert08");
+    }
 
     public static RoadSegmentGeometry EnsureLambert08(this RoadSegmentGeometry geometry)
     {
@@ -30,6 +44,20 @@ public static class GeometryObjectExtensions
         if (geometry.Value.IsLambert72())
         {
             return RoadSegmentGeometry.Create(geometry.Value.TransformFromLambert72To08());
+        }
+
+        throw new InvalidCastException($"Geometry SRID {geometry.SRID} is not Lambert72 or Lambert08");
+    }
+    public static RoadSegmentGeometry EnsureLambert72(this RoadSegmentGeometry geometry)
+    {
+        if (geometry.Value.IsLambert72())
+        {
+            return geometry;
+        }
+
+        if (geometry.Value.IsLambert08())
+        {
+            return RoadSegmentGeometry.Create(geometry.Value.TransformFromLambert08To72());
         }
 
         throw new InvalidCastException($"Geometry SRID {geometry.SRID} is not Lambert72 or Lambert08");

@@ -48,6 +48,7 @@ using NodaTime;
 using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
+using RoadRegistry.Read.Projections;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -272,9 +273,15 @@ public class Startup
 
             .AddMartenRoad((options, sp) =>
             {
-                var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesExtractProjection)}:BatchSize");
+                {
+                    var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesExtractProjection)}:BatchSize");
+                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesExtractProjection(batchSize, sp.GetRequiredService<ILoggerFactory>()));
+                }
 
-                options.AddRoadNetworkChangesProjection(new RoadNetworkChangesExtractProjection(batchSize, sp.GetRequiredService<ILoggerFactory>()));
+                {
+                    var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesReadProjection)}:BatchSize");
+                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesReadProjection(batchSize, sp.GetRequiredService<ILoggerFactory>()));
+                }
             }).ApplyAllDatabaseChangesOnStartup().Services
 
             .AddSingleton(new IDbContextMigratorFactory[]
