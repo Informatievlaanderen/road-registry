@@ -16,6 +16,7 @@ using RoadRegistry.StreetName;
 using RoadSegment.Events.V1;
 using RoadSegment.Events.V2;
 using RoadSegment.ValueObjects;
+using RoadRegistry.StreetName.Events.V2;
 
 public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
 {
@@ -27,6 +28,11 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         options.Schema.For<RoadSegmentReadItem>()
             .DatabaseSchemaName(WellKnownSchemas.MartenProjections)
             .DocumentAlias("read_roadsegments")
+            .Identity(x => x.Id);
+
+        options.Schema.For<StreetNameRoadSegmentsLink>()
+            .DatabaseSchemaName(WellKnownSchemas.MartenProjections)
+            .DocumentAlias("read_streetname_roadsegments_link")
             .Identity(x => x.Id);
     }
 
@@ -87,6 +93,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             session.Store(roadSegment);
 
             await UpdateRoadNodeRoadSegmentIds(session, roadSegment.RoadSegmentId, (null, null), (roadSegment.StartNodeId, roadSegment.EndNodeId), ct);
+            await SyncStreetNameLinks(session, roadSegment.RoadSegmentId, [], roadSegment.GetStreetNameHashSet(), ct);
         });
         When<IEvent<RoadSegmentAdded>>(async (session, e, ct) =>
         {
@@ -133,6 +140,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             session.Store(roadSegment);
 
             await UpdateRoadNodeRoadSegmentIds(session, roadSegment.RoadSegmentId, (null, null), (roadSegment.StartNodeId, roadSegment.EndNodeId), ct);
+            await SyncStreetNameLinks(session, roadSegment.RoadSegmentId, [], roadSegment.GetStreetNameHashSet(), ct);
         });
         When<IEvent<RoadSegmentModified>>((session, e, ct) =>
         {
@@ -177,6 +185,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             session.Store(roadSegment);
 
             await UpdateRoadNodeRoadSegmentIds(session, roadSegment.RoadSegmentId, (roadSegment.StartNodeId, roadSegment.EndNodeId), (null, null), ct);
+            await SyncStreetNameLinks(session, roadSegment.RoadSegmentId, roadSegment.GetStreetNameHashSet(), [], ct);
         });
         When<IEvent<RoadSegmentAddedToEuropeanRoad>>((session, e, ct) => { return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment => { segment.EuropeanRoadNumbers.Add(EuropeanRoadNumber.Parse(e.Data.Number)); }, e.Data, ct); });
         When<IEvent<RoadSegmentAddedToNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment => { segment.NationalRoadNumbers.Add(NationalRoadNumber.Parse(e.Data.Number)); }, e.Data, ct); });
@@ -300,6 +309,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             session.Store(roadSegment);
 
             await UpdateRoadNodeRoadSegmentIds(session, roadSegmentId, (null, null), (roadSegment.StartNodeId, roadSegment.EndNodeId), ct);
+            await SyncStreetNameLinks(session, roadSegment.RoadSegmentId, [], roadSegment.GetStreetNameHashSet(), ct);
         });
         When<IEvent<RoadSegmentWasMerged>>((session, e, ct) =>
         {
@@ -441,6 +451,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             session.Store(roadSegment);
 
             await UpdateRoadNodeRoadSegmentIds(session, roadSegment.RoadSegmentId, (roadSegment.StartNodeId, roadSegment.EndNodeId), (null, null), ct);
+            await SyncStreetNameLinks(session, roadSegment.RoadSegmentId, roadSegment.GetStreetNameHashSet(), [], ct);
         });
         When<IEvent<RoadSegmentWasRemovedBecauseOfMigration>>(async (session, e, ct) =>
         {
@@ -454,6 +465,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             session.Store(roadSegment);
 
             await UpdateRoadNodeRoadSegmentIds(session, roadSegment.RoadSegmentId, (roadSegment.StartNodeId, roadSegment.EndNodeId), (null, null), ct);
+            await SyncStreetNameLinks(session, roadSegment.RoadSegmentId, roadSegment.GetStreetNameHashSet(), [], ct);
         });
         When<IEvent<RoadSegmentWasRetired>>((session, e, ct) =>
         {
@@ -477,6 +489,41 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         When<IEvent<RoadSegmentWasAddedToNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.NationalRoadNumbers.Add(e.Data.Number); }, e.Data, ct); });
         When<IEvent<RoadSegmentWasRemovedFromEuropeanRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.EuropeanRoadNumbers.Remove(e.Data.Number); }, e.Data, ct); });
         When<IEvent<RoadSegmentWasRemovedFromNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.NationalRoadNumbers.Remove(e.Data.Number); }, e.Data, ct); });
+
+        // StreetName
+        When<IEvent<StreetNameWasCreated>>((session, e, ct) => UpdateStreetNameLabels(session, e.Data.StreetNameId, e.Data.DutchName, ct));
+        When<IEvent<StreetNameNameWasModified>>((session, e, ct) => UpdateStreetNameLabels(session, e.Data.StreetNameId, e.Data.DutchName, ct));
+        When<IEvent<StreetNameWasRemoved>>((session, e, ct) => UpdateStreetNameLabels(session, e.Data.StreetNameId, null,  ct));
+    }
+
+    private async Task UpdateStreetNameLabels(IDocumentOperations session, StreetNameLocalId streetNameId, string? dutchName, CancellationToken ct)
+    {
+        var link = await session.LoadAsync<StreetNameRoadSegmentsLink>(streetNameId, ct);
+        if (link is null || link.RoadSegmentIds.Count == 0)
+        {
+            return;
+        }
+
+        var segments = await session.LoadManyAsync<RoadSegmentReadItem>(ct, link.RoadSegmentIds.Select(x => x.ToInt32()).ToArray());
+        foreach (var segment in segments)
+        {
+            var changed = false;
+
+            foreach (var value in segment.StreetNameId.Values)
+            {
+                if (value.Value is not null && value.Value.StreetNameId == streetNameId)
+                {
+                    value.Value.DutchName = dutchName;
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                // Do not update LastModified of the segment
+                session.Store(segment);
+            }
+        }
     }
 
     private async Task UpdateRoadNodeRoadSegmentIds(
@@ -503,13 +550,13 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         if (originalStartEndNodeIds.Start is not null)
         {
             var node = nodes.Single(x => x.RoadNodeId == originalStartEndNodeIds.Start.Value);
-            node.RoadSegmentIds = node.RoadSegmentIds.Except([roadSegmentId]).OrderBy(x => x).ToArray();
+            node.RoadSegmentIds = node.RoadSegmentIds.Except([roadSegmentId]).ToArray();
             session.Store(node);
         }
         if (originalStartEndNodeIds.End is not null)
         {
             var node = nodes.Single(x => x.RoadNodeId == originalStartEndNodeIds.End.Value);
-            node.RoadSegmentIds = node.RoadSegmentIds.Except([roadSegmentId]).OrderBy(x => x).ToArray();
+            node.RoadSegmentIds = node.RoadSegmentIds.Except([roadSegmentId]).ToArray();
             session.Store(node);
         }
 
@@ -527,6 +574,44 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         }
     }
 
+    private static async Task SyncStreetNameLinks(
+        IDocumentOperations session,
+        RoadSegmentId roadSegmentId,
+        HashSet<StreetNameLocalId> originalStreetNameIds,
+        HashSet<StreetNameLocalId> updatedStreetNameIds,
+        CancellationToken ct)
+    {
+        var oldStreetNameIds = originalStreetNameIds.ToHashSet();
+
+        foreach (var streetNameId in oldStreetNameIds.Except(updatedStreetNameIds))
+        {
+            var streetNameRoadSegments = await session.LoadAsync<StreetNameRoadSegmentsLink>(streetNameId, ct);
+            if (streetNameRoadSegments is null)
+            {
+                continue;
+            }
+
+            streetNameRoadSegments.RoadSegmentIds = streetNameRoadSegments.RoadSegmentIds.Except([roadSegmentId]).ToList();
+            if (streetNameRoadSegments.RoadSegmentIds.Count == 0)
+            {
+                session.Delete(streetNameRoadSegments);
+            }
+            else
+            {
+                session.Store(streetNameRoadSegments);
+            }
+        }
+
+        foreach (var streetNameId in updatedStreetNameIds.Except(oldStreetNameIds))
+        {
+            var streetNameRoadSegmentsLink = await session.LoadAsync<StreetNameRoadSegmentsLink>(streetNameId, ct)
+                                         ?? new StreetNameRoadSegmentsLink { StreetNameId = streetNameId, RoadSegmentIds = [] };
+
+            streetNameRoadSegmentsLink.RoadSegmentIds = streetNameRoadSegmentsLink.RoadSegmentIds.Union([roadSegmentId]).ToList();
+            session.Store(streetNameRoadSegmentsLink);
+        }
+    }
+
     private async Task ModifyRoadSegment<TEvent>(IDocumentOperations operations, RoadSegmentId roadSegmentId, Action<RoadSegmentReadItem> modify, TEvent evt, CancellationToken ct)
         where TEvent : IMartenEvent
     {
@@ -537,6 +622,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         }
 
         var originalStartEndNodeIds = (roadSegment.StartNodeId, roadSegment.EndNodeId);
+        var originalStreetNameIds = roadSegment.GetStreetNameHashSet();
 
         modify(roadSegment);
 
@@ -544,6 +630,12 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         if (originalStartEndNodeIds != updatedStartEndNodeIds)
         {
             await UpdateRoadNodeRoadSegmentIds(operations, roadSegment.RoadSegmentId, originalStartEndNodeIds, updatedStartEndNodeIds, ct);
+        }
+
+        var updatedStreetNameIds = roadSegment.GetStreetNameHashSet();
+        if (!originalStreetNameIds.SetEquals(updatedStreetNameIds))
+        {
+            await SyncStreetNameLinks(operations, roadSegment.RoadSegmentId, originalStreetNameIds, updatedStreetNameIds, ct);
         }
 
         roadSegment.LastModified = evt.Provenance.ToEventTimestamp();
@@ -671,6 +763,15 @@ public sealed class RoadSegmentReadItem
     public required EventTimestamp LastModified { get; set; }
     public required bool IsV2 { get; set; }
     public bool IsRemoved { get; set; }
+
+    public HashSet<StreetNameLocalId> GetStreetNameHashSet()
+    {
+        return StreetNameId.Values
+            .Select(x => x.Value?.StreetNameId)
+            .Where(x => !StreetNameLocalId.IsEmpty(x))
+            .Select(x => x!.Value)
+            .ToHashSet();
+    }
 }
 
 public sealed class RoadSegmentStreetNameAttributeValue
@@ -727,8 +828,7 @@ internal static class RoadSegmentDynamicAttributeValuesExtensions
     }
 }
 
-//TODO-pr add to projection and use to find roadsegments for specific streetname
-public sealed class StreetNameRoadSegments
+public sealed class StreetNameRoadSegmentsLink
 {
     [JsonIgnore]
     public int Id { get; private set; }
