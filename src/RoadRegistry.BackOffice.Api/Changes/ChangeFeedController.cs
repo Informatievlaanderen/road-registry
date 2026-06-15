@@ -14,7 +14,7 @@ using NodaTime;
 using NodaTime.Text;
 using Version = Infrastructure.Version;
 
-[ApiVersion(Version.Current)]
+[ApiVersion(Version.V1)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("changefeed")]
 [ApiExplorerSettings(GroupName = "Activiteiten")]

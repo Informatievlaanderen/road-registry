@@ -1,9 +1,9 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeAttributes;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeAttributes;
 
 using System.Runtime.Serialization;
-using Infrastructure;
-using Infrastructure.Controllers.Attributes;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Api.Infrastructure;
+using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 
 public record ChangeAttributeParameters
 {

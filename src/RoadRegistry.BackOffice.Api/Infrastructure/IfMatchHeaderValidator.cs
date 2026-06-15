@@ -5,6 +5,7 @@ using Be.Vlaanderen.Basisregisters.Api.ETag;
 using RoadSegments;
 using System.Threading;
 using System.Threading.Tasks;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1;
 
 public interface IIfMatchHeaderValidator
 {

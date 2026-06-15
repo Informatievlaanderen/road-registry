@@ -1,19 +1,19 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1;
 
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.RoadSegments;
-using BackOffice.Handlers.Sqs.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using ChangeDynamicAttributes;
-using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.BackOffice.Abstractions.RoadSegments;
+using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeDynamicAttributes;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using ValidationException = FluentValidation.ValidationException;

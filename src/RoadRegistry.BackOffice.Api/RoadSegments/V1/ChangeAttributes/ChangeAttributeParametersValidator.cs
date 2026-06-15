@@ -1,21 +1,16 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeAttributes;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeAttributes;
 
-using Core;
-using Editor.Schema;
-using Extensions;
-using FluentValidation;
-using FluentValidation.Results;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using CommandHandling;
+using FluentValidation;
+using FluentValidation.Results;
 using RoadRegistry.BackOffice.Handlers.Extensions;
+using RoadRegistry.Editor.Schema;
 using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure;
-using ValueObjects.ProblemCodes;
-using ValueObjects.Problems;
+using RoadRegistry.ValueObjects.ProblemCodes;
+using RoadRegistry.ValueObjects.Problems;
 
 public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttributeParameters>
 {

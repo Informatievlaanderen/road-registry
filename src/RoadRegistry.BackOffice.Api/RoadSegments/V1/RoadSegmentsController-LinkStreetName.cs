@@ -1,27 +1,26 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1;
 
-using Abstractions.Extensions;
-using Abstractions.RoadSegments;
-using BackOffice.Handlers.Sqs.RoadSegments;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
-using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using FluentValidation;
-using Infrastructure;
-using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Abstractions.Exceptions;
+using RoadRegistry.BackOffice.Abstractions.Extensions;
+using RoadRegistry.BackOffice.Abstractions.RoadSegments;
+using RoadRegistry.BackOffice.Api.Infrastructure;
+using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 
 public partial class RoadSegmentsController
 {

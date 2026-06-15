@@ -1,15 +1,11 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeDynamicAttributes;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeDynamicAttributes;
 
 using System;
 using System.Linq;
-using CommandHandling;
 using FluentValidation;
-using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure;
-using ValueObjects.ProblemCodes;
+using RoadRegistry.ValueObjects.ProblemCodes;
 
 public class ChangeRoadSegmentDynamicAttributesParametersValidator : AbstractValidator<ChangeRoadSegmentDynamicAttributesParameters>
 {

@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeDynamicAttrib
 
 using Api.Infrastructure.Controllers;
 using Api.RoadSegments;
-using Api.RoadSegments.ChangeDynamicAttributes;
 using AutoFixture;
 using Editor.Schema;
 using Editor.Schema.Organizations;
@@ -11,6 +10,8 @@ using MediatR;
 using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeDynamicAttributes;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using RoadRegistry.Tests.BackOffice.Scenarios;

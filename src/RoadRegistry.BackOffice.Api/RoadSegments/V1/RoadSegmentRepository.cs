@@ -1,8 +1,8 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using Editor.Schema;
+    using RoadRegistry.Editor.Schema;
 
     public interface IRoadSegmentRepository
     {

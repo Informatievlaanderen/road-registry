@@ -1,25 +1,22 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1;
 
 using Asp.Versioning;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-using CommandHandling;
-using Core;
-using Extensions;
 using FluentValidation;
-using Infrastructure.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.DutchTranslations;
+using RoadRegistry.ValueObjects.ProblemCodes;
+using RoadRegistry.ValueObjects.Problems;
 using Swashbuckle.AspNetCore.Filters;
-using ValueObjects.ProblemCodes;
-using ValueObjects.Problems;
 using ProblemDetails = Be.Vlaanderen.Basisregisters.BasicApiProblem.ProblemDetails;
-using Version = Infrastructure.Version;
+using Version = RoadRegistry.BackOffice.Api.Infrastructure.Version;
 
-[ApiVersion(Version.Current)]
+[ApiVersion(Version.V1)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("wegsegmenten")]
 [ApiExplorerSettings(GroupName = "Wegsegmenten")]

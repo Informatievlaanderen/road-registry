@@ -1,8 +1,8 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeDynamicAttributes;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeDynamicAttributes;
 
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure;
-using System.Runtime.Serialization;
 
 [DataContract(Name = "WegsegmentWegbreedteWijzigen", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentWegbreedteWijzigen")]

@@ -1,27 +1,27 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1;
 
-using Abstractions.Exceptions;
-using Abstractions.RoadSegments;
-using Be.Vlaanderen.Basisregisters.Api.ETag;
-using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
-using Be.Vlaanderen.Basisregisters.GrAr.Legacy.SpatialTools;
-using Extensions;
-using Infrastructure.Controllers.Attributes;
-using Infrastructure.Options;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using RoadRegistry.BackOffice.Api.Infrastructure;
-using Swashbuckle.AspNetCore.Annotations;
-using Swashbuckle.AspNetCore.Filters;
 using System;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.Api.ETag;
+using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
+using Be.Vlaanderen.Basisregisters.GrAr.Legacy.SpatialTools;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
+using RoadRegistry.BackOffice.Abstractions.RoadSegments;
+using RoadRegistry.BackOffice.Api.Infrastructure;
+using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
+using RoadRegistry.BackOffice.Api.Infrastructure.Options;
+using RoadRegistry.BackOffice.Extensions;
+using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
 
 public partial class RoadSegmentsController
 {

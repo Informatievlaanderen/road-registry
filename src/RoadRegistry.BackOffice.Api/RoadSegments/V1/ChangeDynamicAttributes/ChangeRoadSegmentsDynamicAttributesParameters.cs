@@ -1,9 +1,9 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeDynamicAttributes;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeDynamicAttributes;
 
-using Swashbuckle.AspNetCore.Filters;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Infrastructure;
+using RoadRegistry.BackOffice.Api.Infrastructure;
+using Swashbuckle.AspNetCore.Filters;
 
 [DataContract(Name = "WegsegmentenDynamischeAttributenWijzigen", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentenDynamischeAttributenWijzigen")]

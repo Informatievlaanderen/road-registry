@@ -54,6 +54,7 @@ using NetTopologySuite.IO;
 using NodaTime;
 using Options;
 using Product.Schema;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.DataValidation;
 using RoadRegistry.Extracts.Projections.Setup;

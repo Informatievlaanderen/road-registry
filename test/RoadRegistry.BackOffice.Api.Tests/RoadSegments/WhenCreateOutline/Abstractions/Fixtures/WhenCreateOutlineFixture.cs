@@ -8,6 +8,7 @@ using Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1;
 using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Tests.BackOffice.Scenarios;

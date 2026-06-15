@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes;
 
-using Api.RoadSegments.ChangeAttributes;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeAttributes;
 
 public class WhenNoAttribuut : ChangeAttributesTestBase
 {

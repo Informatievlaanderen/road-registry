@@ -2,11 +2,11 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeDynamicAttrib
 
 using System.Collections.Generic;
 using System.Linq;
-using Api.RoadSegments.ChangeDynamicAttributes;
 using CommandHandling;
 using Fixtures;
 using FluentValidation;
 using FluentValidation.Results;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeDynamicAttributes;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.DutchTranslations;

@@ -8,7 +8,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SqlStreamStore;
 
-[ApiVersion(Version.Current)]
+[ApiVersion(Version.V1)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("organizations")]
 [ApiExplorerSettings(GroupName = "Organisaties")]

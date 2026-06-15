@@ -1,20 +1,15 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeDynamicAttributes;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeDynamicAttributes;
 
-using System;
-using CommandHandling;
 using FluentValidation;
-using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure;
-using ValueObjects.ProblemCodes;
+using RoadRegistry.ValueObjects.ProblemCodes;
 
-public class ChangeWidthAttributeParametersValidator : AbstractValidator<ChangeWidthAttributeParameters>
+public class ChangeLaneAttributeParametersValidator : AbstractValidator<ChangeLaneAttributeParameters>
 {
     private readonly VerificationContextTolerances _tolerances = VerificationContextTolerances.Default;
 
-    public ChangeWidthAttributeParametersValidator()
+    public ChangeLaneAttributeParametersValidator()
     {
         RuleFor(x => x.VanPositie)
             .Cascade(CascadeMode.Stop)
@@ -42,12 +37,20 @@ public class ChangeWidthAttributeParametersValidator : AbstractValidator<ChangeW
             .WithProblemCode(ProblemCode.ToPosition.LessThanOrEqualFromPosition)
             ;
 
-        RuleFor(x => x.Breedte)
+        RuleFor(x => x.Aantal)
             .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithProblemCode(ProblemCode.Width.IsRequired)
-            .Must(x => RoadSegmentWidth.CanParseUsingDutchName(x) && RoadSegmentWidth.ParseUsingDutchName(x).IsValidForEdit())
-            .WithProblemCode(ProblemCode.Width.NotValid)
+            .WithProblemCode(ProblemCode.Count.IsRequired)
+            .Must(x => RoadSegmentLaneCount.CanParseUsingDutchName(x) && RoadSegmentLaneCount.ParseUsingDutchName(x).IsValidForEdit())
+            .WithProblemCode(ProblemCode.Count.NotValid)
+            ;
+
+        RuleFor(x => x.Richting)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .WithProblemCode(ProblemCode.Direction.IsRequired)
+            .Must(RoadSegmentLaneDirection.CanParseUsingDutchName)
+            .WithProblemCode(ProblemCode.Direction.NotValid)
             ;
     }
 }

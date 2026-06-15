@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Api.RoadSegments;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1;
 
 public class GivenRoadNetwork : RemoveRoadSegmentsTestBase
 {

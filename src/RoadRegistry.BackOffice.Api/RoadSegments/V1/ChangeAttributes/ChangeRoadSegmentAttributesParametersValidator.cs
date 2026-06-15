@@ -1,9 +1,9 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeAttributes;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeAttributes;
 
 using System.Linq;
 using FluentValidation;
 using FluentValidation.Results;
-using ValueObjects.ProblemCodes;
+using RoadRegistry.ValueObjects.ProblemCodes;
 
 public class ChangeRoadSegmentAttributesParametersValidator : AbstractValidator<ChangeRoadSegmentAttributesParameters>
 {

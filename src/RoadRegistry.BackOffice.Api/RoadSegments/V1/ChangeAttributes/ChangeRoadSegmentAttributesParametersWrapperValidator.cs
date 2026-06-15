@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeAttributes;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeAttributes;
 
 using FluentValidation;
 using RoadRegistry.Editor.Schema;

@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenDeleteOutline.Fixtu
 using Api.RoadSegments;
 using Editor.Schema;
 using MediatR;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1;
 
 public class WhenDeleteOutlineWithInvalidIdFixture : WhenDeleteOutlineWithValidRequestFixture
 {

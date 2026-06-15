@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeDynamicAttributes;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeDynamicAttributes;
 
 using System.Runtime.Serialization;
 using Newtonsoft.Json;

@@ -1,31 +1,29 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1;
 
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.Exceptions;
-using Abstractions.RoadSegments;
-using BackOffice.Handlers.Sqs.RoadNetwork;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using CommandHandling;
-using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
-using FeatureToggles;
 using FluentValidation;
 using FluentValidation.Results;
-using Infrastructure;
-using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
+using RoadRegistry.BackOffice.Abstractions.RoadSegments;
+using RoadRegistry.BackOffice.Api.Infrastructure;
+using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
+using RoadRegistry.BackOffice.FeatureToggles;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.Messages;
+using RoadRegistry.ValueObjects.ProblemCodes;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
-using ValueObjects.ProblemCodes;
 
 public partial class RoadSegmentsController
 {

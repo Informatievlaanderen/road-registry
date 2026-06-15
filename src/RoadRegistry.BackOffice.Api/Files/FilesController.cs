@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Version = Infrastructure.Version;
 
-[ApiVersion(Version.Current)]
+[ApiVersion(Version.V1)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("files")]
 [ApiExplorerSettings(IgnoreApi = true)]

@@ -5,6 +5,7 @@ using Api.RoadSegments;
 using AutoFixture;
 using Editor.Schema;
 using MediatR;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1;
 using RoadRegistry.Tests.BackOffice;
 
 public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture

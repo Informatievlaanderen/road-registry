@@ -1,9 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeDynamicAttributes.Fixtures;
 
 using Abstractions.Fixtures;
-using Api.RoadSegments.ChangeDynamicAttributes;
 using AutoFixture;
 using MediatR;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeDynamicAttributes;
 using RoadRegistry.Editor.Schema;
 
 public class WhenChangeDynamicAttributesWithValidRequestFixture : WhenChangeDynamicAttributesFixture

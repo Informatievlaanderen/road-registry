@@ -1,33 +1,29 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1;
 
-using System;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.RoadSegmentsOutline;
-using BackOffice.Handlers.Sqs.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using CommandHandling;
-using Core;
-using Extensions;
 using FluentValidation;
-using Infrastructure;
-using Infrastructure.Authentication;
-using Infrastructure.Controllers.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Abstractions.RoadSegmentsOutline;
+using RoadRegistry.BackOffice.Api.Infrastructure;
+using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
+using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.ValueObjects.ProblemCodes;
+using RoadRegistry.ValueObjects.Problems;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
-using ValueObjects.ProblemCodes;
-using ValueObjects.Problems;
 
 public partial class RoadSegmentsController
 {
