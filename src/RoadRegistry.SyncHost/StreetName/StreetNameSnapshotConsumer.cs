@@ -89,6 +89,7 @@ public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
             StreetNameStatus = snapshotRecord?.StraatnaamStatus
         };
 
+        //TODO-pr create variant for Marten and let it trigger to update Read projections
         var @event = DetermineEvent(streetNameEventSourced, streetNameDbRecord);
         await _streetNameEventWriter.WriteAsync(streetNameLocalId, new Event(@event), CancellationToken.None);
 

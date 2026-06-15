@@ -46,9 +46,11 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NodaTime;
 using RoadRegistry.Extracts.Projections.Setup;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.Read.Projections;
+using RoadRegistry.StreetName;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -280,7 +282,7 @@ public class Startup
 
                 {
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesReadProjection)}:BatchSize");
-                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesReadProjection(batchSize, sp.GetRequiredService<ILoggerFactory>()));
+                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesReadProjection(batchSize, sp.GetRequiredService<IStreetNameCache>(), sp.GetRequiredService<IStreetNameClient>(), sp.GetRequiredService<ILoggerFactory>()));
                 }
             }).ApplyAllDatabaseChangesOnStartup().Services
 

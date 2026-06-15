@@ -10,13 +10,18 @@ using Extensions;
 using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
+using RoadRegistry.StreetName;
 using RoadSegment.Events.V1;
 using RoadSegment.Events.V2;
 using RoadSegment.ValueObjects;
 
 public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
 {
+    private readonly IStreetNameCache _streetNameCache;
+    private readonly IStreetNameClient _streetNameClient;
+
     public static void Configure(StoreOptions options)
     {
         options.Schema.For<RoadSegmentReadItem>()
@@ -25,8 +30,13 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             .Identity(x => x.Id);
     }
 
-    public RoadSegmentReadProjection()
+    public RoadSegmentReadProjection(
+        IStreetNameCache streetNameCache,
+        IStreetNameClient streetNameClient)
     {
+        _streetNameCache = streetNameCache.ThrowIfNull();
+        _streetNameClient = streetNameClient.ThrowIfNull();
+
         // V1
         When<IEvent<ImportedRoadSegment>>(async (session, e, ct) =>
         {
@@ -49,7 +59,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 AccessRestriction = ForEntireGeometry(accessRestriction, geometry.Lambert72),
                 Category = ForEntireGeometry(category, geometry.Lambert72),
                 Morphology = ForEntireGeometry(morphology, geometry.Lambert72),
-                StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, geometry.Lambert72),
+                StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, geometry.Lambert72, ct),
                 MaintenanceAuthorityId = ForEntireGeometry(new OrganizationId(e.Data.MaintenanceAuthority.Code), geometry.Lambert72),
                 SurfaceType = new ReadRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .OrderBy(x => x.FromPosition)
@@ -99,7 +109,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 AccessRestriction = ForEntireGeometry(accessRestriction, geometry.Lambert72),
                 Category = ForEntireGeometry(category, geometry.Lambert72),
                 Morphology = ForEntireGeometry(morphology, geometry.Lambert72),
-                StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, geometry.Lambert72),
+                StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, geometry.Lambert72, ct),
                 MaintenanceAuthorityId = ForEntireGeometry(new OrganizationId(e.Data.MaintenanceAuthority.Code), geometry.Lambert72),
                 SurfaceType = new ReadRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .OrderBy(x => x.FromPosition)
@@ -143,7 +153,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 segment.AccessRestriction = ForEntireGeometry(accessRestriction, geometry.Lambert72);
                 segment.Category = ForEntireGeometry(category, geometry.Lambert72);
                 segment.Morphology = ForEntireGeometry(morphology, geometry.Lambert72);
-                segment.StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, segment.Geometry.Lambert72);
+                segment.StreetNameId = BuildStreetNameIdAttributesFromV1(e.Data.LeftSide.StreetNameId, e.Data.RightSide.StreetNameId, segment.Geometry.Lambert72, ct);
                 segment.MaintenanceAuthorityId = ForEntireGeometry(new OrganizationId(e.Data.MaintenanceAuthority.Code), segment.Geometry.Lambert72);
                 segment.SurfaceType = new ReadRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .OrderBy(x => x.FromPosition)
@@ -201,7 +211,8 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                     segment.StreetNameId = BuildStreetNameIdAttributesFromV1(
                         e.Data.LeftSide?.StreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Left),
                         e.Data.RightSide?.StreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Right),
-                        segment.Geometry.Lambert72);
+                        segment.Geometry.Lambert72,
+                        ct);
                 }
 
                 if (e.Data.MaintenanceAuthority is not null)
@@ -246,7 +257,8 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                     segment.StreetNameId = BuildStreetNameIdAttributesFromV1(
                         e.Data.LeftSideStreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Left),
                         e.Data.RightSideStreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Right),
-                        segment.Geometry.Lambert72);
+                        segment.Geometry.Lambert72,
+                        ct);
                 }
             }, e.Data, ct);
         });
@@ -270,7 +282,8 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x!.ToString()),
                 Category = e.Data.Category.ToStringAttributeValues(x => x!.ToString()),
                 Morphology = e.Data.Morphology.ToStringAttributeValues(x => x!.ToString()),
-                StreetNameId = new ReadRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId),
+                StreetNameId = new ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue>(e.Data.StreetNameId.Values
+                    .Select(x => (x.Coverage.From, x.Coverage.To, x.Side, (RoadSegmentStreetNameAttributeValue?)ToStreetNameAttributeValue(x.Value, ct)))),
                 MaintenanceAuthorityId = new ReadRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId),
                 SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x!.ToString()),
                 CarAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessForward),
@@ -300,7 +313,8 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 segment.AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x!.ToString());
                 segment.Category = e.Data.Category.ToStringAttributeValues(x => x!.ToString());
                 segment.Morphology = e.Data.Morphology.ToStringAttributeValues(x => x!.ToString());
-                segment.StreetNameId = new ReadRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId);
+                segment.StreetNameId = new ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue>(e.Data.StreetNameId.Values
+                    .Select(x => (x.Coverage.From, x.Coverage.To, x.Side, (RoadSegmentStreetNameAttributeValue?)ToStreetNameAttributeValue(x.Value, ct))));
                 segment.MaintenanceAuthorityId = new ReadRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId);
                 segment.SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x!.ToString());
                 segment.CarAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessForward);
@@ -349,7 +363,8 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
 
                 if (e.Data.StreetNameId is not null)
                 {
-                    segment.StreetNameId = new ReadRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId);
+                    segment.StreetNameId = new ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue>(e.Data.StreetNameId.Values
+                        .Select(x => (x.Coverage.From, x.Coverage.To, x.Side, (RoadSegmentStreetNameAttributeValue?)ToStreetNameAttributeValue(x.Value, ct))));
                 }
 
                 if (e.Data.MaintenanceAuthorityId is not null)
@@ -400,7 +415,8 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 segment.AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x!.ToString());
                 segment.Category = e.Data.Category.ToStringAttributeValues(x => x!.ToString());
                 segment.Morphology = e.Data.Morphology.ToStringAttributeValues(x => x!.ToString());
-                segment.StreetNameId = new ReadRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId);
+                segment.StreetNameId = new ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue>(e.Data.StreetNameId.Values
+                    .Select(x => (x.Coverage.From, x.Coverage.To, x.Side, (RoadSegmentStreetNameAttributeValue?)ToStreetNameAttributeValue(x.Value, ct))));
                 segment.MaintenanceAuthorityId = new ReadRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId);
                 segment.SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x!.ToString());
                 segment.CarAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessForward);
@@ -484,8 +500,6 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
 
         var nodes = await session.LoadManyAsync<RoadNodeReadItem>(ct, nodeIds);
 
-        //TODO-pr updatedStartEndNodeIds
-
         if (originalStartEndNodeIds.Start is not null)
         {
             var node = nodes.Single(x => x.RoadNodeId == originalStartEndNodeIds.Start.Value);
@@ -536,21 +550,29 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         operations.Store(roadSegment);
     }
 
-    private static ReadRoadSegmentDynamicAttribute<StreetNameLocalId> BuildStreetNameIdAttributesFromV1(int? leftSideStreetNameId, int? rightSideStreetNameId, RoadSegmentGeometry geometry)
+    private RoadSegmentStreetNameAttributeValue ToStreetNameAttributeValue(int? streetNameId, CancellationToken ct)
+    {
+        return new RoadSegmentStreetNameAttributeValue
+        {
+            StreetNameId = streetNameId is not null ? new StreetNameLocalId(streetNameId.Value) : StreetNameLocalId.NotApplicable,
+            DutchName = GetStreetName(streetNameId, ct)
+        };
+    }
+    private ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue> BuildStreetNameIdAttributesFromV1(int? leftSideStreetNameId, int? rightSideStreetNameId, RoadSegmentGeometry geometry, CancellationToken ct)
     {
         if (leftSideStreetNameId is null && rightSideStreetNameId is null)
         {
-            return ForEntireGeometry(StreetNameLocalId.NotApplicable, geometry);
+            return ForEntireGeometry(ToStreetNameAttributeValue(StreetNameLocalId.NotApplicable, ct), geometry);
         }
 
         if (leftSideStreetNameId == rightSideStreetNameId)
         {
-            return ForEntireGeometry(new StreetNameLocalId(leftSideStreetNameId!.Value), geometry);
+            return ForEntireGeometry(ToStreetNameAttributeValue(leftSideStreetNameId!.Value, ct), geometry);
         }
 
-        return new ReadRoadSegmentDynamicAttribute<StreetNameLocalId>([
-            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Left, StreetNameLocalId.FromValue(leftSideStreetNameId) ?? StreetNameLocalId.NotApplicable),
-            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Right, StreetNameLocalId.FromValue(rightSideStreetNameId) ?? StreetNameLocalId.NotApplicable)
+        return new ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue>([
+            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Left, ToStreetNameAttributeValue(leftSideStreetNameId, ct)),
+            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Right, ToStreetNameAttributeValue(rightSideStreetNameId, ct))
         ]);
     }
 
@@ -567,12 +589,12 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             : new RoadSegmentPositionV2(position.RoundToCm());
     }
 
-    private static StreetNameLocalId GetValue(ReadRoadSegmentDynamicAttribute<StreetNameLocalId> attributes, RoadSegmentAttributeSide side)
+    private static StreetNameLocalId GetValue(ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue> attributes, RoadSegmentAttributeSide side)
     {
         return side switch
         {
-            RoadSegmentAttributeSide.Left => attributes.Values.Single(x => x.Side is RoadSegmentAttributeSide.Both or RoadSegmentAttributeSide.Left).Value,
-            RoadSegmentAttributeSide.Right => attributes.Values.Single(x => x.Side is RoadSegmentAttributeSide.Both or RoadSegmentAttributeSide.Right).Value,
+            RoadSegmentAttributeSide.Left => attributes.Values.Single(x => x.Side is RoadSegmentAttributeSide.Both or RoadSegmentAttributeSide.Left).Value!.StreetNameId,
+            RoadSegmentAttributeSide.Right => attributes.Values.Single(x => x.Side is RoadSegmentAttributeSide.Both or RoadSegmentAttributeSide.Right).Value!.StreetNameId,
             _ => throw new InvalidOperationException("Only left or right side is allowed.")
         };
     }
@@ -584,6 +606,30 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             Lambert72 = geometry.EnsureLambert72(),
             Lambert08 = geometry.EnsureLambert08(),
         };
+    }
+
+    private string? GetStreetName(
+        int? streetNameId,
+        CancellationToken cancellationToken)
+    {
+        if (streetNameId is null || streetNameId == StreetNameLocalId.NotApplicable || streetNameId == StreetNameLocalId.Unknown)
+        {
+            return null;
+        }
+
+        var streetName = _streetNameCache.GetAsync(streetNameId.Value, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+        if (streetName is null)
+        {
+            var streetNameDetails = _streetNameClient.GetAsync(streetNameId.Value, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+            if (streetNameDetails is null)
+            {
+                return null;
+            }
+
+            return streetNameDetails.Name;
+        }
+
+        return streetName.Name;
     }
 }
 
@@ -611,7 +657,7 @@ public sealed class RoadSegmentReadItem
     public required ReadRoadSegmentDynamicAttribute<string> AccessRestriction { get; set; }
     public required ReadRoadSegmentDynamicAttribute<string> Category { get; set; }
     public required ReadRoadSegmentDynamicAttribute<string> Morphology { get; set; }
-    public required ReadRoadSegmentDynamicAttribute<StreetNameLocalId> StreetNameId { get; set; }
+    public required ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue> StreetNameId { get; set; }
     public required ReadRoadSegmentDynamicAttribute<OrganizationId> MaintenanceAuthorityId { get; set; }
     public required ReadRoadSegmentDynamicAttribute<string> SurfaceType { get; set; }
     public required ReadRoadSegmentDynamicAttribute<bool> CarAccessForward { get; set; }
@@ -625,6 +671,12 @@ public sealed class RoadSegmentReadItem
     public required EventTimestamp LastModified { get; set; }
     public required bool IsV2 { get; set; }
     public bool IsRemoved { get; set; }
+}
+
+public sealed class RoadSegmentStreetNameAttributeValue
+{
+    public required StreetNameLocalId StreetNameId { get; set; }
+    public required string? DutchName { get; set; }
 }
 
 public sealed class ReadRoadSegmentDynamicAttribute<T>
@@ -673,4 +725,19 @@ internal static class RoadSegmentDynamicAttributeValuesExtensions
     {
         return new ReadRoadSegmentDynamicAttribute<string>(attributes.Values.Select(x => (x.Coverage.From, x.Coverage.To, x.Side, converter(x.Value))));
     }
+}
+
+//TODO-pr add to projection and use to find roadsegments for specific streetname
+public sealed class StreetNameRoadSegments
+{
+    [JsonIgnore]
+    public int Id { get; private set; }
+
+    public required StreetNameLocalId StreetNameId
+    {
+        get => new(Id);
+        set => Id = value;
+    }
+
+    public required List<RoadSegmentId> RoadSegmentIds { get; set; }
 }
