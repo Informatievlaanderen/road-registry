@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using SqlStreamStore;
 
 [ApiVersion(Version.V1)]
-[AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("organizations")]
 [ApiExplorerSettings(GroupName = "Organisaties")]
 public partial class OrganizationsController : BackofficeApiController

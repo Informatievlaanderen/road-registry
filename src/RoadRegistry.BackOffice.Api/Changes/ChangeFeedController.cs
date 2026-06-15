@@ -15,7 +15,6 @@ using NodaTime.Text;
 using Version = Infrastructure.Version;
 
 [ApiVersion(Version.V1)]
-[AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("changefeed")]
 [ApiExplorerSettings(GroupName = "Activiteiten")]
 public partial class ChangeFeedController : ApiController

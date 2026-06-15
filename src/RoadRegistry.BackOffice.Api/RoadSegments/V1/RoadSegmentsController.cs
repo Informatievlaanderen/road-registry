@@ -17,7 +17,6 @@ using ProblemDetails = Be.Vlaanderen.Basisregisters.BasicApiProblem.ProblemDetai
 using Version = RoadRegistry.BackOffice.Api.Infrastructure.Version;
 
 [ApiVersion(Version.V1)]
-[AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("wegsegmenten")]
 [ApiExplorerSettings(GroupName = "Wegsegmenten")]
 public partial class RoadSegmentsController : BackofficeApiController

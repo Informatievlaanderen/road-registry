@@ -8,7 +8,6 @@ using RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 using Version = RoadRegistry.BackOffice.Api.Infrastructure.Version;
 
 [ApiVersion(Version.V1)]
-[AdvertiseApiVersions(Version.V1)]
 [ApiRoute("inwinningsstatus")]
 [ApiExplorerSettings(GroupName = "Inwinningsstatus")]
 [AllowAnonymous]

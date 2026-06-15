@@ -11,7 +11,6 @@ using RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 using Version = Infrastructure.Version;
 
 [ApiVersion(Version.V1)]
-[AdvertiseApiVersions(Version.V1)]
 [ApiRoute("extracten")]
 [ApiExplorerSettings(GroupName = "Extracten")]
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllSchemes, Policy = PolicyNames.IngemetenWeg.Beheerder)]

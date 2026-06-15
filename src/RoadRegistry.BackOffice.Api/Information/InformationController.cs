@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiVersion(Version.V1)]
-[AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("information")]
 [ApiExplorerSettings(GroupName = "Info")]
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllSchemes, Policy = AcmIdmConstants.PolicyNames.VoInfo)]
