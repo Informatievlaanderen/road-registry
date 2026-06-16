@@ -190,7 +190,7 @@ public sealed class RoadNodeReadItem
     }
 
     public required RoadNodeGeometryProjections Geometry { get; set; }
-    public required string Type { get; set; }
+    public required string? Type { get; set; }
     public required bool Grensknoop { get; set; }
     public required IReadOnlyCollection<RoadSegmentId> RoadSegmentIds { get; set; }
 
