@@ -192,11 +192,11 @@ public sealed class RoadNodeReadItem
     public required RoadNodeGeometryProjections Geometry { get; set; }
     public required string? Type { get; set; }
     public required bool Grensknoop { get; set; }
+
     public required IReadOnlyCollection<RoadSegmentId> RoadSegmentIds { get; set; }
 
     public required EventTimestamp Origin { get; init; }
     public required EventTimestamp LastModified { get; set; }
-
     public required bool IsV2 { get; set; }
     public bool IsRemoved { get; set; }
 }

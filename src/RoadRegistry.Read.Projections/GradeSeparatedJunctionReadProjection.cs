@@ -149,7 +149,6 @@ public sealed class GradeSeparatedJunctionReadItem
 
     public required EventTimestamp Origin { get; init; }
     public required EventTimestamp LastModified { get; set; }
-
     public required bool IsV2 { get; set; }
     public bool IsRemoved { get; set; }
 }

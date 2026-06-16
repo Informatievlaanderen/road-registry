@@ -29,13 +29,9 @@ public sealed class RoadSegmentGeometryDrawMethodV2 : IEquatable<RoadSegmentGeom
         );
 
     public static readonly RoadSegmentGeometryDrawMethodV2[] All =
-    {
+    [
         Ingeschetst, Ingemeten
-    };
-    public static readonly RoadSegmentGeometryDrawMethodV2[] Allowed =
-    {
-        Ingeschetst, Ingemeten
-    };
+    ];
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentGeometryDrawMethodV2> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);

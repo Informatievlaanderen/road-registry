@@ -4,13 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlTypes;
-using IO;
 using Microsoft.Data.SqlClient;
+using NetTopologySuite.IO;
 using RoadRegistry;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Core;
 using RoadRegistry.Extensions;
-using RoadRegistry.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
 using DynamicRoadSegmentAttribute = RoadRegistry.BackOffice.Core.DynamicRoadSegmentAttribute;
 
