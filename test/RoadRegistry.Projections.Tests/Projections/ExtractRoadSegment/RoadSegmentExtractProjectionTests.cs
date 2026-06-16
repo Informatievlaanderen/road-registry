@@ -11,6 +11,7 @@ using NetTopologySuite.Geometries;
 using RoadNode.Events.V1;
 using RoadNode.Events.V2;
 using RoadRegistry.GradeJunction.Events.V2;
+using RoadRegistry.StreetName.Events.V2;
 using RoadRegistry.Tests.AggregateTests;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
@@ -50,7 +51,11 @@ public class RoadSegmentExtractProjectionTests
             typeof(GradeSeparatedJunctionWasRemoved),
             typeof(GradeSeparatedJunctionWasRemovedBecauseOfMigration),
             typeof(GradeJunctionWasAdded),
-            typeof(GradeJunctionWasRemoved)
+            typeof(GradeJunctionWasRemoved),
+
+            typeof(StreetNameWasCreated),
+            typeof(StreetNameNameWasModified),
+            typeof(StreetNameWasRemoved),
         };
         var allEventTypes = typeof(IMartenEvent).Assembly
             .GetTypes()

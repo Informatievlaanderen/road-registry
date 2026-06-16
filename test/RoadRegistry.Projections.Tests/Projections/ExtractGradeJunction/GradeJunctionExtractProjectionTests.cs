@@ -10,6 +10,7 @@ using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.ScopedRoadNetwork.Events.V2;
+using RoadRegistry.StreetName.Events.V2;
 using RoadRegistry.Tests.AggregateTests;
 using ImportedRoadNode = RoadRegistry.RoadNode.Events.V1.ImportedRoadNode;
 using ImportedRoadSegment = RoadRegistry.RoadSegment.Events.V1.ImportedRoadSegment;
@@ -86,6 +87,10 @@ public class GradeJunctionExtractProjectionTests
             typeof(GradeSeparatedJunctionWasModified),
             typeof(GradeSeparatedJunctionWasRemoved),
             typeof(GradeSeparatedJunctionWasRemovedBecauseOfMigration),
+
+            typeof(StreetNameWasCreated),
+            typeof(StreetNameNameWasModified),
+            typeof(StreetNameWasRemoved),
         };
         var allEventTypes = typeof(IMartenEvent).Assembly
             .GetTypes()
