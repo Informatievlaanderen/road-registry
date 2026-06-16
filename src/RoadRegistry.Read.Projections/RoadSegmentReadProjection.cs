@@ -764,7 +764,6 @@ public sealed class RoadSegmentReadItem
     public required List<EuropeanRoadNumber> EuropeanRoadNumbers { get; set; }
     public required List<NationalRoadNumber> NationalRoadNumbers { get; set; }
 
-    //TODO-pr manage from other projections
     public IReadOnlyCollection<GradeJunctionId> GradeJunctionIds { get; set; } = [];
     public IReadOnlyCollection<GradeSeparatedJunctionId> GradeSeparatedJunctionIds { get; set; } = [];
 

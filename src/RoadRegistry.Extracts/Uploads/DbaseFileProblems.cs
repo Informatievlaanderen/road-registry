@@ -729,7 +729,7 @@ public static class DbaseFileProblems
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",
-                    string.Join(",", RoadSegmentGeometryDrawMethodV2.Allowed.Select(geometryDrawMethod => geometryDrawMethod.Translation.Identifier.ToString()))
+                    string.Join(",", RoadSegmentGeometryDrawMethodV2.All.Select(geometryDrawMethod => geometryDrawMethod.Translation.Identifier.ToString()))
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))

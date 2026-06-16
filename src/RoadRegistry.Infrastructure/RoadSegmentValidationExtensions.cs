@@ -60,6 +60,6 @@ public static class RoadSegmentValidationExtensions
 
     public static bool IsAllowed(this RoadSegmentGeometryDrawMethodV2 geometryDrawMethod)
     {
-        return RoadSegmentGeometryDrawMethodV2.Allowed.Contains(geometryDrawMethod);
+        return RoadSegmentGeometryDrawMethodV2.All.Contains(geometryDrawMethod);
     }
 }
