@@ -14,7 +14,7 @@ public class StreetNameCacheClient : IStreetNameClient
         _streetNameCache = streetNameCache.ThrowIfNull();
     }
 
-    public async Task<StreetNameItem> GetAsync(int id, CancellationToken cancellationToken)
+    public async Task<StreetNameItem?> GetAsync(int id, CancellationToken cancellationToken)
     {
         var streetName = await _streetNameCache.GetAsync(id, cancellationToken);
         if (streetName is null || streetName.IsRemoved || streetName.Status is null)

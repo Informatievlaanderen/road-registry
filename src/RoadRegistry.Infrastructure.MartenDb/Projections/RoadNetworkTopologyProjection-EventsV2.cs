@@ -5,6 +5,7 @@ using JasperFx.Events;
 using Marten;
 using RoadNode.Events.V2;
 using RoadRegistry.GradeJunction.Events.V2;
+using RoadRegistry.StreetName.Events.V2;
 using RoadSegment.Events.V2;
 using ScopedRoadNetwork.Events.V2;
 
@@ -233,6 +234,18 @@ public partial class RoadNetworkTopologyProjection
         // Do nothing
     }
     public void Project(IEvent<RoadSegmentWasRemovedFromNationalRoad> e, IDocumentOperations ops)
+    {
+        // Do nothing
+    }
+    public void Project(IEvent<StreetNameWasCreated> e, IDocumentOperations ops)
+    {
+        // Do nothing
+    }
+    public void Project(IEvent<StreetNameNameWasModified> e, IDocumentOperations ops)
+    {
+        // Do nothing
+    }
+    public void Project(IEvent<StreetNameWasRemoved> e, IDocumentOperations ops)
     {
         // Do nothing
     }

@@ -8,8 +8,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SqlStreamStore;
 
-[ApiVersion(Version.Current)]
-[AdvertiseApiVersions(Version.CurrentAdvertised)]
+[ApiVersion(Version.V1)]
 [ApiRoute("organizations")]
 [ApiExplorerSettings(GroupName = "Organisaties")]
 public partial class OrganizationsController : BackofficeApiController

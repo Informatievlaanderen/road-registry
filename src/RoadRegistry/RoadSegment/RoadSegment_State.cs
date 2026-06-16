@@ -218,6 +218,8 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         Status = RoadSegmentStatusV2.Gehistoreerd;
+        StartNodeId = null;
+        EndNodeId = null;
     }
 
     public void Apply(RoadSegmentWasRetiredBecauseOfMerger @event)
@@ -226,6 +228,8 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
         MergedRoadSegmentId = @event.MergedRoadSegmentId;
         Status = RoadSegmentStatusV2.Gehistoreerd;
+        StartNodeId = null;
+        EndNodeId = null;
     }
 
     public void Apply(RoadSegmentWasAddedToEuropeanRoad @event)

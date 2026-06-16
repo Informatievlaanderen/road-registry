@@ -32,6 +32,7 @@ using FeatureCompare.V1.Translators;
 using Hosts;
 using Infrastructure;
 using Microsoft.AspNetCore.Http;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1;
 using Sync.MunicipalityRegistry;
 using MediatorModule = BackOffice.MediatorModule;
 

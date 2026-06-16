@@ -7,6 +7,7 @@ namespace RoadRegistry.BackOffice
         public const string RoadRegistryEditorExtractRequestProjectionHost = "roadregistry-editor-extractrequest-projectionhost";
         public const string RoadRegistryProductRoadNetworkProjectionHost = "roadregistry-product-projectionhost";
 
-        public const string ExtractsRoadNetworkChangesProjection = "ExtractsRoadNetworkChangesProjection:All";
+        public const string RoadNetworkChangesExtractProjection = "RoadNetworkChangesExtractProjection:All";
+        public const string RoadNetworkChangesReadProjection = "RoadNetworkChangesReadProjection:All";
     }
 }

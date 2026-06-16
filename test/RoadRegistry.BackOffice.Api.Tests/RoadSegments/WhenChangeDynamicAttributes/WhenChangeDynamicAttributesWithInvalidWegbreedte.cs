@@ -1,9 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeDynamicAttributes;
 
 using Abstractions;
-using Api.RoadSegments.ChangeDynamicAttributes;
 using AutoFixture;
 using Fixtures;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1.ChangeDynamicAttributes;
 using Xunit.Abstractions;
 
 public class WhenChangeDynamicAttributesWithInvalidWegbreedte : WhenChangeDynamicAttributesWithInvalidRequest<WhenChangeDynamicAttributesWithInvalidRequestFixture>

@@ -26,7 +26,7 @@ namespace RoadRegistry.StreetName
             _options = options.ThrowIfNull();
         }
 
-        public async Task<StreetNameItem> GetAsync(int id, CancellationToken cancellationToken)
+        public async Task<StreetNameItem?> GetAsync(int id, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(_options.StreetNameRegistryBaseUrl))
             {

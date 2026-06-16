@@ -88,7 +88,7 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
     {
         var serializer = _storeOptions.Serializer();
         var entities = _storedEntities
-            .Where(x => ids.Cast<object>().Contains(x.Key.Id))
+            .Where(x => x.Key.Type == typeof(T) && ids.Cast<object>().Contains(x.Key.Id))
             .Select(x =>
             {
                 using var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(x.Value));

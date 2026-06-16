@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeOutlineGeomet
 using Editor.Schema;
 using MediatR;
 using RoadRegistry.BackOffice.Api.RoadSegments;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 
