@@ -130,6 +130,12 @@ public class CreateExtractArchive
                             BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(distanceIncrement), RoadSegmentAttributeSide.Both, false)]),
                             BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(distanceIncrement), RoadSegmentAttributeSide.Both, false)]),
                             PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(distanceIncrement), RoadSegmentAttributeSide.Both, false)]),
+                            CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>([
+                                (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(distanceIncrement / 2.0), RoadSegmentAttributeSide.Both, RoadSegmentTrafficDirection.Backward),
+                                (new RoadSegmentPositionV2(distanceIncrement / 2.0), new RoadSegmentPositionV2(distanceIncrement), RoadSegmentAttributeSide.Both, RoadSegmentTrafficDirection.Both)
+                            ]),
+                            BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(distanceIncrement), RoadSegmentAttributeSide.Both, RoadSegmentTrafficDirection.None)]),
+                            PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(distanceIncrement), RoadSegmentAttributeSide.Both, RoadSegmentPedestrianTrafficDirection.None)]),
                             LastModified = new EventTimestamp(Instant.FromDateTimeOffset(DateTimeOffset.Now), OrganizationId.DigitaalVlaanderen),
                             Origin = new EventTimestamp(Instant.FromDateTimeOffset(DateTimeOffset.Now), OrganizationId.DigitaalVlaanderen)
                         };
@@ -166,6 +172,9 @@ public class CreateExtractArchive
                                 BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(distanceIncrement), RoadSegmentAttributeSide.Both, false)]),
                                 BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(distanceIncrement), RoadSegmentAttributeSide.Both, false)]),
                                 PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(distanceIncrement), RoadSegmentAttributeSide.Both, false)]),
+                                CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(distanceIncrement), RoadSegmentAttributeSide.Both, RoadSegmentTrafficDirection.Both)]),
+                                BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(distanceIncrement), RoadSegmentAttributeSide.Both, RoadSegmentTrafficDirection.None)]),
+                                PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(distanceIncrement), RoadSegmentAttributeSide.Both, RoadSegmentPedestrianTrafficDirection.None)]),
                                 LastModified = new EventTimestamp(Instant.FromDateTimeOffset(DateTimeOffset.Now), OrganizationId.DigitaalVlaanderen),
                                 Origin = new EventTimestamp(Instant.FromDateTimeOffset(DateTimeOffset.Now), OrganizationId.DigitaalVlaanderen)
                             };
@@ -203,6 +212,9 @@ public class CreateExtractArchive
                                     BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(segmentLength), RoadSegmentAttributeSide.Both, false)]),
                                     BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(segmentLength), RoadSegmentAttributeSide.Both, false)]),
                                     PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(segmentLength), RoadSegmentAttributeSide.Both, false)]),
+                                    CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(segmentLength), RoadSegmentAttributeSide.Both, RoadSegmentTrafficDirection.Both)]),
+                                    BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(segmentLength), RoadSegmentAttributeSide.Both, RoadSegmentTrafficDirection.None)]),
+                                    PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(segmentLength), RoadSegmentAttributeSide.Both, RoadSegmentPedestrianTrafficDirection.None)]),
                                     LastModified = new EventTimestamp(Instant.FromDateTimeOffset(DateTimeOffset.Now), OrganizationId.DigitaalVlaanderen),
                                     Origin = new EventTimestamp(Instant.FromDateTimeOffset(DateTimeOffset.Now), OrganizationId.DigitaalVlaanderen)
                                 };

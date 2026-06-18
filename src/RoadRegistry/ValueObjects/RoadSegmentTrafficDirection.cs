@@ -44,6 +44,16 @@ public sealed class RoadSegmentTrafficDirection : IEquatable<RoadSegmentTrafficD
     public static readonly IReadOnlyDictionary<string, RoadSegmentTrafficDirection> ByName =
         All.ToDictionary(key => key.Translation.Name);
 
+    public static RoadSegmentTrafficDirection FromAccess(bool forward, bool backward)
+    {
+        return forward
+            ? backward ? Both : Forward
+            : backward ? Backward : None;
+    }
+
+    public bool IsForwardAccessAllowed => Equals(Forward) || Equals(Both);
+    public bool IsBackwardAccessAllowed => Equals(Backward) || Equals(Both);
+
     private readonly string _value;
 
     private RoadSegmentTrafficDirection(string value, DutchTranslation dutchTranslation)

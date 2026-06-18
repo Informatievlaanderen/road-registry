@@ -24,11 +24,9 @@ public class RoadSegmentAttributesEqualsTests
             StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>().Add(new StreetNameLocalId(1), geometry),
             MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>().Add(OrganizationId.DigitaalVlaanderen, geometry),
             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>().Add(RoadSegmentSurfaceTypeV2.Verhard, geometry),
-            CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
-            CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
-            BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
-            BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
-            PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
+            CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, geometry),
+            BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, geometry),
+            PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.Both, geometry),
             EuropeanRoadNumbers = ImmutableList.Create(EuropeanRoadNumber.E40),
             NationalRoadNumbers = ImmutableList.Create(NationalRoadNumber.Parse("N1"))
         };
@@ -45,11 +43,9 @@ public class RoadSegmentAttributesEqualsTests
             StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>().Add(new StreetNameLocalId(1), geometry),
             MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>().Add(OrganizationId.DigitaalVlaanderen, geometry),
             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>().Add(RoadSegmentSurfaceTypeV2.Verhard, geometry),
-            CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
-            CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
-            BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
-            BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
-            PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
+            CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, geometry),
+            BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, geometry),
+            PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.Both, geometry),
             EuropeanRoadNumbers = ImmutableList.Create(EuropeanRoadNumber.E40),
             NationalRoadNumbers = ImmutableList.Create(NationalRoadNumber.Parse("N1"))
         };
@@ -74,11 +70,9 @@ public class RoadSegmentAttributesEqualsTests
             StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>().Add(new StreetNameLocalId(1), geometry),
             MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>().Add(OrganizationId.DigitaalVlaanderen, geometry),
             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>().Add(RoadSegmentSurfaceTypeV2.Verhard, geometry),
-            CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
-            CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
-            BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
-            BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
-            PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(true, geometry),
+            CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, geometry),
+            BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, geometry),
+            PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.Both, geometry),
             EuropeanRoadNumbers = ImmutableList.Create(EuropeanRoadNumber.E40),
             NationalRoadNumbers = ImmutableList.Create(NationalRoadNumber.Parse("N1"))
         };
@@ -95,11 +89,9 @@ public class RoadSegmentAttributesEqualsTests
             StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>().Add(new StreetNameLocalId(2), geometry),
             MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>().Add(OrganizationId.DigitaalVlaanderen, geometry),
             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>().Add(RoadSegmentSurfaceTypeV2.Verhard, geometry),
-            CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, geometry),
-            CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, geometry),
-            BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, geometry),
-            BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, geometry),
-            PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, geometry),
+            CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.None, geometry),
+            BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.None, geometry),
+            PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.None, geometry),
             EuropeanRoadNumbers = ImmutableList.Create(EuropeanRoadNumber.E40),
             NationalRoadNumbers = ImmutableList.Create(NationalRoadNumber.Parse("N1"))
         };

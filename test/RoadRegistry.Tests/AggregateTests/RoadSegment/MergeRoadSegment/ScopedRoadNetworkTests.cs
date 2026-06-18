@@ -33,11 +33,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     StreetNameId = TestData.AddSegment1.StreetNameId,
                     MaintenanceAuthorityId = TestData.AddSegment1.MaintenanceAuthorityId,
                     SurfaceType = TestData.AddSegment1.SurfaceType,
-                    CarAccessForward = TestData.AddSegment1.CarAccessForward,
-                    CarAccessBackward = TestData.AddSegment1.CarAccessBackward,
-                    BikeAccessForward = TestData.AddSegment1.BikeAccessForward,
-                    BikeAccessBackward = TestData.AddSegment1.BikeAccessBackward,
-                    PedestrianAccess = TestData.AddSegment1.PedestrianAccess
+                    CarTrafficDirection = TestData.AddSegment1.CarTrafficDirection,
+                    BikeTrafficDirection = TestData.AddSegment1.BikeTrafficDirection,
+                    PedestrianTrafficDirection = TestData.AddSegment1.PedestrianTrafficDirection
                 })
             )
             .Then((result, events) =>

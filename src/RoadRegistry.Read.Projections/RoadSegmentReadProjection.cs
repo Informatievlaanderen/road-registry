@@ -75,11 +75,9 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                         RoadSegmentAttributeSide.Both,
                         (string?)x.Type))
                 ),
-                CarAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(),
-                CarAccessBackward = new ReadRoadSegmentDynamicAttribute<bool>(),
-                BikeAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(),
-                BikeAccessBackward = new ReadRoadSegmentDynamicAttribute<bool>(),
-                PedestrianAccess = new ReadRoadSegmentDynamicAttribute<bool>(),
+                CarTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(),
+                BikeTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(),
+                PedestrianTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(),
                 EuropeanRoadNumbers = e.Data.PartOfEuropeanRoads
                     .Select(x => EuropeanRoadNumber.Parse(x.Number))
                     .ToList(),
@@ -126,11 +124,9 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                         RoadSegmentAttributeSide.Both,
                         (string?)x.Type))
                 ),
-                CarAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(),
-                CarAccessBackward = new ReadRoadSegmentDynamicAttribute<bool>(),
-                BikeAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(),
-                BikeAccessBackward = new ReadRoadSegmentDynamicAttribute<bool>(),
-                PedestrianAccess = new ReadRoadSegmentDynamicAttribute<bool>(),
+                CarTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(),
+                BikeTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(),
+                PedestrianTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(),
                 EuropeanRoadNumbers = [],
                 NationalRoadNumbers = [],
                 Origin = e.Data.Provenance.ToEventTimestamp(),
@@ -295,11 +291,9 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                     .Select(x => (x.Coverage.From, x.Coverage.To, x.Side, (RoadSegmentStreetNameAttributeValue?)ToStreetNameAttributeValue(x.Value, ct)))),
                 MaintenanceAuthorityId = new ReadRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId),
                 SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x!.ToString()),
-                CarAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessForward),
-                CarAccessBackward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessBackward),
-                BikeAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessForward),
-                BikeAccessBackward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessBackward),
-                PedestrianAccess = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.PedestrianAccess),
+                CarTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.CarTrafficDirection),
+                BikeTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.BikeTrafficDirection),
+                PedestrianTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection),
                 EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList(),
                 NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList(),
                 Origin = e.Data.Provenance.ToEventTimestamp(),
@@ -327,11 +321,9 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                     .Select(x => (x.Coverage.From, x.Coverage.To, x.Side, (RoadSegmentStreetNameAttributeValue?)ToStreetNameAttributeValue(x.Value, ct))));
                 segment.MaintenanceAuthorityId = new ReadRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId);
                 segment.SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x!.ToString());
-                segment.CarAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessForward);
-                segment.CarAccessBackward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessBackward);
-                segment.BikeAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessForward);
-                segment.BikeAccessBackward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessBackward);
-                segment.PedestrianAccess = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.PedestrianAccess);
+                segment.CarTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.CarTrafficDirection);
+                segment.BikeTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.BikeTrafficDirection);
+                segment.PedestrianTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection);
                 segment.EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList();
                 segment.NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList();
                 segment.IsV2 = true;
@@ -387,29 +379,19 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                     segment.SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x!.ToString());
                 }
 
-                if (e.Data.CarAccessForward is not null)
+                if (e.Data.CarTrafficDirection is not null)
                 {
-                    segment.CarAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessForward);
+                    segment.CarTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.CarTrafficDirection);
                 }
 
-                if (e.Data.CarAccessBackward is not null)
+                if (e.Data.BikeTrafficDirection is not null)
                 {
-                    segment.CarAccessBackward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessBackward);
+                    segment.BikeTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.BikeTrafficDirection);
                 }
 
-                if (e.Data.BikeAccessForward is not null)
+                if (e.Data.PedestrianTrafficDirection is not null)
                 {
-                    segment.BikeAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessForward);
-                }
-
-                if (e.Data.BikeAccessBackward is not null)
-                {
-                    segment.BikeAccessBackward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessBackward);
-                }
-
-                if (e.Data.PedestrianAccess is not null)
-                {
-                    segment.PedestrianAccess = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.PedestrianAccess);
+                    segment.PedestrianTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection);
                 }
             }, e.Data, ct);
         });
@@ -429,11 +411,9 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                     .Select(x => (x.Coverage.From, x.Coverage.To, x.Side, (RoadSegmentStreetNameAttributeValue?)ToStreetNameAttributeValue(x.Value, ct))));
                 segment.MaintenanceAuthorityId = new ReadRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId);
                 segment.SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x!.ToString());
-                segment.CarAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessForward);
-                segment.CarAccessBackward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.CarAccessBackward);
-                segment.BikeAccessForward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessForward);
-                segment.BikeAccessBackward = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.BikeAccessBackward);
-                segment.PedestrianAccess = new ReadRoadSegmentDynamicAttribute<bool>(e.Data.PedestrianAccess);
+                segment.CarTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.CarTrafficDirection);
+                segment.BikeTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.BikeTrafficDirection);
+                segment.PedestrianTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection);
                 segment.EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList();
                 segment.NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList();
                 segment.IsV2 = true;
@@ -756,11 +736,9 @@ public sealed class RoadSegmentReadItem
     public required ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue> StreetNameId { get; set; }
     public required ReadRoadSegmentDynamicAttribute<OrganizationId> MaintenanceAuthorityId { get; set; }
     public required ReadRoadSegmentDynamicAttribute<string> SurfaceType { get; set; }
-    public required ReadRoadSegmentDynamicAttribute<bool> CarAccessForward { get; set; }
-    public required ReadRoadSegmentDynamicAttribute<bool> CarAccessBackward { get; set; }
-    public required ReadRoadSegmentDynamicAttribute<bool> BikeAccessForward { get; set; }
-    public required ReadRoadSegmentDynamicAttribute<bool> BikeAccessBackward { get; set; }
-    public required ReadRoadSegmentDynamicAttribute<bool> PedestrianAccess { get; set; }
+    public required ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection> CarTrafficDirection { get; set; }
+    public required ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection> BikeTrafficDirection { get; set; }
+    public required ReadRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection> PedestrianTrafficDirection { get; set; }
     public required List<EuropeanRoadNumber> EuropeanRoadNumbers { get; set; }
     public required List<NationalRoadNumber> NationalRoadNumbers { get; set; }
 

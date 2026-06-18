@@ -6,6 +6,7 @@ using RoadRegistry.RoadNetwork.Schema;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
@@ -37,11 +38,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     StreetNameId = TestData.AddSegment1.StreetNameId,
                     MaintenanceAuthorityId = TestData.AddSegment1.MaintenanceAuthorityId,
                     SurfaceType = TestData.AddSegment1.SurfaceType,
-                    CarAccessForward = TestData.AddSegment1.CarAccessForward,
-                    CarAccessBackward = TestData.AddSegment1.CarAccessBackward,
-                    BikeAccessForward = TestData.AddSegment1.BikeAccessForward,
-                    BikeAccessBackward = TestData.AddSegment1.BikeAccessBackward,
-                    PedestrianAccess = TestData.AddSegment1.PedestrianAccess
+                    CarTrafficDirection = TestData.AddSegment1.CarTrafficDirection,
+                    BikeTrafficDirection = TestData.AddSegment1.BikeTrafficDirection,
+                    PedestrianTrafficDirection = TestData.AddSegment1.PedestrianTrafficDirection
                 })
             )
             .Then((result, events) =>
@@ -98,11 +97,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     StreetNameId = TestData.Segment1Added.StreetNameId,
                     MaintenanceAuthorityId = TestData.Segment1Added.MaintenanceAuthorityId,
                     SurfaceType = TestData.Segment1Added.SurfaceType,
-                    CarAccessForward = TestData.Segment1Added.CarAccessForward,
-                    CarAccessBackward = TestData.Segment1Added.CarAccessBackward,
-                    BikeAccessForward = TestData.Segment1Added.BikeAccessForward,
-                    BikeAccessBackward = TestData.Segment1Added.BikeAccessBackward,
-                    PedestrianAccess = TestData.Segment1Added.PedestrianAccess
+                    CarTrafficDirection = TestData.Segment1Added.CarTrafficDirection,
+                    BikeTrafficDirection = TestData.Segment1Added.BikeTrafficDirection,
+                    PedestrianTrafficDirection = TestData.Segment1Added.PedestrianTrafficDirection
                 })
                 .Add(new AddRoadSegmentToEuropeanRoadChange
                 {
@@ -179,11 +176,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     StreetNameId = TestData.Segment1Added.StreetNameId,
                     MaintenanceAuthorityId = TestData.Segment1Added.MaintenanceAuthorityId,
                     SurfaceType = TestData.Segment1Added.SurfaceType,
-                    CarAccessForward = TestData.Segment1Added.CarAccessForward,
-                    CarAccessBackward = TestData.Segment1Added.CarAccessBackward,
-                    BikeAccessForward = TestData.Segment1Added.BikeAccessForward,
-                    BikeAccessBackward = TestData.Segment1Added.BikeAccessBackward,
-                    PedestrianAccess = TestData.Segment1Added.PedestrianAccess
+                    CarTrafficDirection = TestData.Segment1Added.CarTrafficDirection,
+                    BikeTrafficDirection = TestData.Segment1Added.BikeTrafficDirection,
+                    PedestrianTrafficDirection = TestData.Segment1Added.PedestrianTrafficDirection
                 })
                 .Add(new AddRoadSegmentToNationalRoadChange
                 {

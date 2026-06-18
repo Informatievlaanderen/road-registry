@@ -198,57 +198,35 @@ public class RoadSegmentAttributesValidatorTests
     }
 
     [Fact]
-    public void EnsureValidatorIsUsedForAttribute_CarAccessForward()
+    public void EnsureValidatorIsUsedForAttribute_CarTrafficDirection()
     {
         EnsureValidatorIsUsedForAttribute(change => change with
         {
-            CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, false)
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, true)
+            CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>()
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, RoadSegmentTrafficDirection.Forward)
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, RoadSegmentTrafficDirection.Backward)
         });
     }
 
     [Fact]
-    public void EnsureValidatorIsUsedForAttribute_CarAccessBackward()
+    public void EnsureValidatorIsUsedForAttribute_BikeTrafficDirection()
     {
         EnsureValidatorIsUsedForAttribute(change => change with
         {
-            CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, false)
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, true)
+            BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>()
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, RoadSegmentTrafficDirection.Forward)
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, RoadSegmentTrafficDirection.Backward)
         });
     }
 
     [Fact]
-    public void EnsureValidatorIsUsedForAttribute_BikeAccessForward()
+    public void EnsureValidatorIsUsedForAttribute_PedestrianTrafficDirection()
     {
         EnsureValidatorIsUsedForAttribute(change => change with
         {
-            BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, false)
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, true)
-        });
-    }
-
-    [Fact]
-    public void EnsureValidatorIsUsedForAttribute_BikeAccessBackward()
-    {
-        EnsureValidatorIsUsedForAttribute(change => change with
-        {
-            BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, false)
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, true)
-        });
-    }
-
-    [Fact]
-    public void EnsureValidatorIsUsedForAttribute_PedestrianAccess()
-    {
-        EnsureValidatorIsUsedForAttribute(change => change with
-        {
-            PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>()
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, false)
-                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, true)
+            PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>()
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, RoadSegmentPedestrianTrafficDirection.Both)
+                .Add(new(RoadSegmentPositionV2.Zero, RoadSegmentPositionV2.Zero), RoadSegmentAttributeSide.Both, RoadSegmentPedestrianTrafficDirection.None)
         });
     }
 

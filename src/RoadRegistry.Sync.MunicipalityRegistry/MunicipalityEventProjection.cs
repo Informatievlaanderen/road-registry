@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.MunicipalityRegistry;
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Models;
 using NetTopologySuite.IO;
@@ -44,7 +45,7 @@ public class MunicipalityEventProjection : ConnectedProjection<MunicipalityEvent
 
         await Update(context, @event.MunicipalityId, municipality =>
         {
-            municipality.Geometry = geometry;
+            municipality.Geometry = geometry.EnsureLambert72();
         }, cancellationToken);
     }
 

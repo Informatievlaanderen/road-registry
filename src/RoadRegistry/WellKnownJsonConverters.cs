@@ -53,6 +53,8 @@ namespace RoadRegistry
                 new RoadSegmentMorphologyV2Converter(),
                 new RoadSegmentStatusV2Converter(),
                 new RoadSegmentSurfaceTypeV2Converter(),
+                new RoadSegmentTrafficDirectionConverter(),
+                new RoadSegmentPedestrianTrafficDirectionConverter(),
                 new RoadSegmentDynamicAttributeValuesJsonConverter(),
                 new GradeSeparatedJunctionTypeV2Converter(),
                 new GradeJunctionIdConverter(),

@@ -6,6 +6,7 @@ using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
 
@@ -47,11 +48,9 @@ public partial class ScopedRoadNetwork
             StreetNameId = segment1.Attributes.StreetNameId.MergeWith(segment2.Attributes.StreetNameId, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
             MaintenanceAuthorityId = segment1.Attributes.MaintenanceAuthorityId.MergeWith(segment2.Attributes.MaintenanceAuthorityId, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
             SurfaceType = segment1.Attributes.SurfaceType.MergeWith(segment2.Attributes.SurfaceType, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
-            CarAccessForward = segment1.Attributes.CarAccessForward.MergeWith(segment2.Attributes.CarAccessForward, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
-            CarAccessBackward = segment1.Attributes.CarAccessBackward.MergeWith(segment2.Attributes.CarAccessBackward, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
-            BikeAccessForward = segment1.Attributes.BikeAccessForward.MergeWith(segment2.Attributes.BikeAccessForward, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
-            BikeAccessBackward = segment1.Attributes.BikeAccessBackward.MergeWith(segment2.Attributes.BikeAccessBackward, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
-            PedestrianAccess = segment1.Attributes.PedestrianAccess.MergeWith(segment2.Attributes.PedestrianAccess, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
+            CarTrafficDirection = segment1.Attributes.CarTrafficDirection.MergeWith(segment2.Attributes.CarTrafficDirection, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
+            BikeTrafficDirection = segment1.Attributes.BikeTrafficDirection.MergeWith(segment2.Attributes.BikeTrafficDirection, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
+            PedestrianTrafficDirection = segment1.Attributes.PedestrianTrafficDirection.MergeWith(segment2.Attributes.PedestrianTrafficDirection, segment1.Geometry.Value.Length, segment2.Geometry.Value.Length, segment1HasIdealDirection, segment2HasIdealDirection),
             EuropeanRoadNumbers = segment1.Attributes.EuropeanRoadNumbers,
             NationalRoadNumbers = segment1.Attributes.NationalRoadNumbers
         };
@@ -78,11 +77,9 @@ public partial class ScopedRoadNetwork
                 StreetNameId = mergeSegmentChange.StreetNameId,
                 MaintenanceAuthorityId = mergeSegmentChange.MaintenanceAuthorityId,
                 SurfaceType = mergeSegmentChange.SurfaceType,
-                CarAccessForward = mergeSegmentChange.CarAccessForward,
-                CarAccessBackward = mergeSegmentChange.CarAccessBackward,
-                BikeAccessForward = mergeSegmentChange.BikeAccessForward,
-                BikeAccessBackward = mergeSegmentChange.BikeAccessBackward,
-                PedestrianAccess = mergeSegmentChange.PedestrianAccess,
+                CarTrafficDirection = mergeSegmentChange.CarTrafficDirection,
+                BikeTrafficDirection = mergeSegmentChange.BikeTrafficDirection,
+                PedestrianTrafficDirection = mergeSegmentChange.PedestrianTrafficDirection,
                 EuropeanRoadNumbers = mergeSegmentChange.EuropeanRoadNumbers,
                 NationalRoadNumbers = mergeSegmentChange.NationalRoadNumbers
             }, idGenerator, context);

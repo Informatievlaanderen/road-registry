@@ -94,11 +94,9 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             StreetNameId = @event.StreetNameId,
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
             SurfaceType = @event.SurfaceType,
-            CarAccessForward = @event.CarAccessForward,
-            CarAccessBackward = @event.CarAccessBackward,
-            BikeAccessForward = @event.BikeAccessForward,
-            BikeAccessBackward = @event.BikeAccessBackward,
-            PedestrianAccess = @event.PedestrianAccess,
+            CarTrafficDirection = @event.CarTrafficDirection,
+            BikeTrafficDirection = @event.BikeTrafficDirection,
+            PedestrianTrafficDirection = @event.PedestrianTrafficDirection,
             EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
         };
@@ -122,11 +120,9 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             StreetNameId = @event.StreetNameId,
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
             SurfaceType = @event.SurfaceType,
-            CarAccessForward = @event.CarAccessForward,
-            CarAccessBackward = @event.CarAccessBackward,
-            BikeAccessForward = @event.BikeAccessForward,
-            BikeAccessBackward = @event.BikeAccessBackward,
-            PedestrianAccess = @event.PedestrianAccess,
+            CarTrafficDirection = @event.CarTrafficDirection,
+            BikeTrafficDirection = @event.BikeTrafficDirection,
+            PedestrianTrafficDirection = @event.PedestrianTrafficDirection,
             EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
         };
@@ -150,11 +146,9 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             StreetNameId = @event.StreetNameId,
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
             SurfaceType = @event.SurfaceType,
-            CarAccessForward = @event.CarAccessForward,
-            CarAccessBackward = @event.CarAccessBackward,
-            BikeAccessForward = @event.BikeAccessForward,
-            BikeAccessBackward = @event.BikeAccessBackward,
-            PedestrianAccess = @event.PedestrianAccess,
+            CarTrafficDirection = @event.CarTrafficDirection,
+            BikeTrafficDirection = @event.BikeTrafficDirection,
+            PedestrianTrafficDirection = @event.PedestrianTrafficDirection,
             EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
         };
@@ -177,11 +171,9 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             StreetNameId = @event.StreetNameId ?? Attributes.StreetNameId,
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId ?? Attributes.MaintenanceAuthorityId,
             SurfaceType = @event.SurfaceType ?? Attributes.SurfaceType,
-            CarAccessForward = @event.CarAccessForward ?? Attributes.CarAccessForward,
-            CarAccessBackward = @event.CarAccessBackward ?? Attributes.CarAccessBackward,
-            BikeAccessForward = @event.BikeAccessForward ?? Attributes.BikeAccessForward,
-            BikeAccessBackward = @event.BikeAccessBackward ?? Attributes.BikeAccessBackward,
-            PedestrianAccess = @event.PedestrianAccess ?? Attributes.PedestrianAccess
+            CarTrafficDirection = @event.CarTrafficDirection ?? Attributes.CarTrafficDirection,
+            BikeTrafficDirection = @event.BikeTrafficDirection ?? Attributes.BikeTrafficDirection,
+            PedestrianTrafficDirection = @event.PedestrianTrafficDirection ?? Attributes.PedestrianTrafficDirection
         };
     }
 

@@ -79,11 +79,11 @@ public partial class RoadSegment
             return (false, false, false);
         }
 
-        var carAccess = GetAttributeValueAtPosition(segment.Attributes?.CarAccessForward ?? new(), positionAlongLine.Value, tolerances)
-                        || GetAttributeValueAtPosition(segment.Attributes?.CarAccessBackward ?? new(), positionAlongLine.Value, tolerances);
-        var bikeAccess = GetAttributeValueAtPosition(segment.Attributes?.BikeAccessForward ?? new(), positionAlongLine.Value, tolerances)
-                         || GetAttributeValueAtPosition(segment.Attributes?.BikeAccessBackward ?? new(), positionAlongLine.Value, tolerances);
-        var pedestrianAccess = GetAttributeValueAtPosition(segment.Attributes?.PedestrianAccess ?? new(), positionAlongLine.Value, tolerances);
+        var carAccess = GetAttributeValueAtPosition(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(segment.Attributes?.CarTrafficDirection ?? new()), positionAlongLine.Value, tolerances)
+                        || GetAttributeValueAtPosition(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(segment.Attributes?.CarTrafficDirection ?? new()), positionAlongLine.Value, tolerances);
+        var bikeAccess = GetAttributeValueAtPosition(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(segment.Attributes?.BikeTrafficDirection ?? new()), positionAlongLine.Value, tolerances)
+                         || GetAttributeValueAtPosition(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(segment.Attributes?.BikeTrafficDirection ?? new()), positionAlongLine.Value, tolerances);
+        var pedestrianAccess = GetAttributeValueAtPosition(RoadSegmentTrafficDirectionTranslation.ToPedestrianAccess(segment.Attributes?.PedestrianTrafficDirection ?? new()), positionAlongLine.Value, tolerances);
 
         return (carAccess, bikeAccess, pedestrianAccess);
     }
