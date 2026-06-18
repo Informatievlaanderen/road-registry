@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments.V2;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,6 +19,7 @@ using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using RoadRegistry.BackOffice.Api.Infrastructure.Options;
 using RoadRegistry.Read.Projections;
+using RoadRegistry.RoadSegment.ValueObjects;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -81,7 +83,7 @@ public partial class RoadSegmentsController
                     }
                 ]
             },
-            GeometrieMethode = roadSegment.GeometryDrawMethod,
+            Wegsegmentstatus = RoadSegmentStatusV2.Parse(roadSegment.Status).ToDutchString(),
             Beginknoop = roadSegment.StartNodeId is not null
                 ? new WegknoopObject
                 {
@@ -100,36 +102,104 @@ public partial class RoadSegmentsController
 
         if (roadSegment.IsV2)
         {
-            //TODO-pr implement properties
-            // Linkerstraatnaam = detailResponse.LeftStreetNameId != null
-            //     ? new WegsegmentStraatnaamObject
-            //     {
-            //         ObjectId = new StreetNameId(detailResponse.LeftStreetNameId.Value).ToString(),
-            //         Straatnaam = detailResponse.LeftStreetName
-            //     }
-            //     : null,
-            // Wegsegmentstatus = detailResponse.Status.Translation.Name,
-            // MorfologischeWegklasse = detailResponse.Morphology.Translation.Name,
-            // Toegangsbeperking = detailResponse.AccessRestriction.Translation.Name,
-            // Wegbeheerder = detailResponse.MaintenanceAuthority.Code,
-            // Wegcategorie = detailResponse.Category.Translation.Name,
-            // Wegverharding = detailResponse.SurfaceTypes
-            //     .Select(x => new WegverhardingObject
-            //     {
-            //         VanPositie = x.FromPosition,
-            //         TotPositie = x.ToPosition,
-            //         Verharding = x.SurfaceType.Translation.Name
-            //     }).ToArray(),
-            // EuropeseWegen = detailResponse.EuropeanRoads
-            //     .Select(x => new EuropeseWegObject
-            //     {
-            //         EuNummer = x.Number
-            //     }).ToArray(),
-            // NationaleWegen = detailResponse.NationalRoads
-            //     .Select(x => new NationaleWegObject
-            //     {
-            //         Ident2 = x.Number
-            //     }).ToArray()
+            result.GeometrieMethode = RoadSegmentGeometryDrawMethodV2.Parse(roadSegment.GeometryDrawMethod).ToString();
+            result.Straatnaam = roadSegment.StreetNameId.Values
+                .Select(x => new WegsegmentStraatnaamAttribuutWaarde
+                {
+                    Kant = x.Side.ToWegsegmentKant(),
+                    VanPositie = x.From,
+                    TotPositie = x.To,
+                    Straatnaam = x.Value!.StreetNameId > 0 ? new StraatnaamObject
+                    {
+                        ObjectId = x.Value.StreetNameId.ToString(),
+                        Detail = $"https://api.basisregisters.vlaanderen.be/v3/straatnamen/{x.Value.StreetNameId}", //TODO-pr baseurl from config
+                        GeografischeNaam = new StraatnaamGeografischeNaam
+                        {
+                            Taal = "nl",
+                            Spelling = x.Value.DutchName
+                        }
+                    } : null
+                })
+                .ToArray();
+            result.Morfologie = roadSegment.Morphology.Values
+                .Select(x => new WegsegmentMorfologieAttribuutWaarde
+                {
+                    VanPositie = x.From,
+                    TotPositie = x.To,
+                    //TODO-pr implement
+                })
+                .ToArray();
+            result.Toegang = roadSegment.AccessRestriction.Values
+                .Select(x => new WegsegmentToegangAttribuutWaarde
+                {
+                    VanPositie = x.From,
+                    TotPositie = x.To,
+                    //TODO-pr implement
+                })
+                .ToArray();
+            result.Wegbeheerder = roadSegment.MaintenanceAuthorityId.Values
+                .Select(x => new WegsegmentWegbeheerderAttribuutWaarde
+                {
+                    Kant = x.Side.ToWegsegmentKant(),
+                    VanPositie = x.From,
+                    TotPositie = x.To,
+                    //TODO-pr implement
+                })
+                .ToArray();
+            result.Wegcategorie = roadSegment.Category.Values
+                .Select(x => new WegsegmentWegcategorieAttribuutWaarde
+                {
+                    VanPositie = x.From,
+                    TotPositie = x.To,
+                    //TODO-pr implement
+                })
+                .ToArray();
+            result.Wegverharding = roadSegment.SurfaceType.Values
+                .Select(x => new WegsegmentWegverhardingAttribuutWaarde
+                {
+                    VanPositie = x.From,
+                    TotPositie = x.To,
+                    //TODO-pr implement
+                })
+                .ToArray();
+            result.VerkeerstypeAuto = roadSegment.CarTrafficDirection.Values
+                .Select(x => new WegsegmentVerkeerstypeAutoAttribuutWaarde
+                {
+                    VanPositie = x.From,
+                    TotPositie = x.To,
+                    //TODO-pr implement
+                })
+                .ToArray();
+            result.VerkeerstypeFiets = roadSegment.BikeTrafficDirection.Values
+                .Select(x => new WegsegmentVerkeerstypeFietsAttribuutWaarde
+                {
+                    VanPositie = x.From,
+                    TotPositie = x.To,
+                    //TODO-pr implement
+                })
+                .ToArray();
+            result.VerkeerstypeVoetganger = roadSegment.PedestrianTrafficDirection.Values
+                .Select(x => new WegsegmentVerkeerstypeVoetgangerAttribuutWaarde
+                {
+                    VanPositie = x.From,
+                    TotPositie = x.To,
+                    //TODO-pr implement
+                })
+                .ToArray();
+            result.EuropeseWegen = roadSegment.EuropeanRoadNumbers
+                .Select(x => new EuropeseWegObject
+                {
+                    EuropeesWegnummer = x.ToString()
+                })
+                .ToArray();
+            result.NationaleWegen = roadSegment.NationalRoadNumbers
+                .Select(x => new NationaleWegObject
+                {
+                    NationaalWegnummer = x.ToString()
+                })
+                .ToArray();
+            //result.GelijkgrondseKruisingen
+            //result.OngelijkgrondseKruisingen
         }
 
         return Ok(result);
@@ -399,6 +469,20 @@ public enum WegsegmentKant
     Beide
 }
 
+internal static class WegsegmentKantExtensions
+{
+    public static WegsegmentKant ToWegsegmentKant(this RoadSegmentAttributeSide side)
+    {
+        return side switch
+        {
+            RoadSegmentAttributeSide.Left => WegsegmentKant.Links,
+            RoadSegmentAttributeSide.Right => WegsegmentKant.Rechts,
+            RoadSegmentAttributeSide.Both => WegsegmentKant.Beide,
+            _ => throw new ArgumentOutOfRangeException(nameof(side), side, null)
+        };
+    }
+}
+
 [DataContract(Name = "WegsegmentStraatnaamAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentStraatnaamAttribuutWaarde")]
 public class WegsegmentStraatnaamAttribuutWaarde
@@ -425,8 +509,8 @@ public class WegsegmentStraatnaamAttribuutWaarde
     public double TotPositie { get; set; }
 
     [DataMember(Name = "Straatnaam", Order = 4)]
-    [JsonProperty(Required = Required.DisallowNull)]
-    public StraatnaamObject Straatnaam { get; set; }
+    [JsonProperty(Required = Required.AllowNull)]
+    public StraatnaamObject? Straatnaam { get; set; }
 }
 
 [DataContract(Name = "WegsegmentMorfologieAttribuutWaarde", Namespace = "")]
