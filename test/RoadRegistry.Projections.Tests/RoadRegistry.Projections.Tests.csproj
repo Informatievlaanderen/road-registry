@@ -10,6 +10,7 @@
     <ProjectReference Include="..\..\src\RoadRegistry.Extracts.Projections\RoadRegistry.Extracts.Projections.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.MartenMigration.Projections\RoadRegistry.MartenMigration.Projections.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Read.Projections\RoadRegistry.Read.Projections.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
     <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>

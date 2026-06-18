@@ -7,8 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Version = Infrastructure.Version;
 
-[ApiVersion(Version.Current)]
-[AdvertiseApiVersions(Version.CurrentAdvertised)]
+[ApiVersion(Version.V1)]
 [ApiRoute("files")]
 [ApiExplorerSettings(IgnoreApi = true)]
 public partial class FilesController : BackofficeApiController

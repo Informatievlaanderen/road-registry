@@ -42,7 +42,7 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV2
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        await _store.WaitForNonStaleProjection(WellKnownProjectionStateNames.ExtractsRoadNetworkChangesProjection, _logger, cancellationToken);
+        await _store.WaitForNonStaleProjection(WellKnownProjectionStateNames.RoadNetworkChangesExtractProjection, _logger, cancellationToken);
 
         await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
 

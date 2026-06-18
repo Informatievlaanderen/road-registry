@@ -9,8 +9,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[ApiVersion(Version.Current)]
-[AdvertiseApiVersions(Version.CurrentAdvertised)]
+[ApiVersion(Version.V1)]
 [ApiRoute("information")]
 [ApiExplorerSettings(GroupName = "Info")]
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllSchemes, Policy = AcmIdmConstants.PolicyNames.VoInfo)]

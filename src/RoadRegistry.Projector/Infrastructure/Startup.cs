@@ -46,8 +46,11 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NodaTime;
 using RoadRegistry.Extracts.Projections.Setup;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
+using RoadRegistry.Read.Projections;
+using RoadRegistry.StreetName;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -270,11 +273,20 @@ public class Startup
             .AddDbContext<IntegrationContext>(WellKnownConnectionNames.IntegrationProjections)
             .AddDbContext<MartenMigrationContext>(WellKnownConnectionNames.MartenMigration)
 
+            .AddHttpClient()
+            .AddStreetNameClient()
+            .AddStreetNameCache()
             .AddMartenRoad((options, sp) =>
             {
-                var batchSize = _configuration.GetRequiredValue<int>($"{nameof(ExtractsRoadNetworkChangesProjection)}:BatchSize");
+                {
+                    var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesExtractProjection)}:BatchSize");
+                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesExtractProjection(batchSize, sp.GetRequiredService<ILoggerFactory>()));
+                }
 
-                options.AddRoadNetworkChangesProjection(new ExtractsRoadNetworkChangesProjection(batchSize, sp.GetRequiredService<ILoggerFactory>()));
+                {
+                    var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesReadProjection)}:BatchSize");
+                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesReadProjection(batchSize, sp.GetRequiredService<IStreetNameCache>(), sp.GetRequiredService<IStreetNameClient>(), sp.GetRequiredService<ILoggerFactory>()));
+                }
             }).ApplyAllDatabaseChangesOnStartup().Services
 
             .AddSingleton(new IDbContextMigratorFactory[]

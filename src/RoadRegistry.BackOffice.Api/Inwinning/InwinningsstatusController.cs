@@ -7,8 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 using Version = RoadRegistry.BackOffice.Api.Infrastructure.Version;
 
-[ApiVersion(Version.Current)]
-[AdvertiseApiVersions(Version.Current)]
+[ApiVersion(Version.V1)]
 [ApiRoute("inwinningsstatus")]
 [ApiExplorerSettings(GroupName = "Inwinningsstatus")]
 [AllowAnonymous]

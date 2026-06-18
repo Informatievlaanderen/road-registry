@@ -5,5 +5,5 @@ using System.Threading.Tasks;
 
 public interface IStreetNameClient
 {
-    Task<StreetNameItem> GetAsync(int id, CancellationToken cancellationToken);
+    Task<StreetNameItem?> GetAsync(int id, CancellationToken cancellationToken);
 }

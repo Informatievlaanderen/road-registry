@@ -14,6 +14,7 @@ using Moq;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 using RoadRegistry.BackOffice.Api.RoadSegments;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1;
 using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.CommandHandling;
 using RoadRegistry.Infrastructure;

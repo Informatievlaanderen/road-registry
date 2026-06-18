@@ -6,9 +6,9 @@ public static class SetupExtensions
 {
     public static void ConfigureExtractDocuments(this StoreOptions options)
     {
-        RoadNodeProjection.Configure(options);
-        RoadSegmentProjection.Configure(options);
-        GradeSeparatedJunctionProjection.Configure(options);
-        GradeJunctionProjection.Configure(options);
+        RoadNodeExtractProjection.Configure(options);
+        RoadSegmentExtractProjection.Configure(options);
+        GradeSeparatedJunctionExtractProjection.Configure(options);
+        GradeJunctionExtractProjection.Configure(options);
     }
 }

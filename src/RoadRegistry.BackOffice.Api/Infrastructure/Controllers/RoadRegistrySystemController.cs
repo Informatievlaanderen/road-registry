@@ -9,8 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SqlStreamStore;
 
-[ApiVersion(Version.Current)]
-[AdvertiseApiVersions(Version.CurrentAdvertised)]
+[ApiVersion(Version.V1)]
 [ApiRoute("system")]
 [ApiExplorerSettings(GroupName = "Infrastructuur")]
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllSchemes, Policy = PolicyNames.WegenUitzonderingen.Beheerder)]

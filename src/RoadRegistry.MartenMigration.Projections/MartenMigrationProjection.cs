@@ -20,6 +20,7 @@ using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
+using RoadRegistry.StreetName.Events.V2;
 using RoadSegment;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
@@ -403,6 +404,70 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var roadNetworkId = new ScopedRoadNetworkId(Guid.NewGuid());
 
             await RoadSegmentsStreetNamesChanged(roadNetworkId, envelope, token);
+        });
+
+        When<Envelope<BackOffice.Messages.StreetNameCreated>>((_, envelope, token) =>
+        {
+            var streetNameLocalId = new StreetNameLocalId(envelope.Message.Record.PersistentLocalId);
+            var eventIdentifier = BuildEventIdentifier(envelope);
+
+            return _repo.InIdempotentSession(eventIdentifier, session =>
+            {
+                session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
+                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+
+                var legacyEvent = new StreetNameWasCreated
+                {
+                    StreetNameId = streetNameLocalId,
+                    DutchName = envelope.Message.Record.DutchName,
+                    Provenance = new ProvenanceData(BuildStreetNameProvenance(envelope.Message.When, Modification.Insert))
+                };
+                session.Events.Append(StreetNameStreamKey(streetNameLocalId), legacyEvent);
+            }, token);
+        });
+
+        When<Envelope<BackOffice.Messages.StreetNameModified>>((_, envelope, token) =>
+        {
+            if (!envelope.Message.NameModified)
+            {
+                return Task.CompletedTask;
+            }
+
+            var streetNameLocalId = new StreetNameLocalId(envelope.Message.Record.PersistentLocalId);
+            var eventIdentifier = BuildEventIdentifier(envelope);
+
+            return _repo.InIdempotentSession(eventIdentifier, session =>
+            {
+                session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
+                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+
+                var legacyEvent = new StreetNameNameWasModified
+                {
+                    StreetNameId = streetNameLocalId,
+                    DutchName = envelope.Message.Record.DutchName,
+                    Provenance = new ProvenanceData(BuildStreetNameProvenance(envelope.Message.When, Modification.Update))
+                };
+                session.Events.Append(StreetNameStreamKey(streetNameLocalId), legacyEvent);
+            }, token);
+        });
+
+        When<Envelope<BackOffice.Messages.StreetNameRemoved>>((_, envelope, token) =>
+        {
+            var streetNameLocalId = new StreetNameId(envelope.Message.StreetNameId).ToStreetNameLocalId();
+            var eventIdentifier = BuildEventIdentifier(envelope);
+
+            return _repo.InIdempotentSession(eventIdentifier, session =>
+            {
+                session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
+                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+
+                var legacyEvent = new StreetNameWasRemoved
+                {
+                    StreetNameId = streetNameLocalId,
+                    Provenance = new ProvenanceData(BuildStreetNameProvenance(envelope.Message.When, Modification.Delete))
+                };
+                session.Events.Append(StreetNameStreamKey(streetNameLocalId), legacyEvent);
+            }, token);
         });
     }
 
@@ -1293,6 +1358,22 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             new Operator(envelope.Message.OrganizationId),
             modification,
             Organisation.DigitaalVlaanderen);
+    }
+
+    private static Provenance BuildStreetNameProvenance(string when, Modification modification)
+    {
+        return new Provenance(
+            LocalDateTimeTranslator.TranslateFromWhen(when),
+            Application.RoadRegistry,
+            new Reason("StreetName"),
+            new Operator("StreetNameRegistry"),
+            modification,
+            Organisation.DigitaalVlaanderen);
+    }
+
+    private static string StreetNameStreamKey(StreetNameLocalId streetNameId)
+    {
+        return $"streetname-{streetNameId}";
     }
 
     private static string BuildEventIdentifier<TMessage>(Envelope<TMessage> envelope, int? changeIndex = null)

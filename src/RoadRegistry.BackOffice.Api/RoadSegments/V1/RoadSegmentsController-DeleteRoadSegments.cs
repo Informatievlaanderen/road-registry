@@ -1,0 +1,120 @@
+namespace RoadRegistry.BackOffice.Api.RoadSegments.V1;
+
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
+using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using FluentValidation;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
+using RoadRegistry.BackOffice.Abstractions.RoadSegments;
+using RoadRegistry.BackOffice.Api.Infrastructure;
+using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
+using RoadRegistry.BackOffice.FeatureToggles;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
+using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.Messages;
+using RoadRegistry.ValueObjects.ProblemCodes;
+using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
+
+public partial class RoadSegmentsController
+{
+    private const string DeleteRoadSegmentsRoute = "acties/verwijderen";
+
+    /// <summary>
+    ///     Verwijder wegsegmenten.
+    /// </summary>
+    /// <param name="parameters"></param>
+    /// <param name="validator"></param>
+    /// <param name="useDomainV2FeatureToggle"></param>
+    /// <param name="cancellationToken"></param>
+    /// <response code="202">Als de wegsegmenten gevonden zijn.</response>
+    /// <response code="400">Als uw verzoek foutieve data bevat.</response>
+    /// <response code="500">Als er een interne fout is opgetreden.</response>
+    [HttpPost(DeleteRoadSegmentsRoute, Name = nameof(DeleteRoadSegments))]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
+    [SwaggerOperation(OperationId = nameof(DeleteRoadSegments), Description = "Verwijder wegsegmenten")]
+    public async Task<IActionResult> DeleteRoadSegments(
+        [FromBody] DeleteRoadSegmentsParameters parameters,
+        [FromServices] DeleteRoadSegmentsParametersValidator validator,
+        [FromServices] UseDomainV2FeatureToggle useDomainV2FeatureToggle,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await validator.ValidateAndThrowAsync(parameters, cancellationToken);
+
+            if (useDomainV2FeatureToggle.FeatureEnabled)
+            {
+                var sqsRequest = new RemoveRoadSegmentsSqsRequest
+                {
+                    RoadSegmentIds = parameters.Wegsegmenten.Select(x => new RoadSegmentId(x)).ToList()
+                };
+                var response = await _mediator.Send(sqsRequest, cancellationToken);
+
+                return Accepted(response);
+            }
+            else
+            {
+                var request = new DeleteRoadSegmentsRequest(parameters.Wegsegmenten.Select(x => new RoadSegmentId(x)).ToArray());
+                var response = await _mediator.Send(request, cancellationToken);
+
+                return Accepted(new LocationResult(response.TicketUrl));
+            }
+        }
+        catch (RoadSegmentsNotFoundException ex)
+        {
+            throw new ValidationException([
+                new ValidationFailure
+                {
+                    PropertyName = nameof(parameters.Wegsegmenten),
+                    ErrorCode = ProblemCode.RoadSegments.NotFound,
+                    CustomState = new[]
+                    {
+                        new ProblemParameter("RoadSegmentIds", string.Join(",", ex.RoadSegmentIds))
+                    }
+                }
+            ]);
+        }
+    }
+}
+
+[DataContract(Name = "WegsegmentenVerwijderen", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentenVerwijderen")]
+public class DeleteRoadSegmentsParameters
+{
+    /// <summary>
+    ///     Lijst van identificatoren van wegsegmenten die verwijderd mogen worden.
+    /// </summary>
+    [DataMember(Name = "Wegsegmenten", Order = 1)]
+    [JsonProperty("wegsegmenten", Required = Required.Always)]
+    public int[] Wegsegmenten { get; set; }
+}
+
+public class DeleteRoadSegmentsParametersValidator : AbstractValidator<DeleteRoadSegmentsParameters>
+{
+    public DeleteRoadSegmentsParametersValidator()
+    {
+        RuleFor(x => x.Wegsegmenten)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.Common.JsonInvalid)
+            .Must(wegsegmenten => wegsegmenten.All(RoadSegmentId.Accepts))
+            .WithProblemCode(ProblemCode.Common.JsonInvalid)
+            .Must(x => x.Length == x.Distinct().Count())
+            .WithProblemCode(ProblemCode.RoadSegment.IdsNotUnique);
+    }
+}

@@ -349,8 +349,16 @@ public class ApiModule : Module
 
         _martenProjections.Add(new ProjectionDetail
         {
-            Id = "ExtractsRoadNetworkChangesProjection:All",
+            Id = WellKnownProjectionStateNames.RoadNetworkChangesExtractProjection,
             Name = "Marten - Extracts",
+            Description = string.Empty,
+            FallbackDesiredState = "subscribed"
+        });
+
+        _martenProjections.Add(new ProjectionDetail
+        {
+            Id = WellKnownProjectionStateNames.RoadNetworkChangesReadProjection,
+            Name = "Marten - Read",
             Description = string.Empty,
             FallbackDesiredState = "subscribed"
         });

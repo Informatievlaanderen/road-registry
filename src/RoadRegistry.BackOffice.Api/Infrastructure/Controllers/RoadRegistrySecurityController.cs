@@ -6,8 +6,7 @@ using Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-[ApiVersion(Version.Current)]
-[AdvertiseApiVersions(Version.CurrentAdvertised)]
+[ApiVersion(Version.V1)]
 [ApiRoute("security")]
 [ApiExplorerSettings(GroupName = "Infrastructuur")]
 public partial class RoadRegistrySecurityController : BackofficeApiController

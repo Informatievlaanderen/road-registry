@@ -45,6 +45,7 @@
     <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\RoadRegistry.Jobs\RoadRegistry.Jobs.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\RoadRegistry.Read.Projections\RoadRegistry.Read.Projections.csproj" />
     <ProjectReference Include="..\RoadRegistry.Snapshot.Handlers.Sqs\RoadRegistry.Snapshot.Handlers.Sqs.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\RoadRegistry.Snapshot.Handlers\RoadRegistry.Snapshot.Handlers.csproj" PrivateAssets="all" />
   </ItemGroup>

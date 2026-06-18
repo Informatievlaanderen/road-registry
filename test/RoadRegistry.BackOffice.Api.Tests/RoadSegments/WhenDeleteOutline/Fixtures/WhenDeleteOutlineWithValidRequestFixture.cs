@@ -4,6 +4,7 @@ using Abstractions.Fixtures;
 using Api.RoadSegments;
 using Editor.Schema;
 using MediatR;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1;
 
 public class WhenDeleteOutlineWithValidRequestFixture : WhenDeleteOutlineFixture
 {
