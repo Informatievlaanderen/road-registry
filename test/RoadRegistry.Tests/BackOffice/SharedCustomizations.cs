@@ -1007,6 +1007,24 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeRoadSegmentTrafficDirection(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentTrafficDirection>(customization =>
+            customization.FromFactory(generator =>
+                RoadSegmentTrafficDirection.All[generator.Next() % RoadSegmentTrafficDirection.All.Length]
+            )
+        );
+    }
+
+    public static void CustomizeRoadSegmentPedestrianTrafficDirection(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentPedestrianTrafficDirection>(customization =>
+            customization.FromFactory(generator =>
+                RoadSegmentPedestrianTrafficDirection.All[generator.Next() % RoadSegmentPedestrianTrafficDirection.All.Length]
+            )
+        );
+    }
+
     public static void CustomizeRoadSegmentWidth(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentWidth>(customization =>

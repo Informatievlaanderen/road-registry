@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.RoadSegment.ValueObjects;
+namespace RoadRegistry.RoadSegment.ValueObjects;
 
 using System;
 using System.Collections.Generic;
@@ -16,11 +16,9 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId> MaintenanceAuthorityId { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> SurfaceType { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool> CarAccessForward { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool> CarAccessBackward { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool> BikeAccessForward { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool> BikeAccessBackward { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool> PedestrianAccess { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> CarTrafficDirection { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> BikeTrafficDirection { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection> PedestrianTrafficDirection { get; init; }
     public ImmutableList<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; }
     public ImmutableList<NationalRoadNumber> NationalRoadNumbers { get; init; }
 
@@ -38,11 +36,9 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
         RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameId,
         RoadSegmentDynamicAttributeValues<OrganizationId> maintenanceAuthorityId,
         RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> surfaceType,
-        RoadSegmentDynamicAttributeValues<bool> carAccessForward,
-        RoadSegmentDynamicAttributeValues<bool> carAccessBackward,
-        RoadSegmentDynamicAttributeValues<bool> bikeAccessForward,
-        RoadSegmentDynamicAttributeValues<bool> bikeAccessBackward,
-        RoadSegmentDynamicAttributeValues<bool> pedestrianAccess,
+        RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> carTrafficDirection,
+        RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> bikeTrafficDirection,
+        RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection> pedestrianTrafficDirection,
         ICollection<EuropeanRoadNumber> europeanRoadNumbers,
         ICollection<NationalRoadNumber> nationalRoadNumbers
     )
@@ -54,11 +50,9 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
         StreetNameId = streetNameId;
         MaintenanceAuthorityId = maintenanceAuthorityId;
         SurfaceType = surfaceType;
-        CarAccessForward = carAccessForward;
-        CarAccessBackward = carAccessBackward;
-        BikeAccessForward = bikeAccessForward;
-        BikeAccessBackward = bikeAccessBackward;
-        PedestrianAccess = pedestrianAccess;
+        CarTrafficDirection = carTrafficDirection;
+        BikeTrafficDirection = bikeTrafficDirection;
+        PedestrianTrafficDirection = pedestrianTrafficDirection;
         EuropeanRoadNumbers = europeanRoadNumbers.ToImmutableList();
         NationalRoadNumbers = nationalRoadNumbers.ToImmutableList();
     }
@@ -77,11 +71,9 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
                && StreetNameId.Equals(other.StreetNameId)
                && MaintenanceAuthorityId.Equals(other.MaintenanceAuthorityId)
                && SurfaceType.Equals(other.SurfaceType)
-               && CarAccessForward.Equals(other.CarAccessForward)
-               && CarAccessBackward.Equals(other.CarAccessBackward)
-               && BikeAccessForward.Equals(other.BikeAccessForward)
-               && BikeAccessBackward.Equals(other.BikeAccessBackward)
-               && PedestrianAccess.Equals(other.PedestrianAccess)
+               && CarTrafficDirection.Equals(other.CarTrafficDirection)
+               && BikeTrafficDirection.Equals(other.BikeTrafficDirection)
+               && PedestrianTrafficDirection.Equals(other.PedestrianTrafficDirection)
                && EuropeanRoadNumbers.SequenceEqual(other.EuropeanRoadNumbers)
                && NationalRoadNumbers.SequenceEqual(other.NationalRoadNumbers)
             ;
@@ -97,11 +89,9 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
         hashCode.Add(StreetNameId);
         hashCode.Add(MaintenanceAuthorityId);
         hashCode.Add(SurfaceType);
-        hashCode.Add(CarAccessForward);
-        hashCode.Add(CarAccessBackward);
-        hashCode.Add(BikeAccessForward);
-        hashCode.Add(BikeAccessBackward);
-        hashCode.Add(PedestrianAccess);
+        hashCode.Add(CarTrafficDirection);
+        hashCode.Add(BikeTrafficDirection);
+        hashCode.Add(PedestrianTrafficDirection);
         hashCode.Add(EuropeanRoadNumbers);
         hashCode.Add(NationalRoadNumbers);
         return hashCode.ToHashCode();

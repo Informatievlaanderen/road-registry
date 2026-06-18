@@ -18,11 +18,9 @@ public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRo
     public required RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNameId { get; init; }
     public required RoadSegmentDynamicAttributeValues<OrganizationId> MaintenanceAuthorityId { get; init; }
     public required RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> SurfaceType { get; init; }
-    public required RoadSegmentDynamicAttributeValues<bool> CarAccessForward { get; init; }
-    public required RoadSegmentDynamicAttributeValues<bool> CarAccessBackward { get; init; }
-    public required RoadSegmentDynamicAttributeValues<bool> BikeAccessForward { get; init; }
-    public required RoadSegmentDynamicAttributeValues<bool> BikeAccessBackward { get; init; }
-    public required RoadSegmentDynamicAttributeValues<bool> PedestrianAccess { get; init; }
+    public required RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> CarTrafficDirection { get; init; }
+    public required RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> BikeTrafficDirection { get; init; }
+    public required RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection> PedestrianTrafficDirection { get; init; }
     public IReadOnlyCollection<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; } = [];
     public IReadOnlyCollection<NationalRoadNumber> NationalRoadNumbers { get; init; } = [];
 
@@ -48,11 +46,9 @@ public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRo
                && StreetNameId.Equals(other.StreetNameId)
                && MaintenanceAuthorityId.Equals(other.MaintenanceAuthorityId)
                && SurfaceType.Equals(other.SurfaceType)
-               && CarAccessForward.Equals(other.CarAccessForward)
-               && CarAccessBackward.Equals(other.CarAccessBackward)
-               && BikeAccessForward.Equals(other.BikeAccessForward)
-               && BikeAccessBackward.Equals(other.BikeAccessBackward)
-               && PedestrianAccess.Equals(other.PedestrianAccess)
+               && CarTrafficDirection.Equals(other.CarTrafficDirection)
+               && BikeTrafficDirection.Equals(other.BikeTrafficDirection)
+               && PedestrianTrafficDirection.Equals(other.PedestrianTrafficDirection)
                && EuropeanRoadNumbers.SequenceEqual(other.EuropeanRoadNumbers)
                && NationalRoadNumbers.SequenceEqual(other.NationalRoadNumbers);
     }

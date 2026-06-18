@@ -35,11 +35,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End),
                     Status = RoadSegmentStatusV2.Gerealiseerd,
-                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
-                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
-                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
-                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
-                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry)
+                    CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, TestData.AddSegment1.Geometry),
+                    BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.None, TestData.AddSegment1.Geometry),
+                    PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.None, TestData.AddSegment1.Geometry)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(TestData.AddSegment2StartNode with
                 {
@@ -53,11 +51,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End),
                     Status = RoadSegmentStatusV2.Gerealiseerd,
-                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry),
-                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry),
-                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment2.Geometry),
-                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment2.Geometry),
-                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry)
+                    CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.None, TestData.AddSegment2.Geometry),
+                    BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, TestData.AddSegment2.Geometry),
+                    PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.None, TestData.AddSegment2.Geometry)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
             .When(changes => changes
@@ -108,11 +104,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End),
                     Status = RoadSegmentStatusV2.Gerealiseerd,
-                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
-                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
-                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
-                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
-                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry)
+                    CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, TestData.AddSegment1.Geometry),
+                    BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.None, TestData.AddSegment1.Geometry),
+                    PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.None, TestData.AddSegment1.Geometry)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(TestData.AddSegment2StartNode with
                 {
@@ -126,11 +120,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End),
                     Status = RoadSegmentStatusV2.Gerealiseerd,
-                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry),
-                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry),
-                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment2.Geometry),
-                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment2.Geometry),
-                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry)
+                    CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.None, TestData.AddSegment2.Geometry),
+                    BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, TestData.AddSegment2.Geometry),
+                    PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.None, TestData.AddSegment2.Geometry)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
             .When(changes => changes
@@ -173,11 +165,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End),
                     Status = RoadSegmentStatusV2.Gerealiseerd,
-                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
-                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
-                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
-                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
-                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry)
+                    CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, TestData.AddSegment1.Geometry),
+                    BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.None, TestData.AddSegment1.Geometry),
+                    PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.None, TestData.AddSegment1.Geometry)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(TestData.AddSegment2StartNode with
                 {
@@ -191,11 +181,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End),
                     Status = RoadSegmentStatusV2.Gerealiseerd,
-                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry),
-                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry),
-                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment2.Geometry),
-                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment2.Geometry),
-                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry)
+                    CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.None, TestData.AddSegment2.Geometry),
+                    BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, TestData.AddSegment2.Geometry),
+                    PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.None, TestData.AddSegment2.Geometry)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
             .When(changes => changes
@@ -246,11 +234,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End),
                     Status = RoadSegmentStatusV2.Gerealiseerd,
-                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
-                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
-                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
-                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
-                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry)
+                    CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, TestData.AddSegment1.Geometry),
+                    BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.None, TestData.AddSegment1.Geometry),
+                    PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.None, TestData.AddSegment1.Geometry)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(TestData.AddSegment2StartNode with
                 {
@@ -264,22 +250,18 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     Geometry = segment2Geometry,
                     Status = RoadSegmentStatusV2.Gerealiseerd,
-                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry),
-                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry),
-                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment2.Geometry),
-                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment2.Geometry),
-                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry)
+                    CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.None, TestData.AddSegment2.Geometry),
+                    BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, TestData.AddSegment2.Geometry),
+                    PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.None, TestData.AddSegment2.Geometry)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
             .When(changes => changes
                 .Add(new ModifyRoadSegmentChange
                 {
                     RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment2Added.RoadSegmentId),
-                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, segment2Geometry),
-                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, segment2Geometry),
-                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, segment2Geometry),
-                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, segment2Geometry),
-                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, segment2Geometry)
+                    CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, segment2Geometry),
+                    BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.None, segment2Geometry),
+                    PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.None, segment2Geometry)
                 })
                 .Add(Fixture.Create<AddGradeSeparatedJunctionChange>() with
                 {
@@ -320,11 +302,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End),
                     Status = RoadSegmentStatusV2.Gerealiseerd,
-                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
-                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment1.Geometry),
-                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
-                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry),
-                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment1.Geometry)
+                    CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, TestData.AddSegment1.Geometry),
+                    BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.None, TestData.AddSegment1.Geometry),
+                    PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.None, TestData.AddSegment1.Geometry)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
                 .Add(TestData.AddSegment2StartNode with
                 {
@@ -338,11 +318,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 {
                     Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End),
                     Status = RoadSegmentStatusV2.Gerealiseerd,
-                    CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry),
-                    CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry),
-                    BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment2.Geometry),
-                    BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(true, TestData.AddSegment2.Geometry),
-                    PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(false, TestData.AddSegment2.Geometry)
+                    CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.None, TestData.AddSegment2.Geometry),
+                    BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.Both, TestData.AddSegment2.Geometry),
+                    PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.None, TestData.AddSegment2.Geometry)
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
             .When(changes => changes

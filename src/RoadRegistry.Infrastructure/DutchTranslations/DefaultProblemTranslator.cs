@@ -930,6 +930,111 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"Het auto terug bevat meerdere attributen voor dezelfde dekking ({problem.Parameters[0].Value} -> {problem.Parameters[1].Value}).")
             },
             {
+                ProblemCode.RoadSegment.CarTrafficDirection.IsRequired, problem => new(problem.Severity, "AutoRichtingVerplicht",
+                    "Auto richting is verplicht.")
+            },
+            {
+                ProblemCode.RoadSegment.CarTrafficDirection.NotValid, problem => new(problem.Severity, "AutoRichtingNietCorrect",
+                    $"Auto richting is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")
+            },
+            {
+                ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes.FromOrToPositionIsNull, problem => new(problem.Severity, problem.Reason,
+                    $"De van of naar positie van een auto richting attribuut is leeg.")
+            },
+            {
+                ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes.FromPositionNotEqualToZero, problem => new(problem.Severity, problem.Reason,
+                    $"De van positie ({problem.Parameters[0].Value}) van het eerste auto richting attribuut is niet 0.0.")
+            },
+            {
+                ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes.HasCountOfZero, problem => new(problem.Severity, problem.Reason, "Wegsegment heeft geen enkele auto richting.")
+            },
+            {
+                ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
+                    $"De van ({problem.Parameters[0].Value}) en tot positie ({problem.Parameters[1].Value}) van een auto richting attribuut heeft lengte 0.")
+            },
+            {
+                ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
+                    $"De tot positie ({problem.Parameters[1].Value}) van het auto richting attribuut sluit niet aan op de van positie ({problem.Parameters[0].Value}).")
+            },
+            {
+                ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes.ToPositionNotEqualToLength, problem => new(problem.Severity, problem.Reason,
+                    $"De tot positie ({problem.Parameters[0].Value}) van het laatste auto richting attribuut is niet gelijk aan de lengte van het wegsegment ({problem.Parameters[1].Value}).")
+            },
+            {
+                ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes.ValueNotUniqueWithinSegment, problem => new(problem.Severity, problem.Reason,
+                    $"Het auto richting bevat meerdere attributen voor dezelfde dekking ({problem.Parameters[0].Value} -> {problem.Parameters[1].Value}).")
+            },
+            {
+                ProblemCode.RoadSegment.BikeTrafficDirection.IsRequired, problem => new(problem.Severity, "FietsRichtingVerplicht",
+                    "Fiets richting is verplicht.")
+            },
+            {
+                ProblemCode.RoadSegment.BikeTrafficDirection.NotValid, problem => new(problem.Severity, "FietsRichtingNietCorrect",
+                    $"Fiets richting is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")
+            },
+            {
+                ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes.FromOrToPositionIsNull, problem => new(problem.Severity, problem.Reason,
+                    $"De van of naar positie van een fiets richting attribuut is leeg.")
+            },
+            {
+                ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes.FromPositionNotEqualToZero, problem => new(problem.Severity, problem.Reason,
+                    $"De van positie ({problem.Parameters[0].Value}) van het eerste fiets richting attribuut is niet 0.0.")
+            },
+            {
+                ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes.HasCountOfZero, problem => new(problem.Severity, problem.Reason, "Wegsegment heeft geen enkele fiets richting.")
+            },
+            {
+                ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
+                    $"De van ({problem.Parameters[0].Value}) en tot positie ({problem.Parameters[1].Value}) van een fiets richting attribuut heeft lengte 0.")
+            },
+            {
+                ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
+                    $"De tot positie ({problem.Parameters[1].Value}) van het fiets richting attribuut sluit niet aan op de van positie ({problem.Parameters[0].Value}).")
+            },
+            {
+                ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes.ToPositionNotEqualToLength, problem => new(problem.Severity, problem.Reason,
+                    $"De tot positie ({problem.Parameters[0].Value}) van het laatste fiets richting attribuut is niet gelijk aan de lengte van het wegsegment ({problem.Parameters[1].Value}).")
+            },
+            {
+                ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes.ValueNotUniqueWithinSegment, problem => new(problem.Severity, problem.Reason,
+                    $"Het fiets richting bevat meerdere attributen voor dezelfde dekking ({problem.Parameters[0].Value} -> {problem.Parameters[1].Value}).")
+            },
+            {
+                ProblemCode.RoadSegment.PedestrianTrafficDirection.IsRequired, problem => new(problem.Severity, "VoetgangersRichtingVerplicht",
+                    "Voetgangers richting is verplicht.")
+            },
+            {
+                ProblemCode.RoadSegment.PedestrianTrafficDirection.NotValid, problem => new(problem.Severity, "VoetgangersRichtingNietCorrect",
+                    $"Voetgangers richting is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")
+            },
+            {
+                ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes.FromOrToPositionIsNull, problem => new(problem.Severity, problem.Reason,
+                    $"De van of naar positie van een voetgangers richting attribuut is leeg.")
+            },
+            {
+                ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes.FromPositionNotEqualToZero, problem => new(problem.Severity, problem.Reason,
+                    $"De van positie ({problem.Parameters[0].Value}) van het eerste voetgangers richting attribuut is niet 0.0.")
+            },
+            {
+                ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes.HasCountOfZero, problem => new(problem.Severity, problem.Reason, "Wegsegment heeft geen enkele voetgangers richting.")
+            },
+            {
+                ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
+                    $"De van ({problem.Parameters[0].Value}) en tot positie ({problem.Parameters[1].Value}) van een voetgangers richting attribuut heeft lengte 0.")
+            },
+            {
+                ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
+                    $"De tot positie ({problem.Parameters[1].Value}) van het voetgangers richting attribuut sluit niet aan op de van positie ({problem.Parameters[0].Value}).")
+            },
+            {
+                ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes.ToPositionNotEqualToLength, problem => new(problem.Severity, problem.Reason,
+                    $"De tot positie ({problem.Parameters[0].Value}) van het laatste voetgangers richting attribuut is niet gelijk aan de lengte van het wegsegment ({problem.Parameters[1].Value}).")
+            },
+            {
+                ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes.ValueNotUniqueWithinSegment, problem => new(problem.Severity, problem.Reason,
+                    $"Het voetgangers richting bevat meerdere attributen voor dezelfde dekking ({problem.Parameters[0].Value} -> {problem.Parameters[1].Value}).")
+            },
+            {
                 ProblemCode.RoadSegment.BikeAccessForward.IsRequired, problem => new(problem.Severity, "FietsHeenVerplicht",
                     "Fiets heen is verplicht.")
             },

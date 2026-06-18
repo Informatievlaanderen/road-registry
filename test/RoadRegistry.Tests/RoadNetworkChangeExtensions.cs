@@ -29,11 +29,9 @@ public static class RoadNetworkChangeExtensions
             StreetNameId = change.StreetNameId.ForEntireGeometry(change.Geometry),
             MaintenanceAuthorityId = change.MaintenanceAuthorityId.ForEntireGeometry(change.Geometry),
             SurfaceType = change.SurfaceType.ForEntireGeometry(change.Geometry),
-            CarAccessForward = change.CarAccessForward.ForEntireGeometry(change.Geometry),
-            CarAccessBackward = change.CarAccessBackward.ForEntireGeometry(change.Geometry),
-            BikeAccessForward = change.BikeAccessForward.ForEntireGeometry(change.Geometry),
-            BikeAccessBackward = change.BikeAccessBackward.ForEntireGeometry(change.Geometry),
-            PedestrianAccess = change.PedestrianAccess.ForEntireGeometry(change.Geometry)
+            CarTrafficDirection = change.CarTrafficDirection.ForEntireGeometry(change.Geometry),
+            BikeTrafficDirection = change.BikeTrafficDirection.ForEntireGeometry(change.Geometry),
+            PedestrianTrafficDirection = change.PedestrianTrafficDirection.ForEntireGeometry(change.Geometry)
         };
     }
 
@@ -47,11 +45,9 @@ public static class RoadNetworkChangeExtensions
             StreetNameId = change.StreetNameId.ForEntireGeometry(change.Geometry),
             MaintenanceAuthorityId = change.MaintenanceAuthorityId.ForEntireGeometry(change.Geometry),
             SurfaceType = change.SurfaceType.ForEntireGeometry(change.Geometry),
-            CarAccessForward = change.CarAccessForward.ForEntireGeometry(change.Geometry),
-            CarAccessBackward = change.CarAccessBackward.ForEntireGeometry(change.Geometry),
-            BikeAccessForward = change.BikeAccessForward.ForEntireGeometry(change.Geometry),
-            BikeAccessBackward = change.BikeAccessBackward.ForEntireGeometry(change.Geometry),
-            PedestrianAccess = change.PedestrianAccess.ForEntireGeometry(change.Geometry)
+            CarTrafficDirection = change.CarTrafficDirection.ForEntireGeometry(change.Geometry),
+            BikeTrafficDirection = change.BikeTrafficDirection.ForEntireGeometry(change.Geometry),
+            PedestrianTrafficDirection = change.PedestrianTrafficDirection.ForEntireGeometry(change.Geometry)
         };
     }
 }

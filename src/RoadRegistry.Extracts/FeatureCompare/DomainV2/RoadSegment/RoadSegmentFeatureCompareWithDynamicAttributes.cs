@@ -35,10 +35,10 @@ public record RoadSegmentFeatureCompareWithDynamicAttributes
             Morphology = Morphology == other.Morphology ? null : Morphology,
             StreetNameId = StreetNameId == other.StreetNameId ? null : StreetNameId,
             SurfaceType = SurfaceType == other.SurfaceType ? null : SurfaceType,
-            CarAccessForward = CarAccessForward == other.CarAccessForward ? null : CarAccessForward,
-            CarAccessBackward = CarAccessBackward == other.CarAccessBackward ? null : CarAccessBackward,
-            BikeAccessForward = BikeAccessForward == other.BikeAccessForward ? null : BikeAccessForward,
-            BikeAccessBackward = BikeAccessBackward == other.BikeAccessBackward ? null : BikeAccessBackward,
+            CarAccessForward = CarAccessForward == other.CarAccessForward && CarAccessBackward == other.CarAccessBackward ? null : CarAccessForward,
+            CarAccessBackward = CarAccessForward == other.CarAccessForward && CarAccessBackward == other.CarAccessBackward ? null : CarAccessBackward,
+            BikeAccessForward = BikeAccessForward == other.BikeAccessForward && BikeAccessBackward == other.BikeAccessBackward ? null : BikeAccessForward,
+            BikeAccessBackward = BikeAccessForward == other.BikeAccessForward && BikeAccessBackward == other.BikeAccessBackward ? null : BikeAccessBackward,
             PedestrianAccess = PedestrianAccess == other.PedestrianAccess ? null : PedestrianAccess
         };
     }

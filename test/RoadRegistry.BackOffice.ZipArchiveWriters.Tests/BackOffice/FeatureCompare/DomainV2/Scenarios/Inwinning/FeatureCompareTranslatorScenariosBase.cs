@@ -103,11 +103,9 @@ public abstract class FeatureCompareTranslatorScenariosBase
             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(RoadSegmentAccessRestrictionV2.ByIdentifier[dbaseRecord.TOEGANG.Value], geometry),
             StreetNameId = BuildStreetNameIdAttributes(StreetNameLocalId.FromValue(dbaseRecord.LSTRNMID.Value), StreetNameLocalId.FromValue(dbaseRecord.RSTRNMID.Value), geometry),
             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(RoadSegmentSurfaceTypeV2.ByIdentifier[dbaseRecord.VERHARDING.Value], geometry),
-            CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(dbaseRecord.AUTOHEEN.Value.ToBooleanFromDbaseValue()!.Value, geometry),
-            CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(dbaseRecord.AUTOTERUG.Value.ToBooleanFromDbaseValue()!.Value, geometry),
-            BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(dbaseRecord.FIETSHEEN.Value.ToBooleanFromDbaseValue()!.Value, geometry),
-            BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(dbaseRecord.FIETSTERUG.Value.ToBooleanFromDbaseValue()!.Value, geometry),
-            PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(dbaseRecord.VOETGANGER.Value.ToBooleanFromDbaseValue()!.Value, geometry),
+            CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(dbaseRecord.AUTOHEEN.Value.ToBooleanFromDbaseValue()!.Value, dbaseRecord.AUTOTERUG.Value.ToBooleanFromDbaseValue()!.Value), geometry),
+            BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(dbaseRecord.FIETSHEEN.Value.ToBooleanFromDbaseValue()!.Value, dbaseRecord.FIETSTERUG.Value.ToBooleanFromDbaseValue()!.Value), geometry),
+            PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.FromAccess(dbaseRecord.VOETGANGER.Value.ToBooleanFromDbaseValue()!.Value), geometry),
             EuropeanRoadNumbers = [],
             NationalRoadNumbers = []
         };
@@ -128,11 +126,9 @@ public abstract class FeatureCompareTranslatorScenariosBase
             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(RoadSegmentAccessRestrictionV2.ByIdentifier[dbaseRecord.TOEGANG.Value], geometry),
             StreetNameId = BuildStreetNameIdAttributes(StreetNameLocalId.FromValue(dbaseRecord.LSTRNMID.Value), StreetNameLocalId.FromValue(dbaseRecord.RSTRNMID.Value), geometry),
             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(RoadSegmentSurfaceTypeV2.ByIdentifier[dbaseRecord.VERHARDING.Value], geometry),
-            CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(dbaseRecord.AUTOHEEN.Value.ToBooleanFromDbaseValue()!.Value, geometry),
-            CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(dbaseRecord.AUTOTERUG.Value.ToBooleanFromDbaseValue()!.Value, geometry),
-            BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(dbaseRecord.FIETSHEEN.Value.ToBooleanFromDbaseValue()!.Value, geometry),
-            BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(dbaseRecord.FIETSTERUG.Value.ToBooleanFromDbaseValue()!.Value, geometry),
-            PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(dbaseRecord.VOETGANGER.Value.ToBooleanFromDbaseValue()!.Value, geometry)
+            CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(dbaseRecord.AUTOHEEN.Value.ToBooleanFromDbaseValue()!.Value, dbaseRecord.AUTOTERUG.Value.ToBooleanFromDbaseValue()!.Value), geometry),
+            BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(dbaseRecord.FIETSHEEN.Value.ToBooleanFromDbaseValue()!.Value, dbaseRecord.FIETSTERUG.Value.ToBooleanFromDbaseValue()!.Value), geometry),
+            PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.FromAccess(dbaseRecord.VOETGANGER.Value.ToBooleanFromDbaseValue()!.Value), geometry)
         };
     }
 }

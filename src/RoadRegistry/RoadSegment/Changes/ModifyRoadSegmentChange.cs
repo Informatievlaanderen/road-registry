@@ -15,9 +15,7 @@ public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId>? StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId>? MaintenanceAuthorityId { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>? SurfaceType { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool>? CarAccessForward { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool>? CarAccessBackward { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool>? BikeAccessForward { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool>? BikeAccessBackward { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool>? PedestrianAccess { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>? CarTrafficDirection { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>? BikeTrafficDirection { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>? PedestrianTrafficDirection { get; init; }
 }

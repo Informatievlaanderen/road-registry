@@ -83,6 +83,8 @@ public class RoadNetworkTestDataV2
         Fixture.CustomizeRoadSegmentGeometry();
         Fixture.CustomizeRoadSegmentGeometryDrawMethodV2();
         Fixture.CustomizeRoadSegmentSurfaceTypeV2();
+        Fixture.CustomizeRoadSegmentTrafficDirection();
+        Fixture.CustomizeRoadSegmentPedestrianTrafficDirection();
         Fixture.CustomizeEuropeanRoadNumber();
         Fixture.CustomizeNationalRoadNumber();
         Fixture.CustomizeOriginProperties();
@@ -260,11 +262,9 @@ public class RoadNetworkTestDataV2
             AccessRestriction = CreateDynamicAttribute<RoadSegmentAccessRestrictionV2>(Fixture, MultiLineString1),
             StreetNameId = CreateDynamicAttribute<StreetNameLocalId>(Fixture, MultiLineString1),
             SurfaceType = CreateDynamicAttribute<RoadSegmentSurfaceTypeV2>(Fixture, MultiLineString1),
-            CarAccessForward = CreateDynamicAttribute<bool>(Fixture, MultiLineString1),
-            CarAccessBackward = CreateDynamicAttribute<bool>(Fixture, MultiLineString1),
-            BikeAccessForward = CreateDynamicAttribute<bool>(Fixture, MultiLineString1),
-            BikeAccessBackward = CreateDynamicAttribute<bool>(Fixture, MultiLineString1),
-            PedestrianAccess = CreateDynamicAttribute<bool>(Fixture, MultiLineString1),
+            CarTrafficDirection = CreateDynamicAttribute<RoadSegmentTrafficDirection>(Fixture, MultiLineString1),
+            BikeTrafficDirection = CreateDynamicAttribute<RoadSegmentTrafficDirection>(Fixture, MultiLineString1),
+            PedestrianTrafficDirection = CreateDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(Fixture, MultiLineString1),
             EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
             NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
         };
@@ -284,11 +284,9 @@ public class RoadNetworkTestDataV2
             AccessRestriction = AddSegment1.AccessRestriction,
             StreetNameId = AddSegment1.StreetNameId,
             SurfaceType = AddSegment1.SurfaceType,
-            CarAccessForward = AddSegment1.CarAccessForward,
-            CarAccessBackward = AddSegment1.CarAccessBackward,
-            BikeAccessForward = AddSegment1.BikeAccessForward,
-            BikeAccessBackward = AddSegment1.BikeAccessBackward,
-            PedestrianAccess = AddSegment1.PedestrianAccess,
+            CarTrafficDirection = AddSegment1.CarTrafficDirection,
+            BikeTrafficDirection = AddSegment1.BikeTrafficDirection,
+            PedestrianTrafficDirection = AddSegment1.PedestrianTrafficDirection,
             EuropeanRoadNumbers = AddSegment1.EuropeanRoadNumbers,
             NationalRoadNumbers = AddSegment1.NationalRoadNumbers,
             Provenance = new ProvenanceData(Provenance)
@@ -306,11 +304,9 @@ public class RoadNetworkTestDataV2
             AccessRestriction = CreateDynamicAttribute<RoadSegmentAccessRestrictionV2>(Fixture, MultiLineString2),
             StreetNameId = CreateDynamicAttribute<StreetNameLocalId>(Fixture, MultiLineString2),
             SurfaceType = CreateDynamicAttribute<RoadSegmentSurfaceTypeV2>(Fixture, MultiLineString2),
-            CarAccessForward = CreateDynamicAttribute<bool>(Fixture, MultiLineString2),
-            CarAccessBackward = CreateDynamicAttribute<bool>(Fixture, MultiLineString2),
-            BikeAccessForward = CreateDynamicAttribute<bool>(Fixture, MultiLineString2),
-            BikeAccessBackward = CreateDynamicAttribute<bool>(Fixture, MultiLineString2),
-            PedestrianAccess = CreateDynamicAttribute<bool>(Fixture, MultiLineString2),
+            CarTrafficDirection = CreateDynamicAttribute<RoadSegmentTrafficDirection>(Fixture, MultiLineString2),
+            BikeTrafficDirection = CreateDynamicAttribute<RoadSegmentTrafficDirection>(Fixture, MultiLineString2),
+            PedestrianTrafficDirection = CreateDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(Fixture, MultiLineString2),
             EuropeanRoadNumbers = [],
             NationalRoadNumbers = []
         };
@@ -330,11 +326,9 @@ public class RoadNetworkTestDataV2
             AccessRestriction = AddSegment2.AccessRestriction,
             StreetNameId = AddSegment2.StreetNameId,
             SurfaceType = AddSegment2.SurfaceType,
-            CarAccessForward = AddSegment2.CarAccessForward,
-            CarAccessBackward = AddSegment2.CarAccessBackward,
-            BikeAccessForward = AddSegment2.BikeAccessForward,
-            BikeAccessBackward = AddSegment2.BikeAccessBackward,
-            PedestrianAccess = AddSegment2.PedestrianAccess,
+            CarTrafficDirection = AddSegment2.CarTrafficDirection,
+            BikeTrafficDirection = AddSegment2.BikeTrafficDirection,
+            PedestrianTrafficDirection = AddSegment2.PedestrianTrafficDirection,
             EuropeanRoadNumbers = AddSegment2.EuropeanRoadNumbers,
             NationalRoadNumbers = AddSegment2.NationalRoadNumbers,
             Provenance = new ProvenanceData(Provenance)
@@ -352,11 +346,9 @@ public class RoadNetworkTestDataV2
             AccessRestriction = CreateDynamicAttribute<RoadSegmentAccessRestrictionV2>(Fixture, MultiLineString2),
             StreetNameId = CreateDynamicAttribute<StreetNameLocalId>(Fixture, MultiLineString2),
             SurfaceType = CreateDynamicAttribute<RoadSegmentSurfaceTypeV2>(Fixture, MultiLineString2),
-            CarAccessForward = CreateDynamicAttribute<bool>(Fixture, MultiLineString2),
-            CarAccessBackward = CreateDynamicAttribute<bool>(Fixture, MultiLineString2),
-            BikeAccessForward = CreateDynamicAttribute<bool>(Fixture, MultiLineString2),
-            BikeAccessBackward = CreateDynamicAttribute<bool>(Fixture, MultiLineString2),
-            PedestrianAccess = CreateDynamicAttribute<bool>(Fixture, MultiLineString2),
+            CarTrafficDirection = CreateDynamicAttribute<RoadSegmentTrafficDirection>(Fixture, MultiLineString2),
+            BikeTrafficDirection = CreateDynamicAttribute<RoadSegmentTrafficDirection>(Fixture, MultiLineString2),
+            PedestrianTrafficDirection = CreateDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(Fixture, MultiLineString2),
             EuropeanRoadNumbers = [],
             NationalRoadNumbers = []
         };
@@ -376,11 +368,9 @@ public class RoadNetworkTestDataV2
             AccessRestriction = AddSegment3.AccessRestriction,
             StreetNameId = AddSegment3.StreetNameId,
             SurfaceType = AddSegment3.SurfaceType,
-            CarAccessForward = AddSegment3.CarAccessForward,
-            CarAccessBackward = AddSegment3.CarAccessBackward,
-            BikeAccessForward = AddSegment3.BikeAccessForward,
-            BikeAccessBackward = AddSegment3.BikeAccessBackward,
-            PedestrianAccess = AddSegment3.PedestrianAccess,
+            CarTrafficDirection = AddSegment3.CarTrafficDirection,
+            BikeTrafficDirection = AddSegment3.BikeTrafficDirection,
+            PedestrianTrafficDirection = AddSegment3.PedestrianTrafficDirection,
             EuropeanRoadNumbers = AddSegment3.EuropeanRoadNumbers,
             NationalRoadNumbers = AddSegment3.NationalRoadNumbers,
             Provenance = new ProvenanceData(Provenance)

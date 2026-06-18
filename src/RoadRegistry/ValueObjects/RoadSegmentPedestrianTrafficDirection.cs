@@ -30,6 +30,13 @@ public sealed class RoadSegmentPedestrianTrafficDirection : IEquatable<RoadSegme
     public static readonly IReadOnlyDictionary<string, RoadSegmentPedestrianTrafficDirection> ByName =
         All.ToDictionary(key => key.Translation.Name);
 
+    public static RoadSegmentPedestrianTrafficDirection FromAccess(bool access)
+    {
+        return access ? Both : None;
+    }
+
+    public bool IsAccessAllowed => Equals(Both);
+
     private readonly string _value;
 
     private RoadSegmentPedestrianTrafficDirection(string value, DutchTranslation dutchTranslation)

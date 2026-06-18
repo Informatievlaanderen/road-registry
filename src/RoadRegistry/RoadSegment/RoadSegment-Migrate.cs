@@ -27,11 +27,9 @@ public partial class RoadSegment
         var streetNameId = change.StreetNameId;
         var maintenanceAuthorityId = change.MaintenanceAuthorityId;
         var surfaceType = change.SurfaceType;
-        var carAccessForward = change.CarAccessForward;
-        var carAccessBackward = change.CarAccessBackward;
-        var bikeAccessForward = change.BikeAccessForward;
-        var bikeAccessBackward = change.BikeAccessBackward;
-        var pedestrianAccess = change.PedestrianAccess;
+        var carTrafficDirection = change.CarTrafficDirection;
+        var bikeTrafficDirection = change.BikeTrafficDirection;
+        var pedestrianTrafficDirection = change.PedestrianTrafficDirection;
         var europeanRoadNumbers = change.EuropeanRoadNumbers.ToImmutableList();
         var nationalRoadNumbers = change.NationalRoadNumbers.ToImmutableList();
         var attributes = new RoadSegmentAttributes
@@ -43,11 +41,9 @@ public partial class RoadSegment
             StreetNameId = streetNameId,
             MaintenanceAuthorityId = maintenanceAuthorityId,
             SurfaceType = surfaceType,
-            CarAccessForward = carAccessForward,
-            CarAccessBackward = carAccessBackward,
-            BikeAccessForward = bikeAccessForward,
-            BikeAccessBackward = bikeAccessBackward,
-            PedestrianAccess = pedestrianAccess,
+            CarTrafficDirection = carTrafficDirection,
+            BikeTrafficDirection = bikeTrafficDirection,
+            PedestrianTrafficDirection = pedestrianTrafficDirection,
             EuropeanRoadNumbers = europeanRoadNumbers,
             NationalRoadNumbers = nationalRoadNumbers
         };
@@ -82,11 +78,9 @@ public partial class RoadSegment
             StreetNameId = streetNameId,
             MaintenanceAuthorityId = maintenanceAuthorityId,
             SurfaceType = surfaceType,
-            CarAccessForward = carAccessForward,
-            CarAccessBackward = carAccessBackward,
-            BikeAccessForward = bikeAccessForward,
-            BikeAccessBackward = bikeAccessBackward,
-            PedestrianAccess = pedestrianAccess,
+            CarTrafficDirection = carTrafficDirection,
+            BikeTrafficDirection = bikeTrafficDirection,
+            PedestrianTrafficDirection = pedestrianTrafficDirection,
             EuropeanRoadNumbers = europeanRoadNumbers,
             NationalRoadNumbers = nationalRoadNumbers,
             Provenance = new ProvenanceData(context.Provenance)

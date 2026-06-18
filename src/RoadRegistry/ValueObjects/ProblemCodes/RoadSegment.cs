@@ -124,6 +124,57 @@ public sealed partial record ProblemCode
             };
         }
 
+        public static class CarTrafficDirection
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentCarTrafficDirectionNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentCarTrafficDirectionIsRequired");
+
+            public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
+            {
+                FromOrToPositionIsNull = new("RoadSegmentCarTrafficDirectionAttributeFromOrToPositionIsNull"),
+                FromPositionNotEqualToZero = new("RoadSegmentCarTrafficDirectionAttributeFromPositionNotEqualToZero"),
+                HasCountOfZero = new("RoadSegmentCarTrafficDirectionAttributeHasCountOfZero"),
+                HasLengthOfZero = new("RoadSegmentCarTrafficDirectionAttributeHasLengthOfZero"),
+                NotAdjacent = new("RoadSegmentCarTrafficDirectionAttributeNotAdjacent"),
+                ToPositionNotEqualToLength = new("RoadSegmentCarTrafficDirectionAttributeToPositionNotEqualToLength"),
+                ValueNotUniqueWithinSegment = new("RoadSegmentCarTrafficDirectionAttributeValueNotUniqueWithinSegment"),
+            };
+        }
+
+        public static class BikeTrafficDirection
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentBikeTrafficDirectionNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentBikeTrafficDirectionIsRequired");
+
+            public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
+            {
+                FromOrToPositionIsNull = new("RoadSegmentBikeTrafficDirectionAttributeFromOrToPositionIsNull"),
+                FromPositionNotEqualToZero = new("RoadSegmentBikeTrafficDirectionAttributeFromPositionNotEqualToZero"),
+                HasCountOfZero = new("RoadSegmentBikeTrafficDirectionAttributeHasCountOfZero"),
+                HasLengthOfZero = new("RoadSegmentBikeTrafficDirectionAttributeHasLengthOfZero"),
+                NotAdjacent = new("RoadSegmentBikeTrafficDirectionAttributeNotAdjacent"),
+                ToPositionNotEqualToLength = new("RoadSegmentBikeTrafficDirectionAttributeToPositionNotEqualToLength"),
+                ValueNotUniqueWithinSegment = new("RoadSegmentBikeTrafficDirectionAttributeValueNotUniqueWithinSegment"),
+            };
+        }
+
+        public static class PedestrianTrafficDirection
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentPedestrianTrafficDirectionNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentPedestrianTrafficDirectionIsRequired");
+
+            public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
+            {
+                FromOrToPositionIsNull = new("RoadSegmentPedestrianTrafficDirectionAttributeFromOrToPositionIsNull"),
+                FromPositionNotEqualToZero = new("RoadSegmentPedestrianTrafficDirectionAttributeFromPositionNotEqualToZero"),
+                HasCountOfZero = new("RoadSegmentPedestrianTrafficDirectionAttributeHasCountOfZero"),
+                HasLengthOfZero = new("RoadSegmentPedestrianTrafficDirectionAttributeHasLengthOfZero"),
+                NotAdjacent = new("RoadSegmentPedestrianTrafficDirectionAttributeNotAdjacent"),
+                ToPositionNotEqualToLength = new("RoadSegmentPedestrianTrafficDirectionAttributeToPositionNotEqualToLength"),
+                ValueNotUniqueWithinSegment = new("RoadSegmentPedestrianTrafficDirectionAttributeValueNotUniqueWithinSegment"),
+            };
+        }
+
         public static class EuropeanRoads
         {
             public static readonly ProblemCode NotUnique = new("RoadSegmentEuropeanRoadsNotUnique");

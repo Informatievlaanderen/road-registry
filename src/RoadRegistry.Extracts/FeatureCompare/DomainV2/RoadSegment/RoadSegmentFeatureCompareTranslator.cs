@@ -513,11 +513,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         Morphology = record.Attributes.Morphology,
                         StreetNameId = record.Attributes.StreetNameId,
                         SurfaceType = record.Attributes.SurfaceType,
-                        CarAccessForward = record.Attributes.CarAccessForward,
-                        CarAccessBackward = record.Attributes.CarAccessBackward,
-                        BikeAccessForward = record.Attributes.BikeAccessForward,
-                        BikeAccessBackward = record.Attributes.BikeAccessBackward,
-                        PedestrianAccess = record.Attributes.PedestrianAccess
+                        CarTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToTrafficDirectionOrNull(record.Attributes.CarAccessForward, record.Attributes.CarAccessBackward),
+                        BikeTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToTrafficDirectionOrNull(record.Attributes.BikeAccessForward, record.Attributes.BikeAccessBackward),
+                        PedestrianTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToPedestrianTrafficDirectionOrNull(record.Attributes.PedestrianAccess)
                     };
 
                     changes = changes.AppendChange(modifyRoadSegment);
@@ -539,11 +537,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             Morphology = record.Attributes.Morphology!,
                             StreetNameId = record.Attributes.StreetNameId!,
                             SurfaceType = record.Attributes.SurfaceType!,
-                            CarAccessForward = record.Attributes.CarAccessForward!,
-                            CarAccessBackward = record.Attributes.CarAccessBackward!,
-                            BikeAccessForward = record.Attributes.BikeAccessForward!,
-                            BikeAccessBackward = record.Attributes.BikeAccessBackward!,
-                            PedestrianAccess = record.Attributes.PedestrianAccess!,
+                            CarTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToTrafficDirection(record.Attributes.CarAccessForward!, record.Attributes.CarAccessBackward!),
+                            BikeTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToTrafficDirection(record.Attributes.BikeAccessForward!, record.Attributes.BikeAccessBackward!),
+                            PedestrianTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToPedestrianTrafficDirection(record.Attributes.PedestrianAccess!),
                             EuropeanRoadNumbers = [],
                             NationalRoadNumbers = []
                         }

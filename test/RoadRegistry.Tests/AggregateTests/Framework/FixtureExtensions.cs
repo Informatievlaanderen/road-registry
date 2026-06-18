@@ -3,6 +3,7 @@
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using RoadRegistry.RoadNode.Events.V2;
+using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.BackOffice;
@@ -62,11 +63,9 @@ public static class FixtureExtensions
                         StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(fixture.Create<StreetNameLocalId>(), geometry),
                         MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(fixture.Create<OrganizationId>(), geometry),
                         SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(fixture.Create<RoadSegmentSurfaceTypeV2>(), geometry),
-                        CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
+                        CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(fixture.Create<bool>(), fixture.Create<bool>()), geometry),
+                        BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(fixture.Create<bool>(), fixture.Create<bool>()), geometry),
+                        PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.FromAccess(fixture.Create<bool>()), geometry),
                         EuropeanRoadNumbers = [fixture.Create<EuropeanRoadNumber>()],
                         NationalRoadNumbers = [fixture.Create<NationalRoadNumber>()],
                         Provenance = fixture.Create<ProvenanceData>()
@@ -98,11 +97,9 @@ public static class FixtureExtensions
                         StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(fixture.Create<StreetNameLocalId>(), geometry),
                         MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(fixture.Create<OrganizationId>(), geometry),
                         SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(fixture.Create<RoadSegmentSurfaceTypeV2>(), geometry),
-                        CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
+                        CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(fixture.Create<bool>(), fixture.Create<bool>()), geometry),
+                        BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(fixture.Create<bool>(), fixture.Create<bool>()), geometry),
+                        PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.FromAccess(fixture.Create<bool>()), geometry),
                         Provenance = fixture.Create<ProvenanceData>()
                     };
                 }
@@ -133,11 +130,9 @@ public static class FixtureExtensions
                         StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(fixture.Create<StreetNameLocalId>(), geometry),
                         MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(fixture.Create<OrganizationId>(), geometry),
                         SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(fixture.Create<RoadSegmentSurfaceTypeV2>(), geometry),
-                        CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
+                        CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(fixture.Create<bool>(), fixture.Create<bool>()), geometry),
+                        BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(fixture.Create<bool>(), fixture.Create<bool>()), geometry),
+                        PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.FromAccess(fixture.Create<bool>()), geometry),
                         EuropeanRoadNumbers = [fixture.Create<EuropeanRoadNumber>()],
                         NationalRoadNumbers = [fixture.Create<NationalRoadNumber>()],
                         Provenance = fixture.Create<ProvenanceData>()
@@ -169,11 +164,9 @@ public static class FixtureExtensions
                         StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(fixture.Create<StreetNameLocalId>(), geometry),
                         MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(fixture.Create<OrganizationId>(), geometry),
                         SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(fixture.Create<RoadSegmentSurfaceTypeV2>(), geometry),
-                        CarAccessForward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        CarAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        BikeAccessForward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        BikeAccessBackward = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
-                        PedestrianAccess = new RoadSegmentDynamicAttributeValues<bool>(fixture.Create<bool>(), geometry),
+                        CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(fixture.Create<bool>(), fixture.Create<bool>()), geometry),
+                        BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(fixture.Create<bool>(), fixture.Create<bool>()), geometry),
+                        PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.FromAccess(fixture.Create<bool>()), geometry),
                         EuropeanRoadNumbers = [fixture.Create<EuropeanRoadNumber>()],
                         NationalRoadNumbers = [fixture.Create<NationalRoadNumber>()],
                         Provenance = fixture.Create<ProvenanceData>()
@@ -197,11 +190,9 @@ public static class FixtureExtensions
                         StreetNameId = fixture.Create<RoadSegmentDynamicAttributeValues<StreetNameLocalId>>(),
                         MaintenanceAuthorityId = fixture.Create<RoadSegmentDynamicAttributeValues<OrganizationId>>(),
                         SurfaceType = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>>(),
-                        CarAccessForward = fixture.Create<RoadSegmentDynamicAttributeValues<bool>>(),
-                        CarAccessBackward = fixture.Create<RoadSegmentDynamicAttributeValues<bool>>(),
-                        BikeAccessForward = fixture.Create<RoadSegmentDynamicAttributeValues<bool>>(),
-                        BikeAccessBackward = fixture.Create<RoadSegmentDynamicAttributeValues<bool>>(),
-                        PedestrianAccess = fixture.Create<RoadSegmentDynamicAttributeValues<bool>>(),
+                        CarTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToTrafficDirection(fixture.Create<RoadSegmentDynamicAttributeValues<bool>>(), fixture.Create<RoadSegmentDynamicAttributeValues<bool>>()),
+                        BikeTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToTrafficDirection(fixture.Create<RoadSegmentDynamicAttributeValues<bool>>(), fixture.Create<RoadSegmentDynamicAttributeValues<bool>>()),
+                        PedestrianTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToPedestrianTrafficDirection(fixture.Create<RoadSegmentDynamicAttributeValues<bool>>()),
                         EuropeanRoadNumbers = [fixture.Create<EuropeanRoadNumber>()],
                         NationalRoadNumbers = [fixture.Create<NationalRoadNumber>()]
                     }
