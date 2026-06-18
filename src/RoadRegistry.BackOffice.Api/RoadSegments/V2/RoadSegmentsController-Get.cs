@@ -38,16 +38,18 @@ public partial class RoadSegmentsController
     /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
     /// <response code="410">Als het wegsegment is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
-    [HttpGet(GetRoadSegmentRoute, Name = nameof(GetRoadSegment))]
+    [HttpGet(GetRoadSegmentRoute, Name = nameof(GetRoadSegmentV2))]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(GetRoadSegmentResponseV2), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(WegsegmentV2Detail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(GetRoadSegmentResponseResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(WegsegmentV2DetailResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadSegmentNotFoundResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status410Gone, typeof(RoadSegmentGoneResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
-    [SwaggerOperation(OperationId = nameof(GetRoadSegment), Description = "Attributen wijzigen van een wegsegment: status, toegangsbeperking, wegklasse, wegbeheerder en wegcategorie.")]
-    public async Task<IActionResult> GetRoadSegment(
+    [SwaggerOperation(OperationId = nameof(GetRoadSegmentV2), Description = "Vraag een wegsegment op.")]
+    public async Task<IActionResult> GetRoadSegmentV2(
         [FromRoute] int id,
         [FromServices] IOptions<ResponseOptions> responseOptions,
         [FromServices] IDocumentStore store,
@@ -66,7 +68,7 @@ public partial class RoadSegmentsController
             return new StatusCodeResult(StatusCodes.Status410Gone);
         }
 
-        var result = new GetRoadSegmentResponseV2
+        var result = new WegsegmentV2Detail
         {
             Identificator = new Identificator(responseOptions.Value.WegsegmentNaamruimte, roadSegment.RoadSegmentId.ToString(), roadSegment.Origin.Timestamp.ToDateTimeOffset()),
             WegsegmentGeometrie = new WegsegmentGeometrie
@@ -85,21 +87,22 @@ public partial class RoadSegmentsController
             },
             Wegsegmentstatus = RoadSegmentStatusV2.Parse(roadSegment.Status).ToDutchString(),
             Beginknoop = roadSegment.StartNodeId is not null
-                ? new WegknoopObject
+                ? new WegknoopLink
                 {
-                    ObjectId = $"{roadSegment.StartNodeId}",
-                    Detail = $"https://api.basisregisters.vlaanderen.be/v3/wegknopen/{roadSegment.StartNodeId}" //TODO-pr baseurl from config
+                    ObjectId = roadSegment.StartNodeId.ToString(),
+                    Detail = string.Format(responseOptions.Value.WegknoopDetailUrlFormat, roadSegment.StartNodeId)
                 }
                 : null,
             Eindknoop = roadSegment.EndNodeId is not null
-                ? new WegknoopObject
+                ? new WegknoopLink
                 {
-                    ObjectId = $"{roadSegment.EndNodeId}",
-                    Detail = $"https://api.basisregisters.vlaanderen.be/v3/wegknopen/{roadSegment.EndNodeId}" //TODO-pr baseurl from config
+                    ObjectId = roadSegment.EndNodeId.ToString(),
+                    Detail = string.Format(responseOptions.Value.WegknoopDetailUrlFormat, roadSegment.EndNodeId)
                 }
                 : null
         };
 
+        //TODO-pr to confirm what to return with V1 data
         if (roadSegment.IsV2)
         {
             result.GeometrieMethode = RoadSegmentGeometryDrawMethodV2.Parse(roadSegment.GeometryDrawMethod).ToString();
@@ -109,10 +112,10 @@ public partial class RoadSegmentsController
                     Kant = x.Side.ToWegsegmentKant(),
                     VanPositie = x.From,
                     TotPositie = x.To,
-                    Straatnaam = x.Value!.StreetNameId > 0 ? new StraatnaamObject
+                    Straatnaam = x.Value!.StreetNameId > 0 ? new StraatnaamLink
                     {
                         ObjectId = x.Value.StreetNameId.ToString(),
-                        Detail = $"https://api.basisregisters.vlaanderen.be/v3/straatnamen/{x.Value.StreetNameId}", //TODO-pr baseurl from config
+                        Detail = string.Format(responseOptions.Value.StraatnaamDetailUrlFormat, x.Value.StreetNameId),
                         GeografischeNaam = new StraatnaamGeografischeNaam
                         {
                             Taal = "nl",
@@ -126,7 +129,7 @@ public partial class RoadSegmentsController
                 {
                     VanPositie = x.From,
                     TotPositie = x.To,
-                    //TODO-pr implement
+                    Morfologie = RoadSegmentMorphologyV2.Parse(x.Value!).ToDutchString()
                 })
                 .ToArray();
             result.Toegang = roadSegment.AccessRestriction.Values
@@ -134,7 +137,7 @@ public partial class RoadSegmentsController
                 {
                     VanPositie = x.From,
                     TotPositie = x.To,
-                    //TODO-pr implement
+                    Toegang = RoadSegmentAccessRestrictionV2.Parse(x.Value!).ToDutchString()
                 })
                 .ToArray();
             result.Wegbeheerder = roadSegment.MaintenanceAuthorityId.Values
@@ -143,7 +146,11 @@ public partial class RoadSegmentsController
                     Kant = x.Side.ToWegsegmentKant(),
                     VanPositie = x.From,
                     TotPositie = x.To,
-                    //TODO-pr implement
+                    Wegbeheerder = new WegbeheerderObject
+                    {
+                        Code = x.Value.ToString(),
+                        Label = "TODO-pr implement get wegbeheerder label"
+                    }
                 })
                 .ToArray();
             result.Wegcategorie = roadSegment.Category.Values
@@ -151,7 +158,7 @@ public partial class RoadSegmentsController
                 {
                     VanPositie = x.From,
                     TotPositie = x.To,
-                    //TODO-pr implement
+                    Wegcategorie = RoadSegmentCategoryV2.Parse(x.Value!).ToDutchString()
                 })
                 .ToArray();
             result.Wegverharding = roadSegment.SurfaceType.Values
@@ -159,7 +166,7 @@ public partial class RoadSegmentsController
                 {
                     VanPositie = x.From,
                     TotPositie = x.To,
-                    //TODO-pr implement
+                    Wegverharding = RoadSegmentSurfaceTypeV2.Parse(x.Value!).ToDutchString()
                 })
                 .ToArray();
             result.VerkeerstypeAuto = roadSegment.CarTrafficDirection.Values
@@ -167,7 +174,7 @@ public partial class RoadSegmentsController
                 {
                     VanPositie = x.From,
                     TotPositie = x.To,
-                    //TODO-pr implement
+                    Richting = x.Value!.ToDutchString()
                 })
                 .ToArray();
             result.VerkeerstypeFiets = roadSegment.BikeTrafficDirection.Values
@@ -175,7 +182,7 @@ public partial class RoadSegmentsController
                 {
                     VanPositie = x.From,
                     TotPositie = x.To,
-                    //TODO-pr implement
+                    Richting = x.Value!.ToDutchString()
                 })
                 .ToArray();
             result.VerkeerstypeVoetganger = roadSegment.PedestrianTrafficDirection.Values
@@ -183,7 +190,7 @@ public partial class RoadSegmentsController
                 {
                     VanPositie = x.From,
                     TotPositie = x.To,
-                    //TODO-pr implement
+                    Richting = x.Value!.ToDutchString()
                 })
                 .ToArray();
             result.EuropeseWegen = roadSegment.EuropeanRoadNumbers
@@ -198,8 +205,20 @@ public partial class RoadSegmentsController
                     NationaalWegnummer = x.ToString()
                 })
                 .ToArray();
-            //result.GelijkgrondseKruisingen
-            //result.OngelijkgrondseKruisingen
+            result.GelijkgrondseKruisingen = roadSegment.GradeJunctionIds
+                .Select(x => new GelijkgrondseKruisingLink
+                {
+                    ObjectId = x.ToString(),
+                    Detail = string.Format(responseOptions.Value.GelijkGrondseKruisingDetailUrlFormat, x)
+                })
+                .ToArray();
+            result.OngelijkgrondseKruisingen = roadSegment.GradeSeparatedJunctionIds
+                .Select(x => new OngelijkgrondseKruisingLink
+                {
+                    ObjectId = x.ToString(),
+                    Detail = string.Format(responseOptions.Value.OngelijkGrondseKruisingDetailUrlFormat, x)
+                })
+                .ToArray();
         }
 
         return Ok(result);
@@ -208,7 +227,7 @@ public partial class RoadSegmentsController
 
 [DataContract(Name = "WegsegmentV2Detail", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentV2Detail")]
-public class GetRoadSegmentResponseV2
+public class WegsegmentV2Detail
 {
     [DataMember(Name = "Identificator", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
@@ -234,14 +253,14 @@ public class GetRoadSegmentResponseV2
     /// </summary>
     [DataMember(Name = "Beginknoop", Order = 4)]
     [JsonProperty]
-    public WegknoopObject? Beginknoop { get; set; }
+    public WegknoopLink? Beginknoop { get; set; }
 
     /// <summary>
     ///     Eindknoop van het wegsegment.
     /// </summary>
     [DataMember(Name = "Eindknoop", Order = 5)]
     [JsonProperty]
-    public WegknoopObject? Eindknoop { get; set; }
+    public WegknoopLink? Eindknoop { get; set; }
 
     /// <summary>
     ///     De straatnaam uit het Adressenregister gekoppeld aan het wegsegment.
@@ -333,105 +352,105 @@ public class GetRoadSegmentResponseV2
     /// </summary>
     [DataMember(Name = "GelijkgrondseKruisingen", Order = 18)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public GelijkgrondseKruisingObject[] GelijkgrondseKruisingen { get; set; }
+    public GelijkgrondseKruisingLink[] GelijkgrondseKruisingen { get; set; }
 
     /// <summary>
     ///     Een ongelijkgrondse kruising is een relatie tussen twee wegsegmenten die elkaar ongelijkgronds kruisen, en waar bij het ene wegsegment zich boven of onder het andere wegsegment bevindt.
     /// </summary>
     [DataMember(Name = "OngelijkgrondseKruisingen", Order = 19)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public OngelijkgrondseKruisingObject[] OngelijkgrondseKruisingen { get; set; }
+    public OngelijkgrondseKruisingLink[] OngelijkgrondseKruisingen { get; set; }
 }
 
-[DataContract(Name = "Wegknoop", Namespace = "")]
-[CustomSwaggerSchemaId("Wegknoop")]
-public class WegknoopObject
+[DataContract(Name = "WegknoopLink", Namespace = "")]
+[CustomSwaggerSchemaId("WegknoopLink")]
+public class WegknoopLink
 {
     /// <summary>
     /// De objectidentificator van de wegknoop.
     /// </summary>
     [DataMember(Name = "ObjectId", Order = 1)]
     [JsonProperty]
-    public string ObjectId { get; set; }
+    public required string ObjectId { get; set; }
 
     /// <summary>
     /// Link naar het detail van de wegknoop.
     /// </summary>
     [DataMember(Name = "Detail", Order = 2)]
     [JsonProperty]
-    public string Detail { get; set; }
+    public required string Detail { get; set; }
 }
 
-[DataContract(Name = "GelijkgrondseKruisingObject", Namespace = "")]
-[CustomSwaggerSchemaId("GelijkgrondseKruisingObject")]
-public class GelijkgrondseKruisingObject
+[DataContract(Name = "GelijkgrondseKruisingLink", Namespace = "")]
+[CustomSwaggerSchemaId("GelijkgrondseKruisingLink")]
+public class GelijkgrondseKruisingLink
 {
     /// <summary>
     /// De objectidentificator van de gelijkgrondse kruising.
     /// </summary>
     [DataMember(Name = "ObjectId", Order = 1)]
     [JsonProperty]
-    public string ObjectId { get; set; }
+    public required string ObjectId { get; set; }
 
     /// <summary>
     /// Link naar het detail van de gelijkgrondse kruising.
     /// </summary>
     [DataMember(Name = "Detail", Order = 2)]
     [JsonProperty]
-    public string Detail { get; set; }
+    public required string Detail { get; set; }
 }
 
-[DataContract(Name = "OngelijkgrondseKruisingObject", Namespace = "")]
-[CustomSwaggerSchemaId("OngelijkgrondseKruisingObject")]
-public class OngelijkgrondseKruisingObject
+[DataContract(Name = "OngelijkgrondseKruisingLink", Namespace = "")]
+[CustomSwaggerSchemaId("OngelijkgrondseKruisingLink")]
+public class OngelijkgrondseKruisingLink
 {
     /// <summary>
     /// De objectidentificator van de ongelijkgrondse kruising.
     /// </summary>
     [DataMember(Name = "ObjectId", Order = 1)]
     [JsonProperty]
-    public string ObjectId { get; set; }
+    public required string ObjectId { get; set; }
 
     /// <summary>
     /// Link naar het detail van de ongelijkgrondse kruising.
     /// </summary>
     [DataMember(Name = "Detail", Order = 2)]
     [JsonProperty]
-    public string Detail { get; set; }
+    public required string Detail { get; set; }
 }
 
-[DataContract(Name = "Straatnaam", Namespace = "")]
-[CustomSwaggerSchemaId("Straatnaam")]
-public class StraatnaamObject
+[DataContract(Name = "StraatnaamLink", Namespace = "")]
+[CustomSwaggerSchemaId("StraatnaamLink")]
+public class StraatnaamLink
 {
     /// <summary>
     /// De objectidentificator van de straatnaam.
     /// </summary>
     [DataMember(Name = "ObjectId", Order = 1)]
     [JsonProperty]
-    public string ObjectId { get; set; }
+    public required string ObjectId { get; set; }
 
     /// <summary>
     /// Link naar het detail van de straatnaam.
     /// </summary>
     [DataMember(Name = "Detail", Order = 2)]
     [JsonProperty]
-    public string Detail { get; set; }
+    public required string Detail { get; set; }
 
     /// <summary>
     /// De geografische naam van de straat in het Nederlands.
     /// </summary>
     [DataMember(Name = "GeografischeNaam", Order = 3)]
     [JsonProperty]
-    public StraatnaamGeografischeNaam GeografischeNaam { get; set; }
+    public required StraatnaamGeografischeNaam GeografischeNaam { get; set; }
 }
 
 [DataContract(Name = "StraatnaamGeografischeNaam", Namespace = "")]
 [CustomSwaggerSchemaId("StraatnaamGeografischeNaam")]
 public class StraatnaamGeografischeNaam
 {
-    public string Spelling { get; set; }
-    public string Taal { get; set; }
+    public required string Spelling { get; set; }
+    public required string Taal { get; set; }
 }
 
 [DataContract(Name = "WegsegmentGeometrie", Namespace = "")]
@@ -439,11 +458,11 @@ public class StraatnaamGeografischeNaam
 public class WegsegmentGeometrie
 {
     /// <summary>
-    /// De objectidentificator van de straatnaam.
+    /// Geometrie van het wegsegment.
     /// </summary>
     [DataMember(Name = "Geometrie", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public IReadOnlyCollection<WegsegmentGeometrieProjectie> Geometrie { get; set; }
+    public required IReadOnlyCollection<WegsegmentGeometrieProjectie> Geometrie { get; set; }
 
     /// <summary>
     /// GeoJSON-geometrietype.
@@ -459,7 +478,7 @@ public class WegsegmentGeometrieProjectie
 {
     [DataMember(Name = "gml", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public string Gml { get; set; }
+    public required string Gml { get; set; }
 }
 
 public enum WegsegmentKant
@@ -492,25 +511,25 @@ public class WegsegmentStraatnaamAttribuutWaarde
     /// </summary>
     [DataMember(Name = "Kant", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public WegsegmentKant Kant { get; set; }
+    public required WegsegmentKant Kant { get; set; }
 
     /// <summary>
     /// Positie vanaf waar het attribuut van toepassing is.
     /// </summary>
     [DataMember(Name = "VanPositie", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double VanPositie { get; set; }
+    public required double VanPositie { get; set; }
 
     /// <summary>
     /// Positie tot waar het attribuut van toepassing is.
     /// </summary>
     [DataMember(Name = "TotPositie", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double TotPositie { get; set; }
+    public required double TotPositie { get; set; }
 
     [DataMember(Name = "Straatnaam", Order = 4)]
     [JsonProperty(Required = Required.AllowNull)]
-    public StraatnaamObject? Straatnaam { get; set; }
+    public required StraatnaamLink? Straatnaam { get; set; }
 }
 
 [DataContract(Name = "WegsegmentMorfologieAttribuutWaarde", Namespace = "")]
@@ -522,19 +541,19 @@ public class WegsegmentMorfologieAttribuutWaarde
     /// </summary>
     [DataMember(Name = "VanPositie", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double VanPositie { get; set; }
+    public required double VanPositie { get; set; }
 
     /// <summary>
     /// Positie tot waar het attribuut van toepassing is.
     /// </summary>
     [DataMember(Name = "TotPositie", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double TotPositie { get; set; }
+    public required double TotPositie { get; set; }
 
     [DataMember(Name = "Morfologie", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentMorphologyV2))]
-    public string Morfologie { get; set; }
+    public required string Morfologie { get; set; }
 }
 
 [DataContract(Name = "WegsegmentToegangAttribuutWaarde", Namespace = "")]
@@ -546,19 +565,19 @@ public class WegsegmentToegangAttribuutWaarde
     /// </summary>
     [DataMember(Name = "VanPositie", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double VanPositie { get; set; }
+    public required double VanPositie { get; set; }
 
     /// <summary>
     /// Positie tot waar het attribuut van toepassing is.
     /// </summary>
     [DataMember(Name = "TotPositie", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double TotPositie { get; set; }
+    public required double TotPositie { get; set; }
 
     [DataMember(Name = "Toegang", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAccessRestrictionV2))]
-    public string Toegang { get; set; }
+    public required string Toegang { get; set; }
 }
 
 [DataContract(Name = "WegsegmentWegbeheerderAttribuutWaarde", Namespace = "")]
@@ -570,28 +589,28 @@ public class WegsegmentWegbeheerderAttribuutWaarde
     /// </summary>
     [DataMember(Name = "Kant", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public WegsegmentKant Kant { get; set; }
+    public required WegsegmentKant Kant { get; set; }
 
     /// <summary>
     /// Positie vanaf waar het attribuut van toepassing is.
     /// </summary>
     [DataMember(Name = "VanPositie", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double VanPositie { get; set; }
+    public required double VanPositie { get; set; }
 
     /// <summary>
     /// Positie tot waar het attribuut van toepassing is.
     /// </summary>
     [DataMember(Name = "TotPositie", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double TotPositie { get; set; }
+    public required double TotPositie { get; set; }
 
     /// <summary>
     /// Wegbeheerdersorganisatie
     /// </summary>
     [DataMember(Name = "Wegbeheerder", Order = 4)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public WegbeheerderObject Wegbeheerder { get; set; }
+    public required WegbeheerderObject Wegbeheerder { get; set; }
 }
 [DataContract(Name = "WegbeheerderObject", Namespace = "")]
 [CustomSwaggerSchemaId("WegbeheerderObject")]
@@ -602,14 +621,14 @@ public class WegbeheerderObject
     /// </summary>
     [DataMember(Name = "Code", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public string Code { get; set; }
+    public required string Code { get; set; }
 
     /// <summary>
     /// Organisatielabel van de wegbeheerder.
     /// </summary>
     [DataMember(Name = "Label", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public string Label { get; set; }
+    public required string Label { get; set; }
 }
 
 [DataContract(Name = "WegsegmentWegcategorieAttribuutWaarde", Namespace = "")]
@@ -621,19 +640,19 @@ public class WegsegmentWegcategorieAttribuutWaarde
     /// </summary>
     [DataMember(Name = "VanPositie", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double VanPositie { get; set; }
+    public required double VanPositie { get; set; }
 
     /// <summary>
     /// Positie tot waar het attribuut van toepassing is.
     /// </summary>
     [DataMember(Name = "TotPositie", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double TotPositie { get; set; }
+    public required double TotPositie { get; set; }
 
     [DataMember(Name = "Wegcategorie", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentCategoryV2))]
-    public string Wegcategorie { get; set; }
+    public required string Wegcategorie { get; set; }
 }
 
 [DataContract(Name = "WegsegmentWegverhardingAttribuutWaarde", Namespace = "")]
@@ -645,19 +664,19 @@ public class WegsegmentWegverhardingAttribuutWaarde
     /// </summary>
     [DataMember(Name = "VanPositie", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double VanPositie { get; set; }
+    public required double VanPositie { get; set; }
 
     /// <summary>
     /// Positie tot waar het attribuut van toepassing is.
     /// </summary>
     [DataMember(Name = "TotPositie", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double TotPositie { get; set; }
+    public required double TotPositie { get; set; }
 
     [DataMember(Name = "Wegverharding", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentSurfaceTypeV2))]
-    public string Wegverharding { get; set; }
+    public required string Wegverharding { get; set; }
 }
 
 [DataContract(Name = "WegsegmentVerkeerstypeAutoAttribuutWaarde", Namespace = "")]
@@ -669,19 +688,19 @@ public class WegsegmentVerkeerstypeAutoAttribuutWaarde
     /// </summary>
     [DataMember(Name = "VanPositie", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double VanPositie { get; set; }
+    public required double VanPositie { get; set; }
 
     /// <summary>
     /// Positie tot waar het attribuut van toepassing is.
     /// </summary>
     [DataMember(Name = "TotPositie", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double TotPositie { get; set; }
+    public required double TotPositie { get; set; }
 
     [DataMember(Name = "Richting", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentTrafficDirection))]
-    public string Richting { get; set; }
+    public required string Richting { get; set; }
 }
 
 [DataContract(Name = "WegsegmentVerkeerstypeFietsAttribuutWaarde", Namespace = "")]
@@ -693,19 +712,19 @@ public class WegsegmentVerkeerstypeFietsAttribuutWaarde
     /// </summary>
     [DataMember(Name = "VanPositie", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double VanPositie { get; set; }
+    public required double VanPositie { get; set; }
 
     /// <summary>
     /// Positie tot waar het attribuut van toepassing is.
     /// </summary>
     [DataMember(Name = "TotPositie", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double TotPositie { get; set; }
+    public required double TotPositie { get; set; }
 
     [DataMember(Name = "Richting", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentTrafficDirection))]
-    public string Richting { get; set; }
+    public required string Richting { get; set; }
 }
 
 [DataContract(Name = "WegsegmentVerkeerstypeVoetgangerAttribuutWaarde", Namespace = "")]
@@ -717,19 +736,19 @@ public class WegsegmentVerkeerstypeVoetgangerAttribuutWaarde
     /// </summary>
     [DataMember(Name = "VanPositie", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double VanPositie { get; set; }
+    public required double VanPositie { get; set; }
 
     /// <summary>
     /// Positie tot waar het attribuut van toepassing is.
     /// </summary>
     [DataMember(Name = "TotPositie", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public double TotPositie { get; set; }
+    public required double TotPositie { get; set; }
 
     [DataMember(Name = "Richting", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentPedestrianTrafficDirection))]
-    public string Richting { get; set; }
+    public required string Richting { get; set; }
 }
 
 [DataContract(Name = "WegsegmentV2EuropeseWeg", Namespace = "")]
@@ -742,7 +761,7 @@ public class EuropeseWegObject
     [DataMember(Name = "EuropeesWegnummer", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(EuropeanRoadNumber))]
-    public string EuropeesWegnummer { get; set; }
+    public required string EuropeesWegnummer { get; set; }
 }
 
 [DataContract(Name = "WegsegmentV2NationaleWeg", Namespace = "")]
@@ -754,12 +773,12 @@ public class NationaleWegObject
     /// </summary>
     [DataMember(Name = "NationaalWegnummer", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public string NationaalWegnummer { get; set; }
+    public required string NationaalWegnummer { get; set; }
 }
 
-public class GetRoadSegmentResponseResponseExamples : IExamplesProvider<GetRoadSegmentResponseV2>
+public class WegsegmentV2DetailResponseExamples : IExamplesProvider<WegsegmentV2Detail>
 {
-    public GetRoadSegmentResponseV2 GetExamples()
+    public WegsegmentV2Detail GetExamples()
     {
         throw new NotImplementedException(); //TODO-pr implement example
         // return new GetRoadSegmentResponseV2

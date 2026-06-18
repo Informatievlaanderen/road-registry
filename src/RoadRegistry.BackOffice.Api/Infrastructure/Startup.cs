@@ -317,7 +317,7 @@ public class Startup
             .AddRoadNetworkCommandQueue()
             .AddOrganizationCommandQueue()
             .AddSingleton(apiOptions)
-            .Configure<ResponseOptions>(_configuration)
+            .Configure<ResponseOptions>(_configuration.GetSection(ResponseOptions.ConfigKey))
             .AddScoped<BackofficeApiControllerContext>()
             .AddSingleton<IExtractShapefileContourReader, ExtractShapefileContourReader>()
 
