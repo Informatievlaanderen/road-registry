@@ -110,7 +110,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
             {
                 operations.Insert(new RoadNetworkChangesProjectionProgression
                 {
-                    Id = eventsGrouping.CorrelationId,
+                    Id = $"{_projectionName}-{eventsGrouping.CorrelationId}",
                     ProjectionName = _projectionName,
                     LastSequenceId = lastSequenceId
                 });
