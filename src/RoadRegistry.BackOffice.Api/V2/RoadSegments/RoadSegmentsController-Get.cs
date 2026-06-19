@@ -80,11 +80,11 @@ public partial class RoadSegmentsController
                 [
                     new WegsegmentGeometrieProjectie
                     {
-                        Gml = roadSegment.Geometry.Lambert08.Value.ConvertToGml()
+                        Gml = roadSegment.Geometry.Lambert08.Value.GetSingleLineString().ConvertToGml2()
                     },
                     new WegsegmentGeometrieProjectie
                     {
-                        Gml = roadSegment.Geometry.Lambert72.Value.ConvertToGml()
+                        Gml = roadSegment.Geometry.Lambert72.Value.GetSingleLineString().ConvertToGml2()
                     }
                 ]
             },
