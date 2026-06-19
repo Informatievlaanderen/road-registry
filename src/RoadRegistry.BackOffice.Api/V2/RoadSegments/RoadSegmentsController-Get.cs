@@ -8,16 +8,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Common.NetTopology;
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
+using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
 using Marten;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using RoadRegistry.BackOffice.Api.Infrastructure.Options;
+using RoadRegistry.Extensions;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.RoadSegment.ValueObjects;
 using Swashbuckle.AspNetCore.Annotations;
@@ -31,7 +34,7 @@ public partial class RoadSegmentsController
     ///     Vraag een wegsegment op.
     /// </summary>
     /// <param name="id">De identificator van het wegsegment.</param>
-    /// <param name="responseOptions"></param>
+    /// <param name="apiOptions"></param>
     /// <param name="store"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als het wegsegment gevonden is.</response>
@@ -51,7 +54,7 @@ public partial class RoadSegmentsController
     [SwaggerOperation(OperationId = nameof(GetRoadSegmentV2), Description = "Vraag een wegsegment op.")]
     public async Task<IActionResult> GetRoadSegmentV2(
         [FromRoute] int id,
-        [FromServices] IOptions<ResponseOptions> responseOptions,
+        [FromServices] ApiOptions apiOptions,
         [FromServices] IDocumentStore store,
         CancellationToken cancellationToken = default)
     {
@@ -70,7 +73,7 @@ public partial class RoadSegmentsController
 
         var result = new WegsegmentV2Detail
         {
-            Identificator = new Identificator(responseOptions.Value.WegsegmentNaamruimte, roadSegment.RoadSegmentId.ToString(), roadSegment.Origin.Timestamp.ToDateTimeOffset()),
+            Identificator = new WegsegmentIdentificator(OsloNamespaces.Wegsegment, roadSegment.RoadSegmentId.ToString(), roadSegment.Origin.Timestamp.ToDateTimeOffset()),
             WegsegmentGeometrie = new WegsegmentGeometrie
             {
                 Geometrie =
@@ -87,10 +90,10 @@ public partial class RoadSegmentsController
             },
             Wegsegmentstatus = RoadSegmentStatusV2.Parse(roadSegment.Status).ToDutchString(),
             Beginknoop = roadSegment.StartNodeId is not null
-                ? new WegknoopLink(roadSegment.StartNodeId.Value, responseOptions.Value.WegknoopDetailUrlFormat)
+                ? new WegknoopLink(roadSegment.StartNodeId.Value, apiOptions.GetWegknoopDetailUrlFormat())
                 : null,
             Eindknoop = roadSegment.EndNodeId is not null
-                ? new WegknoopLink(roadSegment.EndNodeId.Value, responseOptions.Value.WegknoopDetailUrlFormat)
+                ? new WegknoopLink(roadSegment.EndNodeId.Value, apiOptions.GetWegknoopDetailUrlFormat())
                 : null
         };
 
@@ -104,16 +107,7 @@ public partial class RoadSegmentsController
                     Kant = x.Side.ToWegsegmentKant(),
                     VanPositie = x.From,
                     TotPositie = x.To,
-                    Straatnaam = x.Value!.StreetNameId > 0 ? new StraatnaamLink
-                    {
-                        ObjectId = x.Value.StreetNameId.ToString(),
-                        Detail = string.Format(responseOptions.Value.StraatnaamDetailUrlFormat, x.Value.StreetNameId),
-                        GeografischeNaam = new StraatnaamGeografischeNaam
-                        {
-                            Taal = "nl",
-                            Spelling = x.Value.DutchName
-                        }
-                    } : null
+                    Straatnaam = x.Value!.StreetNameId > 0 ? new StraatnaamLink(x.Value.StreetNameId, apiOptions.GetStraatnaamDetailUrlFormat(), x.Value.DutchName) : null
                 })
                 .ToArray();
             result.Morfologie = roadSegment.Morphology.Values
@@ -198,10 +192,10 @@ public partial class RoadSegmentsController
                 })
                 .ToArray();
             result.GelijkgrondseKruisingen = roadSegment.GradeJunctionIds
-                .Select(x => new GelijkgrondseKruisingLink(x, responseOptions.Value.GelijkgrondseKruisingDetailUrlFormat))
+                .Select(x => new GelijkgrondseKruisingLink(x, apiOptions.GetGelijkgrondseKruisingDetailUrlFormat()))
                 .ToArray();
             result.OngelijkgrondseKruisingen = roadSegment.GradeSeparatedJunctionIds
-                .Select(x => new OngelijkgrondseKruisingLink(x, responseOptions.Value.OngelijkgrondseKruisingDetailUrlFormat))
+                .Select(x => new OngelijkgrondseKruisingLink(x, apiOptions.GetOngelijkgrondseKruisingDetailUrlFormat()))
                 .ToArray();
         }
 
@@ -218,7 +212,7 @@ public class WegsegmentV2Detail
     /// </summary>
     [DataMember(Name = "Identificator", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public Identificator Identificator { get; set; }
+    public WegsegmentIdentificator Identificator { get; set; }
 
     /// <summary>
     ///     De middellijngeometrie van het wegsegment.
@@ -349,6 +343,21 @@ public class WegsegmentV2Detail
     public OngelijkgrondseKruisingLink[] OngelijkgrondseKruisingen { get; set; }
 }
 
+[DataContract(Name = "WegsegmentV2Identificator", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentV2Identificator")]
+public class WegsegmentIdentificator : Identificator
+{
+    public WegsegmentIdentificator(string naamruimte, string objectId, DateTimeOffset? versie)
+        : base(naamruimte, objectId, versie)
+    {
+    }
+
+    public WegsegmentIdentificator()
+        : base(string.Empty, string.Empty, string.Empty)
+    {
+    }
+}
+
 [DataContract(Name = "StraatnaamLink", Namespace = "")]
 [CustomSwaggerSchemaId("StraatnaamLink")]
 public class StraatnaamLink
@@ -358,21 +367,32 @@ public class StraatnaamLink
     /// </summary>
     [DataMember(Name = "ObjectId", Order = 1)]
     [JsonProperty]
-    public required string ObjectId { get; set; }
+    public string ObjectId { get; set; }
 
     /// <summary>
     /// Link naar het detail van de straatnaam.
     /// </summary>
     [DataMember(Name = "Detail", Order = 2)]
     [JsonProperty]
-    public required string Detail { get; set; }
+    public string Detail { get; set; }
 
     /// <summary>
     /// De geografische naam van de straat in het Nederlands.
     /// </summary>
     [DataMember(Name = "GeografischeNaam", Order = 3)]
     [JsonProperty]
-    public required StraatnaamGeografischeNaam GeografischeNaam { get; set; }
+    public StraatnaamGeografischeNaam GeografischeNaam { get; set; }
+
+    public StraatnaamLink(StreetNameLocalId streetNameLocalId, string detailUrlFormat, string dutchName)
+    {
+        ObjectId = streetNameLocalId.ToString();
+        Detail = string.Format(detailUrlFormat, streetNameLocalId);
+        GeografischeNaam = new StraatnaamGeografischeNaam
+        {
+            Taal = "nl",
+            Spelling = dutchName
+        };
+    }
 }
 
 [DataContract(Name = "StraatnaamGeografischeNaam", Namespace = "")]
@@ -708,90 +728,153 @@ public class NationaleWegObject
 
 public class WegsegmentV2DetailResponseExamples : IExamplesProvider<WegsegmentV2Detail>
 {
+    private readonly ApiOptions _apiOptions;
+
+    public WegsegmentV2DetailResponseExamples(ApiOptions apiOptions)
+    {
+        _apiOptions = apiOptions;
+    }
+
     public WegsegmentV2Detail GetExamples()
     {
-        throw new NotImplementedException(); //TODO-pr implement example
-        // return new GetRoadSegmentResponseV2
-        // {
-        //     Identificator = new WegsegmentIdentificatorV2("https://data.vlaanderen.be/id/wegsegment", "643556", new DateTime(2015, 11, 27, 13, 46, 14), 2),
-        //     MiddellijnGeometrie = new GeoJSONMultiLineString
-        //     {
-        //         Coordinates = new[]
-        //         {
-        //             new[]
-        //             {
-        //                 new[] { 243234.8929999992, 160239.3830000013 },
-        //                 new[] { 243245.9949999973, 160238.7989999987 },
-        //                 new[] { 243261.3599999994, 160239.0 },
-        //                 new[] { 243279.0160000026, 160244.1570000015 }
-        //             }
-        //         }
-        //     },
-        //     MethodeWegsegmentgeometrie = RoadSegmentGeometryDrawMethod.Outlined.ToDutchString(),
-        //     BeginknoopObjectId = 287335,
-        //     EindknoopObjectId = 287336,
-        //     Linkerstraatnaam = new WegsegmentStraatnaamObject
-        //     {
-        //         ObjectId = new StreetNameId(71671).ToString(),
-        //         Straatnaam = "Smidsestraat"
-        //     },
-        //     Rechterstraatnaam = new WegsegmentStraatnaamObject
-        //     {
-        //         ObjectId = new StreetNameId(71671).ToString(),
-        //         Straatnaam = "Smidsestraat"
-        //     },
-        //     Wegsegmentstatus = RoadSegmentStatus.InUse.ToDutchString(),
-        //     MorfologischeWegklasse = RoadSegmentMorphology.Road_consisting_of_one_roadway.ToDutchString(),
-        //     Toegangsbeperking = RoadSegmentAccessRestriction.PublicRoad.ToDutchString(),
-        //     Wegbeheerder = "1304",
-        //     Wegcategorie = RoadSegmentCategory.LocalRoadType3.ToDutchString(),
-        //     Wegverharding = new[]
-        //     {
-        //         new WegverhardingObject
-        //         {
-        //             VanPositie = 0.000,
-        //             TotPositie = 44.877,
-        //             Verharding = RoadSegmentSurfaceType.LooseSurface.ToDutchString()
-        //         }
-        //     },
-        //     Wegbreedte = new[]
-        //     {
-        //         new WegbreedteObject { VanPositie = 0.000, TotPositie = 11.526, Breedte = 6 },
-        //         new WegbreedteObject { VanPositie = 11.526, TotPositie = 44.877, Breedte = 4 }
-        //     },
-        //     AantalRijstroken = new[]
-        //     {
-        //         new AantalRijstrokenObject
-        //         {
-        //             VanPositie = 0.000,
-        //             TotPositie = 44.877,
-        //             Aantal = 2,
-        //             Richting = RoadSegmentLaneDirection.Independent.ToDutchString()
-        //         }
-        //     },
-        //     EuropeseWegen = new[]
-        //     {
-        //         new EuropeseWegObject
-        //         {
-        //             EuNummer = "E40"
-        //         }
-        //     },
-        //     NationaleWegen = new[]
-        //     {
-        //         new NationaleWegObject
-        //         {
-        //             Ident2 = "N180"
-        //         }
-        //     },
-        //     GenummerdeWegen = new[]
-        //     {
-        //         new GenummerdeWegObject
-        //         {
-        //             Ident8 = "N0080001",
-        //             Richting = RoadSegmentNumberedRoadDirection.Forward.ToDutchString(),
-        //             Volgnummer = new RoadSegmentNumberedRoadOrdinal(2686).ToDutchString()
-        //         }
-        //     }
-        // };
+        var geometry = GeometryExtensions.WithSrid(new LineString([
+            new(243234.8929999992, 160239.3830000013),
+            new(243245.9949999973, 160238.7989999987),
+            new(243261.3599999994, 160239.0),
+            new(243279.0160000026, 160244.1570000015),
+        ]), WellknownSrids.Lambert72);
+
+        return new WegsegmentV2Detail
+        {
+            Identificator = new WegsegmentIdentificator(OsloNamespaces.Wegsegment, "51613", new DateTimeOffset(2026, 09, 27, 13, 46, 14, TimeSpan.FromHours(2))),
+            WegsegmentGeometrie = new WegsegmentGeometrie
+            {
+                Geometrie =
+                [
+                    new WegsegmentGeometrieProjectie
+                    {
+                        Gml = geometry.EnsureLambert08().ConvertToGml()
+                    },
+                    new WegsegmentGeometrieProjectie
+                    {
+                        Gml = geometry.EnsureLambert72().ConvertToGml()
+                    }
+                ]
+            },
+            Wegsegmentstatus = RoadSegmentStatusV2.Gerealiseerd.ToDutchString(),
+            Beginknoop = new WegknoopLink(new RoadNodeId(287335), _apiOptions.GetWegknoopDetailUrlFormat()),
+            Eindknoop = new WegknoopLink(new RoadNodeId(287336), _apiOptions.GetWegknoopDetailUrlFormat()),
+            GeometrieMethode = RoadSegmentGeometryDrawMethodV2.Ingemeten.ToString(),
+            Straatnaam = [
+                new WegsegmentStraatnaamAttribuutWaarde
+                {
+                    Kant = WegsegmentKant.Links,
+                    VanPositie = 0,
+                    TotPositie = 10,
+                    Straatnaam = new StraatnaamLink(new StreetNameLocalId(71671), _apiOptions.GetStraatnaamDetailUrlFormat(), "Smidsestraat")
+                },
+                new WegsegmentStraatnaamAttribuutWaarde
+                {
+                    Kant = WegsegmentKant.Rechts,
+                    VanPositie = 0,
+                    TotPositie = 10,
+                    Straatnaam = new StraatnaamLink(new StreetNameLocalId(65412), _apiOptions.GetStraatnaamDetailUrlFormat(), "Veerstraat")
+                },
+                new WegsegmentStraatnaamAttribuutWaarde
+                {
+                    Kant = WegsegmentKant.Beide,
+                    VanPositie = 10,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Straatnaam = new StraatnaamLink(new StreetNameLocalId(71671), _apiOptions.GetStraatnaamDetailUrlFormat(), "Smidsestraat")
+                },
+            ],
+            Morfologie = new [] { RoadSegmentMorphologyV2.Parallelweg }
+                .Select(x => new WegsegmentMorfologieAttribuutWaarde
+                {
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Morfologie = x.ToDutchString()
+                })
+                .ToArray(),
+            Toegang = new [] { RoadSegmentAccessRestrictionV2.OpenbareWeg }
+                .Select(x => new WegsegmentToegangAttribuutWaarde
+                {
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Toegang = x.ToDutchString()
+                })
+                .ToArray(),
+            Wegbeheerder = new [] { new OrganizationId("AGIV") }
+                .Select(x => new WegsegmentWegbeheerderAttribuutWaarde
+                {
+                    Kant = WegsegmentKant.Beide,
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Wegbeheerder = new WegbeheerderObject
+                    {
+                        Code = x.ToString(),
+                        Label = "agentschap Digitaal Vlaanderen"
+                    }
+                })
+                .ToArray(),
+            Wegcategorie = new [] { RoadSegmentCategoryV2.RegionaleWeg }
+                .Select(x => new WegsegmentWegcategorieAttribuutWaarde
+                {
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Wegcategorie = x.ToDutchString()
+                })
+                .ToArray(),
+            Wegverharding = new [] { RoadSegmentSurfaceTypeV2.Verhard }
+                .Select(x => new WegsegmentWegverhardingAttribuutWaarde
+                {
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Wegverharding = x.ToDutchString()
+                })
+                .ToArray(),
+            VerkeerstypeAuto = new [] { RoadSegmentTrafficDirection.Forward }
+                .Select(x => new WegsegmentVerkeerstypeAutoAttribuutWaarde
+                {
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Richting = x.ToDutchString()
+                })
+                .ToArray(),
+            VerkeerstypeFiets = new [] { RoadSegmentTrafficDirection.Both }
+                .Select(x => new WegsegmentVerkeerstypeFietsAttribuutWaarde
+                {
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Richting = x.ToDutchString()
+                })
+                .ToArray(),
+            VerkeerstypeVoetganger = new [] { RoadSegmentTrafficDirection.None }
+                .Select(x => new WegsegmentVerkeerstypeVoetgangerAttribuutWaarde
+                {
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Richting = x.ToDutchString()
+                })
+                .ToArray(),
+            EuropeseWegen = new [] { EuropeanRoadNumber.E40 }
+                .Select(x => new EuropeseWegObject
+                {
+                    EuropeesWegnummer = x.ToString()
+                })
+                .ToArray(),
+            NationaleWegen = new [] { NationalRoadNumber.Parse("N180") }
+                .Select(x => new NationaleWegObject
+                {
+                    NationaalWegnummer = x.ToString()
+                })
+                .ToArray(),
+            GelijkgrondseKruisingen = new [] { new GradeJunctionId(2344) }
+                .Select(x => new GelijkgrondseKruisingLink(x, _apiOptions.GetGelijkgrondseKruisingDetailUrlFormat()))
+                .ToArray(),
+            OngelijkgrondseKruisingen = new [] { new GradeSeparatedJunctionId(3524) }
+                .Select(x => new OngelijkgrondseKruisingLink(x, _apiOptions.GetOngelijkgrondseKruisingDetailUrlFormat()))
+                .ToArray()
+        };
     }
 }

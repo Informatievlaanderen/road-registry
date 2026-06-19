@@ -17,7 +17,7 @@ using Version = RoadRegistry.BackOffice.Api.Infrastructure.Version;
 
 [ApiVersion(Version.V2)]
 [ApiRoute("wegsegmenten")]
-[ApiExplorerSettings(GroupName = "Wegsegmenten")]
+[ApiExplorerSettings(GroupName = "WegsegmentenV2")]
 public partial class RoadSegmentsController : BackofficeApiController
 {
     internal const string PublicApiVersion = "v3";

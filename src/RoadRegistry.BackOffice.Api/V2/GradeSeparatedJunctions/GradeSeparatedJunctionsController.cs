@@ -20,8 +20,6 @@ using Version = RoadRegistry.BackOffice.Api.Infrastructure.Version;
 [ApiExplorerSettings(GroupName = "OngelijkGrondseKruisingen")]
 public partial class GradeSeparatedJunctionsController : BackofficeApiController
 {
-    internal const string PublicApiVersion = "v3";
-
     public GradeSeparatedJunctionsController(BackofficeApiControllerContext apiContext)
         : base(apiContext)
     {
@@ -48,7 +46,7 @@ public class GradeSeparatedJunctionNotFoundResponseExamples : IExamplesProvider<
             HttpStatus = StatusCodes.Status404NotFound,
             Title = ProblemDetails.DefaultTitle,
             Detail = new GradeSeparatedJunctionNotFound().TranslateToDutch(WellKnownProblemTranslators.Default).Message,
-            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, GradeSeparatedJunctionsController.PublicApiVersion)
+            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, PublicApi.ApiVersion)
         };
 }
 
@@ -68,11 +66,11 @@ public class GradeSeparatedJunctionGoneResponseExamples : IExamplesProvider<Prob
     public ProblemDetails GetExamples() =>
         new ProblemDetails
         {
-            ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:gradeSeparatedJunction:gone",
+            ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:gradeseparatedjunction:gone",
             HttpStatus = StatusCodes.Status410Gone,
             Title = ProblemDetails.DefaultTitle,
             Detail = "Verwijderd ongelijkgrondse kruising.", //TODO-pr confirm what is actually returned
-            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, GradeSeparatedJunctionsController.PublicApiVersion)
+            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, PublicApi.ApiVersion)
         };
 }
 

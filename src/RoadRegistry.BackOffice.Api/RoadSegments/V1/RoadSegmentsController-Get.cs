@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy.SpatialTools;
+using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,6 @@ public partial class RoadSegmentsController
     ///     Vraag een wegsegment op.
     /// </summary>
     /// <param name="id">De identificator van het wegsegment.</param>
-    /// <param name="responseOptions"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als het wegsegment gevonden is.</response>
     /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
@@ -47,7 +47,6 @@ public partial class RoadSegmentsController
     [SwaggerOperation(OperationId = nameof(GetRoadSegment), Description = "Attributen wijzigen van een wegsegment: status, toegangsbeperking, wegklasse, wegbeheerder en wegcategorie.")]
     public async Task<IActionResult> GetRoadSegment(
         [FromRoute] int id,
-        [FromServices] IOptions<ResponseOptions> responseOptions,
         CancellationToken cancellationToken = default)
     {
         try
@@ -58,7 +57,7 @@ public partial class RoadSegmentsController
 
             var result = new GetRoadSegmentResponse
             {
-                Identificator = new WegsegmentIdentificator(responseOptions.Value.WegsegmentNaamruimte, detailResponse.RoadSegmentId.ToString(), detailResponse.BeginTime, detailResponse.Version),
+                Identificator = new WegsegmentIdentificator(OsloNamespaces.Wegsegment, detailResponse.RoadSegmentId.ToString(), detailResponse.BeginTime, detailResponse.Version),
                 MiddellijnGeometrie = new GeoJSONMultiLineString
                 {
                     Coordinates = geoJsonGeometry.ToGeoJson().ToCoordinateArray()

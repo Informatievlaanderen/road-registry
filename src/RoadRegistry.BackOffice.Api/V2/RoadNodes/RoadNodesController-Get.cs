@@ -8,12 +8,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Common.NetTopology;
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
+using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
 using Marten;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
@@ -50,7 +52,7 @@ public partial class RoadNodesController
     [SwaggerOperation(OperationId = nameof(GetRoadNodeV2), Description = "Vraag een wegknoop op.")]
     public async Task<IActionResult> GetRoadNodeV2(
         [FromRoute] int id,
-        [FromServices] IOptions<ResponseOptions> responseOptions,
+        [FromServices] ApiOptions apiOptions,
         [FromServices] IDocumentStore store,
         CancellationToken cancellationToken = default)
     {
@@ -69,7 +71,7 @@ public partial class RoadNodesController
 
         var result = new WegknoopV2Detail
         {
-            Identificator = new Identificator(responseOptions.Value.WegknoopNaamruimte, roadNode.RoadNodeId.ToString(), roadNode.Origin.Timestamp.ToDateTimeOffset()),
+            Identificator = new WegknoopIdentificator(OsloNamespaces.Wegknoop, roadNode.RoadNodeId.ToString(), roadNode.Origin.Timestamp.ToDateTimeOffset()),
             WegknoopGeometrie = new WegknoopGeometrie
             {
                 Geometrie =
@@ -85,7 +87,7 @@ public partial class RoadNodesController
                 ]
             },
             AansluitendeWegsegmenten = roadNode.RoadSegmentIds
-                .Select(x => new WegsegmentLink(x, responseOptions.Value.WegknoopDetailUrlFormat))
+                .Select(x => new WegsegmentLink(x, apiOptions.GetWegsegmentDetailUrlFormat()))
                 .ToArray()
         };
 
@@ -109,7 +111,7 @@ public class WegknoopV2Detail
     /// </summary>
     [DataMember(Name = "Identificator", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public required Identificator Identificator { get; set; }
+    public required WegknoopIdentificator Identificator { get; set; }
 
     /// <summary>
     ///     De middellijngeometrie van het wegknoop.
@@ -139,6 +141,21 @@ public class WegknoopV2Detail
     [DataMember(Name = "AansluitendeWegsegmenten", Order = 5)]
     [JsonProperty(Required = Required.DisallowNull)]
     public IReadOnlyCollection<WegsegmentLink> AansluitendeWegsegmenten { get; set; } = [];
+}
+
+[DataContract(Name = "WegknoopV2Identificator", Namespace = "")]
+[CustomSwaggerSchemaId("WegknoopV2Identificator")]
+public class WegknoopIdentificator : Identificator
+{
+    public WegknoopIdentificator(string naamruimte, string objectId, DateTimeOffset? versie)
+        : base(naamruimte, objectId, versie)
+    {
+    }
+
+    public WegknoopIdentificator()
+        : base(string.Empty, string.Empty, string.Empty)
+    {
+    }
 }
 
 [DataContract(Name = "WegknoopGeometrie", Namespace = "")]
@@ -171,90 +188,40 @@ public class WegknoopGeometrieProjectie
 
 public class WegknoopV2DetailResponseExamples : IExamplesProvider<WegknoopV2Detail>
 {
+    private readonly ApiOptions _apiOptions;
+
+    public WegknoopV2DetailResponseExamples(ApiOptions apiOptions)
+    {
+        _apiOptions = apiOptions;
+    }
+
     public WegknoopV2Detail GetExamples()
     {
-        throw new NotImplementedException(); //TODO-pr implement example
-        // return new GetRoadNodeResponseV2
-        // {
-        //     Identificator = new WegknoopIdentificatorV2("https://data.vlaanderen.be/id/wegknoop", "643556", new DateTime(2015, 11, 27, 13, 46, 14), 2),
-        //     MiddellijnGeometrie = new GeoJSONMultiLineString
-        //     {
-        //         Coordinates = new[]
-        //         {
-        //             new[]
-        //             {
-        //                 new[] { 243234.8929999992, 160239.3830000013 },
-        //                 new[] { 243245.9949999973, 160238.7989999987 },
-        //                 new[] { 243261.3599999994, 160239.0 },
-        //                 new[] { 243279.0160000026, 160244.1570000015 }
-        //             }
-        //         }
-        //     },
-        //     MethodeWegknoopgeometrie = RoadNodeGeometryDrawMethod.Outlined.ToDutchString(),
-        //     BeginknoopObjectId = 287335,
-        //     EindknoopObjectId = 287336,
-        //     Linkerstraatnaam = new WegknoopStraatnaamObject
-        //     {
-        //         ObjectId = new StreetNameId(71671).ToString(),
-        //         Straatnaam = "Smidsestraat"
-        //     },
-        //     Rechterstraatnaam = new WegknoopStraatnaamObject
-        //     {
-        //         ObjectId = new StreetNameId(71671).ToString(),
-        //         Straatnaam = "Smidsestraat"
-        //     },
-        //     Wegknoopstatus = RoadNodeStatus.InUse.ToDutchString(),
-        //     MorfologischeWegklasse = RoadNodeMorphology.Road_consisting_of_one_roadway.ToDutchString(),
-        //     Toegangsbeperking = RoadNodeAccessRestriction.PublicRoad.ToDutchString(),
-        //     Wegbeheerder = "1304",
-        //     Wegcategorie = RoadNodeCategory.LocalRoadType3.ToDutchString(),
-        //     Wegverharding = new[]
-        //     {
-        //         new WegverhardingObject
-        //         {
-        //             VanPositie = 0.000,
-        //             TotPositie = 44.877,
-        //             Verharding = RoadNodeSurfaceType.LooseSurface.ToDutchString()
-        //         }
-        //     },
-        //     Wegbreedte = new[]
-        //     {
-        //         new WegbreedteObject { VanPositie = 0.000, TotPositie = 11.526, Breedte = 6 },
-        //         new WegbreedteObject { VanPositie = 11.526, TotPositie = 44.877, Breedte = 4 }
-        //     },
-        //     AantalRijstroken = new[]
-        //     {
-        //         new AantalRijstrokenObject
-        //         {
-        //             VanPositie = 0.000,
-        //             TotPositie = 44.877,
-        //             Aantal = 2,
-        //             Richting = RoadNodeLaneDirection.Independent.ToDutchString()
-        //         }
-        //     },
-        //     EuropeseWegen = new[]
-        //     {
-        //         new EuropeseWegObject
-        //         {
-        //             EuNummer = "E40"
-        //         }
-        //     },
-        //     NationaleWegen = new[]
-        //     {
-        //         new NationaleWegObject
-        //         {
-        //             Ident2 = "N180"
-        //         }
-        //     },
-        //     GenummerdeWegen = new[]
-        //     {
-        //         new GenummerdeWegObject
-        //         {
-        //             Ident8 = "N0080001",
-        //             Richting = RoadNodeNumberedRoadDirection.Forward.ToDutchString(),
-        //             Volgnummer = new RoadNodeNumberedRoadOrdinal(2686).ToDutchString()
-        //         }
-        //     }
-        // };
+        var geometry = new Point(new(243234.8929999992, 160239.3830000013)).WithSrid(WellknownSrids.Lambert72);
+
+        return new WegknoopV2Detail
+        {
+            Identificator = new WegknoopIdentificator(OsloNamespaces.Wegknoop, "643556", new DateTimeOffset(2026, 09, 27, 13, 46, 14, TimeSpan.FromHours(2))),
+            WegknoopGeometrie = new WegknoopGeometrie
+            {
+                Geometrie =
+                [
+                    new WegknoopGeometrieProjectie
+                    {
+                        Gml = geometry.EnsureLambert08().ConvertToGml()
+                    },
+                    new WegknoopGeometrieProjectie
+                    {
+                        Gml = geometry.EnsureLambert72().ConvertToGml()
+                    }
+                ]
+            },
+            WegknoopType = RoadNodeTypeV2.Validatieknoop.ToDutchString(),
+            Grensknoop = true,
+            AansluitendeWegsegmenten = [
+                new WegsegmentLink(new RoadSegmentId(51613), _apiOptions.GetWegsegmentDetailUrlFormat()),
+                new WegsegmentLink(new RoadSegmentId(89134), _apiOptions.GetWegsegmentDetailUrlFormat())
+            ]
+        };
     }
 }

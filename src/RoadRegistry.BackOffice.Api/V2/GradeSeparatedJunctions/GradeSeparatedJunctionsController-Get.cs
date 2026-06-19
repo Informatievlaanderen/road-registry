@@ -6,11 +6,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
+using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
 using Marten;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
@@ -26,13 +26,13 @@ public partial class GradeSeparatedJunctionsController
     /// <summary>
     ///     Vraag een ongelijkgrondse kruising op.
     /// </summary>
-    /// <param name="id">De identificator van het ongelijkgrondse kruising.</param>
-    /// <param name="responseOptions"></param>
+    /// <param name="id">De identificator van de ongelijkgrondse kruising.</param>
+    /// <param name="apiOptions"></param>
     /// <param name="store"></param>
     /// <param name="cancellationToken"></param>
-    /// <response code="200">Als het ongelijkgrondse kruising gevonden is.</response>
-    /// <response code="404">Als het ongelijkgrondse kruising niet gevonden kan worden.</response>
-    /// <response code="410">Als het ongelijkgrondse kruising is verwijderd.</response>
+    /// <response code="200">Als de ongelijkgrondse kruising gevonden is.</response>
+    /// <response code="404">Als de ongelijkgrondse kruising niet gevonden kan worden.</response>
+    /// <response code="410">Als de ongelijkgrondse kruising is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpGet(GetGradeSeparatedJunctionRoute, Name = nameof(GetGradeSeparatedJunctionV2))]
     [AllowAnonymous]
@@ -47,7 +47,7 @@ public partial class GradeSeparatedJunctionsController
     [SwaggerOperation(OperationId = nameof(GetGradeSeparatedJunctionV2), Description = "Vraag een ongelijkgrondse kruising op.")]
     public async Task<IActionResult> GetGradeSeparatedJunctionV2(
         [FromRoute] int id,
-        [FromServices] IOptions<ResponseOptions> responseOptions,
+        [FromServices] ApiOptions apiOptions,
         [FromServices] IDocumentStore store,
         CancellationToken cancellationToken = default)
     {
@@ -66,9 +66,9 @@ public partial class GradeSeparatedJunctionsController
 
         var result = new OngelijkgrondseKruisingV2Detail
         {
-            Identificator = new Identificator(responseOptions.Value.OngelijkgrondseKruisingNaamruimte, gradeSeparatedJunction.GradeSeparatedJunctionId.ToString(), gradeSeparatedJunction.Origin.Timestamp.ToDateTimeOffset()),
-            OnderliggendWegsegment = new WegsegmentLink(gradeSeparatedJunction.LowerRoadSegmentId, responseOptions.Value.WegsegmentDetailUrlFormat),
-            BovenliggendWegsegment = new WegsegmentLink(gradeSeparatedJunction.UpperRoadSegmentId, responseOptions.Value.WegsegmentDetailUrlFormat)
+            Identificator = new OngelijkgrondseKruisingIdentificator(OsloNamespaces.OngelijkgrondseKruising, gradeSeparatedJunction.GradeSeparatedJunctionId.ToString(), gradeSeparatedJunction.Origin.Timestamp.ToDateTimeOffset()),
+            OnderliggendWegsegment = new WegsegmentLink(gradeSeparatedJunction.LowerRoadSegmentId, apiOptions.GetWegsegmentDetailUrlFormat()),
+            BovenliggendWegsegment = new WegsegmentLink(gradeSeparatedJunction.UpperRoadSegmentId, apiOptions.GetWegsegmentDetailUrlFormat())
         };
 
         //TODO-pr to confirm what to return with V1 data
@@ -90,7 +90,7 @@ public class OngelijkgrondseKruisingV2Detail
     /// </summary>
     [DataMember(Name = "Identificator", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public required Identificator Identificator { get; set; }
+    public required OngelijkgrondseKruisingIdentificator Identificator { get; set; }
 
     /// <summary>
     ///     Identificerende gegevens van het wegsegment dat zich onderaan de kruising bevindt.
@@ -115,92 +115,38 @@ public class OngelijkgrondseKruisingV2Detail
     public string OngelijkgrondseKruisingType { get; set; }
 }
 
+[DataContract(Name = "OngelijkgrondseKruisingV2Identificator", Namespace = "")]
+[CustomSwaggerSchemaId("OngelijkgrondseKruisingV2Identificator")]
+public class OngelijkgrondseKruisingIdentificator : Identificator
+{
+    public OngelijkgrondseKruisingIdentificator(string naamruimte, string objectId, DateTimeOffset? versie)
+        : base(naamruimte, objectId, versie)
+    {
+    }
+
+    public OngelijkgrondseKruisingIdentificator()
+        : base(string.Empty, string.Empty, string.Empty)
+    {
+    }
+}
+
 public class OngelijkgrondseKruisingV2DetailResponseExamples : IExamplesProvider<OngelijkgrondseKruisingV2Detail>
 {
+    private readonly ApiOptions _apiOptions;
+
+    public OngelijkgrondseKruisingV2DetailResponseExamples(ApiOptions apiOptions)
+    {
+        _apiOptions = apiOptions;
+    }
+
     public OngelijkgrondseKruisingV2Detail GetExamples()
     {
-        throw new NotImplementedException(); //TODO-pr implement example
-        // return new GetGradeSeparatedJunctionResponseV2
-        // {
-        //     Identificator = new Ongelijkgrondse KruisingIdentificatorV2("https://data.vlaanderen.be/id/ongelijkgrondse kruising", "643556", new DateTime(2015, 11, 27, 13, 46, 14), 2),
-        //     MiddellijnGeometrie = new GeoJSONMultiLineString
-        //     {
-        //         Coordinates = new[]
-        //         {
-        //             new[]
-        //             {
-        //                 new[] { 243234.8929999992, 160239.3830000013 },
-        //                 new[] { 243245.9949999973, 160238.7989999987 },
-        //                 new[] { 243261.3599999994, 160239.0 },
-        //                 new[] { 243279.0160000026, 160244.1570000015 }
-        //             }
-        //         }
-        //     },
-        //     MethodeOngelijkgrondse Kruisinggeometrie = GradeSeparatedJunctionGeometryDrawMethod.Outlined.ToDutchString(),
-        //     BeginknoopObjectId = 287335,
-        //     EindknoopObjectId = 287336,
-        //     Linkerstraatnaam = new Ongelijkgrondse KruisingStraatnaamObject
-        //     {
-        //         ObjectId = new StreetNameId(71671).ToString(),
-        //         Straatnaam = "Smidsestraat"
-        //     },
-        //     Rechterstraatnaam = new Ongelijkgrondse KruisingStraatnaamObject
-        //     {
-        //         ObjectId = new StreetNameId(71671).ToString(),
-        //         Straatnaam = "Smidsestraat"
-        //     },
-        //     Ongelijkgrondse Kruisingstatus = GradeSeparatedJunctionStatus.InUse.ToDutchString(),
-        //     MorfologischeWegklasse = GradeSeparatedJunctionMorphology.Road_consisting_of_one_roadway.ToDutchString(),
-        //     Toegangsbeperking = GradeSeparatedJunctionAccessRestriction.PublicRoad.ToDutchString(),
-        //     Wegbeheerder = "1304",
-        //     Wegcategorie = GradeSeparatedJunctionCategory.LocalRoadType3.ToDutchString(),
-        //     Wegverharding = new[]
-        //     {
-        //         new WegverhardingObject
-        //         {
-        //             VanPositie = 0.000,
-        //             TotPositie = 44.877,
-        //             Verharding = GradeSeparatedJunctionSurfaceType.LooseSurface.ToDutchString()
-        //         }
-        //     },
-        //     Wegbreedte = new[]
-        //     {
-        //         new WegbreedteObject { VanPositie = 0.000, TotPositie = 11.526, Breedte = 6 },
-        //         new WegbreedteObject { VanPositie = 11.526, TotPositie = 44.877, Breedte = 4 }
-        //     },
-        //     AantalRijstroken = new[]
-        //     {
-        //         new AantalRijstrokenObject
-        //         {
-        //             VanPositie = 0.000,
-        //             TotPositie = 44.877,
-        //             Aantal = 2,
-        //             Richting = GradeSeparatedJunctionLaneDirection.Independent.ToDutchString()
-        //         }
-        //     },
-        //     EuropeseWegen = new[]
-        //     {
-        //         new EuropeseWegObject
-        //         {
-        //             EuNummer = "E40"
-        //         }
-        //     },
-        //     NationaleWegen = new[]
-        //     {
-        //         new NationaleWegObject
-        //         {
-        //             Ident2 = "N180"
-        //         }
-        //     },
-        //     GenummerdeWegen = new[]
-        //     {
-        //         new GenummerdeWegObject
-        //         {
-        //             Ident8 = "N0080001",
-        //             Richting = GradeSeparatedJunctionNumberedRoadDirection.Forward.ToDutchString(),
-        //             Volgnummer = new GradeSeparatedJunctionNumberedRoadOrdinal(2686).ToDutchString()
-        //         }
-        //     }
-        // };
+        return new OngelijkgrondseKruisingV2Detail
+        {
+            Identificator = new OngelijkgrondseKruisingIdentificator(OsloNamespaces.OngelijkgrondseKruising, "643556", new DateTimeOffset(2026, 09, 27, 13, 46, 14, TimeSpan.FromHours(2))),
+            OnderliggendWegsegment = new WegsegmentLink(new RoadSegmentId(51613), _apiOptions.GetWegsegmentDetailUrlFormat()),
+            BovenliggendWegsegment = new WegsegmentLink(new RoadSegmentId(89134), _apiOptions.GetWegsegmentDetailUrlFormat()),
+            OngelijkgrondseKruisingType = GradeSeparatedJunctionTypeV2.Brug.ToDutchString()
+        };
     }
 }

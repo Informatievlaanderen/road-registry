@@ -20,8 +20,6 @@ using Version = RoadRegistry.BackOffice.Api.Infrastructure.Version;
 [ApiExplorerSettings(GroupName = "Wegknopen")]
 public partial class RoadNodesController : BackofficeApiController
 {
-    internal const string PublicApiVersion = "v3";
-
     public RoadNodesController(BackofficeApiControllerContext apiContext)
         : base(apiContext)
     {
@@ -48,7 +46,7 @@ public class RoadNodeNotFoundResponseExamples : IExamplesProvider<ProblemDetails
             HttpStatus = StatusCodes.Status404NotFound,
             Title = ProblemDetails.DefaultTitle,
             Detail = new RoadNodeNotFound().TranslateToDutch(WellKnownProblemTranslators.Default).Message,
-            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, RoadNodesController.PublicApiVersion)
+            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, PublicApi.ApiVersion)
         };
 }
 
@@ -72,7 +70,7 @@ public class RoadNodeGoneResponseExamples : IExamplesProvider<ProblemDetails>
             HttpStatus = StatusCodes.Status410Gone,
             Title = ProblemDetails.DefaultTitle,
             Detail = "Verwijderd wegknoop.", //TODO-pr confirm what is actually returned
-            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, RoadNodesController.PublicApiVersion)
+            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, PublicApi.ApiVersion)
         };
 }
 
