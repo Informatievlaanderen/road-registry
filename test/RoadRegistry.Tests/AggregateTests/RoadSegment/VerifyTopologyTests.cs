@@ -10,6 +10,7 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.Extensions;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
+using RoadRegistry.RoadSegment.ValueObjects;
 using ValueObjects.Problems;
 
 public class VerifyTopologyTests : RoadNetworkTestBase
@@ -144,6 +145,15 @@ public class VerifyTopologyTests : RoadNetworkTestBase
         var segment2Start = new Point(5, 5);
         var segment2End = new Point(10, -5);
 
+        var segment1Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End);
+        var segment2Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End);
+
+        // Pin overlapping traffic directions so both segments are car-accessible at the intersection.
+        // Otherwise the randomly generated directions sometimes don't overlap, in which case a grade
+        // separated junction is added automatically instead of raising the expected error (flaky test).
+        var carTrafficDirection1 = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>().Add(RoadSegmentTrafficDirection.Both, segment1Geometry);
+        var carTrafficDirection2 = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>().Add(RoadSegmentTrafficDirection.Both, segment2Geometry);
+
         return Run(scenario => scenario
             .Given(given => given
                 .Add(TestData.AddSegment1StartNode with
@@ -156,7 +166,8 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add((TestData.AddSegment1 with
                 {
-                    Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End),
+                    Geometry = segment1Geometry,
+                    CarTrafficDirection = carTrafficDirection1,
                     RoadSegmentIdReference = TestData.AddSegment1.RoadSegmentIdReference with
                     {
                         TempIds = null
@@ -174,7 +185,8 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add((TestData.AddSegment2 with
                 {
-                    Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End),
+                    Geometry = segment2Geometry,
+                    CarTrafficDirection = carTrafficDirection2,
                     RoadSegmentIdReference = TestData.AddSegment2.RoadSegmentIdReference with
                     {
                         TempIds = [new RoadSegmentTempId(3)]

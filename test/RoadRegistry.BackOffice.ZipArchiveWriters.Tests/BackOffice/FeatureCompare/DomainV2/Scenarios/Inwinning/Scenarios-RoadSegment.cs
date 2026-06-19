@@ -212,6 +212,17 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             {
                 FillStreetNameCache(builder, streetNameCache);
                 builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = removedStreetNameId;
+                // Ensure the transaction zone always covers the (randomly placed) road segments. Otherwise the second
+                // road segment occasionally falls outside the random transaction zone polygon, which raises
+                // ShapeRecordGeometryIsOutsideTransactionZone and makes this test flaky. The segments are generated
+                // within [601000, 651000], so a fixed rectangle covering that range reliably contains them.
+                builder.DataSet.TransactionZoneShapeRecords[0].Geometry = new Polygon(new LinearRing([
+                    new Coordinate(600000, 600000),
+                    new Coordinate(600000, 660000),
+                    new Coordinate(660000, 660000),
+                    new Coordinate(660000, 600000),
+                    new Coordinate(600000, 600000)
+                ])).WithSrid(WellknownSrids.Lambert08).ToMultiPolygon();
             })
             .Build();
 
@@ -1026,6 +1037,17 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             {
                 var newSegmentId = builder.DataSet.RoadSegmentDbaseRecords.Select(x => x.WS_OIDN.Value).Max() + 1;
                 builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value = newSegmentId;
+                // Ensure the transaction zone always covers the (randomly placed) road segments. Otherwise the second
+                // road segment occasionally falls outside the random transaction zone polygon, which raises
+                // ShapeRecordGeometryIsOutsideTransactionZone and makes this test flaky. The segments are generated
+                // within [601000, 651000], so a fixed rectangle covering that range reliably contains them.
+                builder.DataSet.TransactionZoneShapeRecords[0].Geometry = new Polygon(new LinearRing([
+                    new Coordinate(600000, 600000),
+                    new Coordinate(600000, 660000),
+                    new Coordinate(660000, 660000),
+                    new Coordinate(660000, 600000),
+                    new Coordinate(600000, 600000)
+                ])).WithSrid(WellknownSrids.Lambert08).ToMultiPolygon();
             })
             .BuildWithResult(context => TranslatedChanges.Empty
                 .AppendChange(

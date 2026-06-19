@@ -168,6 +168,7 @@ public class Startup
 
         var apiOptions = _configuration.GetOptions<ApiOptions>();
         apiOptions.BaseUrl = apiOptions.BaseUrl?.TrimEnd('/') ?? string.Empty;
+        services.AddSingleton(apiOptions);
 
         var featureToggles = _configuration.GetFeatureToggles<ApplicationFeatureToggle>();
 
@@ -316,8 +317,6 @@ public class Startup
             .AddHealthCommandQueue()
             .AddRoadNetworkCommandQueue()
             .AddOrganizationCommandQueue()
-            .AddSingleton(apiOptions)
-            .Configure<ResponseOptions>(_configuration)
             .AddScoped<BackofficeApiControllerContext>()
             .AddSingleton<IExtractShapefileContourReader, ExtractShapefileContourReader>()
 

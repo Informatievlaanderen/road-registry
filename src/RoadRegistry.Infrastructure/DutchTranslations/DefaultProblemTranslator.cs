@@ -138,24 +138,24 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.GradeSeparatedJunction.NotFound, problem => new(problem.Severity, problem.Reason, problem.HasParameter("OngelijkGrondseKruisingId")
-                    ? $"De ongelijkgrondse kruising met {GetJunctionIdLabel(problem)} is niet langer onderdeel van het wegen netwerk."
+                    ? $"De ongelijkgrondse kruising met {GetGradeSeparatedJunctionIdLabel(problem)} is niet langer onderdeel van het wegen netwerk."
                     : problem.HasParameter("Identifier")
                         ? $"De ongelijkgrondse kruising met id {problem.GetParameterValue("Identifier")} is niet langer onderdeel van het wegen netwerk."
                         : "De ongelijkgrondse kruising is niet langer onderdeel van het wegen netwerk.")
             },
             {
                 ProblemCode.GradeSeparatedJunction.LowerSegmentMissing, problem => new(problem.Severity, problem.Reason, problem.HasParameter("OngelijkGrondseKruisingId")
-                    ? $"De ongelijkgrondse kruising met {GetJunctionIdLabel(problem)} zijn onderste wegsegment {GetRoadSegmentIdLabel(problem)} ontbreekt."
+                    ? $"De ongelijkgrondse kruising met {GetGradeSeparatedJunctionIdLabel(problem)} zijn onderste wegsegment {GetRoadSegmentIdLabel(problem)} ontbreekt."
                     : $"De ongelijkgrondse kruising zijn onderste wegsegment {problem.GetParameterValue("RoadSegmentId")} ontbreekt.")
             },
             {
                 ProblemCode.GradeSeparatedJunction.UpperSegmentMissing, problem => new(problem.Severity, problem.Reason, problem.HasParameter("OngelijkGrondseKruisingId")
-                    ? $"De ongelijkgrondse kruising met {GetJunctionIdLabel(problem)} zijn bovenste wegsegment {GetRoadSegmentIdLabel(problem)} ontbreekt."
+                    ? $"De ongelijkgrondse kruising met {GetGradeSeparatedJunctionIdLabel(problem)} zijn bovenste wegsegment {GetRoadSegmentIdLabel(problem)} ontbreekt."
                     : $"De ongelijkgrondse kruising zijn bovenste wegsegment {problem.GetParameterValue("RoadSegmentId")} ontbreekt.")
             },
             {
                 ProblemCode.GradeSeparatedJunction.UpperAndLowerDoNotIntersect, problem => new(problem.Severity, problem.Reason, problem.HasParameter("OngelijkGrondseKruisingId")
-                    ? $"De ongelijkgrondse kruising met {GetJunctionIdLabel(problem)} zijn bovenste wegsegment {GetRoadSegmentIdLabel(problem, "UpperWegsegment")} en onderste wegsegment {GetRoadSegmentIdLabel(problem, "LowerWegsegment")} kruisen elkaar niet."
+                    ? $"De ongelijkgrondse kruising met {GetGradeSeparatedJunctionIdLabel(problem)} zijn bovenste wegsegment {GetRoadSegmentIdLabel(problem, "UpperWegsegment")} en onderste wegsegment {GetRoadSegmentIdLabel(problem, "LowerWegsegment")} kruisen elkaar niet."
                     : $"De ongelijkgrondse kruising zijn bovenste wegsegment {problem.GetParameterValue("UpperRoadSegmentId")} en onderste wegsegment {problem.GetParameterValue("LowerRoadSegmentId")} kruisen elkaar niet.")
             },
             {
@@ -165,6 +165,13 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             {
                 ProblemCode.GradeSeparatedJunction.TemporaryIdNotUnique, problem => new(problem.Severity, problem.Reason,
                     $"De opgegeven tijdelijke ongelijkgrondse kruising ID {problem.Parameters[0].Value} is niet uniek.")
+            },
+            {
+                ProblemCode.GradeJunction.NotFound, problem => new(problem.Severity, problem.Reason, problem.HasParameter("GelijkGrondseKruisingId")
+                    ? $"De gelijkgrondse kruising met {GetGradeJunctionIdLabel(problem)} is niet langer onderdeel van het wegen netwerk."
+                    : problem.HasParameter("Identifier")
+                        ? $"De gelijkgrondse kruising met id {problem.GetParameterValue("Identifier")} is niet langer onderdeel van het wegen netwerk."
+                        : "De gelijkgrondse kruising is niet langer onderdeel van het wegen netwerk.")
             },
             {
                 ProblemCode.NationalRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason,
@@ -1316,7 +1323,12 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
         return $"id {problem.GetParameterValue($"{namePrefix}Id")}";
     }
 
-    protected virtual string GetJunctionIdLabel(Problem problem, string namePrefix = "OngelijkGrondseKruising")
+    protected virtual string GetGradeSeparatedJunctionIdLabel(Problem problem, string namePrefix = "OngelijkGrondseKruising")
+    {
+        return $"id {problem.GetParameterValue($"{namePrefix}Id")}";
+    }
+
+    protected virtual string GetGradeJunctionIdLabel(Problem problem, string namePrefix = "GelijkGrondseKruising")
     {
         return $"id {problem.GetParameterValue($"{namePrefix}Id")}";
     }

@@ -1,35 +1,30 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments.V2;
+namespace RoadRegistry.BackOffice.Api.V2.RoadSegments;
 
 using Asp.Versioning;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-using CommandHandling;
-using Core;
-using Extensions;
 using FluentValidation;
-using Infrastructure.Controllers;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.DutchTranslations;
+using RoadRegistry.ValueObjects.ProblemCodes;
+using RoadRegistry.ValueObjects.Problems;
 using Swashbuckle.AspNetCore.Filters;
-using ValueObjects.ProblemCodes;
-using ValueObjects.Problems;
 using ProblemDetails = Be.Vlaanderen.Basisregisters.BasicApiProblem.ProblemDetails;
-using Version = Infrastructure.Version;
+using Version = RoadRegistry.BackOffice.Api.Infrastructure.Version;
 
 [ApiVersion(Version.V2)]
 [ApiRoute("wegsegmenten")]
-[ApiExplorerSettings(GroupName = "Wegsegmenten")]
+[ApiExplorerSettings(GroupName = "WegsegmentenV2")]
 public partial class RoadSegmentsController : BackofficeApiController
 {
-    private readonly IMediator _mediator;
+    internal const string PublicApiVersion = "v3";
 
-    public RoadSegmentsController(BackofficeApiControllerContext apiContext, IMediator mediator)
+    public RoadSegmentsController(BackofficeApiControllerContext apiContext)
         : base(apiContext)
     {
-        _mediator = mediator;
     }
 }
 
@@ -37,38 +32,48 @@ public class RoadSegmentNotFoundResponseExamples : IExamplesProvider<ProblemDeta
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ProblemDetailsHelper _problemDetailsHelper;
-    private readonly string _apiVersion;
 
     public RoadSegmentNotFoundResponseExamples(
         IHttpContextAccessor httpContextAccessor,
-        ProblemDetailsHelper problemDetailsHelper,
-        string? apiVersion = null)
+        ProblemDetailsHelper problemDetailsHelper)
     {
         _httpContextAccessor = httpContextAccessor;
         _problemDetailsHelper = problemDetailsHelper;
-        _apiVersion = apiVersion;
     }
 
-    public ProblemDetails GetExamples()
-    {
-        return new ProblemDetails
+    public ProblemDetails GetExamples() =>
+        new ProblemDetails
         {
             ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:roadsegment:not-found",
             HttpStatus = StatusCodes.Status404NotFound,
             Title = ProblemDetails.DefaultTitle,
             Detail = new RoadSegmentNotFound().TranslateToDutch(WellKnownProblemTranslators.Default).Message,
-            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext, _apiVersion)
+            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, RoadSegmentsController.PublicApiVersion)
         };
-    }
 }
 
-public class RoadSegmentNotFoundResponseExamplesV2 : RoadSegmentNotFoundResponseExamples
+public class RoadSegmentGoneResponseExamples : IExamplesProvider<ProblemDetails>
 {
-    public RoadSegmentNotFoundResponseExamplesV2(
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ProblemDetailsHelper _problemDetailsHelper;
+
+    public RoadSegmentGoneResponseExamples(
         IHttpContextAccessor httpContextAccessor,
         ProblemDetailsHelper problemDetailsHelper)
-        : base(httpContextAccessor, problemDetailsHelper, "v2")
-    { }
+    {
+        _httpContextAccessor = httpContextAccessor;
+        _problemDetailsHelper = problemDetailsHelper;
+    }
+
+    public ProblemDetails GetExamples() =>
+        new ProblemDetails
+        {
+            ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:roadsegment:gone",
+            HttpStatus = StatusCodes.Status410Gone,
+            Title = ProblemDetails.DefaultTitle,
+            Detail = "Verwijderd wegsegment.",
+            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, RoadSegmentsController.PublicApiVersion)
+        };
 }
 
 public class RoadSegmentIdValidator : AbstractValidator<int>
