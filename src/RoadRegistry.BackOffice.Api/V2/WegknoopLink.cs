@@ -6,7 +6,7 @@ using RoadRegistry.BackOffice.Api.Infrastructure;
 
 [DataContract(Name = "WegknoopLink", Namespace = "")]
 [CustomSwaggerSchemaId("WegknoopLink")]
-public class WegknoopLink
+public sealed class WegknoopLink
 {
     /// <summary>
     /// De objectidentificator van de wegknoop.
@@ -21,6 +21,10 @@ public class WegknoopLink
     [DataMember(Name = "Detail", Order = 2)]
     [JsonProperty]
     public string Detail { get; set; }
+
+    private WegknoopLink()
+    {
+    }
 
     public WegknoopLink(RoadNodeId roadNodeId, string detailUrlFormat)
     {

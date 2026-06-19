@@ -140,7 +140,7 @@ public class WegknoopV2Detail
     /// </summary>
     [DataMember(Name = "AansluitendeWegsegmenten", Order = 5)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public IReadOnlyCollection<WegsegmentLink> AansluitendeWegsegmenten { get; set; } = [];
+    public WegsegmentLink[] AansluitendeWegsegmenten { get; set; } = [];
 }
 
 [DataContract(Name = "WegknoopV2Identificator", Namespace = "")]
@@ -167,14 +167,14 @@ public class WegknoopGeometrie
     /// </summary>
     [DataMember(Name = "Geometrie", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public required IReadOnlyCollection<WegknoopGeometrieProjectie> Geometrie { get; set; }
+    public required WegknoopGeometrieProjectie[] Geometrie { get; set; }
 
     /// <summary>
     /// GeoJSON-geometrietype.
     /// </summary>
     [DataMember(Name = "Type", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public string Type { get; } = "Point";
+    public string Type { get; set; } = "Point";
 }
 
 [DataContract(Name = "WegknoopGeometrieProjectie", Namespace = "")]

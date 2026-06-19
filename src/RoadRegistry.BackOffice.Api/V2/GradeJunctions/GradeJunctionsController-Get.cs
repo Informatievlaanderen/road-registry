@@ -94,7 +94,7 @@ public class GelijkgrondseKruisingV2Detail
     /// </summary>
     [DataMember(Name = "kruisendeWegsegmenten", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public IReadOnlyCollection<WegsegmentLink> KruisendeWegsegmenten { get; set; }
+    public WegsegmentLink[] KruisendeWegsegmenten { get; set; }
 }
 
 [DataContract(Name = "GelijkgrondseKruisingV2Identificator", Namespace = "")]

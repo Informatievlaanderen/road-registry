@@ -6,7 +6,7 @@ using RoadRegistry.BackOffice.Api.Infrastructure;
 
 [DataContract(Name = "OngelijkgrondseKruisingLink", Namespace = "")]
 [CustomSwaggerSchemaId("OngelijkgrondseKruisingLink")]
-public class OngelijkgrondseKruisingLink
+public sealed class OngelijkgrondseKruisingLink
 {
     /// <summary>
     /// De objectidentificator van de ongelijkgrondse kruising.
@@ -21,6 +21,10 @@ public class OngelijkgrondseKruisingLink
     [DataMember(Name = "Detail", Order = 2)]
     [JsonProperty]
     public string Detail { get; set; }
+
+    private OngelijkgrondseKruisingLink()
+    {
+    }
 
     public OngelijkgrondseKruisingLink(GradeSeparatedJunctionId gradeSeparatedJunctionId, string detailUrlFormat)
     {

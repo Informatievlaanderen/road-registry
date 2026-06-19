@@ -100,7 +100,7 @@ public partial class RoadSegmentsController
         //TODO-pr to confirm what to return with V1 data
         if (roadSegment.IsV2)
         {
-            result.GeometrieMethode = RoadSegmentGeometryDrawMethodV2.Parse(roadSegment.GeometryDrawMethod).ToString();
+            result.GeometrieMethode = RoadSegmentGeometryDrawMethodV2.Parse(roadSegment.GeometryDrawMethod).ToDutchString();
             result.Straatnaam = roadSegment.StreetNameId.Values
                 .Select(x => new WegsegmentStraatnaamAttribuutWaarde
                 {
@@ -182,7 +182,7 @@ public partial class RoadSegmentsController
             result.EuropeseWegen = roadSegment.EuropeanRoadNumbers
                 .Select(x => new EuropeseWegObject
                 {
-                    EuropeesWegnummer = x.ToString()
+                    EuropeesWegnummer = x.ToDutchString()
                 })
                 .ToArray();
             result.NationaleWegen = roadSegment.NationalRoadNumbers
@@ -248,7 +248,7 @@ public class WegsegmentV2Detail
     /// </summary>
     [DataMember(Name = "Straatnaam", Order = 6)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public IReadOnlyCollection<WegsegmentStraatnaamAttribuutWaarde> Straatnaam { get; set; }
+    public WegsegmentStraatnaamAttribuutWaarde[] Straatnaam { get; set; }
 
     /// <summary>
     ///     Attribuut dat de levensloopfase van een wegsegment aangeeft.
@@ -263,56 +263,56 @@ public class WegsegmentV2Detail
     /// </summary>
     [DataMember(Name = "Morfologie", Order = 8)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public IReadOnlyCollection<WegsegmentMorfologieAttribuutWaarde> Morfologie { get; set; }
+    public WegsegmentMorfologieAttribuutWaarde[] Morfologie { get; set; }
 
     /// <summary>
     ///     Lineair gerefereerd attribuut dat aangeeft in welke mate een weg toegankelijk is voor weggebruikers in het algemeen, ongeacht het type weggebruiker (voetgangers, fietsers, etc.).
     /// </summary>
     [DataMember(Name = "Toegang", Order = 9)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public IReadOnlyCollection<WegsegmentToegangAttribuutWaarde> Toegang { get; set; }
+    public WegsegmentToegangAttribuutWaarde[] Toegang { get; set; }
 
     /// <summary>
     ///     Lineair gerefereerd attribuut dat aangeeft wie verantwoordelijk is voor het fysieke onderhoud en beheer van de weg op het terrein.
     /// </summary>
     [DataMember(Name = "Wegbeheerder", Order = 10)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public IReadOnlyCollection<WegsegmentWegbeheerderAttribuutWaarde> Wegbeheerder { get; set; }
+    public WegsegmentWegbeheerderAttribuutWaarde[] Wegbeheerder { get; set; }
 
     /// <summary>
     ///     Lineair gerefereerd attribuut dat de categorie weergeeft van een weg zoals vastgelegd door de Vlaamse Overheid.
     /// </summary>
     [DataMember(Name = "Wegcategorie", Order = 11)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public IReadOnlyCollection<WegsegmentWegcategorieAttribuutWaarde> Wegcategorie { get; set; }
+    public WegsegmentWegcategorieAttribuutWaarde[] Wegcategorie { get; set; }
 
     /// <summary>
     ///     Lineair gerefereerd attribuut dat aangeeft welk type verharding van toepassing is op de weg.
     /// </summary>
     [DataMember(Name = "Wegverharding", Order = 12)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public IReadOnlyCollection<WegsegmentWegverhardingAttribuutWaarde> Wegverharding { get; set; }
+    public WegsegmentWegverhardingAttribuutWaarde[] Wegverharding { get; set; }
 
     /// <summary>
     ///     Lineair gerefereerd attribuut dat aangeeft in welke richting het wegsegment toegankelijk is voor auto’s.
     /// </summary>
     [DataMember(Name = "VerkeerstypeAuto", Order = 13)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public IReadOnlyCollection<WegsegmentVerkeerstypeAutoAttribuutWaarde> VerkeerstypeAuto { get; set; }
+    public WegsegmentVerkeerstypeAutoAttribuutWaarde[] VerkeerstypeAuto { get; set; }
 
     /// <summary>
     ///     Lineair gerefereerd attribuut dat aangeeft in welke richting het wegsegment toegankelijk is voor fietsers.
     /// </summary>
     [DataMember(Name = "VerkeerstypeFiets", Order = 14)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public IReadOnlyCollection<WegsegmentVerkeerstypeFietsAttribuutWaarde> VerkeerstypeFiets { get; set; }
+    public WegsegmentVerkeerstypeFietsAttribuutWaarde[] VerkeerstypeFiets { get; set; }
 
     /// <summary>
     ///     Lineair gerefereerd attribuut dat aangeeft of het wegsegment toegankelijk is voor voetgangers.
     /// </summary>
     [DataMember(Name = "VerkeerstypeVoetganger", Order = 15)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public IReadOnlyCollection<WegsegmentVerkeerstypeVoetgangerAttribuutWaarde> VerkeerstypeVoetganger { get; set; }
+    public WegsegmentVerkeerstypeVoetgangerAttribuutWaarde[] VerkeerstypeVoetganger { get; set; }
 
     /// <summary>
     ///     Wegnummer(s) van Europese wegen waartoe het wegsegment behoort.
@@ -360,7 +360,7 @@ public class WegsegmentIdentificator : Identificator
 
 [DataContract(Name = "StraatnaamLink", Namespace = "")]
 [CustomSwaggerSchemaId("StraatnaamLink")]
-public class StraatnaamLink
+public sealed class StraatnaamLink
 {
     /// <summary>
     /// De objectidentificator van de straatnaam.
@@ -382,6 +382,10 @@ public class StraatnaamLink
     [DataMember(Name = "GeografischeNaam", Order = 3)]
     [JsonProperty]
     public StraatnaamGeografischeNaam GeografischeNaam { get; set; }
+
+    private StraatnaamLink()
+    {
+    }
 
     public StraatnaamLink(StreetNameLocalId streetNameLocalId, string detailUrlFormat, string dutchName)
     {
@@ -412,14 +416,14 @@ public class WegsegmentGeometrie
     /// </summary>
     [DataMember(Name = "Geometrie", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public required IReadOnlyCollection<WegsegmentGeometrieProjectie> Geometrie { get; set; }
+    public required WegsegmentGeometrieProjectie[] Geometrie { get; set; }
 
     /// <summary>
     /// GeoJSON-geometrietype.
     /// </summary>
     [DataMember(Name = "Type", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public string Type { get; } = "LineString";
+    public string Type { get; set; } = "LineString";
 }
 
 [DataContract(Name = "WegsegmentGeometrieProjectie", Namespace = "")]
@@ -736,7 +740,7 @@ public class WegsegmentV2DetailResponseExamples : IExamplesProvider<WegsegmentV2
     }
 
     public WegsegmentV2Detail GetExamples()
-    {
+     {
         var geometry = GeometryExtensions.WithSrid(new LineString([
             new(243234.8929999992, 160239.3830000013),
             new(243245.9949999973, 160238.7989999987),
@@ -753,18 +757,18 @@ public class WegsegmentV2DetailResponseExamples : IExamplesProvider<WegsegmentV2
                 [
                     new WegsegmentGeometrieProjectie
                     {
-                        Gml = geometry.EnsureLambert08().ConvertToGml()
+                        Gml = geometry.EnsureLambert08().ConvertToGml2()
                     },
                     new WegsegmentGeometrieProjectie
                     {
-                        Gml = geometry.EnsureLambert72().ConvertToGml()
+                        Gml = geometry.EnsureLambert72().ConvertToGml2()
                     }
                 ]
             },
             Wegsegmentstatus = RoadSegmentStatusV2.Gerealiseerd.ToDutchString(),
             Beginknoop = new WegknoopLink(new RoadNodeId(287335), _apiOptions.GetWegknoopDetailUrlFormat()),
             Eindknoop = new WegknoopLink(new RoadNodeId(287336), _apiOptions.GetWegknoopDetailUrlFormat()),
-            GeometrieMethode = RoadSegmentGeometryDrawMethodV2.Ingemeten.ToString(),
+            GeometrieMethode = RoadSegmentGeometryDrawMethodV2.Ingemeten.ToDutchString(),
             Straatnaam = [
                 new WegsegmentStraatnaamAttribuutWaarde
                 {
@@ -860,7 +864,7 @@ public class WegsegmentV2DetailResponseExamples : IExamplesProvider<WegsegmentV2
             EuropeseWegen = new [] { EuropeanRoadNumber.E40 }
                 .Select(x => new EuropeseWegObject
                 {
-                    EuropeesWegnummer = x.ToString()
+                    EuropeesWegnummer = x.ToDutchString()
                 })
                 .ToArray(),
             NationaleWegen = new [] { NationalRoadNumber.Parse("N180") }
