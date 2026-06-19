@@ -69,7 +69,7 @@ public class RoadNodeGoneResponseExamples : IExamplesProvider<ProblemDetails>
             ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:roadnode:gone",
             HttpStatus = StatusCodes.Status410Gone,
             Title = ProblemDetails.DefaultTitle,
-            Detail = "Verwijderd wegknoop.", //TODO-pr confirm what is actually returned
+            Detail = "Verwijderd wegknoop.",
             ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, PublicApi.ApiVersion)
         };
 }

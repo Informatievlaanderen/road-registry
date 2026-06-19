@@ -71,7 +71,7 @@ public class RoadSegmentGoneResponseExamples : IExamplesProvider<ProblemDetails>
             ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:roadsegment:gone",
             HttpStatus = StatusCodes.Status410Gone,
             Title = ProblemDetails.DefaultTitle,
-            Detail = "Verwijderd wegsegment.", //TODO-pr confirm what is actually returned
+            Detail = "Verwijderd wegsegment.",
             ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, RoadSegmentsController.PublicApiVersion)
         };
 }

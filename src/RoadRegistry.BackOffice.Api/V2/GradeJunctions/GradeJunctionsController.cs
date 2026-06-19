@@ -69,7 +69,7 @@ public class GradeJunctionGoneResponseExamples : IExamplesProvider<ProblemDetail
             ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:gradejunction:gone",
             HttpStatus = StatusCodes.Status410Gone,
             Title = ProblemDetails.DefaultTitle,
-            Detail = "Verwijderd gelijkgrondse kruising.", //TODO-pr confirm what is actually returned
+            Detail = "Verwijderd gelijkgrondse kruising.",
             ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, PublicApi.ApiVersion)
         };
 }
