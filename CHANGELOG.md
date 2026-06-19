@@ -1,3 +1,17 @@
+# [4.63.0](https://github.com/informatievlaanderen/road-registry/compare/v4.62.4...v4.63.0) (2026-06-19)
+
+
+### Bug Fixes
+
+* **marten:** multiple RoadNetworkChangesProjections simultaneously ([ac2d377](https://github.com/informatievlaanderen/road-registry/commit/ac2d377a468813e2862ca156370363368cadc906))
+
+
+### Features
+
+* **2.0:** add V2 read endpoints + fix flaky tests ([ffc71e9](https://github.com/informatievlaanderen/road-registry/commit/ffc71e9a696cd8db342280319b4bca75275118cd))
+* **2.0:** convert segment dynamic boolean attributes to TrafficDirection attributes ([2636116](https://github.com/informatievlaanderen/road-registry/commit/2636116d99fc5c96d6775bdd436db9ae015160e3))
+* add Marten projections for read endpoints + move Wegsegmenten V1 endpoints ([4a5a593](https://github.com/informatievlaanderen/road-registry/commit/4a5a593414d29b38955e479a4836a95661d24729))
+
 ## [4.62.4](https://github.com/informatievlaanderen/road-registry/compare/v4.62.3...v4.62.4) (2026-06-09)
 
 
