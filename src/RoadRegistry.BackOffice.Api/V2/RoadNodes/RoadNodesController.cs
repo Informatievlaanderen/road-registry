@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.RoadNodes.V2;
+namespace RoadRegistry.BackOffice.Api.V2.RoadNodes;
 
 using Asp.Versioning;
 using Be.Vlaanderen.Basisregisters.Api;

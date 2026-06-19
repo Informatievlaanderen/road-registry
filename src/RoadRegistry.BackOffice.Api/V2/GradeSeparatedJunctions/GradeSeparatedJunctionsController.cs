@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments.V2;
+namespace RoadRegistry.BackOffice.Api.V2.GradeSeparatedJunctions;
 
 using Asp.Versioning;
 using Be.Vlaanderen.Basisregisters.Api;
@@ -16,24 +16,24 @@ using ProblemDetails = Be.Vlaanderen.Basisregisters.BasicApiProblem.ProblemDetai
 using Version = RoadRegistry.BackOffice.Api.Infrastructure.Version;
 
 [ApiVersion(Version.V2)]
-[ApiRoute("wegsegmenten")]
-[ApiExplorerSettings(GroupName = "Wegsegmenten")]
-public partial class RoadSegmentsController : BackofficeApiController
+[ApiRoute("ongelijkgrondsekruisingen")]
+[ApiExplorerSettings(GroupName = "OngelijkGrondseKruisingen")]
+public partial class GradeSeparatedJunctionsController : BackofficeApiController
 {
     internal const string PublicApiVersion = "v3";
 
-    public RoadSegmentsController(BackofficeApiControllerContext apiContext)
+    public GradeSeparatedJunctionsController(BackofficeApiControllerContext apiContext)
         : base(apiContext)
     {
     }
 }
 
-public class RoadSegmentNotFoundResponseExamples : IExamplesProvider<ProblemDetails>
+public class GradeSeparatedJunctionNotFoundResponseExamples : IExamplesProvider<ProblemDetails>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ProblemDetailsHelper _problemDetailsHelper;
 
-    public RoadSegmentNotFoundResponseExamples(
+    public GradeSeparatedJunctionNotFoundResponseExamples(
         IHttpContextAccessor httpContextAccessor,
         ProblemDetailsHelper problemDetailsHelper)
     {
@@ -44,20 +44,20 @@ public class RoadSegmentNotFoundResponseExamples : IExamplesProvider<ProblemDeta
     public ProblemDetails GetExamples() =>
         new ProblemDetails
         {
-            ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:roadsegment:not-found",
+            ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:gradeseparatedjunction:not-found",
             HttpStatus = StatusCodes.Status404NotFound,
             Title = ProblemDetails.DefaultTitle,
-            Detail = new RoadSegmentNotFound().TranslateToDutch(WellKnownProblemTranslators.Default).Message,
-            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, RoadSegmentsController.PublicApiVersion)
+            Detail = new GradeSeparatedJunctionNotFound().TranslateToDutch(WellKnownProblemTranslators.Default).Message,
+            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, GradeSeparatedJunctionsController.PublicApiVersion)
         };
 }
 
-public class RoadSegmentGoneResponseExamples : IExamplesProvider<ProblemDetails>
+public class GradeSeparatedJunctionGoneResponseExamples : IExamplesProvider<ProblemDetails>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ProblemDetailsHelper _problemDetailsHelper;
 
-    public RoadSegmentGoneResponseExamples(
+    public GradeSeparatedJunctionGoneResponseExamples(
         IHttpContextAccessor httpContextAccessor,
         ProblemDetailsHelper problemDetailsHelper)
     {
@@ -68,21 +68,21 @@ public class RoadSegmentGoneResponseExamples : IExamplesProvider<ProblemDetails>
     public ProblemDetails GetExamples() =>
         new ProblemDetails
         {
-            ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:roadsegment:gone",
+            ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:gradeSeparatedJunction:gone",
             HttpStatus = StatusCodes.Status410Gone,
             Title = ProblemDetails.DefaultTitle,
-            Detail = "Verwijderd wegsegment.", //TODO-pr confirm what is actually returned
-            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, RoadSegmentsController.PublicApiVersion)
+            Detail = "Verwijderd ongelijkgrondse kruising.", //TODO-pr confirm what is actually returned
+            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, GradeSeparatedJunctionsController.PublicApiVersion)
         };
 }
 
-public class RoadSegmentIdValidator : AbstractValidator<int>
+public class GradeSeparatedJunctionIdValidator : AbstractValidator<int>
 {
-    public RoadSegmentIdValidator()
+    public GradeSeparatedJunctionIdValidator()
     {
         RuleFor(x => x)
             .Cascade(CascadeMode.Stop)
-            .Must(RoadSegmentId.Accepts)
+            .Must(GradeSeparatedJunctionId.Accepts)
             .WithName("objectId")
             .WithProblemCode(ProblemCode.Common.IncorrectObjectId);
     }

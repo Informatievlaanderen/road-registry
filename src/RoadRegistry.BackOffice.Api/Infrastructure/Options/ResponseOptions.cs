@@ -9,9 +9,9 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Options
         public string WegsegmentDetailUrlFormat { get; set; }
         public string WegknoopNaamruimte { get; set; }
         public string WegknoopDetailUrlFormat { get; set; }
-        public string GelijkGrondseKruisingNaamruimte { get; set; }
-        public string GelijkGrondseKruisingDetailUrlFormat { get; set; }
-        public string OngelijkGrondseKruisingNaamruimte { get; set; }
-        public string OngelijkGrondseKruisingDetailUrlFormat { get; set; }
+        public string GelijkgrondseKruisingNaamruimte { get; set; }
+        public string GelijkgrondseKruisingDetailUrlFormat { get; set; }
+        public string OngelijkgrondseKruisingNaamruimte { get; set; }
+        public string OngelijkgrondseKruisingDetailUrlFormat { get; set; }
     }
 }

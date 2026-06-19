@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegments.V2;
+namespace RoadRegistry.BackOffice.Api.V2.RoadSegments;
 
 using System;
 using System.Collections.Generic;
@@ -87,18 +87,10 @@ public partial class RoadSegmentsController
             },
             Wegsegmentstatus = RoadSegmentStatusV2.Parse(roadSegment.Status).ToDutchString(),
             Beginknoop = roadSegment.StartNodeId is not null
-                ? new WegknoopLink
-                {
-                    ObjectId = roadSegment.StartNodeId.ToString(),
-                    Detail = string.Format(responseOptions.Value.WegknoopDetailUrlFormat, roadSegment.StartNodeId)
-                }
+                ? new WegknoopLink(roadSegment.StartNodeId.Value, responseOptions.Value.WegknoopDetailUrlFormat)
                 : null,
             Eindknoop = roadSegment.EndNodeId is not null
-                ? new WegknoopLink
-                {
-                    ObjectId = roadSegment.EndNodeId.ToString(),
-                    Detail = string.Format(responseOptions.Value.WegknoopDetailUrlFormat, roadSegment.EndNodeId)
-                }
+                ? new WegknoopLink(roadSegment.EndNodeId.Value, responseOptions.Value.WegknoopDetailUrlFormat)
                 : null
         };
 
@@ -206,18 +198,10 @@ public partial class RoadSegmentsController
                 })
                 .ToArray();
             result.GelijkgrondseKruisingen = roadSegment.GradeJunctionIds
-                .Select(x => new GelijkgrondseKruisingLink
-                {
-                    ObjectId = x.ToString(),
-                    Detail = string.Format(responseOptions.Value.GelijkGrondseKruisingDetailUrlFormat, x)
-                })
+                .Select(x => new GelijkgrondseKruisingLink(x, responseOptions.Value.GelijkgrondseKruisingDetailUrlFormat))
                 .ToArray();
             result.OngelijkgrondseKruisingen = roadSegment.GradeSeparatedJunctionIds
-                .Select(x => new OngelijkgrondseKruisingLink
-                {
-                    ObjectId = x.ToString(),
-                    Detail = string.Format(responseOptions.Value.OngelijkGrondseKruisingDetailUrlFormat, x)
-                })
+                .Select(x => new OngelijkgrondseKruisingLink(x, responseOptions.Value.OngelijkgrondseKruisingDetailUrlFormat))
                 .ToArray();
         }
 
@@ -229,6 +213,9 @@ public partial class RoadSegmentsController
 [CustomSwaggerSchemaId("WegsegmentV2Detail")]
 public class WegsegmentV2Detail
 {
+    /// <summary>
+    ///     Identificerende gegevens van het wegsegment.
+    /// </summary>
     [DataMember(Name = "Identificator", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
     public Identificator Identificator { get; set; }
@@ -360,63 +347,6 @@ public class WegsegmentV2Detail
     [DataMember(Name = "OngelijkgrondseKruisingen", Order = 19)]
     [JsonProperty(Required = Required.DisallowNull)]
     public OngelijkgrondseKruisingLink[] OngelijkgrondseKruisingen { get; set; }
-}
-
-[DataContract(Name = "WegknoopLink", Namespace = "")]
-[CustomSwaggerSchemaId("WegknoopLink")]
-public class WegknoopLink
-{
-    /// <summary>
-    /// De objectidentificator van de wegknoop.
-    /// </summary>
-    [DataMember(Name = "ObjectId", Order = 1)]
-    [JsonProperty]
-    public required string ObjectId { get; set; }
-
-    /// <summary>
-    /// Link naar het detail van de wegknoop.
-    /// </summary>
-    [DataMember(Name = "Detail", Order = 2)]
-    [JsonProperty]
-    public required string Detail { get; set; }
-}
-
-[DataContract(Name = "GelijkgrondseKruisingLink", Namespace = "")]
-[CustomSwaggerSchemaId("GelijkgrondseKruisingLink")]
-public class GelijkgrondseKruisingLink
-{
-    /// <summary>
-    /// De objectidentificator van de gelijkgrondse kruising.
-    /// </summary>
-    [DataMember(Name = "ObjectId", Order = 1)]
-    [JsonProperty]
-    public required string ObjectId { get; set; }
-
-    /// <summary>
-    /// Link naar het detail van de gelijkgrondse kruising.
-    /// </summary>
-    [DataMember(Name = "Detail", Order = 2)]
-    [JsonProperty]
-    public required string Detail { get; set; }
-}
-
-[DataContract(Name = "OngelijkgrondseKruisingLink", Namespace = "")]
-[CustomSwaggerSchemaId("OngelijkgrondseKruisingLink")]
-public class OngelijkgrondseKruisingLink
-{
-    /// <summary>
-    /// De objectidentificator van de ongelijkgrondse kruising.
-    /// </summary>
-    [DataMember(Name = "ObjectId", Order = 1)]
-    [JsonProperty]
-    public required string ObjectId { get; set; }
-
-    /// <summary>
-    /// Link naar het detail van de ongelijkgrondse kruising.
-    /// </summary>
-    [DataMember(Name = "Detail", Order = 2)]
-    [JsonProperty]
-    public required string Detail { get; set; }
 }
 
 [DataContract(Name = "StraatnaamLink", Namespace = "")]

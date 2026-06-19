@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.RoadNodes.V2;
+namespace RoadRegistry.BackOffice.Api.V2.RoadNodes;
 
 using System;
 using System.Collections.Generic;
@@ -85,11 +85,7 @@ public partial class RoadNodesController
                 ]
             },
             AansluitendeWegsegmenten = roadNode.RoadSegmentIds
-                .Select(x => new WegsegmentLink
-                {
-                    ObjectId = x.ToString(),
-                    Detail = string.Format(responseOptions.Value.WegknoopDetailUrlFormat, x)
-                })
+                .Select(x => new WegsegmentLink(x, responseOptions.Value.WegknoopDetailUrlFormat))
                 .ToArray()
         };
 
@@ -108,6 +104,9 @@ public partial class RoadNodesController
 [CustomSwaggerSchemaId("WegknoopV2Detail")]
 public class WegknoopV2Detail
 {
+    /// <summary>
+    ///     Identificerende gegevens van de wegknoop.
+    /// </summary>
     [DataMember(Name = "Identificator", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
     public required Identificator Identificator { get; set; }
@@ -141,26 +140,6 @@ public class WegknoopV2Detail
     [JsonProperty(Required = Required.DisallowNull)]
     public IReadOnlyCollection<WegsegmentLink> AansluitendeWegsegmenten { get; set; } = [];
 }
-
-[DataContract(Name = "WegsegmentLink", Namespace = "")]
-[CustomSwaggerSchemaId("WegsegmentLink")]
-public class WegsegmentLink
-{
-    /// <summary>
-    /// De objectidentificator van het wegsegment.
-    /// </summary>
-    [DataMember(Name = "ObjectId", Order = 1)]
-    [JsonProperty]
-    public required string ObjectId { get; set; }
-
-    /// <summary>
-    /// Link naar het detail van het wegsegment.
-    /// </summary>
-    [DataMember(Name = "Detail", Order = 2)]
-    [JsonProperty]
-    public required string Detail { get; set; }
-}
-
 
 [DataContract(Name = "WegknoopGeometrie", Namespace = "")]
 [CustomSwaggerSchemaId("WegknoopGeometrie")]
