@@ -967,8 +967,11 @@ internal static class RoadSegmentDynamicAttributeValuesExtensions
 
 public sealed class StreetNameRoadSegmentsLink
 {
-    public StreetNameRoadSegmentsLink()
+    [JsonConstructor]
+    protected StreetNameRoadSegmentsLink(int streetNameId, List<RoadSegmentId> roadSegmentIds)
+        : this(new StreetNameLocalId(streetNameId))
     {
+        RoadSegmentIds = roadSegmentIds;
     }
 
     public StreetNameRoadSegmentsLink(StreetNameLocalId streetNameId)
@@ -987,8 +990,11 @@ public sealed class StreetNameRoadSegmentsLink
 
 public sealed class OrganizationRoadSegmentsLink
 {
-    public OrganizationRoadSegmentsLink()
+    [JsonConstructor]
+    protected OrganizationRoadSegmentsLink(string organizationId, List<RoadSegmentId> roadSegmentIds)
+        : this(new OrganizationId(organizationId))
     {
+        RoadSegmentIds = roadSegmentIds;
     }
 
     public OrganizationRoadSegmentsLink(OrganizationId organizationId)
