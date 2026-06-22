@@ -74,13 +74,13 @@ public class OrganizationReadProjection : RoadNetworkChangesConnectedProjection
 public sealed class OrganizationReadItem
 {
     [JsonIgnore]
-    public string Id { get; private set; }
-
-    public required OrganizationId OrganizationId
+    public string Id
     {
-        get => string.IsNullOrEmpty(Id) ? default : new OrganizationId(Id);
-        set => Id = value.ToString();
+        get => OrganizationId.ToString();
+        private set => OrganizationId = new OrganizationId(value);
     }
+
+    public required OrganizationId OrganizationId { get; set; }
 
     public required string Name { get; set; }
     public string? OvoCode { get; set; }
