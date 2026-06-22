@@ -6,9 +6,9 @@ using RoadRegistry.ValueObjects;
 public record OrganizationWasCreated : IMartenEvent
 {
     public required OrganizationId OrganizationId { get; init; }
-    public required string Name { get; set; }
-    public required string OvoCode { get; set; }
-    public required string KboNumber { get; set; }
+    public required string Name { get; init; }
+    public required string OvoCode { get; init; }
+    public required string KboNumber { get; init; }
 
     public required ProvenanceData Provenance { get; init; }
 }
