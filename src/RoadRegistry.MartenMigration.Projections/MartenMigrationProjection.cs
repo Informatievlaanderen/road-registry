@@ -512,7 +512,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
         When<Envelope<BackOffice.Messages.StreetNameModified>>((_, envelope, token) =>
         {
-            if (!envelope.Message.NameModified)
+            if (!envelope.Message.NameModified && !envelope.Message.StatusModified)
             {
                 return Task.CompletedTask;
             }
@@ -525,10 +525,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
-                var legacyEvent = new StreetNameNameWasModified
+                var legacyEvent = new StreetNameWasModified
                 {
                     StreetNameId = streetNameLocalId,
                     DutchName = envelope.Message.Record.DutchName,
+                    NisCode = envelope.Message.Record.NisCode,
+                    Status = envelope.Message.Record.StreetNameStatus,
                     Provenance = new ProvenanceData(BuildStreetNameProvenance(envelope.Message.When, Modification.Update))
                 };
                 session.Events.Append(StreetNameStreamKey(streetNameLocalId), legacyEvent);

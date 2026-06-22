@@ -90,7 +90,7 @@ public class GradeJunctionExtractProjectionTests
             typeof(GradeSeparatedJunctionWasRemovedBecauseOfMigration),
 
             typeof(StreetNameWasCreated),
-            typeof(StreetNameNameWasModified),
+            typeof(StreetNameWasModified),
             typeof(StreetNameWasRemoved),
             typeof(OrganizationWasCreated),
             typeof(OrganizationWasModified),

@@ -20,14 +20,9 @@ public class RoadSegmentReadProjectionStreetNameLinkTests
 
     private ReadProjectionScenario Scenario()
     {
-        var cache = new FakeStreetNameCache()
-            .AddStreetName(100, "Straat 100", "inGebruik")
-            .AddStreetName(200, "Straat 200", "inGebruik")
-            .AddStreetName(300, "Straat 300", "inGebruik");
-
         return new ReadProjectionScenario(
             new RoadNodeReadProjection(),
-            new RoadSegmentReadProjection(cache, new FakeStreetNameClient()));
+            new RoadSegmentReadProjection());
     }
 
     private RoadSegmentWasAdded Segment1With(RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameId)

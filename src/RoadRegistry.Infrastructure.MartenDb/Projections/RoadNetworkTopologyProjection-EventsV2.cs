@@ -242,7 +242,7 @@ public partial class RoadNetworkTopologyProjection
     {
         // Do nothing
     }
-    public void Project(IEvent<StreetNameNameWasModified> e, IDocumentOperations ops)
+    public void Project(IEvent<StreetNameWasModified> e, IDocumentOperations ops)
     {
         // Do nothing
     }

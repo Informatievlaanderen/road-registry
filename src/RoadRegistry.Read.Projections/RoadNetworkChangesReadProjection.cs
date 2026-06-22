@@ -2,18 +2,16 @@
 
 using Marten;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Read.Projections.Setup;
-using RoadRegistry.StreetName;
 
 public class RoadNetworkChangesReadProjection : RoadNetworkChangesProjection
 {
-    public RoadNetworkChangesReadProjection(int batchSize, IStreetNameCache streetNameCache, IStreetNameClient streetNameClient, ILoggerFactory loggerFactory)
+    public RoadNetworkChangesReadProjection(int batchSize, ILoggerFactory loggerFactory)
         : base([
                 new OrganizationReadProjection(),
                 new RoadNodeReadProjection(),
-                new RoadSegmentReadProjection(streetNameCache, streetNameClient),
+                new RoadSegmentReadProjection(),
                 new GradeSeparatedJunctionReadProjection(),
                 new GradeJunctionReadProjection()
             ], loggerFactory,

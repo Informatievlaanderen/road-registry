@@ -16,7 +16,7 @@ public class GradeJunctionReadProjectionTests
 
     private ReadProjectionScenario Scenario() => new(
         new RoadNodeReadProjection(),
-        new RoadSegmentReadProjection(new FakeStreetNameCache(), new FakeStreetNameClient()),
+        new RoadSegmentReadProjection(),
         new GradeJunctionReadProjection());
 
     // Grade junctions reference existing road segments, so the referenced segments (and their nodes) must be projected first.

@@ -65,7 +65,7 @@ public class RoadNodeExtractProjectionTests
             typeof(GradeJunctionWasRemoved),
 
             typeof(StreetNameWasCreated),
-            typeof(StreetNameNameWasModified),
+            typeof(StreetNameWasModified),
             typeof(StreetNameWasRemoved),
             typeof(OrganizationWasCreated),
             typeof(OrganizationWasModified),

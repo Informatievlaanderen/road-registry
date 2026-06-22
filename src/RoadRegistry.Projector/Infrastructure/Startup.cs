@@ -285,7 +285,7 @@ public class Startup
 
                 {
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesReadProjection)}:BatchSize");
-                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesReadProjection(batchSize, sp.GetRequiredService<IStreetNameCache>(), sp.GetRequiredService<IStreetNameClient>(), sp.GetRequiredService<ILoggerFactory>()));
+                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesReadProjection(batchSize, sp.GetRequiredService<ILoggerFactory>()));
                 }
             }).ApplyAllDatabaseChangesOnStartup().Services
 

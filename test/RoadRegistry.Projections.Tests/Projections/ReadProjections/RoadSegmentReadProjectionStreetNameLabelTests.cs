@@ -16,17 +16,23 @@ public class RoadSegmentReadProjectionStreetNameLabelTests
 
     private async Task<ReadProjectionScenario> GivenSegmentWithStreetName100()
     {
-        var cache = new FakeStreetNameCache().AddStreetName(100, "Oude straat", "inGebruik");
         var scenario = new ReadProjectionScenario(
             new RoadNodeReadProjection(),
-            new RoadSegmentReadProjection(cache, new FakeStreetNameClient()));
+            new RoadSegmentReadProjection());
 
         var segment = _testData.Segment1Added with
         {
             StreetNameId = StreetNameAttributeBuilder.Single(_testData.Segment1Added.Geometry, new StreetNameLocalId(100))
         };
 
-        await scenario.GivenAsync(_testData.Segment1StartNodeAdded, _testData.Segment1EndNodeAdded, segment);
+        await scenario.GivenAsync(
+            new StreetNameWasCreated
+            {
+                StreetNameId = new StreetNameLocalId(100),
+                DutchName = "Oude straat",
+                Provenance = Provenance
+            },
+            _testData.Segment1StartNodeAdded, _testData.Segment1EndNodeAdded, segment);
         return scenario;
     }
 
@@ -37,14 +43,16 @@ public class RoadSegmentReadProjectionStreetNameLabelTests
             .FirstOrDefault();
 
     [Fact]
-    public async Task WhenStreetNameNameWasModified_ThenLabelIsRefreshed()
+    public async Task WhenStreetNameWasModified_ThenLabelIsRefreshed()
     {
         var scenario = await GivenSegmentWithStreetName100();
 
-        await scenario.GivenAsync(new StreetNameNameWasModified
+        await scenario.GivenAsync(new StreetNameWasModified
         {
             StreetNameId = new StreetNameLocalId(100),
             DutchName = "Nieuwe straat",
+            NisCode = "44021",
+            Status = "Current",
             Provenance = Provenance
         });
 
