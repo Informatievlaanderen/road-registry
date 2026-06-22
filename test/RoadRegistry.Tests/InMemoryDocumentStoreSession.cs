@@ -780,7 +780,7 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
     public string? CausationId { get; set; }
     public string? CorrelationId { get; set; }
     public string TenantId { get; }
-    public IAdvancedSql AdvancedSql { get; }
+    public IAdvancedSql AdvancedSql { get; } = new FakeAdvancedSql();
 
     #endregion
 }

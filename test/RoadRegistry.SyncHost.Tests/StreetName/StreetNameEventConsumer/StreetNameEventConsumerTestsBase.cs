@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
 using Editor.Schema;
 using Editor.Schema.Organizations;
 using Extensions;
+using Marten;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -89,6 +90,7 @@ public class StreetNameEventConsumerTestsBase
             new RoadNetworkEventWriter(store, eventEnricher),
             topicConsumer,
             lifetimeScope.Resolve<EditorContext>,
+            new InMemoryDocumentStoreSession(new StoreOptions()),
             new NullLoggerFactory().CreateLogger<StreetNameEventConsumer>()
         ), store, topicConsumer);
     }

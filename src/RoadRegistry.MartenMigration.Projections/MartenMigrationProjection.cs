@@ -1,13 +1,17 @@
 ﻿namespace RoadRegistry.MartenMigration.Projections;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.Handlers.Sqs;
+using BackOffice.Handlers.Sqs.RoadNetwork;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -45,10 +49,12 @@ using RoadSegmentStreetNamesChanged = RoadSegment.Events.V1.RoadSegmentStreetNam
 public class MartenMigrationProjection : ConnectedProjection<MartenMigrationContext>
 {
     private readonly MigrationRoadNetworkRepository _repo;
+    private readonly IBackOfficeS3SqsQueue _sqsQueue;
 
-    public MartenMigrationProjection(MigrationRoadNetworkRepository repo)
+    public MartenMigrationProjection(MigrationRoadNetworkRepository repo, IBackOfficeS3SqsQueue sqsQueue)
     {
         _repo = repo.ThrowIfNull();
+        _sqsQueue = sqsQueue.ThrowIfNull();
 
         When<Envelope<BackOffice.Messages.ImportedRoadNode>>((_, envelope, token) =>
         {
@@ -1403,8 +1409,14 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         Envelope<RoadSegmentsStreetNamesChanged> envelope,
         CancellationToken token)
     {
+        // V1 road segments keep being migrated through the legacy event, exactly as before.
         foreach (var (change, index) in envelope.Message.RoadSegments.Select((x, i) => (x, i)))
         {
+            if (change.IsV2)
+            {
+                continue;
+            }
+
             var eventIdentifier = BuildEventIdentifier(envelope, index);
 
             await _repo.InIdempotentSession(eventIdentifier, session =>
@@ -1433,6 +1445,41 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.Events.Append(streamKey, legacyEvent);
             }, token);
         }
+
+        // V2 road segments are relinked through a dedicated lambda that operates on the Marten aggregate.
+        var v2RoadSegmentIds = envelope.Message.RoadSegments
+            .Where(x => x.IsV2)
+            .Select(x => new RoadSegmentId(x.Id))
+            .ToArray();
+        if (v2RoadSegmentIds.Length > 0)
+        {
+            var eventIdentifier = $"{BuildEventIdentifier(envelope, envelope.Message.RoadSegments.Length)}-link-streetnameids";
+
+            await _repo.InIdempotentSession(eventIdentifier, async _ =>
+            {
+                await PublishLinkRoadSegmentsToStreetNameIds(v2RoadSegmentIds, envelope.Message, token);
+            }, token);
+        }
+    }
+
+    private async Task PublishLinkRoadSegmentsToStreetNameIds(
+        IReadOnlyCollection<RoadSegmentId> roadSegmentIds,
+        RoadSegmentsStreetNamesChanged message,
+        CancellationToken token)
+    {
+        var request = new LinkRoadSegmentsToStreetNameIdsSqsRequest
+        {
+            TicketId = Guid.NewGuid(),
+            ProvenanceData = new RoadRegistryProvenanceData(Modification.Update),
+            RoadSegmentIds = roadSegmentIds,
+            OldStreetNameId = new StreetNameLocalId(message.OldStreetNameId),
+            NewStreetNameId = new StreetNameLocalId(message.NewStreetNameId)
+        };
+
+        await _sqsQueue.Copy(
+            request,
+            new SqsQueueOptions { MessageGroupId = Constants.GlobalMessageGroupId },
+            token);
     }
 
     private static Provenance BuildProvenance(Envelope<RoadNetworkChangesAccepted> envelope, Modification modification)

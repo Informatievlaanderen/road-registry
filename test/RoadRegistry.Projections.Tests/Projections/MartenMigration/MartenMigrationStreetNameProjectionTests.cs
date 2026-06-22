@@ -12,6 +12,7 @@ using Marten;
 using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.MartenMigration.Projections;
 using RoadRegistry.StreetName.Events.V2;
+using RoadRegistry.Tests;
 
 public class MartenMigrationStreetNameProjectionTests
 {
@@ -137,7 +138,7 @@ public class MartenMigrationStreetNameProjectionTests
     private (MartenMigrationProjection, InMemoryDocumentStoreSession) BuildProjection()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
-        return (new MartenMigrationProjection(new MigrationRoadNetworkRepository(store, new NullLoggerFactory())), store);
+        return (new MartenMigrationProjection(new MigrationRoadNetworkRepository(store, new NullLoggerFactory()), new FakeBackOfficeS3SqsQueue()), store);
     }
 
     private static StoreOptions BuildStoreOptions()
