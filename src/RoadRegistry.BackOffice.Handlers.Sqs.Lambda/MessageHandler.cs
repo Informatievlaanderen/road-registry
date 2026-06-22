@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 using Actions.ChangeRoadNetwork;
 using Actions.CloseExtract;
 using Actions.DataValidation;
+using Actions.LinkRoadSegmentsToStreetNameIds;
 using Actions.MigrateDryRunRoadNetwork;
 using Actions.MigrateRoadNetwork;
 using Actions.RemoveRoadSegments;
@@ -67,6 +68,7 @@ public sealed class MessageHandler : BlobMessageHandler
             CloseExtractSqsRequest request => new CloseExtractSqsLambdaRequest(groupId, request),
             ChangeRoadNetworkSqsRequest request => new ChangeRoadNetworkSqsLambdaRequest(groupId, request),
             RemoveRoadSegmentsSqsRequest request => new RemoveRoadSegmentsSqsLambdaRequest(groupId, request),
+            LinkRoadSegmentsToStreetNameIdsSqsRequest request => new LinkRoadSegmentsToStreetNameIdsSqsLambdaRequest(groupId, request),
             MigrateDryRunRoadNetworkSqsRequest request => new MigrateDryRunRoadNetworkSqsLambdaRequest(groupId, request),
             MigrateRoadNetworkSqsRequest request => new MigrateRoadNetworkSqsLambdaRequest(groupId, request),
             DataValidationSqsRequest request => new DataValidationSqsLambdaRequest(groupId, request),

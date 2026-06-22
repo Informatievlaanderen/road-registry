@@ -8,7 +8,7 @@ using ValueObjects;
 
 public partial class RoadSegment
 {
-    public void ChangeStreetNameId(StreetNameLocalId oldStreetNameId, StreetNameLocalId newStreetNameId, ProvenanceData provenance)
+    public void ChangeStreetNameId(StreetNameLocalId oldStreetNameId, StreetNameLocalId newStreetNameId, Provenance provenance)
     {
         var updatedStreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(
             Attributes!.StreetNameId.Values
@@ -20,7 +20,7 @@ public partial class RoadSegment
             OldStreetNameId = oldStreetNameId,
             NewStreetNameId = newStreetNameId,
             StreetNameId = updatedStreetNameId,
-            Provenance = provenance
+            Provenance = new ProvenanceData(provenance)
         });
     }
 
