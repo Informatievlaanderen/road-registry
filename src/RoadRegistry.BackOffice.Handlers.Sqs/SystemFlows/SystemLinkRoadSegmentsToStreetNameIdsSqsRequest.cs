@@ -6,7 +6,7 @@ using RoadRegistry.ValueObjects;
 
 /// <summary>
 /// System-internal request that relinks V2 road segments from an old to a new street name id. It is published only by
-/// the Marten migration via a direct SQS copy and handled by a lambda with ticketing disabled. See
+/// the StreetNameEventConsumer via a direct SQS copy and handled by a lambda with ticketing disabled. See
 /// <see cref="ISystemSqsRequest"/> — do not expose this through the API or reuse it from user-facing flows.
 /// </summary>
 [BlobRequest]

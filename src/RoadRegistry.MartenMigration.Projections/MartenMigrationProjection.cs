@@ -1464,6 +1464,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             return;
         }
 
+        //TODO-pr TBD: v1 segments have no attributes, so we dont know the old value. maybe dont include it? the attributes array can easily be build using left and right
+        //in the Apply() method it must be able to handle no Attributes, or simply add it to the UncomittedEvents instead of using Apply
         roadSegment.ChangeStreetNameId(oldValue, newValue, provenance);
     }
 
