@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.LinkRoadSegmentsTo
 
 using System.Data;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Hosts;
 using Infrastructure;
@@ -34,7 +35,8 @@ public sealed class LinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler : Sqs
             ticketing,
             idempotentCommandHandler,
             roadRegistryContext,
-            loggerFactory)
+            loggerFactory,
+            TicketingBehavior.None)
     {
         _store = store;
         _roadNetworkRepository = roadNetworkRepository;
