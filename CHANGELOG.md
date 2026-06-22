@@ -1,3 +1,11 @@
+## [4.63.1](https://github.com/informatievlaanderen/road-registry/compare/v4.63.0...v4.63.1) (2026-06-22)
+
+
+### Bug Fixes
+
+* RoadRegistry nuget package with latest read projections ([f2135ad](https://github.com/informatievlaanderen/road-registry/commit/f2135ad98e3b871e8b5c0d34732eb2ee8fbdeb82))
+* test build ([c3f310b](https://github.com/informatievlaanderen/road-registry/commit/c3f310b6da2eba4681abd8e5a41ca8846d87e0d9))
+
 # [4.63.0](https://github.com/informatievlaanderen/road-registry/compare/v4.62.4...v4.63.0) (2026-06-19)
 
 
