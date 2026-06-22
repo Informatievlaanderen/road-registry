@@ -9,6 +9,5 @@ using RoadRegistry.ValueObjects;
 public sealed class LinkRoadSegmentsToStreetNameIdsSqsRequest : SqsRequest
 {
     public required IReadOnlyCollection<RoadSegmentId> RoadSegmentIds { get; init; }
-    public required StreetNameLocalId OldStreetNameId { get; init; }
-    public required StreetNameLocalId NewStreetNameId { get; init; }
+    public required StreetNameLocalId StreetNameId { get; init; }
 }

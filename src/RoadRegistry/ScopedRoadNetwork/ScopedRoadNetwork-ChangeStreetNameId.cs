@@ -8,7 +8,6 @@ public partial class ScopedRoadNetwork
 {
     public void ChangeStreetNameId(
         IReadOnlyCollection<RoadSegmentId> roadSegmentIds,
-        StreetNameLocalId oldStreetNameId,
         StreetNameLocalId newStreetNameId,
         Provenance provenance)
     {
@@ -16,7 +15,7 @@ public partial class ScopedRoadNetwork
         {
             if (_roadSegments.TryGetValue(roadSegmentId, out var segment) && !segment.IsRemoved)
             {
-                segment.ChangeStreetNameId(oldStreetNameId, newStreetNameId, provenance);
+                segment.ChangeStreetNameId(newStreetNameId, provenance);
             }
         }
     }

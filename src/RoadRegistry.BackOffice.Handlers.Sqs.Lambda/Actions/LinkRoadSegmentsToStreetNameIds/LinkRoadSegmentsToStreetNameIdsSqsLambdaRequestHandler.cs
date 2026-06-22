@@ -46,7 +46,7 @@ public sealed class LinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler : Sqs
 
         var roadNetwork = await Load(command.RoadSegmentIds, new ScopedRoadNetworkId(command.TicketId));
 
-        roadNetwork.ChangeStreetNameId(command.RoadSegmentIds, command.OldStreetNameId, command.NewStreetNameId, command.ProvenanceData.ToProvenance());
+        roadNetwork.ChangeStreetNameId(command.RoadSegmentIds, command.StreetNameId, command.ProvenanceData.ToProvenance());
 
         await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
 

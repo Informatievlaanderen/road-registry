@@ -8,11 +8,15 @@ using ValueObjects;
 
 public partial class RoadSegment
 {
-    public void ChangeStreetNameId(StreetNameLocalId oldStreetNameId, StreetNameLocalId newStreetNameId, Provenance provenance)
+    public void ChangeStreetNameId(StreetNameLocalId newStreetNameId, Provenance provenance)
     {
+        var oldStreetNameId = Attributes!.StreetNameId.Values
+            .Select(value => value.Value)
+            .FirstOrDefault();
+
         var updatedStreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(
-            Attributes!.StreetNameId.Values
-                .Select(value => (value.Coverage, value.Side, value.Value == oldStreetNameId ? newStreetNameId : value.Value)));
+            Attributes.StreetNameId.Values
+                .Select(value => (value.Coverage, value.Side, newStreetNameId)));
 
         Apply(new RoadSegmentStreetNameIdWasChanged
         {
