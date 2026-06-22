@@ -78,7 +78,7 @@ public sealed class OrganizationReadItem
 
     public required OrganizationId OrganizationId
     {
-        get => new(Id);
+        get => string.IsNullOrEmpty(Id) ? default : new OrganizationId(Id);
         set => Id = value.ToString();
     }
 
