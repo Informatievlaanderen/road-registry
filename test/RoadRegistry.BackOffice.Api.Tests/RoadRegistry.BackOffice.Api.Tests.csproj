@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Read.Projections\RoadRegistry.Read.Projections.csproj" />
     <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>
   <ItemGroup>
