@@ -78,7 +78,8 @@ public class Program
                 {
                     builder
                         .RegisterModule(new ApiModule(hostContext.Configuration))
-                        .RegisterModule(new ProjectorModule(hostContext.Configuration));
+                        .RegisterModule(new ProjectorModule(hostContext.Configuration))
+                        .RegisterModule<BackOffice.Handlers.Sqs.SqsHandlersModule>();
                 }
             )
             .Build();

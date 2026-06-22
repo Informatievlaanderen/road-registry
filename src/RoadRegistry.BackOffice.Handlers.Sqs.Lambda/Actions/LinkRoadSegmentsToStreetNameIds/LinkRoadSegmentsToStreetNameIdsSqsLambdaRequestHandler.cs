@@ -8,19 +8,18 @@ using Hosts;
 using Infrastructure;
 using Marten;
 using Microsoft.Extensions.Logging;
-using RoadNetwork;
 using RoadRegistry.RoadNetwork;
 using RoadRegistry.ValueObjects;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 
-public sealed class LinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler : SqsLambdaHandler<LinkRoadSegmentsToStreetNameIdsSqsLambdaRequest>
+public sealed class SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler : SqsLambdaHandler<SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequest>
 {
     private readonly IDocumentStore _store;
     private readonly IRoadNetworkRepository _roadNetworkRepository;
 
-    public LinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler(
+    public SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
@@ -42,7 +41,7 @@ public sealed class LinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler : Sqs
         _roadNetworkRepository = roadNetworkRepository;
     }
 
-    protected override async Task<object> InnerHandle(LinkRoadSegmentsToStreetNameIdsSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
         var command = sqsLambdaRequest.Request;
 

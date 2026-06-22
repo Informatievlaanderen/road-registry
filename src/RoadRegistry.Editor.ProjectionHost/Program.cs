@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Autofac;
 using BackOffice;
 using BackOffice.Configuration;
-using BackOffice.Handlers.Sqs;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.EventHandling;
@@ -130,7 +129,5 @@ public class Program
             builder
                 .Register(c => c.Resolve<RoadNetworkUploadsBlobClient>())
                 .As<IBlobClient>().SingleInstance();
-
-            builder.RegisterModule<SqsHandlersModule>();
         });
 }

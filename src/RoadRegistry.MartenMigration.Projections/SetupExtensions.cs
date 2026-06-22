@@ -1,7 +1,6 @@
 ﻿namespace RoadRegistry.MartenMigration.Projections;
 
 using BackOffice;
-using BackOffice.Handlers.Sqs;
 using Hosts.Infrastructure.Extensions;
 using Infrastructure.MartenDb.Setup;
 using Marten;
@@ -26,7 +25,7 @@ public static class SetupExtensions
             .ApplyAllDatabaseChangesOnStartup();
 
         services
-            .AddDbContextEventProcessorServices<MartenMigrationContextEventProcessor, MartenMigrationContext>(sp => [new MartenMigrationProjection(sp.GetRequiredService<MigrationRoadNetworkRepository>(), sp.GetRequiredService<IBackOfficeS3SqsQueue>())])
+            .AddDbContextEventProcessorServices<MartenMigrationContextEventProcessor, MartenMigrationContext>(sp => [new MartenMigrationProjection(sp.GetRequiredService<MigrationRoadNetworkRepository>())])
             .AddHostedService<MartenMigrationContextEventProcessor>();
     }
 

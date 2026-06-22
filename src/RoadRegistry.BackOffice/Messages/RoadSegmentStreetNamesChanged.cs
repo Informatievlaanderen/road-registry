@@ -11,8 +11,6 @@ public class RoadSegmentsStreetNamesChanged : IMessage, IHaveHash, IWhen
     public const string EventName = "RoadSegmentsStreetNamesChanged";
 
     public string Reason { get; set; }
-    public int OldStreetNameId { get; set; }
-    public int NewStreetNameId { get; set; }
     public RoadSegmentStreetNamesChanged[] RoadSegments { get; set; }
     public string When { get; set; }
 
@@ -27,5 +25,4 @@ public class RoadSegmentStreetNamesChanged
     public int Version { get; set; }
     public int? LeftSideStreetNameId { get; set; }
     public int? RightSideStreetNameId { get; set; }
-    public bool IsV2 { get; set; }
 }

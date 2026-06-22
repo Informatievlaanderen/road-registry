@@ -91,6 +91,7 @@ public class StreetNameEventConsumerTestsBase
             topicConsumer,
             lifetimeScope.Resolve<EditorContext>,
             new InMemoryDocumentStoreSession(new StoreOptions()),
+            new FakeBackOfficeS3SqsQueue(),
             new NullLoggerFactory().CreateLogger<StreetNameEventConsumer>()
         ), store, topicConsumer);
     }

@@ -1,17 +1,13 @@
 ﻿namespace RoadRegistry.MartenMigration.Projections;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
-using BackOffice.Handlers.Sqs;
-using BackOffice.Handlers.Sqs.RoadNetwork;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -44,17 +40,16 @@ using RoadSegmentSurfaceAttributes = RoadSegment.Events.V1.ValueObjects.RoadSegm
 using RoadSegmentWidthAttributes = RoadSegment.Events.V1.ValueObjects.RoadSegmentWidthAttributes;
 using RoadSegmentSideAttributes = RoadSegment.Events.V1.ValueObjects.RoadSegmentSideAttributes;
 using Reason = Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason;
+using RoadSegmentAttributeSide = RoadRegistry.RoadSegment.ValueObjects.RoadSegmentAttributeSide;
 using RoadSegmentStreetNamesChanged = RoadSegment.Events.V1.RoadSegmentStreetNamesChanged;
 
 public class MartenMigrationProjection : ConnectedProjection<MartenMigrationContext>
 {
     private readonly MigrationRoadNetworkRepository _repo;
-    private readonly IBackOfficeS3SqsQueue _sqsQueue;
 
-    public MartenMigrationProjection(MigrationRoadNetworkRepository repo, IBackOfficeS3SqsQueue sqsQueue)
+    public MartenMigrationProjection(MigrationRoadNetworkRepository repo)
     {
         _repo = repo.ThrowIfNull();
-        _sqsQueue = sqsQueue.ThrowIfNull();
 
         When<Envelope<BackOffice.Messages.ImportedRoadNode>>((_, envelope, token) =>
         {
@@ -1409,17 +1404,13 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         Envelope<RoadSegmentsStreetNamesChanged> envelope,
         CancellationToken token)
     {
-        // V1 road segments keep being migrated through the legacy event, exactly as before.
+        // Only V1 road segments reach this handler (V2 segments are relinked directly via SQS from the consumer).
         foreach (var (change, index) in envelope.Message.RoadSegments.Select((x, i) => (x, i)))
         {
-            if (change.IsV2)
-            {
-                continue;
-            }
-
+            var roadSegmentId = new RoadSegmentId(change.Id);
             var eventIdentifier = BuildEventIdentifier(envelope, index);
 
-            await _repo.InIdempotentSession(eventIdentifier, session =>
+            await _repo.InIdempotentSession(eventIdentifier, async session =>
             {
                 session.CorrelationId = roadNetworkId;
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
@@ -1432,7 +1423,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     Modification.Update,
                     Organisation.DigitaalVlaanderen);
 
-                var streamKey = StreamKeyFactory.Create(typeof(RoadSegment), new RoadSegmentId(change.Id));
+                var streamKey = StreamKeyFactory.Create(typeof(RoadSegment), roadSegmentId);
                 var legacyEvent = new RoadSegmentStreetNamesChanged
                 {
                     RoadSegmentId = change.Id,
@@ -1443,43 +1434,37 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     Provenance = new ProvenanceData(provenance)
                 };
                 session.Events.Append(streamKey, legacyEvent);
-            }, token);
-        }
 
-        // V2 road segments are relinked through a dedicated lambda that operates on the Marten aggregate.
-        var v2RoadSegmentIds = envelope.Message.RoadSegments
-            .Where(x => x.IsV2)
-            .Select(x => new RoadSegmentId(x.Id))
-            .ToArray();
-        if (v2RoadSegmentIds.Length > 0)
-        {
-            var eventIdentifier = $"{BuildEventIdentifier(envelope, envelope.Message.RoadSegments.Length)}-link-streetnameids";
+                var roadSegment = await session.LoadAsync(roadSegmentId, cancellationToken: token)
+                                  ?? throw new InvalidOperationException($"Road segment {change.Id} not found");
 
-            await _repo.InIdempotentSession(eventIdentifier, async _ =>
-            {
-                await PublishLinkRoadSegmentsToStreetNameIds(v2RoadSegmentIds, envelope.Message, token);
+                ApplyStreetNameIdChange(roadSegment, RoadSegmentAttributeSide.Left, change.LeftSideStreetNameId, provenance);
+                ApplyStreetNameIdChange(roadSegment, RoadSegmentAttributeSide.Right, change.RightSideStreetNameId, provenance);
+
+                session.Store(roadSegment);
             }, token);
         }
     }
 
-    private async Task PublishLinkRoadSegmentsToStreetNameIds(
-        IReadOnlyCollection<RoadSegmentId> roadSegmentIds,
-        RoadSegmentsStreetNamesChanged message,
-        CancellationToken token)
+    private static void ApplyStreetNameIdChange(RoadSegment roadSegment, RoadSegmentAttributeSide side, int? newStreetNameId, Provenance provenance)
     {
-        var request = new LinkRoadSegmentsToStreetNameIdsSqsRequest
+        if (newStreetNameId is not { } streetNameId)
         {
-            TicketId = Guid.NewGuid(),
-            ProvenanceData = new RoadRegistryProvenanceData(Modification.Update),
-            RoadSegmentIds = roadSegmentIds,
-            OldStreetNameId = new StreetNameLocalId(message.OldStreetNameId),
-            NewStreetNameId = new StreetNameLocalId(message.NewStreetNameId)
-        };
+            return;
+        }
 
-        await _sqsQueue.Copy(
-            request,
-            new SqsQueueOptions { MessageGroupId = Constants.GlobalMessageGroupId },
-            token);
+        var newValue = new StreetNameLocalId(streetNameId);
+        var oldValue = roadSegment.Attributes!.StreetNameId.Values
+            .Where(value => value.Side == side || value.Side == RoadSegmentAttributeSide.Both)
+            .Select(value => value.Value)
+            .FirstOrDefault();
+
+        if (oldValue == newValue)
+        {
+            return;
+        }
+
+        roadSegment.ChangeStreetNameId(oldValue, newValue, provenance);
     }
 
     private static Provenance BuildProvenance(Envelope<RoadNetworkChangesAccepted> envelope, Modification modification)

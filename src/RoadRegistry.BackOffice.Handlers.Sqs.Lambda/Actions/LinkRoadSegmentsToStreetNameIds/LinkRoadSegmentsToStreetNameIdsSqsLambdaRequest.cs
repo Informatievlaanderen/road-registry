@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.LinkRoadSegmentsToStreetNameIds;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
-using RoadNetwork;
+using RoadRegistry.BackOffice.Handlers.Sqs.SystemFlows;
 
-public sealed record LinkRoadSegmentsToStreetNameIdsSqsLambdaRequest : SqsLambdaRequest
+public sealed record SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequest : SqsLambdaRequest
 {
-    public LinkRoadSegmentsToStreetNameIdsSqsLambdaRequest(string groupId, LinkRoadSegmentsToStreetNameIdsSqsRequest sqsRequest)
+    public SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequest(string groupId, SystemLinkRoadSegmentsToStreetNameIdsSqsRequest sqsRequest)
         : base(
             groupId,
             sqsRequest.TicketId,
@@ -16,5 +16,5 @@ public sealed record LinkRoadSegmentsToStreetNameIdsSqsLambdaRequest : SqsLambda
         Request = sqsRequest;
     }
 
-    public LinkRoadSegmentsToStreetNameIdsSqsRequest Request { get; }
+    public SystemLinkRoadSegmentsToStreetNameIdsSqsRequest Request { get; }
 }

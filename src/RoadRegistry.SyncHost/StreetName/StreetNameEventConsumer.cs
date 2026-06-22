@@ -9,8 +9,12 @@ using BackOffice;
 using BackOffice.Core;
 using BackOffice.Extensions;
 using BackOffice.Framework;
+using BackOffice.Handlers.Sqs;
+using BackOffice.Handlers.Sqs.SystemFlows;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Editor.Schema;
 using Hosts;
 using Marten;
@@ -32,6 +36,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     private readonly IStreetNameEventTopicConsumer _consumer;
     private readonly Func<EditorContext> _editorContextFactory;
     private readonly IDocumentStore _documentStore;
+    private readonly IBackOfficeS3SqsQueue _sqsQueue;
 
     public StreetNameEventConsumer(
         IStreamStore store,
@@ -40,6 +45,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         IStreetNameEventTopicConsumer consumer,
         Func<EditorContext> editorContextFactory,
         IDocumentStore documentStore,
+        IBackOfficeS3SqsQueue sqsQueue,
         ILogger<StreetNameEventConsumer> logger
     ) : base(logger)
     {
@@ -49,6 +55,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         _consumer = consumer.ThrowIfNull();
         _editorContextFactory = editorContextFactory.ThrowIfNull();
         _documentStore = documentStore.ThrowIfNull();
+        _sqsQueue = sqsQueue.ThrowIfNull();
     }
 
     protected override async Task ExecutingAsync(CancellationToken cancellationToken)
@@ -143,80 +150,85 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     {
         var cancellationToken = CancellationToken.None;
 
-        var changesPerStream = new List<(StreamName Stream, RoadSegmentStreetNamesChanged Change)>();
-
-        // V1 road segments are tracked in the (SQL) editor read model.
+        // V1 road segments are tracked in the (SQL) editor read model and relinked through the road network event stream.
         var v1Segments = await editorContext.RoadSegments
             .IncludeLocalToListAsync(q => q.Where(x => x.LeftSideStreetNameId == sourceStreetNameId || x.RightSideStreetNameId == sourceStreetNameId), cancellationToken);
-        foreach (var roadSegment in v1Segments)
+        if (v1Segments.Any())
         {
-            var stream = roadSegment.MethodId == RoadSegmentGeometryDrawMethod.Outlined.Translation.Identifier
-                ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(roadSegment.Id))
-                : RoadNetworkStreamNameProvider.Default;
+            await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorOrganizationV2ProjectionHost, Logger, cancellationToken, waitDelayMilliseconds: 250);
 
-            var change = new RoadSegmentStreetNamesChanged
+            var segmentsPerStreamGrouping = v1Segments
+                .GroupBy(x => x.MethodId == RoadSegmentGeometryDrawMethod.Outlined.Translation.Identifier
+                    ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(x.Id))
+                    : RoadNetworkStreamNameProvider.Default);
+
+            foreach (var segmentsPerStream in segmentsPerStreamGrouping)
             {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegment.MethodId],
-                Id = roadSegment.Id,
-                Version = roadSegment.Version + 1,
-                IsV2 = false
-            };
-            if (roadSegment.LeftSideStreetNameId == sourceStreetNameId)
-            {
-                change.LeftSideStreetNameId = destinationStreetNameId;
+                var roadSegmentChanges = new List<RoadSegmentStreetNamesChanged>();
+
+                foreach (var roadSegment in segmentsPerStream)
+                {
+                    var modifyRoadSegment = new RoadSegmentStreetNamesChanged
+                    {
+                        GeometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegment.MethodId],
+                        Id = roadSegment.Id,
+                        Version = roadSegment.Version + 1
+                    };
+                    if (roadSegment.LeftSideStreetNameId == sourceStreetNameId)
+                    {
+                        modifyRoadSegment.LeftSideStreetNameId = destinationStreetNameId;
+                    }
+                    if (roadSegment.RightSideStreetNameId == sourceStreetNameId)
+                    {
+                        modifyRoadSegment.RightSideStreetNameId = destinationStreetNameId;
+                    }
+
+                    roadSegmentChanges.Add(modifyRoadSegment);
+
+                    Logger.LogInformation("Linking RoadSegment {Id} to StreetName {StreetNameId}", roadSegment.Id, destinationStreetNameId);
+                }
+
+                var @event = new RoadSegmentsStreetNamesChanged
+                {
+                    Reason = reason,
+                    RoadSegments = roadSegmentChanges.ToArray()
+                };
+
+                await _roadNetworkEventWriter.WriteAsync(segmentsPerStream.Key, ExpectedVersion.Any, new Event(@event), cancellationToken);
             }
-            if (roadSegment.RightSideStreetNameId == sourceStreetNameId)
-            {
-                change.RightSideStreetNameId = destinationStreetNameId;
-            }
-
-            changesPerStream.Add((stream, change));
-
-            Logger.LogInformation("Linking RoadSegment {Id} to StreetName {StreetNameId}", roadSegment.Id, destinationStreetNameId);
         }
 
-        // V2 road segments are tracked in the Marten read model; only retrieve their ids there.
+        // V2 road segments are tracked in the Marten read model and relinked directly through a system SQS request.
         await _documentStore.WaitForNonStaleProjection(WellKnownProjectionStateNames.RoadNetworkChangesReadProjection, Logger, cancellationToken);
+
+        var v2RoadSegmentIds = new List<RoadSegmentId>();
         await using (var session = _documentStore.LightweightSession())
         {
             var link = await session.LoadAsync<StreetNameRoadSegmentsLink>(sourceStreetNameId, cancellationToken);
             if (link is not null && link.RoadSegmentIds.Any())
             {
                 var readItems = await session.LoadManyAsync<RoadSegmentReadItem>(cancellationToken, link.RoadSegmentIds.Select(x => x.ToInt32()).ToArray());
-                foreach (var readItem in readItems.Where(x => x is { IsV2: true, IsRemoved: false }))
-                {
-                    var change = new RoadSegmentStreetNamesChanged
-                    {
-                        GeometryDrawMethod = readItem.GeometryDrawMethod,
-                        Id = readItem.RoadSegmentId.ToInt32(),
-                        IsV2 = true
-                    };
-
-                    changesPerStream.Add((RoadNetworkStreamNameProvider.Default, change));
-
-                    Logger.LogInformation("Linking V2 RoadSegment {Id} to StreetName {StreetNameId}", change.Id, destinationStreetNameId);
-                }
+                v2RoadSegmentIds.AddRange(readItems.Where(x => x is { IsV2: true, IsRemoved: false }).Select(x => x.RoadSegmentId));
             }
         }
 
-        if (!changesPerStream.Any())
+        if (v2RoadSegmentIds.Any())
         {
-            return;
-        }
-
-        await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorOrganizationV2ProjectionHost, Logger, cancellationToken, waitDelayMilliseconds: 250);
-
-        foreach (var streamGroup in changesPerStream.GroupBy(x => x.Stream))
-        {
-            var @event = new RoadSegmentsStreetNamesChanged
+            var request = new SystemLinkRoadSegmentsToStreetNameIdsSqsRequest
             {
-                Reason = reason,
-                OldStreetNameId = sourceStreetNameId,
-                NewStreetNameId = destinationStreetNameId,
-                RoadSegments = streamGroup.Select(x => x.Change).ToArray()
+                TicketId = Guid.NewGuid(),
+                ProvenanceData = new RoadRegistryProvenanceData(Modification.Update),
+                RoadSegmentIds = v2RoadSegmentIds,
+                OldStreetNameId = new StreetNameLocalId(sourceStreetNameId),
+                NewStreetNameId = new StreetNameLocalId(destinationStreetNameId)
             };
 
-            await _roadNetworkEventWriter.WriteAsync(streamGroup.Key, ExpectedVersion.Any, new Event(@event), cancellationToken);
+            await _sqsQueue.Copy(
+                request,
+                new SqsQueueOptions { MessageGroupId = RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork.Constants.GlobalMessageGroupId },
+                cancellationToken);
+
+            Logger.LogInformation("Published system request to relink {Count} V2 RoadSegments from StreetName {Source} to {Destination}", v2RoadSegmentIds.Count, sourceStreetNameId, destinationStreetNameId);
         }
     }
 
