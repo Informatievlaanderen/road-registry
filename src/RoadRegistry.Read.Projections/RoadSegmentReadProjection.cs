@@ -653,7 +653,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         foreach (var streetNameId in updatedStreetNameIds.Except(oldStreetNameIds))
         {
             var streetNameRoadSegmentsLink = await session.LoadAsync<StreetNameRoadSegmentsLink>(streetNameId, ct)
-                                         ?? new StreetNameRoadSegmentsLink { StreetNameId = streetNameId, RoadSegmentIds = [] };
+                                         ?? new StreetNameRoadSegmentsLink(streetNameId) { RoadSegmentIds = [] };
 
             streetNameRoadSegmentsLink.RoadSegmentIds = streetNameRoadSegmentsLink.RoadSegmentIds.Union([roadSegmentId]).ToList();
             session.Store(streetNameRoadSegmentsLink);
@@ -689,7 +689,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         foreach (var organizationId in updatedOrganizationIds.Except(originalOrganizationIds))
         {
             var link = await session.LoadAsync<OrganizationRoadSegmentsLink>(organizationId.ToString(), ct)
-                       ?? new OrganizationRoadSegmentsLink { OrganizationId = organizationId, RoadSegmentIds = [] };
+                       ?? new OrganizationRoadSegmentsLink(organizationId) { RoadSegmentIds = [] };
 
             link.RoadSegmentIds = link.RoadSegmentIds.Union([roadSegmentId]).ToList();
             session.Store(link);
@@ -1024,28 +1024,40 @@ internal static class RoadSegmentDynamicAttributeValuesExtensions
 
 public sealed class StreetNameRoadSegmentsLink
 {
-    [JsonIgnore]
-    public int Id { get; private set; }
-
-    public required StreetNameLocalId StreetNameId
+    public StreetNameRoadSegmentsLink()
     {
-        get => new(Id);
-        set => Id = value;
     }
+
+    public StreetNameRoadSegmentsLink(StreetNameLocalId streetNameId)
+    {
+        Id = streetNameId.ToInt32();
+        StreetNameId = streetNameId;
+    }
+
+    [JsonIgnore]
+    public int Id { get; set; }
+
+    public StreetNameLocalId StreetNameId { get; set; }
 
     public required List<RoadSegmentId> RoadSegmentIds { get; set; }
 }
 
 public sealed class OrganizationRoadSegmentsLink
 {
-    [JsonIgnore]
-    public string Id
+    public OrganizationRoadSegmentsLink()
     {
-        get => OrganizationId.ToString();
-        private set => OrganizationId = new OrganizationId(value);
     }
 
-    public required OrganizationId OrganizationId { get; set; }
+    public OrganizationRoadSegmentsLink(OrganizationId organizationId)
+    {
+        Id = organizationId.ToString();
+        OrganizationId = organizationId;
+    }
+
+    [JsonIgnore]
+    public string Id { get; set; }
+
+    public OrganizationId OrganizationId { get; set; }
 
     public required List<RoadSegmentId> RoadSegmentIds { get; set; }
 }

@@ -24,9 +24,8 @@ public class OrganizationReadProjection : RoadNetworkChangesConnectedProjection
     {
         When<IEvent<OrganizationWasCreated>>((session, e, _) =>
         {
-            var organization = new OrganizationReadItem
+            var organization = new OrganizationReadItem(e.Data.OrganizationId)
             {
-                OrganizationId = e.Data.OrganizationId,
                 Name = e.Data.Name,
                 OvoCode = e.Data.OvoCode,
                 KboNumber = e.Data.KboNumber,
@@ -73,14 +72,20 @@ public class OrganizationReadProjection : RoadNetworkChangesConnectedProjection
 
 public sealed class OrganizationReadItem
 {
-    [JsonIgnore]
-    public string Id
+    public OrganizationReadItem()
     {
-        get => OrganizationId.ToString();
-        private set => OrganizationId = new OrganizationId(value);
     }
 
-    public required OrganizationId OrganizationId { get; set; }
+    public OrganizationReadItem(OrganizationId organizationId)
+    {
+        Id = organizationId.ToString();
+        OrganizationId = organizationId;
+    }
+
+    [JsonIgnore]
+    public string Id { get; set; }
+
+    public OrganizationId OrganizationId { get; set; }
 
     public required string Name { get; set; }
     public string? OvoCode { get; set; }
