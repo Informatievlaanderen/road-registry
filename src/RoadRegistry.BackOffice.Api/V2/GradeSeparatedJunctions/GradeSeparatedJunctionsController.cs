@@ -45,7 +45,7 @@ public class GradeSeparatedJunctionNotFoundResponseExamples : IExamplesProvider<
             ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:gradeseparatedjunction:not-found",
             HttpStatus = StatusCodes.Status404NotFound,
             Title = ProblemDetails.DefaultTitle,
-            Detail = new GradeSeparatedJunctionNotFound().TranslateToDutch(WellKnownProblemTranslators.Default).Message,
+            Detail = "Onbestaand ongelijkgrondse kruising.",
             ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, PublicApi.ApiVersion)
         };
 }

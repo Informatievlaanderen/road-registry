@@ -41,7 +41,7 @@ public partial class GradeJunctionsController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(GelijkgrondsekruisingV2DetailResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(GelijkgrondseKruisingV2DetailResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(GradeJunctionNotFoundResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status410Gone, typeof(GradeJunctionGoneResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
@@ -78,8 +78,8 @@ public partial class GradeJunctionsController
     }
 }
 
-[DataContract(Name = "GelijkgrondsekruisingV2Detail", Namespace = "")]
-[CustomSwaggerSchemaId("GelijkgrondsekruisingV2Detail")]
+[DataContract(Name = "GelijkgrondseKruisingV2Detail", Namespace = "")]
+[CustomSwaggerSchemaId("GelijkgrondseKruisingV2Detail")]
 public class GelijkgrondseKruisingV2Detail
 {
     /// <summary>
@@ -112,11 +112,11 @@ public class GelijkgrondseKruisingIdentificator : Identificator
     }
 }
 
-public class GelijkgrondsekruisingV2DetailResponseExamples : IExamplesProvider<GelijkgrondseKruisingV2Detail>
+public class GelijkgrondseKruisingV2DetailResponseExamples : IExamplesProvider<GelijkgrondseKruisingV2Detail>
 {
     private readonly ApiOptions _apiOptions;
 
-    public GelijkgrondsekruisingV2DetailResponseExamples(ApiOptions apiOptions)
+    public GelijkgrondseKruisingV2DetailResponseExamples(ApiOptions apiOptions)
     {
         _apiOptions = apiOptions;
     }

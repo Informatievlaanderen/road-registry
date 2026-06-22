@@ -45,7 +45,7 @@ public class RoadNodeNotFoundResponseExamples : IExamplesProvider<ProblemDetails
             ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:roadnode:not-found",
             HttpStatus = StatusCodes.Status404NotFound,
             Title = ProblemDetails.DefaultTitle,
-            Detail = new RoadNodeNotFound().TranslateToDutch(WellKnownProblemTranslators.Default).Message,
+            Detail = "Onbestaand wegknoop.",
             ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, PublicApi.ApiVersion)
         };
 }

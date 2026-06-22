@@ -47,7 +47,7 @@ public class RoadSegmentNotFoundResponseExamples : IExamplesProvider<ProblemDeta
             ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:roadsegment:not-found",
             HttpStatus = StatusCodes.Status404NotFound,
             Title = ProblemDetails.DefaultTitle,
-            Detail = new RoadSegmentNotFound().TranslateToDutch(WellKnownProblemTranslators.Default).Message,
+            Detail = "Onbestaand wegsegment.",
             ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, RoadSegmentsController.PublicApiVersion)
         };
 }
