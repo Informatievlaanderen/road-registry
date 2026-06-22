@@ -10,6 +10,7 @@ public class RoadNetworkChangesReadProjection : RoadNetworkChangesProjection
     public RoadNetworkChangesReadProjection(int batchSize, ILoggerFactory loggerFactory)
         : base([
                 new OrganizationReadProjection(),
+                new StreetNameReadProjection(),
                 new RoadNodeReadProjection(),
                 new RoadSegmentReadProjection(),
                 new GradeSeparatedJunctionReadProjection(),

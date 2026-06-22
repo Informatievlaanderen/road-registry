@@ -17,6 +17,7 @@ public class RoadSegmentReadProjectionStreetNameLabelTests
     private async Task<ReadProjectionScenario> GivenSegmentWithStreetName100()
     {
         var scenario = new ReadProjectionScenario(
+            new StreetNameReadProjection(),
             new RoadNodeReadProjection(),
             new RoadSegmentReadProjection());
 

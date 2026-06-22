@@ -38,11 +38,6 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             .DatabaseSchemaName(WellKnownSchemas.MartenProjections)
             .DocumentAlias("read_organization_roadsegments_link")
             .Identity(x => x.Id);
-
-        options.Schema.For<StreetNameReadItem>()
-            .DatabaseSchemaName(WellKnownSchemas.MartenProjections)
-            .DocumentAlias("read_streetnames")
-            .Identity(x => x.Id);
     }
 
     public RoadSegmentReadProjection()
@@ -487,49 +482,10 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         When<IEvent<RoadSegmentWasRemovedFromEuropeanRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.EuropeanRoadNumbers.Remove(e.Data.Number); }, e.Data, ct); });
         When<IEvent<RoadSegmentWasRemovedFromNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.NationalRoadNumbers.Remove(e.Data.Number); }, e.Data, ct); });
 
-        // StreetName
-        When<IEvent<StreetNameWasCreated>>(async (session, e, ct) =>
-        {
-            session.Store(new StreetNameReadItem
-            {
-                StreetNameId = e.Data.StreetNameId,
-                DutchName = e.Data.DutchName,
-                Origin = e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp()
-            });
-
-            await UpdateStreetNameLabels(session, e.Data.StreetNameId, e.Data.DutchName, ct);
-        });
-        When<IEvent<StreetNameWasModified>>(async (session, e, ct) =>
-        {
-            var streetName = await session.LoadAsync<StreetNameReadItem>(e.Data.StreetNameId, ct)
-                             ?? new StreetNameReadItem
-                             {
-                                 StreetNameId = e.Data.StreetNameId,
-                                 DutchName = e.Data.DutchName,
-                                 Origin = e.Data.Provenance.ToEventTimestamp(),
-                                 LastModified = e.Data.Provenance.ToEventTimestamp()
-                             };
-            streetName.DutchName = e.Data.DutchName;
-            streetName.NisCode = e.Data.NisCode;
-            streetName.Status = e.Data.Status;
-            streetName.LastModified = e.Data.Provenance.ToEventTimestamp();
-            session.Store(streetName);
-
-            await UpdateStreetNameLabels(session, e.Data.StreetNameId, e.Data.DutchName, ct);
-        });
-        When<IEvent<StreetNameWasRemoved>>(async (session, e, ct) =>
-        {
-            var streetName = await session.LoadAsync<StreetNameReadItem>(e.Data.StreetNameId, ct);
-            if (streetName is not null)
-            {
-                streetName.IsRemoved = true;
-                streetName.LastModified = e.Data.Provenance.ToEventTimestamp();
-                session.Store(streetName);
-            }
-
-            await UpdateStreetNameLabels(session, e.Data.StreetNameId, null, ct);
-        });
+        // StreetName: keep the denormalized labels on linked road segments in sync.
+        When<IEvent<StreetNameWasCreated>>((session, e, ct) => UpdateStreetNameLabels(session, e.Data.StreetNameId, e.Data.DutchName, ct));
+        When<IEvent<StreetNameWasModified>>((session, e, ct) => UpdateStreetNameLabels(session, e.Data.StreetNameId, e.Data.DutchName, ct));
+        When<IEvent<StreetNameWasRemoved>>((session, e, ct) => UpdateStreetNameLabels(session, e.Data.StreetNameId, null, ct));
 
         // Organization
         When<IEvent<OrganizationWasCreated>>((session, e, ct) => UpdateMaintenanceAuthorityNames(session, e.Data.OrganizationId, e.Data.Name, ct));
@@ -946,26 +902,6 @@ public sealed class RoadSegmentStreetNameAttributeValue
 {
     public required StreetNameLocalId StreetNameId { get; set; }
     public required string? DutchName { get; set; }
-}
-
-public sealed class StreetNameReadItem
-{
-    [JsonIgnore]
-    public int Id { get; private set; }
-
-    public required StreetNameLocalId StreetNameId
-    {
-        get => new(Id);
-        set => Id = value;
-    }
-
-    public required string? DutchName { get; set; }
-    public string? NisCode { get; set; }
-    public string? Status { get; set; }
-
-    public required EventTimestamp Origin { get; set; }
-    public required EventTimestamp LastModified { get; set; }
-    public bool IsRemoved { get; set; }
 }
 
 public sealed class RoadSegmentMaintenanceAuthorityAttributeValue

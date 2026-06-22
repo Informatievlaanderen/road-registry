@@ -7,6 +7,7 @@ public static class SetupExtensions
     public static void ConfigureReadDocuments(this StoreOptions options)
     {
         OrganizationReadProjection.Configure(options);
+        StreetNameReadProjection.Configure(options);
         RoadNodeReadProjection.Configure(options);
         RoadSegmentReadProjection.Configure(options);
         GradeSeparatedJunctionReadProjection.Configure(options);
