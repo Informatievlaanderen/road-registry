@@ -21,6 +21,7 @@ using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.StreetName.Events.V2;
 using RoadSegment;
 using ScopedRoadNetwork;
@@ -1410,7 +1411,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var roadSegmentId = new RoadSegmentId(change.Id);
             var eventIdentifier = BuildEventIdentifier(envelope, index);
 
-            await _repo.InIdempotentSession(eventIdentifier, async session =>
+            await _repo.InIdempotentSession(eventIdentifier, session =>
             {
                 session.CorrelationId = roadNetworkId;
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
@@ -1435,38 +1436,9 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 };
                 session.Events.Append(streamKey, legacyEvent);
 
-                var roadSegment = await session.LoadAsync(roadSegmentId, cancellationToken: token)
-                                  ?? throw new InvalidOperationException($"Road segment {change.Id} not found");
-
-                ApplyStreetNameIdChange(roadSegment, RoadSegmentAttributeSide.Left, change.LeftSideStreetNameId, provenance);
-                ApplyStreetNameIdChange(roadSegment, RoadSegmentAttributeSide.Right, change.RightSideStreetNameId, provenance);
-
-                session.Store(roadSegment);
+                return Task.CompletedTask;
             }, token);
         }
-    }
-
-    private static void ApplyStreetNameIdChange(RoadSegment roadSegment, RoadSegmentAttributeSide side, int? newStreetNameId, Provenance provenance)
-    {
-        if (newStreetNameId is not { } streetNameId)
-        {
-            return;
-        }
-
-        var newValue = new StreetNameLocalId(streetNameId);
-        var oldValue = roadSegment.Attributes!.StreetNameId.Values
-            .Where(value => value.Side == side || value.Side == RoadSegmentAttributeSide.Both)
-            .Select(value => value.Value)
-            .FirstOrDefault();
-
-        if (oldValue == newValue)
-        {
-            return;
-        }
-
-        //TODO-pr TBD: v1 segments have no attributes, so we dont know the old value. maybe dont include it? the attributes array can easily be build using left and right
-        //in the Apply() method it must be able to handle no Attributes, or simply add it to the UncomittedEvents instead of using Apply
-        roadSegment.ChangeStreetNameId(oldValue, newValue, provenance);
     }
 
     private static Provenance BuildProvenance(Envelope<RoadNetworkChangesAccepted> envelope, Modification modification)
