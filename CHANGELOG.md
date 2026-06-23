@@ -1,3 +1,11 @@
+## [4.64.1](https://github.com/informatievlaanderen/road-registry/compare/v4.64.0...v4.64.1) (2026-06-23)
+
+
+### Bug Fixes
+
+* **2.0:** read endpoints when returning V1 data ([bcdff42](https://github.com/informatievlaanderen/road-registry/commit/bcdff42d64e7a45e9c48ca3687e09f19b9aebe30))
+* add support for hotfix builds on release pipeline ([86336b6](https://github.com/informatievlaanderen/road-registry/commit/86336b6b3a067c860821657fb6af9ab9e9cf3601))
+
 # [4.64.0](https://github.com/informatievlaanderen/road-registry/compare/v4.63.1...v4.64.0) (2026-06-23)
 
 
