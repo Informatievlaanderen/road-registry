@@ -1,3 +1,10 @@
+## [4.62.6](https://github.com/informatievlaanderen/road-registry/compare/v4.62.5...v4.62.6) (2026-06-23)
+
+
+### Bug Fixes
+
+* hotfix 4.62.6 test ([8f95f94](https://github.com/informatievlaanderen/road-registry/commit/8f95f94237472753bb9d59a2325b3d05eea5be16))
+
 ## [4.62.5](https://github.com/informatievlaanderen/road-registry/compare/v4.62.4...v4.62.5) (2026-06-23)
 
 
