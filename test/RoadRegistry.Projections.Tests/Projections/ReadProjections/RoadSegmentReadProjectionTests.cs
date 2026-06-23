@@ -13,7 +13,7 @@ public class RoadSegmentReadProjectionTests
 
     private ReadProjectionScenario Scenario() => new(
         new RoadNodeReadProjection(),
-        new RoadSegmentReadProjection(new FakeStreetNameCache(), new FakeStreetNameClient()));
+        new RoadSegmentReadProjection());
 
     private ProvenanceData Provenance => new(_testData.Provenance);
 

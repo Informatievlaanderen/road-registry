@@ -17,7 +17,7 @@ public class GradeSeparatedJunctionReadProjectionTests
 
     private ReadProjectionScenario Scenario() => new(
         new RoadNodeReadProjection(),
-        new RoadSegmentReadProjection(new FakeStreetNameCache(), new FakeStreetNameClient()),
+        new RoadSegmentReadProjection(),
         new GradeSeparatedJunctionReadProjection());
 
     // Grade separated junctions reference existing road segments, so those segments (and their nodes) must be projected first.

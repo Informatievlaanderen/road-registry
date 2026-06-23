@@ -18,6 +18,7 @@ using NodaTime.Text;
 using RoadNode;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb;
+using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.StreetName.Events.V2;
@@ -399,6 +400,87 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             await AcceptRoadNetworkChange(roadNetworkId, envelope, token);
         });
 
+        When<Envelope<BackOffice.Messages.CreateOrganizationAccepted>>((_, envelope, token) =>
+        {
+            var organizationId = new OrganizationId(envelope.Message.Code);
+            var eventIdentifier = BuildEventIdentifier(envelope);
+
+            return _repo.InIdempotentSession(eventIdentifier, session =>
+            {
+                session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
+                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+
+                var v2Event = new OrganizationWasCreated
+                {
+                    OrganizationId = organizationId,
+                    Name = envelope.Message.Name,
+                    OvoCode = envelope.Message.OvoCode,
+                    KboNumber = envelope.Message.KboNumber,
+                    Provenance = new ProvenanceData(BuildOrganizationProvenance(envelope.Message.When, Modification.Insert))
+                };
+                session.Events.Append(OrganizationStreamKey(organizationId), v2Event);
+            }, token);
+        });
+        When<Envelope<BackOffice.Messages.ChangeOrganizationAccepted>>((_, envelope, token) =>
+        {
+            var organizationId = new OrganizationId(envelope.Message.Code);
+            var eventIdentifier = BuildEventIdentifier(envelope);
+
+            return _repo.InIdempotentSession(eventIdentifier, session =>
+            {
+                session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
+                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+
+                var v2Event = new OrganizationWasModified
+                {
+                    OrganizationId = organizationId,
+                    Name = envelope.Message.Name,
+                    OvoCode = envelope.Message.OvoCode,
+                    KboNumber = envelope.Message.KboNumber,
+                    IsMaintainer = envelope.Message.IsMaintainer,
+                    Provenance = new ProvenanceData(BuildOrganizationProvenance(envelope.Message.When, Modification.Update))
+                };
+                session.Events.Append(OrganizationStreamKey(organizationId), v2Event);
+            }, token);
+        });
+        When<Envelope<BackOffice.Messages.RenameOrganizationAccepted>>((_, envelope, token) =>
+        {
+            var organizationId = new OrganizationId(envelope.Message.Code);
+            var eventIdentifier = BuildEventIdentifier(envelope);
+
+            return _repo.InIdempotentSession(eventIdentifier, session =>
+            {
+                session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
+                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+
+                var v2Event = new OrganizationWasModified
+                {
+                    OrganizationId = organizationId,
+                    Name = envelope.Message.Name,
+                    Provenance = new ProvenanceData(BuildOrganizationProvenance(envelope.Message.When, Modification.Update))
+                };
+                session.Events.Append(OrganizationStreamKey(organizationId), v2Event);
+            }, token);
+        });
+        When<Envelope<BackOffice.Messages.DeleteOrganizationAccepted>>((_, envelope, token) =>
+        {
+            var organizationId = new OrganizationId(envelope.Message.Code);
+            var eventIdentifier = BuildEventIdentifier(envelope);
+
+            return _repo.InIdempotentSession(eventIdentifier, session =>
+            {
+                session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
+                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+
+                var v2Event = new OrganizationWasRemoved
+                {
+                    OrganizationId = organizationId,
+                    Provenance = new ProvenanceData(BuildOrganizationProvenance(envelope.Message.When, Modification.Delete))
+                };
+                session.Events.Append(OrganizationStreamKey(organizationId), v2Event);
+            }, token);
+        });
+
         When<Envelope<RoadSegmentsStreetNamesChanged>>(async (_, envelope, token) =>
         {
             var roadNetworkId = new ScopedRoadNetworkId(Guid.NewGuid());
@@ -416,19 +498,19 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
-                var legacyEvent = new StreetNameWasCreated
+                var v2Event = new StreetNameWasCreated
                 {
                     StreetNameId = streetNameLocalId,
                     DutchName = envelope.Message.Record.DutchName,
                     Provenance = new ProvenanceData(BuildStreetNameProvenance(envelope.Message.When, Modification.Insert))
                 };
-                session.Events.Append(StreetNameStreamKey(streetNameLocalId), legacyEvent);
+                session.Events.Append(StreetNameStreamKey(streetNameLocalId), v2Event);
             }, token);
         });
 
         When<Envelope<BackOffice.Messages.StreetNameModified>>((_, envelope, token) =>
         {
-            if (!envelope.Message.NameModified)
+            if (!envelope.Message.NameModified && !envelope.Message.StatusModified)
             {
                 return Task.CompletedTask;
             }
@@ -441,13 +523,15 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
-                var legacyEvent = new StreetNameNameWasModified
+                var v2Event = new StreetNameWasModified
                 {
                     StreetNameId = streetNameLocalId,
                     DutchName = envelope.Message.Record.DutchName,
+                    NisCode = envelope.Message.Record.NisCode,
+                    Status = envelope.Message.Record.StreetNameStatus,
                     Provenance = new ProvenanceData(BuildStreetNameProvenance(envelope.Message.When, Modification.Update))
                 };
-                session.Events.Append(StreetNameStreamKey(streetNameLocalId), legacyEvent);
+                session.Events.Append(StreetNameStreamKey(streetNameLocalId), v2Event);
             }, token);
         });
 
@@ -461,12 +545,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
-                var legacyEvent = new StreetNameWasRemoved
+                var v2Event = new StreetNameWasRemoved
                 {
                     StreetNameId = streetNameLocalId,
                     Provenance = new ProvenanceData(BuildStreetNameProvenance(envelope.Message.When, Modification.Delete))
                 };
-                session.Events.Append(StreetNameStreamKey(streetNameLocalId), legacyEvent);
+                session.Events.Append(StreetNameStreamKey(streetNameLocalId), v2Event);
             }, token);
         });
     }
@@ -1317,8 +1401,10 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         Envelope<RoadSegmentsStreetNamesChanged> envelope,
         CancellationToken token)
     {
+        // Only V1 road segments reach this handler (V2 segments are relinked directly via SQS from the consumer).
         foreach (var (change, index) in envelope.Message.RoadSegments.Select((x, i) => (x, i)))
         {
+            var roadSegmentId = new RoadSegmentId(change.Id);
             var eventIdentifier = BuildEventIdentifier(envelope, index);
 
             await _repo.InIdempotentSession(eventIdentifier, session =>
@@ -1334,7 +1420,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     Modification.Update,
                     Organisation.DigitaalVlaanderen);
 
-                var streamKey = StreamKeyFactory.Create(typeof(RoadSegment), new RoadSegmentId(change.Id));
+                var streamKey = StreamKeyFactory.Create(typeof(RoadSegment), roadSegmentId);
                 var legacyEvent = new RoadSegmentStreetNamesChanged
                 {
                     RoadSegmentId = change.Id,
@@ -1345,6 +1431,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     Provenance = new ProvenanceData(provenance)
                 };
                 session.Events.Append(streamKey, legacyEvent);
+
+                return Task.CompletedTask;
             }, token);
         }
     }
@@ -1369,6 +1457,22 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             new Operator("StreetNameRegistry"),
             modification,
             Organisation.DigitaalVlaanderen);
+    }
+
+    private static Provenance BuildOrganizationProvenance(string when, Modification modification)
+    {
+        return new Provenance(
+            LocalDateTimeTranslator.TranslateFromWhen(when),
+            Application.RoadRegistry,
+            new Reason("Organization"),
+            new Operator("OrganizationRegistry"),
+            modification,
+            Organisation.DigitaalVlaanderen);
+    }
+
+    private static string OrganizationStreamKey(OrganizationId organizationId)
+    {
+        return $"organization-{organizationId}";
     }
 
     private static string StreetNameStreamKey(StreetNameLocalId streetNameId)

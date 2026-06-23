@@ -1,5 +1,6 @@
 namespace RoadRegistry.Editor.ProjectionHost;
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
@@ -49,6 +50,12 @@ public class Program
             })
             .RunAsync(async (sp, host, configuration) =>
             {
+                var startupAction = sp.GetService<Action>();
+                if (startupAction is not null)
+                {
+                    startupAction();
+                }
+
                 var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
                 var migratorFactories = sp.GetRequiredService<IRunnerDbContextMigratorFactory[]>();
 
@@ -118,7 +125,7 @@ public class Program
                 [
                     new RoadSegmentVersionRecordProjection(sp.GetRequiredService<ILogger<RoadSegmentVersionRecordProjection>>())
                 ])
-                .AddMartenDbMigrationEventProcessor()
+                .AddMartenDbMigrationEventProcessor(hostContext.Configuration)
                 ;
         })
         .ConfigureHealthChecks(HostingPort, builder => builder

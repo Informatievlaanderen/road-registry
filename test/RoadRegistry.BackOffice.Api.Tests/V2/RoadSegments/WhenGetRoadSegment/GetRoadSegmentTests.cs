@@ -83,7 +83,12 @@ public class GetRoadSegmentTests : V2ReadEndpointTestBase
                     StreetNameId = x.Value,
                     DutchName = null
                 }))),
-            MaintenanceAuthorityId = new ReadRoadSegmentDynamicAttribute<OrganizationId>(e.MaintenanceAuthorityId),
+            MaintenanceAuthorityId = new ReadRoadSegmentDynamicAttribute<RoadSegmentMaintenanceAuthorityAttributeValue>(e.MaintenanceAuthorityId.Values
+                .Select(x => (x.Coverage.From, x.Coverage.To, x.Side, (RoadSegmentMaintenanceAuthorityAttributeValue?)new RoadSegmentMaintenanceAuthorityAttributeValue
+                {
+                    OrganizationId = x.Value,
+                    Name = null
+                }))),
             SurfaceType = ToStringAttribute(e.SurfaceType),
             CarTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.CarTrafficDirection),
             BikeTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.BikeTrafficDirection),

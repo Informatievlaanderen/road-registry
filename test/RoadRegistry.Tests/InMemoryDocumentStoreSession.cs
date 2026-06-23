@@ -92,7 +92,17 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
             .Select(x =>
             {
                 using var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(x.Value));
-                return (T)serializer.FromJson(x.Key.Type, jsonStream);
+                var entity = (T)serializer.FromJson(x.Key.Type, jsonStream);
+
+                // Marten assigns the document identity on load from the stored id; mirror that so documents
+                // whose identity is not part of the serialized body (e.g. [JsonIgnore] Id) still get it populated.
+                var idProperty = GetIdProperty(entity);
+                if (idProperty.CanWrite)
+                {
+                    idProperty.SetValue(entity, x.Key.Id);
+                }
+
+                return entity;
             })
             .ToArray();
 
@@ -770,7 +780,7 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
     public string? CausationId { get; set; }
     public string? CorrelationId { get; set; }
     public string TenantId { get; }
-    public IAdvancedSql AdvancedSql { get; }
+    public IAdvancedSql AdvancedSql { get; } = new FakeAdvancedSql();
 
     #endregion
 }

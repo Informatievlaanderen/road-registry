@@ -32,7 +32,7 @@ public partial class RoadNodesController
     ///     Vraag een wegknoop op.
     /// </summary>
     /// <param name="id">De identificator van het wegknoop.</param>
-    /// <param name="responseOptions"></param>
+    /// <param name="apiOptions"></param>
     /// <param name="store"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als het wegknoop gevonden is.</response>

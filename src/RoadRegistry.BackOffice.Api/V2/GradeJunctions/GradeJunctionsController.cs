@@ -17,7 +17,7 @@ using Version = RoadRegistry.BackOffice.Api.Infrastructure.Version;
 
 [ApiVersion(Version.V2)]
 [ApiRoute("gelijkgrondsekruisingen")]
-[ApiExplorerSettings(GroupName = "Gelijkgrondsekruisingen")]
+[ApiExplorerSettings(GroupName = "GelijkgrondseKruisingen")]
 public partial class GradeJunctionsController : BackofficeApiController
 {
     public GradeJunctionsController(BackofficeApiControllerContext apiContext)
@@ -45,7 +45,7 @@ public class GradeJunctionNotFoundResponseExamples : IExamplesProvider<ProblemDe
             ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:gradejunction:not-found",
             HttpStatus = StatusCodes.Status404NotFound,
             Title = ProblemDetails.DefaultTitle,
-            Detail = new GradeJunctionNotFound().TranslateToDutch(WellKnownProblemTranslators.Default).Message,
+            Detail = "Onbestaand gelijkgrondse kruising.",
             ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, PublicApi.ApiVersion)
         };
 }

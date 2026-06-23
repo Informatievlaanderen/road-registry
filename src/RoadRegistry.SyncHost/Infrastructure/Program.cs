@@ -12,6 +12,8 @@ using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Modules;
+using RoadRegistry.Infrastructure.MartenDb.Setup;
+using RoadRegistry.Read.Projections.Setup;
 using Municipality;
 using Organization;
 using StreetName;
@@ -66,6 +68,8 @@ public class Program
                         new MunicipalityEventConsumerContextMigrationFactory()
                     })
                     ;
+
+                services.AddMartenRoad(options => options.ConfigureReadDocuments());
             })
             .ConfigureHealthChecks(HostingPort,builder => builder
                 .AddHostedServicesStatus()
@@ -74,7 +78,8 @@ public class Program
                 {
                     builder
                         .RegisterModule(new ApiModule(hostContext.Configuration))
-                        .RegisterModule(new ProjectorModule(hostContext.Configuration));
+                        .RegisterModule(new ProjectorModule(hostContext.Configuration))
+                        .RegisterModule<BackOffice.Handlers.Sqs.SqsHandlersModule>();
                 }
             )
             .Build();

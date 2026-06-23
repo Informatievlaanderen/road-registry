@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.V2.RoadSegments;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -134,8 +133,8 @@ public partial class RoadSegmentsController
                     TotPositie = x.To,
                     Wegbeheerder = new WegbeheerderObject
                     {
-                        Code = x.Value.ToString(),
-                        Label = "TODO-pr implement get wegbeheerder label"
+                        Code = x.Value!.OrganizationId.ToString(),
+                        Label = x.Value.Name ?? string.Empty
                     }
                 })
                 .ToArray();

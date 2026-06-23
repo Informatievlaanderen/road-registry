@@ -38,11 +38,11 @@ public class MartenMigrationStreetNameProjectionTests
     }
 
     [Fact]
-    public Task WhenStreetNameModifiedWithNameChange_ThenStreetNameNameWasModified()
+    public Task WhenStreetNameModifiedWithNameChange_ThenStreetNameWasModified()
     {
         var message = new StreetNameModified
         {
-            Record = new StreetNameRecord { PersistentLocalId = 123, DutchName = "Foo" },
+            Record = new StreetNameRecord { PersistentLocalId = 123, DutchName = "Foo", NisCode = "44021", StreetNameStatus = "Current" },
             NameModified = true,
             When = When
         };
@@ -50,10 +50,12 @@ public class MartenMigrationStreetNameProjectionTests
         return BuildProjection()
             .Scenario()
             .Given(message)
-            .Expect(new StreetNameNameWasModified
+            .Expect(new StreetNameWasModified
             {
                 StreetNameId = new StreetNameLocalId(123),
                 DutchName = "Foo",
+                NisCode = "44021",
+                Status = "Current",
                 Provenance = ExpectedProvenance(Modification.Update)
             });
     }
