@@ -612,7 +612,7 @@ jobs:
           WORKSPACE: ${{ github.workspace }}
 
   deploy_to_test_start_slack:
-    if: github.repository_owner == 'Informatievlaanderen'
+    if: github.repository_owner == 'Informatievlaanderen' && !endsWith(github.ref_name, '.x')
     needs: [release, push_images]
     name: Deploy to test started
     environment: test
@@ -629,8 +629,8 @@ jobs:
             text: 'Deployment of road-registry ${{ needs.release.outputs.version }} to tst has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
 
   deploy_services_to_test:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [push_images, release]
+    if: github.repository_owner == 'Informatievlaanderen' && !endsWith(github.ref_name, '.x')
+    needs: [release, push_images]
     name: Deploy
     uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.1.yml@main
     strategy:
@@ -746,7 +746,7 @@ jobs:
 
   deploy_to_test_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [release, system_healthcheck]
+    needs: [system_healthcheck, release]
     name: Notify deployment succeeded
     runs-on: ubuntu-latest
 
