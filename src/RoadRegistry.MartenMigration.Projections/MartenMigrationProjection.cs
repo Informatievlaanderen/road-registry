@@ -21,7 +21,6 @@ using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
-using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.StreetName.Events.V2;
 using RoadSegment;
 using ScopedRoadNetwork;
@@ -41,7 +40,6 @@ using RoadSegmentSurfaceAttributes = RoadSegment.Events.V1.ValueObjects.RoadSegm
 using RoadSegmentWidthAttributes = RoadSegment.Events.V1.ValueObjects.RoadSegmentWidthAttributes;
 using RoadSegmentSideAttributes = RoadSegment.Events.V1.ValueObjects.RoadSegmentSideAttributes;
 using Reason = Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason;
-using RoadSegmentAttributeSide = RoadRegistry.RoadSegment.ValueObjects.RoadSegmentAttributeSide;
 using RoadSegmentStreetNamesChanged = RoadSegment.Events.V1.RoadSegmentStreetNamesChanged;
 
 public class MartenMigrationProjection : ConnectedProjection<MartenMigrationContext>
@@ -412,7 +410,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
-                var legacyEvent = new OrganizationWasCreated
+                var v2Event = new OrganizationWasCreated
                 {
                     OrganizationId = organizationId,
                     Name = envelope.Message.Name,
@@ -420,7 +418,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     KboNumber = envelope.Message.KboNumber,
                     Provenance = new ProvenanceData(BuildOrganizationProvenance(envelope.Message.When, Modification.Insert))
                 };
-                session.Events.Append(OrganizationStreamKey(organizationId), legacyEvent);
+                session.Events.Append(OrganizationStreamKey(organizationId), v2Event);
             }, token);
         });
         When<Envelope<BackOffice.Messages.ChangeOrganizationAccepted>>((_, envelope, token) =>
@@ -433,7 +431,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
-                var legacyEvent = new OrganizationWasModified
+                var v2Event = new OrganizationWasModified
                 {
                     OrganizationId = organizationId,
                     Name = envelope.Message.Name,
@@ -442,7 +440,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     IsMaintainer = envelope.Message.IsMaintainer,
                     Provenance = new ProvenanceData(BuildOrganizationProvenance(envelope.Message.When, Modification.Update))
                 };
-                session.Events.Append(OrganizationStreamKey(organizationId), legacyEvent);
+                session.Events.Append(OrganizationStreamKey(organizationId), v2Event);
             }, token);
         });
         When<Envelope<BackOffice.Messages.RenameOrganizationAccepted>>((_, envelope, token) =>
@@ -455,13 +453,13 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
-                var legacyEvent = new OrganizationWasModified
+                var v2Event = new OrganizationWasModified
                 {
                     OrganizationId = organizationId,
                     Name = envelope.Message.Name,
                     Provenance = new ProvenanceData(BuildOrganizationProvenance(envelope.Message.When, Modification.Update))
                 };
-                session.Events.Append(OrganizationStreamKey(organizationId), legacyEvent);
+                session.Events.Append(OrganizationStreamKey(organizationId), v2Event);
             }, token);
         });
         When<Envelope<BackOffice.Messages.DeleteOrganizationAccepted>>((_, envelope, token) =>
@@ -474,12 +472,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
-                var legacyEvent = new OrganizationWasRemoved
+                var v2Event = new OrganizationWasRemoved
                 {
                     OrganizationId = organizationId,
                     Provenance = new ProvenanceData(BuildOrganizationProvenance(envelope.Message.When, Modification.Delete))
                 };
-                session.Events.Append(OrganizationStreamKey(organizationId), legacyEvent);
+                session.Events.Append(OrganizationStreamKey(organizationId), v2Event);
             }, token);
         });
 
@@ -500,13 +498,13 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
-                var legacyEvent = new StreetNameWasCreated
+                var v2Event = new StreetNameWasCreated
                 {
                     StreetNameId = streetNameLocalId,
                     DutchName = envelope.Message.Record.DutchName,
                     Provenance = new ProvenanceData(BuildStreetNameProvenance(envelope.Message.When, Modification.Insert))
                 };
-                session.Events.Append(StreetNameStreamKey(streetNameLocalId), legacyEvent);
+                session.Events.Append(StreetNameStreamKey(streetNameLocalId), v2Event);
             }, token);
         });
 
@@ -525,7 +523,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
-                var legacyEvent = new StreetNameWasModified
+                var v2Event = new StreetNameWasModified
                 {
                     StreetNameId = streetNameLocalId,
                     DutchName = envelope.Message.Record.DutchName,
@@ -533,7 +531,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     Status = envelope.Message.Record.StreetNameStatus,
                     Provenance = new ProvenanceData(BuildStreetNameProvenance(envelope.Message.When, Modification.Update))
                 };
-                session.Events.Append(StreetNameStreamKey(streetNameLocalId), legacyEvent);
+                session.Events.Append(StreetNameStreamKey(streetNameLocalId), v2Event);
             }, token);
         });
 
@@ -547,12 +545,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
 
-                var legacyEvent = new StreetNameWasRemoved
+                var v2Event = new StreetNameWasRemoved
                 {
                     StreetNameId = streetNameLocalId,
                     Provenance = new ProvenanceData(BuildStreetNameProvenance(envelope.Message.When, Modification.Delete))
                 };
-                session.Events.Append(StreetNameStreamKey(streetNameLocalId), legacyEvent);
+                session.Events.Append(StreetNameStreamKey(streetNameLocalId), v2Event);
             }, token);
         });
     }
