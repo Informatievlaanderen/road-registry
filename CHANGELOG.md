@@ -1,3 +1,10 @@
+## [4.62.5](https://github.com/informatievlaanderen/road-registry/compare/v4.62.4...v4.62.5) (2026-06-23)
+
+
+### Bug Fixes
+
+* disable marten migration projection ([61e3afb](https://github.com/informatievlaanderen/road-registry/commit/61e3afb88c7f63f28f7ac5accd45b5518c18d602))
+
 ## [4.62.4](https://github.com/informatievlaanderen/road-registry/compare/v4.62.3...v4.62.4) (2026-06-09)
 
 
