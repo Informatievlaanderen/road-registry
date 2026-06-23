@@ -510,8 +510,6 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             }, token);
         });
 
-        //TODO-pr StreetNameRenamed
-
         When<Envelope<BackOffice.Messages.StreetNameModified>>((_, envelope, token) =>
         {
             if (!envelope.Message.NameModified && !envelope.Message.StatusModified)
