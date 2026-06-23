@@ -118,7 +118,7 @@ public class Program
                 [
                     new RoadSegmentVersionRecordProjection(sp.GetRequiredService<ILogger<RoadSegmentVersionRecordProjection>>())
                 ])
-                .AddMartenDbMigrationEventProcessor()
+                //.AddMartenDbMigrationEventProcessor()
                 ;
         })
         .ConfigureHealthChecks(HostingPort, builder => builder
