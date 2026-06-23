@@ -54,7 +54,7 @@ public partial class GradeSeparatedJunctionsController
         await using var session = store.LightweightSession();
 
         var gradeSeparatedJunction = await session.LoadAsync<GradeSeparatedJunctionReadItem>(id, cancellationToken);
-        if (gradeSeparatedJunction is null)
+        if (gradeSeparatedJunction is null || !gradeSeparatedJunction.IsV2)
         {
             return NotFound();
         }
@@ -68,14 +68,9 @@ public partial class GradeSeparatedJunctionsController
         {
             Identificator = new OngelijkgrondseKruisingIdentificator(OsloNamespaces.OngelijkgrondseKruising, gradeSeparatedJunction.GradeSeparatedJunctionId.ToString(), gradeSeparatedJunction.Origin.Timestamp.ToDateTimeOffset()),
             OnderliggendWegsegment = new WegsegmentLink(gradeSeparatedJunction.LowerRoadSegmentId, apiOptions.GetWegsegmentDetailUrlFormat()),
-            BovenliggendWegsegment = new WegsegmentLink(gradeSeparatedJunction.UpperRoadSegmentId, apiOptions.GetWegsegmentDetailUrlFormat())
+            BovenliggendWegsegment = new WegsegmentLink(gradeSeparatedJunction.UpperRoadSegmentId, apiOptions.GetWegsegmentDetailUrlFormat()),
+            OngelijkgrondseKruisingType = GradeSeparatedJunctionTypeV2.Parse(gradeSeparatedJunction.Type!).ToDutchString()
         };
-
-        //TODO-pr to confirm what to return with V1 data
-        if (gradeSeparatedJunction.IsV2)
-        {
-            result.OngelijkgrondseKruisingType = GradeSeparatedJunctionTypeV2.Parse(gradeSeparatedJunction.Type!).ToDutchString();
-        }
 
         return Ok(result);
     }
@@ -97,14 +92,14 @@ public class OngelijkgrondseKruisingV2Detail
     /// </summary>
     [DataMember(Name = "onderliggendWegsegment", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public WegsegmentLink OnderliggendWegsegment { get; set; }
+    public required WegsegmentLink OnderliggendWegsegment { get; set; }
 
     /// <summary>
     ///     Identificerende gegevens van het wegsegment dat zich bovenaan de kruising bevindt.
     /// </summary>
     [DataMember(Name = "bovenliggendWegsegment", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public WegsegmentLink BovenliggendWegsegment { get; set; }
+    public required WegsegmentLink BovenliggendWegsegment { get; set; }
 
     /// <summary>
     ///     Het type ongelijkgrondse kruising.
@@ -112,7 +107,7 @@ public class OngelijkgrondseKruisingV2Detail
     [DataMember(Name = "ongelijkgrondseKruisingType", Order = 4)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(GradeSeparatedJunctionTypeV2))]
-    public string OngelijkgrondseKruisingType { get; set; }
+    public required string OngelijkgrondseKruisingType { get; set; }
 }
 
 [DataContract(Name = "OngelijkgrondseKruisingV2Identificator", Namespace = "")]

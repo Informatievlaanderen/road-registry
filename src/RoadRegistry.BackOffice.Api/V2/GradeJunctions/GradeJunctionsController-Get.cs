@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.V2.GradeJunctions;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -94,7 +93,7 @@ public class GelijkgrondseKruisingV2Detail
     /// </summary>
     [DataMember(Name = "kruisendeWegsegmenten", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public WegsegmentLink[] KruisendeWegsegmenten { get; set; }
+    public required WegsegmentLink[] KruisendeWegsegmenten { get; set; }
 }
 
 [DataContract(Name = "GelijkgrondseKruisingV2Identificator", Namespace = "")]

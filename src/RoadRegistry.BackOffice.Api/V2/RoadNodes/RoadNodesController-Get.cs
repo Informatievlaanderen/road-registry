@@ -59,7 +59,7 @@ public partial class RoadNodesController
         await using var session = store.LightweightSession();
 
         var roadNode = await session.LoadAsync<RoadNodeReadItem>(id, cancellationToken);
-        if (roadNode is null)
+        if (roadNode is null || !roadNode.IsV2)
         {
             return NotFound();
         }
@@ -86,17 +86,12 @@ public partial class RoadNodesController
                     }
                 ]
             },
+            WegknoopType = RoadNodeTypeV2.Parse(roadNode.Type!).ToDutchString(),
+            Grensknoop = roadNode.Grensknoop,
             AansluitendeWegsegmenten = roadNode.RoadSegmentIds
                 .Select(x => new WegsegmentLink(x, apiOptions.GetWegsegmentDetailUrlFormat()))
                 .ToArray()
         };
-
-        //TODO-pr to confirm what to return with V1 data
-        if (roadNode.IsV2)
-        {
-            result.WegknoopType = RoadNodeTypeV2.Parse(roadNode.Type!).ToDutchString();
-            result.Grensknoop = roadNode.Grensknoop;
-        }
 
         return Ok(result);
     }
@@ -126,21 +121,21 @@ public class WegknoopV2Detail
     [DataMember(Name = "WegknoopType", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadNodeTypeV2))]
-    public string WegknoopType { get; set; }
+    public required string WegknoopType { get; set; }
 
     /// <summary>
     ///     Een wegknoop is een grensknoop indien de wegknoop aansluit op wegen die buiten het Vlaamse gewest liggen.
     /// </summary>
     [DataMember(Name = "Grensknoop", Order = 4)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public bool Grensknoop { get; set; }
+    public required bool Grensknoop { get; set; }
 
     /// <summary>
     ///     Geeft aan met welke gerealiseerde wegsegmenten de wegknoop verbonden is.
     /// </summary>
     [DataMember(Name = "AansluitendeWegsegmenten", Order = 5)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public WegsegmentLink[] AansluitendeWegsegmenten { get; set; } = [];
+    public required WegsegmentLink[] AansluitendeWegsegmenten { get; set; } = [];
 }
 
 [DataContract(Name = "WegknoopV2Identificator", Namespace = "")]
