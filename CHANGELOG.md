@@ -1,3 +1,10 @@
+# [4.64.0](https://github.com/informatievlaanderen/road-registry/compare/v4.63.1...v4.64.0) (2026-06-23)
+
+
+### Features
+
+* **2.0:** sync organization/streetname in WR2.0 with CRUD events ([a3932aa](https://github.com/informatievlaanderen/road-registry/commit/a3932aad434754448e7c52882e0803c668effdd5))
+
 ## [4.63.1](https://github.com/informatievlaanderen/road-registry/compare/v4.63.0...v4.63.1) (2026-06-22)
 
 
