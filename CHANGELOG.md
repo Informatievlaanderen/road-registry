@@ -1,3 +1,11 @@
+## [4.65.1](https://github.com/informatievlaanderen/road-registry/compare/v4.65.0...v4.65.1) (2026-06-25)
+
+
+### Bug Fixes
+
+* **2.0:** use correct ProgressionId when rebuilding marten projections + don't call streetname registry when catching up ([1abdfd7](https://github.com/informatievlaanderen/road-registry/commit/1abdfd73d260535fbced5520160ac6d4e8c2c1f7))
+* unit test ([7fc8444](https://github.com/informatievlaanderen/road-registry/commit/7fc844435d3db5f42f986a0077cc490b5a11f2ea))
+
 # [4.65.0](https://github.com/informatievlaanderen/road-registry/compare/v4.64.1...v4.65.0) (2026-06-25)
 
 
