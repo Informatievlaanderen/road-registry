@@ -275,7 +275,6 @@ public class Startup
 
             .AddHttpClient()
             .AddStreetNameClient()
-            .AddStreetNameCache()
             .AddMartenRoad((options, sp) =>
             {
                 {
@@ -285,7 +284,7 @@ public class Startup
 
                 {
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesReadProjection)}:BatchSize");
-                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesReadProjection(batchSize, sp.GetRequiredService<ILoggerFactory>()));
+                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesReadProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IStreetNameClient>()));
                 }
             }).ApplyAllDatabaseChangesOnStartup().Services
 

@@ -3,6 +3,7 @@ namespace RoadRegistry.Projections.Tests.Projections.ReadProjections;
 using System.Linq;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.StreetName.Events.V2;
 using RoadRegistry.Tests;
@@ -19,7 +20,7 @@ public class RoadSegmentReadProjectionStreetNameLabelTests
         var scenario = new ReadProjectionScenario(
             new StreetNameReadProjection(),
             new RoadNodeReadProjection(),
-            new RoadSegmentReadProjection());
+            new RoadSegmentReadProjection(new FakeStreetNameClient(), NullLogger<RoadSegmentReadProjection>.Instance));
 
         var segment = _testData.Segment1Added with
         {

@@ -10,6 +10,7 @@ using Extensions;
 using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Organization.Events.V2;
@@ -22,6 +23,9 @@ using RoadRegistry.StreetName.Events.V2;
 
 public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
 {
+    private readonly IStreetNameClient _streetNameClient;
+    private readonly ILogger _logger;
+
     public static void Configure(StoreOptions options)
     {
         options.Schema.For<RoadSegmentReadItem>()
@@ -40,8 +44,11 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             .Identity(x => x.Id);
     }
 
-    public RoadSegmentReadProjection()
+    public RoadSegmentReadProjection(IStreetNameClient streetNameClient, ILogger<RoadSegmentReadProjection> logger)
     {
+        _streetNameClient = streetNameClient.ThrowIfNull();
+        _logger = logger.ThrowIfNull();
+
         // V1
         When<IEvent<ImportedRoadSegment>>(async (session, e, ct) =>
         {
@@ -762,7 +769,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         }, evt, ct);
     }
 
-    private static async Task<ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue>> BuildStreetNameAttribute(IDocumentOperations session, RoadSegmentDynamicAttributeValues<StreetNameLocalId> attributes, CancellationToken ct)
+    private async Task<ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue>> BuildStreetNameAttribute(IDocumentOperations session, RoadSegmentDynamicAttributeValues<StreetNameLocalId> attributes, CancellationToken ct)
     {
         var values = new List<(RoadSegmentPositionV2 From, RoadSegmentPositionV2 To, RoadSegmentAttributeSide Side, RoadSegmentStreetNameAttributeValue? Value)>();
         foreach (var x in attributes.Values)
@@ -773,7 +780,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         return new ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue>(values);
     }
 
-    private static async Task<RoadSegmentStreetNameAttributeValue> ToStreetNameAttributeValue(IDocumentOperations session, int? streetNameId, CancellationToken ct)
+    private async Task<RoadSegmentStreetNameAttributeValue> ToStreetNameAttributeValue(IDocumentOperations session, int? streetNameId, CancellationToken ct)
     {
         return new RoadSegmentStreetNameAttributeValue
         {
@@ -781,7 +788,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             DutchName = await GetStreetName(session, streetNameId, ct)
         };
     }
-    private static async Task<ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue>> BuildStreetNameIdAttributesFromV1(IDocumentOperations session, int? leftSideStreetNameId, int? rightSideStreetNameId, RoadSegmentGeometry geometry, CancellationToken ct)
+    private async Task<ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue>> BuildStreetNameIdAttributesFromV1(IDocumentOperations session, int? leftSideStreetNameId, int? rightSideStreetNameId, RoadSegmentGeometry geometry, CancellationToken ct)
     {
         if (leftSideStreetNameId is null && rightSideStreetNameId is null)
         {
@@ -831,7 +838,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         };
     }
 
-    private static async Task<string?> GetStreetName(
+    private async Task<string?> GetStreetName(
         IDocumentOperations session,
         int? streetNameId,
         CancellationToken cancellationToken)
@@ -842,7 +849,21 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         }
 
         var streetName = await session.LoadAsync<StreetNameReadItem>(streetNameId.Value, cancellationToken);
-        return streetName?.DutchName;
+        if (streetName is not null)
+        {
+            return streetName.DutchName;
+        }
+
+        try
+        {
+            var item = await _streetNameClient.GetAsync(streetNameId.Value, cancellationToken);
+            return item?.Name;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "StreetNameApiClient failed for street name id {StreetNameId}; label will be null.", streetNameId.Value);
+            return null;
+        }
     }
 }
 
