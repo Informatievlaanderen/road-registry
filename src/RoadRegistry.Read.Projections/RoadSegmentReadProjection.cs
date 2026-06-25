@@ -11,7 +11,6 @@ using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.StreetName;
@@ -852,6 +851,11 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         if (streetName is not null)
         {
             return streetName.DutchName;
+        }
+
+        if (IsCatchingUp)
+        {
+            return null;
         }
 
         try

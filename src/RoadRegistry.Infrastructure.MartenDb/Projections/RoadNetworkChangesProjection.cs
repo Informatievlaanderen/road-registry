@@ -14,6 +14,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
     private readonly string _projectionName;
     protected const int DefaultBatchSize = 5000;
     private bool? _isCatchingUp;
+    protected bool IsCatchingUp => _isCatchingUp ?? false;
 
     protected RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections, ILoggerFactory loggerFactory, int batchSize = DefaultBatchSize)
     {
@@ -43,9 +44,10 @@ public abstract class RoadNetworkChangesProjection : IProjection
         try
         {
             var batchCorrelationIds = events.Select(x => x.CorrelationId!).Distinct().ToList();
+            var batchProgressionIds = batchCorrelationIds.Select(BuildProgressionId).ToList();
 
             var processedProjectionProgressions = await operations.Query<RoadNetworkChangesProjectionProgression>()
-                .Where(x => x.ProjectionName == _projectionName && batchCorrelationIds.Contains(x.Id))
+                .Where(x => x.ProjectionName == _projectionName && batchProgressionIds.Contains(x.Id))
                 .ToListAsync(cancellation);
 
             var processOnlyCurrentBatch = DetermineToProcessOnlyCurrentBatch(events);
@@ -90,10 +92,10 @@ public abstract class RoadNetworkChangesProjection : IProjection
             .OrderBy(x => x.First().Sequence)
             .ToList();
 
-        foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, i) => (CorrelationId: g.Key, Events: g.OrderBy(x => x.Sequence).ToList())))
+        foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, _) => (CorrelationId: g.Key, ProgressionId: BuildProgressionId(g.Key), Events: g.OrderBy(x => x.Sequence).ToList())))
         {
             var lastSequenceId = eventsGrouping.Events.Max(x => x.Sequence);
-            var projectionProgression = processedProjectionProgressions.SingleOrDefault(x => x.Id == eventsGrouping.CorrelationId);
+            var projectionProgression = processedProjectionProgressions.SingleOrDefault(x => x.Id == eventsGrouping.ProgressionId);
 
             var eventsToProcess = projectionProgression is not null
                 ? eventsGrouping.Events.Where(x => x.Sequence > projectionProgression.LastSequenceId).ToList()
@@ -102,6 +104,11 @@ public abstract class RoadNetworkChangesProjection : IProjection
             {
                 foreach (var projection in _projections)
                 {
+                    if (projection is RoadNetworkChangesConnectedProjection connected)
+                    {
+                        connected.IsCatchingUp = IsCatchingUp;
+                    }
+
                     await projection.Project(operations, eventsToProcess, cancellation).ConfigureAwait(false);
                 }
             }
@@ -110,7 +117,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
             {
                 operations.Insert(new RoadNetworkChangesProjectionProgression
                 {
-                    Id = $"{_projectionName}-{eventsGrouping.CorrelationId}",
+                    Id = eventsGrouping.ProgressionId,
                     ProjectionName = _projectionName,
                     LastSequenceId = lastSequenceId
                 });
@@ -120,6 +127,11 @@ public abstract class RoadNetworkChangesProjection : IProjection
                 projectionProgression.LastSequenceId = lastSequenceId;
             }
         }
+    }
+
+    private string BuildProgressionId(string correlationId)
+    {
+        return $"{_projectionName}-{correlationId}";
     }
 }
 

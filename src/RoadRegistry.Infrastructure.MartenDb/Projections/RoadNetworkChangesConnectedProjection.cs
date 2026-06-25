@@ -8,6 +8,8 @@ public abstract class RoadNetworkChangesConnectedProjection : ConnectedProjectio
 {
     private readonly Lazy<ConnectedProjectionHandlerResolver<IDocumentOperations>> _resolver;
 
+    public bool IsCatchingUp { get; internal set; }
+
     protected RoadNetworkChangesConnectedProjection()
     {
         _resolver = new Lazy<ConnectedProjectionHandlerResolver<IDocumentOperations>>(() => Resolve.WhenAssignableToHandlerMessageType(Handlers));

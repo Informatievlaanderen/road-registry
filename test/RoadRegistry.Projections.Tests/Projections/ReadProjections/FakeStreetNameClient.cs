@@ -11,6 +11,8 @@ public sealed class FakeStreetNameClient : IStreetNameClient
     private readonly Dictionary<int, string> _names = new();
     private Exception? _throwOnGet;
 
+    public bool WasCalled { get; private set; }
+
     public FakeStreetNameClient WithStreetName(int id, string name)
     {
         _names[id] = name;
@@ -25,6 +27,8 @@ public sealed class FakeStreetNameClient : IStreetNameClient
 
     public Task<StreetNameItem?> GetAsync(int id, CancellationToken cancellationToken)
     {
+        WasCalled = true;
+
         if (_throwOnGet is not null)
             throw _throwOnGet;
 

@@ -88,6 +88,34 @@ public class RoadSegmentReadProjectionTests
     }
 
     [Fact]
+    public async Task WhenCatchingUp_ThenStreetNameApiClientIsNotCalled()
+    {
+        var client = new FakeStreetNameClient().WithStreetName(100, "Straat via API");
+        var roadSegmentProjection = new RoadSegmentReadProjection(client, NullLogger<RoadSegmentReadProjection>.Instance)
+        {
+            IsCatchingUp = true
+        };
+        var scenario = new ReadProjectionScenario(
+            new RoadNodeReadProjection(),
+            roadSegmentProjection);
+
+        var segment = _testData.Segment1Added with
+        {
+            StreetNameId = StreetNameAttributeBuilder.Single(_testData.Segment1Added.Geometry, new StreetNameLocalId(100))
+        };
+
+        await scenario.GivenAsync(_testData.Segment1StartNodeAdded, _testData.Segment1EndNodeAdded, segment);
+
+        var stored = await scenario.Load<RoadSegmentReadItem>(1);
+        var dutchName = stored!.StreetNameId.Values
+            .Where(v => v.Value?.StreetNameId == new StreetNameLocalId(100))
+            .Select(v => v.Value!.DutchName)
+            .FirstOrDefault();
+        Assert.Null(dutchName);
+        Assert.False(client.WasCalled);
+    }
+
+    [Fact]
     public async Task WhenStreetNameApiClientThrows_ThenNullIsReturnedAndErrorIsLogged()
     {
         var logger = new CapturingLogger<RoadSegmentReadProjection>();

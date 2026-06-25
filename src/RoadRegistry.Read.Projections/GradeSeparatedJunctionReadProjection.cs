@@ -176,30 +176,42 @@ public class GradeSeparatedJunctionReadProjection : RoadNetworkChangesConnectedP
 
         if (originalRoadSegmentIds.Lower is not null)
         {
-            var roadSegment = roadSegments.SingleOrDefault(x => x.RoadSegmentId == originalRoadSegmentIds.Lower.Value)
-                              ?? throw new InvalidOperationException($"No road segment found for Id {originalRoadSegmentIds.Lower.Value}");
+            var roadSegment = roadSegments.SingleOrDefault(x => x.RoadSegmentId == originalRoadSegmentIds.Lower.Value);
+            if (roadSegment is null)
+            {
+                throw new InvalidOperationException($"No road segment found for Id {originalRoadSegmentIds.Lower.Value}");
+            }
             roadSegment.GradeSeparatedJunctionIds = roadSegment.GradeSeparatedJunctionIds.Except([gradeSeparatedJunctionId]).ToArray();
             session.Store(roadSegment);
         }
         if (originalRoadSegmentIds.Upper is not null)
         {
-            var roadSegment = roadSegments.SingleOrDefault(x => x.RoadSegmentId == originalRoadSegmentIds.Upper.Value)
-                              ?? throw new InvalidOperationException($"No road segment found for Id {originalRoadSegmentIds.Upper.Value}");
+            var roadSegment = roadSegments.SingleOrDefault(x => x.RoadSegmentId == originalRoadSegmentIds.Upper.Value);
+            if (roadSegment is null)
+            {
+                throw new InvalidOperationException($"No road segment found for Id {originalRoadSegmentIds.Upper.Value}");
+            }
             roadSegment.GradeSeparatedJunctionIds = roadSegment.GradeSeparatedJunctionIds.Except([gradeSeparatedJunctionId]).ToArray();
             session.Store(roadSegment);
         }
 
         if (updatedRoadSegmentIds.Lower is not null)
         {
-            var roadSegment = roadSegments.SingleOrDefault(x => x.RoadSegmentId == updatedRoadSegmentIds.Lower.Value)
-                              ?? throw new InvalidOperationException($"No road segment found for Id {updatedRoadSegmentIds.Lower.Value}");
+            var roadSegment = roadSegments.SingleOrDefault(x => x.RoadSegmentId == updatedRoadSegmentIds.Lower.Value);
+            if (roadSegment is null)
+            {
+                throw new InvalidOperationException($"No road segment found for Id {updatedRoadSegmentIds.Lower.Value}");
+            }
             roadSegment.GradeSeparatedJunctionIds = roadSegment.GradeSeparatedJunctionIds.Union([gradeSeparatedJunctionId]).OrderBy(x => x).ToArray();
             session.Store(roadSegment);
         }
         if (updatedRoadSegmentIds.Upper is not null)
         {
-            var roadSegment = roadSegments.SingleOrDefault(x => x.RoadSegmentId == updatedRoadSegmentIds.Upper.Value)
-                              ?? throw new InvalidOperationException($"No road segment found for Id {updatedRoadSegmentIds.Upper.Value}");
+            var roadSegment = roadSegments.SingleOrDefault(x => x.RoadSegmentId == updatedRoadSegmentIds.Upper.Value);
+            if (roadSegment is null)
+            {
+                throw new InvalidOperationException($"No road segment found for Id {updatedRoadSegmentIds.Upper.Value}");
+            }
             roadSegment.GradeSeparatedJunctionIds = roadSegment.GradeSeparatedJunctionIds.Union([gradeSeparatedJunctionId]).OrderBy(x => x).ToArray();
             session.Store(roadSegment);
         }
