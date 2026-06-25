@@ -3,6 +3,7 @@ namespace RoadRegistry.Projections.Tests.Projections.ReadProjections;
 using System;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.Tests;
@@ -16,7 +17,7 @@ public class GradeJunctionReadProjectionTests
 
     private ReadProjectionScenario Scenario() => new(
         new RoadNodeReadProjection(),
-        new RoadSegmentReadProjection(),
+        new RoadSegmentReadProjection(new FakeStreetNameClient(), NullLogger<RoadSegmentReadProjection>.Instance),
         new GradeJunctionReadProjection());
 
     // Grade junctions reference existing road segments, so the referenced segments (and their nodes) must be projected first.

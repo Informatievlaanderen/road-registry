@@ -3,6 +3,7 @@ namespace RoadRegistry.Projections.Tests.Projections.ReadProjections;
 using System.Threading.Tasks;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.Tests;
@@ -17,7 +18,7 @@ public class GradeSeparatedJunctionReadProjectionTests
 
     private ReadProjectionScenario Scenario() => new(
         new RoadNodeReadProjection(),
-        new RoadSegmentReadProjection(),
+        new RoadSegmentReadProjection(new FakeStreetNameClient(), NullLogger<RoadSegmentReadProjection>.Instance),
         new GradeSeparatedJunctionReadProjection());
 
     // Grade separated junctions reference existing road segments, so those segments (and their nodes) must be projected first.

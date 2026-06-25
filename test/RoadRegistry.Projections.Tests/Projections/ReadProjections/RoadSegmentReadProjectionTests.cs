@@ -1,8 +1,11 @@
 namespace RoadRegistry.Projections.Tests.Projections.ReadProjections;
 
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.Tests.AggregateTests;
@@ -13,7 +16,7 @@ public class RoadSegmentReadProjectionTests
 
     private ReadProjectionScenario Scenario() => new(
         new RoadNodeReadProjection(),
-        new RoadSegmentReadProjection());
+        new RoadSegmentReadProjection(new FakeStreetNameClient(), NullLogger<RoadSegmentReadProjection>.Instance));
 
     private ProvenanceData Provenance => new(_testData.Provenance);
 
@@ -82,6 +85,55 @@ public class RoadSegmentReadProjectionTests
         Assert.Equal(RoadSegmentStatusV2.Gehistoreerd.ToString(), segment!.Status);
         Assert.Equal(new RoadNodeId(1), segment.StartNodeId);
         Assert.Equal(new RoadNodeId(2), segment.EndNodeId);
+    }
+
+    [Fact]
+    public async Task WhenStreetNameApiClientThrows_ThenNullIsReturnedAndErrorIsLogged()
+    {
+        var logger = new CapturingLogger<RoadSegmentReadProjection>();
+        var client = new FakeStreetNameClient().ThatThrows(new InvalidOperationException("API unavailable"));
+        var scenario = new ReadProjectionScenario(
+            new RoadNodeReadProjection(),
+            new RoadSegmentReadProjection(client, logger));
+
+        var segment = _testData.Segment1Added with
+        {
+            StreetNameId = StreetNameAttributeBuilder.Single(_testData.Segment1Added.Geometry, new StreetNameLocalId(100))
+        };
+
+        await scenario.GivenAsync(_testData.Segment1StartNodeAdded, _testData.Segment1EndNodeAdded, segment);
+
+        var stored = await scenario.Load<RoadSegmentReadItem>(1);
+        var dutchName = stored!.StreetNameId.Values
+            .Where(v => v.Value?.StreetNameId == new StreetNameLocalId(100))
+            .Select(v => v.Value!.DutchName)
+            .FirstOrDefault();
+        Assert.Null(dutchName);
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Error && e.Exception is InvalidOperationException);
+    }
+
+    [Fact]
+    public async Task WhenStreetNameNotFoundLocally_ThenApiClientIsCalledAsFallback()
+    {
+        const string apiName = "Straat via API";
+        var client = new FakeStreetNameClient().WithStreetName(100, apiName);
+        var scenario = new ReadProjectionScenario(
+            new RoadNodeReadProjection(),
+            new RoadSegmentReadProjection(client, NullLogger<RoadSegmentReadProjection>.Instance));
+
+        var segment = _testData.Segment1Added with
+        {
+            StreetNameId = StreetNameAttributeBuilder.Single(_testData.Segment1Added.Geometry, new StreetNameLocalId(100))
+        };
+
+        await scenario.GivenAsync(_testData.Segment1StartNodeAdded, _testData.Segment1EndNodeAdded, segment);
+
+        var stored = await scenario.Load<RoadSegmentReadItem>(1);
+        var dutchName = stored!.StreetNameId.Values
+            .Where(v => v.Value?.StreetNameId == new StreetNameLocalId(100))
+            .Select(v => v.Value!.DutchName)
+            .FirstOrDefault();
+        Assert.Equal(apiName, dutchName);
     }
 
     [Fact]

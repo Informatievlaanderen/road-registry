@@ -2,6 +2,7 @@ namespace RoadRegistry.Projections.Tests.Projections.ReadProjections;
 
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
@@ -22,7 +23,7 @@ public class RoadSegmentReadProjectionStreetNameLinkTests
     {
         return new ReadProjectionScenario(
             new RoadNodeReadProjection(),
-            new RoadSegmentReadProjection());
+            new RoadSegmentReadProjection(new FakeStreetNameClient(), NullLogger<RoadSegmentReadProjection>.Instance));
     }
 
     private RoadSegmentWasAdded Segment1With(RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameId)
