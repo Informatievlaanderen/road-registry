@@ -1,3 +1,10 @@
+# [4.65.0](https://github.com/informatievlaanderen/road-registry/compare/v4.64.1...v4.65.0) (2026-06-25)
+
+
+### Features
+
+* **2.0:** add StreetNameApi fallback for read projection ([689eef3](https://github.com/informatievlaanderen/road-registry/commit/689eef3ecc8e312e25ec0bcc61f537140f77d1d2))
+
 ## [4.64.1](https://github.com/informatievlaanderen/road-registry/compare/v4.64.0...v4.64.1) (2026-06-23)
 
 
