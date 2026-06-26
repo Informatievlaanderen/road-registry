@@ -92,39 +92,58 @@ public abstract class RoadNetworkChangesProjection : IProjection
             .OrderBy(x => x.First().Sequence)
             .ToList();
 
-        foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, _) => (CorrelationId: g.Key, ProgressionId: BuildProgressionId(g.Key), Events: g.OrderBy(x => x.Sequence).ToList())))
+        // Pre-compute eventsToProcess for every correlation upfront so the projection loop below uses
+        // a stable snapshot rather than re-evaluating the Where filter inside the nested loop.
+var progressionById = processedProjectionProgressions.ToDictionary(x => x.Id);
+
+var correlationWork = eventsPerCorrelationId
+    .Select(g =>
+    {
+        var orderedEvents = g.OrderBy(x => x.Sequence).ToList();
+        var progressionId = BuildProgressionId(g.Key);
+        var lastSeq = orderedEvents[^1].Sequence;
+        progressionById.TryGetValue(progressionId, out var progression);
+        IReadOnlyList<IEvent> toProcess = progression is not null
+            ? orderedEvents.Where(x => x.Sequence > progression.LastSequenceId).ToList()
+            : orderedEvents;
+        return (CorrelationId: g.Key, ProgressionId: progressionId, LastSeq: lastSeq, Progression: progression, ToProcess: toProcess);
+    })
+            .Where(x => x.ToProcess.Count > 0)
+            .ToList();
+
+// OUTER loop over sub-projections, INNER loop over correlations.
+// This ensures all road-segment handlers run for every correlation (populating the Marten identity map)
+// before any junction handlers run, preventing junction projections from referencing segments that
+// haven't been projected yet.
+        foreach (var projection in _projections)
         {
-            var lastSequenceId = eventsGrouping.Events.Max(x => x.Sequence);
-            var projectionProgression = processedProjectionProgressions.SingleOrDefault(x => x.Id == eventsGrouping.ProgressionId);
-
-            var eventsToProcess = projectionProgression is not null
-                ? eventsGrouping.Events.Where(x => x.Sequence > projectionProgression.LastSequenceId).ToList()
-                : eventsGrouping.Events;
-            if (eventsToProcess.Any())
+            if (projection is RoadNetworkChangesConnectedProjection connected)
             {
-                foreach (var projection in _projections)
-                {
-                    if (projection is RoadNetworkChangesConnectedProjection connected)
-                    {
-                        connected.IsCatchingUp = IsCatchingUp;
-                    }
-
-                    await projection.Project(operations, eventsToProcess, cancellation).ConfigureAwait(false);
-                }
+                connected.IsCatchingUp = IsCatchingUp;
             }
 
-            if (projectionProgression is null)
+            foreach (var work in correlationWork)
+            {
+                await projection.Project(operations, work.ToProcess, cancellation).ConfigureAwait(false);
+            }
+        }
+
+        // Update progressions after all projections have run for all correlations.
+        foreach (var work in correlationWork)
+        {
+            if (work.Progression is null)
             {
                 operations.Insert(new RoadNetworkChangesProjectionProgression
                 {
-                    Id = eventsGrouping.ProgressionId,
+                    Id = work.ProgressionId,
                     ProjectionName = _projectionName,
-                    LastSequenceId = lastSequenceId
+                    LastSequenceId = work.LastSeq
                 });
             }
-            else if (lastSequenceId > projectionProgression.LastSequenceId)
+            else if (work.LastSeq > work.Progression.LastSequenceId)
             {
-                projectionProgression.LastSequenceId = lastSequenceId;
+                work.Progression.LastSequenceId = work.LastSeq;
+                operations.Store(work.Progression);
             }
         }
     }
