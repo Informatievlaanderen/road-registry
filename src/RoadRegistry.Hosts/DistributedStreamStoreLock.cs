@@ -7,16 +7,19 @@ using BackOffice;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SqlStreamStore;
 
 public class DistributedStreamStoreLock : DistributedLock<IStreamStore>
 {
     private readonly DistributedStreamStoreLockOptions _options;
+    private readonly ILogger _logger;
 
     public DistributedStreamStoreLock(DistributedStreamStoreLockOptions options, StreamName streamName, ILogger logger)
-        : base(options, $"{nameof(DistributedStreamStoreLock)}-{streamName}", logger)
+        : base(options, $"{nameof(DistributedStreamStoreLock)}-{streamName}", NullLogger.Instance)
     {
         _options = options;
+        _logger = logger;
     }
 
     public async Task RetryRunUntilLockAcquiredAsync(Func<Task> runFunc, CancellationToken cancellationToken)
@@ -30,6 +33,12 @@ public class DistributedStreamStoreLock : DistributedLock<IStreamStore>
 
     public async Task<T> RetryRunUntilLockAcquiredAsync<T>(Func<Task<T>> runFunc, CancellationToken cancellationToken)
     {
+        if (!_options.Enabled)
+        {
+            _logger.LogWarning("Bypassing distributed stream store lock because it is disabled in configuration.");
+            return await runFunc();
+        }
+
         T result = default;
 
         while (!cancellationToken.IsCancellationRequested)
