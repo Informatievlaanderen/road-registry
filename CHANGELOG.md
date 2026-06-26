@@ -1,3 +1,11 @@
+## [4.65.2](https://github.com/informatievlaanderen/road-registry/compare/v4.65.1...v4.65.2) (2026-06-26)
+
+
+### Bug Fixes
+
+* **2.0:** tracking projection progression ([90fee01](https://github.com/informatievlaanderen/road-registry/commit/90fee014164e1d9afd9ff64e688e071ba0e9e4e1))
+* avoid ops error spam when DistributedStreamStoreLock is trying to get a lock ([1040f2c](https://github.com/informatievlaanderen/road-registry/commit/1040f2c7bda8330ae3cf777e7e413c3f701152e7))
+
 ## [4.65.1](https://github.com/informatievlaanderen/road-registry/compare/v4.65.0...v4.65.1) (2026-06-25)
 
 
