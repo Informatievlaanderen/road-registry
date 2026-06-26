@@ -35,8 +35,8 @@ public class DistributedStreamStoreLock : DistributedLock<IStreamStore>
     {
         if (!_options.Enabled)
         {
-            _logger.LogWarning($"Bypassing the expected lock. DistributedLock for {typeof(T).Name} is disabled in configuration");
-            return default;
+            _logger.LogWarning("Bypassing distributed stream store lock because it is disabled in configuration.");
+            return await runFunc();
         }
 
         T result = default;
