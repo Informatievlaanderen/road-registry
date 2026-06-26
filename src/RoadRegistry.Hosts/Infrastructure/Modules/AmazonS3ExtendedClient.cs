@@ -9,6 +9,7 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
     using System.Text.Json.Serialization;
     using Amazon;
     using Amazon.Runtime;
+    using Amazon.Runtime.Credentials;
     using Amazon.Runtime.Internal.Auth;
     using Amazon.S3;
     using Microsoft.Extensions.Logging;
@@ -31,9 +32,8 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
         public AmazonS3ExtendedClient(
             ILoggerFactory loggerFactory,
             AmazonS3Config config)
-            : base(config)
+            : this(loggerFactory, DefaultAWSCredentialsIdentityResolver.GetCredentials(), config)
         {
-            _logger = loggerFactory.CreateLogger<AmazonS3ExtendedClient>();
         }
 
         public AmazonS3ExtendedClient(
@@ -54,13 +54,13 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
 
             _logger.LogInformation($"BucketUrl: {url}");
 
-            var signingDate = Config.CorrectedUtcNow
+            var signingDate = DateTime.UtcNow
                 .ToString("yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture);
 
             var shortDate = signingDate[..8];
 
-            var credentials = Credentials.GetCredentials()
-                ?? throw new ConfigurationErrorsException("No credentials found");
+            var credentials = ExplicitAWSCredentials.GetCredentials()
+                              ?? throw new ConfigurationErrorsException("No credentials found");
 
             _logger.LogInformation($"credentials: {credentials.AccessKey}");
             _logger.LogInformation($"usetoken: {credentials.UseToken}");
@@ -83,7 +83,7 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
             }
 
             var postPolicy = new PostPolicy(
-                Config.CorrectedUtcNow.Add(request.Expires ?? TimeSpan.FromSeconds(3600)),
+                DateTime.UtcNow.Add(request.Expires ?? TimeSpan.FromSeconds(3600)),
                 request.Conditions);
 
             var postPolicyJson = JsonSerializer.Serialize(

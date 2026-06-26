@@ -1,5 +1,6 @@
 namespace RoadRegistry.Jobs.Processor.Tests
 {
+    using RoadRegistry.Tests;
     using BackOffice.Abstractions.Exceptions;
     using BackOffice.Abstractions.Jobs;
     using BackOffice.Exceptions;
@@ -37,7 +38,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 Mock.Of<IHostApplicationLifetime>());
 
             // Act
-            await sut.StartAsync(CancellationToken.None);
+            await sut.RunOnceAsync(CancellationToken.None);
 
             // Assert
             mockExtractRequestCleaner.Verify(x => x.CloseOldExtracts(
@@ -81,7 +82,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockIHostApplicationLifeTime.Object);
 
             // Act
-            await sut.StartAsync(CancellationToken.None);
+            await sut.RunOnceAsync(CancellationToken.None);
 
             // Assert
             mockTicketing.Verify(x => x.Pending(ticketId, It.IsAny<CancellationToken>()), Times.Never);
@@ -129,7 +130,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockIHostApplicationLifeTime.Object);
 
             // Act
-            await sut.StartAsync(ct);
+            await sut.RunOnceAsync(ct);
 
             // Assert
             jobsContext.Jobs.First().Status.Should().Be(JobStatus.Created);
@@ -182,7 +183,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockIHostApplicationLifeTime.Object);
 
             // Act
-            await sut.StartAsync(ct);
+            await sut.RunOnceAsync(ct);
 
             // Assert
             jobsContext.Jobs.First().Status.Should().Be(JobStatus.Error);
@@ -242,7 +243,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockIHostApplicationLifeTime.Object);
 
             // Act
-            await sut.StartAsync(ct);
+            await sut.RunOnceAsync(ct);
 
             // Assert
             jobsContext.Jobs.First().Status.Should().Be(JobStatus.Error);

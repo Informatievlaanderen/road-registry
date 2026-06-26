@@ -26,14 +26,14 @@ jobs:
         run: rm -rf /opt/hostedtoolcache
 
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: "22.x"
+          node-version: "24.x"
 
       - name: Node version
         shell: bash
@@ -80,7 +80,7 @@ jobs:
       test-project: RoadRegistry.BackOffice.Api.Tests
       build-project: RoadRegistry.BackOffice.Api
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -110,7 +110,7 @@ jobs:
       test-project: RoadRegistry.BackOffice.EventHost.Tests
       build-project: RoadRegistry.BackOffice.EventHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -127,7 +127,7 @@ jobs:
       test-project: RoadRegistry.BackOffice.CommandHost.Tests
       build-project: RoadRegistry.BackOffice.CommandHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -144,7 +144,7 @@ jobs:
       test-project: RoadRegistry.Empty.Tests
       build-project: RoadRegistry.AdminHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -161,7 +161,7 @@ jobs:
       test-project: RoadRegistry.Jobs.Processor.Tests
       build-project: RoadRegistry.Jobs.Processor
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -178,7 +178,7 @@ jobs:
       test-project: RoadRegistry.Projector.Tests
       build-project: RoadRegistry.Projector
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -195,7 +195,7 @@ jobs:
       test-project: RoadRegistry.Editor.ProjectionHost.Tests
       build-project: RoadRegistry.Editor.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -212,7 +212,7 @@ jobs:
       test-project: RoadRegistry.Integration.ProjectionHost.Tests
       build-project: RoadRegistry.Integration.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -229,7 +229,7 @@ jobs:
       test-project: RoadRegistry.Product.ProjectionHost.Tests
       build-project: RoadRegistry.Product.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -246,7 +246,7 @@ jobs:
       test-project: RoadRegistry.Empty.Tests
       build-project: RoadRegistry.Product.PublishHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -263,7 +263,7 @@ jobs:
       test-project: RoadRegistry.Producer.Snapshot.ProjectionHost.Tests
       build-project: RoadRegistry.Producer.Snapshot.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -280,7 +280,7 @@ jobs:
       test-project: RoadRegistry.SyncHost.Tests
       build-project: RoadRegistry.SyncHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -297,7 +297,7 @@ jobs:
       test-project: RoadRegistry.Wms.ProjectionHost.Tests
       build-project: RoadRegistry.Wms.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -314,7 +314,7 @@ jobs:
       test-project: RoadRegistry.Wfs.ProjectionHost.Tests
       build-project: RoadRegistry.Wfs.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -329,7 +329,7 @@ jobs:
       test-project: RoadRegistry.Empty.Tests
       build-project: RoadRegistry.BackOffice.Api
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -346,7 +346,7 @@ jobs:
       test-project: RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests
       build-project: RoadRegistry.BackOffice.Handlers.Sqs.Lambda
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -363,7 +363,7 @@ jobs:
       test-project: RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests
       build-project: RoadRegistry.Snapshot.Handlers.Sqs.Lambda
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       prerestore-script: ./pre-restore.sh
       use-packages-lock: false
     secrets: inherit
@@ -398,12 +398,12 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Cache NPM
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         env:
           cache-name: cache-npm
         with:
@@ -413,20 +413,20 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+          dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       - name: .NET version
         shell: bash
         run: dotnet --info
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: "22.x"
+          node-version: "24.x"
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.x"
 
@@ -449,7 +449,7 @@ jobs:
           pip install requests markdown argparse
 
       - name: Download NuGet BackOffice Api
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         continue-on-error: false
         with:
           name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api-${{ needs.set-release-version.outputs.version }}
@@ -485,18 +485,18 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+          dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       - name: .NET version
         shell: bash
         run: dotnet --info
 
       - name: Download NuGet package 'backoffice-api'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api-${{ needs.release.outputs.version }}
           path: ~/
@@ -517,14 +517,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Parse repository name
         run: echo REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//") >> $GITHUB_ENV
         shell: bash
 
       - name: Cache Python
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         env:
           cache-name: cache-pip
         with:
@@ -532,7 +532,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ env.cache-name }}
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.x"
 
@@ -575,7 +575,7 @@ jobs:
           ]
     steps:
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4.1.0
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.VBR_AWS_CICD_ROLE }}
           aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
@@ -585,7 +585,7 @@ jobs:
 
       # Download artifact
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         continue-on-error: false
         with:
           name: ${{ matrix.image }}-${{ needs.release.outputs.version }}
@@ -620,7 +620,7 @@ jobs:
 
     steps:
       - name: Notify deployment started
-        uses: slackapi/slack-github-action@v2
+        uses: slackapi/slack-github-action@v3
         with:
           method: chat.postMessage
           token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
@@ -690,7 +690,7 @@ jobs:
 
     steps:
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4.1.0
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID_TST }}:role/grawr-infra-bastion-ssm-run-command
           aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
@@ -752,7 +752,7 @@ jobs:
 
     steps:
       - name: Notify deployment succeeded
-        uses: slackapi/slack-github-action@v2
+        uses: slackapi/slack-github-action@v3
         with:
           method: chat.postMessage
           token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
@@ -768,7 +768,7 @@ jobs:
     steps:
       - name: Notify build skipped
         id: slack
-        uses: slackapi/slack-github-action@v2
+        uses: slackapi/slack-github-action@v3
         with:
           method: chat.postMessage
           token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
@@ -787,7 +787,7 @@ jobs:
     steps:
       - name: Notify release skipped
         id: slack
-        uses: slackapi/slack-github-action@v2
+        uses: slackapi/slack-github-action@v3
         with:
           method: chat.postMessage
           token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
@@ -805,7 +805,7 @@ jobs:
     steps:
       - name: Notify release failed
         id: slack
-        uses: slackapi/slack-github-action@v2
+        uses: slackapi/slack-github-action@v3
         with:
           method: chat.postMessage
           token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
@@ -821,7 +821,7 @@ jobs:
     steps:
       - name: Notify deployment failed
         id: slack
-        uses: slackapi/slack-github-action@v2
+        uses: slackapi/slack-github-action@v3
         with:
           method: chat.postMessage
           token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}

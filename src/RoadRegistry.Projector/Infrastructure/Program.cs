@@ -2,7 +2,7 @@ namespace RoadRegistry.Projector.Infrastructure;
 
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 public class Program
 {
@@ -37,7 +37,7 @@ public class Program
 
     private static void Run(ProgramOptions options)
     {
-        new WebHostBuilder()
+        Host.CreateDefaultBuilder()
             .UseDefaultForApi<Startup>(options)
             .RunWithLock<Program>();
     }

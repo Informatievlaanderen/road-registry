@@ -1,5 +1,6 @@
 namespace RoadRegistry.SyncHost.Tests.StreetName.StreetNameEventConsumer.WhenStreetNameWasRenamed;
 
+using RoadRegistry.Tests;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
@@ -49,7 +50,7 @@ public class GivenRoadNetwork : StreetNameEventConsumerTestsBase
         });
         topicConsumer.SeedMessage(streetName1WasRenamed);
 
-        await consumer.StartAsync(CancellationToken.None);
+        await consumer.RunOnceAsync(CancellationToken.None);
 
         var page = await store.ReadAllForwards(Position.Start, int.MaxValue);
         page.Messages.Should().HaveCount(2);

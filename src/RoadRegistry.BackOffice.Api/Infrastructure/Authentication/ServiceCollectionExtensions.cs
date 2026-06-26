@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Configuration;
 using Controllers.Attributes;
-using IdentityModel.AspNetCore.OAuth2Introspection;
+using Duende.AspNetCore.Authentication.OAuth2Introspection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

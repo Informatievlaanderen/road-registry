@@ -64,7 +64,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 
             topicConsumer.SeedMessage(streetName1.Identificator.Id, streetName1);
 
-            await consumer.StartAsync(CancellationToken.None);
+            await consumer.RunOnceAsync(CancellationToken.None);
 
             var page = await store.ReadAllForwards(Position.Start, 1);
             var message = Assert.Single(page.Messages);
@@ -124,7 +124,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 .SeedMessage(streetName1Modification.Identificator.Id, streetName1Modification)
                 ;
 
-            await consumer.StartAsync(CancellationToken.None);
+            await consumer.RunOnceAsync(CancellationToken.None);
 
             var page = await store.ReadAllForwards(Position.Start, 2);
             var message = page.Messages[1];
@@ -207,7 +207,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 .SeedMessage(streetNameId, streetName1Remove)
                 ;
 
-            await consumer.StartAsync(CancellationToken.None);
+            await consumer.RunOnceAsync(CancellationToken.None);
 
             var page = await store.ReadAllForwards(Position.Start, 2);
             {
