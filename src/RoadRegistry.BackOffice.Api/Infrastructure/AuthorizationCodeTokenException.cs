@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure;
 
 using Exceptions;
-using IdentityModel.Client;
+using Duende.IdentityModel.Client;
 
 public class AuthorizationCodeTokenException : RoadRegistryException
 {
