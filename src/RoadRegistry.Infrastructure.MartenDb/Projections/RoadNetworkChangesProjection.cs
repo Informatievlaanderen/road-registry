@@ -109,12 +109,10 @@ public abstract class RoadNetworkChangesProjection : IProjection
             .Where(x => x.ToProcess.Count > 0)
             .ToList();
 
-        // OUTER loop over sub-projections, INNER loop over correlations.
-        // This guarantees RoadSegmentReadProjection processes every correlation's segment events
-        // (storing them into the Marten identity map) before GradeSeparatedJunctionReadProjection or
-        // GradeJunctionReadProjection runs for any correlation, preventing "road segment not found"
-        // errors caused by a junction correlation being processed before its referenced segment
-        // correlation.
+// OUTER loop over sub-projections, INNER loop over correlations.
+// This ensures all road-segment handlers run for every correlation (populating the Marten identity map)
+// before any junction handlers run, preventing junction projections from referencing segments that
+// haven't been projected yet.
         foreach (var projection in _projections)
         {
             if (projection is RoadNetworkChangesConnectedProjection connected)
