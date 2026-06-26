@@ -94,18 +94,20 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
         // Pre-compute eventsToProcess for every correlation upfront so the projection loop below uses
         // a stable snapshot rather than re-evaluating the Where filter inside the nested loop.
-        var correlationWork = eventsPerCorrelationId
-            .Select(g =>
-            {
-                var orderedEvents = g.OrderBy(x => x.Sequence).ToList();
-                var progressionId = BuildProgressionId(g.Key);
-                var lastSeq = orderedEvents.Max(x => x.Sequence);
-                var progression = processedProjectionProgressions.SingleOrDefault(x => x.Id == progressionId);
-                IReadOnlyList<IEvent> toProcess = progression is not null
-                    ? orderedEvents.Where(x => x.Sequence > progression.LastSequenceId).ToList()
-                    : orderedEvents;
-                return (CorrelationId: g.Key, ProgressionId: progressionId, LastSeq: lastSeq, Progression: progression, ToProcess: toProcess);
-            })
+var progressionById = processedProjectionProgressions.ToDictionary(x => x.Id);
+
+var correlationWork = eventsPerCorrelationId
+    .Select(g =>
+    {
+        var orderedEvents = g.OrderBy(x => x.Sequence).ToList();
+        var progressionId = BuildProgressionId(g.Key);
+        var lastSeq = orderedEvents[^1].Sequence;
+        progressionById.TryGetValue(progressionId, out var progression);
+        IReadOnlyList<IEvent> toProcess = progression is not null
+            ? orderedEvents.Where(x => x.Sequence > progression.LastSequenceId).ToList()
+            : orderedEvents;
+        return (CorrelationId: g.Key, ProgressionId: progressionId, LastSeq: lastSeq, Progression: progression, ToProcess: toProcess);
+    })
             .Where(x => x.ToProcess.Count > 0)
             .ToList();
 
