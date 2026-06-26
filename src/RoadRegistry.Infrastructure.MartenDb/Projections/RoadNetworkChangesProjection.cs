@@ -92,39 +92,58 @@ public abstract class RoadNetworkChangesProjection : IProjection
             .OrderBy(x => x.First().Sequence)
             .ToList();
 
-        foreach (var eventsGrouping in eventsPerCorrelationId.Select((g, _) => (CorrelationId: g.Key, ProgressionId: BuildProgressionId(g.Key), Events: g.OrderBy(x => x.Sequence).ToList())))
-        {
-            var lastSequenceId = eventsGrouping.Events.Max(x => x.Sequence);
-            var projectionProgression = processedProjectionProgressions.SingleOrDefault(x => x.Id == eventsGrouping.ProgressionId);
-
-            var eventsToProcess = projectionProgression is not null
-                ? eventsGrouping.Events.Where(x => x.Sequence > projectionProgression.LastSequenceId).ToList()
-                : eventsGrouping.Events;
-            if (eventsToProcess.Any())
+        // Pre-compute eventsToProcess for every correlation upfront so the projection loop below uses
+        // a stable snapshot rather than re-evaluating the Where filter inside the nested loop.
+        var correlationWork = eventsPerCorrelationId
+            .Select(g =>
             {
-                foreach (var projection in _projections)
-                {
-                    if (projection is RoadNetworkChangesConnectedProjection connected)
-                    {
-                        connected.IsCatchingUp = IsCatchingUp;
-                    }
+                var orderedEvents = g.OrderBy(x => x.Sequence).ToList();
+                var progressionId = BuildProgressionId(g.Key);
+                var lastSeq = orderedEvents.Max(x => x.Sequence);
+                var progression = processedProjectionProgressions.SingleOrDefault(x => x.Id == progressionId);
+                IReadOnlyList<IEvent> toProcess = progression is not null
+                    ? orderedEvents.Where(x => x.Sequence > progression.LastSequenceId).ToList()
+                    : orderedEvents;
+                return (CorrelationId: g.Key, ProgressionId: progressionId, LastSeq: lastSeq, Progression: progression, ToProcess: toProcess);
+            })
+            .Where(x => x.ToProcess.Count > 0)
+            .ToList();
 
-                    await projection.Project(operations, eventsToProcess, cancellation).ConfigureAwait(false);
-                }
+        // OUTER loop over sub-projections, INNER loop over correlations.
+        // This guarantees RoadSegmentReadProjection processes every correlation's segment events
+        // (storing them into the Marten identity map) before GradeSeparatedJunctionReadProjection or
+        // GradeJunctionReadProjection runs for any correlation, preventing "road segment not found"
+        // errors caused by a junction correlation being processed before its referenced segment
+        // correlation.
+        foreach (var projection in _projections)
+        {
+            if (projection is RoadNetworkChangesConnectedProjection connected)
+            {
+                connected.IsCatchingUp = IsCatchingUp;
             }
 
-            if (projectionProgression is null)
+            foreach (var work in correlationWork)
+            {
+                await projection.Project(operations, work.ToProcess, cancellation).ConfigureAwait(false);
+            }
+        }
+
+        // Update progressions after all projections have run for all correlations.
+        foreach (var work in correlationWork)
+        {
+            if (work.Progression is null)
             {
                 operations.Insert(new RoadNetworkChangesProjectionProgression
                 {
-                    Id = eventsGrouping.ProgressionId,
+                    Id = work.ProgressionId,
                     ProjectionName = _projectionName,
-                    LastSequenceId = lastSequenceId
+                    LastSequenceId = work.LastSeq
                 });
             }
-            else if (lastSequenceId > projectionProgression.LastSequenceId)
+            else if (work.LastSeq > work.Progression.LastSequenceId)
             {
-                projectionProgression.LastSequenceId = lastSequenceId;
+                work.Progression.LastSequenceId = work.LastSeq;
+                operations.Store(work.Progression);
             }
         }
     }
