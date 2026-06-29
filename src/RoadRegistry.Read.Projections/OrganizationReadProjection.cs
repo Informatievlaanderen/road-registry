@@ -59,7 +59,8 @@ public class OrganizationReadProjection : RoadNetworkChangesConnectedProjection
             var organization = await session.LoadAsync<OrganizationReadItem>(e.Data.OrganizationId.ToString(), ct);
             if (organization is null)
             {
-                throw new InvalidOperationException($"No organization found for Id {e.Data.OrganizationId}");
+                // Ignore if not found, not an issue for Organization
+                return;
             }
 
             organization.IsRemoved = true;

@@ -1472,12 +1472,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
     private static string OrganizationStreamKey(OrganizationId organizationId)
     {
-        return $"organization-{organizationId}";
+        return $"Organization-{organizationId}";
     }
 
     private static string StreetNameStreamKey(StreetNameLocalId streetNameId)
     {
-        return $"streetname-{streetNameId}";
+        return $"StreetName-{streetNameId}";
     }
 
     private static string BuildEventIdentifier<TMessage>(Envelope<TMessage> envelope, int? changeIndex = null)
