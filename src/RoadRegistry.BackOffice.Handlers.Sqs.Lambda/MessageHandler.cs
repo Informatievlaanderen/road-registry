@@ -1,29 +1,30 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
-using Actions.ChangeRoadNetwork;
-using Actions.CloseExtract;
-using Actions.DataValidation;
-using Actions.LinkRoadSegmentsToStreetNameIds;
-using Actions.MigrateDryRunRoadNetwork;
-using Actions.MigrateRoadNetwork;
-using Actions.RemoveRoadSegments;
-using Actions.RequestExtract;
-using Actions.RequestInwinningExtract;
-using Actions.UploadExtract;
-using Actions.UploadInwinningExtract;
-using Amazon.Runtime.Internal.Util;
 using Autofac;
-using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using Extracts;
 using MediatR;
-using Requests;
-using RoadNetwork;
+using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Infrastructure;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CloseExtract;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CreateRoadSegmentOutline;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.DataValidation;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.LinkRoadSegmentsToStreetNameIds;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateDryRunRoadNetwork;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RemoveRoadSegments;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestExtract;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestInwinningExtract;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadExtract;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadInwinningExtract;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.SystemFlows;
-using RoadSegments;
+using RoadRegistry.BackOffice.Uploads;
 
 public sealed class MessageHandler : BlobMessageHandler
 {
@@ -73,6 +74,7 @@ public sealed class MessageHandler : BlobMessageHandler
             MigrateDryRunRoadNetworkSqsRequest request => new MigrateDryRunRoadNetworkSqsLambdaRequest(groupId, request),
             MigrateRoadNetworkSqsRequest request => new MigrateRoadNetworkSqsLambdaRequest(groupId, request),
             DataValidationSqsRequest request => new DataValidationSqsLambdaRequest(groupId, request),
+            CreateRoadSegmentOutlineV2SqsRequest request => new CreateRoadSegmentOutlineV2SqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(
                 $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
         };

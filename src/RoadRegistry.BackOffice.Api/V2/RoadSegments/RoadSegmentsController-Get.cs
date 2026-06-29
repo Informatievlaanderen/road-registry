@@ -450,27 +450,6 @@ public class WegsegmentGeometrieProjectie
     public required string Gml { get; set; }
 }
 
-public enum WegsegmentKant
-{
-    Links,
-    Rechts,
-    Beide
-}
-
-internal static class WegsegmentKantExtensions
-{
-    public static WegsegmentKant ToWegsegmentKant(this RoadSegmentAttributeSide side)
-    {
-        return side switch
-        {
-            RoadSegmentAttributeSide.Left => WegsegmentKant.Links,
-            RoadSegmentAttributeSide.Right => WegsegmentKant.Rechts,
-            RoadSegmentAttributeSide.Both => WegsegmentKant.Beide,
-            _ => throw new ArgumentOutOfRangeException(nameof(side), side, null)
-        };
-    }
-}
-
 [DataContract(Name = "WegsegmentStraatnaamAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentStraatnaamAttribuutWaarde")]
 public class WegsegmentStraatnaamAttribuutWaarde
