@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CreateRoadSegmentOutline;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CreateRoadSegmentOutlineV2;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;

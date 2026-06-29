@@ -8,17 +8,22 @@ using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.Common.NetTopology;
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
+using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Abstractions.RoadSegmentsOutline;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
+using RoadRegistry.BackOffice.Api.RoadSegments.V1;
 using RoadRegistry.BackOffice.Handlers.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
@@ -419,24 +424,106 @@ public class CreateOutlinedRoadSegmentV2ParametersExamples : IExamplesProvider<C
 {
     public CreateOutlinedRoadSegmentV2Parameters GetExamples()
     {
-        //TODO-pr implement example
-        throw new NotImplementedException();
-//         return new CreateOutlinedRoadSegmentV2Parameters
-//         {
-//             MiddellijnGeometrie = @"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/31370"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
-// <gml:posList>217368.75 181577.016 217400.11 181499.516</gml:posList>
-// </gml:LineString>",
-//             Wegsegmentstatus = RoadSegmentStatus.InUse.Translation.Name,
-//             MorfologischeWegklasse = RoadSegmentMorphology.PrimitiveRoad.Translation.Name,
-//             Toegangsbeperking = RoadSegmentAccessRestriction.PublicRoad.Translation.Name,
-//             Wegbeheerder = "44021",
-//             Wegverharding = RoadSegmentSurfaceType.SolidSurface.Translation.Name,
-//             Wegbreedte = "5",
-//             AantalRijstroken = new RoadSegmentLaneParameters
-//             {
-//                 Aantal = "2",
-//                 Richting = RoadSegmentLaneDirection.Forward.Translation.Name
-//             }
-//         };
+        var geometry = GeometryExtensions.WithSrid(new LineString([
+            new(243234.8929999992, 160239.3830000013),
+            new(243245.9949999973, 160238.7989999987),
+            new(243261.3599999994, 160239.0),
+            new(243279.0160000026, 160244.1570000015),
+        ]), WellknownSrids.Lambert72);
+
+
+        return new CreateOutlinedRoadSegmentV2Parameters
+        {
+            WegsegmentGeometrie = geometry.EnsureLambert08().ConvertToGml2(),
+            Wegsegmentstatus = RoadSegmentStatusV2.Gepland.ToDutchString(),
+            Straatnaam = [
+                new IngeschetstWegsegmentStraatnaamAttribuutWaarde
+                {
+                    Kant = WegsegmentKant.Links,
+                    VanPositie = 0,
+                    TotPositie = 10,
+                    Identificator = OsloNamespaces.StraatNaam.ToPuri(71671.ToString())
+                },
+                new IngeschetstWegsegmentStraatnaamAttribuutWaarde
+                {
+                    Kant = WegsegmentKant.Rechts,
+                    VanPositie = 0,
+                    TotPositie = 10,
+                    Identificator = OsloNamespaces.StraatNaam.ToPuri(65412.ToString())
+                },
+                new IngeschetstWegsegmentStraatnaamAttribuutWaarde
+                {
+                    Kant = WegsegmentKant.Beide,
+                    VanPositie = 10,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Identificator = OsloNamespaces.StraatNaam.ToPuri(71671.ToString())
+                },
+            ],
+            Morfologie = new [] { RoadSegmentMorphologyV2.Parallelweg }
+                .Select(x => new WegsegmentMorfologieAttribuutWaarde
+                {
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Morfologie = x.ToDutchString()
+                })
+                .ToArray(),
+            Toegang = new [] { RoadSegmentAccessRestrictionV2.OpenbareWeg }
+                .Select(x => new WegsegmentToegangAttribuutWaarde
+                {
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Toegang = x.ToDutchString()
+                })
+                .ToArray(),
+            Wegbeheerder = new [] { new OrganizationId("AGIV") }
+                .Select(x => new IngeschetstWegsegmentWegbeheerderAttribuutWaarde
+                {
+                    Kant = WegsegmentKant.Beide,
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Wegbeheerder = x.ToString()
+                })
+                .ToArray(),
+            Wegcategorie = new [] { RoadSegmentCategoryV2.RegionaleWeg }
+                .Select(x => new WegsegmentWegcategorieAttribuutWaarde
+                {
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Wegcategorie = x.ToDutchString()
+                })
+                .ToArray(),
+            Wegverharding = new [] { RoadSegmentSurfaceTypeV2.Verhard }
+                .Select(x => new WegsegmentWegverhardingAttribuutWaarde
+                {
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Wegverharding = x.ToDutchString()
+                })
+                .ToArray(),
+            VerkeerstypeAuto = new [] { RoadSegmentTrafficDirection.Forward }
+                .Select(x => new WegsegmentVerkeerstypeAutoAttribuutWaarde
+                {
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Richting = x.ToDutchString()
+                })
+                .ToArray(),
+            VerkeerstypeFiets = new [] { RoadSegmentTrafficDirection.Both }
+                .Select(x => new WegsegmentVerkeerstypeFietsAttribuutWaarde
+                {
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Richting = x.ToDutchString()
+                })
+                .ToArray(),
+            VerkeerstypeVoetganger = new [] { RoadSegmentTrafficDirection.None }
+                .Select(x => new WegsegmentVerkeerstypeVoetgangerAttribuutWaarde
+                {
+                    VanPositie = 0,
+                    TotPositie = geometry.Length.RoundToCm(),
+                    Richting = x.ToDutchString()
+                })
+                .ToArray()
+        };
     }
 }

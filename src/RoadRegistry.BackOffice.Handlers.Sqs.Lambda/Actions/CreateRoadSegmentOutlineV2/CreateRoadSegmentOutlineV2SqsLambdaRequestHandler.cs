@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CreateRoadSegmentOutline;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CreateRoadSegmentOutlineV2;
 
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -18,8 +18,8 @@ using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.StreetName;
+using RoadRegistry.ValueObjects.Problems;
 using TicketingService.Abstractions;
-using ValueObjects.Problems;
 
 public sealed class CreateRoadSegmentOutlineV2SqsLambdaRequestHandler : MartenSqsLambdaHandler<CreateRoadSegmentOutlineV2SqsLambdaRequest>
 {

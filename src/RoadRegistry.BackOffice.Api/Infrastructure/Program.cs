@@ -96,7 +96,7 @@ public class Program
             await Log.CloseAndFlushAsync();
 
             // Allow some time for flushing before shutdown.
-            await Task.Delay(500, default);
+            await Task.Delay(500, CancellationToken.None);
         }
     }
 }
