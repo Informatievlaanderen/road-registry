@@ -1,3 +1,10 @@
+## [4.65.3](https://github.com/informatievlaanderen/road-registry/compare/v4.65.2...v4.65.3) (2026-06-29)
+
+
+### Bug Fixes
+
+* **2.0:** ignore Organization not found error when removing in projection ([170b611](https://github.com/informatievlaanderen/road-registry/commit/170b6116ae7031402858bb1621ae6b3ab5ae28e8))
+
 ## [4.65.2](https://github.com/informatievlaanderen/road-registry/compare/v4.65.1...v4.65.2) (2026-06-26)
 
 
