@@ -13,6 +13,9 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
 
     public bool IsRemoved { get; private set; }
 
+    private readonly string? _lastSnapshotEventHash;
+    public string LastEventHash => UncommittedEvents.Count > 0 ? UncommittedEvents[^1].GetHash() : _lastSnapshotEventHash ?? string.Empty;
+
     public bool HasMigrated() => Type is not null;
 
     public RoadNode(RoadNodeId id)
@@ -27,20 +30,22 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         RoadNodeGeometry geometry,
         string? type,
         bool grensknoop,
-        bool isRemoved)
+        bool isRemoved,
+        string? lastEventHash)
         : this(new RoadNodeId(roadNodeId))
     {
         Geometry = geometry.EnsureLambert08();
         Type = type is not null ? RoadNodeTypeV2.Parse(type) : null;
         Grensknoop = grensknoop;
         IsRemoved = isRemoved;
+        _lastSnapshotEventHash = lastEventHash;
     }
 
     public static RoadNode CreateForMigration(
         RoadNodeId roadNodeId,
         RoadNodeGeometry geometry)
     {
-        return new RoadNode(roadNodeId, geometry, null, false, false);
+        return new RoadNode(roadNodeId, geometry, null, false, false, null);
     }
 
     public static RoadNode Create(RoadNodeWasAdded @event)

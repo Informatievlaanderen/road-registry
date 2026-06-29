@@ -24,8 +24,7 @@ public record OutlinedRoadSegmentWasAdded: IMartenEvent, ICreatedEvent
     public required RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection> PedestrianTrafficDirection { get; init; }
 
     public required ProvenanceData Provenance { get; init; }
-
-
+    
     public IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
     public string GetHash() => this.ToEventHash(EventName);
 }

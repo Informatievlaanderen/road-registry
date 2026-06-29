@@ -1,10 +1,15 @@
-namespace RoadRegistry.RoadSegment.Events.V1;
+﻿namespace RoadRegistry.RoadSegment.Events.V1;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using ValueObjects;
+using System.Collections.Generic;
+using Be.Vlaanderen.Basisregisters.GrAr.Common;
+using RoadRegistry.BackOffice;
 
 public class RoadSegmentAdded : IMartenEvent
 {
+    public const string EventName = "RoadSegmentAdded"; // BE CAREFUL CHANGING THIS!!
+
     public string AccessRestriction { get; set; }
     public string Category { get; set; }
     public int EndNodeId { get; set; }
@@ -26,4 +31,7 @@ public class RoadSegmentAdded : IMartenEvent
     public RoadSegmentWidthAttributes[] Widths { get; set; }
 
     public ProvenanceData Provenance { get; set; }
+
+    public IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
+    public string GetHash() => this.ToEventHash(EventName);
 }

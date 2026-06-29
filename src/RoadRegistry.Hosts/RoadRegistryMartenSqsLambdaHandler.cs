@@ -43,13 +43,14 @@ public abstract class RoadRegistryMartenSqsLambdaHandler<TSqsLambdaRequest> : Sq
 
         ProblemTranslator = problemTranslator ?? WellKnownProblemTranslators.Default;
         Store = store;
-        DetailUrlFormat = options.DetailUrl;
+        _publicApiBaseUrl = options.PublicApiBaseUrl;
         Logger = loggerFactory.CreateLogger(GetType());
     }
 
-    protected string DetailUrlFormat { get; }
     protected Marten.IDocumentStore Store { get; }
     protected ILogger Logger { get; }
+
+    private readonly string _publicApiBaseUrl;
 
     protected override TicketError MapValidationException(ValidationException exception, TSqsLambdaRequest request)
     {
@@ -107,5 +108,25 @@ public abstract class RoadRegistryMartenSqsLambdaHandler<TSqsLambdaRequest> : Sq
         }
 
         return ticketError;
+    }
+
+    protected string GetRoadNodeDetailUrlFormat(string apiVersion)
+    {
+        return $"{_publicApiBaseUrl}/{apiVersion}/wegknopen/{{0}}";
+    }
+
+    protected string GetRoadSegmentDetailUrlFormat(string apiVersion)
+    {
+        return $"{_publicApiBaseUrl}/{apiVersion}/wegsegmenten/{{0}}";
+    }
+
+    protected string GetGradeJunctionDetailUrlFormat(string apiVersion)
+    {
+        return $"{_publicApiBaseUrl}/{apiVersion}/gelijkgrondsekruisingen/{{0}}";
+    }
+
+    protected string GetGradeSeparatedJunctionDetailUrlFormat(string apiVersion)
+    {
+        return $"{_publicApiBaseUrl}/{apiVersion}/ongelijkgrondsekruisingen/{{0}}";
     }
 }

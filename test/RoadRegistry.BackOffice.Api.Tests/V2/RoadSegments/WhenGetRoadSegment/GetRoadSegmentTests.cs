@@ -20,7 +20,7 @@ public class GetRoadSegmentTests : V2ReadEndpointTestBase
 
     public GetRoadSegmentTests()
     {
-        _controller = new RoadSegmentsController(CreateControllerContext());
+        _controller = new RoadSegmentsController(CreateControllerContext(), null!);
         SetHttpContext(_controller);
     }
 
