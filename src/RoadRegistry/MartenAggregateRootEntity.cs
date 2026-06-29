@@ -19,7 +19,7 @@ public abstract class MartenAggregateRootEntity<TIdentifier> : IMartenAggregateR
     public bool HasChanges() => _requestedToSaveSnapshot || UncommittedEvents.Any();
     public IReadOnlyCollection<object> GetChanges() => UncommittedEvents.AsReadOnly();
 
-    protected List<object> UncommittedEvents { get; } = [];
+    protected List<IMartenEvent> UncommittedEvents { get; } = [];
     private bool _requestedToSaveSnapshot;
 
     protected MartenAggregateRootEntity(TIdentifier identifier)

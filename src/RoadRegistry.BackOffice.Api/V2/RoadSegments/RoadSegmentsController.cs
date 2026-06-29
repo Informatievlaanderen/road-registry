@@ -4,6 +4,7 @@ using Asp.Versioning;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
@@ -20,11 +21,13 @@ using Version = RoadRegistry.BackOffice.Api.Infrastructure.Version;
 [ApiExplorerSettings(GroupName = "WegsegmentenV2")]
 public partial class RoadSegmentsController : BackofficeApiController
 {
+    private readonly IMediator _mediator;
     internal const string PublicApiVersion = "v3";
 
-    public RoadSegmentsController(BackofficeApiControllerContext apiContext)
+    public RoadSegmentsController(BackofficeApiControllerContext apiContext, IMediator mediator)
         : base(apiContext)
     {
+        _mediator = mediator;
     }
 }
 

@@ -40,9 +40,9 @@ public static class NetTopologySuiteExtensions
 
     public static Error? ValidateRoadSegmentGeometryMinimumLength(this LineString line)
     {
-        if (line.Length < 1)
+        if (line.Length < Distances.RoadSegmentV2MinimumLength)
         {
-            return new RoadSegmentGeometryLengthIsLessThanMinimum(1);
+            return new RoadSegmentGeometryLengthIsLessThanMinimum(Distances.RoadSegmentV2MinimumLength);
         }
 
         return null;

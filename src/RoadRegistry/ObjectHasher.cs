@@ -16,7 +16,7 @@ public static class ObjectHasher
         return hashFields;
     }
 
-    private static void AddValueToFields(object item, object value, List<string> fields)
+    private static void AddValueToFields(object item, object? value, List<string> fields)
     {
         if (value == null)
         {
@@ -48,11 +48,11 @@ public static class ObjectHasher
         }
     }
 
-    private static IEnumerable<string> GetHashFields(object item, object parentItem)
+    private static IEnumerable<string> GetHashFields(object? item, object? parentItem)
     {
         if (item == null)
         {
-            return Array.Empty<string>();
+            return [];
         }
 
         var type = item.GetType();
@@ -60,20 +60,27 @@ public static class ObjectHasher
 
         if (UseToStringOnValue(type))
         {
-            fields.Add(item.ToString());
+            fields.Add(item.ToString() ?? string.Empty);
             return fields;
         }
 
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(x => x.CanRead).ToArray();
         if (!properties.Any())
         {
-            fields.Add(item.ToString());
+            fields.Add(item.ToString() ?? string.Empty);
             return fields;
         }
 
         if (parentItem != null && item is IHaveHashFields haveHashFields)
         {
             fields.AddRange(haveHashFields.GetHashFields());
+            return fields;
+        }
+
+        if (item is GeometryObject geometryObject)
+        {
+            fields.Add(geometryObject.SRID.ToString());
+            fields.Add(geometryObject.WKT);
             return fields;
         }
 
