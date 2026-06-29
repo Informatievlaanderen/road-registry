@@ -22,7 +22,7 @@ using Version = RoadRegistry.BackOffice.Api.Infrastructure.Version;
 public partial class RoadSegmentsController : BackofficeApiController
 {
     private readonly IMediator _mediator;
-    internal const string PublicApiVersion = "v3";
+    internal const string PublicApiVersion = WellKnownPublicApiVersions.V3;
 
     public RoadSegmentsController(BackofficeApiControllerContext apiContext, IMediator mediator)
         : base(apiContext)

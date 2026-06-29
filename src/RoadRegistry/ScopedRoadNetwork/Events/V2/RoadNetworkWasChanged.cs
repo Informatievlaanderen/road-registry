@@ -1,19 +1,26 @@
-namespace RoadRegistry.ScopedRoadNetwork.Events.V2;
+﻿namespace RoadRegistry.ScopedRoadNetwork.Events.V2;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using ValueObjects;
+using Be.Vlaanderen.Basisregisters.GrAr.Common;
+using RoadRegistry.BackOffice;
 
 public record RoadNetworkWasChanged : IMartenEvent, ICreatedEvent
 {
+    public const string EventName = "RoadNetworkWasChanged"; // BE CAREFUL CHANGING THIS!!
+
     public required ScopedRoadNetworkId RoadNetworkId { get; init; }
     public RoadNetworkChangeGeometry? ScopeGeometry { get; init; }
     public DownloadId? DownloadId { get; init; }
     public required RoadNetworkChangedSummary Summary { get; init; }
 
     public required ProvenanceData Provenance { get; init; }
+
+    public IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
+    public string GetHash() => this.ToEventHash(EventName);
 }
 
 public sealed class RoadNetworkChangedSummary

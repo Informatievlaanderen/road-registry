@@ -291,12 +291,7 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
         await session.SaveChangesAsync(cancellationToken);
     }
 
-    private static void SaveEvents<TKey, TEntity>(IReadOnlyDictionary<TKey, TEntity> entities, IDocumentSession session)
-        where TEntity : IMartenAggregateRootEntity
-    {
-    }
-
-    private static void SaveEntities<TKey, TEntity>(IReadOnlyDictionary<TKey, TEntity> entities, IDocumentSession session)
+    private void SaveEntities<TKey, TEntity>(IReadOnlyDictionary<TKey, TEntity> entities, IDocumentOperations session)
         where TEntity : IMartenAggregateRootEntity
     {
         foreach (var entity in entities.Select(x => x.Value).Where(x => x.HasChanges()))
