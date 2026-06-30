@@ -20,6 +20,7 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode PartiallyOverlapsWithAnotherRoadSegment = new("RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
         public static readonly ProblemCode IsInInwinning = new("RoadSegmentIsInInwinning");
         public static readonly ProblemCode OverlapsWithInwinningszone = new("RoadSegmentOverlapsWithInwinningszone");
+        public static readonly ProblemCode OutsideCompletedInwinningszone = new("RoadSegmentOutsideInwinningszone");
 
         public static class AccessRestriction
         {

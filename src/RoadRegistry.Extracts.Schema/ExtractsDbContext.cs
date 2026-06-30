@@ -137,6 +137,21 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
         return overlappingIds;
     }
 
+    public async Task<bool> IsCompletelyWithinCompletedInwinningszone(MultiLineString geometry, CancellationToken cancellationToken)
+    {
+        var zones = await Inwinningszones
+            .AsNoTracking()
+            .Where(x => x.Completed)
+            .Select(x => x.Contour)
+            .ToListAsync(cancellationToken);
+
+        if (zones.Count == 0)
+            return false;
+
+        var union = zones.Aggregate((Geometry?)null, (acc, g) => acc is null ? g : acc.Union(g))!;
+        return NetTopologySuite.Geometries.Prepared.PreparedGeometryFactory.Prepare(union).Covers(geometry);
+    }
+
     public async Task UploadAcceptedAsync(UploadId uploadId, CancellationToken cancellationToken)
     {
         await UpdateExtractUpload(uploadId, async record =>

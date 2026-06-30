@@ -113,15 +113,11 @@ public sealed class CreateRoadSegmentOutlineV2SqsLambdaRequestHandler : MartenSq
         };
         problems += new RoadSegmentAttributesValidator().Validate(roadSegmentAttributes, sqsLambdaRequest.Request.Geometry.Value.Length);
 
-        //TODO-pr inwinning overlap check: geometry must be completely within inwinningszone
-        // var geometry = sqsLambdaRequest.Request.Geometry.Value;
-        // var temporaryId = new RoadSegmentId(1);
-        // var overlapWithInwinningszone = (await _extractsDbContext.CheckWhichOverlapWithInwinningszone(
-        //     [(geometry, temporaryId)], cancellationToken)).Any();
-        // if (overlapWithInwinningszone)
-        // {
-        //     problems += new RoadSegmentOverlapsWithInwinningszone();
-        // }
+        var isCompletelyWithinCompletedInwinningszone = await _extractsDbContext.IsCompletelyWithinCompletedInwinningszone(sqsLambdaRequest.Request.Geometry.Value, cancellationToken);
+        if (!isCompletelyWithinCompletedInwinningszone)
+        {
+            problems += new RoadSegmentOutsideCompletedInwinningszone();
+        }
 
         if (problems.Any())
         {

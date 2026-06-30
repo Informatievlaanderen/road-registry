@@ -307,6 +307,11 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     : $"Het wegsegment valt (gedeeltelijk) binnen een gemeente die de inwinningsstatus 'locked' of 'compleet' heeft.")
             },
             {
+                ProblemCode.RoadSegment.OutsideCompletedInwinningszone, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")
+                    ? $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} valt niet volledig binnen een gemeente die de inwinningsstatus 'compleet' heeft."
+                    : $"Het wegsegment valt niet volledig binnen een gemeente die de inwinningsstatus 'compleet' heeft.")
+            },
+            {
                 ProblemCode.RoadSegment.IsInInwinning, problem => new(problem.Severity, problem.Reason,
                     $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft de inwinningsstatus 'locked' of 'compleet'.")
             },

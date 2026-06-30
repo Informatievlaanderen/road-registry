@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Events.V2;
