@@ -57,6 +57,10 @@ public static class SetupExtensions
         options.Events.MetadataConfig.CausationIdEnabled = true;
         options.Events.MetadataConfig.CorrelationIdEnabled = true;
         options.Events.MetadataConfig.HeadersEnabled = true;
+
+        options.Schema.For<IdempotentSession>()
+            .DatabaseSchemaName(WellKnownSchemas.MartenEventStore)
+            .Identity(x => x.Id);
     }
 
     public static StoreOptions ConfigureSerializer(this StoreOptions options)

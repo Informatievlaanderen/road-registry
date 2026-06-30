@@ -9,6 +9,8 @@ using Marten.Events;
 using Microsoft.Extensions.Logging;
 using Polly;
 using RoadNode;
+using RoadRegistry.ScopedRoadNetwork;
+using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadSegment;
 
 public static class SessionExtensions
@@ -39,6 +41,11 @@ public static class SessionExtensions
     {
         var result = await session.LoadManyAsync([id], cancellationToken);
         return result.SingleOrDefault();
+    }
+
+    public static async Task<ScopedRoadNetwork?> LoadAsync(this IDocumentSession session, ScopedRoadNetworkId id, CancellationToken cancellationToken = default)
+    {
+        return await session.Events.AggregateStreamAsync<ScopedRoadNetwork>(StreamKeyFactory.Create(typeof(ScopedRoadNetwork), id), token: cancellationToken);
     }
 
     public static async Task<IReadOnlyList<RoadSegment>> LoadManyAsync(this IDocumentSession session, IEnumerable<RoadSegmentId> ids, CancellationToken cancellationToken = default)

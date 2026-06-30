@@ -2,28 +2,24 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.V2.When
 
 using Autofac;
 using AutoFixture;
-using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Be.Vlaanderen.Basisregisters.Sqs.Responses;
-using Core;
-using Framework;
+using Marten;
 using Moq;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CreateRoadSegmentOutlineV2;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
-using RoadRegistry.RoadNetwork.Schema;
-using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.StreetName;
-using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
-using TicketingService.Abstractions;
 using Xunit.Abstractions;
 
 [Collection("runsequential")]
@@ -146,6 +142,7 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>(),
+            RoadSegmentId = new (1),
             Geometry = geometry,
             Status = RoadSegmentStatusV2.Gepland,
             Morphology =
@@ -245,9 +242,8 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
             new FakeRetryPolicy(),
             TicketingMock.Object,
             ScopedContainer.Resolve<IIdempotentCommandHandler>(),
-            new Mock<Marten.IDocumentStore>().Object,
+            new Mock<IDocumentStore>().Object,
             roadNetworkRepository,
-            new InMemoryRoadNetworkIdGenerator(),
             OrganizationCache,
             streetNameClient,
             extractsDbContext,

@@ -14,6 +14,7 @@ public interface IRoadNetworkRepository
     Task<RoadNetworkIds> GetUnderlyingIdsWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds);
     Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, ScopedRoadNetworkId roadNetworkId);
     Task Save(ScopedRoadNetwork roadNetwork, string commandName, CancellationToken cancellationToken);
+    void Save(IDocumentSession session, ScopedRoadNetwork roadNetwork, string commandName);
 }
 
 public sealed record RoadNetworkIds(
