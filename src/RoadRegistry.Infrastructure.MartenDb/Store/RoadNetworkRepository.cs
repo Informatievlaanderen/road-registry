@@ -1,7 +1,9 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Store;
 
+using System.Data;
 using Dapper;
 using Marten;
+using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Projections;
 using ScopedRoadNetwork;
@@ -266,15 +268,21 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
         var roadSegments = await session.LoadManyAsync(ids.RoadSegmentIds);
         var gradeSeparatedJunctions = await session.LoadManyAsync(ids.GradeSeparatedJunctionIds);
         var gradeJunctions = await session.LoadManyAsync(ids.GradeJunctionIds);
-        var roadNetwork = await session.Events.AggregateStreamAsync<ScopedRoadNetwork>(StreamKeyFactory.Create(typeof(ScopedRoadNetwork), roadNetworkId));
 
-        return roadNetwork ?? new ScopedRoadNetwork(roadNetworkId, roadNodes, roadSegments, gradeSeparatedJunctions, gradeJunctions);
+        return new ScopedRoadNetwork(roadNetworkId, roadNodes, roadSegments, gradeSeparatedJunctions, gradeJunctions);
     }
 
     public async Task Save(ScopedRoadNetwork roadNetwork, string commandName, CancellationToken cancellationToken)
     {
         await using var session = Store.LightweightSession();
 
+        Save(session, roadNetwork, commandName);
+
+        await session.SaveChangesAsync(cancellationToken);
+    }
+
+    public void Save(IDocumentSession session, ScopedRoadNetwork roadNetwork, string commandName)
+    {
         session.CorrelationId ??= roadNetwork.RoadNetworkId;
         session.CausationId = commandName;
 
@@ -287,8 +295,6 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
             EnsureEventHasProvenance(evt);
             session.Events.StartStream(roadNetwork.Id, evt);
         }
-
-        await session.SaveChangesAsync(cancellationToken);
     }
 
     private void SaveEntities<TKey, TEntity>(IReadOnlyDictionary<TKey, TEntity> entities, IDocumentOperations session)
@@ -321,3 +327,6 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
 
     private sealed record RoadNetworkTopologySegment(int RoadSegmentId, int StartNodeId, int EndNodeId, int? GradeSeparatedJunctionId, int? GradeJunctionId);
 }
+
+
+public sealed record IdempotentSession(string Id);

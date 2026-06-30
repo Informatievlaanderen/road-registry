@@ -10,6 +10,7 @@ using Extensions;
 using Infrastructure.MartenDb.Setup;
 using Marten;
 using Microsoft.Extensions.Logging.Abstractions;
+using RoadRegistry.Infrastructure.MartenDb.Store;
 using RoadRegistry.MartenMigration.Projections;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 
@@ -66,14 +67,13 @@ public class MartenMigrationProjectionTests
     private (MartenMigrationProjection, InMemoryDocumentStoreSession) BuildProjection()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
-        return (new MartenMigrationProjection(new MigrationRoadNetworkRepository(store, new NullLoggerFactory())), store);
+        return (new MartenMigrationProjection(store), store);
     }
 
     private static StoreOptions BuildStoreOptions()
     {
         var storeOptions = new StoreOptions();
         storeOptions.ConfigureRoad();
-        storeOptions.AddMartenDbMigration();
         return storeOptions;
     }
 }

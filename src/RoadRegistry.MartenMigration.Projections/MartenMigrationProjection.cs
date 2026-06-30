@@ -13,6 +13,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Extensions;
 using GradeSeparatedJunction;
+using Marten;
 using NodaTime;
 using NodaTime.Text;
 using RoadNode;
@@ -44,17 +45,17 @@ using RoadSegmentStreetNamesChanged = RoadSegment.Events.V1.RoadSegmentStreetNam
 
 public class MartenMigrationProjection : ConnectedProjection<MartenMigrationContext>
 {
-    private readonly MigrationRoadNetworkRepository _repo;
+    private readonly IDocumentStore _store;
 
-    public MartenMigrationProjection(MigrationRoadNetworkRepository repo)
+    public MartenMigrationProjection(IDocumentStore store)
     {
-        _repo = repo.ThrowIfNull();
+        _store = store.ThrowIfNull();
 
         When<Envelope<BackOffice.Messages.ImportedRoadNode>>((_, envelope, token) =>
         {
-            var eventIdentifier = BuildEventIdentifier(envelope);
+            var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope);
 
-            return _repo.InIdempotentSession(eventIdentifier, session =>
+            return store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
                 var point = GeometryTranslator.Translate(envelope.Message.Geometry);
                 var provenance = new Provenance(
@@ -66,7 +67,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     Organisation.DigitaalVlaanderen);
 
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
-                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+                session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
                 var roadNodeId = new RoadNodeId(envelope.Message.Id);
                 var streamKey = StreamKeyFactory.Create(typeof(RoadNode), roadNodeId);
@@ -100,12 +101,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
         When<Envelope<BackOffice.Messages.ImportedRoadSegment>>((_, envelope, token) =>
         {
-            var eventIdentifier = BuildEventIdentifier(envelope);
+            var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope);
 
-            return _repo.InIdempotentSession(eventIdentifier, session =>
+            return store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
-                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+                session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
                 var geometry = GeometryTranslator.Translate(envelope.Message.Geometry);
                 var provenance = new Provenance(
@@ -280,12 +281,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
         When<Envelope<BackOffice.Messages.ImportedGradeSeparatedJunction>>((_, envelope, token) =>
         {
-            var eventIdentifier = BuildEventIdentifier(envelope);
+            var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope);
 
-            return _repo.InIdempotentSession(eventIdentifier, session =>
+            return store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
-                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+                session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
                 var provenance = new Provenance(
                     Instant.FromDateTimeUtc(envelope.Message.Origin.Since),
@@ -403,12 +404,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         When<Envelope<BackOffice.Messages.ImportedOrganization>>((_, envelope, token) =>
         {
             var organizationId = new OrganizationId(envelope.Message.Code);
-            var eventIdentifier = BuildEventIdentifier(envelope);
+            var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope);
 
-            return _repo.InIdempotentSession(eventIdentifier, session =>
+            return store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
-                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+                session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
                 var legacyEvent = new OrganizationWasImported
                 {
@@ -422,12 +423,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         When<Envelope<BackOffice.Messages.CreateOrganizationAccepted>>((_, envelope, token) =>
         {
             var organizationId = new OrganizationId(envelope.Message.Code);
-            var eventIdentifier = BuildEventIdentifier(envelope);
+            var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope);
 
-            return _repo.InIdempotentSession(eventIdentifier, session =>
+            return store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
-                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+                session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
                 var v2Event = new OrganizationWasCreated
                 {
@@ -443,12 +444,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         When<Envelope<BackOffice.Messages.ChangeOrganizationAccepted>>((_, envelope, token) =>
         {
             var organizationId = new OrganizationId(envelope.Message.Code);
-            var eventIdentifier = BuildEventIdentifier(envelope);
+            var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope);
 
-            return _repo.InIdempotentSession(eventIdentifier, session =>
+            return store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
-                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+                session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
                 var v2Event = new OrganizationWasModified
                 {
@@ -465,12 +466,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         When<Envelope<BackOffice.Messages.RenameOrganizationAccepted>>((_, envelope, token) =>
         {
             var organizationId = new OrganizationId(envelope.Message.Code);
-            var eventIdentifier = BuildEventIdentifier(envelope);
+            var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope);
 
-            return _repo.InIdempotentSession(eventIdentifier, session =>
+            return store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
-                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+                session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
                 var v2Event = new OrganizationWasModified
                 {
@@ -484,12 +485,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         When<Envelope<BackOffice.Messages.DeleteOrganizationAccepted>>((_, envelope, token) =>
         {
             var organizationId = new OrganizationId(envelope.Message.Code);
-            var eventIdentifier = BuildEventIdentifier(envelope);
+            var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope);
 
-            return _repo.InIdempotentSession(eventIdentifier, session =>
+            return store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
-                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+                session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
                 var v2Event = new OrganizationWasRemoved
                 {
@@ -510,12 +511,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         When<Envelope<BackOffice.Messages.StreetNameCreated>>((_, envelope, token) =>
         {
             var streetNameLocalId = new StreetNameLocalId(envelope.Message.Record.PersistentLocalId);
-            var eventIdentifier = BuildEventIdentifier(envelope);
+            var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope);
 
-            return _repo.InIdempotentSession(eventIdentifier, session =>
+            return store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
-                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+                session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
                 var v2Event = new StreetNameWasCreated
                 {
@@ -535,12 +536,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             }
 
             var streetNameLocalId = new StreetNameLocalId(envelope.Message.Record.PersistentLocalId);
-            var eventIdentifier = BuildEventIdentifier(envelope);
+            var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope);
 
-            return _repo.InIdempotentSession(eventIdentifier, session =>
+            return store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
-                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+                session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
                 var v2Event = new StreetNameWasModified
                 {
@@ -557,12 +558,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         When<Envelope<BackOffice.Messages.StreetNameRemoved>>((_, envelope, token) =>
         {
             var streetNameLocalId = new StreetNameId(envelope.Message.StreetNameId).ToStreetNameLocalId();
-            var eventIdentifier = BuildEventIdentifier(envelope);
+            var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope);
 
-            return _repo.InIdempotentSession(eventIdentifier, session =>
+            return store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
-                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+                session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
                 var v2Event = new StreetNameWasRemoved
                 {
@@ -576,12 +577,12 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         When<Envelope<BackOffice.Messages.StreetNameRenamed>>((_, envelope, token) =>
         {
             var streetNameLocalId = new StreetNameId(envelope.Message.StreetNameLocalId).ToStreetNameLocalId();
-            var eventIdentifier = BuildEventIdentifier(envelope);
+            var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope);
 
-            return _repo.InIdempotentSession(eventIdentifier, session =>
+            return store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
-                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+                session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
                 var v2Event = new StreetNameWasRenamed
                 {
@@ -618,12 +619,12 @@ RoadNetworkExtractGotRequestedV2
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var eventIdentifier = BuildEventIdentifier(envelope);
+        var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope);
 
-        return _repo.InIdempotentSession(eventIdentifier, session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, session =>
         {
             session.CorrelationId = roadNetworkId;
-            session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+            session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Unknown);
 
@@ -652,12 +653,12 @@ RoadNetworkExtractGotRequestedV2
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
+        var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _repo.InIdempotentSession(eventIdentifier, session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, session =>
         {
             session.CorrelationId = roadNetworkId;
-            session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+            session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
             var point = GeometryTranslator.Translate(change.Geometry);
             var provenance = BuildProvenance(envelope, Modification.Insert);
@@ -691,12 +692,12 @@ RoadNetworkExtractGotRequestedV2
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
+        var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _repo.InIdempotentSession(eventIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
             {
                 session.CorrelationId = roadNetworkId;
-                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+                session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
                 var point = GeometryTranslator.Translate(change.Geometry);
                 var provenance = BuildProvenance(envelope, Modification.Update);
@@ -732,12 +733,12 @@ RoadNetworkExtractGotRequestedV2
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
+        var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _repo.InIdempotentSession(eventIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
-            session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+            session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Delete);
 
@@ -767,12 +768,12 @@ RoadNetworkExtractGotRequestedV2
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
+        var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _repo.InIdempotentSession(eventIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
-            session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+            session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
             var geometry = GeometryTranslator.Translate(change.Geometry);
             var provenance = BuildProvenance(envelope, Modification.Insert);
@@ -945,12 +946,12 @@ RoadNetworkExtractGotRequestedV2
         int changeIndex,
         CancellationToken token)
     {
-        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
+        var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _repo.InIdempotentSession(eventIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
-            session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+            session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Update);
 
@@ -1275,12 +1276,12 @@ RoadNetworkExtractGotRequestedV2
         CancellationToken token)
     {
         var roadSegmentId = new RoadSegmentId(change.Id);
-        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
+        var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _repo.InIdempotentSession(eventIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
-            session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+            session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Delete);
 
@@ -1312,12 +1313,12 @@ RoadNetworkExtractGotRequestedV2
         CancellationToken token)
     {
         var roadSegmentId = new RoadSegmentId(change.Id);
-        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
+        var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _repo.InIdempotentSession(eventIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
-            session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+            session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Delete);
 
@@ -1347,12 +1348,12 @@ RoadNetworkExtractGotRequestedV2
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
+        var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _repo.InIdempotentSession(eventIdentifier, session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, session =>
         {
             session.CorrelationId = roadNetworkId;
-            session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+            session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Insert);
 
@@ -1384,12 +1385,12 @@ RoadNetworkExtractGotRequestedV2
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
+        var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _repo.InIdempotentSession(eventIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
-            session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+            session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Insert);
 
@@ -1420,12 +1421,12 @@ RoadNetworkExtractGotRequestedV2
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
+        var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _repo.InIdempotentSession(eventIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
-            session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+            session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
             var provenance = BuildProvenance(envelope, Modification.Insert);
 
@@ -1463,12 +1464,12 @@ RoadNetworkExtractGotRequestedV2
         foreach (var (change, index) in envelope.Message.RoadSegments.Select((x, i) => (x, i)))
         {
             var roadSegmentId = new RoadSegmentId(change.Id);
-            var eventIdentifier = BuildEventIdentifier(envelope, index);
+            var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, index);
 
-            await _repo.InIdempotentSession(eventIdentifier, session =>
+            await _store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
                 session.CorrelationId = roadNetworkId;
-                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+                session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
                 var provenance = new Provenance(
                     LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
@@ -1538,12 +1539,13 @@ RoadNetworkExtractGotRequestedV2
         return $"StreetName-{streetNameId}";
     }
 
-    private static string BuildEventIdentifier<TMessage>(Envelope<TMessage> envelope, int? changeIndex = null)
+    private static string BuildIdemponentSessionIdentifier<TMessage>(Envelope<TMessage> envelope, int? changeIndex = null)
         where TMessage : IMessage
     {
-        return changeIndex is not null
-            ? $"{envelope.Position}-{changeIndex}"
-            : envelope.Position.ToString();
+        return "MartenMigrationProjection-" + (
+            changeIndex is not null
+                ? $"{envelope.Position}-{changeIndex}"
+                : envelope.Position.ToString());
     }
 }
 

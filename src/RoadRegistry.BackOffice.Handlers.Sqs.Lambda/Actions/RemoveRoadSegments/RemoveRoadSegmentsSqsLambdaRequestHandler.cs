@@ -1,21 +1,19 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RemoveRoadSegments;
 
-using System.Data;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Hosts;
-using Infrastructure;
 using Marten;
 using Microsoft.Extensions.Logging;
-using RoadNetwork;
-using RoadRegistry.RoadNetwork;
-using ScopedRoadNetwork;
-using ScopedRoadNetwork.ValueObjects;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
+using RoadRegistry.Hosts;
+using RoadRegistry.ScopedRoadNetwork;
+using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 
-public sealed class RemoveRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler<RemoveRoadSegmentsSqsLambdaRequest>
+public sealed class RemoveRoadSegmentsSqsLambdaRequestHandler : MartenSqsLambdaHandler<RemoveRoadSegmentsSqsLambdaRequest>
 {
-    private readonly IDocumentStore _store;
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
 
@@ -24,7 +22,6 @@ public sealed class RemoveRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
-        IRoadRegistryContext roadRegistryContext,
         IDocumentStore store,
         IRoadNetworkRepository roadNetworkRepository,
         IRoadNetworkIdGenerator roadNetworkIdGenerator,
@@ -34,10 +31,9 @@ public sealed class RemoveRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
             retryPolicy,
             ticketing,
             idempotentCommandHandler,
-            roadRegistryContext,
+            store,
             loggerFactory)
     {
-        _store = store;
         _roadNetworkRepository = roadNetworkRepository;
         _roadNetworkIdGenerator = roadNetworkIdGenerator;
     }
@@ -51,17 +47,20 @@ public sealed class RemoveRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
 
     private async Task Handle(RemoveRoadSegmentsSqsRequest command, CancellationToken cancellationToken)
     {
-        var roadNetwork = await Load(command.RoadSegmentIds, new ScopedRoadNetworkId(command.TicketId));
+        var scopedRoadNetworkId = new ScopedRoadNetworkId(command.TicketId);
 
-        roadNetwork.RemoveRoadSegments(command.RoadSegmentIds, _roadNetworkIdGenerator, command.ProvenanceData.ToProvenance());
+        await Store.IdempotentSession(command, async session =>
+        {
+            var roadNetwork = await Load(session, command.RoadSegmentIds, scopedRoadNetworkId);
 
-        await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
+            roadNetwork.RemoveRoadSegments(command.RoadSegmentIds, _roadNetworkIdGenerator, command.ProvenanceData.ToProvenance());
+
+            await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
+        }, cancellationToken, Logger);
     }
 
-    private async Task<ScopedRoadNetwork> Load(IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
+    private async Task<ScopedRoadNetwork> Load(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
     {
-        await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
-
         var ids = await _roadNetworkRepository.GetUnderlyingIdsWithConnectedSegments(session, roadSegmentIds);
         return await _roadNetworkRepository.Load(
             session,

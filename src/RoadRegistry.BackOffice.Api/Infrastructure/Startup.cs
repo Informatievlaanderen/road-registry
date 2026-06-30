@@ -61,7 +61,6 @@ using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
-using RoadSegments;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
@@ -305,6 +304,7 @@ public class Startup
             )
             .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
             .AddOrganizationCache()
+            .AddRoadNetworkDbIdGenerator()
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddValidatorsFromAssemblyContaining<Startup>()
             .AddValidatorsFromAssemblyContaining<BackOfficeAssemblyMarker>()
