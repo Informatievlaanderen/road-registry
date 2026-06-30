@@ -1,3 +1,10 @@
+# [4.66.0](https://github.com/informatievlaanderen/road-registry/compare/v4.65.5...v4.66.0) (2026-06-30)
+
+
+### Features
+
+* **2.0:** add endpoint to create outlined roadsegment ([b5e3334](https://github.com/informatievlaanderen/road-registry/commit/b5e3334c5bd9d96af2e534393c5aa8472188adee))
+
 ## [4.65.5](https://github.com/informatievlaanderen/road-registry/compare/v4.65.4...v4.65.5) (2026-06-30)
 
 
