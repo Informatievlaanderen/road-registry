@@ -79,7 +79,7 @@ public static class NetTopologySuiteExtensions
             problems += new RoadSegmentGeometryStartEqualsEnd();
         }
 
-        if (line.ContainsVertexTooCloseToAnother(0.15))
+        if (line.ContainsVertexTooCloseToAnother(Distances.MinimumDistanceBetweenVertices))
         {
             problems += new RoadSegmentGeometryVerticesTooClose();
         }
@@ -96,7 +96,7 @@ public static class NetTopologySuiteExtensions
         return problems;
     }
 
-    private static bool ContainsVertexTooCloseToAnother(this LineString lineString, double minimumDistanceBetweenVertices)
+    public static bool ContainsVertexTooCloseToAnother(this LineString lineString, double minimumDistanceBetweenVertices)
     {
         var previousVertex = lineString.Coordinate;
         for (var i = 1; i < lineString.Count; i++)

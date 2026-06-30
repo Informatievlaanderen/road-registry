@@ -9,7 +9,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CloseExtract;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CreateRoadSegmentOutline;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CreateRoadSegmentOutlineV2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.DataValidation;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.LinkRoadSegmentsToStreetNameIds;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateDryRunRoadNetwork;

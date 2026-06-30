@@ -7,7 +7,6 @@ using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Exceptions;
 using Hosts;
 using Infrastructure;
-using Marten;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
@@ -150,20 +149,13 @@ public sealed class CreateRoadSegmentOutlineV2SqsLambdaRequestHandler : MartenSq
 
     private async Task<(OrganizationId, Problems)> FindOrganizationId(OrganizationId organizationId, CancellationToken cancellationToken)
     {
-        var problems = Problems.None;
-
         var maintenanceAuthorityOrganization = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(organizationId, cancellationToken);
         if (maintenanceAuthorityOrganization is not null)
         {
-            return (maintenanceAuthorityOrganization.Code, problems);
+            return (maintenanceAuthorityOrganization.Code, Problems.None);
         }
 
-        if (OrganizationOvoCode.AcceptsValue(organizationId))
-        {
-            problems = problems.Add(new MaintenanceAuthorityNotKnown(organizationId));
-        }
-
-        return (organizationId, problems);
+        return (organizationId, Problems.Single(new MaintenanceAuthorityNotKnown(organizationId)));
     }
 
     private async Task<Problems> ValidateStreetNameId(StreetNameLocalId streetNameId, CancellationToken cancellationToken)

@@ -471,7 +471,7 @@ public static class NetTopologySuiteExtensions
         return value.IsReasonablyGreaterOrEqualThan(other, tolerances.GeometryTolerance);
     }
 
-    public static MultiLineString RemoveCoordinateSegmentsLessThan15Cm(this MultiLineString geometry)
+    public static MultiLineString RemoveCoordinateSegmentsLessThanMinimumDistanceBetweenVertices(this MultiLineString geometry)
     {
         var coordinates = geometry.GetSingleLineString().Coordinates;
         var previousCoordinate = coordinates[0];
@@ -482,7 +482,7 @@ public static class NetTopologySuiteExtensions
             var currentCoordinate = coordinates[i];
             distance += currentCoordinate.Distance(previousCoordinate);
 
-            if (distance < 0.15)
+            if (distance < Distances.MinimumDistanceBetweenVertices)
             {
                 if (i == coordinates.Length - 1) // last one, delete previous coordinate
                 {

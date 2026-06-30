@@ -249,7 +249,7 @@
             var geometry = new WKTReader().Read($"MULTILINESTRING (({coordinates}))");
             var expectedGeometry = new WKTReader().Read($"MULTILINESTRING (({expectedCoordinates}))");
 
-            var fixedGeometry = ((MultiLineString)geometry).RemoveCoordinateSegmentsLessThan15Cm();
+            var fixedGeometry = ((MultiLineString)geometry).RemoveCoordinateSegmentsLessThanMinimumDistanceBetweenVertices();
 
             fixedGeometry.AsText().Should().Be(expectedGeometry.AsText());
         }

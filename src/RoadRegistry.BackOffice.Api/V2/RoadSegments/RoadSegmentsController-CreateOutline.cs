@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.V2.RoadSegments;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -14,6 +15,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +30,7 @@ using RoadRegistry.BackOffice.Handlers.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.RoadSegment;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using Swashbuckle.AspNetCore.Annotations;
@@ -58,7 +61,7 @@ public partial class RoadSegmentsController
     [SwaggerRequestExample(typeof(CreateOutlinedRoadSegmentV2Parameters), typeof(CreateOutlinedRoadSegmentV2ParametersExamples))]
     [SwaggerOperation(OperationId = nameof(CreateOutlinedRoadSegmentV2), Description = "Voeg een nieuw wegsegment toe aan het Wegenregister met geometriemethode <ingeschetst>.")]
     public async Task<IActionResult> CreateOutlinedRoadSegmentV2(
-        [FromServices] PostRoadSegmentOutlineParametersValidator validator,
+        [FromServices] CreateOutlinedRoadSegmentV2ParametersValidator validator,
         [FromBody] CreateOutlinedRoadSegmentV2Parameters parameters,
         CancellationToken cancellationToken = default)
     {
@@ -67,32 +70,38 @@ public partial class RoadSegmentsController
             //TODO-pr use v2 and new lambda
             await validator.ValidateAndThrowAsync(parameters, cancellationToken);
 
+            var parsedGeometry = GeometryTranslator.ParseGmlLineString(parameters.WegsegmentGeometrie);
+            var geometryLength = parsedGeometry.Length.RoundToCm();
+
+            double ResolveToPosition(double totPositie) =>
+                totPositie == 0 ? geometryLength : totPositie.RoundToCm();
+
             var sqsRequest = new CreateRoadSegmentOutlineV2SqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Geometry = GeometryTranslator.ParseGmlLineString(parameters.WegsegmentGeometrie).ToRoadSegmentGeometry(),
+                Geometry = parsedGeometry.ToRoadSegmentGeometry(),
                 Status = RoadSegmentStatusV2.ParseUsingDutchName(parameters.Wegsegmentstatus),
                 Morphology = parameters.Morfologie
                     .Select(x => new ChangeRoadSegmentMorphologyAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(x.TotPositie),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         Morphology = RoadSegmentMorphologyV2.ParseUsingDutchName(x.Morfologie)
                     })
                     .ToArray(),
                 SurfaceType = parameters.Wegverharding
                     .Select(x => new ChangeRoadSegmentSurfaceTypeAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(x.TotPositie),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         SurfaceType = RoadSegmentSurfaceTypeV2.ParseUsingDutchName(x.Wegverharding)
                     })
                     .ToArray(),
                 AccessRestriction = parameters.Toegang
                     .Select(x => new ChangeRoadSegmentAccessRestrictionAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(x.TotPositie),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         AccessRestriction = RoadSegmentAccessRestrictionV2.ParseUsingDutchName(x.Toegang)
                     })
                     .ToArray(),
@@ -100,8 +109,8 @@ public partial class RoadSegmentsController
                     .Select(x => new ChangeRoadSegmentStreetNameIdAttributeValue
                     {
                         Side = x.Kant.ToRoadSegmentAttributeSide(),
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(x.TotPositie),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         StreetNameId = new StreetNameLocalId(x.Identificator.GetIdentifierFromPuri())
                     })
                     .ToArray(),
@@ -109,40 +118,40 @@ public partial class RoadSegmentsController
                     .Select(x => new ChangeRoadSegmentMaintenanceAuthorityIdAttributeValue
                     {
                         Side = x.Kant.ToRoadSegmentAttributeSide(),
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(x.TotPositie),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         MaintenanceAuthorityId = new OrganizationId(x.Wegbeheerder)
                     })
                     .ToArray(),
                 Category = parameters.Wegcategorie
                     .Select(x => new ChangeRoadSegmentCategoryAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(x.TotPositie),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         Category = RoadSegmentCategoryV2.ParseUsingDutchName(x.Wegcategorie)
                     })
                     .ToArray(),
                 CarTrafficDirection = parameters.VerkeerstypeAuto
                     .Select(x => new ChangeRoadSegmentCarTrafficDirectionAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(x.TotPositie),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         TrafficDirection = RoadSegmentTrafficDirection.ParseUsingDutchName(x.Richting)
                     })
                     .ToArray(),
                 BikeTrafficDirection = parameters.VerkeerstypeFiets
                     .Select(x => new ChangeRoadSegmentBikeTrafficDirectionAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(x.TotPositie),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         TrafficDirection = RoadSegmentTrafficDirection.ParseUsingDutchName(x.Richting)
                     })
                     .ToArray(),
                 PedestrianTrafficDirection = parameters.VerkeerstypeVoetganger
                     .Select(x => new ChangeRoadSegmentPedestrianTrafficDirectionAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(x.TotPositie),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         TrafficDirection = RoadSegmentPedestrianTrafficDirection.ParseUsingDutchName(x.Richting)
                     })
                     .ToArray(),
@@ -307,118 +316,413 @@ public class IngeschetstWegsegmentWegbeheerderAttribuutWaarde
     public required string Wegbeheerder { get; set; }
 }
 
-public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<CreateOutlinedRoadSegmentV2Parameters>
+public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<CreateOutlinedRoadSegmentV2Parameters>
 {
     private readonly IOrganizationCache _organizationCache;
 
-    public PostRoadSegmentOutlineParametersValidator(IOrganizationCache organizationCache)
+    public CreateOutlinedRoadSegmentV2ParametersValidator(IOrganizationCache organizationCache)
     {
         _organizationCache = organizationCache.ThrowIfNull();
 
-        //TODO-pr validations
-        // RuleFor(x => x.WegsegmentGeometrie)
-        //     .Cascade(CascadeMode.Stop)
-        //     .NotNull()
-        //     .WithProblemCode(ProblemCode.RoadSegment.Geometry.IsRequired)
-        //     .Must(GeometryTranslator.GmlIsValidLineString)
-        //     .WithProblemCode(ProblemCode.RoadSegment.Geometry.NotValid)
-        //     .Must(gml => GeometryTranslator.ParseGmlLineString(gml).SRID == WellknownSrids.Lambert08)
-        //     .WithProblemCode(ProblemCode.RoadSegment.Geometry.SridNotValid)
-        //     .Must(gml => GeometryTranslator.ParseGmlLineString(gml).Length >= Distances.RoadSegmentV2MinimumLength)
-        //     .WithProblemCode(RoadSegmentGeometryLengthIsLessThanMinimum.ProblemCode, _ => new RoadSegmentGeometryLengthIsLessThanMinimum(Distances.RoadSegmentV2MinimumLength))
-        //     .Must(gml => GeometryTranslator.ParseGmlLineString(gml).Length < Distances.TooLongSegmentLength)
-        //     .WithProblemCode(RoadSegmentGeometryLengthIsTooLong.ProblemCode, _ => new RoadSegmentGeometryLengthIsTooLong(Distances.TooLongSegmentLength));
-        //
-        // RuleFor(x => x.Wegsegmentstatus)
-        //     .Cascade(CascadeMode.Stop)
-        //     .NotNull()
-        //     .WithProblemCode(ProblemCode.RoadSegment.Status.IsRequired)
-        //     .Must(value => RoadSegmentStatus.CanParseUsingDutchName(value) && RoadSegmentStatus.ParseUsingDutchName(value).IsValidForEdit())
-        //     .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
-        //
-        // RuleFor(x => x.MorfologischeWegklasse)
-        //     .Cascade(CascadeMode.Stop)
-        //     .NotNull()
-        //     .WithProblemCode(ProblemCode.RoadSegment.Morphology.IsRequired)
-        //     .Must(value => RoadSegmentMorphology.CanParseUsingDutchName(value) && RoadSegmentMorphology.ParseUsingDutchName(value).IsValidForEdit())
-        //     .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid);
-        //
-        // RuleFor(x => x.Toegangsbeperking)
-        //     .Cascade(CascadeMode.Stop)
-        //     .NotNull()
-        //     .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.IsRequired)
-        //     .Must(RoadSegmentAccessRestriction.CanParseUsingDutchName)
-        //     .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.NotValid);
-        //
-        // RuleFor(x => x.Wegbeheerder)
-        //     .Cascade(CascadeMode.Stop)
-        //     .NotNull()
-        //     .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.IsRequired)
-        //     .Must(OrganizationId.AcceptsValue)
-        //     .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid)
-        //     .Must(BeKnownOrganization)
-        //     .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotKnown, value => new MaintenanceAuthorityNotKnown(new OrganizationId(value)));
-        //
-        // RuleFor(x => x.Wegverharding)
-        //     .Cascade(CascadeMode.Stop)
-        //     .NotNull()
-        //     .WithProblemCode(ProblemCode.RoadSegment.SurfaceType.IsRequired)
-        //     .Must(RoadSegmentSurfaceType.CanParseUsingDutchName)
-        //     .WithProblemCode(ProblemCode.RoadSegment.SurfaceType.NotValid);
-        //
-        // RuleFor(x => x.Wegbreedte)
-        //     .Cascade(CascadeMode.Stop)
-        //     .NotNull()
-        //     .WithProblemCode(ProblemCode.RoadSegment.Width.IsRequired)
-        //     .Must(x => RoadSegmentWidth.CanParseUsingDutchName(x) && RoadSegmentWidth.ParseUsingDutchName(x).IsValidForEdit())
-        //     .WithProblemCode(ProblemCode.RoadSegment.Width.NotValid);
-        //
-        // RuleFor(x => x.AantalRijstroken)
-        //     .Cascade(CascadeMode.Stop)
-        //     .NotNull()
-        //     .WithProblemCode(ProblemCode.RoadSegment.Lane.IsRequired)
-        //     .SetValidator(new RoadSegmentLaneParametersValidator());
-        //
-        // When(x => x.Wegcategorie is not null, () =>
-        // {
-        //     RuleFor(x => x.Wegcategorie)
-        //         .Cascade(CascadeMode.Stop)
-        //         .Must(x => RoadSegmentCategory.TryParseUsingDutchName(x, out var category) && category.IsValidForEdit())
-        //         .WithProblemCode(ProblemCode.RoadSegment.Category.NotValid);
-        // });
+        RuleFor(x => x.WegsegmentGeometrie)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+                .WithProblemCode(ProblemCode.RoadSegment.Geometry.IsRequired)
+            .Must(GeometryTranslator.GmlIsValidLineString)
+                .WithProblemCode(ProblemCode.RoadSegment.Geometry.NotValid)
+            .Must(gml => GeometryTranslator.ParseGmlLineString(gml).SRID == WellknownSrids.Lambert08)
+                .WithProblemCode(ProblemCode.RoadSegment.Geometry.SridNotValid)
+            .Must(gml => GeometryTranslator.ParseGmlLineString(gml).Length >= Distances.RoadSegmentV2MinimumLength)
+                .WithProblemCode(RoadSegmentGeometryLengthIsLessThanMinimum.ProblemCode, _ => new RoadSegmentGeometryLengthIsLessThanMinimum(Distances.RoadSegmentV2MinimumLength))
+            .Must(gml => GeometryTranslator.ParseGmlLineString(gml).Length < Distances.TooLongSegmentLength)
+                .WithProblemCode(RoadSegmentGeometryLengthIsTooLong.ProblemCode, _ => new RoadSegmentGeometryLengthIsTooLong(Distances.TooLongSegmentLength))
+            .Must(gml => !HasVerticesTooClose(gml))
+                .WithProblemCode(ProblemCode.RoadSegment.Geometry.VerticesTooClose);
+
+        RuleFor(x => x.Wegsegmentstatus)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+                .WithProblemCode(ProblemCode.RoadSegment.Status.IsRequired)
+            .Must(v => RoadSegmentStatusV2.CanParseUsingDutchName(v) && RoadSegmentStatusV2.Edit.Outlined.Contains(RoadSegmentStatusV2.ParseUsingDutchName(v)))
+                .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
+
+        // Morfologie
+        RuleFor(x => x.Morfologie)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+                .WithProblemCode(ProblemCode.RoadSegment.Morphology.IsRequired)
+            .Must(items => items.Length > 0)
+                .WithProblemCode(ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes.HasCountOfZero);
+        When(x => x.Morfologie is { Length: > 0 }, () =>
+        {
+            RuleForEach(x => x.Morfologie).ChildRules(item =>
+            {
+                item.RuleFor(x => x.Morfologie)
+                    .Cascade(CascadeMode.Stop)
+                    .NotEmpty()
+                        .WithProblemCode(ProblemCode.RoadSegment.Morphology.IsRequired)
+                    .Must(RoadSegmentMorphologyV2.CanParseUsingDutchName)
+                        .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid);
+            });
+        });
+        When(IsGeometryValid, () =>
+        {
+            RuleFor(x => x.Morfologie).Custom((items, ctx) =>
+            {
+                if (items is null || items.Length == 0) return;
+                ValidatePositions(
+                    items.Select(x => (x.VanPositie, x.TotPositie)),
+                    GetGeometryLength(ctx.InstanceToValidate),
+                    ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes,
+                    ctx, nameof(CreateOutlinedRoadSegmentV2Parameters.Morfologie));
+            });
+        });
+
+        // Wegverharding
+        RuleFor(x => x.Wegverharding)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+                .WithProblemCode(ProblemCode.RoadSegment.SurfaceType.IsRequired)
+            .Must(items => items.Length > 0)
+                .WithProblemCode(ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes.HasCountOfZero);
+        When(x => x.Wegverharding is { Length: > 0 }, () =>
+        {
+            RuleForEach(x => x.Wegverharding).ChildRules(item =>
+            {
+                item.RuleFor(x => x.Wegverharding)
+                    .Cascade(CascadeMode.Stop)
+                    .NotEmpty()
+                        .WithProblemCode(ProblemCode.RoadSegment.SurfaceType.IsRequired)
+                    .Must(RoadSegmentSurfaceTypeV2.CanParseUsingDutchName)
+                        .WithProblemCode(ProblemCode.RoadSegment.SurfaceType.NotValid);
+            });
+        });
+        When(IsGeometryValid, () =>
+        {
+            RuleFor(x => x.Wegverharding).Custom((items, ctx) =>
+            {
+                if (items is null || items.Length == 0) return;
+                ValidatePositions(
+                    items.Select(x => (x.VanPositie, x.TotPositie)),
+                    GetGeometryLength(ctx.InstanceToValidate),
+                    ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes,
+                    ctx, nameof(CreateOutlinedRoadSegmentV2Parameters.Wegverharding));
+            });
+        });
+
+        // Toegang
+        RuleFor(x => x.Toegang)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+                .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.IsRequired)
+            .Must(items => items.Length > 0)
+                .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes.HasCountOfZero);
+        When(x => x.Toegang is { Length: > 0 }, () =>
+        {
+            RuleForEach(x => x.Toegang).ChildRules(item =>
+            {
+                item.RuleFor(x => x.Toegang)
+                    .Cascade(CascadeMode.Stop)
+                    .NotEmpty()
+                        .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.IsRequired)
+                    .Must(RoadSegmentAccessRestrictionV2.CanParseUsingDutchName)
+                        .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.NotValid);
+            });
+        });
+        When(IsGeometryValid, () =>
+        {
+            RuleFor(x => x.Toegang).Custom((items, ctx) =>
+            {
+                if (items is null || items.Length == 0) return;
+                ValidatePositions(
+                    items.Select(x => (x.VanPositie, x.TotPositie)),
+                    GetGeometryLength(ctx.InstanceToValidate),
+                    ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes,
+                    ctx, nameof(CreateOutlinedRoadSegmentV2Parameters.Toegang));
+            });
+        });
+
+        // Straatnaam
+        RuleFor(x => x.Straatnaam)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+                .WithProblemCode(ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes.HasCountOfZero)
+            .Must(items => items.Length > 0)
+                .WithProblemCode(ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes.HasCountOfZero);
+        When(x => x.Straatnaam is { Length: > 0 }, () =>
+        {
+            RuleForEach(x => x.Straatnaam).ChildRules(item =>
+            {
+                item.RuleFor(x => x.Identificator)
+                    .Cascade(CascadeMode.Stop)
+                    .NotEmpty()
+                        .WithProblemCode(ProblemCode.RoadSegment.StreetName.Left.NotValid)
+                    .MustBeValidStreetNameId(allowNotApplicable: true)
+                        .WithProblemCode(ProblemCode.RoadSegment.StreetName.Left.NotValid);
+            });
+        });
+        When(IsGeometryValid, () =>
+        {
+            RuleFor(x => x.Straatnaam).Custom((items, ctx) =>
+            {
+                if (items is null || items.Length == 0) return;
+                var length = GetGeometryLength(ctx.InstanceToValidate);
+                var codes = ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes;
+                var prop = nameof(CreateOutlinedRoadSegmentV2Parameters.Straatnaam);
+                ValidatePositions(
+                    items.Where(x => x.Kant is WegsegmentKant.Links or WegsegmentKant.Beide)
+                         .Select(x => (x.VanPositie, x.TotPositie)),
+                    length, codes, ctx, prop);
+                ValidatePositions(
+                    items.Where(x => x.Kant is WegsegmentKant.Rechts or WegsegmentKant.Beide)
+                         .Select(x => (x.VanPositie, x.TotPositie)),
+                    length, codes, ctx, prop);
+            });
+        });
+
+        // Wegbeheerder
+        RuleFor(x => x.Wegbeheerder)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+                .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.IsRequired)
+            .Must(items => items.Length > 0)
+                .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes.HasCountOfZero);
+        When(x => x.Wegbeheerder is { Length: > 0 }, () =>
+        {
+            RuleForEach(x => x.Wegbeheerder).ChildRules(item =>
+            {
+                item.RuleFor(x => x.Wegbeheerder)
+                    .Cascade(CascadeMode.Stop)
+                    .NotEmpty()
+                        .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.IsRequired)
+                    .Must(OrganizationId.AcceptsValue)
+                        .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid)
+                    .Must(BeKnownOrganization)
+                        .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotKnown,
+                            (string v) => new MaintenanceAuthorityNotKnown(new OrganizationId(v)));
+            });
+        });
+        When(IsGeometryValid, () =>
+        {
+            RuleFor(x => x.Wegbeheerder).Custom((items, ctx) =>
+            {
+                if (items is null || items.Length == 0) return;
+                var length = GetGeometryLength(ctx.InstanceToValidate);
+                var codes = ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes;
+                var prop = nameof(CreateOutlinedRoadSegmentV2Parameters.Wegbeheerder);
+                ValidatePositions(
+                    items.Where(x => x.Kant == WegsegmentKant.Links || x.Kant == WegsegmentKant.Beide)
+                         .Select(x => (x.VanPositie, x.TotPositie)),
+                    length, codes, ctx, prop);
+                ValidatePositions(
+                    items.Where(x => x.Kant == WegsegmentKant.Rechts || x.Kant == WegsegmentKant.Beide)
+                         .Select(x => (x.VanPositie, x.TotPositie)),
+                    length, codes, ctx, prop);
+            });
+        });
+
+        // Wegcategorie
+        RuleFor(x => x.Wegcategorie)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+                .WithProblemCode(ProblemCode.RoadSegment.Category.IsRequired)
+            .Must(items => items.Length > 0)
+                .WithProblemCode(ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes.HasCountOfZero);
+        When(x => x.Wegcategorie is { Length: > 0 }, () =>
+        {
+            RuleForEach(x => x.Wegcategorie).ChildRules(item =>
+            {
+                item.RuleFor(x => x.Wegcategorie)
+                    .Cascade(CascadeMode.Stop)
+                    .NotEmpty()
+                        .WithProblemCode(ProblemCode.RoadSegment.Category.IsRequired)
+                    .Must(RoadSegmentCategoryV2.CanParseUsingDutchName)
+                        .WithProblemCode(ProblemCode.RoadSegment.Category.NotValid);
+            });
+        });
+        When(IsGeometryValid, () =>
+        {
+            RuleFor(x => x.Wegcategorie).Custom((items, ctx) =>
+            {
+                if (items is null || items.Length == 0) return;
+                ValidatePositions(
+                    items.Select(x => (x.VanPositie, x.TotPositie)),
+                    GetGeometryLength(ctx.InstanceToValidate),
+                    ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes,
+                    ctx, nameof(CreateOutlinedRoadSegmentV2Parameters.Wegcategorie));
+            });
+        });
+
+        // VerkeerstypeAuto
+        RuleFor(x => x.VerkeerstypeAuto)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+                .WithProblemCode(ProblemCode.RoadSegment.CarTrafficDirection.IsRequired)
+            .Must(items => items.Length > 0)
+                .WithProblemCode(ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes.HasCountOfZero);
+        When(x => x.VerkeerstypeAuto is { Length: > 0 }, () =>
+        {
+            RuleForEach(x => x.VerkeerstypeAuto).ChildRules(item =>
+            {
+                item.RuleFor(x => x.Richting)
+                    .Cascade(CascadeMode.Stop)
+                    .NotEmpty()
+                        .WithProblemCode(ProblemCode.RoadSegment.CarTrafficDirection.IsRequired)
+                    .Must(RoadSegmentTrafficDirection.CanParseUsingDutchName)
+                        .WithProblemCode(ProblemCode.RoadSegment.CarTrafficDirection.NotValid);
+            });
+        });
+        When(IsGeometryValid, () =>
+        {
+            RuleFor(x => x.VerkeerstypeAuto).Custom((items, ctx) =>
+            {
+                if (items is null || items.Length == 0) return;
+                ValidatePositions(
+                    items.Select(x => (x.VanPositie, x.TotPositie)),
+                    GetGeometryLength(ctx.InstanceToValidate),
+                    ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes,
+                    ctx, nameof(CreateOutlinedRoadSegmentV2Parameters.VerkeerstypeAuto));
+            });
+        });
+
+        // VerkeerstypeFiets
+        RuleFor(x => x.VerkeerstypeFiets)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+                .WithProblemCode(ProblemCode.RoadSegment.BikeTrafficDirection.IsRequired)
+            .Must(items => items.Length > 0)
+                .WithProblemCode(ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes.HasCountOfZero);
+        When(x => x.VerkeerstypeFiets is { Length: > 0 }, () =>
+        {
+            RuleForEach(x => x.VerkeerstypeFiets).ChildRules(item =>
+            {
+                item.RuleFor(x => x.Richting)
+                    .Cascade(CascadeMode.Stop)
+                    .NotEmpty()
+                        .WithProblemCode(ProblemCode.RoadSegment.BikeTrafficDirection.IsRequired)
+                    .Must(RoadSegmentTrafficDirection.CanParseUsingDutchName)
+                        .WithProblemCode(ProblemCode.RoadSegment.BikeTrafficDirection.NotValid);
+            });
+        });
+        When(IsGeometryValid, () =>
+        {
+            RuleFor(x => x.VerkeerstypeFiets).Custom((items, ctx) =>
+            {
+                if (items is null || items.Length == 0) return;
+                ValidatePositions(
+                    items.Select(x => (x.VanPositie, x.TotPositie)),
+                    GetGeometryLength(ctx.InstanceToValidate),
+                    ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes,
+                    ctx, nameof(CreateOutlinedRoadSegmentV2Parameters.VerkeerstypeFiets));
+            });
+        });
+
+        // VerkeerstypeVoetganger (only "beide" and "geen" allowed per RoadSegmentPedestrianTrafficDirection)
+        RuleFor(x => x.VerkeerstypeVoetganger)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+                .WithProblemCode(ProblemCode.RoadSegment.PedestrianTrafficDirection.IsRequired)
+            .Must(items => items.Length > 0)
+                .WithProblemCode(ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes.HasCountOfZero);
+        When(x => x.VerkeerstypeVoetganger is { Length: > 0 }, () =>
+        {
+            RuleForEach(x => x.VerkeerstypeVoetganger).ChildRules(item =>
+            {
+                item.RuleFor(x => x.Richting)
+                    .Cascade(CascadeMode.Stop)
+                    .NotEmpty()
+                        .WithProblemCode(ProblemCode.RoadSegment.PedestrianTrafficDirection.IsRequired)
+                    .Must(RoadSegmentPedestrianTrafficDirection.CanParseUsingDutchName)
+                        .WithProblemCode(ProblemCode.RoadSegment.PedestrianTrafficDirection.NotValid);
+            });
+        });
+        When(IsGeometryValid, () =>
+        {
+            RuleFor(x => x.VerkeerstypeVoetganger).Custom((items, ctx) =>
+            {
+                if (items is null || items.Length == 0) return;
+                ValidatePositions(
+                    items.Select(x => (x.VanPositie, x.TotPositie)),
+                    GetGeometryLength(ctx.InstanceToValidate),
+                    ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes,
+                    ctx, nameof(CreateOutlinedRoadSegmentV2Parameters.VerkeerstypeVoetganger));
+            });
+        });
+    }
+
+    private static bool IsGeometryValid(CreateOutlinedRoadSegmentV2Parameters x)
+        => x.WegsegmentGeometrie is not null && GeometryTranslator.GmlIsValidLineString(x.WegsegmentGeometrie);
+
+    private static double GetGeometryLength(CreateOutlinedRoadSegmentV2Parameters x)
+        => GeometryTranslator.ParseGmlLineString(x.WegsegmentGeometrie).Length;
+
+    private static bool HasVerticesTooClose(string gml)
+    {
+        return GeometryTranslator.ParseGmlLineString(gml)
+            .GetSingleLineString()
+            .ContainsVertexTooCloseToAnother(Distances.MinimumDistanceBetweenVertices);
+    }
+
+    private static void ValidatePositions(
+        IEnumerable<(double From, double To)> positions,
+        double geometryLength,
+        ProblemCode.RoadSegment.DynamicAttributeProblemCodes codes,
+        ValidationContext<CreateOutlinedRoadSegmentV2Parameters> ctx,
+        string propertyName)
+    {
+        var ordered = positions.OrderBy(x => x.From).ThenBy(x => x.To).ToList();
+        if (ordered.Count == 0) return;
+
+        // TotPositie of 0 on the last record means "until the end of the geometry"
+        if (NearlyEqual(ordered[^1].To, 0.0))
+            ordered[^1] = (ordered[^1].From, geometryLength);
+
+        double? previousTo = null;
+        foreach (var (from, to) in ordered)
+        {
+            if (previousTo is null)
+            {
+                if (!NearlyEqual(from, 0.0))
+                {
+                    AddFailure(ctx, propertyName, codes.FromPositionNotEqualToZero);
+                    return;
+                }
+            }
+            else if (!NearlyEqual(from, previousTo.Value))
+            {
+                AddFailure(ctx, propertyName, codes.NotAdjacent);
+                return;
+            }
+
+            if (to - from < 1.0)
+                AddFailure(ctx, propertyName, codes.HasLengthOfZero);
+
+            previousTo = to;
+        }
+
+        if (previousTo is not null && !NearlyEqual(previousTo.Value, geometryLength))
+            AddFailure(ctx, propertyName, codes.ToPositionNotEqualToLength);
+    }
+
+    private static bool NearlyEqual(double a, double b) => Math.Abs(a - b) <= 0.001;
+
+    private static void AddFailure(
+        ValidationContext<CreateOutlinedRoadSegmentV2Parameters> ctx,
+        string propertyName,
+        ProblemCode code)
+    {
+        ctx.AddFailure(new ValidationFailure(propertyName, code.ToString()) { ErrorCode = code.ToString() });
     }
 
     private bool BeKnownOrganization(string code)
     {
         if (!OrganizationId.AcceptsValue(code))
-        {
             return false;
-        }
 
         var organization = _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(new OrganizationId(code), CancellationToken.None).GetAwaiter().GetResult();
         return organization is not null;
     }
 }
-
-// public class RoadSegmentLaneParametersValidator : AbstractValidator<RoadSegmentLaneParameters>
-// {
-//     public RoadSegmentLaneParametersValidator()
-//     {
-//         RuleFor(x => x.Aantal)
-//             .Cascade(CascadeMode.Stop)
-//             .NotNull()
-//             .WithProblemCode(ProblemCode.RoadSegment.LaneCount.IsRequired)
-//             .Must(x => RoadSegmentLaneCount.CanParseUsingDutchName(x) && RoadSegmentLaneCount.ParseUsingDutchName(x).IsValidForEdit())
-//             .WithProblemCode(ProblemCode.RoadSegment.LaneCount.NotValid);
-//
-//         RuleFor(x => x.Richting)
-//             .Cascade(CascadeMode.Stop)
-//             .NotNull()
-//             .WithProblemCode(ProblemCode.RoadSegment.LaneDirection.IsRequired)
-//             .Must(RoadSegmentLaneDirection.CanParseUsingDutchName)
-//             .WithProblemCode(ProblemCode.RoadSegment.LaneDirection.NotValid);
-//     }
-// }
 
 public class CreateOutlinedRoadSegmentV2ParametersExamples : IExamplesProvider<CreateOutlinedRoadSegmentV2Parameters>
 {
