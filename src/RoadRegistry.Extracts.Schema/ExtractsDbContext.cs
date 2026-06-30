@@ -148,7 +148,7 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
         if (zones.Count == 0)
             return false;
 
-        var union = zones.Aggregate((Geometry?)null, (acc, g) => acc is null ? g : acc.Union(g))!;
+        var union = NetTopologySuite.Operation.Union.UnaryUnionOp.Union(zones);
         return NetTopologySuite.Geometries.Prepared.PreparedGeometryFactory.Prepare(union).Covers(geometry);
     }
 
