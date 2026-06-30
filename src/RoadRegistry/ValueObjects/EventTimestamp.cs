@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.ValueObjects;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Extensions;
 using NodaTime;
 
 public sealed record EventTimestamp(Instant Timestamp, OrganizationId OrganizationId);
