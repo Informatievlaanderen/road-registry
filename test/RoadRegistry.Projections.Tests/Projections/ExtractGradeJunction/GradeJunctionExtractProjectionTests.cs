@@ -7,6 +7,7 @@ using RoadRegistry.Extracts.Projections;
 using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.GradeSeparatedJunction.Events.V1;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
+using RoadRegistry.Organization.Events.V1;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.ScopedRoadNetwork.Events.V2;
@@ -93,6 +94,8 @@ public class GradeJunctionExtractProjectionTests
             typeof(StreetNameWasCreated),
             typeof(StreetNameWasModified),
             typeof(StreetNameWasRemoved),
+            typeof(StreetNameWasRenamed),
+            typeof(OrganizationWasImported),
             typeof(OrganizationWasCreated),
             typeof(OrganizationWasModified),
             typeof(OrganizationWasRemoved),
