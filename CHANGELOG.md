@@ -1,3 +1,11 @@
+## [4.65.4](https://github.com/informatievlaanderen/road-registry/compare/v4.65.3...v4.65.4) (2026-06-30)
+
+
+### Bug Fixes
+
+* **2.0:** missing events in MartenMigrationProjection ([5c93faf](https://github.com/informatievlaanderen/road-registry/commit/5c93faff80d4848ea07bb7bdb79021fa1d93bc44))
+* **projector:** add Slack sink ([994dd4c](https://github.com/informatievlaanderen/road-registry/commit/994dd4cb3a028c38968ba726f7b9734c4abc065c))
+
 ## [4.65.3](https://github.com/informatievlaanderen/road-registry/compare/v4.65.2...v4.65.3) (2026-06-29)
 
 
