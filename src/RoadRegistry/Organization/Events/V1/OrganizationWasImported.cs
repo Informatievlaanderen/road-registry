@@ -1,19 +1,17 @@
-﻿namespace RoadRegistry.Organization.Events.V2;
+﻿namespace RoadRegistry.Organization.Events.V1;
 
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using RoadRegistry.ValueObjects;
 using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using RoadRegistry.BackOffice;
+using RoadRegistry.ValueObjects;
 
-public record OrganizationWasCreated : IMartenEvent
+public record OrganizationWasImported : IMartenEvent
 {
-    public const string EventName = "OrganizationWasCreated"; // BE CAREFUL CHANGING THIS!!
+    public const string EventName = "OrganizationWasImported"; // BE CAREFUL CHANGING THIS!!
 
     public required OrganizationId OrganizationId { get; init; }
     public required string Name { get; init; }
-    public required string OvoCode { get; init; }
-    public required string? KboNumber { get; init; }
 
     public required ProvenanceData Provenance { get; init; }
 

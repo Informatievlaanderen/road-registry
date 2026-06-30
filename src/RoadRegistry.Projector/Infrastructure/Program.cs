@@ -3,6 +3,7 @@ namespace RoadRegistry.Projector.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Microsoft.AspNetCore.Hosting;
+using RoadRegistry.Hosts.Infrastructure.Extensions;
 
 public class Program
 {
@@ -30,7 +31,10 @@ public class Program
             },
             MiddlewareHooks =
             {
-                ConfigureDistributedLock = DistributedLockOptions.LoadFromConfiguration
+                ConfigureDistributedLock = DistributedLockOptions.LoadFromConfiguration,
+                ConfigureSerilog = (context, loggerConfiguration) => loggerConfiguration
+                    .AddSlackSink<Program>(context.Configuration)
+                    .ExcludeCommonErrors()
             }
         });
     }

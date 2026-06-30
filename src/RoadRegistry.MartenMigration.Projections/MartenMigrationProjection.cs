@@ -18,6 +18,7 @@ using NodaTime.Text;
 using RoadNode;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb;
+using RoadRegistry.Organization.Events.V1;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
@@ -400,6 +401,25 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             await AcceptRoadNetworkChange(roadNetworkId, envelope, token);
         });
 
+        When<Envelope<BackOffice.Messages.ImportedOrganization>>((_, envelope, token) =>
+        {
+            var organizationId = new OrganizationId(envelope.Message.Code);
+            var eventIdentifier = BuildEventIdentifier(envelope);
+
+            return _repo.InIdempotentSession(eventIdentifier, session =>
+            {
+                session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
+                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+
+                var legacyEvent = new OrganizationWasImported
+                {
+                    OrganizationId = organizationId,
+                    Name = envelope.Message.Name,
+                    Provenance = new ProvenanceData(BuildOrganizationProvenance(envelope.Message.When, Modification.Insert))
+                };
+                session.Events.Append(OrganizationStreamKey(organizationId), legacyEvent);
+            }, token);
+        });
         When<Envelope<BackOffice.Messages.CreateOrganizationAccepted>>((_, envelope, token) =>
         {
             var organizationId = new OrganizationId(envelope.Message.Code);
@@ -553,6 +573,45 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.Events.Append(StreetNameStreamKey(streetNameLocalId), v2Event);
             }, token);
         });
+
+        When<Envelope<BackOffice.Messages.StreetNameRenamed>>((_, envelope, token) =>
+        {
+            var streetNameLocalId = new StreetNameId(envelope.Message.StreetNameLocalId).ToStreetNameLocalId();
+            var eventIdentifier = BuildEventIdentifier(envelope);
+
+            return _repo.InIdempotentSession(eventIdentifier, session =>
+            {
+                session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
+                session.CausationId = $"migration-{envelope.EventName}-{eventIdentifier}";
+
+                var v2Event = new StreetNameWasRenamed
+                {
+                    StreetNameId = streetNameLocalId,
+                    DestinationStreetNameId = new StreetNameId(envelope.Message.DestinationStreetNameLocalId).ToStreetNameLocalId(),
+                    Provenance = new ProvenanceData(BuildStreetNameProvenance(envelope.Message.When, Modification.Unknown))
+                };
+                session.Events.Append(StreetNameStreamKey(streetNameLocalId), v2Event);
+            }, token);
+        });
+
+        // When<Envelope<BackOffice.Messages.ImportedMunicipality>>((_, envelope, token) =>
+        // {
+        //     return Task.CompletedTask;
+        // });
+
+/* Not migrating extract events
+RoadNetworkChangesArchiveAccepted
+RoadNetworkChangesArchiveFeatureCompareCompleted
+RoadNetworkChangesArchiveUploaded
+RoadNetworkExtractChangesArchiveAccepted
+RoadNetworkExtractChangesArchiveFeatureCompareCompleted
+RoadNetworkExtractChangesArchiveUploaded
+RoadNetworkExtractClosed
+RoadNetworkExtractDownloadBecameAvailable
+RoadNetworkExtractDownloaded
+RoadNetworkExtractGotRequested
+RoadNetworkExtractGotRequestedV2
+*/
     }
 
     private Task AcceptRoadNetworkChange(
