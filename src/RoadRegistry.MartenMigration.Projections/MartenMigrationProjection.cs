@@ -18,7 +18,6 @@ using NodaTime.Text;
 using RoadNode;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb;
-using RoadRegistry.Organization.Events.V1;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;

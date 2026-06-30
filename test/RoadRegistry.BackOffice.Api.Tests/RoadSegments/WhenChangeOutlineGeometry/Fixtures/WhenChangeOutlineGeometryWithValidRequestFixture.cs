@@ -18,7 +18,7 @@ public class WhenChangeOutlineGeometryWithValidRequestFixture : WhenChangeOutlin
     {
         return new PostChangeOutlineGeometryParameters
         {
-            MiddellijnGeometrie = GeometryTranslatorTestCases.ValidGmlMultiLineString
+            MiddellijnGeometrie = GeometryTranslatorTestCases.ValidGmlLineString
         };
     }
 }

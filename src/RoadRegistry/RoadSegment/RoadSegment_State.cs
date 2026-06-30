@@ -19,6 +19,9 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
     public bool IsRemoved { get; private set; }
 
+    private readonly string? _lastSnapshotEventHash;
+    public string LastEventHash => UncommittedEvents.Count > 0 ? UncommittedEvents[^1].GetHash() : _lastSnapshotEventHash ?? string.Empty;
+
     public bool HasMigrated() => Attributes is not null;
 
     public RoadSegment(RoadSegmentId id)
@@ -35,7 +38,8 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         int? startNodeId,
         int? endNodeId,
         RoadSegmentAttributes? attributes,
-        bool isRemoved
+        bool isRemoved,
+        string? lastEventHash
     )
         : this(new RoadSegmentId(roadSegmentId))
     {
@@ -45,6 +49,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         EndNodeId = RoadNodeId.FromValue(endNodeId);
         Attributes = attributes;
         IsRemoved = isRemoved;
+        _lastSnapshotEventHash = lastEventHash;
     }
 
     public IEnumerable<RoadNodeId> GetNodeIds()
@@ -67,7 +72,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         RoadNodeId? startNodeId,
         RoadNodeId? endNodeId)
     {
-        return new RoadSegment(roadSegmentId, geometry, status.ToString(), startNodeId, endNodeId, null, false);
+        return new RoadSegment(roadSegmentId, geometry, status.ToString(), startNodeId, endNodeId, null, false, null);
     }
 
     public static RoadSegment Create(RoadSegmentWasAdded @event)
@@ -99,6 +104,38 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             PedestrianTrafficDirection = @event.PedestrianTrafficDirection,
             EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
+        };
+    }
+
+    public static RoadSegment Create(OutlinedRoadSegmentWasAdded @event)
+    {
+        var segment = new RoadSegment(@event.RoadSegmentId);
+        segment.Apply(@event);
+        return segment;
+    }
+    private void Apply(OutlinedRoadSegmentWasAdded @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        IsRemoved = false;
+        Geometry = @event.Geometry;
+        Status = @event.Status;
+        StartNodeId = null;
+        EndNodeId = null;
+        Attributes = new RoadSegmentAttributes
+        {
+            GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst,
+            AccessRestriction = @event.AccessRestriction,
+            Category = @event.Category,
+            Morphology = @event.Morphology,
+            StreetNameId = @event.StreetNameId,
+            MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
+            SurfaceType = @event.SurfaceType,
+            CarTrafficDirection = @event.CarTrafficDirection,
+            BikeTrafficDirection = @event.BikeTrafficDirection,
+            PedestrianTrafficDirection = @event.PedestrianTrafficDirection,
+            EuropeanRoadNumbers = [],
+            NationalRoadNumbers = []
         };
     }
 

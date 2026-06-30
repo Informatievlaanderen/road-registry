@@ -7,7 +7,6 @@ using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
-using RoadRegistry.Organization.Events.V1;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.ValueObjects;
 

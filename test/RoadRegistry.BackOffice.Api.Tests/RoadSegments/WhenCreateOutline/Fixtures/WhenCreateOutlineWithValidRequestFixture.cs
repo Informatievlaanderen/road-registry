@@ -19,7 +19,7 @@ public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
     {
         return new PostRoadSegmentOutlineParameters
         {
-            MiddellijnGeometrie = GeometryTranslatorTestCases.ValidGmlMultiLineString,
+            MiddellijnGeometrie = GeometryTranslatorTestCases.ValidGmlLineString,
             Wegsegmentstatus = ObjectProvider.Create<RoadSegmentStatus>().ToDutchString(),
             MorfologischeWegklasse = ObjectProvider.Create<RoadSegmentMorphology>().ToDutchString(),
             Toegangsbeperking = ObjectProvider.Create<RoadSegmentAccessRestriction>().ToDutchString(),

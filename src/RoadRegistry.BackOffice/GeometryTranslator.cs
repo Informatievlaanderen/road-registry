@@ -65,6 +65,11 @@ public static class GeometryTranslator
             throw new InvalidOperationException("The GML is invalid");
         }
 
+        if (!(geometry is LineString))
+        {
+            throw new InvalidOperationException("The GML is not a LineString");
+        }
+
         return geometry
             .ToMultiLineString(WellKnownGeometryFactories.WithoutSrid)
             .WithMeasureOrdinates();

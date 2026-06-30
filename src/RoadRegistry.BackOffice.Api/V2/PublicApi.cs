@@ -4,7 +4,7 @@ using RoadRegistry.BackOffice.Api.Infrastructure.Options;
 
 internal static class PublicApi
 {
-    public const string ApiVersion = "v3";
+    public const string ApiVersion = WellKnownPublicApiVersions.V3;
 
     public static string GetWegknoopDetailUrlFormat(this ApiOptions apiOptions)
     {

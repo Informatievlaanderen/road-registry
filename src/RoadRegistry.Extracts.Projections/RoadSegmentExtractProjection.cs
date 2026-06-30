@@ -296,6 +296,42 @@ public class RoadSegmentExtractProjection : RoadNetworkChangesConnectedProjectio
 
             return Task.CompletedTask;
         });
+        When<IEvent<OutlinedRoadSegmentWasAdded>>((session, e, _) =>
+        {
+            var roadSegmentId = e.Data.RoadSegmentId;
+
+            var roadSegment = new RoadSegmentExtractItem
+            {
+                RoadSegmentId = roadSegmentId,
+                Geometry = e.Data.Geometry,
+                StartNodeId = null,
+                EndNodeId = null,
+                GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst,
+                Status = e.Data.Status,
+                AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString()),
+                Category = e.Data.Category.ToStringAttributeValues(x => x.ToString()),
+                Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString()),
+                StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId),
+                MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId),
+                SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x.ToString()),
+                CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(e.Data.CarTrafficDirection)),
+                CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(e.Data.CarTrafficDirection)),
+                BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(e.Data.BikeTrafficDirection)),
+                BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(e.Data.BikeTrafficDirection)),
+                PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToPedestrianAccess(e.Data.PedestrianTrafficDirection)),
+                CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.CarTrafficDirection),
+                BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.BikeTrafficDirection),
+                PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection),
+                EuropeanRoadNumbers = [],
+                NationalRoadNumbers = [],
+                Origin = e.Data.Provenance.ToEventTimestamp(),
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = true
+            };
+            session.Store(roadSegment);
+
+            return Task.CompletedTask;
+        });
         When<IEvent<RoadSegmentWasMerged>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>

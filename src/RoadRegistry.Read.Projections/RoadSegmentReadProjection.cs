@@ -12,7 +12,6 @@ using Marten;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
-using RoadRegistry.Organization.Events.V1;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.StreetName;
 using RoadRegistry.ValueObjects;
@@ -315,6 +314,42 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 PedestrianTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection),
                 EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList(),
                 NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList(),
+                Origin = e.Data.Provenance.ToEventTimestamp(),
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = true
+            };
+            session.Store(roadSegment);
+
+            await UpdateRoadNodeRoadSegmentIds(session, roadSegmentId, (null, null), (roadSegment.StartNodeId, roadSegment.EndNodeId), ct);
+            await SyncStreetNameLinks(session, roadSegment.RoadSegmentId, [], roadSegment.GetStreetNameHashSet(), ct);
+            await SyncOrganizationLinks(session, roadSegment.RoadSegmentId, [], roadSegment.GetMaintenanceAuthorityHashSet(), ct);
+        });
+        When<IEvent<OutlinedRoadSegmentWasAdded>>(async (session, e, ct) =>
+        {
+            var roadSegmentId = e.Data.RoadSegmentId;
+
+            var streetNameId = await BuildStreetNameAttribute(session, e.Data.StreetNameId, ct);
+            var maintenanceAuthorityId = await BuildMaintenanceAuthority(session, e.Data.MaintenanceAuthorityId, ct);
+
+            var roadSegment = new RoadSegmentReadItem
+            {
+                RoadSegmentId = roadSegmentId,
+                Geometry = ProjectGeometry(e.Data.Geometry),
+                StartNodeId = null,
+                EndNodeId = null,
+                GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst.ToString(),
+                Status = e.Data.Status.ToString(),
+                AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x!.ToString()),
+                Category = e.Data.Category.ToStringAttributeValues(x => x!.ToString()),
+                Morphology = e.Data.Morphology.ToStringAttributeValues(x => x!.ToString()),
+                StreetNameId = streetNameId,
+                MaintenanceAuthorityId = maintenanceAuthorityId,
+                SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x!.ToString()),
+                CarTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.CarTrafficDirection),
+                BikeTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.BikeTrafficDirection),
+                PedestrianTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection),
+                EuropeanRoadNumbers = [],
+                NationalRoadNumbers = [],
                 Origin = e.Data.Provenance.ToEventTimestamp(),
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = true

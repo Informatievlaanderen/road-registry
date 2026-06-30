@@ -4,6 +4,7 @@ using FluentValidation;
 
 public static class RuleBuilderExtensions
 {
+    //TODO-pr remove with dotnet10 upgrade and use nuget Be.Vlaanderen.Basisregisters.GrAr.Oslo
     private const string StreetNameIdPrefix = "https://data.vlaanderen.be/id/straatnaam/";
 
     public static IRuleBuilderOptions<T, string> MustBeValidStreetNameId<T>(this IRuleBuilder<T, string> ruleBuilder

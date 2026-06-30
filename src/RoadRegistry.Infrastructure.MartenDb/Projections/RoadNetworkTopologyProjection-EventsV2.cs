@@ -5,7 +5,6 @@ using JasperFx.Events;
 using Marten;
 using RoadNode.Events.V2;
 using RoadRegistry.GradeJunction.Events.V2;
-using RoadRegistry.Organization.Events.V1;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.StreetName.Events.V2;
 using RoadSegment.Events.V2;
@@ -68,6 +67,18 @@ public partial class RoadNetworkTopologyProjection
             e.Data.Geometry.SRID,
             e.Data.StartNodeId?.ToInt32() ?? 0,
             e.Data.EndNodeId?.ToInt32() ?? 0
+        );
+    }
+
+    public void Project(IEvent<OutlinedRoadSegmentWasAdded> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_insert_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+            e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp,
+            e.Data.Geometry.WKT,
+            e.Data.Geometry.SRID,
+            0,
+            0
         );
     }
 

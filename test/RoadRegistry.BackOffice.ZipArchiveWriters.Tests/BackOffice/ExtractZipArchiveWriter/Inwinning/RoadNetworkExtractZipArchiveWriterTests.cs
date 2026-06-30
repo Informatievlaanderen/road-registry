@@ -244,12 +244,12 @@
         [InlineData("0 0, 0.8 0, 0.95 0, 1 0", "0 0, 0.8 0, 1 0")]
         [InlineData("0 0, 0.8 0, 0.95 0, 0.98 0, 1 0", "0 0, 0.8 0, 1 0")]
         [InlineData("0 0, 0.9 0, 1 0", "0 0, 1 0")]
-        public void RemoveCoordinateSegmentsLessThan15CmTests(string coordinates, string expectedCoordinates)
+        public void RemoveCoordinateSegmentsLessThanMinimumDistanceBetweenVerticesTests(string coordinates, string expectedCoordinates)
         {
             var geometry = new WKTReader().Read($"MULTILINESTRING (({coordinates}))");
             var expectedGeometry = new WKTReader().Read($"MULTILINESTRING (({expectedCoordinates}))");
 
-            var fixedGeometry = ((MultiLineString)geometry).RemoveCoordinateSegmentsLessThan15Cm();
+            var fixedGeometry = ((MultiLineString)geometry).RemoveCoordinateSegmentsLessThanMinimumDistanceBetweenVertices();
 
             fixedGeometry.AsText().Should().Be(expectedGeometry.AsText());
         }

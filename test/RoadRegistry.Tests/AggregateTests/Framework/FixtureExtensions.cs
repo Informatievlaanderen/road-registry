@@ -176,6 +176,34 @@ public static class FixtureExtensions
         );
     }
 
+    public static void CustomizeOutlinedRoadSegmentWasAdded(this IFixture fixture)
+    {
+        fixture.Customize<OutlinedRoadSegmentWasAdded>(composer =>
+            composer.FromFactory(_ =>
+                {
+                    var geometry = fixture.Create<RoadSegmentGeometry>();
+
+                    return new OutlinedRoadSegmentWasAdded
+                    {
+                        RoadSegmentId = fixture.Create<RoadSegmentId>(),
+                        Geometry = geometry,
+                        Status = fixture.Create<RoadSegmentStatusV2>(),
+                        AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(fixture.Create<RoadSegmentAccessRestrictionV2>(), geometry),
+                        Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(fixture.Create<RoadSegmentCategoryV2>(), geometry),
+                        Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(fixture.Create<RoadSegmentMorphologyV2>(), geometry),
+                        StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(fixture.Create<StreetNameLocalId>(), geometry),
+                        MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(fixture.Create<OrganizationId>(), geometry),
+                        SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(fixture.Create<RoadSegmentSurfaceTypeV2>(), geometry),
+                        CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(fixture.Create<bool>(), fixture.Create<bool>()), geometry),
+                        BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(fixture.Create<bool>(), fixture.Create<bool>()), geometry),
+                        PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(RoadSegmentPedestrianTrafficDirection.FromAccess(fixture.Create<bool>()), geometry),
+                        Provenance = fixture.Create<ProvenanceData>()
+                    };
+                }
+            ).OmitAutoProperties()
+        );
+    }
+
     public static void CustomizeRoadSegmentAttributes(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentAttributes>(

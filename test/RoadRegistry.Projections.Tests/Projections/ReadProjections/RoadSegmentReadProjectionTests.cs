@@ -21,6 +21,26 @@ public class RoadSegmentReadProjectionTests
     private ProvenanceData Provenance => new(_testData.Provenance);
 
     [Fact]
+    public async Task WhenOutlinedRoadSegmentWasAdded_ThenStoredWithNoNodesAndIngeschetst()
+    {
+        var scenario = Scenario();
+
+        var evt = _testData.Fixture.Create<OutlinedRoadSegmentWasAdded>();
+        await scenario.GivenAsync(evt);
+
+        var segment = await scenario.Load<RoadSegmentReadItem>((int)evt.RoadSegmentId);
+        Assert.NotNull(segment);
+        Assert.Equal(evt.RoadSegmentId, segment.RoadSegmentId);
+        Assert.True(segment.IsV2);
+        Assert.Equal(evt.Status.ToString(), segment.Status);
+        Assert.Equal(RoadSegmentGeometryDrawMethodV2.Ingeschetst.ToString(), segment.GeometryDrawMethod);
+        Assert.Null(segment.StartNodeId);
+        Assert.Null(segment.EndNodeId);
+        Assert.Empty(segment.EuropeanRoadNumbers);
+        Assert.Empty(segment.NationalRoadNumbers);
+    }
+
+    [Fact]
     public async Task WhenRoadSegmentWasAdded_ThenStoredAndNodesReferenceTheSegment()
     {
         var scenario = Scenario();

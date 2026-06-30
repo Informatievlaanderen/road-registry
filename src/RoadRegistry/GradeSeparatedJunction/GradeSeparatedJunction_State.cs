@@ -12,6 +12,9 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
 
     public bool IsRemoved { get; private set; }
 
+    private readonly string? _lastSnapshotEventHash;
+    public string LastEventHash => UncommittedEvents.Count > 0 ? UncommittedEvents[^1].GetHash() : _lastSnapshotEventHash ?? string.Empty;
+
     public GradeSeparatedJunction(GradeSeparatedJunctionId id)
         : base(id)
     {
@@ -24,7 +27,8 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         int lowerRoadSegmentId,
         int upperRoadSegmentId,
         string? type,
-        bool isRemoved
+        bool isRemoved,
+        string? lastEventHash
     )
         : this(new GradeSeparatedJunctionId(gradeSeparatedJunctionId))
     {
@@ -32,6 +36,7 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         UpperRoadSegmentId = new RoadSegmentId(upperRoadSegmentId);
         Type = type is not null ? GradeSeparatedJunctionTypeV2.Parse(type) : null;
         IsRemoved = isRemoved;
+        _lastSnapshotEventHash = lastEventHash;
     }
 
     public static GradeSeparatedJunction CreateForMigration(
@@ -39,7 +44,7 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         RoadSegmentId lowerRoadSegmentId,
         RoadSegmentId upperRoadSegmentId)
     {
-        return new GradeSeparatedJunction(gradeSeparatedJunctionId, lowerRoadSegmentId, upperRoadSegmentId, null, false);
+        return new GradeSeparatedJunction(gradeSeparatedJunctionId, lowerRoadSegmentId, upperRoadSegmentId, null, false, null);
     }
 
     public static GradeSeparatedJunction Create(GradeSeparatedJunctionWasAdded @event)
