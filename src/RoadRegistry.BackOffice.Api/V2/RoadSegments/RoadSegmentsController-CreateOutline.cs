@@ -28,6 +28,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadSegment;
+using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using Swashbuckle.AspNetCore.Annotations;
@@ -41,6 +42,7 @@ public partial class RoadSegmentsController
     ///     Schets een wegsegment.
     /// </summary>
     /// <param name="validator"></param>
+    /// <param name="roadNetworkIdGenerator"></param>
     /// <param name="parameters"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het wegsegment gevonden is.</response>
@@ -59,6 +61,7 @@ public partial class RoadSegmentsController
     [SwaggerOperation(OperationId = nameof(CreateOutlinedRoadSegmentV2), Description = "Voeg een nieuw wegsegment toe aan het Wegenregister met geometriemethode <ingeschetst>.")]
     public async Task<IActionResult> CreateOutlinedRoadSegmentV2(
         [FromServices] CreateOutlinedRoadSegmentV2ParametersValidator validator,
+        [FromServices] IRoadNetworkIdGenerator roadNetworkIdGenerator,
         [FromBody] CreateOutlinedRoadSegmentV2Parameters parameters,
         CancellationToken cancellationToken = default)
     {
@@ -75,6 +78,7 @@ public partial class RoadSegmentsController
             var sqsRequest = new CreateRoadSegmentOutlineV2SqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
+                RoadSegmentId = await roadNetworkIdGenerator.NewRoadSegmentIdAsync(),
                 Geometry = parsedGeometry.ToRoadSegmentGeometry(),
                 Status = RoadSegmentStatusV2.ParseUsingDutchName(parameters.Wegsegmentstatus),
                 Morphology = parameters.Morfologie
@@ -495,7 +499,7 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
                         .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid)
                     .Must(BeKnownOrganization)
                         .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotKnown,
-                            (string v) => new MaintenanceAuthorityNotKnown(new OrganizationId(v)));
+                            v => new MaintenanceAuthorityNotKnown(new OrganizationId(v)));
             });
         });
         When(IsGeometryValid, () =>

@@ -7,6 +7,7 @@ using RoadRegistry.RoadSegment.ValueObjects;
 [BlobRequest]
 public sealed class CreateRoadSegmentOutlineV2SqsRequest : SqsRequest
 {
+    public required RoadSegmentId RoadSegmentId { get; init; }
     public required RoadSegmentGeometry Geometry { get; init; }
     public required RoadSegmentStatusV2 Status { get; init; }
     public required ChangeRoadSegmentMorphologyAttributeValue[] Morphology { get; init; }

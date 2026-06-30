@@ -2,28 +2,27 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.V2.When
 
 using Autofac;
 using AutoFixture;
-using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Be.Vlaanderen.Basisregisters.Sqs.Responses;
-using Core;
-using Framework;
+using Marten;
 using Moq;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CreateRoadSegmentOutlineV2;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
-using RoadRegistry.RoadNetwork.Schema;
-using RoadRegistry.RoadSegment;
+using RoadRegistry.Infrastructure.MartenDb;
+using RoadRegistry.Infrastructure.MartenDb.Setup;
+using RoadRegistry.Infrastructure.MartenDb.Store;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.StreetName;
-using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
-using TicketingService.Abstractions;
 using Xunit.Abstractions;
 
 [Collection("runsequential")]
@@ -44,21 +43,18 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
             .Setup(x => x.GetAsync(StreetNameId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new StreetNameItem { Id = StreetNameId, Name = "Teststraat", Status = StreetNameStatus.Current, NisCode = "11001" });
 
-        ScopedRoadNetwork? savedNetwork = null;
-        var repositoryMock = new Mock<IRoadNetworkRepository>();
-        repositoryMock
-            .Setup(x => x.Save(It.IsAny<ScopedRoadNetwork>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Callback<ScopedRoadNetwork, string, CancellationToken>((network, _, _) => savedNetwork = network)
-            .Returns(Task.CompletedTask);
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = new RoadNetworkRepository(store);
 
         var extractsDbContext = CreateExtractsDbContextWithCompletedZone();
         var sqsRequest = CreateSqsRequest();
         var sqsLambdaRequest = new CreateRoadSegmentOutlineV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest);
 
-        await HandleRequest(sqsLambdaRequest, repositoryMock.Object, streetNameClientMock.Object, extractsDbContext);
+        await HandleRequest(sqsLambdaRequest, store: store, roadNetworkRepository: roadNetworkRepository, streetNameClient: streetNameClientMock.Object, extractsDbContext: extractsDbContext);
 
-        var savedSegment = savedNetwork!.RoadSegments.Values.Single();
-        VerifyThatTicketHasCompleted(TicketingMock, "/v3/wegsegmenten/1", savedSegment.LastEventHash);
+        await using var session = store.LightweightSession();
+        var savedSegment = await session.LoadAsync(new RoadSegmentId(1));
+        VerifyThatTicketHasCompleted(TicketingMock, "/v3/wegsegmenten/1", savedSegment!.LastEventHash);
     }
 
     [Fact]
@@ -73,7 +69,7 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
         var sqsRequest = CreateSqsRequest();
         var sqsLambdaRequest = new CreateRoadSegmentOutlineV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest);
 
-        await HandleRequest(sqsLambdaRequest, new Mock<IRoadNetworkRepository>().Object, streetNameClientMock.Object, extractsDbContext);
+        await HandleRequest(sqsLambdaRequest, streetNameClient: streetNameClientMock.Object, extractsDbContext: extractsDbContext);
 
         VerifyThatTicketHasError("StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.");
     }
@@ -90,7 +86,7 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
         var sqsRequest = CreateSqsRequest();
         var sqsLambdaRequest = new CreateRoadSegmentOutlineV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest);
 
-        await HandleRequest(sqsLambdaRequest, new Mock<IRoadNetworkRepository>().Object, streetNameClientMock.Object, extractsDbContext);
+        await HandleRequest(sqsLambdaRequest, streetNameClient: streetNameClientMock.Object, extractsDbContext: extractsDbContext);
 
         VerifyThatTicketHasError("WegsegmentStraatnaamNietVoorgesteldOfInGebruik", "Deze actie is enkel toegelaten voor straatnamen met status 'voorgesteld' of 'in gebruik'.");
     }
@@ -103,12 +99,10 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
             .Setup(x => x.GetAsync(StreetNameId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new StreetNameItem { Id = StreetNameId, Name = "Teststraat", Status = StreetNameStatus.Current, NisCode = "11001" });
 
-        var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext(); // no completed zones
-
         var sqsRequest = CreateSqsRequest();
         var sqsLambdaRequest = new CreateRoadSegmentOutlineV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest);
 
-        await HandleRequest(sqsLambdaRequest, new Mock<IRoadNetworkRepository>().Object, streetNameClientMock.Object, extractsDbContext);
+        await HandleRequest(sqsLambdaRequest, streetNameClient: streetNameClientMock.Object);
 
         VerifyThatTicketHasError("RoadSegmentOutsideInwinningszone", "Het wegsegment valt niet volledig binnen een gemeente die de inwinningsstatus 'compleet' heeft.");
     }
@@ -146,6 +140,7 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>(),
+            RoadSegmentId = new (1),
             Geometry = geometry,
             Status = RoadSegmentStatusV2.Gepland,
             Morphology =
@@ -236,21 +231,21 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
 
     private async Task HandleRequest(
         CreateRoadSegmentOutlineV2SqsLambdaRequest sqsLambdaRequest,
-        IRoadNetworkRepository roadNetworkRepository,
-        IStreetNameClient streetNameClient,
-        ExtractsDbContext extractsDbContext)
+        IDocumentStore? store = null,
+        IRoadNetworkRepository? roadNetworkRepository = null,
+        IStreetNameClient? streetNameClient = null,
+        ExtractsDbContext? extractsDbContext = null)
     {
         var handler = new CreateRoadSegmentOutlineV2SqsLambdaRequestHandler(
             SqsLambdaHandlerOptions,
             new FakeRetryPolicy(),
             TicketingMock.Object,
             ScopedContainer.Resolve<IIdempotentCommandHandler>(),
-            new Mock<Marten.IDocumentStore>().Object,
-            roadNetworkRepository,
-            new InMemoryRoadNetworkIdGenerator(),
+            store ?? new InMemoryDocumentStoreSession(BuildStoreOptions()),
+            roadNetworkRepository ?? new Mock<IRoadNetworkRepository>().Object,
             OrganizationCache,
-            streetNameClient,
-            extractsDbContext,
+            streetNameClient ?? new Mock<IStreetNameClient>().Object,
+            extractsDbContext ?? new FakeExtractsDbContextFactory().CreateDbContext(),
             LoggerFactory);
 
         await handler.Handle(sqsLambdaRequest, CancellationToken.None);
@@ -273,5 +268,12 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
                 )
             ]), ApplicationMetadata))
             .SingleInstance();
+    }
+
+    private static StoreOptions BuildStoreOptions()
+    {
+        var storeOptions = new StoreOptions();
+        storeOptions.ConfigureRoad();
+        return storeOptions;
     }
 }

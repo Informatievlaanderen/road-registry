@@ -8,6 +8,7 @@ using Hosts;
 using Infrastructure;
 using Marten;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using RoadRegistry.RoadNetwork;
 using RoadRegistry.ValueObjects;
 using ScopedRoadNetwork;
@@ -41,20 +42,22 @@ public sealed class SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler
     protected override async Task<object> InnerHandle(SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
         var command = sqsLambdaRequest.Request;
+        var scopedRoadNetworkId = new ScopedRoadNetworkId(command.TicketId);
 
-        var roadNetwork = await Load(command.RoadSegmentIds, new ScopedRoadNetworkId(command.TicketId));
+        await Store.IdempotentSession(command, async session =>
+        {
+            var roadNetwork = await Load(session, command.RoadSegmentIds, scopedRoadNetworkId);
 
-        roadNetwork.ChangeStreetNameId(command.RoadSegmentIds, command.OldStreetNameId, command.NewStreetNameId, command.ProvenanceData.ToProvenance());
+            roadNetwork.ChangeStreetNameId(command.RoadSegmentIds, command.OldStreetNameId, command.NewStreetNameId, command.ProvenanceData.ToProvenance());
 
-        await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
+            _roadNetworkRepository.Save(session, roadNetwork, command.GetType().Name);
+        }, cancellationToken, Logger);
 
         return new object();
     }
 
-    private async Task<ScopedRoadNetwork> Load(IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
+    private async Task<ScopedRoadNetwork> Load(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
     {
-        await using var session = Store.LightweightSession(IsolationLevel.Snapshot);
-
         return await _roadNetworkRepository.Load(
             session,
             new RoadNetworkIds([], roadSegmentIds, [], []),

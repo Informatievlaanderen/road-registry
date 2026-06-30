@@ -152,6 +152,16 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
         return NetTopologySuite.Geometries.Prepared.PreparedGeometryFactory.Prepare(union).Covers(geometry);
     }
 
+    public async Task<bool> IsUploadAcceptedAsync(UploadId uploadId, CancellationToken cancellationToken)
+    {
+        var status = await ExtractUploads
+            .AsNoTracking()
+            .Where(x => x.UploadId == uploadId.ToGuid())
+            .Select(x => x.Status)
+            .SingleOrDefaultAsync(cancellationToken);
+        return status == ExtractUploadStatus.Accepted;
+    }
+
     public async Task UploadAcceptedAsync(UploadId uploadId, CancellationToken cancellationToken)
     {
         await UpdateExtractUpload(uploadId, async record =>

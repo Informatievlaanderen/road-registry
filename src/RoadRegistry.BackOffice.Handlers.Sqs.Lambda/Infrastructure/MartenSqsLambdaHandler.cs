@@ -37,6 +37,15 @@ public abstract class MartenSqsLambdaHandler<TSqsLambdaRequest> : RoadRegistryMa
     }
 
     protected async Task<string> GetRoadSegmentHash(
+        RoadSegmentId roadSegmentId,
+        CancellationToken cancellationToken)
+    {
+        await using var session = Store.LightweightSession();
+
+        return await GetRoadSegmentHash(session, roadSegmentId, cancellationToken);
+    }
+
+    protected async Task<string> GetRoadSegmentHash(
         IDocumentSession session,
         RoadSegmentId roadSegmentId,
         CancellationToken cancellationToken)
@@ -68,10 +77,7 @@ public abstract class MartenSqsLambdaHandler<TSqsLambdaRequest> : RoadRegistryMa
             return;
         }
 
-        await using var session = Store.LightweightSession();
-
         var latestEventHash = await GetRoadSegmentHash(
-            session,
             id.RoadSegmentId,
             cancellationToken);
 
