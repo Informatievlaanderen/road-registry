@@ -20,9 +20,8 @@ using ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 using ValueObjects.Problems;
 
-public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<MigrateRoadNetworkSqsLambdaRequest>
+public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : MartenSqsLambdaHandler<MigrateRoadNetworkSqsLambdaRequest>
 {
-    private readonly Marten.IDocumentStore _store;
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
     private readonly ExtractsDbContext _extractsDbContext;
@@ -32,7 +31,6 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
-        IRoadRegistryContext roadRegistryContext,
         Marten.IDocumentStore store,
         IRoadNetworkRepository roadNetworkRepository,
         IRoadNetworkIdGenerator roadNetworkIdGenerator,
@@ -43,12 +41,11 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
             retryPolicy,
             ticketing,
             idempotentCommandHandler,
-            roadRegistryContext,
+            store,
             loggerFactory,
             TicketingBehavior.Complete | TicketingBehavior.Error,
             problemTranslator: WellKnownProblemTranslators.Extract)
     {
-        _store = store;
         _roadNetworkRepository = roadNetworkRepository;
         _roadNetworkIdGenerator = roadNetworkIdGenerator;
         _extractsDbContext = extractsDbContext;
@@ -112,7 +109,7 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
             return new ScopedRoadNetwork(roadNetworkId);
         }
 
-        await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
+        await using var session = Store.LightweightSession(IsolationLevel.Snapshot);
 
         var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry(), ids: roadNetworkChanges.Ids);
         return await _roadNetworkRepository.Load(

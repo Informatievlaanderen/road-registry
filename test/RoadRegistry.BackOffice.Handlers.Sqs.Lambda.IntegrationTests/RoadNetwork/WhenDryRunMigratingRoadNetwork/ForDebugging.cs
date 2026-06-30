@@ -122,7 +122,6 @@ public class ForDebugging
             new FakeRetryPolicy(),
             TicketingMock.Object,
             Mock.Of<IIdempotentCommandHandler>(),
-            sp.GetRequiredService<IRoadRegistryContext>(),
             sp.GetRequiredService<IDocumentStore>(),
             new RoadNetworkRepository(sp.GetRequiredService<IDocumentStore>()),
             extractsDbContext,

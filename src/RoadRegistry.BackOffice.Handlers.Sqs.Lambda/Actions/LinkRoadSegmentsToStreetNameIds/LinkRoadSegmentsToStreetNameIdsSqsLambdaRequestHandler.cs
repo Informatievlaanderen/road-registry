@@ -14,9 +14,8 @@ using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 
-public sealed class SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler : SqsLambdaHandler<SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequest>
+public sealed class SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler : MartenSqsLambdaHandler<SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequest>
 {
-    private readonly IDocumentStore _store;
     private readonly IRoadNetworkRepository _roadNetworkRepository;
 
     public SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler(
@@ -24,7 +23,6 @@ public sealed class SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
-        IRoadRegistryContext roadRegistryContext,
         IDocumentStore store,
         IRoadNetworkRepository roadNetworkRepository,
         ILoggerFactory loggerFactory)
@@ -33,11 +31,10 @@ public sealed class SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler
             retryPolicy,
             ticketing,
             idempotentCommandHandler,
-            roadRegistryContext,
+            store,
             loggerFactory,
             TicketingBehavior.None)
     {
-        _store = store;
         _roadNetworkRepository = roadNetworkRepository;
     }
 
@@ -56,7 +53,7 @@ public sealed class SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler
 
     private async Task<ScopedRoadNetwork> Load(IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
     {
-        await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
+        await using var session = Store.LightweightSession(IsolationLevel.Snapshot);
 
         return await _roadNetworkRepository.Load(
             session,

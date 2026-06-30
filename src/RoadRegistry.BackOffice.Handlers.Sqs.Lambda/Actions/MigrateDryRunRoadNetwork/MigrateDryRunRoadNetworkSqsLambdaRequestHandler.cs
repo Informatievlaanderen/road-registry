@@ -23,9 +23,8 @@ using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 
-public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<MigrateDryRunRoadNetworkSqsLambdaRequest>
+public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : MartenSqsLambdaHandler<MigrateDryRunRoadNetworkSqsLambdaRequest>
 {
-    private readonly Marten.IDocumentStore _store;
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly IMediator _mediator;
@@ -35,7 +34,6 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
-        IRoadRegistryContext roadRegistryContext,
         Marten.IDocumentStore store,
         IRoadNetworkRepository roadNetworkRepository,
         ExtractsDbContext extractsDbContext,
@@ -46,12 +44,11 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
             retryPolicy,
             ticketing,
             idempotentCommandHandler,
-            roadRegistryContext,
+            store,
             loggerFactory,
             TicketingBehavior.Error,
             problemTranslator: WellKnownProblemTranslators.Extract)
     {
-        _store = store;
         _roadNetworkRepository = roadNetworkRepository;
         _extractsDbContext = extractsDbContext;
         _mediator = mediator;
@@ -133,7 +130,7 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : SqsLambdaH
             return new ScopedRoadNetwork(roadNetworkId);
         }
 
-        await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
+        await using var session = Store.LightweightSession(IsolationLevel.Snapshot);
 
         MultiPolygon geometry;
         using (var _ = Logger.TimeAction(action: "RoadNetworkChanges.BuildScopeGeometry"))
