@@ -34,22 +34,13 @@ public static class SetupExtensions
             ;
 
         services
-            .AddSingleton<MigrationRoadNetworkRepository>()
             .AddMartenRoad(options => options
                 .AddRoadNetworkTopologyProjection()
-                .AddRoadAggregatesSnapshots()
-                .AddMartenDbMigration())
+                .AddRoadAggregatesSnapshots())
             .ApplyAllDatabaseChangesOnStartup();
 
         services
-            .AddDbContextEventProcessorServices<MartenMigrationContextEventProcessor, MartenMigrationContext>(sp => [new MartenMigrationProjection(sp.GetRequiredService<MigrationRoadNetworkRepository>())])
+            .AddDbContextEventProcessorServices<MartenMigrationContextEventProcessor, MartenMigrationContext>(sp => [new MartenMigrationProjection(sp.GetRequiredService<IDocumentStore>())])
             .AddHostedService<MartenMigrationContextEventProcessor>();
-    }
-
-    public static void AddMartenDbMigration(this StoreOptions options)
-    {
-        options.Schema.For<MigratedEvent>()
-            .DatabaseSchemaName(WellKnownSchemas.MartenProjections)
-            .Identity(x => x.Id);
     }
 }

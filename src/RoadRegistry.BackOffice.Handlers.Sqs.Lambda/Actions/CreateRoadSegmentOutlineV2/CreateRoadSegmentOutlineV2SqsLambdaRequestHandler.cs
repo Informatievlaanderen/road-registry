@@ -4,12 +4,14 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
-using Exceptions;
-using Hosts;
-using Infrastructure;
+using Marten;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.Exceptions;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Hosts;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Events.V2;
@@ -23,7 +25,6 @@ using TicketingService.Abstractions;
 public sealed class CreateRoadSegmentOutlineV2SqsLambdaRequestHandler : MartenSqsLambdaHandler<CreateRoadSegmentOutlineV2SqsLambdaRequest>
 {
     private readonly IRoadNetworkRepository _roadNetworkRepository;
-    private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
     private readonly IOrganizationCache _organizationCache;
     private readonly IStreetNameClient _streetNameClient;
     private readonly ExtractsDbContext _extractsDbContext;
@@ -39,9 +40,8 @@ public sealed class CreateRoadSegmentOutlineV2SqsLambdaRequestHandler : MartenSq
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
-        Marten.IDocumentStore store,
+        IDocumentStore store,
         IRoadNetworkRepository roadNetworkRepository,
-        IRoadNetworkIdGenerator roadNetworkIdGenerator,
         IOrganizationCache organizationCache,
         IStreetNameClient streetNameClient,
         ExtractsDbContext extractsDbContext,
@@ -55,7 +55,6 @@ public sealed class CreateRoadSegmentOutlineV2SqsLambdaRequestHandler : MartenSq
             loggerFactory)
     {
         _roadNetworkRepository = roadNetworkRepository;
-        _roadNetworkIdGenerator = roadNetworkIdGenerator;
         _organizationCache = organizationCache;
         _streetNameClient = streetNameClient;
         _extractsDbContext = extractsDbContext;
@@ -64,88 +63,92 @@ public sealed class CreateRoadSegmentOutlineV2SqsLambdaRequestHandler : MartenSq
     protected override async Task<object> InnerHandle(CreateRoadSegmentOutlineV2SqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
         using var _ = Logger.TimeAction(GetType().Name);
+        var command = sqsLambdaRequest.Request;
 
-        var problems = Problems.None;
-
-        var maintenanceAuthorityIds = sqsLambdaRequest.Request.MaintenanceAuthorityId
-            .Select(x => x.MaintenanceAuthorityId)
-            .Distinct()
-            .ToArray();
-        var maintenanceAuthorityIdMapping = new Dictionary<OrganizationId, OrganizationId>();
-        foreach (var maintenanceAuthorityId in maintenanceAuthorityIds)
+        await Store.IdempotentSession(command, async session =>
         {
-            var (actualMaintenanceAuthorityId, maintenanceAuthorityProblems) = await FindOrganizationId(maintenanceAuthorityId, cancellationToken);
-            problems += maintenanceAuthorityProblems;
-            maintenanceAuthorityIdMapping.Add(maintenanceAuthorityId, actualMaintenanceAuthorityId);
-        }
+            var problems = Problems.None;
 
-        var streetNameIds = sqsLambdaRequest.Request.StreetNameId
-            .Select(x => x.StreetNameId)
-            .Distinct()
-            .ToArray();
-        var streetNameIdProblemsCollection = await Task.WhenAll(streetNameIds.Select(streetNameId => ValidateStreetNameId(streetNameId, cancellationToken)));
-        foreach (var streetNameIdProblems in streetNameIdProblemsCollection)
-        {
-            problems += streetNameIdProblems;
-        }
+            var maintenanceAuthorityIds = command.MaintenanceAuthorityId
+                .Select(x => x.MaintenanceAuthorityId)
+                .Distinct()
+                .ToArray();
+            var maintenanceAuthorityIdMapping = new Dictionary<OrganizationId, OrganizationId>();
+            foreach (var maintenanceAuthorityId in maintenanceAuthorityIds)
+            {
+                var (actualMaintenanceAuthorityId, maintenanceAuthorityProblems) = await FindOrganizationId(maintenanceAuthorityId, cancellationToken);
+                problems += maintenanceAuthorityProblems;
+                maintenanceAuthorityIdMapping.Add(maintenanceAuthorityId, actualMaintenanceAuthorityId);
+            }
 
-        var roadSegmentAttributes = new RoadSegmentAttributes
-        {
-            AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(
-                sqsLambdaRequest.Request.AccessRestriction.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.AccessRestriction))),
-            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(
-                sqsLambdaRequest.Request.Category.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.Category))),
-            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(
-                sqsLambdaRequest.Request.Morphology.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.Morphology))),
-            StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(
-                sqsLambdaRequest.Request.StreetNameId.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), x.Side, x.StreetNameId))),
-            MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(
-                sqsLambdaRequest.Request.MaintenanceAuthorityId.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), x.Side, maintenanceAuthorityIdMapping[x.MaintenanceAuthorityId]))),
-            SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(
-                sqsLambdaRequest.Request.SurfaceType.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.SurfaceType))),
-            CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(
-                sqsLambdaRequest.Request.CarTrafficDirection.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.TrafficDirection))),
-            BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(
-                sqsLambdaRequest.Request.BikeTrafficDirection.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.TrafficDirection))),
-            PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(
-                sqsLambdaRequest.Request.PedestrianTrafficDirection.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.TrafficDirection))),
-        };
-        problems += new RoadSegmentAttributesValidator().Validate(roadSegmentAttributes, sqsLambdaRequest.Request.Geometry.Value.Length);
+            var streetNameIds = command.StreetNameId
+                .Select(x => x.StreetNameId)
+                .Distinct()
+                .ToArray();
+            var streetNameIdProblemsCollection = await Task.WhenAll(streetNameIds.Select(streetNameId => ValidateStreetNameId(streetNameId, cancellationToken)));
+            foreach (var streetNameIdProblems in streetNameIdProblemsCollection)
+            {
+                problems += streetNameIdProblems;
+            }
 
-        var isCompletelyWithinCompletedInwinningszone = await _extractsDbContext.IsCompletelyWithinCompletedInwinningszone(sqsLambdaRequest.Request.Geometry.Value, cancellationToken);
-        if (!isCompletelyWithinCompletedInwinningszone)
-        {
-            problems += new RoadSegmentOutsideCompletedInwinningszone();
-        }
+            var roadSegmentAttributes = new RoadSegmentAttributes
+            {
+                AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(
+                    command.AccessRestriction.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.AccessRestriction))),
+                Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(
+                    command.Category.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.Category))),
+                Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(
+                    command.Morphology.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.Morphology))),
+                StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(
+                    command.StreetNameId.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), x.Side, x.StreetNameId))),
+                MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(
+                    command.MaintenanceAuthorityId.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), x.Side, maintenanceAuthorityIdMapping[x.MaintenanceAuthorityId]))),
+                SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(
+                    command.SurfaceType.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.SurfaceType))),
+                CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(
+                    command.CarTrafficDirection.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.TrafficDirection))),
+                BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(
+                    command.BikeTrafficDirection.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.TrafficDirection))),
+                PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(
+                    command.PedestrianTrafficDirection.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.TrafficDirection))),
+            };
+            problems += new RoadSegmentAttributesValidator().Validate(roadSegmentAttributes, command.Geometry.Value.Length);
 
-        if (problems.Any())
-        {
-            throw new RoadRegistryProblemsException(problems);
-        }
+            var isCompletelyWithinCompletedInwinningszone = await _extractsDbContext.IsCompletelyWithinCompletedInwinningszone(command.Geometry.Value, cancellationToken);
+            if (!isCompletelyWithinCompletedInwinningszone)
+            {
+                problems += new RoadSegmentOutsideCompletedInwinningszone();
+            }
 
-        var roadSegment = RoadSegment.Create(new OutlinedRoadSegmentWasAdded
-        {
-            RoadSegmentId = await _roadNetworkIdGenerator.NewRoadSegmentIdAsync(),
-            Geometry = sqsLambdaRequest.Request.Geometry,
-            Status = sqsLambdaRequest.Request.Status,
-            AccessRestriction = roadSegmentAttributes.AccessRestriction,
-            Category = roadSegmentAttributes.Category,
-            Morphology = roadSegmentAttributes.Morphology,
-            StreetNameId = roadSegmentAttributes.StreetNameId,
-            MaintenanceAuthorityId = roadSegmentAttributes.MaintenanceAuthorityId,
-            SurfaceType = roadSegmentAttributes.SurfaceType,
-            CarTrafficDirection = roadSegmentAttributes.CarTrafficDirection,
-            BikeTrafficDirection = roadSegmentAttributes.BikeTrafficDirection,
-            PedestrianTrafficDirection = roadSegmentAttributes.PedestrianTrafficDirection,
-            Provenance = new ProvenanceData(sqsLambdaRequest.Provenance)
-        });
+            if (problems.Any())
+            {
+                throw new RoadRegistryProblemsException(problems);
+            }
 
-        //TODO-pr add idempotent handling? like InIdempotentSession, based on Provenance data? in combination with ticket guid?
-        await _roadNetworkRepository.Save(new ScopedRoadNetwork(new ScopedRoadNetworkId(Guid.NewGuid()), roadSegments: [roadSegment]), GetType().Name, cancellationToken);
+            var roadSegment = RoadSegment.Create(new OutlinedRoadSegmentWasAdded
+            {
+                RoadSegmentId = command.RoadSegmentId,
+                Geometry = command.Geometry,
+                Status = command.Status,
+                AccessRestriction = roadSegmentAttributes.AccessRestriction,
+                Category = roadSegmentAttributes.Category,
+                Morphology = roadSegmentAttributes.Morphology,
+                StreetNameId = roadSegmentAttributes.StreetNameId,
+                MaintenanceAuthorityId = roadSegmentAttributes.MaintenanceAuthorityId,
+                SurfaceType = roadSegmentAttributes.SurfaceType,
+                CarTrafficDirection = roadSegmentAttributes.CarTrafficDirection,
+                BikeTrafficDirection = roadSegmentAttributes.BikeTrafficDirection,
+                PedestrianTrafficDirection = roadSegmentAttributes.PedestrianTrafficDirection,
+                Provenance = new ProvenanceData(sqsLambdaRequest.Provenance)
+            });
 
-        Logger.LogInformation("Created road segment {RoadSegmentId}", roadSegment.RoadSegmentId);
+            _roadNetworkRepository.Save(session, new ScopedRoadNetwork(new ScopedRoadNetworkId(Guid.NewGuid()), roadSegments: [roadSegment]), GetType().Name);
 
-        return new ETagResponse(string.Format(GetRoadSegmentDetailUrlFormat(WellKnownPublicApiVersions.V3), roadSegment.RoadSegmentId), roadSegment.LastEventHash);
+            Logger.LogInformation("Created outlined road segment {RoadSegmentId}", roadSegment.RoadSegmentId);
+        }, cancellationToken, Logger);
+
+        var roadSegmentHash = await GetRoadSegmentHash(command.RoadSegmentId, cancellationToken);
+        return new ETagResponse(string.Format(GetRoadSegmentDetailUrlFormat(WellKnownPublicApiVersions.V3), command.RoadSegmentId), roadSegmentHash);
     }
 
     private async Task<(OrganizationId, Problems)> FindOrganizationId(OrganizationId organizationId, CancellationToken cancellationToken)

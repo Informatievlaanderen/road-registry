@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
 
-using System.Data;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -8,12 +7,15 @@ using ChangeRoadNetwork;
 using Exceptions;
 using Hosts;
 using Infrastructure;
+using Marten;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure.DutchTranslations;
+using RoadRegistry.Infrastructure.MartenDb;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.Events.V2;
 using ScopedRoadNetwork.ValueObjects;
@@ -73,21 +75,34 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : MartenSqsLambdaH
 
     private async Task<RoadNetworkChangeResult> Handle(MigrateRoadNetworkSqsRequest command, CancellationToken cancellationToken)
     {
-        var roadNetworkChanges = command.Changes.ToRoadNetworkChanges(command.ProvenanceData);
+        var scopedRoadNetworkId = new ScopedRoadNetworkId(command.DownloadId.ToGuid());
 
-        var roadNetwork = await Load(roadNetworkChanges, new ScopedRoadNetworkId(command.DownloadId.ToGuid()));
+        await Store.IdempotentSession(command, async session =>
+        {
+            var roadNetworkChanges = command.Changes.ToRoadNetworkChanges(command.ProvenanceData);
 
-        var changeResult = roadNetwork.SummaryOfLastChange is null
-            ? await ChangeRoadNetwork(command, roadNetwork, roadNetworkChanges, cancellationToken)
-            : new RoadNetworkChangeResult(Problems.None, roadNetwork.SummaryOfLastChange);
+            var roadNetwork = await Load(session, roadNetworkChanges, scopedRoadNetworkId);
 
-        await _extractsDbContext.UploadAcceptedAsync(command.UploadId, cancellationToken);
-        await CompleteInwinningStatuses(command.DownloadId, changeResult, cancellationToken);
+            await ChangeRoadNetwork(session, command, roadNetwork, roadNetworkChanges, cancellationToken);
+        }, cancellationToken, Logger);
 
-        return changeResult;
+        {
+            await using var session = Store.LightweightSession();
+
+            var roadNetwork = await session.LoadAsync(scopedRoadNetworkId, cancellationToken);
+            var changeResult = new RoadNetworkChangeResult(Problems.None, roadNetwork.SummaryOfLastChange!);
+
+            if (!await _extractsDbContext.IsUploadAcceptedAsync(command.UploadId, cancellationToken))
+            {
+                await CompleteInwinningStatuses(command.DownloadId, changeResult, cancellationToken);
+                await _extractsDbContext.UploadAcceptedAsync(command.UploadId, cancellationToken);
+            }
+
+            return changeResult;
+        }
     }
 
-    private async Task<RoadNetworkChangeResult> ChangeRoadNetwork(MigrateRoadNetworkSqsRequest command, ScopedRoadNetwork roadNetwork, RoadNetworkChanges roadNetworkChanges, CancellationToken cancellationToken)
+    private async Task ChangeRoadNetwork(IDocumentSession session, MigrateRoadNetworkSqsRequest command, ScopedRoadNetwork roadNetwork, RoadNetworkChanges roadNetworkChanges, CancellationToken cancellationToken)
     {
         var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator, Logger);
         if (changeResult.Problems.HasError())
@@ -97,19 +112,15 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : MartenSqsLambdaH
             throw new RoadRegistryProblemsException(changeResult.Problems);
         }
 
-        await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
-
-        return changeResult;
+        _roadNetworkRepository.Save(session, roadNetwork, command.GetType().Name);
     }
 
-    private async Task<ScopedRoadNetwork> Load(RoadNetworkChanges roadNetworkChanges, ScopedRoadNetworkId roadNetworkId)
+    private async Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNetworkChanges roadNetworkChanges, ScopedRoadNetworkId roadNetworkId)
     {
         if (!roadNetworkChanges.Any())
         {
             return new ScopedRoadNetwork(roadNetworkId);
         }
-
-        await using var session = Store.LightweightSession(IsolationLevel.Snapshot);
 
         var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry(), ids: roadNetworkChanges.Ids);
         return await _roadNetworkRepository.Load(
@@ -121,12 +132,11 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : MartenSqsLambdaH
 
     private async Task CompleteInwinningStatuses(DownloadId downloadId, RoadNetworkChangeResult changeResult, CancellationToken cancellationToken)
     {
-        var inwinningszone = await _extractsDbContext.Inwinningszones.SingleAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
+        var inwinningszone = await EntityFrameworkQueryableExtensions.SingleAsync(_extractsDbContext.Inwinningszones, x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
         inwinningszone.Completed = true;
 
-        var inwinningRoadSegments = await _extractsDbContext.InwinningRoadSegments
-            .Where(x => x.NisCode == inwinningszone.NisCode)
-            .ToListAsync(cancellationToken);
+        var inwinningRoadSegments = await EntityFrameworkQueryableExtensions.ToListAsync(_extractsDbContext.InwinningRoadSegments
+            .Where(x => x.NisCode == inwinningszone.NisCode), cancellationToken);
         foreach (var inwinningRoadSegment in inwinningRoadSegments)
         {
             inwinningRoadSegment.Completed = true;
@@ -138,7 +148,5 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : MartenSqsLambdaH
             RoadSegmentId = roadSegmentId,
             Completed = true
         }));
-
-        await _extractsDbContext.SaveChangesAsync(cancellationToken);
     }
 }
