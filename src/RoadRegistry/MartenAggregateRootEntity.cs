@@ -17,7 +17,7 @@ public abstract class MartenAggregateRootEntity<TIdentifier> : IMartenAggregateR
     public string Id { get; set; } // Required for MartenDb
 
     public bool HasChanges() => _requestedToSaveSnapshot || UncommittedEvents.Any();
-    public IReadOnlyCollection<object> GetChanges() => UncommittedEvents.AsReadOnly();
+public IReadOnlyCollection<object> GetChanges() => UncommittedEvents.Cast<object>().ToArray();
 
     protected List<IMartenEvent> UncommittedEvents { get; } = [];
     private bool _requestedToSaveSnapshot;
