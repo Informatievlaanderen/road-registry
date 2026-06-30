@@ -1,3 +1,10 @@
+## [4.65.5](https://github.com/informatievlaanderen/road-registry/compare/v4.65.4...v4.65.5) (2026-06-30)
+
+
+### Bug Fixes
+
+* **2.0:** read projection deal with OrganizationIds longer than the max length ([3799da1](https://github.com/informatievlaanderen/road-registry/commit/3799da1da25dbe8b8300cf55c14828b2503a7b33))
+
 ## [4.65.4](https://github.com/informatievlaanderen/road-registry/compare/v4.65.3...v4.65.4) (2026-06-30)
 
 
