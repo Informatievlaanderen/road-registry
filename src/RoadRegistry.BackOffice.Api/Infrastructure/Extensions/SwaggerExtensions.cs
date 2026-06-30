@@ -27,7 +27,7 @@ public static class SwaggerExtensions
         options.SchemaFilter<RoadSegmentGeometryDrawMethodV2SchemaFilter>();
         options.SchemaFilter<RoadSegmentMorphologyV2SchemaFilter>();
         options.SchemaFilter<RoadSegmentStatusV2SchemaFilter>();
-        options.SchemaFilter<OutlinedRoadSegmentStatusV2SchemaFilter>();
+        options.SchemaFilter<EditOutlinedRoadSegmentStatusV2SchemaFilter>();
         options.SchemaFilter<RoadSegmentSurfaceTypeV2SchemaFilter>();
         options.SchemaFilter<RoadSegmentTrafficDirectionSchemaFilter>();
         options.SchemaFilter<RoadSegmentTrafficDirectionPedestrianSchemaFilter>();

@@ -5,7 +5,6 @@ using JasperFx.Events;
 using Marten;
 using RoadNode.Events.V2;
 using RoadRegistry.GradeJunction.Events.V2;
-using RoadRegistry.Organization.Events.V1;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.StreetName.Events.V2;
 using RoadSegment.Events.V2;

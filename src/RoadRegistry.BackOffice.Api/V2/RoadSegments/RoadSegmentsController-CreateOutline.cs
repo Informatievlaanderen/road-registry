@@ -13,7 +13,6 @@ using Be.Vlaanderen.Basisregisters.GrAr.Common.NetTopology;
 using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Be.Vlaanderen.Basisregisters.Shaperon;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
@@ -21,11 +20,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
-using RoadRegistry.BackOffice.Abstractions.RoadSegmentsOutline;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
-using RoadRegistry.BackOffice.Api.RoadSegments.V1;
 using RoadRegistry.BackOffice.Handlers.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
@@ -67,7 +64,6 @@ public partial class RoadSegmentsController
     {
         try
         {
-            //TODO-pr use v2 and new lambda
             await validator.ValidateAndThrowAsync(parameters, cancellationToken);
 
             var parsedGeometry = GeometryTranslator.ParseGmlLineString(parameters.WegsegmentGeometrie);
@@ -183,7 +179,7 @@ public record CreateOutlinedRoadSegmentV2Parameters
     /// </summary>
     [DataMember(Name = "Wegsegmentstatus", Order = 2)]
     [JsonProperty(Required = Required.Always)]
-    [RoadRegistryEnumDataType(typeof(RoadSegmentStatusV2.Edit))]
+    [RoadRegistryEnumDataType(typeof(RoadSegmentStatusV2.EditOutlined))]
     public string Wegsegmentstatus { get; set; }
 
     /// <summary>
@@ -343,7 +339,7 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
             .Cascade(CascadeMode.Stop)
             .NotNull()
                 .WithProblemCode(ProblemCode.RoadSegment.Status.IsRequired)
-            .Must(v => RoadSegmentStatusV2.CanParseUsingDutchName(v) && RoadSegmentStatusV2.Edit.Outlined.Contains(RoadSegmentStatusV2.ParseUsingDutchName(v)))
+            .Must(v => RoadSegmentStatusV2.CanParseUsingDutchName(v) && RoadSegmentStatusV2.EditOutlined.Values.Contains(RoadSegmentStatusV2.ParseUsingDutchName(v)))
                 .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
 
         // Morfologie

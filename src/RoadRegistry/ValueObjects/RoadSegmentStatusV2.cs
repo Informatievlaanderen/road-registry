@@ -63,9 +63,9 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
         Gepland, Gerealiseerd, NietGerealiseerd, BuitenGebruik, Gehistoreerd
     ];
 
-    public sealed record Edit
+    public sealed record EditOutlined
     {
-        public static readonly ImmutableArray<RoadSegmentStatusV2> Outlined = [Gepland, BuitenGebruik];
+        public static readonly ImmutableArray<RoadSegmentStatusV2> Values = [Gepland, BuitenGebruik];
     }
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentStatusV2> ByIdentifier =

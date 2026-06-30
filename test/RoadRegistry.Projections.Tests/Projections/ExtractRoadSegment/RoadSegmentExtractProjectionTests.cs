@@ -11,7 +11,6 @@ using NetTopologySuite.Geometries;
 using RoadNode.Events.V1;
 using RoadNode.Events.V2;
 using RoadRegistry.GradeJunction.Events.V2;
-using RoadRegistry.Organization.Events.V1;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.StreetName.Events.V2;

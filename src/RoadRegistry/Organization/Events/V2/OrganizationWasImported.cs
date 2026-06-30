@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Organization.Events.V1;
+﻿namespace RoadRegistry.Organization.Events.V2;
 
 using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;

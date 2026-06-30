@@ -33,4 +33,44 @@ public class MartenSerializerTests
 
         deserialized.Should().BeEquivalentTo(original);
     }
+
+    [Fact]
+    public void LastEventHash_ReflectsAppliedEventHash()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+
+        var evt = fixture.Create<GradeSeparatedJunctionWasAdded>();
+        var junction = GradeSeparatedJunction.Create(evt);
+
+        junction.LastEventHash.Should().Be(evt.GetHash());
+    }
+
+    [Fact]
+    public void LastEventHash_IsPreservedThroughSerializationRoundtrip()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+
+        var original = GradeSeparatedJunction.Create(fixture.Create<GradeSeparatedJunctionWasAdded>());
+        var expectedHash = original.LastEventHash;
+
+        var serializer = new StoreOptions().ConfigureSerializer().Serializer();
+        var deserialized = serializer.FromJson<GradeSeparatedJunction>(serializer.ToJson(original));
+
+        deserialized.LastEventHash.Should().Be(expectedHash);
+    }
+
+    [Fact]
+    public void LastEventHash_IsPreservedWhenNoNewEventIsApplied()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+
+        var original = GradeSeparatedJunction.Create(fixture.Create<GradeSeparatedJunctionWasAdded>());
+
+        // Simulate loading from a snapshot: deserialize restores _lastSnapshotEventHash
+        var serializer = new StoreOptions().ConfigureSerializer().Serializer();
+        var loadedFromSnapshot = serializer.FromJson<GradeSeparatedJunction>(serializer.ToJson(original));
+
+        // Without applying any new event, LastEventHash must still be the original
+        loadedFromSnapshot.LastEventHash.Should().Be(original.LastEventHash);
+    }
 }

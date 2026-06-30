@@ -12,7 +12,6 @@ using Marten;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
-using RoadRegistry.Organization.Events.V1;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.StreetName;
 using RoadRegistry.ValueObjects;
