@@ -140,6 +140,7 @@ public sealed class CreateRoadSegmentOutlineV2SqsLambdaRequestHandler : MartenSq
             Provenance = new ProvenanceData(sqsLambdaRequest.Provenance)
         });
 
+        //TODO-pr add idempotent handling? like InIdempotentSession
         await _roadNetworkRepository.Save(new ScopedRoadNetwork(new ScopedRoadNetworkId(Guid.Empty), roadSegments: [roadSegment]), GetType().Name, cancellationToken);
 
         Logger.LogInformation("Created road segment {RoadSegmentId}", roadSegment.RoadSegmentId);

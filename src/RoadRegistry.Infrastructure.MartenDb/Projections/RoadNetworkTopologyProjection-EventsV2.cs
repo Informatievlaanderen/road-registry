@@ -70,6 +70,18 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
+    public void Project(IEvent<OutlinedRoadSegmentWasAdded> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_insert_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+            e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp,
+            e.Data.Geometry.WKT,
+            e.Data.Geometry.SRID,
+            0,
+            0
+        );
+    }
+
     public void Project(IEvent<RoadSegmentWasMerged> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
