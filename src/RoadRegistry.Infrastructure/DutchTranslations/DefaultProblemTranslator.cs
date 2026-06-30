@@ -444,6 +444,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     "De opgegeven geometrie heeft niet het coördinatenstelsel Lambert 72.")
             },
             {
+                ProblemCode.RoadSegment.Geometry.SridNotLambert08, problem => new(problem.Severity, "MiddellijnGeometrieCRSNietCorrect",
+                    "De opgegeven geometrie heeft niet het coördinatenstelsel Lambert 2008.")
+            },
+            {
                 ProblemCode.RoadSegment.Geometry.StartEqualsEnd, problem => new(problem.Severity, problem.Reason,
                     $"Het begin- en eindvertex van het wegsegment met {GetRoadSegmentIdLabel(problem)} zijn hetzelfde.")
             },

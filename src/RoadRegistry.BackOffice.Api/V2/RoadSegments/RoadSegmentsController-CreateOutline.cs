@@ -327,7 +327,7 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
             .Must(GeometryTranslator.GmlIsValidLineString)
                 .WithProblemCode(ProblemCode.RoadSegment.Geometry.NotValid)
             .Must(gml => GeometryTranslator.ParseGmlLineString(gml).SRID == WellknownSrids.Lambert08)
-                .WithProblemCode(ProblemCode.RoadSegment.Geometry.SridNotValid)
+                .WithProblemCode(ProblemCode.RoadSegment.Geometry.SridNotLambert08)
             .Must(gml => GeometryTranslator.ParseGmlLineString(gml).Length >= Distances.RoadSegmentV2MinimumLength)
                 .WithProblemCode(RoadSegmentGeometryLengthIsLessThanMinimum.ProblemCode, _ => new RoadSegmentGeometryLengthIsLessThanMinimum(Distances.RoadSegmentV2MinimumLength))
             .Must(gml => GeometryTranslator.ParseGmlLineString(gml).Length < Distances.TooLongSegmentLength)

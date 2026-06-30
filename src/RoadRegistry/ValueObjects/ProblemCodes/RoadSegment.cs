@@ -232,6 +232,7 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode SelfIntersects = new("RoadSegmentGeometrySelfIntersects");
             public static readonly ProblemCode SelfOverlaps = new("RoadSegmentGeometrySelfOverlaps");
             public static readonly ProblemCode SridNotValid = new("RoadSegmentGeometrySridNotValid");
+            public static readonly ProblemCode SridNotLambert08 = new("RoadSegmentGeometrySridNotLambert08");
             public static readonly ProblemCode StartEqualsEnd = new("RoadSegmentGeometryStartEqualsEnd");
             public static readonly ProblemCode Taken = new("RoadSegmentGeometryTaken");
             public static readonly ProblemCode VerticesTooClose = new("RoadSegmentGeometryVerticesTooClose");
