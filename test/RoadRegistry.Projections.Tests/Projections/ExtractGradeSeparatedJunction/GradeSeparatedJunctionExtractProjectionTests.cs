@@ -8,6 +8,7 @@ using JasperFx.Events;
 using RoadNode.Events.V1;
 using RoadNode.Events.V2;
 using RoadRegistry.GradeJunction.Events.V2;
+using RoadRegistry.Organization.Events.V1;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.StreetName.Events.V2;
 using RoadRegistry.Tests.AggregateTests;
@@ -70,6 +71,8 @@ public class GradeSeparatedJunctionExtractProjectionTests
             typeof(StreetNameWasCreated),
             typeof(StreetNameWasModified),
             typeof(StreetNameWasRemoved),
+            typeof(StreetNameWasRenamed),
+            typeof(OrganizationWasImported),
             typeof(OrganizationWasCreated),
             typeof(OrganizationWasModified),
             typeof(OrganizationWasRemoved),

@@ -7,6 +7,7 @@ using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
+using RoadRegistry.Organization.Events.V1;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.ValueObjects;
 
@@ -22,6 +23,21 @@ public class OrganizationReadProjection : RoadNetworkChangesConnectedProjection
 
     public OrganizationReadProjection()
     {
+        When<IEvent<OrganizationWasImported>>((session, e, _) =>
+        {
+            var organization = new OrganizationReadItem(e.Data.OrganizationId)
+            {
+                Name = e.Data.Name,
+                OvoCode = null,
+                KboNumber = null,
+                IsMaintainer = false,
+                Origin = e.Data.Provenance.ToEventTimestamp(),
+                LastModified = e.Data.Provenance.ToEventTimestamp()
+            };
+            session.Store(organization);
+
+            return Task.CompletedTask;
+        });
         When<IEvent<OrganizationWasCreated>>((session, e, _) =>
         {
             var organization = new OrganizationReadItem(e.Data.OrganizationId)
@@ -59,8 +75,7 @@ public class OrganizationReadProjection : RoadNetworkChangesConnectedProjection
             var organization = await session.LoadAsync<OrganizationReadItem>(e.Data.OrganizationId.ToString(), ct);
             if (organization is null)
             {
-                // Ignore if not found, not an issue for Organization
-                return;
+                throw new InvalidOperationException($"No organization found for Id {e.Data.OrganizationId}");
             }
 
             organization.IsRemoved = true;

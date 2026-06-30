@@ -12,6 +12,7 @@ using Marten;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
+using RoadRegistry.Organization.Events.V1;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.StreetName;
 using RoadRegistry.ValueObjects;
@@ -499,8 +500,10 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         When<IEvent<StreetNameWasCreated>>((session, e, ct) => UpdateStreetNameLabels(session, e.Data.StreetNameId, e.Data.DutchName, ct));
         When<IEvent<StreetNameWasModified>>((session, e, ct) => UpdateStreetNameLabels(session, e.Data.StreetNameId, e.Data.DutchName, ct));
         When<IEvent<StreetNameWasRemoved>>((session, e, ct) => UpdateStreetNameLabels(session, e.Data.StreetNameId, null, ct));
+        When<IEvent<StreetNameWasRenamed>>((_, _, _) => Task.CompletedTask);
 
         // Organization
+        When<IEvent<OrganizationWasImported>>((session, e, ct) => UpdateMaintenanceAuthorityNames(session, e.Data.OrganizationId, e.Data.Name, ct));
         When<IEvent<OrganizationWasCreated>>((session, e, ct) => UpdateMaintenanceAuthorityNames(session, e.Data.OrganizationId, e.Data.Name, ct));
         When<IEvent<OrganizationWasModified>>((session, e, ct) =>
             e.Data.Name is not null
