@@ -1,3 +1,11 @@
+## [4.66.2](https://github.com/informatievlaanderen/road-registry/compare/v4.66.1...v4.66.2) (2026-07-02)
+
+
+### Bug Fixes
+
+* **2.0-read:** updating roadsegmentids in roadnodereaditem ([2311a63](https://github.com/informatievlaanderen/road-registry/commit/2311a63431736768363f0185655d3cea792a23fa))
+* **projector:** marten db healthcheck + logging in marten projection daemon ([4510bb2](https://github.com/informatievlaanderen/road-registry/commit/4510bb250ae1e06443661863f26c976152b03353))
+
 ## [4.66.1](https://github.com/informatievlaanderen/road-registry/compare/v4.66.0...v4.66.1) (2026-07-02)
 
 
