@@ -124,9 +124,7 @@ public class Startup
                 .MigrateAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-        StartMartenProjections(serviceProvider); // Do not await
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+        _ = StartMartenProjections(serviceProvider); // Do not await
     }
 
     private async Task StartMartenProjections(IServiceProvider sp)
@@ -198,7 +196,8 @@ public class Startup
                                 health.AddNpgSql(
                                     connectionString.Value,
                                     name: $"npgsql-{connectionString.Key.ToLowerInvariant()}",
-                                    tags: [DatabaseTag, "sql", "npgsql"]);
+                                    tags: [DatabaseTag, "sql", "npgsql"],
+                                    timeout: TimeSpan.FromSeconds(10));
                             }
                             else
                             {
@@ -258,9 +257,6 @@ public class Startup
 
                         if (projectionOptions.Marten.Enabled)
                         {
-                            var connectionString = _configuration.GetRequiredConnectionString(WellKnownConnectionNames.Marten);
-                            health.AddNpgSql(connectionString, name: "Marten PostgreSQL DB", timeout: TimeSpan.FromSeconds(10));
-
                             health.AddDbContextCheck<MartenMigrationContext>();
                         }
                     }
