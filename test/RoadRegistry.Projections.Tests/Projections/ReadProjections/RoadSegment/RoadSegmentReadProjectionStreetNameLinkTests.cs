@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.ReadProjections;
+namespace RoadRegistry.Projections.Tests.Projections.ReadProjections.RoadSegment;
 
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
-using RoadRegistry.Tests;
 using RoadRegistry.Tests.AggregateTests;
 
 /// <summary>

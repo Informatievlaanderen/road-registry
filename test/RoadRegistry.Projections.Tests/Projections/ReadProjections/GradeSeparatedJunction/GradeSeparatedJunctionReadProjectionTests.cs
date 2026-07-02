@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.ReadProjections;
+namespace RoadRegistry.Projections.Tests.Projections.ReadProjections.GradeSeparatedJunction;
 
 using System.Threading.Tasks;
 using AutoFixture;
@@ -6,7 +6,6 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.Read.Projections;
-using RoadRegistry.Tests;
 using RoadRegistry.Tests.AggregateTests;
 using V1 = RoadRegistry.GradeSeparatedJunction.Events.V1;
 

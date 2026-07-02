@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.ReadProjections;
+namespace RoadRegistry.Projections.Tests.Projections.ReadProjections.GradeJunction;
 
 using System;
 using System.Threading.Tasks;
@@ -6,7 +6,6 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.Read.Projections;
-using RoadRegistry.Tests;
 using RoadRegistry.Tests.AggregateTests;
 
 public class GradeJunctionReadProjectionTests

@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.ReadProjections;
+namespace RoadRegistry.Projections.Tests.Projections.ReadProjections.RoadSegment;
 
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,7 +6,6 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.StreetName.Events.V2;
-using RoadRegistry.Tests;
 using RoadRegistry.Tests.AggregateTests;
 
 public class RoadSegmentReadProjectionStreetNameLabelTests

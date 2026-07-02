@@ -87,8 +87,27 @@ public class OrganizationReadProjection : RoadNetworkChangesConnectedProjection
 
 public sealed class OrganizationReadItem
 {
-    public OrganizationReadItem()
+    [JsonConstructor]
+    public OrganizationReadItem(
+        OrganizationId organizationId,
+        string name,
+        string? ovoCode,
+        string? kboNumber,
+        bool isMaintainer,
+        EventTimestamp origin,
+        EventTimestamp lastModified,
+        bool isRemoved
+    )
     {
+        Id = organizationId.ToString();
+        OrganizationId = organizationId;
+        Name = name;
+        OvoCode = ovoCode;
+        KboNumber = kboNumber;
+        IsMaintainer = isMaintainer;
+        Origin = origin;
+        LastModified = lastModified;
+        IsRemoved = isRemoved;
     }
 
     public OrganizationReadItem(OrganizationId organizationId)
@@ -98,9 +117,9 @@ public sealed class OrganizationReadItem
     }
 
     [JsonIgnore]
-    public string Id { get; set; }
+    public string Id { get; }
 
-    public OrganizationId OrganizationId { get; set; }
+    public OrganizationId OrganizationId { get; }
 
     public required string Name { get; set; }
     public string? OvoCode { get; set; }

@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.ReadProjections;
+namespace RoadRegistry.Projections.Tests.Projections.ReadProjections.RoadSegment;
 
 using RoadRegistry.RoadSegment.ValueObjects;
 
