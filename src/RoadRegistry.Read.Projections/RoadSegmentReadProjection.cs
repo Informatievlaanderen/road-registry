@@ -591,21 +591,21 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 updatedStartEndNodeIds.Start,
                 updatedStartEndNodeIds.End
             }
-            .Where(x => x is not null)
+            .Where(x => x > 0)
             .Select(x => x!.Value.ToInt32())
             .Distinct()
             .ToArray();
 
         var nodes = await session.LoadManyAsync<RoadNodeReadItem>(ct, nodeIds);
 
-        if (originalStartEndNodeIds.Start is not null)
+        if (originalStartEndNodeIds.Start > 0)
         {
             var node = nodes.SingleOrDefault(x => x.RoadNodeId == originalStartEndNodeIds.Start.Value)
                 ?? throw new InvalidOperationException($"No road node found for Id {originalStartEndNodeIds.Start.Value}");
             node.RoadSegmentIds = node.RoadSegmentIds.Except([roadSegmentId]).ToArray();
             session.Store(node);
         }
-        if (originalStartEndNodeIds.End is not null)
+        if (originalStartEndNodeIds.End > 0)
         {
             var node = nodes.SingleOrDefault(x => x.RoadNodeId == originalStartEndNodeIds.End.Value)
                        ?? throw new InvalidOperationException($"No road node found for Id {originalStartEndNodeIds.End.Value}");
@@ -613,14 +613,14 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             session.Store(node);
         }
 
-        if (updatedStartEndNodeIds.Start is not null)
+        if (updatedStartEndNodeIds.Start > 0)
         {
             var node = nodes.SingleOrDefault(x => x.RoadNodeId == updatedStartEndNodeIds.Start.Value)
                        ?? throw new InvalidOperationException($"No road node found for Id {updatedStartEndNodeIds.Start.Value}");
             node.RoadSegmentIds = node.RoadSegmentIds.Union([roadSegmentId]).OrderBy(x => x).ToArray();
             session.Store(node);
         }
-        if (updatedStartEndNodeIds.End is not null)
+        if (updatedStartEndNodeIds.End > 0)
         {
             var node = nodes.SingleOrDefault(x => x.RoadNodeId == updatedStartEndNodeIds.End.Value)
                        ?? throw new InvalidOperationException($"No road node found for Id {updatedStartEndNodeIds.End.Value}");
@@ -636,31 +636,34 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         HashSet<StreetNameLocalId> updatedStreetNameIds,
         CancellationToken ct)
     {
-        var oldStreetNameIds = originalStreetNameIds.ToHashSet();
+        var removeStreetNameIds = originalStreetNameIds.Except(updatedStreetNameIds).ToArray();
+        var addStreetNameIds = updatedStreetNameIds.Except(originalStreetNameIds).ToArray();
 
-        foreach (var streetNameId in oldStreetNameIds.Except(updatedStreetNameIds))
+        var streetNameRoadSegmentLinks = await session.LoadManyAsync<StreetNameRoadSegmentsLink>(ct, removeStreetNameIds.Union(addStreetNameIds).Select(x => x.ToInt32()).ToArray());
+
+        foreach (var streetNameId in removeStreetNameIds)
         {
-            var streetNameRoadSegments = await session.LoadAsync<StreetNameRoadSegmentsLink>(streetNameId, ct);
-            if (streetNameRoadSegments is null)
+            var streetNameRoadSegmentsLink = streetNameRoadSegmentLinks.SingleOrDefault(x => x.StreetNameId == streetNameId);
+            if (streetNameRoadSegmentsLink is null)
             {
                 continue;
             }
 
-            streetNameRoadSegments.RoadSegmentIds = streetNameRoadSegments.RoadSegmentIds.Except([roadSegmentId]).ToList();
-            if (streetNameRoadSegments.RoadSegmentIds.Count == 0)
+            streetNameRoadSegmentsLink.RoadSegmentIds = streetNameRoadSegmentsLink.RoadSegmentIds.Except([roadSegmentId]).ToList();
+            if (streetNameRoadSegmentsLink.RoadSegmentIds.Count == 0)
             {
-                session.Delete(streetNameRoadSegments);
+                session.Delete(streetNameRoadSegmentsLink);
             }
             else
             {
-                session.Store(streetNameRoadSegments);
+                session.Store(streetNameRoadSegmentsLink);
             }
         }
 
-        foreach (var streetNameId in updatedStreetNameIds.Except(oldStreetNameIds))
+        foreach (var streetNameId in addStreetNameIds)
         {
-            var streetNameRoadSegmentsLink = await session.LoadAsync<StreetNameRoadSegmentsLink>(streetNameId, ct)
-                                         ?? new StreetNameRoadSegmentsLink(streetNameId) { RoadSegmentIds = [] };
+            var streetNameRoadSegmentsLink = streetNameRoadSegmentLinks.SingleOrDefault(x => x.StreetNameId == streetNameId)
+                                             ?? new StreetNameRoadSegmentsLink(streetNameId) { RoadSegmentIds = [] };
 
             streetNameRoadSegmentsLink.RoadSegmentIds = streetNameRoadSegmentsLink.RoadSegmentIds.Union([roadSegmentId]).ToList();
             session.Store(streetNameRoadSegmentsLink);
@@ -674,9 +677,14 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         HashSet<OrganizationId> updatedOrganizationIds,
         CancellationToken ct)
     {
+        var removeOrganizationIds = originalOrganizationIds.Except(updatedOrganizationIds).ToArray();
+        var addOrganizationIds = updatedOrganizationIds.Except(originalOrganizationIds).ToArray();
+
+        var organizationRoadSegmentLinks = await session.LoadManyAsync<OrganizationRoadSegmentsLink>(ct, removeOrganizationIds.Union(addOrganizationIds).Select(x => x.ToString()).ToArray());
+
         foreach (var organizationId in originalOrganizationIds.Except(updatedOrganizationIds))
         {
-            var link = await session.LoadAsync<OrganizationRoadSegmentsLink>(organizationId.ToString(), ct);
+            var link = organizationRoadSegmentLinks.SingleOrDefault(x => x.OrganizationId == organizationId);
             if (link is null)
             {
                 continue;
@@ -695,7 +703,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
 
         foreach (var organizationId in updatedOrganizationIds.Except(originalOrganizationIds))
         {
-            var link = await session.LoadAsync<OrganizationRoadSegmentsLink>(organizationId.ToString(), ct)
+            var link = organizationRoadSegmentLinks.SingleOrDefault(x => x.OrganizationId == organizationId)
                        ?? new OrganizationRoadSegmentsLink(organizationId) { RoadSegmentIds = [] };
 
             link.RoadSegmentIds = link.RoadSegmentIds.Union([roadSegmentId]).ToList();
