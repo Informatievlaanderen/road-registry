@@ -1,3 +1,11 @@
+## [4.66.1](https://github.com/informatievlaanderen/road-registry/compare/v4.66.0...v4.66.1) (2026-07-02)
+
+
+### Bug Fixes
+
+* **2.0:** read organization projection deserialization ([1b33d79](https://github.com/informatievlaanderen/road-registry/commit/1b33d79f48f3ec9f59db88da70034b72e6fc724b))
+* use Marten idempotent session for Lambda's/MartenMigrationProjection ([1775f88](https://github.com/informatievlaanderen/road-registry/commit/1775f8877b764c45bcfb9bb8308980e1dbf0775e))
+
 # [4.66.0](https://github.com/informatievlaanderen/road-registry/compare/v4.65.5...v4.66.0) (2026-06-30)
 
 
