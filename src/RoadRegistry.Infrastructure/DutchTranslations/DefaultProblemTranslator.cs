@@ -588,6 +588,34 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     "Wegsegment status is verplicht.")
             },
             {
+                ProblemCode.RoadSegment.Split.NotFound, problem => new(problem.Severity, "WegsegmentNietGevondenOfVerwijderd",
+                    $"Wegsegment {problem.GetParameterValue("Identifier")} bestaat niet of is verwijderd.")
+            },
+            {
+                ProblemCode.RoadSegment.Split.StatusNotValid, problem => new(problem.Severity, "WegsegmentKnippenStatusNietCorrect",
+                    $"Wegsegment {problem.GetParameterValue("Identifier")} heeft een status die verschilt van 'gepland', 'gerealiseerd' of 'buiten gebruik'.")
+            },
+            {
+                ProblemCode.RoadSegment.Split.PositionIsRequired, problem => new(problem.Severity, "KnippositieVerplicht",
+                    "De parameter 'knippositie' is verplicht.")
+            },
+            {
+                ProblemCode.RoadSegment.Split.PositionGeometryNotValid, problem => new(problem.Severity, "KnippositieGeometrieNietCorrect",
+                    "De opgegeven geometrie is geen geldige puntgeometrie in gml 3.2.")
+            },
+            {
+                ProblemCode.RoadSegment.Split.PositionSridNotLambert08, problem => new(problem.Severity, "KnippositieCRSNietCorrect",
+                    "De opgegeven geometrie heeft niet het gewenste coördinatenstelsel: Lambert 2008 (EPSG:3812).")
+            },
+            {
+                ProblemCode.RoadSegment.Split.PositionTooFarFromRoadSegment, problem => new(problem.Severity, "KnippositieTeVerVanWegsegment",
+                    $"De afstand van de voorgestelde knippositie tot het opgegeven wegsegment is groter dan {problem.GetParameterValue("MaximumDistance")}m en er ligt géén kruising op minder dan {problem.GetParameterValue("MaximumDistance")}m van de knippositie.")
+            },
+            {
+                ProblemCode.RoadSegment.Split.PositionTooCloseToRoadNode, problem => new(problem.Severity, "KnippositieTeDichtBijWegknoop",
+                    $"De voorgestelde knippositie ligt te dicht (<{problem.GetParameterValue("MinimumDistance")}m) bij wegknoop {problem.GetParameterValue("RoadNodeId")}.")
+            },
+            {
                 ProblemCode.RoadSegment.StreetName.NotProposedOrCurrent, problem => new(problem.Severity, "WegsegmentStraatnaamNietVoorgesteldOfInGebruik",
                     "Deze actie is enkel toegelaten voor straatnamen met status 'voorgesteld' of 'in gebruik'.")
             },

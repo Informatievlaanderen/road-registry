@@ -75,6 +75,35 @@ public static class GeometryTranslator
             .WithMeasureOrdinates();
     }
 
+    public static bool GmlIsValidPoint(string gml)
+    {
+        try
+        {
+            ParseGmlPoint(gml);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static Point ParseGmlPoint(string gml)
+    {
+        var geometry = ParseGml(gml.ThrowIfNull());
+        if (geometry == null)
+        {
+            throw new InvalidOperationException("The GML is invalid");
+        }
+
+        if (geometry is not Point point)
+        {
+            throw new InvalidOperationException("The GML is not a Point");
+        }
+
+        return point;
+    }
+
     private static Geometry ParseGml(string gml)
     {
         var gmlReader = new GMLReader(WellKnownGeometryFactories.WithoutSrid);
