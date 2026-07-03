@@ -1,3 +1,15 @@
+# [4.67.0](https://github.com/informatievlaanderen/road-registry/compare/v4.66.2...v4.67.0) (2026-07-03)
+
+
+### Bug Fixes
+
+* **2.0:** project Marten events event per event; OrganizationWasModified with nullable properties in MartenMigrationProjection; performance Organization/StreetName links in projection ([989588c](https://github.com/informatievlaanderen/road-registry/commit/989588c3a81d5d98e0231f440f193e7d670ec19f))
+
+
+### Features
+
+* **2.0:** geometries must be stored in cm precision ([#2001](https://github.com/informatievlaanderen/road-registry/issues/2001)) ([7ad83ae](https://github.com/informatievlaanderen/road-registry/commit/7ad83ae79c79d73030a891e895df07b6390dd39d))
+
 ## [4.66.2](https://github.com/informatievlaanderen/road-registry/compare/v4.66.1...v4.66.2) (2026-07-02)
 
 
