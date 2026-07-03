@@ -454,10 +454,10 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var v2Event = new OrganizationWasModified
                 {
                     OrganizationId = organizationId,
-                    Name = envelope.Message.Name,
-                    OvoCode = envelope.Message.OvoCode,
-                    KboNumber = envelope.Message.KboNumber,
-                    IsMaintainer = envelope.Message.IsMaintainer,
+                    Name = envelope.Message.NameModified ? envelope.Message.Name : null,
+                    OvoCode = envelope.Message.OvoCodeModified ? envelope.Message.OvoCode : null,
+                    KboNumber = envelope.Message.KboNumberModified ? envelope.Message.KboNumber : null,
+                    IsMaintainer = envelope.Message.IsMaintainerModified ? envelope.Message.IsMaintainer : null,
                     Provenance = new ProvenanceData(BuildOrganizationProvenance(envelope.Message.When, Modification.Update))
                 };
                 session.Events.Append(OrganizationStreamKey(organizationId), v2Event);

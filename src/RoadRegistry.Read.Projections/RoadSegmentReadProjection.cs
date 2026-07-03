@@ -11,6 +11,7 @@ using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.StreetName;
@@ -562,7 +563,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
 
             foreach (var value in segment.StreetNameId.Values)
             {
-                if (value.Value is not null && value.Value.StreetNameId == streetNameId)
+                if (value.Value is not null && value.Value.StreetNameId == streetNameId && value.Value.DutchName != dutchName)
                 {
                     value.Value.DutchName = dutchName;
                     changed = true;
@@ -719,24 +720,31 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             return;
         }
 
-        var segments = await session.LoadManyAsync<RoadSegmentReadItem>(ct, link.RoadSegmentIds.Select(x => x.ToInt32()).ToArray());
-        foreach (var segment in segments)
+        _logger.LogDebug("Updating {RoadSegmentIdsCount} road segments for OrganizationId {OrganizationId}", link.RoadSegmentIds.Count, organizationId);
+        const int batchSize = 1000;
+        var roadSegmentIdBatches = link.RoadSegmentIds.Select(x => x.ToInt32()).SplitIntoBatchesBySize(batchSize);
+
+        foreach (var roadSegmentIdsBatch in roadSegmentIdBatches)
         {
-            var changed = false;
-
-            foreach (var value in segment.MaintenanceAuthorityId.Values)
+            var segments = await session.LoadManyAsync<RoadSegmentReadItem>(ct, roadSegmentIdsBatch);
+            foreach (var segment in segments)
             {
-                if (value.Value is not null && value.Value.OrganizationId == organizationId)
+                var changed = false;
+
+                foreach (var value in segment.MaintenanceAuthorityId.Values)
                 {
-                    value.Value.Name = name;
-                    changed = true;
+                    if (value.Value is not null && value.Value.OrganizationId == organizationId && value.Value.Name != name)
+                    {
+                        value.Value.Name = name;
+                        changed = true;
+                    }
                 }
-            }
 
-            if (changed)
-            {
-                // Do not update LastModified of the segment
-                session.Store(segment);
+                if (changed)
+                {
+                    // Do not update LastModified of the segment
+                    session.Store(segment);
+                }
             }
         }
     }

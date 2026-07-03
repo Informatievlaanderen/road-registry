@@ -56,7 +56,7 @@ public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
                          .OrderBy(x => x.Id)
                          .Select(x => x.DbaseRecord)
                          .AsEnumerable()
-                         .Batch(_zipArchiveWriterOptions.RoadSegmentBatchSize))
+                         .SplitIntoBatchesBySize(_zipArchiveWriterOptions.RoadSegmentBatchSize))
             {
                 var dbfRecords = batch
                     .Select(x =>
