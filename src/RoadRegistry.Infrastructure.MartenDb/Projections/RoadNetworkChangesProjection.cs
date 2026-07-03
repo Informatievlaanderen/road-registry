@@ -92,8 +92,6 @@ public abstract class RoadNetworkChangesProjection : IProjection
             .OrderBy(x => x.First().Sequence)
             .ToList();
 
-        // Pre-compute eventsToProcess for every correlation upfront so the projection loop below uses
-        // a stable snapshot rather than re-evaluating the Where filter inside the nested loop.
         var progressionById = processedProjectionProgressions.ToDictionary(x => x.Id);
 
         var correlationWork = eventsPerCorrelationId
@@ -115,10 +113,15 @@ public abstract class RoadNetworkChangesProjection : IProjection
         {
             foreach (var evt in work.ToProcess)
             {
-                Console.WriteLine($"Processing event {evt.Sequence}: {evt.EventTypeName}");
+                _logger.LogDebug("Processing event {Sequence}: {EventTypeName}", evt.Sequence, evt.EventTypeName);
 
                 foreach (var projection in _projections)
                 {
+                    if (projection is RoadNetworkChangesConnectedProjection roadNetworkChangesConnectedProjection)
+                    {
+                        roadNetworkChangesConnectedProjection.IsCatchingUp = IsCatchingUp;
+                    }
+
                     await projection.Project(operations, [evt], cancellation).ConfigureAwait(false);
                 }
             }
