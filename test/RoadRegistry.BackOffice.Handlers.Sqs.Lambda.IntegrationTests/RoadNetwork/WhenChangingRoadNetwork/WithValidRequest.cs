@@ -136,7 +136,7 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         await using var session = store.LightweightSession();
 
         var roadSegment = (await session.LoadManyAsync([TestData.Segment1Added.RoadSegmentId])).Single();
-        roadSegment.Attributes.Category.Values.Single().Value.Should().Be(changedCategory);
+        roadSegment.Attributes!.Category.Values.Single().Value.Should().Be(changedCategory);
     }
 
     [Fact]

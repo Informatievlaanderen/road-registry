@@ -76,6 +76,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
 
             new(HttpMethod.Get, "v2/wegknopen/{id}"),
             new(HttpMethod.Get, "v2/wegsegmenten/{id}"),
+            new(HttpMethod.Post, "v2/wegsegmenten/acties/schetsen", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Get, "v2/gelijkgrondsekruisingen/{id}"),
             new(HttpMethod.Get, "v2/ongelijkgrondsekruisingen/{id}"),
         };

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Newtonsoft.Json;
+using RoadRegistry.Extensions;
 using RoadRegistry.ValueObjects;
 
 public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmentDynamicAttributeValues<T>>
@@ -97,6 +98,9 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
         double thisGeometryLength, double otherGeometryLength,
         bool thisSegmentHasIdealDirection, bool otherSegmentHasIdealDirection)
     {
+        thisGeometryLength = thisGeometryLength.RoundToCm();
+        otherGeometryLength = otherGeometryLength.RoundToCm();
+
         // ensure all from/to are not nullable for easier checking + in the correct order with correct from/to values related to their direction and if segment2 or not
         var mergedItems = Enumerable.Empty<RoadSegmentDynamicAttributeValue<T>>()
             .Concat(thisSegmentHasIdealDirection

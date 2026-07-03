@@ -112,9 +112,9 @@ public class RoadNetworkTestDataV2
 
         Provenance = Fixture.Create<Provenance>();
 
-        StartPoint1 = new Point(new CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        MiddlePoint1 = new Point(new CoordinateM(50.0, 50.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        EndPoint1 = new Point(new CoordinateM(100.0, 100.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+        StartPoint1 = new Point(new Coordinate(0.0, 0.0)) { SRID = WellknownSrids.Lambert08 };
+        MiddlePoint1 = new Point(new Coordinate(50.0, 50.0)) { SRID = WellknownSrids.Lambert08 };
+        EndPoint1 = new Point(new Coordinate(100.0, 100.0)) { SRID = WellknownSrids.Lambert08 };
         MultiLineString1 = new MultiLineString(
             [
                 new LineString(
@@ -122,11 +122,11 @@ public class RoadNetworkTestDataV2
                     GeometryConfiguration.GeometryFactory
                 )
             ])
-            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            { SRID = WellknownSrids.Lambert08 };
 
-        StartPoint2 = new Point(new CoordinateM(0.0, 200.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        MiddlePoint2 = new Point(new CoordinateM(50.0, 250.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        EndPoint2 = new Point(new CoordinateM(100.0, 300.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+        StartPoint2 = new Point(new Coordinate(0.0, 200.0)) { SRID = WellknownSrids.Lambert08 };
+        MiddlePoint2 = new Point(new Coordinate(50.0, 250.0)) { SRID = WellknownSrids.Lambert08 };
+        EndPoint2 = new Point(new Coordinate(100.0, 300.0)) { SRID = WellknownSrids.Lambert08 };
         MultiLineString2 = new MultiLineString(
             [
                 new LineString(
@@ -134,11 +134,11 @@ public class RoadNetworkTestDataV2
                     GeometryConfiguration.GeometryFactory
                 )
             ])
-            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            { SRID = WellknownSrids.Lambert08 };
 
-        StartPoint3 = new Point(new CoordinateM(0.0, 500.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        MiddlePoint3 = new Point(new CoordinateM(50.0, 550.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        EndPoint3 = new Point(new CoordinateM(100.0, 600.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+        StartPoint3 = new Point(new Coordinate(0.0, 500.0)) { SRID = WellknownSrids.Lambert08 };
+        MiddlePoint3 = new Point(new Coordinate(50.0, 550.0)) { SRID = WellknownSrids.Lambert08 };
+        EndPoint3 = new Point(new Coordinate(100.0, 600.0)) { SRID = WellknownSrids.Lambert08 };
         MultiLineString3 = new MultiLineString(
             [
                 new LineString(
@@ -146,7 +146,7 @@ public class RoadNetworkTestDataV2
                     GeometryConfiguration.GeometryFactory
                 )
             ])
-            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            { SRID = WellknownSrids.Lambert08 };
 
         AddSegment1StartNode = new AddRoadNodeChange
         {
