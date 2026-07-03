@@ -75,7 +75,7 @@ public sealed class SplitRoadSegmentV2SqsLambdaRequestHandler : MartenSqsLambdaH
 
             var result = roadNetwork.SplitRoadSegment(
                 command.RoadSegmentId,
-                command.CutPosition.Value,
+                command.CutPosition,
                 _roadNetworkIdGenerator,
                 command.ProvenanceData.ToProvenance(),
                 Logger);

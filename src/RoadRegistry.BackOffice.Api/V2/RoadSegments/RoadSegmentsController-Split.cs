@@ -37,7 +37,6 @@ public partial class RoadSegmentsController
     ///     Knip een wegsegment.
     /// </summary>
     /// <param name="idValidator"></param>
-    /// <param name="validator"></param>
     /// <param name="store"></param>
     /// <param name="parameters"></param>
     /// <param name="id"></param>
@@ -58,7 +57,6 @@ public partial class RoadSegmentsController
     [SwaggerOperation(OperationId = nameof(SplitRoadSegmentV2), Description = "Knip een wegsegment op de opgegeven knippositie.")]
     public async Task<IActionResult> SplitRoadSegmentV2(
         [FromServices] RoadSegmentIdValidator idValidator,
-        [FromServices] SplitRoadSegmentV2RequestValidator validator,
         [FromServices] IDocumentStore store,
         [FromBody] SplitRoadSegmentV2Parameters parameters,
         [FromRoute] int id,
@@ -80,7 +78,7 @@ public partial class RoadSegmentsController
                 RoadSegmentGeometry = roadSegmentExists ? roadSegment!.Geometry.Lambert08.Value : null,
                 Knippositie = parameters?.Knippositie
             };
-            await validator.ValidateAndThrowAsync(request, cancellationToken);
+            await new SplitRoadSegmentV2RequestValidator().ValidateAndThrowAsync(request, cancellationToken);
 
             var cutPosition = GeometryTranslator.ParseGmlPoint(request.Knippositie);
 
@@ -88,7 +86,7 @@ public partial class RoadSegmentsController
             {
                 ProvenanceData = CreateProvenanceData(Modification.Update),
                 RoadSegmentId = new RoadSegmentId(id),
-                CutPosition = RoadNodeGeometry.Create(cutPosition)
+                CutPosition = cutPosition
             };
             var result = await _mediator.Send(sqsRequest, cancellationToken);
 
@@ -97,6 +95,79 @@ public partial class RoadSegmentsController
         catch (IdempotencyException)
         {
             return Accepted();
+        }
+    }
+
+    private sealed record SplitRoadSegmentV2Request
+    {
+        public required RoadSegmentId RoadSegmentId { get; init; }
+        public required bool RoadSegmentExists { get; init; }
+        public required string RoadSegmentStatus { get; init; }
+        public required MultiLineString RoadSegmentGeometry { get; init; }
+        public required string Knippositie { get; init; }
+    }
+
+    private sealed class SplitRoadSegmentV2RequestValidator : AbstractValidator<SplitRoadSegmentV2Request>
+    {
+        private static readonly RoadSegmentStatusV2[] ValidSplitStatuses =
+        [
+            RoadSegmentStatusV2.Gepland,
+            RoadSegmentStatusV2.Gerealiseerd,
+            RoadSegmentStatusV2.BuitenGebruik
+        ];
+
+        public SplitRoadSegmentV2RequestValidator()
+        {
+            // VAL-2: the id refers to an existing, non-removed road segment
+            RuleFor(x => x.RoadSegmentExists)
+                .Must(exists => exists)
+                .WithProblemCode(ProblemCode.RoadSegment.Split.NotFound, (request, _) => new RoadSegmentSplitNotFound(request.RoadSegmentId));
+
+            // VAL-3: the road segment has status gepland, gerealiseerd or buiten gebruik
+            When(x => x.RoadSegmentExists, () =>
+            {
+                RuleFor(x => x.RoadSegmentStatus)
+                    .Must(BeValidSplitStatus)
+                    .WithProblemCode(ProblemCode.RoadSegment.Split.StatusNotValid, (request, _) => new RoadSegmentSplitStatusNotValid(request.RoadSegmentId));
+            });
+
+            // VAL-4/5/6: knippositie is required, a valid gml 3.2 point in Lambert 2008
+            RuleFor(x => x.Knippositie)
+                .Cascade(CascadeMode.Stop)
+                .NotNull()
+                    .WithProblemCode(ProblemCode.RoadSegment.Split.PositionIsRequired)
+                .Must(GeometryTranslator.GmlIsValidPoint)
+                    .WithProblemCode(ProblemCode.RoadSegment.Split.PositionGeometryNotValid)
+                .Must(gml => GeometryTranslator.ParseGmlPoint(gml).SRID == WellknownSrids.Lambert08)
+                    .WithProblemCode(ProblemCode.RoadSegment.Split.PositionSridNotLambert08);
+
+            // VAL-7: the perpendicular projection distance of the knippositie to the road segment is <= 1m
+            When(x => x.RoadSegmentExists && x.RoadSegmentGeometry is not null && IsValidLambert08Point(x.Knippositie), () =>
+            {
+                RuleFor(x => x)
+                    .Must(IsWithinMaximumDistanceOfRoadSegment)
+                    .WithProblemCode(ProblemCode.RoadSegment.Split.PositionTooFarFromRoadSegment,
+                        (_, __) => new RoadSegmentSplitPositionTooFarFromRoadSegment(Distances.RoadSegmentSplitMaximumDistanceToRoadSegment));
+            });
+        }
+
+        private static bool BeValidSplitStatus(string status)
+        {
+            return status is not null
+                   && RoadSegmentStatusV2.TryParse(status, out var parsed)
+                   && ValidSplitStatuses.Contains(parsed);
+        }
+
+        private static bool IsValidLambert08Point(string gml)
+        {
+            return GeometryTranslator.GmlIsValidPoint(gml)
+                   && GeometryTranslator.ParseGmlPoint(gml).SRID == WellknownSrids.Lambert08;
+        }
+
+        private static bool IsWithinMaximumDistanceOfRoadSegment(SplitRoadSegmentV2Request request)
+        {
+            var cutPosition = GeometryTranslator.ParseGmlPoint(request.Knippositie);
+            return request.RoadSegmentGeometry.Distance(cutPosition) <= Distances.RoadSegmentSplitMaximumDistanceToRoadSegment;
         }
     }
 }
@@ -111,79 +182,6 @@ public record SplitRoadSegmentV2Parameters
     [DataMember(Name = "Knippositie", Order = 1)]
     [JsonProperty(Required = Required.Always)]
     public string Knippositie { get; set; }
-}
-
-public sealed record SplitRoadSegmentV2Request
-{
-    public required RoadSegmentId RoadSegmentId { get; init; }
-    public required bool RoadSegmentExists { get; init; }
-    public required string RoadSegmentStatus { get; init; }
-    public required MultiLineString RoadSegmentGeometry { get; init; }
-    public required string Knippositie { get; init; }
-}
-
-public class SplitRoadSegmentV2RequestValidator : AbstractValidator<SplitRoadSegmentV2Request>
-{
-    private static readonly RoadSegmentStatusV2[] ValidSplitStatuses =
-    [
-        RoadSegmentStatusV2.Gepland,
-        RoadSegmentStatusV2.Gerealiseerd,
-        RoadSegmentStatusV2.BuitenGebruik
-    ];
-
-    public SplitRoadSegmentV2RequestValidator()
-    {
-        // VAL-2: the id refers to an existing, non-removed road segment
-        RuleFor(x => x.RoadSegmentExists)
-            .Must(exists => exists)
-            .WithProblemCode(ProblemCode.RoadSegment.Split.NotFound, (request, _) => new RoadSegmentSplitNotFound(request.RoadSegmentId));
-
-        // VAL-3: the road segment has status gepland, gerealiseerd or buiten gebruik
-        When(x => x.RoadSegmentExists, () =>
-        {
-            RuleFor(x => x.RoadSegmentStatus)
-                .Must(BeValidSplitStatus)
-                .WithProblemCode(ProblemCode.RoadSegment.Split.StatusNotValid, (request, _) => new RoadSegmentSplitStatusNotValid(request.RoadSegmentId));
-        });
-
-        // VAL-4/5/6: knippositie is required, a valid gml 3.2 point in Lambert 2008
-        RuleFor(x => x.Knippositie)
-            .Cascade(CascadeMode.Stop)
-            .NotNull()
-                .WithProblemCode(ProblemCode.RoadSegment.Split.PositionIsRequired)
-            .Must(GeometryTranslator.GmlIsValidPoint)
-                .WithProblemCode(ProblemCode.RoadSegment.Split.PositionGeometryNotValid)
-            .Must(gml => GeometryTranslator.ParseGmlPoint(gml).SRID == WellknownSrids.Lambert08)
-                .WithProblemCode(ProblemCode.RoadSegment.Split.PositionSridNotLambert08);
-
-        // VAL-7: the perpendicular projection distance of the knippositie to the road segment is <= 1m
-        When(x => x.RoadSegmentExists && x.RoadSegmentGeometry is not null && IsValidLambert08Point(x.Knippositie), () =>
-        {
-            RuleFor(x => x)
-                .Must(IsWithinMaximumDistanceOfRoadSegment)
-                .WithProblemCode(ProblemCode.RoadSegment.Split.PositionTooFarFromRoadSegment,
-                    (_, __) => new RoadSegmentSplitPositionTooFarFromRoadSegment(Distances.RoadSegmentSplitMaximumDistanceToRoadSegment));
-        });
-    }
-
-    private static bool BeValidSplitStatus(string status)
-    {
-        return status is not null
-               && RoadSegmentStatusV2.TryParse(status, out var parsed)
-               && ValidSplitStatuses.Contains(parsed);
-    }
-
-    private static bool IsValidLambert08Point(string gml)
-    {
-        return GeometryTranslator.GmlIsValidPoint(gml)
-               && GeometryTranslator.ParseGmlPoint(gml).SRID == WellknownSrids.Lambert08;
-    }
-
-    private static bool IsWithinMaximumDistanceOfRoadSegment(SplitRoadSegmentV2Request request)
-    {
-        var cutPosition = GeometryTranslator.ParseGmlPoint(request.Knippositie);
-        return request.RoadSegmentGeometry.Distance(cutPosition) <= Distances.RoadSegmentSplitMaximumDistanceToRoadSegment;
-    }
 }
 
 public class SplitRoadSegmentV2ParametersExamples : IExamplesProvider<SplitRoadSegmentV2Parameters>
