@@ -721,12 +721,11 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
 
         Console.WriteLine($"Updating {link.RoadSegmentIds.Count} road segments for OrganizationId {organizationId}");
         const int batchSize = 1000;
-        var roadSegmentIdsQueue = link.RoadSegmentIds.Select(x => x.ToInt32()).ToArray();
+        var roadSegmentIds = link.RoadSegmentIds.Select(x => x.ToInt32()).ToArray();
 
-        while (roadSegmentIdsQueue.Any())
+        for (var offset = 0; offset < roadSegmentIds.Length; offset += batchSize)
         {
-            var roadSegmentIdsBatch = roadSegmentIdsQueue.Take(batchSize).ToArray();
-            roadSegmentIdsQueue = roadSegmentIdsQueue.Skip(batchSize).ToArray();
+            var roadSegmentIdsBatch = roadSegmentIds[offset..Math.Min(offset + batchSize, roadSegmentIds.Length)];
 
             var segments = await session.LoadManyAsync<RoadSegmentReadItem>(ct, roadSegmentIdsBatch);
             foreach (var segment in segments)
