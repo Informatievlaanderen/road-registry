@@ -1,8 +1,8 @@
-namespace RoadRegistry.Extracts.ZipArchiveWriters;
+namespace RoadRegistry.Infrastructure;
 
-internal static class EnumerableExtensions
+public static class EnumerableExtensions
 {
-    public static IEnumerable<T[]> Batch<T>(this IEnumerable<T> enumerable, int size)
+    public static IEnumerable<IReadOnlyCollection<T>> SplitIntoBatchesBySize<T>(this IEnumerable<T> enumerable, int size)
     {
         if (size < 1)
             throw new ArgumentOutOfRangeException(nameof(size), size, "The batch size needs to be greater than or equal to 1.");

@@ -11,6 +11,7 @@ using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.StreetName;
@@ -721,12 +722,10 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
 
         _logger.LogDebug("Updating {RoadSegmentIdsCount} road segments for OrganizationId {OrganizationId}", link.RoadSegmentIds.Count, organizationId);
         const int batchSize = 1000;
-        var roadSegmentIds = link.RoadSegmentIds.Select(x => x.ToInt32()).ToArray();
+        var roadSegmentIdBatches = link.RoadSegmentIds.Select(x => x.ToInt32()).SplitIntoBatchesBySize(batchSize);
 
-        for (var offset = 0; offset < roadSegmentIds.Length; offset += batchSize)
+        foreach (var roadSegmentIdsBatch in roadSegmentIdBatches)
         {
-            var roadSegmentIdsBatch = roadSegmentIds[offset..Math.Min(offset + batchSize, roadSegmentIds.Length)];
-
             var segments = await session.LoadManyAsync<RoadSegmentReadItem>(ct, roadSegmentIdsBatch);
             foreach (var segment in segments)
             {
