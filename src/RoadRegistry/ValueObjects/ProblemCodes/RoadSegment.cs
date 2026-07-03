@@ -335,6 +335,7 @@ public sealed partial record ProblemCode
         public static class Split
         {
             public static readonly ProblemCode NotFound = new("RoadSegmentSplitNotFound");
+            public static readonly ProblemCode NotCompletedInwinning = new("RoadSegmentSplitNotCompletedInwinning");
             public static readonly ProblemCode StatusNotValid = new("RoadSegmentSplitStatusNotValid");
             public static readonly ProblemCode PositionIsRequired = new("RoadSegmentSplitPositionIsRequired");
             public static readonly ProblemCode PositionGeometryNotValid = new("RoadSegmentSplitPositionGeometryNotValid");

@@ -596,6 +596,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"Wegsegment {problem.GetParameterValue("Identifier")} heeft een status die verschilt van 'gepland', 'gerealiseerd' of 'buiten gebruik'.")
             },
             {
+                ProblemCode.RoadSegment.Split.NotCompletedInwinning, problem => new(problem.Severity, "WegsegmentInwinningsstatusNietCompleet",
+                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft niet de inwinningsstatus 'compleet'.")
+            },
+            {
                 ProblemCode.RoadSegment.Split.PositionIsRequired, problem => new(problem.Severity, "KnippositieVerplicht",
                     "De parameter 'knippositie' is verplicht.")
             },

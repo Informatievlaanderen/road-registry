@@ -18,6 +18,7 @@ using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Abstractions.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Infrastructure;
@@ -68,14 +69,17 @@ public partial class RoadSegmentsController
 
             await using var session = store.LightweightSession();
             var roadSegment = await session.LoadAsync<RoadSegmentReadItem>(id, cancellationToken);
-            var roadSegmentExists = roadSegment is not null && !roadSegment.IsRemoved;
+            if (roadSegment is null || roadSegment.IsRemoved)
+            {
+                throw new RoadSegmentNotFoundException();
+            }
 
             var request = new SplitRoadSegmentV2Request
             {
                 RoadSegmentId = new RoadSegmentId(id),
-                RoadSegmentExists = roadSegmentExists,
-                RoadSegmentStatus = roadSegmentExists ? roadSegment!.Status : null,
-                RoadSegmentGeometry = roadSegmentExists ? roadSegment!.Geometry.Lambert08.Value : null,
+                Status = RoadSegmentStatusV2.Parse(roadSegment.Status),
+                IsV2 = roadSegment.IsV2,
+                RoadSegmentGeometry = roadSegment.Geometry.Lambert08.Value,
                 Knippositie = parameters?.Knippositie
             };
             await new SplitRoadSegmentV2RequestValidator().ValidateAndThrowAsync(request, cancellationToken);
@@ -101,8 +105,8 @@ public partial class RoadSegmentsController
     private sealed record SplitRoadSegmentV2Request
     {
         public required RoadSegmentId RoadSegmentId { get; init; }
-        public required bool RoadSegmentExists { get; init; }
-        public required string RoadSegmentStatus { get; init; }
+        public required RoadSegmentStatusV2 Status { get; init; }
+        public required bool IsV2 { get; init; }
         public required MultiLineString RoadSegmentGeometry { get; init; }
         public required string Knippositie { get; init; }
     }
@@ -118,18 +122,15 @@ public partial class RoadSegmentsController
 
         public SplitRoadSegmentV2RequestValidator()
         {
-            // VAL-2: the id refers to an existing, non-removed road segment
-            RuleFor(x => x.RoadSegmentExists)
-                .Must(exists => exists)
-                .WithProblemCode(ProblemCode.RoadSegment.Split.NotFound, (request, _) => new RoadSegmentSplitNotFound(request.RoadSegmentId));
+            // The road segment must have inwinningsstatus 'compleet' (i.e. be a V2 road segment).
+            RuleFor(x => x.IsV2)
+                .Must(isV2 => isV2)
+                .WithProblemCode(ProblemCode.RoadSegment.Split.NotCompletedInwinning, (request, _) => new RoadSegmentSplitNotCompletedInwinning(request.RoadSegmentId));
 
             // VAL-3: the road segment has status gepland, gerealiseerd or buiten gebruik
-            When(x => x.RoadSegmentExists, () =>
-            {
-                RuleFor(x => x.RoadSegmentStatus)
-                    .Must(BeValidSplitStatus)
-                    .WithProblemCode(ProblemCode.RoadSegment.Split.StatusNotValid, (request, _) => new RoadSegmentSplitStatusNotValid(request.RoadSegmentId));
-            });
+            RuleFor(x => x.Status)
+                .Must(status => ValidSplitStatuses.Contains(status))
+                .WithProblemCode(ProblemCode.RoadSegment.Split.StatusNotValid, (request, _) => new RoadSegmentSplitStatusNotValid(request.RoadSegmentId));
 
             // VAL-4/5/6: knippositie is required, a valid gml 3.2 point in Lambert 2008
             RuleFor(x => x.Knippositie)
@@ -142,20 +143,13 @@ public partial class RoadSegmentsController
                     .WithProblemCode(ProblemCode.RoadSegment.Split.PositionSridNotLambert08);
 
             // VAL-7: the perpendicular projection distance of the knippositie to the road segment is <= 1m
-            When(x => x.RoadSegmentExists && x.RoadSegmentGeometry is not null && IsValidLambert08Point(x.Knippositie), () =>
+            When(x => IsValidLambert08Point(x.Knippositie), () =>
             {
                 RuleFor(x => x)
                     .Must(IsWithinMaximumDistanceOfRoadSegment)
                     .WithProblemCode(ProblemCode.RoadSegment.Split.PositionTooFarFromRoadSegment,
                         (_, __) => new RoadSegmentSplitPositionTooFarFromRoadSegment(Distances.RoadSegmentSplitMaximumDistanceToRoadSegment));
             });
-        }
-
-        private static bool BeValidSplitStatus(string status)
-        {
-            return status is not null
-                   && RoadSegmentStatusV2.TryParse(status, out var parsed)
-                   && ValidSplitStatuses.Contains(parsed);
         }
 
         private static bool IsValidLambert08Point(string gml)

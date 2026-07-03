@@ -209,6 +209,11 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadSegment.Split.NotCompletedInwinning, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
                 ProblemCode.RoadSegment.Split.PositionTooFarFromRoadSegment, [
                     new ProblemParameter("MaximumDistance", "1")
                 ]

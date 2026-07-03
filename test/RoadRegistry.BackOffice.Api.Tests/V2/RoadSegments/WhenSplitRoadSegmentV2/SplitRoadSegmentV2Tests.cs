@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.V2.RoadSegments.WhenSplitRoadSegment
 
 using System.Linq;
 using AutoFixture;
+using BackOffice.Abstractions.Exceptions;
 using BackOffice.Handlers.Sqs.RoadSegments.V2;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using FluentAssertions;
@@ -49,10 +50,10 @@ public class SplitRoadSegmentV2Tests : V2ReadEndpointTestBase
             CancellationToken.None);
     }
 
-    private int SeedRealizedRoadSegment(string statusOverride = null)
+    private int SeedRealizedRoadSegment(string statusOverride = null, bool isV2 = true)
     {
         var e = TestData.Segment1Added;
-        Seed(BuildReadItem(e, statusOverride));
+        Seed(BuildReadItem(e, statusOverride, isV2));
         return (int)e.RoadSegmentId;
     }
 
@@ -87,10 +88,29 @@ public class SplitRoadSegmentV2Tests : V2ReadEndpointTestBase
     }
 
     [Fact]
-    public async Task GivenNonExistingRoadSegment_ThenValidationException()
+    public async Task GivenNonExistingRoadSegment_ThenRoadSegmentNotFoundException()
     {
-        await Assert.ThrowsAsync<ValidationException>(() => Act(999, ValidCutPositionLambert08));
+        await Assert.ThrowsAsync<RoadSegmentNotFoundException>(() => Act(999, ValidCutPositionLambert08));
         _mediator.Verify(x => x.Send(It.IsAny<SplitRoadSegmentV2SqsRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GivenRemovedRoadSegment_ThenRoadSegmentNotFoundException()
+    {
+        var e = TestData.Segment1Added;
+        var readItem = BuildReadItem(e, null, true);
+        readItem.IsRemoved = true;
+        Seed(readItem);
+
+        await Assert.ThrowsAsync<RoadSegmentNotFoundException>(() => Act((int)e.RoadSegmentId, ValidCutPositionLambert08));
+    }
+
+    [Fact]
+    public async Task GivenNotV2RoadSegment_ThenValidationException()
+    {
+        var id = SeedRealizedRoadSegment(isV2: false);
+
+        await Assert.ThrowsAsync<ValidationException>(() => Act(id, ValidCutPositionLambert08));
     }
 
     [Theory]
@@ -127,7 +147,7 @@ public class SplitRoadSegmentV2Tests : V2ReadEndpointTestBase
         await Assert.ThrowsAsync<ValidationException>(() => Act(id, CutPositionTooFar));
     }
 
-    private static RoadSegmentReadItem BuildReadItem(RoadSegmentWasAdded e, string statusOverride)
+    private static RoadSegmentReadItem BuildReadItem(RoadSegmentWasAdded e, string statusOverride, bool isV2)
     {
         return new RoadSegmentReadItem
         {
@@ -164,7 +184,7 @@ public class SplitRoadSegmentV2Tests : V2ReadEndpointTestBase
             NationalRoadNumbers = e.NationalRoadNumbers.ToList(),
             Origin = e.Provenance.ToEventTimestamp(),
             LastModified = e.Provenance.ToEventTimestamp(),
-            IsV2 = true
+            IsV2 = isV2
         };
     }
 
