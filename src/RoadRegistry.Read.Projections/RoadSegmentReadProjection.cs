@@ -562,7 +562,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
 
             foreach (var value in segment.StreetNameId.Values)
             {
-                if (value.Value is not null && value.Value.StreetNameId == streetNameId)
+                if (value.Value is not null && value.Value.StreetNameId == streetNameId && value.Value.DutchName != dutchName)
                 {
                     value.Value.DutchName = dutchName;
                     changed = true;
@@ -719,24 +719,34 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             return;
         }
 
-        var segments = await session.LoadManyAsync<RoadSegmentReadItem>(ct, link.RoadSegmentIds.Select(x => x.ToInt32()).ToArray());
-        foreach (var segment in segments)
+        Console.WriteLine($"Updating {link.RoadSegmentIds.Count} road segments for OrganizationId {organizationId}");
+        const int batchSize = 1000;
+        var roadSegmentIdsQueue = link.RoadSegmentIds.Select(x => x.ToInt32()).ToArray();
+
+        while (roadSegmentIdsQueue.Any())
         {
-            var changed = false;
+            var roadSegmentIdsBatch = roadSegmentIdsQueue.Take(batchSize).ToArray();
+            roadSegmentIdsQueue = roadSegmentIdsQueue.Skip(batchSize).ToArray();
 
-            foreach (var value in segment.MaintenanceAuthorityId.Values)
+            var segments = await session.LoadManyAsync<RoadSegmentReadItem>(ct, roadSegmentIdsBatch);
+            foreach (var segment in segments)
             {
-                if (value.Value is not null && value.Value.OrganizationId == organizationId)
+                var changed = false;
+
+                foreach (var value in segment.MaintenanceAuthorityId.Values)
                 {
-                    value.Value.Name = name;
-                    changed = true;
+                    if (value.Value is not null && value.Value.OrganizationId == organizationId && value.Value.Name != name)
+                    {
+                        value.Value.Name = name;
+                        changed = true;
+                    }
                 }
-            }
 
-            if (changed)
-            {
-                // Do not update LastModified of the segment
-                session.Store(segment);
+                if (changed)
+                {
+                    // Do not update LastModified of the segment
+                    session.Store(segment);
+                }
             }
         }
     }
