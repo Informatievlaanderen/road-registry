@@ -41,7 +41,8 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        var problems = roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        var result = roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        var problems = result.Problems;
 
         problems.Should().HaveNoError();
 
@@ -52,6 +53,9 @@ public class AggregateTests : AggregateTestBase
             .ToList();
         newSegments.Should().HaveCount(2);
         newSegments.Should().OnlyContain(x => x.Status == RoadSegmentStatusV2.Gerealiseerd);
+
+        result.RoadSegmentIds.Should().HaveCount(2);
+        result.RoadSegmentIds.Should().BeEquivalentTo(newSegments.Select(x => x.RoadSegmentId));
     }
 
     [Fact]
@@ -62,7 +66,8 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        var problems = roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        var result = roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        var problems = result.Problems;
 
         // Assert
         problems.Should().HaveNoError();
@@ -93,7 +98,8 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        var problems = roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        var result = roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        var problems = result.Problems;
 
         // Assert
         problems.Should().HaveNoError();
@@ -112,7 +118,8 @@ public class AggregateTests : AggregateTestBase
         var cutNearStart = new Point(new Coordinate(0.5, 0.5)) { SRID = WellknownSrids.Lambert08 };
 
         // Act
-        var problems = roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearStart, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        var result = roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearStart, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        var problems = result.Problems;
 
         // Assert
         problems.Should().Contain(x => x.Reason == "RoadSegmentSplitPositionTooCloseToRoadNode");

@@ -17,7 +17,7 @@ using RoadRegistry.ValueObjects.Problems;
 
 public partial class ScopedRoadNetwork
 {
-    public Problems SplitRoadSegment(
+    public RoadSegmentSplitResult SplitRoadSegment(
         RoadSegmentId roadSegmentId,
         Point cutPosition,
         IRoadNetworkIdGenerator idGenerator,
@@ -30,7 +30,7 @@ public partial class ScopedRoadNetwork
 
         if (!_roadSegments.TryGetValue(roadSegmentId, out var segment) || segment.IsRemoved)
         {
-            return problems + new RoadSegmentSplitNotFound(roadSegmentId);
+            return new RoadSegmentSplitResult(problems + new RoadSegmentSplitNotFound(roadSegmentId), []);
         }
 
         RebuildSpatialIndexes(logger);
@@ -50,11 +50,11 @@ public partial class ScopedRoadNetwork
         var minimumDistance = Distances.RoadSegmentSplitMinimumDistanceToRoadNode;
         if (cutMeasure < minimumDistance)
         {
-            return problems + new RoadSegmentSplitPositionTooCloseToRoadNode(segment.StartNodeId ?? RoadNodeId.Zero, minimumDistance);
+            return new RoadSegmentSplitResult(problems + new RoadSegmentSplitPositionTooCloseToRoadNode(segment.StartNodeId ?? RoadNodeId.Zero, minimumDistance), []);
         }
         if (totalLength - cutMeasure < minimumDistance)
         {
-            return problems + new RoadSegmentSplitPositionTooCloseToRoadNode(segment.EndNodeId ?? RoadNodeId.Zero, minimumDistance);
+            return new RoadSegmentSplitResult(problems + new RoadSegmentSplitPositionTooCloseToRoadNode(segment.EndNodeId ?? RoadNodeId.Zero, minimumDistance), []);
         }
 
         // Split the geometry at the cut position, preserving the original vertices exactly and
@@ -96,7 +96,7 @@ public partial class ScopedRoadNetwork
         problems += segment.Retire(provenance);
         if (problems.HasError())
         {
-            return problems;
+            return new RoadSegmentSplitResult(problems, []);
         }
         _roadSegmentsSpatialIndex.Remove(segment.Geometry.Value.EnvelopeInternal, segment);
         context.Summary.RoadSegments.Removed.Add(segment.RoadSegmentId);
@@ -114,7 +114,7 @@ public partial class ScopedRoadNetwork
             }, idGenerator, context);
             if (problems.HasError())
             {
-                return problems;
+                return new RoadSegmentSplitResult(problems, []);
             }
             cutNodeId = context.Summary.RoadNodes.Added.Last();
         }
@@ -123,7 +123,7 @@ public partial class ScopedRoadNetwork
         problems += AddRoadSegment(BuildAddChange(firstReference, firstGeometry, originalStatus, attributes, accessRestriction.First, category.First, morphology.First, streetNameId.First, maintenanceAuthorityId.First, surfaceType.First, carTrafficDirection.First, bikeTrafficDirection.First, pedestrianTrafficDirection.First), idGenerator, context);
         if (problems.HasError())
         {
-            return problems;
+            return new RoadSegmentSplitResult(problems, []);
         }
         var firstNewRoadSegmentId = context.Summary.RoadSegments.Added.Last();
 
@@ -131,7 +131,7 @@ public partial class ScopedRoadNetwork
         problems += AddRoadSegment(BuildAddChange(secondReference, secondGeometry, originalStatus, attributes, accessRestriction.Second, category.Second, morphology.Second, streetNameId.Second, maintenanceAuthorityId.Second, surfaceType.Second, carTrafficDirection.Second, bikeTrafficDirection.Second, pedestrianTrafficDirection.Second), idGenerator, context);
         if (problems.HasError())
         {
-            return problems;
+            return new RoadSegmentSplitResult(problems, []);
         }
         var secondNewRoadSegmentId = context.Summary.RoadSegments.Added.Last();
 
@@ -147,7 +147,7 @@ public partial class ScopedRoadNetwork
         problems += AfterChangesApplied(idGenerator, context);
         if (problems.HasError())
         {
-            return problems;
+            return new RoadSegmentSplitResult(problems, []);
         }
 
         Apply(new RoadNetworkWasChanged
@@ -159,7 +159,7 @@ public partial class ScopedRoadNetwork
             Provenance = new ProvenanceData(provenance)
         });
 
-        return Problems.None.AddRange(problems.Distinct());
+        return new RoadSegmentSplitResult(Problems.None.AddRange(problems.Distinct()), [firstNewRoadSegmentId, secondNewRoadSegmentId]);
     }
 
     private static AddRoadSegmentChange BuildAddChange(
@@ -245,3 +245,5 @@ public partial class ScopedRoadNetwork
         return firstNewRoadSegmentId;
     }
 }
+
+public sealed record RoadSegmentSplitResult(Problems Problems, System.Collections.Generic.IReadOnlyList<RoadSegmentId> RoadSegmentIds);
