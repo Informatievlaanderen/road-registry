@@ -2,9 +2,24 @@
 
 using System;
 using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
+using NetTopologySuite.Geometries;
 
 public static class GeometryObjectExtensions
 {
+    public static T RoundToCm<T>(this T geometry)
+        where T : Geometry
+    {
+        return geometry.RoundCoordinates(2);
+    }
+    public static RoadNodeGeometry RoundToCm(this RoadNodeGeometry geometry)
+    {
+        return RoadNodeGeometry.Create(geometry.Value.RoundToCm());
+    }
+    public static RoadSegmentGeometry RoundToCm(this RoadSegmentGeometry geometry)
+    {
+        return RoadSegmentGeometry.Create(geometry.Value.RoundToCm());
+    }
+
     public static RoadNodeGeometry EnsureLambert08(this RoadNodeGeometry geometry)
     {
         if (geometry.Value.IsLambert08())

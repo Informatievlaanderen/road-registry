@@ -32,6 +32,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
         ArgumentNullException.ThrowIfNull(zipArchiveData);
 
         var segments = await zipArchiveData.GetRoadSegments(request.Contour, cancellationToken);
+
         var records = ConvertToDbaseRecords(segments, context);
 
         const ExtractFileName extractFilename = ExtractFileName.Wegsegment;

@@ -587,7 +587,7 @@ public static class SharedCustomizations
     {
         fixture.Customize<RoadNodeGeometry>(composer =>
             composer.FromFactory(_ =>
-                fixture.Create<NetTopologySuite.Geometries.Point>().ToRoadNodeGeometry()
+                fixture.Create<NetTopologySuite.Geometries.Point>().ToRoadNodeGeometry().RoundToCm()
             ).OmitAutoProperties()
         );
     }
@@ -599,7 +599,7 @@ public static class SharedCustomizations
             {
                 var geometry = GeometryTranslator.Translate(fixture.Create<RoadRegistry.BackOffice.Messages.RoadSegmentGeometry>());
 
-                return RoadSegmentGeometry.Create(geometry);
+                return RoadSegmentGeometry.Create(geometry).RoundToCm();
             }).OmitAutoProperties());
 
         fixture.Customize<RoadRegistry.BackOffice.Messages.RoadSegmentGeometry>(customizer =>

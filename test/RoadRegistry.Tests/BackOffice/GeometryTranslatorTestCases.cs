@@ -15,7 +15,7 @@ public static class GeometryTranslatorTestCases
 </gml:LineString>";
 
     public const string ValidGmlLineStringLambert08 = @"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
-<gml:posList>217368.75 181577.016 217378.75 181577.016</gml:posList>
+<gml:posList>217368.75 181577.02 217378.75 181577.02</gml:posList>
 </gml:LineString>";
 
     public const string ValidGmlMultiLineString = @"<gml:MultiLineString srsName=""https://www.opengis.net/def/crs/EPSG/0/31370"" xmlns:gml=""http://www.opengis.net/gml/3.2"">

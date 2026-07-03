@@ -3,6 +3,7 @@ namespace RoadRegistry.ValueObjects;
 using System;
 using System.Diagnostics.Contracts;
 using System.Globalization;
+using RoadRegistry.Extensions;
 
 public readonly struct RoadSegmentPositionV2 : IEquatable<RoadSegmentPositionV2>, IComparable<RoadSegmentPositionV2>
 {
@@ -16,7 +17,7 @@ public readonly struct RoadSegmentPositionV2 : IEquatable<RoadSegmentPositionV2>
             throw new ArgumentOutOfRangeException(nameof(value), value, "The road segment position must be greater than or equal to zero.");
         }
 
-        _value = value;
+        _value = value.RoundToCm();
     }
 
     public static bool Accepts(double value)

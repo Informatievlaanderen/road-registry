@@ -117,7 +117,7 @@ public class RoadSegmentExtractProjectionTests
         var expectedRoadSegment1 = new RoadSegmentExtractItem
         {
             RoadSegmentId = new RoadSegmentId(roadSegment1Added.RoadSegmentId),
-            Geometry = roadSegment1Added.Geometry.EnsureLambert08(),
+            Geometry = roadSegment1Added.Geometry.EnsureLambert08().RoundToCm(),
             StartNodeId = new RoadNodeId(roadSegment1Added.StartNodeId),
             EndNodeId = new RoadNodeId(roadSegment1Added.EndNodeId),
             GeometryDrawMethod = roadSegment1Added.GeometryDrawMethod,

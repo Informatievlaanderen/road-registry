@@ -88,7 +88,7 @@ public class NumericExtensionsTests
         Assert.True(position.IsReasonablyEqualTo(1.0));
         Assert.True(position.IsReasonablyEqualTo(1.0 + DefaultTolerances.GeometryToleranceV2));
         Assert.True(position.IsReasonablyEqualTo(1.0 - DefaultTolerances.GeometryToleranceV2));
-        Assert.False(position.IsReasonablyEqualTo(1.0 + DefaultTolerances.GeometryToleranceV2 + 0.001));
+        Assert.False(position.IsReasonablyEqualTo(1.0 + DefaultTolerances.GeometryToleranceV2 + DefaultTolerances.GeometryToleranceV2));
     }
 
     [Fact]
@@ -96,7 +96,7 @@ public class NumericExtensionsTests
     {
         var position1 = new RoadSegmentPositionV2(1.0);
         var position2 = new RoadSegmentPositionV2(1.0 + DefaultTolerances.GeometryToleranceV2);
-        var position3 = new RoadSegmentPositionV2(1.0 + DefaultTolerances.GeometryToleranceV2 + 0.001);
+        var position3 = new RoadSegmentPositionV2(1.0 + DefaultTolerances.GeometryToleranceV2 + DefaultTolerances.GeometryToleranceV2);
 
         Assert.True(position1.IsReasonablyEqualTo(position1));
         Assert.True(position1.IsReasonablyEqualTo(position2));

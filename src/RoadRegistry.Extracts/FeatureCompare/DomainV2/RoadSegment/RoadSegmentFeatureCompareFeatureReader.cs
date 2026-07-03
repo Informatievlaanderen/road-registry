@@ -151,8 +151,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
                 try
                 {
-                    var multiLineString = Geometry.ToMultiLineString();
-                    //TODO-pr to confirm: round on cm when reading geometry or not? same for edit endpoints
+                    var multiLineString = Geometry.ToMultiLineString().RoundToCm();
                     var lineProblems = multiLineString.ValidateRoadSegmentGeometryDomainV2(skipMinimumLengthCheck: true);
 
                     problems += lineProblems

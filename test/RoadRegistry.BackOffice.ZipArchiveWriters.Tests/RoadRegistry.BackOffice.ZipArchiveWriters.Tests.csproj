@@ -6,6 +6,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Extracts.ZipArchiveWriters\RoadRegistry.Extracts.ZipArchiveWriters.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Infrastructure.MartenDb\RoadRegistry.Infrastructure.MartenDb.csproj" />
     <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>
   <ItemGroup>

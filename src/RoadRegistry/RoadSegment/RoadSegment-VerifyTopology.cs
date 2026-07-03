@@ -23,7 +23,7 @@ public partial class RoadSegment
             }
             else
             {
-                if (!line.StartPoint.IsReasonablyEqualTo(startNode.Geometry.Value, context.Tolerances))
+                if (!line.StartPoint.EqualsExact(startNode.Geometry.Value))
                 {
                     problems += new RoadSegmentStartPointDoesNotMatchNodeGeometry();
                 }
@@ -38,7 +38,7 @@ public partial class RoadSegment
             }
             else
             {
-                if (!line.EndPoint.IsReasonablyEqualTo(endNode.Geometry.Value, context.Tolerances))
+                if (!line.EndPoint.EqualsExact(endNode.Geometry.Value))
                 {
                     problems += new RoadSegmentEndPointDoesNotMatchNodeGeometry();
                 }
