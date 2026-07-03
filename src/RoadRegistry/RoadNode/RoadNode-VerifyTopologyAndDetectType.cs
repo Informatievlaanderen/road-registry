@@ -23,7 +23,7 @@ public partial class RoadNode
         var byOtherNode =
             context.RoadNetwork.GetNonRemovedRoadNodes().FirstOrDefault(n =>
                 n.Id != Id &&
-                n.Geometry.Value.IsReasonablyEqualTo(Geometry.Value, context.Tolerances));
+                n.Geometry.Value.EqualsExact(Geometry.Value));
         if (byOtherNode is not null)
         {
             problems += new RoadNodeGeometryTaken(context.IdTranslator.TranslateToTemporaryId(byOtherNode.RoadNodeId));

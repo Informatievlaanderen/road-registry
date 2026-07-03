@@ -101,7 +101,7 @@
 
                 if (modified)
                 {
-                    roadSegment.Geometry = RoadSegmentGeometry.Create(roadSegmentGeometry.ToMultiLineString());
+                    roadSegment.Geometry = RoadSegmentGeometry.Create(roadSegmentGeometry.ToMultiLineString()).RoundToCm();
                 }
             }
         }

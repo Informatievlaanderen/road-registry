@@ -19,6 +19,8 @@ public static class ValidationExtensions
             return Problems.None;
         }
 
+        segmentLength = segmentLength.RoundToCm();
+
         var problems = ValidateSide(attributeValues, segmentLength, problemCodes, true)
                        + ValidateSide(attributeValues, segmentLength, problemCodes, false);
 
@@ -78,7 +80,7 @@ public static class ValidationExtensions
             previousToPosition = group.Key.To;
         }
 
-        if (previousToPosition is not null && !previousToPosition.Value.IsReasonablyEqualTo(segmentLength))
+        if (previousToPosition is not null && !previousToPosition.Value.ToDouble().Equals(segmentLength))
         {
             problems += new Error(problemCodes.ToPositionNotEqualToLength!,
                 new ProblemParameter("ToPosition", previousToPosition.Value.ToString()),

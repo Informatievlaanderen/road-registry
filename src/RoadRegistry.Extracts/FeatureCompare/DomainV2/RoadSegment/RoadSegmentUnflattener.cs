@@ -99,6 +99,9 @@ public class RoadSegmentUnflattener
         // Step 4: Detect invalid geometry conditions and insert Validatieknopen where needed
         var unflattenedRecords = DetectAndFixInvalidGeometries(featureType, segmentsByNode, structuralNodes, mergedResult.RoadSegments, mergedResult.ConsumedNodes, roadSegmentIdProvider, context, cancellationToken);
 
+        // Step 5: Snap start/end vertices of each output segment to its road node's authoritative geometry
+        unflattenedRecords = SnapSegmentsToNodeGeometries(unflattenedRecords, segmentsByNode, context.Tolerances);
+
         return new UnflattenRoadSegmentsResult
         {
             RoadSegments = unflattenedRecords,
@@ -119,11 +122,12 @@ public class RoadSegmentUnflattener
         var nodeRecords = context.GetRoadNodeRecords(featureType).NotRemoved().ToList();
 
         // Build spatial index for nodes for faster lookups
-        var nodesByLocation = new Dictionary<Coordinate, RoadNodeFeatureCompareRecord>(new CoordinateEqualityComparer(VerificationContextTolerances.WithinRoadNodeBuffer));
+        var nodeSpatialIndex = new STRtree<RoadNodeFeatureCompareRecord>();
         foreach (var node in nodeRecords)
         {
-            nodesByLocation[node.Attributes.Geometry.Coordinate] = node;
+            nodeSpatialIndex.Insert(node.Attributes.Geometry.EnvelopeInternal, node);
         }
+        nodeSpatialIndex.Build();
 
         // Process segments in parallel to find their start/end nodes
         var segmentNodePairs = flatRoadSegments
@@ -139,14 +143,29 @@ public class RoadSegmentUnflattener
                 var pairs = new List<(RoadNodeId NodeId, Point NodeGeometry, Feature<RoadSegmentFeatureCompareWithFlatAttributes> Segment)>(2);
 
                 // Find nodes at start and end points using spatial index
-                if (nodesByLocation.TryGetValue(startPoint, out var startNode))
                 {
-                    pairs.Add((startNode.Id, startNode.Attributes.Geometry, flatRoadSegment));
+                    var searchEnv = new Envelope(startPoint.CoordinateValue);
+                    searchEnv.ExpandBy(VerificationContextTolerances.WithinRoadNodeBuffer.GeometryTolerance);
+                    var startNode = nodeSpatialIndex
+                        .Query(searchEnv)
+                        .OrderBy(x => x.Attributes.Geometry.Coordinate.Distance(startPoint))
+                        .FirstOrDefault();
+                    if (startNode is not null)
+                    {
+                        pairs.Add((startNode.Id, startNode.Attributes.Geometry, flatRoadSegment));
+                    }
                 }
-
-                if (nodesByLocation.TryGetValue(endPoint, out var endNode))
                 {
-                    pairs.Add((endNode.Id, endNode.Attributes.Geometry, flatRoadSegment));
+                    var searchEnv = new Envelope(endPoint.CoordinateValue);
+                    searchEnv.ExpandBy(VerificationContextTolerances.WithinRoadNodeBuffer.GeometryTolerance);
+                    var endNode = nodeSpatialIndex
+                        .Query(searchEnv)
+                        .OrderBy(x => x.Attributes.Geometry.Coordinate.Distance(endPoint))
+                        .FirstOrDefault();
+                    if (endNode is not null)
+                    {
+                        pairs.Add((endNode.Id, endNode.Attributes.Geometry, flatRoadSegment));
+                    }
                 }
 
                 return pairs;
@@ -634,6 +653,78 @@ public class RoadSegmentUnflattener
         }
 
         return coordinates.ToArray();
+    }
+
+    private static List<RoadSegmentFeatureWithDynamicAttributes> SnapSegmentsToNodeGeometries(
+        List<RoadSegmentFeatureWithDynamicAttributes> segments,
+        Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
+        VerificationContextTolerances tolerances)
+    {
+        // Pre-compute a flat list of (nodePoint, tempIds) pairs so the parallel lambda
+        // only reads immutable data and never touches the shared dictionary.
+        var nodeEntries = segmentsByNode
+            .Select(kvp => (NodePoint: kvp.Key.Item2, TempIds: new HashSet<RoadSegmentTempId>(kvp.Value.Select(s => s.Attributes.TempId))))
+            .ToList();
+
+        return segments
+            .AsParallel()
+            .AsOrdered()
+            .Select(segment =>
+            {
+                var segmentTempIds = new HashSet<RoadSegmentTempId>(segment.FlatFeatures.Select(x => x.Attributes.TempId));
+                var relevantNodePoints = nodeEntries
+                    .Where(e => e.TempIds.Overlaps(segmentTempIds))
+                    .Select(e => e.NodePoint)
+                    .ToList();
+
+                var snappedGeometry = SnapEndVerticesToNodeGeometries(segment.Attributes.Geometry, relevantNodePoints, tolerances);
+                if (ReferenceEquals(snappedGeometry, segment.Attributes.Geometry))
+                {
+                    return segment;
+                }
+
+                return new RoadSegmentFeatureWithDynamicAttributes(
+                    segment.RecordNumber,
+                    segment.Attributes with { Geometry = snappedGeometry },
+                    segment.FlatFeatures);
+            })
+            .ToList();
+    }
+
+    private static MultiLineString SnapEndVerticesToNodeGeometries(
+        MultiLineString geometry,
+        IReadOnlyCollection<Point> nodePoints,
+        VerificationContextTolerances tolerances)
+    {
+        var ls = geometry.GetSingleLineString();
+        var coords = ls.Coordinates.ToArray();
+        var modified = false;
+
+        foreach (var nodePoint in nodePoints)
+        {
+            var nodeCoord = nodePoint.Coordinate;
+
+            if (coords[0].IsReasonablyEqualTo(nodeCoord, tolerances)
+                && (coords[0].X != nodeCoord.X || coords[0].Y != nodeCoord.Y))
+            {
+                coords[0] = new Coordinate(nodeCoord.X, nodeCoord.Y);
+                modified = true;
+            }
+
+            if (coords[^1].IsReasonablyEqualTo(nodeCoord, tolerances)
+                && (coords[^1].X != nodeCoord.X || coords[^1].Y != nodeCoord.Y))
+            {
+                coords[^1] = new Coordinate(nodeCoord.X, nodeCoord.Y);
+                modified = true;
+            }
+        }
+
+        if (!modified)
+        {
+            return geometry;
+        }
+
+        return ls.Factory.CreateLineString(coords).ToMultiLineString();
     }
 
     private RoadSegmentGeometryDrawMethodV2 DetermineMethodFromOgcOverlap(RoadSegmentGeometryDrawMethodV2? method, RoadSegmentStatusV2 status, MultiLineString geometry, OgcFeaturesCache ogcFeaturesCache)
