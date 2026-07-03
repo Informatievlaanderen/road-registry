@@ -7,6 +7,7 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Infrastructure.Dbase;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Uploads;
 using Schemas.Inwinning.RoadNodes;
@@ -115,7 +116,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
             {
                 if (Geometry is Point point)
                 {
-                    return point;
+                    return point.RoundToCm();
                 }
 
                 var recordContext = fileName

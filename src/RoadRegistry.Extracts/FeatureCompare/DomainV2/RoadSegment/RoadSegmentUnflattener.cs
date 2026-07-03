@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -598,7 +599,7 @@ public class RoadSegmentUnflattener
         var mergedGeometry = segments.Count > 1
             ? longestSegment.Attributes.Geometry.Factory.CreateMultiLineString([
                 longestSegment.Attributes.Geometry.Factory.CreateLineString(MergeSegmentsCoordinates(segments.Select(x => x.Attributes.Geometry.Coordinates), tolerances))
-            ])
+            ]).RoundToCm()
             : segments.Single().Attributes.Geometry;
 
         var status = segments.Select(x => x.Attributes.Status).Distinct().Single();
@@ -939,8 +940,8 @@ public class RoadSegmentUnflattener
                 var firstSegmentCoordinates = segmentCoordinates.Take(i + 1).ToArray();
                 var nextSegmentCoordinates = segmentCoordinates.Skip(i).Concat([startNode.Item2.Coordinate]).ToArray();
 
-                var geometry1 = segment.Attributes.Geometry.Factory.CreateLineString(firstSegmentCoordinates).ToMultiLineString();
-                var geometry2 = segment.Attributes.Geometry.Factory.CreateLineString(nextSegmentCoordinates).ToMultiLineString();
+                var geometry1 = segment.Attributes.Geometry.Factory.CreateLineString(firstSegmentCoordinates).ToMultiLineString().RoundToCm();
+                var geometry2 = segment.Attributes.Geometry.Factory.CreateLineString(nextSegmentCoordinates).ToMultiLineString().RoundToCm();
 
                 var segment1FlatFeature = segment.FlatFeatures.Single(x =>
                 {

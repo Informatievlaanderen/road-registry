@@ -70,10 +70,10 @@ public partial class RoadSegmentsController
             await validator.ValidateAndThrowAsync(parameters, cancellationToken);
 
             var parsedGeometry = GeometryTranslator.ParseGmlLineString(parameters.WegsegmentGeometrie);
-            var geometryLength = parsedGeometry.Length.RoundToCm();
+            var geometryLength = parsedGeometry.Length;
 
             double ResolveToPosition(double totPositie) =>
-                totPositie == 0 ? geometryLength : totPositie.RoundToCm();
+                totPositie == 0 ? geometryLength : totPositie;
 
             var sqsRequest = new CreateRoadSegmentOutlineV2SqsRequest
             {
@@ -84,7 +84,7 @@ public partial class RoadSegmentsController
                 Morphology = parameters.Morfologie
                     .Select(x => new ChangeRoadSegmentMorphologyAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
                         ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         Morphology = RoadSegmentMorphologyV2.ParseUsingDutchName(x.Morfologie)
                     })
@@ -92,7 +92,7 @@ public partial class RoadSegmentsController
                 SurfaceType = parameters.Wegverharding
                     .Select(x => new ChangeRoadSegmentSurfaceTypeAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
                         ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         SurfaceType = RoadSegmentSurfaceTypeV2.ParseUsingDutchName(x.Wegverharding)
                     })
@@ -100,7 +100,7 @@ public partial class RoadSegmentsController
                 AccessRestriction = parameters.Toegang
                     .Select(x => new ChangeRoadSegmentAccessRestrictionAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
                         ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         AccessRestriction = RoadSegmentAccessRestrictionV2.ParseUsingDutchName(x.Toegang)
                     })
@@ -109,7 +109,7 @@ public partial class RoadSegmentsController
                     .Select(x => new ChangeRoadSegmentStreetNameIdAttributeValue
                     {
                         Side = x.Kant.ToRoadSegmentAttributeSide(),
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
                         ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         StreetNameId = new StreetNameLocalId(x.Identificator.GetIdentifierFromPuri())
                     })
@@ -118,7 +118,7 @@ public partial class RoadSegmentsController
                     .Select(x => new ChangeRoadSegmentMaintenanceAuthorityIdAttributeValue
                     {
                         Side = x.Kant.ToRoadSegmentAttributeSide(),
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
                         ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         MaintenanceAuthorityId = new OrganizationId(x.Wegbeheerder)
                     })
@@ -126,7 +126,7 @@ public partial class RoadSegmentsController
                 Category = parameters.Wegcategorie
                     .Select(x => new ChangeRoadSegmentCategoryAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
                         ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         Category = RoadSegmentCategoryV2.ParseUsingDutchName(x.Wegcategorie)
                     })
@@ -134,7 +134,7 @@ public partial class RoadSegmentsController
                 CarTrafficDirection = parameters.VerkeerstypeAuto
                     .Select(x => new ChangeRoadSegmentCarTrafficDirectionAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
                         ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         TrafficDirection = RoadSegmentTrafficDirection.ParseUsingDutchName(x.Richting)
                     })
@@ -142,7 +142,7 @@ public partial class RoadSegmentsController
                 BikeTrafficDirection = parameters.VerkeerstypeFiets
                     .Select(x => new ChangeRoadSegmentBikeTrafficDirectionAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
                         ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         TrafficDirection = RoadSegmentTrafficDirection.ParseUsingDutchName(x.Richting)
                     })
@@ -150,7 +150,7 @@ public partial class RoadSegmentsController
                 PedestrianTrafficDirection = parameters.VerkeerstypeVoetganger
                     .Select(x => new ChangeRoadSegmentPedestrianTrafficDirectionAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie.RoundToCm()),
+                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
                         ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         TrafficDirection = RoadSegmentPedestrianTrafficDirection.ParseUsingDutchName(x.Richting)
                     })
@@ -337,7 +337,9 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
             .Must(gml => GeometryTranslator.ParseGmlLineString(gml).Length < Distances.TooLongSegmentLength)
                 .WithProblemCode(RoadSegmentGeometryLengthIsTooLong.ProblemCode, _ => new RoadSegmentGeometryLengthIsTooLong(Distances.TooLongSegmentLength))
             .Must(gml => !HasVerticesTooClose(gml))
-                .WithProblemCode(ProblemCode.RoadSegment.Geometry.VerticesTooClose);
+                .WithProblemCode(ProblemCode.RoadSegment.Geometry.VerticesTooClose)
+            .Must(gml => !IsMorePreciseThanCm(gml))
+                .WithProblemCode(ProblemCode.RoadSegment.Geometry.HasCoordinatesMorePreciseThanCm);
 
         RuleFor(x => x.Wegsegmentstatus)
             .Cascade(CascadeMode.Stop)
@@ -654,13 +656,26 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         => x.WegsegmentGeometrie is not null && GeometryTranslator.GmlIsValidLineString(x.WegsegmentGeometrie);
 
     private static double GetGeometryLength(CreateOutlinedRoadSegmentV2Parameters x)
-        => GeometryTranslator.ParseGmlLineString(x.WegsegmentGeometrie).Length;
+        => GeometryTranslator.ParseGmlLineString(x.WegsegmentGeometrie).Length.RoundToCm();
 
     private static bool HasVerticesTooClose(string gml)
     {
         return GeometryTranslator.ParseGmlLineString(gml)
             .GetSingleLineString()
             .ContainsVertexTooCloseToAnother(Distances.MinimumDistanceBetweenVertices);
+    }
+
+    private static bool IsMorePreciseThanCm(string gml)
+    {
+        var geometry = GeometryTranslator.ParseGmlLineString(gml)
+            .GetSingleLineString();
+
+        return geometry.Coordinates.Any(c => IsSubCmPrecision(c.X) || IsSubCmPrecision(c.Y));
+    }
+
+    private static bool IsSubCmPrecision(double value)
+    {
+        return Math.Abs(value - Math.Round(value, 2)) > 1e-10;
     }
 
     private static void ValidatePositions(

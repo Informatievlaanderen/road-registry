@@ -236,6 +236,7 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode StartEqualsEnd = new("RoadSegmentGeometryStartEqualsEnd");
             public static readonly ProblemCode Taken = new("RoadSegmentGeometryTaken");
             public static readonly ProblemCode VerticesTooClose = new("RoadSegmentGeometryVerticesTooClose");
+            public static readonly ProblemCode HasCoordinatesMorePreciseThanCm = new("RoadSegmentGeometryHasCoordinatesMorePreciseThanCm");
         }
 
         public static class GeometryDrawMethod

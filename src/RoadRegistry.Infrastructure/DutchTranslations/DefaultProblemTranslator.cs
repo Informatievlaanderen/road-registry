@@ -461,6 +461,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"De afstand tussen de vertices van de geometrie van wegsegment met id {problem.GetParameterValue("Identifier")} bedraagt niet overal 15cm of meer.")
             },
             {
+                ProblemCode.RoadSegment.Geometry.HasCoordinatesMorePreciseThanCm, problem => new(problem.Severity, "GeometrieCoordinatenNauwkeurigerDanCentimeter",
+                    "De opgegeven geometrie bevat coördinaten met een hogere nauwkeurigheid dan centimeter (meer dan 2 decimalen).")
+            },
+            {
                 ProblemCode.RoadSegment.GeometryDrawMethod.NotOutlined, problem => new(problem.Severity, "GeometriemethodeNietIngeschetst",
                     "De geometriemethode van dit wegsegment komt niet overeen met 'ingeschetst'.")
             },

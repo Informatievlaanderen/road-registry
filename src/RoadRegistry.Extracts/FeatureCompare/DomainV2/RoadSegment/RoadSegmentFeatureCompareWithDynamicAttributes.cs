@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
 using RoadRegistry.RoadSegment.ValueObjects;
 
 public record RoadSegmentFeatureCompareWithDynamicAttributes
@@ -64,7 +65,7 @@ public record RoadSegmentFeatureCompareWithDynamicAttributes
         return new RoadSegmentFeatureCompareWithDynamicAttributes
         {
             RoadSegmentId = roadSegmentId,
-            Geometry = geometry,
+            Geometry = geometry.RoundToCm(),
             Method = method,
             Status = status,
             AccessRestriction = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.AccessRestriction))),

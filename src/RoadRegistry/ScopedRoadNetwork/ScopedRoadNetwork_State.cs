@@ -98,16 +98,15 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
     public (RoadNodeId StartNodeId, RoadNodeId EndNodeId, Problems Problems) FindStartEndNodes(
         RoadSegmentGeometry geometry)
     {
-        var tolerances = VerificationContextTolerances.WithinRoadNodeBuffer;
         var problems = Problems.None;
 
-        var startNodeId = FindRoadNode(geometry.Value.Coordinate, tolerances)?.RoadNodeId;
+        var startNodeId = FindRoadNode(geometry.Value.Coordinate)?.RoadNodeId;
         if (startNodeId is null)
         {
             problems += new RoadSegmentStartNodeMissing();
         }
 
-        var endNodeId = FindRoadNode(geometry.Value.Coordinates.Last(), tolerances)?.RoadNodeId;
+        var endNodeId = FindRoadNode(geometry.Value.Coordinates.Last())?.RoadNodeId;
         if (endNodeId is null)
         {
             problems += new RoadSegmentEndNodeMissing();
@@ -232,14 +231,13 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         _roadSegmentsSpatialIndex.Rebuild();
     }
 
-    private RoadNode? FindRoadNode(Coordinate coordinate, VerificationContextTolerances tolerance)
+    private RoadNode? FindRoadNode(Coordinate coordinate)
     {
         var envelope = new Envelope(coordinate);
-        envelope.ExpandBy(tolerance.GeometryTolerance);
 
         var candidates = _roadNodesSpatialIndex.Query(envelope);
         var point = new Point(coordinate.X, coordinate.Y);
 
-        return candidates.FirstOrDefault(x => x.Geometry.Value.IsReasonablyEqualTo(point, tolerance));
+        return candidates.FirstOrDefault(x => x.Geometry.Value.EqualsExact(point));
     }
 }

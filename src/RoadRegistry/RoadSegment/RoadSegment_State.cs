@@ -43,7 +43,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     )
         : this(new RoadSegmentId(roadSegmentId))
     {
-        Geometry = geometry.EnsureLambert08();
+        Geometry = geometry.EnsureLambert08().RoundToCm();
         Status = RoadSegmentStatusV2.Parse(status);
         StartNodeId = RoadNodeId.FromValue(startNodeId);
         EndNodeId = RoadNodeId.FromValue(endNodeId);
@@ -86,7 +86,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry;
+        Geometry = @event.Geometry.RoundToCm();
         Status = @event.Status;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
@@ -118,7 +118,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry;
+        Geometry = @event.Geometry.RoundToCm();
         Status = @event.Status;
         StartNodeId = null;
         EndNodeId = null;
@@ -144,7 +144,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry;
+        Geometry = @event.Geometry.RoundToCm();
         Status = @event.Status;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
@@ -170,7 +170,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry;
+        Geometry = @event.Geometry.RoundToCm();
         Status = @event.Status;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
@@ -195,7 +195,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     {
         UncommittedEvents.Add(@event);
 
-        Geometry = @event.Geometry ?? Geometry;
+        Geometry = @event.Geometry?.RoundToCm() ?? Geometry;
         Status = @event.Status ?? Status;
         StartNodeId = @event.StartNodeId ?? StartNodeId;
         EndNodeId = @event.EndNodeId ?? EndNodeId;
@@ -218,7 +218,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     {
         UncommittedEvents.Add(@event);
 
-        Geometry = @event.Geometry;
+        Geometry = @event.Geometry.RoundToCm();
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
     }

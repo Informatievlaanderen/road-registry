@@ -53,7 +53,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         When<IEvent<ImportedRoadSegment>>(async (session, e, ct) =>
         {
             var roadSegmentId = new RoadSegmentId(e.Data.RoadSegmentId);
-            var geometry = ProjectGeometry(e.Data.Geometry);
+            var geometry = ProjectGeometry(e.Data.Geometry, isV2: false);
             var status = e.Data.Status;
             var morphology = e.Data.Morphology;
             var category = e.Data.Category;
@@ -106,7 +106,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         When<IEvent<RoadSegmentAdded>>(async (session, e, ct) =>
         {
             var roadSegmentId = new RoadSegmentId(e.Data.RoadSegmentId);
-            var geometry = ProjectGeometry(e.Data.Geometry);
+            var geometry = ProjectGeometry(e.Data.Geometry, isV2: false);
             var status = e.Data.Status;
             var morphology = e.Data.Morphology;
             var category = e.Data.Category;
@@ -161,7 +161,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 var category = e.Data.Category;
                 var geometryDrawMethod = e.Data.GeometryDrawMethod;
                 var accessRestriction = e.Data.AccessRestriction;
-                var geometry = ProjectGeometry(e.Data.Geometry);
+                var geometry = ProjectGeometry(e.Data.Geometry, isV2: false);
 
                 segment.Geometry = geometry;
                 segment.StartNodeId = new RoadNodeId(e.Data.StartNodeId);
@@ -258,7 +258,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         {
             return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
             {
-                segment.Geometry = ProjectGeometry(e.Data.Geometry);
+                segment.Geometry = ProjectGeometry(e.Data.Geometry, isV2: false);
                 segment.SurfaceType = new ReadRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .OrderBy(x => x.FromPosition)
                     .Select((x, i) => (
@@ -299,7 +299,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             var roadSegment = new RoadSegmentReadItem
             {
                 RoadSegmentId = roadSegmentId,
-                Geometry = ProjectGeometry(e.Data.Geometry),
+                Geometry = ProjectGeometry(e.Data.Geometry, isV2: true),
                 StartNodeId = e.Data.StartNodeId,
                 EndNodeId = e.Data.EndNodeId,
                 GeometryDrawMethod = e.Data.GeometryDrawMethod.ToString(),
@@ -335,7 +335,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
             var roadSegment = new RoadSegmentReadItem
             {
                 RoadSegmentId = roadSegmentId,
-                Geometry = ProjectGeometry(e.Data.Geometry),
+                Geometry = ProjectGeometry(e.Data.Geometry, isV2: true),
                 StartNodeId = null,
                 EndNodeId = null,
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst.ToString(),
@@ -365,7 +365,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, async segment =>
             {
-                segment.Geometry = ProjectGeometry(e.Data.Geometry);
+                segment.Geometry = ProjectGeometry(e.Data.Geometry, isV2: true);
                 segment.StartNodeId = e.Data.StartNodeId;
                 segment.EndNodeId = e.Data.EndNodeId;
                 segment.GeometryDrawMethod = e.Data.GeometryDrawMethod.ToString();
@@ -388,7 +388,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
             {
-                segment.Geometry = ProjectGeometry(e.Data.Geometry);
+                segment.Geometry = ProjectGeometry(e.Data.Geometry, isV2: true);
                 segment.StartNodeId = e.Data.StartNodeId;
                 segment.EndNodeId = e.Data.EndNodeId;
             }, e.Data, ct);
@@ -397,7 +397,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, async segment =>
             {
-                segment.Geometry = e.Data.Geometry is not null ? ProjectGeometry(e.Data.Geometry) : segment.Geometry;
+                segment.Geometry = e.Data.Geometry is not null ? ProjectGeometry(e.Data.Geometry, isV2: true) : segment.Geometry;
                 segment.StartNodeId = e.Data.StartNodeId ?? segment.StartNodeId;
                 segment.EndNodeId = e.Data.EndNodeId ?? segment.EndNodeId;
                 segment.GeometryDrawMethod = e.Data.GeometryDrawMethod?.ToString() ?? segment.GeometryDrawMethod;
@@ -453,7 +453,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, async segment =>
             {
-                segment.Geometry = ProjectGeometry(e.Data.Geometry);
+                segment.Geometry = ProjectGeometry(e.Data.Geometry, isV2: true);
                 segment.StartNodeId = e.Data.StartNodeId;
                 segment.EndNodeId = e.Data.EndNodeId;
                 segment.GeometryDrawMethod = e.Data.GeometryDrawMethod.ToString();
@@ -882,12 +882,12 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         };
     }
 
-    private static RoadSegmentGeometryProjections ProjectGeometry(RoadSegmentGeometry geometry)
+    private static RoadSegmentGeometryProjections ProjectGeometry(RoadSegmentGeometry geometry, bool isV2)
     {
         return new RoadSegmentGeometryProjections
         {
-            Lambert72 = geometry.EnsureLambert72(),
-            Lambert08 = geometry.EnsureLambert08(),
+            Lambert72 = isV2 ? geometry.EnsureLambert72().RoundToCm() : geometry.EnsureLambert72(),
+            Lambert08 = geometry.EnsureLambert08().RoundToCm(),
         };
     }
 

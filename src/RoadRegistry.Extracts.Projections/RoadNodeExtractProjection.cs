@@ -3,12 +3,11 @@
 using System;
 using System.Threading.Tasks;
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
 using RoadNode.Events.V1;
-using RoadRegistry.Infrastructure;
+using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 
 public class RoadNodeExtractProjection : RoadNetworkChangesConnectedProjection
@@ -29,7 +28,7 @@ public class RoadNodeExtractProjection : RoadNetworkChangesConnectedProjection
             session.Store(new RoadNodeExtractItem
             {
                 RoadNodeId = new RoadNodeId(e.Data.RoadNodeId),
-                Geometry = ToLambert08(e.Data.Geometry),
+                Geometry = e.Data.Geometry.EnsureLambert08().RoundToCm(),
                 Type = e.Data.Type,
                 Grensknoop = false,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
@@ -43,7 +42,7 @@ public class RoadNodeExtractProjection : RoadNetworkChangesConnectedProjection
             session.Store(new RoadNodeExtractItem
             {
                 RoadNodeId = new RoadNodeId(e.Data.RoadNodeId),
-                Geometry = ToLambert08(e.Data.Geometry),
+                Geometry = e.Data.Geometry.EnsureLambert08().RoundToCm(),
                 Type = e.Data.Type,
                 Grensknoop = false,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
@@ -62,7 +61,7 @@ public class RoadNodeExtractProjection : RoadNetworkChangesConnectedProjection
 
             node.LastModified = e.Data.Provenance.ToEventTimestamp();
             node.Type = e.Data.Type;
-            node.Geometry = ToLambert08(e.Data.Geometry);
+            node.Geometry = e.Data.Geometry.EnsureLambert08().RoundToCm();
 
             session.Store(node);
         });
@@ -154,11 +153,6 @@ public class RoadNodeExtractProjection : RoadNetworkChangesConnectedProjection
 
             session.Delete(node);
         });
-    }
-
-    private static RoadNodeGeometry ToLambert08(RoadNodeGeometry geometry)
-    {
-        return RoadNodeGeometry.Create(geometry.Value.TransformFromLambert72To08());
     }
 }
 
