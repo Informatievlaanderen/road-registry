@@ -8,6 +8,7 @@ using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.Extensions;
 using RoadRegistry.RoadNetwork.Schema;
 using RoadRegistry.RoadNode;
+using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
@@ -79,6 +80,14 @@ public class AggregateTests : AggregateTestBase
         splitEvent.NewRoadSegmentIds.Should().BeEquivalentTo(newSegments.Select(x => x.RoadSegmentId));
 
         newSegments.Should().OnlyContain(x => x.GetChanges().OfType<RoadSegmentWasAdded>().Any());
+
+        // A new road node (validatieknoop) is inserted at the cut position (50, 50).
+        var originalNodeIds = new[] { TestData.Segment1StartNodeAdded.RoadNodeId, TestData.Segment1EndNodeAdded.RoadNodeId };
+        var roadNodes = roadNetwork.GetNonRemovedRoadNodes().ToList();
+        roadNodes.Should().HaveCount(3);
+        var newNode = roadNodes.Single(x => !originalNodeIds.Contains(x.RoadNodeId));
+        newNode.Geometry.Value.Coordinate.Equals2D(new Coordinate(50.0, 50.0)).Should().BeTrue();
+        newNode.GetChanges().OfType<RoadNodeWasAdded>().Should().ContainSingle();
     }
 
     [Fact]
@@ -114,6 +123,14 @@ public class AggregateTests : AggregateTestBase
         splitEvent.Modifications.Should().NotBeNull();
         splitEvent.NewRoadSegmentIds.Should().Contain(originalRoadSegmentId);
         splitEvent.NewRoadSegmentIds.Should().Contain(newSegments.Single().RoadSegmentId);
+
+        // A new road node (validatieknoop) is inserted at the cut position (10, 10).
+        var originalNodeIds = new[] { TestData.Segment1StartNodeAdded.RoadNodeId, TestData.Segment1EndNodeAdded.RoadNodeId };
+        var roadNodes = roadNetwork.GetNonRemovedRoadNodes().ToList();
+        roadNodes.Should().HaveCount(3);
+        var newNode = roadNodes.Single(x => !originalNodeIds.Contains(x.RoadNodeId));
+        newNode.Geometry.Value.Coordinate.Equals2D(new Coordinate(10.0, 10.0)).Should().BeTrue();
+        newNode.GetChanges().OfType<RoadNodeWasAdded>().Should().ContainSingle();
     }
 
     [Fact]
