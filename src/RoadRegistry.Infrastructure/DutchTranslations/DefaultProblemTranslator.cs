@@ -613,7 +613,7 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.RoadSegment.Split.PositionTooFarFromRoadSegment, problem => new(problem.Severity, "KnippositieTeVerVanWegsegment",
-                    $"De afstand van de voorgestelde knippositie tot het opgegeven wegsegment is groter dan {problem.GetParameterValue("MaximumDistance")}m en er ligt géén kruising op minder dan {problem.GetParameterValue("MaximumDistance")}m van de knippositie.")
+                    $"De afstand van de voorgestelde knippositie tot het opgegeven wegsegment is groter dan {problem.GetParameterValue("MaximumDistance")}m.")
             },
             {
                 ProblemCode.RoadSegment.Split.PositionTooCloseToRoadNode, problem => new(problem.Severity, "KnippositieTeDichtBijWegknoop",
