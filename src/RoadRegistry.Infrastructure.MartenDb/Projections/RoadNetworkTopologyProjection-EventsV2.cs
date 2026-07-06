@@ -167,6 +167,32 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
+    public void Project(IEvent<RoadSegmentWasRetiredBecauseOfSplit> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",
+            e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp
+        );
+    }
+
+    public void Project(IEvent<RoadSegmentWasSplit> e, IDocumentOperations ops)
+    {
+        // Only the segment that keeps its identifier (largest part) carries modifications; update its geometry/nodes.
+        if (e.Data.Modifications is null)
+        {
+            return;
+        }
+
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+            e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp,
+            e.Data.Modifications.Geometry.WKT,
+            e.Data.Modifications.Geometry.SRID,
+            e.Data.Modifications.StartNodeId?.ToInt32() ?? 0,
+            e.Data.Modifications.EndNodeId?.ToInt32() ?? 0
+        );
+    }
+
     public void Project(IEvent<GradeSeparatedJunctionWasAdded> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_insert_gradeseparatedjunction(?, ?, ?, ?, TRUE);",
@@ -226,7 +252,11 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<RoadNetworkWasChanged> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadNetworkWasChangedBecauseOfExtract> e, IDocumentOperations ops)
+    {
+        // Do nothing
+    }
+    public void Project(IEvent<MunicipalityWasMigrated> e, IDocumentOperations ops)
     {
         // Do nothing
     }

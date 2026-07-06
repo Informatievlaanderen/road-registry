@@ -41,7 +41,7 @@ public partial class ScopedRoadNetwork
 
         if (!problems.HasError() && changes.Any())
         {
-            Apply(new RoadNetworkWasChanged
+            Apply(new RoadNetworkWasChangedBecauseOfExtract
             {
                 RoadNetworkId = RoadNetworkId,
                 ScopeGeometry = changes.BuildScopeGeometry()?.ToGeometryObject(),

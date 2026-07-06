@@ -332,6 +332,18 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode IsRequired = new("RoadSegmentStatusIsRequired");
         }
 
+        public static class Split
+        {
+            public static readonly ProblemCode NotFound = new("RoadSegmentSplitNotFound");
+            public static readonly ProblemCode NotCompletedInwinning = new("RoadSegmentSplitNotCompletedInwinning");
+            public static readonly ProblemCode StatusNotValid = new("RoadSegmentSplitStatusNotValid");
+            public static readonly ProblemCode PositionIsRequired = new("RoadSegmentSplitPositionIsRequired");
+            public static readonly ProblemCode PositionGeometryNotValid = new("RoadSegmentSplitPositionGeometryNotValid");
+            public static readonly ProblemCode PositionSridNotLambert08 = new("RoadSegmentSplitPositionSridNotLambert08");
+            public static readonly ProblemCode PositionTooFarFromRoadSegment = new("RoadSegmentSplitPositionTooFarFromRoadSegment");
+            public static readonly ProblemCode PositionTooCloseToRoadNode = new("RoadSegmentSplitPositionTooCloseToRoadNode");
+        }
+
         public static class Width
         {
             public static readonly ProblemCode FromPositionNotEqualToZero = new("RoadSegmentWidthAttributeFromPositionNotEqualToZero");

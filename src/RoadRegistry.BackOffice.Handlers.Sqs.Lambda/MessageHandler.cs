@@ -16,6 +16,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateDryRunRoadNetwo
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RemoveRoadSegments;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestExtract;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.SplitRoadSegmentV2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestInwinningExtract;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadExtract;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadInwinningExtract;
@@ -75,6 +76,7 @@ public sealed class MessageHandler : BlobMessageHandler
             MigrateRoadNetworkSqsRequest request => new MigrateRoadNetworkSqsLambdaRequest(groupId, request),
             DataValidationSqsRequest request => new DataValidationSqsLambdaRequest(groupId, request),
             CreateRoadSegmentOutlineV2SqsRequest request => new CreateRoadSegmentOutlineV2SqsLambdaRequest(groupId, request),
+            SplitRoadSegmentV2SqsRequest request => new SplitRoadSegmentV2SqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(
                 $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
         };

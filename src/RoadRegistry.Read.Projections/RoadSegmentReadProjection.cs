@@ -520,6 +520,39 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 segment.EndNodeId = null;
             }, e.Data, ct);
         });
+        When<IEvent<RoadSegmentWasRetiredBecauseOfSplit>>((session, e, ct) =>
+        {
+            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
+            {
+                segment.Status = RoadSegmentStatusV2.Gehistoreerd.ToString();
+                segment.StartNodeId = null;
+                segment.EndNodeId = null;
+            }, e.Data, ct);
+        });
+        When<IEvent<RoadSegmentWasSplit>>((session, e, ct) =>
+        {
+            // Only the segment that keeps its identifier (largest part) carries modifications.
+            if (e.Data.Modifications is null)
+            {
+                return Task.CompletedTask;
+            }
+
+            return ModifyRoadSegment(session, e.Data.RoadSegmentId, async segment =>
+            {
+                segment.Geometry = ProjectGeometry(e.Data.Modifications.Geometry, isV2: true);
+                segment.StartNodeId = e.Data.Modifications.StartNodeId;
+                segment.EndNodeId = e.Data.Modifications.EndNodeId;
+                segment.AccessRestriction = e.Data.Modifications.AccessRestriction.ToStringAttributeValues(x => x!.ToString());
+                segment.Category = e.Data.Modifications.Category.ToStringAttributeValues(x => x!.ToString());
+                segment.Morphology = e.Data.Modifications.Morphology.ToStringAttributeValues(x => x!.ToString());
+                segment.StreetNameId = await BuildStreetNameAttribute(session, e.Data.Modifications.StreetNameId, ct);
+                segment.MaintenanceAuthorityId = await BuildMaintenanceAuthority(session, e.Data.Modifications.MaintenanceAuthorityId, ct);
+                segment.SurfaceType = e.Data.Modifications.SurfaceType.ToStringAttributeValues(x => x!.ToString());
+                segment.CarTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.Modifications.CarTrafficDirection);
+                segment.BikeTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.Modifications.BikeTrafficDirection);
+                segment.PedestrianTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.Modifications.PedestrianTrafficDirection);
+            }, e.Data, ct);
+        });
         When<IEvent<RoadSegmentWasAddedToEuropeanRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.EuropeanRoadNumbers.Add(e.Data.Number); }, e.Data, ct); });
         When<IEvent<RoadSegmentWasAddedToNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.NationalRoadNumbers.Add(e.Data.Number); }, e.Data, ct); });
         When<IEvent<RoadSegmentWasRemovedFromEuropeanRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.EuropeanRoadNumbers.Remove(e.Data.Number); }, e.Data, ct); });

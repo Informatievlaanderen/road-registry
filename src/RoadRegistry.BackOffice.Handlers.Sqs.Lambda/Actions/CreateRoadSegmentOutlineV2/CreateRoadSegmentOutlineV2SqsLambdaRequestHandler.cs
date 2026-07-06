@@ -120,10 +120,7 @@ public sealed class CreateRoadSegmentOutlineV2SqsLambdaRequestHandler : MartenSq
                 problems += new RoadSegmentOutsideCompletedInwinningszone();
             }
 
-            if (problems.Any())
-            {
-                throw new RoadRegistryProblemsException(problems);
-            }
+            problems.ThrowIfError();
 
             var roadSegment = RoadSegment.Create(new OutlinedRoadSegmentWasAdded
             {

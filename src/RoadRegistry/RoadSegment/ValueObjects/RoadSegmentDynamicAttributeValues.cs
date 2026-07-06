@@ -143,6 +143,51 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
         return new RoadSegmentDynamicAttributeValues<T>(mergedItems);
     }
 
+    // Splits the attribute values at the given position (a measure along the segment, in meters).
+    // Returns the values for the part before the cut ([0, cut]) and the part after the cut,
+    // rebased so it starts at position 0 ([0, totalLength - cut]).
+    public (RoadSegmentDynamicAttributeValues<T> First, RoadSegmentDynamicAttributeValues<T> Second) SplitAt(
+        RoadSegmentPositionV2 cutPosition, double totalLength)
+    {
+        var cut = cutPosition.ToDouble();
+        totalLength = totalLength.RoundToCm();
+
+        var firstItems = new List<RoadSegmentDynamicAttributeValue<T>>();
+        var secondItems = new List<RoadSegmentDynamicAttributeValue<T>>();
+
+        foreach (var value in Values)
+        {
+            var from = value.Coverage.From.ToDouble();
+            var to = value.Coverage.To.ToDouble();
+
+            var firstFrom = from;
+            var firstTo = System.Math.Min(to, cut);
+            if (firstTo > firstFrom)
+            {
+                firstItems.Add(new RoadSegmentDynamicAttributeValue<T>
+                {
+                    Coverage = new RoadSegmentPositionCoverage(new RoadSegmentPositionV2(firstFrom), new RoadSegmentPositionV2(firstTo)),
+                    Side = value.Side,
+                    Value = value.Value
+                });
+            }
+
+            var secondFrom = System.Math.Max(from, cut) - cut;
+            var secondTo = System.Math.Min(to, totalLength) - cut;
+            if (secondTo > secondFrom)
+            {
+                secondItems.Add(new RoadSegmentDynamicAttributeValue<T>
+                {
+                    Coverage = new RoadSegmentPositionCoverage(new RoadSegmentPositionV2(secondFrom), new RoadSegmentPositionV2(secondTo)),
+                    Side = value.Side,
+                    Value = value.Value
+                });
+            }
+        }
+
+        return (new RoadSegmentDynamicAttributeValues<T>(firstItems), new RoadSegmentDynamicAttributeValues<T>(secondItems));
+    }
+
     private static ImmutableList<RoadSegmentDynamicAttributeValue<T>> Shrink(IReadOnlyList<RoadSegmentDynamicAttributeValue<T>> values)
     {
         if (values.Count <= 1)

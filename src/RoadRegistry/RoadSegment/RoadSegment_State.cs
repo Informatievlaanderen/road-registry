@@ -2,10 +2,10 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Events.V2;
 using Newtonsoft.Json;
 using RoadRegistry.Extensions;
-using ValueObjects;
+using RoadRegistry.RoadSegment.Events.V2;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 {
@@ -43,7 +43,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     )
         : this(new RoadSegmentId(roadSegmentId))
     {
-        Geometry = geometry.EnsureLambert08().RoundToCm();
+        Geometry = geometry.EnsureLambert08();
         Status = RoadSegmentStatusV2.Parse(status);
         StartNodeId = RoadNodeId.FromValue(startNodeId);
         EndNodeId = RoadNodeId.FromValue(endNodeId);
@@ -86,7 +86,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry.RoundToCm();
+        Geometry = @event.Geometry;
         Status = @event.Status;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
@@ -118,7 +118,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry.RoundToCm();
+        Geometry = @event.Geometry;
         Status = @event.Status;
         StartNodeId = null;
         EndNodeId = null;
@@ -144,7 +144,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry.RoundToCm();
+        Geometry = @event.Geometry;
         Status = @event.Status;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
@@ -170,7 +170,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry.RoundToCm();
+        Geometry = @event.Geometry;
         Status = @event.Status;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
@@ -195,7 +195,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     {
         UncommittedEvents.Add(@event);
 
-        Geometry = @event.Geometry?.RoundToCm() ?? Geometry;
+        Geometry = @event.Geometry ?? Geometry;
         Status = @event.Status ?? Status;
         StartNodeId = @event.StartNodeId ?? StartNodeId;
         EndNodeId = @event.EndNodeId ?? EndNodeId;
@@ -218,7 +218,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     {
         UncommittedEvents.Add(@event);
 
-        Geometry = @event.Geometry.RoundToCm();
+        Geometry = @event.Geometry;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
     }
@@ -259,6 +259,39 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         Status = RoadSegmentStatusV2.Gehistoreerd;
         StartNodeId = null;
         EndNodeId = null;
+    }
+
+    public void Apply(RoadSegmentWasRetiredBecauseOfSplit @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Status = RoadSegmentStatusV2.Gehistoreerd;
+        StartNodeId = null;
+        EndNodeId = null;
+    }
+
+    public void Apply(RoadSegmentWasSplit @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        if (@event.Modifications is not null)
+        {
+            Geometry = @event.Modifications.Geometry;
+            StartNodeId = @event.Modifications.StartNodeId;
+            EndNodeId = @event.Modifications.EndNodeId;
+            Attributes = Attributes! with
+            {
+                AccessRestriction = @event.Modifications.AccessRestriction,
+                Category = @event.Modifications.Category,
+                Morphology = @event.Modifications.Morphology,
+                StreetNameId = @event.Modifications.StreetNameId,
+                MaintenanceAuthorityId = @event.Modifications.MaintenanceAuthorityId,
+                SurfaceType = @event.Modifications.SurfaceType,
+                CarTrafficDirection = @event.Modifications.CarTrafficDirection,
+                BikeTrafficDirection = @event.Modifications.BikeTrafficDirection,
+                PedestrianTrafficDirection = @event.Modifications.PedestrianTrafficDirection
+            };
+        }
     }
 
     public void Apply(RoadSegmentWasAddedToEuropeanRoad @event)

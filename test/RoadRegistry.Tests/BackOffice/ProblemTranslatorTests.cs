@@ -199,6 +199,32 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadSegment.Split.NotFound, [
+                    new ProblemParameter("Identifier", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.Split.StatusNotValid, [
+                    new ProblemParameter("Identifier", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.Split.NotCompletedInwinning, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.Split.PositionTooFarFromRoadSegment, [
+                    new ProblemParameter("MaximumDistance", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.Split.PositionTooCloseToRoadNode, [
+                    new ProblemParameter("RoadNodeId", "1"),
+                    new ProblemParameter("MinimumDistance", "1")
+                ]
+            },
+            {
                 ProblemCode.GradeSeparatedJunction.LowerSegmentMissing, [
                     new ProblemParameter("RoadSegmentId", "1")
                 ]

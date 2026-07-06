@@ -115,4 +115,12 @@ public class Problems : IReadOnlyCollection<Problem>
     {
         return string.Join(Environment.NewLine, _problems);
     }
+
+    public void ThrowIfError()
+    {
+        if (HasError())
+        {
+            throw new RoadRegistryProblemsException(this);
+        }
+    }
 }
