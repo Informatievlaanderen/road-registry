@@ -261,6 +261,40 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         EndNodeId = null;
     }
 
+    public void Apply(RoadSegmentWasRetiredBecauseOfSplit @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Status = RoadSegmentStatusV2.Gehistoreerd;
+        StartNodeId = null;
+        EndNodeId = null;
+    }
+
+    public void Apply(RoadSegmentWasSplit @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        //TODO-pr move .RoundToCm() to when event is being created, do the same for the v2 roadnode events
+        if (@event.Modifications is not null)
+        {
+            Geometry = @event.Modifications.Geometry.RoundToCm();
+            StartNodeId = @event.Modifications.StartNodeId;
+            EndNodeId = @event.Modifications.EndNodeId;
+            Attributes = Attributes! with
+            {
+                AccessRestriction = @event.Modifications.AccessRestriction,
+                Category = @event.Modifications.Category,
+                Morphology = @event.Modifications.Morphology,
+                StreetNameId = @event.Modifications.StreetNameId,
+                MaintenanceAuthorityId = @event.Modifications.MaintenanceAuthorityId,
+                SurfaceType = @event.Modifications.SurfaceType,
+                CarTrafficDirection = @event.Modifications.CarTrafficDirection,
+                BikeTrafficDirection = @event.Modifications.BikeTrafficDirection,
+                PedestrianTrafficDirection = @event.Modifications.PedestrianTrafficDirection
+            };
+        }
+    }
+
     public void Apply(RoadSegmentWasAddedToEuropeanRoad @event)
     {
         UncommittedEvents.Add(@event);

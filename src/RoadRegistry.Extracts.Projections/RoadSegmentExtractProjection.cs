@@ -498,6 +498,46 @@ public class RoadSegmentExtractProjection : RoadNetworkChangesConnectedProjectio
 
             session.Delete(roadSegment);
         });
+        When<IEvent<RoadSegmentWasRetiredBecauseOfSplit>>(async (session, e, _) =>
+        {
+            var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
+            if (roadSegment is null)
+            {
+                throw new InvalidOperationException($"No road segment found for Id {e.Data.RoadSegmentId}");
+            }
+
+            session.Delete(roadSegment);
+        });
+        When<IEvent<RoadSegmentWasSplit>>((session, e, ct) =>
+        {
+            // Only the segment that keeps its identifier (largest part) carries modifications.
+            if (e.Data.Modifications is null)
+            {
+                return Task.CompletedTask;
+            }
+
+            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
+            {
+                segment.Geometry = e.Data.Modifications.Geometry;
+                segment.StartNodeId = e.Data.Modifications.StartNodeId;
+                segment.EndNodeId = e.Data.Modifications.EndNodeId;
+                segment.AccessRestriction = e.Data.Modifications.AccessRestriction.ToStringAttributeValues(x => x.ToString());
+                segment.Category = e.Data.Modifications.Category.ToStringAttributeValues(x => x.ToString());
+                segment.Morphology = e.Data.Modifications.Morphology.ToStringAttributeValues(x => x.ToString());
+                segment.StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.Modifications.StreetNameId);
+                segment.MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.Data.Modifications.MaintenanceAuthorityId);
+                segment.SurfaceType = e.Data.Modifications.SurfaceType.ToStringAttributeValues(x => x.ToString());
+                segment.CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(e.Data.Modifications.CarTrafficDirection));
+                segment.CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(e.Data.Modifications.CarTrafficDirection));
+                segment.BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(e.Data.Modifications.BikeTrafficDirection));
+                segment.BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(e.Data.Modifications.BikeTrafficDirection));
+                segment.PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToPedestrianAccess(e.Data.Modifications.PedestrianTrafficDirection));
+                segment.CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.Modifications.CarTrafficDirection);
+                segment.BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.Modifications.BikeTrafficDirection);
+                segment.PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.Modifications.PedestrianTrafficDirection);
+                segment.IsV2 = true;
+            }, e.Data, ct);
+        });
         When<IEvent<RoadSegmentWasAddedToEuropeanRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.EuropeanRoadNumbers.Add(e.Data.Number); }, e.Data, ct); });
         When<IEvent<RoadSegmentWasAddedToNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.NationalRoadNumbers.Add(e.Data.Number); }, e.Data, ct); });
         When<IEvent<RoadSegmentWasRemovedFromEuropeanRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.EuropeanRoadNumbers.Remove(e.Data.Number); }, e.Data, ct); });

@@ -20,6 +20,11 @@ public static class GeometryObjectExtensions
         return RoadSegmentGeometry.Create(geometry.Value.RoundToCm());
     }
 
+    public static Coordinate RoundToCm(this Coordinate coordinate)
+    {
+        return new Coordinate(coordinate.X.RoundToCm(), coordinate.Y.RoundToCm());
+    }
+
     public static RoadNodeGeometry EnsureLambert08(this RoadNodeGeometry geometry)
     {
         if (geometry.Value.IsLambert08())

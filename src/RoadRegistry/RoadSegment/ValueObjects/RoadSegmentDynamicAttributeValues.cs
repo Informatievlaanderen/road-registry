@@ -149,7 +149,7 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
     public (RoadSegmentDynamicAttributeValues<T> First, RoadSegmentDynamicAttributeValues<T> Second) SplitAt(
         RoadSegmentPositionV2 cutPosition, double totalLength)
     {
-        var cut = cutPosition.ToDouble().RoundToCm();
+        var cut = cutPosition.ToDouble();
         totalLength = totalLength.RoundToCm();
 
         var firstItems = new List<RoadSegmentDynamicAttributeValue<T>>();

@@ -69,16 +69,32 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         });
     }
 
-    public static ScopedRoadNetwork Create(RoadNetworkWasChanged @event)
+    public static ScopedRoadNetwork Create(RoadNetworkWasChangedBecauseOfExtract @event)
     {
-        var roadNetwork = new ScopedRoadNetwork(@event.RoadNetworkId)
-        {
-            SummaryOfLastChange = @event.Summary.ToRoadNetworkChangesSummary()
-        };
-        return roadNetwork;
+        return CreateFrom(@event.RoadNetworkId, @event.Summary);
     }
 
-    public void Apply(RoadNetworkWasChanged @event)
+    public static ScopedRoadNetwork Create(MunicipalityWasMigrated @event)
+    {
+        return CreateFrom(@event.RoadNetworkId, @event.Summary);
+    }
+
+    private static ScopedRoadNetwork CreateFrom(ScopedRoadNetworkId roadNetworkId, RoadNetworkChangedSummary summary)
+    {
+        return new ScopedRoadNetwork(roadNetworkId)
+        {
+            SummaryOfLastChange = summary.ToRoadNetworkChangesSummary()
+        };
+    }
+
+    public void Apply(RoadNetworkWasChangedBecauseOfExtract @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        SummaryOfLastChange = @event.Summary.ToRoadNetworkChangesSummary();
+    }
+
+    public void Apply(MunicipalityWasMigrated @event)
     {
         UncommittedEvents.Add(@event);
 

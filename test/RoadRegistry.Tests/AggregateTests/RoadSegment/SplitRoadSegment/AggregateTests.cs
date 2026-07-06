@@ -4,9 +4,11 @@ using System.Linq;
 using AutoFixture;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.Extensions;
 using RoadRegistry.RoadNetwork.Schema;
 using RoadRegistry.RoadNode;
+using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
@@ -41,11 +43,9 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        var result = roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
-        var problems = result.Problems;
+        var roadSegmentIds = roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
 
-        problems.Should().HaveNoError();
-
+        // Assert
         roadNetwork.RoadSegments[originalRoadSegmentId].Status.Should().Be(RoadSegmentStatusV2.Gehistoreerd);
 
         var newSegments = roadNetwork.GetNonRemovedRoadSegments()
@@ -54,8 +54,52 @@ public class AggregateTests : AggregateTestBase
         newSegments.Should().HaveCount(2);
         newSegments.Should().OnlyContain(x => x.Status == RoadSegmentStatusV2.Gerealiseerd);
 
-        result.RoadSegmentIds.Should().HaveCount(2);
-        result.RoadSegmentIds.Should().BeEquivalentTo(newSegments.Select(x => x.RoadSegmentId));
+        roadSegmentIds.Should().HaveCount(2);
+        roadSegmentIds.Should().BeEquivalentTo(newSegments.Select(x => x.RoadSegmentId));
+
+        // Situation 1 events: the original is retired-because-of-split and a split event without modifications.
+        var originalChanges = roadNetwork.RoadSegments[originalRoadSegmentId].GetChanges();
+        originalChanges.Should().ContainSingle(x => x is RoadSegmentWasRetiredBecauseOfSplit);
+        var splitEvent = originalChanges.OfType<RoadSegmentWasSplit>().Single();
+        splitEvent.Modifications.Should().BeNull();
+        splitEvent.NewRoadSegmentIds.Should().BeEquivalentTo(newSegments.Select(x => x.RoadSegmentId));
+
+        newSegments.Should().OnlyContain(x => x.GetChanges().OfType<RoadSegmentWasAdded>().Any());
+    }
+
+    [Fact]
+    public void WhenOnePartIsMoreThan70Percent_ThenOriginalIsModifiedAndOneNewSegmentIsAdded()
+    {
+        // Arrange
+        var roadNetwork = BuildNetworkWithRealizedSegment();
+        var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
+        // The segment runs (0,0)->(50,50)->(100,100); cutting near the start leaves the larger part (>70%) with the original id.
+        var cutNearStart = new Point(new Coordinate(10.0, 10.0)) { SRID = WellknownSrids.Lambert08 };
+
+        // Act
+        var roadSegmentIds = roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearStart, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+
+        // Assert
+        var original = roadNetwork.RoadSegments[originalRoadSegmentId];
+        original.IsRemoved.Should().BeFalse();
+        original.Status.Should().Be(RoadSegmentStatusV2.Gerealiseerd);
+
+        var newSegments = roadNetwork.GetNonRemovedRoadSegments()
+            .Where(x => x.RoadSegmentId != originalRoadSegmentId)
+            .ToList();
+        newSegments.Should().HaveCount(1);
+
+        roadSegmentIds.Should().HaveCount(2);
+        roadSegmentIds.Should().Contain(originalRoadSegmentId);
+        roadSegmentIds.Should().Contain(newSegments.Single().RoadSegmentId);
+
+        // Situation 2 events: no retire, a split event on the kept segment carrying the modifications.
+        var originalChanges = original.GetChanges();
+        originalChanges.Should().NotContain(x => x is RoadSegmentWasRetiredBecauseOfSplit);
+        var splitEvent = originalChanges.OfType<RoadSegmentWasSplit>().Single();
+        splitEvent.Modifications.Should().NotBeNull();
+        splitEvent.NewRoadSegmentIds.Should().Contain(originalRoadSegmentId);
+        splitEvent.NewRoadSegmentIds.Should().Contain(newSegments.Single().RoadSegmentId);
     }
 
     [Fact]
@@ -66,12 +110,9 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        var result = roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
-        var problems = result.Problems;
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
 
         // Assert
-        problems.Should().HaveNoError();
-
         var newSegments = roadNetwork.GetNonRemovedRoadSegments()
             .Where(x => x.RoadSegmentId != originalRoadSegmentId)
             .ToList();
@@ -98,12 +139,9 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        var result = roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
-        var problems = result.Problems;
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
 
         // Assert
-        problems.Should().HaveNoError();
-
         var cut = new Coordinate(50.0, 50.0);
         roadNetwork.GetNonRemovedRoadNodes()
             .Should().Contain(x => x.Geometry.Value.Coordinate.Equals2D(cut));
@@ -118,10 +156,10 @@ public class AggregateTests : AggregateTestBase
         var cutNearStart = new Point(new Coordinate(0.5, 0.5)) { SRID = WellknownSrids.Lambert08 };
 
         // Act
-        var result = roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearStart, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
-        var problems = result.Problems;
+        var act = () => roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearStart, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
 
         // Assert
-        problems.Should().Contain(x => x.Reason == "RoadSegmentSplitPositionTooCloseToRoadNode");
+        act.Should().Throw<RoadRegistryProblemsException>()
+            .Which.Problems.Should().Contain(x => x.Reason == "RoadSegmentSplitPositionTooCloseToRoadNode");
     }
 }

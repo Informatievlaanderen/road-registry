@@ -1,15 +1,18 @@
 namespace RoadRegistry.ScopedRoadNetwork;
 
+using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.LinearReferencing;
+using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
+using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.ScopedRoadNetwork.Events.V2;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects;
@@ -24,7 +27,7 @@ public partial class ScopedRoadNetwork
         RoadSegmentStatusV2.BuitenGebruik
     ];
 
-    public RoadSegmentSplitResult SplitRoadSegment(
+    public IReadOnlyList<RoadSegmentId> SplitRoadSegment(
         RoadSegmentId roadSegmentId,
         Point cutPosition,
         IRoadNetworkIdGenerator idGenerator,
@@ -37,7 +40,8 @@ public partial class ScopedRoadNetwork
 
         if (!_roadSegments.TryGetValue(roadSegmentId, out var segment) || segment.IsRemoved)
         {
-            return new RoadSegmentSplitResult(problems + new RoadSegmentSplitNotFound(roadSegmentId), []);
+            Problems.Single(new RoadSegmentSplitNotFound(roadSegmentId)).ThrowIfError();
+            return [];
         }
 
         // Re-validate the invariants the API also checks: they are not guaranteed here because the
@@ -54,10 +58,7 @@ public partial class ScopedRoadNetwork
         {
             problems += new RoadSegmentSplitPositionTooFarFromRoadSegment(Distances.RoadSegmentSplitMaximumDistanceToRoadSegment);
         }
-        if (problems.HasError())
-        {
-            return new RoadSegmentSplitResult(problems, []);
-        }
+        problems.ThrowIfError();
 
         var idTranslator = new IdentifierTranslator();
         var context = new ScopedRoadNetworkChangeContext(this, idTranslator, provenance, logger);
@@ -67,18 +68,18 @@ public partial class ScopedRoadNetwork
 
         // Project the cut position onto the segment geometry and snap it onto the line.
         var indexedLine = new LengthIndexedLine(lineString);
-        var cutMeasure = indexedLine.Project(cutPosition.Coordinate);
-        var snappedCoordinate = new Coordinate(indexedLine.ExtractPoint(cutMeasure).X.RoundToCm(), indexedLine.ExtractPoint(cutMeasure).Y.RoundToCm());
+        var cutMeasure = indexedLine.Project(cutPosition.Coordinate).RoundToCm();
+        var snappedCoordinate = indexedLine.ExtractPoint(cutMeasure).RoundToCm();
 
         // VAL-8: the cut position must be at least 1m (measured along the segment) from the begin and end node.
         var minimumDistance = Distances.RoadSegmentSplitMinimumDistanceToRoadNode;
         if (cutMeasure < minimumDistance)
         {
-            return new RoadSegmentSplitResult(problems + new RoadSegmentSplitPositionTooCloseToRoadNode(segment.StartNodeId ?? RoadNodeId.Zero, minimumDistance), []);
+            throw new RoadRegistryProblemsException(Problems.Single(new RoadSegmentSplitPositionTooCloseToRoadNode(segment.StartNodeId ?? RoadNodeId.Zero, minimumDistance)));
         }
         if (totalLength - cutMeasure < minimumDistance)
         {
-            return new RoadSegmentSplitResult(problems + new RoadSegmentSplitPositionTooCloseToRoadNode(segment.EndNodeId ?? RoadNodeId.Zero, minimumDistance), []);
+            throw new RoadRegistryProblemsException(Problems.Single(new RoadSegmentSplitPositionTooCloseToRoadNode(segment.EndNodeId ?? RoadNodeId.Zero, minimumDistance)));
         }
 
         // Split the geometry at the cut position, preserving the original vertices exactly and
@@ -94,15 +95,18 @@ public partial class ScopedRoadNetwork
         secondCoordinates[0] = snappedCoordinate;
         secondCoordinates[^1] = endCoordinate;
 
-        var firstLine = lineString.Factory.CreateLineString(firstCoordinates);
-        var secondLine = lineString.Factory.CreateLineString(secondCoordinates);
+        var firstGeometry = new MultiLineString([lineString.Factory.CreateLineString(firstCoordinates)])
+            .WithSrid(segment.Geometry.SRID)
+            .RoundToCm()
+            .ToRoadSegmentGeometry();
+        var secondGeometry = new MultiLineString([lineString.Factory.CreateLineString(secondCoordinates)])
+            .WithSrid(segment.Geometry.SRID)
+            .RoundToCm()
+            .ToRoadSegmentGeometry();
 
-        var firstGeometry = new MultiLineString([firstLine]).WithSrid(segment.Geometry.SRID).ToRoadSegmentGeometry();
-        var secondGeometry = new MultiLineString([secondLine]).WithSrid(segment.Geometry.SRID).ToRoadSegmentGeometry();
+        var cutPositionMeasure = new RoadSegmentPositionV2(cutMeasure);
 
-        var cutPositionMeasure = new RoadSegmentPositionV2(cutMeasure.RoundToCm());
-
-        // Capture status and attributes before the original is historized (Retire mutates them).
+        // Capture status and attributes; split the dynamic attributes into the two parts.
         var originalStatus = segment.Status;
         var attributes = segment.Attributes!;
         var accessRestriction = attributes.AccessRestriction.SplitAt(cutPositionMeasure, totalLength);
@@ -115,116 +119,146 @@ public partial class ScopedRoadNetwork
         var bikeTrafficDirection = attributes.BikeTrafficDirection.SplitAt(cutPositionMeasure, totalLength);
         var pedestrianTrafficDirection = attributes.PedestrianTrafficDirection.SplitAt(cutPositionMeasure, totalLength);
 
-        // Historize the original segment before adding the new ones so it no longer participates
-        // in the overlap verification of the newly created parts.
-        problems += segment.Retire(provenance);
-        if (problems.HasError())
-        {
-            return new RoadSegmentSplitResult(problems, []);
-        }
-        _roadSegmentsSpatialIndex.Remove(segment.Geometry.Value.EnvelopeInternal, segment);
-        context.Summary.RoadSegments.Removed.Add(segment.RoadSegmentId);
+        var firstPart = new SplitPart(firstGeometry, accessRestriction.First, category.First, morphology.First, streetNameId.First, maintenanceAuthorityId.First, surfaceType.First, carTrafficDirection.First, bikeTrafficDirection.First, pedestrianTrafficDirection.First);
+        var secondPart = new SplitPart(secondGeometry, accessRestriction.Second, category.Second, morphology.Second, streetNameId.Second, maintenanceAuthorityId.Second, surfaceType.Second, carTrafficDirection.Second, bikeTrafficDirection.Second, pedestrianTrafficDirection.Second);
+
+        var firstLength = cutMeasure;
+        var secondLength = totalLength - cutMeasure;
+        var keepIdentifier = System.Math.Max(firstLength, secondLength) / totalLength >= RoadRegistry.RoadSegment.RoadSegmentConstants.MinimumPercentageToKeepIdentifier;
+
+        // Ensure spatial indexes are built once at the start for optimal performance
+        RebuildSpatialIndexes(logger);
 
         // For a realized segment a new road node (validatieknoop) is inserted at the cut position.
-        RoadNodeId? cutNodeId = null;
         if (originalStatus == RoadSegmentStatusV2.Gerealiseerd)
         {
-            var temporaryNodeId = _roadNodes.Count > 0 ? _roadNodes.Keys.Max().Next() : new RoadNodeId(1);
             problems += AddRoadNode(new AddRoadNodeChange
             {
-                TemporaryId = temporaryNodeId,
+                TemporaryId = new RoadNodeId(1),
                 Geometry = RoadNodeGeometry.Create(lineString.Factory.CreatePoint(snappedCoordinate).WithSrid(segment.Geometry.SRID)),
                 Grensknoop = false
             }, idGenerator, context);
-            if (problems.HasError())
+            problems.ThrowIfError();
+        }
+
+        RoadSegmentId firstPartRoadSegmentId, secondPartRoadSegmentId;
+        IReadOnlyList<RoadSegmentId> resultRoadSegmentIds;
+
+        if (keepIdentifier)
+        {
+            // Situation 2: one part covers >= 70% of the original. The largest part keeps the original
+            // identifier (the original segment is modified in place); only the smallest part is added anew.
+            var firstIsLongest = firstLength >= secondLength;
+            var longestPart = firstIsLongest ? firstPart : secondPart;
+            var shortestPart = firstIsLongest ? secondPart : firstPart;
+
+            problems += AddRoadSegment(BuildAddChange(new RoadSegmentIdReference(new RoadSegmentId(1)), originalStatus, attributes, shortestPart), idGenerator, context);
+            problems.ThrowIfError();
+            var shortestRoadSegmentId = context.Summary.RoadSegments.Added.Last();
+
+            RoadNodeId? longestStartNodeId = null, longestEndNodeId = null;
+            if (originalStatus == RoadSegmentStatusV2.Gerealiseerd)
             {
-                return new RoadSegmentSplitResult(problems, []);
+                var startEndNodes = FindStartEndNodes(longestPart.Geometry);
+                problems += startEndNodes.Problems;
+                problems.ThrowIfError();
+                longestStartNodeId = startEndNodes.StartNodeId;
+                longestEndNodeId = startEndNodes.EndNodeId;
             }
-            cutNodeId = context.Summary.RoadNodes.Added.Last();
+
+            var oldEnvelope = segment.Geometry.Value.EnvelopeInternal;
+            problems += segment.Split([roadSegmentId, shortestRoadSegmentId], BuildModifications(longestPart, longestStartNodeId, longestEndNodeId), provenance);
+            problems.ThrowIfError();
+            _roadSegmentsSpatialIndex.Update(oldEnvelope, segment.Geometry.Value.EnvelopeInternal, segment);
+            context.Summary.RoadSegments.Modified.Add(roadSegmentId);
+
+            firstPartRoadSegmentId = firstIsLongest ? roadSegmentId : shortestRoadSegmentId;
+            secondPartRoadSegmentId = firstIsLongest ? shortestRoadSegmentId : roadSegmentId;
+            resultRoadSegmentIds = [roadSegmentId, shortestRoadSegmentId];
+        }
+        else
+        {
+            // Situation 1: both parts are smaller than 70% of the original. The original is historized
+            // and two new segments are added.
+            problems += segment.RetireBecauseOfSplit(provenance);
+            problems.ThrowIfError();
+            _roadSegmentsSpatialIndex.Remove(segment.Geometry.Value.EnvelopeInternal, segment);
+            context.Summary.RoadSegments.Removed.Add(roadSegmentId);
+
+            problems += AddRoadSegment(BuildAddChange(new RoadSegmentIdReference(new RoadSegmentId(1)), originalStatus, attributes, firstPart), idGenerator, context);
+            problems.ThrowIfError();
+            firstPartRoadSegmentId = context.Summary.RoadSegments.Added.Last();
+
+            problems += AddRoadSegment(BuildAddChange(new RoadSegmentIdReference(new RoadSegmentId(2)), originalStatus, attributes, secondPart), idGenerator, context);
+            problems.ThrowIfError();
+            secondPartRoadSegmentId = context.Summary.RoadSegments.Added.Last();
+
+            problems += segment.Split([firstPartRoadSegmentId, secondPartRoadSegmentId], null, provenance);
+            problems.ThrowIfError();
+
+            resultRoadSegmentIds = [firstPartRoadSegmentId, secondPartRoadSegmentId];
         }
 
-        var firstReference = idTranslator.TranslateToTemporaryId(_roadSegments.Keys.Max().Next());
-        problems += AddRoadSegment(BuildAddChange(firstReference, firstGeometry, originalStatus, attributes, accessRestriction.First, category.First, morphology.First, streetNameId.First, maintenanceAuthorityId.First, surfaceType.First, carTrafficDirection.First, bikeTrafficDirection.First, pedestrianTrafficDirection.First), idGenerator, context);
-        if (problems.HasError())
-        {
-            return new RoadSegmentSplitResult(problems, []);
-        }
-        var firstNewRoadSegmentId = context.Summary.RoadSegments.Added.Last();
+        ReassignGradeSeparatedJunctions(roadSegmentId, firstPartRoadSegmentId, secondPartRoadSegmentId, context);
 
-        var secondReference = idTranslator.TranslateToTemporaryId(_roadSegments.Keys.Max().Next());
-        problems += AddRoadSegment(BuildAddChange(secondReference, secondGeometry, originalStatus, attributes, accessRestriction.Second, category.Second, morphology.Second, streetNameId.Second, maintenanceAuthorityId.Second, surfaceType.Second, carTrafficDirection.Second, bikeTrafficDirection.Second, pedestrianTrafficDirection.Second), idGenerator, context);
-        if (problems.HasError())
-        {
-            return new RoadSegmentSplitResult(problems, []);
-        }
-        var secondNewRoadSegmentId = context.Summary.RoadSegments.Added.Last();
+        // A split performs very specific mutations; only the grade (separated) junctions need to be
+        // re-verified. The road node topology verification is intentionally not run here, so the newly
+        // inserted validatieknoop is not merged away during this operation.
+        problems += VerifyAndUpdateJunctions(idGenerator, context);
+        problems.ThrowIfError();
 
-        ReassignGradeSeparatedJunctions(roadSegmentId, firstNewRoadSegmentId, secondNewRoadSegmentId, context);
-
-        // Mark the newly inserted node at the cut position as a validatieknoop so it is preserved
-        // (and not merged away) by the topology verification.
-        if (cutNodeId is not null)
-        {
-            _roadNodes[cutNodeId.Value].MarkAsValidatieknoop(provenance);
-        }
-
-        problems += AfterChangesApplied(idGenerator, context);
-        if (problems.HasError())
-        {
-            return new RoadSegmentSplitResult(problems, []);
-        }
-
-        Apply(new RoadNetworkWasChanged
-        {
-            RoadNetworkId = RoadNetworkId,
-            ScopeGeometry = null,
-            DownloadId = null,
-            Summary = new RoadNetworkChangedSummary(context.Summary),
-            Provenance = new ProvenanceData(provenance)
-        });
-
-        return new RoadSegmentSplitResult(Problems.None.AddRange(problems.Distinct()), [firstNewRoadSegmentId, secondNewRoadSegmentId]);
+        return resultRoadSegmentIds;
     }
 
     private static AddRoadSegmentChange BuildAddChange(
         RoadSegmentIdReference reference,
-        RoadSegmentGeometry geometry,
         RoadSegmentStatusV2 status,
         RoadSegment.ValueObjects.RoadSegmentAttributes attributes,
-        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> accessRestriction,
-        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2> category,
-        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> morphology,
-        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameId,
-        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<OrganizationId> maintenanceAuthorityId,
-        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> surfaceType,
-        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> carTrafficDirection,
-        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> bikeTrafficDirection,
-        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection> pedestrianTrafficDirection)
+        SplitPart part)
     {
         return new AddRoadSegmentChange
         {
             RoadSegmentIdReference = reference,
-            Geometry = geometry,
+            Geometry = part.Geometry,
             GeometryDrawMethod = attributes.GeometryDrawMethod,
             Status = status,
-            AccessRestriction = accessRestriction,
-            Category = category,
-            Morphology = morphology,
-            StreetNameId = streetNameId,
-            MaintenanceAuthorityId = maintenanceAuthorityId,
-            SurfaceType = surfaceType,
-            CarTrafficDirection = carTrafficDirection,
-            BikeTrafficDirection = bikeTrafficDirection,
-            PedestrianTrafficDirection = pedestrianTrafficDirection,
+            AccessRestriction = part.AccessRestriction,
+            Category = part.Category,
+            Morphology = part.Morphology,
+            StreetNameId = part.StreetNameId,
+            MaintenanceAuthorityId = part.MaintenanceAuthorityId,
+            SurfaceType = part.SurfaceType,
+            CarTrafficDirection = part.CarTrafficDirection,
+            BikeTrafficDirection = part.BikeTrafficDirection,
+            PedestrianTrafficDirection = part.PedestrianTrafficDirection,
             EuropeanRoadNumbers = attributes.EuropeanRoadNumbers,
             NationalRoadNumbers = attributes.NationalRoadNumbers
         };
     }
 
+    private static RoadSegmentSplitModifications BuildModifications(SplitPart part, RoadNodeId? startNodeId, RoadNodeId? endNodeId)
+    {
+        return new RoadSegmentSplitModifications
+        {
+            Geometry = part.Geometry,
+            StartNodeId = startNodeId,
+            EndNodeId = endNodeId,
+            AccessRestriction = part.AccessRestriction,
+            Category = part.Category,
+            Morphology = part.Morphology,
+            StreetNameId = part.StreetNameId,
+            MaintenanceAuthorityId = part.MaintenanceAuthorityId,
+            SurfaceType = part.SurfaceType,
+            CarTrafficDirection = part.CarTrafficDirection,
+            BikeTrafficDirection = part.BikeTrafficDirection,
+            PedestrianTrafficDirection = part.PedestrianTrafficDirection
+        };
+    }
+
     private void ReassignGradeSeparatedJunctions(
         RoadSegmentId originalRoadSegmentId,
-        RoadSegmentId firstNewRoadSegmentId,
-        RoadSegmentId secondNewRoadSegmentId,
+        RoadSegmentId firstPartRoadSegmentId,
+        RoadSegmentId secondPartRoadSegmentId,
         ScopedRoadNetworkChangeContext context)
     {
         var connectedJunctions = _gradeSeparatedJunctions
@@ -238,15 +272,31 @@ public partial class ScopedRoadNetwork
             {
                 GradeSeparatedJunctionId = junction.GradeSeparatedJunctionId
             };
+            var changed = false;
 
             if (junction.LowerRoadSegmentId == originalRoadSegmentId)
             {
-                modify = modify with { LowerRoadSegmentId = PickIntersectingPart(junction.UpperRoadSegmentId, firstNewRoadSegmentId, secondNewRoadSegmentId) };
+                var newLower = PickIntersectingPart(junction.UpperRoadSegmentId, firstPartRoadSegmentId, secondPartRoadSegmentId);
+                if (newLower != junction.LowerRoadSegmentId)
+                {
+                    modify = modify with { LowerRoadSegmentId = newLower };
+                    changed = true;
+                }
             }
 
             if (junction.UpperRoadSegmentId == originalRoadSegmentId)
             {
-                modify = modify with { UpperRoadSegmentId = PickIntersectingPart(junction.LowerRoadSegmentId, firstNewRoadSegmentId, secondNewRoadSegmentId) };
+                var newUpper = PickIntersectingPart(junction.LowerRoadSegmentId, firstPartRoadSegmentId, secondPartRoadSegmentId);
+                if (newUpper != junction.UpperRoadSegmentId)
+                {
+                    modify = modify with { UpperRoadSegmentId = newUpper };
+                    changed = true;
+                }
+            }
+
+            if (!changed)
+            {
+                continue;
             }
 
             junction.Modify(modify, context.Provenance);
@@ -254,20 +304,30 @@ public partial class ScopedRoadNetwork
         }
     }
 
-    private RoadSegmentId PickIntersectingPart(RoadSegmentId otherRoadSegmentId, RoadSegmentId firstNewRoadSegmentId, RoadSegmentId secondNewRoadSegmentId)
+    private RoadSegmentId PickIntersectingPart(RoadSegmentId otherRoadSegmentId, RoadSegmentId firstPartRoadSegmentId, RoadSegmentId secondPartRoadSegmentId)
     {
         if (_roadSegments.TryGetValue(otherRoadSegmentId, out var otherSegment))
         {
             var otherGeometry = otherSegment.Geometry.Value;
-            if (!_roadSegments[firstNewRoadSegmentId].Geometry.Value.Intersects(otherGeometry)
-                && _roadSegments[secondNewRoadSegmentId].Geometry.Value.Intersects(otherGeometry))
+            if (!_roadSegments[firstPartRoadSegmentId].Geometry.Value.Intersects(otherGeometry)
+                && _roadSegments[secondPartRoadSegmentId].Geometry.Value.Intersects(otherGeometry))
             {
-                return secondNewRoadSegmentId;
+                return secondPartRoadSegmentId;
             }
         }
 
-        return firstNewRoadSegmentId;
+        return firstPartRoadSegmentId;
     }
-}
 
-public sealed record RoadSegmentSplitResult(Problems Problems, System.Collections.Generic.IReadOnlyList<RoadSegmentId> RoadSegmentIds);
+    private sealed record SplitPart(
+        RoadSegmentGeometry Geometry,
+        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> AccessRestriction,
+        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2> Category,
+        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> Morphology,
+        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNameId,
+        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<OrganizationId> MaintenanceAuthorityId,
+        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> SurfaceType,
+        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> CarTrafficDirection,
+        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> BikeTrafficDirection,
+        RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection> PedestrianTrafficDirection);
+}

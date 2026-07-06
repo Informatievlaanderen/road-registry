@@ -5,10 +5,10 @@ using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RoadSegmentSplitPositionTooCloseToRoadNode : Error
 {
-    public static readonly ProblemCode ProblemCode = ProblemCode.RoadSegment.Split.PositionTooCloseToRoadNode;
+    private static readonly ProblemCode ProblemCode = ProblemCode.RoadSegment.Split.PositionTooCloseToRoadNode;
 
     public RoadSegmentSplitPositionTooCloseToRoadNode(RoadNodeId roadNodeId, double minimumDistance)
-        : base(ProblemCode,
+        : base(ProblemCode.ToString(),
             new ProblemParameter("RoadNodeId", roadNodeId.ToString()),
             new ProblemParameter("MinimumDistance", minimumDistance.ToString(System.Globalization.CultureInfo.InvariantCulture)))
     {

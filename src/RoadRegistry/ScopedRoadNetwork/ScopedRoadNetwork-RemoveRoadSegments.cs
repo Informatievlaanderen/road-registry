@@ -34,10 +34,7 @@ public partial class ScopedRoadNetwork
             }
         }
 
-        if (problems.Any())
-        {
-            throw new RoadRegistryProblemsException(problems);
-        }
+        problems.ThrowIfError();
     }
 
     private Problems TryRemoveRoadSegment(

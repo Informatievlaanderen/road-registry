@@ -5,10 +5,10 @@ using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RoadSegmentSplitNotCompletedInwinning : Error
 {
-    public static readonly ProblemCode ProblemCode = ProblemCode.RoadSegment.Split.NotCompletedInwinning;
+    private static readonly ProblemCode ProblemCode = ProblemCode.RoadSegment.Split.NotCompletedInwinning;
 
     public RoadSegmentSplitNotCompletedInwinning(RoadSegmentId identifier)
-        : base(ProblemCode,
+        : base(ProblemCode.ToString(),
             new ProblemParameter("WegsegmentId", identifier.ToInt32().ToString()))
     {
     }

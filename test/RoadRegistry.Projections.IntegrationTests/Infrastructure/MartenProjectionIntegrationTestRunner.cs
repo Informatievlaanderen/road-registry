@@ -147,7 +147,7 @@ public class MartenProjectionIntegrationTestRunner
                 session.Events.AppendOrStartStream(@event.StreamKey, @event.Event);
             }
 
-            session.Events.Append(roadNetworkStreamKey, new RoadNetworkWasChanged
+            session.Events.Append(roadNetworkStreamKey, new RoadNetworkWasChangedBecauseOfExtract
             {
                 RoadNetworkId = roadNetworkId,
                 Summary = new RoadNetworkChangedSummary(new RoadNetworkChangesSummary()),

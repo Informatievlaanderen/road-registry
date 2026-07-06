@@ -48,9 +48,7 @@ public partial class RoadNode
         }
         else if (segments.Count == 2)
         {
-            // A grensknoop or a node that was deliberately created as a validatieknoop (e.g. when
-            // splitting a road segment) must be preserved and never merged away.
-            if (Grensknoop || Type == RoadNodeTypeV2.Validatieknoop)
+            if (Grensknoop)
             {
                 ChangeTypeTo(RoadNodeTypeV2.Validatieknoop, context.Provenance);
             }
@@ -116,11 +114,6 @@ public partial class RoadNode
         }
 
         return false;
-    }
-
-    public void MarkAsValidatieknoop(Provenance provenance)
-    {
-        ChangeTypeTo(RoadNodeTypeV2.Validatieknoop, provenance);
     }
 
     private void ChangeTypeTo(RoadNodeTypeV2 type, Provenance provenance)
