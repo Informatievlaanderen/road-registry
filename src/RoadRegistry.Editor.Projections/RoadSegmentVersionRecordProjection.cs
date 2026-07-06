@@ -40,14 +40,14 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
         {
-            var flattedMessages = envelope.Message.Changes.Flatten().ToArray();
-            var roadSegmentIdsConvertedFromOutlined = flattedMessages
+            var flattenedMessages = envelope.Message.Changes.Flatten().ToArray();
+            var roadSegmentIdsConvertedFromOutlined = flattenedMessages
                 .OfType<RoadSegmentModified>()
                 .Where(x => x.ConvertedFromOutlined)
                 .Select(x => x.Id)
                 .ToHashSet();
 
-            foreach (var message in flattedMessages)
+            foreach (var message in flattenedMessages)
                 switch (message)
                 {
                     case RoadSegmentAdded roadSegmentAdded:
