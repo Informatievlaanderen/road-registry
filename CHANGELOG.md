@@ -1,3 +1,10 @@
+## [4.62.7](https://github.com/informatievlaanderen/road-registry/compare/v4.62.6...v4.62.7) (2026-07-06)
+
+
+### Bug Fixes
+
+* RoadSegmentVersionRecordProjection when converting from outlined and number attributes are removed/added ([798f7cc](https://github.com/informatievlaanderen/road-registry/commit/798f7cc7244a8cefe6a68b6ed542a5bbca684004))
+
 ## [4.62.6](https://github.com/informatievlaanderen/road-registry/compare/v4.62.5...v4.62.6) (2026-06-23)
 
 
