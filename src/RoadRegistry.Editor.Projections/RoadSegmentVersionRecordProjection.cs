@@ -40,7 +40,14 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
         {
-            foreach (var message in envelope.Message.Changes.Flatten())
+            var flattedMessages = envelope.Message.Changes.Flatten().ToArray();
+            var roadSegmentIdsConvertedFromOutlined = flattedMessages
+                .OfType<RoadSegmentModified>()
+                .Where(x => x.ConvertedFromOutlined)
+                .Select(x => x.Id)
+                .ToHashSet();
+
+            foreach (var message in flattedMessages)
                 switch (message)
                 {
                     case RoadSegmentAdded roadSegmentAdded:
@@ -52,24 +59,42 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
                         break;
 
                     case RoadSegmentAddedToEuropeanRoad change:
-                        await AddRoadSegmentToEuropeanRoad(context, change, envelope, token);
+                        if (!roadSegmentIdsConvertedFromOutlined.Contains(change.SegmentId))
+                        {
+                            await AddRoadSegmentToEuropeanRoad(context, change, envelope, token);
+                        }
                         break;
                     case RoadSegmentRemovedFromEuropeanRoad change:
-                        await RemoveRoadSegmentFromEuropeanRoad(context, change, envelope, token);
+                        if (!roadSegmentIdsConvertedFromOutlined.Contains(change.SegmentId))
+                        {
+                            await RemoveRoadSegmentFromEuropeanRoad(context, change, envelope, token);
+                        }
                         break;
 
                     case RoadSegmentAddedToNationalRoad change:
-                        await AddRoadSegmentToNationalRoad(context, change, envelope, token);
+                        if (!roadSegmentIdsConvertedFromOutlined.Contains(change.SegmentId))
+                        {
+                            await AddRoadSegmentToNationalRoad(context, change, envelope, token);
+                        }
                         break;
                     case RoadSegmentRemovedFromNationalRoad change:
-                        await RemoveRoadSegmentFromNationalRoad(context, change, envelope, token);
+                        if (!roadSegmentIdsConvertedFromOutlined.Contains(change.SegmentId))
+                        {
+                            await RemoveRoadSegmentFromNationalRoad(context, change, envelope, token);
+                        }
                         break;
 
                     case RoadSegmentAddedToNumberedRoad change:
-                        await AddRoadSegmentToNumberedRoad(context, change, envelope, token);
+                        if (!roadSegmentIdsConvertedFromOutlined.Contains(change.SegmentId))
+                        {
+                            await AddRoadSegmentToNumberedRoad(context, change, envelope, token);
+                        }
                         break;
                     case RoadSegmentRemovedFromNumberedRoad change:
-                        await RemoveRoadSegmentFromNumberedRoad(context, change, envelope, token);
+                        if (!roadSegmentIdsConvertedFromOutlined.Contains(change.SegmentId))
+                        {
+                            await RemoveRoadSegmentFromNumberedRoad(context, change, envelope, token);
+                        }
                         break;
 
                     case RoadSegmentAttributesModified roadSegmentAttributesModified:
