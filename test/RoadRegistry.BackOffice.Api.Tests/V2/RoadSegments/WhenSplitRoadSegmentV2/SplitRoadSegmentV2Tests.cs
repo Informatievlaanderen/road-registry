@@ -25,6 +25,8 @@ public class SplitRoadSegmentV2Tests : V2ReadEndpointTestBase
     private const string ValidCutPositionLambert08 = @"<gml:Point srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:pos>50 50</gml:pos></gml:Point>";
     private const string CutPositionLambert72 = @"<gml:Point srsName=""https://www.opengis.net/def/crs/EPSG/0/31370"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:pos>50 50</gml:pos></gml:Point>";
     private const string CutPositionTooFar = @"<gml:Point srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:pos>50 60</gml:pos></gml:Point>";
+    // On the seeded segment (line y = x), but with sub-centimeter precision (more than 2 decimals)
+    private const string CutPositionSubCmPrecision = @"<gml:Point srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:pos>50.123456789 50.123456789</gml:pos></gml:Point>";
 
     private readonly Mock<IMediator> _mediator = new();
     private readonly RoadSegmentsController _controller;
@@ -63,6 +65,17 @@ public class SplitRoadSegmentV2Tests : V2ReadEndpointTestBase
         var id = SeedRealizedRoadSegment();
 
         var result = await Act(id, ValidCutPositionLambert08);
+
+        result.Should().BeOfType<AcceptedResult>();
+        _mediator.Verify(x => x.Send(It.IsAny<SplitRoadSegmentV2SqsRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GivenKnippositieWithSubCentimeterPrecision_ThenAccepted()
+    {
+        var id = SeedRealizedRoadSegment();
+
+        var result = await Act(id, CutPositionSubCmPrecision);
 
         result.Should().BeOfType<AcceptedResult>();
         _mediator.Verify(x => x.Send(It.IsAny<SplitRoadSegmentV2SqsRequest>(), It.IsAny<CancellationToken>()), Times.Once);
