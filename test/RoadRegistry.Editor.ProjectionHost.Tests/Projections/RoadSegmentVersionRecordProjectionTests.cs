@@ -391,6 +391,42 @@ public class RoadSegmentVersionRecordProjectionTests : IClassFixture<ProjectionT
     }
 
     [Fact]
+    public Task When_adding_to_national_road_before_a_converted_from_outlined_modification_in_the_same_batch_it_does_not_throw()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var addedToNationalRoad = _fixture.Create<RoadSegmentAddedToNationalRoad>();
+        // Ensure the national road change would otherwise update (and thus require) the segment version record.
+        addedToNationalRoad.SegmentVersion = 7;
+
+        var modified = _fixture.Create<RoadSegmentModified>();
+        modified.ConvertedFromOutlined = true;
+
+        // The national road change is applied BEFORE the conversion in the same batch. Without the
+        // fix the projection would throw because the version record does not exist yet.
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(addedToNationalRoad, modified);
+
+        var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(modified.GeometryDrawMethod).Translation;
+
+        var expectedRecord = new RoadSegmentVersionRecord
+        {
+            StreamId = "roadnetwork",
+            Id = modified.Id,
+            Method = geometryDrawMethodTranslation.Identifier,
+            Version = modified.Version,
+            GeometryVersion = modified.GeometryVersion,
+            RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(message.When)
+        };
+
+        return BuildProjection()
+            .Scenario()
+            .Given(message)
+            .Expect(expectedRecord);
+    }
+
+    [Fact]
     public Task When_removing_road_segments()
     {
         _fixture.Freeze<RoadSegmentId>();
