@@ -1,3 +1,15 @@
+# [4.68.0](https://github.com/informatievlaanderen/road-registry/compare/v4.67.0...v4.68.0) (2026-07-06)
+
+
+### Bug Fixes
+
+* RoadSegmentVersionRecordProjection when converting from outlined and number attributes are removed/added ([953ef77](https://github.com/informatievlaanderen/road-registry/commit/953ef77df454a16b4be1c86e0a4cbfc89524b677))
+
+
+### Features
+
+* **2.0:** split road segment + split RoadNetworkWasChanged into RoadNetworkWasChangedBecauseOfExtract and MunicipalityWasMigrated ([f4f4e37](https://github.com/informatievlaanderen/road-registry/commit/f4f4e371eb657bfb8b543e72549212d694bce480))
+
 # [4.67.0](https://github.com/informatievlaanderen/road-registry/compare/v4.66.2...v4.67.0) (2026-07-03)
 
 
