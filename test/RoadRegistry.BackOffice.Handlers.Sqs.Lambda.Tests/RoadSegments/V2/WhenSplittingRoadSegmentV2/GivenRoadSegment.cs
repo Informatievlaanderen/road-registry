@@ -90,14 +90,69 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         VerifyThatTicketHasError("KnippositieTeDichtBijWegknoop", null);
     }
 
+    [Fact]
+    public async Task WhenCutPositionTooFarFromRoadSegment_ThenTicketError()
+    {
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = new FakeRoadNetworkRepository(store,
+            new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [new RoadSegmentId(1)], [], []),
+            BuildSeedNetwork);
+
+        await HandleRequest(CreateSqsRequest(CutPosition(50, 60)), store, roadNetworkRepository);
+
+        VerifyThatTicketHasError("KnippositieTeVerVanWegsegment", null);
+    }
+
+    [Fact]
+    public async Task WhenRoadSegmentIsNotV2_ThenTicketError()
+    {
+        var notMigratedSegment = RoadSegment.CreateForMigration(
+            new RoadSegmentId(1),
+            _testData.Segment1Added.Geometry,
+            RoadSegmentStatusV2.Gerealiseerd,
+            new RoadNodeId(1),
+            new RoadNodeId(2));
+
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = new FakeRoadNetworkRepository(store,
+            new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [new RoadSegmentId(1)], [], []),
+            id => BuildNetworkWithSegment(id, notMigratedSegment));
+
+        await HandleRequest(CreateSqsRequest(CutPosition(50, 50)), store, roadNetworkRepository);
+
+        VerifyThatTicketHasError("WegsegmentInwinningsstatusNietCompleet", null);
+    }
+
+    [Fact]
+    public async Task WhenRoadSegmentHasInvalidStatus_ThenTicketError()
+    {
+        var invalidStatusSegment = RoadSegment
+            .Create(_testData.Segment1Added with { Status = RoadSegmentStatusV2.NietGerealiseerd })
+            .WithoutChanges();
+
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = new FakeRoadNetworkRepository(store,
+            new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [new RoadSegmentId(1)], [], []),
+            id => BuildNetworkWithSegment(id, invalidStatusSegment));
+
+        await HandleRequest(CreateSqsRequest(CutPosition(50, 50)), store, roadNetworkRepository);
+
+        VerifyThatTicketHasError("WegsegmentKnippenStatusNietCorrect", null);
+    }
+
     private ScopedRoadNetwork BuildSeedNetwork(ScopedRoadNetworkId id)
+    {
+        return BuildNetworkWithSegment(id, RoadSegment.Create(_testData.Segment1Added).WithoutChanges());
+    }
+
+    private ScopedRoadNetwork BuildNetworkWithSegment(ScopedRoadNetworkId id, RoadSegment segment)
     {
         return new ScopedRoadNetwork(id,
             [
                 RoadNode.Create(_testData.Segment1StartNodeAdded).WithoutChanges(),
                 RoadNode.Create(_testData.Segment1EndNodeAdded).WithoutChanges()
             ],
-            [RoadSegment.Create(_testData.Segment1Added).WithoutChanges()],
+            [segment],
             [],
             []);
     }
@@ -175,6 +230,9 @@ public class GivenRoadSegment : BackOfficeLambdaTest
             _loadFactory = loadFactory;
         }
 
+        public Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry? geometry = null, RoadNetworkIds? ids = null)
+            => Task.FromResult(_ids);
+
         public Task<RoadNetworkIds> GetUnderlyingIdsWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds)
             => Task.FromResult(_ids);
 
@@ -183,9 +241,6 @@ public class GivenRoadSegment : BackOfficeLambdaTest
 
         public void Save(IDocumentSession session, ScopedRoadNetwork roadNetwork, string commandName)
             => _real.Save(session, roadNetwork, commandName);
-
-        public Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry? geometry = null, RoadNetworkIds? ids = null)
-            => throw new NotImplementedException();
 
         public Task<RoadNetworkIds> GetUnderlyingIdsForExtract(IDocumentSession session, Geometry geometry)
             => throw new NotImplementedException();

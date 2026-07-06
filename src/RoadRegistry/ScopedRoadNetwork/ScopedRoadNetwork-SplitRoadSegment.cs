@@ -17,6 +17,13 @@ using RoadRegistry.ValueObjects.Problems;
 
 public partial class ScopedRoadNetwork
 {
+    private static readonly RoadSegmentStatusV2[] SplitAllowedStatuses =
+    [
+        RoadSegmentStatusV2.Gepland,
+        RoadSegmentStatusV2.Gerealiseerd,
+        RoadSegmentStatusV2.BuitenGebruik
+    ];
+
     public RoadSegmentSplitResult SplitRoadSegment(
         RoadSegmentId roadSegmentId,
         Point cutPosition,
@@ -33,7 +40,24 @@ public partial class ScopedRoadNetwork
             return new RoadSegmentSplitResult(problems + new RoadSegmentSplitNotFound(roadSegmentId), []);
         }
 
-        RebuildSpatialIndexes(logger);
+        // Re-validate the invariants the API also checks: they are not guaranteed here because the
+        // domain can be invoked directly and the API request may have become stale in the meantime.
+        if (!segment.HasMigrated())
+        {
+            problems += new RoadSegmentSplitNotCompletedInwinning(roadSegmentId);
+        }
+        if (!SplitAllowedStatuses.Contains(segment.Status))
+        {
+            problems += new RoadSegmentSplitStatusNotValid(roadSegmentId);
+        }
+        if (segment.Geometry.Value.Distance(cutPosition) > Distances.RoadSegmentSplitMaximumDistanceToRoadSegment)
+        {
+            problems += new RoadSegmentSplitPositionTooFarFromRoadSegment(Distances.RoadSegmentSplitMaximumDistanceToRoadSegment);
+        }
+        if (problems.HasError())
+        {
+            return new RoadSegmentSplitResult(problems, []);
+        }
 
         var idTranslator = new IdentifierTranslator();
         var context = new ScopedRoadNetworkChangeContext(this, idTranslator, provenance, logger);
