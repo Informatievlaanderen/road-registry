@@ -13,7 +13,6 @@ using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
-using RoadRegistry.ScopedRoadNetwork.Events.V2;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
