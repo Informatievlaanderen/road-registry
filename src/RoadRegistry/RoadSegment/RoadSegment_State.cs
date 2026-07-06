@@ -2,10 +2,10 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Events.V2;
 using Newtonsoft.Json;
 using RoadRegistry.Extensions;
-using ValueObjects;
+using RoadRegistry.RoadSegment.Events.V2;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 {
@@ -43,7 +43,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     )
         : this(new RoadSegmentId(roadSegmentId))
     {
-        Geometry = geometry.EnsureLambert08().RoundToCm();
+        Geometry = geometry.EnsureLambert08();
         Status = RoadSegmentStatusV2.Parse(status);
         StartNodeId = RoadNodeId.FromValue(startNodeId);
         EndNodeId = RoadNodeId.FromValue(endNodeId);
@@ -86,7 +86,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry.RoundToCm();
+        Geometry = @event.Geometry;
         Status = @event.Status;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
@@ -118,7 +118,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry.RoundToCm();
+        Geometry = @event.Geometry;
         Status = @event.Status;
         StartNodeId = null;
         EndNodeId = null;
@@ -144,7 +144,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry.RoundToCm();
+        Geometry = @event.Geometry;
         Status = @event.Status;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
@@ -170,7 +170,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = false;
-        Geometry = @event.Geometry.RoundToCm();
+        Geometry = @event.Geometry;
         Status = @event.Status;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
@@ -195,7 +195,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     {
         UncommittedEvents.Add(@event);
 
-        Geometry = @event.Geometry?.RoundToCm() ?? Geometry;
+        Geometry = @event.Geometry ?? Geometry;
         Status = @event.Status ?? Status;
         StartNodeId = @event.StartNodeId ?? StartNodeId;
         EndNodeId = @event.EndNodeId ?? EndNodeId;
@@ -218,7 +218,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     {
         UncommittedEvents.Add(@event);
 
-        Geometry = @event.Geometry.RoundToCm();
+        Geometry = @event.Geometry;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
     }
@@ -274,10 +274,9 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     {
         UncommittedEvents.Add(@event);
 
-        //TODO-pr move .RoundToCm() to when event is being created, do the same for the v2 roadnode events
         if (@event.Modifications is not null)
         {
-            Geometry = @event.Modifications.Geometry.RoundToCm();
+            Geometry = @event.Modifications.Geometry;
             StartNodeId = @event.Modifications.StartNodeId;
             EndNodeId = @event.Modifications.EndNodeId;
             Attributes = Attributes! with
