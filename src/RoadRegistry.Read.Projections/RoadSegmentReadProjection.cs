@@ -602,6 +602,11 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         (RoadNodeId? Start, RoadNodeId? End) updatedStartEndNodeIds,
         CancellationToken ct)
     {
+        if (originalStartEndNodeIds == updatedStartEndNodeIds)
+        {
+            return;
+        }
+
         var nodeIds = new[]
             {
                 originalStartEndNodeIds.Start,
@@ -654,6 +659,11 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         HashSet<StreetNameLocalId> updatedStreetNameIds,
         CancellationToken ct)
     {
+        if (originalStreetNameIds.SetEquals(updatedStreetNameIds))
+        {
+            return;
+        }
+
         var removeStreetNameIds = originalStreetNameIds.Except(updatedStreetNameIds).ToArray();
         var addStreetNameIds = updatedStreetNameIds.Except(originalStreetNameIds).ToArray();
 
@@ -695,6 +705,11 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         HashSet<OrganizationId> updatedOrganizationIds,
         CancellationToken ct)
     {
+        if (originalOrganizationIds.SetEquals(updatedOrganizationIds))
+        {
+            return;
+        }
+
         var removeOrganizationIds = originalOrganizationIds.Except(updatedOrganizationIds).ToArray();
         var addOrganizationIds = updatedOrganizationIds.Except(originalOrganizationIds).ToArray();
 
