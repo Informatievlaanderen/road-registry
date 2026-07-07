@@ -1,3 +1,11 @@
+## [4.68.1](https://github.com/informatievlaanderen/road-registry/compare/v4.68.0...v4.68.1) (2026-07-07)
+
+
+### Bug Fixes
+
+* **2.0:** idempotency for split roadsegment lambda handler ([f3c8368](https://github.com/informatievlaanderen/road-registry/commit/f3c83682858bf3822ebdec919fed20fe17ddf08d))
+* **2.0:** read projection dealing with same object being loaded multiple times ([0f392b6](https://github.com/informatievlaanderen/road-registry/commit/0f392b66d7df2c44a619048c2d4d855e7ed1dee4))
+
 # [4.68.0](https://github.com/informatievlaanderen/road-registry/compare/v4.67.0...v4.68.0) (2026-07-06)
 
 
