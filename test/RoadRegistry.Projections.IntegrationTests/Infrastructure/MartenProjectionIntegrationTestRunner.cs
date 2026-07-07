@@ -142,9 +142,19 @@ public class MartenProjectionIntegrationTestRunner
             session.CausationId = "given";
             session.CorrelationId = roadNetworkStreamKey; // Ensure events are grouped by correlation id
 
+            // Start each stream once; append any further events (including a second "created" event for the same
+            // stream, which lets a test replay an "add" for an id that already exists in the same batch).
+            var startedStreams = new HashSet<string>();
             foreach (var @event in events)
             {
-                session.Events.AppendOrStartStream(@event.StreamKey, @event.Event);
+                if (@event.Event is ICreatedEvent && startedStreams.Add(@event.StreamKey))
+                {
+                    session.Events.StartStream(@event.StreamKey, @event.Event);
+                }
+                else
+                {
+                    session.Events.Append(@event.StreamKey, @event.Event);
+                }
             }
 
             session.Events.Append(roadNetworkStreamKey, new RoadNetworkWasChangedBecauseOfExtract

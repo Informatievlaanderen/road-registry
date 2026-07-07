@@ -79,8 +79,8 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 SurfaceType = new ReadRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .OrderBy(x => x.FromPosition)
                     .Select((x, i) => (
-                        new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        UseGeometryLengthIfPositionIsLast(Convert.ToDouble(x.ToPosition), geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
+                        new RoadSegmentPositionV2(x.FromPosition),
+                        UseGeometryLengthIfPositionIsLast(x.ToPosition, geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
                         RoadSegmentAttributeSide.Both,
                         (string?)x.Type))
                 ),
@@ -97,11 +97,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = false
             };
-            session.Store(roadSegment);
-
-            await UpdateRoadNodeRoadSegmentIds(session, roadSegment.RoadSegmentId, (null, null), (roadSegment.StartNodeId, roadSegment.EndNodeId), ct);
-            await SyncStreetNameLinks(session, roadSegment.RoadSegmentId, [], roadSegment.GetStreetNameHashSet(), ct);
-            await SyncOrganizationLinks(session, roadSegment.RoadSegmentId, [], roadSegment.GetMaintenanceAuthorityHashSet(), ct);
+            await AddOrUpdateRoadSegment(session, roadSegment, ct);
         });
         When<IEvent<RoadSegmentAdded>>(async (session, e, ct) =>
         {
@@ -132,8 +128,8 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 SurfaceType = new ReadRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .OrderBy(x => x.FromPosition)
                     .Select((x, i) => (
-                        new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        UseGeometryLengthIfPositionIsLast(Convert.ToDouble(x.ToPosition), geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
+                        new RoadSegmentPositionV2(x.FromPosition),
+                        UseGeometryLengthIfPositionIsLast(x.ToPosition, geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
                         RoadSegmentAttributeSide.Both,
                         (string?)x.Type))
                 ),
@@ -146,11 +142,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = false
             };
-            session.Store(roadSegment);
-
-            await UpdateRoadNodeRoadSegmentIds(session, roadSegment.RoadSegmentId, (null, null), (roadSegment.StartNodeId, roadSegment.EndNodeId), ct);
-            await SyncStreetNameLinks(session, roadSegment.RoadSegmentId, [], roadSegment.GetStreetNameHashSet(), ct);
-            await SyncOrganizationLinks(session, roadSegment.RoadSegmentId, [], roadSegment.GetMaintenanceAuthorityHashSet(), ct);
+            await AddOrUpdateRoadSegment(session, roadSegment, ct);
         });
         When<IEvent<RoadSegmentModified>>((session, e, ct) =>
         {
@@ -176,8 +168,8 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 segment.SurfaceType = new ReadRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .OrderBy(x => x.FromPosition)
                     .Select((x, i) => (
-                        new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        UseGeometryLengthIfPositionIsLast(Convert.ToDouble(x.ToPosition), segment.Geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
+                        new RoadSegmentPositionV2(x.FromPosition),
+                        UseGeometryLengthIfPositionIsLast(x.ToPosition, segment.Geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
                         RoadSegmentAttributeSide.Both,
                         (string?)x.Type))
                 );
@@ -246,8 +238,8 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                     segment.SurfaceType = new ReadRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                         .OrderBy(x => x.FromPosition)
                         .Select((x, i) => (
-                            new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                            UseGeometryLengthIfPositionIsLast(Convert.ToDouble(x.ToPosition), segment.Geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
+                            new RoadSegmentPositionV2(x.FromPosition),
+                            UseGeometryLengthIfPositionIsLast(x.ToPosition, segment.Geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
                             RoadSegmentAttributeSide.Both,
                             (string?)x.Type))
                     );
@@ -262,8 +254,8 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 segment.SurfaceType = new ReadRoadSegmentDynamicAttribute<string>(e.Data.Surfaces
                     .OrderBy(x => x.FromPosition)
                     .Select((x, i) => (
-                        new RoadSegmentPositionV2(Convert.ToDouble(x.FromPosition).RoundToCm()),
-                        UseGeometryLengthIfPositionIsLast(Convert.ToDouble(x.ToPosition), segment.Geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
+                        new RoadSegmentPositionV2(x.FromPosition),
+                        UseGeometryLengthIfPositionIsLast(x.ToPosition, segment.Geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
                         RoadSegmentAttributeSide.Both,
                         (string?)x.Type))
                 );
@@ -319,11 +311,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = true
             };
-            session.Store(roadSegment);
-
-            await UpdateRoadNodeRoadSegmentIds(session, roadSegmentId, (null, null), (roadSegment.StartNodeId, roadSegment.EndNodeId), ct);
-            await SyncStreetNameLinks(session, roadSegment.RoadSegmentId, [], roadSegment.GetStreetNameHashSet(), ct);
-            await SyncOrganizationLinks(session, roadSegment.RoadSegmentId, [], roadSegment.GetMaintenanceAuthorityHashSet(), ct);
+            await AddOrUpdateRoadSegment(session, roadSegment, ct);
         });
         When<IEvent<OutlinedRoadSegmentWasAdded>>(async (session, e, ct) =>
         {
@@ -355,11 +343,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = true
             };
-            session.Store(roadSegment);
-
-            await UpdateRoadNodeRoadSegmentIds(session, roadSegmentId, (null, null), (roadSegment.StartNodeId, roadSegment.EndNodeId), ct);
-            await SyncStreetNameLinks(session, roadSegment.RoadSegmentId, [], roadSegment.GetStreetNameHashSet(), ct);
-            await SyncOrganizationLinks(session, roadSegment.RoadSegmentId, [], roadSegment.GetMaintenanceAuthorityHashSet(), ct);
+            await AddOrUpdateRoadSegment(session, roadSegment, ct);
         });
         When<IEvent<RoadSegmentWasMerged>>((session, e, ct) =>
         {
@@ -618,6 +602,11 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         (RoadNodeId? Start, RoadNodeId? End) updatedStartEndNodeIds,
         CancellationToken ct)
     {
+        if (originalStartEndNodeIds == updatedStartEndNodeIds)
+        {
+            return;
+        }
+
         var nodeIds = new[]
             {
                 originalStartEndNodeIds.Start,
@@ -670,6 +659,11 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         HashSet<StreetNameLocalId> updatedStreetNameIds,
         CancellationToken ct)
     {
+        if (originalStreetNameIds.SetEquals(updatedStreetNameIds))
+        {
+            return;
+        }
+
         var removeStreetNameIds = originalStreetNameIds.Except(updatedStreetNameIds).ToArray();
         var addStreetNameIds = updatedStreetNameIds.Except(originalStreetNameIds).ToArray();
 
@@ -711,6 +705,11 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         HashSet<OrganizationId> updatedOrganizationIds,
         CancellationToken ct)
     {
+        if (originalOrganizationIds.SetEquals(updatedOrganizationIds))
+        {
+            return;
+        }
+
         var removeOrganizationIds = originalOrganizationIds.Except(updatedOrganizationIds).ToArray();
         var addOrganizationIds = updatedOrganizationIds.Except(originalOrganizationIds).ToArray();
 
@@ -808,6 +807,43 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         };
     }
 
+    private async Task AddOrUpdateRoadSegment(IDocumentOperations session, RoadSegmentReadItem roadSegment, CancellationToken ct)
+    {
+        var roadSegmentId = roadSegment.RoadSegmentId;
+
+        // Apply idempotently. If the segment already exists - because the add event is reprocessed, or another
+        // projection already loaded it into this shared session during the batch - mutate the existing tracked
+        // instance instead of Storing a new one. Storing a different instance for an already-tracked id makes Marten
+        // throw "Document ... with same Id already added to the session", and it would also drop the
+        // GradeJunctionIds / GradeSeparatedJunctionIds owned by the grade (separated) junction projections.
+        var existing = await session.LoadAsync<RoadSegmentReadItem>(roadSegmentId, ct);
+
+        (RoadNodeId? Start, RoadNodeId? End) originalStartEndNodeIds = (null, null);
+        var originalStreetNameIds = new HashSet<StreetNameLocalId>();
+        var originalOrganizationIds = new HashSet<OrganizationId>();
+
+        RoadSegmentReadItem target;
+        if (existing is not null)
+        {
+            originalStartEndNodeIds = (existing.StartNodeId, existing.EndNodeId);
+            originalStreetNameIds = existing.GetStreetNameHashSet();
+            originalOrganizationIds = existing.GetMaintenanceAuthorityHashSet();
+
+            existing.CopyDataFrom(roadSegment);
+            target = existing;
+        }
+        else
+        {
+            target = roadSegment;
+        }
+
+        session.Store(target);
+
+        await UpdateRoadNodeRoadSegmentIds(session, roadSegmentId, originalStartEndNodeIds, (target.StartNodeId, target.EndNodeId), ct);
+        await SyncStreetNameLinks(session, roadSegmentId, originalStreetNameIds, target.GetStreetNameHashSet(), ct);
+        await SyncOrganizationLinks(session, roadSegmentId, originalOrganizationIds, target.GetMaintenanceAuthorityHashSet(), ct);
+    }
+
     private async Task ModifyRoadSegment<TEvent>(IDocumentOperations operations, RoadSegmentId roadSegmentId, Func<RoadSegmentReadItem, Task> modify, TEvent evt, CancellationToken ct)
         where TEvent : IMartenEvent
     {
@@ -887,22 +923,22 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         }
 
         return new ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue>([
-            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Left, await ToStreetNameAttributeValue(session, leftSideStreetNameId, ct)),
-            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Right, await ToStreetNameAttributeValue(session, rightSideStreetNameId, ct))
+            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length), RoadSegmentAttributeSide.Left, await ToStreetNameAttributeValue(session, leftSideStreetNameId, ct)),
+            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length), RoadSegmentAttributeSide.Right, await ToStreetNameAttributeValue(session, rightSideStreetNameId, ct))
         ]);
     }
 
     private static ReadRoadSegmentDynamicAttribute<T> ForEntireGeometry<T>(T value, RoadSegmentGeometry geometry)
         where T : notnull
     {
-        return new ReadRoadSegmentDynamicAttribute<T>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Both, value)]);
+        return new ReadRoadSegmentDynamicAttribute<T>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length), RoadSegmentAttributeSide.Both, value)]);
     }
 
     private static RoadSegmentPositionV2 UseGeometryLengthIfPositionIsLast(double position, RoadSegmentGeometry geometry, bool isLast)
     {
         return isLast
-            ? new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm())
-            : new RoadSegmentPositionV2(position.RoundToCm());
+            ? new RoadSegmentPositionV2(geometry.Value.Length)
+            : new RoadSegmentPositionV2(position);
     }
 
     private static StreetNameLocalId GetValue(ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue> attributes, RoadSegmentAttributeSide side)
@@ -1014,6 +1050,33 @@ public sealed class RoadSegmentReadItem
             .Where(x => x.Value is not null)
             .Select(x => x.Value!.OrganizationId)
             .ToHashSet();
+    }
+
+    // Overwrites the event-owned fields from another read item, deliberately leaving the identity (Id) and the
+    // fields owned by other projections (GradeJunctionIds / GradeSeparatedJunctionIds) untouched. Used to apply an
+    // "add" event idempotently onto an already-existing document without losing those cross-projection fields.
+    public void CopyDataFrom(RoadSegmentReadItem source)
+    {
+        Geometry = source.Geometry;
+        StartNodeId = source.StartNodeId;
+        EndNodeId = source.EndNodeId;
+        Status = source.Status;
+        GeometryDrawMethod = source.GeometryDrawMethod;
+        AccessRestriction = source.AccessRestriction;
+        Category = source.Category;
+        Morphology = source.Morphology;
+        StreetNameId = source.StreetNameId;
+        MaintenanceAuthorityId = source.MaintenanceAuthorityId;
+        SurfaceType = source.SurfaceType;
+        CarTrafficDirection = source.CarTrafficDirection;
+        BikeTrafficDirection = source.BikeTrafficDirection;
+        PedestrianTrafficDirection = source.PedestrianTrafficDirection;
+        EuropeanRoadNumbers = source.EuropeanRoadNumbers;
+        NationalRoadNumbers = source.NationalRoadNumbers;
+        Origin = source.Origin;
+        LastModified = source.LastModified;
+        IsV2 = source.IsV2;
+        IsRemoved = source.IsRemoved;
     }
 }
 

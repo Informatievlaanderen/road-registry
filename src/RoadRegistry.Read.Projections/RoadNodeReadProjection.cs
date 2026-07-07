@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
 using JasperFx.Events;
@@ -24,9 +25,8 @@ public class RoadNodeReadProjection : RoadNetworkChangesConnectedProjection
     public RoadNodeReadProjection()
     {
         // V1
-        When<IEvent<ImportedRoadNode>>((session, e, _) =>
-        {
-            session.Store(new RoadNodeReadItem
+        When<IEvent<ImportedRoadNode>>((session, e, ct) =>
+            AddOrUpdateRoadNode(session, new RoadNodeReadItem
             {
                 RoadNodeId = new RoadNodeId(e.Data.RoadNodeId),
                 Geometry = ProjectGeometry(e.Data.Geometry, isV2: false),
@@ -36,12 +36,9 @@ public class RoadNodeReadProjection : RoadNetworkChangesConnectedProjection
                 Origin = e.Data.Provenance.ToEventTimestamp(),
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = false
-            });
-            return Task.CompletedTask;
-        });
-        When<IEvent<RoadNodeAdded>>((session, e, _) =>
-        {
-            session.Store(new RoadNodeReadItem
+            }, ct));
+        When<IEvent<RoadNodeAdded>>((session, e, ct) =>
+            AddOrUpdateRoadNode(session, new RoadNodeReadItem
             {
                 RoadNodeId = new RoadNodeId(e.Data.RoadNodeId),
                 Geometry = ProjectGeometry(e.Data.Geometry, isV2: false),
@@ -51,9 +48,7 @@ public class RoadNodeReadProjection : RoadNetworkChangesConnectedProjection
                 Origin = e.Data.Provenance.ToEventTimestamp(),
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = false
-            });
-            return Task.CompletedTask;
-        });
+            }, ct));
         When<IEvent<RoadNodeModified>>(async (session, e, _) =>
         {
             var node = await session.LoadAsync<RoadNodeReadItem>(e.Data.RoadNodeId);
@@ -81,9 +76,8 @@ public class RoadNodeReadProjection : RoadNetworkChangesConnectedProjection
         });
 
         // V2
-        When<IEvent<RoadNode.Events.V2.RoadNodeWasAdded>>((session, e, _) =>
-        {
-            session.Store(new RoadNodeReadItem
+        When<IEvent<RoadNode.Events.V2.RoadNodeWasAdded>>((session, e, ct) =>
+            AddOrUpdateRoadNode(session, new RoadNodeReadItem
             {
                 RoadNodeId = e.Data.RoadNodeId,
                 Geometry = ProjectGeometry(e.Data.Geometry, isV2: true),
@@ -93,9 +87,7 @@ public class RoadNodeReadProjection : RoadNetworkChangesConnectedProjection
                 Origin = e.Data.Provenance.ToEventTimestamp(),
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = true
-            });
-            return Task.CompletedTask;
-        });
+            }, ct));
         When<IEvent<RoadNode.Events.V2.RoadNodeWasMigrated>>(async (session, e, _) =>
         {
             var node = await session.LoadAsync<RoadNodeReadItem>(e.Data.RoadNodeId);
@@ -162,6 +154,25 @@ public class RoadNodeReadProjection : RoadNetworkChangesConnectedProjection
         });
     }
 
+    private static async Task AddOrUpdateRoadNode(IDocumentOperations session, RoadNodeReadItem roadNode, CancellationToken ct)
+    {
+        // Apply idempotently. If the node already exists - because the add event is reprocessed, or another
+        // projection already loaded it into this shared session during the batch - mutate the existing tracked
+        // instance instead of Storing a new one. Storing a different instance for an already-tracked id makes Marten
+        // throw "Document ... with same Id already added to the session", and it would also drop the RoadSegmentIds
+        // owned by the road segment projection.
+        var existing = await session.LoadAsync<RoadNodeReadItem>(roadNode.RoadNodeId, ct);
+        if (existing is not null)
+        {
+            existing.CopyDataFrom(roadNode);
+            session.Store(existing);
+        }
+        else
+        {
+            session.Store(roadNode);
+        }
+    }
+
     private static RoadNodeGeometryProjections ProjectGeometry(RoadNodeGeometry geometry, bool isV2)
     {
         return new RoadNodeGeometryProjections
@@ -199,4 +210,17 @@ public sealed class RoadNodeReadItem
     public required EventTimestamp LastModified { get; set; }
     public required bool IsV2 { get; set; }
     public bool IsRemoved { get; set; }
+
+    // Overwrites the event-owned fields from another read item, deliberately leaving the identity (Id), the original
+    // Origin and the RoadSegmentIds (owned by the road segment projection) untouched. Used to apply an "add" event
+    // idempotently onto an already-existing document without losing those fields.
+    public void CopyDataFrom(RoadNodeReadItem source)
+    {
+        Geometry = source.Geometry;
+        Type = source.Type;
+        Grensknoop = source.Grensknoop;
+        LastModified = source.LastModified;
+        IsV2 = source.IsV2;
+        IsRemoved = source.IsRemoved;
+    }
 }

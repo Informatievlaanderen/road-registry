@@ -11,6 +11,7 @@
     <ProjectReference Include="..\..\src\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Infrastructure.MartenDb\RoadRegistry.Infrastructure.MartenDb.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Read.Projections\RoadRegistry.Read.Projections.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Be.Vlaanderen.Basisregisters.DockerUtilities" />
