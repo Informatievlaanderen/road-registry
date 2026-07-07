@@ -17,6 +17,10 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     public RoadSegmentAttributes? Attributes { get; private set; }
     public RoadSegmentId? MergedRoadSegmentId { get; private set; }
 
+    // The two road segments this segment was last split into. Populated from RoadSegmentWasSplit so
+    // the split result can be recovered from the aggregate state (idempotent handling of a retry).
+    public IReadOnlyList<RoadSegmentId>? LastSplitIntoRoadSegmentIds { get; private set; }
+
     public bool IsRemoved { get; private set; }
 
     private readonly string? _lastSnapshotEventHash;
@@ -39,7 +43,8 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         int? endNodeId,
         RoadSegmentAttributes? attributes,
         bool isRemoved,
-        string? lastEventHash
+        string? lastEventHash,
+        IReadOnlyList<RoadSegmentId>? lastSplitIntoRoadSegmentIds
     )
         : this(new RoadSegmentId(roadSegmentId))
     {
@@ -50,6 +55,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         Attributes = attributes;
         IsRemoved = isRemoved;
         _lastSnapshotEventHash = lastEventHash;
+        LastSplitIntoRoadSegmentIds = lastSplitIntoRoadSegmentIds;
     }
 
     public IEnumerable<RoadNodeId> GetNodeIds()
@@ -72,7 +78,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         RoadNodeId? startNodeId,
         RoadNodeId? endNodeId)
     {
-        return new RoadSegment(roadSegmentId, geometry, status.ToString(), startNodeId, endNodeId, null, false, null);
+        return new RoadSegment(roadSegmentId, geometry, status.ToString(), startNodeId, endNodeId, null, false, null, null);
     }
 
     public static RoadSegment Create(RoadSegmentWasAdded @event)
@@ -273,6 +279,8 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     public void Apply(RoadSegmentWasSplit @event)
     {
         UncommittedEvents.Add(@event);
+
+        LastSplitIntoRoadSegmentIds = @event.NewRoadSegmentIds;
 
         if (@event.Modifications is not null)
         {
