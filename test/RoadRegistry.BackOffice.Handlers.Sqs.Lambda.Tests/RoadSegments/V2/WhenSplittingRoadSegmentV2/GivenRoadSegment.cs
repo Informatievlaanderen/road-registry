@@ -65,6 +65,29 @@ public class GivenRoadSegment : BackOfficeLambdaTest
     }
 
     [Fact]
+    public async Task WhenHandledTwiceWithSameRequest_ThenSecondResponseMatchesFirst()
+    {
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = new FakeRoadNetworkRepository(store,
+            new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [new RoadSegmentId(1)], [], []),
+            BuildSeedNetwork);
+
+        var sqsRequest = CreateSqsRequest(CutPosition(50, 50));
+
+        var completedResults = new List<List<ETagResponse>>();
+        TicketingMock
+            .Setup(x => x.Complete(It.IsAny<Guid>(), It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()))
+            .Callback<Guid, TicketResult, CancellationToken>((_, result, _) =>
+                completedResults.Add(JsonConvert.DeserializeObject<List<ETagResponse>>(result.ResultAsJson!)!));
+
+        await HandleRequest(sqsRequest, store, roadNetworkRepository);
+        await HandleRequest(sqsRequest, store, roadNetworkRepository);
+
+        completedResults.Should().HaveCount(2);
+        completedResults[1].Should().BeEquivalentTo(completedResults[0]);
+    }
+
+    [Fact]
     public async Task WhenRoadSegmentDoesNotExist_ThenTicketError()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());

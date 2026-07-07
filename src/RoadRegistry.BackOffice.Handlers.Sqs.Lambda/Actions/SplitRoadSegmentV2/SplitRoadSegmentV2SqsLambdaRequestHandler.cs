@@ -5,11 +5,13 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Marten;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
 using RoadRegistry.Hosts;
+using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
@@ -44,11 +46,23 @@ public sealed class SplitRoadSegmentV2SqsLambdaRequestHandler : MartenSqsLambdaH
     {
         using var _ = Logger.TimeAction(GetType().Name);
 
-        var roadSegmentIds = await Handle(sqsLambdaRequest.Request, cancellationToken);
+        var command = sqsLambdaRequest.Request;
+
+        await Handle(command, cancellationToken);
 
         var responses = new List<ETagResponse>();
         {
             await using var session = Store.LightweightSession();
+
+            // The split result is recovered from the aggregate state (populated by RoadSegmentWasSplit) rather
+            // than from the domain call, so a retry that skips the mutation still yields the same response.
+            var roadSegment = await session.LoadAsync(command.RoadSegmentId, cancellationToken);
+            if (roadSegment is null)
+            {
+                throw new RoadSegmentNotFoundException();
+            }
+
+            var roadSegmentIds = roadSegment.LastSplitIntoRoadSegmentIds ?? [];
 
             foreach (var roadSegmentId in roadSegmentIds)
             {
@@ -60,17 +74,14 @@ public sealed class SplitRoadSegmentV2SqsLambdaRequestHandler : MartenSqsLambdaH
         return responses;
     }
 
-    private async Task<IReadOnlyList<RoadSegmentId>> Handle(SplitRoadSegmentV2SqsRequest command, CancellationToken cancellationToken)
+    private Task Handle(SplitRoadSegmentV2SqsRequest command, CancellationToken cancellationToken)
     {
-        var scopedRoadNetworkId = new ScopedRoadNetworkId(command.TicketId);
-        IReadOnlyList<RoadSegmentId> roadSegmentIds = [];
-
-        await Store.IdempotentSession(command, async session =>
+        return Store.IdempotentSession(command, async session =>
         {
-            // Load the road segment to split together with its surrounding data (connected road nodes and junctions).
+            var scopedRoadNetworkId = new ScopedRoadNetworkId(command.TicketId);
             var roadNetwork = await Load(session, [command.RoadSegmentId], scopedRoadNetworkId);
 
-            roadSegmentIds = roadNetwork.SplitRoadSegment(
+            var roadSegmentIds = roadNetwork.SplitRoadSegment(
                 command.RoadSegmentId,
                 command.CutPosition,
                 _roadNetworkIdGenerator,
@@ -79,10 +90,8 @@ public sealed class SplitRoadSegmentV2SqsLambdaRequestHandler : MartenSqsLambdaH
 
             _roadNetworkRepository.Save(session, roadNetwork, command.GetType().Name);
 
-            Logger.LogInformation("Split road segment {RoadSegmentId} into {RoadSegmentIds}", command.RoadSegmentId, string.Join(", ", roadSegmentIds));
+            Logger.LogInformation("Split road segment {RoadSegmentId} into {RoadSegmentIds}", command.RoadSegmentId, string.Join(",", roadSegmentIds));
         }, cancellationToken, Logger);
-
-        return roadSegmentIds;
     }
 
     private async Task<ScopedRoadNetwork> Load(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
