@@ -129,7 +129,10 @@ public class MartenProjectionIntegrationTestRunner
     public async Task Expect(Func<IServiceProvider, IDocumentSession, Task> assert)
     {
         // Arrange
-        var sp = BuildServiceProvider();
+        // Dispose the service provider (and the Marten store it owns) and the projection daemon when done: the daemon
+        // runs in the background, and if left running it keeps polling the shared (per test class) database and would
+        // consume a following test's events under this test's projections, leaving that test's documents unprojected.
+        await using var sp = BuildServiceProvider();
         var store = sp.GetRequiredService<IDocumentStore>();
 
         foreach (var events in _givenEvents)
@@ -169,13 +172,20 @@ public class MartenProjectionIntegrationTestRunner
 
         // Act
         var projectionDaemon = await store.BuildProjectionDaemonAsync();
-        await projectionDaemon.StartAllAsync();
-        await projectionDaemon.WaitForNonStaleData(_projectionWaitTimeout);
-
-        // Assert
+        try
         {
+            await projectionDaemon.StartAllAsync();
+            await projectionDaemon.WaitForNonStaleData(_projectionWaitTimeout);
+
+            // Assert
             await using var session = store.LightweightSession();
             await assert(sp, session);
+        }
+        finally
+        {
+            // Stop (awaiting shutdown) before disposing so the background poller cannot outlive this test.
+            await projectionDaemon.StopAllAsync();
+            projectionDaemon.Dispose();
         }
     }
 
@@ -190,7 +200,7 @@ public class MartenProjectionIntegrationTestRunner
         return new XunitException(exceptionMessage.ToString());
     }
 
-    private IServiceProvider BuildServiceProvider()
+    private ServiceProvider BuildServiceProvider()
     {
         var configuration = new ConfigurationBuilder()
             .AddIntegrationTestAppSettings()
