@@ -70,6 +70,9 @@ public partial class RoadSegmentsController
             return new StatusCodeResult(StatusCodes.Status410Gone);
         }
 
+        var method = roadSegment.IsV2
+            ? RoadSegmentGeometryDrawMethodV2.Parse(roadSegment.GeometryDrawMethod)
+            : MapToV2(RoadSegmentGeometryDrawMethod.Parse(roadSegment.GeometryDrawMethod));
         var result = new WegsegmentV2Detail
         {
             Identificator = new WegsegmentIdentificator(OsloNamespaces.Wegsegment, roadSegment.RoadSegmentId.ToString(), roadSegment.Origin.Timestamp.ToDateTimeOffset()),
@@ -87,10 +90,10 @@ public partial class RoadSegmentsController
                     }
                 ]
             },
-            GeometrieMethode = (roadSegment.IsV2
-                ? RoadSegmentGeometryDrawMethodV2.Parse(roadSegment.GeometryDrawMethod)
-                : MapToV2(RoadSegmentGeometryDrawMethod.Parse(roadSegment.GeometryDrawMethod))).ToDutchString(),
-            Wegsegmentstatus = RoadSegmentStatusV2.Parse(roadSegment.Status).ToDutchString(),
+            GeometrieMethode = method.ToDutchString(),
+            Wegsegmentstatus = (roadSegment.IsV2
+                ? RoadSegmentStatusV2.Parse(roadSegment.Status)
+                : MapToV2(RoadSegmentStatus.Parse(roadSegment.Status), method)).ToDutchString(),
             Beginknoop = roadSegment.StartNodeId is not null
                 ? new WegknoopLink(roadSegment.StartNodeId.Value, apiOptions.GetWegknoopDetailUrlFormat())
                 : null,
@@ -204,6 +207,22 @@ public partial class RoadSegmentsController
         };
 
         return Ok(result);
+    }
+
+    private static RoadSegmentStatusV2 MapToV2(RoadSegmentStatus status, RoadSegmentGeometryDrawMethodV2 method)
+    {
+        return status.ToString() switch
+        {
+            "PermitRequested" => RoadSegmentStatusV2.Gepland,
+            "BuildingPermitGranted" => RoadSegmentStatusV2.Gepland,
+            "UnderConstruction" => RoadSegmentStatusV2.Gepland,
+            "InUse" => RoadSegmentStatusV2.Gerealiseerd,
+            "OutOfUse" => RoadSegmentStatusV2.BuitenGebruik,
+            "Unknown" => method == RoadSegmentGeometryDrawMethodV2.Ingemeten
+                ? RoadSegmentStatusV2.Gerealiseerd
+                : RoadSegmentStatusV2.Gepland,
+            _ => throw new InvalidOperationException($"Unknown status value '{method}'")
+        };
     }
 
     private static RoadSegmentGeometryDrawMethodV2 MapToV2(RoadSegmentGeometryDrawMethod method)

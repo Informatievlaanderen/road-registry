@@ -4,11 +4,12 @@ using Marten;
 
 public static class SetupExtensions
 {
-    public static void ConfigureExtractDocuments(this StoreOptions options)
+    public static StoreOptions ConfigureExtractDocuments(this StoreOptions options)
     {
         RoadNodeExtractProjection.Configure(options);
         RoadSegmentExtractProjection.Configure(options);
         GradeSeparatedJunctionExtractProjection.Configure(options);
         GradeJunctionExtractProjection.Configure(options);
+        return options;
     }
 }
