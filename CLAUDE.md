@@ -95,6 +95,6 @@ Each domain area follows the pattern:
 
 ### Domain Model
 Core domain lives in `src/RoadRegistry/` with aggregates for `RoadNode`, `RoadSegment`, `GradeSeparatedJunction`, and the enclosing `RoadNetwork`. The domain uses event sourcing via `AggregateSource`.
-
+ 
 ## Commit Convention
 Commits must follow Conventional Commits format (enforced by commitlint + Husky hooks). Use `npm run commit` (commitizen) for interactive commit creation.
