@@ -78,7 +78,6 @@ public partial class ExtractenController
         var response = await _mediator.Send(GetPresignedUploadUrlRequest.ForExtractsV2(parsedDownloadId), cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
 
-        extractDownload.TicketId = response.TicketId;
         extractDownload.LatestUploadId = null;
         await extractsDbContext.SaveChangesAsync(cancellationToken);
 

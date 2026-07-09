@@ -80,7 +80,6 @@ public partial class InwinningController
             dryRun: dryRun), cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
 
-        extractDownload.TicketId = response.TicketId;
         extractDownload.LatestUploadId = null;
         await extractsDbContext.SaveChangesAsync(cancellationToken);
 

@@ -43,7 +43,7 @@ public partial class ExtractsControllerTests
         response.UploadUrl.Should().Be(presignedUrl);
 
         var extractDownload = _extractsDbContext.ExtractDownloads.Single();
-        extractDownload.TicketId.Should().NotBeNull();
+        extractDownload.TicketId.Should().BeNull();
     }
 
     [Fact]
