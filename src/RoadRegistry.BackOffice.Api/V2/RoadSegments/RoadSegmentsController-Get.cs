@@ -211,18 +211,31 @@ public partial class RoadSegmentsController
 
     private static RoadSegmentStatusV2 MapToV2(RoadSegmentStatus status, RoadSegmentGeometryDrawMethodV2 method)
     {
-        return status.ToString() switch
+        if (status == RoadSegmentStatus.PermitRequested
+            || status == RoadSegmentStatus.PermitGranted
+            || status == RoadSegmentStatus.UnderConstruction)
         {
-            "PermitRequested" => RoadSegmentStatusV2.Gepland,
-            "BuildingPermitGranted" => RoadSegmentStatusV2.Gepland,
-            "UnderConstruction" => RoadSegmentStatusV2.Gepland,
-            "InUse" => RoadSegmentStatusV2.Gerealiseerd,
-            "OutOfUse" => RoadSegmentStatusV2.BuitenGebruik,
-            "Unknown" => method == RoadSegmentGeometryDrawMethodV2.Ingemeten
+            return RoadSegmentStatusV2.Gepland;
+        }
+
+        if (status == RoadSegmentStatus.InUse)
+        {
+            return RoadSegmentStatusV2.Gerealiseerd;
+        }
+
+        if (status == RoadSegmentStatus.OutOfUse)
+        {
+            return RoadSegmentStatusV2.BuitenGebruik;
+        }
+
+        if (status == RoadSegmentStatus.Unknown)
+        {
+            return method == RoadSegmentGeometryDrawMethodV2.Ingemeten
                 ? RoadSegmentStatusV2.Gerealiseerd
-                : RoadSegmentStatusV2.Gepland,
-            _ => throw new InvalidOperationException($"Unknown status value '{method}'")
-        };
+                : RoadSegmentStatusV2.Gepland;
+        }
+
+        throw new InvalidOperationException($"Unknown status value '{status}'");
     }
 
     private static RoadSegmentGeometryDrawMethodV2 MapToV2(RoadSegmentGeometryDrawMethod method)
