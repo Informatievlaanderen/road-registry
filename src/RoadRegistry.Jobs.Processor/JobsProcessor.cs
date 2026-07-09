@@ -409,14 +409,14 @@ namespace RoadRegistry.Jobs.Processor
                             ExtractFileName.AttNationweg.ToDbaseFileName(featureType),
                             ExtractFileName.RltOgkruising.ToDbaseFileName(featureType),
                         }))
-                    .Select(x => x.ToUpperInvariant())
                     .ToArray();
 
-                var archiveFileNames = archive.Entries.Select(x => (FileName: x.Name, Upper: x.Name.ToUpperInvariant())).ToArray();
-                var removeFileNames = archiveFileNames.Where(x => !allowedFileNames.Contains(x.Upper)).Select(x => x.FileName).ToArray();
-                foreach (var removeFileName in removeFileNames)
+                var entriesToRemove = archive.Entries
+                    .Where(x => !allowedFileNames.Contains(x.FullName, StringComparer.InvariantCultureIgnoreCase))
+                    .ToArray();
+                foreach (var entry in entriesToRemove)
                 {
-                    archive.GetEntry(removeFileName)!.Delete();
+                    entry.Delete();
                 }
             }
             catch (InvalidDataException)
