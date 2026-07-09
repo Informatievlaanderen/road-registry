@@ -1,3 +1,13 @@
+## [4.68.2](https://github.com/informatievlaanderen/road-registry/compare/v4.68.1...v4.68.2) (2026-07-09)
+
+
+### Bug Fixes
+
+* **2.0:** delete unwanted files in extract upload ([2a8e861](https://github.com/informatievlaanderen/road-registry/commit/2a8e861dde70bc6765fbb949879b48856f8960c6))
+* **2.0:** road segment v2 read endpoint ([7b07eaa](https://github.com/informatievlaanderen/road-registry/commit/7b07eaa0b52c642c7db9f9418e660ad1ccf0761a))
+* integration tests ([b4b3379](https://github.com/informatievlaanderen/road-registry/commit/b4b3379f6d638d26af4e723d322de039b2e87527))
+* version bump ([3089557](https://github.com/informatievlaanderen/road-registry/commit/30895578b12f3ac155f4a52063ba3d604e9fb2c9))
+
 ## [4.68.1](https://github.com/informatievlaanderen/road-registry/compare/v4.68.0...v4.68.1) (2026-07-07)
 
 
