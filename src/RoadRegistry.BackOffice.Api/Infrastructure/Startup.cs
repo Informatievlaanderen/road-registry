@@ -61,6 +61,7 @@ using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
+using RoadRegistry.Read.Projections.Setup;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
@@ -361,7 +362,9 @@ public class Startup
             .AddScoped<DataValidationPollingService>()
             .AddScheduledJob<DataValidationPollingService>(_configuration.GetRequiredValue<TimeSpan>("DataValidationPollingOptions:Period"))
             .AddMartenRoad(options => options
-                .ConfigureExtractDocuments()).Services
+                .ConfigureExtractDocuments()
+                .ConfigureReadDocuments()
+            ).Services
 
             .AddDistributedMemoryCache()
             .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)

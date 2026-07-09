@@ -4,7 +4,7 @@ using Marten;
 
 public static class SetupExtensions
 {
-    public static void ConfigureReadDocuments(this StoreOptions options)
+    public static StoreOptions ConfigureReadDocuments(this StoreOptions options)
     {
         OrganizationReadProjection.Configure(options);
         StreetNameReadProjection.Configure(options);
@@ -12,5 +12,6 @@ public static class SetupExtensions
         RoadSegmentReadProjection.Configure(options);
         GradeSeparatedJunctionReadProjection.Configure(options);
         GradeJunctionReadProjection.Configure(options);
+        return options;
     }
 }
