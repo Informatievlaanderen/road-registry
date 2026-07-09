@@ -1,3 +1,10 @@
+## [4.68.3](https://github.com/informatievlaanderen/road-registry/compare/v4.68.2...v4.68.3) (2026-07-09)
+
+
+### Bug Fixes
+
+* **2.0:** sync streetname event consumer should first check v2 segments before v1 ([9578298](https://github.com/informatievlaanderen/road-registry/commit/9578298d6a762e2dc05da6e3eea78402419dd7e2))
+
 ## [4.68.2](https://github.com/informatievlaanderen/road-registry/compare/v4.68.1...v4.68.2) (2026-07-09)
 
 
