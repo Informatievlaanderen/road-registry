@@ -1,3 +1,10 @@
+## [4.69.2](https://github.com/informatievlaanderen/road-registry/compare/v4.69.1...v4.69.2) (2026-07-10)
+
+
+### Bug Fixes
+
+* **2.0:** Marten db migrator ([1e589a5](https://github.com/informatievlaanderen/road-registry/commit/1e589a5ecea195b468ed6a25c50a805270c07669))
+
 ## [4.69.1](https://github.com/informatievlaanderen/road-registry/compare/v4.69.0...v4.69.1) (2026-07-10)
 
 
