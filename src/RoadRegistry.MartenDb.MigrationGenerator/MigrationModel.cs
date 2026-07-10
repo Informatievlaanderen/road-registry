@@ -2,6 +2,7 @@ namespace RoadRegistry.MartenDb.MigrationGenerator;
 
 using Marten;
 using RoadRegistry.Extracts.Projections.Setup;
+using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.Read.Projections.Setup;
 
@@ -15,6 +16,7 @@ public static class MigrationModel
         options.ConfigureExtractDocuments();
         options.AddRoadNetworkTopologyProjection();
         options.AddRoadAggregatesSnapshots();
+        options.ConfigureRoadNetworkChangesProgression();
         return options;
     }
 }
