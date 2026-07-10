@@ -1,3 +1,10 @@
+## [4.69.1](https://github.com/informatievlaanderen/road-registry/compare/v4.69.0...v4.69.1) (2026-07-10)
+
+
+### Bug Fixes
+
+* **2.0:** disable variables in database migration scripts ([d0c0217](https://github.com/informatievlaanderen/road-registry/commit/d0c021736adf3c43a3d5fb432ed915eb47dcdef9))
+
 # [4.69.0](https://github.com/informatievlaanderen/road-registry/compare/v4.68.6...v4.69.0) (2026-07-10)
 
 
