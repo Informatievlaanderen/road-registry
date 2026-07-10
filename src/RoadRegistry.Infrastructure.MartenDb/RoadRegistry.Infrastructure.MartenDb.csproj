@@ -12,6 +12,10 @@
   <ItemGroup>
     <PackageReference Include="Marten"/>
     <PackageReference Include="Dapper"/>
+    <PackageReference Include="dbup-postgresql"/>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\**\*.sql" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="RoadRegistry.ValueObjects"/>
