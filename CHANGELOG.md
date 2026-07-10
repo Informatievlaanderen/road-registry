@@ -1,3 +1,10 @@
+## [4.68.4](https://github.com/informatievlaanderen/road-registry/compare/v4.68.3...v4.68.4) (2026-07-10)
+
+
+### Bug Fixes
+
+* **extracten:** do not update ExtractDownload.TicketId when starting upload ([5ff0aff](https://github.com/informatievlaanderen/road-registry/commit/5ff0aff39c53530bcd091f2db2c4f71a759ad717))
+
 ## [4.68.3](https://github.com/informatievlaanderen/road-registry/compare/v4.68.2...v4.68.3) (2026-07-09)
 
 
