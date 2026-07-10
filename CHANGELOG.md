@@ -1,3 +1,10 @@
+## [4.69.3](https://github.com/informatievlaanderen/road-registry/compare/v4.69.2...v4.69.3) (2026-07-10)
+
+
+### Bug Fixes
+
+* **2.0:** start Marten projection daemon via hosted service ([d5aaed4](https://github.com/informatievlaanderen/road-registry/commit/d5aaed442d5d128fc06f53ee766e5701130f2733))
+
 ## [4.69.2](https://github.com/informatievlaanderen/road-registry/compare/v4.69.1...v4.69.2) (2026-07-10)
 
 
