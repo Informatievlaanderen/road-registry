@@ -32,7 +32,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using EventProcessors;
@@ -40,8 +39,6 @@ using Extracts.Projections;
 using Extracts.Schema;
 using Hosts.Infrastructure.Extensions;
 using Integration.Schema;
-using JasperFx.Events.Daemon;
-using Marten;
 using MartenMigration.Projections;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -124,26 +121,8 @@ public class Startup
                 .MigrateAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        _ = StartMartenProjections(serviceProvider); // Do not await
-    }
-
-    private async Task StartMartenProjections(IServiceProvider sp)
-    {
-        var logger = sp.GetRequiredService<ILogger<IProjectionDaemon>>();
-        try
-        {
-            // Wait for DbUp to finish applying the schema migrations before starting the daemon; otherwise, on a
-            // fresh database, the daemon would fail against not-yet-created tables and never retry.
-            await sp.GetRequiredService<DatabaseMigrationsGate>().Completed;
-
-            var store = sp.GetRequiredService<IDocumentStore>();
-            var projectionDaemon = await store.BuildProjectionDaemonAsync(logger: logger);
-            await projectionDaemon.StartAllAsync();
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Marten projection daemon failed to start");
-        }
+        // The Marten projection daemon is started by MartenProjectionsDaemonHostedService (registered after the
+        // schema migrator), so it runs after the migrations gate completes and within the host lifecycle.
     }
 
     /// <summary>Configures services for the application.</summary>
@@ -301,10 +280,8 @@ public class Startup
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesReadProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IStreetNameClient>()));
                 }
             }).Services
-
-            // Schema owner: apply the versioned SQL migrations (Migrations/*.sql) sequentially via DbUp. Marten no
-            // longer manages schema at startup; this includes the (correlation_id, seq_id) index as a migration file.
             .AddMartenDatabaseMigrations()
+            .AddHostedService<MartenProjectionsDaemonHostedService>() // Must be after MartenDatabaseMigrations
 
             .AddSingleton(new IDbContextMigratorFactory[]
             {
