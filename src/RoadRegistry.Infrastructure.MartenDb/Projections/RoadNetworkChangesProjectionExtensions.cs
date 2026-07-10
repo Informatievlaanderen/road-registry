@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
+using BackOffice;
 using JasperFx.Events.Projections;
 using Marten;
 
@@ -17,6 +18,17 @@ public static class RoadNetworkChangesProjectionExtensions
                 opts.EnableDocumentTrackingByIdentity = true;
                 opts.BatchSize = projection.BatchSize;
             });
+
+        return options;
+    }
+
+    public static StoreOptions ConfigureRoadNetworkChangesProgression(this StoreOptions options)
+    {
+        options.Schema.For<RoadNetworkChangesProjectionProgression>()
+            .DatabaseSchemaName(WellKnownSchemas.MartenEventStore)
+            .DocumentAlias("roadnetworkchangesprojection_progression")
+            .Identity(x => x.Id)
+            .Duplicate(x => x.ProjectionName, configure: index => { index.Name = "ix_changesprojection_projectionname"; }, notNull: true);
 
         return options;
     }
