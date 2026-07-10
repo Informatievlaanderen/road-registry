@@ -1,3 +1,10 @@
+# [4.69.0](https://github.com/informatievlaanderen/road-registry/compare/v4.68.6...v4.69.0) (2026-07-10)
+
+
+### Features
+
+* **martendb:** EF-style SQL migrations via DbUp instead of Marten runtime schema management ([8d49fec](https://github.com/informatievlaanderen/road-registry/commit/8d49fece3c661d4180685395a6cc160c590416b1))
+
 ## [4.68.6](https://github.com/informatievlaanderen/road-registry/compare/v4.68.5...v4.68.6) (2026-07-10)
 
 
