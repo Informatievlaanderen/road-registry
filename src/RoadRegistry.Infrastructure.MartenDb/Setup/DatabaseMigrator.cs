@@ -53,6 +53,7 @@ public sealed class DatabaseMigrator : IHostedService
                     typeof(DatabaseMigrator).Assembly,
                     name => name.Contains(".Migrations.") && name.EndsWith(".sql", StringComparison.OrdinalIgnoreCase))
                 .WithTransactionPerScript()
+                .WithVariablesDisabled()
                 .JournalToPostgresqlTable(WellKnownSchemas.MartenEventStore, "schema_migrations")
                 .LogToConsole()
                 .Build();
