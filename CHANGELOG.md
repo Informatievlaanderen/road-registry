@@ -1,3 +1,10 @@
+## [4.69.4](https://github.com/informatievlaanderen/road-registry/compare/v4.69.3...v4.69.4) (2026-07-10)
+
+
+### Bug Fixes
+
+* **2.0:** add migration for RoadNetworkChanges progression table ([23a878e](https://github.com/informatievlaanderen/road-registry/commit/23a878e565afac434ab990e6da85d74542a0ab3b))
+
 ## [4.69.3](https://github.com/informatievlaanderen/road-registry/compare/v4.69.2...v4.69.3) (2026-07-10)
 
 
