@@ -113,7 +113,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
         {
             foreach (var evt in work.ToProcess)
             {
-                _logger.LogDebug("Processing event {Sequence}: {EventTypeName}", evt.Sequence, evt.EventTypeName);
+                _logger.LogInformation("Processing event {Sequence}: {EventTypeName}", evt.Sequence, evt.EventTypeName);
 
                 foreach (var projection in _projections)
                 {
