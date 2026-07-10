@@ -3,7 +3,6 @@
 using System.Text;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
-using JasperFx;
 using KellermanSoftware.CompareNetObjects;
 using Marten;
 using Microsoft.Extensions.Configuration;
@@ -134,6 +133,10 @@ public class MartenProjectionIntegrationTestRunner
         // runs in the background, and if left running it keeps polling the shared (per test class) database and would
         // consume a following test's events under this test's projections, leaving that test's documents unprojected.
         await using var sp = BuildServiceProvider();
+
+        // Apply the Marten schema via the SQL migrations (production runs AutoCreate.None).
+        await sp.RunMartenDatabaseMigrationsAsync();
+
         var store = sp.GetRequiredService<IDocumentStore>();
 
         foreach (var events in _givenEvents)
@@ -222,13 +225,12 @@ public class MartenProjectionIntegrationTestRunner
 
         services.AddMartenRoad(options =>
         {
-            options.AutoCreateSchemaObjects = AutoCreate.CreateOrUpdate;
-
             foreach (var configure in _storeConfigurations)
             {
                 configure(options);
             }
-        });
+        }).Services
+        .AddMartenDatabaseMigrations();
 
         return services.BuildServiceProvider();
     }
