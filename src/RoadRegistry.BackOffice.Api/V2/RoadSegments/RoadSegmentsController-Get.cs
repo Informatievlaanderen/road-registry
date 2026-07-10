@@ -106,7 +106,9 @@ public partial class RoadSegmentsController
                     Kant = x.Side.ToWegsegmentKant(),
                     VanPositie = x.From,
                     TotPositie = x.To,
-                    Straatnaam = x.Value!.StreetNameId > 0 ? new StraatnaamLink(x.Value.StreetNameId, apiOptions.GetStraatnaamDetailUrlFormat(), x.Value.DutchName) : null
+                    Straatnaam = x.Value!.StreetNameId > 0
+                        ? new StraatnaamLink(x.Value.StreetNameId, apiOptions.GetStraatnaamDetailUrlFormat(), x.Value.DutchName)
+                        : null
                 })
                 .ToArray(),
             Wegbeheerder = roadSegment.MaintenanceAuthorityId.Values
@@ -450,7 +452,12 @@ public sealed class StraatnaamLink
 [CustomSwaggerSchemaId("StraatnaamGeografischeNaam")]
 public class StraatnaamGeografischeNaam
 {
+    [DataMember(Name = "Spelling", Order = 1)]
+    [JsonProperty]
     public required string Spelling { get; set; }
+
+    [DataMember(Name = "Taal", Order = 2)]
+    [JsonProperty]
     public required string Taal { get; set; }
 }
 
