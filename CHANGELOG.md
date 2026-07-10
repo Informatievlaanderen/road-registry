@@ -1,3 +1,10 @@
+## [4.68.5](https://github.com/informatievlaanderen/road-registry/compare/v4.68.4...v4.68.5) (2026-07-10)
+
+
+### Bug Fixes
+
+* **2.0:** extra information logging for projections ([71d8713](https://github.com/informatievlaanderen/road-registry/commit/71d8713d78007d7200c65eeefddd13324e950796))
+
 ## [4.68.4](https://github.com/informatievlaanderen/road-registry/compare/v4.68.3...v4.68.4) (2026-07-10)
 
 
