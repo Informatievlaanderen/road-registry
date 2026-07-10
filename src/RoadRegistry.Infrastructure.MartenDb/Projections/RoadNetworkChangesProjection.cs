@@ -14,7 +14,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
     private readonly string _projectionName;
     protected const int DefaultBatchSize = 5000;
     private bool? _isCatchingUp;
-    protected bool IsCatchingUp => _isCatchingUp ?? false;
+    private bool IsCatchingUp => _isCatchingUp ?? false;
 
     protected RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections, ILoggerFactory loggerFactory, int batchSize = DefaultBatchSize)
     {
@@ -43,6 +43,8 @@ public abstract class RoadNetworkChangesProjection : IProjection
     {
         try
         {
+            UpdateCatchingUpState(events);
+
             var batchCorrelationIds = events.Select(x => x.CorrelationId!).Distinct().ToList();
             var batchProgressionIds = batchCorrelationIds.Select(BuildProgressionId).ToList();
 
@@ -50,18 +52,16 @@ public abstract class RoadNetworkChangesProjection : IProjection
                 .Where(x => x.ProjectionName == _projectionName && batchProgressionIds.Contains(x.Id))
                 .ToListAsync(cancellation);
 
-            var processOnlyCurrentBatch = DetermineToProcessOnlyCurrentBatch(events);
-            if (processOnlyCurrentBatch)
-            {
-                await ProcessEvents(operations, events, processedProjectionProgressions, cancellation);
-            }
-            else
-            {
-                var queriedEvents = operations.Events.QueryAllRawEvents()
-                    .Where(x => batchCorrelationIds.Contains(x.CorrelationId!)) //TODO-pr add index on correlationId
-                    .ToList();
-                await ProcessEvents(operations, queriedEvents, processedProjectionProgressions, cancellation);
-            }
+            var pageMaxSequence = events.Max(x => x.Sequence);
+            var tailEvents = IsCatchingUp
+                ? []
+                : await operations.Events.QueryAllRawEvents()
+                    .Where(x => batchCorrelationIds.Contains(x.CorrelationId!) && x.Sequence > pageMaxSequence)
+                    .ToListAsync(cancellation);
+
+            var allEvents = tailEvents.Count > 0 ? events.Concat(tailEvents).ToList() : events;
+
+            await ProcessEvents(operations, allEvents, processedProjectionProgressions, cancellation);
         }
         catch (Exception ex)
         {
@@ -70,7 +70,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
         }
     }
 
-    private bool DetermineToProcessOnlyCurrentBatch(IReadOnlyList<IEvent> events)
+    private void UpdateCatchingUpState(IReadOnlyList<IEvent> events)
     {
         if (_isCatchingUp is null)
         {
@@ -80,8 +80,6 @@ public abstract class RoadNetworkChangesProjection : IProjection
         {
             _isCatchingUp = false;
         }
-
-        return _isCatchingUp!.Value || events.Count < BatchSize;
     }
 
     private async Task ProcessEvents(IDocumentOperations operations, IReadOnlyList<IEvent> events, IReadOnlyList<RoadNetworkChangesProjectionProgression> processedProjectionProgressions, CancellationToken cancellation)
