@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using FluentAssertions;
 using Hosts;
+using JasperFx;
 using Marten;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -100,7 +101,11 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
             .AddSingleton(Mock.Of<IExtractUploadFailedEmailClient>());
 
         services
-            .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots()).Services
+            .AddMartenRoad(options =>
+            {
+                options.AutoCreateSchemaObjects = AutoCreate.CreateOrUpdate;
+                options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots();
+            }).Services
             .AddSingleton<IRoadNetworkIdGenerator>(new InMemoryRoadNetworkIdGenerator())
             .AddSingleton(DataValidationClientMock.Object)
             .AddDbContext<ExtractsDbContext>((_, options) => options
