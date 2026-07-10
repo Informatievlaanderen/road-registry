@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS postgis;
+
 DO $$
 BEGIN    IF NOT EXISTS(
         SELECT schema_name

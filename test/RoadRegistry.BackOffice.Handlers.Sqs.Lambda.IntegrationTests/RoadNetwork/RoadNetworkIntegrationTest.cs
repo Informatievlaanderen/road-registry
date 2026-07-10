@@ -8,8 +8,6 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using FluentAssertions;
 using Hosts;
-using JasperFx;
-using Marten;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -103,9 +101,9 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
         services
             .AddMartenRoad(options =>
             {
-                options.AutoCreateSchemaObjects = AutoCreate.CreateOrUpdate;
                 options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots();
             }).Services
+            .AddMartenDatabaseMigrations()
             .AddSingleton<IRoadNetworkIdGenerator>(new InMemoryRoadNetworkIdGenerator())
             .AddSingleton(DataValidationClientMock.Object)
             .AddDbContext<ExtractsDbContext>((_, options) => options
@@ -116,21 +114,14 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
 
         var sp = services.BuildServiceProvider();
 
-        // force create marten schema
-        var store = sp.GetRequiredService<IDocumentStore>();
-        await EnsureRoadNetworkTopologyProjectionExists(store);
+        // Apply the Marten schema via the SQL migrations (production runs AutoCreate.None).
+        await sp.RunMartenDatabaseMigrationsAsync();
 
         return sp;
     }
 
     protected virtual void ConfigureServices(IServiceCollection services)
     {
-    }
-
-    private static async Task EnsureRoadNetworkTopologyProjectionExists(IDocumentStore store)
-    {
-        // build projection tables
-        await store.BuildProjectionDaemonAsync();
     }
 
     protected void PrintTicketErrorsIfAvailable(Guid ticketId)

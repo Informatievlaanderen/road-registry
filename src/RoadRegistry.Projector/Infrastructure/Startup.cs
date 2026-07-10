@@ -304,7 +304,7 @@ public class Startup
 
             // Schema owner: apply the versioned SQL migrations (Migrations/*.sql) sequentially via DbUp. Marten no
             // longer manages schema at startup; this includes the (correlation_id, seq_id) index as a migration file.
-            .AddDatabaseMigrations()
+            .AddMartenDatabaseMigrations()
 
             .AddSingleton(new IDbContextMigratorFactory[]
             {

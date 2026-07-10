@@ -47,6 +47,14 @@ public sealed class DatabaseMigrator : IHostedService
 
         try
         {
+            // The DbUp journal lives in the eventstore schema, and DbUp creates that journal table BEFORE
+            // running any migration script — but the eventstore schema itself is only created inside the
+            // baseline script. Pre-create it so the journal table can be provisioned on a fresh database.
+            await using (var schemaCommand = new NpgsqlCommand($"CREATE SCHEMA IF NOT EXISTS \"{WellKnownSchemas.MartenEventStore}\"", lockConnection))
+            {
+                await schemaCommand.ExecuteNonQueryAsync(cancellationToken);
+            }
+
             var upgrader = DeployChanges.To
                 .PostgresqlDatabase(connectionString)
                 .WithScriptsEmbeddedInAssembly(
@@ -96,10 +104,16 @@ public sealed class DatabaseMigrationsGate
 
 public static class DatabaseMigratorExtensions
 {
-    public static IServiceCollection AddDatabaseMigrations(this IServiceCollection services)
+    public static IServiceCollection AddMartenDatabaseMigrations(this IServiceCollection services)
     {
         return services
             .AddSingleton<DatabaseMigrationsGate>()
             .AddHostedService<DatabaseMigrator>();
+    }
+
+    public static Task RunMartenDatabaseMigrationsAsync(this IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
+    {
+        var migrator = serviceProvider.GetServices<IHostedService>().OfType<DatabaseMigrator>().Single();
+        return migrator.StartAsync(cancellationToken);
     }
 }
