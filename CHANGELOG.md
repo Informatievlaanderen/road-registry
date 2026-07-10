@@ -1,3 +1,11 @@
+## [4.68.6](https://github.com/informatievlaanderen/road-registry/compare/v4.68.5...v4.68.6) (2026-07-10)
+
+
+### Bug Fixes
+
+* **2.0:** query only tail events when not catching up ([5cf99e0](https://github.com/informatievlaanderen/road-registry/commit/5cf99e00a39c65b34b736f9607d46c80c70e61bb))
+* **2.0:** roadsegment V2 read endpoint ([c5cd624](https://github.com/informatievlaanderen/road-registry/commit/c5cd6245e2a1105c4bb5255b571a931f959cc4e6))
+
 ## [4.68.5](https://github.com/informatievlaanderen/road-registry/compare/v4.68.4...v4.68.5) (2026-07-10)
 
 
