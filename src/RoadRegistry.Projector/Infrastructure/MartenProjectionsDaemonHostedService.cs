@@ -31,35 +31,54 @@ public sealed class MartenProjectionsDaemonHostedService : IHostedService
         _logger = logger;
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            // Wait for DbUp to finish applying the schema migrations before starting the daemon; otherwise, on a
-            // fresh database, the daemon would fail against not-yet-created tables and never retry.
-            await _migrationsGate.Completed.WaitAsync(cancellationToken);
+public async Task StartAsync(CancellationToken cancellationToken)
+{
+    IProjectionDaemon? daemon = null;
 
-            _daemon = await _store.BuildProjectionDaemonAsync(logger: _logger);
-            await _daemon.StartAllAsync();
-        }
-        catch (OperationCanceledException)
-        {
-            // Host is shutting down before the migrations completed; there is nothing to start.
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Marten projection daemon failed to start");
-        }
+    try
+    {
+        // Wait for DbUp to finish applying the schema migrations before starting the daemon; otherwise, on a
+        // fresh database, the daemon would fail against not-yet-created tables and never retry.
+        await _migrationsGate.Completed.WaitAsync(cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        daemon = await _store.BuildProjectionDaemonAsync(logger: _logger);
+        await daemon.StartAllAsync();
+
+        _daemon = daemon;
+        daemon = null;
+    }
+    catch (OperationCanceledException)
+    {
+        // Host is shutting down before the migrations completed / daemon started; there is nothing to start.
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Marten projection daemon failed to start");
+    }
+    finally
+    {
+        daemon?.Dispose();
+    }
+}
+
+public async Task StopAsync(CancellationToken cancellationToken)
+{
+    var daemon = Interlocked.Exchange(ref _daemon, null);
+    if (daemon is null)
+    {
+        return;
     }
 
-    public async Task StopAsync(CancellationToken cancellationToken)
+    try
     {
-        if (_daemon is null)
+        if (!cancellationToken.IsCancellationRequested)
         {
-            return;
+            await daemon.StopAllAsync();
         }
-
-        await _daemon.StopAllAsync();
-        _daemon.Dispose();
+    }
+    finally
+    {
+        daemon.Dispose();
     }
 }
