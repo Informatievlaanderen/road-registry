@@ -3,6 +3,7 @@
 using System.Text;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
+using JasperFx;
 using KellermanSoftware.CompareNetObjects;
 using Marten;
 using Microsoft.Extensions.Configuration;
@@ -221,6 +222,8 @@ public class MartenProjectionIntegrationTestRunner
 
         services.AddMartenRoad(options =>
         {
+            options.AutoCreateSchemaObjects = AutoCreate.CreateOrUpdate;
+
             foreach (var configure in _storeConfigurations)
             {
                 configure(options);

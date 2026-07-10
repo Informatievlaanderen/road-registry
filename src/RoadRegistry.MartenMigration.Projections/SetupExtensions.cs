@@ -37,7 +37,7 @@ public static class SetupExtensions
             .AddMartenRoad(options => options
                 .AddRoadNetworkTopologyProjection()
                 .AddRoadAggregatesSnapshots())
-            .ApplyAllDatabaseChangesOnStartup();
+            .Services.AddDatabaseMigrations();
 
         services
             .AddDbContextEventProcessorServices<MartenMigrationContextEventProcessor, MartenMigrationContext>(sp => [new MartenMigrationProjection(sp.GetRequiredService<IDocumentStore>())])

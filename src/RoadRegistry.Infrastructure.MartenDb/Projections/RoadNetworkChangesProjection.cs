@@ -43,7 +43,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
     {
         try
         {
-            UpdateCatchingUpState(events);
+            await UpdateCatchingUpState(operations, events, cancellation);
 
             var batchCorrelationIds = events.Select(x => x.CorrelationId!).Distinct().ToList();
             var batchProgressionIds = batchCorrelationIds.Select(BuildProgressionId).ToList();
@@ -70,11 +70,12 @@ public abstract class RoadNetworkChangesProjection : IProjection
         }
     }
 
-    private void UpdateCatchingUpState(IReadOnlyList<IEvent> events)
+    private async Task UpdateCatchingUpState(IDocumentOperations operations, IReadOnlyList<IEvent> events, CancellationToken cancellation)
     {
         if (_isCatchingUp is null)
         {
-            _isCatchingUp = events.Count == BatchSize;
+            var startupHighWaterMark = await operations.GetHighWaterMark(cancellation);
+            _isCatchingUp = events.Max(x => x.Sequence) <= startupHighWaterMark;
         }
         else if (events.Count < BatchSize)
         {

@@ -132,6 +132,10 @@ public class Startup
         var logger = sp.GetRequiredService<ILogger<IProjectionDaemon>>();
         try
         {
+            // Wait for DbUp to finish applying the schema migrations before starting the daemon; otherwise, on a
+            // fresh database, the daemon would fail against not-yet-created tables and never retry.
+            await sp.GetRequiredService<DatabaseMigrationsGate>().Completed;
+
             var store = sp.GetRequiredService<IDocumentStore>();
             var projectionDaemon = await store.BuildProjectionDaemonAsync(logger: logger);
             await projectionDaemon.StartAllAsync();
@@ -296,7 +300,11 @@ public class Startup
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesReadProjection)}:BatchSize");
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesReadProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IStreetNameClient>()));
                 }
-            }).ApplyAllDatabaseChangesOnStartup().Services
+            }).Services
+
+            // Schema owner: apply the versioned SQL migrations (Migrations/*.sql) sequentially via DbUp. Marten no
+            // longer manages schema at startup; this includes the (correlation_id, seq_id) index as a migration file.
+            .AddDatabaseMigrations()
 
             .AddSingleton(new IDbContextMigratorFactory[]
             {
