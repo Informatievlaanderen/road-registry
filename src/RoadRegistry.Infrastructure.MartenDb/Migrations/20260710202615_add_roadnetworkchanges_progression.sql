@@ -3,12 +3,15 @@
 -- Marten document RoadNetworkChangesProjectionProgression (alias roadnetworkchangesprojection_progression)
 -- and was missing from the baseline because the migration model did not register it.
 --
--- Generated via generate-migration.sh and hand-edited down to only the progression objects: the raw
--- patch also tried to drop the hand-added ix_mt_events_correlation_seq index and regenerate the custom
--- networktopology_* functions (neither is part of the Marten model), which were intentionally discarded.
+-- Uses CREATE ... IF NOT EXISTS so it is a no-op where the table already exists (e.g. created by an earlier
+-- Marten AutoCreate deployment) instead of dropping it and its data. The later last_sequence_id column is
+-- added by a separate migration that backfills from existing rows.
+--
+-- Generated via generate-migration.sh and hand-edited down to only the progression objects: the raw patch also
+-- tried to drop the hand-added ix_mt_events_correlation_seq index and regenerate the custom networktopology_*
+-- functions (neither is part of the Marten model), which were intentionally discarded.
 
-DROP TABLE IF EXISTS eventstore.mt_doc_roadnetworkchangesprojection_progression CASCADE;
-CREATE TABLE eventstore.mt_doc_roadnetworkchangesprojection_progression (
+CREATE TABLE IF NOT EXISTS eventstore.mt_doc_roadnetworkchangesprojection_progression (
     id                  varchar                     NOT NULL,
     data                jsonb                       NOT NULL,
     mt_last_modified    timestamp with time zone    NULL DEFAULT (transaction_timestamp()),
@@ -18,7 +21,7 @@ CREATE TABLE eventstore.mt_doc_roadnetworkchangesprojection_progression (
 CONSTRAINT pkey_mt_doc_roadnetworkchangesprojection_progression_id PRIMARY KEY (id)
 );
 
-CREATE INDEX ix_changesprojection_projectionname ON eventstore.mt_doc_roadnetworkchangesprojection_progression USING btree (projection_name);
+CREATE INDEX IF NOT EXISTS ix_changesprojection_projectionname ON eventstore.mt_doc_roadnetworkchangesprojection_progression USING btree (projection_name);
 
 CREATE OR REPLACE FUNCTION eventstore.mt_upsert_roadnetworkchangesprojection_progression(arg_projection_name varchar, doc JSONB, docDotNetType varchar, docId varchar, docVersion uuid) RETURNS UUID LANGUAGE plpgsql SECURITY INVOKER AS $function$
 DECLARE

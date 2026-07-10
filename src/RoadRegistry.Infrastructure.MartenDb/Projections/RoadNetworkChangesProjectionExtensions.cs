@@ -28,7 +28,9 @@ public static class RoadNetworkChangesProjectionExtensions
             .DatabaseSchemaName(WellKnownSchemas.MartenEventStore)
             .DocumentAlias("roadnetworkchangesprojection_progression")
             .Identity(x => x.Id)
-            .Duplicate(x => x.ProjectionName, configure: index => { index.Name = "ix_changesprojection_projectionname"; }, notNull: true);
+            .Duplicate(x => x.ProjectionName, configure: index => { index.Name = "ix_changesprojection_projectionname"; }, notNull: true)
+            .Duplicate(x => x.LastSequenceId, configure: index => { index.Name = "ix_changesprojection_lastsequenceid"; }, notNull: true)
+            ;
 
         return options;
     }
