@@ -4,13 +4,13 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using JasperFx.Events;
 using Marten;
 
-public abstract class RoadNetworkChangesConnectedProjection : ConnectedProjection<IDocumentOperations>, IRoadNetworkChangesProjection
+public abstract class MartenRoadNetworkChangesProjection : ConnectedProjection<IDocumentOperations>, IRoadNetworkChangesProjection
 {
     private readonly Lazy<ConnectedProjectionHandlerResolver<IDocumentOperations>> _resolver;
 
-    public bool IsCatchingUp { get; internal set; }
+    public bool IsCatchingUp { get; set; }
 
-    protected RoadNetworkChangesConnectedProjection()
+    protected MartenRoadNetworkChangesProjection()
     {
         _resolver = new Lazy<ConnectedProjectionHandlerResolver<IDocumentOperations>>(() => Resolve.WhenAssignableToHandlerMessageType(Handlers));
     }

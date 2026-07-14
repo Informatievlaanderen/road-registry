@@ -10,7 +10,7 @@ using RoadNode.Events.V1;
 using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 
-public class RoadNodeExtractProjection : RoadNetworkChangesConnectedProjection
+public class RoadNodeExtractProjection : MartenRoadNetworkChangesProjection
 {
     public static void Configure(StoreOptions options)
     {

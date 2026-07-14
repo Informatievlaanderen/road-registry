@@ -13,7 +13,7 @@ public class RoadSegmentFlattenerTests
     public void WithOnePart_ThenReturnOne()
     {
         var geometry = BuildRoadSegmentGeometry(new Point(0, 0), new Point(100, 0));
-        var accessRestriction = new ExtractRoadSegmentDynamicAttribute<string>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(100), RoadSegmentAttributeSide.Both, "1")]);
+        var accessRestriction = new ExtractRoadSegmentDynamicAttribute<string>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(100), RoadSegmentAttributeSide.Beide, "1")]);
 
         var segment = new RoadSegmentExtractItem
         {
@@ -57,13 +57,13 @@ public class RoadSegmentFlattenerTests
         var geometry = BuildRoadSegmentGeometry(new Point(0, 0), new Point(100, 0));
 
         var accessRestriction = new ExtractRoadSegmentDynamicAttribute<string>([
-            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(20), RoadSegmentAttributeSide.Both, "1"),
-            (new RoadSegmentPositionV2(20), new RoadSegmentPositionV2(100), RoadSegmentAttributeSide.Both, "2"),
+            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(20), RoadSegmentAttributeSide.Beide, "1"),
+            (new RoadSegmentPositionV2(20), new RoadSegmentPositionV2(100), RoadSegmentAttributeSide.Beide, "2"),
         ]);
 
         var category = new ExtractRoadSegmentDynamicAttribute<string>([
-            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(50), RoadSegmentAttributeSide.Both, "a"),
-            (new RoadSegmentPositionV2(50),new  RoadSegmentPositionV2(100), RoadSegmentAttributeSide.Both, "b"),
+            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(50), RoadSegmentAttributeSide.Beide, "a"),
+            (new RoadSegmentPositionV2(50),new  RoadSegmentPositionV2(100), RoadSegmentAttributeSide.Beide, "b"),
         ]);
 
         var segment = new RoadSegmentExtractItem
@@ -123,14 +123,14 @@ public class RoadSegmentFlattenerTests
         var geometry = BuildRoadSegmentGeometry(new Point(0, 0), new Point(100, 0));
 
         var accessRestriction = new ExtractRoadSegmentDynamicAttribute<string>([
-            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(20), RoadSegmentAttributeSide.Both, "1"),
-            (new RoadSegmentPositionV2(20), new RoadSegmentPositionV2(100), RoadSegmentAttributeSide.Both, "2"),
+            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(20), RoadSegmentAttributeSide.Beide, "1"),
+            (new RoadSegmentPositionV2(20), new RoadSegmentPositionV2(100), RoadSegmentAttributeSide.Beide, "2"),
         ]);
 
         var streetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>([
-            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(50), RoadSegmentAttributeSide.Left, new StreetNameLocalId(20)),
-            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(50), RoadSegmentAttributeSide.Right, new StreetNameLocalId(25)),
-            (new RoadSegmentPositionV2(50), new RoadSegmentPositionV2(100), RoadSegmentAttributeSide.Both, new StreetNameLocalId(30)),
+            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(50), RoadSegmentAttributeSide.Links, new StreetNameLocalId(20)),
+            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(50), RoadSegmentAttributeSide.Rechts, new StreetNameLocalId(25)),
+            (new RoadSegmentPositionV2(50), new RoadSegmentPositionV2(100), RoadSegmentAttributeSide.Beide, new StreetNameLocalId(30)),
         ]);
 
         var segment = new RoadSegmentExtractItem
@@ -193,8 +193,8 @@ public class RoadSegmentFlattenerTests
         var geometry = BuildRoadSegmentGeometry(new Point(0, 0), new Point(28.8123, 0));
 
         var accessRestriction = new ExtractRoadSegmentDynamicAttribute<string>([
-            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(20), RoadSegmentAttributeSide.Both, "1"),
-            (new RoadSegmentPositionV2(20), new RoadSegmentPositionV2(28.81), RoadSegmentAttributeSide.Both, "2"),
+            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(20), RoadSegmentAttributeSide.Beide, "1"),
+            (new RoadSegmentPositionV2(20), new RoadSegmentPositionV2(28.81), RoadSegmentAttributeSide.Beide, "2"),
         ]);
 
         var segment = new RoadSegmentExtractItem

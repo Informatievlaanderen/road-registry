@@ -10,7 +10,7 @@ using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.ValueObjects;
 
-public class OrganizationReadProjection : RoadNetworkChangesConnectedProjection
+public class OrganizationReadProjection : MartenRoadNetworkChangesProjection
 {
     public static void Configure(StoreOptions options)
     {

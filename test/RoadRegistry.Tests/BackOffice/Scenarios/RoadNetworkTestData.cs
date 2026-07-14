@@ -73,6 +73,7 @@ public class RoadNetworkTestData
         ObjectProvider.CustomizeExtractRequestId();
         ObjectProvider.CustomizeRoadSegmentTrafficDirection();
         ObjectProvider.CustomizeRoadSegmentPedestrianTrafficDirection();
+        ObjectProvider.CustomizeRoadSegmentAttributeSide();
 
         ObjectProvider.CustomizeRoadNetworkChangesAccepted();
         ObjectProvider.CustomizeImportedOrganization();

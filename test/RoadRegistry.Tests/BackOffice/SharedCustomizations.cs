@@ -1025,6 +1025,15 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeRoadSegmentAttributeSide(this IFixture fixture)
+    {
+        fixture.Customize<RoadRegistry.RoadSegment.ValueObjects.RoadSegmentAttributeSide>(customization =>
+            customization.FromFactory(generator =>
+                RoadRegistry.RoadSegment.ValueObjects.RoadSegmentAttributeSide.All[generator.Next() % RoadRegistry.RoadSegment.ValueObjects.RoadSegmentAttributeSide.All.Length]
+            )
+        );
+    }
+
     public static void CustomizeRoadSegmentWidth(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentWidth>(customization =>

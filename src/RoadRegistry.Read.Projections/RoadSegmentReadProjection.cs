@@ -21,7 +21,7 @@ using RoadSegment.Events.V2;
 using RoadSegment.ValueObjects;
 using RoadRegistry.StreetName.Events.V2;
 
-public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
+public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
 {
     private readonly IStreetNameClient _streetNameClient;
     private readonly ILogger _logger;
@@ -81,7 +81,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                     .Select((x, i) => (
                         new RoadSegmentPositionV2(x.FromPosition),
                         UseGeometryLengthIfPositionIsLast(x.ToPosition, geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
-                        RoadSegmentAttributeSide.Both,
+                        RoadSegmentAttributeSide.Beide,
                         (string?)x.Type))
                 ),
                 CarTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(),
@@ -130,7 +130,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                     .Select((x, i) => (
                         new RoadSegmentPositionV2(x.FromPosition),
                         UseGeometryLengthIfPositionIsLast(x.ToPosition, geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
-                        RoadSegmentAttributeSide.Both,
+                        RoadSegmentAttributeSide.Beide,
                         (string?)x.Type))
                 ),
                 CarTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(),
@@ -170,7 +170,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                     .Select((x, i) => (
                         new RoadSegmentPositionV2(x.FromPosition),
                         UseGeometryLengthIfPositionIsLast(x.ToPosition, segment.Geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
-                        RoadSegmentAttributeSide.Both,
+                        RoadSegmentAttributeSide.Beide,
                         (string?)x.Type))
                 );
             }, e.Data, ct);
@@ -222,8 +222,8 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 {
                     segment.StreetNameId = await BuildStreetNameIdAttributesFromV1(
                         session,
-                        e.Data.LeftSide?.StreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Left),
-                        e.Data.RightSide?.StreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Right),
+                        e.Data.LeftSide?.StreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Links),
+                        e.Data.RightSide?.StreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Rechts),
                         segment.Geometry.Lambert72,
                         ct);
                 }
@@ -240,7 +240,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                         .Select((x, i) => (
                             new RoadSegmentPositionV2(x.FromPosition),
                             UseGeometryLengthIfPositionIsLast(x.ToPosition, segment.Geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
-                            RoadSegmentAttributeSide.Both,
+                            RoadSegmentAttributeSide.Beide,
                             (string?)x.Type))
                     );
                 }
@@ -256,7 +256,7 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                     .Select((x, i) => (
                         new RoadSegmentPositionV2(x.FromPosition),
                         UseGeometryLengthIfPositionIsLast(x.ToPosition, segment.Geometry.Lambert72, isLast: i == e.Data.Surfaces.Length - 1),
-                        RoadSegmentAttributeSide.Both,
+                        RoadSegmentAttributeSide.Beide,
                         (string?)x.Type))
                 );
             }, e.Data, ct);
@@ -269,8 +269,8 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
                 {
                     segment.StreetNameId = await BuildStreetNameIdAttributesFromV1(
                         session,
-                        e.Data.LeftSideStreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Left),
-                        e.Data.RightSideStreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Right),
+                        e.Data.LeftSideStreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Links),
+                        e.Data.RightSideStreetNameId ?? GetValue(segment.StreetNameId, RoadSegmentAttributeSide.Rechts),
                         segment.Geometry.Lambert72,
                         ct);
                 }
@@ -923,15 +923,15 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
         }
 
         return new ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue>([
-            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length), RoadSegmentAttributeSide.Left, await ToStreetNameAttributeValue(session, leftSideStreetNameId, ct)),
-            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length), RoadSegmentAttributeSide.Right, await ToStreetNameAttributeValue(session, rightSideStreetNameId, ct))
+            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length), RoadSegmentAttributeSide.Links, await ToStreetNameAttributeValue(session, leftSideStreetNameId, ct)),
+            (RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length), RoadSegmentAttributeSide.Rechts, await ToStreetNameAttributeValue(session, rightSideStreetNameId, ct))
         ]);
     }
 
     private static ReadRoadSegmentDynamicAttribute<T> ForEntireGeometry<T>(T value, RoadSegmentGeometry geometry)
         where T : notnull
     {
-        return new ReadRoadSegmentDynamicAttribute<T>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length), RoadSegmentAttributeSide.Both, value)]);
+        return new ReadRoadSegmentDynamicAttribute<T>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length), RoadSegmentAttributeSide.Beide, value)]);
     }
 
     private static RoadSegmentPositionV2 UseGeometryLengthIfPositionIsLast(double position, RoadSegmentGeometry geometry, bool isLast)
@@ -943,12 +943,15 @@ public class RoadSegmentReadProjection : RoadNetworkChangesConnectedProjection
 
     private static StreetNameLocalId GetValue(ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue> attributes, RoadSegmentAttributeSide side)
     {
-        return side switch
+        if (side == RoadSegmentAttributeSide.Links)
         {
-            RoadSegmentAttributeSide.Left => attributes.Values.Single(x => x.Side is RoadSegmentAttributeSide.Both or RoadSegmentAttributeSide.Left).Value!.StreetNameId,
-            RoadSegmentAttributeSide.Right => attributes.Values.Single(x => x.Side is RoadSegmentAttributeSide.Both or RoadSegmentAttributeSide.Right).Value!.StreetNameId,
-            _ => throw new InvalidOperationException("Only left or right side is allowed.")
-        };
+            return attributes.Values.Single(x => x.Side == RoadSegmentAttributeSide.Beide || x.Side == RoadSegmentAttributeSide.Links).Value!.StreetNameId;
+        }
+        if (side == RoadSegmentAttributeSide.Rechts)
+        {
+            return attributes.Values.Single(x => x.Side == RoadSegmentAttributeSide.Beide || x.Side == RoadSegmentAttributeSide.Rechts).Value!.StreetNameId;
+        }
+        throw new InvalidOperationException("Only left or right side is allowed.");
     }
 
     private static RoadSegmentGeometryProjections ProjectGeometry(RoadSegmentGeometry geometry, bool isV2)

@@ -49,8 +49,8 @@ public class RoadSegmentAttributesMergeWithTests
             Segment1Length = 10,
             Segment1Attributes = new AttributeValues([(0, 10, "a")]),
             Segment2Length = 5,
-            Segment2Attributes = new AttributeValues([(0, 5, RoadSegmentAttributeSide.Left, "a")]),
-            ExpectedAttributes = new AttributeValues([(0, 10, RoadSegmentAttributeSide.Both, "a"), (10, 15, RoadSegmentAttributeSide.Left, "a")])
+            Segment2Attributes = new AttributeValues([(0, 5, RoadSegmentAttributeSide.Links, "a")]),
+            ExpectedAttributes = new AttributeValues([(0, 10, RoadSegmentAttributeSide.Beide, "a"), (10, 15, RoadSegmentAttributeSide.Links, "a")])
         }];
         yield return [new MergeWithTestCase("single attribute with different values over entire segment")
         {
@@ -65,8 +65,8 @@ public class RoadSegmentAttributesMergeWithTests
             Segment1Length = 10,
             Segment1Attributes = new AttributeValues([(0, 10, "a")]),
             Segment2Length = 5,
-            Segment2Attributes = new AttributeValues([(0, 5, RoadSegmentAttributeSide.Left, "b")]),
-            ExpectedAttributes = new AttributeValues([(0, 10, RoadSegmentAttributeSide.Both, "a"), (10, 15, RoadSegmentAttributeSide.Left, "b")])
+            Segment2Attributes = new AttributeValues([(0, 5, RoadSegmentAttributeSide.Links, "b")]),
+            ExpectedAttributes = new AttributeValues([(0, 10, RoadSegmentAttributeSide.Beide, "a"), (10, 15, RoadSegmentAttributeSide.Links, "b")])
         }];
 
         yield return [new MergeWithTestCase("multiple attributes with both ideal direction")
@@ -113,18 +113,18 @@ public class RoadSegmentAttributesMergeWithTests
         {
             Segment1Length = 5,
             Segment1Attributes = new AttributeValues([
-                (0, 5, RoadSegmentAttributeSide.Left, "a"),
-                (0, 5, RoadSegmentAttributeSide.Right, "a"),
+                (0, 5, RoadSegmentAttributeSide.Links, "a"),
+                (0, 5, RoadSegmentAttributeSide.Rechts, "a"),
             ]),
             Segment1HasIdealDirection = true,
             Segment2Length = 5,
             Segment2Attributes = new AttributeValues([
-                (0, 5, RoadSegmentAttributeSide.Left, "a"),
-                (0, 5, RoadSegmentAttributeSide.Right, "a"),
+                (0, 5, RoadSegmentAttributeSide.Links, "a"),
+                (0, 5, RoadSegmentAttributeSide.Rechts, "a"),
             ]),
             Segment2HasIdealDirection = false,
             ExpectedAttributes = new AttributeValues([
-                (0, 10, RoadSegmentAttributeSide.Both, "a"),
+                (0, 10, RoadSegmentAttributeSide.Beide, "a"),
             ])
         }];
     }
@@ -150,7 +150,7 @@ public class RoadSegmentAttributesMergeWithTests
         public ICollection<(int From, int To, RoadSegmentAttributeSide Side, string Value)> Values { get; }
 
         public AttributeValues(ICollection<(int, int, string)> values)
-            : this(values.Select(x => (x.Item1, x.Item2, RoadSegmentAttributeSide.Both, x.Item3)).ToArray())
+            : this(values.Select(x => (x.Item1, x.Item2, RoadSegmentAttributeSide.Beide, x.Item3)).ToArray())
         {
         }
         public AttributeValues(ICollection<(int, int, RoadSegmentAttributeSide, string)> values)

@@ -91,9 +91,24 @@ public class ApiModule : Module
             RegisterStreetNameProjection();
         }
 
-        if (projectionOptions.Marten.Enabled)
+        if (projectionOptions.MartenMigration.Enabled)
         {
-            RegisterMartenProjections();
+            RegisterMartenMigrationProjection();
+        }
+
+        if (projectionOptions.Extract.Enabled)
+        {
+            RegisterExtractMartenProjection();
+        }
+
+        if (projectionOptions.Read.Enabled)
+        {
+            RegisterReadMartenProjection();
+        }
+
+        if (projectionOptions.Pbs.Enabled)
+        {
+            RegisterPbsMartenProjection();
         }
     }
 
@@ -336,7 +351,7 @@ public class ApiModule : Module
         });
     }
 
-    private void RegisterMartenProjections()
+    private void RegisterMartenMigrationProjection()
     {
         RegisterProjection<MartenMigrationContext>(new ProjectionDetail
         {
@@ -346,7 +361,10 @@ public class ApiModule : Module
             WellKnownConnectionName = WellKnownConnectionNames.MartenMigration,
             FallbackDesiredState = "subscribed"
         });
+    }
 
+    private void RegisterExtractMartenProjection()
+    {
         _martenProjections.Add(new ProjectionDetail
         {
             Id = WellKnownProjectionStateNames.RoadNetworkChangesExtractProjection,
@@ -354,11 +372,25 @@ public class ApiModule : Module
             Description = string.Empty,
             FallbackDesiredState = "subscribed"
         });
+    }
 
+    private void RegisterReadMartenProjection()
+    {
         _martenProjections.Add(new ProjectionDetail
         {
             Id = WellKnownProjectionStateNames.RoadNetworkChangesReadProjection,
             Name = "Marten - Read",
+            Description = string.Empty,
+            FallbackDesiredState = "subscribed"
+        });
+    }
+
+    private void RegisterPbsMartenProjection()
+    {
+        _martenProjections.Add(new ProjectionDetail
+        {
+            Id = WellKnownProjectionStateNames.RoadNetworkChangesPbsProjection,
+            Name = "Marten - PBS",
             Description = string.Empty,
             FallbackDesiredState = "subscribed"
         });

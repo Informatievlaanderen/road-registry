@@ -85,6 +85,7 @@ public class RoadNetworkTestDataV2
         Fixture.CustomizeRoadSegmentSurfaceTypeV2();
         Fixture.CustomizeRoadSegmentTrafficDirection();
         Fixture.CustomizeRoadSegmentPedestrianTrafficDirection();
+        Fixture.CustomizeRoadSegmentAttributeSide();
         Fixture.CustomizeEuropeanRoadNumber();
         Fixture.CustomizeNationalRoadNumber();
         Fixture.CustomizeOriginProperties();

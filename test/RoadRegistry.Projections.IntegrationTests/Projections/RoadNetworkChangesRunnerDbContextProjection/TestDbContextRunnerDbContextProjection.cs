@@ -3,7 +3,7 @@
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Microsoft.EntityFrameworkCore;
 
-public class TestDbContextRunnerDbContextProjection : RoadRegistry.Infrastructure.MartenDb.Projections.RoadNetworkChangesRunnerDbContextProjection<TestDbContext>
+public class TestDbContextRunnerDbContextProjection : RoadRegistry.Infrastructure.MartenDb.Projections.RunnerDbContextRoadNetworkChangesProjection<TestDbContext>
 {
     public TestDbContextRunnerDbContextProjection(
         ICollection<ConnectedProjection<TestDbContext>> projections,

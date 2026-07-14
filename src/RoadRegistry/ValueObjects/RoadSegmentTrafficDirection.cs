@@ -10,30 +10,22 @@ public sealed class RoadSegmentTrafficDirection : IEquatable<RoadSegmentTrafficD
     public static readonly RoadSegmentTrafficDirection Forward =
         new(
             nameof(Forward),
-            new DutchTranslation(
-                "heen"
-            )
+            new DutchTranslation(1, "heen", "Het attribuut is van toepassing in de heenrichting (t.o.v. de digitalisatiezin van het wegsegment).")
         );
     public static readonly RoadSegmentTrafficDirection Backward =
         new(
             nameof(Backward),
-            new DutchTranslation(
-                "terug"
-            )
+            new DutchTranslation(2, "terug", "Het attribuut is van toepassing in de terugrichting (t.o.v. de digitalisatiezin van het wegsegment).")
         );
     public static readonly RoadSegmentTrafficDirection Both =
         new(
             nameof(Both),
-            new DutchTranslation(
-                "beide"
-            )
+            new DutchTranslation(3, "beide", "Het attribuut is van toepassing in beide richtingen (t.o.v. de digitalisatiezin van het wegsegment).")
         );
     public static readonly RoadSegmentTrafficDirection None =
         new(
             nameof(None),
-            new DutchTranslation(
-                "geen"
-            )
+            new DutchTranslation(4, "geen", "Het attribuut is in geen enkele richting van toepassing.")
         );
 
     public static readonly RoadSegmentTrafficDirection[] All =
@@ -144,11 +136,15 @@ public sealed class RoadSegmentTrafficDirection : IEquatable<RoadSegmentTrafficD
 
     public sealed class DutchTranslation
     {
-        internal DutchTranslation(string name)
+        internal DutchTranslation(int identifier, string name, string description)
         {
+            Identifier = identifier;
             Name = name;
+            Description = description;
         }
 
+        public int Identifier { get; }
         public string Name { get; }
+        public string Description { get; }
     }
 }

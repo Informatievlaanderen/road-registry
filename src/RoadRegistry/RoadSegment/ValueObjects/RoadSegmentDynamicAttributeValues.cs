@@ -52,7 +52,7 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
     }
     public RoadSegmentDynamicAttributeValues<T> Add(RoadSegmentPositionCoverage coverage, T value)
     {
-        return Add(coverage, RoadSegmentAttributeSide.Both, value);
+        return Add(coverage, RoadSegmentAttributeSide.Beide, value);
     }
 
     public RoadSegmentDynamicAttributeValues<T> Add(RoadSegmentPositionV2 from, RoadSegmentPositionV2 to, RoadSegmentAttributeSide side, T value)
@@ -263,7 +263,7 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
                 items[i] = new RoadSegmentDynamicAttributeValue<T>
                 {
                     Coverage = a.Coverage,
-                    Side = RoadSegmentAttributeSide.Both,
+                    Side = RoadSegmentAttributeSide.Beide,
                     Value = a.Value
                 };
                 items.RemoveAt(j);
@@ -281,14 +281,14 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
         for (var i = 0; i < items.Count; i++)
         {
             var a = items[i];
-            if (a.Side != RoadSegmentAttributeSide.Both) continue;
+            if (a.Side != RoadSegmentAttributeSide.Beide) continue;
 
             for (var j = 0; j < items.Count; j++)
             {
                 if (i == j) continue;
 
                 var b = items[j];
-                if (b.Side == RoadSegmentAttributeSide.Both) continue;
+                if (b.Side == RoadSegmentAttributeSide.Beide) continue;
                 if (!ValuesAreEqual(a, b)) continue;
                 if (!CoverageContains(a.Coverage, b.Coverage)) continue;
 
@@ -324,7 +324,7 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
 
     private static bool IsLeftRightPair(RoadSegmentAttributeSide a, RoadSegmentAttributeSide b)
     {
-        return (a == RoadSegmentAttributeSide.Left && b == RoadSegmentAttributeSide.Right)
-               || (a == RoadSegmentAttributeSide.Right && b == RoadSegmentAttributeSide.Left);
+        return (a == RoadSegmentAttributeSide.Links && b == RoadSegmentAttributeSide.Rechts)
+               || (a == RoadSegmentAttributeSide.Rechts && b == RoadSegmentAttributeSide.Links);
     }
 }

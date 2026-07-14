@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenCreateOutlineV2;
 
+using RoadRegistry.RoadSegment.ValueObjects;
 using Api.Infrastructure.Controllers;
 using AutoFixture;
 using BackOffice.Handlers.Sqs.RoadSegments.V2;
@@ -85,7 +86,7 @@ public class CreateOutlineV2Tests
             [
                 new IngeschetstWegsegmentStraatnaamAttribuutWaarde
                 {
-                    Kant = WegsegmentKant.Beide,
+                    Kant = RoadSegmentAttributeSide.Beide.ToDutchString(),
                     VanPositie = 0,
                     TotPositie = length,
                     Identificator = "https://data.vlaanderen.be/id/straatnaam/71671"
@@ -95,7 +96,7 @@ public class CreateOutlineV2Tests
             [
                 new IngeschetstWegsegmentWegbeheerderAttribuutWaarde
                 {
-                    Kant = WegsegmentKant.Beide,
+                    Kant = RoadSegmentAttributeSide.Beide.ToDutchString(),
                     VanPositie = 0,
                     TotPositie = length,
                     Wegbeheerder = "AWV"

@@ -7,8 +7,10 @@ using RoadRegistry.ValueObjects;
 public sealed class RoadSegmentDynamicAttributeValue<T> : IEquatable<RoadSegmentDynamicAttributeValue<T>>
     where T : notnull
 {
-    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-    public RoadSegmentAttributeSide Side { get; init; }
+    public RoadSegmentAttributeSide Side { get; init; } = RoadSegmentAttributeSide.Beide;
+
+    // Preserve the previous serialization shape: Both (the default) is omitted, only Left/Right are written.
+    public bool ShouldSerializeSide() => Side != RoadSegmentAttributeSide.Beide;
 
     public required RoadSegmentPositionCoverage Coverage { get; init; }
 

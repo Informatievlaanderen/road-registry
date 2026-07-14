@@ -29,6 +29,7 @@ using Product.Schema;
 using Sync.OrganizationRegistry;
 using Sync.StreetNameRegistry;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -47,6 +48,8 @@ using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
+using RoadRegistry.Pbs.Projections;
+using RoadRegistry.Pbs.Schema;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.StreetName;
 using Wfs.Schema;
@@ -66,6 +69,16 @@ public class Startup
     {
         var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
         var projectionOptions = _configuration.GetOptions<ProjectionOptions>("Projections");
+
+        var extractEnabled = projectionOptions.Extract?.Enabled == true;
+        var readEnabled = projectionOptions.Read?.Enabled == true;
+        var pbsEnabled = projectionOptions.Pbs?.Enabled == true;
+
+        var dbContextMigratorFactories = new List<IDbContextMigratorFactory> { new ExtractsDbContextMigratorFactory() };
+        if (pbsEnabled)
+        {
+            dbContextMigratorFactories.Add(new PbsContextMigratorFactory());
+        }
 
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
@@ -173,9 +186,18 @@ public class Startup
                             health.AddDbContextCheck<StreetNameEventProjectionContext>();
                         }
 
-                        if (projectionOptions.Marten.Enabled)
+                        if (projectionOptions.MartenMigration?.Enabled == true)
                         {
                             health.AddDbContextCheck<MartenMigrationContext>();
+                        }
+
+                        if (projectionOptions.Pbs?.Enabled == true)
+                        {
+                            health.Add(new HealthCheckRegistration(
+                                "pbscontext",
+                                sp => new PbsDbContextHealthCheck(sp.GetRequiredService<IDbContextFactory<PbsContext>>()),
+                                HealthStatus.Unhealthy,
+                                tags: [DatabaseTag, "sql", "sqlserver"]));
                         }
                     }
                 }
@@ -206,24 +228,47 @@ public class Startup
             .AddStreetNameClient()
             .AddMartenRoad((options, sp) =>
             {
+                if (extractEnabled)
                 {
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesExtractProjection)}:BatchSize");
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesExtractProjection(batchSize, sp.GetRequiredService<ILoggerFactory>()));
                 }
 
+                if (readEnabled)
                 {
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesReadProjection)}:BatchSize");
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesReadProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IStreetNameClient>()));
                 }
+
+                if (pbsEnabled)
+                {
+                    var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesPbsProjection)}:BatchSize");
+                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesPbsProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<PbsContext>>()));
+                }
             }).Services
             .AddMartenDatabaseMigrations()
+            .AddSingleton<MartenProjectionDaemonAccessor>()
             .AddHostedService<MartenProjectionsDaemonHostedService>() // Must be after MartenDatabaseMigrations
+            // Keeps every Marten projection resilient: if a shard pauses on an error it is periodically resumed, while
+            // all other projections keep running and the host is never affected.
+            .AddHostedService<MartenProjectionSupervisor>()
 
-            .AddSingleton(new IDbContextMigratorFactory[]
-            {
-                new ExtractsDbContextMigratorFactory()
-            })
+            .AddSingleton(dbContextMigratorFactories.ToArray())
             ;
+
+        if (pbsEnabled)
+        {
+            services
+                .AddDbContextFactory<PbsContext>((sp, options) =>
+                {
+                    var connectionString = sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.PbsProjections);
+                    options.UseSqlServer(connectionString, o => o
+                        .EnableRetryOnFailure()
+                        .UseNetTopologySuite());
+                })
+                // One-time sync of the PBS enum-based code lists (Wegbeheerder code list is event-driven instead).
+                .AddHostedService<PbsCodeListSyncService>();
+        }
 
         // extracts projections until GRB has been migrated
         {

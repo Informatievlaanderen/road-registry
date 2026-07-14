@@ -68,25 +68,25 @@ public record RoadSegmentFeatureCompareWithDynamicAttributes
             Geometry = geometry.RoundToCm(),
             Method = method,
             Status = status,
-            AccessRestriction = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.AccessRestriction))),
-            Category = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.Category))),
+            AccessRestriction = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.AccessRestriction))),
+            Category = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.Category))),
             MaintenanceAuthorityId = CreateDynamicAttributeValues(flatAttributes.SelectMany(x => new []
             {
-                (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Left, x.LeftMaintenanceAuthorityId),
-                (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Right, x.RightMaintenanceAuthorityId)
+                (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Links, x.LeftMaintenanceAuthorityId),
+                (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Rechts, x.RightMaintenanceAuthorityId)
             })),
-            Morphology = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.Morphology))),
+            Morphology = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.Morphology))),
             StreetNameId = CreateDynamicAttributeValues(flatAttributes.SelectMany(x => new []
             {
-                (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Left, x.LeftSideStreetNameId),
-                (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Right, x.RightSideStreetNameId)
+                (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Links, x.LeftSideStreetNameId),
+                (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Rechts, x.RightSideStreetNameId)
             })),
-            SurfaceType = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.SurfaceType))),
-            CarAccessForward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.CarAccessForward))),
-            CarAccessBackward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.CarAccessBackward))),
-            BikeAccessForward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.BikeAccessForward))),
-            BikeAccessBackward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.BikeAccessBackward))),
-            PedestrianAccess = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Both, x.PedestrianAccess)))
+            SurfaceType = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.SurfaceType))),
+            CarAccessForward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.CarAccessForward))),
+            CarAccessBackward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.CarAccessBackward))),
+            BikeAccessForward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.BikeAccessForward))),
+            BikeAccessBackward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.BikeAccessBackward))),
+            PedestrianAccess = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.PedestrianAccess)))
         };
     }
 

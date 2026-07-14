@@ -11,7 +11,7 @@ using Marten;
 using Newtonsoft.Json;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 
-public class GradeJunctionReadProjection : RoadNetworkChangesConnectedProjection
+public class GradeJunctionReadProjection : MartenRoadNetworkChangesProjection
 {
     public static void Configure(StoreOptions options)
     {
