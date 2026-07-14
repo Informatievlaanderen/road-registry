@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadSegment.Events.V2;
 
-public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
+public class RoadSegmentProjection : MartenRoadNetworkChangesProjection
 {
     public static void Configure(StoreOptions options)
     {

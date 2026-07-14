@@ -29,6 +29,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadSegment;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
@@ -110,7 +111,7 @@ public partial class RoadSegmentsController
                 StreetNameId = parameters.Straatnaam
                     .Select(x => new ChangeRoadSegmentStreetNameIdAttributeValue
                     {
-                        Side = x.Kant.ToRoadSegmentAttributeSide(),
+                        Side = RoadSegmentAttributeSide.ParseUsingDutchName(x.Kant),
                         FromPosition = new RoadSegmentPositionV2(x.VanPositie),
                         ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         StreetNameId = new StreetNameLocalId(x.Identificator.GetIdentifierFromPuri())
@@ -119,7 +120,7 @@ public partial class RoadSegmentsController
                 MaintenanceAuthorityId = parameters.Wegbeheerder
                     .Select(x => new ChangeRoadSegmentMaintenanceAuthorityIdAttributeValue
                     {
-                        Side = x.Kant.ToRoadSegmentAttributeSide(),
+                        Side = RoadSegmentAttributeSide.ParseUsingDutchName(x.Kant),
                         FromPosition = new RoadSegmentPositionV2(x.VanPositie),
                         ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
                         MaintenanceAuthorityId = new OrganizationId(x.Wegbeheerder)
@@ -261,7 +262,8 @@ public class IngeschetstWegsegmentStraatnaamAttribuutWaarde
     /// </summary>
     [DataMember(Name = "Kant", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public required WegsegmentKant Kant { get; set; }
+    [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
+    public required string Kant { get; set; }
 
     /// <summary>
     /// Positie vanaf waar het attribuut van toepassing is.
@@ -294,7 +296,8 @@ public class IngeschetstWegsegmentWegbeheerderAttribuutWaarde
     /// </summary>
     [DataMember(Name = "Kant", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public required WegsegmentKant Kant { get; set; }
+    [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
+    public required string Kant { get; set; }
 
     /// <summary>
     /// Positie vanaf waar het attribuut van toepassing is.
@@ -474,11 +477,11 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
                 var codes = ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes;
                 var prop = nameof(CreateOutlinedRoadSegmentV2Parameters.Straatnaam);
                 ValidatePositions(
-                    items.Where(x => x.Kant is WegsegmentKant.Links or WegsegmentKant.Beide)
+                    items.Where(x => x.Kant == RoadSegmentAttributeSide.Links.Translation.Name || x.Kant == RoadSegmentAttributeSide.Beide.Translation.Name)
                          .Select(x => (x.VanPositie, x.TotPositie)),
                     length, codes, ctx, prop);
                 ValidatePositions(
-                    items.Where(x => x.Kant is WegsegmentKant.Rechts or WegsegmentKant.Beide)
+                    items.Where(x => x.Kant == RoadSegmentAttributeSide.Rechts.Translation.Name || x.Kant == RoadSegmentAttributeSide.Beide.Translation.Name)
                          .Select(x => (x.VanPositie, x.TotPositie)),
                     length, codes, ctx, prop);
             });
@@ -515,11 +518,11 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
                 var codes = ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes;
                 var prop = nameof(CreateOutlinedRoadSegmentV2Parameters.Wegbeheerder);
                 ValidatePositions(
-                    items.Where(x => x.Kant == WegsegmentKant.Links || x.Kant == WegsegmentKant.Beide)
+                    items.Where(x => x.Kant == RoadSegmentAttributeSide.Links.Translation.Name || x.Kant == RoadSegmentAttributeSide.Beide.Translation.Name)
                          .Select(x => (x.VanPositie, x.TotPositie)),
                     length, codes, ctx, prop);
                 ValidatePositions(
-                    items.Where(x => x.Kant == WegsegmentKant.Rechts || x.Kant == WegsegmentKant.Beide)
+                    items.Where(x => x.Kant == RoadSegmentAttributeSide.Rechts.Translation.Name || x.Kant == RoadSegmentAttributeSide.Beide.Translation.Name)
                          .Select(x => (x.VanPositie, x.TotPositie)),
                     length, codes, ctx, prop);
             });
@@ -760,21 +763,21 @@ public class CreateOutlinedRoadSegmentV2ParametersExamples : IExamplesProvider<C
             Straatnaam = [
                 new IngeschetstWegsegmentStraatnaamAttribuutWaarde
                 {
-                    Kant = WegsegmentKant.Links,
+                    Kant = RoadSegmentAttributeSide.Links.ToDutchString(),
                     VanPositie = 0,
                     TotPositie = 10,
                     Identificator = OsloNamespaces.StraatNaam.ToPuri(71671.ToString())
                 },
                 new IngeschetstWegsegmentStraatnaamAttribuutWaarde
                 {
-                    Kant = WegsegmentKant.Rechts,
+                    Kant = RoadSegmentAttributeSide.Rechts.ToDutchString(),
                     VanPositie = 0,
                     TotPositie = 10,
                     Identificator = OsloNamespaces.StraatNaam.ToPuri(65412.ToString())
                 },
                 new IngeschetstWegsegmentStraatnaamAttribuutWaarde
                 {
-                    Kant = WegsegmentKant.Beide,
+                    Kant = RoadSegmentAttributeSide.Beide.ToDutchString(),
                     VanPositie = 10,
                     TotPositie = geometry.Length.RoundToCm(),
                     Identificator = OsloNamespaces.StraatNaam.ToPuri(71671.ToString())
@@ -799,7 +802,7 @@ public class CreateOutlinedRoadSegmentV2ParametersExamples : IExamplesProvider<C
             Wegbeheerder = new [] { new OrganizationId("AGIV") }
                 .Select(x => new IngeschetstWegsegmentWegbeheerderAttribuutWaarde
                 {
-                    Kant = WegsegmentKant.Beide,
+                    Kant = RoadSegmentAttributeSide.Beide.ToDutchString(),
                     VanPositie = 0,
                     TotPositie = geometry.Length.RoundToCm(),
                     Wegbeheerder = x.ToString()

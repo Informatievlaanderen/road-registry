@@ -37,7 +37,7 @@ public static class ValidationExtensions
         var problems = Problems.None;
 
         var valuesGroupedByPositionSegment = attributeValues.Values
-            .Where(x => x.Side == (leftSide ? RoadSegmentAttributeSide.Left : RoadSegmentAttributeSide.Right) || x.Side == RoadSegmentAttributeSide.Both)
+            .Where(x => x.Side == (leftSide ? RoadSegmentAttributeSide.Links : RoadSegmentAttributeSide.Rechts) || x.Side == RoadSegmentAttributeSide.Beide)
             .OrderBy(x => x.Coverage.From)
             .ThenBy(x => x.Coverage.To)
             .ToLookup(x => x.Coverage, x => x.Value);

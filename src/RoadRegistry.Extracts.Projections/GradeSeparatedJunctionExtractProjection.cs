@@ -9,7 +9,7 @@ using Marten;
 using Newtonsoft.Json;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 
-public class GradeSeparatedJunctionExtractProjection : RoadNetworkChangesConnectedProjection
+public class GradeSeparatedJunctionExtractProjection : MartenRoadNetworkChangesProjection
 {
     public static void Configure(StoreOptions options)
     {

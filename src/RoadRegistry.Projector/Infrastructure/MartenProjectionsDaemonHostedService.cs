@@ -18,16 +18,19 @@ public sealed class MartenProjectionsDaemonHostedService : IHostedService
 {
     private readonly IDocumentStore _store;
     private readonly DatabaseMigrationsGate _migrationsGate;
+    private readonly MartenProjectionDaemonAccessor _daemonAccessor;
     private readonly ILogger<IProjectionDaemon> _logger;
     private IProjectionDaemon? _daemon;
 
     public MartenProjectionsDaemonHostedService(
         IDocumentStore store,
         DatabaseMigrationsGate migrationsGate,
+        MartenProjectionDaemonAccessor daemonAccessor,
         ILogger<IProjectionDaemon> logger)
     {
         _store = store;
         _migrationsGate = migrationsGate;
+        _daemonAccessor = daemonAccessor;
         _logger = logger;
     }
 
@@ -46,6 +49,7 @@ public sealed class MartenProjectionsDaemonHostedService : IHostedService
             await daemon.StartAllAsync();
 
             _daemon = daemon;
+            _daemonAccessor.Daemon = daemon;
             daemon = null;
         }
         catch (OperationCanceledException)
@@ -65,6 +69,7 @@ public sealed class MartenProjectionsDaemonHostedService : IHostedService
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         var daemon = Interlocked.Exchange(ref _daemon, null);
+        _daemonAccessor.Daemon = null;
         if (daemon is null)
         {
             return;

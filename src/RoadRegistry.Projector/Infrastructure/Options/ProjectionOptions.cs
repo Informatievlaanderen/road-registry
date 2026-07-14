@@ -11,7 +11,10 @@ public class ProjectionOptions
     public Option OrganizationSync { get; set; }
     public Option StreetNameSync { get; set; }
     public Option Integration { get; set; }
-    public Option Marten { get; set; }
+    public Option MartenMigration { get; set; }
+    public Option Read { get; set; }
+    public Option Extract { get; set; }
+    public Option Pbs { get; set; }
 
     public class Option
     {

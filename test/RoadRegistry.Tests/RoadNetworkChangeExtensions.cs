@@ -15,7 +15,7 @@ public static class RoadNetworkChangeExtensions
         }
 
         var newAttributeValues = new RoadSegmentDynamicAttributeValues<T>();
-        newAttributeValues.Add(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Both, attributeValues.Values.Single().Value);
+        newAttributeValues.Add(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Beide, attributeValues.Values.Single().Value);
         return newAttributeValues;
     }
 

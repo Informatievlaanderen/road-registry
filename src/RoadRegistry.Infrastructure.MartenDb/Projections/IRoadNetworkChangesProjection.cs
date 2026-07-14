@@ -6,4 +6,5 @@ using Marten;
 public interface IRoadNetworkChangesProjection
 {
     Task Project(IDocumentOperations operations, IReadOnlyList<IEvent> events, CancellationToken cancellationToken);
+    bool IsCatchingUp { get; set; }
 }

@@ -8,6 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.Extracts.Projections\RoadRegistry.Extracts.Projections.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Pbs.Projections\RoadRegistry.Pbs.Projections.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.MartenMigration.Projections\RoadRegistry.MartenMigration.Projections.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Read.Projections\RoadRegistry.Read.Projections.csproj" />
@@ -41,5 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Projections\Extract\" />
   </ItemGroup>
 </Project>

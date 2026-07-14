@@ -20,6 +20,7 @@ using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using RoadRegistry.BackOffice.Api.Infrastructure.Options;
 using RoadRegistry.Extensions;
 using RoadRegistry.Read.Projections;
+using RoadRegistry.RoadSegment.ValueObjects;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using Identificator = Be.Vlaanderen.Basisregisters.GrAr.Legacy.Identificator;
@@ -103,7 +104,7 @@ public partial class RoadSegmentsController
             Straatnaam = roadSegment.StreetNameId.Values
                 .Select(x => new WegsegmentStraatnaamAttribuutWaarde
                 {
-                    Kant = x.Side.ToWegsegmentKant(),
+                    Kant = x.Side.ToDutchString(),
                     VanPositie = x.From,
                     TotPositie = x.To,
                     Straatnaam = x.Value!.StreetNameId > 0
@@ -114,7 +115,7 @@ public partial class RoadSegmentsController
             Wegbeheerder = roadSegment.MaintenanceAuthorityId.Values
                 .Select(x => new WegsegmentWegbeheerderAttribuutWaarde
                 {
-                    Kant = x.Side.ToWegsegmentKant(),
+                    Kant = x.Side.ToDutchString(),
                     VanPositie = x.From,
                     TotPositie = x.To,
                     Wegbeheerder = new WegbeheerderObject
@@ -498,7 +499,8 @@ public class WegsegmentStraatnaamAttribuutWaarde
     /// </summary>
     [DataMember(Name = "Kant", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public required WegsegmentKant Kant { get; set; }
+    [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
+    public required string Kant { get; set; }
 
     /// <summary>
     /// Positie vanaf waar het attribuut van toepassing is.
@@ -576,7 +578,8 @@ public class WegsegmentWegbeheerderAttribuutWaarde
     /// </summary>
     [DataMember(Name = "Kant", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
-    public required WegsegmentKant Kant { get; set; }
+    [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
+    public required string Kant { get; set; }
 
     /// <summary>
     /// Positie vanaf waar het attribuut van toepassing is.
@@ -805,21 +808,21 @@ public class WegsegmentV2DetailResponseExamples : IExamplesProvider<WegsegmentV2
             Straatnaam = [
                 new WegsegmentStraatnaamAttribuutWaarde
                 {
-                    Kant = WegsegmentKant.Links,
+                    Kant = RoadSegmentAttributeSide.Links.ToDutchString(),
                     VanPositie = 0,
                     TotPositie = 10,
                     Straatnaam = new StraatnaamLink(new StreetNameLocalId(71671), _apiOptions.GetStraatnaamDetailUrlFormat(), "Smidsestraat")
                 },
                 new WegsegmentStraatnaamAttribuutWaarde
                 {
-                    Kant = WegsegmentKant.Rechts,
+                    Kant = RoadSegmentAttributeSide.Rechts.ToDutchString(),
                     VanPositie = 0,
                     TotPositie = 10,
                     Straatnaam = new StraatnaamLink(new StreetNameLocalId(65412), _apiOptions.GetStraatnaamDetailUrlFormat(), "Veerstraat")
                 },
                 new WegsegmentStraatnaamAttribuutWaarde
                 {
-                    Kant = WegsegmentKant.Beide,
+                    Kant = RoadSegmentAttributeSide.Beide.ToDutchString(),
                     VanPositie = 10,
                     TotPositie = geometry.Length.RoundToCm(),
                     Straatnaam = new StraatnaamLink(new StreetNameLocalId(71671), _apiOptions.GetStraatnaamDetailUrlFormat(), "Smidsestraat")
@@ -844,7 +847,7 @@ public class WegsegmentV2DetailResponseExamples : IExamplesProvider<WegsegmentV2
             Wegbeheerder = new [] { new OrganizationId("AGIV") }
                 .Select(x => new WegsegmentWegbeheerderAttribuutWaarde
                 {
-                    Kant = WegsegmentKant.Beide,
+                    Kant = RoadSegmentAttributeSide.Beide.ToDutchString(),
                     VanPositie = 0,
                     TotPositie = geometry.Length.RoundToCm(),
                     Wegbeheerder = new WegbeheerderObject

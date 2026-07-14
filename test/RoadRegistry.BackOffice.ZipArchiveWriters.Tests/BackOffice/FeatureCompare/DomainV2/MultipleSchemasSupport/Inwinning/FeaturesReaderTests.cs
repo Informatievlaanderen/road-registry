@@ -147,16 +147,16 @@ public class FeaturesReaderTests
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst,
                 Status = RoadSegmentStatusV2.ByIdentifier[roadSegmentDbaseRecord2.STATUS.Value],
                 MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>([
-                    (new RoadSegmentPositionCoverage(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(segment2Geometry.Value.Length)), RoadSegmentAttributeSide.Left, new OrganizationId(roadSegmentDbaseRecord2.LBEHEER.Value!)),
-                    (new RoadSegmentPositionCoverage(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(segment2Geometry.Value.Length)), RoadSegmentAttributeSide.Right, new OrganizationId(roadSegmentDbaseRecord2.RBEHEER.Value!))
+                    (new RoadSegmentPositionCoverage(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(segment2Geometry.Value.Length)), RoadSegmentAttributeSide.Links, new OrganizationId(roadSegmentDbaseRecord2.LBEHEER.Value!)),
+                    (new RoadSegmentPositionCoverage(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(segment2Geometry.Value.Length)), RoadSegmentAttributeSide.Rechts, new OrganizationId(roadSegmentDbaseRecord2.RBEHEER.Value!))
                 ]),
                 Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(RoadSegmentMorphologyV2.ByIdentifier[roadSegmentDbaseRecord2.MORF.Value], segment2Geometry),
                 Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(RoadSegmentCategoryV2.ByIdentifier[roadSegmentDbaseRecord2.WEGCAT.Value], segment2Geometry),
                 AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(RoadSegmentAccessRestrictionV2.ByIdentifier[roadSegmentDbaseRecord2.TOEGANG.Value], segment2Geometry),
                 SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(RoadSegmentSurfaceTypeV2.ByIdentifier[roadSegmentDbaseRecord2.VERHARDING.Value], segment2Geometry),
                 StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>([
-                    (new RoadSegmentPositionCoverage(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(segment2Geometry.Value.Length)), RoadSegmentAttributeSide.Left, StreetNameLocalId.FromValue(roadSegmentDbaseRecord2.LSTRNMID.Value ?? StreetNameLocalId.NotApplicable)!.Value),
-                    (new RoadSegmentPositionCoverage(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(segment2Geometry.Value.Length)), RoadSegmentAttributeSide.Right, StreetNameLocalId.FromValue(roadSegmentDbaseRecord2.RSTRNMID.Value ?? StreetNameLocalId.NotApplicable)!.Value)
+                    (new RoadSegmentPositionCoverage(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(segment2Geometry.Value.Length)), RoadSegmentAttributeSide.Links, StreetNameLocalId.FromValue(roadSegmentDbaseRecord2.LSTRNMID.Value ?? StreetNameLocalId.NotApplicable)!.Value),
+                    (new RoadSegmentPositionCoverage(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(segment2Geometry.Value.Length)), RoadSegmentAttributeSide.Rechts, StreetNameLocalId.FromValue(roadSegmentDbaseRecord2.RSTRNMID.Value ?? StreetNameLocalId.NotApplicable)!.Value)
                 ]),
                 CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(roadSegmentDbaseRecord2.AUTOHEEN.Value.ToBooleanFromDbaseValue() ?? false, roadSegmentDbaseRecord2.AUTOTERUG.Value.ToBooleanFromDbaseValue() ?? false), segment2Geometry),
                 BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(RoadSegmentTrafficDirection.FromAccess(roadSegmentDbaseRecord2.FIETSHEEN.Value.ToBooleanFromDbaseValue() ?? false, roadSegmentDbaseRecord2.FIETSTERUG.Value.ToBooleanFromDbaseValue() ?? false), segment2Geometry),

@@ -130,7 +130,7 @@ public class RoadSegmentExtractProjectionTests
             MaintenanceAuthorityId = ForEntireLength(new OrganizationId(roadSegment1Added.MaintenanceAuthority.Code), roadSegment1Added.Geometry),
             SurfaceType = expectGeometryLength
                 ? ForEntireLength(roadSegment1Added.Surfaces.Single().Type, roadSegment1Added.Geometry)
-                : new ExtractRoadSegmentDynamicAttribute<string>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(surfaceTypeToPosition), RoadSegmentAttributeSide.Both, roadSegment1Added.Surfaces.Single().Type)]),
+                : new ExtractRoadSegmentDynamicAttribute<string>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(surfaceTypeToPosition), RoadSegmentAttributeSide.Beide, roadSegment1Added.Surfaces.Single().Type)]),
             CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(),
             CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(),
             BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(),
@@ -727,7 +727,7 @@ public class RoadSegmentExtractProjectionTests
 
     private static ExtractRoadSegmentDynamicAttribute<T> ForEntireLength<T>(T value, RoadSegmentGeometry geometry)
     {
-        return new ExtractRoadSegmentDynamicAttribute<T>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Both, value)]);
+        return new ExtractRoadSegmentDynamicAttribute<T>([(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length.RoundToCm()), RoadSegmentAttributeSide.Beide, value)]);
     }
 
     private RoadSegmentExtractProjection BuildProjection()

@@ -13,7 +13,7 @@ public static class StreetNameAttributeBuilder
     {
         var to = new RoadSegmentPositionV2(geometry.Value.Length);
         return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
-            .Add(RoadSegmentPositionV2.Zero, to, RoadSegmentAttributeSide.Left, left)
-            .Add(RoadSegmentPositionV2.Zero, to, RoadSegmentAttributeSide.Right, right);
+            .Add(RoadSegmentPositionV2.Zero, to, RoadSegmentAttributeSide.Links, left)
+            .Add(RoadSegmentPositionV2.Zero, to, RoadSegmentAttributeSide.Rechts, right);
     }
 }

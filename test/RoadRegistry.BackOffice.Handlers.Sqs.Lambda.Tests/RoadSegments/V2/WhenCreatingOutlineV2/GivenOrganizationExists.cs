@@ -174,7 +174,7 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
             [
                 new ChangeRoadSegmentStreetNameIdAttributeValue
                 {
-                    Side = RoadSegmentAttributeSide.Both,
+                    Side = RoadSegmentAttributeSide.Beide,
                     FromPosition = RoadSegmentPositionV2.Zero,
                     ToPosition = new RoadSegmentPositionV2(GeometryLength),
                     StreetNameId = new StreetNameLocalId(StreetNameId)
@@ -184,7 +184,7 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
             [
                 new ChangeRoadSegmentMaintenanceAuthorityIdAttributeValue
                 {
-                    Side = RoadSegmentAttributeSide.Both,
+                    Side = RoadSegmentAttributeSide.Beide,
                     FromPosition = RoadSegmentPositionV2.Zero,
                     ToPosition = new RoadSegmentPositionV2(GeometryLength),
                     MaintenanceAuthorityId = new OrganizationId("AWV")

@@ -19,6 +19,7 @@ public static class WellKnownSchemas
     public const string WmsSchema = "RoadRegistryWms";
     public const string WfsMetaSchema = "RoadRegistryWfsMeta";
     public const string WfsSchema = "RoadRegistryWfs";
+    public const string PbsSchema = "RoadRegistryPbs";
     public const string StreetNameSchema = "RoadRegistryStreetName";
     public const string StreetNameEventSchema = "RoadRegistryStreetNameEvent";
     public const string StreetNameEventConsumerSchema = "RoadRegistryStreetNameEventConsumer";
@@ -51,6 +52,7 @@ public static class MigrationTables
     public const string Integration = "__EFMigrationsHistory";
     public const string Wms = "__EFMigrationsHistoryWms";
     public const string Wfs = "__EFMigrationsHistoryWfs";
+    public const string Pbs = "__EFMigrationsHistoryPbs";
     public const string StreetName = "__EFMigrationsHistoryStreetName";
     public const string StreetNameEvent = "__EFMigrationsHistoryStreetNameEvent";
     public const string StreetNameEventConsumer = "__EFMigrationsHistoryStreetNameEventConsumer";

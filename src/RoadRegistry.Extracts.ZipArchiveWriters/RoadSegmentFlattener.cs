@@ -36,16 +36,16 @@ public static class RoadSegmentFlattener
                     AccessRestriction = roadSegment.AccessRestriction.GetValue(from, to),
                     Category = roadSegment.Category.GetValue(from, to),
                     Morphology = roadSegment.Morphology.GetValue(from, to),
-                    LeftStreetNameId = roadSegment.StreetNameId.GetValue(from, to, RoadSegmentAttributeSide.Left),
-                    RightStreetNameId = roadSegment.StreetNameId.GetValue(from, to, RoadSegmentAttributeSide.Right),
-                    LeftMaintenanceAuthorityId = roadSegment.MaintenanceAuthorityId.GetValue(from, to, RoadSegmentAttributeSide.Left),
-                    RightMaintenanceAuthorityId = roadSegment.MaintenanceAuthorityId.GetValue(from, to, RoadSegmentAttributeSide.Right),
+                    LeftStreetNameId = roadSegment.StreetNameId.GetValue(from, to, RoadSegmentAttributeSide.Links),
+                    RightStreetNameId = roadSegment.StreetNameId.GetValue(from, to, RoadSegmentAttributeSide.Rechts),
+                    LeftMaintenanceAuthorityId = roadSegment.MaintenanceAuthorityId.GetValue(from, to, RoadSegmentAttributeSide.Links),
+                    RightMaintenanceAuthorityId = roadSegment.MaintenanceAuthorityId.GetValue(from, to, RoadSegmentAttributeSide.Rechts),
                     SurfaceType = roadSegment.SurfaceType.GetValue(from, to),
-                    CarAccessForward = roadSegment.CarAccessForward.TryGetValue(from, to, RoadSegmentAttributeSide.Both, out var carAccessForward) ? carAccessForward : null,
-                    CarAccessBackward = roadSegment.CarAccessBackward.TryGetValue(from, to, RoadSegmentAttributeSide.Both, out var carAccessBackward) ? carAccessBackward : null,
-                    BikeAccessForward = roadSegment.BikeAccessForward.TryGetValue(from, to, RoadSegmentAttributeSide.Both, out var bikeAccessForward) ? bikeAccessForward : null,
-                    BikeAccessBackward = roadSegment.BikeAccessBackward.TryGetValue(from, to, RoadSegmentAttributeSide.Both, out var bikeAccessBackward) ? bikeAccessBackward : null,
-                    PedestrianAccess = roadSegment.PedestrianAccess.TryGetValue(from, to, RoadSegmentAttributeSide.Both, out var pedestrianAccess) ? pedestrianAccess : null,
+                    CarAccessForward = roadSegment.CarAccessForward.TryGetValue(from, to, RoadSegmentAttributeSide.Beide, out var carAccessForward) ? carAccessForward : null,
+                    CarAccessBackward = roadSegment.CarAccessBackward.TryGetValue(from, to, RoadSegmentAttributeSide.Beide, out var carAccessBackward) ? carAccessBackward : null,
+                    BikeAccessForward = roadSegment.BikeAccessForward.TryGetValue(from, to, RoadSegmentAttributeSide.Beide, out var bikeAccessForward) ? bikeAccessForward : null,
+                    BikeAccessBackward = roadSegment.BikeAccessBackward.TryGetValue(from, to, RoadSegmentAttributeSide.Beide, out var bikeAccessBackward) ? bikeAccessBackward : null,
+                    PedestrianAccess = roadSegment.PedestrianAccess.TryGetValue(from, to, RoadSegmentAttributeSide.Beide, out var pedestrianAccess) ? pedestrianAccess : null,
                     EuropeanRoadNumbers = roadSegment.EuropeanRoadNumbers,
                     NationalRoadNumbers = roadSegment.NationalRoadNumbers,
                     Origin = roadSegment.Origin,
@@ -121,7 +121,7 @@ public static class RoadSegmentFlattener
 
     private static T GetValue<T>(this ExtractRoadSegmentDynamicAttribute<T> attributeValues, RoadSegmentPositionV2 from, RoadSegmentPositionV2 to)
     {
-        return GetValue(attributeValues, from, to, RoadSegmentAttributeSide.Both);
+        return GetValue(attributeValues, from, to, RoadSegmentAttributeSide.Beide);
     }
 
     private static T GetValue<T>(this ExtractRoadSegmentDynamicAttribute<T> attributeValues, RoadSegmentPositionV2 from, RoadSegmentPositionV2 to, RoadSegmentAttributeSide side)
@@ -142,18 +142,19 @@ public static class RoadSegmentFlattener
             return false;
         }
 
-        switch (side)
+        if (side == RoadSegmentAttributeSide.Beide)
         {
-            case RoadSegmentAttributeSide.Both:
-                value = values.Single(x => x.Side == RoadSegmentAttributeSide.Both).Value;
-                return true;
-            case RoadSegmentAttributeSide.Left:
-            case RoadSegmentAttributeSide.Right:
-                value = values.Single(x => x.Side == RoadSegmentAttributeSide.Both || x.Side == side).Value;
-                return true;
-            default:
-                throw new ArgumentOutOfRangeException(side.ToString());
+            value = values.Single(x => x.Side == RoadSegmentAttributeSide.Beide).Value;
+            return true;
         }
+
+        if (side == RoadSegmentAttributeSide.Links || side == RoadSegmentAttributeSide.Rechts)
+        {
+            value = values.Single(x => x.Side == RoadSegmentAttributeSide.Beide || x.Side == side).Value;
+            return true;
+        }
+
+        throw new ArgumentOutOfRangeException(side.ToString());
     }
 }
 

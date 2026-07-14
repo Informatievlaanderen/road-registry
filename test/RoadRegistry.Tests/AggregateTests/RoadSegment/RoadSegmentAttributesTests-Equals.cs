@@ -16,11 +16,11 @@ public class RoadSegmentAttributesEqualsTests
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>()
-                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Both, RoadSegmentAccessRestrictionV2.OpenbareWeg),
+                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Beide, RoadSegmentAccessRestrictionV2.OpenbareWeg),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>()
-                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Left, RoadSegmentCategoryV2.EuropeseHoofdweg),
+                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Links, RoadSegmentCategoryV2.EuropeseHoofdweg),
             Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>()
-                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Right, RoadSegmentMorphologyV2.Autosnelweg),
+                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Rechts, RoadSegmentMorphologyV2.Autosnelweg),
             StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>().Add(new StreetNameLocalId(1), geometry),
             MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>().Add(OrganizationId.DigitaalVlaanderen, geometry),
             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>().Add(RoadSegmentSurfaceTypeV2.Verhard, geometry),
@@ -35,11 +35,11 @@ public class RoadSegmentAttributesEqualsTests
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>()
-                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Both, RoadSegmentAccessRestrictionV2.OpenbareWeg),
+                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Beide, RoadSegmentAccessRestrictionV2.OpenbareWeg),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>()
-                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Left, RoadSegmentCategoryV2.EuropeseHoofdweg),
+                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Links, RoadSegmentCategoryV2.EuropeseHoofdweg),
             Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>()
-                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Right, RoadSegmentMorphologyV2.Autosnelweg),
+                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Rechts, RoadSegmentMorphologyV2.Autosnelweg),
             StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>().Add(new StreetNameLocalId(1), geometry),
             MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>().Add(OrganizationId.DigitaalVlaanderen, geometry),
             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>().Add(RoadSegmentSurfaceTypeV2.Verhard, geometry),
@@ -62,11 +62,11 @@ public class RoadSegmentAttributesEqualsTests
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>()
-                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Both, RoadSegmentAccessRestrictionV2.OpenbareWeg),
+                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Beide, RoadSegmentAccessRestrictionV2.OpenbareWeg),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>()
-                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Left, RoadSegmentCategoryV2.EuropeseHoofdweg),
+                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Links, RoadSegmentCategoryV2.EuropeseHoofdweg),
             Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>()
-                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Right, RoadSegmentMorphologyV2.Autosnelweg),
+                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Rechts, RoadSegmentMorphologyV2.Autosnelweg),
             StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>().Add(new StreetNameLocalId(1), geometry),
             MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>().Add(OrganizationId.DigitaalVlaanderen, geometry),
             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>().Add(RoadSegmentSurfaceTypeV2.Verhard, geometry),
@@ -81,11 +81,11 @@ public class RoadSegmentAttributesEqualsTests
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>()
-                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Both, RoadSegmentAccessRestrictionV2.OpenbareWeg),
+                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Beide, RoadSegmentAccessRestrictionV2.OpenbareWeg),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>()
-                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Left, RoadSegmentCategoryV2.EuropeseHoofdweg),
+                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Links, RoadSegmentCategoryV2.EuropeseHoofdweg),
             Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>()
-                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Right, RoadSegmentMorphologyV2.Autosnelweg),
+                .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(1), RoadSegmentAttributeSide.Rechts, RoadSegmentMorphologyV2.Autosnelweg),
             StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>().Add(new StreetNameLocalId(2), geometry),
             MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>().Add(OrganizationId.DigitaalVlaanderen, geometry),
             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>().Add(RoadSegmentSurfaceTypeV2.Verhard, geometry),

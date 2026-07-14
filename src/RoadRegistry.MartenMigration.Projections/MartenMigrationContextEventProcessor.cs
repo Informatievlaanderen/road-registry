@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry.MartenMigration.Projections;
 
-using System;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
 using Microsoft.EntityFrameworkCore;

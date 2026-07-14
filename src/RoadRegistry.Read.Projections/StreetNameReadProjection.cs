@@ -9,7 +9,7 @@ using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.StreetName.Events.V2;
 using RoadRegistry.ValueObjects;
 
-public class StreetNameReadProjection : RoadNetworkChangesConnectedProjection
+public class StreetNameReadProjection : MartenRoadNetworkChangesProjection
 {
     public static void Configure(StoreOptions options)
     {

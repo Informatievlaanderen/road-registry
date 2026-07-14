@@ -94,23 +94,23 @@ public sealed class CreateRoadSegmentOutlineV2SqsLambdaRequestHandler : MartenSq
             var roadSegmentAttributes = new RoadSegmentAttributes
             {
                 AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(
-                    command.AccessRestriction.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.AccessRestriction))),
+                    command.AccessRestriction.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Beide, x.AccessRestriction))),
                 Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(
-                    command.Category.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.Category))),
+                    command.Category.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Beide, x.Category))),
                 Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(
-                    command.Morphology.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.Morphology))),
+                    command.Morphology.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Beide, x.Morphology))),
                 StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(
                     command.StreetNameId.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), x.Side, x.StreetNameId))),
                 MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(
                     command.MaintenanceAuthorityId.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), x.Side, maintenanceAuthorityIdMapping[x.MaintenanceAuthorityId]))),
                 SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>(
-                    command.SurfaceType.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.SurfaceType))),
+                    command.SurfaceType.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Beide, x.SurfaceType))),
                 CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(
-                    command.CarTrafficDirection.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.TrafficDirection))),
+                    command.CarTrafficDirection.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Beide, x.TrafficDirection))),
                 BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>(
-                    command.BikeTrafficDirection.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.TrafficDirection))),
+                    command.BikeTrafficDirection.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Beide, x.TrafficDirection))),
                 PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>(
-                    command.PedestrianTrafficDirection.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Both, x.TrafficDirection))),
+                    command.PedestrianTrafficDirection.Select(x => (new RoadSegmentPositionCoverage(x.FromPosition, x.ToPosition), RoadSegmentAttributeSide.Beide, x.TrafficDirection))),
             };
             problems += new RoadSegmentAttributesValidator().Validate(roadSegmentAttributes, command.Geometry.Value.Length);
 

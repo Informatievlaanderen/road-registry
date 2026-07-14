@@ -11,7 +11,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
     private readonly IReadOnlyCollection<IRoadNetworkChangesProjection> _projections;
     private readonly ILogger _logger;
     private readonly string _projectionName;
-    protected const int DefaultBatchSize = 5000;
+    private const int DefaultBatchSize = 5000;
     private bool? _isCatchingUp;
     private bool IsCatchingUp => _isCatchingUp ?? false;
 
@@ -111,10 +111,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
                 foreach (var projection in _projections)
                 {
-                    if (projection is RoadNetworkChangesConnectedProjection roadNetworkChangesConnectedProjection)
-                    {
-                        roadNetworkChangesConnectedProjection.IsCatchingUp = IsCatchingUp;
-                    }
+                    projection.IsCatchingUp = IsCatchingUp;
 
                     await projection.Project(operations, [evt], cancellation).ConfigureAwait(false);
                 }

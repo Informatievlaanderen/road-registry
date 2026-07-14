@@ -137,7 +137,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var result = await TranslateSucceeds(zipArchive);
 
         result.Should().Contain(x => x is ModifyRoadSegmentChange
-                                     && ((ModifyRoadSegmentChange)x).StreetNameId!.Values.Single(streetName => streetName.Side == RoadSegmentAttributeSide.Left).Value == StreetNameLocalId.NotApplicable);
+                                     && ((ModifyRoadSegmentChange)x).StreetNameId!.Values.Single(streetName => streetName.Side == RoadSegmentAttributeSide.Links).Value == StreetNameLocalId.NotApplicable);
     }
 
     [Fact]
@@ -167,7 +167,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var result = await TranslateSucceeds(zipArchive);
 
         result.Should().Contain(x => x is ModifyRoadSegmentChange
-            && ((ModifyRoadSegmentChange)x).StreetNameId!.Values.Single(streetName => streetName.Side == RoadSegmentAttributeSide.Right).Value == StreetNameLocalId.NotApplicable);
+            && ((ModifyRoadSegmentChange)x).StreetNameId!.Values.Single(streetName => streetName.Side == RoadSegmentAttributeSide.Rechts).Value == StreetNameLocalId.NotApplicable);
     }
 
     [Fact]
@@ -193,7 +193,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var result = await TranslateSucceeds(zipArchive, translator);
 
         result.Should().Contain(x => x is ModifyRoadSegmentChange
-                                     && ((ModifyRoadSegmentChange)x).StreetNameId!.Values.Single(streetName => streetName.Side == RoadSegmentAttributeSide.Left || streetName.Side == RoadSegmentAttributeSide.Both).Value == StreetNameLocalId.NotApplicable);
+                                     && ((ModifyRoadSegmentChange)x).StreetNameId!.Values.Single(streetName => streetName.Side == RoadSegmentAttributeSide.Links || streetName.Side == RoadSegmentAttributeSide.Beide).Value == StreetNameLocalId.NotApplicable);
     }
 
     [Fact]
@@ -230,7 +230,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var result = await TranslateSucceeds(zipArchive, translator);
 
         result.Should().Contain(x => x is ModifyRoadSegmentChange
-                                     && ((ModifyRoadSegmentChange)x).StreetNameId!.Values.Single(streetName => streetName.Side == RoadSegmentAttributeSide.Right || streetName.Side == RoadSegmentAttributeSide.Both).Value == StreetNameLocalId.NotApplicable);
+                                     && ((ModifyRoadSegmentChange)x).StreetNameId!.Values.Single(streetName => streetName.Side == RoadSegmentAttributeSide.Rechts || streetName.Side == RoadSegmentAttributeSide.Beide).Value == StreetNameLocalId.NotApplicable);
     }
 
     [Fact]
@@ -259,7 +259,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var result = await TranslateSucceeds(zipArchive, translator);
 
         result.Should().Contain(x => x is ModifyRoadSegmentChange
-                                     && ((ModifyRoadSegmentChange)x).StreetNameId!.Values.Single(streetName => streetName.Side == RoadSegmentAttributeSide.Left || streetName.Side == RoadSegmentAttributeSide.Both).Value == renamedToStreetNameId);
+                                     && ((ModifyRoadSegmentChange)x).StreetNameId!.Values.Single(streetName => streetName.Side == RoadSegmentAttributeSide.Links || streetName.Side == RoadSegmentAttributeSide.Beide).Value == renamedToStreetNameId);
     }
 
     [Fact]
@@ -288,7 +288,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var result = await TranslateSucceeds(zipArchive, translator);
 
         result.Should().Contain(x => x is ModifyRoadSegmentChange
-                                     && ((ModifyRoadSegmentChange)x).StreetNameId!.Values.Single(streetName => streetName.Side == RoadSegmentAttributeSide.Right || streetName.Side == RoadSegmentAttributeSide.Both).Value == renamedToStreetNameId);
+                                     && ((ModifyRoadSegmentChange)x).StreetNameId!.Values.Single(streetName => streetName.Side == RoadSegmentAttributeSide.Rechts || streetName.Side == RoadSegmentAttributeSide.Beide).Value == renamedToStreetNameId);
     }
 
     [Fact]

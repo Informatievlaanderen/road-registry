@@ -76,15 +76,15 @@ public abstract class FeatureCompareTranslatorScenariosBase
         }
 
         return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
-            .Add(new(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length)), RoadSegmentAttributeSide.Left, leftSideStreetNameId ?? StreetNameLocalId.NotApplicable)
-            .Add(new(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length)), RoadSegmentAttributeSide.Right, rightSideStreetNameId ?? StreetNameLocalId.NotApplicable);
+            .Add(new(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length)), RoadSegmentAttributeSide.Links, leftSideStreetNameId ?? StreetNameLocalId.NotApplicable)
+            .Add(new(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length)), RoadSegmentAttributeSide.Rechts, rightSideStreetNameId ?? StreetNameLocalId.NotApplicable);
     }
 
     protected static RoadSegmentDynamicAttributeValues<OrganizationId> BuildOrganizationIdAttributes(OrganizationId leftSide, OrganizationId rightSide, RoadSegmentGeometry geometry)
     {
         return new RoadSegmentDynamicAttributeValues<OrganizationId>()
-            .Add(new(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length)), RoadSegmentAttributeSide.Left, leftSide)
-            .Add(new(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length)), RoadSegmentAttributeSide.Right, rightSide);
+            .Add(new(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length)), RoadSegmentAttributeSide.Links, leftSide)
+            .Add(new(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(geometry.Value.Length)), RoadSegmentAttributeSide.Rechts, rightSide);
     }
 
     protected static AddRoadSegmentChange BuildAddRoadSegmentChange(RoadSegmentDbaseRecord dbaseRecord, RoadSegmentShapeRecord shapeRecord)
