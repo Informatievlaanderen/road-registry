@@ -75,6 +75,7 @@ public class RoadNetworkTestDataV2
         Fixture.CustomizeRoadNodeVersion();
         Fixture.CustomizeRoadNodeTypeV2();
         Fixture.CustomizeRoadNodeGeometry();
+        Fixture.CustomizeJunctionGeometry();
         Fixture.CustomizeRoadSegmentId();
         Fixture.CustomizeRoadSegmentCategoryV2();
         Fixture.CustomizeRoadSegmentMorphologyV2();

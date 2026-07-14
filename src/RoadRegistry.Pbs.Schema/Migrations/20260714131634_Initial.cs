@@ -47,8 +47,8 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                     FIETSTERUG = table.Column<int>(type: "int", nullable: true),
                     VOETGANGER = table.Column<int>(type: "int", nullable: true),
                     GEOMETRIE = table.Column<Geometry>(type: "Geometry", nullable: true),
-                    CREATIE = table.Column<string>(type: "varchar(15)", nullable: true),
-                    VERSIE = table.Column<string>(type: "varchar(15)", nullable: true)
+                    CREATIE = table.Column<string>(type: "varchar(15)", nullable: false),
+                    VERSIE = table.Column<string>(type: "varchar(15)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -65,8 +65,8 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     WS_OIDN = table.Column<int>(type: "int", nullable: false),
                     EUNUMMER = table.Column<string>(type: "varchar(4)", nullable: true),
-                    CREATIE = table.Column<string>(type: "varchar(15)", nullable: true),
-                    VERSIE = table.Column<string>(type: "varchar(15)", nullable: true)
+                    CREATIE = table.Column<string>(type: "varchar(15)", nullable: false),
+                    VERSIE = table.Column<string>(type: "varchar(15)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -83,8 +83,8 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                     WS1_OIDN = table.Column<int>(type: "int", nullable: false),
                     WS2_OIDN = table.Column<int>(type: "int", nullable: false),
                     GEOMETRIE = table.Column<Geometry>(type: "Geometry", nullable: true),
-                    CREATIE = table.Column<string>(type: "varchar(15)", nullable: true),
-                    VERSIE = table.Column<string>(type: "varchar(15)", nullable: true)
+                    CREATIE = table.Column<string>(type: "varchar(15)", nullable: false),
+                    VERSIE = table.Column<string>(type: "varchar(15)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -101,8 +101,8 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     WS_OIDN = table.Column<int>(type: "int", nullable: false),
                     NWNUMMER = table.Column<string>(type: "varchar(8)", nullable: true),
-                    CREATIE = table.Column<string>(type: "varchar(15)", nullable: true),
-                    VERSIE = table.Column<string>(type: "varchar(15)", nullable: true)
+                    CREATIE = table.Column<string>(type: "varchar(15)", nullable: false),
+                    VERSIE = table.Column<string>(type: "varchar(15)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -135,8 +135,8 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                     TYPE = table.Column<int>(type: "int", nullable: true),
                     LBLTYPE = table.Column<string>(type: "varchar(64)", nullable: true),
                     GEOMETRIE = table.Column<Geometry>(type: "Geometry", nullable: true),
-                    CREATIE = table.Column<string>(type: "varchar(15)", nullable: true),
-                    VERSIE = table.Column<string>(type: "varchar(15)", nullable: true)
+                    CREATIE = table.Column<string>(type: "varchar(15)", nullable: false),
+                    VERSIE = table.Column<string>(type: "varchar(15)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -212,8 +212,8 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                     LBLTYPE = table.Column<string>(type: "varchar(64)", nullable: true),
                     GRENSKNOOP = table.Column<int>(type: "int", nullable: true),
                     GEOMETRIE = table.Column<Geometry>(type: "Geometry", nullable: true),
-                    CREATIE = table.Column<string>(type: "varchar(15)", nullable: true),
-                    VERSIE = table.Column<string>(type: "varchar(15)", nullable: true)
+                    CREATIE = table.Column<string>(type: "varchar(15)", nullable: false),
+                    VERSIE = table.Column<string>(type: "varchar(15)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -360,8 +360,8 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                     B_WK_OIDN = table.Column<int>(type: "int", nullable: true),
                     E_WK_OIDN = table.Column<int>(type: "int", nullable: true),
                     GEOMETRIE = table.Column<Geometry>(type: "Geometry", nullable: true),
-                    CREATIE = table.Column<string>(type: "varchar(15)", nullable: true),
-                    VERSIE = table.Column<string>(type: "varchar(15)", nullable: true)
+                    CREATIE = table.Column<string>(type: "varchar(15)", nullable: false),
+                    VERSIE = table.Column<string>(type: "varchar(15)", nullable: false)
                 },
                 constraints: table =>
                 {

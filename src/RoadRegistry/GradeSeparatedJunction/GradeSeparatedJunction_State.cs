@@ -2,6 +2,7 @@
 
 using Events.V2;
 using Newtonsoft.Json;
+using RoadRegistry.Extensions;
 
 public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSeparatedJunctionId>
 {
@@ -9,6 +10,7 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
     public RoadSegmentId LowerRoadSegmentId { get; private set; }
     public RoadSegmentId UpperRoadSegmentId { get; private set; }
     public GradeSeparatedJunctionTypeV2? Type { get; private set; }
+    public JunctionGeometry? Geometry { get; private set; }
 
     public bool IsRemoved { get; private set; }
 
@@ -27,6 +29,7 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         int lowerRoadSegmentId,
         int upperRoadSegmentId,
         string? type,
+        JunctionGeometry? geometry,
         bool isRemoved,
         string? lastEventHash
     )
@@ -35,6 +38,7 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         LowerRoadSegmentId = new RoadSegmentId(lowerRoadSegmentId);
         UpperRoadSegmentId = new RoadSegmentId(upperRoadSegmentId);
         Type = type is not null ? GradeSeparatedJunctionTypeV2.Parse(type) : null;
+        Geometry = geometry;
         IsRemoved = isRemoved;
         _lastSnapshotEventHash = lastEventHash;
     }
@@ -42,9 +46,10 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
     public static GradeSeparatedJunction CreateForMigration(
         GradeSeparatedJunctionId gradeSeparatedJunctionId,
         RoadSegmentId lowerRoadSegmentId,
-        RoadSegmentId upperRoadSegmentId)
+        RoadSegmentId upperRoadSegmentId,
+        JunctionGeometry? geometry)
     {
-        return new GradeSeparatedJunction(gradeSeparatedJunctionId, lowerRoadSegmentId, upperRoadSegmentId, null, false, null);
+        return new GradeSeparatedJunction(gradeSeparatedJunctionId, lowerRoadSegmentId, upperRoadSegmentId, null, geometry, false, null);
     }
 
     public static GradeSeparatedJunction Create(GradeSeparatedJunctionWasAdded @event)
@@ -53,10 +58,18 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         {
             LowerRoadSegmentId = @event.LowerRoadSegmentId,
             UpperRoadSegmentId = @event.UpperRoadSegmentId,
-            Type = @event.Type
+            Type = @event.Type,
+            Geometry = @event.Geometry
         };
         junction.UncommittedEvents.Add(@event);
         return junction;
+    }
+
+    public void Apply(GradeSeparatedJunctionGeometryWasChanged @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Geometry = @event.Geometry;
     }
 
     public void Apply(GradeSeparatedJunctionWasModified @event)

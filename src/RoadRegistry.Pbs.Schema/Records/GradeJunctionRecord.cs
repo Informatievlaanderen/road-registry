@@ -11,7 +11,7 @@ public class GradeJunctionRecord
     public int GK_OIDN { get; set; }
     public int WS1_OIDN { get; set; }
     public int WS2_OIDN { get; set; }
-    public Geometry GEOMETRIE { get; set; }
+    public Geometry? GEOMETRIE { get; set; }
     public string CREATIE { get; set; }
     public string VERSIE { get; set; }
 }

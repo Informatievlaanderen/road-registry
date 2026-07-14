@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 public class StreetNameCacheRecord
 {
     public int StraatnaamId { get; set; }
-    public string Naam { get; set; }
+    public string? Naam { get; set; }
 }
 
 public class StreetNameCacheRecordConfiguration : IEntityTypeConfiguration<StreetNameCacheRecord>
@@ -29,9 +29,9 @@ public class StreetNameCacheRecordConfiguration : IEntityTypeConfiguration<Stree
 // WegsegmentCodelijstWegbeheerder code list only contains the organizations where IS_WEGBEHEERDER is true.
 public class OrganizationCacheRecord
 {
-    public string OrganisatieId { get; set; }
-    public string Naam { get; set; }
-    public string OvoCode { get; set; }
+    public string? OrganisatieId { get; set; }
+    public string? Naam { get; set; }
+    public string? OvoCode { get; set; }
     public bool IsWegbeheerder { get; set; }
 }
 

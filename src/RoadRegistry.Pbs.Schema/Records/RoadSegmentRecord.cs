@@ -10,12 +10,12 @@ public class RoadSegmentRecord
 {
     public int WS_OIDN { get; set; }
     public int? STATUS { get; set; }
-    public string LBLSTATUS { get; set; }
+    public string? LBLSTATUS { get; set; }
     public int? METHODE { get; set; }
-    public string LBLMETHODE { get; set; }
+    public string? LBLMETHODE { get; set; }
     public int? B_WK_OIDN { get; set; }
     public int? E_WK_OIDN { get; set; }
-    public Geometry GEOMETRIE { get; set; }
+    public Geometry? GEOMETRIE { get; set; }
     public string CREATIE { get; set; }
     public string VERSIE { get; set; }
 }

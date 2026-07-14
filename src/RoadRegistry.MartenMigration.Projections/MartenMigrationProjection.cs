@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -18,11 +17,14 @@ using NodaTime;
 using NodaTime.Text;
 using RoadNode;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
+using Dapper;
 using RoadRegistry.Infrastructure.MartenDb;
+using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.StreetName.Events.V2;
+using RoadRegistry.ValueObjects;
 using RoadSegment;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
@@ -57,7 +59,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
             return store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
-                var point = GeometryTranslator.Translate(envelope.Message.Geometry);
+                var point = GeometryTranslator.Translate(envelope.Message.Geometry).ToRoadNodeGeometry();
                 var provenance = new Provenance(
                     Instant.FromDateTimeUtc(envelope.Message.Origin.Since),
                     Application.RoadRegistry,
@@ -73,7 +75,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var streamKey = StreamKeyFactory.Create(typeof(RoadNode), roadNodeId);
                 var legacyEvent = new ImportedRoadNode
                 {
-                    Geometry = point.ToRoadNodeGeometry(),
+                    Geometry = point,
                     RoadNodeId = envelope.Message.Id,
                     Origin = new()
                     {
@@ -93,7 +95,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
                 var roadNode = RoadNode.CreateForMigration(
                     roadNodeId: roadNodeId,
-                    geometry: point.TransformFromLambert72To08().ToRoadNodeGeometry()
+                    geometry: point.EnsureLambert08()
                 );
                 session.Store(roadNode);
             }, token);
@@ -108,7 +110,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
-                var geometry = GeometryTranslator.Translate(envelope.Message.Geometry);
+                var geometry = GeometryTranslator.Translate(envelope.Message.Geometry).ToRoadSegmentGeometry();
                 var provenance = new Provenance(
                     Instant.FromDateTimeUtc(envelope.Message.RecordingDate),
                     Application.RoadRegistry,
@@ -122,7 +124,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var legacyEvent = new ImportedRoadSegment
                 {
                     RoadSegmentId = roadSegmentId,
-                    Geometry = geometry.ToRoadSegmentGeometry(),
+                    Geometry = geometry,
                     StartNodeId = envelope.Message.StartNodeId,
                     EndNodeId = envelope.Message.EndNodeId,
                     GeometryDrawMethod = envelope.Message.GeometryDrawMethod,
@@ -270,7 +272,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
                 var roadSegment = RoadSegment.CreateForMigration(
                     roadSegmentId: roadSegmentId,
-                    geometry: geometry.TransformFromLambert72To08().ToRoadSegmentGeometry(),
+                    geometry: geometry.EnsureLambert08(),
                     status: RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod) == RoadSegmentGeometryDrawMethod.Outlined ? RoadSegmentStatusV2.Gepland : RoadSegmentStatusV2.Gerealiseerd,
                     startNodeId: envelope.Message.StartNodeId > 0 ? new RoadNodeId(envelope.Message.StartNodeId) : null,
                     endNodeId: envelope.Message.EndNodeId > 0 ? new RoadNodeId(envelope.Message.EndNodeId) : null
@@ -283,7 +285,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         {
             var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope);
 
-            return store.IdempotentSession(idempotentSessionIdentifier, session =>
+            return store.IdempotentSession(idempotentSessionIdentifier, async session =>
             {
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -297,6 +299,10 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     Organisation.DigitaalVlaanderen);
 
                 var junctionId = new GradeSeparatedJunctionId(envelope.Message.Id);
+                var lowerRoadSegmentId = new RoadSegmentId(envelope.Message.LowerRoadSegmentId);
+                var upperRoadSegmentId = new RoadSegmentId(envelope.Message.UpperRoadSegmentId);
+                var geometry = await CalculateJunctionGeometry(session, lowerRoadSegmentId, upperRoadSegmentId, token);
+
                 var streamKey = StreamKeyFactory.Create(typeof(GradeSeparatedJunction), junctionId);
                 var legacyEvent = new ImportedGradeSeparatedJunction
                 {
@@ -304,6 +310,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     LowerRoadSegmentId = envelope.Message.LowerRoadSegmentId,
                     Type = envelope.Message.Type,
                     UpperRoadSegmentId = envelope.Message.UpperRoadSegmentId,
+                    Geometry = geometry?.EnsureLambert72(),
                     Origin = new()
                     {
                         Application = envelope.Message.Origin.Application,
@@ -320,8 +327,9 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
                 var junction = GradeSeparatedJunction.CreateForMigration(
                     gradeSeparatedJunctionId: junctionId,
-                    lowerRoadSegmentId: new RoadSegmentId(envelope.Message.LowerRoadSegmentId),
-                    upperRoadSegmentId: new RoadSegmentId(envelope.Message.UpperRoadSegmentId));
+                    lowerRoadSegmentId: lowerRoadSegmentId,
+                    upperRoadSegmentId: upperRoadSegmentId,
+                    geometry: geometry?.EnsureLambert08());
                 session.Store(junction);
             }, token);
         });
@@ -660,14 +668,14 @@ RoadNetworkExtractGotRequestedV2
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
-            var point = GeometryTranslator.Translate(change.Geometry);
+            var point = GeometryTranslator.Translate(change.Geometry).ToRoadNodeGeometry();
             var provenance = BuildProvenance(envelope, Modification.Insert);
 
             var roadNodeId = new RoadNodeId(change.Id);
             var streamKey = StreamKeyFactory.Create(typeof(RoadNode), roadNodeId);
             var legacyEvent = new RoadRegistry.RoadNode.Events.V1.RoadNodeAdded
             {
-                Geometry = point.ToRoadNodeGeometry(),
+                Geometry = point,
                 RoadNodeId = change.Id,
                 Version = change.Version,
                 TemporaryId = change.TemporaryId,
@@ -679,7 +687,7 @@ RoadNetworkExtractGotRequestedV2
 
             var roadNode = RoadNode.CreateForMigration(
                 roadNodeId: roadNodeId,
-                geometry: point.TransformFromLambert72To08().ToRoadNodeGeometry()
+                geometry: point.EnsureLambert08()
             );
             session.Store(roadNode);
         }, token);
@@ -699,14 +707,14 @@ RoadNetworkExtractGotRequestedV2
                 session.CorrelationId = roadNetworkId;
                 session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
-                var point = GeometryTranslator.Translate(change.Geometry);
+                var point = GeometryTranslator.Translate(change.Geometry).ToRoadNodeGeometry();
                 var provenance = BuildProvenance(envelope, Modification.Update);
 
                 var roadNodeId = new RoadNodeId(change.Id);
                 var streamKey = StreamKeyFactory.Create(typeof(RoadNode), roadNodeId);
                 var legacyEvent = new RoadRegistry.RoadNode.Events.V1.RoadNodeModified
                 {
-                    Geometry = point.ToRoadNodeGeometry(),
+                    Geometry = point,
                     RoadNodeId = change.Id,
                     Version = change.Version,
                     Type = change.Type,
@@ -719,7 +727,7 @@ RoadNetworkExtractGotRequestedV2
                 roadNode.Apply(new RoadNodeWasModified
                 {
                     RoadNodeId = roadNodeId,
-                    Geometry = point.TransformFromLambert72To08().ToRoadNodeGeometry(),
+                    Geometry = point.EnsureLambert08(),
                     Provenance = new ProvenanceData(provenance)
                 });
             },
@@ -775,7 +783,7 @@ RoadNetworkExtractGotRequestedV2
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
-            var geometry = GeometryTranslator.Translate(change.Geometry);
+            var geometry = GeometryTranslator.Translate(change.Geometry).ToRoadSegmentGeometry();
             var provenance = BuildProvenance(envelope, Modification.Insert);
 
             var roadSegmentId = new RoadSegmentId(change.Id);
@@ -785,7 +793,7 @@ RoadNetworkExtractGotRequestedV2
                 RoadSegmentId = change.Id,
                 TemporaryId = change.TemporaryId,
                 OriginalId = change.OriginalId,
-                Geometry = geometry.ToRoadSegmentGeometry(),
+                Geometry = geometry,
                 StartNodeId = change.StartNodeId,
                 EndNodeId = change.EndNodeId,
                 GeometryDrawMethod = change.GeometryDrawMethod,
@@ -842,7 +850,7 @@ RoadNetworkExtractGotRequestedV2
 
             var roadSegment = RoadSegment.CreateForMigration(
                 roadSegmentId: roadSegmentId,
-                geometry: geometry.TransformFromLambert72To08().ToRoadSegmentGeometry(),
+                geometry: geometry.EnsureLambert08(),
                 status: RoadSegmentGeometryDrawMethod.Parse(change.GeometryDrawMethod) == RoadSegmentGeometryDrawMethod.Outlined ? RoadSegmentStatusV2.Gepland : RoadSegmentStatusV2.Gerealiseerd,
                 startNodeId: change.StartNodeId > 0 ? new RoadNodeId(change.StartNodeId) : null,
                 endNodeId: change.EndNodeId > 0 ? new RoadNodeId(change.EndNodeId) : null
@@ -859,7 +867,7 @@ RoadNetworkExtractGotRequestedV2
         CancellationToken token)
     {
         var roadSegmentId = new RoadSegmentId(change.Id);
-        var geometry = GeometryTranslator.Translate(change.Geometry);
+        var geometry = GeometryTranslator.Translate(change.Geometry).ToRoadSegmentGeometry();
 
         await ModifyRoadSegment(roadNetworkId, roadSegmentId,
             provenance =>
@@ -869,7 +877,7 @@ RoadNetworkExtractGotRequestedV2
                     RoadSegmentId = change.Id,
                     OriginalId = change.OriginalId,
                     ConvertedFromOutlined = change.ConvertedFromOutlined,
-                    Geometry = geometry.ToRoadSegmentGeometry(),
+                    Geometry = geometry,
                     StartNodeId = change.StartNodeId,
                     EndNodeId = change.EndNodeId,
                     GeometryDrawMethod = change.GeometryDrawMethod,
@@ -930,11 +938,11 @@ RoadNetworkExtractGotRequestedV2
                     RoadSegmentId = roadSegmentId,
                     StartNodeId = change.StartNodeId > 0 ? new RoadNodeId(change.StartNodeId) : null,
                     EndNodeId = change.EndNodeId > 0 ? new RoadNodeId(change.EndNodeId) : null,
-                    Geometry = geometry.TransformFromLambert72To08().ToRoadSegmentGeometry(),
+                    Geometry = geometry.EnsureLambert08(),
                     Provenance = new ProvenanceData(provenance)
                 });
             },
-            envelope, changeIndex, token);
+            envelope, changeIndex, token, recalculateJunctions: true);
     }
 
     private Task ModifyRoadSegment(
@@ -944,7 +952,8 @@ RoadNetworkExtractGotRequestedV2
         Action<RoadSegment, Provenance> applyModification,
         Envelope<RoadNetworkChangesAccepted> envelope,
         int changeIndex,
-        CancellationToken token)
+        CancellationToken token,
+        bool recalculateJunctions = false)
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
@@ -963,7 +972,67 @@ RoadNetworkExtractGotRequestedV2
                               ?? throw new InvalidOperationException($"Road segment {roadSegmentId} not found");
             applyModification(roadSegment, provenance);
             session.Store(roadSegment);
+
+            if (recalculateJunctions)
+            {
+                await RecalculateGradeSeparatedJunctionsForSegment(session, roadSegment, provenance, token);
+            }
         }, token);
+    }
+
+    private static async Task RecalculateGradeSeparatedJunctionsForSegment(
+        IDocumentSession session,
+        RoadSegment changedSegment,
+        Provenance provenance,
+        CancellationToken token)
+    {
+        var junctionIds = (await session.Connection.QueryAsync<int>(new CommandDefinition(
+            $"SELECT id FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} WHERE lower_road_segment_id = @segId OR upper_road_segment_id = @segId",
+            new { segId = changedSegment.RoadSegmentId.ToInt32() },
+            cancellationToken: token))).ToArray();
+
+        foreach (var junctionIdValue in junctionIds)
+        {
+            var junctionId = new GradeSeparatedJunctionId(junctionIdValue);
+            var junction = await session.LoadAsync(junctionId, cancellationToken: token);
+            if (junction is null || junction.IsRemoved)
+            {
+                continue;
+            }
+
+            // Use the changed segment's new in-memory geometry; load only the counterpart from the store.
+            var counterpartId = junction.LowerRoadSegmentId == changedSegment.RoadSegmentId
+                ? junction.UpperRoadSegmentId
+                : junction.LowerRoadSegmentId;
+            var counterpart = await session.LoadAsync(counterpartId, cancellationToken: token);
+            if (counterpart is null)
+            {
+                continue;
+            }
+
+            var newGeometry = JunctionGeometryCalculator.Calculate(changedSegment.Geometry, counterpart.Geometry)?.EnsureLambert08();
+            if (newGeometry is null || junction.Geometry == newGeometry)
+            {
+                continue;
+            }
+
+            // The stream carries the V1 event with the Lambert72 geometry (legacy CRS); the aggregate snapshot keeps
+            // Lambert08 via the V2 apply (which is not appended to the stream).
+            session.Events.Append(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), junctionId),
+                new RoadRegistry.GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionGeometryModified
+                {
+                    Id = junctionIdValue,
+                    Geometry = newGeometry.EnsureLambert72(),
+                    Provenance = new ProvenanceData(provenance)
+                });
+            junction.Apply(new GradeSeparatedJunctionGeometryWasChanged
+            {
+                GradeSeparatedJunctionId = junctionId,
+                Geometry = newGeometry,
+                Provenance = new ProvenanceData(provenance)
+            });
+            session.Store(junction);
+        }
     }
 
     private async Task AddRoadSegmentToEuropeanRoad(
@@ -1212,7 +1281,7 @@ RoadNetworkExtractGotRequestedV2
         CancellationToken token)
     {
         var roadSegmentId = new RoadSegmentId(change.Id);
-        var geometry = GeometryTranslator.Translate(change.Geometry);
+        var geometry = GeometryTranslator.Translate(change.Geometry).ToRoadSegmentGeometry();
 
         await ModifyRoadSegment(roadNetworkId, roadSegmentId,
             provenance =>
@@ -1222,7 +1291,7 @@ RoadNetworkExtractGotRequestedV2
                     RoadSegmentId = change.Id,
                     Version = change.Version,
                     GeometryVersion = change.GeometryVersion,
-                    Geometry = geometry.ToRoadSegmentGeometry(),
+                    Geometry = geometry,
                     Lanes = change.Lanes.Select(x => new RoadSegmentLaneAttributes
                         {
                             AsOfGeometryVersion = x.AsOfGeometryVersion,
@@ -1261,11 +1330,11 @@ RoadNetworkExtractGotRequestedV2
                     RoadSegmentId = roadSegmentId,
                     StartNodeId = roadSegment.StartNodeId > 0 ? roadSegment.StartNodeId : null,
                     EndNodeId = roadSegment.EndNodeId > 0 ? roadSegment.EndNodeId : null,
-                    Geometry = geometry.TransformFromLambert72To08().ToRoadSegmentGeometry(),
+                    Geometry = geometry.EnsureLambert08(),
                     Provenance = new ProvenanceData(provenance)
                 });
             },
-            envelope, changeIndex, token);
+            envelope, changeIndex, token, recalculateJunctions: true);
     }
 
     private Task RemoveRoadSegment(
@@ -1341,6 +1410,25 @@ RoadNetworkExtractGotRequestedV2
         }, token);
     }
 
+    // Loads the two linked road segments (already migrated earlier in the stream) and computes the junction point.
+    // Null when either segment is missing or the segments do not intersect. The migration carries this on the V1 event
+    // so the downstream projections read it without recomputing from segments.
+    private static async Task<JunctionGeometry?> CalculateJunctionGeometry(
+        IDocumentSession session,
+        RoadSegmentId lowerRoadSegmentId,
+        RoadSegmentId upperRoadSegmentId,
+        CancellationToken token)
+    {
+        var lowerSegment = await session.LoadAsync(lowerRoadSegmentId, token);
+        var upperSegment = await session.LoadAsync(upperRoadSegmentId, token);
+        if (lowerSegment is null || upperSegment is null)
+        {
+            return null;
+        }
+
+        return JunctionGeometryCalculator.Calculate(lowerSegment.Geometry, upperSegment.Geometry)?.EnsureLambert08();
+    }
+
     private Task AddGradeSeparatedJunction(
         ScopedRoadNetworkId roadNetworkId,
         GradeSeparatedJunctionAdded change,
@@ -1350,7 +1438,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -1358,6 +1446,10 @@ RoadNetworkExtractGotRequestedV2
             var provenance = BuildProvenance(envelope, Modification.Insert);
 
             var gradeSeparatedJunctionId = new GradeSeparatedJunctionId(change.Id);
+            var lowerRoadSegmentId = new RoadSegmentId(change.LowerRoadSegmentId);
+            var upperRoadSegmentId = new RoadSegmentId(change.UpperRoadSegmentId);
+            var geometry = await CalculateJunctionGeometry(session, lowerRoadSegmentId, upperRoadSegmentId, token);
+
             var streamKey = StreamKeyFactory.Create(typeof(GradeSeparatedJunction), gradeSeparatedJunctionId);
             var legacyEvent = new RoadRegistry.GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionAdded
             {
@@ -1366,14 +1458,16 @@ RoadNetworkExtractGotRequestedV2
                 LowerRoadSegmentId = change.LowerRoadSegmentId,
                 UpperRoadSegmentId = change.UpperRoadSegmentId,
                 Type = change.Type,
+                Geometry = geometry?.EnsureLambert72(),
                 Provenance = new ProvenanceData(provenance)
             };
             session.Events.Append(streamKey, legacyEvent);
 
             var junction = GradeSeparatedJunction.CreateForMigration(
                 gradeSeparatedJunctionId: gradeSeparatedJunctionId,
-                lowerRoadSegmentId: new RoadSegmentId(change.LowerRoadSegmentId),
-                upperRoadSegmentId: new RoadSegmentId(change.UpperRoadSegmentId));
+                lowerRoadSegmentId: lowerRoadSegmentId,
+                upperRoadSegmentId: upperRoadSegmentId,
+                geometry: geometry?.EnsureLambert08());
             session.Store(junction);
         }, token);
     }
@@ -1431,6 +1525,10 @@ RoadNetworkExtractGotRequestedV2
             var provenance = BuildProvenance(envelope, Modification.Insert);
 
             var gradeSeparatedJunctionId = new GradeSeparatedJunctionId(change.Id);
+            var lowerRoadSegmentId = new RoadSegmentId(change.LowerRoadSegmentId);
+            var upperRoadSegmentId = new RoadSegmentId(change.UpperRoadSegmentId);
+            var geometry = await CalculateJunctionGeometry(session, lowerRoadSegmentId, upperRoadSegmentId, token);
+
             var streamKey = StreamKeyFactory.Create(typeof(GradeSeparatedJunction), gradeSeparatedJunctionId);
             var legacyEvent = new RoadRegistry.GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionModified
             {
@@ -1438,6 +1536,7 @@ RoadNetworkExtractGotRequestedV2
                 LowerRoadSegmentId = change.LowerRoadSegmentId,
                 UpperRoadSegmentId = change.UpperRoadSegmentId,
                 Type = change.Type,
+                Geometry = geometry?.EnsureLambert72(),
                 Provenance = new ProvenanceData(provenance)
             };
             session.Events.Append(streamKey, legacyEvent);
@@ -1447,10 +1546,20 @@ RoadNetworkExtractGotRequestedV2
             gradeSeparatedJunction.Apply(new GradeSeparatedJunctionWasModified
             {
                 GradeSeparatedJunctionId = gradeSeparatedJunctionId,
-                LowerRoadSegmentId = new RoadSegmentId(change.LowerRoadSegmentId),
-                UpperRoadSegmentId = new RoadSegmentId(change.UpperRoadSegmentId),
+                LowerRoadSegmentId = lowerRoadSegmentId,
+                UpperRoadSegmentId = upperRoadSegmentId,
                 Provenance = new ProvenanceData(provenance)
             });
+            // Keep the aggregate snapshot geometry (Lambert08) in sync with the (possibly changed) segments.
+            if (geometry is not null && gradeSeparatedJunction.Geometry != geometry)
+            {
+                gradeSeparatedJunction.Apply(new GradeSeparatedJunctionGeometryWasChanged
+                {
+                    GradeSeparatedJunctionId = gradeSeparatedJunctionId,
+                    Geometry = geometry,
+                    Provenance = new ProvenanceData(provenance)
+                });
+            }
             session.Store(gradeSeparatedJunction);
         }, token);
     }

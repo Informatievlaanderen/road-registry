@@ -592,6 +592,15 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeJunctionGeometry(this IFixture fixture)
+    {
+        fixture.Customize<JunctionGeometry>(composer =>
+            composer.FromFactory(_ =>
+                fixture.Create<NetTopologySuite.Geometries.Point>().ToJunctionGeometry().RoundToCm()
+            ).OmitAutoProperties()
+        );
+    }
+
     public static void CustomizeRoadSegmentGeometry(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentGeometry>(customizer =>

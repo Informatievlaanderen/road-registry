@@ -10,9 +10,9 @@ public class RoadNodeRecord
 {
     public int WK_OIDN { get; set; }
     public int? TYPE { get; set; }
-    public string LBLTYPE { get; set; }
+    public string? LBLTYPE { get; set; }
     public int? GRENSKNOOP { get; set; }
-    public Geometry GEOMETRIE { get; set; }
+    public Geometry? GEOMETRIE { get; set; }
     public string CREATIE { get; set; }
     public string VERSIE { get; set; }
 }

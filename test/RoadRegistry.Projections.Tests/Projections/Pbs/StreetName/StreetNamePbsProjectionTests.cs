@@ -51,12 +51,13 @@ public class StreetNamePbsProjectionTests
             typeof(RoadSegmentWasRemovedFromNationalRoad), typeof(RoadSegmentWasRetired), typeof(RoadSegmentWasRetiredBecauseOfMerger),
             typeof(RoadSegmentWasRetiredBecauseOfSplit), typeof(RoadSegmentWasSplit),
             // GradeJunction V2
-            typeof(GradeJunctionWasAdded), typeof(GradeJunctionWasRemoved),
+            typeof(GradeJunctionWasAdded), typeof(GradeJunctionGeometryWasChanged), typeof(GradeJunctionWasRemoved),
             // GradeSeparatedJunction V1
             typeof(ImportedGradeSeparatedJunction), typeof(GradeSeparatedJunctionAdded),
             typeof(GradeSeparatedJunctionModified), typeof(GradeSeparatedJunctionRemoved),
+            typeof(GradeSeparatedJunctionGeometryModified),
             // GradeSeparatedJunction V2
-            typeof(GradeSeparatedJunctionWasAdded), typeof(GradeSeparatedJunctionWasModified),
+            typeof(GradeSeparatedJunctionWasAdded), typeof(GradeSeparatedJunctionWasModified), typeof(GradeSeparatedJunctionGeometryWasChanged),
             typeof(GradeSeparatedJunctionWasRemoved), typeof(GradeSeparatedJunctionWasRemovedBecauseOfMigration),
             // Organization V2
             typeof(OrganizationWasImported), typeof(OrganizationWasCreated),

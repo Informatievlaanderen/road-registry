@@ -42,6 +42,7 @@ public class RoadNodeExtractProjectionTests
             typeof(GradeSeparatedJunctionAdded),
             typeof(GradeSeparatedJunctionModified),
             typeof(GradeSeparatedJunctionRemoved),
+            typeof(GradeSeparatedJunctionGeometryModified),
 
             typeof(RoadNetworkWasChangedBecauseOfExtract),
             typeof(MunicipalityWasMigrated),
@@ -64,9 +65,11 @@ public class RoadNodeExtractProjectionTests
             typeof(RoadSegmentWasRemovedFromNationalRoad),
             typeof(GradeSeparatedJunctionWasAdded),
             typeof(GradeSeparatedJunctionWasModified),
+            typeof(GradeSeparatedJunctionGeometryWasChanged),
             typeof(GradeSeparatedJunctionWasRemoved),
             typeof(GradeSeparatedJunctionWasRemovedBecauseOfMigration),
             typeof(GradeJunctionWasAdded),
+            typeof(GradeJunctionGeometryWasChanged),
             typeof(GradeJunctionWasRemoved),
 
             typeof(StreetNameWasCreated),

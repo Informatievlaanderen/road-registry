@@ -19,6 +19,10 @@ public static class GeometryObjectExtensions
     {
         return RoadSegmentGeometry.Create(geometry.Value.RoundToCm());
     }
+    public static JunctionGeometry RoundToCm(this JunctionGeometry geometry)
+    {
+        return JunctionGeometry.Create(geometry.Value.RoundToCm());
+    }
 
     public static Coordinate RoundToCm(this Coordinate coordinate)
     {
@@ -78,6 +82,35 @@ public static class GeometryObjectExtensions
         if (geometry.Value.IsLambert08())
         {
             return RoadSegmentGeometry.Create(geometry.Value.TransformFromLambert08To72());
+        }
+
+        throw new InvalidCastException($"Geometry SRID {geometry.SRID} is not Lambert72 or Lambert08");
+    }
+
+    public static JunctionGeometry EnsureLambert08(this JunctionGeometry geometry)
+    {
+        if (geometry.Value.IsLambert08())
+        {
+            return geometry;
+        }
+
+        if (geometry.Value.IsLambert72())
+        {
+            return JunctionGeometry.Create(geometry.Value.TransformFromLambert72To08());
+        }
+
+        throw new InvalidCastException($"Geometry SRID {geometry.SRID} is not Lambert72 or Lambert08");
+    }
+    public static JunctionGeometry EnsureLambert72(this JunctionGeometry geometry)
+    {
+        if (geometry.Value.IsLambert72())
+        {
+            return geometry;
+        }
+
+        if (geometry.Value.IsLambert08())
+        {
+            return JunctionGeometry.Create(geometry.Value.TransformFromLambert08To72());
         }
 
         throw new InvalidCastException($"Geometry SRID {geometry.SRID} is not Lambert72 or Lambert08");

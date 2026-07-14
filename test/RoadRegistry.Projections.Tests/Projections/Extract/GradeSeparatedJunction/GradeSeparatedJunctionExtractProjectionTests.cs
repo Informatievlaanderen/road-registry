@@ -3,6 +3,7 @@
 using AutoFixture;
 using Extracts.Projections;
 using FluentAssertions;
+using GradeSeparatedJunction.Events.V1;
 using GradeSeparatedJunction.Events.V2;
 using JasperFx.Events;
 using RoadNode.Events.V1;
@@ -69,7 +70,10 @@ public class GradeSeparatedJunctionExtractProjectionTests
             typeof(RoadSegmentWasRemovedFromEuropeanRoad),
             typeof(RoadSegmentWasRemovedFromNationalRoad),
             typeof(GradeJunctionWasAdded),
+            typeof(GradeJunctionGeometryWasChanged),
             typeof(GradeJunctionWasRemoved),
+            typeof(GradeSeparatedJunctionGeometryWasChanged),
+            typeof(GradeSeparatedJunctionGeometryModified),
 
             typeof(StreetNameWasCreated),
             typeof(StreetNameWasModified),

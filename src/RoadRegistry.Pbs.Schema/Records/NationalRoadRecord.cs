@@ -9,7 +9,7 @@ public class NationalRoadRecord
 {
     public int NW_OIDN { get; set; }
     public int WS_OIDN { get; set; }
-    public string NWNUMMER { get; set; }
+    public string? NWNUMMER { get; set; }
     public string CREATIE { get; set; }
     public string VERSIE { get; set; }
 }

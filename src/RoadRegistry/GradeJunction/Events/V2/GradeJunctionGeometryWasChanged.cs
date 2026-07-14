@@ -1,17 +1,15 @@
-﻿namespace RoadRegistry.GradeJunction.Events.V2;
+namespace RoadRegistry.GradeJunction.Events.V2;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using RoadRegistry.BackOffice;
 
-public record GradeJunctionWasAdded : IMartenEvent, ICreatedEvent
+public record GradeJunctionGeometryWasChanged : IMartenEvent
 {
-    public const string EventName = "GradeJunctionWasAdded"; // BE CAREFUL CHANGING THIS!!
+    public const string EventName = "GradeJunctionGeometryWasChanged"; // BE CAREFUL CHANGING THIS!!
 
     public required GradeJunctionId GradeJunctionId { get; init; }
-    public required RoadSegmentId RoadSegmentId1 { get; init; }
-    public required RoadSegmentId RoadSegmentId2 { get; init; }
     public required JunctionGeometry Geometry { get; init; }
 
     public required ProvenanceData Provenance { get; init; }

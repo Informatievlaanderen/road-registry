@@ -8,6 +8,7 @@ using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadNetwork.Schema;
+using RoadRegistry.ValueObjects;
 
 public class AggregateTests : AggregateTestBase
 {
@@ -16,9 +17,10 @@ public class AggregateTests : AggregateTestBase
     {
         // Arrange
         var change = Fixture.Create<AddGradeSeparatedJunctionChange>();
+        var geometry = Fixture.Create<JunctionGeometry>();
 
         // Act
-        var (junction, problems) = GradeSeparatedJunction.Add(change, TestData.Provenance, new InMemoryRoadNetworkIdGenerator());
+        var (junction, problems) = GradeSeparatedJunction.Add(change, geometry, TestData.Provenance, new InMemoryRoadNetworkIdGenerator());
 
         // Assert
         problems.Should().HaveNoError();
@@ -29,6 +31,7 @@ public class AggregateTests : AggregateTestBase
         junctionAdded.Type.Should().Be(change.Type);
         junctionAdded.LowerRoadSegmentId.Should().Be(change.LowerRoadSegmentId);
         junctionAdded.UpperRoadSegmentId.Should().Be(change.UpperRoadSegmentId);
+        junctionAdded.Geometry.Should().Be(geometry);
     }
 
     [Fact]

@@ -14,6 +14,7 @@ using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.ScopedRoadNetwork.Events.V2;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
+using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using RoadNode = RoadRegistry.RoadNode.RoadNode;
 using GradeSeparatedJunction = RoadRegistry.GradeSeparatedJunction.GradeSeparatedJunction;
@@ -52,7 +53,7 @@ public partial class ScopedRoadNetwork
         }
 
         return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), context.Summary);
-}
+    }
 
     private Problems ApplyChanges(RoadNetworkChanges changes, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
     {
@@ -203,6 +204,7 @@ public partial class ScopedRoadNetwork
                 list = [];
                 junctionsBySegmentPair[key] = list;
             }
+
             list.Add(junction);
         }
 
@@ -414,7 +416,46 @@ public partial class ScopedRoadNetwork
             UpperRoadSegmentId = context.IdTranslator.TranslateToPermanentId(change.UpperRoadSegmentId)
         };
 
-        var (gradeSeparatedJunction, problems) = GradeSeparatedJunction.Add(change, context.Provenance, idGenerator);
+        if (!RoadSegments.TryGetValue(change.LowerRoadSegmentId, out var lowerSegment) || lowerSegment.IsRemoved)
+        {
+            lowerSegment = null;
+        }
+        if (!RoadSegments.TryGetValue(change.UpperRoadSegmentId, out var upperSegment) || upperSegment.IsRemoved)
+        {
+            upperSegment = null;
+        }
+        var geometry = lowerSegment is not null && upperSegment is not null
+            ? JunctionGeometryCalculator.Calculate(lowerSegment.Geometry, upperSegment.Geometry)
+            : null;
+
+        // A grade separated junction must have a point geometry (the intersection of its two segments). If none can be
+        // computed the junction is invalid, so it is not added and the reason is reported: a missing/removed segment,
+        // or two segments that do not intersect.
+        if (geometry is null)
+        {
+            var geometryProblems = Problems.WithContext(change.TemporaryId);
+            if (upperSegment is null)
+            {
+                geometryProblems += new Error(ProblemCode.GradeSeparatedJunction.UpperSegmentMissing.ToString(),
+                    context.IdTranslator.TranslateToTemporaryId(change.UpperRoadSegmentId).ToRoadSegmentProblemParameters().ToArray());
+            }
+            if (lowerSegment is null)
+            {
+                geometryProblems += new Error(ProblemCode.GradeSeparatedJunction.LowerSegmentMissing.ToString(),
+                    context.IdTranslator.TranslateToTemporaryId(change.LowerRoadSegmentId).ToRoadSegmentProblemParameters().ToArray());
+            }
+            if (upperSegment is not null && lowerSegment is not null)
+            {
+                geometryProblems += new Error(ProblemCode.GradeSeparatedJunction.UpperAndLowerDoNotIntersect.ToString(),
+                    Enumerable.Empty<ProblemParameter>()
+                        .Concat(context.IdTranslator.TranslateToTemporaryId(change.LowerRoadSegmentId).ToRoadSegmentProblemParameters("LowerWegsegment"))
+                        .Concat(context.IdTranslator.TranslateToTemporaryId(change.UpperRoadSegmentId).ToRoadSegmentProblemParameters("UpperWegsegment"))
+                        .ToArray());
+            }
+            return geometryProblems;
+        }
+
+        var (gradeSeparatedJunction, problems) = GradeSeparatedJunction.Add(change, geometry, context.Provenance, idGenerator);
         if (problems.HasError())
         {
             return problems;
@@ -481,10 +522,11 @@ public partial class ScopedRoadNetwork
     private Problems AddGradeJunction(
         RoadSegmentId roadSegmentId1,
         RoadSegmentId roadSegmentId2,
+        JunctionGeometry? geometry,
         IRoadNetworkIdGenerator idGenerator,
         ScopedRoadNetworkChangeContext context)
     {
-        var gradeJunction = GradeJunction.Add(roadSegmentId1, roadSegmentId2, context.Provenance, idGenerator);
+        var gradeJunction = GradeJunction.Add(roadSegmentId1, roadSegmentId2, geometry, context.Provenance, idGenerator);
 
         _gradeJunctions.Add(gradeJunction.GradeJunctionId, gradeJunction);
         context.Summary.GradeJunctions.Added.Add(gradeJunction.GradeJunctionId);
