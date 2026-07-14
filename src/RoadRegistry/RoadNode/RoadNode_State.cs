@@ -34,7 +34,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         string? lastEventHash)
         : this(new RoadNodeId(roadNodeId))
     {
-        Geometry = geometry.EnsureLambert08();
+        Geometry = geometry;
         Type = type is not null ? RoadNodeTypeV2.Parse(type) : null;
         Grensknoop = grensknoop;
         IsRemoved = isRemoved;

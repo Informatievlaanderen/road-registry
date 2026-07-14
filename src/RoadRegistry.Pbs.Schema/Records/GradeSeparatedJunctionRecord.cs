@@ -12,8 +12,8 @@ public class GradeSeparatedJunctionRecord
     public int BO_WS_OIDN { get; set; }
     public int ON_WS_OIDN { get; set; }
     public int? TYPE { get; set; }
-    public string LBLTYPE { get; set; }
-    public Geometry GEOMETRIE { get; set; }
+    public string? LBLTYPE { get; set; }
+    public Geometry? GEOMETRIE { get; set; }
     public string CREATIE { get; set; }
     public string VERSIE { get; set; }
 }

@@ -7,6 +7,7 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.Index.Strtree;
 using RoadRegistry.Extensions;
 using RoadRegistry.GradeJunction;
+using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
@@ -91,7 +92,8 @@ public partial class ScopedRoadNetwork
 
             if (!hasOverlapInTrafficTypes && !existingGradeJunctions.ContainsKey(combination.Key))
             {
-                problems += AddGradeJunction(combination.Segment1.RoadSegmentId, combination.Segment2.RoadSegmentId, idGenerator, context);
+                var geometry = JunctionGeometry.Create(intersection.Factory.CreatePoint(intersection.Coordinate.RoundToCm()));
+                problems += AddGradeJunction(combination.Segment1.RoadSegmentId, combination.Segment2.RoadSegmentId, geometry, idGenerator, context);
             }
             else if (hasOverlapInTrafficTypes && existingGradeJunctions.TryGetValue(combination.Key, out var gradeJunction))
             {
@@ -99,7 +101,41 @@ public partial class ScopedRoadNetwork
             }
         }
 
+        if (!problems.HasError())
+        {
+            RecomputeJunctionGeometries(segmentCombinationsOfChangedSegments, existingGradeJunctions, existingGradeSeparatedJunctions, context);
+        }
+
         return problems;
+    }
+
+    private static void RecomputeJunctionGeometries(
+        List<(RoadSegment Segment1, RoadSegment Segment2, (int, int) Key, Point[] IntersectingPoints)> segmentCombinationsOfChangedSegments,
+        Dictionary<(int, int), GradeJunction> existingGradeJunctions,
+        Dictionary<(int, int), GradeSeparatedJunction> existingGradeSeparatedJunctions,
+        ScopedRoadNetworkChangeContext context)
+    {
+        foreach (var combination in segmentCombinationsOfChangedSegments)
+        {
+            if (existingGradeJunctions.TryGetValue(combination.Key, out var gradeJunction))
+            {
+                // The grade junction point is the single non-node intersection already computed for this combination.
+                var point = combination.IntersectingPoints.FirstOrDefault();
+                if (point is not null)
+                {
+                    gradeJunction.ChangeGeometry(JunctionGeometry.Create(point.Factory.CreatePoint(point.Coordinate.RoundToCm())), context.Provenance);
+                }
+            }
+
+            if (existingGradeSeparatedJunctions.TryGetValue(combination.Key, out var gradeSeparatedJunction))
+            {
+                var geometry = JunctionGeometryCalculator.Calculate(combination.Segment1.Geometry, combination.Segment2.Geometry);
+                if (geometry is not null)
+                {
+                    gradeSeparatedJunction.ChangeGeometry(geometry, context.Provenance);
+                }
+            }
+        }
     }
 
     private List<(RoadSegment Segment1, RoadSegment Segment2, (int, int) Key, Point[] IntersectingPoints)> GetSegmentCombinationsOfChangedSegments(

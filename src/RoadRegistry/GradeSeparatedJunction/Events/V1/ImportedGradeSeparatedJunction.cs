@@ -18,6 +18,10 @@ public class ImportedGradeSeparatedJunction : IMartenEvent
     public required int UpperRoadSegmentId { get; set; }
     public required DateTimeOffset When {get; set; }
 
+    // The junction point (intersection of the two linked segments), computed by the Marten migration. Null when it
+    // could not be computed.
+    public JunctionGeometry? Geometry { get; set; }
+
     public required ProvenanceData Provenance { get; set; }
 
     public IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);

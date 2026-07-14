@@ -9,7 +9,7 @@ public class EuropeanRoadRecord
 {
     public int EU_OIDN { get; set; }
     public int WS_OIDN { get; set; }
-    public string EUNUMMER { get; set; }
+    public string? EUNUMMER { get; set; }
     public string CREATIE { get; set; }
     public string VERSIE { get; set; }
 }

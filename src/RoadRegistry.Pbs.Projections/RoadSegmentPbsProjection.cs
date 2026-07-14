@@ -18,7 +18,7 @@ using Schema.Records;
 
 public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProjection<PbsContext>
 {
-    public RoadSegmentPbsProjection(IDbContextFactory<PbsContext> dbContextFactory, ILoggerFactory loggerFactory = null)
+    public RoadSegmentPbsProjection(IDbContextFactory<PbsContext> dbContextFactory, ILoggerFactory? loggerFactory = null)
         : base(dbContextFactory, loggerFactory)
     {
         // V1

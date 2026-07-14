@@ -129,7 +129,8 @@ public class Program
                 ;
         })
         .ConfigureHealthChecks(HostingPort, builder => builder
-            .AddHostedServicesStatus()
+            .AddHostedServicesStatus(options =>
+                options.ExcludeHostedService<MartenMigrationContextEventProcessor>()) // to avoid host stuck in restart loop in-case of issues
         )
         .ConfigureContainer((context, builder) =>
         {

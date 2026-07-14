@@ -8,7 +8,7 @@ using RoadRegistry.ValueObjects;
 // Where those writers throw for an unmapped value, PBS returns null instead - the product stores null when no mapping was possible.
 internal static class V1ToV2
 {
-    public static RoadSegmentGeometryDrawMethodV2 Method(string v1)
+    public static RoadSegmentGeometryDrawMethodV2? Method(string v1)
     {
         if (!RoadSegmentGeometryDrawMethod.CanParse(v1))
         {
@@ -28,7 +28,7 @@ internal static class V1ToV2
         return null;
     }
 
-    public static RoadSegmentStatusV2 Status(string v1, RoadSegmentGeometryDrawMethodV2 method)
+    public static RoadSegmentStatusV2? Status(string v1, RoadSegmentGeometryDrawMethodV2 method)
     {
         if (!RoadSegmentStatus.CanParse(v1))
         {
@@ -65,7 +65,7 @@ internal static class V1ToV2
         { 110, 3 }, { 111, 6 }, { 112, 6 }, { 113, null }, { 114, null }, { 116, 11 }, { 120, null }, { 125, 8 },
         { 130, 12 }, { -8, -8 }
     };
-    public static RoadSegmentMorphologyV2 Morphology(string v1)
+    public static RoadSegmentMorphologyV2? Morphology(string v1)
     {
         if (!RoadSegmentMorphology.CanParse(v1))
         {
@@ -78,7 +78,7 @@ internal static class V1ToV2
     {
         { 1, 10 }, { 2, null }, { 3, null }, { 4, 11 }, { 5, 10 }, { 6, 10 }
     };
-    public static RoadSegmentAccessRestrictionV2 AccessRestriction(string v1)
+    public static RoadSegmentAccessRestrictionV2? AccessRestriction(string v1)
     {
         if (!RoadSegmentAccessRestriction.CanParse(v1))
         {
@@ -91,7 +91,7 @@ internal static class V1ToV2
     {
         { 1, 10 }, { 2, 11 }, { -9, 12 }, { -8, -8 }
     };
-    public static RoadSegmentSurfaceTypeV2 SurfaceType(string v1)
+    public static RoadSegmentSurfaceTypeV2? SurfaceType(string v1)
     {
         if (!RoadSegmentSurfaceType.CanParse(v1))
         {
@@ -109,7 +109,7 @@ internal static class V1ToV2
         { "PII-1", "VHW" }, { "PII-2", "VHW" }, { "PII-3", "VHW" }, { "PII-4", "VHW" }, { "S", "RW" }, { "S1", "IW" },
         { "S2", "IW" }, { "S3", "IW" }, { "S4", "IW" }
     };
-    public static RoadSegmentCategoryV2 Category(string v1)
+    public static RoadSegmentCategoryV2? Category(string v1)
     {
         if (!RoadSegmentCategory.CanParse(v1))
         {
@@ -126,7 +126,7 @@ internal static class V1ToV2
     {
         { 1, 10 }, { 2, 11 }, { 3, 12 }, { 4, 10 }, { 5, 13 }
     };
-    public static RoadNodeTypeV2 RoadNodeType(string v1)
+    public static RoadNodeTypeV2? RoadNodeType(string v1)
     {
         if (!ValueObjects.RoadNodeType.CanParse(v1))
         {
@@ -148,7 +148,7 @@ internal static class V1ToV2
         return Map(ValueObjects.GradeSeparatedJunctionType.Parse(v1).Translation.Identifier, GradeSeparatedJunctionTypeMapping, GradeSeparatedJunctionTypeV2.ByIdentifier);
     }
 
-    private static TV2 Map<TV2>(int v1Identifier, IReadOnlyDictionary<int, int> mapping, IReadOnlyDictionary<int, TV2> byIdentifier)
+    private static TV2? Map<TV2>(int v1Identifier, IReadOnlyDictionary<int, int> mapping, IReadOnlyDictionary<int, TV2> byIdentifier)
         where TV2 : class
     {
         if (!mapping.TryGetValue(v1Identifier, out var v2Identifier))
@@ -158,7 +158,7 @@ internal static class V1ToV2
         return byIdentifier.TryGetValue(v2Identifier, out var v2) ? v2 : null;
     }
 
-    private static TV2 Map<TV2>(int v1Identifier, IReadOnlyDictionary<int, int?> mapping, IReadOnlyDictionary<int, TV2> byIdentifier)
+    private static TV2? Map<TV2>(int v1Identifier, IReadOnlyDictionary<int, int?> mapping, IReadOnlyDictionary<int, TV2> byIdentifier)
         where TV2 : class
     {
         if (!mapping.TryGetValue(v1Identifier, out var v2Identifier) || v2Identifier is null)

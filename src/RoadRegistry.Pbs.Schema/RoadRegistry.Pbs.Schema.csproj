@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>RoadRegistry.Pbs.Schema</RootNamespace>
     <AssemblyName>RoadRegistry.Pbs.Schema</AssemblyName>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>

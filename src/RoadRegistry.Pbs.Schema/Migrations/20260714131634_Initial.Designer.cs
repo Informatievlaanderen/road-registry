@@ -66,6 +66,7 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("CREATIE")
+                        .IsRequired()
                         .HasColumnType("varchar(15)");
 
                     b.Property<int?>("E_WK_OIDN")
@@ -126,6 +127,7 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("VERSIE")
+                        .IsRequired()
                         .HasColumnType("varchar(15)");
 
                     b.Property<int?>("VOETGANGER")
@@ -157,12 +159,14 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EU_OIDN"));
 
                     b.Property<string>("CREATIE")
+                        .IsRequired()
                         .HasColumnType("varchar(15)");
 
                     b.Property<string>("EUNUMMER")
                         .HasColumnType("varchar(4)");
 
                     b.Property<string>("VERSIE")
+                        .IsRequired()
                         .HasColumnType("varchar(15)");
 
                     b.Property<int>("WS_OIDN")
@@ -185,12 +189,14 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("CREATIE")
+                        .IsRequired()
                         .HasColumnType("varchar(15)");
 
                     b.Property<Geometry>("GEOMETRIE")
                         .HasColumnType("Geometry");
 
                     b.Property<string>("VERSIE")
+                        .IsRequired()
                         .HasColumnType("varchar(15)");
 
                     b.Property<int>("WS1_OIDN")
@@ -219,6 +225,7 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("CREATIE")
+                        .IsRequired()
                         .HasColumnType("varchar(15)");
 
                     b.Property<Geometry>("GEOMETRIE")
@@ -234,6 +241,7 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("VERSIE")
+                        .IsRequired()
                         .HasColumnType("varchar(15)");
 
                     b.HasKey("OK_OIDN");
@@ -272,12 +280,14 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NW_OIDN"));
 
                     b.Property<string>("CREATIE")
+                        .IsRequired()
                         .HasColumnType("varchar(15)");
 
                     b.Property<string>("NWNUMMER")
                         .HasColumnType("varchar(8)");
 
                     b.Property<string>("VERSIE")
+                        .IsRequired()
                         .HasColumnType("varchar(15)");
 
                     b.Property<int>("WS_OIDN")
@@ -319,6 +329,7 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("CREATIE")
+                        .IsRequired()
                         .HasColumnType("varchar(15)");
 
                     b.Property<Geometry>("GEOMETRIE")
@@ -334,6 +345,7 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("VERSIE")
+                        .IsRequired()
                         .HasColumnType("varchar(15)");
 
                     b.HasKey("WK_OIDN");
@@ -677,6 +689,7 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("CREATIE")
+                        .IsRequired()
                         .HasColumnType("varchar(15)");
 
                     b.Property<int?>("E_WK_OIDN")
@@ -698,6 +711,7 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("VERSIE")
+                        .IsRequired()
                         .HasColumnType("varchar(15)");
 
                     b.HasKey("WS_OIDN");

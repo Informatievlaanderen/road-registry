@@ -2,11 +2,13 @@ namespace RoadRegistry.Projections.Tests.Projections.ReadProjections.GradeJuncti
 
 using System;
 using System.Threading.Tasks;
+using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.Tests.AggregateTests;
+using RoadRegistry.ValueObjects;
 
 public class GradeJunctionReadProjectionTests
 {
@@ -36,6 +38,7 @@ public class GradeJunctionReadProjectionTests
             GradeJunctionId = new GradeJunctionId(1),
             RoadSegmentId1 = new RoadSegmentId(1),
             RoadSegmentId2 = new RoadSegmentId(2),
+            Geometry = _testData.Fixture.Create<JunctionGeometry>(),
             Provenance = Provenance
         });
 
@@ -57,6 +60,7 @@ public class GradeJunctionReadProjectionTests
             GradeJunctionId = new GradeJunctionId(1),
             RoadSegmentId1 = new RoadSegmentId(1),
             RoadSegmentId2 = new RoadSegmentId(2),
+            Geometry = _testData.Fixture.Create<JunctionGeometry>(),
             Provenance = Provenance
         });
 

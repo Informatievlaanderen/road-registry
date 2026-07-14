@@ -24,6 +24,13 @@ public static class NetTopologySuiteExtensions
         return RoadSegmentGeometry.Create(geometry.WithoutDuplicateCoordinates());
     }
 
+    public static JunctionGeometry ToJunctionGeometry(this Point geometry)
+    {
+        ArgumentNullException.ThrowIfNull(geometry);
+
+        return JunctionGeometry.Create(geometry);
+    }
+
     public static ExtractGeometry ToExtractGeometry(this MultiPolygon geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);

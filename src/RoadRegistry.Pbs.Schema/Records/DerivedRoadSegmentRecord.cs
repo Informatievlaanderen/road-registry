@@ -13,29 +13,29 @@ public class DerivedRoadSegmentRecord
     public int WS_TEMPID { get; set; }
     public int WS_OIDN { get; set; }
     public int? STATUS { get; set; }
-    public string LBLSTATUS { get; set; }
+    public string? LBLSTATUS { get; set; }
     public int? METHODE { get; set; }
-    public string LBLMETHODE { get; set; }
+    public string? LBLMETHODE { get; set; }
     public int? B_WK_OIDN { get; set; }
     public int? E_WK_OIDN { get; set; }
     public int? MORF { get; set; }
-    public string LBLMORF { get; set; }
-    public string WEGCAT { get; set; }
-    public string LBLWEGCAT { get; set; }
+    public string? LBLMORF { get; set; }
+    public string? WEGCAT { get; set; }
+    public string? LBLWEGCAT { get; set; }
     public int? LSTRNMID { get; set; }
     public int? RSTRNMID { get; set; }
-    public string LBEHEER { get; set; }
-    public string RBEHEER { get; set; }
+    public string? LBEHEER { get; set; }
+    public string? RBEHEER { get; set; }
     public int? TOEGANG { get; set; }
-    public string LBLTOEGANG { get; set; }
+    public string? LBLTOEGANG { get; set; }
     public int? VERHARDING { get; set; }
-    public string LBLVERHARD { get; set; }
+    public string? LBLVERHARD { get; set; }
     public int? AUTOHEEN { get; set; }
     public int? AUTOTERUG { get; set; }
     public int? FIETSHEEN { get; set; }
     public int? FIETSTERUG { get; set; }
     public int? VOETGANGER { get; set; }
-    public Geometry GEOMETRIE { get; set; }
+    public Geometry? GEOMETRIE { get; set; }
     public string CREATIE { get; set; }
     public string VERSIE { get; set; }
 }

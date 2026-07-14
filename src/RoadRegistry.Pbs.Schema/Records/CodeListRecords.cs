@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 public class RoadNodeTypeCodeListRecord
 {
     public int TYPE { get; set; }
-    public string LBLTYPE { get; set; }
-    public string DEFTYPE { get; set; }
+    public string? LBLTYPE { get; set; }
+    public string? DEFTYPE { get; set; }
 }
 
 public class RoadNodeTypeCodeListRecordConfiguration : IEntityTypeConfiguration<RoadNodeTypeCodeListRecord>
@@ -30,8 +30,8 @@ public class RoadNodeTypeCodeListRecordConfiguration : IEntityTypeConfiguration<
 public class GradeSeparatedJunctionTypeCodeListRecord
 {
     public int TYPE { get; set; }
-    public string LBLTYPE { get; set; }
-    public string DEFTYPE { get; set; }
+    public string? LBLTYPE { get; set; }
+    public string? DEFTYPE { get; set; }
 }
 
 public class GradeSeparatedJunctionTypeCodeListRecordConfiguration : IEntityTypeConfiguration<GradeSeparatedJunctionTypeCodeListRecord>
@@ -50,8 +50,8 @@ public class GradeSeparatedJunctionTypeCodeListRecordConfiguration : IEntityType
 public class RoadSegmentSideCodeListRecord
 {
     public int KANT { get; set; }
-    public string LBLKANT { get; set; }
-    public string DEFKANT { get; set; }
+    public string? LBLKANT { get; set; }
+    public string? DEFKANT { get; set; }
 }
 
 public class RoadSegmentSideCodeListRecordConfiguration : IEntityTypeConfiguration<RoadSegmentSideCodeListRecord>
@@ -70,8 +70,8 @@ public class RoadSegmentSideCodeListRecordConfiguration : IEntityTypeConfigurati
 public class RoadSegmentMethodCodeListRecord
 {
     public int METHODE { get; set; }
-    public string LBLMETHODE { get; set; }
-    public string DEFMETHODE { get; set; }
+    public string? LBLMETHODE { get; set; }
+    public string? DEFMETHODE { get; set; }
 }
 
 public class RoadSegmentMethodCodeListRecordConfiguration : IEntityTypeConfiguration<RoadSegmentMethodCodeListRecord>
@@ -90,8 +90,8 @@ public class RoadSegmentMethodCodeListRecordConfiguration : IEntityTypeConfigura
 public class RoadSegmentMorphologyCodeListRecord
 {
     public int MORF { get; set; }
-    public string LBLMORF { get; set; }
-    public string DEFMORF { get; set; }
+    public string? LBLMORF { get; set; }
+    public string? DEFMORF { get; set; }
 }
 
 public class RoadSegmentMorphologyCodeListRecordConfiguration : IEntityTypeConfiguration<RoadSegmentMorphologyCodeListRecord>
@@ -110,8 +110,8 @@ public class RoadSegmentMorphologyCodeListRecordConfiguration : IEntityTypeConfi
 public class RoadSegmentDirectionCodeListRecord
 {
     public int RICHTING { get; set; }
-    public string LBLRICHT { get; set; }
-    public string DEFRICHT { get; set; }
+    public string? LBLRICHT { get; set; }
+    public string? DEFRICHT { get; set; }
 }
 
 public class RoadSegmentDirectionCodeListRecordConfiguration : IEntityTypeConfiguration<RoadSegmentDirectionCodeListRecord>
@@ -130,8 +130,8 @@ public class RoadSegmentDirectionCodeListRecordConfiguration : IEntityTypeConfig
 public class RoadSegmentStatusCodeListRecord
 {
     public int STATUS { get; set; }
-    public string LBLSTATUS { get; set; }
-    public string DEFSTATUS { get; set; }
+    public string? LBLSTATUS { get; set; }
+    public string? DEFSTATUS { get; set; }
 }
 
 public class RoadSegmentStatusCodeListRecordConfiguration : IEntityTypeConfiguration<RoadSegmentStatusCodeListRecord>
@@ -150,8 +150,8 @@ public class RoadSegmentStatusCodeListRecordConfiguration : IEntityTypeConfigura
 public class RoadSegmentAccessRestrictionCodeListRecord
 {
     public int TOEGANG { get; set; }
-    public string LBLTOEGANG { get; set; }
-    public string DEFTOEGANG { get; set; }
+    public string? LBLTOEGANG { get; set; }
+    public string? DEFTOEGANG { get; set; }
 }
 
 public class RoadSegmentAccessRestrictionCodeListRecordConfiguration : IEntityTypeConfiguration<RoadSegmentAccessRestrictionCodeListRecord>
@@ -170,8 +170,8 @@ public class RoadSegmentAccessRestrictionCodeListRecordConfiguration : IEntityTy
 public class RoadSegmentSurfaceTypeCodeListRecord
 {
     public int VERHARDING { get; set; }
-    public string LBLVERHARD { get; set; }
-    public string DEFVERHARD { get; set; }
+    public string? LBLVERHARD { get; set; }
+    public string? DEFVERHARD { get; set; }
 }
 
 public class RoadSegmentSurfaceTypeCodeListRecordConfiguration : IEntityTypeConfiguration<RoadSegmentSurfaceTypeCodeListRecord>
@@ -189,9 +189,9 @@ public class RoadSegmentSurfaceTypeCodeListRecordConfiguration : IEntityTypeConf
 
 public class RoadSegmentCategoryCodeListRecord
 {
-    public string WEGCAT { get; set; }
-    public string LBLWEGCAT { get; set; }
-    public string DEFWEGCAT { get; set; }
+    public string? WEGCAT { get; set; }
+    public string? LBLWEGCAT { get; set; }
+    public string? DEFWEGCAT { get; set; }
 }
 
 public class RoadSegmentCategoryCodeListRecordConfiguration : IEntityTypeConfiguration<RoadSegmentCategoryCodeListRecord>
@@ -209,9 +209,9 @@ public class RoadSegmentCategoryCodeListRecordConfiguration : IEntityTypeConfigu
 
 public class RoadSegmentMaintenanceAuthorityCodeListRecord
 {
-    public string BEHEER { get; set; }
-    public string LBLBEHEER { get; set; }
-    public string OVOCODE { get; set; }
+    public string? BEHEER { get; set; }
+    public string? LBLBEHEER { get; set; }
+    public string? OVOCODE { get; set; }
 }
 
 public class RoadSegmentMaintenanceAuthorityCodeListRecordConfiguration : IEntityTypeConfiguration<RoadSegmentMaintenanceAuthorityCodeListRecord>

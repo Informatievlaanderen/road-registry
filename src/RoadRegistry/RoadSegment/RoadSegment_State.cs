@@ -48,7 +48,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     )
         : this(new RoadSegmentId(roadSegmentId))
     {
-        Geometry = geometry.EnsureLambert08();
+        Geometry = geometry;
         Status = RoadSegmentStatusV2.Parse(status);
         StartNodeId = RoadNodeId.FromValue(startNodeId);
         EndNodeId = RoadNodeId.FromValue(endNodeId);

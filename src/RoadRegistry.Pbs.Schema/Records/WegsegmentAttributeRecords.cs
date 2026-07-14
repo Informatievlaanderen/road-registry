@@ -9,7 +9,7 @@ public class RoadSegmentMorphologyAttributeRecord
     public int MO_OIDN { get; set; }
     public int WS_OIDN { get; set; }
     public int? MORF { get; set; }
-    public string LBLMORF { get; set; }
+    public string? LBLMORF { get; set; }
     public double VANPOS { get; set; }
     public double TOTPOS { get; set; }
 }
@@ -33,7 +33,7 @@ public class RoadSegmentStreetNameAttributeRecord
     public int WS_OIDN { get; set; }
     public int? STRTNMID { get; set; }
     public int? KANT { get; set; }
-    public string LBLKANT { get; set; }
+    public string? LBLKANT { get; set; }
     public double VANPOS { get; set; }
     public double TOTPOS { get; set; }
 }
@@ -56,7 +56,7 @@ public class RoadSegmentAccessRestrictionAttributeRecord
     public int TO_OIDN { get; set; }
     public int WS_OIDN { get; set; }
     public int? TOEGANG { get; set; }
-    public string LBLTOEGANG { get; set; }
+    public string? LBLTOEGANG { get; set; }
     public double VANPOS { get; set; }
     public double TOTPOS { get; set; }
 }
@@ -79,7 +79,7 @@ public class RoadSegmentCarTrafficDirectionAttributeRecord
     public int AU_OIDN { get; set; }
     public int WS_OIDN { get; set; }
     public int? RICHTING { get; set; }
-    public string LBLRICHT { get; set; }
+    public string? LBLRICHT { get; set; }
     public double VANPOS { get; set; }
     public double TOTPOS { get; set; }
 }
@@ -102,7 +102,7 @@ public class RoadSegmentBikeTrafficDirectionAttributeRecord
     public int FI_OIDN { get; set; }
     public int WS_OIDN { get; set; }
     public int? RICHTING { get; set; }
-    public string LBLRICHT { get; set; }
+    public string? LBLRICHT { get; set; }
     public double VANPOS { get; set; }
     public double TOTPOS { get; set; }
 }
@@ -125,7 +125,7 @@ public class RoadSegmentPedestrianTrafficDirectionAttributeRecord
     public int VO_OIDN { get; set; }
     public int WS_OIDN { get; set; }
     public int? RICHTING { get; set; }
-    public string LBLRICHT { get; set; }
+    public string? LBLRICHT { get; set; }
     public double VANPOS { get; set; }
     public double TOTPOS { get; set; }
 }
@@ -147,9 +147,9 @@ public class RoadSegmentMaintenanceAuthorityAttributeRecord
 {
     public int WB_OIDN { get; set; }
     public int WS_OIDN { get; set; }
-    public string BEHEER { get; set; }
+    public string? BEHEER { get; set; }
     public int? KANT { get; set; }
-    public string LBLKANT { get; set; }
+    public string? LBLKANT { get; set; }
     public double VANPOS { get; set; }
     public double TOTPOS { get; set; }
 }
@@ -172,8 +172,8 @@ public class RoadSegmentCategoryAttributeRecord
 {
     public int WC_OIDN { get; set; }
     public int WS_OIDN { get; set; }
-    public string WEGCAT { get; set; }
-    public string LBLWEGCAT { get; set; }
+    public string? WEGCAT { get; set; }
+    public string? LBLWEGCAT { get; set; }
     public double VANPOS { get; set; }
     public double TOTPOS { get; set; }
 }
@@ -197,7 +197,7 @@ public class RoadSegmentSurfaceTypeAttributeRecord
     public int WV_OIDN { get; set; }
     public int WS_OIDN { get; set; }
     public int? VERHARDING { get; set; }
-    public string LBLVERHARD { get; set; }
+    public string? LBLVERHARD { get; set; }
     public double VANPOS { get; set; }
     public double TOTPOS { get; set; }
 }

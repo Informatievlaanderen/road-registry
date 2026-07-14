@@ -2,12 +2,14 @@
 
 using Events.V2;
 using Newtonsoft.Json;
+using RoadRegistry.Extensions;
 
 public partial class GradeJunction : MartenAggregateRootEntity<GradeJunctionId>
 {
     public GradeJunctionId GradeJunctionId { get; }
     public RoadSegmentId RoadSegmentId1 { get; private set; }
     public RoadSegmentId RoadSegmentId2 { get; private set; }
+    public JunctionGeometry? Geometry { get; private set; }
 
     public bool IsRemoved { get; private set; }
 
@@ -25,6 +27,7 @@ public partial class GradeJunction : MartenAggregateRootEntity<GradeJunctionId>
         int gradeJunctionId,
         int roadSegmentId1,
         int roadSegmentId2,
+        JunctionGeometry? geometry,
         bool isRemoved,
         string? lastEventHash
     )
@@ -32,6 +35,7 @@ public partial class GradeJunction : MartenAggregateRootEntity<GradeJunctionId>
     {
         RoadSegmentId1 = new RoadSegmentId(roadSegmentId1);
         RoadSegmentId2 = new RoadSegmentId(roadSegmentId2);
+        Geometry = geometry;
         IsRemoved = isRemoved;
         _lastSnapshotEventHash = lastEventHash;
     }
@@ -41,10 +45,18 @@ public partial class GradeJunction : MartenAggregateRootEntity<GradeJunctionId>
         var junction = new GradeJunction(@event.GradeJunctionId)
         {
             RoadSegmentId1 = @event.RoadSegmentId1,
-            RoadSegmentId2 = @event.RoadSegmentId2
+            RoadSegmentId2 = @event.RoadSegmentId2,
+            Geometry = @event.Geometry
         };
         junction.UncommittedEvents.Add(@event);
         return junction;
+    }
+
+    public void Apply(GradeJunctionGeometryWasChanged @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Geometry = @event.Geometry;
     }
 
     public void Apply(GradeJunctionWasRemoved @event)

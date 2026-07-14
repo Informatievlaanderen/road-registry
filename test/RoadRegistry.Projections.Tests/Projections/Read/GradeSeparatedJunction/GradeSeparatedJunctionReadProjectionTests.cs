@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.Tests.AggregateTests;
+using RoadRegistry.ValueObjects;
 using V1 = RoadRegistry.GradeSeparatedJunction.Events.V1;
 
 public class GradeSeparatedJunctionReadProjectionTests
@@ -116,6 +117,7 @@ public class GradeSeparatedJunctionReadProjectionTests
             LowerRoadSegmentId = new RoadSegmentId(1),
             UpperRoadSegmentId = new RoadSegmentId(2),
             Type = type,
+            Geometry = _testData.Fixture.Create<JunctionGeometry>(),
             Provenance = Provenance
         });
 
@@ -139,6 +141,7 @@ public class GradeSeparatedJunctionReadProjectionTests
             LowerRoadSegmentId = new RoadSegmentId(1),
             UpperRoadSegmentId = new RoadSegmentId(2),
             Type = type,
+            Geometry = _testData.Fixture.Create<JunctionGeometry>(),
             Provenance = Provenance
         });
 
@@ -170,6 +173,7 @@ public class GradeSeparatedJunctionReadProjectionTests
             LowerRoadSegmentId = new RoadSegmentId(1),
             UpperRoadSegmentId = new RoadSegmentId(2),
             Type = type,
+            Geometry = _testData.Fixture.Create<JunctionGeometry>(),
             Provenance = Provenance
         });
 
