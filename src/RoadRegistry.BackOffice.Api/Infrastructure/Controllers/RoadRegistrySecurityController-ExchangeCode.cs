@@ -4,7 +4,7 @@ using Authentication;
 using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using FluentValidation;
-using IdentityModel.Client;
+using Duende.IdentityModel.Client;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Collections.Generic;

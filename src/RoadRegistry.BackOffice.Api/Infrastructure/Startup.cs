@@ -34,7 +34,7 @@ using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
-using IdentityModel.AspNetCore.OAuth2Introspection;
+using Duende.AspNetCore.Authentication.OAuth2Introspection;
 using Jobs;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -48,7 +48,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IO;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
@@ -217,7 +217,6 @@ public class Startup
                 },
                 MiddlewareHooks =
                 {
-                    EnableFluentValidation = false,
                     Authorization = options =>
                     {
                         var blacklistedOvoCodes =  _configuration

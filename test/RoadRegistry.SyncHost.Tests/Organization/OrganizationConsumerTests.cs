@@ -106,7 +106,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
 
             var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1));
 
-            await consumer.StartAsync(CancellationToken.None);
+            await consumer.RunOnceAsync(CancellationToken.None);
 
             var createOrganizationMessage = await store.GetLastMessage<CreateOrganization>();
 
@@ -152,7 +152,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
                 });
             await store.Given(Mapping, Settings, StreamNameConverter, Organizations.ToStreamName(organizationId), existingOrganization);
 
-            await consumer.StartAsync(CancellationToken.None);
+            await consumer.RunOnceAsync(CancellationToken.None);
 
             var changeOrganizationMessage = await store.GetLastMessage<ChangeOrganization>();
 
@@ -202,7 +202,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
                 },
                 loggerFactory: loggerFactoryMock.Object);
 
-            await consumer.StartAsync(CancellationToken.None);
+            await consumer.RunOnceAsync(CancellationToken.None);
 
             var page = await store.ReadAllForwards(Position.Start, 1);
 
@@ -239,7 +239,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
                     });
                 });
 
-            await consumer.StartAsync(CancellationToken.None);
+            await consumer.RunOnceAsync(CancellationToken.None);
 
             var createOrganizationMessage = await store.GetLastMessage<CreateOrganization>();
 
@@ -274,7 +274,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
 
             var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1));
 
-            await consumer.StartAsync(CancellationToken.None);
+            await consumer.RunOnceAsync(CancellationToken.None);
 
             var createOrganizationMessage = await store.GetLastMessage<CreateOrganization>();
 
@@ -310,7 +310,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
 
             var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1));
 
-            await consumer.StartAsync(CancellationToken.None);
+            await consumer.RunOnceAsync(CancellationToken.None);
 
             var createOrganizationMessage = await store.GetLastMessage<CreateOrganization>();
 
@@ -356,7 +356,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
 
             var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1));
 
-            await consumer.StartAsync(CancellationToken.None);
+            await consumer.RunOnceAsync(CancellationToken.None);
 
             var createOrganizationMessage = await store.GetLastMessage<CreateOrganization>();
 
@@ -402,7 +402,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
 
             var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1));
 
-            await consumer.StartAsync(CancellationToken.None);
+            await consumer.RunOnceAsync(CancellationToken.None);
 
             var createOrganizationMessage = await store.GetLastMessage<CreateOrganization>();
 
@@ -477,7 +477,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
 
             var (consumer, store) = BuildSetup(new FakeOrganizationReader(organizations!.ToArray()));
 
-            await consumer.StartAsync(CancellationToken.None);
+            await consumer.RunOnceAsync(CancellationToken.None);
 
             var createOrganizationMessage = await store.GetLastMessage<CreateOrganization>();
 

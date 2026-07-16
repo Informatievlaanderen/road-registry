@@ -27,11 +27,11 @@ jobs:
         run: rm -rf /opt/hostedtoolcache
 
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # needed for Sonar, default is 11 and is deprecated
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: 17
           distribution: "temurin"
@@ -41,14 +41,14 @@ jobs:
         shell: bash
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+          dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
       - name: .NET version
         shell: bash
         run: dotnet --info
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj*') }}-${{ hashFiles('Directory.Packages.props') }}
@@ -62,7 +62,7 @@ jobs:
           dotnet restore
 
       - name: Cache SonarCloud packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/sonar/cache
           key: ${{ runner.os }}-sonar
@@ -70,7 +70,7 @@ jobs:
 
       - name: Cache SonarCloud scanner
         id: cache-sonar-scanner
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ./.sonar/scanner
           key: ${{ runner.os }}-sonar-scanner
@@ -79,7 +79,7 @@ jobs:
       - name: Install DotCover
         shell: bash
         run: |
-          dotnet tool install --global JetBrains.dotCover.CommandLineTools --version 2025.1.2
+          dotnet tool install --global JetBrains.dotCover.CommandLineTools --version 2026.1.0.1
 
       - name: Install SonarCloud scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
@@ -95,7 +95,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.VBR_SONAR_TOKEN }}
         shell: bash
         run: |
-          ./.sonar/scanner/dotnet-sonarscanner begin /k:"Informatievlaanderen_road-registry" /o:"informatievlaanderen" /d:sonar.token="${{ secrets.VBR_SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html > /dev/null 2>&1
+          ./.sonar/scanner/dotnet-sonarscanner begin /k:"Informatievlaanderen_road-registry" /o:"informatievlaanderen" /d:sonar.token="${{ secrets.VBR_SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.xml > /dev/null 2>&1
 
       - name: Build
         shell: bash
@@ -104,7 +104,7 @@ jobs:
 
       - name: Test
         shell: bash
-        run: dotCover cover-dotnet --ReportType=HTML --Output=dotCover.Output.html -- test --nologo --no-build --filter 'FullyQualifiedName!~IntegrationTests' RoadRegistry.sln
+        run: dotCover cover --target-working-directory . --xml-report-output=dotCover.Output.xml -- test --nologo --no-build --filter 'FullyQualifiedName!~IntegrationTests' RoadRegistry.sln
         env:
           SA_PASSWORD: E@syP@ssw0rd
 

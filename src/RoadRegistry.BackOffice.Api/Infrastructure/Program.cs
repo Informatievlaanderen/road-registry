@@ -29,39 +29,29 @@ public class Program
     {
         var webHostBuilder = Host.CreateDefaultBuilder(args)
             .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-            .ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder.UseDefaultForApi<Startup>(
-                        new ProgramOptions
-                        {
-                            Hosting =
-                            {
-                                HttpPort = HostingPort
-                            },
-                            Logging =
-                            {
-                                WriteTextToConsole = false,
-                                WriteJsonToConsole = false
-                            },
-                            Runtime =
-                            {
-                                CommandLineArgs = args
-                            },
-                            MiddlewareHooks =
-                            {
-                                ConfigureSerilog = (context, loggerConfiguration) => loggerConfiguration
-                                    .AddSlackSink<Program>(context.Configuration)
-                                    .ExcludeCommonErrors()
-                            }
-                        })
-                    .UseKestrel((context, builder) =>
+            .UseDefaultForApi<Startup>(
+                new ProgramOptions
+                {
+                    Hosting =
                     {
-                        if (context.HostingEnvironment.IsDevelopment())
-                        {
-                            builder.ListenLocalhost(HostingPort);
-                        }
-                    });
-            });
+                        HttpPort = HostingPort
+                    },
+                    Logging =
+                    {
+                        WriteTextToConsole = false,
+                        WriteJsonToConsole = false
+                    },
+                    Runtime =
+                    {
+                        CommandLineArgs = args
+                    },
+                    MiddlewareHooks =
+                    {
+                        ConfigureSerilog = (context, loggerConfiguration) => loggerConfiguration
+                            .AddSlackSink<Program>(context.Configuration)
+                            .ExcludeCommonErrors()
+                    }
+                });
         return webHostBuilder;
     }
 

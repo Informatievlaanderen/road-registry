@@ -90,6 +90,29 @@ public sealed class EmbeddedResourceReader
             }
         }
 
+        // Fallback: search all loaded assemblies (needed when called from background threads
+        // where the stack trace doesn't contain the test assembly frames)
+        var alreadySearched = resourceTypes.Select(t => t!.Assembly).ToHashSet();
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Where(a => !a.IsDynamic && !alreadySearched.Contains(a)))
+        {
+            try
+            {
+                var resourceNames = assembly.GetManifestResourceNames();
+                var match = resourceNames
+                    .SingleOrDefault(embeddedResource => CleanResourcePath(embeddedResource).EndsWith($".{fileName}", StringComparison.InvariantCultureIgnoreCase));
+                if (match is not null)
+                {
+                    resourceType = assembly.GetTypes().FirstOrDefault(t => !t.IsNested && t.IsPublic) ?? typeof(EmbeddedResourceReader);
+                    resourceName = match;
+                    return true;
+                }
+            }
+            catch
+            {
+                // Some assemblies (e.g., dynamic/reflection-only) don't support GetManifestResourceNames or GetTypes
+            }
+        }
+
         resourceType = null;
         resourceName = null;
         return false;

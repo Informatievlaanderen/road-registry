@@ -51,10 +51,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Be.Vlaanderen.Basisregisters.Auth.AcmIdm"/>
+    <PackageReference Include="Duende.AspNetCore.Authentication.OAuth2Introspection"/>
+    <PackageReference Include="Duende.IdentityModel"/>
     <PackageReference Include="Be.Vlaanderen.Basisregisters.Api"/>
     <PackageReference Include="Be.Vlaanderen.Basisregisters.Aws.DistributedMutex"/>
     <PackageReference Include="Be.Vlaanderen.Basisregisters.GrAr.Legacy"/>
     <PackageReference Include="Be.Vlaanderen.Basisregisters.GrAr.Provenance"/>
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.GrAr.Common"/>
     <PackageReference Include="Be.Vlaanderen.Basisregisters.Shaperon"/>
     <PackageReference Include="DataDog.Trace.Bundle"/>
     <PackageReference Include="AWSSDK.Core"/>

@@ -18,6 +18,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure;
@@ -33,6 +34,7 @@ using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using GeometryExtensions = Be.Vlaanderen.Basisregisters.GrAr.Common.NetTopology.GeometryExtensions;
 
 public partial class RoadSegmentsController
 {
@@ -53,8 +55,8 @@ public partial class RoadSegmentsController
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    [SwaggerResponseHeader(StatusCodes.Status202Accepted, "ETag", "string", "De ETag van de response.")]
-    [SwaggerResponseHeader(StatusCodes.Status202Accepted, "x-correlation-id", "string", "Correlatie identificator van de response.")]
+    [SwaggerResponseHeader(StatusCodes.Status202Accepted, "ETag", JsonSchemaType.String, "De ETag van de response.")]
+    [SwaggerResponseHeader(StatusCodes.Status202Accepted, "x-correlation-id", JsonSchemaType.String, "Correlatie identificator van de response.")]
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerRequestExample(typeof(CreateOutlinedRoadSegmentV2Parameters), typeof(CreateOutlinedRoadSegmentV2ParametersExamples))]
@@ -753,7 +755,7 @@ public class CreateOutlinedRoadSegmentV2ParametersExamples : IExamplesProvider<C
 
         return new CreateOutlinedRoadSegmentV2Parameters
         {
-            WegsegmentGeometrie = geometry.EnsureLambert08().ConvertToGml2(),
+            WegsegmentGeometrie = geometry.EnsureLambert08().ConvertToGml(),
             Wegsegmentstatus = RoadSegmentStatusV2.Gepland.ToDutchString(),
             Straatnaam = [
                 new IngeschetstWegsegmentStraatnaamAttribuutWaarde

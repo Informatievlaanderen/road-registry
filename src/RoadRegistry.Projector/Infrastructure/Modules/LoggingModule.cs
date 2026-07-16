@@ -1,7 +1,6 @@
 namespace RoadRegistry.Projector.Infrastructure.Modules;
 
 using System;
-using Autofac;
 using Destructurama;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,11 +8,11 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Debugging;
 
-public class LoggingModule : Module
+public static class LoggingModule
 {
-    public LoggingModule(
-        IConfiguration configuration,
-        IServiceCollection services)
+    public static IServiceCollection RegisterLoggingModule(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         SelfLog.Enable(Console.WriteLine);
 
@@ -31,5 +30,7 @@ public class LoggingModule : Module
             l.ClearProviders();
             l.AddSerilog(Log.Logger);
         });
+
+        return services;
     }
 }

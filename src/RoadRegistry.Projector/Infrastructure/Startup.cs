@@ -17,7 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Modules;
 using Options;
 using Producer.Snapshot.ProjectionHost.GradeSeparatedJunction;
@@ -52,82 +52,17 @@ using RoadRegistry.StreetName;
 using Wfs.Schema;
 using Wms.Schema;
 
-/// <summary>Represents the startup process for the application.</summary>
 public class Startup
 {
     private const string DatabaseTag = "db";
     private readonly IConfiguration _configuration;
-    private IContainer _applicationContainer;
 
     public Startup(IConfiguration configuration)
     {
         _configuration = configuration;
     }
 
-    public void Configure(
-        IServiceProvider serviceProvider,
-        IApplicationBuilder app,
-        IWebHostEnvironment env,
-        IHostApplicationLifetime appLifetime,
-        ILoggerFactory loggerFactory,
-        IApiVersionDescriptionProvider apiVersionProvider,
-        IConfiguration configuration,
-        HealthCheckService healthCheckService)
-    {
-        StartupHelpers.CheckDatabases(healthCheckService, DatabaseTag, loggerFactory).GetAwaiter().GetResult();
-
-        app
-            .UseDefaultForApi(new StartupUseOptions
-            {
-                Common =
-                {
-                    ApplicationContainer = _applicationContainer,
-                    ServiceProvider = serviceProvider,
-                    HostingEnvironment = env,
-                    ApplicationLifetime = appLifetime,
-                    LoggerFactory = loggerFactory
-                },
-                Api =
-                {
-                    VersionProvider = apiVersionProvider,
-                    Info = groupName =>
-                        $"Basisregisters.Vlaanderen - Road Registry API {groupName}",
-                    CSharpClientOptions =
-                    {
-                        ClassName = "RoadRegistryProjector",
-                        Namespace = "Be.Vlaanderen.Basisregisters"
-                    },
-                    TypeScriptClientOptions =
-                    {
-                        ClassName = "RoadRegistryProjector"
-                    }
-                },
-                Server =
-                {
-                    PoweredByName = "Vlaamse overheid - Basisregisters Vlaanderen",
-                    ServerName = "Digitaal Vlaanderen"
-                },
-                MiddlewareHooks =
-                {
-                    AfterMiddleware = x => x.UseMiddleware<AddNoCacheHeadersMiddleware>()
-                }
-            });
-
-        var migratorFactories = serviceProvider.GetRequiredService<IDbContextMigratorFactory[]>();
-
-        foreach (var migratorFactory in migratorFactories)
-        {
-            migratorFactory.CreateMigrator(configuration, loggerFactory)
-                .MigrateAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        // The Marten projection daemon is started by MartenProjectionsDaemonHostedService (registered after the
-        // schema migrator), so it runs after the migrations gate completes and within the host lifecycle.
-    }
-
-    /// <summary>Configures services for the application.</summary>
-    /// <param name="services">The collection of services to configure the application with.</param>
-    public IServiceProvider ConfigureServices(IServiceCollection services)
+    public void ConfigureServices(IServiceCollection services)
     {
         var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
         var projectionOptions = _configuration.GetOptions<ProjectionOptions>("Projections");
@@ -161,7 +96,7 @@ public class Startup
                             Url = new Uri("https://legacy.basisregisters.vlaanderen")
                         }
                     },
-                    XmlCommentPaths = new[] { typeof(Startup).GetTypeInfo().Assembly.GetName().Name ?? "RoadRegistry.Projector" }
+                    XmlCommentPaths = [typeof(Startup).GetTypeInfo().Assembly.GetName().Name ?? "RoadRegistry.Projector"]
                 },
                 MiddlewareHooks =
                 {
@@ -246,6 +181,7 @@ public class Startup
                 }
             })
             .AddValidatorsFromAssemblyContaining<Startup>()
+            .RegisterLoggingModule(_configuration)
             .AddSingleton(projectionOptions)
 
             .AddDbContext<EditorContext>(WellKnownConnectionNames.EditorProjections)
@@ -307,13 +243,67 @@ public class Startup
 	            ])
 	            .AddHostedService<ExtractsEventProcessor>();
         }
+    }
 
-        var containerBuilder = new ContainerBuilder();
-        containerBuilder.RegisterModule(new LoggingModule(_configuration, services));
-        containerBuilder.RegisterModule(new ApiModule(_configuration, services));
-        _applicationContainer = containerBuilder.Build();
+    public void Configure(
+        IServiceProvider serviceProvider,
+        IApplicationBuilder app,
+        IWebHostEnvironment env,
+        IHostApplicationLifetime appLifetime,
+        ILoggerFactory loggerFactory,
+        IApiVersionDescriptionProvider apiVersionProvider,
+        IConfiguration configuration,
+        HealthCheckService healthCheckService)
+    {
+        StartupHelpers.CheckDatabases(healthCheckService, DatabaseTag, loggerFactory).GetAwaiter().GetResult();
 
-        return new AutofacServiceProvider(_applicationContainer);
+        app
+            .UseDefaultForApi(new StartupUseOptions
+            {
+                Common =
+                {
+                    ApplicationContainer = new ContainerBuilder().Build(),
+                    ServiceProvider = serviceProvider,
+                    HostingEnvironment = env,
+                    ApplicationLifetime = appLifetime,
+                    LoggerFactory = loggerFactory
+                },
+                Api =
+                {
+                    VersionProvider = apiVersionProvider,
+                    Info = groupName =>
+                        $"Basisregisters.Vlaanderen - Road Registry API {groupName}",
+                    CSharpClientOptions =
+                    {
+                        ClassName = "RoadRegistryProjector",
+                        Namespace = "Be.Vlaanderen.Basisregisters"
+                    },
+                    TypeScriptClientOptions =
+                    {
+                        ClassName = "RoadRegistryProjector"
+                    }
+                },
+                Server =
+                {
+                    PoweredByName = "Vlaamse overheid - Basisregisters Vlaanderen",
+                    ServerName = "Digitaal Vlaanderen"
+                },
+                MiddlewareHooks =
+                {
+                    AfterMiddleware = x => x.UseMiddleware<AddNoCacheHeadersMiddleware>()
+                }
+            });
+
+        var migratorFactories = serviceProvider.GetRequiredService<IDbContextMigratorFactory[]>();
+
+        foreach (var migratorFactory in migratorFactories)
+        {
+            migratorFactory.CreateMigrator(configuration, loggerFactory)
+                .MigrateAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        // The Marten projection daemon is started by MartenProjectionsDaemonHostedService (registered after the
+        // schema migrator), so it runs after the migrations gate completes and within the host lifecycle.
     }
 
     private static string GetApiLeadingText(ApiVersionDescription description)
