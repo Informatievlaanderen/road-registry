@@ -1,5 +1,6 @@
 namespace RoadRegistry.SyncHost.Tests.StreetName.StreetNameEventConsumer.WhenStreetNameWasRetiredBecauseOfMunicipalityMerger;
 
+using RoadRegistry.Tests;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -93,7 +94,7 @@ public class GivenRoadNetwork : StreetNameEventConsumerTestsBase
             new FakeKafkaProvenance());
         topicConsumer.SeedMessage(@event);
 
-        await consumer.StartAsync(CancellationToken.None);
+        await consumer.RunOnceAsync(CancellationToken.None);
 
         var page = await store.ReadAllForwards(Position.Start, int.MaxValue);
         page.Messages.Should().HaveCount(2);
@@ -208,7 +209,7 @@ public class GivenRoadNetwork : StreetNameEventConsumerTestsBase
             new FakeKafkaProvenance());
         topicConsumer.SeedMessage(@event);
 
-        await consumer.StartAsync(CancellationToken.None);
+        await consumer.RunOnceAsync(CancellationToken.None);
 
         var page = await store.ReadAllForwards(Position.Start, int.MaxValue);
         page.Messages.Should().HaveCount(2);

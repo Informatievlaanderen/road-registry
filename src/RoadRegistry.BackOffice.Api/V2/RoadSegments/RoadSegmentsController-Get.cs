@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Common.NetTopology;
 using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
-using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
 using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
 using Marten;
 using Microsoft.AspNetCore.Authorization;
@@ -21,9 +20,10 @@ using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using RoadRegistry.BackOffice.Api.Infrastructure.Options;
 using RoadRegistry.Extensions;
 using RoadRegistry.Read.Projections;
-using RoadRegistry.RoadSegment.ValueObjects;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using Identificator = Be.Vlaanderen.Basisregisters.GrAr.Legacy.Identificator;
+using NetTopologySuiteExtensions = RoadRegistry.Extensions.NetTopologySuiteExtensions;
 
 public partial class RoadSegmentsController
 {
@@ -82,11 +82,11 @@ public partial class RoadSegmentsController
                 [
                     new WegsegmentGeometrieProjectie
                     {
-                        Gml = roadSegment.Geometry.Lambert08.Value.GetSingleLineString().ConvertToGml2()
+                        Gml = roadSegment.Geometry.Lambert08.Value.GetSingleLineString().ConvertToGml()
                     },
                     new WegsegmentGeometrieProjectie
                     {
-                        Gml = roadSegment.Geometry.Lambert72.Value.GetSingleLineString().ConvertToGml2()
+                        Gml = roadSegment.Geometry.Lambert72.Value.GetSingleLineString().ConvertToGml()
                     }
                 ]
             },
@@ -774,7 +774,7 @@ public class WegsegmentV2DetailResponseExamples : IExamplesProvider<WegsegmentV2
 
     public WegsegmentV2Detail GetExamples()
      {
-        var geometry = GeometryExtensions.WithSrid(new LineString([
+        var geometry = NetTopologySuiteExtensions.WithSrid(new LineString([
             new(243234.8929999992, 160239.3830000013),
             new(243245.9949999973, 160238.7989999987),
             new(243261.3599999994, 160239.0),
@@ -790,11 +790,11 @@ public class WegsegmentV2DetailResponseExamples : IExamplesProvider<WegsegmentV2
                 [
                     new WegsegmentGeometrieProjectie
                     {
-                        Gml = geometry.EnsureLambert08().ConvertToGml2()
+                        Gml = geometry.EnsureLambert08().ConvertToGml()
                     },
                     new WegsegmentGeometrieProjectie
                     {
-                        Gml = geometry.EnsureLambert72().ConvertToGml2()
+                        Gml = geometry.EnsureLambert72().ConvertToGml()
                     }
                 ]
             },

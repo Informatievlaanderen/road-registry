@@ -17,6 +17,7 @@
     <ProjectReference Include="..\RoadRegistry.Sync.MunicipalityRegistry\RoadRegistry.Sync.MunicipalityRegistry.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.GrAr.Oslo" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector" />
     <PackageReference Include="AWSSDK.Core" />

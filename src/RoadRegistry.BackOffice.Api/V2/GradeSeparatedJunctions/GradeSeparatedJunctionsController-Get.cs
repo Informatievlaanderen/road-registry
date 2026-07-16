@@ -18,6 +18,7 @@ using RoadRegistry.BackOffice.Api.Infrastructure.Options;
 using RoadRegistry.Read.Projections;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using Identificator = Be.Vlaanderen.Basisregisters.GrAr.Legacy.Identificator;
 
 public partial class GradeSeparatedJunctionsController
 {

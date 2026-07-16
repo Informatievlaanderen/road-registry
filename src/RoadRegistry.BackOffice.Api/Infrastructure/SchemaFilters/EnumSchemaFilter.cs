@@ -1,14 +1,14 @@
-using Microsoft.OpenApi.Any;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Collections.Generic;
 using System;
+using System.Text.Json.Nodes;
+using Microsoft.OpenApi;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace RoadRegistry.BackOffice.Api.Infrastructure.SchemaFilters
 {
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
     using Controllers.Attributes;
-    using Microsoft.OpenApi.Models;
 
     public abstract class EnumSchemaFilter<T> : EnumSchemaFilter<T, T>
         where T : IDutchToString
@@ -29,19 +29,18 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SchemaFilters
             _items = items;
         }
 
-        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+        public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
         {
             var enumDataTypeAttribute = context.MemberInfo?.CustomAttributes.SingleOrDefault(x => x.AttributeType == typeof(EnumDataTypeAttribute)
                                                                                                   || x.AttributeType == typeof(RoadRegistryEnumDataTypeAttribute));
-            if (enumDataTypeAttribute is not null)
+            if (enumDataTypeAttribute is not null && schema is OpenApiSchema openApiSchema)
             {
                 var enumType = (Type)enumDataTypeAttribute.ConstructorArguments.Single().Value;
                 if (enumType == typeof(TEnum))
                 {
-                    schema.Enum = _items
-                        .Select(x => new OpenApiString(x.ToDutchString()))
-                        .OrderBy(x => x.Value)
-                        .Cast<IOpenApiAny>()
+                    openApiSchema.Enum = _items
+                        .Select(x => JsonValue.Create(x.ToDutchString()) as JsonNode)
+                        .OrderBy(x => x!.GetValue<string>())
                         .ToList();
                 }
             }

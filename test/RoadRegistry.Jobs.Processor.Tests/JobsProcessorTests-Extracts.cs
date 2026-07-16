@@ -68,7 +68,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockIHostApplicationLifeTime.Object);
 
             // Act
-            await sut.StartAsync(CancellationToken.None);
+            await sut.RunOnceAsync(CancellationToken.None);
 
             // Assert
             jobsContext.Jobs.First().Status.Should().Be(JobStatus.Completed);
@@ -134,7 +134,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockIHostApplicationLifeTime.Object);
 
             // Act
-            await sut.StartAsync(CancellationToken.None);
+            await sut.RunOnceAsync(CancellationToken.None);
 
             // Assert
             jobsContext.Jobs.First().Status.Should().Be(JobStatus.Error);

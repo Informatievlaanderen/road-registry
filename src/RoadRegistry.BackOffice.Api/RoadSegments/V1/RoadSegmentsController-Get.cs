@@ -13,16 +13,15 @@ using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
-using RoadRegistry.BackOffice.Api.Infrastructure.Options;
 using RoadRegistry.BackOffice.Extensions;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using Identificator = Be.Vlaanderen.Basisregisters.GrAr.Legacy.Identificator;
 
 public partial class RoadSegmentsController
 {
