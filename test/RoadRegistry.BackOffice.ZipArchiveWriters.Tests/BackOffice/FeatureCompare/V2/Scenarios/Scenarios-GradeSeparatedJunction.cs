@@ -58,16 +58,11 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
         var (zipArchive, expected) = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
-                var fixture = context.Fixture;
-
-                builder.TestData.GradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = fixture.CreateWhichIsDifferentThan(
-                    builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value,
-                    builder.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value);
-
-                builder.TestData.GradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = fixture.CreateWhichIsDifferentThan(
-                    builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value,
-                    builder.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value,
-                    builder.TestData.GradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value);
+                // Non-positive ids are rejected by RoadSegmentId.Accepts, so the reader reports both as out of range
+                // deterministically. (A random "different" id can still be a valid, in-range id matching another
+                // segment in the archive, which made this test flaky.)
+                builder.TestData.GradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = -1;
+                builder.TestData.GradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = -2;
             })
             .BuildWithResult(_ => TranslatedChanges.Empty);
 

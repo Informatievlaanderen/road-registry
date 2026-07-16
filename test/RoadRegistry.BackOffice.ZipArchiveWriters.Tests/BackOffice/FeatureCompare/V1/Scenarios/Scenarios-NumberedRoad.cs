@@ -23,9 +23,10 @@ public class NumberedRoadScenarios : FeatureCompareTranslatorScenariosBase
         var (zipArchive, expected) = new ExtractV1ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
-                builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.WS_OIDN.Value = context.Fixture.CreateWhichIsDifferentThan(
-                    builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value,
-                    builder.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value);
+                // A non-positive id is rejected by RoadSegmentId.Accepts, so the reader reports it as out of range
+                // deterministically. (A random "different" id can still be a valid, in-range id matching another
+                // segment in the archive, which made this test flaky.)
+                builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.WS_OIDN.Value = -1;
             })
             .BuildWithResult(_ => TranslatedChanges.Empty);
 

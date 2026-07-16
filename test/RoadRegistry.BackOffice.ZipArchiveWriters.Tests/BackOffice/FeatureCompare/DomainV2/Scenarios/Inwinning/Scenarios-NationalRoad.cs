@@ -25,9 +25,13 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
         var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
-                builder.TestData.RoadSegment1NationalRoadDbaseRecord1.WS_TEMPID.Value = context.Fixture.CreateWhichIsDifferentThan(
+                // A positive temp id greater than every segment's temp id matches no segment in the archive, so the
+                // translator reports it as out of range deterministically. (CreateWhichIsDifferentThan<int> could
+                // yield a non-positive value, which the reader rejects earlier with a different problem
+                // (RoadSegmentIdOutOfRange), which made this test flaky.)
+                builder.TestData.RoadSegment1NationalRoadDbaseRecord1.WS_TEMPID.Value = Math.Max(
                     builder.TestData.RoadSegment1DbaseRecord.WS_TEMPID.Value,
-                    builder.TestData.RoadSegment2DbaseRecord.WS_TEMPID.Value);
+                    builder.TestData.RoadSegment2DbaseRecord.WS_TEMPID.Value) + 1;
             })
             .BuildWithResult(_ => TranslatedChanges.Empty);
 
