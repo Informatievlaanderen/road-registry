@@ -2,6 +2,7 @@
 
 using System.Text;
 using BackOffice;
+using JasperFx;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
 using KellermanSoftware.CompareNetObjects;
 using Marten;
@@ -138,6 +139,13 @@ public class MartenProjectionIntegrationTestRunner
         await sp.RunMartenDatabaseMigrationsAsync();
 
         var store = sp.GetRequiredService<IDocumentStore>();
+
+        // The DbUp migrations only create the production schema. A test may register additional, test-only documents
+        // (e.g. a projection's read model). With AutoCreate.None in effect those tables would never be created, so a
+        // projection that persists such a document fails at commit time — which pauses the async shard and makes
+        // WaitForNonStaleData time out. Create any missing configured schema objects up front (CreateOrUpdate never
+        // drops, so it leaves the migration-owned production tables untouched).
+        await store.Storage.ApplyAllConfiguredChangesToDatabaseAsync(AutoCreate.CreateOrUpdate);
 
         foreach (var events in _givenEvents)
         {
