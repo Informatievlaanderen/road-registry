@@ -15,6 +15,7 @@ declare global {
     useOverlapCheck: boolean;
     inwinningAllowRequestExtractWhenUploaded: boolean;
     inwinningUploadDryRun: boolean;
+    inwinningUpload: boolean;
   }
 
   interface Window {

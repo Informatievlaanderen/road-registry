@@ -17,4 +17,6 @@ export const featureToggles = {
   inwinningUploadDryRun:
     `${window.featureToggles?.inwinningUploadDryRun ?? process.env.VUE_APP_FEATURETOGGLES_INWINNINGUPLOADDRYRUN}` ===
     "true",
+  inwinningUpload:
+    `${window.featureToggles?.inwinningUpload ?? process.env.VUE_APP_FEATURETOGGLES_INWINNINGUPLOAD}` === "true",
 };
