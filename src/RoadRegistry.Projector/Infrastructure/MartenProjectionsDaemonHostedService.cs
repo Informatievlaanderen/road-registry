@@ -7,29 +7,24 @@ using JasperFx.Events.Daemon;
 using Marten;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.Infrastructure.MartenDb.Setup;
 
-// Starts the Marten async projection daemon once the schema migrations have been applied. Runs as a hosted service
-// (registered after DatabaseMigrator, so the migrations gate is already completed by the time it starts) instead of
-// being fire-and-forgotten from Startup.Configure. This way it participates in the host lifecycle: the store and gate
-// are injected up front (never resolved from a possibly-disposed provider after an unbounded async gap), a shutdown
-// during startup cancels cleanly, and the daemon is stopped when the host stops.
+// Starts the Marten async projection daemon. Runs as a hosted service (so it participates in the host lifecycle: the
+// store is injected up front - never resolved from a possibly-disposed provider after an unbounded async gap - a
+// shutdown during startup cancels cleanly, and the daemon is stopped when the host stops). The schema migrations have
+// already been applied by the IDbMigrators run in Program before the host started, so the tables exist by now.
 public sealed class MartenProjectionsDaemonHostedService : IHostedService
 {
     private readonly IDocumentStore _store;
-    private readonly DatabaseMigrationsGate _migrationsGate;
     private readonly MartenProjectionDaemonAccessor _daemonAccessor;
     private readonly ILogger<IProjectionDaemon> _logger;
     private IProjectionDaemon? _daemon;
 
     public MartenProjectionsDaemonHostedService(
         IDocumentStore store,
-        DatabaseMigrationsGate migrationsGate,
         MartenProjectionDaemonAccessor daemonAccessor,
         ILogger<IProjectionDaemon> logger)
     {
         _store = store;
-        _migrationsGate = migrationsGate;
         _daemonAccessor = daemonAccessor;
         _logger = logger;
     }
@@ -40,9 +35,6 @@ public sealed class MartenProjectionsDaemonHostedService : IHostedService
 
         try
         {
-            // Wait for DbUp to finish applying the schema migrations before starting the daemon; otherwise, on a
-            // fresh database, the daemon would fail against not-yet-created tables and never retry.
-            await _migrationsGate.Completed.WaitAsync(cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
 
             daemon = await _store.BuildProjectionDaemonAsync(logger: _logger);

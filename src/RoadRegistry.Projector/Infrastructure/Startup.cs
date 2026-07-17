@@ -1,59 +1,54 @@
 namespace RoadRegistry.Projector.Infrastructure;
 
+using System;
+using System.Linq;
+using System.Reflection;
 using Asp.Versioning.ApiExplorer;
 using Autofac;
-using Autofac.Extensions.DependencyInjection;
-using BackOffice;
 using Be.Vlaanderen.Basisregisters.Api;
-using Configuration;
-using Editor.Schema;
-using Extensions;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using FluentValidation;
-using Hosts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
-using Modules;
-using Options;
-using Producer.Snapshot.ProjectionHost.GradeSeparatedJunction;
-using Producer.Snapshot.ProjectionHost.NationalRoad;
-using Producer.Snapshot.ProjectionHost.RoadNode;
-using Producer.Snapshot.ProjectionHost.RoadSegment;
-using Producer.Snapshot.ProjectionHost.RoadSegmentSurface;
-using Product.Schema;
-using Sync.OrganizationRegistry;
-using Sync.StreetNameRegistry;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using EventProcessors;
-using Extracts.Projections;
-using Extracts.Schema;
-using Hosts.Infrastructure.Extensions;
-using Integration.Schema;
-using MartenMigration.Projections;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NodaTime;
-using RoadRegistry.Extracts.Projections.Setup;
-using RoadRegistry.Infrastructure;
+using RoadRegistry.BackOffice;
+using RoadRegistry.Editor.Schema;
+using RoadRegistry.Extracts.Projections;
+using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Hosts;
+using RoadRegistry.Hosts.Infrastructure.Extensions;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
+using RoadRegistry.Integration.Schema;
+using RoadRegistry.MartenMigration.Projections;
 using RoadRegistry.Pbs.Projections;
 using RoadRegistry.Pbs.Schema;
+using RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction;
+using RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad;
+using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode;
+using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment;
+using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface;
+using RoadRegistry.Product.Schema;
+using RoadRegistry.Projector.EventProcessors;
+using RoadRegistry.Projector.Infrastructure.Configuration;
+using RoadRegistry.Projector.Infrastructure.Extensions;
+using RoadRegistry.Projector.Infrastructure.Modules;
+using RoadRegistry.Projector.Infrastructure.Options;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.StreetName;
-using Wfs.Schema;
-using Wms.Schema;
+using RoadRegistry.Sync.OrganizationRegistry;
+using RoadRegistry.Sync.StreetNameRegistry;
+using RoadRegistry.Wfs.Schema;
+using RoadRegistry.Wms.Schema;
 
 public class Startup
 {
@@ -69,16 +64,6 @@ public class Startup
     {
         var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
         var projectionOptions = _configuration.GetOptions<ProjectionOptions>("Projections");
-
-        var extractEnabled = projectionOptions.Extract?.Enabled == true;
-        var readEnabled = projectionOptions.Read?.Enabled == true;
-        var pbsEnabled = projectionOptions.Pbs?.Enabled == true;
-
-        var dbContextMigratorFactories = new List<IDbContextMigratorFactory> { new ExtractsDbContextMigratorFactory() };
-        if (pbsEnabled)
-        {
-            dbContextMigratorFactories.Add(new PbsContextMigratorFactory());
-        }
 
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
@@ -186,18 +171,14 @@ public class Startup
                             health.AddDbContextCheck<StreetNameEventProjectionContext>();
                         }
 
-                        if (projectionOptions.MartenMigration?.Enabled == true)
+                        if (projectionOptions.MartenMigration.Enabled)
                         {
                             health.AddDbContextCheck<MartenMigrationContext>();
                         }
 
-                        if (projectionOptions.Pbs?.Enabled == true)
+                        if (projectionOptions.Pbs.Enabled)
                         {
-                            health.Add(new HealthCheckRegistration(
-                                "pbscontext",
-                                sp => new PbsDbContextHealthCheck(sp.GetRequiredService<IDbContextFactory<PbsContext>>()),
-                                HealthStatus.Unhealthy,
-                                tags: [DatabaseTag, "sql", "sqlserver"]));
+                            health.AddDbContextCheck<PbsContext>();
                         }
                     }
                 }
@@ -228,35 +209,33 @@ public class Startup
             .AddStreetNameClient()
             .AddMartenRoad((options, sp) =>
             {
-                if (extractEnabled)
+                if (projectionOptions.Extract.Enabled)
                 {
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesExtractProjection)}:BatchSize");
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesExtractProjection(batchSize, sp.GetRequiredService<ILoggerFactory>()));
                 }
 
-                if (readEnabled)
+                if (projectionOptions.Read.Enabled)
                 {
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesReadProjection)}:BatchSize");
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesReadProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IStreetNameClient>()));
                 }
 
-                if (pbsEnabled)
+                if (projectionOptions.Pbs.Enabled)
                 {
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesPbsProjection)}:BatchSize");
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesPbsProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<PbsContext>>()));
                 }
             }).Services
-            .AddMartenDatabaseMigrations()
+            .AddMartenDatabaseMigrator()
             .AddSingleton<MartenProjectionDaemonAccessor>()
-            .AddHostedService<MartenProjectionsDaemonHostedService>() // Must be after MartenDatabaseMigrations
+            .AddHostedService<MartenProjectionsDaemonHostedService>()
             // Keeps every Marten projection resilient: if a shard pauses on an error it is periodically resumed, while
             // all other projections keep running and the host is never affected.
             .AddHostedService<MartenProjectionSupervisor>()
-
-            .AddSingleton(dbContextMigratorFactories.ToArray())
             ;
 
-        if (pbsEnabled)
+        if (projectionOptions.Pbs.Enabled)
         {
             services
                 .AddDbContextFactory<PbsContext>((sp, options) =>
@@ -266,6 +245,7 @@ public class Startup
                         .EnableRetryOnFailure()
                         .UseNetTopologySuite());
                 })
+                .AddSingleton<IDbMigratorFactory, PbsContextMigratorFactory>()
                 // One-time sync of the PBS enum-based code lists (Wegbeheerder code list is event-driven instead).
                 .AddHostedService<PbsCodeListSyncService>();
         }
@@ -281,10 +261,11 @@ public class Startup
 	                    JsonConvert.DeserializeObject(eventData, eventType, ExtractsEventProcessor.SerializerSettings)))
 	            )
 	            .AddExtractsDbContextFactory(QueryTrackingBehavior.TrackAll, WellKnownConnectionNames.ExtractsAdmin)
+                .AddSingleton<IDbMigratorFactory, ExtractsDbContextMigratorFactory>()
 	            .AddDbContextEventProcessorServices<ExtractsEventProcessor, ExtractsDbContext>(_ =>
 	            [
-	                new RoadRegistry.Extracts.Projections.ExtractRequestProjection(),
-	                new RoadRegistry.Extracts.Projections.ExtractDownloadProjection(),
+	                new ExtractRequestProjection(),
+	                new ExtractDownloadProjection(),
 	            ])
 	            .AddHostedService<ExtractsEventProcessor>();
         }
@@ -338,17 +319,6 @@ public class Startup
                     AfterMiddleware = x => x.UseMiddleware<AddNoCacheHeadersMiddleware>()
                 }
             });
-
-        var migratorFactories = serviceProvider.GetRequiredService<IDbContextMigratorFactory[]>();
-
-        foreach (var migratorFactory in migratorFactories)
-        {
-            migratorFactory.CreateMigrator(configuration, loggerFactory)
-                .MigrateAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        // The Marten projection daemon is started by MartenProjectionsDaemonHostedService (registered after the
-        // schema migrator), so it runs after the migrations gate completes and within the host lifecycle.
     }
 
     private static string GetApiLeadingText(ApiVersionDescription description)

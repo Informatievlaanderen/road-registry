@@ -9,12 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Polly;
 
-public interface IDbContextMigrator
-{
-    Task MigrateAsync(CancellationToken cancellationToken);
-}
-
-public class DbContextMigrator<TContext> : IDbContextMigrator
+public class DbContextMigrator<TContext> : IDbMigrator
     where TContext : DbContext
 {
     private const int RetryCount = 5;
@@ -45,10 +40,8 @@ public class DbContextMigrator<TContext> : IDbContextMigrator
                 async token =>
                 {
                     _logger.LogInformation("Running EF Migrations for {ContextType}", typeof(TContext).Name);
-                    using (var migrationContext = _createContext())
-                    {
-                        await migrationContext.MigrateAsync(cancellationToken);
-                    }
+                    await using var migrationContext = _createContext();
+                    await migrationContext.MigrateAsync(token);
                 },
                 cancellationToken
             );

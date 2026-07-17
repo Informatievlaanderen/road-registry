@@ -68,7 +68,7 @@ public class Program
                 .AddHostedService<RoadNetworkCommandProcessor>()
                 .AddHostedService<OrganizationCommandProcessor>()
 
-                .AddSingleton(new IDbContextMigratorFactory[]
+                .AddSingleton(new IDbMigratorFactory[]
                 {
                     new RoadNetworkDbContextMigrationFactory(),
                     new JobsContextMigratorFactory()
@@ -140,7 +140,7 @@ public class Program
                     .CreateSchemaIfNotExists(WellKnownSchemas.CommandHostSchema).ConfigureAwait(false);
 
                 var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-                var migratorFactories = sp.GetRequiredService<IDbContextMigratorFactory[]>();
+                var migratorFactories = sp.GetRequiredService<IDbMigratorFactory[]>();
 
                 foreach (var migratorFactory in migratorFactories)
                 {
