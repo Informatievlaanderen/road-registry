@@ -1,3 +1,10 @@
+## [5.1.1](https://github.com/informatievlaanderen/road-registry/compare/v5.1.0...v5.1.1) (2026-07-17)
+
+
+### Bug Fixes
+
+* Projector startup running DB migrations first ([7bb9323](https://github.com/informatievlaanderen/road-registry/commit/7bb93233b06de69c491fc08c3f3055ac27503e96))
+
 # [5.1.0](https://github.com/informatievlaanderen/road-registry/compare/v5.0.1...v5.1.0) (2026-07-17)
 
 
