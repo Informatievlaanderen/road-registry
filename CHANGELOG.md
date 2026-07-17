@@ -1,3 +1,11 @@
+# [5.1.0](https://github.com/informatievlaanderen/road-registry/compare/v5.0.1...v5.1.0) (2026-07-17)
+
+
+### Features
+
+* **2.0:** add idempotent PBS product projection (SQL Server read model + Marten projection supervisor) ([f916a15](https://github.com/informatievlaanderen/road-registry/commit/f916a15527ebdfb2c5774f270b929ee1aa4db9c4))
+* **2.0:** give grade (separated) junctions a domain-level Geometry ([025829d](https://github.com/informatievlaanderen/road-registry/commit/025829daacbe0fa413d900045a8e815fc2419cc3))
+
 ## [5.0.1](https://github.com/informatievlaanderen/road-registry/compare/v5.0.0...v5.0.1) (2026-07-17)
 
 
