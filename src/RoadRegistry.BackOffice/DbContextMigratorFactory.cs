@@ -10,12 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Extensions;
 
-public interface IDbContextMigratorFactory
-{
-    IDbContextMigrator CreateMigrator(IConfiguration configuration, ILoggerFactory loggerFactory);
-}
-
-public abstract class DbContextMigratorFactory<TContext> : IDesignTimeDbContextFactory<TContext>, IDbContextMigratorFactory
+public abstract class DbContextMigratorFactory<TContext> : IDesignTimeDbContextFactory<TContext>, IDbMigratorFactory
     where TContext : DbContext
 {
     protected DbContextMigratorFactory(
@@ -47,7 +42,7 @@ public abstract class DbContextMigratorFactory<TContext> : IDesignTimeDbContextF
         return CreateContext(contextOptions);
     }
 
-    public IDbContextMigrator CreateMigrator(IConfiguration configuration, ILoggerFactory loggerFactory)
+    public IDbMigrator CreateMigrator(IConfiguration configuration, ILoggerFactory loggerFactory)
     {
         var contextOptions = CreateOptionsBuilder(configuration, loggerFactory).Options;
 

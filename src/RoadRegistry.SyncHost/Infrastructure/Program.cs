@@ -58,7 +58,7 @@ public class Program
                     .AddMunicipalityConsumerServices()
                     .AddHostedService<MunicipalityEventConsumer>()
 
-                    .AddSingleton(new IDbContextMigratorFactory[]
+                    .AddSingleton(new IDbMigratorFactory[]
                     {
                         new OrganizationConsumerContextMigratorFactory(),
                         new StreetNameEventConsumerContextMigrationFactory(),
@@ -88,7 +88,7 @@ public class Program
             .RunAsync(async (sp, host, configuration) =>
             {
                 var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-                var migratorFactories = sp.GetRequiredService<IDbContextMigratorFactory[]>();
+                var migratorFactories = sp.GetRequiredService<IDbMigratorFactory[]>();
 
                 foreach (var migratorFactory in migratorFactories)
                 {

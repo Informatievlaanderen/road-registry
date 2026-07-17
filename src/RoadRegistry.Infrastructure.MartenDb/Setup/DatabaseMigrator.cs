@@ -7,31 +7,36 @@ using System.Threading.Tasks;
 using DbUp;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using RoadRegistry.BackOffice;
 
+public sealed class DatabaseMigratorFactory : IDbMigratorFactory
+{
+    public IDbMigrator CreateMigrator(IConfiguration configuration, ILoggerFactory loggerFactory)
+    {
+        return new DatabaseMigrator(configuration, loggerFactory);
+    }
+}
+
 // Applies the versioned SQL migrations in Migrations/ sequentially (EF-style), tracked in a schema_migrations journal
 // table, guarded by a Postgres advisory lock so only one instance migrates at a time. This is the sole schema
-// mechanism now that Marten runs with AutoCreate.None (no runtime schema analysis). Registered by the migration
-// owner (the Projector) and can be moved to a dedicated migration job later.
-public sealed class DatabaseMigrator : IHostedService
+// mechanism now that Marten runs with AutoCreate.None (no runtime schema analysis). Run from Program before the host
+// starts (alongside the EF IDbMigrators), so the schema exists before any hosted service touches Marten.
+public sealed class DatabaseMigrator : IDbMigrator
 {
     private const long AdvisoryLockKey = 6_827_314_590_112_233L; // arbitrary constant unique to road-registry migrations
 
     private readonly IConfiguration _configuration;
-    private readonly DatabaseMigrationsGate _gate;
     private readonly ILogger<DatabaseMigrator> _logger;
 
-    public DatabaseMigrator(IConfiguration configuration, DatabaseMigrationsGate gate, ILogger<DatabaseMigrator> logger)
+    public DatabaseMigrator(IConfiguration configuration, ILoggerFactory loggerFactory)
     {
         _configuration = configuration;
-        _gate = gate;
-        _logger = logger;
+        _logger = loggerFactory.CreateLogger<DatabaseMigrator>();
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public async Task MigrateAsync(CancellationToken cancellationToken)
     {
         var connectionString = _configuration.GetRequiredConnectionString(WellKnownConnectionNames.Marten);
 
@@ -74,9 +79,6 @@ public sealed class DatabaseMigrator : IHostedService
             }
 
             _logger.LogInformation("Database migrations up to date ({Count} applied this run).", result.Scripts.Count());
-
-            // Schema is ready: release anything waiting on migrations (e.g. the Marten projection daemon).
-            _gate.MarkCompleted();
         }
         finally
         {
@@ -85,35 +87,23 @@ public sealed class DatabaseMigrator : IHostedService
             await unlockCommand.ExecuteNonQueryAsync(cancellationToken);
         }
     }
-
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-}
-
-// Completion signal set once DatabaseMigrator has applied all migrations. Consumers await Completed to ensure the
-// schema exists before they touch it (order-independent: it does not matter whether the consumer starts before or
-// after the migrator's hosted-service StartAsync). If migrations fail the migrator throws and the host is torn down,
-// so Completed simply never fires and no consumer proceeds.
-public sealed class DatabaseMigrationsGate
-{
-    private readonly TaskCompletionSource _completed = new(TaskCreationOptions.RunContinuationsAsynchronously);
-
-    public Task Completed => _completed.Task;
-
-    public void MarkCompleted() => _completed.TrySetResult();
 }
 
 public static class DatabaseMigratorExtensions
 {
-    public static IServiceCollection AddMartenDatabaseMigrations(this IServiceCollection services)
+    public static IServiceCollection AddMartenDatabaseMigrator(this IServiceCollection services)
     {
         return services
-            .AddSingleton<DatabaseMigrationsGate>()
-            .AddHostedService<DatabaseMigrator>();
+            .AddSingleton<IDbMigrator, DatabaseMigrator>()
+            .AddSingleton<IDbMigratorFactory, DatabaseMigratorFactory>()
+            ;
     }
 
+    // Convenience for callers (e.g. integration test setup) that want to apply the Marten schema imperatively without
+    // going through the full IDbMigrator fan-out.
     public static Task RunMartenDatabaseMigrationsAsync(this IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
-        var migrator = serviceProvider.GetServices<IHostedService>().OfType<DatabaseMigrator>().Single();
-        return migrator.StartAsync(cancellationToken);
+        var migrator = serviceProvider.GetServices<IDbMigrator>().OfType<DatabaseMigrator>().Single();
+        return migrator.MigrateAsync(cancellationToken);
     }
 }

@@ -238,7 +238,7 @@ public class MartenProjectionIntegrationTestRunner
                 configure(options);
             }
         }).Services
-        .AddMartenDatabaseMigrations();
+        .AddMartenDatabaseMigrator();
 
         return services.BuildServiceProvider();
     }
