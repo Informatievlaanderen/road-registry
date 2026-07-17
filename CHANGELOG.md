@@ -1,3 +1,16 @@
+# [5.0.0](https://github.com/informatievlaanderen/road-registry/compare/v4.69.4...v5.0.0) (2026-07-17)
+
+
+### Features
+
+* **2.0:** add InwinningUpload feature toggle to UI ([84a8409](https://github.com/informatievlaanderen/road-registry/commit/84a8409a70bdf57f37f4483e30d448dca6dcd8f5))
+* update packages + upgrade to dotnet 10 ([96217bb](https://github.com/informatievlaanderen/road-registry/commit/96217bb8dc054e7a58f02743838066893c226af0))
+
+
+### BREAKING CHANGES
+
+* update to dotnet 10
+
 ## [4.69.4](https://github.com/informatievlaanderen/road-registry/compare/v4.69.3...v4.69.4) (2026-07-10)
 
 
