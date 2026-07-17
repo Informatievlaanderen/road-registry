@@ -1,3 +1,10 @@
+## [5.0.1](https://github.com/informatievlaanderen/road-registry/compare/v5.0.0...v5.0.1) (2026-07-17)
+
+
+### Bug Fixes
+
+* dotnet10 upgrade lambdas ([642fd82](https://github.com/informatievlaanderen/road-registry/commit/642fd8298637c1b23b4e976de4bb573c7e1d1e4f))
+
 # [5.0.0](https://github.com/informatievlaanderen/road-registry/compare/v4.69.4...v5.0.0) (2026-07-17)
 
 
