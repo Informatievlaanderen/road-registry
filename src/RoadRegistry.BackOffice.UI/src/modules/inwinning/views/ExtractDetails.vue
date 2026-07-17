@@ -330,6 +330,7 @@ export default defineComponent({
     },
     userCanUpload() {
       return (
+        featureToggles.inwinningUpload &&
         !this.extract?.informatief &&
         this.downloadAvailable &&
         !this.extract?.gesloten &&
