@@ -23,8 +23,16 @@ jobs:
           - 1433:1433
 
     steps:
-      - name: Delete huge unnecessary tools folder
-        run: rm -rf /opt/hostedtoolcache
+      - name: Free up disk space
+        run: |
+          echo "Before:"; df -h /
+          sudo rm -rf /usr/local/lib/android      # Android SDK/NDK (~9-12 GB)
+          sudo rm -rf /opt/ghc /usr/local/.ghcup  # Haskell toolchain (~5.5 GB)
+          sudo rm -rf /opt/hostedtoolcache        # preinstalled tool cache (~8 GB)
+          sudo rm -rf /usr/share/swift            # Swift (~1.5 GB)
+          sudo rm -rf /usr/share/dotnet           # preinstalled .NET; setup-dotnet reinstalls the needed SDK
+          docker image prune -af || true          # preinstalled docker images (~4 GB)
+          echo "After:"; df -h /
 
       - name: Checkout Code
         uses: actions/checkout@v6
