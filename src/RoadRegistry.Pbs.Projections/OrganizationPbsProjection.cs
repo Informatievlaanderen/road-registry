@@ -44,7 +44,7 @@ public class OrganizationPbsProjection : RunnerDbContextRoadNetworkChangesProjec
 
     // Upsert the organization cache (all organizations) and reconcile the wegbeheerder code list. A null argument leaves
     // the existing cached value unchanged, so events that only carry part of the organization state keep the rest intact.
-    private static async Task Upsert(PbsContext context, string organisatieId, string name, string ovoCode, bool? isMaintainer, CancellationToken ct)
+    private static async Task Upsert(PbsContext context, string organisatieId, string? name, string? ovoCode, bool? isMaintainer, CancellationToken ct)
     {
         var cache = await context.OrganizationCache.FindAsync([organisatieId], ct);
         var isNew = cache is null;

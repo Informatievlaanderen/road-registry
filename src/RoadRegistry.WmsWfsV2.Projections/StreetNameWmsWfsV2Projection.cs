@@ -1,4 +1,4 @@
-namespace RoadRegistry.Pbs.Projections;
+namespace RoadRegistry.WmsWfsV2.Projections;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -9,9 +9,9 @@ using Schema;
 using Schema.Records;
 
 // RoadSegmentStreetNameAttributes -> internal StreetNameCache (id -> Dutch name), used to fill STRTNM / LSTRNM / RSTRNM labels.
-public class StreetNamePbsProjection : RunnerDbContextRoadNetworkChangesProjection<PbsContext>
+public class StreetNameWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context>
 {
-    public StreetNamePbsProjection(IDbContextFactory<PbsContext> dbContextFactory, ILoggerFactory? loggerFactory = null)
+    public StreetNameWmsWfsV2Projection(IDbContextFactory<WmsWfsV2Context> dbContextFactory, ILoggerFactory? loggerFactory = null)
         : base(dbContextFactory, loggerFactory)
     {
         When<IEvent<StreetNameWasCreated>>((context, e, ct) =>
@@ -41,7 +41,7 @@ public class StreetNamePbsProjection : RunnerDbContextRoadNetworkChangesProjecti
         });
     }
 
-    private static async System.Threading.Tasks.Task Upsert(PbsContext context, int id, string? naam, System.Threading.CancellationToken ct)
+    private static async System.Threading.Tasks.Task Upsert(WmsWfsV2Context context, int id, string? naam, System.Threading.CancellationToken ct)
     {
         var record = await context.StreetNameCache.FindAsync([id], ct);
         var isNew = record is null;

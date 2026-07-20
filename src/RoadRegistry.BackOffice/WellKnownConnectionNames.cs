@@ -28,6 +28,8 @@ public static class WellKnownConnectionNames
     public const string WmsProjectionsAdmin = "WmsProjectionsAdmin";
     public const string PbsProjections = "PbsProjections";
     public const string PbsProjectionsAdmin = "PbsProjectionsAdmin";
+    public const string WmsWfsV2Projections = "WmsWfsV2Projections";
+    public const string WmsWfsV2ProjectionsAdmin = "WmsWfsV2ProjectionsAdmin";
     public const string WfsProjections = "WfsProjections";
     public const string WfsProjectionsAdmin = "WfsProjectionsAdmin";
     public const string StreetNameProjections = "StreetNameProjections";

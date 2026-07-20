@@ -36,6 +36,7 @@
     <ProjectReference Include="..\RoadRegistry.Wfs.Schema\RoadRegistry.Wfs.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Wms.Schema\RoadRegistry.Wms.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Pbs.Schema\RoadRegistry.Pbs.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.WmsWfsV2.Schema\RoadRegistry.WmsWfsV2.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Jobs\RoadRegistry.Jobs.csproj" />
   </ItemGroup>
   <ItemGroup>
