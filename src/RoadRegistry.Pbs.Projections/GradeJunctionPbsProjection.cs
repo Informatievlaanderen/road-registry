@@ -1,5 +1,6 @@
 namespace RoadRegistry.Pbs.Projections;
 
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using JasperFx.Events;
@@ -10,22 +11,22 @@ using Schema.Records;
 
 public class GradeJunctionPbsProjection : RunnerDbContextRoadNetworkChangesProjection<PbsContext>
 {
-    public GradeJunctionPbsProjection(IDbContextFactory<PbsContext> dbContextFactory, ILoggerFactory? loggerFactory = null)
-        : base(dbContextFactory, loggerFactory)
+    public GradeJunctionPbsProjection()
     {
-        When<IEvent<GradeJunctionWasAdded>>(async (context, e, ct) =>
+        // A created event means the entity does not exist yet, so insert directly without a lookup (re-delivery is
+        // guarded by the projection-state position in the base projection).
+        When<IEvent<GradeJunctionWasAdded>>((context, e, ct) =>
         {
-            var record = await context.GradeJunctions.FindAsync([e.Data.GradeJunctionId.ToInt32()], ct);
-            var isNew = record is null;
-            record ??= new GradeJunctionRecord { GK_OIDN = e.Data.GradeJunctionId.ToInt32(), CREATIE = e.Data.Provenance.ToPbsDate() };
-            record.WS1_OIDN = e.Data.RoadSegmentId1.ToInt32();
-            record.WS2_OIDN = e.Data.RoadSegmentId2.ToInt32();
-            record.GEOMETRIE = e.Data.Geometry.Value;
-            record.VERSIE = e.Data.Provenance.ToPbsDate();
-            if (isNew)
+            context.GradeJunctions.Add(new GradeJunctionRecord
             {
-                context.GradeJunctions.Add(record);
-            }
+                GK_OIDN = e.Data.GradeJunctionId.ToInt32(),
+                WS1_OIDN = e.Data.RoadSegmentId1.ToInt32(),
+                WS2_OIDN = e.Data.RoadSegmentId2.ToInt32(),
+                GEOMETRIE = e.Data.Geometry.Value,
+                CREATIE = e.Data.Provenance.ToPbsDate(),
+                VERSIE = e.Data.Provenance.ToPbsDate()
+            });
+            return Task.CompletedTask;
         });
 
         When<IEvent<GradeJunctionGeometryWasChanged>>(async (context, e, ct) =>

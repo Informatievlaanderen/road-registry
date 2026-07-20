@@ -12,9 +12,9 @@ using ScopedRoadNetwork;
 using ScopedRoadNetwork.Events.V2;
 using ScopedRoadNetwork.ValueObjects;
 
-public class DummyRoadNetworkChangesProjection : RoadNetworkChangesProjection
+public class DummyRoadNetworkChangesProjection : MartenBackedRoadNetworkChangesProjection
 {
-    public DummyRoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections)
+    public DummyRoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection<IDocumentOperations>> projections)
         : base(projections, NullLoggerFactory.Instance)
     {
     }
@@ -26,13 +26,13 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
     public static MartenProjectionIntegrationTestRunner ConfigureRoadNetworkChangesProjection<TProjection>(
         this MartenProjectionIntegrationTestRunner runner,
         Action<StoreOptions>? configureProjection = null)
-        where TProjection : IRoadNetworkChangesProjection, new()
+        where TProjection : IRoadNetworkChangesProjection<IDocumentOperations>, new()
     {
         return ConfigureRoadNetworkChangesProjection(runner, [new TProjection()], configureProjection);
     }
     public static MartenProjectionIntegrationTestRunner ConfigureRoadNetworkChangesProjection(
         this MartenProjectionIntegrationTestRunner runner,
-        IReadOnlyCollection<IRoadNetworkChangesProjection> projections,
+        IReadOnlyCollection<IRoadNetworkChangesProjection<IDocumentOperations>> projections,
         Action<StoreOptions>? configureProjection = null,
         ILogger? logger = null)
     {
@@ -41,6 +41,21 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
             configureProjection?.Invoke(options);
 
             options.AddRoadNetworkChangesProjection(new DummyRoadNetworkChangesProjection(projections));
+        });
+    }
+
+    // Registers an already-built driver directly (e.g. a DbContext-backed RoadNetworkChangesProjection that owns its own
+    // sub-projections and IDbContextFactory).
+    public static MartenProjectionIntegrationTestRunner ConfigureRoadNetworkChangesProjection(
+        this MartenProjectionIntegrationTestRunner runner,
+        RoadNetworkChangesProjection projection,
+        Action<StoreOptions>? configureProjection = null)
+    {
+        return runner.ConfigureMarten(options =>
+        {
+            configureProjection?.Invoke(options);
+
+            options.AddRoadNetworkChangesProjection(projection);
         });
     }
 

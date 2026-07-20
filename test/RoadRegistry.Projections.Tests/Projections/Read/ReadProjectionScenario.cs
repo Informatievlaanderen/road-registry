@@ -19,10 +19,10 @@ using RoadRegistry.Tests;
 /// </summary>
 public sealed class ReadProjectionScenario
 {
-    private readonly IReadOnlyList<IRoadNetworkChangesProjection> _projections;
+    private readonly IReadOnlyList<IRoadNetworkChangesProjection<IDocumentOperations>> _projections;
     private long _position;
 
-    public ReadProjectionScenario(params IRoadNetworkChangesProjection[] projections)
+    public ReadProjectionScenario(params IRoadNetworkChangesProjection<IDocumentOperations>[] projections)
     {
         _projections = projections;
         Store = new InMemoryDocumentStoreSession(BuildStoreOptions());

@@ -1,5 +1,7 @@
 namespace RoadRegistry.WmsWfsV2.Schema.Records;
 
+using System;
+
 using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -10,8 +12,8 @@ public class EuropeanRoadRecord
     public int EU_OIDN { get; set; }
     public int WS_OIDN { get; set; }
     public string? EUNUMMER { get; set; }
-    public string CREATIE { get; set; }
-    public string VERSIE { get; set; }
+    public DateTimeOffset CREATIE { get; set; }
+    public DateTimeOffset VERSIE { get; set; }
 }
 
 public class EuropeanRoadRecordConfiguration : IEntityTypeConfiguration<EuropeanRoadRecord>
@@ -23,8 +25,8 @@ public class EuropeanRoadRecordConfiguration : IEntityTypeConfiguration<European
         b.ToTable(TableName, WellKnownSchemas.WmsWfsV2Schema).HasKey(p => p.EU_OIDN).IsClustered();
         b.Property(p => p.EU_OIDN).ValueGeneratedOnAdd();
         b.Property(p => p.EUNUMMER).HasColumnType("varchar(4)");
-        b.Property(p => p.CREATIE).HasColumnType("varchar(15)");
-        b.Property(p => p.VERSIE).HasColumnType("varchar(15)");
+        b.Property(p => p.CREATIE).HasColumnType("datetimeoffset");
+        b.Property(p => p.VERSIE).HasColumnType("datetimeoffset");
         b.HasIndex(p => p.WS_OIDN).IsClustered(false);
     }
 }

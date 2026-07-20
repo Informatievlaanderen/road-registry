@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
 using JasperFx.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -14,37 +15,35 @@ using RoadRegistry.Pbs.Projections;
 using RoadRegistry.Pbs.Schema;
 
 /// <summary>
-/// Drives one or more PBS projections against an in-memory <see cref="PbsContext"/>, mirroring how the Marten daemon
-/// runs <c>RoadNetworkChangesPbsProjection</c> over each event batch: every projection gets a fresh context from the
-/// factory, applies its handlers and saves once. No SQL Server / Marten infrastructure is required.
-/// The <c>IDocumentOperations</c> argument is unused by the PBS handlers (they write exclusively to the PbsContext),
-/// so <c>null</c> is passed for it.
+/// Drives one or more PBS sub-projections against an in-memory <see cref="PbsContext"/>, mirroring how
+/// <see cref="RoadNetworkChangesPbsProjection"/> runs them: one shared context per batch, every projection applies its
+/// handlers against that context, and a single projection-state row (keyed by the aggregate name) is advanced and saved
+/// once. No SQL Server / Marten infrastructure is required.
 /// </summary>
 public sealed class PbsProjectionScenario
 {
+    // The single read-side projection-state key, matching RoadNetworkChangesPbsProjection in production.
+    private const string ProjectionStateName = nameof(RoadNetworkChangesPbsProjection);
+
     private readonly TestDbContextFactory _dbContextFactory = new();
-    private readonly IReadOnlyList<IRoadNetworkChangesProjection> _projections;
+    private readonly IReadOnlyList<IRoadNetworkChangesProjection<PbsContext>> _projections;
     private long _position;
     private IReadOnlyList<IEvent> _lastBatch = [];
 
-    public PbsProjectionScenario(Func<IDbContextFactory<PbsContext>, IEnumerable<IRoadNetworkChangesProjection>> projections)
+    public PbsProjectionScenario(params IRoadNetworkChangesProjection<PbsContext>[] projections)
     {
-        _projections = projections(_dbContextFactory).ToList();
+        _projections = projections;
     }
 
     /// <summary>
     /// Projects the given messages (one batch) through every projection in order.
     /// Call multiple times to simulate separate daemon batches.
     /// </summary>
-    public async Task GivenAsync(params object[] messages)
+    public Task GivenAsync(params object[] messages)
     {
         var events = messages.Select(BuildEvent).ToList();
         _lastBatch = events;
-
-        foreach (var projection in _projections)
-        {
-            await projection.Project(null!, events, CancellationToken.None);
-        }
+        return ApplyBatch(events);
     }
 
     /// <summary>
@@ -52,12 +51,48 @@ public sealed class PbsProjectionScenario
     /// daemon re-delivering events after a partial failure (the SQL Server write committed but the Marten progression
     /// commit did not). The projection-state idempotency guard should skip these already-applied events.
     /// </summary>
-    public async Task RedeliverLastBatchAsync()
+    public Task RedeliverLastBatchAsync() => ApplyBatch(_lastBatch);
+
+    // Mirrors DbContextBackedRoadNetworkChangesProjection: one context, a single projection-state position guard shared
+    // by all sub-projections, and a single save.
+    private async Task ApplyBatch(IReadOnlyList<IEvent> events)
     {
-        foreach (var projection in _projections)
+        await using var context = _dbContextFactory.CreateDbContext();
+        context.ChangeTracker.AutoDetectChangesEnabled = false;
+
+        var projectionState = await context.ProjectionStates.FindAsync(ProjectionStateName);
+        if (projectionState is null)
         {
-            await projection.Project(null!, _lastBatch, CancellationToken.None);
+            projectionState = new ProjectionStateItem { Name = ProjectionStateName };
+            await context.ProjectionStates.AddAsync(projectionState);
         }
+
+        var position = projectionState.Position;
+        var newPosition = position;
+
+        foreach (var @event in events)
+        {
+            if (@event.Sequence <= position)
+            {
+                continue;
+            }
+
+            foreach (var projection in _projections)
+            {
+                await projection.Project(context, [@event], CancellationToken.None);
+            }
+
+            newPosition = Math.Max(newPosition, @event.Sequence);
+        }
+
+        if (newPosition == position)
+        {
+            return;
+        }
+
+        projectionState.Position = newPosition;
+        context.ChangeTracker.DetectChanges();
+        await context.SaveChangesAsync();
     }
 
     /// <summary>
@@ -94,8 +129,8 @@ public sealed class PbsProjectionScenario
     {
         var eventType = typeof(Event<>).MakeGenericType(message.GetType());
         var evt = (IEvent)Activator.CreateInstance(eventType, message)!;
-        // Sequence drives the PBS projection-state idempotency guard, so it must be a 1-based monotonic value (the
-        // projection state starts at position 0). It keeps increasing across GivenAsync calls to mimic daemon batches.
+        // Sequence drives the projection-state idempotency guard, so it must be a 1-based monotonic value (the projection
+        // state starts at position 0). It keeps increasing across GivenAsync calls to mimic daemon batches.
         _position++;
         evt.Version = _position;
         evt.Sequence = _position;

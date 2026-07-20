@@ -40,11 +40,10 @@ public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
 
         return new MartenProjectionIntegrationTestRunner(_databaseFixture)
             .ConfigureServices(services => services.AddSingleton(dbContextFactory))
-            .ConfigureRoadNetworkChangesProjection([
-                new TestDbContextRunnerDbContextProjection(
-                    [new RoadSegmentProjection()],
-                    dbContextFactory
-            )]);
+            .ConfigureRoadNetworkChangesProjection(
+                new TestDbContextRoadNetworkChangesProjection(
+                    dbContextFactory,
+                    [new TestDbContextRunnerDbContextProjection([new RoadSegmentProjection()])]));
     }
 
     private IDbContextFactory<TestDbContext> CreateDbContextFactory()

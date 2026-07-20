@@ -1,5 +1,7 @@
 namespace RoadRegistry.WmsWfsV2.Schema.Records;
 
+using System;
+
 using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -13,8 +15,8 @@ public class RoadNodeRecord
     public string? LBLTYPE { get; set; }
     public int? GRENSKNOOP { get; set; }
     public Geometry? GEOMETRIE { get; set; }
-    public string CREATIE { get; set; }
-    public string VERSIE { get; set; }
+    public DateTimeOffset CREATIE { get; set; }
+    public DateTimeOffset VERSIE { get; set; }
 }
 
 public class RoadNodeRecordConfiguration : IEntityTypeConfiguration<RoadNodeRecord>
@@ -27,7 +29,7 @@ public class RoadNodeRecordConfiguration : IEntityTypeConfiguration<RoadNodeReco
         b.Property(p => p.WK_OIDN).ValueGeneratedNever();
         b.Property(p => p.LBLTYPE).HasColumnType("varchar(64)");
         b.Property(p => p.GEOMETRIE).HasColumnType("Geometry");
-        b.Property(p => p.CREATIE).HasColumnType("varchar(15)");
-        b.Property(p => p.VERSIE).HasColumnType("varchar(15)");
+        b.Property(p => p.CREATIE).HasColumnType("datetimeoffset");
+        b.Property(p => p.VERSIE).HasColumnType("datetimeoffset");
     }
 }

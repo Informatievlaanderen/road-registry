@@ -17,18 +17,18 @@ using Schema.Records;
 
 public class RoadNodeWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context>
 {
-    public RoadNodeWmsWfsV2Projection(IDbContextFactory<WmsWfsV2Context> dbContextFactory, ILoggerFactory? loggerFactory = null)
-        : base(dbContextFactory, loggerFactory)
+    public RoadNodeWmsWfsV2Projection()
     {
         // V1
+        // Imported/Added are created events: the node cannot exist yet, so skip the lookup and insert directly.
         When<IEvent<ImportedRoadNode>>((context, e, ct) =>
-            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, true, e.Data.Provenance, ct));
 
         When<IEvent<RoadNodeAdded>>((context, e, ct) =>
-            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, true, e.Data.Provenance, ct));
 
         When<IEvent<RoadNodeModified>>((context, e, ct) =>
-            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, false, e.Data.Provenance, ct));
 
         When<IEvent<RoadNodeRemoved>>(async (context, e, ct) =>
         {
@@ -40,18 +40,19 @@ public class RoadNodeWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProje
         });
 
         // V2
-        When<IEvent<RoadNodeWasAdded>>(async (context, e, ct) =>
+        // A created event means the entity does not exist yet, so insert directly without a lookup (re-delivery is
+        // guarded by the projection-state position in the base projection).
+        When<IEvent<RoadNodeWasAdded>>((context, e, ct) =>
         {
-            var record = await context.RoadNodes.FindAsync([e.Data.RoadNodeId.ToInt32()], ct);
-            var isNew = record is null;
-            record ??= new RoadNodeRecord { WK_OIDN = e.Data.RoadNodeId.ToInt32(), CREATIE = e.Data.Provenance.ToWmsWfsV2Date() };
-            record.GRENSKNOOP = e.Data.Grensknoop.ToDbaseShortValue();
-            record.GEOMETRIE = e.Data.Geometry.EnsureLambert08().RoundToCm().Value;
-            record.VERSIE = e.Data.Provenance.ToWmsWfsV2Date();
-            if (isNew)
+            context.RoadNodes.Add(new RoadNodeRecord
             {
-                context.RoadNodes.Add(record);
-            }
+                WK_OIDN = e.Data.RoadNodeId.ToInt32(),
+                GRENSKNOOP = e.Data.Grensknoop.ToDbaseShortValue(),
+                GEOMETRIE = e.Data.Geometry.EnsureLambert08().RoundToCm().Value,
+                CREATIE = e.Data.Provenance.Timestamp.ToDateTimeOffset(),
+                VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset()
+            });
+            return Task.CompletedTask;
         });
 
         When<IEvent<RoadNodeTypeWasChanged>>(async (context, e, ct) =>
@@ -63,7 +64,7 @@ public class RoadNodeWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProje
             }
             record.TYPE = e.Data.Type.Translation.Identifier;
             record.LBLTYPE = e.Data.Type.Translation.Name;
-            record.VERSIE = e.Data.Provenance.ToWmsWfsV2Date();
+            record.VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset();
         });
 
         When<IEvent<RoadNodeWasModified>>(async (context, e, ct) =>
@@ -81,17 +82,17 @@ public class RoadNodeWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProje
             {
                 record.GRENSKNOOP = e.Data.Grensknoop.Value.ToDbaseShortValue();
             }
-            record.VERSIE = e.Data.Provenance.ToWmsWfsV2Date();
+            record.VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset();
         });
 
         When<IEvent<RoadNodeWasMigrated>>(async (context, e, ct) =>
         {
             var record = await context.RoadNodes.FindAsync([e.Data.RoadNodeId.ToInt32()], ct);
             var isNew = record is null;
-            record ??= new RoadNodeRecord { WK_OIDN = e.Data.RoadNodeId.ToInt32(), CREATIE = e.Data.Provenance.ToWmsWfsV2Date() };
+            record ??= new RoadNodeRecord { WK_OIDN = e.Data.RoadNodeId.ToInt32(), CREATIE = e.Data.Provenance.Timestamp.ToDateTimeOffset() };
             record.GRENSKNOOP = e.Data.Grensknoop.ToDbaseShortValue();
             record.GEOMETRIE = e.Data.Geometry.EnsureLambert08().RoundToCm().Value;
-            record.VERSIE = e.Data.Provenance.ToWmsWfsV2Date();
+            record.VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset();
             if (isNew)
             {
                 context.RoadNodes.Add(record);
@@ -112,17 +113,17 @@ public class RoadNodeWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProje
     }
 
     // V1 road node: upsert the geometry and the type (mapped V1 -> V2, null when unmapped). V1 nodes carry no grensknoop.
-    private static async Task WriteV1(WmsWfsV2Context context, int nodeId, RoadNodeGeometry geometry, string type, ProvenanceData provenance, CancellationToken ct)
+    private static async Task WriteV1(WmsWfsV2Context context, int nodeId, RoadNodeGeometry geometry, string type, bool assumeNew, ProvenanceData provenance, CancellationToken ct)
     {
-        var record = await context.RoadNodes.FindAsync([nodeId], ct);
+        var record = assumeNew ? null : await context.RoadNodes.FindAsync([nodeId], ct);
         var isNew = record is null;
-        record ??= new RoadNodeRecord { WK_OIDN = nodeId, CREATIE = provenance.ToWmsWfsV2Date() };
+        record ??= new RoadNodeRecord { WK_OIDN = nodeId, CREATIE = provenance.Timestamp.ToDateTimeOffset() };
         record.GRENSKNOOP = null;
         record.GEOMETRIE = geometry.EnsureLambert08().RoundToCm().Value;
         var v2Type = V1ToV2.RoadNodeType(type);
         record.TYPE = v2Type?.Translation.Identifier;
         record.LBLTYPE = v2Type?.Translation.Name;
-        record.VERSIE = provenance.ToWmsWfsV2Date();
+        record.VERSIE = provenance.Timestamp.ToDateTimeOffset();
         if (isNew)
         {
             context.RoadNodes.Add(record);

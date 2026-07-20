@@ -35,17 +35,6 @@ public class WmsWfsV2Context : RunnerDbContext<WmsWfsV2Context>
     public DbSet<EuropeanRoadRecord> EuropeanRoads { get; set; }
     public DbSet<NationalRoadRecord> NationalRoads { get; set; }
 
-    // Dynamic attributes of a road segment
-    public DbSet<RoadSegmentMorphologyAttributeRecord> RoadSegmentMorphologyAttributes { get; set; }
-    public DbSet<RoadSegmentStreetNameAttributeRecord> RoadSegmentStreetNameAttributes { get; set; }
-    public DbSet<RoadSegmentAccessRestrictionAttributeRecord> RoadSegmentAccessRestrictionAttributes { get; set; }
-    public DbSet<RoadSegmentCarTrafficDirectionAttributeRecord> RoadSegmentCarTrafficDirectionAttributes { get; set; }
-    public DbSet<RoadSegmentBikeTrafficDirectionAttributeRecord> RoadSegmentBikeTrafficDirectionAttributes { get; set; }
-    public DbSet<RoadSegmentPedestrianTrafficDirectionAttributeRecord> RoadSegmentPedestrianTrafficDirectionAttributes { get; set; }
-    public DbSet<RoadSegmentMaintenanceAuthorityAttributeRecord> RoadSegmentMaintenanceAuthorityAttributes { get; set; }
-    public DbSet<RoadSegmentCategoryAttributeRecord> RoadSegmentCategoryAttributes { get; set; }
-    public DbSet<RoadSegmentSurfaceTypeAttributeRecord> RoadSegmentSurfaceTypeAttributes { get; set; }
-
     // Internal caches (id -> label), fed by the streetname/organization events, used to resolve label columns
     public DbSet<StreetNameCacheRecord> StreetNameCache { get; set; }
     public DbSet<OrganizationCacheRecord> OrganizationCache { get; set; }

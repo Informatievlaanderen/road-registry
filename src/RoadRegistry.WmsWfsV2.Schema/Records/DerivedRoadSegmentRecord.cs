@@ -1,5 +1,7 @@
 namespace RoadRegistry.WmsWfsV2.Schema.Records;
 
+using System;
+
 using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -39,8 +41,8 @@ public class DerivedRoadSegmentRecord
     // Distinct, alphabetically sorted European/National road numbers of the segment, concatenated with " / ".
     public string? EUNUMMERS { get; set; }
     public string? NWNUMMERS { get; set; }
-    public string CREATIE { get; set; }
-    public string VERSIE { get; set; }
+    public DateTimeOffset CREATIE { get; set; }
+    public DateTimeOffset VERSIE { get; set; }
 }
 
 public class DerivedRoadSegmentRecordConfiguration : IEntityTypeConfiguration<DerivedRoadSegmentRecord>
@@ -63,8 +65,8 @@ public class DerivedRoadSegmentRecordConfiguration : IEntityTypeConfiguration<De
         b.Property(p => p.EUNUMMERS).HasColumnType("varchar(255)");
         b.Property(p => p.NWNUMMERS).HasColumnType("varchar(255)");
         b.Property(p => p.GEOMETRIE).HasColumnType("Geometry");
-        b.Property(p => p.CREATIE).HasColumnType("varchar(15)");
-        b.Property(p => p.VERSIE).HasColumnType("varchar(15)");
+        b.Property(p => p.CREATIE).HasColumnType("datetimeoffset");
+        b.Property(p => p.VERSIE).HasColumnType("datetimeoffset");
         b.HasIndex(p => p.WS_OIDN).IsClustered(false);
 
         // Metadata (coded type) columns — indexed so WMS layers can filter/style the flattened segments by attribute.

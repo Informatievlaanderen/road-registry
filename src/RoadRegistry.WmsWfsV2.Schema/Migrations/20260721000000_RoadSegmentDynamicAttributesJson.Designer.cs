@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.WmsWfsV2.Schema;
@@ -12,9 +13,11 @@ using RoadRegistry.WmsWfsV2.Schema;
 namespace RoadRegistry.WmsWfsV2.Schema.Migrations
 {
     [DbContext(typeof(WmsWfsV2Context))]
-    partial class WmsWfsV2ContextModelSnapshot : ModelSnapshot
+    [Migration("20260721000000_RoadSegmentDynamicAttributesJson")]
+    partial class RoadSegmentDynamicAttributesJson
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,8 +65,9 @@ namespace RoadRegistry.WmsWfsV2.Schema.Migrations
                     b.Property<int?>("B_WK_OIDN")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset>("CREATIE")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("CREATIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
 
                     b.Property<int?>("E_WK_OIDN")
                         .HasColumnType("int");
@@ -122,8 +126,9 @@ namespace RoadRegistry.WmsWfsV2.Schema.Migrations
                     b.Property<int?>("VERHARDING")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset>("VERSIE")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("VERSIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
 
                     b.Property<int?>("VOETGANGER")
                         .HasColumnType("int");
@@ -181,14 +186,16 @@ namespace RoadRegistry.WmsWfsV2.Schema.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EU_OIDN"));
 
-                    b.Property<DateTimeOffset>("CREATIE")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("CREATIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
 
                     b.Property<string>("EUNUMMER")
                         .HasColumnType("varchar(4)");
 
-                    b.Property<DateTimeOffset>("VERSIE")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("VERSIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
 
                     b.Property<int>("WS_OIDN")
                         .HasColumnType("int");
@@ -209,14 +216,16 @@ namespace RoadRegistry.WmsWfsV2.Schema.Migrations
                     b.Property<int>("GK_OIDN")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset>("CREATIE")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("CREATIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
 
                     b.Property<Geometry>("GEOMETRIE")
                         .HasColumnType("Geometry");
 
-                    b.Property<DateTimeOffset>("VERSIE")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("VERSIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
 
                     b.Property<int>("WS1_OIDN")
                         .HasColumnType("int");
@@ -243,8 +252,9 @@ namespace RoadRegistry.WmsWfsV2.Schema.Migrations
                     b.Property<int>("BO_WS_OIDN")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset>("CREATIE")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("CREATIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
 
                     b.Property<Geometry>("GEOMETRIE")
                         .HasColumnType("Geometry");
@@ -258,8 +268,9 @@ namespace RoadRegistry.WmsWfsV2.Schema.Migrations
                     b.Property<int?>("TYPE")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset>("VERSIE")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("VERSIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
 
                     b.HasKey("OK_OIDN");
 
@@ -280,14 +291,16 @@ namespace RoadRegistry.WmsWfsV2.Schema.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NW_OIDN"));
 
-                    b.Property<DateTimeOffset>("CREATIE")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("CREATIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
 
                     b.Property<string>("NWNUMMER")
                         .HasColumnType("varchar(8)");
 
-                    b.Property<DateTimeOffset>("VERSIE")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("VERSIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
 
                     b.Property<int>("WS_OIDN")
                         .HasColumnType("int");
@@ -327,8 +340,9 @@ namespace RoadRegistry.WmsWfsV2.Schema.Migrations
                     b.Property<int>("WK_OIDN")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset>("CREATIE")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("CREATIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
 
                     b.Property<Geometry>("GEOMETRIE")
                         .HasColumnType("Geometry");
@@ -342,8 +356,9 @@ namespace RoadRegistry.WmsWfsV2.Schema.Migrations
                     b.Property<int?>("TYPE")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset>("VERSIE")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("VERSIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
 
                     b.HasKey("WK_OIDN");
 
@@ -364,8 +379,9 @@ namespace RoadRegistry.WmsWfsV2.Schema.Migrations
                     b.Property<int?>("B_WK_OIDN")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset>("CREATIE")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("CREATIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
 
                     b.Property<int?>("E_WK_OIDN")
                         .HasColumnType("int");
@@ -385,8 +401,9 @@ namespace RoadRegistry.WmsWfsV2.Schema.Migrations
                     b.Property<int?>("STATUS")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset>("VERSIE")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("VERSIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
 
                     b.HasKey("WS_OIDN");
 

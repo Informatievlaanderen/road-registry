@@ -1,5 +1,7 @@
 namespace RoadRegistry.WmsWfsV2.Schema.Records;
 
+using System;
+
 using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,8 +14,8 @@ public class GradeJunctionRecord
     public int WS1_OIDN { get; set; }
     public int WS2_OIDN { get; set; }
     public Geometry? GEOMETRIE { get; set; }
-    public string CREATIE { get; set; }
-    public string VERSIE { get; set; }
+    public DateTimeOffset CREATIE { get; set; }
+    public DateTimeOffset VERSIE { get; set; }
 }
 
 public class GradeJunctionRecordConfiguration : IEntityTypeConfiguration<GradeJunctionRecord>
@@ -28,7 +30,7 @@ public class GradeJunctionRecordConfiguration : IEntityTypeConfiguration<GradeJu
         b.HasIndex(p => p.WS1_OIDN);
         b.HasIndex(p => p.WS2_OIDN);
         b.Property(p => p.GEOMETRIE).HasColumnType("Geometry");
-        b.Property(p => p.CREATIE).HasColumnType("varchar(15)");
-        b.Property(p => p.VERSIE).HasColumnType("varchar(15)");
+        b.Property(p => p.CREATIE).HasColumnType("datetimeoffset");
+        b.Property(p => p.VERSIE).HasColumnType("datetimeoffset");
     }
 }

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using RoadRegistry.BackOffice;
 
-public class RoadSegmentAdded : IMartenEvent
+public class RoadSegmentAdded : IMartenEvent, ICreatedEvent
 {
     public const string EventName = "RoadSegmentAdded"; // BE CAREFUL CHANGING THIS!!
 

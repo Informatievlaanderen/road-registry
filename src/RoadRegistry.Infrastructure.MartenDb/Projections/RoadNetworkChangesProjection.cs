@@ -1,23 +1,28 @@
-﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
+namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
 using JasperFx.Events;
 using Marten;
 using Marten.Events.Projections;
 using Microsoft.Extensions.Logging;
 
+// The Marten IProjection that Marten's async daemon drives. It groups a batch by correlation id, skips already-processed
+// correlations (via the RoadNetworkChangesProjectionProgression document), and hands the work to DispatchAsync. How the
+// events are actually applied - and where the read-side projection state lives - is decided by the concrete driver
+// (MartenBackedRoadNetworkChangesProjection or DbContextBackedRoadNetworkChangesProjection<TDbContext>).
 public abstract class RoadNetworkChangesProjection : IProjection
 {
     public int BatchSize { get; }
-    private readonly IReadOnlyCollection<IRoadNetworkChangesProjection> _projections;
     private readonly ILogger _logger;
     private readonly string _projectionName;
-    private const int DefaultBatchSize = 5000;
+    protected const int DefaultBatchSize = 5000;
     private bool? _isCatchingUp;
-    private bool IsCatchingUp => _isCatchingUp ?? false;
 
-    protected RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections, ILoggerFactory loggerFactory, int batchSize = DefaultBatchSize)
+    protected bool IsCatchingUp => _isCatchingUp ?? false;
+    protected string ProjectionName => _projectionName;
+    protected ILogger Logger => _logger;
+
+    protected RoadNetworkChangesProjection(ILoggerFactory loggerFactory, int batchSize = DefaultBatchSize)
     {
-        _projections = projections;
         BatchSize = batchSize;
         _logger = loggerFactory.CreateLogger(GetType());
         _projectionName = GetType().Name;
@@ -98,25 +103,15 @@ public abstract class RoadNetworkChangesProjection : IProjection
                 IReadOnlyList<IEvent> toProcess = progression is not null
                     ? orderedEvents.Where(x => x.Sequence > progression.LastSequenceId).ToList()
                     : orderedEvents;
-                return (CorrelationId: g.Key, ProgressionId: progressionId, LastSeq: lastSeq, Progression: progression, ToProcess: toProcess);
+                return new CorrelationWorkItem(g.Key, progressionId, lastSeq, progression, toProcess);
             })
             .Where(x => x.ToProcess.Count > 0)
             .ToList();
 
+        await DispatchAsync(operations, correlationWork, cancellation).ConfigureAwait(false);
+
         foreach (var work in correlationWork)
         {
-            foreach (var evt in work.ToProcess)
-            {
-                _logger.LogInformation("Processing event {Sequence}: {EventTypeName}", evt.Sequence, evt.EventTypeName);
-
-                foreach (var projection in _projections)
-                {
-                    projection.IsCatchingUp = IsCatchingUp;
-
-                    await projection.Project(operations, [evt], cancellation).ConfigureAwait(false);
-                }
-            }
-
             if (work.Progression is null)
             {
                 operations.Insert(new RoadNetworkChangesProjectionProgression
@@ -134,10 +129,24 @@ public abstract class RoadNetworkChangesProjection : IProjection
         }
     }
 
+    // Applies the per-correlation work to the sub-projections. The concrete driver decides what "session" the
+    // sub-projections write to (the Marten operations, or a freshly created TDbContext) and owns any read-side
+    // projection-state/commit for that session.
+    protected abstract Task DispatchAsync(IDocumentOperations operations, IReadOnlyList<CorrelationWorkItem> correlationWork, CancellationToken cancellationToken);
+
     private string BuildProgressionId(string correlationId)
     {
         return $"{_projectionName}-{correlationId}";
     }
+
+    // One correlation's slice of a batch: the events still to process (after the Marten progression filter) plus the
+    // progression bookkeeping the base advances once DispatchAsync has run.
+    protected sealed record CorrelationWorkItem(
+        string CorrelationId,
+        string ProgressionId,
+        long LastSeq,
+        RoadNetworkChangesProjectionProgression? Progression,
+        IReadOnlyList<IEvent> ToProcess);
 }
 
 public sealed class RoadNetworkChangesProjectionProgression

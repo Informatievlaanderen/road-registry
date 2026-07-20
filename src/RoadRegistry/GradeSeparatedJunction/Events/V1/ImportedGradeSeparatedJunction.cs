@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using RoadRegistry.BackOffice;
 
-public class ImportedGradeSeparatedJunction : IMartenEvent
+public class ImportedGradeSeparatedJunction : IMartenEvent, ICreatedEvent
 {
     public const string EventName = "ImportedGradeSeparatedJunction"; // BE CAREFUL CHANGING THIS!!
 
