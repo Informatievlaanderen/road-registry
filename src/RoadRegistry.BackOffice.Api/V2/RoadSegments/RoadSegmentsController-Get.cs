@@ -82,11 +82,11 @@ public partial class RoadSegmentsController
                 [
                     new WegsegmentGeometrieProjectie
                     {
-                        Gml = roadSegment.Geometry.Lambert08.Value.GetSingleLineString().ConvertToGml()
+                        Gml = roadSegment.Geometry.Lambert08.Value.GetSingleLineString().ConvertToGml(useHttpsSchema: false)
                     },
                     new WegsegmentGeometrieProjectie
                     {
-                        Gml = roadSegment.Geometry.Lambert72.Value.GetSingleLineString().ConvertToGml()
+                        Gml = roadSegment.Geometry.Lambert72.Value.GetSingleLineString().ConvertToGml(useHttpsSchema: false)
                     }
                 ]
             },
@@ -792,11 +792,11 @@ public class WegsegmentV2DetailResponseExamples : IExamplesProvider<WegsegmentV2
                 [
                     new WegsegmentGeometrieProjectie
                     {
-                        Gml = geometry.EnsureLambert08().ConvertToGml()
+                        Gml = geometry.EnsureLambert08().ConvertToGml(useHttpsSchema: false)
                     },
                     new WegsegmentGeometrieProjectie
                     {
-                        Gml = geometry.EnsureLambert72().ConvertToGml()
+                        Gml = geometry.EnsureLambert72().ConvertToGml(useHttpsSchema: false)
                     }
                 ]
             },

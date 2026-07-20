@@ -6,7 +6,7 @@ using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Read.Projections.Setup;
 using RoadRegistry.StreetName;
 
-public class RoadNetworkChangesReadProjection : RoadNetworkChangesProjection
+public class RoadNetworkChangesReadProjection : MartenBackedRoadNetworkChangesProjection
 {
     public RoadNetworkChangesReadProjection(int batchSize, ILoggerFactory loggerFactory, IStreetNameClient streetNameClient)
         : base([

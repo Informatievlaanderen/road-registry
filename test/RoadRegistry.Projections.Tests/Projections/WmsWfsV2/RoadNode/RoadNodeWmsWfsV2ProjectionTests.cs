@@ -24,7 +24,7 @@ public class RoadNodeWmsWfsV2ProjectionTests
     private readonly RoadNetworkTestDataV2 _testData = new();
 
     private WmsWfsV2ProjectionScenario Scenario() =>
-        new(factory => new[] { new RoadNodeWmsWfsV2Projection(factory) });
+        new(new RoadNodeWmsWfsV2Projection());
 
     private ProvenanceData Provenance => new(_testData.Provenance);
 
@@ -67,7 +67,7 @@ public class RoadNodeWmsWfsV2ProjectionTests
             typeof(RoadNetworkWasChangedBecauseOfExtract)
         };
 
-        WmsWfsV2ProjectionEventCoverage.AssertHandledExactlyOnce(new RoadNodeWmsWfsV2Projection(null!), excludeEventTypes);
+        WmsWfsV2ProjectionEventCoverage.AssertHandledExactlyOnce(new RoadNodeWmsWfsV2Projection(), excludeEventTypes);
     }
 
     [Fact]
@@ -83,8 +83,8 @@ public class RoadNodeWmsWfsV2ProjectionTests
         Assert.Equal(0, node.GRENSKNOOP); // Grensknoop == false
         Assert.Null(node.TYPE); // a freshly added V2 node has no type until RoadNodeTypeWasChanged
         Assert.NotNull(node.GEOMETRIE);
-        Assert.NotNull(node.CREATIE);
-        Assert.NotNull(node.VERSIE);
+        Assert.NotEqual(default, node.CREATIE);
+        Assert.NotEqual(default, node.VERSIE);
     }
 
     [Fact]

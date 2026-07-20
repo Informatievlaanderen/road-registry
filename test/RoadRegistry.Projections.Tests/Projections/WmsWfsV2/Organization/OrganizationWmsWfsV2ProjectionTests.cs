@@ -23,7 +23,7 @@ public class OrganizationWmsWfsV2ProjectionTests
     private readonly RoadNetworkTestDataV2 _testData = new();
 
     private WmsWfsV2ProjectionScenario Scenario() =>
-        new(factory => new[] { new OrganizationWmsWfsV2Projection(factory) });
+        new(new OrganizationWmsWfsV2Projection());
 
     private ProvenanceData Provenance => new(_testData.Provenance);
 
@@ -70,7 +70,7 @@ public class OrganizationWmsWfsV2ProjectionTests
             typeof(RoadNetworkWasChangedBecauseOfExtract)
         };
 
-        WmsWfsV2ProjectionEventCoverage.AssertHandledExactlyOnce(new OrganizationWmsWfsV2Projection(null!), excludeEventTypes);
+        WmsWfsV2ProjectionEventCoverage.AssertHandledExactlyOnce(new OrganizationWmsWfsV2Projection(), excludeEventTypes);
     }
 
     [Fact]

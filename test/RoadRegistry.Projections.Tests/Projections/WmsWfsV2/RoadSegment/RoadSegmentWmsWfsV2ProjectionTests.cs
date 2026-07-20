@@ -25,7 +25,7 @@ public class RoadSegmentWmsWfsV2ProjectionTests
     private readonly RoadNetworkTestDataV2 _testData = new();
 
     private WmsWfsV2ProjectionScenario Scenario() =>
-        new(factory => new[] { new RoadSegmentWmsWfsV2Projection(factory) });
+        new(new RoadSegmentWmsWfsV2Projection());
 
     private ProvenanceData Provenance => new(_testData.Provenance);
 
@@ -60,7 +60,7 @@ public class RoadSegmentWmsWfsV2ProjectionTests
             typeof(RoadNetworkWasChangedBecauseOfExtract)
         };
 
-        WmsWfsV2ProjectionEventCoverage.AssertHandledExactlyOnce(new RoadSegmentWmsWfsV2Projection(null!), excludeEventTypes);
+        WmsWfsV2ProjectionEventCoverage.AssertHandledExactlyOnce(new RoadSegmentWmsWfsV2Projection(), excludeEventTypes);
     }
 
     [Fact]
@@ -100,23 +100,26 @@ public class RoadSegmentWmsWfsV2ProjectionTests
         Assert.Equal(1, segment.B_WK_OIDN); // start node
         Assert.Equal(2, segment.E_WK_OIDN); // end node
         Assert.NotNull(segment.GEOMETRIE);
-        Assert.NotNull(segment.CREATIE);
-        Assert.NotNull(segment.VERSIE);
+        Assert.NotEqual(default, segment.CREATIE);
+        Assert.NotEqual(default, segment.VERSIE);
     }
 
     [Fact]
-    public async Task WhenRoadSegmentWasAdded_ThenDynamicAttributeTablesPopulated()
+    public async Task WhenRoadSegmentWasAdded_ThenDynamicAttributesBlobPopulated()
     {
         var scenario = Scenario();
 
         await scenario.GivenAsync(_testData.Segment1Added);
 
-        Assert.NotEmpty(await scenario.Query<RoadSegmentMorphologyAttributeRecord>(q => q.Where(x => x.WS_OIDN == 1)));
-        Assert.NotEmpty(await scenario.Query<RoadSegmentCategoryAttributeRecord>(q => q.Where(x => x.WS_OIDN == 1)));
-        Assert.NotEmpty(await scenario.Query<RoadSegmentAccessRestrictionAttributeRecord>(q => q.Where(x => x.WS_OIDN == 1)));
-        Assert.NotEmpty(await scenario.Query<RoadSegmentSurfaceTypeAttributeRecord>(q => q.Where(x => x.WS_OIDN == 1)));
-        Assert.NotEmpty(await scenario.Query<RoadSegmentMaintenanceAuthorityAttributeRecord>(q => q.Where(x => x.WS_OIDN == 1)));
-        Assert.NotEmpty(await scenario.Query<RoadSegmentStreetNameAttributeRecord>(q => q.Where(x => x.WS_OIDN == 1)));
+        var segment = await scenario.Find<RoadSegmentRecord>(1);
+        Assert.NotNull(segment);
+        var attrs = segment!.DynamicAttributes;
+        Assert.NotEmpty(attrs.Morphology);
+        Assert.NotEmpty(attrs.Category);
+        Assert.NotEmpty(attrs.AccessRestriction);
+        Assert.NotEmpty(attrs.SurfaceType);
+        Assert.NotEmpty(attrs.MaintenanceAuthority);
+        Assert.NotEmpty(attrs.StreetName);
     }
 
     [Fact]
@@ -175,7 +178,6 @@ public class RoadSegmentWmsWfsV2ProjectionTests
 
         Assert.Null(await scenario.Find<RoadSegmentRecord>(1));
         Assert.Empty(await scenario.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1)));
-        Assert.Empty(await scenario.Query<RoadSegmentMorphologyAttributeRecord>(q => q.Where(x => x.WS_OIDN == 1)));
         Assert.Empty(await scenario.Query<EuropeanRoadRecord>(q => q.Where(x => x.WS_OIDN == 1)));
         Assert.Empty(await scenario.Query<NationalRoadRecord>(q => q.Where(x => x.WS_OIDN == 1)));
     }
@@ -264,8 +266,7 @@ public class RoadSegmentWmsWfsV2ProjectionTests
         });
 
         // The derived rows must carry the sorted, distinct " / "-joined aggregate of the segment's EuropeanRoads.
-        var expected = string.Join(" / ", (await scenario.Query<EuropeanRoadRecord>(q => q.Where(x => x.WS_OIDN == 1)))
-            .Select(x => x.EUNUMMER!).Distinct().OrderBy(x => x, System.StringComparer.Ordinal));
+        var expected = ExpectedAggregate((await scenario.Query<EuropeanRoadRecord>(q => q.Where(x => x.WS_OIDN == 1))).Select(x => x.EUNUMMER));
 
         var derived = await scenario.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1));
         Assert.NotEmpty(derived);
@@ -292,10 +293,16 @@ public class RoadSegmentWmsWfsV2ProjectionTests
             Provenance = Provenance
         });
 
-        var expected = string.Join(" / ", (await scenario.Query<EuropeanRoadRecord>(q => q.Where(x => x.WS_OIDN == 1)))
-            .Select(x => x.EUNUMMER!).Distinct().OrderBy(x => x, System.StringComparer.Ordinal));
+        var expected = ExpectedAggregate((await scenario.Query<EuropeanRoadRecord>(q => q.Where(x => x.WS_OIDN == 1))).Select(x => x.EUNUMMER));
 
         var derived = await scenario.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1));
         Assert.All(derived, row => Assert.Equal(expected, row.EUNUMMERS));
+    }
+
+    // Mirrors the projection's aggregation: distinct, alphabetically sorted, " / "-joined, null when empty.
+    private static string? ExpectedAggregate(System.Collections.Generic.IEnumerable<string?> numbers)
+    {
+        var list = numbers.Where(x => !string.IsNullOrEmpty(x)).Distinct().OrderBy(x => x, System.StringComparer.Ordinal).ToList();
+        return list.Count > 0 ? string.Join(" / ", list) : null;
     }
 }

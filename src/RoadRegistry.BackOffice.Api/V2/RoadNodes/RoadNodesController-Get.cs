@@ -79,11 +79,11 @@ public partial class RoadNodesController
                 [
                     new WegknoopGeometrieProjectie
                     {
-                        Gml = roadNode.Geometry.Lambert08.Value.ConvertToGml()
+                        Gml = roadNode.Geometry.Lambert08.Value.ConvertToGml(useHttpsSchema: false)
                     },
                     new WegknoopGeometrieProjectie
                     {
-                        Gml = roadNode.Geometry.Lambert72.Value.ConvertToGml()
+                        Gml = roadNode.Geometry.Lambert72.Value.ConvertToGml(useHttpsSchema: false)
                     }
                 ]
             },
@@ -204,11 +204,11 @@ public class WegknoopV2DetailResponseExamples : IExamplesProvider<WegknoopV2Deta
                 [
                     new WegknoopGeometrieProjectie
                     {
-                        Gml = geometry.EnsureLambert08().ConvertToGml()
+                        Gml = geometry.EnsureLambert08().ConvertToGml(useHttpsSchema: false)
                     },
                     new WegknoopGeometrieProjectie
                     {
-                        Gml = geometry.EnsureLambert72().ConvertToGml()
+                        Gml = geometry.EnsureLambert72().ConvertToGml(useHttpsSchema: false)
                     }
                 ]
             },

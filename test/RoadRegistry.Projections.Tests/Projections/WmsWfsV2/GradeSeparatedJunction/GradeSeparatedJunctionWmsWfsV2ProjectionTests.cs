@@ -26,7 +26,7 @@ public class GradeSeparatedJunctionWmsWfsV2ProjectionTests
     private readonly RoadNetworkTestDataV2 _testData = new();
 
     private WmsWfsV2ProjectionScenario Scenario() =>
-        new(factory => new[] { new GradeSeparatedJunctionWmsWfsV2Projection(factory) });
+        new(new GradeSeparatedJunctionWmsWfsV2Projection());
 
     private ProvenanceData Provenance => new(_testData.Provenance);
 
@@ -73,7 +73,7 @@ public class GradeSeparatedJunctionWmsWfsV2ProjectionTests
             typeof(RoadNetworkWasChangedBecauseOfExtract)
         };
 
-        WmsWfsV2ProjectionEventCoverage.AssertHandledExactlyOnce(new GradeSeparatedJunctionWmsWfsV2Projection(null!), excludeEventTypes);
+        WmsWfsV2ProjectionEventCoverage.AssertHandledExactlyOnce(new GradeSeparatedJunctionWmsWfsV2Projection(), excludeEventTypes);
     }
 
     // The junction point now arrives on the junction's own events; build it from a plain Lambert08 point.

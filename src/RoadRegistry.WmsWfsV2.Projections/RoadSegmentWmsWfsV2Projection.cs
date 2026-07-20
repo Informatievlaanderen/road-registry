@@ -18,8 +18,7 @@ using Schema.Records;
 
 public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context>
 {
-    public RoadSegmentWmsWfsV2Projection(IDbContextFactory<WmsWfsV2Context> dbContextFactory, ILoggerFactory? loggerFactory = null)
-        : base(dbContextFactory, loggerFactory)
+    public RoadSegmentWmsWfsV2Projection()
     {
         // V1
         // Legacy events carry raw string values; each is mapped to its V2 equivalent (see V1ToV2), storing null when a
@@ -74,7 +73,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetName = null;
             if (m.LeftSide is not null || m.RightSide is not null)
             {
-                var (currentLeft, currentRight) = await CurrentStreetNameSidesFromV1(context, m.RoadSegmentId, ct);
+                var (currentLeft, currentRight) = CurrentStreetNameSides(record.DynamicAttributes.StreetName);
                 streetName = StreetNameFromV1(m.LeftSide?.StreetNameId ?? currentLeft, m.RightSide?.StreetNameId ?? currentRight, length);
             }
 
@@ -102,7 +101,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             {
                 return;
             }
-            var (currentLeft, currentRight) = await CurrentStreetNameSidesFromV1(context, e.Data.RoadSegmentId, ct);
+            var (currentLeft, currentRight) = CurrentStreetNameSides(record.DynamicAttributes.StreetName);
             var streetName = StreetNameFromV1(e.Data.LeftSideStreetNameId ?? currentLeft, e.Data.RightSideStreetNameId ?? currentRight, record.GEOMETRIE.Length);
             await WritePartial(context, e.Data.RoadSegmentId, null, null, null, null, null, null, null, null, null,
                 streetName, null, null, null, null, e.Data.Provenance, ct);
@@ -117,7 +116,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             var nummer = EuropeanRoadNumber.Parse(e.Data.Number).ToString();
             if (!await context.EuropeanRoads.AnyAsync(x => x.WS_OIDN == segId && x.EUNUMMER == nummer, ct))
             {
-                context.EuropeanRoads.Add(new EuropeanRoadRecord { WS_OIDN = segId, EUNUMMER = nummer, CREATIE = e.Data.Provenance.ToWmsWfsV2Date(), VERSIE = e.Data.Provenance.ToWmsWfsV2Date() });
+                context.EuropeanRoads.Add(new EuropeanRoadRecord { WS_OIDN = segId, EUNUMMER = nummer, CREATIE = e.Data.Provenance.Timestamp.ToDateTimeOffset(), VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset() });
             }
             await RefreshDerivedEuropeanNumbers(context, segId, nummer, null, ct);
         });
@@ -135,7 +134,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             var nummer = NationalRoadNumber.Parse(e.Data.Number).ToString();
             if (!await context.NationalRoads.AnyAsync(x => x.WS_OIDN == segId && x.NWNUMMER == nummer, ct))
             {
-                context.NationalRoads.Add(new NationalRoadRecord { WS_OIDN = segId, NWNUMMER = nummer, CREATIE = e.Data.Provenance.ToWmsWfsV2Date(), VERSIE = e.Data.Provenance.ToWmsWfsV2Date() });
+                context.NationalRoads.Add(new NationalRoadRecord { WS_OIDN = segId, NWNUMMER = nummer, CREATIE = e.Data.Provenance.Timestamp.ToDateTimeOffset(), VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset() });
             }
             await RefreshDerivedNationalNumbers(context, segId, nummer, null, ct);
         });
@@ -154,7 +153,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         When<IEvent<RoadSegmentWasAdded>>(async (context, e, ct) =>
         {
             var m = e.Data;
-            await WriteFull(context, m.RoadSegmentId.ToInt32(), m.Geometry, m.Status, m.GeometryDrawMethod,
+            await WriteFull(context, m.RoadSegmentId.ToInt32(), true, m.Geometry, m.Status, m.GeometryDrawMethod,
                 m.StartNodeId, m.EndNodeId, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
                 m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
                 m.PedestrianTrafficDirection, m.EuropeanRoadNumbers, m.NationalRoadNumbers, m.Provenance, ct);
@@ -163,7 +162,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         When<IEvent<RoadSegmentWasMigrated>>(async (context, e, ct) =>
         {
             var m = e.Data;
-            await WriteFull(context, m.RoadSegmentId.ToInt32(), m.Geometry, m.Status, m.GeometryDrawMethod,
+            await WriteFull(context, m.RoadSegmentId.ToInt32(), false, m.Geometry, m.Status, m.GeometryDrawMethod,
                 m.StartNodeId, m.EndNodeId, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
                 m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
                 m.PedestrianTrafficDirection, m.EuropeanRoadNumbers, m.NationalRoadNumbers, m.Provenance, ct);
@@ -172,7 +171,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         When<IEvent<OutlinedRoadSegmentWasAdded>>(async (context, e, ct) =>
         {
             var m = e.Data;
-            await WriteFull(context, m.RoadSegmentId.ToInt32(), m.Geometry, m.Status, RoadSegmentGeometryDrawMethodV2.Ingeschetst,
+            await WriteFull(context, m.RoadSegmentId.ToInt32(), true, m.Geometry, m.Status, RoadSegmentGeometryDrawMethodV2.Ingeschetst,
                 null, null, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
                 m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
                 m.PedestrianTrafficDirection, [], [], m.Provenance, ct);
@@ -181,7 +180,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         When<IEvent<RoadSegmentWasMerged>>(async (context, e, ct) =>
         {
             var m = e.Data;
-            await WriteFull(context, m.RoadSegmentId.ToInt32(), m.Geometry, m.Status, m.GeometryDrawMethod,
+            await WriteFull(context, m.RoadSegmentId.ToInt32(), false, m.Geometry, m.Status, m.GeometryDrawMethod,
                 m.StartNodeId, m.EndNodeId, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
                 m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
                 m.PedestrianTrafficDirection, m.EuropeanRoadNumbers, m.NationalRoadNumbers, m.Provenance, ct);
@@ -237,7 +236,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             var nummer = e.Data.Number.ToString();
             if (!await context.EuropeanRoads.AnyAsync(x => x.WS_OIDN == segId && x.EUNUMMER == nummer, ct))
             {
-                context.EuropeanRoads.Add(new EuropeanRoadRecord { WS_OIDN = segId, EUNUMMER = nummer, CREATIE = e.Data.Provenance.ToWmsWfsV2Date(), VERSIE = e.Data.Provenance.ToWmsWfsV2Date() });
+                context.EuropeanRoads.Add(new EuropeanRoadRecord { WS_OIDN = segId, EUNUMMER = nummer, CREATIE = e.Data.Provenance.Timestamp.ToDateTimeOffset(), VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset() });
             }
             await RefreshDerivedEuropeanNumbers(context, segId, nummer, null, ct);
         });
@@ -255,7 +254,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             var nummer = e.Data.Number.ToString();
             if (!await context.NationalRoads.AnyAsync(x => x.WS_OIDN == segId && x.NWNUMMER == nummer, ct))
             {
-                context.NationalRoads.Add(new NationalRoadRecord { WS_OIDN = segId, NWNUMMER = nummer, CREATIE = e.Data.Provenance.ToWmsWfsV2Date(), VERSIE = e.Data.Provenance.ToWmsWfsV2Date() });
+                context.NationalRoads.Add(new NationalRoadRecord { WS_OIDN = segId, NWNUMMER = nummer, CREATIE = e.Data.Provenance.Timestamp.ToDateTimeOffset(), VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset() });
             }
             await RefreshDerivedNationalNumbers(context, segId, nummer, null, ct);
         });
@@ -269,7 +268,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         });
     }
 
-    private static async Task WriteFull(WmsWfsV2Context context, int segId,
+    private static async Task WriteFull(WmsWfsV2Context context, int segId, bool assumeNew,
         RoadSegmentGeometry geometry, RoadSegmentStatusV2 status, RoadSegmentGeometryDrawMethodV2 method,
         RoadNodeId? startNode, RoadNodeId? endNode,
         RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> morphology,
@@ -285,7 +284,11 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         IReadOnlyCollection<NationalRoadNumber> nationalRoadNumbers,
         ProvenanceData provenance, CancellationToken ct)
     {
-        var (normal, isNew) = await LoadOrCreate(context, segId, provenance);
+        // For a created event the segment cannot exist yet, so skip the lookup and always insert (re-delivery is guarded
+        // by the projection-state position in the base projection).
+        var (normal, isNew) = assumeNew
+            ? (new RoadSegmentRecord { WS_OIDN = segId, CREATIE = provenance.Timestamp.ToDateTimeOffset() }, true)
+            : await LoadOrCreate(context, segId, provenance);
 
         normal.GEOMETRIE = geometry.EnsureLambert08().RoundToCm().Value;
         normal.STATUS = status?.Translation.Identifier;
@@ -294,32 +297,35 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         normal.LBLMETHODE = method?.Translation.Name;
         normal.B_WK_OIDN = startNode?.ToInt32();
         normal.E_WK_OIDN = endNode?.ToInt32();
-        normal.VERSIE = provenance.ToWmsWfsV2Date();
+        normal.VERSIE = provenance.Timestamp.ToDateTimeOffset();
+        normal.DynamicAttributes = new RoadSegmentDynamicAttributes
+        {
+            Morphology = BuildMorphology(morphology),
+            Category = BuildCategory(category),
+            AccessRestriction = BuildAccess(access),
+            SurfaceType = BuildSurface(surface),
+            StreetName = BuildStreetName(streetName),
+            MaintenanceAuthority = BuildMaintainer(maintainer),
+            CarTrafficDirection = BuildCar(car),
+            BikeTrafficDirection = BuildBike(bike),
+            PedestrianTrafficDirection = BuildPedestrian(pedestrian)
+        };
         if (isNew)
         {
             context.RoadSegments.Add(normal);
         }
 
-        var morphologyRows = await RebuildMorphology(context, segId, morphology, ct);
-        var categoryRows = await RebuildCategory(context, segId, category, ct);
-        var accessRows = await RebuildAccess(context, segId, access, ct);
-        var surfaceRows = await RebuildSurface(context, segId, surface, ct);
-        var streetNameRows = await RebuildStreetName(context, segId, streetName, ct);
-        var maintainerRows = await RebuildMaintainer(context, segId, maintainer, ct);
-        var carRows = await RebuildCar(context, segId, car, ct);
-        var bikeRows = await RebuildBike(context, segId, bike, ct);
-        var pedestrianRows = await RebuildPedestrian(context, segId, pedestrian, ct);
-
-        await RebuildEuropeanRoads(context, segId, europeanRoadNumbers, provenance, ct);
-        await RebuildNationalRoads(context, segId, nationalRoadNumbers, provenance, ct);
+        await RebuildEuropeanRoads(context, segId, europeanRoadNumbers, provenance, assumeNew, ct);
+        await RebuildNationalRoads(context, segId, nationalRoadNumbers, provenance, assumeNew, ct);
 
         var euNummers = AggregateRoadNumbers(europeanRoadNumbers.Select(x => x.ToString()));
         var nwNummers = AggregateRoadNumbers(nationalRoadNumbers.Select(x => x.ToString()));
-        await RebuildDerived(context, segId, normal, morphologyRows, categoryRows, accessRows, surfaceRows, streetNameRows, maintainerRows, carRows, bikeRows, pedestrianRows, euNummers, nwNummers, ct);
+        await RebuildDerived(context, segId, normal, euNummers, nwNummers, assumeNew, ct);
     }
 
     // Partial update: only the non-null arguments are applied to the segment; the rest are kept as stored. Used for
-    // modify / geometry-modified / streetname-changed / split, which each carry only a subset of the attributes.
+    // modify / geometry-modified / streetname-changed / split, which each carry only a subset of the attributes. The
+    // unchanged dynamic attributes come straight from the loaded segment's JSON blob — no extra queries.
     private static async Task WritePartial(WmsWfsV2Context context, int segId,
         RoadSegmentGeometry geometry, RoadSegmentStatusV2 status, RoadSegmentGeometryDrawMethodV2 method,
         RoadNodeId? startNode, RoadNodeId? endNode,
@@ -358,60 +364,56 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         {
             normal.E_WK_OIDN = endNode.Value.ToInt32();
         }
-        normal.VERSIE = provenance.ToWmsWfsV2Date();
+        normal.VERSIE = provenance.Timestamp.ToDateTimeOffset();
+
+        var current = normal.DynamicAttributes;
+        normal.DynamicAttributes = new RoadSegmentDynamicAttributes
+        {
+            Morphology = morphology is not null ? BuildMorphology(morphology) : current.Morphology,
+            Category = category is not null ? BuildCategory(category) : current.Category,
+            AccessRestriction = access is not null ? BuildAccess(access) : current.AccessRestriction,
+            SurfaceType = surface is not null ? BuildSurface(surface) : current.SurfaceType,
+            StreetName = streetName is not null ? BuildStreetName(streetName) : current.StreetName,
+            MaintenanceAuthority = maintainer is not null ? BuildMaintainer(maintainer) : current.MaintenanceAuthority,
+            CarTrafficDirection = car is not null ? BuildCar(car) : current.CarTrafficDirection,
+            BikeTrafficDirection = bike is not null ? BuildBike(bike) : current.BikeTrafficDirection,
+            PedestrianTrafficDirection = pedestrian is not null ? BuildPedestrian(pedestrian) : current.PedestrianTrafficDirection
+        };
         if (isNew)
         {
             context.RoadSegments.Add(normal);
         }
 
-        // Rebuild the attributes this event changed; keep the rest as stored. The flattener needs the full current set,
-        // so unchanged attributes are loaded back from the database.
-        var morphologyRows = morphology is not null ? await RebuildMorphology(context, segId, morphology, ct) : await context.RoadSegmentMorphologyAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct);
-        var categoryRows = category is not null ? await RebuildCategory(context, segId, category, ct) : await context.RoadSegmentCategoryAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct);
-        var accessRows = access is not null ? await RebuildAccess(context, segId, access, ct) : await context.RoadSegmentAccessRestrictionAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct);
-        var surfaceRows = surface is not null ? await RebuildSurface(context, segId, surface, ct) : await context.RoadSegmentSurfaceTypeAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct);
-        var streetNameRows = streetName is not null ? await RebuildStreetName(context, segId, streetName, ct) : await context.RoadSegmentStreetNameAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct);
-        var maintainerRows = maintainer is not null ? await RebuildMaintainer(context, segId, maintainer, ct) : await context.RoadSegmentMaintenanceAuthorityAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct);
-        var carRows = car is not null ? await RebuildCar(context, segId, car, ct) : await context.RoadSegmentCarTrafficDirectionAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct);
-        var bikeRows = bike is not null ? await RebuildBike(context, segId, bike, ct) : await context.RoadSegmentBikeTrafficDirectionAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct);
-        var pedestrianRows = pedestrian is not null ? await RebuildPedestrian(context, segId, pedestrian, ct) : await context.RoadSegmentPedestrianTrafficDirectionAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct);
-
         // Road numbers are not carried by the partial events, so keep the stored aggregate from the road tables.
         var euNummers = AggregateRoadNumbers(await context.EuropeanRoads.Where(x => x.WS_OIDN == segId).Select(x => x.EUNUMMER).ToListAsync(ct));
         var nwNummers = AggregateRoadNumbers(await context.NationalRoads.Where(x => x.WS_OIDN == segId).Select(x => x.NWNUMMER).ToListAsync(ct));
-        await RebuildDerived(context, segId, normal, morphologyRows, categoryRows, accessRows, surfaceRows, streetNameRows, maintainerRows, carRows, bikeRows, pedestrianRows, euNummers, nwNummers, ct);
+        await RebuildDerived(context, segId, normal, euNummers, nwNummers, false, ct);
     }
 
     private static async Task<(RoadSegmentRecord Normal, bool IsNew)> LoadOrCreate(WmsWfsV2Context context, int segId, ProvenanceData provenance)
     {
         var normal = await context.RoadSegments.FindAsync(segId);
         var isNew = normal is null;
-        normal ??= new RoadSegmentRecord { WS_OIDN = segId, CREATIE = provenance.ToWmsWfsV2Date() };
+        normal ??= new RoadSegmentRecord { WS_OIDN = segId, CREATIE = provenance.Timestamp.ToDateTimeOffset() };
         return (normal, isNew);
     }
 
-    private static async Task RebuildDerived(WmsWfsV2Context context, int segId, RoadSegmentRecord normal,
-        IReadOnlyList<RoadSegmentMorphologyAttributeRecord> morphology,
-        IReadOnlyList<RoadSegmentCategoryAttributeRecord> category,
-        IReadOnlyList<RoadSegmentAccessRestrictionAttributeRecord> access,
-        IReadOnlyList<RoadSegmentSurfaceTypeAttributeRecord> surface,
-        IReadOnlyList<RoadSegmentStreetNameAttributeRecord> streetName,
-        IReadOnlyList<RoadSegmentMaintenanceAuthorityAttributeRecord> maintainer,
-        IReadOnlyList<RoadSegmentCarTrafficDirectionAttributeRecord> car,
-        IReadOnlyList<RoadSegmentBikeTrafficDirectionAttributeRecord> bike,
-        IReadOnlyList<RoadSegmentPedestrianTrafficDirectionAttributeRecord> pedestrian,
-        string? euNummers, string? nwNummers,
-        CancellationToken ct)
+    private static async Task RebuildDerived(WmsWfsV2Context context, int segId, RoadSegmentRecord normal, string? euNummers, string? nwNummers, bool assumeNew, CancellationToken ct)
     {
-        context.DerivedRoadSegments.RemoveRange(await context.DerivedRoadSegments.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
+        if (!assumeNew)
+        {
+            context.DerivedRoadSegments.RemoveRange(await context.DerivedRoadSegments.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
+        }
         if (normal.GEOMETRIE is null)
         {
             return;
         }
 
+        var a = normal.DynamicAttributes;
         var flatRows = DerivedWegsegmentFlattener.Flatten(segId, normal.GEOMETRIE,
             normal.STATUS, normal.LBLSTATUS, normal.METHODE, normal.LBLMETHODE, normal.B_WK_OIDN, normal.E_WK_OIDN,
-            morphology, category, access, surface, streetName, maintainer, car, bike, pedestrian,
+            a.Morphology, a.Category, a.AccessRestriction, a.SurfaceType, a.StreetName, a.MaintenanceAuthority,
+            a.CarTrafficDirection, a.BikeTrafficDirection, a.PedestrianTrafficDirection,
             euNummers, nwNummers,
             normal.CREATIE, normal.VERSIE);
         context.DerivedRoadSegments.AddRange(flatRows);
@@ -481,108 +483,63 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             context.RoadSegments.Remove(normal);
         }
         context.DerivedRoadSegments.RemoveRange(await context.DerivedRoadSegments.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-
-        context.RoadSegmentMorphologyAttributes.RemoveRange(await context.RoadSegmentMorphologyAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        context.RoadSegmentStreetNameAttributes.RemoveRange(await context.RoadSegmentStreetNameAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        context.RoadSegmentAccessRestrictionAttributes.RemoveRange(await context.RoadSegmentAccessRestrictionAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        context.RoadSegmentCarTrafficDirectionAttributes.RemoveRange(await context.RoadSegmentCarTrafficDirectionAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        context.RoadSegmentBikeTrafficDirectionAttributes.RemoveRange(await context.RoadSegmentBikeTrafficDirectionAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        context.RoadSegmentPedestrianTrafficDirectionAttributes.RemoveRange(await context.RoadSegmentPedestrianTrafficDirectionAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        context.RoadSegmentMaintenanceAuthorityAttributes.RemoveRange(await context.RoadSegmentMaintenanceAuthorityAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        context.RoadSegmentCategoryAttributes.RemoveRange(await context.RoadSegmentCategoryAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        context.RoadSegmentSurfaceTypeAttributes.RemoveRange(await context.RoadSegmentSurfaceTypeAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
         context.EuropeanRoads.RemoveRange(await context.EuropeanRoads.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
         context.NationalRoads.RemoveRange(await context.NationalRoads.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
     }
 
-    private static async Task<List<RoadSegmentMorphologyAttributeRecord>> RebuildMorphology(WmsWfsV2Context c, int segId, RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> values, CancellationToken ct)
-    {
-        c.RoadSegmentMorphologyAttributes.RemoveRange(await c.RoadSegmentMorphologyAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        var rows = values.Values.Select(v => new RoadSegmentMorphologyAttributeRecord { WS_OIDN = segId, MORF = v.Value?.Translation.Identifier, LBLMORF = v.Value?.Translation.Name, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
-        c.RoadSegmentMorphologyAttributes.AddRange(rows);
-        return rows;
-    }
+    // The dynamic-attribute builders are pure: they turn the event's per-position values into the staging lists that go
+    // into the segment's JSON blob. No database access.
+    private static List<RoadSegmentMorphologyAttributeRecord> BuildMorphology(RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> values)
+        => values.Values.Select(v => new RoadSegmentMorphologyAttributeRecord { MORF = v.Value?.Translation.Identifier, LBLMORF = v.Value?.Translation.Name, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
 
-    private static async Task<List<RoadSegmentCategoryAttributeRecord>> RebuildCategory(WmsWfsV2Context c, int segId, RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2> values, CancellationToken ct)
-    {
-        c.RoadSegmentCategoryAttributes.RemoveRange(await c.RoadSegmentCategoryAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        var rows = values.Values.Select(v => new RoadSegmentCategoryAttributeRecord { WS_OIDN = segId, WEGCAT = v.Value?.Translation.Identifier, LBLWEGCAT = v.Value?.Translation.Name, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
-        c.RoadSegmentCategoryAttributes.AddRange(rows);
-        return rows;
-    }
+    private static List<RoadSegmentCategoryAttributeRecord> BuildCategory(RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2> values)
+        => values.Values.Select(v => new RoadSegmentCategoryAttributeRecord { WEGCAT = v.Value?.Translation.Identifier, LBLWEGCAT = v.Value?.Translation.Name, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
 
-    private static async Task<List<RoadSegmentAccessRestrictionAttributeRecord>> RebuildAccess(WmsWfsV2Context c, int segId, RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> values, CancellationToken ct)
-    {
-        c.RoadSegmentAccessRestrictionAttributes.RemoveRange(await c.RoadSegmentAccessRestrictionAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        var rows = values.Values.Select(v => new RoadSegmentAccessRestrictionAttributeRecord { WS_OIDN = segId, TOEGANG = v.Value?.Translation.Identifier, LBLTOEGANG = v.Value?.Translation.Name, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
-        c.RoadSegmentAccessRestrictionAttributes.AddRange(rows);
-        return rows;
-    }
+    private static List<RoadSegmentAccessRestrictionAttributeRecord> BuildAccess(RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> values)
+        => values.Values.Select(v => new RoadSegmentAccessRestrictionAttributeRecord { TOEGANG = v.Value?.Translation.Identifier, LBLTOEGANG = v.Value?.Translation.Name, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
 
-    private static async Task<List<RoadSegmentSurfaceTypeAttributeRecord>> RebuildSurface(WmsWfsV2Context c, int segId, RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> values, CancellationToken ct)
-    {
-        c.RoadSegmentSurfaceTypeAttributes.RemoveRange(await c.RoadSegmentSurfaceTypeAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        var rows = values.Values.Select(v => new RoadSegmentSurfaceTypeAttributeRecord { WS_OIDN = segId, VERHARDING = v.Value?.Translation.Identifier, LBLVERHARD = v.Value?.Translation.Name, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
-        c.RoadSegmentSurfaceTypeAttributes.AddRange(rows);
-        return rows;
-    }
+    private static List<RoadSegmentSurfaceTypeAttributeRecord> BuildSurface(RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> values)
+        => values.Values.Select(v => new RoadSegmentSurfaceTypeAttributeRecord { VERHARDING = v.Value?.Translation.Identifier, LBLVERHARD = v.Value?.Translation.Name, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
 
-    private static async Task<List<RoadSegmentStreetNameAttributeRecord>> RebuildStreetName(WmsWfsV2Context c, int segId, RoadSegmentDynamicAttributeValues<StreetNameLocalId> values, CancellationToken ct)
-    {
-        c.RoadSegmentStreetNameAttributes.RemoveRange(await c.RoadSegmentStreetNameAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        var rows = values.Values.Select(v => new RoadSegmentStreetNameAttributeRecord { WS_OIDN = segId, STRTNMID = v.Value.ToInt32(), KANT = v.Side.Translation.Identifier, LBLKANT = v.Side.Translation.Name, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
-        c.RoadSegmentStreetNameAttributes.AddRange(rows);
-        return rows;
-    }
+    private static List<RoadSegmentStreetNameAttributeRecord> BuildStreetName(RoadSegmentDynamicAttributeValues<StreetNameLocalId> values)
+        => values.Values.Select(v => new RoadSegmentStreetNameAttributeRecord { STRTNMID = v.Value.ToInt32(), KANT = v.Side.Translation.Identifier, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
 
-    private static async Task<List<RoadSegmentMaintenanceAuthorityAttributeRecord>> RebuildMaintainer(WmsWfsV2Context c, int segId, RoadSegmentDynamicAttributeValues<OrganizationId> values, CancellationToken ct)
-    {
-        c.RoadSegmentMaintenanceAuthorityAttributes.RemoveRange(await c.RoadSegmentMaintenanceAuthorityAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        var rows = values.Values.Select(v => new RoadSegmentMaintenanceAuthorityAttributeRecord { WS_OIDN = segId, BEHEER = v.Value.ToString(), KANT = v.Side.Translation.Identifier, LBLKANT = v.Side.Translation.Name, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
-        c.RoadSegmentMaintenanceAuthorityAttributes.AddRange(rows);
-        return rows;
-    }
+    private static List<RoadSegmentMaintenanceAuthorityAttributeRecord> BuildMaintainer(RoadSegmentDynamicAttributeValues<OrganizationId> values)
+        => values.Values.Select(v => new RoadSegmentMaintenanceAuthorityAttributeRecord { BEHEER = v.Value.ToString(), KANT = v.Side.Translation.Identifier, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
 
-    private static async Task<List<RoadSegmentCarTrafficDirectionAttributeRecord>> RebuildCar(WmsWfsV2Context c, int segId, RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> values, CancellationToken ct)
-    {
-        c.RoadSegmentCarTrafficDirectionAttributes.RemoveRange(await c.RoadSegmentCarTrafficDirectionAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        var rows = values.Values.Select(v => new RoadSegmentCarTrafficDirectionAttributeRecord { WS_OIDN = segId, RICHTING = v.Value?.Translation.Identifier, LBLRICHT = v.Value?.Translation.Name, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
-        c.RoadSegmentCarTrafficDirectionAttributes.AddRange(rows);
-        return rows;
-    }
+    private static List<RoadSegmentCarTrafficDirectionAttributeRecord> BuildCar(RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> values)
+        => values.Values.Select(v => new RoadSegmentCarTrafficDirectionAttributeRecord { RICHTING = v.Value?.Translation.Identifier, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
 
-    private static async Task<List<RoadSegmentBikeTrafficDirectionAttributeRecord>> RebuildBike(WmsWfsV2Context c, int segId, RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> values, CancellationToken ct)
-    {
-        c.RoadSegmentBikeTrafficDirectionAttributes.RemoveRange(await c.RoadSegmentBikeTrafficDirectionAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        var rows = values.Values.Select(v => new RoadSegmentBikeTrafficDirectionAttributeRecord { WS_OIDN = segId, RICHTING = v.Value?.Translation.Identifier, LBLRICHT = v.Value?.Translation.Name, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
-        c.RoadSegmentBikeTrafficDirectionAttributes.AddRange(rows);
-        return rows;
-    }
+    private static List<RoadSegmentBikeTrafficDirectionAttributeRecord> BuildBike(RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> values)
+        => values.Values.Select(v => new RoadSegmentBikeTrafficDirectionAttributeRecord { RICHTING = v.Value?.Translation.Identifier, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
 
-    private static async Task<List<RoadSegmentPedestrianTrafficDirectionAttributeRecord>> RebuildPedestrian(WmsWfsV2Context c, int segId, RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection> values, CancellationToken ct)
-    {
-        c.RoadSegmentPedestrianTrafficDirectionAttributes.RemoveRange(await c.RoadSegmentPedestrianTrafficDirectionAttributes.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        var rows = values.Values.Select(v => new RoadSegmentPedestrianTrafficDirectionAttributeRecord { WS_OIDN = segId, RICHTING = v.Value?.Translation.Identifier, LBLRICHT = v.Value?.Translation.Name, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
-        c.RoadSegmentPedestrianTrafficDirectionAttributes.AddRange(rows);
-        return rows;
-    }
+    private static List<RoadSegmentPedestrianTrafficDirectionAttributeRecord> BuildPedestrian(RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection> values)
+        => values.Values.Select(v => new RoadSegmentPedestrianTrafficDirectionAttributeRecord { RICHTING = v.Value?.Translation.Identifier, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
 
-    private static async Task RebuildEuropeanRoads(WmsWfsV2Context c, int segId, IReadOnlyCollection<EuropeanRoadNumber> numbers, ProvenanceData provenance, CancellationToken ct)
+    private static async Task RebuildEuropeanRoads(WmsWfsV2Context c, int segId, IReadOnlyCollection<EuropeanRoadNumber> numbers, ProvenanceData provenance, bool assumeNew, CancellationToken ct)
     {
-        c.EuropeanRoads.RemoveRange(await c.EuropeanRoads.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
+        if (!assumeNew)
+        {
+            c.EuropeanRoads.RemoveRange(await c.EuropeanRoads.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
+        }
         foreach (var number in numbers)
-            c.EuropeanRoads.Add(new EuropeanRoadRecord { WS_OIDN = segId, EUNUMMER = number.ToString(), CREATIE = provenance.ToWmsWfsV2Date(), VERSIE = provenance.ToWmsWfsV2Date() });
+            c.EuropeanRoads.Add(new EuropeanRoadRecord { WS_OIDN = segId, EUNUMMER = number.ToString(), CREATIE = provenance.Timestamp.ToDateTimeOffset(), VERSIE = provenance.Timestamp.ToDateTimeOffset() });
     }
 
-    private static async Task RebuildNationalRoads(WmsWfsV2Context c, int segId, IReadOnlyCollection<NationalRoadNumber> numbers, ProvenanceData provenance, CancellationToken ct)
+    private static async Task RebuildNationalRoads(WmsWfsV2Context c, int segId, IReadOnlyCollection<NationalRoadNumber> numbers, ProvenanceData provenance, bool assumeNew, CancellationToken ct)
     {
-        c.NationalRoads.RemoveRange(await c.NationalRoads.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
+        if (!assumeNew)
+        {
+            c.NationalRoads.RemoveRange(await c.NationalRoads.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
+        }
         foreach (var number in numbers)
-            c.NationalRoads.Add(new NationalRoadRecord { WS_OIDN = segId, NWNUMMER = number.ToString(), CREATIE = provenance.ToWmsWfsV2Date(), VERSIE = provenance.ToWmsWfsV2Date() });
+            c.NationalRoads.Add(new NationalRoadRecord { WS_OIDN = segId, NWNUMMER = number.ToString(), CREATIE = provenance.Timestamp.ToDateTimeOffset(), VERSIE = provenance.Timestamp.ToDateTimeOffset() });
     }
 
-    // V1 add/import: full (re)write of the segment. Maps the legacy string values to V2 (null when unmapped) and sets the
-    // European/national roads from the event (Imported carries them inline; Added starts empty and gets separate events).
+    // V1 add/import: full write of the segment. Both callers (Imported/Added) are created events, so the segment cannot
+    // exist yet (assumeNew) — the lookup and all derived/road delete queries are skipped. Maps the legacy string values to
+    // V2 (null when unmapped) and sets the European/national roads from the event (Imported carries them inline; Added
+    // starts empty and gets separate events).
     private static Task WriteV1Full(WmsWfsV2Context context, int segId, RoadSegmentGeometry geometry,
         string status, string method, int startNode, int endNode,
         string morphology, string category, string accessRestriction,
@@ -594,7 +551,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         var length = geometry.EnsureLambert08().RoundToCm().Value.Length;
         var v2Method = V1ToV2.Method(method);
         var v2Status = V1ToV2.Status(status, v2Method);
-        return WriteFull(context, segId, geometry, v2Status, v2Method,
+        return WriteFull(context, segId, true, geometry, v2Status, v2Method,
             new RoadNodeId(startNode), new RoadNodeId(endNode),
             ForEntireGeometry(V1ToV2.Morphology(morphology), length),
             ForEntireGeometry(V1ToV2.Category(category), length),
@@ -690,10 +647,10 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         ]);
     }
 
-    // The current per-side street name ids, used by the partial V1 events to keep the side they do not change.
-    private static async Task<(int? Left, int? Right)> CurrentStreetNameSidesFromV1(WmsWfsV2Context context, int segId, CancellationToken ct)
+    // The current per-side street name ids (read from the segment's stored dynamic attributes), used by the partial V1
+    // events to keep the side they do not change.
+    private static (int? Left, int? Right) CurrentStreetNameSides(IReadOnlyList<RoadSegmentStreetNameAttributeRecord> rows)
     {
-        var rows = await context.RoadSegmentStreetNameAttributes.AsNoTracking().Where(x => x.WS_OIDN == segId).ToListAsync(ct);
         var left = rows.FirstOrDefault(x => x.KANT == RoadSegmentAttributeSide.Beide.Translation.Identifier || x.KANT == RoadSegmentAttributeSide.Links.Translation.Identifier);
         var right = rows.FirstOrDefault(x => x.KANT == RoadSegmentAttributeSide.Beide.Translation.Identifier || x.KANT == RoadSegmentAttributeSide.Rechts.Translation.Identifier);
         return (left?.STRTNMID, right?.STRTNMID);

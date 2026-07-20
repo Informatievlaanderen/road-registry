@@ -11,8 +11,7 @@ using Schema.Records;
 // RoadSegmentStreetNameAttributes -> internal StreetNameCache (id -> Dutch name), used to fill STRTNM / LSTRNM / RSTRNM labels.
 public class StreetNameWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context>
 {
-    public StreetNameWmsWfsV2Projection(IDbContextFactory<WmsWfsV2Context> dbContextFactory, ILoggerFactory? loggerFactory = null)
-        : base(dbContextFactory, loggerFactory)
+    public StreetNameWmsWfsV2Projection()
     {
         When<IEvent<StreetNameWasCreated>>((context, e, ct) =>
             Upsert(context, e.Data.StreetNameId.ToInt32(), e.Data.DutchName, ct));

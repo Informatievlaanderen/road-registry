@@ -12,8 +12,7 @@ using Schema.Records;
 
 public class OrganizationPbsProjection : RunnerDbContextRoadNetworkChangesProjection<PbsContext>
 {
-    public OrganizationPbsProjection(IDbContextFactory<PbsContext> dbContextFactory, ILoggerFactory? loggerFactory = null)
-        : base(dbContextFactory, loggerFactory)
+    public OrganizationPbsProjection()
     {
         When<IEvent<OrganizationWasImported>>((context, e, ct) =>
             Upsert(context, e.Data.OrganizationId.ToString(), e.Data.Name, null, null, ct));

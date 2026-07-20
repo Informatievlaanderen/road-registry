@@ -26,7 +26,7 @@ public class GradeSeparatedJunctionPbsProjectionTests
     private readonly RoadNetworkTestDataV2 _testData = new();
 
     private PbsProjectionScenario Scenario() =>
-        new(factory => new[] { new GradeSeparatedJunctionPbsProjection(factory) });
+        new(new GradeSeparatedJunctionPbsProjection());
 
     private ProvenanceData Provenance => new(_testData.Provenance);
 
@@ -73,7 +73,7 @@ public class GradeSeparatedJunctionPbsProjectionTests
             typeof(RoadNetworkWasChangedBecauseOfExtract)
         };
 
-        PbsProjectionEventCoverage.AssertHandledExactlyOnce(new GradeSeparatedJunctionPbsProjection(null!), excludeEventTypes);
+        PbsProjectionEventCoverage.AssertHandledExactlyOnce(new GradeSeparatedJunctionPbsProjection(), excludeEventTypes);
     }
 
     // The junction point now arrives on the junction's own events; build it from a plain Lambert08 point.

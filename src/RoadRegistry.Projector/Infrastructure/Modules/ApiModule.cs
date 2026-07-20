@@ -362,7 +362,7 @@ public class ApiModule : Module
         {
             Id = "roadregistry-martenmigration",
             Description = "",
-            Name = "Marten Migration",
+            Name = "V1 to V2 Marten Migration",
             WellKnownConnectionName = WellKnownConnectionNames.MartenMigration,
             FallbackDesiredState = "subscribed"
         });
@@ -373,7 +373,7 @@ public class ApiModule : Module
         _martenProjections.Add(new ProjectionDetail
         {
             Id = WellKnownProjectionStateNames.RoadNetworkChangesExtractProjection,
-            Name = "Marten - Extracts",
+            Name = "V2 - Extracts",
             Description = string.Empty,
             FallbackDesiredState = "subscribed"
         });
@@ -384,7 +384,7 @@ public class ApiModule : Module
         _martenProjections.Add(new ProjectionDetail
         {
             Id = WellKnownProjectionStateNames.RoadNetworkChangesReadProjection,
-            Name = "Marten - Read",
+            Name = "V2 - Read",
             Description = string.Empty,
             FallbackDesiredState = "subscribed"
         });

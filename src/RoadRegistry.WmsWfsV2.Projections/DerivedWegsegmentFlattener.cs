@@ -36,7 +36,7 @@ internal static class DerivedWegsegmentFlattener
         IReadOnlyList<RoadSegmentBikeTrafficDirectionAttributeRecord> bike,
         IReadOnlyList<RoadSegmentPedestrianTrafficDirectionAttributeRecord> pedestrian,
         string? euNummers, string? nwNummers,
-        string creatie, string versie)
+        DateTimeOffset creatie, DateTimeOffset versie)
     {
         var length = geometry.Length;
 

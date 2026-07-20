@@ -17,18 +17,18 @@ using Schema.Records;
 
 public class RoadNodePbsProjection : RunnerDbContextRoadNetworkChangesProjection<PbsContext>
 {
-    public RoadNodePbsProjection(IDbContextFactory<PbsContext> dbContextFactory, ILoggerFactory? loggerFactory = null)
-        : base(dbContextFactory, loggerFactory)
+    public RoadNodePbsProjection()
     {
         // V1
+        // Imported/Added are created events: the node cannot exist yet, so skip the lookup and insert directly.
         When<IEvent<ImportedRoadNode>>((context, e, ct) =>
-            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, true, e.Data.Provenance, ct));
 
         When<IEvent<RoadNodeAdded>>((context, e, ct) =>
-            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, true, e.Data.Provenance, ct));
 
         When<IEvent<RoadNodeModified>>((context, e, ct) =>
-            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, false, e.Data.Provenance, ct));
 
         When<IEvent<RoadNodeRemoved>>(async (context, e, ct) =>
         {
@@ -40,18 +40,19 @@ public class RoadNodePbsProjection : RunnerDbContextRoadNetworkChangesProjection
         });
 
         // V2
-        When<IEvent<RoadNodeWasAdded>>(async (context, e, ct) =>
+        // A created event means the entity does not exist yet, so insert directly without a lookup (re-delivery is
+        // guarded by the projection-state position in the base projection).
+        When<IEvent<RoadNodeWasAdded>>((context, e, ct) =>
         {
-            var record = await context.RoadNodes.FindAsync([e.Data.RoadNodeId.ToInt32()], ct);
-            var isNew = record is null;
-            record ??= new RoadNodeRecord { WK_OIDN = e.Data.RoadNodeId.ToInt32(), CREATIE = e.Data.Provenance.ToPbsDate() };
-            record.GRENSKNOOP = e.Data.Grensknoop.ToDbaseShortValue();
-            record.GEOMETRIE = e.Data.Geometry.EnsureLambert08().RoundToCm().Value;
-            record.VERSIE = e.Data.Provenance.ToPbsDate();
-            if (isNew)
+            context.RoadNodes.Add(new RoadNodeRecord
             {
-                context.RoadNodes.Add(record);
-            }
+                WK_OIDN = e.Data.RoadNodeId.ToInt32(),
+                GRENSKNOOP = e.Data.Grensknoop.ToDbaseShortValue(),
+                GEOMETRIE = e.Data.Geometry.EnsureLambert08().RoundToCm().Value,
+                CREATIE = e.Data.Provenance.ToPbsDate(),
+                VERSIE = e.Data.Provenance.ToPbsDate()
+            });
+            return Task.CompletedTask;
         });
 
         When<IEvent<RoadNodeTypeWasChanged>>(async (context, e, ct) =>
@@ -112,9 +113,9 @@ public class RoadNodePbsProjection : RunnerDbContextRoadNetworkChangesProjection
     }
 
     // V1 road node: upsert the geometry and the type (mapped V1 -> V2, null when unmapped). V1 nodes carry no grensknoop.
-    private static async Task WriteV1(PbsContext context, int nodeId, RoadNodeGeometry geometry, string type, ProvenanceData provenance, CancellationToken ct)
+    private static async Task WriteV1(PbsContext context, int nodeId, RoadNodeGeometry geometry, string type, bool assumeNew, ProvenanceData provenance, CancellationToken ct)
     {
-        var record = await context.RoadNodes.FindAsync([nodeId], ct);
+        var record = assumeNew ? null : await context.RoadNodes.FindAsync([nodeId], ct);
         var isNew = record is null;
         record ??= new RoadNodeRecord { WK_OIDN = nodeId, CREATIE = provenance.ToPbsDate() };
         record.GRENSKNOOP = null;

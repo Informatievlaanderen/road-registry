@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using RoadRegistry.BackOffice;
 
-public class RoadNodeAdded : IMartenEvent
+public class RoadNodeAdded : IMartenEvent, ICreatedEvent
 {
     public const string EventName = "RoadNodeAdded"; // BE CAREFUL CHANGING THIS!!
 

@@ -5,16 +5,17 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using Schema;
 
-public class RoadNetworkChangesWmsWfsV2Projection : RoadNetworkChangesProjection
+public class RoadNetworkChangesWmsWfsV2Projection : DbContextBackedRoadNetworkChangesProjection<WmsWfsV2Context>
 {
     public RoadNetworkChangesWmsWfsV2Projection(int batchSize, ILoggerFactory loggerFactory, IDbContextFactory<WmsWfsV2Context> dbContextFactory)
-        : base([
-                new OrganizationWmsWfsV2Projection(dbContextFactory, loggerFactory),
-                new StreetNameWmsWfsV2Projection(dbContextFactory, loggerFactory),
-                new RoadNodeWmsWfsV2Projection(dbContextFactory, loggerFactory),
-                new RoadSegmentWmsWfsV2Projection(dbContextFactory, loggerFactory),
-                new GradeJunctionWmsWfsV2Projection(dbContextFactory, loggerFactory),
-                new GradeSeparatedJunctionWmsWfsV2Projection(dbContextFactory, loggerFactory)
+        : base(dbContextFactory,
+            [
+                new OrganizationWmsWfsV2Projection(),
+                new StreetNameWmsWfsV2Projection(),
+                new RoadNodeWmsWfsV2Projection(),
+                new RoadSegmentWmsWfsV2Projection(),
+                new GradeJunctionWmsWfsV2Projection(),
+                new GradeSeparatedJunctionWmsWfsV2Projection()
             ], loggerFactory,
             batchSize: batchSize)
     {

@@ -16,18 +16,18 @@ using Schema.Records;
 
 public class GradeSeparatedJunctionPbsProjection : RunnerDbContextRoadNetworkChangesProjection<PbsContext>
 {
-    public GradeSeparatedJunctionPbsProjection(IDbContextFactory<PbsContext> dbContextFactory, ILoggerFactory? loggerFactory = null)
-        : base(dbContextFactory, loggerFactory)
+    public GradeSeparatedJunctionPbsProjection()
     {
         // V1
+        // Imported/Added are created events: the junction cannot exist yet, so skip the lookup and insert directly.
         When<IEvent<ImportedGradeSeparatedJunction>>((context, e, ct) =>
-            WriteV1(context, e.Data.Id, e.Data.LowerRoadSegmentId, e.Data.UpperRoadSegmentId, e.Data.Type, e.Data.Geometry, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.Id, e.Data.LowerRoadSegmentId, e.Data.UpperRoadSegmentId, e.Data.Type, e.Data.Geometry, true, e.Data.Provenance, ct));
 
         When<IEvent<GradeSeparatedJunctionAdded>>((context, e, ct) =>
-            WriteV1(context, e.Data.Id, e.Data.LowerRoadSegmentId, e.Data.UpperRoadSegmentId, e.Data.Type, e.Data.Geometry, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.Id, e.Data.LowerRoadSegmentId, e.Data.UpperRoadSegmentId, e.Data.Type, e.Data.Geometry, true, e.Data.Provenance, ct));
 
         When<IEvent<GradeSeparatedJunctionModified>>((context, e, ct) =>
-            WriteV1(context, e.Data.Id, e.Data.LowerRoadSegmentId, e.Data.UpperRoadSegmentId, e.Data.Type, e.Data.Geometry, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.Id, e.Data.LowerRoadSegmentId, e.Data.UpperRoadSegmentId, e.Data.Type, e.Data.Geometry, false, e.Data.Provenance, ct));
 
         // V1 (legacy) geometry change produced by the migration; the geometry is in Lambert72 and normalized to Lambert08.
         When<IEvent<GradeSeparatedJunctionGeometryModified>>(async (context, e, ct) =>
@@ -51,21 +51,22 @@ public class GradeSeparatedJunctionPbsProjection : RunnerDbContextRoadNetworkCha
         });
 
         // V2
-        When<IEvent<GradeSeparatedJunctionWasAdded>>(async (context, e, ct) =>
+        // A created event means the entity does not exist yet, so insert directly without a lookup (re-delivery is
+        // guarded by the projection-state position in the base projection).
+        When<IEvent<GradeSeparatedJunctionWasAdded>>((context, e, ct) =>
         {
-            var record = await context.GradeSeparatedJunctions.FindAsync([e.Data.GradeSeparatedJunctionId.ToInt32()], ct);
-            var isNew = record is null;
-            record ??= new GradeSeparatedJunctionRecord { OK_OIDN = e.Data.GradeSeparatedJunctionId.ToInt32(), CREATIE = e.Data.Provenance.ToPbsDate() };
-            record.ON_WS_OIDN = e.Data.LowerRoadSegmentId.ToInt32();
-            record.BO_WS_OIDN = e.Data.UpperRoadSegmentId.ToInt32();
-            record.TYPE = e.Data.Type.Translation.Identifier;
-            record.LBLTYPE = e.Data.Type.Translation.Name;
-            record.GEOMETRIE = e.Data.Geometry.EnsureLambert08().Value;
-            record.VERSIE = e.Data.Provenance.ToPbsDate();
-            if (isNew)
+            context.GradeSeparatedJunctions.Add(new GradeSeparatedJunctionRecord
             {
-                context.GradeSeparatedJunctions.Add(record);
-            }
+                OK_OIDN = e.Data.GradeSeparatedJunctionId.ToInt32(),
+                ON_WS_OIDN = e.Data.LowerRoadSegmentId.ToInt32(),
+                BO_WS_OIDN = e.Data.UpperRoadSegmentId.ToInt32(),
+                TYPE = e.Data.Type.Translation.Identifier,
+                LBLTYPE = e.Data.Type.Translation.Name,
+                GEOMETRIE = e.Data.Geometry.EnsureLambert08().Value,
+                CREATIE = e.Data.Provenance.ToPbsDate(),
+                VERSIE = e.Data.Provenance.ToPbsDate()
+            });
+            return Task.CompletedTask;
         });
 
         When<IEvent<GradeSeparatedJunctionWasModified>>(async (context, e, ct) =>
@@ -121,9 +122,9 @@ public class GradeSeparatedJunctionPbsProjection : RunnerDbContextRoadNetworkCha
         });
     }
 
-    private static async Task WriteV1(PbsContext context, int id, int lowerRoadSegmentId, int upperRoadSegmentId, string type, JunctionGeometry? geometry, ProvenanceData provenance, CancellationToken ct)
+    private static async Task WriteV1(PbsContext context, int id, int lowerRoadSegmentId, int upperRoadSegmentId, string type, JunctionGeometry? geometry, bool assumeNew, ProvenanceData provenance, CancellationToken ct)
     {
-        var record = await context.GradeSeparatedJunctions.FindAsync([id], ct);
+        var record = assumeNew ? null : await context.GradeSeparatedJunctions.FindAsync([id], ct);
         var isNew = record is null;
         record ??= new GradeSeparatedJunctionRecord { OK_OIDN = id, CREATIE = provenance.ToPbsDate() };
         record.ON_WS_OIDN = lowerRoadSegmentId;

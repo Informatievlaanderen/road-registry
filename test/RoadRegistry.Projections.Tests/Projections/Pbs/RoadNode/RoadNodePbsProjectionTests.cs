@@ -24,7 +24,7 @@ public class RoadNodePbsProjectionTests
     private readonly RoadNetworkTestDataV2 _testData = new();
 
     private PbsProjectionScenario Scenario() =>
-        new(factory => new[] { new RoadNodePbsProjection(factory) });
+        new(new RoadNodePbsProjection());
 
     private ProvenanceData Provenance => new(_testData.Provenance);
 
@@ -67,7 +67,7 @@ public class RoadNodePbsProjectionTests
             typeof(RoadNetworkWasChangedBecauseOfExtract)
         };
 
-        PbsProjectionEventCoverage.AssertHandledExactlyOnce(new RoadNodePbsProjection(null!), excludeEventTypes);
+        PbsProjectionEventCoverage.AssertHandledExactlyOnce(new RoadNodePbsProjection(), excludeEventTypes);
     }
 
     [Fact]

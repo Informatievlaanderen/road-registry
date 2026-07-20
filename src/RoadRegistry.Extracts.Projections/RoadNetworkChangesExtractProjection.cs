@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using Setup;
 
-public class RoadNetworkChangesExtractProjection : RoadNetworkChangesProjection
+public class RoadNetworkChangesExtractProjection : MartenBackedRoadNetworkChangesProjection
 {
     public RoadNetworkChangesExtractProjection(int batchSize, ILoggerFactory loggerFactory)
         : base([
