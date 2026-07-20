@@ -32,6 +32,8 @@ using RoadRegistry.Integration.Schema;
 using RoadRegistry.MartenMigration.Projections;
 using RoadRegistry.Pbs.Projections;
 using RoadRegistry.Pbs.Schema;
+using RoadRegistry.WmsWfsV2.Projections;
+using RoadRegistry.WmsWfsV2.Schema;
 using RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction;
 using RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad;
 using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode;
@@ -180,6 +182,11 @@ public class Startup
                         {
                             health.AddDbContextCheck<PbsContext>();
                         }
+
+                        if (projectionOptions.WmsWfsV2.Enabled)
+                        {
+                            health.AddDbContextCheck<WmsWfsV2Context>();
+                        }
                     }
                 }
             })
@@ -226,6 +233,12 @@ public class Startup
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesPbsProjection)}:BatchSize");
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesPbsProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<PbsContext>>()));
                 }
+
+                if (projectionOptions.WmsWfsV2.Enabled)
+                {
+                    var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesWmsWfsV2Projection)}:BatchSize");
+                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesWmsWfsV2Projection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<WmsWfsV2Context>>()));
+                }
             }).Services
             .AddMartenDatabaseMigrator()
             .AddSingleton<MartenProjectionDaemonAccessor>()
@@ -248,6 +261,19 @@ public class Startup
                 .AddSingleton<IDbMigratorFactory, PbsContextMigratorFactory>()
                 // One-time sync of the PBS enum-based code lists (Wegbeheerder code list is event-driven instead).
                 .AddHostedService<PbsCodeListSyncService>();
+        }
+
+        if (projectionOptions.WmsWfsV2.Enabled)
+        {
+            services
+                .AddDbContextFactory<WmsWfsV2Context>((sp, options) =>
+                {
+                    var connectionString = sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.WmsWfsV2Projections);
+                    options.UseSqlServer(connectionString, o => o
+                        .EnableRetryOnFailure()
+                        .UseNetTopologySuite());
+                })
+                .AddSingleton<IDbMigratorFactory, WmsWfsV2ContextMigratorFactory>();
         }
 
         // extracts projections until GRB has been migrated

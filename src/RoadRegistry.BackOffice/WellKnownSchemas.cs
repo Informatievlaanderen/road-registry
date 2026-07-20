@@ -8,18 +8,17 @@ public static class WellKnownSchemas
     public const string EditorSchema = "RoadRegistryEditor";
     public const string IntegrationSchema = "integration_road";
     public const string ExtractsSchema = "RoadRegistryExtracts";
-    public const string ExtractHostSchema = "RoadRegistryBackOfficeExtractHost";
     public const string EventHostSchema = "RoadRegistryBackOfficeEventHost";
     public const string EventSchema = "RoadRegistry";
     public const string ProductMetaSchema = "RoadRegistryProductMeta";
     public const string ProductMetricsSchema = "RoadRegistryProductMetrics";
     public const string ProductSchema = "RoadRegistryProduct";
-    public const string SnapshotSchema = "RoadRegistrySnapshot";
     public const string WmsMetaSchema = "RoadRegistryWmsMeta";
     public const string WmsSchema = "RoadRegistryWms";
     public const string WfsMetaSchema = "RoadRegistryWfsMeta";
     public const string WfsSchema = "RoadRegistryWfs";
     public const string PbsSchema = "RoadRegistryPbs";
+    public const string WmsWfsV2Schema = "road";
     public const string StreetNameSchema = "RoadRegistryStreetName";
     public const string StreetNameEventSchema = "RoadRegistryStreetNameEvent";
     public const string StreetNameEventConsumerSchema = "RoadRegistryStreetNameEventConsumer";
@@ -53,6 +52,7 @@ public static class MigrationTables
     public const string Wms = "__EFMigrationsHistoryWms";
     public const string Wfs = "__EFMigrationsHistoryWfs";
     public const string Pbs = "__EFMigrationsHistoryPbs";
+    public const string WmsWfsV2 = "__EFMigrationsHistoryWmsWfsV2";
     public const string StreetName = "__EFMigrationsHistoryStreetName";
     public const string StreetNameEvent = "__EFMigrationsHistoryStreetNameEvent";
     public const string StreetNameEventConsumer = "__EFMigrationsHistoryStreetNameEventConsumer";

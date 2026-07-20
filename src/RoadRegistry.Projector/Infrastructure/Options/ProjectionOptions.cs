@@ -15,6 +15,7 @@ public class ProjectionOptions
     public Option Read { get; set; }
     public Option Extract { get; set; }
     public Option Pbs { get; set; }
+    public Option WmsWfsV2 { get; set; }
 
     public class Option
     {

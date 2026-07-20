@@ -110,6 +110,11 @@ public class ApiModule : Module
         {
             RegisterPbsMartenProjection();
         }
+
+        if (projectionOptions.WmsWfsV2.Enabled)
+        {
+            RegisterWmsWfsV2MartenProjection();
+        }
     }
 
     private void RegisterProducerSnapshotProjection()
@@ -390,7 +395,18 @@ public class ApiModule : Module
         _martenProjections.Add(new ProjectionDetail
         {
             Id = WellKnownProjectionStateNames.RoadNetworkChangesPbsProjection,
-            Name = "Marten - PBS",
+            Name = "V2 - PBS",
+            Description = string.Empty,
+            FallbackDesiredState = "subscribed"
+        });
+    }
+
+    private void RegisterWmsWfsV2MartenProjection()
+    {
+        _martenProjections.Add(new ProjectionDetail
+        {
+            Id = WellKnownProjectionStateNames.RoadNetworkChangesWmsWfsV2Projection,
+            Name = "V2 - WMS/WFS",
             Description = string.Empty,
             FallbackDesiredState = "subscribed"
         });

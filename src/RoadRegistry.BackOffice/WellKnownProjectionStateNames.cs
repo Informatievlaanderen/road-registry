@@ -10,5 +10,6 @@ namespace RoadRegistry.BackOffice
         public const string RoadNetworkChangesExtractProjection = "RoadNetworkChangesExtractProjection:All";
         public const string RoadNetworkChangesReadProjection = "RoadNetworkChangesReadProjection:All";
         public const string RoadNetworkChangesPbsProjection = "RoadNetworkChangesPbsProjection:All";
+        public const string RoadNetworkChangesWmsWfsV2Projection = "RoadNetworkChangesWmsWfsV2Projection:All";
     }
 }
