@@ -1,3 +1,15 @@
+# [5.2.0](https://github.com/informatievlaanderen/road-registry/compare/v5.1.1...v5.2.0) (2026-07-20)
+
+
+### Bug Fixes
+
+* **2.0:** avoid Shaperon assembly for RoadSegment V2 Get example ([118fa5a](https://github.com/informatievlaanderen/road-registry/commit/118fa5ade76ca5f8bdbe88b96e49c3cc6e3fc1fe))
+
+
+### Features
+
+* **2.0:** add WMS v2 projections ([a07b4ae](https://github.com/informatievlaanderen/road-registry/commit/a07b4ae84408a46a93bfe7fa6451044dec5038dd))
+
 ## [5.1.1](https://github.com/informatievlaanderen/road-registry/compare/v5.1.0...v5.1.1) (2026-07-17)
 
 
