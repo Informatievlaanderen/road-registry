@@ -24,7 +24,6 @@ using RoadRegistry.RoadSegment.ValueObjects;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using Identificator = Be.Vlaanderen.Basisregisters.GrAr.Legacy.Identificator;
-using NetTopologySuiteExtensions = RoadRegistry.Extensions.NetTopologySuiteExtensions;
 
 public partial class RoadSegmentsController
 {
@@ -777,7 +776,7 @@ public class WegsegmentV2DetailResponseExamples : IExamplesProvider<WegsegmentV2
 
     public WegsegmentV2Detail GetExamples()
      {
-        var geometry = NetTopologySuiteExtensions.WithSrid(new LineString([
+        var geometry = Be.Vlaanderen.Basisregisters.GrAr.Common.NetTopology.GeometryExtensions.WithSrid(new LineString([
             new(243234.8929999992, 160239.3830000013),
             new(243245.9949999973, 160238.7989999987),
             new(243261.3599999994, 160239.0),
