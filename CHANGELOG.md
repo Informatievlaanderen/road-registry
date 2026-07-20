@@ -1,3 +1,10 @@
+## [5.2.1](https://github.com/informatievlaanderen/road-registry/compare/v5.2.0...v5.2.1) (2026-07-20)
+
+
+### Bug Fixes
+
+* **2.0:** WmsWfsV2 projection performance ([91c5f44](https://github.com/informatievlaanderen/road-registry/commit/91c5f440512060717d34854bb8b9f842228b2c5d))
+
 # [5.2.0](https://github.com/informatievlaanderen/road-registry/compare/v5.1.1...v5.2.0) (2026-07-20)
 
 
