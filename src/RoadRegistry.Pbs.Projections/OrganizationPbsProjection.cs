@@ -3,8 +3,8 @@ namespace RoadRegistry.Pbs.Projections;
 using System.Threading;
 using System.Threading.Tasks;
 using JasperFx.Events;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice;
+using RoadRegistry.Extensions;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using Schema;
@@ -47,7 +47,7 @@ public class OrganizationPbsProjection : RunnerDbContextRoadNetworkChangesProjec
         context.OrganizationCache.Add(new OrganizationCacheRecord
         {
             OrganisatieId = organisatieId,
-            Naam = name,
+            Naam = name?.WithMaxLength(OrganizationName.MaxLength),
             OvoCode = ovoCode
         });
         return Task.CompletedTask;
@@ -62,7 +62,7 @@ public class OrganizationPbsProjection : RunnerDbContextRoadNetworkChangesProjec
         }
         if (name is not null)
         {
-            cache.Naam = name;
+            cache.Naam = name.WithMaxLength(OrganizationName.MaxLength);
         }
         if (ovoCode is not null)
         {
