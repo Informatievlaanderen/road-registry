@@ -1,3 +1,10 @@
+# [5.3.0](https://github.com/informatievlaanderen/road-registry/compare/v5.2.3...v5.3.0) (2026-07-23)
+
+
+### Features
+
+* **2.0:** store WmsWfsV2 Wegsegmenten street-name and maintainer labels ([cd9d56a](https://github.com/informatievlaanderen/road-registry/commit/cd9d56af28a640d5efa907c45ce34a9ff400c544))
+
 ## [5.2.3](https://github.com/informatievlaanderen/road-registry/compare/v5.2.2...v5.2.3) (2026-07-23)
 
 
