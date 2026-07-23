@@ -27,8 +27,14 @@ public class DerivedRoadSegmentRecord
     public string? LBLWEGCAT { get; set; }
     public int? LSTRNMID { get; set; }
     public int? RSTRNMID { get; set; }
+    public string? LSTRNM { get; set; }
+    public string? RSTRNM { get; set; }
+    public string? STRNM { get; set; }
     public string? LBEHEER { get; set; }
     public string? RBEHEER { get; set; }
+    public string? LBLLBEHEER { get; set; }
+    public string? LBLRBEHEER { get; set; }
+    public string? LBLBEHEER { get; set; }
     public int? TOEGANG { get; set; }
     public string? LBLTOEGANG { get; set; }
     public int? VERHARDING { get; set; }
@@ -60,6 +66,12 @@ public class DerivedRoadSegmentRecordConfiguration : IEntityTypeConfiguration<De
         b.Property(p => p.LBLWEGCAT).HasColumnType("varchar(64)");
         b.Property(p => p.LBEHEER).HasColumnType("varchar(18)");
         b.Property(p => p.RBEHEER).HasColumnType("varchar(18)");
+        b.Property(p => p.LSTRNM).HasColumnType("varchar(255)");
+        b.Property(p => p.RSTRNM).HasColumnType("varchar(255)");
+        b.Property(p => p.STRNM).HasColumnType("varchar(512)");
+        b.Property(p => p.LBLLBEHEER).HasColumnType("varchar(64)");
+        b.Property(p => p.LBLRBEHEER).HasColumnType("varchar(64)");
+        b.Property(p => p.LBLBEHEER).HasColumnType("varchar(32)");
         b.Property(p => p.LBLTOEGANG).HasColumnType("varchar(64)");
         b.Property(p => p.LBLVERHARD).HasColumnType("varchar(64)");
         b.Property(p => p.EUNUMMERS).HasColumnType("varchar(255)");
@@ -81,5 +93,16 @@ public class DerivedRoadSegmentRecordConfiguration : IEntityTypeConfiguration<De
         b.HasIndex(p => p.FIETSHEEN);
         b.HasIndex(p => p.FIETSTERUG);
         b.HasIndex(p => p.VOETGANGER);
+
+        // The denormalized street name / maintainer label columns are indexed so WMS layers can filter/style on them.
+        b.HasIndex(p => p.STRNM);
+        b.HasIndex(p => p.LBLBEHEER);
+
+        // The reference-id/code columns are indexed so a street-name or organization rename can refresh the affected
+        // derived rows without scanning the whole table.
+        b.HasIndex(p => p.LSTRNMID);
+        b.HasIndex(p => p.RSTRNMID);
+        b.HasIndex(p => p.LBEHEER);
+        b.HasIndex(p => p.RBEHEER);
     }
 }

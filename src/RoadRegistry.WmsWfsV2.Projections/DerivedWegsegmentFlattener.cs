@@ -25,7 +25,7 @@ internal static class DerivedWegsegmentFlattener
     public static List<DerivedRoadSegmentRecord> Flatten(
         int segId,
         Geometry geometry,
-        int? status, string lblStatus, int? method, string lblMethod, int? beginNodeId, int? endNodeId,
+        int? status, string? lblStatus, int? method, string? lblMethod, int? beginNodeId, int? endNodeId,
         IReadOnlyList<RoadSegmentMorphologyAttributeRecord> morphology,
         IReadOnlyList<RoadSegmentCategoryAttributeRecord> category,
         IReadOnlyList<RoadSegmentAccessRestrictionAttributeRecord> access,
