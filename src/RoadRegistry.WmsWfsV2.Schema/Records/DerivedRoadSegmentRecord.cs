@@ -27,16 +27,11 @@ public class DerivedRoadSegmentRecord
     public string? LBLWEGCAT { get; set; }
     public int? LSTRNMID { get; set; }
     public int? RSTRNMID { get; set; }
-    // Denormalized street-name labels (resolved from StraatnaamCache at projection time and kept in sync when a street
-    // name is renamed/removed). LSTRNM/RSTRNM are the left/right Dutch names; STRNM is the combined display label.
     public string? LSTRNM { get; set; }
     public string? RSTRNM { get; set; }
     public string? STRNM { get; set; }
     public string? LBEHEER { get; set; }
     public string? RBEHEER { get; set; }
-    // Denormalized maintainer organization names (left/right) and the maintainer category label, all resolved from the
-    // OrganisatieCache at projection time and kept in sync when an organization is renamed/removed. Storing the names
-    // lets the WMS view read everything from this table without a join.
     public string? LBLLBEHEER { get; set; }
     public string? LBLRBEHEER { get; set; }
     public string? LBLBEHEER { get; set; }
