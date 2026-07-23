@@ -1,3 +1,10 @@
+## [5.2.2](https://github.com/informatievlaanderen/road-registry/compare/v5.2.1...v5.2.2) (2026-07-23)
+
+
+### Bug Fixes
+
+* **2.0:** mark Organization/StreetName events with ICreatedEvent for PBS/WMSWFSV2 projection performance ([57b56bb](https://github.com/informatievlaanderen/road-registry/commit/57b56bb1e3d849c7117c48624c7bf68baf9a27fc))
+
 ## [5.2.1](https://github.com/informatievlaanderen/road-registry/compare/v5.2.0...v5.2.1) (2026-07-20)
 
 
