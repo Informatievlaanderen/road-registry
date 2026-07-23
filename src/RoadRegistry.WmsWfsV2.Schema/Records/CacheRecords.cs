@@ -28,7 +28,7 @@ public class StreetNameCacheRecordConfiguration : IEntityTypeConfiguration<Stree
 // organization events. Holds ALL organizations so a segment's maintainer-id columns can be resolved to a name.
 public class OrganizationCacheRecord
 {
-    public string? OrganisatieId { get; set; }
+    public string OrganisatieId { get; set; }
     public string? Naam { get; set; }
     public string? OvoCode { get; set; }
     public bool IsWegbeheerder { get; set; }

@@ -12,18 +12,13 @@ using RoadRegistry.Infrastructure.MartenDb.Projections;
 using Schema;
 using Schema.Records;
 
-// StraatnaamCache (id -> Dutch name) fills the derived-segment LSTRNM / RSTRNM / STRNM label columns. When a street name
-// is renamed or removed those denormalized labels are refreshed on every derived row that references the id.
 public class StreetNameWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context>
 {
     public StreetNameWmsWfsV2Projection()
     {
-        // Created event: the street name does not exist yet, so insert directly without a lookup. Segments referencing it
-        // are derived afterwards (or corrected on their next change), so there is nothing to refresh here.
         When<IEvent<StreetNameWasCreated>>((context, e, ct) =>
             Insert(context, e.Data.StreetNameId.ToInt32(), e.Data.DutchName, ct));
 
-        // Modify: update the cache entry and refresh the denormalized labels on the segments that use it.
         When<IEvent<StreetNameWasModified>>(async (context, e, ct) =>
         {
             var id = e.Data.StreetNameId.ToInt32();
@@ -31,8 +26,6 @@ public class StreetNameWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPro
             await RefreshStreetNameLabels(context, id, e.Data.DutchName, ct);
         });
 
-        // Removal/rename of a street name leaves the derived labels untouched: the affected road segments each get their
-        // own RoadSegmentStreetNameIdWasChanged event, which re-derives the segment and refreshes the labels then.
         When<IEvent<StreetNameWasRemoved>>((context, e, ct) =>
             Remove(context, e.Data.StreetNameId.ToInt32(), ct));
 
@@ -97,7 +90,7 @@ public class StreetNameWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPro
             var rName = NameFor(r.RSTRNMID);
             r.LSTRNM = lName;
             r.RSTRNM = rName;
-            r.STRNM = WmsWfsV2DerivedLabels.Strnm(r.LSTRNMID, r.RSTRNMID, lName, rName);
+            r.STRNM = WmsWfsV2DerivedLabels.BuildStreetNameLabel(r.LSTRNMID, r.RSTRNMID, lName, rName);
         }
     }
 }

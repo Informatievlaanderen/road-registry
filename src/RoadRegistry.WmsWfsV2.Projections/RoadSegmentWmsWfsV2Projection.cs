@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using JasperFx.Events;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using RoadRegistry.Extensions;
 using RoadRegistry.RoadSegment.Events.V1;
 using RoadRegistry.RoadSegment.Events.V2;
@@ -416,13 +415,13 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             a.CarTrafficDirection, a.BikeTrafficDirection, a.PedestrianTrafficDirection,
             euNummers, nwNummers,
             normal.CREATIE, normal.VERSIE);
-        await ApplyLabels(context, flatRows, ct);
+        await ApplyStreetNameAndOrganizationLabels(context, flatRows, ct);
         context.DerivedRoadSegments.AddRange(flatRows);
     }
 
     // Resolve the denormalized street-name (LSTRNM/RSTRNM/STRNM) and maintainer (LBLBEHEER) labels for freshly derived
     // rows from the street-name and organization caches, so the WMS view can read them straight from the table.
-    private static async Task ApplyLabels(WmsWfsV2Context context, IReadOnlyList<DerivedRoadSegmentRecord> rows, CancellationToken ct)
+    private static async Task ApplyStreetNameAndOrganizationLabels(WmsWfsV2Context context, IReadOnlyList<DerivedRoadSegmentRecord> rows, CancellationToken ct)
     {
         var streetNameIds = rows
             .SelectMany(r => new[] { r.LSTRNMID, r.RSTRNMID })
@@ -450,13 +449,13 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             var rName = r.RSTRNMID is int rid && streetNames.TryGetValue(rid, out var rn) ? rn : null;
             r.LSTRNM = lName;
             r.RSTRNM = rName;
-            r.STRNM = WmsWfsV2DerivedLabels.Strnm(r.LSTRNMID, r.RSTRNMID, lName, rName);
+            r.STRNM = WmsWfsV2DerivedLabels.BuildStreetNameLabel(r.LSTRNMID, r.RSTRNMID, lName, rName);
 
             var lOrg = r.LBEHEER is not null && orgNames.TryGetValue(r.LBEHEER, out var lo) ? lo : null;
             var rOrg = r.RBEHEER is not null && orgNames.TryGetValue(r.RBEHEER, out var ro) ? ro : null;
             r.LBLLBEHEER = lOrg;
             r.LBLRBEHEER = rOrg;
-            r.LBLBEHEER = WmsWfsV2DerivedLabels.LblBeheer(r.STATUS, r.LBEHEER, r.RBEHEER, lOrg, rOrg);
+            r.LBLBEHEER = WmsWfsV2DerivedLabels.BuildMaintainerCategoryLabel(r.STATUS, r.LBEHEER, r.RBEHEER, lOrg, rOrg);
         }
     }
 

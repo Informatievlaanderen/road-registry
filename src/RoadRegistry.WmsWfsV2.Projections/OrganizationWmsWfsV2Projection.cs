@@ -12,27 +12,25 @@ using RoadRegistry.Infrastructure.MartenDb.Projections;
 using Schema;
 using Schema.Records;
 
-// OrganisatieCache (id -> name) resolves the maintainer labels. The derived-segment LBLBEHEER category depends on the
-// organization name, so a rename/removal refreshes that column on every segment maintained by the organization.
 public class OrganizationWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context>
 {
     public OrganizationWmsWfsV2Projection()
     {
-        // Created events: the organization does not exist yet, so insert directly without a lookup. Segments referencing
-        // it are derived afterwards, so there is nothing to refresh here.
         When<IEvent<OrganizationWasImported>>((context, e, ct) =>
             Insert(context, e.Data.OrganizationId.ToString(), e.Data.Name, null, ct));
 
         When<IEvent<OrganizationWasCreated>>((context, e, ct) =>
             Insert(context, e.Data.OrganizationId.ToString(), e.Data.Name, e.Data.OvoCode, ct));
 
-        // Modify: update the cache and refresh the maintainer label on the segments it maintains (the name feeds the
-        // LBLBEHEER category).
         When<IEvent<OrganizationWasModified>>(async (context, e, ct) =>
         {
             var id = e.Data.OrganizationId.ToString();
             await Update(context, id, e.Data.Name, e.Data.OvoCode, e.Data.IsMaintainer, ct);
-            await RefreshBeheerLabels(context, id, e.Data.Name, ct);
+
+            if (e.Data.Name is not null)
+            {
+                await RefreshBeheerLabels(context, id, e.Data.Name, ct);
+            }
         });
 
         When<IEvent<OrganizationWasRemoved>>(async (context, e, ct) =>
@@ -49,7 +47,6 @@ public class OrganizationWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesP
         });
     }
 
-    // A created organization: insert the cache row directly, without a lookup.
     private static Task Insert(WmsWfsV2Context context, string organisatieId, string? name, string? ovoCode, CancellationToken ct)
     {
         context.OrganizationCache.Add(new OrganizationCacheRecord
@@ -61,8 +58,6 @@ public class OrganizationWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesP
         return Task.CompletedTask;
     }
 
-    // A modify: update the existing organization cache. A null argument leaves the existing cached value unchanged, so
-    // events that only carry part of the organization state keep the rest intact.
     private static async Task Update(WmsWfsV2Context context, string organisatieId, string? name, string? ovoCode, bool? isMaintainer, CancellationToken ct)
     {
         var cache = await context.OrganizationCache.FindAsync([organisatieId], ct);
@@ -117,7 +112,7 @@ public class OrganizationWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesP
             var rOrg = NameFor(r.RBEHEER);
             r.LBLLBEHEER = lOrg;
             r.LBLRBEHEER = rOrg;
-            r.LBLBEHEER = WmsWfsV2DerivedLabels.LblBeheer(r.STATUS, r.LBEHEER, r.RBEHEER, lOrg, rOrg);
+            r.LBLBEHEER = WmsWfsV2DerivedLabels.BuildMaintainerCategoryLabel(r.STATUS, r.LBEHEER, r.RBEHEER, lOrg, rOrg);
         }
     }
 }
