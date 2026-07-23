@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using RoadRegistry.BackOffice;
 
-public record StreetNameWasCreated : IMartenEvent
+public record StreetNameWasCreated : IMartenEvent, ICreatedEvent
 {
     public const string EventName = "StreetNameWasCreated"; // BE CAREFUL CHANGING THIS!!
 

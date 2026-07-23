@@ -14,10 +14,10 @@ public class StreetNamePbsProjection : RunnerDbContextRoadNetworkChangesProjecti
     public StreetNamePbsProjection()
     {
         When<IEvent<StreetNameWasCreated>>((context, e, ct) =>
-            Upsert(context, e.Data.StreetNameId.ToInt32(), e.Data.DutchName, ct));
+            Insert(context, e.Data.StreetNameId.ToInt32(), e.Data.DutchName, ct));
 
         When<IEvent<StreetNameWasModified>>((context, e, ct) =>
-            Upsert(context, e.Data.StreetNameId.ToInt32(), e.Data.DutchName, ct));
+            Update(context, e.Data.StreetNameId.ToInt32(), e.Data.DutchName, ct));
 
         When<IEvent<StreetNameWasRemoved>>(async (context, e, ct) =>
         {
@@ -40,15 +40,19 @@ public class StreetNamePbsProjection : RunnerDbContextRoadNetworkChangesProjecti
         });
     }
 
-    private static async System.Threading.Tasks.Task Upsert(PbsContext context, int id, string? naam, System.Threading.CancellationToken ct)
+    private static System.Threading.Tasks.Task Insert(PbsContext context, int id, string? naam, System.Threading.CancellationToken ct)
+    {
+        context.StreetNameCache.Add(new StreetNameCacheRecord { StraatnaamId = id, Naam = naam });
+        return System.Threading.Tasks.Task.CompletedTask;
+    }
+
+    private static async System.Threading.Tasks.Task Update(PbsContext context, int id, string? naam, System.Threading.CancellationToken ct)
     {
         var record = await context.StreetNameCache.FindAsync([id], ct);
-        var isNew = record is null;
-        record ??= new StreetNameCacheRecord { StraatnaamId = id };
-        record.Naam = naam;
-        if (isNew)
+        if (record is null)
         {
-            context.StreetNameCache.Add(record);
+            return;
         }
+        record.Naam = naam;
     }
 }
