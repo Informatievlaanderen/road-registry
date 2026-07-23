@@ -1,3 +1,10 @@
+## [5.2.3](https://github.com/informatievlaanderen/road-registry/compare/v5.2.2...v5.2.3) (2026-07-23)
+
+
+### Bug Fixes
+
+* **2.0:** use OrganizationName max length for Organization Pbs/WmsWfsV2 projections ([d75f4b1](https://github.com/informatievlaanderen/road-registry/commit/d75f4b1ee5146640d79fe014ba9b1b5cf27e3159))
+
 ## [5.2.2](https://github.com/informatievlaanderen/road-registry/compare/v5.2.1...v5.2.2) (2026-07-23)
 
 
