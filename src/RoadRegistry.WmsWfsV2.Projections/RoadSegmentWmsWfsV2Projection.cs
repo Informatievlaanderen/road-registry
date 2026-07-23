@@ -416,7 +416,48 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             a.CarTrafficDirection, a.BikeTrafficDirection, a.PedestrianTrafficDirection,
             euNummers, nwNummers,
             normal.CREATIE, normal.VERSIE);
+        await ApplyLabels(context, flatRows, ct);
         context.DerivedRoadSegments.AddRange(flatRows);
+    }
+
+    // Resolve the denormalized street-name (LSTRNM/RSTRNM/STRNM) and maintainer (LBLBEHEER) labels for freshly derived
+    // rows from the street-name and organization caches, so the WMS view can read them straight from the table.
+    private static async Task ApplyLabels(WmsWfsV2Context context, IReadOnlyList<DerivedRoadSegmentRecord> rows, CancellationToken ct)
+    {
+        var streetNameIds = rows
+            .SelectMany(r => new[] { r.LSTRNMID, r.RSTRNMID })
+            .Where(x => x is not null)
+            .Select(x => x!.Value)
+            .Distinct()
+            .ToList();
+        var orgIds = rows
+            .SelectMany(r => new[] { r.LBEHEER, r.RBEHEER })
+            .Where(x => x is not null)
+            .Select(x => x!)
+            .Distinct()
+            .ToList();
+
+        var streetNames = streetNameIds.Count == 0
+            ? new Dictionary<int, string?>()
+            : await context.StreetNameCache.Where(x => streetNameIds.Contains(x.StraatnaamId)).ToDictionaryAsync(x => x.StraatnaamId, x => x.Naam, ct);
+        var orgNames = orgIds.Count == 0
+            ? new Dictionary<string, string?>()
+            : await context.OrganizationCache.Where(x => orgIds.Contains(x.OrganisatieId)).ToDictionaryAsync(x => x.OrganisatieId!, x => x.Naam, ct);
+
+        foreach (var r in rows)
+        {
+            var lName = r.LSTRNMID is int lid && streetNames.TryGetValue(lid, out var ln) ? ln : null;
+            var rName = r.RSTRNMID is int rid && streetNames.TryGetValue(rid, out var rn) ? rn : null;
+            r.LSTRNM = lName;
+            r.RSTRNM = rName;
+            r.STRNM = WmsWfsV2DerivedLabels.Strnm(r.LSTRNMID, r.RSTRNMID, lName, rName);
+
+            var lOrg = r.LBEHEER is not null && orgNames.TryGetValue(r.LBEHEER, out var lo) ? lo : null;
+            var rOrg = r.RBEHEER is not null && orgNames.TryGetValue(r.RBEHEER, out var ro) ? ro : null;
+            r.LBLLBEHEER = lOrg;
+            r.LBLRBEHEER = rOrg;
+            r.LBLBEHEER = WmsWfsV2DerivedLabels.LblBeheer(r.STATUS, r.LBEHEER, r.RBEHEER, lOrg, rOrg);
+        }
     }
 
     // Distinct, alphabetically sorted road numbers joined with " / " (null when there are none).
