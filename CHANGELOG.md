@@ -1,3 +1,10 @@
+## [5.3.1](https://github.com/informatievlaanderen/road-registry/compare/v5.3.0...v5.3.1) (2026-07-23)
+
+
+### Bug Fixes
+
+* **projector:** skip ConnectionString healthchecks when empty ([3ae9875](https://github.com/informatievlaanderen/road-registry/commit/3ae9875e26c19250a5c9f4fba9c36dc075f2fe65))
+
 # [5.3.0](https://github.com/informatievlaanderen/road-registry/compare/v5.2.3...v5.3.0) (2026-07-23)
 
 
