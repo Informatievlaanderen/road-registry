@@ -15,13 +15,14 @@ public class OrganizationPbsProjection : RunnerDbContextRoadNetworkChangesProjec
     public OrganizationPbsProjection()
     {
         When<IEvent<OrganizationWasImported>>((context, e, ct) =>
-            Upsert(context, e.Data.OrganizationId.ToString(), e.Data.Name, null, null, ct));
+            Insert(context, e.Data.OrganizationId.ToString(), e.Data.Name, null, ct));
 
         When<IEvent<OrganizationWasCreated>>((context, e, ct) =>
-            Upsert(context, e.Data.OrganizationId.ToString(), e.Data.Name, e.Data.OvoCode, null, ct));
+            Insert(context, e.Data.OrganizationId.ToString(), e.Data.Name, e.Data.OvoCode, ct));
 
+        // Modify: update the existing organization; nothing to insert.
         When<IEvent<OrganizationWasModified>>((context, e, ct) =>
-            Upsert(context, e.Data.OrganizationId.ToString(), e.Data.Name, e.Data.OvoCode, e.Data.IsMaintainer, ct));
+            Update(context, e.Data.OrganizationId.ToString(), e.Data.Name, e.Data.OvoCode, e.Data.IsMaintainer, ct));
 
         When<IEvent<OrganizationWasRemoved>>(async (context, e, ct) =>
         {
@@ -41,13 +42,24 @@ public class OrganizationPbsProjection : RunnerDbContextRoadNetworkChangesProjec
         });
     }
 
-    // Upsert the organization cache (all organizations) and reconcile the wegbeheerder code list. A null argument leaves
-    // the existing cached value unchanged, so events that only carry part of the organization state keep the rest intact.
-    private static async Task Upsert(PbsContext context, string organisatieId, string? name, string? ovoCode, bool? isMaintainer, CancellationToken ct)
+    private static Task Insert(PbsContext context, string organisatieId, string? name, string? ovoCode, CancellationToken ct)
+    {
+        context.OrganizationCache.Add(new OrganizationCacheRecord
+        {
+            OrganisatieId = organisatieId,
+            Naam = name,
+            OvoCode = ovoCode
+        });
+        return Task.CompletedTask;
+    }
+
+    private static async Task Update(PbsContext context, string organisatieId, string? name, string? ovoCode, bool? isMaintainer, CancellationToken ct)
     {
         var cache = await context.OrganizationCache.FindAsync([organisatieId], ct);
-        var isNew = cache is null;
-        cache ??= new OrganizationCacheRecord { OrganisatieId = organisatieId };
+        if (cache is null)
+        {
+            return;
+        }
         if (name is not null)
         {
             cache.Naam = name;
@@ -59,10 +71,6 @@ public class OrganizationPbsProjection : RunnerDbContextRoadNetworkChangesProjec
         if (isMaintainer is not null)
         {
             cache.IsWegbeheerder = isMaintainer.Value;
-        }
-        if (isNew)
-        {
-            context.OrganizationCache.Add(cache);
         }
 
         await SyncCodeList(context, cache, ct);

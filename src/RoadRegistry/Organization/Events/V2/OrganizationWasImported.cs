@@ -6,7 +6,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using RoadRegistry.BackOffice;
 using RoadRegistry.ValueObjects;
 
-public record OrganizationWasImported : IMartenEvent
+public record OrganizationWasImported : IMartenEvent, ICreatedEvent
 {
     public const string EventName = "OrganizationWasImported"; // BE CAREFUL CHANGING THIS!!
 

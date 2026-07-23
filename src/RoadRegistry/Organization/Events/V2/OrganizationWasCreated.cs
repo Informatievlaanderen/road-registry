@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using RoadRegistry.BackOffice;
 
-public record OrganizationWasCreated : IMartenEvent
+public record OrganizationWasCreated : IMartenEvent, ICreatedEvent
 {
     public const string EventName = "OrganizationWasCreated"; // BE CAREFUL CHANGING THIS!!
 
