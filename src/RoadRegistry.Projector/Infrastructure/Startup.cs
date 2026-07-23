@@ -105,7 +105,7 @@ public class Startup
                         var connectionStrings = _configuration
                             .GetSection("ConnectionStrings")
                             .GetChildren()
-                            .Where(x => x.Value is not null);
+                            .Where(x => !string.IsNullOrEmpty(x.Value) && x.Value != "TODO");
 
                         foreach (var connectionString in connectionStrings)
                         {
