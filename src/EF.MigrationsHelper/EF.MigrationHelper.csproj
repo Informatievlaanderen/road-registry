@@ -42,5 +42,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <!-- Force VisualBasic.Workspaces up to the same 5.0.0 Roslyn as EF Core Design's core, so the migrations
+         scaffolder's AdhocWorkspace loads a consistent set (otherwise it crashes on the 4.14.0 VB Workspaces). -->
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Workspaces" />
   </ItemGroup>
 </Project>
