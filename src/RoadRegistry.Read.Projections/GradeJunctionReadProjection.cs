@@ -39,6 +39,23 @@ public class GradeJunctionReadProjection : MartenRoadNetworkChangesProjection
 
             await UpdateRoadSegmentGradeJunctionIds(session, junction.GradeJunctionId, (null, null), (junction.RoadSegmentId1, junction.RoadSegmentId2), ct);
         });
+        When<IEvent<GradeJunctionWasModified>>(async (session, e, ct) =>
+        {
+            var junction = await session.LoadAsync<GradeJunctionReadItem>(e.Data.GradeJunctionId, ct);
+            if (junction is null)
+            {
+                throw new InvalidOperationException($"No grade junction found for Id {e.Data.GradeJunctionId}");
+            }
+
+            var originalRoadSegmentIds = ((RoadSegmentId?)junction.RoadSegmentId1, (RoadSegmentId?)junction.RoadSegmentId2);
+
+            junction.LastModified = e.Data.Provenance.ToEventTimestamp();
+            junction.RoadSegmentId1 = e.Data.RoadSegmentId1 ?? junction.RoadSegmentId1;
+            junction.RoadSegmentId2 = e.Data.RoadSegmentId2 ?? junction.RoadSegmentId2;
+            session.Store(junction);
+
+            await UpdateRoadSegmentGradeJunctionIds(session, junction.GradeJunctionId, originalRoadSegmentIds, (junction.RoadSegmentId1, junction.RoadSegmentId2), ct);
+        });
         When<IEvent<GradeJunctionWasRemoved>>(async (session, e, ct) =>
         {
             var junction = await session.LoadAsync<GradeJunctionReadItem>(e.Data.GradeJunctionId, ct);

@@ -84,7 +84,7 @@ public partial class RoadSegmentsController
 
             var cutPosition = GeometryTranslator.ParseGmlPoint(request.Knippositie);
 
-            var sqsRequest = new SplitRoadSegmentV2SqsRequest
+            var sqsRequest = new SplitRoadSegmentSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Update),
                 RoadSegmentId = new RoadSegmentId(id),

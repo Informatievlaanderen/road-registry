@@ -81,7 +81,7 @@ public class RoadNodeReadProjection : MartenRoadNetworkChangesProjection
             {
                 RoadNodeId = e.Data.RoadNodeId,
                 Geometry = ProjectGeometry(e.Data.Geometry, isV2: true),
-                Type = null,
+                Type = e.Data.Type?.ToString(),
                 Grensknoop = e.Data.Grensknoop,
                 RoadSegmentIds = [],
                 Origin = e.Data.Provenance.ToEventTimestamp(),

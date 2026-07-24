@@ -49,6 +49,8 @@ public partial class ScopedRoadNetwork
         {
             problems += new RoadSegmentSplitNotCompletedInwinning(roadSegmentId);
         }
+        problems.ThrowIfError();
+
         if (!SplitAllowedStatuses.Contains(segment.Status))
         {
             problems += new RoadSegmentSplitStatusNotValid(roadSegmentId);
@@ -128,14 +130,15 @@ public partial class ScopedRoadNetwork
         // Ensure spatial indexes are built once at the start for optimal performance
         RebuildSpatialIndexes(logger);
 
-        // For a realized segment a new road node (validatieknoop) is inserted at the cut position.
+        // For a realized segment a new 'validatieknoop' road node is inserted at the cut position.
         if (originalStatus == RoadSegmentStatusV2.Gerealiseerd)
         {
             problems += AddRoadNode(new AddRoadNodeChange
             {
                 TemporaryId = new RoadNodeId(1),
                 Geometry = RoadNodeGeometry.Create(lineString.Factory.CreatePoint(snappedCoordinate).WithSrid(segment.Geometry.SRID)),
-                Grensknoop = false
+                Grensknoop = false,
+                Type = RoadNodeTypeV2.Validatieknoop
             }, idGenerator, context);
             problems.ThrowIfError();
         }
@@ -198,13 +201,11 @@ public partial class ScopedRoadNetwork
             resultRoadSegmentIds = [firstPartRoadSegmentId, secondPartRoadSegmentId];
         }
 
+        // A split performs very specific mutations, so the (grade-separated and grade) junctions connected to the
+        // original segment are re-pointed explicitly to the correct new part rather than recomputed. The road node
+        // topology verification is intentionally not run, so the newly inserted 'validatieknoop' is not merged away.
         ReassignGradeSeparatedJunctions(roadSegmentId, firstPartRoadSegmentId, secondPartRoadSegmentId, context);
-
-        // A split performs very specific mutations; only the grade (separated) junctions need to be
-        // re-verified. The road node topology verification is intentionally not run here, so the newly
-        // inserted validatieknoop is not merged away during this operation.
-        problems += VerifyAndUpdateJunctions(idGenerator, context);
-        problems.ThrowIfError();
+        ReassignGradeJunctions(roadSegmentId, firstPartRoadSegmentId, secondPartRoadSegmentId, context);
 
         return resultRoadSegmentIds;
     }

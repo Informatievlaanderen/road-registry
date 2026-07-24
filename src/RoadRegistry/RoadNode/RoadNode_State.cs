@@ -53,7 +53,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         var roadNode = new RoadNode(@event.RoadNodeId)
         {
             Geometry = @event.Geometry,
-            Type = null,
+            Type = @event.Type,
             Grensknoop = @event.Grensknoop
         };
         roadNode.UncommittedEvents.Add(@event);

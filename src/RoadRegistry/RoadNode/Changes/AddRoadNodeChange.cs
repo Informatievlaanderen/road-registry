@@ -8,4 +8,5 @@ public sealed record AddRoadNodeChange : IRoadNetworkChange
     public RoadNodeId? OriginalId { get; init; }
     public required RoadNodeGeometry Geometry { get; init; }
     public bool Grensknoop { get; init; }
+    public RoadNodeTypeV2? Type { get; init; }
 }

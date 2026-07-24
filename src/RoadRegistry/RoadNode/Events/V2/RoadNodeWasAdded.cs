@@ -13,6 +13,8 @@ public record RoadNodeWasAdded: IMartenEvent, ICreatedEvent
     public RoadNodeId? OriginalId { get; init; }
     public required RoadNodeGeometry Geometry { get; init; }
     public required bool Grensknoop { get; init; }
+    // Optional road node type; set when the caller already knows the type (e.g. a split inserts an 'echte knoop').
+    public RoadNodeTypeV2? Type { get; init; }
 
     public required ProvenanceData Provenance { get; init; }
 

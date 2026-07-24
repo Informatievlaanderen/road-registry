@@ -244,6 +244,21 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
+    public void Project(IEvent<GradeJunctionWasModified> e, IDocumentOperations ops)
+    {
+        if (e.Data.RoadSegmentId1 is null && e.Data.RoadSegmentId2 is null)
+        {
+            return;
+        }
+
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_gradejunction(?, ?, ?, ?);",
+            e.Data.GradeJunctionId.ToInt32(),
+            e.Timestamp,
+            e.Data.RoadSegmentId1?.ToInt32() ?? 0,
+            e.Data.RoadSegmentId2?.ToInt32() ?? 0
+        );
+    }
+
     public void Project(IEvent<GradeJunctionWasRemoved> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradejunction(?, ?);",

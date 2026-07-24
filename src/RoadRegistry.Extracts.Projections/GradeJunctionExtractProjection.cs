@@ -35,6 +35,20 @@ public class GradeJunctionExtractProjection : MartenRoadNetworkChangesProjection
             });
             return Task.CompletedTask;
         });
+        When<IEvent<GradeJunctionWasModified>>(async (session, e, _) =>
+        {
+            var junction = await session.LoadAsync<GradeJunctionExtractItem>(e.Data.GradeJunctionId);
+            if (junction is null)
+            {
+                throw new InvalidOperationException($"No grade junction found for Id {e.Data.GradeJunctionId}");
+            }
+
+            junction.LastModified = e.Data.Provenance.ToEventTimestamp();
+            junction.RoadSegmentId1 = e.Data.RoadSegmentId1 ?? junction.RoadSegmentId1;
+            junction.RoadSegmentId2 = e.Data.RoadSegmentId2 ?? junction.RoadSegmentId2;
+
+            session.Store(junction);
+        });
         When<IEvent<GradeJunctionWasRemoved>>(async (session, e, _) =>
         {
             var junction = await session.LoadAsync<GradeJunctionExtractItem>(e.Data.GradeJunctionId);

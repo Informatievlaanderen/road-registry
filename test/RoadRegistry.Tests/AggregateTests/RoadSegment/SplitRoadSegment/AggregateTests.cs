@@ -163,7 +163,7 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
-    public void WhenSplittingRealizedSegment_ThenAValidationNodeIsAddedAtTheCutPosition()
+    public void WhenSplittingRealizedSegment_ThenANodeIsAddedAtTheCutPosition()
     {
         // Arrange
         var roadNetwork = BuildNetworkWithRealizedSegment();
@@ -176,6 +176,26 @@ public class AggregateTests : AggregateTestBase
         var cut = new Coordinate(50.0, 50.0);
         roadNetwork.GetNonRemovedRoadNodes()
             .Should().Contain(x => x.Geometry.Value.Coordinate.Equals2D(cut));
+    }
+
+    [Fact]
+    public void WhenSplittingRealizedSegment_ThenTheAddedNodeIsAValidatieknoop()
+    {
+        // Arrange
+        var roadNetwork = BuildNetworkWithRealizedSegment();
+        var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
+
+        // Act
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+
+        // Assert
+        var originalNodeIds = new[] { TestData.Segment1StartNodeAdded.RoadNodeId, TestData.Segment1EndNodeAdded.RoadNodeId };
+        var newNode = roadNetwork.GetNonRemovedRoadNodes().Single(x => !originalNodeIds.Contains(x.RoadNodeId));
+
+        newNode.Type.Should().Be(RoadNodeTypeV2.Validatieknoop);
+
+        var addedEvent = newNode.GetChanges().OfType<RoadNodeWasAdded>().Single();
+        addedEvent.Type.Should().Be(RoadNodeTypeV2.Validatieknoop);
     }
 
     [Fact]

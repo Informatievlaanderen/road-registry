@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.V2.WhenSplittingRoadSegmentV2;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.V2.WhenSplittingRoadSegmentsByJunctionV2;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -6,21 +6,27 @@ using Autofac;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using FluentAssertions;
 using Marten;
 using Moq;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Implementation;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.SplitRoadSegment;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.SplitRoadSegmentsByJunction;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
+using RoadRegistry.Extensions;
+using RoadRegistry.GradeJunction;
+using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.Infrastructure.MartenDb.Store;
 using RoadRegistry.RoadNetwork.Schema;
+using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
@@ -31,25 +37,27 @@ using RoadRegistry.Tests.Framework;
 using RoadRegistry.ValueObjects;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
+using ProvenanceData = Be.Vlaanderen.Basisregisters.GrAr.Provenance.ProvenanceData;
 using RoadNode = RoadRegistry.RoadNode.RoadNode;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 [Collection("runsequential")]
-public class GivenRoadSegment : BackOfficeLambdaTest
+public class GivenTwoCrossingRoadSegments : BackOfficeLambdaTest
 {
     private readonly RoadNetworkTestDataV2 _testData = new();
 
-    public GivenRoadSegment(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    public GivenTwoCrossingRoadSegments(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
     }
 
+    private RoadSegmentId Segment1Id => _testData.Segment1Added.RoadSegmentId;
+    private RoadSegmentId Segment2Id => new(_testData.Segment1Added.RoadSegmentId.ToInt32() + 1);
+
     [Fact]
-    public async Task WhenSplittingRealizedRoadSegment_ThenTicketCompletedWithTwoRoadSegments()
+    public async Task WhenSplittingByJunction_ThenTicketCompletedWithFourRoadSegments()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
-        var roadNetworkRepository = new FakeRoadNetworkRepository(store,
-            new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [new RoadSegmentId(1)], [], []),
-            BuildSeedNetwork);
+        var roadNetworkRepository = new FakeRoadNetworkRepository(store, id => BuildCrossingNetwork(id));
 
         List<ETagResponse> completedResult = null;
         TicketingMock
@@ -57,10 +65,10 @@ public class GivenRoadSegment : BackOfficeLambdaTest
             .Callback<Guid, TicketResult, CancellationToken>((_, result, _) =>
                 completedResult = JsonConvert.DeserializeObject<List<ETagResponse>>(result.ResultAsJson!));
 
-        await HandleRequest(CreateSqsRequest(CutPosition(50, 50)), store, roadNetworkRepository);
+        await HandleRequest(CreateSqsRequest(Segment1Id, Segment2Id), store, roadNetworkRepository);
 
         completedResult.Should().NotBeNull();
-        completedResult.Should().HaveCount(2);
+        completedResult.Should().HaveCount(4);
         completedResult.Should().OnlyContain(x => x.Location.Contains("/wegsegmenten/") && !string.IsNullOrEmpty(x.ETag));
     }
 
@@ -68,11 +76,9 @@ public class GivenRoadSegment : BackOfficeLambdaTest
     public async Task WhenHandledTwiceWithSameRequest_ThenSecondResponseMatchesFirst()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
-        var roadNetworkRepository = new FakeRoadNetworkRepository(store,
-            new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [new RoadSegmentId(1)], [], []),
-            BuildSeedNetwork);
+        var roadNetworkRepository = new FakeRoadNetworkRepository(store, id => BuildCrossingNetwork(id));
 
-        var sqsRequest = CreateSqsRequest(CutPosition(50, 50));
+        var sqsRequest = CreateSqsRequest(Segment1Id, Segment2Id);
 
         var completedResults = new List<List<ETagResponse>>();
         TicketingMock
@@ -88,120 +94,106 @@ public class GivenRoadSegment : BackOfficeLambdaTest
     }
 
     [Fact]
-    public async Task WhenRoadSegmentDoesNotExist_ThenTicketError()
+    public async Task WhenNoJunctionBetweenTheSegments_ThenTicketError()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
-        var roadNetworkRepository = new FakeRoadNetworkRepository(store,
-            new RoadNetworkIds([], [], [], []),
-            id => new ScopedRoadNetwork(id));
+        var roadNetworkRepository = new FakeRoadNetworkRepository(store, id => BuildCrossingNetwork(id, withJunction: false));
 
-        await HandleRequest(CreateSqsRequest(CutPosition(50, 50)), store, roadNetworkRepository);
+        await HandleRequest(CreateSqsRequest(Segment1Id, Segment2Id), store, roadNetworkRepository);
 
-        VerifyThatTicketHasError("WegsegmentNietGevondenOfVerwijderd", "Wegsegment 1 bestaat niet of is verwijderd.");
+        VerifyThatTicketHasError("GeenKruisingTussenWegsegmenten", null);
     }
 
     [Fact]
-    public async Task WhenCutPositionTooCloseToRoadNode_ThenTicketError()
+    public async Task WhenARoadSegmentDoesNotExist_ThenTicketError()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
-        var roadNetworkRepository = new FakeRoadNetworkRepository(store,
-            new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [new RoadSegmentId(1)], [], []),
-            BuildSeedNetwork);
+        var roadNetworkRepository = new FakeRoadNetworkRepository(store, id => new ScopedRoadNetwork(id));
 
-        await HandleRequest(CreateSqsRequest(CutPosition(0.5, 0.5)), store, roadNetworkRepository);
+        await HandleRequest(CreateSqsRequest(Segment1Id, Segment2Id), store, roadNetworkRepository);
 
-        VerifyThatTicketHasError("KnippositieTeDichtBijWegknoop", null);
+        VerifyThatTicketHasError("WegsegmentNietGevondenOfVerwijderd", null);
     }
 
     [Fact]
-    public async Task WhenCutPositionTooFarFromRoadSegment_ThenTicketError()
+    public async Task WhenARoadSegmentHasInvalidStatus_ThenTicketError()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
-        var roadNetworkRepository = new FakeRoadNetworkRepository(store,
-            new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [new RoadSegmentId(1)], [], []),
-            BuildSeedNetwork);
+        var roadNetworkRepository = new FakeRoadNetworkRepository(store, id => BuildCrossingNetwork(id, segment2Status: RoadSegmentStatusV2.Gepland));
 
-        await HandleRequest(CreateSqsRequest(CutPosition(50, 60)), store, roadNetworkRepository);
+        await HandleRequest(CreateSqsRequest(Segment1Id, Segment2Id), store, roadNetworkRepository);
 
-        VerifyThatTicketHasError("KnippositieTeVerVanWegsegment", null);
+        VerifyThatTicketHasError("WegsegmentKnippenOpKruisingStatusNietCorrect", null);
     }
 
-    [Fact]
-    public async Task WhenRoadSegmentIsNotV2_ThenTicketError()
+    private ScopedRoadNetwork BuildCrossingNetwork(ScopedRoadNetworkId id, RoadSegmentStatusV2? segment2Status = null, bool withJunction = true)
     {
-        var notMigratedSegment = RoadSegment.CreateForMigration(
-            new RoadSegmentId(1),
-            _testData.Segment1Added.Geometry,
-            RoadSegmentStatusV2.Gerealiseerd,
-            new RoadNodeId(1),
-            new RoadNodeId(2));
+        var crossing = new Coordinate(50.0, 50.0);
+        var node3Coord = new Coordinate(0.0, 100.0);
+        var node4Coord = new Coordinate(100.0, 0.0);
 
-        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
-        var roadNetworkRepository = new FakeRoadNetworkRepository(store,
-            new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [new RoadSegmentId(1)], [], []),
-            id => BuildNetworkWithSegment(id, notMigratedSegment));
+        var node1 = RoadNode.Create(_testData.Segment1StartNodeAdded).WithoutChanges();
+        var node2 = RoadNode.Create(_testData.Segment1EndNodeAdded).WithoutChanges();
+        var node3 = RoadNode.Create(_testData.Segment2StartNodeAdded with { Geometry = Point(node3Coord).ToRoadNodeGeometry() }).WithoutChanges();
+        var node4 = RoadNode.Create(_testData.Segment2EndNodeAdded with { Geometry = Point(node4Coord).ToRoadNodeGeometry() }).WithoutChanges();
 
-        await HandleRequest(CreateSqsRequest(CutPosition(50, 50)), store, roadNetworkRepository);
+        var segment1 = RoadSegment.Create(_testData.Segment1Added).WithoutChanges();
+        var segment2 = RoadSegment.Create(_testData.Segment1Added with
+        {
+            RoadSegmentId = Segment2Id,
+            Status = segment2Status ?? _testData.Segment1Added.Status,
+            Geometry = LineThrough(node3Coord, crossing, node4Coord).ToRoadSegmentGeometry(),
+            StartNodeId = _testData.Segment2StartNodeAdded.RoadNodeId,
+            EndNodeId = _testData.Segment2EndNodeAdded.RoadNodeId
+        }).WithoutChanges();
 
-        VerifyThatTicketHasError("WegsegmentInwinningsstatusNietCompleet", null);
-    }
-
-    [Fact]
-    public async Task WhenRoadSegmentHasInvalidStatus_ThenTicketError()
-    {
-        var invalidStatusSegment = RoadSegment
-            .Create(_testData.Segment1Added with { Status = RoadSegmentStatusV2.NietGerealiseerd })
-            .WithoutChanges();
-
-        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
-        var roadNetworkRepository = new FakeRoadNetworkRepository(store,
-            new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [new RoadSegmentId(1)], [], []),
-            id => BuildNetworkWithSegment(id, invalidStatusSegment));
-
-        await HandleRequest(CreateSqsRequest(CutPosition(50, 50)), store, roadNetworkRepository);
-
-        VerifyThatTicketHasError("WegsegmentKnippenStatusNietCorrect", null);
-    }
-
-    private ScopedRoadNetwork BuildSeedNetwork(ScopedRoadNetworkId id)
-    {
-        return BuildNetworkWithSegment(id, RoadSegment.Create(_testData.Segment1Added).WithoutChanges());
-    }
-
-    private ScopedRoadNetwork BuildNetworkWithSegment(ScopedRoadNetworkId id, RoadSegment segment)
-    {
-        return new ScopedRoadNetwork(id,
+        GradeJunction[] gradeJunctions = withJunction
+            ?
             [
-                RoadNode.Create(_testData.Segment1StartNodeAdded).WithoutChanges(),
-                RoadNode.Create(_testData.Segment1EndNodeAdded).WithoutChanges()
-            ],
-            [segment],
-            [],
-            []);
+                GradeJunction.Create(new GradeJunctionWasAdded
+                {
+                    GradeJunctionId = new GradeJunctionId(1),
+                    RoadSegmentId1 = Segment1Id,
+                    RoadSegmentId2 = Segment2Id,
+                    Geometry = JunctionGeometry.Create(new Point(crossing) { SRID = WellknownSrids.Lambert08 }),
+                    Provenance = new ProvenanceData(_testData.Provenance)
+                }).WithoutChanges()
+            ]
+            : [];
+
+        return new ScopedRoadNetwork(id, [node1, node2, node3, node4], [segment1, segment2], [], gradeJunctions);
     }
 
-    private static Point CutPosition(double x, double y)
+    private static Point Point(Coordinate coordinate)
     {
-        return new Point(new Coordinate(x, y)) { SRID = WellknownSrids.Lambert08 };
+        return new Point(coordinate) { SRID = WellknownSrids.Lambert08 };
     }
 
-    private SplitRoadSegmentSqsRequest CreateSqsRequest(Point cutPosition)
+    private static MultiLineString LineThrough(params Coordinate[] coordinates)
     {
-        return new SplitRoadSegmentSqsRequest
+        return new MultiLineString([new LineString(new CoordinateArraySequence(coordinates), GeometryConfiguration.GeometryFactory)])
+        {
+            SRID = WellknownSrids.Lambert08
+        };
+    }
+
+    private SplitRoadSegmentsByJunctionSqsRequest CreateSqsRequest(RoadSegmentId roadSegmentId1, RoadSegmentId roadSegmentId2)
+    {
+        return new SplitRoadSegmentsByJunctionSqsRequest
         {
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>(),
-            RoadSegmentId = new RoadSegmentId(1),
-            CutPosition = cutPosition
+            RoadSegmentId1 = roadSegmentId1,
+            RoadSegmentId2 = roadSegmentId2
         };
     }
 
-    private async Task HandleRequest(SplitRoadSegmentSqsRequest sqsRequest, IDocumentStore store, IRoadNetworkRepository roadNetworkRepository)
+    private async Task HandleRequest(SplitRoadSegmentsByJunctionSqsRequest sqsRequest, IDocumentStore store, IRoadNetworkRepository roadNetworkRepository)
     {
-        var sqsLambdaRequest = new SplitRoadSegmentSqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest);
+        var sqsLambdaRequest = new SplitRoadSegmentsByJunctionSqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest);
 
-        var handler = new SplitRoadSegmentSqsLambdaRequestHandler(
+        var handler = new SplitRoadSegmentsByJunctionSqsLambdaRequestHandler(
             SqsLambdaHandlerOptions,
             new FakeRetryPolicy(),
             TicketingMock.Object,
@@ -243,21 +235,19 @@ public class GivenRoadSegment : BackOfficeLambdaTest
     private sealed class FakeRoadNetworkRepository : IRoadNetworkRepository
     {
         private readonly RoadNetworkRepository _real;
-        private readonly RoadNetworkIds _ids;
         private readonly Func<ScopedRoadNetworkId, ScopedRoadNetwork> _loadFactory;
 
-        public FakeRoadNetworkRepository(IDocumentStore store, RoadNetworkIds ids, Func<ScopedRoadNetworkId, ScopedRoadNetwork> loadFactory)
+        public FakeRoadNetworkRepository(IDocumentStore store, Func<ScopedRoadNetworkId, ScopedRoadNetwork> loadFactory)
         {
             _real = new RoadNetworkRepository(store);
-            _ids = ids;
             _loadFactory = loadFactory;
         }
 
         public Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry? geometry = null, RoadNetworkIds? ids = null)
-            => Task.FromResult(_ids);
+            => Task.FromResult(ids ?? new RoadNetworkIds([], [], [], []));
 
         public Task<RoadNetworkIds> GetUnderlyingIdsWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds)
-            => Task.FromResult(_ids);
+            => Task.FromResult(new RoadNetworkIds([], roadSegmentIds, [], []));
 
         public Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, ScopedRoadNetworkId roadNetworkId)
             => Task.FromResult(_loadFactory(roadNetworkId));

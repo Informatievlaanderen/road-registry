@@ -29,6 +29,24 @@ public class GradeJunctionPbsProjection : RunnerDbContextRoadNetworkChangesProje
             return Task.CompletedTask;
         });
 
+        When<IEvent<GradeJunctionWasModified>>(async (context, e, ct) =>
+        {
+            var record = await context.GradeJunctions.FindAsync([e.Data.GradeJunctionId.ToInt32()], ct);
+            if (record is null)
+            {
+                return;
+            }
+            if (e.Data.RoadSegmentId1 is not null)
+            {
+                record.WS1_OIDN = e.Data.RoadSegmentId1.Value.ToInt32();
+            }
+            if (e.Data.RoadSegmentId2 is not null)
+            {
+                record.WS2_OIDN = e.Data.RoadSegmentId2.Value.ToInt32();
+            }
+            record.VERSIE = e.Data.Provenance.ToPbsDate();
+        });
+
         When<IEvent<GradeJunctionGeometryWasChanged>>(async (context, e, ct) =>
         {
             var record = await context.GradeJunctions.FindAsync([e.Data.GradeJunctionId.ToInt32()], ct);

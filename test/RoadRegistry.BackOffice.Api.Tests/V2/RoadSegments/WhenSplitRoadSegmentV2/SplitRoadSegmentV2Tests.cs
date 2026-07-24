@@ -35,7 +35,7 @@ public class SplitRoadSegmentV2Tests : V2ReadEndpointTestBase
     public SplitRoadSegmentV2Tests()
     {
         _mediator
-            .Setup(x => x.Send(It.IsAny<SplitRoadSegmentV2SqsRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.Send(It.IsAny<SplitRoadSegmentSqsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Fixture.Create<LocationResult>());
 
         _controller = new RoadSegmentsController(CreateControllerContext(), _mediator.Object);
@@ -67,7 +67,7 @@ public class SplitRoadSegmentV2Tests : V2ReadEndpointTestBase
         var result = await Act(id, ValidCutPositionLambert08);
 
         result.Should().BeOfType<AcceptedResult>();
-        _mediator.Verify(x => x.Send(It.IsAny<SplitRoadSegmentV2SqsRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mediator.Verify(x => x.Send(It.IsAny<SplitRoadSegmentSqsRequest>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -78,17 +78,17 @@ public class SplitRoadSegmentV2Tests : V2ReadEndpointTestBase
         var result = await Act(id, CutPositionSubCmPrecision);
 
         result.Should().BeOfType<AcceptedResult>();
-        _mediator.Verify(x => x.Send(It.IsAny<SplitRoadSegmentV2SqsRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mediator.Verify(x => x.Send(It.IsAny<SplitRoadSegmentSqsRequest>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task GivenValidRequest_ThenCutPositionSentAsPoint()
     {
         var id = SeedRealizedRoadSegment();
-        SplitRoadSegmentV2SqsRequest captured = null;
+        SplitRoadSegmentSqsRequest captured = null;
         _mediator
-            .Setup(x => x.Send(It.IsAny<SplitRoadSegmentV2SqsRequest>(), It.IsAny<CancellationToken>()))
-            .Callback<IRequest<LocationResult>, CancellationToken>((r, _) => captured = (SplitRoadSegmentV2SqsRequest)r)
+            .Setup(x => x.Send(It.IsAny<SplitRoadSegmentSqsRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<IRequest<LocationResult>, CancellationToken>((r, _) => captured = (SplitRoadSegmentSqsRequest)r)
             .ReturnsAsync(Fixture.Create<LocationResult>());
 
         await Act(id, ValidCutPositionLambert08);
@@ -104,7 +104,7 @@ public class SplitRoadSegmentV2Tests : V2ReadEndpointTestBase
     public async Task GivenNonExistingRoadSegment_ThenRoadSegmentNotFoundException()
     {
         await Assert.ThrowsAsync<RoadSegmentNotFoundException>(() => Act(999, ValidCutPositionLambert08));
-        _mediator.Verify(x => x.Send(It.IsAny<SplitRoadSegmentV2SqsRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mediator.Verify(x => x.Send(It.IsAny<SplitRoadSegmentSqsRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
