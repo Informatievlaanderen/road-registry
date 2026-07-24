@@ -75,7 +75,7 @@ public partial class RoadSegmentsController
             var request = new SplitRoadSegmentV2Request
             {
                 RoadSegmentId = new RoadSegmentId(id),
-                Status = RoadSegmentStatusV2.Parse(roadSegment.Status),
+                Status = roadSegment.IsV2 ? RoadSegmentStatusV2.Parse(roadSegment.Status) : null,
                 IsV2 = roadSegment.IsV2,
                 RoadSegmentGeometry = roadSegment.Geometry.Lambert08.Value,
                 Knippositie = parameters?.Knippositie
@@ -103,7 +103,7 @@ public partial class RoadSegmentsController
     private sealed record SplitRoadSegmentV2Request
     {
         public required RoadSegmentId RoadSegmentId { get; init; }
-        public required RoadSegmentStatusV2 Status { get; init; }
+        public required RoadSegmentStatusV2? Status { get; init; }
         public required bool IsV2 { get; init; }
         public required MultiLineString RoadSegmentGeometry { get; init; }
         public required string Knippositie { get; init; }
@@ -125,10 +125,14 @@ public partial class RoadSegmentsController
                 .Must(isV2 => isV2)
                 .WithProblemCode(ProblemCode.RoadSegment.Split.NotCompletedInwinning, (request, _) => new RoadSegmentSplitNotCompletedInwinning(request.RoadSegmentId));
 
-            // VAL-3: the road segment has status gepland, gerealiseerd or buiten gebruik
-            RuleFor(x => x.Status)
-                .Must(status => ValidSplitStatuses.Contains(status))
-                .WithProblemCode(ProblemCode.RoadSegment.Split.StatusNotValid, (request, _) => new RoadSegmentSplitStatusNotValid(request.RoadSegmentId));
+            // VAL-3: the road segment has status gepland, gerealiseerd or buiten gebruik. Only a V2 (=ingewonnen)
+            // road segment has an inwinningsstatus, so the status is only evaluated once the segment is confirmed V2.
+            When(x => x.IsV2, () =>
+            {
+                RuleFor(x => x.Status)
+                    .Must(status => status is not null && ValidSplitStatuses.Contains(status))
+                    .WithProblemCode(ProblemCode.RoadSegment.Split.StatusNotValid, (request, _) => new RoadSegmentSplitStatusNotValid(request.RoadSegmentId));
+            });
 
             // VAL-4/5/6: knippositie is required, a valid gml 3.2 point in Lambert 2008
             RuleFor(x => x.Knippositie)

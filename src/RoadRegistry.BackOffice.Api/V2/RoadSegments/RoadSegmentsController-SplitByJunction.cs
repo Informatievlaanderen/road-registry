@@ -104,7 +104,7 @@ public partial class RoadSegmentsController
             return (false, null, false);
         }
 
-        return (true, RoadSegmentStatusV2.Parse(roadSegment.Status), roadSegment.IsV2);
+        return (true, roadSegment.IsV2 ? RoadSegmentStatusV2.Parse(roadSegment.Status) : null, roadSegment.IsV2);
     }
 
     private sealed record SplitRoadSegmentsByJunctionRequest
