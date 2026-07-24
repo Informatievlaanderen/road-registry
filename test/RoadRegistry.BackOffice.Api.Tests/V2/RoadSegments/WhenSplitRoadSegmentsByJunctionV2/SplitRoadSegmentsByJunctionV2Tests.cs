@@ -98,6 +98,18 @@ public class SplitRoadSegmentsByJunctionV2Tests : V2ReadEndpointTestBase
         await Assert.ThrowsAsync<ValidationException>(() => Act(id1, (int)Segment2.RoadSegmentId));
     }
 
+    [Fact]
+    public async Task GivenNotV2RoadSegment_ThenValidationException()
+    {
+        var id1 = SeedRealizedRoadSegment(TestData.Segment1Added);
+        var readItem = BuildReadItem(Segment2, null);
+        readItem.IsV2 = false;
+        Seed(readItem);
+
+        await Assert.ThrowsAsync<ValidationException>(() => Act(id1, (int)Segment2.RoadSegmentId));
+        _mediator.Verify(x => x.Send(It.IsAny<SplitRoadSegmentsByJunctionSqsRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     [Theory]
     [InlineData(nameof(RoadSegmentStatusV2.Gepland))]
     [InlineData(nameof(RoadSegmentStatusV2.NietGerealiseerd))]

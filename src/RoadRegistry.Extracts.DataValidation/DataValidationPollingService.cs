@@ -68,6 +68,7 @@ public class DataValidationPollingService : IScheduledJob
                                 case ValidationResult.Approved:
                                 case ValidationResult.ApprovedWithRemarks:
                                     uploadAccepted = true;
+                                    //TODO-pr bij Approved ook de qualityReportUrl opslaan en in de UI weergeven
                                     break;
                                 case ValidationResult.Rejected:
                                 case ValidationResult.AutomaticallyRejected:

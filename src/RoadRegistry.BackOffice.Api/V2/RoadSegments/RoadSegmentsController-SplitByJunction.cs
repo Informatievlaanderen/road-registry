@@ -59,8 +59,8 @@ public partial class RoadSegmentsController
         {
             await using var session = store.LightweightSession();
 
-            var (found1, status1) = await LoadRoadSegment(session, parameters?.Wegsegment1, cancellationToken);
-            var (found2, status2) = await LoadRoadSegment(session, parameters?.Wegsegment2, cancellationToken);
+            var (found1, status1, isV21) = await LoadRoadSegment(session, parameters?.Wegsegment1, cancellationToken);
+            var (found2, status2, isV22) = await LoadRoadSegment(session, parameters?.Wegsegment2, cancellationToken);
 
             var request = new SplitRoadSegmentsByJunctionRequest
             {
@@ -68,6 +68,8 @@ public partial class RoadSegmentsController
                 Wegsegment2 = parameters?.Wegsegment2,
                 Wegsegment1Found = found1,
                 Wegsegment2Found = found2,
+                Wegsegment1IsV2 = isV21,
+                Wegsegment2IsV2 = isV22,
                 Wegsegment1Status = status1,
                 Wegsegment2Status = status2
             };
@@ -89,20 +91,20 @@ public partial class RoadSegmentsController
         }
     }
 
-    private static async Task<(bool Found, RoadSegmentStatusV2? Status)> LoadRoadSegment(IDocumentSession session, int? id, CancellationToken cancellationToken)
+    private static async Task<(bool Found, RoadSegmentStatusV2? Status, bool IsV2)> LoadRoadSegment(IDocumentSession session, int? id, CancellationToken cancellationToken)
     {
         if (id is null)
         {
-            return (false, null);
+            return (false, null, false);
         }
 
         var roadSegment = await session.LoadAsync<RoadSegmentReadItem>(id.Value, cancellationToken);
         if (roadSegment is null || roadSegment.IsRemoved)
         {
-            return (false, null);
+            return (false, null, false);
         }
 
-        return (true, RoadSegmentStatusV2.Parse(roadSegment.Status));
+        return (true, RoadSegmentStatusV2.Parse(roadSegment.Status), roadSegment.IsV2);
     }
 
     private sealed record SplitRoadSegmentsByJunctionRequest
@@ -111,6 +113,8 @@ public partial class RoadSegmentsController
         public required int? Wegsegment2 { get; init; }
         public required bool Wegsegment1Found { get; init; }
         public required bool Wegsegment2Found { get; init; }
+        public required bool Wegsegment1IsV2 { get; init; }
+        public required bool Wegsegment2IsV2 { get; init; }
         public RoadSegmentStatusV2? Wegsegment1Status { get; init; }
         public RoadSegmentStatusV2? Wegsegment2Status { get; init; }
     }
@@ -127,7 +131,8 @@ public partial class RoadSegmentsController
                 .NotNull()
                 .WithProblemCode(ProblemCode.RoadSegment.SplitByJunction.Wegsegment2IsRequired);
 
-            // VAL-2: must match an existing, non-removed road segment. VAL-3: that road segment must have status gerealiseerd.
+            // VAL-2: must match an existing, non-removed road segment. Only a V2 (=ingewonnen) road segment has an
+            // inwinningsstatus, so the status (VAL-3) is only checked once the segment is confirmed to be V2.
             When(x => x.Wegsegment1 is not null, () =>
             {
                 RuleFor(x => x.Wegsegment1Found)
@@ -137,10 +142,20 @@ public partial class RoadSegmentsController
 
                 When(x => x.Wegsegment1Found, () =>
                 {
-                    RuleFor(x => x.Wegsegment1Status)
-                        .Must(status => status == RoadSegmentStatusV2.Gerealiseerd)
-                        .WithProblemCode(ProblemCode.RoadSegment.SplitByJunction.StatusNotValid, (request, _) =>
-                            new RoadSegmentsSplitByJunctionStatusNotValid(new RoadSegmentId(request.Wegsegment1!.Value)));
+                    // The road segment must have completed inwinning (i.e. be a V2 road segment).
+                    RuleFor(x => x.Wegsegment1IsV2)
+                        .Must(isV2 => isV2)
+                        .WithProblemCode(ProblemCode.RoadSegment.Split.NotCompletedInwinning, (request, _) =>
+                            new RoadSegmentSplitNotCompletedInwinning(new RoadSegmentId(request.Wegsegment1!.Value)));
+
+                    // VAL-3: that road segment must have status gerealiseerd.
+                    When(x => x.Wegsegment1IsV2, () =>
+                    {
+                        RuleFor(x => x.Wegsegment1Status)
+                            .Must(status => status == RoadSegmentStatusV2.Gerealiseerd)
+                            .WithProblemCode(ProblemCode.RoadSegment.SplitByJunction.StatusNotValid, (request, _) =>
+                                new RoadSegmentsSplitByJunctionStatusNotValid(new RoadSegmentId(request.Wegsegment1!.Value)));
+                    });
                 });
             });
 
@@ -153,10 +168,20 @@ public partial class RoadSegmentsController
 
                 When(x => x.Wegsegment2Found, () =>
                 {
-                    RuleFor(x => x.Wegsegment2Status)
-                        .Must(status => status == RoadSegmentStatusV2.Gerealiseerd)
-                        .WithProblemCode(ProblemCode.RoadSegment.SplitByJunction.StatusNotValid, (request, _) =>
-                            new RoadSegmentsSplitByJunctionStatusNotValid(new RoadSegmentId(request.Wegsegment2!.Value)));
+                    // The road segment must have completed inwinning (i.e. be a V2 road segment).
+                    RuleFor(x => x.Wegsegment2IsV2)
+                        .Must(isV2 => isV2)
+                        .WithProblemCode(ProblemCode.RoadSegment.Split.NotCompletedInwinning, (request, _) =>
+                            new RoadSegmentSplitNotCompletedInwinning(new RoadSegmentId(request.Wegsegment2!.Value)));
+
+                    // VAL-3: that road segment must have status gerealiseerd.
+                    When(x => x.Wegsegment2IsV2, () =>
+                    {
+                        RuleFor(x => x.Wegsegment2Status)
+                            .Must(status => status == RoadSegmentStatusV2.Gerealiseerd)
+                            .WithProblemCode(ProblemCode.RoadSegment.SplitByJunction.StatusNotValid, (request, _) =>
+                                new RoadSegmentsSplitByJunctionStatusNotValid(new RoadSegmentId(request.Wegsegment2!.Value)));
+                    });
                 });
             });
         }
