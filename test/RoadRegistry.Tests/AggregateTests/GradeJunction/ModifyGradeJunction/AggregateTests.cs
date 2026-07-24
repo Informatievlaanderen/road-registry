@@ -57,22 +57,31 @@ public class AggregateTests : AggregateTestBase
         var junctionAdded = Fixture.Create<GradeJunctionWasAdded>();
         var junction = GradeJunction.Create(junctionAdded);
         var newRoadSegmentId1 = Fixture.Create<RoadSegmentId>();
+        var newRoadSegmentId2 = Fixture.Create<RoadSegmentId>();
 
-        // Only the first road segment is repointed; the second side is left untouched (null keeps the existing value).
-        var evt = new GradeJunctionWasModified
+        // Repoint the first side; leave the second untouched (null keeps the existing value).
+        junction.Apply(new GradeJunctionWasModified
         {
             GradeJunctionId = junctionAdded.GradeJunctionId,
             RoadSegmentId1 = newRoadSegmentId1,
             RoadSegmentId2 = null,
             Provenance = new ProvenanceData(TestData.Provenance)
-        };
+        });
 
-        // Act
-        junction.Apply(evt);
-
-        // Assert
         junction.GradeJunctionId.Should().Be(junctionAdded.GradeJunctionId);
         junction.RoadSegmentId1.Should().Be(newRoadSegmentId1);
         junction.RoadSegmentId2.Should().Be(junctionAdded.RoadSegmentId2);
+
+        // Repoint the second side; the first keeps the value set above.
+        junction.Apply(new GradeJunctionWasModified
+        {
+            GradeJunctionId = junctionAdded.GradeJunctionId,
+            RoadSegmentId1 = null,
+            RoadSegmentId2 = newRoadSegmentId2,
+            Provenance = new ProvenanceData(TestData.Provenance)
+        });
+
+        junction.RoadSegmentId1.Should().Be(newRoadSegmentId1);
+        junction.RoadSegmentId2.Should().Be(newRoadSegmentId2);
     }
 }

@@ -128,6 +128,40 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
+    public void WhenOneSegmentPartIsLongEnough_ThenItKeepsItsIdentifierAndOnlyOnePartIsAdded()
+    {
+        // Arrange: the segments cross at (90,90), near Segment1's end node. Segment1's larger part (from its start to the
+        // crossing) is >70% of its length, so Segment1 keeps its identifier and only its short part is added as a new
+        // segment. Segment2 is cut at its midpoint (50/50), so it is historized and two new segments are added.
+        var roadNetwork = BuildCrossingNetwork(new Coordinate(90.0, 90.0));
+
+        // Act
+        var roadSegmentIds = roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, IdGenerator(), TestData.Provenance);
+
+        // Assert: Segment1 keeps its identifier (modified in place, not historized).
+        var segment1 = roadNetwork.RoadSegments[Segment1Id];
+        segment1.IsRemoved.Should().BeFalse();
+        segment1.Status.Should().Be(RoadSegmentStatusV2.Gerealiseerd);
+        segment1.GetChanges().Should().NotContain(x => x is RoadSegmentWasRetiredBecauseOfSplit);
+
+        // Segment2 does not keep its identifier: it is historized.
+        roadNetwork.RoadSegments[Segment2Id].Status.Should().Be(RoadSegmentStatusV2.Gehistoreerd);
+        roadNetwork.RoadSegments[Segment2Id].GetChanges().Should().Contain(x => x is RoadSegmentWasRetiredBecauseOfSplit);
+
+        // Three new segments: one from Segment1's kept split, two from Segment2's historized split.
+        var newSegments = roadNetwork.GetNonRemovedRoadSegments()
+            .Where(x => x.RoadSegmentId != Segment1Id && x.RoadSegmentId != Segment2Id)
+            .ToList();
+        newSegments.Should().HaveCount(3);
+        newSegments.Should().OnlyContain(x => x.Status == RoadSegmentStatusV2.Gerealiseerd);
+
+        // The kept identifier is returned; the historized one is not.
+        roadSegmentIds.Should().HaveCount(4);
+        roadSegmentIds.Should().Contain(Segment1Id);
+        roadSegmentIds.Should().NotContain(Segment2Id);
+    }
+
+    [Fact]
     public void WhenSplittingTwoCrossingRealizedSegments_ThenARealNodeIsAddedAtTheCrossingAndTheJunctionIsRemoved()
     {
         // Arrange
