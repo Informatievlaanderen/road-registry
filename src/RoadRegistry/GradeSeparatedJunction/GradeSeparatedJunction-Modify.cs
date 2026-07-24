@@ -11,6 +11,12 @@ public partial class GradeSeparatedJunction
     {
         var problems = Problems.WithContext(GradeSeparatedJunctionId);
 
+        // A modification must change at least one road segment (or the type); with none of them set there is nothing to change.
+        if (change.LowerRoadSegmentId is null && change.UpperRoadSegmentId is null && change.Type is null)
+        {
+            return problems + new GradeSeparatedJunctionNoRoadSegmentSpecified(GradeSeparatedJunctionId);
+        }
+
         Apply(new GradeSeparatedJunctionWasModified
         {
             GradeSeparatedJunctionId = GradeSeparatedJunctionId,

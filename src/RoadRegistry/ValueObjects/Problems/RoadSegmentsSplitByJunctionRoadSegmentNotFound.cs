@@ -9,7 +9,7 @@ public class RoadSegmentsSplitByJunctionRoadSegmentNotFound : Error
     public static readonly ProblemCode ProblemCode = ProblemCode.RoadSegment.SplitByJunction.RoadSegmentNotFound;
 
     public RoadSegmentsSplitByJunctionRoadSegmentNotFound(RoadSegmentId identifier)
-        : base(ProblemCode,
+        : base(ProblemCode.ToString(),
             new ProblemParameter("WegsegmentId", identifier.ToInt32().ToString()))
     {
     }

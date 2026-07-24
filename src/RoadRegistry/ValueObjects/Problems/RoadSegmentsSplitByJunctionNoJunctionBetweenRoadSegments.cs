@@ -9,9 +9,9 @@ public class RoadSegmentsSplitByJunctionNoJunctionBetweenRoadSegments : Error
     public static readonly ProblemCode ProblemCode = ProblemCode.RoadSegment.SplitByJunction.NoJunctionBetweenRoadSegments;
 
     public RoadSegmentsSplitByJunctionNoJunctionBetweenRoadSegments(RoadSegmentId roadSegmentId1, RoadSegmentId roadSegmentId2)
-        : base(ProblemCode,
-            new ProblemParameter("Wegsegment1", roadSegmentId1.ToInt32().ToString()),
-            new ProblemParameter("Wegsegment2", roadSegmentId2.ToInt32().ToString()))
+        : base(ProblemCode.ToString(),
+            new ProblemParameter("Wegsegment1Id", roadSegmentId1.ToInt32().ToString()),
+            new ProblemParameter("Wegsegment2Id", roadSegmentId2.ToInt32().ToString()))
     {
     }
 }

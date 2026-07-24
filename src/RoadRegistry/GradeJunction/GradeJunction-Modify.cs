@@ -12,6 +12,12 @@ public partial class GradeJunction
     {
         var problems = Problems.WithContext(GradeJunctionId);
 
+        // A modification must repoint at least one side; with neither road segment set there is nothing to change.
+        if (roadSegmentId1 is null && roadSegmentId2 is null)
+        {
+            return problems + new GradeJunctionNoRoadSegmentSpecified(GradeJunctionId);
+        }
+
         Apply(new GradeJunctionWasModified
         {
             GradeJunctionId = GradeJunctionId,

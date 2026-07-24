@@ -236,8 +236,8 @@ public class ProblemTranslatorTests
             },
             {
                 ProblemCode.RoadSegment.SplitByJunction.NoJunctionBetweenRoadSegments, [
-                    new ProblemParameter("Wegsegment1", "1"),
-                    new ProblemParameter("Wegsegment2", "2")
+                    new ProblemParameter("Wegsegment1Id", "1"),
+                    new ProblemParameter("Wegsegment2Id", "2")
                 ]
             },
             {
