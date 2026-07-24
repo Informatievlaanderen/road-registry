@@ -48,7 +48,7 @@ public class RoadNodeWmsWfsV2ProjectionTests
             typeof(RoadSegmentWasRemovedFromNationalRoad), typeof(RoadSegmentWasRetired), typeof(RoadSegmentWasRetiredBecauseOfMerger),
             typeof(RoadSegmentWasRetiredBecauseOfSplit), typeof(RoadSegmentWasSplit),
             // GradeJunction V2
-            typeof(GradeJunctionWasAdded), typeof(GradeJunctionGeometryWasChanged), typeof(GradeJunctionWasRemoved),
+            typeof(GradeJunctionWasAdded), typeof(GradeJunctionWasModified), typeof(GradeJunctionGeometryWasChanged), typeof(GradeJunctionWasRemoved),
             // GradeSeparatedJunction V1
             typeof(ImportedGradeSeparatedJunction), typeof(GradeSeparatedJunctionAdded),
             typeof(GradeSeparatedJunctionModified), typeof(GradeSeparatedJunctionRemoved),

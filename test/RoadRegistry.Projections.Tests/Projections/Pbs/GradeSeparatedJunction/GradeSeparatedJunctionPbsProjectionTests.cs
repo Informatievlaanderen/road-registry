@@ -61,7 +61,7 @@ public class GradeSeparatedJunctionPbsProjectionTests
             typeof(RoadSegmentV2.RoadSegmentWasRetiredBecauseOfMerger), typeof(RoadSegmentV2.RoadSegmentWasRetiredBecauseOfSplit),
             typeof(RoadSegmentV2.RoadSegmentWasSplit),
             // GradeJunction V2
-            typeof(GradeJunctionWasAdded), typeof(GradeJunctionGeometryWasChanged), typeof(GradeJunctionWasRemoved),
+            typeof(GradeJunctionWasAdded), typeof(GradeJunctionWasModified), typeof(GradeJunctionGeometryWasChanged), typeof(GradeJunctionWasRemoved),
             // Organization V2
             typeof(OrganizationWasImported), typeof(OrganizationWasCreated),
             typeof(OrganizationWasModified), typeof(OrganizationWasRemoved),
