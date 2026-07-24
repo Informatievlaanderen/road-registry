@@ -620,6 +620,26 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"De voorgestelde knippositie ligt te dicht (<{problem.GetParameterValue("MinimumDistance")}m) bij wegknoop {problem.GetParameterValue("RoadNodeId")}.")
             },
             {
+                ProblemCode.RoadSegment.SplitByJunction.Wegsegment1IsRequired, problem => new(problem.Severity, "Wegsegment1Verplicht",
+                    "De parameter 'wegsegment1' is verplicht.")
+            },
+            {
+                ProblemCode.RoadSegment.SplitByJunction.Wegsegment2IsRequired, problem => new(problem.Severity, "Wegsegment2Verplicht",
+                    "De parameter 'wegsegment2' is verplicht.")
+            },
+            {
+                ProblemCode.RoadSegment.SplitByJunction.RoadSegmentNotFound, problem => new(problem.Severity, "WegsegmentNietGevondenOfVerwijderd",
+                    $"Wegsegment {problem.GetParameterValue("WegsegmentId")} bestaat niet of is verwijderd.")
+            },
+            {
+                ProblemCode.RoadSegment.SplitByJunction.StatusNotValid, problem => new(problem.Severity, "WegsegmentKnippenOpKruisingStatusNietCorrect",
+                    $"Wegsegment {problem.GetParameterValue("WegsegmentId")} heeft niet de status 'gerealiseerd'.")
+            },
+            {
+                ProblemCode.RoadSegment.SplitByJunction.NoJunctionBetweenRoadSegments, problem => new(problem.Severity, "GeenKruisingTussenWegsegmenten",
+                    $"Er bestaat geen gelijkgrondse of ongelijkgrondse kruising tussen wegsegment {problem.GetParameterValue("Wegsegment1")} en wegsegment {problem.GetParameterValue("Wegsegment2")}.")
+            },
+            {
                 ProblemCode.RoadSegment.StreetName.NotProposedOrCurrent, problem => new(problem.Severity, "WegsegmentStraatnaamNietVoorgesteldOfInGebruik",
                     "Deze actie is enkel toegelaten voor straatnamen met status 'voorgesteld' of 'in gebruik'.")
             },

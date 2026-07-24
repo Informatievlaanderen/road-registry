@@ -344,6 +344,15 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode PositionTooCloseToRoadNode = new("RoadSegmentSplitPositionTooCloseToRoadNode");
         }
 
+        public static class SplitByJunction
+        {
+            public static readonly ProblemCode Wegsegment1IsRequired = new("RoadSegmentsSplitByJunctionWegsegment1IsRequired");
+            public static readonly ProblemCode Wegsegment2IsRequired = new("RoadSegmentsSplitByJunctionWegsegment2IsRequired");
+            public static readonly ProblemCode RoadSegmentNotFound = new("RoadSegmentsSplitByJunctionRoadSegmentNotFound");
+            public static readonly ProblemCode StatusNotValid = new("RoadSegmentsSplitByJunctionStatusNotValid");
+            public static readonly ProblemCode NoJunctionBetweenRoadSegments = new("RoadSegmentsSplitByJunctionNoJunctionBetweenRoadSegments");
+        }
+
         public static class Width
         {
             public static readonly ProblemCode FromPositionNotEqualToZero = new("RoadSegmentWidthAttributeFromPositionNotEqualToZero");

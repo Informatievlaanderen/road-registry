@@ -49,7 +49,7 @@ internal static class WmsWfsV2ProjectionEventCoverage
         typeof(RoadSegmentWasRemovedFromNationalRoad), typeof(RoadSegmentWasRetired), typeof(RoadSegmentWasRetiredBecauseOfMerger),
         typeof(RoadSegmentWasRetiredBecauseOfSplit), typeof(RoadSegmentWasSplit),
         // GradeJunction V2
-        typeof(GradeJunctionWasAdded), typeof(GradeJunctionGeometryWasChanged), typeof(GradeJunctionWasRemoved),
+        typeof(GradeJunctionWasAdded), typeof(GradeJunctionWasModified), typeof(GradeJunctionGeometryWasChanged), typeof(GradeJunctionWasRemoved),
         // GradeSeparatedJunction V1
         typeof(ImportedGradeSeparatedJunction), typeof(GradeSeparatedJunctionAdded), typeof(GradeSeparatedJunctionModified),
         typeof(GradeSeparatedJunctionRemoved), typeof(GradeSeparatedJunctionGeometryModified),
