@@ -167,8 +167,11 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"De opgegeven tijdelijke ongelijkgrondse kruising ID {problem.Parameters[0].Value} is niet uniek.")
             },
             {
-                ProblemCode.GradeSeparatedJunction.NoRoadSegmentSpecified, problem => new(problem.Severity, problem.Reason,
-                    $"Voor de wijziging van de ongelijkgrondse kruising met {GetGradeJunctionIdLabel(problem)} moet minstens één wegsegment opgegeven worden.")
+                ProblemCode.GradeSeparatedJunction.NoRoadSegmentSpecified, problem => new(problem.Severity, problem.Reason, problem.HasParameter("OngelijkGrondseKruisingId")
+                    ? $"Voor de wijziging van de ongelijkgrondse kruising met {GetGradeSeparatedJunctionIdLabel(problem)} moet minstens één wegsegment opgegeven worden."
+                    : problem.HasParameter("Identifier")
+                        ? $"Voor de wijziging van de ongelijkgrondse kruising met id {problem.GetParameterValue("Identifier")} moet minstens één wegsegment opgegeven worden."
+                        : "Voor de wijziging van de ongelijkgrondse kruising moet minstens één wegsegment opgegeven worden.")
             },
             {
                 ProblemCode.GradeJunction.NotFound, problem => new(problem.Severity, problem.Reason, problem.HasParameter("GelijkGrondseKruisingId")
@@ -178,8 +181,11 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                         : "De gelijkgrondse kruising is niet langer onderdeel van het wegen netwerk.")
             },
             {
-                ProblemCode.GradeJunction.NoRoadSegmentSpecified, problem => new(problem.Severity, problem.Reason,
-                    $"Voor de wijziging van de gelijkgrondse kruising met {GetGradeJunctionIdLabel(problem)} moet minstens één wegsegment opgegeven worden.")
+                ProblemCode.GradeJunction.NoRoadSegmentSpecified, problem => new(problem.Severity, problem.Reason, problem.HasParameter("GelijkGrondseKruisingId")
+                    ? $"Voor de wijziging van de gelijkgrondse kruising met {GetGradeJunctionIdLabel(problem)} moet minstens één wegsegment opgegeven worden."
+                    : problem.HasParameter("Identifier")
+                        ? $"Voor de wijziging van de gelijkgrondse kruising met id {problem.GetParameterValue("Identifier")} moet minstens één wegsegment opgegeven worden."
+                        : "Voor de wijziging van de gelijkgrondse kruising moet minstens één wegsegment opgegeven worden.")
             },
             {
                 ProblemCode.NationalRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason,
