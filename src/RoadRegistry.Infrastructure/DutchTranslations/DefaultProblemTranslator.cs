@@ -167,11 +167,25 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"De opgegeven tijdelijke ongelijkgrondse kruising ID {problem.Parameters[0].Value} is niet uniek.")
             },
             {
+                ProblemCode.GradeSeparatedJunction.NoRoadSegmentSpecified, problem => new(problem.Severity, problem.Reason, problem.HasParameter("OngelijkGrondseKruisingId")
+                    ? $"Voor de wijziging van de ongelijkgrondse kruising met {GetGradeSeparatedJunctionIdLabel(problem)} moet minstens één wegsegment opgegeven worden."
+                    : problem.HasParameter("Identifier")
+                        ? $"Voor de wijziging van de ongelijkgrondse kruising met id {problem.GetParameterValue("Identifier")} moet minstens één wegsegment opgegeven worden."
+                        : "Voor de wijziging van de ongelijkgrondse kruising moet minstens één wegsegment opgegeven worden.")
+            },
+            {
                 ProblemCode.GradeJunction.NotFound, problem => new(problem.Severity, problem.Reason, problem.HasParameter("GelijkGrondseKruisingId")
                     ? $"De gelijkgrondse kruising met {GetGradeJunctionIdLabel(problem)} is niet langer onderdeel van het wegen netwerk."
                     : problem.HasParameter("Identifier")
                         ? $"De gelijkgrondse kruising met id {problem.GetParameterValue("Identifier")} is niet langer onderdeel van het wegen netwerk."
                         : "De gelijkgrondse kruising is niet langer onderdeel van het wegen netwerk.")
+            },
+            {
+                ProblemCode.GradeJunction.NoRoadSegmentSpecified, problem => new(problem.Severity, problem.Reason, problem.HasParameter("GelijkGrondseKruisingId")
+                    ? $"Voor de wijziging van de gelijkgrondse kruising met {GetGradeJunctionIdLabel(problem)} moet minstens één wegsegment opgegeven worden."
+                    : problem.HasParameter("Identifier")
+                        ? $"Voor de wijziging van de gelijkgrondse kruising met id {problem.GetParameterValue("Identifier")} moet minstens één wegsegment opgegeven worden."
+                        : "Voor de wijziging van de gelijkgrondse kruising moet minstens één wegsegment opgegeven worden.")
             },
             {
                 ProblemCode.NationalRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason,
@@ -618,6 +632,26 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             {
                 ProblemCode.RoadSegment.Split.PositionTooCloseToRoadNode, problem => new(problem.Severity, "KnippositieTeDichtBijWegknoop",
                     $"De voorgestelde knippositie ligt te dicht (<{problem.GetParameterValue("MinimumDistance")}m) bij wegknoop {problem.GetParameterValue("RoadNodeId")}.")
+            },
+            {
+                ProblemCode.RoadSegment.SplitByJunction.Wegsegment1IsRequired, problem => new(problem.Severity, "Wegsegment1Verplicht",
+                    "De parameter 'wegsegment1' is verplicht.")
+            },
+            {
+                ProblemCode.RoadSegment.SplitByJunction.Wegsegment2IsRequired, problem => new(problem.Severity, "Wegsegment2Verplicht",
+                    "De parameter 'wegsegment2' is verplicht.")
+            },
+            {
+                ProblemCode.RoadSegment.SplitByJunction.RoadSegmentNotFound, problem => new(problem.Severity, "WegsegmentNietGevondenOfVerwijderd",
+                    $"Wegsegment {problem.GetParameterValue("WegsegmentId")} bestaat niet of is verwijderd.")
+            },
+            {
+                ProblemCode.RoadSegment.SplitByJunction.StatusNotValid, problem => new(problem.Severity, "WegsegmentKnippenOpKruisingStatusNietCorrect",
+                    $"Wegsegment {problem.GetParameterValue("WegsegmentId")} heeft niet de status 'gerealiseerd'.")
+            },
+            {
+                ProblemCode.RoadSegment.SplitByJunction.NoJunctionBetweenRoadSegments, problem => new(problem.Severity, "GeenKruisingTussenWegsegmenten",
+                    $"Er bestaat geen gelijkgrondse of ongelijkgrondse kruising tussen wegsegment {problem.GetParameterValue("Wegsegment1Id")} en wegsegment {problem.GetParameterValue("Wegsegment2Id")}.")
             },
             {
                 ProblemCode.RoadSegment.StreetName.NotProposedOrCurrent, problem => new(problem.Severity, "WegsegmentStraatnaamNietVoorgesteldOfInGebruik",

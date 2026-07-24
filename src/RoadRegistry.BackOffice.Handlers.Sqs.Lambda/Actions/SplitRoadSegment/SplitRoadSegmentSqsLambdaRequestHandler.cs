@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.SplitRoadSegmentV2;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.SplitRoadSegment;
 
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -16,12 +16,12 @@ using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 
-public sealed class SplitRoadSegmentV2SqsLambdaRequestHandler : MartenSqsLambdaHandler<SplitRoadSegmentV2SqsLambdaRequest>
+public sealed class SplitRoadSegmentSqsLambdaRequestHandler : MartenSqsLambdaHandler<SplitRoadSegmentSqsLambdaRequest>
 {
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
 
-    public SplitRoadSegmentV2SqsLambdaRequestHandler(
+    public SplitRoadSegmentSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
@@ -42,7 +42,7 @@ public sealed class SplitRoadSegmentV2SqsLambdaRequestHandler : MartenSqsLambdaH
         _roadNetworkIdGenerator = roadNetworkIdGenerator;
     }
 
-    protected override async Task<object> InnerHandle(SplitRoadSegmentV2SqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(SplitRoadSegmentSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
         using var _ = Logger.TimeAction(GetType().Name);
 
@@ -74,7 +74,7 @@ public sealed class SplitRoadSegmentV2SqsLambdaRequestHandler : MartenSqsLambdaH
         return responses;
     }
 
-    private Task Handle(SplitRoadSegmentV2SqsRequest command, CancellationToken cancellationToken)
+    private Task Handle(SplitRoadSegmentSqsRequest command, CancellationToken cancellationToken)
     {
         return Store.IdempotentSession(command, async session =>
         {

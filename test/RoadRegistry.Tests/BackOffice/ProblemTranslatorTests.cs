@@ -225,6 +225,22 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadSegment.SplitByJunction.RoadSegmentNotFound, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.SplitByJunction.StatusNotValid, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.SplitByJunction.NoJunctionBetweenRoadSegments, [
+                    new ProblemParameter("Wegsegment1Id", "1"),
+                    new ProblemParameter("Wegsegment2Id", "2")
+                ]
+            },
+            {
                 ProblemCode.GradeSeparatedJunction.LowerSegmentMissing, [
                     new ProblemParameter("RoadSegmentId", "1")
                 ]

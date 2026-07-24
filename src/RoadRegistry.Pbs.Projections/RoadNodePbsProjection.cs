@@ -49,6 +49,8 @@ public class RoadNodePbsProjection : RunnerDbContextRoadNetworkChangesProjection
                 WK_OIDN = e.Data.RoadNodeId.ToInt32(),
                 GRENSKNOOP = e.Data.Grensknoop.ToDbaseShortValue(),
                 GEOMETRIE = e.Data.Geometry.EnsureLambert08().RoundToCm().Value,
+                TYPE = e.Data.Type?.Translation.Identifier,
+                LBLTYPE = e.Data.Type?.Translation.Name,
                 CREATIE = e.Data.Provenance.ToPbsDate(),
                 VERSIE = e.Data.Provenance.ToPbsDate()
             });

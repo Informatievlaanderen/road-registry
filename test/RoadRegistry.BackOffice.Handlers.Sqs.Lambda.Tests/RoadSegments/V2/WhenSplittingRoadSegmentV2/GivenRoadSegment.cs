@@ -14,7 +14,7 @@ using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.SplitRoadSegmentV2;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.SplitRoadSegment;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Infrastructure.MartenDb;
@@ -185,9 +185,9 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         return new Point(new Coordinate(x, y)) { SRID = WellknownSrids.Lambert08 };
     }
 
-    private SplitRoadSegmentV2SqsRequest CreateSqsRequest(Point cutPosition)
+    private SplitRoadSegmentSqsRequest CreateSqsRequest(Point cutPosition)
     {
-        return new SplitRoadSegmentV2SqsRequest
+        return new SplitRoadSegmentSqsRequest
         {
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
@@ -197,11 +197,11 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         };
     }
 
-    private async Task HandleRequest(SplitRoadSegmentV2SqsRequest sqsRequest, IDocumentStore store, IRoadNetworkRepository roadNetworkRepository)
+    private async Task HandleRequest(SplitRoadSegmentSqsRequest sqsRequest, IDocumentStore store, IRoadNetworkRepository roadNetworkRepository)
     {
-        var sqsLambdaRequest = new SplitRoadSegmentV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest);
+        var sqsLambdaRequest = new SplitRoadSegmentSqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest);
 
-        var handler = new SplitRoadSegmentV2SqsLambdaRequestHandler(
+        var handler = new SplitRoadSegmentSqsLambdaRequestHandler(
             SqsLambdaHandlerOptions,
             new FakeRetryPolicy(),
             TicketingMock.Object,

@@ -1,11 +1,11 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.SplitRoadSegmentV2;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.SplitRoadSegmentsByJunction;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 
-public sealed record SplitRoadSegmentV2SqsLambdaRequest : SqsLambdaRequest
+public sealed record SplitRoadSegmentsByJunctionSqsLambdaRequest : SqsLambdaRequest
 {
-    public SplitRoadSegmentV2SqsLambdaRequest(string groupId, SplitRoadSegmentV2SqsRequest sqsRequest)
+    public SplitRoadSegmentsByJunctionSqsLambdaRequest(string groupId, SplitRoadSegmentsByJunctionSqsRequest sqsRequest)
         : base(
             groupId,
             sqsRequest.TicketId,
@@ -16,5 +16,5 @@ public sealed record SplitRoadSegmentV2SqsLambdaRequest : SqsLambdaRequest
         Request = sqsRequest;
     }
 
-    public SplitRoadSegmentV2SqsRequest Request { get; }
+    public SplitRoadSegmentsByJunctionSqsRequest Request { get; }
 }
