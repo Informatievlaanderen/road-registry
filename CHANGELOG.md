@@ -1,3 +1,10 @@
+# [5.4.0](https://github.com/informatievlaanderen/road-registry/compare/v5.3.1...v5.4.0) (2026-07-24)
+
+
+### Features
+
+* **2.0:** split roadsegments by junction ([32ba212](https://github.com/informatievlaanderen/road-registry/commit/32ba212faf0c5588691564adc4efaf5d0694760d))
+
 ## [5.3.1](https://github.com/informatievlaanderen/road-registry/compare/v5.3.0...v5.3.1) (2026-07-23)
 
 
