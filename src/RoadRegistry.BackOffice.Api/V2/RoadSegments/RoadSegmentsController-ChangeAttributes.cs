@@ -78,18 +78,14 @@ public partial class RoadSegmentsController
             .Where(x => x.Wegsegmenten is not null)
             .SelectMany(x => x.Wegsegmenten!)
             .Distinct()
-            .ToList();
+            .ToArray();
 
-        var existing = new HashSet<int>();
-        foreach (var id in ids)
-        {
-            var roadSegment = await session.LoadAsync<RoadSegmentReadItem>(id, cancellationToken);
-            if (roadSegment is not null && !roadSegment.IsRemoved)
-            {
-                existing.Add(id);
-            }
-        }
-        return existing;
+        var roadSegments = await session.LoadManyAsync<RoadSegmentReadItem>(cancellationToken, ids);
+
+        return roadSegments
+            .Where(x => !x.IsRemoved)
+            .Select(x => x.Id)
+            .ToHashSet();
     }
 
     private static IReadOnlyList<ChangeRoadSegmentAttributesV2Group> TranslateAndValidate(ChangeRoadSegmentAttributesV2Parameters parameters, HashSet<int> existingRoadSegmentIds)
