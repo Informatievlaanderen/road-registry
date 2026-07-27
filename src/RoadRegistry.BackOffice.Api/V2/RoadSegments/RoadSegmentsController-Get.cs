@@ -82,7 +82,7 @@ public partial class RoadSegmentsController
                 [
                     new WegsegmentGeometrieProjectie
                     {
-                        Gml = roadSegment.Geometry.Lambert08.Value.GetSingleLineString().ConvertToGml(useHttpsSchema: false)
+                        Gml = roadSegment.Geometry.Lambert08.Value.GetSingleLineString().ConvertToGml(useHttpsSchema: false, coordinatePrecision: Precisions.GeometryPrecisionV2)
                     },
                     new WegsegmentGeometrieProjectie
                     {
