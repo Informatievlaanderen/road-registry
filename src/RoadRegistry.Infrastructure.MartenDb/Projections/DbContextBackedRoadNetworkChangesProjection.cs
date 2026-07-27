@@ -3,7 +3,6 @@ namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 using System;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
-using JasperFx.Events;
 using Marten;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -58,12 +57,13 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
                     continue;
                 }
 
-                Logger.LogInformation("Processing event {Sequence}: {EventTypeName}", evt.Sequence, evt.EventTypeName);
+                using var eventScope = Logger.BeginScope(new Dictionary<string, object> { ["EventTypeName"] = evt.EventTypeName, ["EventSequence"] = evt.Sequence });
 
                 foreach (var projection in _projections)
                 {
                     projection.IsCatchingUp = IsCatchingUp;
 
+                    using var childProjectionScope = Logger.BeginScope(new Dictionary<string, object> { ["ChildProjectionName"] = projection.GetType().Name });
                     await projection.Project(context, [evt], cancellationToken).ConfigureAwait(false);
                 }
 

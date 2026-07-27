@@ -304,10 +304,23 @@ public class Startup
         IHostApplicationLifetime appLifetime,
         ILoggerFactory loggerFactory,
         IApiVersionDescriptionProvider apiVersionProvider,
-        IConfiguration configuration,
         HealthCheckService healthCheckService)
     {
-        StartupHelpers.CheckDatabases(healthCheckService, DatabaseTag, loggerFactory).GetAwaiter().GetResult();
+        try
+        {
+            StartupHelpers.CheckDatabases(healthCheckService, DatabaseTag, loggerFactory).GetAwaiter().GetResult();
+        }
+        catch (Exception ex) when (_configuration.GetValue<bool>("DetailedStartupErrors"))
+        {
+            // With DetailedStartupErrors enabled, dump the full startup exception straight to the console. Otherwise a
+            // boot failure here is captured by the host (CaptureStartupErrors), served as the generic "An error occurred
+            // while starting the application." page, and swallowed by the Serilog ExcludeCommonErrors filter - leaving no
+            // stack trace. Writing to the console bypasses both so the real cause is visible in the container logs.
+            Console.Error.WriteLine("[DetailedStartupErrors] Startup database check failed:");
+            Console.Error.WriteLine(ex);
+            loggerFactory.CreateLogger<Startup>().LogCritical(ex, "Startup database check failed");
+            throw;
+        }
 
         app
             .UseDefaultForApi(new StartupUseOptions

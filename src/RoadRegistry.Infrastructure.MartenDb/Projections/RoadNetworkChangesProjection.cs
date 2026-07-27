@@ -41,6 +41,8 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
     public async Task ApplyAsync(IDocumentOperations operations, IReadOnlyList<IEvent> events, CancellationToken cancellation)
     {
+        using var projectionScope = _logger.BeginScope(new Dictionary<string, object> { ["ProjectionName"] = _projectionName });
+
         try
         {
             await UpdateCatchingUpState(operations, events, cancellation);
