@@ -210,6 +210,15 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
         }, cancellationToken);
     }
 
+    public async Task SetQualityReportUrlAsync(UploadId uploadId, string qualityReportUrl, CancellationToken cancellationToken)
+    {
+        await UpdateExtractUpload(uploadId, record =>
+        {
+            record.QualityReportUrl = qualityReportUrl;
+            return Task.CompletedTask;
+        }, cancellationToken);
+    }
+
     private async Task UpdateExtractUpload(UploadId uploadId, Func<ExtractUpload, Task> change, CancellationToken cancellationToken)
     {
         var record = await ExtractUploads.SingleOrDefaultAsync(x => x.UploadId == uploadId.ToGuid(), cancellationToken);

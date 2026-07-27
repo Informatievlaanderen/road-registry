@@ -63,19 +63,18 @@ public class DataValidationPollingService : IScheduledJob
                             // keep on waiting
                             break;
                         case ValidationJobStatus.Processed:
+                            // Always keep the quality report, both on approval and rejection, so the UI shows at least one.
+                            var artifactsResponse = await _dataValidationApiClient.GetDeliveryArtifactsAsync(queueItem.DataValidationId!, cancellationToken);
+                            qualityReportUrl = artifactsResponse.Artifacts.Single(x => x.Type == DeliveryArtifactType.QualityReport).Url;
+
                             switch (pollResult.Result)
                             {
                                 case ValidationResult.Approved:
                                 case ValidationResult.ApprovedWithRemarks:
                                     uploadAccepted = true;
-                                    //TODO-pr bij Approved ook de qualityReportUrl opslaan en in de UI weergeven
                                     break;
                                 case ValidationResult.Rejected:
                                 case ValidationResult.AutomaticallyRejected:
-                                    //qualityReportUrl = $"https://geckoqualityreportstest.blob.core.windows.net/kwaliteitsrapporten/{queueItem.DataValidationId!}.html";
-                                    var artifactsResponse = await _dataValidationApiClient.GetDeliveryArtifactsAsync(queueItem.DataValidationId!, cancellationToken);
-                                    qualityReportUrl = artifactsResponse.Artifacts.Single(x => x.Type == DeliveryArtifactType.QualityReport).Url;
-
                                     ticketError = new TicketError("De oplading is mislukt. Gelieve het kwaliteitsrapport te openen voor meer informatie.", "DataValidationRejected");
                                     uploadAccepted = false;
                                     break;
@@ -101,6 +100,11 @@ public class DataValidationPollingService : IScheduledJob
 
                     if (uploadAccepted.Value)
                     {
+                        if (qualityReportUrl is not null)
+                        {
+                            await _extractsDbContext.SetQualityReportUrlAsync(new UploadId(queueItem.UploadId), qualityReportUrl, cancellationToken);
+                        }
+
                         await _mediator.Send(sqsRequest, cancellationToken);
                     }
                     else

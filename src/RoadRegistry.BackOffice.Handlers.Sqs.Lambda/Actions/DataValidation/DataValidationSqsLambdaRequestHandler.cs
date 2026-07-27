@@ -127,6 +127,11 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
                                     automaticValidationSucceed = true;
                                 }
                                 break;
+                            case ValidationJobStatus.Processed:
+                                // The delivery is already fully processed (can happen during testing). Abort fast polling
+                                // and let the slow polling service handle the approval/rejection outcome.
+                                Logger.LogInformation("Data validation delivery '{DataValidationId}' is already processed, aborting fast polling and switching to slow polling", queueItem.DataValidationId!);
+                                return new object();
                             case ValidationJobStatus.Error:
                                 Logger.LogError("OPGEPAST! Data Validation is in Error voor levering '{DataValidationId}. Contacteer DataValidatie hiervoor.'", pollResult.Status);
                                 return new object();
