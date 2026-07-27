@@ -161,13 +161,13 @@ public partial class RoadSegmentsController
             groups.Add(new ChangeRoadSegmentAttributesV2Group
             {
                 RoadSegmentIds = item.Wegsegmenten.Select(x => new RoadSegmentId(x)).ToList(),
-                Morphology = ParsePositionValues(item.Morfologie, $"{path}.morfologie", "morfologie", x => ((MorfologieParameters)x).Morfologie, RoadSegmentMorphologyV2.CanParseUsingDutchName, RoadSegmentMorphologyV2.ParseUsingDutchName, failures),
-                SurfaceType = ParsePositionValues(item.Wegverharding, $"{path}.wegverharding", "wegverharding", x => ((WegverhardingParameters)x).Wegverharding, RoadSegmentSurfaceTypeV2.CanParseUsingDutchName, RoadSegmentSurfaceTypeV2.ParseUsingDutchName, failures),
-                AccessRestriction = ParsePositionValues(item.Toegang, $"{path}.toegang", "toegang", x => ((ToegangParameters)x).Toegang, RoadSegmentAccessRestrictionV2.CanParseUsingDutchName, RoadSegmentAccessRestrictionV2.ParseUsingDutchName, failures),
-                Category = ParsePositionValues(item.Wegcategorie, $"{path}.wegcategorie", "wegcategorie", x => ((WegcategorieParameters)x).Wegcategorie, RoadSegmentCategoryV2.CanParseUsingDutchName, RoadSegmentCategoryV2.ParseUsingDutchName, failures),
-                CarTrafficDirection = ParseDirectionValues(item.VerkeerstypeAuto, $"{path}.verkeerstypeAuto", x => ((VerkeerstypeParameters)x).Richting, RoadSegmentTrafficDirection.CanParseUsingDutchName, RoadSegmentTrafficDirection.ParseUsingDutchName, failures),
-                BikeTrafficDirection = ParseDirectionValues(item.VerkeerstypeFiets, $"{path}.verkeerstypeFiets", x => ((VerkeerstypeParameters)x).Richting, RoadSegmentTrafficDirection.CanParseUsingDutchName, RoadSegmentTrafficDirection.ParseUsingDutchName, failures),
-                PedestrianTrafficDirection = ParseDirectionValues(item.VerkeerstypeVoetganger, $"{path}.verkeerstypeVoetganger", x => ((VerkeerstypeVoetgangerParameters)x).Richting, RoadSegmentPedestrianTrafficDirection.CanParseUsingDutchName, RoadSegmentPedestrianTrafficDirection.ParseUsingDutchName, failures),
+                Morphology = ParsePositionValues(item.Morfologie, $"{path}.morfologie", "morfologie", x => x.Morfologie, RoadSegmentMorphologyV2.CanParseUsingDutchName, RoadSegmentMorphologyV2.ParseUsingDutchName, failures),
+                SurfaceType = ParsePositionValues(item.Wegverharding, $"{path}.wegverharding", "wegverharding", x => x.Wegverharding, RoadSegmentSurfaceTypeV2.CanParseUsingDutchName, RoadSegmentSurfaceTypeV2.ParseUsingDutchName, failures),
+                AccessRestriction = ParsePositionValues(item.Toegang, $"{path}.toegang", "toegang", x => x.Toegang, RoadSegmentAccessRestrictionV2.CanParseUsingDutchName, RoadSegmentAccessRestrictionV2.ParseUsingDutchName, failures),
+                Category = ParsePositionValues(item.Wegcategorie, $"{path}.wegcategorie", "wegcategorie", x => x.Wegcategorie, RoadSegmentCategoryV2.CanParseUsingDutchName, RoadSegmentCategoryV2.ParseUsingDutchName, failures),
+                CarTrafficDirection = ParseDirectionValues(item.VerkeerstypeAuto, $"{path}.verkeerstypeAuto", x => x.Richting, RoadSegmentTrafficDirection.CanParseUsingDutchName, RoadSegmentTrafficDirection.ParseUsingDutchName, failures),
+                BikeTrafficDirection = ParseDirectionValues(item.VerkeerstypeFiets, $"{path}.verkeerstypeFiets", x => x.Richting, RoadSegmentTrafficDirection.CanParseUsingDutchName, RoadSegmentTrafficDirection.ParseUsingDutchName, failures),
+                PedestrianTrafficDirection = ParseDirectionValues(item.VerkeerstypeVoetganger, $"{path}.verkeerstypeVoetganger", x => x.Richting, RoadSegmentPedestrianTrafficDirection.CanParseUsingDutchName, RoadSegmentPedestrianTrafficDirection.ParseUsingDutchName, failures),
                 StreetName = ParseStreetName(item.Straatnaam, $"{path}.straatnaam", failures),
                 MaintenanceAuthority = ParseMaintenanceAuthority(item.Wegbeheerder, $"{path}.wegbeheerder", failures)
             });
@@ -195,14 +195,15 @@ public partial class RoadSegmentsController
         return new RoadSegmentPositionV2(value.Value);
     }
 
-    private static IReadOnlyList<AttributeValue<T>>? ParsePositionValues<T>(
-        VanTotParameters[]? items,
+    private static IReadOnlyList<AttributeValue<T>>? ParsePositionValues<TParameters, T>(
+        TParameters[]? items,
         string path,
         string valueSubParameter,
-        Func<VanTotParameters, string?> valueSelector,
+        Func<TParameters, string?> valueSelector,
         Func<string, bool> canParse,
         Func<string, T> parse,
         List<ValidationFailure> failures)
+        where TParameters : VanTotParameters
         where T : notnull
     {
         if (items is null)
@@ -235,13 +236,14 @@ public partial class RoadSegmentsController
         return result;
     }
 
-    private static IReadOnlyList<AttributeValue<T>>? ParseDirectionValues<T>(
-        VanTotParameters[]? items,
+    private static IReadOnlyList<AttributeValue<T>>? ParseDirectionValues<TParameters, T>(
+        TParameters[]? items,
         string path,
-        Func<VanTotParameters, string?> richtingSelector,
+        Func<TParameters, string?> richtingSelector,
         Func<string, bool> canParse,
         Func<string, T> parse,
         List<ValidationFailure> failures)
+        where TParameters : VanTotParameters
         where T : notnull
     {
         if (items is null)
