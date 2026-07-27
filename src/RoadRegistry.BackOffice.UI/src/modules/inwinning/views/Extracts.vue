@@ -142,7 +142,7 @@ export default defineComponent({
     },
     getStatus(extract: RoadRegistry.ExtractListItem) {
       if (extract.uploadStatus == "Accepted") {
-        return "Aanvaard";
+        return "Goedgekeurd";
       }
 
       if (extract.gesloten) {
