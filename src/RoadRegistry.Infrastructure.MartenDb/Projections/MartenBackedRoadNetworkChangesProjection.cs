@@ -1,6 +1,5 @@
 namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
-using JasperFx.Events;
 using Marten;
 using Microsoft.Extensions.Logging;
 
@@ -26,12 +25,13 @@ public abstract class MartenBackedRoadNetworkChangesProjection : RoadNetworkChan
         {
             foreach (var evt in work.ToProcess)
             {
-                Logger.LogInformation("Processing event {Sequence}: {EventTypeName}", evt.Sequence, evt.EventTypeName);
+                using var eventScope = Logger.BeginScope(new Dictionary<string, object> { ["EventTypeName"] = evt.EventTypeName, ["EventSequence"] = evt.Sequence });
 
                 foreach (var projection in _projections)
                 {
                     projection.IsCatchingUp = IsCatchingUp;
 
+                    using var childProjectionScope = Logger.BeginScope(new Dictionary<string, object> { ["ChildProjectionName"] = projection.GetType().Name });
                     await projection.Project(operations, [evt], cancellationToken).ConfigureAwait(false);
                 }
             }
