@@ -223,7 +223,7 @@ export default defineComponent({
       }
 
       if (this.extract.uploadStatus == "Accepted") {
-        return "Aanvaard";
+        return "Goedgekeurd";
       }
 
       if (this.extract.gesloten) {
