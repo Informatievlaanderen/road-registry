@@ -1,3 +1,10 @@
+## [5.4.3](https://github.com/informatievlaanderen/road-registry/compare/v5.4.2...v5.4.3) (2026-07-27)
+
+
+### Bug Fixes
+
+* **2.0:** gml for Lambert08 use cm precision ([2b4b703](https://github.com/informatievlaanderen/road-registry/commit/2b4b703cde84bb3d9fd34da7b1963abd359cf842))
+
 ## [5.4.2](https://github.com/informatievlaanderen/road-registry/compare/v5.4.1...v5.4.2) (2026-07-27)
 
 
