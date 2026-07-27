@@ -234,7 +234,9 @@ public class Startup
             })
             .AddAcmIdmAuthorizationHandlers()
             .AddSingleton(_ => new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
-            .AddSingleton(FileEncoding.WindowsAnsi)
+            // Resolved lazily: evaluating FileEncoding.WindowsAnsi (code page 1252) requires the code-pages encoding
+            // provider, which the host registers at startup. Deferring keeps ConfigureServices side-effect free.
+            .AddSingleton(_ => FileEncoding.WindowsAnsi)
             .AddStreetNameCache()
             .AddFeatureCompare()
             .AddSingleton<IBeforeFeatureCompareZipArchiveCleanerFactory, BeforeFeatureCompareZipArchiveCleanerFactory>()
