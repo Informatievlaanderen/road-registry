@@ -1,3 +1,11 @@
+## [5.4.2](https://github.com/informatievlaanderen/road-registry/compare/v5.4.1...v5.4.2) (2026-07-27)
+
+
+### Bug Fixes
+
+* **2.0:** UI status label when upload is accepted ([0a17700](https://github.com/informatievlaanderen/road-registry/commit/0a17700e12c18e47e5fdf5dec1bcd0982b4b5266))
+* **api:** swagger generation schema mismatch ([32942e5](https://github.com/informatievlaanderen/road-registry/commit/32942e5c82513b73558885862ccd4b5ec150c1a9))
+
 ## [5.4.1](https://github.com/informatievlaanderen/road-registry/compare/v5.4.0...v5.4.1) (2026-07-27)
 
 
