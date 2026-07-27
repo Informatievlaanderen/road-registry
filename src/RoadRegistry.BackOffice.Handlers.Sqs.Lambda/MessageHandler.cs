@@ -11,6 +11,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CloseExtract;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CreateRoadSegmentOutlineV2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.DataValidation;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentAttributes;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.LinkRoadSegmentsToStreetNameIds;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateDryRunRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
@@ -79,6 +80,7 @@ public sealed class MessageHandler : BlobMessageHandler
             CreateRoadSegmentOutlineV2SqsRequest request => new CreateRoadSegmentOutlineV2SqsLambdaRequest(groupId, request),
             SplitRoadSegmentSqsRequest request => new SplitRoadSegmentSqsLambdaRequest(groupId, request),
             SplitRoadSegmentsByJunctionSqsRequest request => new SplitRoadSegmentsByJunctionSqsLambdaRequest(groupId, request),
+            ChangeRoadSegmentAttributesV2SqsRequest request => new ChangeRoadSegmentAttributesV2SqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(
                 $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
         };

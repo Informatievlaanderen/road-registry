@@ -228,6 +228,24 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         };
     }
 
+    public void Apply(RoadSegmentAttributesWasModified @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Attributes = Attributes! with
+        {
+            AccessRestriction = @event.AccessRestriction ?? Attributes.AccessRestriction,
+            Category = @event.Category ?? Attributes.Category,
+            Morphology = @event.Morphology ?? Attributes.Morphology,
+            StreetNameId = @event.StreetNameId ?? Attributes.StreetNameId,
+            MaintenanceAuthorityId = @event.MaintenanceAuthorityId ?? Attributes.MaintenanceAuthorityId,
+            SurfaceType = @event.SurfaceType ?? Attributes.SurfaceType,
+            CarTrafficDirection = @event.CarTrafficDirection ?? Attributes.CarTrafficDirection,
+            BikeTrafficDirection = @event.BikeTrafficDirection ?? Attributes.BikeTrafficDirection,
+            PedestrianTrafficDirection = @event.PedestrianTrafficDirection ?? Attributes.PedestrianTrafficDirection
+        };
+    }
+
     public void Apply(RoadSegmentGeometryWasModified @event)
     {
         UncommittedEvents.Add(@event);

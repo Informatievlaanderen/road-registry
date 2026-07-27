@@ -92,6 +92,9 @@ public partial class ScopedRoadNetwork
                 case AddRoadSegmentChange change:
                     problems += AddRoadSegment(change, idGenerator, context);
                     break;
+                case ModifyRoadSegmentAttributesChange change:
+                    problems += ModifyRoadSegmentAttributes(change, context);
+                    break;
                 case ModifyRoadSegmentChange change:
                     problems += ModifyRoadSegment(change, context);
                     break;
@@ -355,6 +358,36 @@ public partial class ScopedRoadNetwork
         _roadSegmentsSpatialIndex.Update(oldEnvelope, roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
         context.Summary.RoadSegments.Modified.Add(roadSegment.RoadSegmentId);
 
+        problems += TryToRemoveLinkedGradeJunctions(roadSegment.RoadSegmentId, context);
+
+        return problems;
+    }
+
+    private Problems ModifyRoadSegmentAttributes(ModifyRoadSegmentAttributesChange change, ScopedRoadNetworkChangeContext context)
+    {
+        var problems = Problems.WithContext(change.RoadSegmentIdReference);
+
+        if (!_roadSegments.TryGetValue(change.RoadSegmentIdReference.RoadSegmentId, out var roadSegment))
+        {
+            return problems + new RoadSegmentNotFound();
+        }
+
+        problems += context.IdTranslator.RegisterMapping(change.RoadSegmentIdReference, roadSegment.RoadSegmentId);
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
+        // No geometry change, so the spatial index is left untouched.
+        problems += roadSegment.ModifyAttributes(change, context);
+        if (problems.HasError() || roadSegment.GetChanges().Count == 0)
+        {
+            return problems;
+        }
+
+        context.Summary.RoadSegments.Modified.Add(roadSegment.RoadSegmentId);
+
+        // Changing verkeerstypes can make a grade junction obsolete; let the junction be removed if it is no longer needed.
         problems += TryToRemoveLinkedGradeJunctions(roadSegment.RoadSegmentId, context);
 
         return problems;

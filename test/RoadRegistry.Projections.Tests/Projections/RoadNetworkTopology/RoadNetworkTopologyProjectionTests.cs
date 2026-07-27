@@ -5,6 +5,7 @@ using Infrastructure.MartenDb.Projections;
 using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.GradeSeparatedJunction.Events.V1;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
+using RoadRegistry.RoadSegment.Events.V2;
 
 public class RoadNetworkTopologyProjectionTests
 {
@@ -15,6 +16,7 @@ public class RoadNetworkTopologyProjectionTests
         // does not affect topology, so those events are consciously not handled here.
         var excludeEventTypes = new[]
         {
+            typeof(RoadSegmentAttributesWasModified),
             typeof(GradeJunctionGeometryWasChanged),
             typeof(GradeSeparatedJunctionGeometryWasChanged),
             typeof(GradeSeparatedJunctionGeometryModified)

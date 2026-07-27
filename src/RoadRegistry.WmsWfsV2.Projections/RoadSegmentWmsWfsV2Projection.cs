@@ -194,6 +194,15 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
                 m.PedestrianTrafficDirection, m.Provenance, ct);
         });
 
+        When<IEvent<RoadSegmentAttributesWasModified>>(async (context, e, ct) =>
+        {
+            var m = e.Data;
+            await WritePartial(context, m.RoadSegmentId.ToInt32(), null, null, null, null, null,
+                m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
+                m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
+                m.PedestrianTrafficDirection, m.Provenance, ct);
+        });
+
         When<IEvent<RoadSegmentGeometryWasModified>>(async (context, e, ct) =>
         {
             var m = e.Data;
