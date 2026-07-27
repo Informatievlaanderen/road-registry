@@ -79,7 +79,7 @@ public partial class RoadNodesController
                 [
                     new WegknoopGeometrieProjectie
                     {
-                        Gml = roadNode.Geometry.Lambert08.Value.ConvertToGml(useHttpsSchema: false)
+                        Gml = roadNode.Geometry.Lambert08.Value.ConvertToGml(useHttpsSchema: false, coordinatePrecision: Precisions.GeometryPrecisionV2)
                     },
                     new WegknoopGeometrieProjectie
                     {
