@@ -1,3 +1,11 @@
+## [5.4.1](https://github.com/informatievlaanderen/road-registry/compare/v5.4.0...v5.4.1) (2026-07-27)
+
+
+### Bug Fixes
+
+* **2.0:** extra log context when projections are running ([738d399](https://github.com/informatievlaanderen/road-registry/commit/738d399f7d6dd064683dc55a92c353a39dcde51d))
+* **2.0:** show quality report on accepted inwinning upload ([a4807f6](https://github.com/informatievlaanderen/road-registry/commit/a4807f6694a568edaf79383a29efcaddcc6b4692))
+
 # [5.4.0](https://github.com/informatievlaanderen/road-registry/compare/v5.3.1...v5.4.0) (2026-07-24)
 
 
