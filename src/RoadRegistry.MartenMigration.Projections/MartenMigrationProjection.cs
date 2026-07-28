@@ -12,7 +12,6 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Extensions;
 using GradeSeparatedJunction;
-using JasperFx.Events;
 using Marten;
 using NodaTime;
 using NodaTime.Text;
@@ -976,14 +975,14 @@ RoadNetworkExtractGotRequestedV2
 
             if (recalculateJunctions)
             {
-                await RecalculateGradeSeparatedJunctionsForSegment(session, roadSegment, provenance, token);
+                await RecalculateGradeSeparatedJunctionsForSegment(session, roadSegment, changeIndex, provenance, token);
             }
         }, token);
     }
 
-    private static async Task RecalculateGradeSeparatedJunctionsForSegment(
-        IDocumentSession session,
+    private static async Task RecalculateGradeSeparatedJunctionsForSegment(IDocumentSession session,
         RoadSegment changedSegment,
+        int changeIndex,
         Provenance provenance,
         CancellationToken token)
     {
@@ -1019,13 +1018,12 @@ RoadNetworkExtractGotRequestedV2
 
             // The stream carries the V1 event with the Lambert72 geometry (legacy CRS); the aggregate snapshot keeps
             // Lambert08 via the V2 apply (which is not appended to the stream).
-            session.Events.Append(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), junctionId),
-                new RoadRegistry.GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionGeometryModified
-                {
-                    Id = junctionIdValue,
-                    Geometry = newGeometry.EnsureLambert72(),
-                    Provenance = new ProvenanceData(provenance)
-                });
+            AppendWithChangeOrdinal(session, StreamKeyFactory.Create(typeof(GradeSeparatedJunction), junctionId), new RoadRegistry.GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionGeometryModified
+            {
+                Id = junctionIdValue,
+                Geometry = newGeometry.EnsureLambert72(),
+                Provenance = new ProvenanceData(provenance)
+            }, changeIndex);
             junction.Apply(new GradeSeparatedJunctionGeometryWasChanged
             {
                 GradeSeparatedJunctionId = junctionId,
