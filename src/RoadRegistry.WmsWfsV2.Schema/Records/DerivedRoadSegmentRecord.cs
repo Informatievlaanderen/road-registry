@@ -39,11 +39,13 @@ public class DerivedRoadSegmentRecord
     public string? LBLTOEGANG { get; set; }
     public int? VERHARDING { get; set; }
     public string? LBLVERHARD { get; set; }
-    public int? AUTOHEEN { get; set; }
-    public int? AUTOTERUG { get; set; }
-    public int? FIETSHEEN { get; set; }
-    public int? FIETSTERUG { get; set; }
-    public int? VOETGANGER { get; set; }
+    // Traffic direction (RICHTING) per mode: the coded int value plus its Dutch label ("heen"/"terug"/"beide"/"geen").
+    public int? VERKEERSTYPE_AUTO { get; set; }
+    public string? LBLVERKEERSTYPE_AUTO { get; set; }
+    public int? VERKEERSTYPE_FIETS { get; set; }
+    public string? LBLVERKEERSTYPE_FIETS { get; set; }
+    public int? VERKEERSTYPE_VOETGANGER { get; set; }
+    public string? LBLVERKEERSTYPE_VOETGANGER { get; set; }
     // Distinct, alphabetically sorted European/National road numbers of the segment, concatenated with " / ".
     public string? EUNUMMERS { get; set; }
     public string? NWNUMMERS { get; set; }
@@ -74,6 +76,9 @@ public class DerivedRoadSegmentRecordConfiguration : IEntityTypeConfiguration<De
         b.Property(p => p.LBLBEHEER).HasColumnType("varchar(32)");
         b.Property(p => p.LBLTOEGANG).HasColumnType("varchar(64)");
         b.Property(p => p.LBLVERHARD).HasColumnType("varchar(64)");
+        b.Property(p => p.LBLVERKEERSTYPE_AUTO).HasColumnType("varchar(64)");
+        b.Property(p => p.LBLVERKEERSTYPE_FIETS).HasColumnType("varchar(64)");
+        b.Property(p => p.LBLVERKEERSTYPE_VOETGANGER).HasColumnType("varchar(64)");
         b.Property(p => p.EUNUMMERS).HasColumnType("varchar(255)");
         b.Property(p => p.NWNUMMERS).HasColumnType("varchar(255)");
         b.Property(p => p.GEOMETRIE).HasColumnType("Geometry");
@@ -88,11 +93,20 @@ public class DerivedRoadSegmentRecordConfiguration : IEntityTypeConfiguration<De
         b.HasIndex(p => p.WEGCAT);
         b.HasIndex(p => p.TOEGANG);
         b.HasIndex(p => p.VERHARDING);
-        b.HasIndex(p => p.AUTOHEEN);
-        b.HasIndex(p => p.AUTOTERUG);
-        b.HasIndex(p => p.FIETSHEEN);
-        b.HasIndex(p => p.FIETSTERUG);
-        b.HasIndex(p => p.VOETGANGER);
+        b.HasIndex(p => p.VERKEERSTYPE_AUTO);
+        b.HasIndex(p => p.VERKEERSTYPE_FIETS);
+        b.HasIndex(p => p.VERKEERSTYPE_VOETGANGER);
+
+        // The label (LBLxxx) columns are indexed so WMS layers can filter/style on the Dutch label text directly.
+        b.HasIndex(p => p.LBLVERKEERSTYPE_AUTO);
+        b.HasIndex(p => p.LBLVERKEERSTYPE_FIETS);
+        b.HasIndex(p => p.LBLVERKEERSTYPE_VOETGANGER);
+        b.HasIndex(p => p.LBLSTATUS);
+        b.HasIndex(p => p.LBLMETHODE);
+        b.HasIndex(p => p.LBLMORF);
+        b.HasIndex(p => p.LBLWEGCAT);
+        b.HasIndex(p => p.LBLTOEGANG);
+        b.HasIndex(p => p.LBLVERHARD);
 
         // The denormalized street name / maintainer label columns are indexed so WMS layers can filter/style on them.
         b.HasIndex(p => p.STRNM);

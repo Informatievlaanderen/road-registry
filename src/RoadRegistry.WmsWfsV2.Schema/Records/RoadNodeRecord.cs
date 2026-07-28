@@ -28,6 +28,8 @@ public class RoadNodeRecordConfiguration : IEntityTypeConfiguration<RoadNodeReco
         b.ToTable(TableName, WellKnownSchemas.WmsWfsV2Schema).HasKey(p => p.WK_OIDN).IsClustered();
         b.Property(p => p.WK_OIDN).ValueGeneratedNever();
         b.Property(p => p.LBLTYPE).HasColumnType("varchar(64)");
+        // Indexed so WMS layers can filter/style road nodes by the Dutch type label.
+        b.HasIndex(p => p.LBLTYPE);
         b.Property(p => p.GEOMETRIE).HasColumnType("Geometry");
         b.Property(p => p.CREATIE).HasColumnType("datetimeoffset");
         b.Property(p => p.VERSIE).HasColumnType("datetimeoffset");

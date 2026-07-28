@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.WmsWfsV2.Schema;
@@ -12,9 +13,11 @@ using RoadRegistry.WmsWfsV2.Schema;
 namespace RoadRegistry.WmsWfsV2.Schema.Migrations
 {
     [DbContext(typeof(WmsWfsV2Context))]
-    partial class WmsWfsV2ContextModelSnapshot : ModelSnapshot
+    [Migration("20260728154250_WmsWfsV2LabelsSpatialIndexesTrafficType")]
+    partial class WmsWfsV2LabelsSpatialIndexesTrafficType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
