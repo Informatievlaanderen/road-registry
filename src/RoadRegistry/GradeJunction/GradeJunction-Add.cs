@@ -8,14 +8,14 @@ public partial class GradeJunction
 {
     public static GradeJunction Add(RoadSegmentId roadSegmentId1, RoadSegmentId roadSegmentId2, JunctionGeometry geometry, Provenance provenance, IRoadNetworkIdGenerator idGenerator, IEventOrdinalProvider? ordinalProvider = null)
     {
-        var junction = Create(new GradeJunctionWasAdded
+        var junction = CreateWithProvider(new GradeJunctionWasAdded
         {
             GradeJunctionId = idGenerator.NewGradeJunctionId(),
             RoadSegmentId1 = roadSegmentId1,
             RoadSegmentId2 = roadSegmentId2,
             Geometry = geometry,
             Provenance = new ProvenanceData(provenance)
-        }, ordinalProvider);
+        }, ordinalProvider ?? EventOrdinalProvider.None);
 
         return junction;
     }

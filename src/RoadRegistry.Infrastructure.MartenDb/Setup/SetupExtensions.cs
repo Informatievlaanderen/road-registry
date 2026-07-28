@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using RoadRegistry.BackOffice;
+using RoadRegistry.GradeJunction;
 using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Infrastructure.MartenDb.Store;
@@ -89,6 +90,7 @@ public static class SetupExtensions
         options.Projections.Snapshot<RoadSegment>(SnapshotLifecycle.Inline);
         options.Projections.Snapshot<RoadNode>(SnapshotLifecycle.Inline);
         options.Projections.Snapshot<GradeSeparatedJunction>(SnapshotLifecycle.Inline);
+        options.Projections.Snapshot<GradeJunction>(SnapshotLifecycle.Inline);
 
         return options;
     }

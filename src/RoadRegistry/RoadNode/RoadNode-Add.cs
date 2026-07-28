@@ -12,7 +12,7 @@ public partial class RoadNode
     {
         var problems = Problems.WithContext(change.TemporaryId);
 
-        var roadNode = Create(new RoadNodeWasAdded
+        var roadNode = CreateWithProvider(new RoadNodeWasAdded
         {
             RoadNodeId = idGenerator.NewRoadNodeId(),
             OriginalId = change.OriginalId ?? change.TemporaryId,
@@ -20,7 +20,7 @@ public partial class RoadNode
             Grensknoop = change.Grensknoop,
             Type = change.Type,
             Provenance = new ProvenanceData(provenance)
-        }, ordinalProvider);
+        }, ordinalProvider ?? EventOrdinalProvider.None);
 
         return (roadNode, problems);
     }

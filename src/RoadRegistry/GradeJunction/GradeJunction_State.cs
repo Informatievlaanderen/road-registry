@@ -39,9 +39,16 @@ public partial class GradeJunction : MartenAggregateRootEntity<GradeJunctionId>
         _lastSnapshotEventHash = lastEventHash;
     }
 
-    public static GradeJunction Create(GradeJunctionWasAdded @event, IEventOrdinalProvider? ordinalProvider = null)
+    public static GradeJunction Create(GradeJunctionWasAdded @event)
     {
-        var junction = new GradeJunction(@event.GradeJunctionId, ordinalProvider ?? EventOrdinalProvider.None)
+        return CreateWithProvider(@event, EventOrdinalProvider.None);
+    }
+
+    // Deliberately not named "Create": Marten's snapshot aggregation discovers static Create methods and cannot
+    // resolve the IEventOrdinalProvider parameter. Used by the domain Add path to stamp the created event.
+    private static GradeJunction CreateWithProvider(GradeJunctionWasAdded @event, IEventOrdinalProvider ordinalProvider)
+    {
+        var junction = new GradeJunction(@event.GradeJunctionId, ordinalProvider)
         {
             RoadSegmentId1 = @event.RoadSegmentId1,
             RoadSegmentId2 = @event.RoadSegmentId2,
