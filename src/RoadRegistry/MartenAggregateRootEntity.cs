@@ -1,14 +1,13 @@
-﻿namespace RoadRegistry;
+namespace RoadRegistry;
 
 using System.Collections.Generic;
-using System.Linq;
 using Newtonsoft.Json;
 
 public interface IMartenAggregateRootEntity
 {
     string Id { get; }
     bool HasChanges();
-    IReadOnlyCollection<object> GetChanges();
+    IReadOnlyList<RecordedEvent> GetRecordedChanges();
 }
 
 public abstract class MartenAggregateRootEntity<TIdentifier> : IMartenAggregateRootEntity
@@ -16,15 +15,30 @@ public abstract class MartenAggregateRootEntity<TIdentifier> : IMartenAggregateR
     [JsonIgnore]
     public string Id { get; set; } // Required for MartenDb
 
-    public bool HasChanges() => _requestedToSaveSnapshot || UncommittedEvents.Any();
-public IReadOnlyCollection<object> GetChanges() => UncommittedEvents.Cast<object>().ToArray();
+    // The shared per-change ordinal provider used to stamp each raised event with its emission order. Every
+    // aggregate must be constructed with one (EventOrdinalProvider.None when not participating in a change);
+    // a change swaps in its own provider via AttachOrdinalProvider. Not persisted.
+    private IEventOrdinalProvider _ordinalProvider;
 
-    protected List<IMartenEvent> UncommittedEvents { get; } = [];
+    public bool HasChanges() => _requestedToSaveSnapshot || UncommittedEvents.Count > 0;
+    public IReadOnlyList<RecordedEvent> GetRecordedChanges() => UncommittedEvents.Recorded;
+
+    protected UncommittedEventCollection UncommittedEvents { get; }
     private bool _requestedToSaveSnapshot;
 
-    protected MartenAggregateRootEntity(TIdentifier identifier)
+    protected MartenAggregateRootEntity(TIdentifier identifier, IEventOrdinalProvider ordinalProvider)
     {
         Id = StreamKeyFactory.Create(GetType(), identifier);
+        _ordinalProvider = ordinalProvider;
+        UncommittedEvents = new UncommittedEventCollection(() => _ordinalProvider);
+    }
+
+    // Swaps in the change's shared ordinal provider so events raised from now on are stamped in true
+    // cross-aggregate emission order (see EventOrdinal). ScopedRoadNetwork overrides this to also propagate
+    // the provider to every aggregate it holds.
+    internal virtual void AttachOrdinalProvider(IEventOrdinalProvider ordinalProvider)
+    {
+        _ordinalProvider = ordinalProvider;
     }
 
     public void RequestToSaveSnapshot()

@@ -2,7 +2,6 @@
 
 using Events.V2;
 using Newtonsoft.Json;
-using RoadRegistry.Extensions;
 
 public partial class GradeJunction : MartenAggregateRootEntity<GradeJunctionId>
 {
@@ -16,8 +15,8 @@ public partial class GradeJunction : MartenAggregateRootEntity<GradeJunctionId>
     private readonly string? _lastSnapshotEventHash;
     public string LastEventHash => UncommittedEvents.Count > 0 ? UncommittedEvents[^1].GetHash() : _lastSnapshotEventHash ?? string.Empty;
 
-    public GradeJunction(GradeJunctionId id)
-        : base(id)
+    public GradeJunction(GradeJunctionId id, IEventOrdinalProvider ordinalProvider)
+        : base(id, ordinalProvider)
     {
         GradeJunctionId = id;
     }
@@ -31,7 +30,7 @@ public partial class GradeJunction : MartenAggregateRootEntity<GradeJunctionId>
         bool isRemoved,
         string? lastEventHash
     )
-        : this(new GradeJunctionId(gradeJunctionId))
+        : this(new GradeJunctionId(gradeJunctionId), EventOrdinalProvider.None)
     {
         RoadSegmentId1 = new RoadSegmentId(roadSegmentId1);
         RoadSegmentId2 = new RoadSegmentId(roadSegmentId2);
@@ -40,9 +39,9 @@ public partial class GradeJunction : MartenAggregateRootEntity<GradeJunctionId>
         _lastSnapshotEventHash = lastEventHash;
     }
 
-    public static GradeJunction Create(GradeJunctionWasAdded @event)
+    public static GradeJunction Create(GradeJunctionWasAdded @event, IEventOrdinalProvider? ordinalProvider = null)
     {
-        var junction = new GradeJunction(@event.GradeJunctionId)
+        var junction = new GradeJunction(@event.GradeJunctionId, ordinalProvider ?? EventOrdinalProvider.None)
         {
             RoadSegmentId1 = @event.RoadSegmentId1,
             RoadSegmentId2 = @event.RoadSegmentId2,

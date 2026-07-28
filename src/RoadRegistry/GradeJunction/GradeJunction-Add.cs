@@ -6,7 +6,7 @@ using RoadRegistry.ScopedRoadNetwork;
 
 public partial class GradeJunction
 {
-    public static GradeJunction Add(RoadSegmentId roadSegmentId1, RoadSegmentId roadSegmentId2, JunctionGeometry geometry, Provenance provenance, IRoadNetworkIdGenerator idGenerator)
+    public static GradeJunction Add(RoadSegmentId roadSegmentId1, RoadSegmentId roadSegmentId2, JunctionGeometry geometry, Provenance provenance, IRoadNetworkIdGenerator idGenerator, IEventOrdinalProvider? ordinalProvider = null)
     {
         var junction = Create(new GradeJunctionWasAdded
         {
@@ -15,7 +15,7 @@ public partial class GradeJunction
             RoadSegmentId2 = roadSegmentId2,
             Geometry = geometry,
             Provenance = new ProvenanceData(provenance)
-        });
+        }, ordinalProvider);
 
         return junction;
     }

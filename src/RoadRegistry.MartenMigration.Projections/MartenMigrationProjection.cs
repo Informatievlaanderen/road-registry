@@ -663,7 +663,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -702,7 +702,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
             {
                 session.CorrelationId = roadNetworkId;
                 session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -743,7 +743,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -778,7 +778,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -957,7 +957,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -1347,7 +1347,7 @@ RoadNetworkExtractGotRequestedV2
         var roadSegmentId = new RoadSegmentId(change.Id);
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -1384,7 +1384,7 @@ RoadNetworkExtractGotRequestedV2
         var roadSegmentId = new RoadSegmentId(change.Id);
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -1438,7 +1438,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -1481,7 +1481,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -1517,7 +1517,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -1575,7 +1575,7 @@ RoadNetworkExtractGotRequestedV2
             var roadSegmentId = new RoadSegmentId(change.Id);
             var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, index);
 
-            await _store.IdempotentSession(idempotentSessionIdentifier, session =>
+            await _store.IdempotentSession(idempotentSessionIdentifier, index, session =>
             {
                 session.CorrelationId = roadNetworkId;
                 session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";

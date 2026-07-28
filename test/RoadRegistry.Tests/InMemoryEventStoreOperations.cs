@@ -16,6 +16,10 @@ public class InMemoryEventStoreOperations : IEventStoreOperations
         return result;
     }
 
+    // Pending (not-yet-saved) stream actions, exposed for IUnitOfWork.Streams() so change-ordinal headers can be
+    // stamped before SaveChanges, mirroring real Marten.
+    public IList<StreamAction> PendingStreamActions => _streamActions;
+
     public StreamAction Append(Guid stream, IEnumerable<object> events)
     {
         _streamKeys.Add(stream);

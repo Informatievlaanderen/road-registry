@@ -337,6 +337,48 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
+    public void WhenSplitting_ThenEmittedEventsCarryContiguousOrdinalsWithCreatedEventsBeforeTheSplit()
+    {
+        // Arrange - a fully clean network so only the split's own emitted events are recorded.
+        var startNode = RoadNode.Create(TestData.Segment1StartNodeAdded).WithoutChanges();
+        var endNode = RoadNode.Create(TestData.Segment1EndNodeAdded).WithoutChanges();
+        var segment = RoadSegment.Create(TestData.Segment1Added).WithoutChanges();
+        var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [startNode, endNode], [segment], [], []);
+        var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
+
+        // Act
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), IdGenerator(), TestData.Provenance);
+
+        // Assert
+        var recorded = CollectRecordedEvents(roadNetwork);
+        recorded.Should().NotBeEmpty();
+
+        // A single shared ordinal provider (per change) stamps every emitted event, so the ordinals are unique and
+        // contiguous starting from 0 - reflecting the true cross-aggregate emission order.
+        recorded.Select(x => x.Ordinal).OrderBy(x => x)
+            .Should().Equal(Enumerable.Range(0, recorded.Count).Select(i => (long)i));
+
+        // The created node and segments are emitted (and thus ordered) before the split of the original segment.
+        // This is the whole point of the ordinal: Marten's seq_id would otherwise place the newly-created streams
+        // last, and the read projection would then process the split before the node/segments it depends on exist.
+        var splitOrdinal = recorded.Single(x => x.Event is RoadSegmentWasSplit).Ordinal;
+        var createdEvents = recorded.Where(x => x.Event is RoadNodeWasAdded or RoadSegmentWasAdded).ToList();
+        createdEvents.Should().NotBeEmpty();
+        createdEvents.Should().OnlyContain(x => x.Ordinal < splitOrdinal);
+    }
+
+    private static List<RecordedEvent> CollectRecordedEvents(ScopedRoadNetwork roadNetwork)
+    {
+        return roadNetwork.RoadNodes.Values.Cast<IMartenAggregateRootEntity>()
+            .Concat(roadNetwork.RoadSegments.Values)
+            .Concat(roadNetwork.GradeSeparatedJunctions.Values)
+            .Concat(roadNetwork.GradeJunctions.Values)
+            .Append(roadNetwork)
+            .SelectMany(x => x.GetRecordedChanges())
+            .ToList();
+    }
+
+    [Fact]
     public void WhenCutPositionTooFarFromSegment_ThenTooFarProblem()
     {
         // Arrange

@@ -2,7 +2,9 @@
 
 using System.Data;
 using Dapper;
+using JasperFx.Events;
 using Marten;
+using Marten.Events;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Projections;
@@ -290,10 +292,11 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
         SaveEntities(roadNetwork.RoadSegments, session);
         SaveEntities(roadNetwork.GradeSeparatedJunctions, session);
         SaveEntities(roadNetwork.GradeJunctions, session);
-        foreach (var evt in roadNetwork.GetChanges())
+        foreach (var recorded in roadNetwork.GetRecordedChanges())
         {
-            EnsureEventHasProvenance(evt);
-            session.Events.StartStream(roadNetwork.Id, evt);
+            EnsureEventHasProvenance(recorded.Event);
+            var action = session.Events.StartStream(roadNetwork.Id, recorded.Event);
+            SetOrdinalHeader(action, recorded.Ordinal);
         }
     }
 
@@ -302,14 +305,28 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
     {
         foreach (var entity in entities.Select(x => x.Value).Where(x => x.HasChanges()))
         {
-            foreach (var @event in entity.GetChanges())
+            foreach (var recorded in entity.GetRecordedChanges())
             {
-                EnsureEventHasProvenance(@event);
-                session.Events.AppendOrStartStream(entity.Id, @event);
+                EnsureEventHasProvenance(recorded.Event);
+                var action = session.Events.AppendOrStartStream(entity.Id, recorded.Event);
+                SetOrdinalHeader(action, recorded.Ordinal);
             }
 
             session.Store(entity);
         }
+    }
+
+    // Stamps the emission ordinal onto the just-appended event as a Marten header so the read projection can
+    // replay a correlation's events in true emission order rather than by seq_id (which Marten does not preserve
+    // across stream appends vs. new-stream creations). See EventOrdinal / IEventOrdinalProvider.
+    private static void SetOrdinalHeader(StreamAction action, long ordinal)
+    {
+        if (action.Events.Count == 0)
+        {
+            return;
+        }
+
+        action.Events[^1].SetHeader(EventOrdinal.HeaderKey, ordinal);
     }
 
     private static void EnsureEventHasProvenance(object @event)

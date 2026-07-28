@@ -70,7 +70,7 @@ public partial class RoadSegment
             EuropeanRoadNumbers = attributes.EuropeanRoadNumbers,
             NationalRoadNumbers = attributes.NationalRoadNumbers,
             Provenance = new ProvenanceData(context.Provenance)
-        });
+        }, context.OrdinalProvider);
 
         return (segment, problems);
     }

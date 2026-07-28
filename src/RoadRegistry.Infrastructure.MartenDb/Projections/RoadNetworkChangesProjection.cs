@@ -98,7 +98,10 @@ public abstract class RoadNetworkChangesProjection : IProjection
         var correlationWork = eventsPerCorrelationId
             .Select(g =>
             {
-                var orderedEvents = g.OrderBy(x => x.Sequence).ToList();
+                // Order by the emission ordinal stamped at save time (EventOrdinal header) so a correlation's
+                // events replay in the order they were raised - Marten's seq_id does not preserve that order
+                // (created events land last). Events without the header (pre-ordinal history) fall back to seq_id.
+                var orderedEvents = g.OrderBy(GetChangeOrdinal).ThenBy(x => x.Sequence).ToList();
                 var progressionId = BuildProgressionId(g.Key);
                 var lastSeq = orderedEvents[^1].Sequence;
                 progressionById.TryGetValue(progressionId, out var progression);
@@ -139,6 +142,20 @@ public abstract class RoadNetworkChangesProjection : IProjection
     private string BuildProgressionId(string correlationId)
     {
         return $"{_projectionName}-{correlationId}";
+    }
+
+    // Reads the emission ordinal written as a Marten header at save time (EventOrdinal.HeaderKey). Events that
+    // predate the ordinal (no header) sort last and keep their relative seq_id order via the secondary ThenBy.
+    private static long GetChangeOrdinal(IEvent @event)
+    {
+        if (@event.Headers is not null
+            && @event.Headers.TryGetValue(EventOrdinal.HeaderKey, out var value)
+            && value is not null)
+        {
+            return Convert.ToInt64(value);
+        }
+
+        return long.MaxValue;
     }
 
     // One correlation's slice of a batch: the events still to process (after the Marten progression filter) plus the
