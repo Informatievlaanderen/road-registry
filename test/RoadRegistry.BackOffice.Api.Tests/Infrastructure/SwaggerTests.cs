@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using RoadRegistry.BackOffice.Api.Infrastructure;
+using RoadRegistry.BackOffice.Api.V2.RoadSegments;
 using RoadRegistry.Extracts;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -66,6 +67,33 @@ public class SwaggerTests
             buildSwaggerDocument.Should().NotThrow(
                 $"the OpenAPI document for '{documentName}' must be buildable so /docs does not return a 500");
         }
+    }
+
+    [Fact]
+    public void ChangeAttributesV2_SchemasAreRequiredAndOrderedCorrectly()
+    {
+        var serviceProvider = BuildApiServiceProvider();
+        var schemaGenerator = serviceProvider.GetRequiredService<ISchemaGenerator>();
+
+        var schemaRepository = new SchemaRepository();
+        schemaGenerator.GenerateSchema(typeof(StraatnaamParameters), schemaRepository);
+        schemaGenerator.GenerateSchema(typeof(MorfologieParameters), schemaRepository);
+        schemaGenerator.GenerateSchema(typeof(ChangeRoadSegmentAttributeV2Parameters), schemaRepository);
+
+        // The list of road segments to change is required.
+        schemaRepository.Schemas[nameof(ChangeRoadSegmentAttributeV2Parameters)].Required
+            .Should().Contain("wegsegmenten");
+
+        // A sided VanTot derivative orders kant, vanPositie, totPositie and then the attribute; only the attribute
+        // itself is required (not kant / vanPositie / totPositie).
+        var straatnaam = schemaRepository.Schemas[nameof(StraatnaamParameters)];
+        straatnaam.Properties.Keys.Should().Equal("kant", "vanPositie", "totPositie", "identificator");
+        straatnaam.Required.Should().BeEquivalentTo(new[] { "identificator" });
+
+        // A non-sided VanTot derivative orders vanPositie, totPositie and then the attribute; only the attribute is required.
+        var morfologie = schemaRepository.Schemas[nameof(MorfologieParameters)];
+        morfologie.Properties.Keys.Should().Equal("vanPositie", "totPositie", "morfologie");
+        morfologie.Required.Should().BeEquivalentTo(new[] { "morfologie" });
     }
 
     private static IServiceProvider BuildApiServiceProvider()

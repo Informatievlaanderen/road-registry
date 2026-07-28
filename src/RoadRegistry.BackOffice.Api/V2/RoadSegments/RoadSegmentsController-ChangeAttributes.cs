@@ -381,7 +381,7 @@ public class ChangeRoadSegmentAttributesV2Parameters : List<ChangeRoadSegmentAtt
 public record ChangeRoadSegmentAttributeV2Parameters
 {
     [DataMember(Name = "Wegsegmenten", Order = 0)]
-    [JsonProperty("wegsegmenten")]
+    [JsonProperty("wegsegmenten", Required = Required.Always)]
     public int[]? Wegsegmenten { get; set; }
 
     [DataMember(Name = "Morfologie", Order = 1)]
@@ -423,83 +423,83 @@ public record ChangeRoadSegmentAttributeV2Parameters
 
 public record VanTotParameters
 {
-    [DataMember(Name = "vanPositie")]
+    [DataMember(Name = "vanPositie", Order = 1)]
     [JsonProperty("vanPositie")]
     public double? VanPositie { get; set; }
 
-    [DataMember(Name = "totPositie")]
+    [DataMember(Name = "totPositie", Order = 2)]
     [JsonProperty("totPositie")]
     public double? TotPositie { get; set; }
 }
 
 public record MorfologieParameters : VanTotParameters
 {
-    [DataMember(Name = "morfologie")]
-    [JsonProperty("morfologie")]
+    [DataMember(Name = "morfologie", Order = 3)]
+    [JsonProperty("morfologie", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentMorphologyV2))]
     public string Morfologie { get; set; }
 }
 
 public record WegverhardingParameters : VanTotParameters
 {
-    [DataMember(Name = "wegverharding")]
-    [JsonProperty("wegverharding")]
+    [DataMember(Name = "wegverharding", Order = 3)]
+    [JsonProperty("wegverharding", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentSurfaceTypeV2))]
     public string Wegverharding { get; set; }
 }
 
 public record ToegangParameters : VanTotParameters
 {
-    [DataMember(Name = "toegang")]
-    [JsonProperty("toegang")]
+    [DataMember(Name = "toegang", Order = 3)]
+    [JsonProperty("toegang", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAccessRestrictionV2))]
     public string Toegang { get; set; }
 }
 
 public record WegcategorieParameters : VanTotParameters
 {
-    [DataMember(Name = "wegcategorie")]
-    [JsonProperty("wegcategorie")]
+    [DataMember(Name = "wegcategorie", Order = 3)]
+    [JsonProperty("wegcategorie", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentCategoryV2))]
     public string Wegcategorie { get; set; }
 }
 
 public record StraatnaamParameters : VanTotParameters
 {
-    [DataMember(Name = "kant")]
+    [DataMember(Name = "kant", Order = 0)]
     [JsonProperty("kant")]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
     public string Kant { get; set; }
 
-    [DataMember(Name = "identificator")]
-    [JsonProperty("identificator")]
+    [DataMember(Name = "identificator", Order = 3)]
+    [JsonProperty("identificator", Required = Required.Always)]
     public string Identificator { get; set; }
 }
 
 public record WegbeheerderParameters : VanTotParameters
 {
-    [DataMember(Name = "kant")]
+    [DataMember(Name = "kant", Order = 0)]
     [JsonProperty("kant")]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
     public string Kant { get; set; }
 
-    [DataMember(Name = "wegbeheerder")]
-    [JsonProperty("wegbeheerder")]
+    [DataMember(Name = "wegbeheerder", Order = 3)]
+    [JsonProperty("wegbeheerder", Required = Required.Always)]
     public string Wegbeheerder { get; set; }
 }
 
 public record VerkeerstypeParameters : VanTotParameters
 {
-    [DataMember(Name = "richting")]
-    [JsonProperty("richting")]
+    [DataMember(Name = "richting", Order = 3)]
+    [JsonProperty("richting", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentTrafficDirection))]
     public string Richting { get; set; }
 }
 
 public record VerkeerstypeVoetgangerParameters : VanTotParameters
 {
-    [DataMember(Name = "richting")]
-    [JsonProperty("richting")]
+    [DataMember(Name = "richting", Order = 3)]
+    [JsonProperty("richting", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentPedestrianTrafficDirection))]
     public string Richting { get; set; }
 }
