@@ -1,6 +1,5 @@
 namespace RoadRegistry;
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,17 +47,17 @@ public readonly record struct RecordedEvent(IMartenEvent Event, long Ordinal);
 // save time that order is already lost.
 public sealed class UncommittedEventCollection : IEnumerable<IMartenEvent>
 {
-    private readonly Func<IEventOrdinalProvider> _ordinalProvider;
+    private readonly IEventOrdinalProvider _ordinalProvider;
     private readonly List<RecordedEvent> _events = [];
 
-    public UncommittedEventCollection(Func<IEventOrdinalProvider> ordinalProvider)
+    public UncommittedEventCollection(IEventOrdinalProvider ordinalProvider)
     {
         _ordinalProvider = ordinalProvider;
     }
 
     public void Add(IMartenEvent @event)
     {
-        _events.Add(new RecordedEvent(@event, _ordinalProvider().Next()));
+        _events.Add(new RecordedEvent(@event, _ordinalProvider.Next()));
     }
 
     public int Count => _events.Count;
