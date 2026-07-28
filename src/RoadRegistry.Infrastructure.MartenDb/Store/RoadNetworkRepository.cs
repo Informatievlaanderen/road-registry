@@ -288,6 +288,8 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
         session.CorrelationId ??= roadNetwork.RoadNetworkId;
         session.CausationId = commandName;
 
+        ValidateUniqueOrdinals(roadNetwork);
+
         SaveEntities(roadNetwork.RoadNodes, session);
         SaveEntities(roadNetwork.RoadSegments, session);
         SaveEntities(roadNetwork.GradeSeparatedJunctions, session);
@@ -297,6 +299,33 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
             EnsureEventHasProvenance(recorded.Event);
             var action = session.Events.StartStream(roadNetwork.Id, recorded.Event);
             SetOrdinalHeader(action, recorded.Ordinal);
+        }
+    }
+
+    // Every event emitted during one change is stamped with a distinct ordinal from that change's single shared
+    // provider (see EventOrdinal / IEventOrdinalProvider). Duplicate ordinals therefore mean some aggregate emitted
+    // events without the change's provider attached - it fell back to EventOrdinalProvider.None (which always yields
+    // 0), typically because a new aggregate was created without the ordinal provider threaded through. Fail fast
+    // rather than persist events the read projection cannot order.
+    private static void ValidateUniqueOrdinals(ScopedRoadNetwork roadNetwork)
+    {
+        var duplicateOrdinals = roadNetwork.RoadNodes.Values.Cast<IMartenAggregateRootEntity>()
+            .Concat(roadNetwork.RoadSegments.Values)
+            .Concat(roadNetwork.GradeSeparatedJunctions.Values)
+            .Concat(roadNetwork.GradeJunctions.Values)
+            .Append(roadNetwork)
+            .Where(x => x.HasChanges())
+            .SelectMany(x => x.GetRecordedChanges())
+            .GroupBy(x => x.Ordinal)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToList();
+
+        if (duplicateOrdinals.Count > 0)
+        {
+            throw new InvalidOperationException(
+                $"Duplicate event ordinal(s) [{string.Join(", ", duplicateOrdinals)}] while saving road network '{roadNetwork.RoadNetworkId}'. " +
+                $"An aggregate emitted events without the change's {nameof(IEventOrdinalProvider)} attached (fell back to {nameof(EventOrdinalProvider)}.None).");
         }
     }
 
