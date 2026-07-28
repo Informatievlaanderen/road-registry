@@ -48,9 +48,16 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         return new RoadNode(roadNodeId, geometry, null, false, false, null);
     }
 
-    public static RoadNode Create(RoadNodeWasAdded @event, IEventOrdinalProvider? ordinalProvider = null)
+    public static RoadNode Create(RoadNodeWasAdded @event)
     {
-        var roadNode = new RoadNode(@event.RoadNodeId, ordinalProvider ?? EventOrdinalProvider.None)
+        return CreateWithProvider(@event, EventOrdinalProvider.None);
+    }
+
+    // Deliberately not named "Create": Marten's snapshot aggregation discovers static Create methods and cannot
+    // resolve the IEventOrdinalProvider parameter. Used by the domain Add path to stamp the created event.
+    internal static RoadNode CreateWithProvider(RoadNodeWasAdded @event, IEventOrdinalProvider ordinalProvider)
+    {
+        var roadNode = new RoadNode(@event.RoadNodeId, ordinalProvider)
         {
             Geometry = @event.Geometry,
             Type = @event.Type,

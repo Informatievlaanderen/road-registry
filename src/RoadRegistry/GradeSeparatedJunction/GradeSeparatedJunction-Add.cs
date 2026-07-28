@@ -12,7 +12,7 @@ public partial class GradeSeparatedJunction
     {
         var problems = Problems.WithContext(change.TemporaryId);
 
-        var junction = Create(new GradeSeparatedJunctionWasAdded
+        var junction = CreateWithProvider(new GradeSeparatedJunctionWasAdded
         {
             GradeSeparatedJunctionId = idGenerator.NewGradeSeparatedJunctionId(),
             OriginalId = change.TemporaryId,
@@ -21,7 +21,7 @@ public partial class GradeSeparatedJunction
             Type = change.Type,
             Geometry = geometry,
             Provenance = new ProvenanceData(provenance)
-        }, ordinalProvider);
+        }, ordinalProvider ?? EventOrdinalProvider.None);
 
         return (junction, problems);
     }

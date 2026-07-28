@@ -49,7 +49,7 @@ public partial class RoadSegment
             return (null, problems);
         }
 
-        var segment = Create(new RoadSegmentWasAdded
+        var segment = CreateWithProvider(new RoadSegmentWasAdded
         {
             RoadSegmentId = idGenerator.NewRoadSegmentId(),
             OriginalRoadSegmentIdReference = change.RoadSegmentIdReference,
