@@ -1,9 +1,8 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Store;
 
-using System.Data;
 using Dapper;
+using JasperFx.Events;
 using Marten;
-using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Projections;
 using ScopedRoadNetwork;
@@ -286,30 +285,49 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
         session.CorrelationId ??= roadNetwork.RoadNetworkId;
         session.CausationId = commandName;
 
-        SaveEntities(roadNetwork.RoadNodes, session);
-        SaveEntities(roadNetwork.RoadSegments, session);
-        SaveEntities(roadNetwork.GradeSeparatedJunctions, session);
-        SaveEntities(roadNetwork.GradeJunctions, session);
-        foreach (var evt in roadNetwork.GetChanges())
-        {
-            EnsureEventHasProvenance(evt);
-            session.Events.StartStream(roadNetwork.Id, evt);
-        }
+        var usedEventOrdinals = new HashSet<long>();
+
+        SaveEntities(roadNetwork.RoadNodes.Values, session, usedEventOrdinals);
+        SaveEntities(roadNetwork.RoadSegments.Values, session, usedEventOrdinals);
+        SaveEntities(roadNetwork.GradeSeparatedJunctions.Values, session, usedEventOrdinals);
+        SaveEntities(roadNetwork.GradeJunctions.Values, session, usedEventOrdinals);
+        SaveEntities([roadNetwork], session, usedEventOrdinals);
     }
 
-    private void SaveEntities<TKey, TEntity>(IReadOnlyDictionary<TKey, TEntity> entities, IDocumentOperations session)
+    private void SaveEntities<TEntity>(IEnumerable<TEntity> entities, IDocumentOperations session, HashSet<long> usedEventOrdinals)
         where TEntity : IMartenAggregateRootEntity
     {
-        foreach (var entity in entities.Select(x => x.Value).Where(x => x.HasChanges()))
+        foreach (var entity in entities.Where(x => x.HasChanges()))
         {
-            foreach (var @event in entity.GetChanges())
+            foreach (var recorded in entity.GetRecordedChanges())
             {
-                EnsureEventHasProvenance(@event);
-                session.Events.AppendOrStartStream(entity.Id, @event);
+                if (!usedEventOrdinals.Add(recorded.Ordinal))
+                {
+                    throw new InvalidOperationException(
+                        $"Duplicate event ordinal(s) [{recorded.Ordinal}] while saving road network. " +
+                        $"An aggregate emitted events without the change's {nameof(IEventOrdinalProvider)} attached (fell back to {nameof(EventOrdinalProvider)}.None).");
+                }
+
+                EnsureEventHasProvenance(recorded.Event);
+                var action = session.Events.AppendOrStartStream(entity.Id, recorded.Event);
+                SetOrdinalHeader(action, recorded.Ordinal);
             }
 
             session.Store(entity);
         }
+    }
+
+    // Stamps the emission ordinal onto the just-appended event as a Marten header so the read projection can
+    // replay a correlation's events in true emission order rather than by seq_id (which Marten does not preserve
+    // across stream appends vs. new-stream creations). See EventOrdinal / IEventOrdinalProvider.
+    private static void SetOrdinalHeader(StreamAction action, long ordinal)
+    {
+        if (action.Events.Count == 0)
+        {
+            return;
+        }
+
+        action.Events[^1].SetHeader(EventOrdinal.HeaderKey, ordinal);
     }
 
     private static void EnsureEventHasProvenance(object @event)

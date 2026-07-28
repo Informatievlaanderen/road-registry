@@ -28,8 +28,8 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
     public bool HasMigrated() => Attributes is not null;
 
-    public RoadSegment(RoadSegmentId id)
-        : base(id)
+    public RoadSegment(RoadSegmentId id, IEventOrdinalProvider ordinalProvider)
+        : base(id, ordinalProvider)
     {
         RoadSegmentId = id;
     }
@@ -46,7 +46,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         string? lastEventHash,
         IReadOnlyList<RoadSegmentId>? lastSplitIntoRoadSegmentIds
     )
-        : this(new RoadSegmentId(roadSegmentId))
+        : this(new RoadSegmentId(roadSegmentId), EventOrdinalProvider.None)
     {
         Geometry = geometry;
         Status = RoadSegmentStatusV2.Parse(status);
@@ -81,9 +81,9 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         return new RoadSegment(roadSegmentId, geometry, status.ToString(), startNodeId, endNodeId, null, false, null, null);
     }
 
-    public static RoadSegment Create(RoadSegmentWasAdded @event)
+    public static RoadSegment Create(RoadSegmentWasAdded @event, IEventOrdinalProvider? ordinalProvider = null)
     {
-        var segment = new RoadSegment(@event.RoadSegmentId);
+        var segment = new RoadSegment(@event.RoadSegmentId, ordinalProvider ?? EventOrdinalProvider.None);
         segment.Apply(@event);
         return segment;
     }
@@ -115,7 +115,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
     public static RoadSegment Create(OutlinedRoadSegmentWasAdded @event)
     {
-        var segment = new RoadSegment(@event.RoadSegmentId);
+        var segment = new RoadSegment(@event.RoadSegmentId, EventOrdinalProvider.None);
         segment.Apply(@event);
         return segment;
     }

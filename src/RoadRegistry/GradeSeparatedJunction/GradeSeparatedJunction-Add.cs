@@ -8,7 +8,7 @@ using ScopedRoadNetwork;
 
 public partial class GradeSeparatedJunction
 {
-    public static (GradeSeparatedJunction?, Problems) Add(AddGradeSeparatedJunctionChange change, JunctionGeometry geometry, Provenance provenance, IRoadNetworkIdGenerator idGenerator)
+    public static (GradeSeparatedJunction?, Problems) Add(AddGradeSeparatedJunctionChange change, JunctionGeometry geometry, Provenance provenance, IRoadNetworkIdGenerator idGenerator, IEventOrdinalProvider? ordinalProvider = null)
     {
         var problems = Problems.WithContext(change.TemporaryId);
 
@@ -21,7 +21,7 @@ public partial class GradeSeparatedJunction
             Type = change.Type,
             Geometry = geometry,
             Provenance = new ProvenanceData(provenance)
-        });
+        }, ordinalProvider);
 
         return (junction, problems);
     }

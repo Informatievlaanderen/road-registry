@@ -237,7 +237,7 @@ public partial class ScopedRoadNetwork
 
     private Problems AddRoadNode(AddRoadNodeChange change, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
     {
-        var (roadNode, problems) = RoadNode.Add(change, context.Provenance, idGenerator);
+        var (roadNode, problems) = RoadNode.Add(change, context.Provenance, idGenerator, context.OrdinalProvider);
         if (problems.HasError())
         {
             return problems;
@@ -265,7 +265,7 @@ public partial class ScopedRoadNetwork
 
         var oldEnvelope = roadNode.Geometry.Value.EnvelopeInternal;
         var problems = roadNode.Modify(change, context.Provenance);
-        if (problems.HasError() || roadNode.GetChanges().Count == 0)
+        if (problems.HasError() || roadNode.GetRecordedChanges().Count == 0)
         {
             return problems;
         }
@@ -333,7 +333,7 @@ public partial class ScopedRoadNetwork
 
         var oldEnvelope = roadSegment.Geometry.Value.EnvelopeInternal;
         problems = roadSegment.Modify(change, context);
-        if (problems.HasError() || roadSegment.GetChanges().Count == 0)
+        if (problems.HasError() || roadSegment.GetRecordedChanges().Count == 0)
         {
             return problems;
         }
@@ -455,7 +455,7 @@ public partial class ScopedRoadNetwork
             return geometryProblems;
         }
 
-        var (gradeSeparatedJunction, problems) = GradeSeparatedJunction.Add(change, geometry, context.Provenance, idGenerator);
+        var (gradeSeparatedJunction, problems) = GradeSeparatedJunction.Add(change, geometry, context.Provenance, idGenerator, context.OrdinalProvider);
         if (problems.HasError())
         {
             return problems;
@@ -526,7 +526,7 @@ public partial class ScopedRoadNetwork
         IRoadNetworkIdGenerator idGenerator,
         ScopedRoadNetworkChangeContext context)
     {
-        var gradeJunction = GradeJunction.Add(roadSegmentId1, roadSegmentId2, geometry, context.Provenance, idGenerator);
+        var gradeJunction = GradeJunction.Add(roadSegmentId1, roadSegmentId2, geometry, context.Provenance, idGenerator, context.OrdinalProvider);
 
         _gradeJunctions.Add(gradeJunction.GradeJunctionId, gradeJunction);
         context.Summary.GradeJunctions.Added.Add(gradeJunction.GradeJunctionId);

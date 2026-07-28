@@ -18,8 +18,8 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
 
     public bool HasMigrated() => Type is not null;
 
-    public RoadNode(RoadNodeId id)
-        : base(id)
+    public RoadNode(RoadNodeId id, IEventOrdinalProvider ordinalProvider)
+        : base(id, ordinalProvider)
     {
         RoadNodeId = id;
     }
@@ -32,7 +32,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         bool grensknoop,
         bool isRemoved,
         string? lastEventHash)
-        : this(new RoadNodeId(roadNodeId))
+        : this(new RoadNodeId(roadNodeId), EventOrdinalProvider.None)
     {
         Geometry = geometry;
         Type = type is not null ? RoadNodeTypeV2.Parse(type) : null;
@@ -48,9 +48,9 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         return new RoadNode(roadNodeId, geometry, null, false, false, null);
     }
 
-    public static RoadNode Create(RoadNodeWasAdded @event)
+    public static RoadNode Create(RoadNodeWasAdded @event, IEventOrdinalProvider? ordinalProvider = null)
     {
-        var roadNode = new RoadNode(@event.RoadNodeId)
+        var roadNode = new RoadNode(@event.RoadNodeId, ordinalProvider ?? EventOrdinalProvider.None)
         {
             Geometry = @event.Geometry,
             Type = @event.Type,

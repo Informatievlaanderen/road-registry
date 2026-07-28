@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Infrastructure.MartenDb;
+namespace RoadRegistry.Infrastructure.MartenDb;
 
 using System.Data;
 using Marten;

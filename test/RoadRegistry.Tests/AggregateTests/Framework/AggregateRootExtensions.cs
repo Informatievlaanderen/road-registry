@@ -1,11 +1,19 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using ScopedRoadNetwork;
 
 public static class AggregateRootExtensions
 {
+    // The raw uncommitted events of an aggregate, for assertions. Production code only needs the ordinal-carrying
+    // GetRecordedChanges(); this test-only view drops the ordinal.
+    public static IReadOnlyCollection<object> GetChanges(this IMartenAggregateRootEntity aggregate)
+    {
+        return aggregate.GetRecordedChanges().Select(x => (object)x.Event).ToArray();
+    }
+
     public static ScopedRoadNetwork WithoutChanges(this ScopedRoadNetwork aggregate)
     {
         aggregate.ClearUncommittedEvents();
@@ -49,6 +57,9 @@ public static class AggregateRootExtensions
     }
     private static void ClearUncommittedEvents<TIdentifier>(this MartenAggregateRootEntity<TIdentifier> aggregate)
     {
-        ((IList)aggregate.GetType().GetProperty("UncommittedEvents", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(aggregate))!.Clear();
+        var uncommittedEvents = (UncommittedEventCollection)aggregate.GetType()
+            .GetProperty("UncommittedEvents", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .GetValue(aggregate)!;
+        uncommittedEvents.Clear();
     }
 }

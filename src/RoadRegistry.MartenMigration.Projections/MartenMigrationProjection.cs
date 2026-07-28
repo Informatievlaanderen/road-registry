@@ -683,7 +683,7 @@ RoadNetworkExtractGotRequestedV2
                 Type = change.Type,
                 Provenance = new ProvenanceData(provenance),
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var roadNode = RoadNode.CreateForMigration(
                 roadNodeId: roadNodeId,
@@ -720,7 +720,7 @@ RoadNetworkExtractGotRequestedV2
                     Type = change.Type,
                     Provenance = new ProvenanceData(provenance)
                 };
-                session.Events.Append(streamKey, legacyEvent);
+                AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
                 var roadNode = await session.LoadAsync(roadNodeId, cancellationToken: token)
                     ?? throw new InvalidOperationException($"Road node {change.Id} not found");
@@ -757,7 +757,7 @@ RoadNetworkExtractGotRequestedV2
                 RoadNodeId = change.Id,
                 Provenance = new ProvenanceData(provenance)
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var roadNode = await session.LoadAsync(roadNodeId, cancellationToken: token)
                            ?? throw new InvalidOperationException($"Road node {change.Id} not found");
@@ -846,7 +846,7 @@ RoadNetworkExtractGotRequestedV2
                     .ToArray(),
                 Provenance = new ProvenanceData(provenance)
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var roadSegment = RoadSegment.CreateForMigration(
                 roadSegmentId: roadSegmentId,
@@ -966,7 +966,7 @@ RoadNetworkExtractGotRequestedV2
 
             var streamKey = StreamKeyFactory.Create(typeof(RoadSegment), roadSegmentId);
             var legacyEvent = getLegacyEvent(provenance);
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var roadSegment = await session.LoadAsync(roadSegmentId, cancellationToken: token)
                               ?? throw new InvalidOperationException($"Road segment {roadSegmentId} not found");
@@ -975,14 +975,14 @@ RoadNetworkExtractGotRequestedV2
 
             if (recalculateJunctions)
             {
-                await RecalculateGradeSeparatedJunctionsForSegment(session, roadSegment, provenance, token);
+                await RecalculateGradeSeparatedJunctionsForSegment(session, roadSegment, changeIndex, provenance, token);
             }
         }, token);
     }
 
-    private static async Task RecalculateGradeSeparatedJunctionsForSegment(
-        IDocumentSession session,
+    private static async Task RecalculateGradeSeparatedJunctionsForSegment(IDocumentSession session,
         RoadSegment changedSegment,
+        int changeIndex,
         Provenance provenance,
         CancellationToken token)
     {
@@ -1018,13 +1018,12 @@ RoadNetworkExtractGotRequestedV2
 
             // The stream carries the V1 event with the Lambert72 geometry (legacy CRS); the aggregate snapshot keeps
             // Lambert08 via the V2 apply (which is not appended to the stream).
-            session.Events.Append(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), junctionId),
-                new RoadRegistry.GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionGeometryModified
-                {
-                    Id = junctionIdValue,
-                    Geometry = newGeometry.EnsureLambert72(),
-                    Provenance = new ProvenanceData(provenance)
-                });
+            AppendWithChangeOrdinal(session, StreamKeyFactory.Create(typeof(GradeSeparatedJunction), junctionId), new RoadRegistry.GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionGeometryModified
+            {
+                Id = junctionIdValue,
+                Geometry = newGeometry.EnsureLambert72(),
+                Provenance = new ProvenanceData(provenance)
+            }, changeIndex);
             junction.Apply(new GradeSeparatedJunctionGeometryWasChanged
             {
                 GradeSeparatedJunctionId = junctionId,
@@ -1361,7 +1360,7 @@ RoadNetworkExtractGotRequestedV2
                 GeometryDrawMethod = change.GeometryDrawMethod,
                 Provenance = new ProvenanceData(provenance)
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var roadSegment = await session.LoadAsync(roadSegmentId, cancellationToken: token)
                               ?? throw new InvalidOperationException($"Road segment {change.Id} not found");
@@ -1397,7 +1396,7 @@ RoadNetworkExtractGotRequestedV2
                 RoadSegmentId = change.Id,
                 Provenance = new ProvenanceData(provenance)
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var roadSegment = await session.LoadAsync(roadSegmentId, cancellationToken: token)
                               ?? throw new InvalidOperationException($"Road segment {change.Id} not found");
@@ -1461,7 +1460,7 @@ RoadNetworkExtractGotRequestedV2
                 Geometry = geometry?.EnsureLambert72(),
                 Provenance = new ProvenanceData(provenance)
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var junction = GradeSeparatedJunction.CreateForMigration(
                 gradeSeparatedJunctionId: gradeSeparatedJunctionId,
@@ -1495,7 +1494,7 @@ RoadNetworkExtractGotRequestedV2
                 Id = change.Id,
                 Provenance = new ProvenanceData(provenance)
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var gradeSeparatedJunction = await session.LoadAsync(gradeSeparatedJunctionId, cancellationToken: token)
                                            ?? throw new InvalidOperationException($"Grade separated junction {change.Id} not found");
@@ -1539,7 +1538,7 @@ RoadNetworkExtractGotRequestedV2
                 Geometry = geometry?.EnsureLambert72(),
                 Provenance = new ProvenanceData(provenance)
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var gradeSeparatedJunction = await session.LoadAsync(gradeSeparatedJunctionId, cancellationToken: token)
                                          ?? throw new InvalidOperationException($"Grade separated junction {change.Id} not found");
@@ -1598,7 +1597,7 @@ RoadNetworkExtractGotRequestedV2
                     RightSideStreetNameId = change.RightSideStreetNameId,
                     Provenance = new ProvenanceData(provenance)
                 };
-                session.Events.Append(streamKey, legacyEvent);
+                AppendWithChangeOrdinal(session, streamKey, legacyEvent, index);
 
                 return Task.CompletedTask;
             }, token);
@@ -1646,6 +1645,16 @@ RoadNetworkExtractGotRequestedV2
     private static string StreetNameStreamKey(StreetNameLocalId streetNameId)
     {
         return $"StreetName-{streetNameId}";
+    }
+
+    // Appends the change's primary event and stamps it with the change ordinal (its index within the
+    // RoadNetworkChangesAccepted batch) as the EventOrdinal header, so the read projection replays it in change
+    // order. Only the primary event is stamped; derived side effects (e.g. RecalculateGradeSeparatedJunctionsForSegment)
+    // are appended plainly and ordered by seq_id.
+    private static void AppendWithChangeOrdinal(IDocumentSession session, string streamKey, object @event, int changeOrdinal)
+    {
+        var action = session.Events.Append(streamKey, @event);
+        action.Events[^1].SetHeader(EventOrdinal.HeaderKey, (long)changeOrdinal);
     }
 
     private static string BuildIdemponentSessionIdentifier<TMessage>(Envelope<TMessage> envelope, int? changeIndex = null)

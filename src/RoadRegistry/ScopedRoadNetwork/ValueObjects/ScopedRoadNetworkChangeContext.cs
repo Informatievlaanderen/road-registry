@@ -13,6 +13,7 @@ public class ScopedRoadNetworkChangeContext
     public RoadNetworkChangesSummary Summary { get; }
     public ILogger Logger { get; }
     public VerificationContextTolerances Tolerances => VerificationContextTolerances.Cm;
+    public IEventOrdinalProvider OrdinalProvider { get; }
 
     public ScopedRoadNetworkChangeContext(ScopedRoadNetwork roadNetwork, IIdentifierTranslator idTranslator, Provenance provenance, ILogger? logger = null)
     {
@@ -21,5 +22,7 @@ public class ScopedRoadNetworkChangeContext
         Provenance = provenance;
         Summary = new RoadNetworkChangesSummary();
         Logger = logger ?? NullLogger.Instance;
+        OrdinalProvider = new EventOrdinalProvider();
+        roadNetwork.AttachOrdinalProvider(OrdinalProvider);
     }
 }

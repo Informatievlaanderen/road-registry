@@ -17,8 +17,8 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
     private readonly string? _lastSnapshotEventHash;
     public string LastEventHash => UncommittedEvents.Count > 0 ? UncommittedEvents[^1].GetHash() : _lastSnapshotEventHash ?? string.Empty;
 
-    public GradeSeparatedJunction(GradeSeparatedJunctionId id)
-        : base(id)
+    public GradeSeparatedJunction(GradeSeparatedJunctionId id, IEventOrdinalProvider ordinalProvider)
+        : base(id, ordinalProvider)
     {
         GradeSeparatedJunctionId = id;
     }
@@ -33,7 +33,7 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         bool isRemoved,
         string? lastEventHash
     )
-        : this(new GradeSeparatedJunctionId(gradeSeparatedJunctionId))
+        : this(new GradeSeparatedJunctionId(gradeSeparatedJunctionId), EventOrdinalProvider.None)
     {
         LowerRoadSegmentId = new RoadSegmentId(lowerRoadSegmentId);
         UpperRoadSegmentId = new RoadSegmentId(upperRoadSegmentId);
@@ -52,9 +52,9 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         return new GradeSeparatedJunction(gradeSeparatedJunctionId, lowerRoadSegmentId, upperRoadSegmentId, null, geometry, false, null);
     }
 
-    public static GradeSeparatedJunction Create(GradeSeparatedJunctionWasAdded @event)
+    public static GradeSeparatedJunction Create(GradeSeparatedJunctionWasAdded @event, IEventOrdinalProvider? ordinalProvider = null)
     {
-        var junction = new GradeSeparatedJunction(@event.GradeSeparatedJunctionId)
+        var junction = new GradeSeparatedJunction(@event.GradeSeparatedJunctionId, ordinalProvider ?? EventOrdinalProvider.None)
         {
             LowerRoadSegmentId = @event.LowerRoadSegmentId,
             UpperRoadSegmentId = @event.UpperRoadSegmentId,

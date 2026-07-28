@@ -35,7 +35,7 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         IReadOnlyCollection<RoadSegment>? roadSegments = null,
         IReadOnlyCollection<GradeSeparatedJunction>? gradeSeparatedJunctions = null,
         IReadOnlyCollection<GradeJunction>? gradeJunctions = null)
-        : base(roadNetworkId)
+        : base(roadNetworkId, EventOrdinalProvider.None)
     {
         RoadNetworkId = roadNetworkId;
 
@@ -67,6 +67,32 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
                     roadSegment);
             }
         });
+    }
+
+    // Attaches the change's single ordinal provider to the network and every aggregate it currently holds, so
+    // that all events subsequently raised during the change are stamped from one monotonic counter. Aggregates
+    // created later in the change (via RoadNode.Add / RoadSegment.Add / GradeSeparatedJunction.Add /
+    // GradeJunction.Add) receive the provider through the context.
+    internal override void AttachOrdinalProvider(IEventOrdinalProvider ordinalProvider)
+    {
+        base.AttachOrdinalProvider(ordinalProvider);
+
+        foreach (var roadNode in _roadNodes.Values)
+        {
+            roadNode.AttachOrdinalProvider(ordinalProvider);
+        }
+        foreach (var roadSegment in _roadSegments.Values)
+        {
+            roadSegment.AttachOrdinalProvider(ordinalProvider);
+        }
+        foreach (var gradeSeparatedJunction in _gradeSeparatedJunctions.Values)
+        {
+            gradeSeparatedJunction.AttachOrdinalProvider(ordinalProvider);
+        }
+        foreach (var gradeJunction in _gradeJunctions.Values)
+        {
+            gradeJunction.AttachOrdinalProvider(ordinalProvider);
+        }
     }
 
     public static ScopedRoadNetwork Create(RoadNetworkWasChangedBecauseOfExtract @event)

@@ -8,7 +8,7 @@ using ValueObjects.Problems;
 
 public partial class RoadNode
 {
-    public static (RoadNode?, Problems) Add(AddRoadNodeChange change, Provenance provenance, IRoadNetworkIdGenerator idGenerator)
+    public static (RoadNode?, Problems) Add(AddRoadNodeChange change, Provenance provenance, IRoadNetworkIdGenerator idGenerator, IEventOrdinalProvider? ordinalProvider = null)
     {
         var problems = Problems.WithContext(change.TemporaryId);
 
@@ -20,7 +20,7 @@ public partial class RoadNode
             Grensknoop = change.Grensknoop,
             Type = change.Type,
             Provenance = new ProvenanceData(provenance)
-        });
+        }, ordinalProvider);
 
         return (roadNode, problems);
     }
