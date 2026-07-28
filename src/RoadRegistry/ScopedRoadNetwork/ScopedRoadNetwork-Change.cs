@@ -265,7 +265,7 @@ public partial class ScopedRoadNetwork
 
         var oldEnvelope = roadNode.Geometry.Value.EnvelopeInternal;
         var problems = roadNode.Modify(change, context.Provenance);
-        if (problems.HasError() || !roadNode.HasChanges())
+        if (problems.HasError() || roadNode.GetRecordedChanges().Count == 0)
         {
             return problems;
         }
@@ -333,7 +333,7 @@ public partial class ScopedRoadNetwork
 
         var oldEnvelope = roadSegment.Geometry.Value.EnvelopeInternal;
         problems = roadSegment.Modify(change, context);
-        if (problems.HasError() || !roadSegment.HasChanges())
+        if (problems.HasError() || roadSegment.GetRecordedChanges().Count == 0)
         {
             return problems;
         }
