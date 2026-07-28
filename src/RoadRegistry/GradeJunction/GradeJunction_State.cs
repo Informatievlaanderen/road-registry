@@ -46,7 +46,7 @@ public partial class GradeJunction : MartenAggregateRootEntity<GradeJunctionId>
 
     // Deliberately not named "Create": Marten's snapshot aggregation discovers static Create methods and cannot
     // resolve the IEventOrdinalProvider parameter. Used by the domain Add path to stamp the created event.
-    internal static GradeJunction CreateWithProvider(GradeJunctionWasAdded @event, IEventOrdinalProvider ordinalProvider)
+    private static GradeJunction CreateWithProvider(GradeJunctionWasAdded @event, IEventOrdinalProvider ordinalProvider)
     {
         var junction = new GradeJunction(@event.GradeJunctionId, ordinalProvider)
         {

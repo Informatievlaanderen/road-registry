@@ -89,7 +89,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     // Deliberately not named "Create": Marten's snapshot aggregation discovers static Create methods and can only
     // resolve parameters it knows about, so it would reject the IEventOrdinalProvider. This overload is used by the
     // domain Add path to stamp the created event with the change's ordinal provider.
-    internal static RoadSegment CreateWithProvider(RoadSegmentWasAdded @event, IEventOrdinalProvider ordinalProvider)
+    private static RoadSegment CreateWithProvider(RoadSegmentWasAdded @event, IEventOrdinalProvider ordinalProvider)
     {
         var segment = new RoadSegment(@event.RoadSegmentId, ordinalProvider);
         segment.Apply(@event);
