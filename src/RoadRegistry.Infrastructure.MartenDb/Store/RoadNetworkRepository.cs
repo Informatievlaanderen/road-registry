@@ -1,11 +1,8 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Store;
 
-using System.Data;
 using Dapper;
 using JasperFx.Events;
 using Marten;
-using Marten.Events;
-using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Projections;
 using ScopedRoadNetwork;
@@ -288,54 +285,29 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
         session.CorrelationId ??= roadNetwork.RoadNetworkId;
         session.CausationId = commandName;
 
-        ValidateUniqueOrdinals(roadNetwork);
+        var usedEventOrdinals = new HashSet<long>();
 
-        SaveEntities(roadNetwork.RoadNodes, session);
-        SaveEntities(roadNetwork.RoadSegments, session);
-        SaveEntities(roadNetwork.GradeSeparatedJunctions, session);
-        SaveEntities(roadNetwork.GradeJunctions, session);
-        foreach (var recorded in roadNetwork.GetRecordedChanges())
-        {
-            EnsureEventHasProvenance(recorded.Event);
-            var action = session.Events.StartStream(roadNetwork.Id, recorded.Event);
-            SetOrdinalHeader(action, recorded.Ordinal);
-        }
+        SaveEntities(roadNetwork.RoadNodes.Values, session, usedEventOrdinals);
+        SaveEntities(roadNetwork.RoadSegments.Values, session, usedEventOrdinals);
+        SaveEntities(roadNetwork.GradeSeparatedJunctions.Values, session, usedEventOrdinals);
+        SaveEntities(roadNetwork.GradeJunctions.Values, session, usedEventOrdinals);
+        SaveEntities([roadNetwork], session, usedEventOrdinals);
     }
 
-    // Every event emitted during one change is stamped with a distinct ordinal from that change's single shared
-    // provider (see EventOrdinal / IEventOrdinalProvider). Duplicate ordinals therefore mean some aggregate emitted
-    // events without the change's provider attached - it fell back to EventOrdinalProvider.None (which always yields
-    // 0), typically because a new aggregate was created without the ordinal provider threaded through. Fail fast
-    // rather than persist events the read projection cannot order.
-    private static void ValidateUniqueOrdinals(ScopedRoadNetwork roadNetwork)
-    {
-        var duplicateOrdinals = roadNetwork.RoadNodes.Values.Cast<IMartenAggregateRootEntity>()
-            .Concat(roadNetwork.RoadSegments.Values)
-            .Concat(roadNetwork.GradeSeparatedJunctions.Values)
-            .Concat(roadNetwork.GradeJunctions.Values)
-            .Append(roadNetwork)
-            .Where(x => x.HasChanges())
-            .SelectMany(x => x.GetRecordedChanges())
-            .GroupBy(x => x.Ordinal)
-            .Where(g => g.Count() > 1)
-            .Select(g => g.Key)
-            .ToList();
-
-        if (duplicateOrdinals.Count > 0)
-        {
-            throw new InvalidOperationException(
-                $"Duplicate event ordinal(s) [{string.Join(", ", duplicateOrdinals)}] while saving road network '{roadNetwork.RoadNetworkId}'. " +
-                $"An aggregate emitted events without the change's {nameof(IEventOrdinalProvider)} attached (fell back to {nameof(EventOrdinalProvider)}.None).");
-        }
-    }
-
-    private void SaveEntities<TKey, TEntity>(IReadOnlyDictionary<TKey, TEntity> entities, IDocumentOperations session)
+    private void SaveEntities<TEntity>(IEnumerable<TEntity> entities, IDocumentOperations session, HashSet<long> usedEventOrdinals)
         where TEntity : IMartenAggregateRootEntity
     {
-        foreach (var entity in entities.Select(x => x.Value).Where(x => x.HasChanges()))
+        foreach (var entity in entities.Where(x => x.HasChanges()))
         {
             foreach (var recorded in entity.GetRecordedChanges())
             {
+                if (!usedEventOrdinals.Add(recorded.Ordinal))
+                {
+                    throw new InvalidOperationException(
+                        $"Duplicate event ordinal(s) [{recorded.Ordinal}] while saving road network. " +
+                        $"An aggregate emitted events without the change's {nameof(IEventOrdinalProvider)} attached (fell back to {nameof(EventOrdinalProvider)}.None).");
+                }
+
                 EnsureEventHasProvenance(recorded.Event);
                 var action = session.Events.AppendOrStartStream(entity.Id, recorded.Event);
                 SetOrdinalHeader(action, recorded.Ordinal);
