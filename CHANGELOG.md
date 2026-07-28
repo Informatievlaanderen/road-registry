@@ -1,3 +1,10 @@
+## [5.4.4](https://github.com/informatievlaanderen/road-registry/compare/v5.4.3...v5.4.4) (2026-07-28)
+
+
+### Bug Fixes
+
+* **2.0:** order projection events by emission ordinal instead of Marten seq_id ([1866987](https://github.com/informatievlaanderen/road-registry/commit/186698711fde33a27307260e40ddc2dddb12da92))
+
 ## [5.4.3](https://github.com/informatievlaanderen/road-registry/compare/v5.4.2...v5.4.3) (2026-07-27)
 
 
