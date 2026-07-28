@@ -581,7 +581,7 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
         throw new NotImplementedException();
     }
 
-    public IUnitOfWork PendingChanges => new InMemoryUnitOfWork(_eventsStoreOperations);
+    public IUnitOfWork PendingChanges { get; }
 
     public void BeginTransaction()
     {

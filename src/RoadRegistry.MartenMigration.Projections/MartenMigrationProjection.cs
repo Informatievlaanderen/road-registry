@@ -12,6 +12,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Extensions;
 using GradeSeparatedJunction;
+using JasperFx.Events;
 using Marten;
 using NodaTime;
 using NodaTime.Text;
@@ -663,7 +664,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -683,7 +684,7 @@ RoadNetworkExtractGotRequestedV2
                 Type = change.Type,
                 Provenance = new ProvenanceData(provenance),
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var roadNode = RoadNode.CreateForMigration(
                 roadNodeId: roadNodeId,
@@ -702,7 +703,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
             {
                 session.CorrelationId = roadNetworkId;
                 session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -720,7 +721,7 @@ RoadNetworkExtractGotRequestedV2
                     Type = change.Type,
                     Provenance = new ProvenanceData(provenance)
                 };
-                session.Events.Append(streamKey, legacyEvent);
+                AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
                 var roadNode = await session.LoadAsync(roadNodeId, cancellationToken: token)
                     ?? throw new InvalidOperationException($"Road node {change.Id} not found");
@@ -743,7 +744,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -757,7 +758,7 @@ RoadNetworkExtractGotRequestedV2
                 RoadNodeId = change.Id,
                 Provenance = new ProvenanceData(provenance)
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var roadNode = await session.LoadAsync(roadNodeId, cancellationToken: token)
                            ?? throw new InvalidOperationException($"Road node {change.Id} not found");
@@ -778,7 +779,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -846,7 +847,7 @@ RoadNetworkExtractGotRequestedV2
                     .ToArray(),
                 Provenance = new ProvenanceData(provenance)
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var roadSegment = RoadSegment.CreateForMigration(
                 roadSegmentId: roadSegmentId,
@@ -957,7 +958,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -966,7 +967,7 @@ RoadNetworkExtractGotRequestedV2
 
             var streamKey = StreamKeyFactory.Create(typeof(RoadSegment), roadSegmentId);
             var legacyEvent = getLegacyEvent(provenance);
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var roadSegment = await session.LoadAsync(roadSegmentId, cancellationToken: token)
                               ?? throw new InvalidOperationException($"Road segment {roadSegmentId} not found");
@@ -1347,7 +1348,7 @@ RoadNetworkExtractGotRequestedV2
         var roadSegmentId = new RoadSegmentId(change.Id);
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -1361,7 +1362,7 @@ RoadNetworkExtractGotRequestedV2
                 GeometryDrawMethod = change.GeometryDrawMethod,
                 Provenance = new ProvenanceData(provenance)
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var roadSegment = await session.LoadAsync(roadSegmentId, cancellationToken: token)
                               ?? throw new InvalidOperationException($"Road segment {change.Id} not found");
@@ -1384,7 +1385,7 @@ RoadNetworkExtractGotRequestedV2
         var roadSegmentId = new RoadSegmentId(change.Id);
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -1397,7 +1398,7 @@ RoadNetworkExtractGotRequestedV2
                 RoadSegmentId = change.Id,
                 Provenance = new ProvenanceData(provenance)
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var roadSegment = await session.LoadAsync(roadSegmentId, cancellationToken: token)
                               ?? throw new InvalidOperationException($"Road segment {change.Id} not found");
@@ -1438,7 +1439,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -1461,7 +1462,7 @@ RoadNetworkExtractGotRequestedV2
                 Geometry = geometry?.EnsureLambert72(),
                 Provenance = new ProvenanceData(provenance)
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var junction = GradeSeparatedJunction.CreateForMigration(
                 gradeSeparatedJunctionId: gradeSeparatedJunctionId,
@@ -1481,7 +1482,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -1495,7 +1496,7 @@ RoadNetworkExtractGotRequestedV2
                 Id = change.Id,
                 Provenance = new ProvenanceData(provenance)
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var gradeSeparatedJunction = await session.LoadAsync(gradeSeparatedJunctionId, cancellationToken: token)
                                            ?? throw new InvalidOperationException($"Grade separated junction {change.Id} not found");
@@ -1517,7 +1518,7 @@ RoadNetworkExtractGotRequestedV2
     {
         var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, changeIndex);
 
-        return _store.IdempotentSession(idempotentSessionIdentifier, changeIndex, async session =>
+        return _store.IdempotentSession(idempotentSessionIdentifier, async session =>
         {
             session.CorrelationId = roadNetworkId;
             session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -1539,7 +1540,7 @@ RoadNetworkExtractGotRequestedV2
                 Geometry = geometry?.EnsureLambert72(),
                 Provenance = new ProvenanceData(provenance)
             };
-            session.Events.Append(streamKey, legacyEvent);
+            AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
             var gradeSeparatedJunction = await session.LoadAsync(gradeSeparatedJunctionId, cancellationToken: token)
                                          ?? throw new InvalidOperationException($"Grade separated junction {change.Id} not found");
@@ -1575,7 +1576,7 @@ RoadNetworkExtractGotRequestedV2
             var roadSegmentId = new RoadSegmentId(change.Id);
             var idempotentSessionIdentifier = BuildIdemponentSessionIdentifier(envelope, index);
 
-            await _store.IdempotentSession(idempotentSessionIdentifier, index, session =>
+            await _store.IdempotentSession(idempotentSessionIdentifier, session =>
             {
                 session.CorrelationId = roadNetworkId;
                 session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
@@ -1598,7 +1599,7 @@ RoadNetworkExtractGotRequestedV2
                     RightSideStreetNameId = change.RightSideStreetNameId,
                     Provenance = new ProvenanceData(provenance)
                 };
-                session.Events.Append(streamKey, legacyEvent);
+                AppendWithChangeOrdinal(session, streamKey, legacyEvent, index);
 
                 return Task.CompletedTask;
             }, token);
@@ -1646,6 +1647,16 @@ RoadNetworkExtractGotRequestedV2
     private static string StreetNameStreamKey(StreetNameLocalId streetNameId)
     {
         return $"StreetName-{streetNameId}";
+    }
+
+    // Appends the change's primary event and stamps it with the change ordinal (its index within the
+    // RoadNetworkChangesAccepted batch) as the EventOrdinal header, so the read projection replays it in change
+    // order. Only the primary event is stamped; derived side effects (e.g. RecalculateGradeSeparatedJunctionsForSegment)
+    // are appended plainly and ordered by seq_id.
+    private static void AppendWithChangeOrdinal(IDocumentSession session, string streamKey, object @event, int changeOrdinal)
+    {
+        var action = session.Events.Append(streamKey, @event);
+        action.Events[^1].SetHeader(EventOrdinal.HeaderKey, (long)changeOrdinal);
     }
 
     private static string BuildIdemponentSessionIdentifier<TMessage>(Envelope<TMessage> envelope, int? changeIndex = null)
