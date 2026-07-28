@@ -1,3 +1,10 @@
+## [5.4.5](https://github.com/informatievlaanderen/road-registry/compare/v5.4.4...v5.4.5) (2026-07-28)
+
+
+### Bug Fixes
+
+* **2.0:** keep aggregate Create factories Marten-aggregation compatible + add GradeJunction snapshot ([0610311](https://github.com/informatievlaanderen/road-registry/commit/06103111f54e114706d1a912c74ea1b7e134e105))
+
 ## [5.4.4](https://github.com/informatievlaanderen/road-registry/compare/v5.4.3...v5.4.4) (2026-07-28)
 
 
