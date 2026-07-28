@@ -6,7 +6,6 @@ using System.Linq;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.LinearReferencing;
 using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.Infrastructure.Dbase;
 using RoadRegistry.RoadSegment.ValueObjects;
 using Schema.Records;
 
@@ -40,17 +39,35 @@ internal static class DerivedWegsegmentFlattener
     {
         var length = geometry.Length;
 
+        // In (particularly V1) data the last dynamic-attribute ToPosition does not always line up with the actual
+        // geometry length — it can be shorter or longer (e.g. after a geometry change that only rewrote some
+        // attributes). Snap each attribute's trailing coverage (per side for sided attributes) to the geometry
+        // length so the split positions and resolution cover exactly [0, length]. This mirrors the extracts
+        // RoadSegmentFlattener/UseGeometryLengthIfPositionIsLast handling.
+        var morphologyCov = NormalizeToLength(morphology, length, x => x.VANPOS, x => x.TOTPOS);
+        var categoryCov = NormalizeToLength(category, length, x => x.VANPOS, x => x.TOTPOS);
+        var accessCov = NormalizeToLength(access, length, x => x.VANPOS, x => x.TOTPOS);
+        var surfaceCov = NormalizeToLength(surface, length, x => x.VANPOS, x => x.TOTPOS);
+        var streetNameCov = NormalizeToLength(streetName, length, x => x.VANPOS, x => x.TOTPOS, x => x.KANT);
+        var maintainerCov = NormalizeToLength(maintainer, length, x => x.VANPOS, x => x.TOTPOS, x => x.KANT);
+        var carCov = NormalizeToLength(car, length, x => x.VANPOS, x => x.TOTPOS);
+        var bikeCov = NormalizeToLength(bike, length, x => x.VANPOS, x => x.TOTPOS);
+        var pedestrianCov = NormalizeToLength(pedestrian, length, x => x.VANPOS, x => x.TOTPOS);
+
         var positions = new SortedSet<double>();
-        void Add(double from, double to) { positions.Add(from); positions.Add(to); }
-        foreach (var r in morphology) Add(r.VANPOS, r.TOTPOS);
-        foreach (var r in category) Add(r.VANPOS, r.TOTPOS);
-        foreach (var r in access) Add(r.VANPOS, r.TOTPOS);
-        foreach (var r in surface) Add(r.VANPOS, r.TOTPOS);
-        foreach (var r in streetName) Add(r.VANPOS, r.TOTPOS);
-        foreach (var r in maintainer) Add(r.VANPOS, r.TOTPOS);
-        foreach (var r in car) Add(r.VANPOS, r.TOTPOS);
-        foreach (var r in bike) Add(r.VANPOS, r.TOTPOS);
-        foreach (var r in pedestrian) Add(r.VANPOS, r.TOTPOS);
+        void Add<TRow>(List<Cover<TRow>> covers) where TRow : class
+        {
+            foreach (var c in covers) { positions.Add(c.From); positions.Add(c.To); }
+        }
+        Add(morphologyCov);
+        Add(categoryCov);
+        Add(accessCov);
+        Add(surfaceCov);
+        Add(streetNameCov);
+        Add(maintainerCov);
+        Add(carCov);
+        Add(bikeCov);
+        Add(pedestrianCov);
 
         if (positions.Count < 2)
         {
@@ -69,17 +86,17 @@ internal static class DerivedWegsegmentFlattener
             var to = ordered[i];
             var toActual = i < ordered.Count - 1 ? to : length;
 
-            var m = Resolve(morphology, from, to, x => x.VANPOS, x => x.TOTPOS);
-            var c = Resolve(category, from, to, x => x.VANPOS, x => x.TOTPOS);
-            var a = Resolve(access, from, to, x => x.VANPOS, x => x.TOTPOS);
-            var s = Resolve(surface, from, to, x => x.VANPOS, x => x.TOTPOS);
-            var lStr = ResolveSided(streetName, from, to, SideLeft, x => x.VANPOS, x => x.TOTPOS, x => x.KANT);
-            var rStr = ResolveSided(streetName, from, to, SideRight, x => x.VANPOS, x => x.TOTPOS, x => x.KANT);
-            var lBeh = ResolveSided(maintainer, from, to, SideLeft, x => x.VANPOS, x => x.TOTPOS, x => x.KANT);
-            var rBeh = ResolveSided(maintainer, from, to, SideRight, x => x.VANPOS, x => x.TOTPOS, x => x.KANT);
-            var carR = Resolve(car, from, to, x => x.VANPOS, x => x.TOTPOS);
-            var bikeR = Resolve(bike, from, to, x => x.VANPOS, x => x.TOTPOS);
-            var pedR = Resolve(pedestrian, from, to, x => x.VANPOS, x => x.TOTPOS);
+            var m = Resolve(morphologyCov, from, to);
+            var c = Resolve(categoryCov, from, to);
+            var a = Resolve(accessCov, from, to);
+            var s = Resolve(surfaceCov, from, to);
+            var lStr = ResolveSided(streetNameCov, from, to, SideLeft, x => x.KANT);
+            var rStr = ResolveSided(streetNameCov, from, to, SideRight, x => x.KANT);
+            var lBeh = ResolveSided(maintainerCov, from, to, SideLeft, x => x.KANT);
+            var rBeh = ResolveSided(maintainerCov, from, to, SideRight, x => x.KANT);
+            var carR = Resolve(carCov, from, to);
+            var bikeR = Resolve(bikeCov, from, to);
+            var pedR = Resolve(pedestrianCov, from, to);
 
             result.Add(new DerivedRoadSegmentRecord
             {
@@ -102,11 +119,12 @@ internal static class DerivedWegsegmentFlattener
                 RSTRNMID = rStr?.STRTNMID,
                 LBEHEER = lBeh?.BEHEER,
                 RBEHEER = rBeh?.BEHEER,
-                AUTOHEEN = Heen(carR?.RICHTING),
-                AUTOTERUG = Terug(carR?.RICHTING),
-                FIETSHEEN = Heen(bikeR?.RICHTING),
-                FIETSTERUG = Terug(bikeR?.RICHTING),
-                VOETGANGER = Voetganger(pedR?.RICHTING),
+                VERKEERSTYPE_AUTO = carR?.RICHTING,
+                LBLVERKEERSTYPE_AUTO = TrafficDirectionLabel(carR?.RICHTING),
+                VERKEERSTYPE_FIETS = bikeR?.RICHTING,
+                LBLVERKEERSTYPE_FIETS = TrafficDirectionLabel(bikeR?.RICHTING),
+                VERKEERSTYPE_VOETGANGER = pedR?.RICHTING,
+                LBLVERKEERSTYPE_VOETGANGER = PedestrianTrafficDirectionLabel(pedR?.RICHTING),
                 EUNUMMERS = euNummers,
                 NWNUMMERS = nwNummers,
                 GEOMETRIE = lengthIndexedLine.ExtractLine(from, toActual).RoundToCm(),
@@ -118,25 +136,66 @@ internal static class DerivedWegsegmentFlattener
         return result;
     }
 
-    private static TRow Resolve<TRow>(IReadOnlyList<TRow> rows, double from, double to, Func<TRow, double> getFrom, Func<TRow, double> getTo)
+    // A coverage row with its ToPosition already snapped to the geometry length where it is the trailing one.
+    private readonly record struct Cover<TRow>(double From, double To, TRow Row) where TRow : class;
+
+    // Projects each attribute row onto a coverage whose trailing ToPosition (the maximum, computed per side for
+    // sided attributes) is replaced by the geometry length, so the union of coverages spans exactly [0, length]
+    // regardless of stale/incorrect stored ToPositions. The input records are never mutated.
+    private static List<Cover<TRow>> NormalizeToLength<TRow>(
+        IReadOnlyList<TRow> rows, double length,
+        Func<TRow, double> getFrom, Func<TRow, double> getTo, Func<TRow, int?>? getSide = null)
         where TRow : class
     {
-        return rows.FirstOrDefault(r => getFrom(r) <= from + Epsilon && getTo(r) >= to - Epsilon);
+        var result = new List<Cover<TRow>>(rows.Count);
+        if (rows.Count == 0)
+        {
+            return result;
+        }
+
+        if (getSide is null)
+        {
+            var maxTo = rows.Max(getTo);
+            foreach (var r in rows)
+            {
+                var to = getTo(r);
+                result.Add(new Cover<TRow>(getFrom(r), to >= maxTo - Epsilon ? length : to, r));
+            }
+        }
+        else
+        {
+            foreach (var group in rows.GroupBy(getSide))
+            {
+                var maxTo = group.Max(getTo);
+                foreach (var r in group)
+                {
+                    var to = getTo(r);
+                    result.Add(new Cover<TRow>(getFrom(r), to >= maxTo - Epsilon ? length : to, r));
+                }
+            }
+        }
+
+        return result;
     }
 
-    private static TRow ResolveSided<TRow>(IReadOnlyList<TRow> rows, double from, double to, int side, Func<TRow, double> getFrom, Func<TRow, double> getTo, Func<TRow, int?> getSide)
+    private static TRow? Resolve<TRow>(List<Cover<TRow>> covers, double from, double to)
         where TRow : class
     {
-        return rows.FirstOrDefault(r => getFrom(r) <= from + Epsilon && getTo(r) >= to - Epsilon && (getSide(r) == SideBoth || getSide(r) == side));
+        return covers.FirstOrDefault(c => c.From <= from + Epsilon && c.To >= to - Epsilon).Row;
     }
 
-    private static int? Heen(int? richting) => richting is null
+    private static TRow? ResolveSided<TRow>(List<Cover<TRow>> covers, double from, double to, int side, Func<TRow, int?> getSide)
+        where TRow : class
+    {
+        return covers.FirstOrDefault(c => c.From <= from + Epsilon && c.To >= to - Epsilon && (getSide(c.Row) == SideBoth || getSide(c.Row) == side)).Row;
+    }
+
+    // The RICHTING attribute is a coded int; resolve it to its Dutch label ("heen"/"terug"/"beide"/"geen") via the
+    // metadata type. Car and bike use RoadSegmentTrafficDirection; pedestrians use RoadSegmentPedestrianTrafficDirection.
+    private static string? TrafficDirectionLabel(int? richting) => richting is null
         ? null
-        : (richting == RoadSegmentTrafficDirection.Forward.Translation.Identifier || richting == RoadSegmentTrafficDirection.Both.Translation.Identifier).ToDbaseShortValue();
-    private static int? Terug(int? richting) => richting is null
+        : Array.Find(RoadSegmentTrafficDirection.All, x => x.Translation.Identifier == richting)?.Translation.Name;
+    private static string? PedestrianTrafficDirectionLabel(int? richting) => richting is null
         ? null
-        : (richting == RoadSegmentTrafficDirection.Backward.Translation.Identifier || richting == RoadSegmentTrafficDirection.Both.Translation.Identifier).ToDbaseShortValue();
-    private static int? Voetganger(int? richting) => richting is null
-        ? null
-        : (richting == RoadSegmentTrafficDirection.Both.Translation.Identifier).ToDbaseShortValue();
+        : Array.Find(RoadSegmentPedestrianTrafficDirection.All, x => x.Translation.Identifier == richting)?.Translation.Name;
 }
