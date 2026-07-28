@@ -8,13 +8,16 @@
 -- trailing numeric segments) are backfilled; the Imported*/organization/street-name migration sessions have no
 -- changeIndex (a single trailing number) and are deliberately left untouched. The header value is written as a JSON
 -- number to match the runtime SetHeader(key, long). Guarded so a re-run never overwrites an existing header.
+-- The existing headers column is often JSONB null (not SQL NULL) - Marten stores that when an event has no headers -
+-- and `'null'::jsonb || {...}` yields an array ([null, {...}]) rather than a merged object. So merge onto the current
+-- headers only when they are actually an object; otherwise start from an empty object.
 DO $do$
 BEGIN
     IF to_regclass('eventstore.mt_events') IS NOT NULL THEN
         UPDATE eventstore.mt_events
-        SET headers = coalesce(headers, '{}'::jsonb)
+        SET headers = (CASE WHEN jsonb_typeof(headers) = 'object' THEN headers ELSE '{}'::jsonb END)
                       || jsonb_build_object('roadNetworkChangeOrdinal', (substring(causation_id from '-([0-9]+)$'))::bigint)
         WHERE causation_id ~ 'MartenMigrationProjection-[0-9]+-[0-9]+$'
-          AND NOT (coalesce(headers, '{}'::jsonb) ? 'roadNetworkChangeOrdinal');
+          AND NOT (jsonb_typeof(headers) = 'object' AND headers ? 'roadNetworkChangeOrdinal');
     END IF;
 END $do$;
