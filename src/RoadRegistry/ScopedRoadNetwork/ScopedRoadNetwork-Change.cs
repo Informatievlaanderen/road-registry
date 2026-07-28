@@ -380,7 +380,7 @@ public partial class ScopedRoadNetwork
 
         // No geometry change, so the spatial index is left untouched.
         problems += roadSegment.ModifyAttributes(change, context);
-        if (problems.HasError() || roadSegment.GetChanges().Count == 0)
+        if (problems.HasError() || roadSegment.GetRecordedChanges().Count == 0)
         {
             return problems;
         }
