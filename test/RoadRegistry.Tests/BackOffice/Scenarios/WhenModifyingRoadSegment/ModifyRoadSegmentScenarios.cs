@@ -213,6 +213,12 @@ public class ModifyRoadSegmentScenarios : RoadNetworkTestBase
         var modifySegmentToMeasured = TestData.ModifySegment1;
         modifySegmentToMeasured.ConvertedFromOutlined = true;
         modifySegmentToMeasured.Geometry = GeometryTranslator.Translate(geometry);
+        // The measured segment connects to the two nodes added in this same change, so it must reference their
+        // temporary ids. Referencing the permanent ids (1/2) is unstable: AddStartNode1.TemporaryId is random, and
+        // when it happens to be 2 the segment's EndNodeId (2) aliases the start node's temporary id, collapsing
+        // start and end onto the same node.
+        modifySegmentToMeasured.StartNodeId = TestData.AddStartNode1.TemporaryId;
+        modifySegmentToMeasured.EndNodeId = TestData.AddEndNode1.TemporaryId;
         modifySegmentToMeasured.Lanes =
         [
             new RequestedRoadSegmentLaneAttribute
