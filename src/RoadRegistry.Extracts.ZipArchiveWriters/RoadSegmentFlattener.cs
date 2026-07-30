@@ -1,31 +1,53 @@
 ﻿namespace RoadRegistry.Extracts.ZipArchiveWriters;
 
-using System.Collections;
-using System.Reflection;
 using Extensions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.LinearReferencing;
 using RoadRegistry.Extracts.Projections;
+using RoadRegistry.RoadSegment.Flattening;
 using RoadSegment.ValueObjects;
+using static RoadRegistry.RoadSegment.Flattening.RoadSegmentFlattenEngine;
 
 public static class RoadSegmentFlattener
 {
+    private static int SideLeft => RoadSegmentAttributeSide.Links.Translation.Identifier;
+    private static int SideRight => RoadSegmentAttributeSide.Rechts.Translation.Identifier;
+
+    // Flattens the extract item into its smaller sub-segments through the shared RoadSegmentFlattenEngine (the same
+    // split/normalize/resolve algorithm the WmsWfsV2 and PBS derived-wegsegment flatteners use), then maps each
+    // sub-range to a FlatRoadSegment.
     public static IReadOnlyList<FlatRoadSegment> Flatten(this RoadSegmentExtractItem roadSegment)
     {
         try
         {
-            var positions = GetPositions(roadSegment);
+            var length = roadSegment.Geometry.Value.Length;
 
+            var access = Normalize(roadSegment.AccessRestriction.Values, length, x => x.From.ToDouble(), x => x.To.ToDouble());
+            var category = Normalize(roadSegment.Category.Values, length, x => x.From.ToDouble(), x => x.To.ToDouble());
+            var morphology = Normalize(roadSegment.Morphology.Values, length, x => x.From.ToDouble(), x => x.To.ToDouble());
+            var surface = Normalize(roadSegment.SurfaceType.Values, length, x => x.From.ToDouble(), x => x.To.ToDouble());
+            var streetName = Normalize(roadSegment.StreetNameId.Values, length, x => x.From.ToDouble(), x => x.To.ToDouble());
+            var maintainer = Normalize(roadSegment.MaintenanceAuthorityId.Values, length, x => x.From.ToDouble(), x => x.To.ToDouble());
+            var carForward = Normalize(roadSegment.CarAccessForward.Values, length, x => x.From.ToDouble(), x => x.To.ToDouble());
+            var carBackward = Normalize(roadSegment.CarAccessBackward.Values, length, x => x.From.ToDouble(), x => x.To.ToDouble());
+            var bikeForward = Normalize(roadSegment.BikeAccessForward.Values, length, x => x.From.ToDouble(), x => x.To.ToDouble());
+            var bikeBackward = Normalize(roadSegment.BikeAccessBackward.Values, length, x => x.From.ToDouble(), x => x.To.ToDouble());
+            var pedestrian = Normalize(roadSegment.PedestrianAccess.Values, length, x => x.From.ToDouble(), x => x.To.ToDouble());
+
+            var ranges = Ranges(length,
+                access.Pairs(), category.Pairs(), morphology.Pairs(), surface.Pairs(),
+                streetName.Pairs(), maintainer.Pairs(),
+                carForward.Pairs(), carBackward.Pairs(), bikeForward.Pairs(), bikeBackward.Pairs(), pedestrian.Pairs());
+
+            var lengthIndexedLine = new LengthIndexedLine(roadSegment.Geometry.Value);
             var flatSegments = new List<FlatRoadSegment>();
 
-            var from = positions[0];
-            for (var i = 1; i < positions.Count; i++)
+            foreach (var range in ranges)
             {
-                var to = positions[i];
+                var from = range.From;
+                var to = range.To;
 
-                var toActualDistance = i < positions.Count - 1 ? to.ToDouble() : roadSegment.Geometry.Value.Length;
-                var lil = new LengthIndexedLine(roadSegment.Geometry.Value);
-                var fromToGeometry = ((LineString)lil.ExtractLine(from, toActualDistance)).ToMultiLineString();
+                var fromToGeometry = ((LineString)lengthIndexedLine.ExtractLine(from, range.ToActual)).ToMultiLineString();
 
                 flatSegments.Add(new FlatRoadSegment
                 {
@@ -33,27 +55,25 @@ public static class RoadSegmentFlattener
                     Geometry = RoadSegmentGeometry.Create(fromToGeometry),
                     GeometryDrawMethod = roadSegment.GeometryDrawMethod,
                     Status = roadSegment.Status,
-                    AccessRestriction = roadSegment.AccessRestriction.GetValue(from, to),
-                    Category = roadSegment.Category.GetValue(from, to),
-                    Morphology = roadSegment.Morphology.GetValue(from, to),
-                    LeftStreetNameId = roadSegment.StreetNameId.GetValue(from, to, RoadSegmentAttributeSide.Links),
-                    RightStreetNameId = roadSegment.StreetNameId.GetValue(from, to, RoadSegmentAttributeSide.Rechts),
-                    LeftMaintenanceAuthorityId = roadSegment.MaintenanceAuthorityId.GetValue(from, to, RoadSegmentAttributeSide.Links),
-                    RightMaintenanceAuthorityId = roadSegment.MaintenanceAuthorityId.GetValue(from, to, RoadSegmentAttributeSide.Rechts),
-                    SurfaceType = roadSegment.SurfaceType.GetValue(from, to),
-                    CarAccessForward = roadSegment.CarAccessForward.TryGetValue(from, to, RoadSegmentAttributeSide.Beide, out var carAccessForward) ? carAccessForward : null,
-                    CarAccessBackward = roadSegment.CarAccessBackward.TryGetValue(from, to, RoadSegmentAttributeSide.Beide, out var carAccessBackward) ? carAccessBackward : null,
-                    BikeAccessForward = roadSegment.BikeAccessForward.TryGetValue(from, to, RoadSegmentAttributeSide.Beide, out var bikeAccessForward) ? bikeAccessForward : null,
-                    BikeAccessBackward = roadSegment.BikeAccessBackward.TryGetValue(from, to, RoadSegmentAttributeSide.Beide, out var bikeAccessBackward) ? bikeAccessBackward : null,
-                    PedestrianAccess = roadSegment.PedestrianAccess.TryGetValue(from, to, RoadSegmentAttributeSide.Beide, out var pedestrianAccess) ? pedestrianAccess : null,
+                    AccessRestriction = Resolve(access, from, to)?.Value!,
+                    Category = Resolve(category, from, to)?.Value!,
+                    Morphology = Resolve(morphology, from, to)?.Value!,
+                    LeftStreetNameId = ResolveSided(streetName, from, to, SideLeft, x => x.Side.Translation.Identifier)?.Value ?? default,
+                    RightStreetNameId = ResolveSided(streetName, from, to, SideRight, x => x.Side.Translation.Identifier)?.Value ?? default,
+                    LeftMaintenanceAuthorityId = ResolveSided(maintainer, from, to, SideLeft, x => x.Side.Translation.Identifier)?.Value ?? default,
+                    RightMaintenanceAuthorityId = ResolveSided(maintainer, from, to, SideRight, x => x.Side.Translation.Identifier)?.Value ?? default,
+                    SurfaceType = Resolve(surface, from, to)?.Value!,
+                    CarAccessForward = Resolve(carForward, from, to)?.Value,
+                    CarAccessBackward = Resolve(carBackward, from, to)?.Value,
+                    BikeAccessForward = Resolve(bikeForward, from, to)?.Value,
+                    BikeAccessBackward = Resolve(bikeBackward, from, to)?.Value,
+                    PedestrianAccess = Resolve(pedestrian, from, to)?.Value,
                     EuropeanRoadNumbers = roadSegment.EuropeanRoadNumbers,
                     NationalRoadNumbers = roadSegment.NationalRoadNumbers,
                     Origin = roadSegment.Origin,
                     LastModified = roadSegment.LastModified,
                     IsV2 = roadSegment.IsV2
                 });
-
-                from = positions[i];
             }
 
             return flatSegments;
@@ -62,99 +82,6 @@ public static class RoadSegmentFlattener
         {
             throw new InvalidOperationException($"Unable to flatten RoadSegment {roadSegment.Id}: {ex.Message}", ex);
         }
-    }
-
-    private static IReadOnlyList<RoadSegmentPositionV2> GetPositions(RoadSegmentExtractItem item)
-    {
-        ArgumentNullException.ThrowIfNull(item);
-
-        var result = new List<RoadSegmentPositionV2>();
-
-        var dynamicProperties = GetDynamicAttributeProperties(typeof(RoadSegmentExtractItem)).ToList();
-        foreach (var prop in dynamicProperties)
-        {
-            var dynObj = prop.GetValue(item);
-            if (dynObj is null)
-            {
-                continue;
-            }
-
-            var valuesProp = dynObj.GetType().GetProperty(nameof(ExtractRoadSegmentDynamicAttribute<object>.Values), BindingFlags.Instance | BindingFlags.Public);
-            if (valuesProp?.GetValue(dynObj) is not IEnumerable values)
-            {
-                continue;
-            }
-
-            foreach (var v in values)
-            {
-                if (v is not IExtractRoadSegmentDynamicAttributeValueCoverage coverage)
-                {
-                    continue;
-                }
-
-                if (!result.Any(x => x.IsReasonablyEqualTo(coverage.From)))
-                {
-                    result.Add(coverage.From);
-                }
-
-                if (!result.Any(x => x.IsReasonablyEqualTo(coverage.To)))
-                {
-                    result.Add(coverage.To);
-                }
-            }
-        }
-
-        return result.OrderBy(x => x).Select(x => new RoadSegmentPositionV2(x)).ToList();
-    }
-
-    private static IEnumerable<PropertyInfo> GetDynamicAttributeProperties(Type itemType)
-    {
-        var openGeneric = typeof(ExtractRoadSegmentDynamicAttribute<>);
-
-        return itemType
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(p =>
-                p.PropertyType.IsGenericType &&
-                p.PropertyType.GetGenericTypeDefinition() == openGeneric &&
-                p.GetMethod is not null);
-    }
-
-    private static T GetValue<T>(this ExtractRoadSegmentDynamicAttribute<T> attributeValues, RoadSegmentPositionV2 from, RoadSegmentPositionV2 to)
-    {
-        return GetValue(attributeValues, from, to, RoadSegmentAttributeSide.Beide);
-    }
-
-    private static T GetValue<T>(this ExtractRoadSegmentDynamicAttribute<T> attributeValues, RoadSegmentPositionV2 from, RoadSegmentPositionV2 to, RoadSegmentAttributeSide side)
-    {
-        TryGetValue(attributeValues, from, to, side, out var value);
-        return value;
-    }
-
-    private static bool TryGetValue<T>(this ExtractRoadSegmentDynamicAttribute<T> attributeValues, RoadSegmentPositionV2 from, RoadSegmentPositionV2 to, RoadSegmentAttributeSide side, out T value)
-    {
-        var values = attributeValues.Values
-            .Where(x => from >= x.From && to <= x.To)
-            .ToList();
-
-        if (!values.Any())
-        {
-            value = default;
-            return false;
-        }
-
-        if (side == RoadSegmentAttributeSide.Beide)
-        {
-            value = values.Single(x => x.Side == RoadSegmentAttributeSide.Beide).Value;
-            return true;
-        }
-
-        if (side == RoadSegmentAttributeSide.Links || side == RoadSegmentAttributeSide.Rechts)
-        {
-            value = values.Single(x => x.Side == RoadSegmentAttributeSide.Beide || x.Side == side).Value;
-            return true;
-        }
-
-        throw new ArgumentOutOfRangeException(side.ToString());
     }
 }
 
