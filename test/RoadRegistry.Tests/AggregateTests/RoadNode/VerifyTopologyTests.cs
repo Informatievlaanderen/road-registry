@@ -278,9 +278,12 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                     Geometry = RoadNodeGeometry.Create(point2),
                     Grensknoop = false
                 })
+                // Use fixed temporary ids for the two segments: the merge adds a new segment with a temporary id
+                // derived from the highest permanent id (max().Next() == 3 here), so random temporary ids from the
+                // fixture could collide with it (or with each other) and make the merge fail intermittently.
                 .Add((TestData.AddSegment1 with
                 {
-                    RoadSegmentIdReference = new(TestData.AddSegment1.RoadSegmentIdReference.RoadSegmentId),
+                    RoadSegmentIdReference = new(new RoadSegmentId(101)),
                     Geometry = BuildRoadSegmentGeometry(point1, point2),
                     Status = RoadSegmentStatusV2.Gerealiseerd,
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
@@ -291,7 +294,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 })
                 .Add((TestData.AddSegment1 with
                 {
-                    RoadSegmentIdReference = new(TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId),
+                    RoadSegmentIdReference = new(new RoadSegmentId(102)),
                     Geometry = BuildRoadSegmentGeometry(point2, point3),
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
