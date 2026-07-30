@@ -291,7 +291,8 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
         SaveEntities(roadNetwork.RoadSegments.Values, session, usedEventOrdinals);
         SaveEntities(roadNetwork.GradeSeparatedJunctions.Values, session, usedEventOrdinals);
         SaveEntities(roadNetwork.GradeJunctions.Values, session, usedEventOrdinals);
-        SaveEntities([roadNetwork], session, usedEventOrdinals);
+
+        SaveEntityEvents(roadNetwork, session, usedEventOrdinals);
     }
 
     private void SaveEntities<TEntity>(IEnumerable<TEntity> entities, IDocumentOperations session, HashSet<long> usedEventOrdinals)
@@ -299,21 +300,27 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
     {
         foreach (var entity in entities.Where(x => x.HasChanges()))
         {
-            foreach (var recorded in entity.GetRecordedChanges())
-            {
-                if (!usedEventOrdinals.Add(recorded.Ordinal))
-                {
-                    throw new InvalidOperationException(
-                        $"Duplicate event ordinal(s) [{recorded.Ordinal}] while saving road network. " +
-                        $"An aggregate emitted events without the change's {nameof(IEventOrdinalProvider)} attached (fell back to {nameof(EventOrdinalProvider)}.None).");
-                }
-
-                EnsureEventHasProvenance(recorded.Event);
-                var action = session.Events.AppendOrStartStream(entity.Id, recorded.Event);
-                SetOrdinalHeader(action, recorded.Ordinal);
-            }
+            SaveEntityEvents(entity, session, usedEventOrdinals);
 
             session.Store(entity);
+        }
+    }
+
+    private void SaveEntityEvents<TEntity>(TEntity entity, IDocumentOperations session, HashSet<long> usedEventOrdinals)
+        where TEntity : IMartenAggregateRootEntity
+    {
+        foreach (var recorded in entity.GetRecordedChanges())
+        {
+            if (!usedEventOrdinals.Add(recorded.Ordinal))
+            {
+                throw new InvalidOperationException(
+                    $"Duplicate event ordinal(s) [{recorded.Ordinal}] while saving road network. " +
+                    $"An aggregate emitted events without the change's {nameof(IEventOrdinalProvider)} attached (fell back to {nameof(EventOrdinalProvider)}.None).");
+            }
+
+            EnsureEventHasProvenance(recorded.Event);
+            var action = session.Events.AppendOrStartStream(entity.Id, recorded.Event);
+            SetOrdinalHeader(action, recorded.Ordinal);
         }
     }
 
