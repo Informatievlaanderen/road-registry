@@ -56,8 +56,8 @@ public class RoadSegmentWmsWfsV2ProjectionTests
             typeof(StreetNameWasCreated), typeof(StreetNameWasModified),
             typeof(StreetNameWasRemoved), typeof(StreetNameWasRenamed),
             // ScopedRoadNetwork
-            typeof(RoadNetworkChangesAccepted), typeof(MunicipalityWasMigrated),
-            typeof(RoadNetworkWasChangedBecauseOfExtract)
+            typeof(RoadNetworkChangesAccepted),
+            typeof(RoadNetworkWasChanged)
         };
 
         WmsWfsV2ProjectionEventCoverage.AssertHandledExactlyOnce(new RoadSegmentWmsWfsV2Projection(), excludeEventTypes);

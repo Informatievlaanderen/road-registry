@@ -6,7 +6,6 @@ using Autofac;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using FluentAssertions;
 using Marten;
 using Moq;
@@ -14,6 +13,7 @@ using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.SplitRoadSegment;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
@@ -51,17 +51,19 @@ public class GivenRoadSegment : BackOfficeLambdaTest
             new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [new RoadSegmentId(1)], [], []),
             BuildSeedNetwork);
 
-        List<ETagResponse> completedResult = null;
+        ChangeRoadNetworkTicketResult completedResult = null;
         TicketingMock
             .Setup(x => x.Complete(It.IsAny<Guid>(), It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()))
             .Callback<Guid, TicketResult, CancellationToken>((_, result, _) =>
-                completedResult = JsonConvert.DeserializeObject<List<ETagResponse>>(result.ResultAsJson!));
+                completedResult = JsonConvert.DeserializeObject<ChangeRoadNetworkTicketResult>(result.ResultAsJson!));
 
         await HandleRequest(CreateSqsRequest(CutPosition(50, 50)), store, roadNetworkRepository);
 
+        // A middle cut of a realized segment historizes the original and adds the two new parts.
         completedResult.Should().NotBeNull();
-        completedResult.Should().HaveCount(2);
-        completedResult.Should().OnlyContain(x => x.Location.Contains("/wegsegmenten/") && !string.IsNullOrEmpty(x.ETag));
+        completedResult.Summary.HasChanges.Should().BeTrue();
+        completedResult.Summary.RoadSegments.Added.Should().HaveCount(2);
+        completedResult.Summary.RoadSegments.Removed.Should().ContainSingle();
     }
 
     [Fact]
@@ -74,11 +76,11 @@ public class GivenRoadSegment : BackOfficeLambdaTest
 
         var sqsRequest = CreateSqsRequest(CutPosition(50, 50));
 
-        var completedResults = new List<List<ETagResponse>>();
+        var completedResults = new List<ChangeRoadNetworkTicketResult>();
         TicketingMock
             .Setup(x => x.Complete(It.IsAny<Guid>(), It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()))
             .Callback<Guid, TicketResult, CancellationToken>((_, result, _) =>
-                completedResults.Add(JsonConvert.DeserializeObject<List<ETagResponse>>(result.ResultAsJson!)!));
+                completedResults.Add(JsonConvert.DeserializeObject<ChangeRoadNetworkTicketResult>(result.ResultAsJson!)!));
 
         await HandleRequest(sqsRequest, store, roadNetworkRepository);
         await HandleRequest(sqsRequest, store, roadNetworkRepository);

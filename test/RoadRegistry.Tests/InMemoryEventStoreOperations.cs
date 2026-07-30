@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Tests;
 
+using System.Reflection;
 using JasperFx.Events;
 using Marten.Events;
 using Marten.Linq;
@@ -8,6 +9,12 @@ public class InMemoryEventStoreOperations : IEventStoreOperations
 {
     private readonly List<StreamAction> _streamActions = [];
     private readonly HashSet<object> _streamKeys = [];
+    private readonly Func<IEnumerable<StreamAction>>? _committedStreamActions;
+
+    public InMemoryEventStoreOperations(Func<IEnumerable<StreamAction>>? committedStreamActions = null)
+    {
+        _committedStreamActions = committedStreamActions;
+    }
 
     public IReadOnlyCollection<StreamAction> GetAndClearStreamActions()
     {
@@ -261,7 +268,41 @@ public class InMemoryEventStoreOperations : IEventStoreOperations
 
     public Task<T?> AggregateStreamAsync<T>(string streamKey, long version = 0, DateTimeOffset? timestamp = null, T? state = default(T?), long fromVersion = 0, CancellationToken token = new CancellationToken()) where T : class
     {
-        return Task.FromResult((T?)null);
+        // Live-aggregate a single stream by replaying its events through the aggregate's Marten conventions: a static
+        // Create(TEvent) for the first (creation) event, and instance Apply(TEvent) for the rest. Events are taken from
+        // the union of already-committed stream actions and this operation's own pending ones, matched on stream key.
+        var events = (_committedStreamActions?.Invoke() ?? [])
+            .Concat(_streamActions)
+            .Where(x => x.Key == streamKey)
+            .SelectMany(x => x.Events)
+            .Select(x => x.Data)
+            .ToList();
+
+        if (events.Count == 0)
+        {
+            return Task.FromResult((T?)null);
+        }
+
+        var aggregate = state;
+        foreach (var @event in events)
+        {
+            if (aggregate is null)
+            {
+                var create = typeof(T).GetMethod("Create", BindingFlags.Public | BindingFlags.Static, null, [@event.GetType()], null);
+                if (create is not null)
+                {
+                    aggregate = (T?)create.Invoke(null, [@event]);
+                    continue;
+                }
+
+                aggregate = (T)Activator.CreateInstance(typeof(T), nonPublic: true)!;
+            }
+
+            typeof(T).GetMethod("Apply", BindingFlags.Public | BindingFlags.Instance, null, [@event.GetType()], null)
+                ?.Invoke(aggregate, [@event]);
+        }
+
+        return Task.FromResult(aggregate);
     }
 
     public Task<T?> AggregateStreamToLastKnownAsync<T>(Guid streamId, long version = 0, DateTimeOffset? timestamp = null, CancellationToken token = new CancellationToken()) where T : class

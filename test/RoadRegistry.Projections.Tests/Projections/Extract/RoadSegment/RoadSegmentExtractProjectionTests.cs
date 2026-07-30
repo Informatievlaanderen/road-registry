@@ -42,8 +42,7 @@ public class RoadSegmentExtractProjectionTests
             typeof(GradeSeparatedJunctionRemoved),
             typeof(GradeSeparatedJunctionGeometryModified),
 
-            typeof(RoadNetworkWasChangedBecauseOfExtract),
-            typeof(MunicipalityWasMigrated),
+            typeof(RoadNetworkWasChanged),
             typeof(RoadNodeWasAdded),
             typeof(RoadNodeTypeWasChanged),
             typeof(RoadNodeWasModified),

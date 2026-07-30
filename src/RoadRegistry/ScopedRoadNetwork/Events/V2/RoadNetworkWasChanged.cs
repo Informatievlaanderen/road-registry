@@ -6,9 +6,9 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using RoadRegistry.BackOffice;
 using ValueObjects;
 
-public record RoadNetworkWasChangedBecauseOfExtract : IMartenEvent, ICreatedEvent
+public record RoadNetworkWasChanged : IMartenEvent, ICreatedEvent
 {
-    public const string EventName = "RoadNetworkWasChangedBecauseOfExtract"; // BE CAREFUL CHANGING THIS!!
+    public const string EventName = "RoadNetworkWasChanged"; // BE CAREFUL CHANGING THIS!!
 
     public required ScopedRoadNetworkId RoadNetworkId { get; init; }
     public RoadNetworkChangeGeometry? ScopeGeometry { get; init; }

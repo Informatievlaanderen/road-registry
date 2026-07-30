@@ -267,11 +267,7 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<RoadNetworkWasChangedBecauseOfExtract> e, IDocumentOperations ops)
-    {
-        // Do nothing
-    }
-    public void Project(IEvent<MunicipalityWasMigrated> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadNetworkWasChanged> e, IDocumentOperations ops)
     {
         // Do nothing
     }

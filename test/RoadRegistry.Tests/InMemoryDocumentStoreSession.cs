@@ -29,7 +29,9 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
     public InMemoryDocumentStoreSession(StoreOptions options)
     {
         _storeOptions = options;
-        _eventsStoreOperations = new InMemoryEventStoreOperations();
+        // The operations object aggregates a stream from the union of its own pending events and the already-committed
+        // stream actions held here, so an aggregate can be reloaded (e.g. via AggregateStreamAsync) after SaveChangesAsync.
+        _eventsStoreOperations = new InMemoryEventStoreOperations(() => _streamActions);
     }
 
     public object[] AllRecords()

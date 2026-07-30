@@ -63,8 +63,8 @@ public class StreetNamePbsProjectionTests
             typeof(OrganizationWasImported), typeof(OrganizationWasCreated),
             typeof(OrganizationWasModified), typeof(OrganizationWasRemoved),
             // ScopedRoadNetwork
-            typeof(RoadNetworkChangesAccepted), typeof(MunicipalityWasMigrated),
-            typeof(RoadNetworkWasChangedBecauseOfExtract)
+            typeof(RoadNetworkChangesAccepted),
+            typeof(RoadNetworkWasChanged)
         };
 
         PbsProjectionEventCoverage.AssertHandledExactlyOnce(new StreetNamePbsProjection(), excludeEventTypes);
