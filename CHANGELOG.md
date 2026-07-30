@@ -1,3 +1,10 @@
+# [5.5.0](https://github.com/informatievlaanderen/road-registry/compare/v5.4.5...v5.5.0) (2026-07-30)
+
+
+### Features
+
+* **2.0:** expand WmsWfsV2 Wegsegmenten view, labels, indexes and spatial indexes ([7b0896a](https://github.com/informatievlaanderen/road-registry/commit/7b0896a2787f9c0b396918293b0d813afddc9e3e))
+
 ## [5.4.5](https://github.com/informatievlaanderen/road-registry/compare/v5.4.4...v5.4.5) (2026-07-28)
 
 
