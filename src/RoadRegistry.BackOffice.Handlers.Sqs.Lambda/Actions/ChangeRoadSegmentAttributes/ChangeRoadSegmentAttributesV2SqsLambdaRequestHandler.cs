@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Marten;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
@@ -16,8 +16,10 @@ using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
+using RoadRegistry.ScopedRoadNetwork.Events.V2;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects;
+using RoadRegistry.ValueObjects.Problems;
 using TicketingService.Abstractions;
 
 public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : MartenSqsLambdaHandler<ChangeRoadSegmentAttributesV2SqsLambdaRequest>
@@ -50,34 +52,20 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
     {
         using var _ = Logger.TimeAction(GetType().Name);
 
-        var command = sqsLambdaRequest.Request;
+        var changeResult = await Handle(sqsLambdaRequest.Request, cancellationToken);
 
-        await Handle(command, cancellationToken);
-
-        var roadSegmentIds = command.Groups
-            .SelectMany(x => x.RoadSegmentIds)
-            .Distinct()
-            .ToList();
-
-        var responses = new List<ETagResponse>();
+        return new ChangeRoadNetworkTicketResult
         {
-            await using var session = Store.LightweightSession();
-
-            foreach (var roadSegmentId in roadSegmentIds)
-            {
-                var roadSegmentHash = await GetRoadSegmentHash(session, roadSegmentId, cancellationToken);
-                responses.Add(new ETagResponse(string.Format(GetRoadSegmentDetailUrlFormat(WellKnownPublicApiVersions.V3), roadSegmentId), roadSegmentHash));
-            }
-        }
-
-        return responses;
+            Summary = new RoadNetworkChangedSummary(changeResult.Summary)
+        };
     }
 
-    private Task Handle(ChangeRoadSegmentAttributesV2SqsRequest command, CancellationToken cancellationToken)
+    private async Task<RoadNetworkChangeResult> Handle(ChangeRoadSegmentAttributesV2SqsRequest command, CancellationToken cancellationToken)
     {
-        return Store.IdempotentSession(command, async session =>
+        var scopedRoadNetworkId = new ScopedRoadNetworkId(command.TicketId);
+
+        await Store.IdempotentSession(command, async session =>
         {
-            var scopedRoadNetworkId = new ScopedRoadNetworkId(command.TicketId);
             var roadSegmentIds = command.Groups.SelectMany(x => x.RoadSegmentIds).Distinct().ToList();
             var roadNetwork = await Load(session, roadSegmentIds, scopedRoadNetworkId);
 
@@ -93,6 +81,8 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
                         ? roadSegment.Geometry.Value.Length
                         : 0d;
 
+                    //TODO-pr TBD: willen we hier een specifieke change voor attributes only, of hergebruiken we de modifyroadsegment?
+                    //via de causation_id weten we wie de actie uitvoert
                     changes = changes.Add(new ModifyRoadSegmentAttributesChange
                     {
                         RoadSegmentIdReference = new RoadSegmentIdReference(roadSegmentId),
@@ -113,9 +103,13 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
             result.Problems.ThrowIfError();
 
             _roadNetworkRepository.Save(session, roadNetwork, command.GetType().Name);
-
-            Logger.LogInformation("Changed attributes for road segments {RoadSegmentIds}", string.Join(",", roadSegmentIds));
         }, cancellationToken, Logger);
+
+        // The summary is recovered from the persisted scoped road network aggregate (populated by the change-summary
+        // event) rather than from the domain call, so a retry that skips the mutation still yields the same response.
+        await using var readSession = Store.LightweightSession();
+        var scopedRoadNetwork = await readSession.LoadAsync(scopedRoadNetworkId, cancellationToken);
+        return new RoadNetworkChangeResult(Problems.None, scopedRoadNetwork.SummaryOfLastChange!);
     }
 
     private async Task<ScopedRoadNetwork> Load(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
