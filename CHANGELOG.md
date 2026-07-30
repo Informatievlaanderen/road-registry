@@ -1,3 +1,10 @@
+## [5.5.2](https://github.com/informatievlaanderen/road-registry/compare/v5.5.1...v5.5.2) (2026-07-30)
+
+
+### Bug Fixes
+
+* **2.0:** save ScopedRoadNetwork should only save events, not snapshot ([e38d5a4](https://github.com/informatievlaanderen/road-registry/commit/e38d5a4eaf7ea7b7a8b4386ac73132a24fb4d8c5))
+
 ## [5.5.1](https://github.com/informatievlaanderen/road-registry/compare/v5.5.0...v5.5.1) (2026-07-30)
 
 
