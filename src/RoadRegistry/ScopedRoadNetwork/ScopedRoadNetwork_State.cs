@@ -95,12 +95,7 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         }
     }
 
-    public static ScopedRoadNetwork Create(RoadNetworkWasChangedBecauseOfExtract @event)
-    {
-        return CreateFrom(@event.RoadNetworkId, @event.Summary);
-    }
-
-    public static ScopedRoadNetwork Create(MunicipalityWasMigrated @event)
+    public static ScopedRoadNetwork Create(RoadNetworkWasChanged @event)
     {
         return CreateFrom(@event.RoadNetworkId, @event.Summary);
     }
@@ -113,14 +108,7 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         };
     }
 
-    public void Apply(RoadNetworkWasChangedBecauseOfExtract @event)
-    {
-        UncommittedEvents.Add(@event);
-
-        SummaryOfLastChange = @event.Summary.ToRoadNetworkChangesSummary();
-    }
-
-    public void Apply(MunicipalityWasMigrated @event)
+    public void Apply(RoadNetworkWasChanged @event)
     {
         UncommittedEvents.Add(@event);
 

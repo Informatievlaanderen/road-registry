@@ -37,7 +37,7 @@ public partial class ScopedRoadNetwork
 
         if (!problems.HasError() && changes.Any())
         {
-            Apply(new MunicipalityWasMigrated
+            Apply(new RoadNetworkWasChanged
             {
                 RoadNetworkId = RoadNetworkId,
                 ScopeGeometry = changes.BuildScopeGeometry()?.ToGeometryObject(),

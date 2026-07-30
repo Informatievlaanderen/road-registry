@@ -172,7 +172,7 @@ public class MartenProjectionIntegrationTestRunner
                 }
             }
 
-            session.Events.Append(roadNetworkStreamKey, new RoadNetworkWasChangedBecauseOfExtract
+            session.Events.Append(roadNetworkStreamKey, new RoadNetworkWasChanged
             {
                 RoadNetworkId = roadNetworkId,
                 Summary = new RoadNetworkChangedSummary(new RoadNetworkChangesSummary()),

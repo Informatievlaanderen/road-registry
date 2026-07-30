@@ -73,8 +73,8 @@ public class GradeJunctionPbsProjectionTests
             typeof(StreetNameWasCreated), typeof(StreetNameWasModified),
             typeof(StreetNameWasRemoved), typeof(StreetNameWasRenamed),
             // ScopedRoadNetwork
-            typeof(RoadNetworkChangesAccepted), typeof(MunicipalityWasMigrated),
-            typeof(RoadNetworkWasChangedBecauseOfExtract)
+            typeof(RoadNetworkChangesAccepted),
+            typeof(RoadNetworkWasChanged)
         };
 
         PbsProjectionEventCoverage.AssertHandledExactlyOnce(new GradeJunctionPbsProjection(), excludeEventTypes);

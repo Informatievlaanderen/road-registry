@@ -58,7 +58,7 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        var roadSegmentIds = roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
 
         // Assert
         roadNetwork.RoadSegments[originalRoadSegmentId].Status.Should().Be(RoadSegmentStatusV2.Gehistoreerd);
@@ -68,9 +68,6 @@ public class AggregateTests : AggregateTestBase
             .ToList();
         newSegments.Should().HaveCount(2);
         newSegments.Should().OnlyContain(x => x.Status == RoadSegmentStatusV2.Gerealiseerd);
-
-        roadSegmentIds.Should().HaveCount(2);
-        roadSegmentIds.Should().BeEquivalentTo(newSegments.Select(x => x.RoadSegmentId));
 
         // Situation 1 events: the original is retired-because-of-split and a split event without modifications.
         var originalChanges = roadNetwork.RoadSegments[originalRoadSegmentId].GetChanges();
@@ -100,7 +97,7 @@ public class AggregateTests : AggregateTestBase
         var cutNearStart = new Point(new Coordinate(10.0, 10.0)) { SRID = WellknownSrids.Lambert08 };
 
         // Act
-        var roadSegmentIds = roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearStart, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearStart, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
 
         // Assert
         var original = roadNetwork.RoadSegments[originalRoadSegmentId];
@@ -111,10 +108,6 @@ public class AggregateTests : AggregateTestBase
             .Where(x => x.RoadSegmentId != originalRoadSegmentId)
             .ToList();
         newSegments.Should().HaveCount(1);
-
-        roadSegmentIds.Should().HaveCount(2);
-        roadSegmentIds.Should().Contain(originalRoadSegmentId);
-        roadSegmentIds.Should().Contain(newSegments.Single().RoadSegmentId);
 
         // Situation 2 events: no retire, a split event on the kept segment carrying the modifications.
         var originalChanges = original.GetChanges();
@@ -208,7 +201,7 @@ public class AggregateTests : AggregateTestBase
         var cutNearEnd = CutPosition(90.0, 90.0);
 
         // Act
-        var roadSegmentIds = roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearEnd, IdGenerator(), TestData.Provenance);
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearEnd, IdGenerator(), TestData.Provenance);
 
         // Assert
         var original = roadNetwork.RoadSegments[originalRoadSegmentId];
@@ -219,9 +212,6 @@ public class AggregateTests : AggregateTestBase
             .Where(x => x.RoadSegmentId != originalRoadSegmentId)
             .ToList();
         newSegments.Should().HaveCount(1);
-
-        roadSegmentIds.Should().HaveCount(2);
-        roadSegmentIds.Should().Contain(originalRoadSegmentId);
 
         var splitEvent = original.GetChanges().OfType<RoadSegmentWasSplit>().Single();
         splitEvent.Modifications.Should().NotBeNull();

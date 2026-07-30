@@ -108,7 +108,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildCrossingNetwork(Crossing);
 
         // Act
-        var roadSegmentIds = roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, IdGenerator(), TestData.Provenance);
+        roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, IdGenerator(), TestData.Provenance);
 
         // Assert: the two originals are historized (both cut halfway, so neither keeps its identifier).
         roadNetwork.RoadSegments[Segment1Id].Status.Should().Be(RoadSegmentStatusV2.Gehistoreerd);
@@ -119,9 +119,6 @@ public class AggregateTests : AggregateTestBase
             .ToList();
         newSegments.Should().HaveCount(4);
         newSegments.Should().OnlyContain(x => x.Status == RoadSegmentStatusV2.Gerealiseerd);
-
-        roadSegmentIds.Should().HaveCount(4);
-        roadSegmentIds.Should().BeEquivalentTo(newSegments.Select(x => x.RoadSegmentId));
 
         roadNetwork.RoadSegments[Segment1Id].GetChanges().Should().Contain(x => x is RoadSegmentWasRetiredBecauseOfSplit);
         roadNetwork.RoadSegments[Segment2Id].GetChanges().Should().Contain(x => x is RoadSegmentWasRetiredBecauseOfSplit);
@@ -136,7 +133,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildCrossingNetwork(new Coordinate(90.0, 90.0));
 
         // Act
-        var roadSegmentIds = roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, IdGenerator(), TestData.Provenance);
+        roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, IdGenerator(), TestData.Provenance);
 
         // Assert: Segment1 keeps its identifier (modified in place, not historized).
         var segment1 = roadNetwork.RoadSegments[Segment1Id];
@@ -154,11 +151,6 @@ public class AggregateTests : AggregateTestBase
             .ToList();
         newSegments.Should().HaveCount(3);
         newSegments.Should().OnlyContain(x => x.Status == RoadSegmentStatusV2.Gerealiseerd);
-
-        // The kept identifier is returned; the historized one is not.
-        roadSegmentIds.Should().HaveCount(4);
-        roadSegmentIds.Should().Contain(Segment1Id);
-        roadSegmentIds.Should().NotContain(Segment2Id);
     }
 
     [Fact]

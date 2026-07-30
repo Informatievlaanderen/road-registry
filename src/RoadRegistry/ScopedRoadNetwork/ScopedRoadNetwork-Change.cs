@@ -42,7 +42,7 @@ public partial class ScopedRoadNetwork
 
         if (!problems.HasError() && changes.Any())
         {
-            Apply(new RoadNetworkWasChangedBecauseOfExtract
+            Apply(new RoadNetworkWasChanged
             {
                 RoadNetworkId = RoadNetworkId,
                 ScopeGeometry = changes.BuildScopeGeometry()?.ToGeometryObject(),
@@ -53,6 +53,20 @@ public partial class ScopedRoadNetwork
         }
 
         return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), context.Summary);
+    }
+
+    // Records a summary event on the scoped road network aggregate itself, so its document is persisted and carries the
+    // SummaryOfLastChange. Used by the split operations, which apply their mutations directly rather than via Change.
+    private void ApplyChangeSummary(ScopedRoadNetworkChangeContext context, Provenance provenance)
+    {
+        Apply(new RoadNetworkWasChanged
+        {
+            RoadNetworkId = RoadNetworkId,
+            ScopeGeometry = null,
+            DownloadId = null,
+            Summary = new RoadNetworkChangedSummary(context.Summary),
+            Provenance = new ProvenanceData(provenance)
+        });
     }
 
     private Problems ApplyChanges(RoadNetworkChanges changes, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)

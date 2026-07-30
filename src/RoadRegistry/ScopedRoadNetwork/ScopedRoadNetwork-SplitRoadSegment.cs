@@ -26,7 +26,7 @@ public partial class ScopedRoadNetwork
         RoadSegmentStatusV2.BuitenGebruik
     ];
 
-    public IReadOnlyList<RoadSegmentId> SplitRoadSegment(
+    public void SplitRoadSegment(
         RoadSegmentId roadSegmentId,
         Point cutPosition,
         IRoadNetworkIdGenerator idGenerator,
@@ -40,7 +40,7 @@ public partial class ScopedRoadNetwork
         if (!_roadSegments.TryGetValue(roadSegmentId, out var segment) || segment.IsRemoved)
         {
             Problems.Single(new RoadSegmentSplitNotFound(roadSegmentId)).ThrowIfError();
-            return [];
+            return;
         }
 
         // Re-validate the invariants the API also checks: they are not guaranteed here because the
@@ -144,7 +144,6 @@ public partial class ScopedRoadNetwork
         }
 
         RoadSegmentId firstPartRoadSegmentId, secondPartRoadSegmentId;
-        IReadOnlyList<RoadSegmentId> resultRoadSegmentIds;
 
         if (keepIdentifier)
         {
@@ -176,7 +175,6 @@ public partial class ScopedRoadNetwork
 
             firstPartRoadSegmentId = firstIsLongest ? roadSegmentId : shortestRoadSegmentId;
             secondPartRoadSegmentId = firstIsLongest ? shortestRoadSegmentId : roadSegmentId;
-            resultRoadSegmentIds = [roadSegmentId, shortestRoadSegmentId];
         }
         else
         {
@@ -197,8 +195,6 @@ public partial class ScopedRoadNetwork
 
             problems += segment.Split([firstPartRoadSegmentId, secondPartRoadSegmentId], null, provenance);
             problems.ThrowIfError();
-
-            resultRoadSegmentIds = [firstPartRoadSegmentId, secondPartRoadSegmentId];
         }
 
         // A split performs very specific mutations, so the (grade-separated and grade) junctions connected to the
@@ -207,7 +203,7 @@ public partial class ScopedRoadNetwork
         ReassignGradeSeparatedJunctions(roadSegmentId, firstPartRoadSegmentId, secondPartRoadSegmentId, context);
         ReassignGradeJunctions(roadSegmentId, firstPartRoadSegmentId, secondPartRoadSegmentId, context);
 
-        return resultRoadSegmentIds;
+        ApplyChangeSummary(context, provenance);
     }
 
     private static AddRoadSegmentChange BuildAddChange(

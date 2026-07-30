@@ -22,7 +22,7 @@ public partial class ScopedRoadNetwork
     // crossing point. The junction is removed and a real road node (grensknoop=false) is inserted at the crossing, so the
     // (up to four) resulting parts share that node. Existing attributes/road numbers carry over; grade-separated junctions
     // that referenced an original segment are re-pointed to the correct new part.
-    public IReadOnlyList<RoadSegmentId> SplitRoadSegmentsByJunction(
+    public void SplitRoadSegmentsByJunction(
         RoadSegmentId roadSegmentId1,
         RoadSegmentId roadSegmentId2,
         IRoadNetworkIdGenerator idGenerator,
@@ -130,7 +130,7 @@ public partial class ScopedRoadNetwork
         problems += VerifyAndUpdateJunctions(idGenerator, context);
         problems.ThrowIfError();
 
-        return [.. result1.ResultRoadSegmentIds, .. result2.ResultRoadSegmentIds];
+        ApplyChangeSummary(context, provenance);
     }
 
     private (GradeJunctionId? GradeJunctionId, GradeSeparatedJunctionId? GradeSeparatedJunctionId, JunctionGeometry? Geometry)? FindJunctionBetween(

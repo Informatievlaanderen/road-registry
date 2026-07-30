@@ -61,7 +61,7 @@ internal static class WmsWfsV2ProjectionEventCoverage
         // StreetName V2
         typeof(StreetNameWasCreated), typeof(StreetNameWasModified), typeof(StreetNameWasRemoved), typeof(StreetNameWasRenamed),
         // ScopedRoadNetwork (not projected by PBS)
-        typeof(RoadNetworkChangesAccepted), typeof(MunicipalityWasMigrated), typeof(RoadNetworkWasChangedBecauseOfExtract)
+        typeof(RoadNetworkChangesAccepted), typeof(RoadNetworkWasChanged)
     ];
 
     // Each projection passes the events it deliberately does NOT handle (the exclude list); every remaining known event

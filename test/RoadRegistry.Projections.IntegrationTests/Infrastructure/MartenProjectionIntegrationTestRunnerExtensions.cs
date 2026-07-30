@@ -91,10 +91,7 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
         {
             switch (evt)
             {
-                case RoadNetworkWasChangedBecauseOfExtract @event:
-                    runner.Given<ScopedRoadNetwork, ScopedRoadNetworkId>(new ScopedRoadNetworkId(Guid.NewGuid()), @event);
-                    break;
-                case MunicipalityWasMigrated @event:
+                case RoadNetworkWasChanged @event:
                     runner.Given<ScopedRoadNetwork, ScopedRoadNetworkId>(new ScopedRoadNetworkId(Guid.NewGuid()), @event);
                     break;
                 case RoadNodeWasAdded @event:
