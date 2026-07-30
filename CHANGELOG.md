@@ -1,3 +1,10 @@
+## [5.5.1](https://github.com/informatievlaanderen/road-registry/compare/v5.5.0...v5.5.1) (2026-07-30)
+
+
+### Bug Fixes
+
+* **2.0:** split lambdas return ChangeRoadNetworkTicketResult ([9754e62](https://github.com/informatievlaanderen/road-registry/commit/9754e62ceee6b797c30fba14e43547a4e702e089))
+
 # [5.5.0](https://github.com/informatievlaanderen/road-registry/compare/v5.4.5...v5.5.0) (2026-07-30)
 
 
