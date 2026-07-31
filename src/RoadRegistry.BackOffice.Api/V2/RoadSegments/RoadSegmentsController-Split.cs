@@ -123,7 +123,7 @@ public partial class RoadSegmentsController
             // The road segment must have inwinningsstatus 'compleet' (i.e. be a V2 road segment).
             RuleFor(x => x.IsV2)
                 .Must(isV2 => isV2)
-                .WithProblemCode(ProblemCode.RoadSegment.Split.NotCompletedInwinning, (request, _) => new RoadSegmentSplitNotCompletedInwinning(request.RoadSegmentId));
+                .WithProblemCode(ProblemCode.RoadSegment.NotCompletedInwinning, (request, _) => new RoadSegmentNotCompletedInwinning(request.RoadSegmentId));
 
             // VAL-3: the road segment has status gepland, gerealiseerd or buiten gebruik. Only a V2 (=ingewonnen)
             // road segment has an inwinningsstatus, so the status is only evaluated once the segment is confirmed V2.

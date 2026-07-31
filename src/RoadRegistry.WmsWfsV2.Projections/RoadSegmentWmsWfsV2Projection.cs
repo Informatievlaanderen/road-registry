@@ -1,4 +1,4 @@
-namespace RoadRegistry.WmsWfsV2.Projections;
+﻿namespace RoadRegistry.WmsWfsV2.Projections;
 
 using System.Collections.Generic;
 using System.Linq;

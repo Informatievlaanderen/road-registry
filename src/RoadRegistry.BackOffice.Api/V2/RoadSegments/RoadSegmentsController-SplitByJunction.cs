@@ -143,8 +143,8 @@ public partial class RoadSegmentsController
                     // The road segment must have completed inwinning (i.e. be a V2 road segment).
                     RuleFor(x => x.Wegsegment1IsV2)
                         .Must(isV2 => isV2)
-                        .WithProblemCode(ProblemCode.RoadSegment.Split.NotCompletedInwinning, (request, _) =>
-                            new RoadSegmentSplitNotCompletedInwinning(new RoadSegmentId(request.Wegsegment1!.Value)));
+                        .WithProblemCode(ProblemCode.RoadSegment.NotCompletedInwinning, (request, _) =>
+                            new RoadSegmentNotCompletedInwinning(new RoadSegmentId(request.Wegsegment1!.Value)));
 
                     // VAL-3: that road segment must have status gerealiseerd.
                     When(x => x.Wegsegment1IsV2, () =>
@@ -169,8 +169,8 @@ public partial class RoadSegmentsController
                     // The road segment must have completed inwinning (i.e. be a V2 road segment).
                     RuleFor(x => x.Wegsegment2IsV2)
                         .Must(isV2 => isV2)
-                        .WithProblemCode(ProblemCode.RoadSegment.Split.NotCompletedInwinning, (request, _) =>
-                            new RoadSegmentSplitNotCompletedInwinning(new RoadSegmentId(request.Wegsegment2!.Value)));
+                        .WithProblemCode(ProblemCode.RoadSegment.NotCompletedInwinning, (request, _) =>
+                            new RoadSegmentNotCompletedInwinning(new RoadSegmentId(request.Wegsegment2!.Value)));
 
                     // VAL-3: that road segment must have status gerealiseerd.
                     When(x => x.Wegsegment2IsV2, () =>

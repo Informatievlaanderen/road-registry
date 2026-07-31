@@ -1,4 +1,4 @@
-namespace RoadRegistry.Pbs.Projections;
+﻿namespace RoadRegistry.Pbs.Projections;
 
 using System.Collections.Generic;
 using System.Linq;

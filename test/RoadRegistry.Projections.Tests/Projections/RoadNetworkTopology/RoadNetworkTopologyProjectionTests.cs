@@ -5,6 +5,7 @@ using Infrastructure.MartenDb.Projections;
 using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.GradeSeparatedJunction.Events.V1;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
+using RoadRegistry.RoadSegment.Events.V2;
 
 public class RoadNetworkTopologyProjectionTests
 {

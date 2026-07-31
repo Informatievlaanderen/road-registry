@@ -13,7 +13,7 @@ public class ChangeRoadNetworkSqsRequestHandler : SqsHandler<ChangeRoadNetworkSq
 
     protected override string WithAggregateId(ChangeRoadNetworkSqsRequest request)
     {
-        return Constants.GlobalMessageGroupId;
+        return Constants.GlobalRoadNetworkMessageGroupId;
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, ChangeRoadNetworkSqsRequest sqsRequest)

@@ -602,16 +602,20 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     "Wegsegment status is verplicht.")
             },
             {
+                ProblemCode.RoadSegment.NotCompletedInwinning, problem => new(problem.Severity, "WegsegmentInwinningsstatusNietCompleet",
+                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft niet de inwinningsstatus 'compleet'.")
+            },
+            {
+                ProblemCode.RoadSegment.ChangeAttributes.StatusNotValid, problem => new(problem.Severity, "WegsegmentAttribuutWaardenStatusNietCorrect",
+                    $"Wegsegment {problem.GetParameterValue("Identifier")} heeft een status die verschilt van 'gepland', 'gerealiseerd' of 'buiten gebruik'.")
+            },
+            {
                 ProblemCode.RoadSegment.Split.NotFound, problem => new(problem.Severity, "WegsegmentNietGevondenOfVerwijderd",
                     $"Wegsegment {problem.GetParameterValue("Identifier")} bestaat niet of is verwijderd.")
             },
             {
                 ProblemCode.RoadSegment.Split.StatusNotValid, problem => new(problem.Severity, "WegsegmentKnippenStatusNietCorrect",
                     $"Wegsegment {problem.GetParameterValue("Identifier")} heeft een status die verschilt van 'gepland', 'gerealiseerd' of 'buiten gebruik'.")
-            },
-            {
-                ProblemCode.RoadSegment.Split.NotCompletedInwinning, problem => new(problem.Severity, "WegsegmentInwinningsstatusNietCompleet",
-                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft niet de inwinningsstatus 'compleet'.")
             },
             {
                 ProblemCode.RoadSegment.Split.PositionIsRequired, problem => new(problem.Severity, "KnippositieVerplicht",
