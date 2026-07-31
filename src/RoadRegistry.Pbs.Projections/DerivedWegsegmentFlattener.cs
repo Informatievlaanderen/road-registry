@@ -58,6 +58,15 @@ internal static class DerivedWegsegmentFlattener
             var from = range.From;
             var to = range.To;
 
+            // Rounding the cut sub-line to centimetres can collapse an interpolated cut point onto the vertex next to
+            // it; the repeated coordinate would make the geometry invalid for SQL Server. A sub-range whose geometry
+            // has no length left at all is not worth a row.
+            var geometrie = ((LineString)lengthIndexedLine.ExtractLine(from, range.ToActual)).RoundToCm().WithoutRepeatedCoordinates();
+            if (geometrie is null)
+            {
+                continue;
+            }
+
             var m = Resolve(morphologyCov, from, to);
             var c = Resolve(categoryCov, from, to);
             var a = Resolve(accessCov, from, to);
@@ -96,7 +105,7 @@ internal static class DerivedWegsegmentFlattener
                 FIETSHEEN = Heen(bikeR?.RICHTING),
                 FIETSTERUG = Terug(bikeR?.RICHTING),
                 VOETGANGER = Voetganger(pedR?.RICHTING),
-                GEOMETRIE = lengthIndexedLine.ExtractLine(from, range.ToActual).RoundToCm(),
+                GEOMETRIE = geometrie,
                 CREATIE = creatie,
                 VERSIE = versie
             });

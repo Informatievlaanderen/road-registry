@@ -39,6 +39,25 @@ public static class GeometryObjectExtensions
         return new Coordinate(coordinate.X, coordinate.Y);
     }
 
+    // Drops consecutive identical coordinates, returning null when fewer than two remain. Cutting a sub-line and then
+    // rounding it to centimetres can make an interpolated cut point that lands a few millimetres past a vertex
+    // coincide with that vertex; the resulting zero-length segment makes the linestring invalid for SQL Server
+    // (error 24406, "curve (n) degenerates to a point").
+    public static LineString? WithoutRepeatedCoordinates(this LineString lineString)
+    {
+        ArgumentNullException.ThrowIfNull(lineString);
+
+        var coordinates = CoordinateArrays.RemoveRepeatedPoints(lineString.Coordinates);
+        if (coordinates.Length < 2)
+        {
+            return null;
+        }
+
+        return coordinates.Length == lineString.NumPoints
+            ? lineString
+            : lineString.Factory.CreateLineString(coordinates).WithSrid(lineString.SRID);
+    }
+
     public static T RoundToCm<T>(this T geometry)
         where T : Geometry
     {

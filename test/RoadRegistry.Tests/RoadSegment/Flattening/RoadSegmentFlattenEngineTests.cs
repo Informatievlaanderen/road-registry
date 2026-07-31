@@ -138,4 +138,33 @@ public class RoadSegmentFlattenEngineTests
         ranges.Last().ToActual.Should().Be(28.8123);
         Value(access, ranges.Last()).Should().Be("2");
     }
+
+    [Fact]
+    public void BoundariesWithinACentimetre_AreMergedIntoOneSplitPosition()
+    {
+        // Two attributes change at what is really the same spot, 3mm apart. Splitting on both would emit a sliver
+        // sub-range of 3mm, whose geometry collapses to a single point once rounded to centimetres.
+        var access = Track(100, new Row(0, 50, Beide, "1"), new Row(50, 100, Beide, "2"));
+        var category = Track(100, new Row(0, 50.003, Beide, "a"), new Row(50.003, 100, Beide, "b"));
+
+        var ranges = Ranges(100, access.Pairs(), category.Pairs());
+
+        ranges.Should().HaveCount(2);
+        ranges[0].From.Should().Be(0);
+        ranges[0].To.Should().Be(50);
+        ranges[1].From.Should().Be(50);
+        ranges[1].ToActual.Should().Be(100);
+    }
+
+    [Fact]
+    public void BoundariesMoreThanACentimetreApart_AreKeptAsSeparateSplitPositions()
+    {
+        var access = Track(100, new Row(0, 50, Beide, "1"), new Row(50, 100, Beide, "2"));
+        var category = Track(100, new Row(0, 50.02, Beide, "a"), new Row(50.02, 100, Beide, "b"));
+
+        var ranges = Ranges(100, access.Pairs(), category.Pairs());
+
+        ranges.Should().HaveCount(3);
+        ranges.Select(x => x.From).Should().Equal(0, 50, 50.02);
+    }
 }
