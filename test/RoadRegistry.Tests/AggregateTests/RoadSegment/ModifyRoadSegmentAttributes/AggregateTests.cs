@@ -110,7 +110,7 @@ public class AggregateTests : AggregateTestBase
         var result = roadNetwork.ModifyRoadSegmentAttributes([change], TestData.Provenance);
 
         result.Problems.Should().ContainSingle()
-            .Which.Reason.Should().Be("RoadSegmentChangeAttributesNotCompletedInwinning");
+            .Which.Reason.Should().Be("RoadSegmentNotCompletedInwinning");
         notMigrated.GetChanges().Should().BeEmpty();
     }
 

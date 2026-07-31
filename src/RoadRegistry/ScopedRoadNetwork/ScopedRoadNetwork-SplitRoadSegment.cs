@@ -47,7 +47,7 @@ public partial class ScopedRoadNetwork
         // domain can be invoked directly and the API request may have become stale in the meantime.
         if (!segment.HasMigrated())
         {
-            problems += new RoadSegmentSplitNotCompletedInwinning(roadSegmentId);
+            problems += new RoadSegmentNotCompletedInwinning(roadSegmentId);
         }
         problems.ThrowIfError();
 

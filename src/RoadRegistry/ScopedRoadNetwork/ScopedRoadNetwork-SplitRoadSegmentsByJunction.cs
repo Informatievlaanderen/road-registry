@@ -50,12 +50,12 @@ public partial class ScopedRoadNetwork
         // Both must have completed 'inwinning' (be migrated to V2) before their status can be evaluated.
         if (!segment1!.HasMigrated())
         {
-            problems += new RoadSegmentSplitNotCompletedInwinning(roadSegmentId1);
+            problems += new RoadSegmentNotCompletedInwinning(roadSegmentId1);
         }
 
         if (!segment2!.HasMigrated())
         {
-            problems += new RoadSegmentSplitNotCompletedInwinning(roadSegmentId2);
+            problems += new RoadSegmentNotCompletedInwinning(roadSegmentId2);
         }
 
         problems.ThrowIfError();

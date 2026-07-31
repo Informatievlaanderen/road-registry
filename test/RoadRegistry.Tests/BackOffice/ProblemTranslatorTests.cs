@@ -199,7 +199,7 @@ public class ProblemTranslatorTests
                 ]
             },
             {
-                ProblemCode.RoadSegment.ChangeAttributes.NotCompletedInwinning, [
+                ProblemCode.RoadSegment.NotCompletedInwinning, [
                     new ProblemParameter("WegsegmentId", "1")
                 ]
             },
@@ -216,11 +216,6 @@ public class ProblemTranslatorTests
             {
                 ProblemCode.RoadSegment.Split.StatusNotValid, [
                     new ProblemParameter("Identifier", "1")
-                ]
-            },
-            {
-                ProblemCode.RoadSegment.Split.NotCompletedInwinning, [
-                    new ProblemParameter("WegsegmentId", "1")
                 ]
             },
             {

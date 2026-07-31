@@ -72,7 +72,7 @@ public partial class ScopedRoadNetwork
             // A segment that has not completed its inwinning carries no dynamically segmented attributes to change.
             if (!roadSegment.HasMigrated())
             {
-                problems += new RoadSegmentChangeAttributesNotCompletedInwinning(roadSegmentId);
+                problems += new RoadSegmentNotCompletedInwinning(roadSegmentId);
                 continue;
             }
 

@@ -215,7 +215,7 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         act.Should().Throw<RoadRegistryProblemsException>()
-            .Which.Problems.Should().Contain(x => x.Reason == "RoadSegmentSplitNotCompletedInwinning");
+            .Which.Problems.Should().Contain(x => x.Reason == "RoadSegmentNotCompletedInwinning");
     }
 
     [Fact]

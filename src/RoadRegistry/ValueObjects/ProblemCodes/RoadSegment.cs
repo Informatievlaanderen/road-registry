@@ -21,6 +21,7 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode IsInInwinning = new("RoadSegmentIsInInwinning");
         public static readonly ProblemCode OverlapsWithInwinningszone = new("RoadSegmentOverlapsWithInwinningszone");
         public static readonly ProblemCode OutsideCompletedInwinningszone = new("RoadSegmentOutsideInwinningszone");
+        public static readonly ProblemCode NotCompletedInwinning = new("RoadSegmentNotCompletedInwinning");
 
         public static class AccessRestriction
         {
@@ -334,14 +335,12 @@ public sealed partial record ProblemCode
 
         public static class ChangeAttributes
         {
-            public static readonly ProblemCode NotCompletedInwinning = new("RoadSegmentChangeAttributesNotCompletedInwinning");
             public static readonly ProblemCode StatusNotValid = new("RoadSegmentChangeAttributesStatusNotValid");
         }
 
         public static class Split
         {
             public static readonly ProblemCode NotFound = new("RoadSegmentSplitNotFound");
-            public static readonly ProblemCode NotCompletedInwinning = new("RoadSegmentSplitNotCompletedInwinning");
             public static readonly ProblemCode StatusNotValid = new("RoadSegmentSplitStatusNotValid");
             public static readonly ProblemCode PositionIsRequired = new("RoadSegmentSplitPositionIsRequired");
             public static readonly ProblemCode PositionGeometryNotValid = new("RoadSegmentSplitPositionGeometryNotValid");
