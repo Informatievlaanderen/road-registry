@@ -1,3 +1,10 @@
+## [5.6.1](https://github.com/informatievlaanderen/road-registry/compare/v5.6.0...v5.6.1) (2026-07-31)
+
+
+### Bug Fixes
+
+* **2.0:** stop flattening from producing degenerate geometries ([6379a7d](https://github.com/informatievlaanderen/road-registry/commit/6379a7df7578a70c8103cd8997b1959a6989d946))
+
 # [5.6.0](https://github.com/informatievlaanderen/road-registry/compare/v5.5.3...v5.6.0) (2026-07-31)
 
 
