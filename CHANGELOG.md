@@ -1,3 +1,10 @@
+# [5.6.0](https://github.com/informatievlaanderen/road-registry/compare/v5.5.3...v5.6.0) (2026-07-31)
+
+
+### Features
+
+* **2.0:** change roadsegment attributes ([ed9218c](https://github.com/informatievlaanderen/road-registry/commit/ed9218c1944904a43cf18946aa2709ba37003d98))
+
 ## [5.5.3](https://github.com/informatievlaanderen/road-registry/compare/v5.5.2...v5.5.3) (2026-07-31)
 
 
