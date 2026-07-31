@@ -298,9 +298,11 @@ public partial class RoadSegmentsController
                 failures.Add(new ValidationFailure(elementPath, $"'wegbeheerder' is verplicht binnen elk object in de array '{path}'."));
                 continue;
             }
+            // Only the shape is checked here: whether the organization is known is validated against the organization
+            // cache further down the line.
             if (!OrganizationId.AcceptsValue(element.Wegbeheerder))
             {
-                failures.Add(new ValidationFailure(elementPath, $"De wegbeheerdercode {element.Wegbeheerder} is niet gekend in het Wegenregister."));
+                failures.Add(new ValidationFailure(elementPath, $"De wegbeheerdercode {element.Wegbeheerder} is ongeldig."));
                 continue;
             }
             if (side is null)
@@ -341,7 +343,9 @@ public partial class RoadSegmentsController
             return new StreetNameLocalId(id);
         }
 
-        failures.Add(new ValidationFailure(path, $"De straatnaamidentificator {identificator} komt niet overeen met een gekende, niet-verwijderde straatnaam in het Adressenregister."));
+        // Only the shape is checked here: whether the street name exists and has the right status is validated against
+        // the street name registry further down the line.
+        failures.Add(new ValidationFailure(path, $"De straatnaamidentificator {identificator} is ongeldig."));
         return null;
     }
 }
