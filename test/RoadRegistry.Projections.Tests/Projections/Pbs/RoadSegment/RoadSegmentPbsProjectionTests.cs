@@ -111,8 +111,8 @@ public class RoadSegmentPbsProjectionTests
 
         await scenario.GivenAsync(_testData.Segment1Added);
 
-        // The domain geometry carries an M (measure/chainage) ordinate, but the PBS target database must hold plain
-        // 2D geometries (no Z, no M).
+        // The PBS target database must hold plain 2D geometries (no Z, no M), whatever the incoming geometry
+        // carries.
         var segment = await scenario.Find<RoadSegmentRecord>(1);
         AssertIs2D(segment!.GEOMETRIE!);
 

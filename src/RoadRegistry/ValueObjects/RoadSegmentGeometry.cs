@@ -16,8 +16,7 @@ public sealed record RoadSegmentGeometry : GeometryObject, IEquatable<RoadSegmen
         get
         {
             _geometry ??= ((MultiLineString)new WKTReader().Read(WKT))
-                .WithSrid(SRID)
-                .WithMeasureOrdinates();
+                .WithSrid(SRID);
             return _geometry;
         }
     }

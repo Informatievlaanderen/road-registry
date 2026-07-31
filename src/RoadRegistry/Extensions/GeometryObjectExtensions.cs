@@ -9,9 +9,9 @@ using NetTopologySuite.Geometries.Implementation;
 public static class GeometryObjectExtensions
 {
     // Rebuilds a geometry with X/Y-only coordinates (no Z, no M), preserving SRID and structure. Road v2 domain
-    // geometries can carry an M (measure/chainage) ordinate (RoadSegmentGeometry.Value applies WithMeasureOrdinates),
-    // but the read-model target databases (WmsWfsV2, PBS SQL Server) must store plain 2D geometries. A fresh
-    // CoordinateArraySequence-based factory is used on purpose so no Z/M slots are re-introduced.
+    // geometries are 2D, but a Z or M ordinate can still arrive from the outside (legacy V1 geometries, GRB
+    // imports), and the read-model target databases (WmsWfsV2, PBS SQL Server) must store plain 2D geometries.
+    // A fresh CoordinateArraySequence-based factory is used on purpose so no Z/M slots are re-introduced.
     public static Geometry Force2D(this Geometry geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);
