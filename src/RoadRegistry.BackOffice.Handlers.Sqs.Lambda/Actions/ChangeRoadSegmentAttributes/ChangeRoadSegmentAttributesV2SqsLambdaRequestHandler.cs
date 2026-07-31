@@ -142,7 +142,7 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
             .Where(x => x.StreetName is not null)
             .SelectMany(x => x.StreetName!)
             .Select(x => x.Value)
-            .Where(x => !StreetNameLocalId.IsEmpty(x) && x != StreetNameLocalId.NotApplicable)
+            .Where(x => x > 0)
             .Distinct()
             .ToArray();
         foreach (var streetNameProblems in await Task.WhenAll(streetNameIds.Select(x => ValidateStreetNameId(x, cancellationToken))))
