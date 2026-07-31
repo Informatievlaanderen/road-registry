@@ -105,6 +105,32 @@ public class RoadSegmentWmsWfsV2ProjectionTests
     }
 
     [Fact]
+    public async Task WhenRoadSegmentWasAdded_ThenGeometriesAreStoredAs2D()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(_testData.Segment1Added);
+
+        // The domain geometry carries an M (measure/chainage) ordinate, but the WMS/WFS target database must hold
+        // plain 2D geometries (no Z, no M).
+        var segment = await scenario.Find<RoadSegmentRecord>(1);
+        AssertIs2D(segment!.GEOMETRIE!);
+
+        var derived = await scenario.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1));
+        Assert.NotEmpty(derived);
+        Assert.All(derived, row => AssertIs2D(row.GEOMETRIE!));
+    }
+
+    private static void AssertIs2D(NetTopologySuite.Geometries.Geometry geometry)
+    {
+        Assert.All(geometry.Coordinates, coordinate =>
+        {
+            Assert.True(double.IsNaN(coordinate.Z), "Geometry must not carry a Z ordinate.");
+            Assert.True(double.IsNaN(coordinate.M), "Geometry must not carry an M ordinate.");
+        });
+    }
+
+    [Fact]
     public async Task WhenRoadSegmentWasAdded_ThenDynamicAttributesBlobPopulated()
     {
         var scenario = Scenario();

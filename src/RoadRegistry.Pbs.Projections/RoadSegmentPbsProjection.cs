@@ -283,7 +283,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
             ? (new RoadSegmentRecord { WS_OIDN = segId, CREATIE = provenance.ToPbsDate() }, true)
             : await LoadOrCreate(context, segId, provenance);
 
-        normal.GEOMETRIE = geometry.EnsureLambert08().RoundToCm().Value;
+        normal.GEOMETRIE = geometry.EnsureLambert08().RoundToCm().Value.Force2D();
         normal.STATUS = status?.Translation.Identifier;
         normal.LBLSTATUS = status?.Translation.Name;
         normal.METHODE = method?.Translation.Identifier;
@@ -332,7 +332,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
 
         if (geometry is not null)
         {
-            normal.GEOMETRIE = geometry.EnsureLambert08().RoundToCm().Value;
+            normal.GEOMETRIE = geometry.EnsureLambert08().RoundToCm().Value.Force2D();
         }
         if (status is not null)
         {

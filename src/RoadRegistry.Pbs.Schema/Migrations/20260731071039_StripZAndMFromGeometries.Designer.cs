@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Pbs.Schema;
@@ -12,9 +13,11 @@ using RoadRegistry.Pbs.Schema;
 namespace RoadRegistry.Pbs.Schema.Migrations
 {
     [DbContext(typeof(PbsContext))]
-    partial class PbsContextModelSnapshot : ModelSnapshot
+    [Migration("20260731071039_StripZAndMFromGeometries")]
+    partial class StripZAndMFromGeometries
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
