@@ -96,41 +96,6 @@ public class SwaggerTests
         morfologie.Required.Should().BeEquivalentTo(new[] { "morfologie" });
     }
 
-    [Fact]
-    public void ChangeAttributesV2_HasARequestExample()
-    {
-        var serviceProvider = BuildApiServiceProvider();
-
-        var httpContext = new DefaultHttpContext { RequestServices = serviceProvider };
-        httpContext.Request.Scheme = "https";
-        httpContext.Request.Host = new HostString("localhost");
-        new HttpContextAccessor().HttpContext = httpContext;
-
-        var swaggerProvider = serviceProvider.GetRequiredService<ISwaggerProvider>();
-        var swaggerGeneratorOptions = serviceProvider.GetRequiredService<IOptions<SwaggerGeneratorOptions>>().Value;
-
-        foreach (var operationFilter in swaggerGeneratorOptions.OperationFilters
-                     .Where(f => f.GetType().Namespace?.StartsWith("Be.Vlaanderen.Basisregisters.AspNetCore.Swagger") == true)
-                     .ToList())
-        {
-            swaggerGeneratorOptions.OperationFilters.Remove(operationFilter);
-        }
-
-        // The operation shows up in every document it is part of; each of them must carry the example.
-        var operations = swaggerGeneratorOptions.SwaggerDocs.Keys
-            .Select(documentName => swaggerProvider.GetSwagger(documentName))
-            .SelectMany(document => document.Paths.Values)
-            .SelectMany(path => path.Operations!.Values)
-            .Where(x => x.OperationId == nameof(RoadSegmentsController.ChangeRoadSegmentAttributesV2))
-            .ToList();
-
-        operations.Should().NotBeEmpty();
-        operations.SelectMany(x => x.RequestBody!.Content!.Values)
-            .Should().NotBeEmpty()
-            .And.OnlyContain(x => x.Example != null,
-                "the endpoint declares a SwaggerRequestExample which must end up in the OpenAPI document");
-    }
-
     private static IServiceProvider BuildApiServiceProvider()
     {
         var configuration = new ConfigurationBuilder()

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using FluentValidation;
 using FluentValidation.Results;
@@ -502,11 +503,11 @@ public class ChangeRoadSegmentAttributesV2ParametersExamples : IExamplesProvider
                 Wegsegmenten = [481110, 481111],
                 Morfologie =
                 [
-                    new MorfologieParameters { Morfologie = "weg bestaande uit één rijbaan" }
+                    new MorfologieParameters { Morfologie = RoadSegmentMorphologyV2.WegBestaandeUit1Rijbaan.ToDutchString() }
                 ],
                 Wegcategorie =
                 [
-                    new WegcategorieParameters { Wegcategorie = "lokale ontsluitingsweg" }
+                    new WegcategorieParameters { Wegcategorie = RoadSegmentCategoryV2.LokaleOntsluitingsweg.ToDutchString() }
                 ]
             },
             // Attribuutwaarden die variëren over de lengte of per kant van het wegsegment. De opgegeven waarden
@@ -516,21 +517,25 @@ public class ChangeRoadSegmentAttributesV2ParametersExamples : IExamplesProvider
                 Wegsegmenten = [481112],
                 Wegverharding =
                 [
-                    new WegverhardingParameters { TotPositie = 50.5, Wegverharding = "verhard" },
-                    new WegverhardingParameters { VanPositie = 50.5, Wegverharding = "onverhard" }
+                    new WegverhardingParameters { TotPositie = 50.5, Wegverharding = RoadSegmentSurfaceTypeV2.Verhard.ToDutchString() },
+                    new WegverhardingParameters { VanPositie = 50.5, Wegverharding = RoadSegmentSurfaceTypeV2.Onverhard.ToDutchString() }
                 ],
                 Straatnaam =
                 [
-                    new StraatnaamParameters { Kant = "beide", Identificator = "https://data.vlaanderen.be/id/straatnaam/79632" }
+                    new StraatnaamParameters
+                    {
+                        Kant = RoadSegmentAttributeSide.Beide.ToDutchString(),
+                        Identificator = OsloNamespaces.StraatNaam.ToPuri(79632.ToString())
+                    }
                 ],
                 Wegbeheerder =
                 [
-                    new WegbeheerderParameters { Kant = "links", Wegbeheerder = "AWV114" },
-                    new WegbeheerderParameters { Kant = "rechts", Wegbeheerder = "AWV116" }
+                    new WegbeheerderParameters { Kant = RoadSegmentAttributeSide.Links.ToDutchString(), Wegbeheerder = "AWV114" },
+                    new WegbeheerderParameters { Kant = RoadSegmentAttributeSide.Rechts.ToDutchString(), Wegbeheerder = "AWV116" }
                 ],
                 VerkeerstypeAuto =
                 [
-                    new VerkeerstypeParameters { Richting = "heen" }
+                    new VerkeerstypeParameters { Richting = RoadSegmentTrafficDirection.Forward.ToDutchString() }
                 ]
             }
         ];
