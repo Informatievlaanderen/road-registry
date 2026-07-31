@@ -48,7 +48,7 @@ public class RoadNodePbsProjection : RunnerDbContextRoadNetworkChangesProjection
             {
                 WK_OIDN = e.Data.RoadNodeId.ToInt32(),
                 GRENSKNOOP = e.Data.Grensknoop.ToDbaseShortValue(),
-                GEOMETRIE = e.Data.Geometry.EnsureLambert08().RoundToCm().Value,
+                GEOMETRIE = e.Data.Geometry.EnsureLambert08().RoundToCm().Value.Force2D(),
                 TYPE = e.Data.Type?.Translation.Identifier,
                 LBLTYPE = e.Data.Type?.Translation.Name,
                 CREATIE = e.Data.Provenance.ToPbsDate(),
@@ -78,7 +78,7 @@ public class RoadNodePbsProjection : RunnerDbContextRoadNetworkChangesProjection
             }
             if (e.Data.Geometry is not null)
             {
-                record.GEOMETRIE = e.Data.Geometry.EnsureLambert08().RoundToCm().Value;
+                record.GEOMETRIE = e.Data.Geometry.EnsureLambert08().RoundToCm().Value.Force2D();
             }
             if (e.Data.Grensknoop is not null)
             {
@@ -93,7 +93,7 @@ public class RoadNodePbsProjection : RunnerDbContextRoadNetworkChangesProjection
             var isNew = record is null;
             record ??= new RoadNodeRecord { WK_OIDN = e.Data.RoadNodeId.ToInt32(), CREATIE = e.Data.Provenance.ToPbsDate() };
             record.GRENSKNOOP = e.Data.Grensknoop.ToDbaseShortValue();
-            record.GEOMETRIE = e.Data.Geometry.EnsureLambert08().RoundToCm().Value;
+            record.GEOMETRIE = e.Data.Geometry.EnsureLambert08().RoundToCm().Value.Force2D();
             record.VERSIE = e.Data.Provenance.ToPbsDate();
             if (isNew)
             {
@@ -121,7 +121,7 @@ public class RoadNodePbsProjection : RunnerDbContextRoadNetworkChangesProjection
         var isNew = record is null;
         record ??= new RoadNodeRecord { WK_OIDN = nodeId, CREATIE = provenance.ToPbsDate() };
         record.GRENSKNOOP = null;
-        record.GEOMETRIE = geometry.EnsureLambert08().RoundToCm().Value;
+        record.GEOMETRIE = geometry.EnsureLambert08().RoundToCm().Value.Force2D();
         var v2Type = V1ToV2.RoadNodeType(type);
         record.TYPE = v2Type?.Translation.Identifier;
         record.LBLTYPE = v2Type?.Translation.Name;

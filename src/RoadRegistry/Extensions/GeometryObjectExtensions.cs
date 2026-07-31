@@ -1,11 +1,47 @@
 ﻿namespace RoadRegistry.Extensions;
 
 using System;
+using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Implementation;
 
 public static class GeometryObjectExtensions
 {
+    // Rebuilds a geometry with X/Y-only coordinates (no Z, no M), preserving SRID and structure. Road v2 domain
+    // geometries can carry an M (measure/chainage) ordinate (RoadSegmentGeometry.Value applies WithMeasureOrdinates),
+    // but the read-model target databases (WmsWfsV2, PBS SQL Server) must store plain 2D geometries. A fresh
+    // CoordinateArraySequence-based factory is used on purpose so no Z/M slots are re-introduced.
+    public static Geometry Force2D(this Geometry geometry)
+    {
+        if (geometry is null)
+        {
+            return geometry!;
+        }
+
+        var factory = new GeometryFactory(geometry.PrecisionModel, geometry.SRID, CoordinateArraySequenceFactory.Instance);
+        return Rebuild2D(geometry, factory);
+    }
+
+    private static Geometry Rebuild2D(Geometry geometry, GeometryFactory factory)
+    {
+        return geometry switch
+        {
+            Point point => point.IsEmpty ? factory.CreatePoint() : factory.CreatePoint(To2D(point.Coordinate)),
+            LineString lineString => factory.CreateLineString(lineString.Coordinates.Select(To2D).ToArray()),
+            MultiLineString multiLineString => factory.CreateMultiLineString(
+                multiLineString.Geometries.Cast<LineString>().Select(x => (LineString)Rebuild2D(x, factory)).ToArray()),
+            MultiPoint multiPoint => factory.CreateMultiPoint(
+                multiPoint.Geometries.Cast<Point>().Select(x => (Point)Rebuild2D(x, factory)).ToArray()),
+            _ => throw new NotSupportedException($"{nameof(Force2D)} does not support geometry type '{geometry.GeometryType}'.")
+        };
+    }
+
+    private static Coordinate To2D(Coordinate coordinate)
+    {
+        return new Coordinate(coordinate.X, coordinate.Y);
+    }
+
     public static T RoundToCm<T>(this T geometry)
         where T : Geometry
     {

@@ -37,7 +37,7 @@ public class GradeSeparatedJunctionWmsWfsV2Projection : RunnerDbContextRoadNetwo
             {
                 return;
             }
-            record.GEOMETRIE = e.Data.Geometry?.EnsureLambert08().Value;
+            record.GEOMETRIE = e.Data.Geometry?.EnsureLambert08().Value.Force2D();
             record.VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset();
         });
 
@@ -62,7 +62,7 @@ public class GradeSeparatedJunctionWmsWfsV2Projection : RunnerDbContextRoadNetwo
                 BO_WS_OIDN = e.Data.UpperRoadSegmentId.ToInt32(),
                 TYPE = e.Data.Type.Translation.Identifier,
                 LBLTYPE = e.Data.Type.Translation.Name,
-                GEOMETRIE = e.Data.Geometry.EnsureLambert08().Value,
+                GEOMETRIE = e.Data.Geometry.EnsureLambert08().Value.Force2D(),
                 CREATIE = e.Data.Provenance.Timestamp.ToDateTimeOffset(),
                 VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset()
             });
@@ -100,7 +100,7 @@ public class GradeSeparatedJunctionWmsWfsV2Projection : RunnerDbContextRoadNetwo
             {
                 return;
             }
-            record.GEOMETRIE = e.Data.Geometry.EnsureLambert08().Value;
+            record.GEOMETRIE = e.Data.Geometry.EnsureLambert08().Value.Force2D();
             record.VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset();
         });
 
@@ -132,7 +132,7 @@ public class GradeSeparatedJunctionWmsWfsV2Projection : RunnerDbContextRoadNetwo
         var v2Type = V1ToV2.GradeSeparatedJunctionType(type);
         record.TYPE = v2Type?.Translation.Identifier;
         record.LBLTYPE = v2Type?.Translation.Name;
-        record.GEOMETRIE = geometry?.EnsureLambert08().Value;
+        record.GEOMETRIE = geometry?.EnsureLambert08().Value.Force2D();
         record.VERSIE = provenance.Timestamp.ToDateTimeOffset();
         if (isNew)
         {

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using JasperFx.Events;
+using RoadRegistry.Extensions;
 using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using Schema;
@@ -22,7 +23,7 @@ public class GradeJunctionWmsWfsV2Projection : RunnerDbContextRoadNetworkChanges
                 GK_OIDN = e.Data.GradeJunctionId.ToInt32(),
                 WS1_OIDN = e.Data.RoadSegmentId1.ToInt32(),
                 WS2_OIDN = e.Data.RoadSegmentId2.ToInt32(),
-                GEOMETRIE = e.Data.Geometry.Value,
+                GEOMETRIE = e.Data.Geometry.Value.Force2D(),
                 CREATIE = e.Data.Provenance.Timestamp.ToDateTimeOffset(),
                 VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset()
             });
@@ -54,7 +55,7 @@ public class GradeJunctionWmsWfsV2Projection : RunnerDbContextRoadNetworkChanges
             {
                 return;
             }
-            record.GEOMETRIE = e.Data.Geometry.Value;
+            record.GEOMETRIE = e.Data.Geometry.Value.Force2D();
             record.VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset();
         });
 
