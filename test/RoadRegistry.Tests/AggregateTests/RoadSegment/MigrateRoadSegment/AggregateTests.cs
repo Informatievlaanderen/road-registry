@@ -80,7 +80,7 @@ public class AggregateTests : AggregateTestBase
         var change = Fixture.Create<MigrateRoadSegmentChange>() with
         {
             Status = RoadSegmentStatusV2.Parse(status),
-            Geometry = Fixture.Create<RoadSegmentGeometry>(),
+            Geometry = BuildRoadSegmentGeometry(TestData.StartPoint1, TestData.EndPoint1),
             EuropeanRoadNumbers = Fixture.CreateMany<EuropeanRoadNumber>(3).Distinct().ToList(),
             NationalRoadNumbers = Fixture.CreateMany<NationalRoadNumber>(3).Distinct().ToList()
         };
