@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
 using TicketingService.Abstractions;
 
 public class SplitRoadSegmentsByJunctionSqsRequestHandler : SqsHandler<SplitRoadSegmentsByJunctionSqsRequest>
@@ -13,7 +14,7 @@ public class SplitRoadSegmentsByJunctionSqsRequestHandler : SqsHandler<SplitRoad
 
     protected override string WithAggregateId(SplitRoadSegmentsByJunctionSqsRequest request)
     {
-        return Guid.NewGuid().ToString();
+        return Constants.GlobalRoadNetworkMessageGroupId;
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, SplitRoadSegmentsByJunctionSqsRequest sqsRequest)

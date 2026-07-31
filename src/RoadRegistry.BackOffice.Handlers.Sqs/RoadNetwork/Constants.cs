@@ -2,5 +2,5 @@
 
 public static class Constants
 {
-    public const string GlobalMessageGroupId = "0";
+    public const string GlobalRoadNetworkMessageGroupId = "0";
 }

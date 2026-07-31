@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
 using TicketingService.Abstractions;
 
 public class ChangeRoadSegmentAttributesV2SqsRequestHandler : SqsHandler<ChangeRoadSegmentAttributesV2SqsRequest>
@@ -13,7 +14,7 @@ public class ChangeRoadSegmentAttributesV2SqsRequestHandler : SqsHandler<ChangeR
 
     protected override string WithAggregateId(ChangeRoadSegmentAttributesV2SqsRequest request)
     {
-        return Guid.NewGuid().ToString();
+        return Constants.GlobalRoadNetworkMessageGroupId;
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, ChangeRoadSegmentAttributesV2SqsRequest sqsRequest)

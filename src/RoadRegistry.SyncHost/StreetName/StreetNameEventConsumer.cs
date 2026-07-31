@@ -181,7 +181,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
 
             await _sqsQueue.Copy(
                 request,
-                new SqsQueueOptions { MessageGroupId = RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork.Constants.GlobalMessageGroupId },
+                new SqsQueueOptions { MessageGroupId = RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork.Constants.GlobalRoadNetworkMessageGroupId },
                 cancellationToken);
 
             Logger.LogInformation("Published system request to relink {Count} V2 RoadSegments from StreetName {Source} to {Destination}", v2RoadSegmentIds.Count, sourceStreetNameId, destinationStreetNameId);

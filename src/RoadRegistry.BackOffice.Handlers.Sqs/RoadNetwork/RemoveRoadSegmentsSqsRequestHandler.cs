@@ -13,7 +13,7 @@ public class RemoveRoadSegmentsSqsRequestHandler : SqsHandler<RemoveRoadSegments
 
     protected override string WithAggregateId(RemoveRoadSegmentsSqsRequest request)
     {
-        return Constants.GlobalMessageGroupId;
+        return Constants.GlobalRoadNetworkMessageGroupId;
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, RemoveRoadSegmentsSqsRequest sqsRequest)
