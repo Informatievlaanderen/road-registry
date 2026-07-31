@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -14,12 +15,14 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
 
 public partial class RoadSegmentsController
 {
@@ -36,6 +39,11 @@ public partial class RoadSegmentsController
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    [SwaggerResponseHeader(StatusCodes.Status202Accepted, "ETag", JsonSchemaType.String, "De ETag van de response.")]
+    [SwaggerResponseHeader(StatusCodes.Status202Accepted, "x-correlation-id", JsonSchemaType.String, "Correlatie identificator van de response.")]
+    [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
+    [SwaggerRequestExample(typeof(ChangeRoadSegmentAttributesV2Parameters), typeof(ChangeRoadSegmentAttributesV2ParametersExamples))]
     [SwaggerOperation(OperationId = nameof(ChangeRoadSegmentAttributesV2), Description = "Wijzig één of meerdere attribuutwaarden voor één of meerdere wegsegmenten.")]
     public async Task<IActionResult> ChangeRoadSegmentAttributesV2(
         [FromBody] ChangeRoadSegmentAttributesV2Parameters parameters,
@@ -479,4 +487,52 @@ public record VerkeerstypeVoetgangerParameters : VanTotParameters
     [JsonProperty("richting", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentPedestrianTrafficDirection))]
     public string Richting { get; set; }
+}
+
+public class ChangeRoadSegmentAttributesV2ParametersExamples : IExamplesProvider<ChangeRoadSegmentAttributesV2Parameters>
+{
+    public ChangeRoadSegmentAttributesV2Parameters GetExamples()
+    {
+        return
+        [
+            // Eén attribuutwaarde voor de volledige lengte van meerdere wegsegmenten: vanPositie en totPositie mogen
+            // dan weggelaten worden.
+            new ChangeRoadSegmentAttributeV2Parameters
+            {
+                Wegsegmenten = [481110, 481111],
+                Morfologie =
+                [
+                    new MorfologieParameters { Morfologie = "weg bestaande uit één rijbaan" }
+                ],
+                Wegcategorie =
+                [
+                    new WegcategorieParameters { Wegcategorie = "lokale ontsluitingsweg" }
+                ]
+            },
+            // Attribuutwaarden die variëren over de lengte of per kant van het wegsegment. De opgegeven waarden
+            // vervangen het volledige attribuut, dus ze moeten samen het volledige wegsegment bedekken.
+            new ChangeRoadSegmentAttributeV2Parameters
+            {
+                Wegsegmenten = [481112],
+                Wegverharding =
+                [
+                    new WegverhardingParameters { TotPositie = 50.5, Wegverharding = "verhard" },
+                    new WegverhardingParameters { VanPositie = 50.5, Wegverharding = "onverhard" }
+                ],
+                Straatnaam =
+                [
+                    new StraatnaamParameters { Kant = "beide", Identificator = "https://data.vlaanderen.be/id/straatnaam/79632" }
+                ],
+                Wegbeheerder =
+                [
+                    new WegbeheerderParameters { Kant = "links", Wegbeheerder = "AWV114" },
+                    new WegbeheerderParameters { Kant = "rechts", Wegbeheerder = "AWV116" }
+                ],
+                VerkeerstypeAuto =
+                [
+                    new VerkeerstypeParameters { Richting = "heen" }
+                ]
+            }
+        ];
+    }
 }
