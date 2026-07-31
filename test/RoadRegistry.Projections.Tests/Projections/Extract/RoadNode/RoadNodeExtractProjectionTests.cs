@@ -50,7 +50,6 @@ public class RoadNodeExtractProjectionTests
             typeof(RoadSegmentWasAddedToEuropeanRoad),
             typeof(RoadSegmentWasAddedToNationalRoad),
             typeof(RoadSegmentWasModified),
-            typeof(RoadSegmentAttributesWasModified),
             typeof(RoadSegmentStreetNameIdWasChanged),
             typeof(RoadSegmentGeometryWasModified),
             typeof(RoadSegmentWasMerged),

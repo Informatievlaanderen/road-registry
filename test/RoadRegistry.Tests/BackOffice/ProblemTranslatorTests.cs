@@ -199,6 +199,11 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadSegment.ChangeAttributes.StatusNotValid, [
+                    new ProblemParameter("Identifier", "1")
+                ]
+            },
+            {
                 ProblemCode.RoadSegment.Split.NotFound, [
                     new ProblemParameter("Identifier", "1")
                 ]

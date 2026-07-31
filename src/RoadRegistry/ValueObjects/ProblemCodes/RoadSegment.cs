@@ -332,6 +332,11 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode IsRequired = new("RoadSegmentStatusIsRequired");
         }
 
+        public static class ChangeAttributes
+        {
+            public static readonly ProblemCode StatusNotValid = new("RoadSegmentChangeAttributesStatusNotValid");
+        }
+
         public static class Split
         {
             public static readonly ProblemCode NotFound = new("RoadSegmentSplitNotFound");

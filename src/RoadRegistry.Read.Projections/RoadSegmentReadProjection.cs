@@ -433,56 +433,6 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
                 }
             }, e.Data, ct);
         });
-        When<IEvent<RoadSegmentAttributesWasModified>>((session, e, ct) =>
-        {
-            return ModifyRoadSegment(session, e.Data.RoadSegmentId, async segment =>
-            {
-                if (e.Data.AccessRestriction is not null)
-                {
-                    segment.AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x!.ToString());
-                }
-
-                if (e.Data.Category is not null)
-                {
-                    segment.Category = e.Data.Category.ToStringAttributeValues(x => x!.ToString());
-                }
-
-                if (e.Data.Morphology is not null)
-                {
-                    segment.Morphology = e.Data.Morphology.ToStringAttributeValues(x => x!.ToString());
-                }
-
-                if (e.Data.StreetNameId is not null)
-                {
-                    segment.StreetNameId = await BuildStreetNameAttribute(session, e.Data.StreetNameId, ct);
-                }
-
-                if (e.Data.MaintenanceAuthorityId is not null)
-                {
-                    segment.MaintenanceAuthorityId = await BuildMaintenanceAuthority(session, e.Data.MaintenanceAuthorityId, ct);
-                }
-
-                if (e.Data.SurfaceType is not null)
-                {
-                    segment.SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x!.ToString());
-                }
-
-                if (e.Data.CarTrafficDirection is not null)
-                {
-                    segment.CarTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.CarTrafficDirection);
-                }
-
-                if (e.Data.BikeTrafficDirection is not null)
-                {
-                    segment.BikeTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.BikeTrafficDirection);
-                }
-
-                if (e.Data.PedestrianTrafficDirection is not null)
-                {
-                    segment.PedestrianTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection);
-                }
-            }, e.Data, ct);
-        });
         When<IEvent<RoadSegmentWasMigrated>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, async segment =>

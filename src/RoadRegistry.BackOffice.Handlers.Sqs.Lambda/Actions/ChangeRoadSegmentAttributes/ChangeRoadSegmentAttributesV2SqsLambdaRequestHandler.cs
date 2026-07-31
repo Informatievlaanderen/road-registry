@@ -25,7 +25,6 @@ using TicketingService.Abstractions;
 public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : MartenSqsLambdaHandler<ChangeRoadSegmentAttributesV2SqsLambdaRequest>
 {
     private readonly IRoadNetworkRepository _roadNetworkRepository;
-    private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
 
     public ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -34,7 +33,6 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
         IIdempotentCommandHandler idempotentCommandHandler,
         IDocumentStore store,
         IRoadNetworkRepository roadNetworkRepository,
-        IRoadNetworkIdGenerator roadNetworkIdGenerator,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -45,7 +43,6 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
             loggerFactory)
     {
         _roadNetworkRepository = roadNetworkRepository;
-        _roadNetworkIdGenerator = roadNetworkIdGenerator;
     }
 
     protected override async Task<object> InnerHandle(ChangeRoadSegmentAttributesV2SqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
@@ -69,7 +66,8 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
             var roadSegmentIds = command.Groups.SelectMany(x => x.RoadSegmentIds).Distinct().ToList();
             var roadNetwork = await Load(session, roadSegmentIds, scopedRoadNetworkId);
 
-            var changes = RoadNetworkChanges.Start().WithProvenance(command.ProvenanceData.ToProvenance());
+            var provenance = command.ProvenanceData.ToProvenance();
+            var changes = new List<ModifyRoadSegmentChange>();
 
             foreach (var group in command.Groups)
             {
@@ -81,9 +79,9 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
                         ? roadSegment.Geometry.Value.Length
                         : 0d;
 
-                    //TODO-pr TBD: willen we hier een specifieke change voor attributes only, of hergebruiken we de modifyroadsegment?
-                    //via de causation_id weten we wie de actie uitvoert
-                    changes = changes.Add(new ModifyRoadSegmentAttributesChange
+                    // Attribute-only edit: reuse the generic road segment modification and leave geometry, draw
+                    // method and status null so they stay untouched. The causation id identifies the action.
+                    changes.Add(new ModifyRoadSegmentChange
                     {
                         RoadSegmentIdReference = new RoadSegmentIdReference(roadSegmentId),
                         Morphology = BuildValues(group.Morphology, segmentLength),
@@ -99,7 +97,7 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
                 }
             }
 
-            var result = roadNetwork.Change(changes, downloadId: null, _roadNetworkIdGenerator, Logger);
+            var result = roadNetwork.ModifyRoadSegmentAttributes(changes, provenance, Logger);
             result.Problems.ThrowIfError();
 
             _roadNetworkRepository.Save(session, roadNetwork, command.GetType().Name);

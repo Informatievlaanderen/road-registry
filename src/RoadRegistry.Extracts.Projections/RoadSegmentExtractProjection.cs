@@ -430,61 +430,6 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
                 }
             }, e.Data, ct);
         });
-        When<IEvent<RoadSegmentAttributesWasModified>>((session, e, ct) =>
-        {
-            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
-            {
-                if (e.Data.AccessRestriction is not null)
-                {
-                    segment.AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString());
-                }
-
-                if (e.Data.Category is not null)
-                {
-                    segment.Category = e.Data.Category.ToStringAttributeValues(x => x.ToString());
-                }
-
-                if (e.Data.Morphology is not null)
-                {
-                    segment.Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString());
-                }
-
-                if (e.Data.StreetNameId is not null)
-                {
-                    segment.StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId);
-                }
-
-                if (e.Data.MaintenanceAuthorityId is not null)
-                {
-                    segment.MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId);
-                }
-
-                if (e.Data.SurfaceType is not null)
-                {
-                    segment.SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x.ToString());
-                }
-
-                if (e.Data.CarTrafficDirection is not null)
-                {
-                    segment.CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(e.Data.CarTrafficDirection));
-                    segment.CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(e.Data.CarTrafficDirection));
-                    segment.CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.CarTrafficDirection);
-                }
-
-                if (e.Data.BikeTrafficDirection is not null)
-                {
-                    segment.BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(e.Data.BikeTrafficDirection));
-                    segment.BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(e.Data.BikeTrafficDirection));
-                    segment.BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.BikeTrafficDirection);
-                }
-
-                if (e.Data.PedestrianTrafficDirection is not null)
-                {
-                    segment.PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToPedestrianAccess(e.Data.PedestrianTrafficDirection));
-                    segment.PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection);
-                }
-            }, e.Data, ct);
-        });
         When<IEvent<RoadSegmentWasMigrated>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>

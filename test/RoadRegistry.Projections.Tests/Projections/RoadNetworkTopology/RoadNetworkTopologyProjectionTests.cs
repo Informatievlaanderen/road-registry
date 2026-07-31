@@ -16,7 +16,6 @@ public class RoadNetworkTopologyProjectionTests
         // does not affect topology, so those events are consciously not handled here.
         var excludeEventTypes = new[]
         {
-            typeof(RoadSegmentAttributesWasModified),
             typeof(GradeJunctionGeometryWasChanged),
             typeof(GradeSeparatedJunctionGeometryWasChanged),
             typeof(GradeSeparatedJunctionGeometryModified)

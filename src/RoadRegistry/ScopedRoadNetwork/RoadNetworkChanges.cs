@@ -64,7 +64,6 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
         typeof(MergeRoadSegmentChange),
         typeof(MigrateRoadSegmentChange),
         typeof(ModifyRoadSegmentChange),
-        typeof(ModifyRoadSegmentAttributesChange),
         typeof(RemoveRoadSegmentChange),
         typeof(RemoveRoadSegmentFromEuropeanRoadChange),
         typeof(RemoveRoadSegmentFromNationalRoadChange),
@@ -124,13 +123,6 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
             _geometries.Add(change.Geometry.Value);
         }
 
-        _roadSegmentIds.Add(change.RoadSegmentIdReference.RoadSegmentId);
-
-        return AddChange(change);
-    }
-
-    public RoadNetworkChanges Add(ModifyRoadSegmentAttributesChange change)
-    {
         _roadSegmentIds.Add(change.RoadSegmentIdReference.RoadSegmentId);
 
         return AddChange(change);
