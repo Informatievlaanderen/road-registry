@@ -3,7 +3,9 @@ namespace RoadRegistry.RoadSegment.Flattening;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RoadRegistry.Extensions;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ValueObjects;
 
 // The single engine that flattens a road segment into its smaller sub-segments ("platkloppen"): it splits the segment
 // at every position where any dynamic attribute changes and, per sub-range, resolves each attribute's coverage. The
@@ -50,6 +52,10 @@ public static class RoadSegmentFlattenEngine
 
     // The ordered sub-ranges: split at every distinct coverage boundary across all tracks, or a single [0, length]
     // range when there are fewer than two positions. The trailing range's geometry extent is clamped to the length.
+    //
+    // Boundaries that lie less than a centimetre apart are merged into one split position (positions are only stored
+    // to centimetre precision, so anything below that is noise). Without this a sub-centimetre sliver sub-range is
+    // emitted whose geometry collapses to a single point once rounded to centimetres.
     public static List<FlatRange> Ranges(double length, params IEnumerable<(double From, double To)>[] tracks)
     {
         var positions = new SortedSet<double>();
@@ -69,14 +75,34 @@ public static class RoadSegmentFlattenEngine
             positions.Add(length);
         }
 
-        var ordered = positions.ToList();
-        var ranges = new List<FlatRange>(Math.Max(0, ordered.Count - 1));
+        var ordered = Merge(positions);
+        if (ordered.Count < 2)
+        {
+            return [];
+        }
+
+        var ranges = new List<FlatRange>(ordered.Count - 1);
         for (var i = 1; i < ordered.Count; i++)
         {
             ranges.Add(new FlatRange(ordered[i - 1], ordered[i], i < ordered.Count - 1 ? ordered[i] : length));
         }
 
         return ranges;
+    }
+
+    // Collapses split positions that are within the position tolerance of each other, keeping the first of each group.
+    private static List<double> Merge(SortedSet<double> positions)
+    {
+        var merged = new List<double>(positions.Count);
+        foreach (var position in positions)
+        {
+            if (merged.Count == 0 || !merged[^1].IsReasonablyEqualTo(position, DefaultTolerances.GeometryToleranceV2))
+            {
+                merged.Add(position);
+            }
+        }
+
+        return merged;
     }
 
     public static IEnumerable<(double From, double To)> Pairs<TRow>(this List<Cover<TRow>> covers)
