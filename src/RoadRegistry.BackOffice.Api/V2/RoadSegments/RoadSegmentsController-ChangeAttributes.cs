@@ -11,7 +11,6 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using FluentValidation;
 using FluentValidation.Results;
-using Marten;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +18,6 @@ using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
-using RoadRegistry.Read.Projections;
 using RoadRegistry.RoadSegment.ValueObjects;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -40,7 +38,6 @@ public partial class RoadSegmentsController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(ChangeRoadSegmentAttributesV2), Description = "Wijzig één of meerdere attribuutwaarden voor één of meerdere wegsegmenten.")]
     public async Task<IActionResult> ChangeRoadSegmentAttributesV2(
-        [FromServices] IDocumentStore store,
         [FromBody] ChangeRoadSegmentAttributesV2Parameters parameters,
         CancellationToken cancellationToken = default)
     {
@@ -52,10 +49,9 @@ public partial class RoadSegmentsController
                 throw new ValidationException([new ValidationFailure(nameof(parameters), "Ongeldige JSON.")]);
             }
 
-            await using var session = store.LightweightSession();
-            var existingRoadSegments = await LoadExistingRoadSegments(session, parameters, cancellationToken);
-
-            var groups = TranslateAndValidate(parameters, existingRoadSegments);
+            // Only the shape of the request is validated here. Everything content related (does the road segment
+            // exist, does it have an editable status, is it a V2 segment) is validated by the domain.
+            var groups = TranslateAndValidate(parameters);
 
             var sqsRequest = new ChangeRoadSegmentAttributesV2SqsRequest
             {
@@ -72,30 +68,7 @@ public partial class RoadSegmentsController
         }
     }
 
-    // VAL-35: attribute values may only be changed on a road segment with one of these statuses.
-    private static readonly string[] ChangeAttributesAllowedStatuses =
-    [
-        RoadSegmentStatusV2.Gepland.ToString(),
-        RoadSegmentStatusV2.Gerealiseerd.ToString(),
-        RoadSegmentStatusV2.BuitenGebruik.ToString()
-    ];
-
-    private static async Task<IReadOnlyDictionary<int, string>> LoadExistingRoadSegments(IDocumentSession session, ChangeRoadSegmentAttributesV2Parameters parameters, CancellationToken cancellationToken)
-    {
-        var ids = parameters
-            .Where(x => x.Wegsegmenten is not null)
-            .SelectMany(x => x.Wegsegmenten!)
-            .Distinct()
-            .ToArray();
-
-        var roadSegments = await session.LoadManyAsync<RoadSegmentReadItem>(cancellationToken, ids);
-
-        return roadSegments
-            .Where(x => !x.IsRemoved)
-            .ToDictionary(x => x.Id, x => x.Status);
-    }
-
-    private static IReadOnlyList<ChangeRoadSegmentAttributesV2Group> TranslateAndValidate(ChangeRoadSegmentAttributesV2Parameters parameters, IReadOnlyDictionary<int, string> existingRoadSegments)
+    private static IReadOnlyList<ChangeRoadSegmentAttributesV2Group> TranslateAndValidate(ChangeRoadSegmentAttributesV2Parameters parameters)
     {
         var failures = new List<ValidationFailure>();
 
@@ -114,23 +87,6 @@ public partial class RoadSegmentsController
             {
                 failures.Add(new ValidationFailure($"{path}.wegsegmenten", "De parameter 'wegsegmenten' is verplicht."));
                 continue;
-            }
-
-            // VAL-9: every id must be an existing, non-removed road segment.
-            var unknownIds = item.Wegsegmenten.Where(id => !existingRoadSegments.ContainsKey(id)).Distinct().ToList();
-            if (unknownIds.Count > 0)
-            {
-                failures.Add(new ValidationFailure($"{path}.wegsegmenten", $"De wegsegmenten {string.Join(", ", unknownIds)} bestaan niet of zijn verwijderd."));
-            }
-
-            // VAL-35: every road segment must have status 'gepland', 'gerealiseerd' or 'buiten gebruik'.
-            var invalidStatusIds = item.Wegsegmenten
-                .Where(id => existingRoadSegments.TryGetValue(id, out var status) && !ChangeAttributesAllowedStatuses.Contains(status))
-                .Distinct()
-                .ToList();
-            if (invalidStatusIds.Count > 0)
-            {
-                failures.Add(new ValidationFailure($"{path}.wegsegmenten", $"De wegsegmenten {string.Join(", ", invalidStatusIds)} hebben een status die verschilt van 'gepland', 'gerealiseerd' of 'buiten gebruik'."));
             }
 
             // VAL-7: at least one attribute must be present.

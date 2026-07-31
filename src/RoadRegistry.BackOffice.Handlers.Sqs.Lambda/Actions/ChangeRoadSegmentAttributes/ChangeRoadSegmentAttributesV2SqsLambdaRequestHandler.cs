@@ -19,7 +19,6 @@ using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.Events.V2;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects;
-using RoadRegistry.ValueObjects.Problems;
 using TicketingService.Abstractions;
 
 public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : MartenSqsLambdaHandler<ChangeRoadSegmentAttributesV2SqsLambdaRequest>
@@ -49,15 +48,15 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
     {
         using var _ = Logger.TimeAction(GetType().Name);
 
-        var changeResult = await Handle(sqsLambdaRequest.Request, cancellationToken);
+        var changeResultSummary = await Handle(sqsLambdaRequest.Request, cancellationToken);
 
         return new ChangeRoadNetworkTicketResult
         {
-            Summary = new RoadNetworkChangedSummary(changeResult.Summary)
+            Summary = new RoadNetworkChangedSummary(changeResultSummary)
         };
     }
 
-    private async Task<RoadNetworkChangeResult> Handle(ChangeRoadSegmentAttributesV2SqsRequest command, CancellationToken cancellationToken)
+    private async Task<RoadNetworkChangesSummary> Handle(ChangeRoadSegmentAttributesV2SqsRequest command, CancellationToken cancellationToken)
     {
         var scopedRoadNetworkId = new ScopedRoadNetworkId(command.TicketId);
 
@@ -107,7 +106,7 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
         // event) rather than from the domain call, so a retry that skips the mutation still yields the same response.
         await using var readSession = Store.LightweightSession();
         var scopedRoadNetwork = await readSession.LoadAsync(scopedRoadNetworkId, cancellationToken);
-        return new RoadNetworkChangeResult(Problems.None, scopedRoadNetwork.SummaryOfLastChange!);
+        return scopedRoadNetwork.SummaryOfLastChange!;
     }
 
     private async Task<ScopedRoadNetwork> Load(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)

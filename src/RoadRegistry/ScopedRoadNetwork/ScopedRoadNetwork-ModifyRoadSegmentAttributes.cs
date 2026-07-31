@@ -36,7 +36,7 @@ public partial class ScopedRoadNetwork
         var idTranslator = new IdentifierTranslator();
         var context = new ScopedRoadNetworkChangeContext(this, idTranslator, provenance, logger);
 
-        var problems = ValidateStatuses(changes);
+        var problems = ValidateRoadSegments(changes);
         if (problems.HasError())
         {
             return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), context.Summary);
@@ -55,8 +55,8 @@ public partial class ScopedRoadNetwork
         return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), context.Summary);
     }
 
-    // VAL-35. A segment that cannot be found is left to ModifyRoadSegment, which reports it as not found.
-    private Problems ValidateStatuses(IReadOnlyCollection<ModifyRoadSegmentChange> changes)
+    // A segment that cannot be found is left to ModifyRoadSegment, which reports it as not found.
+    private Problems ValidateRoadSegments(IReadOnlyCollection<ModifyRoadSegmentChange> changes)
     {
         var problems = Problems.None;
 
@@ -64,9 +64,20 @@ public partial class ScopedRoadNetwork
         {
             var roadSegmentId = change.RoadSegmentIdReference.RoadSegmentId;
 
-            if (_roadSegments.TryGetValue(roadSegmentId, out var roadSegment)
-                && !roadSegment.IsRemoved
-                && !ModifyAttributesAllowedStatuses.Contains(roadSegment.Status))
+            if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
+            {
+                continue;
+            }
+
+            // A segment that has not completed its inwinning carries no dynamically segmented attributes to change.
+            if (!roadSegment.HasMigrated())
+            {
+                problems += new RoadSegmentChangeAttributesNotCompletedInwinning(roadSegmentId);
+                continue;
+            }
+
+            // VAL-35
+            if (!ModifyAttributesAllowedStatuses.Contains(roadSegment.Status))
             {
                 problems += new RoadSegmentChangeAttributesStatusNotValid(roadSegmentId);
             }

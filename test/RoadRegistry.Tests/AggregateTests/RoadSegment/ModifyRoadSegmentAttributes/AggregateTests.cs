@@ -82,6 +82,39 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
+    public void WhenSegmentDidNotCompleteInwinning_ThenError()
+    {
+        // A non-migrated (V1) segment has no dynamically segmented attributes at all, so it must be rejected up front
+        // instead of failing while the change is applied.
+        var notMigrated = RoadSegment.CreateForMigration(
+            TestData.Segment1Added.RoadSegmentId,
+            TestData.Segment1Added.Geometry,
+            RoadSegmentStatusV2.Gerealiseerd,
+            TestData.Segment1Added.StartNodeId,
+            TestData.Segment1Added.EndNodeId);
+
+        var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
+            [RoadNode.Create(TestData.Segment1StartNodeAdded), RoadNode.Create(TestData.Segment1EndNodeAdded)],
+            [notMigrated],
+            [],
+            []);
+
+        var values = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>();
+        values.Add(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(notMigrated.Geometry.Value.Length), RoadSegmentMorphologyV2.All.First());
+        var change = new ModifyRoadSegmentChange
+        {
+            RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment1Added.RoadSegmentId),
+            Morphology = values
+        };
+
+        var result = roadNetwork.ModifyRoadSegmentAttributes([change], TestData.Provenance);
+
+        result.Problems.Should().ContainSingle()
+            .Which.Reason.Should().Be("RoadSegmentChangeAttributesNotCompletedInwinning");
+        notMigrated.GetChanges().Should().BeEmpty();
+    }
+
+    [Fact]
     public void WhenOneOfTheSegmentsIsNotEditable_ThenNothingIsApplied()
     {
         // The whole request is rejected up front, so it can never land half-applied.

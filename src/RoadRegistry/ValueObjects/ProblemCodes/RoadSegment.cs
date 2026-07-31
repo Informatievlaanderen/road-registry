@@ -334,6 +334,7 @@ public sealed partial record ProblemCode
 
         public static class ChangeAttributes
         {
+            public static readonly ProblemCode NotCompletedInwinning = new("RoadSegmentChangeAttributesNotCompletedInwinning");
             public static readonly ProblemCode StatusNotValid = new("RoadSegmentChangeAttributesStatusNotValid");
         }
 
