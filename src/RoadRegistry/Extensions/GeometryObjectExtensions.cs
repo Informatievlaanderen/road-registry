@@ -14,10 +14,7 @@ public static class GeometryObjectExtensions
     // CoordinateArraySequence-based factory is used on purpose so no Z/M slots are re-introduced.
     public static Geometry Force2D(this Geometry geometry)
     {
-        if (geometry is null)
-        {
-            return geometry!;
-        }
+        ArgumentNullException.ThrowIfNull(geometry);
 
         var factory = new GeometryFactory(geometry.PrecisionModel, geometry.SRID, CoordinateArraySequenceFactory.Instance);
         return Rebuild2D(geometry, factory);

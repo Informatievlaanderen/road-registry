@@ -25,10 +25,14 @@ namespace RoadRegistry.WmsWfsV2.Schema.Migrations
         {
             foreach (var table in Tables)
             {
+                // ISNULL on the SRID is required: SQL Server does not guarantee that the WHERE predicate is applied
+                // before the SET expression is evaluated, so on tables holding NULL geometries (OngelijkgrondseKruisingen)
+                // STSrid yields NULL and STGeomFromWKB fails with "parameter 2 is not allowed to be null". The fallback
+                // only ever applies to rows the filter discards.
                 migrationBuilder.Sql($@"
 UPDATE [road].[{table}]
-SET [GEOMETRIE] = geometry::STGeomFromWKB([GEOMETRIE].STAsBinary(), [GEOMETRIE].STSrid)
-WHERE [GEOMETRIE] IS NOT NULL;");
+SET [GEOMETRIE] = geometry::STGeomFromWKB([GEOMETRIE].STAsBinary(), ISNULL([GEOMETRIE].STSrid, 0))
+WHERE [GEOMETRIE] IS NOT NULL AND ([GEOMETRIE].HasZ = 1 OR [GEOMETRIE].HasM = 1);");
             }
         }
 
