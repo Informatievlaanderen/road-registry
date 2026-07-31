@@ -1,3 +1,10 @@
+## [5.5.3](https://github.com/informatievlaanderen/road-registry/compare/v5.5.2...v5.5.3) (2026-07-31)
+
+
+### Bug Fixes
+
+* **2.0:** store 2D geometries in the WmsWfsV2 and PBS projections ([d63fdf1](https://github.com/informatievlaanderen/road-registry/commit/d63fdf147f24c2dbd055984cdcad7db82d5dfa28))
+
 ## [5.5.2](https://github.com/informatievlaanderen/road-registry/compare/v5.5.1...v5.5.2) (2026-07-30)
 
 
