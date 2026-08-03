@@ -70,6 +70,40 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
         return this;
     }
 
+    // Moves the trailing coverage(s) - the ones ending at the highest ToPosition - onto the given segment length.
+    //
+    // Needed after a split: SplitAt derives the new positions from the measures along the original line, but the two
+    // part geometries are rounded to the centimetre afterwards, and the interpolated cut vertex moves when it is
+    // rounded. The length of the rounded part therefore need not round to the same centimetre as the measure the
+    // positions came from, which leaves the trailing position one centimetre off its own geometry.
+    //
+    // A trailing coverage that would collapse to zero (or invert) is left alone - snapping must not manufacture an
+    // invalid range, and validation should report what is really wrong.
+    public RoadSegmentDynamicAttributeValues<T> WithTrailingCoverageSnappedTo(double segmentLength)
+    {
+        if (Values.Count == 0)
+        {
+            return this;
+        }
+
+        var snappedTo = new RoadSegmentPositionV2(segmentLength);
+        var trailingTo = Values.Max(x => x.Coverage.To);
+        if (trailingTo == snappedTo)
+        {
+            return this;
+        }
+
+        if (Values.Any(x => x.Coverage.To == trailingTo && x.Coverage.From >= snappedTo))
+        {
+            return this;
+        }
+
+        return new RoadSegmentDynamicAttributeValues<T>(Values.Select(x => (
+            Coverage: x.Coverage.To == trailingTo ? x.Coverage with { To = snappedTo } : x.Coverage,
+            x.Side,
+            Value: x.Value!)));
+    }
+
     public bool Equals(RoadSegmentDynamicAttributeValues<T>? other)
     {
         return Equals(this, other);

@@ -1,4 +1,4 @@
-namespace RoadRegistry.ScopedRoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +13,7 @@ using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
@@ -110,15 +111,31 @@ public partial class ScopedRoadNetwork
         // Capture status and attributes; split the dynamic attributes into the two parts.
         var originalStatus = segment.Status;
         var attributes = segment.Attributes!;
-        var accessRestriction = attributes.AccessRestriction.SplitAt(cutPositionMeasure, totalLength);
-        var category = attributes.Category.SplitAt(cutPositionMeasure, totalLength);
-        var morphology = attributes.Morphology.SplitAt(cutPositionMeasure, totalLength);
-        var streetNameId = attributes.StreetNameId.SplitAt(cutPositionMeasure, totalLength);
-        var maintenanceAuthorityId = attributes.MaintenanceAuthorityId.SplitAt(cutPositionMeasure, totalLength);
-        var surfaceType = attributes.SurfaceType.SplitAt(cutPositionMeasure, totalLength);
-        var carTrafficDirection = attributes.CarTrafficDirection.SplitAt(cutPositionMeasure, totalLength);
-        var bikeTrafficDirection = attributes.BikeTrafficDirection.SplitAt(cutPositionMeasure, totalLength);
-        var pedestrianTrafficDirection = attributes.PedestrianTrafficDirection.SplitAt(cutPositionMeasure, totalLength);
+
+        // SplitAt works in measures along the original line, but the two parts have just been rounded to the
+        // centimetre, which moves the interpolated cut vertex and so changes what each part actually measures. Each
+        // part's trailing position is therefore taken from its own rounded geometry rather than from the cut measure.
+        var firstGeometryLength = firstGeometry.Value.Length;
+        var secondGeometryLength = secondGeometry.Value.Length;
+
+        (RoadSegmentDynamicAttributeValues<TValue> First, RoadSegmentDynamicAttributeValues<TValue> Second) SplitAttribute<TValue>(
+            RoadSegmentDynamicAttributeValues<TValue> values)
+            where TValue : notnull
+        {
+            var (first, second) = values.SplitAt(cutPositionMeasure, totalLength);
+            return (first.WithTrailingCoverageSnappedTo(firstGeometryLength),
+                second.WithTrailingCoverageSnappedTo(secondGeometryLength));
+        }
+
+        var accessRestriction = SplitAttribute(attributes.AccessRestriction);
+        var category = SplitAttribute(attributes.Category);
+        var morphology = SplitAttribute(attributes.Morphology);
+        var streetNameId = SplitAttribute(attributes.StreetNameId);
+        var maintenanceAuthorityId = SplitAttribute(attributes.MaintenanceAuthorityId);
+        var surfaceType = SplitAttribute(attributes.SurfaceType);
+        var carTrafficDirection = SplitAttribute(attributes.CarTrafficDirection);
+        var bikeTrafficDirection = SplitAttribute(attributes.BikeTrafficDirection);
+        var pedestrianTrafficDirection = SplitAttribute(attributes.PedestrianTrafficDirection);
 
         var firstPart = new SplitPart(firstGeometry, accessRestriction.First, category.First, morphology.First, streetNameId.First, maintenanceAuthorityId.First, surfaceType.First, carTrafficDirection.First, bikeTrafficDirection.First, pedestrianTrafficDirection.First);
         var secondPart = new SplitPart(secondGeometry, accessRestriction.Second, category.Second, morphology.Second, streetNameId.Second, maintenanceAuthorityId.Second, surfaceType.Second, carTrafficDirection.Second, bikeTrafficDirection.Second, pedestrianTrafficDirection.Second);
