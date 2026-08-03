@@ -1,16 +1,16 @@
-namespace RoadRegistry.Converters;
+﻿namespace RoadRegistry.Converters;
 
 using System;
 using Newtonsoft.Json;
 
-public class RoadSegmentAccessRestrictionConverter : JsonConverter<RoadSegmentAccessRestriction>
+public class RoadSegmentAccessRestrictionConverter : NullableValueTypeJsonConverter<RoadSegmentAccessRestriction>
 {
-    public override RoadSegmentAccessRestriction ReadJson(JsonReader reader, Type objectType, RoadSegmentAccessRestriction existingValue, bool hasExistingValue, JsonSerializer serializer)
+    protected override RoadSegmentAccessRestriction ReadJson(object value, Type objectType, JsonSerializer serializer)
     {
-        return RoadSegmentAccessRestriction.Parse(reader.Value?.ToString());
+        return RoadSegmentAccessRestriction.Parse(value.ToString());
     }
 
-    public override void WriteJson(JsonWriter writer, RoadSegmentAccessRestriction value, JsonSerializer serializer)
+    protected override void WriteJson(JsonWriter writer, RoadSegmentAccessRestriction value, JsonSerializer serializer)
     {
         writer.WriteValue(value.ToString());
     }

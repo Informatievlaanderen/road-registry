@@ -1,16 +1,16 @@
-namespace RoadRegistry.Converters;
+﻿namespace RoadRegistry.Converters;
 
 using System;
 using Newtonsoft.Json;
 
-public class RoadSegmentSurfaceTypeConverter : JsonConverter<RoadSegmentSurfaceType>
+public class RoadSegmentSurfaceTypeConverter : NullableValueTypeJsonConverter<RoadSegmentSurfaceType>
 {
-    public override RoadSegmentSurfaceType ReadJson(JsonReader reader, Type objectType, RoadSegmentSurfaceType existingValue, bool hasExistingValue, JsonSerializer serializer)
+    protected override RoadSegmentSurfaceType ReadJson(object value, Type objectType, JsonSerializer serializer)
     {
-        return RoadSegmentSurfaceType.Parse(reader.Value?.ToString());
+        return RoadSegmentSurfaceType.Parse(value.ToString());
     }
 
-    public override void WriteJson(JsonWriter writer, RoadSegmentSurfaceType value, JsonSerializer serializer)
+    protected override void WriteJson(JsonWriter writer, RoadSegmentSurfaceType value, JsonSerializer serializer)
     {
         writer.WriteValue(value.ToString());
     }

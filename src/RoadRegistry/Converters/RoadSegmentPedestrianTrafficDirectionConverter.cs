@@ -1,17 +1,17 @@
-namespace RoadRegistry.Converters;
+﻿namespace RoadRegistry.Converters;
 
 using System;
 using Newtonsoft.Json;
 using RoadRegistry.ValueObjects;
 
-public class RoadSegmentPedestrianTrafficDirectionConverter : JsonConverter<RoadSegmentPedestrianTrafficDirection>
+public class RoadSegmentPedestrianTrafficDirectionConverter : NullableValueTypeJsonConverter<RoadSegmentPedestrianTrafficDirection>
 {
-    public override RoadSegmentPedestrianTrafficDirection ReadJson(JsonReader reader, Type objectType, RoadSegmentPedestrianTrafficDirection existingValue, bool hasExistingValue, JsonSerializer serializer)
+    protected override RoadSegmentPedestrianTrafficDirection ReadJson(object value, Type objectType, JsonSerializer serializer)
     {
-        return RoadSegmentPedestrianTrafficDirection.Parse(reader.Value?.ToString());
+        return RoadSegmentPedestrianTrafficDirection.Parse(value.ToString());
     }
 
-    public override void WriteJson(JsonWriter writer, RoadSegmentPedestrianTrafficDirection value, JsonSerializer serializer)
+    protected override void WriteJson(JsonWriter writer, RoadSegmentPedestrianTrafficDirection value, JsonSerializer serializer)
     {
         writer.WriteValue(value.ToString());
     }
