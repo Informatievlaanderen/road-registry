@@ -1,4 +1,4 @@
-namespace RoadRegistry.Infrastructure.MartenDb.Projections;
+﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
 using System;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
@@ -62,6 +62,7 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
                 foreach (var projection in _projections)
                 {
                     projection.IsCatchingUp = IsCatchingUp;
+                    projection.Logger ??= Logger;
 
                     using var childProjectionScope = Logger.BeginScope(new Dictionary<string, object> { ["ChildProjectionName"] = projection.GetType().Name });
                     await projection.Project(context, [evt], cancellationToken).ConfigureAwait(false);

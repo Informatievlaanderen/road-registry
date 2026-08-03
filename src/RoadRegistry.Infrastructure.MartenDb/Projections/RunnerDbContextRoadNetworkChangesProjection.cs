@@ -1,4 +1,4 @@
-namespace RoadRegistry.Infrastructure.MartenDb.Projections;
+﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
 using System.Collections.Generic;
 using System.Threading;
@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using JasperFx.Events;
+using Microsoft.Extensions.Logging;
 
 public abstract class RunnerDbContextRoadNetworkChangesProjection<TDbContext> : ConnectedProjection<TDbContext>, IRoadNetworkChangesProjection<TDbContext>
     where TDbContext : RunnerDbContext<TDbContext>
@@ -13,6 +14,7 @@ public abstract class RunnerDbContextRoadNetworkChangesProjection<TDbContext> : 
     private readonly Lazy<ConnectedProjectionHandlerResolver<TDbContext>> _resolver;
 
     public bool IsCatchingUp { get; set; }
+    public ILogger? Logger { get; set; }
 
     protected RunnerDbContextRoadNetworkChangesProjection()
     {

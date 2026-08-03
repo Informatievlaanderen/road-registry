@@ -162,7 +162,12 @@ public class RoadNetworkTestData
 
         AddStartNode1 = new AddRoadNode
         {
-            TemporaryId = ObjectProvider.Create<RoadNodeId>(),
+            // Fixed, not random. Every other node's temporary id is derived from this one (+1 each), and a temporary
+            // id is only translated once its node is actually added - so a scenario that deliberately leaves a node
+            // out keeps the raw temporary id. Real ids are handed out from 1, so a random temporary id can collide
+            // with one: the segment then looks self-connected and the RoadSegment constructor throws instead of the
+            // verification reporting the missing node. 101 keeps the whole chain clear of the real id range.
+            TemporaryId = new RoadNodeId(101),
             Geometry = GeometryTranslator.Translate(StartPoint1),
             Type = RoadNodeType.EndNode
         };
