@@ -87,6 +87,19 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
     private async Task ProcessEvents(IDocumentOperations operations, IReadOnlyList<IEvent> events, IReadOnlyList<RoadNetworkChangesProjectionProgression> processedProjectionProgressions, CancellationToken cancellation)
     {
+        // An event without a correlation id cannot be grouped and is dropped here. That is intended for Marten's own
+        // bookkeeping streams, but for anything else it means the event is never applied and never will be, since the
+        // progression moves on regardless - so say so rather than discarding it quietly.
+        var discarded = events
+            .Where(x => x.CorrelationId is null && (x.StreamKey is null || !x.StreamKey.StartsWith("mt_")))
+            .ToList();
+        if (discarded.Count > 0)
+        {
+            _logger.LogWarning("Discarding {Count} event(s) without a correlation id, they will not be projected: {Events}",
+                discarded.Count,
+                string.Join(", ", discarded.Select(x => $"{x.EventTypeName}@{x.Sequence}")));
+        }
+
         var eventsPerCorrelationId = events
             .Where(x => x.CorrelationId is not null && (x.StreamKey is null || !x.StreamKey.StartsWith("mt_")))
             .GroupBy(x => x.CorrelationId!)
@@ -103,7 +116,11 @@ public abstract class RoadNetworkChangesProjection : IProjection
                 // (created events land last). Events without the header (pre-ordinal history) fall back to seq_id.
                 var orderedEvents = g.OrderBy(GetChangeOrdinal).ThenBy(x => x.Sequence).ToList();
                 var progressionId = BuildProgressionId(g.Key);
-                var lastSeq = orderedEvents[^1].Sequence;
+                // The watermark has to be the highest sequence seen for this correlation, not the last one in ordinal
+                // order: the ordinal reorders the events (that is its whole purpose), so the last of the ordered list
+                // can carry a lower sequence than its siblings. Recording that lower value leaves the correlation's
+                // higher-sequence events above the watermark, and the next batch applies them a second time.
+                var lastSeq = orderedEvents.Max(x => x.Sequence);
                 progressionById.TryGetValue(progressionId, out var progression);
                 IReadOnlyList<IEvent> toProcess = progression is not null
                     ? orderedEvents.Where(x => x.Sequence > progression.LastSequenceId).ToList()

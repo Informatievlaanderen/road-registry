@@ -1,4 +1,4 @@
-namespace RoadRegistry.Infrastructure.MartenDb.Projections;
+﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
 using Marten;
 using Microsoft.Extensions.Logging;
@@ -30,6 +30,7 @@ public abstract class MartenBackedRoadNetworkChangesProjection : RoadNetworkChan
                 foreach (var projection in _projections)
                 {
                     projection.IsCatchingUp = IsCatchingUp;
+                    projection.Logger ??= Logger;
 
                     using var childProjectionScope = Logger.BeginScope(new Dictionary<string, object> { ["ChildProjectionName"] = projection.GetType().Name });
                     await projection.Project(operations, [evt], cancellationToken).ConfigureAwait(false);
