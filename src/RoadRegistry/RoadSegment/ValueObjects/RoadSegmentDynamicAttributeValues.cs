@@ -70,6 +70,35 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
         return this;
     }
 
+    // Moves the trailing coverage(s) - the ones ending at the highest ToPosition - onto the given segment length.
+    //
+    // A trailing coverage that would collapse to zero (or invert) is left alone - snapping must not manufacture an
+    // invalid range, and validation should report what is really wrong.
+    private RoadSegmentDynamicAttributeValues<T> WithTrailingCoverageSnappedTo(double segmentLength)
+    {
+        if (Values.Count == 0)
+        {
+            return this;
+        }
+
+        var snappedTo = new RoadSegmentPositionV2(segmentLength);
+        var trailingTo = Values.Max(x => x.Coverage.To);
+        if (trailingTo == snappedTo)
+        {
+            return this;
+        }
+
+        if (Values.Any(x => x.Coverage.To == trailingTo && x.Coverage.From >= snappedTo))
+        {
+            return this;
+        }
+
+        return new RoadSegmentDynamicAttributeValues<T>(Values.Select(x => (
+            Coverage: x.Coverage.To == trailingTo ? x.Coverage with { To = snappedTo } : x.Coverage,
+            x.Side,
+            Value: x.Value!)));
+    }
+
     public bool Equals(RoadSegmentDynamicAttributeValues<T>? other)
     {
         return Equals(this, other);
@@ -143,10 +172,28 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
         return new RoadSegmentDynamicAttributeValues<T>(mergedItems);
     }
 
+    // Splits the attribute values at the given position (a measure along the segment, in meters) and lands each part
+    // on the length its own geometry actually has.
+    //
+    // The two are not the same number. The split works in measures along the original line, but the part geometries
+    // are rounded to the centimetre, and rounding moves the interpolated cut vertex - so a part can measure a
+    // different centimetre than the measure its positions were derived from. Leaving the measure-derived value in
+    // place puts the trailing position a centimetre off the part's own geometry, and every later change to that
+    // segment then fails with a ToPositionNotEqualToLength error. Hence the two lengths: whoever cuts the geometry
+    // has to say what the cut parts came out at.
+    public (RoadSegmentDynamicAttributeValues<T> First, RoadSegmentDynamicAttributeValues<T> Second) SplitAt(
+        RoadSegmentPositionV2 cutPosition, double totalLength, double firstGeometryLength, double secondGeometryLength)
+    {
+        var (first, second) = SplitAtMeasure(cutPosition, totalLength);
+
+        return (first.WithTrailingCoverageSnappedTo(firstGeometryLength),
+            second.WithTrailingCoverageSnappedTo(secondGeometryLength));
+    }
+
     // Splits the attribute values at the given position (a measure along the segment, in meters).
     // Returns the values for the part before the cut ([0, cut]) and the part after the cut,
     // rebased so it starts at position 0 ([0, totalLength - cut]).
-    public (RoadSegmentDynamicAttributeValues<T> First, RoadSegmentDynamicAttributeValues<T> Second) SplitAt(
+    private (RoadSegmentDynamicAttributeValues<T> First, RoadSegmentDynamicAttributeValues<T> Second) SplitAtMeasure(
         RoadSegmentPositionV2 cutPosition, double totalLength)
     {
         var cut = cutPosition.ToDouble();

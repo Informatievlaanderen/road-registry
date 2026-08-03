@@ -1,4 +1,4 @@
-namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
 
 using FluentAssertions;
 using RoadRegistry.RoadSegment.ValueObjects;
@@ -16,7 +16,7 @@ public class RoadSegmentDynamicAttributeValuesSplitTests
     [Fact]
     public void SplitExactlyOnAttributeBoundary_KeepsEachAttributeInItsPart()
     {
-        var (first, second) = Build().SplitAt(new RoadSegmentPositionV2(4), 10);
+        var (first, second) = Build().SplitAt(new RoadSegmentPositionV2(4), 10, 4, 10 - 4);
 
         first.Values.Should().ContainSingle();
         first.Values[0].Coverage.From.ToDouble().Should().Be(0);
@@ -32,7 +32,7 @@ public class RoadSegmentDynamicAttributeValuesSplitTests
     [Fact]
     public void SplitInsideAnAttribute_ClipsAndRebases()
     {
-        var (first, second) = Build().SplitAt(new RoadSegmentPositionV2(6), 10);
+        var (first, second) = Build().SplitAt(new RoadSegmentPositionV2(6), 10, 6, 10 - 6);
 
         first.Values.Should().HaveCount(2);
         first.Values[0].Coverage.From.ToDouble().Should().Be(0);
@@ -55,7 +55,7 @@ public class RoadSegmentDynamicAttributeValuesSplitTests
         var values = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>()
             .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(10), RoadSegmentTrafficDirection.Both);
 
-        var (first, second) = values.SplitAt(new RoadSegmentPositionV2(3), 10);
+        var (first, second) = values.SplitAt(new RoadSegmentPositionV2(3), 10, 3, 10 - 3);
 
         first.Values.Should().ContainSingle();
         first.Values[0].Coverage.From.ToDouble().Should().Be(0);

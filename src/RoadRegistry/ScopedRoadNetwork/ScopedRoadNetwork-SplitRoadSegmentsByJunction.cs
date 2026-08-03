@@ -1,4 +1,4 @@
-namespace RoadRegistry.ScopedRoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +12,7 @@ using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
@@ -270,15 +271,20 @@ public partial class ScopedRoadNetwork
 
         var originalStatus = segment.Status;
         var attributes = segment.Attributes!;
-        var accessRestriction = attributes.AccessRestriction.SplitAt(cutPositionMeasure, totalLength);
-        var category = attributes.Category.SplitAt(cutPositionMeasure, totalLength);
-        var morphology = attributes.Morphology.SplitAt(cutPositionMeasure, totalLength);
-        var streetNameId = attributes.StreetNameId.SplitAt(cutPositionMeasure, totalLength);
-        var maintenanceAuthorityId = attributes.MaintenanceAuthorityId.SplitAt(cutPositionMeasure, totalLength);
-        var surfaceType = attributes.SurfaceType.SplitAt(cutPositionMeasure, totalLength);
-        var carTrafficDirection = attributes.CarTrafficDirection.SplitAt(cutPositionMeasure, totalLength);
-        var bikeTrafficDirection = attributes.BikeTrafficDirection.SplitAt(cutPositionMeasure, totalLength);
-        var pedestrianTrafficDirection = attributes.PedestrianTrafficDirection.SplitAt(cutPositionMeasure, totalLength);
+
+        // The parts were rounded to the centimetre above, so their positions come from what they actually measure.
+        var firstPartLength = firstGeometry.Value.Length;
+        var secondPartLength = secondGeometry.Value.Length;
+
+        var accessRestriction = attributes.AccessRestriction.SplitAt(cutPositionMeasure, totalLength, firstPartLength, secondPartLength);
+        var category = attributes.Category.SplitAt(cutPositionMeasure, totalLength, firstPartLength, secondPartLength);
+        var morphology = attributes.Morphology.SplitAt(cutPositionMeasure, totalLength, firstPartLength, secondPartLength);
+        var streetNameId = attributes.StreetNameId.SplitAt(cutPositionMeasure, totalLength, firstPartLength, secondPartLength);
+        var maintenanceAuthorityId = attributes.MaintenanceAuthorityId.SplitAt(cutPositionMeasure, totalLength, firstPartLength, secondPartLength);
+        var surfaceType = attributes.SurfaceType.SplitAt(cutPositionMeasure, totalLength, firstPartLength, secondPartLength);
+        var carTrafficDirection = attributes.CarTrafficDirection.SplitAt(cutPositionMeasure, totalLength, firstPartLength, secondPartLength);
+        var bikeTrafficDirection = attributes.BikeTrafficDirection.SplitAt(cutPositionMeasure, totalLength, firstPartLength, secondPartLength);
+        var pedestrianTrafficDirection = attributes.PedestrianTrafficDirection.SplitAt(cutPositionMeasure, totalLength, firstPartLength, secondPartLength);
 
         var firstPart = new SplitPart(firstGeometry, accessRestriction.First, category.First, morphology.First, streetNameId.First, maintenanceAuthorityId.First, surfaceType.First, carTrafficDirection.First, bikeTrafficDirection.First, pedestrianTrafficDirection.First);
         var secondPart = new SplitPart(secondGeometry, accessRestriction.Second, category.Second, morphology.Second, streetNameId.Second, maintenanceAuthorityId.Second, surfaceType.Second, carTrafficDirection.Second, bikeTrafficDirection.Second, pedestrianTrafficDirection.Second);
