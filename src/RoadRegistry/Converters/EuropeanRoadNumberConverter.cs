@@ -1,16 +1,16 @@
-namespace RoadRegistry.Converters;
+﻿namespace RoadRegistry.Converters;
 
 using System;
 using Newtonsoft.Json;
 
-public class EuropeanRoadNumberConverter : JsonConverter<EuropeanRoadNumber>
+public class EuropeanRoadNumberConverter : NullableValueTypeJsonConverter<EuropeanRoadNumber>
 {
-    public override EuropeanRoadNumber ReadJson(JsonReader reader, Type objectType, EuropeanRoadNumber existingValue, bool hasExistingValue, JsonSerializer serializer)
+    protected override EuropeanRoadNumber ReadJson(object value, Type objectType, JsonSerializer serializer)
     {
-        return EuropeanRoadNumber.Parse(reader.Value?.ToString());
+        return EuropeanRoadNumber.Parse(value.ToString());
     }
 
-    public override void WriteJson(JsonWriter writer, EuropeanRoadNumber value, JsonSerializer serializer)
+    protected override void WriteJson(JsonWriter writer, EuropeanRoadNumber value, JsonSerializer serializer)
     {
         writer.WriteValue(value.ToString());
     }

@@ -1,16 +1,16 @@
-namespace RoadRegistry.Converters;
+﻿namespace RoadRegistry.Converters;
 
 using System;
 using Newtonsoft.Json;
 
-public class RoadSegmentNumberedRoadDirectionConverter : JsonConverter<RoadSegmentNumberedRoadDirection>
+public class RoadSegmentNumberedRoadDirectionConverter : NullableValueTypeJsonConverter<RoadSegmentNumberedRoadDirection>
 {
-    public override RoadSegmentNumberedRoadDirection ReadJson(JsonReader reader, Type objectType, RoadSegmentNumberedRoadDirection existingValue, bool hasExistingValue, JsonSerializer serializer)
+    protected override RoadSegmentNumberedRoadDirection ReadJson(object value, Type objectType, JsonSerializer serializer)
     {
-        return RoadSegmentNumberedRoadDirection.Parse(reader.Value?.ToString());
+        return RoadSegmentNumberedRoadDirection.Parse(value.ToString());
     }
 
-    public override void WriteJson(JsonWriter writer, RoadSegmentNumberedRoadDirection value, JsonSerializer serializer)
+    protected override void WriteJson(JsonWriter writer, RoadSegmentNumberedRoadDirection value, JsonSerializer serializer)
     {
         writer.WriteValue(value.ToString());
     }
