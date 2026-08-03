@@ -47,15 +47,21 @@ public abstract class RoadNetworkChangesProjection : IProjection
         {
             await UpdateCatchingUpState(operations, events, cancellation);
 
-            var batchCorrelationIds = events.Select(x => x.CorrelationId!).Distinct().ToList();
+            // Scope this to the events that can actually be projected, the same way ProcessEvents groups them. An event
+            // without a correlation id cannot be grouped, and Marten's own bookkeeping streams are not ours to project;
+            // carrying either into the queries below asks for progressions that cannot exist and tail-fetches events
+            // for correlations that ProcessEvents then discards.
+            var batchCorrelationIds = events.Where(IsProjectable).Select(x => x.CorrelationId!).Distinct().ToList();
             var batchProgressionIds = batchCorrelationIds.Select(BuildProgressionId).ToList();
 
-            var processedProjectionProgressions = await operations.Query<RoadNetworkChangesProjectionProgression>()
-                .Where(x => x.ProjectionName == _projectionName && batchProgressionIds.Contains(x.Id))
-                .ToListAsync(cancellation);
+            var processedProjectionProgressions = batchCorrelationIds.Count > 0
+                ? await operations.Query<RoadNetworkChangesProjectionProgression>()
+                    .Where(x => x.ProjectionName == _projectionName && batchProgressionIds.Contains(x.Id))
+                    .ToListAsync(cancellation)
+                : [];
 
             var pageMaxSequence = events.Max(x => x.Sequence);
-            var tailEvents = IsCatchingUp
+            var tailEvents = IsCatchingUp || batchCorrelationIds.Count == 0
                 ? []
                 : await operations.Events.QueryAllRawEvents()
                     .Where(x => batchCorrelationIds.Contains(x.CorrelationId!) && x.Sequence > pageMaxSequence)
@@ -87,11 +93,11 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
     private async Task ProcessEvents(IDocumentOperations operations, IReadOnlyList<IEvent> events, IReadOnlyList<RoadNetworkChangesProjectionProgression> processedProjectionProgressions, CancellationToken cancellation)
     {
-        // An event without a correlation id cannot be grouped and is dropped here. That is intended for Marten's own
+        // An event without a correlation id cannot be grouped and is dropped here. That is expected for Marten's own
         // bookkeeping streams, but for anything else it means the event is never applied and never will be, since the
         // progression moves on regardless - so say so rather than discarding it quietly.
         var discarded = events
-            .Where(x => x.CorrelationId is null && (x.StreamKey is null || !x.StreamKey.StartsWith("mt_")))
+            .Where(x => x.CorrelationId is null && !IsInternalStream(x))
             .ToList();
         if (discarded.Count > 0)
         {
@@ -101,7 +107,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
         }
 
         var eventsPerCorrelationId = events
-            .Where(x => x.CorrelationId is not null && (x.StreamKey is null || !x.StreamKey.StartsWith("mt_")))
+            .Where(IsProjectable)
             .GroupBy(x => x.CorrelationId!)
             .OrderBy(x => x.First().Sequence)
             .ToList();
@@ -159,6 +165,19 @@ public abstract class RoadNetworkChangesProjection : IProjection
     private string BuildProgressionId(string correlationId)
     {
         return $"{_projectionName}-{correlationId}";
+    }
+
+    // The single definition of "this projection can do something with that event", used both to scope the queries in
+    // ApplyAsync and to group the work in ProcessEvents. Letting the two drift apart is what allows a tail-fetch to
+    // pull events that are then thrown away.
+    private static bool IsProjectable(IEvent @event)
+    {
+        return @event.CorrelationId is not null && !IsInternalStream(@event);
+    }
+
+    private static bool IsInternalStream(IEvent @event)
+    {
+        return @event.StreamKey is not null && @event.StreamKey.StartsWith("mt_");
     }
 
     // Reads the emission ordinal written as a Marten header at save time (EventOrdinal.HeaderKey). Events that
