@@ -1,3 +1,11 @@
+## [5.6.2](https://github.com/informatievlaanderen/road-registry/compare/v5.6.1...v5.6.2) (2026-08-03)
+
+
+### Bug Fixes
+
+* **2.0:** stop the changes projection from dropping events silently ([55f3154](https://github.com/informatievlaanderen/road-registry/commit/55f3154a5d7544c74e55f6f0d0b0a08a954954c0))
+* **2.0:** take split attribute positions from the rounded part geometry ([8cc0805](https://github.com/informatievlaanderen/road-registry/commit/8cc08053bea219adfe70371d1c1a33c26c6853a9))
+
 ## [5.6.1](https://github.com/informatievlaanderen/road-registry/compare/v5.6.0...v5.6.1) (2026-07-31)
 
 
