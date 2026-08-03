@@ -1,3 +1,10 @@
+## [5.6.3](https://github.com/informatievlaanderen/road-registry/compare/v5.6.2...v5.6.3) (2026-08-03)
+
+
+### Bug Fixes
+
+* **2.0:** let the value object converters read a null ([2c6e4b2](https://github.com/informatievlaanderen/road-registry/commit/2c6e4b2c7934d927801b8cd49492390790b0bd36))
+
 ## [5.6.2](https://github.com/informatievlaanderen/road-registry/compare/v5.6.1...v5.6.2) (2026-08-03)
 
 
