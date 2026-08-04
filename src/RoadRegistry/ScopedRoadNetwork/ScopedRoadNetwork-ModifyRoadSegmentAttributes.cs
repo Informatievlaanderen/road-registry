@@ -47,7 +47,7 @@ public partial class ScopedRoadNetwork
             problems += ModifyRoadSegment(change, context);
         }
 
-        if (!problems.HasError() && changes.Count != 0)
+        if (!problems.HasError() && context.Summary.HasChanges())
         {
             ApplyChangeSummary(context, provenance);
         }

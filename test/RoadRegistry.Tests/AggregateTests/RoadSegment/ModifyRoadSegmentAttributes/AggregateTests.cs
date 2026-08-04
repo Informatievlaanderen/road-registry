@@ -115,6 +115,69 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
+    public void WhenTheValueIsAlreadyTheCurrentOne_ThenNoChangeSummaryIsEmitted()
+    {
+        // Setting an attribute to the value it already has is accepted, but records nothing on the segment. Emitting
+        // a road network change summary for that would put an event in the stream saying nothing happened.
+        var roadNetwork = BuildNetworkWith(RoadSegmentStatusV2.Gerealiseerd);
+        var roadSegmentId = TestData.Segment1Added.RoadSegmentId;
+        var current = roadNetwork.RoadSegments[roadSegmentId].Attributes!.Morphology.Values.First().Value;
+
+        var result = roadNetwork.ModifyRoadSegmentAttributes([BuildAttributesChange(roadNetwork, current)], TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+        result.Summary.HasChanges().Should().BeFalse();
+        result.Summary.RoadSegments.Modified.Should().BeEmpty();
+        roadNetwork.GetChanges().Should().BeEmpty("no road network change event may be raised when nothing moved");
+    }
+
+    [Fact]
+    public void WhenOnlyOneOfSeveralSegmentsActuallyChanges_ThenTheSummaryIsStillEmitted()
+    {
+        // The guard is on "did anything move", not "was every change effective": one real change alongside a no-op on
+        // another segment still has to produce the summary.
+        var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
+            [
+                RoadNode.Create(TestData.Segment1StartNodeAdded), RoadNode.Create(TestData.Segment1EndNodeAdded),
+                RoadNode.Create(TestData.Segment2StartNodeAdded), RoadNode.Create(TestData.Segment2EndNodeAdded)
+            ],
+            [
+                RoadSegment.Create(TestData.Segment1Added).WithoutChanges(),
+                RoadSegment.Create(TestData.Segment2Added).WithoutChanges()
+            ],
+            [],
+            []);
+
+        var noOp = BuildMorphologyChange(roadNetwork, TestData.Segment1Added.RoadSegmentId,
+            roadNetwork.RoadSegments[TestData.Segment1Added.RoadSegmentId].Attributes!.Morphology.Values.First().Value);
+
+        var current2 = roadNetwork.RoadSegments[TestData.Segment2Added.RoadSegmentId].Attributes!.Morphology.Values.First().Value;
+        var real = BuildMorphologyChange(roadNetwork, TestData.Segment2Added.RoadSegmentId,
+            RoadSegmentMorphologyV2.All.First(x => x != current2));
+
+        var result = roadNetwork.ModifyRoadSegmentAttributes([noOp, real], TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+        result.Summary.RoadSegments.Modified.Should().ContainSingle()
+            .Which.Should().Be(TestData.Segment2Added.RoadSegmentId);
+        roadNetwork.GetChanges().Should().NotBeEmpty();
+    }
+
+    private static ModifyRoadSegmentChange BuildMorphologyChange(ScopedRoadNetwork roadNetwork, RoadSegmentId roadSegmentId, RoadSegmentMorphologyV2 morphology)
+    {
+        var length = roadNetwork.RoadSegments[roadSegmentId].Geometry.Value.Length;
+
+        var values = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>();
+        values.Add(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(length), morphology);
+
+        return new ModifyRoadSegmentChange
+        {
+            RoadSegmentIdReference = new RoadSegmentIdReference(roadSegmentId),
+            Morphology = values
+        };
+    }
+
+    [Fact]
     public void WhenOneOfTheSegmentsIsNotEditable_ThenNothingIsApplied()
     {
         // The whole request is rejected up front, so it can never land half-applied.
