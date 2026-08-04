@@ -1,3 +1,10 @@
+## [5.6.4](https://github.com/informatievlaanderen/road-registry/compare/v5.6.3...v5.6.4) (2026-08-04)
+
+
+### Bug Fixes
+
+* **2.0:** take versieId from LastModified and realign the read positions ([cf36125](https://github.com/informatievlaanderen/road-registry/commit/cf361252790084e8d0219b4aa986b1b56b937679))
+
 ## [5.6.3](https://github.com/informatievlaanderen/road-registry/compare/v5.6.2...v5.6.3) (2026-08-03)
 
 
