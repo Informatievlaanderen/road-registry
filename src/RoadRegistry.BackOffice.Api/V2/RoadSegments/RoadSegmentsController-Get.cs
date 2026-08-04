@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.V2.RoadSegments;
+﻿namespace RoadRegistry.BackOffice.Api.V2.RoadSegments;
 
 using System;
 using System.Linq;
@@ -75,7 +75,7 @@ public partial class RoadSegmentsController
             : MapToV2(RoadSegmentGeometryDrawMethod.Parse(roadSegment.GeometryDrawMethod));
         var result = new WegsegmentV2Detail
         {
-            Identificator = new WegsegmentIdentificator(OsloNamespaces.Wegsegment, roadSegment.RoadSegmentId.ToString(), roadSegment.Origin.Timestamp.ToDateTimeOffset()),
+            Identificator = new WegsegmentIdentificator(OsloNamespaces.Wegsegment, roadSegment.RoadSegmentId.ToString(), roadSegment.LastModified.Timestamp.ToDateTimeOffset()),
             WegsegmentGeometrie = new WegsegmentGeometrie
             {
                 Geometrie =

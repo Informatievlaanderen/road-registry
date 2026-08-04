@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.V2.GradeJunctions;
+﻿namespace RoadRegistry.BackOffice.Api.V2.GradeJunctions;
 
 using System;
 using System.Linq;
@@ -67,7 +67,7 @@ public partial class GradeJunctionsController
 
         var result = new GelijkgrondseKruisingV2Detail
         {
-            Identificator = new GelijkgrondseKruisingIdentificator(OsloNamespaces.GelijkgrondseKruising, gradeJunction.GradeJunctionId.ToString(), gradeJunction.Origin.Timestamp.ToDateTimeOffset()),
+            Identificator = new GelijkgrondseKruisingIdentificator(OsloNamespaces.GelijkgrondseKruising, gradeJunction.GradeJunctionId.ToString(), gradeJunction.LastModified.Timestamp.ToDateTimeOffset()),
             KruisendeWegsegmenten = new[] { gradeJunction.RoadSegmentId1, gradeJunction.RoadSegmentId2 }
                 .OrderBy(x => x)
                 .Select(x => new WegsegmentLink(x, apiOptions.GetWegsegmentDetailUrlFormat()))
