@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.V2.RoadNodes;
+﻿namespace RoadRegistry.BackOffice.Api.V2.RoadNodes;
 
 using System;
 using System.Collections.Generic;
@@ -72,7 +72,7 @@ public partial class RoadNodesController
 
         var result = new WegknoopV2Detail
         {
-            Identificator = new WegknoopIdentificator(OsloNamespaces.Wegknoop, roadNode.RoadNodeId.ToString(), roadNode.Origin.Timestamp.ToDateTimeOffset()),
+            Identificator = new WegknoopIdentificator(OsloNamespaces.Wegknoop, roadNode.RoadNodeId.ToString(), roadNode.LastModified.Timestamp.ToDateTimeOffset()),
             WegknoopGeometrie = new WegknoopGeometrie
             {
                 Geometrie =
