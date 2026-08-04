@@ -1,10 +1,12 @@
 namespace RoadRegistry.Infrastructure.MartenDb.Setup;
 
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DbUp;
+using DbUp.Engine.Output;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -68,7 +70,7 @@ public sealed class DatabaseMigrator : IDbMigrator
                 .WithTransactionPerScript()
                 .WithVariablesDisabled()
                 .JournalToPostgresqlTable(WellKnownSchemas.MartenEventStore, "schema_migrations")
-                .LogToConsole()
+                .LogTo(new DbUpLogger(_logger))
                 .Build();
 
             var result = upgrader.PerformUpgrade();
@@ -85,6 +87,46 @@ public sealed class DatabaseMigrator : IDbMigrator
             await using var unlockCommand = new NpgsqlCommand("SELECT pg_advisory_unlock(@key)", lockConnection);
             unlockCommand.Parameters.AddWithValue("key", AdvisoryLockKey);
             await unlockCommand.ExecuteNonQueryAsync(cancellationToken);
+        }
+    }
+
+    // DbUp's own ConsoleUpgradeLog runs every message through string.Format. A database error quoting one of these
+    // migrations contains JSON braces, so formatting it throws FormatException from inside the logger - and because
+    // that happens while DbUp is reporting the failure, the FormatException REPLACES the real error in
+    // UpgradeResult.Error. The actual reason the script failed is then lost. Route DbUp's logging at our own logger
+    // instead, format only when arguments were really supplied, and never let logging throw.
+    private sealed class DbUpLogger : IUpgradeLog
+    {
+        private readonly ILogger _logger;
+
+        public DbUpLogger(ILogger logger)
+        {
+            _logger = logger;
+        }
+
+        public void LogTrace(string format, params object[] args) => _logger.LogTrace("{DbUpMessage}", Render(format, args));
+        public void LogDebug(string format, params object[] args) => _logger.LogDebug("{DbUpMessage}", Render(format, args));
+        public void LogInformation(string format, params object[] args) => _logger.LogInformation("{DbUpMessage}", Render(format, args));
+        public void LogWarning(string format, params object[] args) => _logger.LogWarning("{DbUpMessage}", Render(format, args));
+        public void LogError(string format, params object[] args) => _logger.LogError("{DbUpMessage}", Render(format, args));
+        public void LogError(Exception ex, string format, params object[] args) => _logger.LogError(ex, "{DbUpMessage}", Render(format, args));
+
+        private static string Render(string format, object[]? args)
+        {
+            if (args is null || args.Length == 0)
+            {
+                return format;
+            }
+
+            try
+            {
+                return string.Format(CultureInfo.InvariantCulture, format, args);
+            }
+            catch (FormatException)
+            {
+                // The message is worth more than the substitution, and it must not replace the failure being reported.
+                return format;
+            }
         }
     }
 }
