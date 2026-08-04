@@ -99,6 +99,43 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
             Value: x.Value!)));
     }
 
+    // Rescales every coverage proportionally onto a new segment length, keeping each value over the same relative
+    // stretch of the segment: a value covering the first third still covers the first third.
+    //
+    // This is what a connected road segment needs when a road node it hangs off is moved: its geometry gets longer or
+    // shorter without anything being said about its attributes, so the segmentation follows the length. A coverage
+    // running from 0 to 45 on a segment that becomes 60m long ends at 60, and one ending at 20 ends at 20x(60/45).
+    //
+    // The trailing coverage is landed exactly on the new length rather than on its own scaled value: positions are
+    // rounded to the centimetre one by one, and without this the rounding leaves the last position a centimetre off
+    // the geometry - which every later change to that segment then rejects with a ToPositionNotEqualToLength error.
+    public RoadSegmentDynamicAttributeValues<T> ScaleTo(double currentLength, double newLength)
+    {
+        if (Values.Count == 0)
+        {
+            return this;
+        }
+
+        currentLength = currentLength.RoundToCm();
+        newLength = newLength.RoundToCm();
+
+        if (currentLength <= 0 || newLength <= 0 || currentLength == newLength)
+        {
+            return this;
+        }
+
+        var factor = newLength / currentLength;
+
+        var scaled = new RoadSegmentDynamicAttributeValues<T>(Values.Select(x => (
+            Coverage: new RoadSegmentPositionCoverage(
+                new RoadSegmentPositionV2(x.Coverage.From.ToDouble() * factor),
+                new RoadSegmentPositionV2(x.Coverage.To.ToDouble() * factor)),
+            x.Side,
+            Value: x.Value!)));
+
+        return scaled.WithTrailingCoverageSnappedTo(newLength);
+    }
+
     public bool Equals(RoadSegmentDynamicAttributeValues<T>? other)
     {
         return Equals(this, other);

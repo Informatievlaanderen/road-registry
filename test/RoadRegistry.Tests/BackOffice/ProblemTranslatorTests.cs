@@ -209,6 +209,35 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadSegment.ChangeGeometry.NotFound, [
+                    new ProblemParameter("Identifier", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.StatusNotValid, [
+                    new ProblemParameter("Identifier", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.MeasuredNotAllowed, [
+                    new ProblemParameter("Identifier", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.PointTooCloseToRoadNode, [
+                    new ProblemParameter("Identifier", "1"),
+                    new ProblemParameter("RoadNodeId", "1"),
+                    new ProblemParameter("MinimumDistance", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.RoadNodeMovedTooFar, [
+                    new ProblemParameter("Identifier", "1"),
+                    new ProblemParameter("RoadNodeId", "1"),
+                    new ProblemParameter("MaximumDistance", "20")
+                ]
+            },
+            {
                 ProblemCode.RoadSegment.Split.NotFound, [
                     new ProblemParameter("Identifier", "1")
                 ]

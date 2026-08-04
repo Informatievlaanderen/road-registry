@@ -610,6 +610,26 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"Wegsegment {problem.GetParameterValue("Identifier")} heeft een status die verschilt van 'gepland', 'gerealiseerd' of 'buiten gebruik'.")
             },
             {
+                ProblemCode.RoadSegment.ChangeGeometry.NotFound, problem => new(problem.Severity, "WegsegmentNietGevondenOfVerwijderd",
+                    $"Wegsegment {problem.GetParameterValue("Identifier")} bestaat niet of is verwijderd.")
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.StatusNotValid, problem => new(problem.Severity, "WegsegmentGeometrieStatusNietCorrect",
+                    $"Wegsegment {problem.GetParameterValue("Identifier")} heeft een status die verschilt van 'gepland', 'gerealiseerd' of 'buiten gebruik'.")
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.MeasuredNotAllowed, problem => new(problem.Severity, "WegsegmentGeometrieIngemetenNietToegelaten",
+                    $"U heeft niet de machtigingen om deze actie uit te voeren voor (aansluitende) wegsegmenten met geometriemethode 'ingemeten'. Wegsegment {problem.GetParameterValue("Identifier")} is ingemeten.")
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.PointTooCloseToRoadNode, problem => new(problem.Severity, "WegsegmentGeometriePuntTeDichtBijWegknoop",
+                    $"Het start- of eindpunt van wegsegment {problem.GetParameterValue("Identifier")} ligt te dicht (<{problem.GetParameterValue("MinimumDistance")}m) bij wegknoop {problem.GetParameterValue("RoadNodeId")}.")
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.RoadNodeMovedTooFar, problem => new(problem.Severity, "WegsegmentGeometrieWegknoopTeVerVerplaatst",
+                    $"Het nieuwe start- of eindpunt van wegsegment {problem.GetParameterValue("Identifier")} ligt te ver (>{problem.GetParameterValue("MaximumDistance")}m) van het oude start- of eindpunt, wegknoop {problem.GetParameterValue("RoadNodeId")}.")
+            },
+            {
                 ProblemCode.RoadSegment.Split.NotFound, problem => new(problem.Severity, "WegsegmentNietGevondenOfVerwijderd",
                     $"Wegsegment {problem.GetParameterValue("Identifier")} bestaat niet of is verwijderd.")
             },
