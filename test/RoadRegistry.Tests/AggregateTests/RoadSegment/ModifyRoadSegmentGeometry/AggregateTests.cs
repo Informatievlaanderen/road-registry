@@ -282,6 +282,45 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
+    public void WhenBothEndVerticesMove_ThenTheOtherNodesVacatedPositionIsNotHeldAgainstTheMove()
+    {
+        // A short segment whose start is pulled towards where its end node currently sits, while that end node is
+        // itself pulled away. Measuring the new start against the end node's old position would reject this, but by
+        // the time the change lands the two are 20m apart.
+        var startNode = BuildNode(1, 0, 0, RoadNodeTypeV2.Eindknoop);
+        var endNode = BuildNode(2, 10, 0, RoadNodeTypeV2.Eindknoop);
+        var roadNetwork = BuildNetwork(
+            [startNode, endNode],
+            [BuildSegment(SegmentAId, startNode, endNode, BuildGeometry((0, 0), (10, 0)))]);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((9.5, 0), (30, 0))), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+        result.Summary.RoadNodes.Modified.Should().BeEquivalentTo([new RoadNodeId(1), new RoadNodeId(2)]);
+        roadNetwork.RoadNodes[new RoadNodeId(1)].Geometry.Value.Coordinate.X.Should().Be(9.5);
+        roadNetwork.RoadNodes[new RoadNodeId(2)].Geometry.Value.Coordinate.X.Should().Be(30);
+    }
+
+    [Fact]
+    public void WhenBothMovedRoadNodesWouldEndUpTooCloseTogether_ThenError()
+    {
+        // The mirror image: both nodes move, and their destinations are less than a metre apart. Neither is in the
+        // other's way at the position it is leaving, so only comparing the two destinations catches this.
+        var roadNetwork = BuildNetworkWithSingleSegment();
+
+        // A hairpin: 4.5m of geometry, but the two ends finish 0.5m apart.
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((10, 0), (10, 2), (10.5, 2), (10.5, 0))),
+            true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().ContainSingle()
+            .Which.Reason.Should().Be("RoadSegmentChangeGeometryPointTooCloseToRoadNode");
+        roadNetwork.RoadNodes.Values.Should().OnlyContain(x => !x.GetChanges().Any());
+        roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)].GetChanges().Should().BeEmpty();
+    }
+
+    [Fact]
     public void WhenTheSegmentIsMeasuredAndTheCallerMayNotEditMeasuredSegments_ThenError()
     {
         var roadNetwork = BuildNetworkWithSingleSegment(RoadSegmentGeometryDrawMethodV2.Ingemeten);

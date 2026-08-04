@@ -24,7 +24,6 @@ using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Abstractions.Extensions;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
-using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
 using RoadRegistry.RoadSegment;

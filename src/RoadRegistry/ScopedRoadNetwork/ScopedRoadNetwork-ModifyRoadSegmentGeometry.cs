@@ -191,6 +191,16 @@ public partial class ScopedRoadNetwork
             (RoadNodeId: roadSegment.EndNodeId, Current: currentLine.Coordinates[^1], New: newLine.Coordinates[^1])
         };
 
+        // The road nodes this change is about to move - at most the segment's own two endpoints. They are held out of
+        // the proximity check below, because the spatial index still has them where they are now rather than where
+        // they are going: measuring against a position that is about to be vacated would reject a perfectly good move,
+        // and a node moving in from far away is not even returned by a query around the new position. They are
+        // compared against each other separately, once both destinations are known.
+        var roadNodeIdsBeingMoved = endpoints
+            .Where(x => x.RoadNodeId is not null && !x.Current.Equals2D(x.New))
+            .Select(x => x.RoadNodeId!.Value)
+            .ToHashSet();
+
         foreach (var endpoint in endpoints)
         {
             if (endpoint.RoadNodeId is null
@@ -213,14 +223,14 @@ public partial class ScopedRoadNetwork
                 continue;
             }
 
-            // VAL-21
+            // VAL-21, against the road nodes that stay where they are.
             var minimumDistance = Distances.RoadSegmentChangeGeometryMinimumDistanceToRoadNode;
             var envelope = new Envelope(endpoint.New);
             envelope.ExpandBy(minimumDistance);
 
             var tooCloseRoadNode = _roadNodesSpatialIndex
                 .Query(envelope)
-                .Where(x => !x.IsRemoved && x.RoadNodeId != roadNodeId)
+                .Where(x => !x.IsRemoved && !roadNodeIdsBeingMoved.Contains(x.RoadNodeId))
                 .FirstOrDefault(x => x.Geometry.Value.Coordinate.Distance(endpoint.New) < minimumDistance);
             if (tooCloseRoadNode is not null)
             {
@@ -229,6 +239,18 @@ public partial class ScopedRoadNetwork
             }
 
             movedRoadNodes[roadNodeId] = endpoint.New;
+        }
+
+        // VAL-21 between the two road nodes this change moves. The spatial index cannot answer this one: it holds
+        // both of them at the position they are leaving.
+        if (movedRoadNodes.Count == 2)
+        {
+            var minimumDistance = Distances.RoadSegmentChangeGeometryMinimumDistanceToRoadNode;
+            var moved = movedRoadNodes.ToArray();
+            if (moved[0].Value.Distance(moved[1].Value) < minimumDistance)
+            {
+                problems += new RoadSegmentChangeGeometryPointTooCloseToRoadNode(roadSegment.RoadSegmentId, moved[1].Key, minimumDistance);
+            }
         }
 
         return (movedRoadNodes, problems);
