@@ -99,41 +99,66 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
             Value: x.Value!)));
     }
 
-    // Rescales every coverage proportionally onto a new segment length, keeping each value over the same relative
-    // stretch of the segment: a value covering the first third still covers the first third.
+    // Moves every position onto the geometry a road segment has after one or both of its end vertices were dragged
+    // along with a road node.
     //
-    // This is what a connected road segment needs when a road node it hangs off is moved: its geometry gets longer or
-    // shorter without anything being said about its attributes, so the segmentation follows the length. A coverage
-    // running from 0 to 45 on a segment that becomes 60m long ends at 60, and one ending at 20 ends at 20x(60/45).
+    // Only the outermost stretches change length - from an end vertex to the vertex next to it - so this is not a
+    // scale of the whole segment. A position keeps its relative place between the same two vertices it already sat
+    // between, which leaves the untouched stretches covering exactly the length they covered before; they merely shift
+    // when a stretch ahead of them grew or shrank. Stretching the segment as a whole would drag attribute boundaries
+    // away from the vertices they were placed against, somewhere the geometry did not move at all.
     //
-    // The trailing coverage is landed exactly on the new length rather than on its own scaled value: positions are
+    // The vertex positions are the distance of each vertex from the start of the line, before and after the move.
+    //
+    // The trailing coverage is landed exactly on the new length rather than on its own remapped value: positions are
     // rounded to the centimetre one by one, and without this the rounding leaves the last position a centimetre off
     // the geometry - which every later change to that segment then rejects with a ToPositionNotEqualToLength error.
-    public RoadSegmentDynamicAttributeValues<T> ScaleTo(double currentLength, double newLength)
+    public RoadSegmentDynamicAttributeValues<T> RemapTo(
+        IReadOnlyList<double> currentVertexPositions,
+        IReadOnlyList<double> newVertexPositions)
     {
         if (Values.Count == 0)
         {
             return this;
         }
 
-        currentLength = currentLength.RoundToCm();
-        newLength = newLength.RoundToCm();
-
-        if (currentLength <= 0 || newLength <= 0 || currentLength == newLength)
+        // Only the end vertices move, so the vertex count is the same before and after. Anything else is not a drag
+        // and is left alone rather than remapped against a line it does not describe.
+        if (currentVertexPositions.Count < 2 || currentVertexPositions.Count != newVertexPositions.Count)
         {
             return this;
         }
 
-        var factor = newLength / currentLength;
+        if (currentVertexPositions.SequenceEqual(newVertexPositions))
+        {
+            return this;
+        }
 
-        var scaled = new RoadSegmentDynamicAttributeValues<T>(Values.Select(x => (
+        var remapped = new RoadSegmentDynamicAttributeValues<T>(Values.Select(x => (
             Coverage: new RoadSegmentPositionCoverage(
-                new RoadSegmentPositionV2(x.Coverage.From.ToDouble() * factor),
-                new RoadSegmentPositionV2(x.Coverage.To.ToDouble() * factor)),
+                new RoadSegmentPositionV2(RemapPosition(x.Coverage.From.ToDouble(), currentVertexPositions, newVertexPositions)),
+                new RoadSegmentPositionV2(RemapPosition(x.Coverage.To.ToDouble(), currentVertexPositions, newVertexPositions))),
             x.Side,
             Value: x.Value!)));
 
-        return scaled.WithTrailingCoverageSnappedTo(newLength);
+        return remapped.WithTrailingCoverageSnappedTo(newVertexPositions[^1].RoundToCm());
+    }
+
+    private static double RemapPosition(double position, IReadOnlyList<double> current, IReadOnlyList<double> updated)
+    {
+        for (var i = 1; i < current.Count; i++)
+        {
+            if (position > current[i])
+            {
+                continue;
+            }
+
+            var span = current[i] - current[i - 1];
+            var ratio = span > 0 ? (position - current[i - 1]) / span : 0;
+            return updated[i - 1] + ratio * (updated[i] - updated[i - 1]);
+        }
+
+        return updated[^1];
     }
 
     public bool Equals(RoadSegmentDynamicAttributeValues<T>? other)

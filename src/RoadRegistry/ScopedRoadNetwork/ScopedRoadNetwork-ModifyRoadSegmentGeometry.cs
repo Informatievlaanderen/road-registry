@@ -296,23 +296,39 @@ public partial class ScopedRoadNetwork
             .WithSrid(roadSegment.Geometry.SRID)
             .ToRoadSegmentGeometry();
 
-        var currentLength = roadSegment.Geometry.Value.Length;
-        var newLength = geometry.Value.Length;
+        // Only the stretch between the moved end vertex and the vertex next to it changes length, so the attributes
+        // are remapped against where every vertex sits before and after rather than scaled over the whole segment.
+        var currentVertexPositions = CumulativeVertexPositions(line);
+        var newVertexPositions = CumulativeVertexPositions(geometry.Value.GetSingleLineString());
         var attributes = roadSegment.Attributes!;
 
         return ModifyRoadSegment(new ModifyRoadSegmentChange
         {
             RoadSegmentIdReference = new RoadSegmentIdReference(roadSegment.RoadSegmentId),
             Geometry = geometry,
-            AccessRestriction = attributes.AccessRestriction.ScaleTo(currentLength, newLength),
-            Category = attributes.Category.ScaleTo(currentLength, newLength),
-            Morphology = attributes.Morphology.ScaleTo(currentLength, newLength),
-            StreetNameId = attributes.StreetNameId.ScaleTo(currentLength, newLength),
-            MaintenanceAuthorityId = attributes.MaintenanceAuthorityId.ScaleTo(currentLength, newLength),
-            SurfaceType = attributes.SurfaceType.ScaleTo(currentLength, newLength),
-            CarTrafficDirection = attributes.CarTrafficDirection.ScaleTo(currentLength, newLength),
-            BikeTrafficDirection = attributes.BikeTrafficDirection.ScaleTo(currentLength, newLength),
-            PedestrianTrafficDirection = attributes.PedestrianTrafficDirection.ScaleTo(currentLength, newLength)
+            AccessRestriction = attributes.AccessRestriction.RemapTo(currentVertexPositions, newVertexPositions),
+            Category = attributes.Category.RemapTo(currentVertexPositions, newVertexPositions),
+            Morphology = attributes.Morphology.RemapTo(currentVertexPositions, newVertexPositions),
+            StreetNameId = attributes.StreetNameId.RemapTo(currentVertexPositions, newVertexPositions),
+            MaintenanceAuthorityId = attributes.MaintenanceAuthorityId.RemapTo(currentVertexPositions, newVertexPositions),
+            SurfaceType = attributes.SurfaceType.RemapTo(currentVertexPositions, newVertexPositions),
+            CarTrafficDirection = attributes.CarTrafficDirection.RemapTo(currentVertexPositions, newVertexPositions),
+            BikeTrafficDirection = attributes.BikeTrafficDirection.RemapTo(currentVertexPositions, newVertexPositions),
+            PedestrianTrafficDirection = attributes.PedestrianTrafficDirection.RemapTo(currentVertexPositions, newVertexPositions)
         }, context);
+    }
+
+    // The distance of every vertex from the start of the line, which is the axis the dynamic attribute positions
+    // are expressed on.
+    private static double[] CumulativeVertexPositions(LineString line)
+    {
+        var positions = new double[line.NumPoints];
+
+        for (var i = 1; i < positions.Length; i++)
+        {
+            positions[i] = positions[i - 1] + line.GetCoordinateN(i - 1).Distance(line.GetCoordinateN(i));
+        }
+
+        return positions;
     }
 }

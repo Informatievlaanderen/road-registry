@@ -227,12 +227,11 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
-    public void WhenTheMovedRoadNodeIsTheConnectedSegmentsEndNode_ThenItIsRescaledTheSameWay()
+    public void WhenTheMovedRoadNodeIsTheConnectedSegmentsEndNode_ThenItIsRescaledFromThatSide()
     {
-        // The mirror of the test above: the moved node is now segment B's END rather than its start, so B is stretched
-        // from the other side. Attribute positions run along the segment from its own start vertex whatever moved, and
-        // the rescale is proportional over the whole length, so the coverages come out at the same numbers. Anchoring
-        // the change on the moved end instead would leave the first coverage at 20.
+        // The mirror of the test above: the moved node is now segment B's END rather than its start. B is a straight
+        // two-vertex segment, so it consists of nothing but the stretch that changed and the whole segmentation
+        // follows it either way - see the three-vertex test below for the case where that distinction bites.
         var startNodeA = BuildNode(1, 0, 0, RoadNodeTypeV2.Eindknoop);
         var sharedNode = BuildNode(2, 100, 0, RoadNodeTypeV2.Validatieknoop);
         var startNodeB = BuildNode(3, 100, 100, RoadNodeTypeV2.Eindknoop);
@@ -369,6 +368,56 @@ public class AggregateTests : AggregateTestBase
             .Which.Reason.Should().Be("RoadSegmentChangeGeometryPointTooCloseToRoadNode");
         roadNetwork.RoadNodes.Values.Should().OnlyContain(x => !x.GetChanges().Any());
         roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)].GetChanges().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void WhenAConnectedSegmentHasAnIntermediateVertex_ThenOnlyTheStretchUpToItIsRescaled()
+    {
+        // Segment B bends at a vertex 40m along: (100,0) -> (100,40) -> (100,100). Only the stretch between the moved
+        // node and that vertex changes length, so only the coverages inside it are rescaled; the rest keeps the length
+        // it covers and shifts along. Stretching B as a whole would move the boundary at 40 away from the vertex it
+        // was placed against, on a piece of road that did not move at all.
+        var startNodeA = BuildNode(1, 0, 0, RoadNodeTypeV2.Eindknoop);
+        var sharedNode = BuildNode(2, 100, 0, RoadNodeTypeV2.Validatieknoop);
+        var endNodeB = BuildNode(3, 100, 100, RoadNodeTypeV2.Eindknoop);
+
+        var segmentB = BuildSegment(SegmentBId, sharedNode, endNodeB, BuildGeometry((100, 0), (100, 40), (100, 100)));
+
+        var morphologies = RoadSegmentMorphologyV2.All.Take(4).ToArray();
+        segmentB = segmentB with
+        {
+            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>()
+                .Add(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(20), morphologies[0])
+                .Add(new RoadSegmentPositionV2(20), new RoadSegmentPositionV2(40), morphologies[1])
+                .Add(new RoadSegmentPositionV2(40), new RoadSegmentPositionV2(70), morphologies[2])
+                .Add(new RoadSegmentPositionV2(70), new RoadSegmentPositionV2(100), morphologies[3])
+        };
+
+        var roadNetwork = BuildNetwork(
+            [startNodeA, sharedNode, endNodeB],
+            [BuildSegment(SegmentAId, startNodeA, sharedNode, BuildGeometry((0, 0), (100, 0))), segmentB]);
+
+        // The shared node drops 10m, so B's first stretch grows from 40m to 50m and B becomes 110m long.
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (100, -10))), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+
+        var modifiedB = roadNetwork.RoadSegments[new RoadSegmentId(SegmentBId)];
+        modifiedB.Geometry.Value.Length.RoundToCm().Should().Be(110);
+
+        var coverages = modifiedB.Attributes!.Morphology.Values.OrderBy(x => x.Coverage.From).ToArray();
+        coverages.Should().HaveCount(4);
+
+        // Inside the stretch that grew: 20 x (50/40) = 25, and the vertex boundary lands on 50.
+        coverages[0].Coverage.To.ToDouble().Should().Be(25);
+        coverages[1].Coverage.To.ToDouble().Should().Be(50);
+
+        // Beyond the vertex nothing was stretched: 30m each, exactly as before, shifted by the 10m gained.
+        coverages[2].Coverage.From.ToDouble().Should().Be(50);
+        coverages[2].Coverage.To.ToDouble().Should().Be(80);
+        coverages[3].Coverage.From.ToDouble().Should().Be(80);
+        coverages[3].Coverage.To.ToDouble().Should().Be(110);
     }
 
     // Segment A plus an unrelated segment B hanging off its own node 10m further east, so a move of A's end vertex can
