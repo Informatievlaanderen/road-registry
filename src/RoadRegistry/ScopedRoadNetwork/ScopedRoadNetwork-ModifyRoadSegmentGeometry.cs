@@ -49,23 +49,25 @@ public partial class ScopedRoadNetwork
 
         var roadSegmentId = change.RoadSegmentId;
 
-        // Everything up to the mutations concerns the road segment named in the request, so its identifier comes from
-        // the problem context and none of those errors has to carry it themselves.
-        var problems = Problems.WithContext(roadSegmentId);
+        // Not carried on the accumulator: the problems raised once the mutations start come from the connected
+        // segments too and already identify themselves. Each error below that is about the requested segment gets its
+        // context handed to it instead.
+        var problems = Problems.None;
+        var roadSegmentContext = Problems.WithContext(roadSegmentId);
 
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
-            return Failed(problems + new RoadSegmentNotFound(), context);
+            return Failed(roadSegmentContext + new RoadSegmentNotFound(), context);
         }
 
         // Re-validate what the API also checks: the request may have gone stale between being accepted and handled.
         if (!roadSegment.HasMigrated())
         {
-            problems += new RoadSegmentNotCompletedInwinning();
+            problems += roadSegmentContext + new RoadSegmentNotCompletedInwinning();
         }
         if (!ChangeGeometryAllowedStatuses.Contains(roadSegment.Status))
         {
-            problems += new RoadSegmentChangeGeometryStatusNotValid();
+            problems += roadSegmentContext + new RoadSegmentChangeGeometryStatusNotValid();
         }
         problems += ValidateGeometryDrawMethodIsEditable(roadSegment, mayModifyMeasuredRoadSegments);
         if (problems.HasError())
@@ -74,7 +76,10 @@ public partial class ScopedRoadNetwork
         }
 
         var newGeometry = change.Geometry.RoundToCm();
-        problems += newGeometry.ValidateRoadSegmentGeometryDomainV2();
+
+        // Under the segment's context as well: these come back without an identifier, and the translation of some of
+        // them (start equals end) looks one up.
+        problems += roadSegmentContext + newGeometry.ValidateRoadSegmentGeometryDomainV2();
         if (problems.HasError())
         {
             return Failed(problems, context);
@@ -88,11 +93,6 @@ public partial class ScopedRoadNetwork
         {
             return Failed(problems, context);
         }
-
-        // From here on the problems can concern the connected segments as well, and each of those carries the
-        // identifier of the segment it is really about. Stamping this segment's context onto them would be a second,
-        // conflicting WegsegmentId, which Problem.WithContext rejects outright - so the context is dropped here.
-        problems = Problems.None.AddRange(problems);
 
         // Every other segment hanging off one of the moved nodes has to follow it.
         var draggedRoadSegments = GetNonRemovedRoadSegments()
@@ -189,7 +189,14 @@ public partial class ScopedRoadNetwork
         RoadSegment roadSegment,
         RoadSegmentGeometry newGeometry)
     {
-        var problems = Problems.None;
+        if (roadSegment.StartNodeId is null && roadSegment.EndNodeId is null)
+        {
+            return ([], Problems.None);
+        }
+
+        // Whichever of the two endpoints is at fault, it is this segment being moved, so all of it is reported under
+        // its context.
+        var problems = Problems.WithContext(roadSegment.RoadSegmentId);
         var movedRoadNodes = new Dictionary<RoadNodeId, Coordinate>();
 
         var currentLine = roadSegment.Geometry.Value.GetSingleLineString();
