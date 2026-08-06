@@ -48,20 +48,24 @@ public partial class ScopedRoadNetwork
         var context = new ScopedRoadNetworkChangeContext(this, provenance, logger);
 
         var roadSegmentId = change.RoadSegmentId;
+
+        // Everything up to the mutations concerns the road segment named in the request, so its identifier comes from
+        // the problem context and none of those errors has to carry it themselves.
+        var problems = Problems.WithContext(roadSegmentId);
+
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
-            return Failed(Problems.Single(new RoadSegmentNotFound(roadSegmentId)), context);
+            return Failed(problems + new RoadSegmentNotFound(), context);
         }
 
         // Re-validate what the API also checks: the request may have gone stale between being accepted and handled.
-        var problems = Problems.None;
         if (!roadSegment.HasMigrated())
         {
-            problems += new RoadSegmentNotCompletedInwinning(roadSegmentId);
+            problems += new RoadSegmentNotCompletedInwinning();
         }
         if (!ChangeGeometryAllowedStatuses.Contains(roadSegment.Status))
         {
-            problems += new RoadSegmentChangeGeometryStatusNotValid(roadSegmentId);
+            problems += new RoadSegmentChangeGeometryStatusNotValid();
         }
         problems += ValidateGeometryDrawMethodIsEditable(roadSegment, mayModifyMeasuredRoadSegments);
         if (problems.HasError())
@@ -84,6 +88,11 @@ public partial class ScopedRoadNetwork
         {
             return Failed(problems, context);
         }
+
+        // From here on the problems can concern the connected segments as well, and each of those carries the
+        // identifier of the segment it is really about. Stamping this segment's context onto them would be a second,
+        // conflicting WegsegmentId, which Problem.WithContext rejects outright - so the context is dropped here.
+        problems = Problems.None.AddRange(problems);
 
         // Every other segment hanging off one of the moved nodes has to follow it.
         var draggedRoadSegments = GetNonRemovedRoadSegments()
@@ -166,7 +175,9 @@ public partial class ScopedRoadNetwork
     {
         if (!mayModifyMeasuredRoadSegments && roadSegment.Attributes?.GeometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingemeten)
         {
-            return Problems.Single(new RoadSegmentChangeGeometryMeasuredNotAllowed(roadSegment.RoadSegmentId));
+            // Reported under the context of the measured segment, which is not necessarily the one in the request:
+            // a connected segment dragged along by a moved road node is blocked just the same.
+            return Problems.WithContext(roadSegment.RoadSegmentId) + new RoadSegmentChangeGeometryMeasuredNotAllowed();
         }
 
         return Problems.None;
@@ -218,7 +229,7 @@ public partial class ScopedRoadNetwork
                 : Distances.RoadNodeMaximumMoveDistance;
             if (endpoint.Current.Distance(endpoint.New) > maximumDistance)
             {
-                problems += new RoadSegmentChangeGeometryRoadNodeMovedTooFar(roadSegment.RoadSegmentId, roadNodeId, maximumDistance);
+                problems += new RoadSegmentChangeGeometryRoadNodeMovedTooFar(roadNodeId, maximumDistance);
                 continue;
             }
 
@@ -233,7 +244,7 @@ public partial class ScopedRoadNetwork
                 .FirstOrDefault(x => x.Geometry.Value.Coordinate.Distance(endpoint.New) < minimumDistance);
             if (tooCloseRoadNode is not null)
             {
-                problems += new RoadSegmentChangeGeometryPointTooCloseToRoadNode(roadSegment.RoadSegmentId, tooCloseRoadNode.RoadNodeId, minimumDistance);
+                problems += new RoadSegmentChangeGeometryPointTooCloseToRoadNode(tooCloseRoadNode.RoadNodeId, minimumDistance);
                 continue;
             }
 
@@ -248,7 +259,7 @@ public partial class ScopedRoadNetwork
             var moved = movedRoadNodes.ToArray();
             if (moved[0].Value.Distance(moved[1].Value) < minimumDistance)
             {
-                problems += new RoadSegmentChangeGeometryPointTooCloseToRoadNode(roadSegment.RoadSegmentId, moved[1].Key, minimumDistance);
+                problems += new RoadSegmentChangeGeometryPointTooCloseToRoadNode(moved[1].Key, minimumDistance);
             }
         }
 

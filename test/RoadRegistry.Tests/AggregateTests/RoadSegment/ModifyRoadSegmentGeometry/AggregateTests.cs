@@ -352,8 +352,14 @@ public class AggregateTests : AggregateTestBase
         var result = roadNetwork.ModifyRoadSegmentGeometry(
             BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), false, IdGenerator(), TestData.Provenance);
 
-        result.Problems.Should().ContainSingle()
-            .Which.Reason.Should().Be("RoadSegmentChangeGeometryMeasuredNotAllowed");
+        var problem = result.Problems.Should().ContainSingle().Subject;
+        problem.Reason.Should().Be("RoadSegmentChangeGeometryMeasuredNotAllowed");
+
+        // The problem names the segment that is actually measured - the connected one - not the segment the request
+        // was about. Reporting it under the requested segment's identifier would point at the wrong road.
+        problem.Parameters.Should().ContainSingle(x => x.Name == "WegsegmentId")
+            .Which.Value.Should().Be(SegmentBId.ToString());
+
         roadNetwork.RoadSegments[new RoadSegmentId(SegmentBId)].GetChanges().Should().BeEmpty();
         roadNetwork.RoadNodes[new RoadNodeId(2)].GetChanges().Should().BeEmpty();
     }
@@ -386,8 +392,12 @@ public class AggregateTests : AggregateTestBase
                 Geometry = BuildGeometry((0, 0), (110, 0))
             }, true, IdGenerator(), TestData.Provenance);
 
-        result.Problems.Should().ContainSingle()
-            .Which.Reason.Should().Be("RoadSegmentNotFound");
+        var problem = result.Problems.Should().ContainSingle().Subject;
+        problem.Reason.Should().Be("RoadSegmentNotFound");
+
+        // The error itself carries no identifier: it comes from the context the problems are collected under.
+        problem.Parameters.Should().ContainSingle(x => x.Name == "WegsegmentId")
+            .Which.Value.Should().Be("999");
     }
 
     [Fact]

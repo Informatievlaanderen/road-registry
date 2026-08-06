@@ -1,15 +1,15 @@
 namespace RoadRegistry.ValueObjects.Problems;
 
 using ProblemCodes;
-using RoadRegistry.RoadSegment.ValueObjects;
 
+// VAL-4: the geometry can only be changed on a road segment with status 'gepland', 'gerealiseerd' or
+// 'buiten gebruik'. Which road segment it concerns comes from the problem context.
 public class RoadSegmentChangeGeometryStatusNotValid : Error
 {
     public static readonly ProblemCode ProblemCode = ProblemCode.RoadSegment.ChangeGeometry.StatusNotValid;
 
-    public RoadSegmentChangeGeometryStatusNotValid(RoadSegmentId identifier)
-        : base(ProblemCode.ToString(),
-            new ProblemParameter("Identifier", identifier.ToString()))
+    public RoadSegmentChangeGeometryStatusNotValid()
+        : base(ProblemCode.ToString())
     {
     }
 }

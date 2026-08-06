@@ -1,17 +1,15 @@
 namespace RoadRegistry.ValueObjects.Problems;
 
 using ProblemCodes;
-using RoadRegistry.RoadSegment.ValueObjects;
 
 // VAL-35: attribute values can only be changed on a road segment with status 'gepland', 'gerealiseerd' or
-// 'buiten gebruik'.
+// 'buiten gebruik'. Which road segment it concerns comes from the problem context.
 public class RoadSegmentChangeAttributesStatusNotValid : Error
 {
     public static readonly ProblemCode ProblemCode = ProblemCode.RoadSegment.ChangeAttributes.StatusNotValid;
 
-    public RoadSegmentChangeAttributesStatusNotValid(RoadSegmentId identifier)
-        : base(ProblemCode.ToString(),
-            new ProblemParameter("Identifier", identifier.ToString()))
+    public RoadSegmentChangeAttributesStatusNotValid()
+        : base(ProblemCode.ToString())
     {
     }
 }

@@ -68,17 +68,21 @@ public partial class ScopedRoadNetwork
                 continue;
             }
 
+            // Everything reported below is about this one road segment, so it is collected under its context: every
+            // error then identifies the segment the same way, whatever it is about.
+            var roadSegmentProblems = Problems.WithContext(change.RoadSegmentIdReference);
+
             // A segment that has not completed its inwinning carries no dynamically segmented attributes to change.
             if (!roadSegment.HasMigrated())
             {
-                problems += new RoadSegmentNotCompletedInwinning(roadSegmentId);
+                problems += roadSegmentProblems + new RoadSegmentNotCompletedInwinning();
                 continue;
             }
 
             // VAL-35
             if (!ModifyAttributesAllowedStatuses.Contains(roadSegment.Status))
             {
-                problems += new RoadSegmentChangeAttributesStatusNotValid(roadSegmentId);
+                problems += roadSegmentProblems + new RoadSegmentChangeAttributesStatusNotValid();
             }
         }
 

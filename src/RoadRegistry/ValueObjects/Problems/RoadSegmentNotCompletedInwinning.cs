@@ -9,6 +9,13 @@ public class RoadSegmentNotCompletedInwinning : Error
 {
     private static readonly ProblemCode ProblemCode = ProblemCode.RoadSegment.NotCompletedInwinning;
 
+    // For callers that collect their problems under the road segment's context, which supplies the identifier.
+    public RoadSegmentNotCompletedInwinning()
+        : base(ProblemCode.ToString())
+    {
+    }
+
+    // For callers without such a context, e.g. the API request validators.
     public RoadSegmentNotCompletedInwinning(RoadSegmentId identifier)
         : base(ProblemCode.ToString(),
             new ProblemParameter("WegsegmentId", identifier.ToInt32().ToString()))
