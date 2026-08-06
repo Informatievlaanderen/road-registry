@@ -8,4 +8,13 @@ public static class Distances
     public static readonly double MinimumDistanceBetweenVertices = 0.15;
     public static readonly double RoadSegmentSplitMaximumDistanceToRoadSegment = 1.0; // 1 meter
     public static readonly double RoadSegmentSplitMinimumDistanceToRoadNode = 1.0; // 1 meter
+
+    // Changing a road segment geometry drags the road nodes on its endpoints along with it. A moved endpoint has to
+    // stay at least this far away from any other road node, otherwise two nodes end up on top of each other.
+    public static readonly double RoadSegmentChangeGeometryMinimumDistanceToRoadNode = 1.0; // 1 meter
+
+    // ...and it may not drag a node arbitrarily far. An 'eindknoop' terminates a road and can legitimately be
+    // extended over a longer distance; a node that other segments hang off may not wander.
+    public static readonly double RoadNodeMaximumMoveDistance = 20.0; // 20 meters
+    public static readonly double EndRoadNodeMaximumMoveDistance = 100.0; // 100 meters
 }

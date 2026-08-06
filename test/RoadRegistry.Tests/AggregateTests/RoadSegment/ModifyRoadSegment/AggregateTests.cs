@@ -36,7 +36,7 @@ public class AggregateTests : AggregateTestBase
             RoadNode.Create(TestData.Segment1StartNodeAdded),
             RoadNode.Create(TestData.Segment1EndNodeAdded)
         ], [], []);
-        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, TestData.Provenance);
 
         // Act
         var problems = segment.Modify(change, roadNetworkContext);
@@ -80,7 +80,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         var roadNetwork = new RoadNetworkBuilder(new InMemoryRoadNetworkIdGenerator()).Build();
-        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, TestData.Provenance);
 
         // Act
         var problems = segment.Modify(change, roadNetworkContext);
@@ -123,7 +123,7 @@ public class AggregateTests : AggregateTestBase
             RoadNode.Create(TestData.Segment1StartNodeAdded),
             RoadNode.Create(TestData.Segment1EndNodeAdded)
         ], [], []);
-        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, new IdentifierTranslator(), TestData.Provenance);
+        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, TestData.Provenance);
 
         // Act
         var problems = segment.Modify(change, roadNetworkContext);
@@ -157,7 +157,6 @@ public class AggregateTests : AggregateTestBase
                     Geometry = RoadNodeGeometry.Create(change.Geometry.Value.GetSingleLineString().EndPoint)
                 })
             ], [], []),
-            new IdentifierTranslator(),
             TestData.Provenance);
 
         // Act

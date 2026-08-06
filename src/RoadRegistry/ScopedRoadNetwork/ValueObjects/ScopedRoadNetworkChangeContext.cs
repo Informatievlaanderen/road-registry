@@ -15,10 +15,13 @@ public class ScopedRoadNetworkChangeContext
     public VerificationContextTolerances Tolerances => VerificationContextTolerances.Cm;
     public IEventOrdinalProvider OrdinalProvider { get; }
 
-    public ScopedRoadNetworkChangeContext(ScopedRoadNetwork roadNetwork, IIdentifierTranslator idTranslator, Provenance provenance, ILogger? logger = null)
+    // The identifier translator is owned by the context rather than passed in: it maps the temporary identifiers of
+    // one change onto the permanent ones handed out while applying it, so it only ever makes sense per change - which
+    // is exactly the lifetime of this context.
+    public ScopedRoadNetworkChangeContext(ScopedRoadNetwork roadNetwork, Provenance provenance, ILogger? logger = null)
     {
         RoadNetwork = roadNetwork;
-        IdTranslator = idTranslator;
+        IdTranslator = new IdentifierTranslator();
         Provenance = provenance;
         Summary = new RoadNetworkChangesSummary();
         Logger = logger ?? NullLogger.Instance;

@@ -33,8 +33,7 @@ public partial class ScopedRoadNetwork
         logger ??= NullLogger.Instance;
         using var _ = logger.TimeAction();
 
-        var idTranslator = new IdentifierTranslator();
-        var context = new ScopedRoadNetworkChangeContext(this, idTranslator, provenance, logger);
+        var context = new ScopedRoadNetworkChangeContext(this, provenance, logger);
 
         var problems = ValidateRoadSegments(changes);
         if (problems.HasError())
@@ -69,17 +68,21 @@ public partial class ScopedRoadNetwork
                 continue;
             }
 
+            // Everything reported below is about this one road segment, so it is collected under its context: every
+            // error then identifies the segment the same way, whatever it is about.
+            var roadSegmentProblems = Problems.WithContext(change.RoadSegmentIdReference);
+
             // A segment that has not completed its inwinning carries no dynamically segmented attributes to change.
             if (!roadSegment.HasMigrated())
             {
-                problems += new RoadSegmentNotCompletedInwinning(roadSegmentId);
+                problems += roadSegmentProblems + new RoadSegmentNotCompletedInwinning();
                 continue;
             }
 
             // VAL-35
             if (!ModifyAttributesAllowedStatuses.Contains(roadSegment.Status))
             {
-                problems += new RoadSegmentChangeAttributesStatusNotValid(roadSegmentId);
+                problems += roadSegmentProblems + new RoadSegmentChangeAttributesStatusNotValid();
             }
         }
 

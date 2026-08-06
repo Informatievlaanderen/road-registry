@@ -18,6 +18,35 @@ public class ProblemTranslatorTests
         _testOutputHelper = testOutputHelper;
     }
 
+    public static TheoryData<string> GeometryProblemCodesRaisedWithoutAnIdentifier =>
+    [
+        ProblemCode.RoadSegment.Geometry.VerticesTooClose.ToString(),
+        ProblemCode.RoadSegment.Geometry.LineCountMismatch.ToString(),
+        ProblemCode.RoadSegment.Geometry.StartEqualsEnd.ToString()
+    ];
+
+    [Theory]
+    [MemberData(nameof(GeometryProblemCodesRaisedWithoutAnIdentifier))]
+    public void GeometryProblemsAreTranslatedWhicheverIdentifierTheyCarry(string problemCode)
+    {
+        // ValidateRoadSegmentGeometryDomainV2 raises these bare; they pick up a WegsegmentId when collected under a
+        // road segment's problem context, and older callers pass an Identifier. Reading a parameter that is not there
+        // throws, which would turn a validation error into a failure to report it at all.
+        var translator = WellKnownProblemTranslators.Default;
+
+        string Translate(params ProblemParameter[] parameters) =>
+            translator.Translate(new Problem
+            {
+                Severity = ProblemSeverity.Error,
+                Reason = problemCode,
+                Parameters = parameters
+            }).Message;
+
+        Assert.Contains("id 1", Translate(new ProblemParameter("WegsegmentId", "1")));
+        Assert.Contains("id 2", Translate(new ProblemParameter("Identifier", "2")));
+        Assert.False(string.IsNullOrWhiteSpace(Translate()));
+    }
+
     [Fact]
     public void EnsureAllProblemCodeHaveADutchTranslation()
     {
@@ -205,7 +234,31 @@ public class ProblemTranslatorTests
             },
             {
                 ProblemCode.RoadSegment.ChangeAttributes.StatusNotValid, [
-                    new ProblemParameter("Identifier", "1")
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.StatusNotValid, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.MeasuredNotAllowed, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.PointTooCloseToRoadNode, [
+                    new ProblemParameter("WegsegmentId", "1"),
+                    new ProblemParameter("RoadNodeId", "1"),
+                    new ProblemParameter("MinimumDistance", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.RoadNodeMovedTooFar, [
+                    new ProblemParameter("WegsegmentId", "1"),
+                    new ProblemParameter("RoadNodeId", "1"),
+                    new ProblemParameter("MaximumDistance", "20")
                 ]
             },
             {

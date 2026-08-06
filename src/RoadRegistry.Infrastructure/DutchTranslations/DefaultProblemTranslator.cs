@@ -426,8 +426,11 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                         : "De lengte van het wegsegment is 0.")
             },
             {
-                ProblemCode.RoadSegment.Geometry.LineCountMismatch, problem => new(problem.Severity, problem.Reason,
-                    $"De geometrie van het wegsegment met id {problem.GetParameterValue("Identifier")} heeft meer lijnen dan verwacht.")
+                ProblemCode.RoadSegment.Geometry.LineCountMismatch, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")
+                    ? $"De geometrie van het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft meer lijnen dan verwacht."
+                    : problem.HasParameter("Identifier")
+                        ? $"De geometrie van het wegsegment met id {problem.GetParameterValue("Identifier")} heeft meer lijnen dan verwacht."
+                        : "De geometrie van het wegsegment heeft meer lijnen dan verwacht.")
             },
             {
                 ProblemCode.RoadSegment.Geometry.SelfIntersects, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
@@ -462,8 +465,11 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     "De opgegeven geometrie heeft niet het coördinatenstelsel Lambert 2008.")
             },
             {
-                ProblemCode.RoadSegment.Geometry.StartEqualsEnd, problem => new(problem.Severity, problem.Reason,
-                    $"Het begin- en eindvertex van het wegsegment met {GetRoadSegmentIdLabel(problem)} zijn hetzelfde.")
+                ProblemCode.RoadSegment.Geometry.StartEqualsEnd, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")
+                    ? $"Het begin- en eindvertex van het wegsegment met {GetRoadSegmentIdLabel(problem)} zijn hetzelfde."
+                    : problem.HasParameter("Identifier")
+                        ? $"Het begin- en eindvertex van het wegsegment met id {problem.GetParameterValue("Identifier")} zijn hetzelfde."
+                        : "Het begin- en eindvertex van het wegsegment zijn hetzelfde.")
             },
             {
                 ProblemCode.RoadSegment.Geometry.Taken, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")
@@ -471,8 +477,11 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     : $"De geometrie werd reeds ingenomen door een ander wegsegment met {problem.Parameters[0].Value}.")
             },
             {
-                ProblemCode.RoadSegment.Geometry.VerticesTooClose, problem => new(problem.Severity, problem.Reason,
-                    $"De afstand tussen de vertices van de geometrie van wegsegment met id {problem.GetParameterValue("Identifier")} bedraagt niet overal 15cm of meer.")
+                ProblemCode.RoadSegment.Geometry.VerticesTooClose, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")
+                    ? $"De afstand tussen de vertices van de geometrie van het wegsegment met {GetRoadSegmentIdLabel(problem)} bedraagt niet overal 15cm of meer."
+                    : problem.HasParameter("Identifier")
+                        ? $"De afstand tussen de vertices van de geometrie van wegsegment met id {problem.GetParameterValue("Identifier")} bedraagt niet overal 15cm of meer."
+                        : "De afstand tussen de vertices van de geometrie bedraagt niet overal 15cm of meer.")
             },
             {
                 ProblemCode.RoadSegment.Geometry.HasCoordinatesMorePreciseThanCm, problem => new(problem.Severity, "GeometrieCoordinatenNauwkeurigerDanCentimeter",
@@ -607,7 +616,23 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.RoadSegment.ChangeAttributes.StatusNotValid, problem => new(problem.Severity, "WegsegmentAttribuutWaardenStatusNietCorrect",
-                    $"Wegsegment {problem.GetParameterValue("Identifier")} heeft een status die verschilt van 'gepland', 'gerealiseerd' of 'buiten gebruik'.")
+                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft een status die verschilt van 'gepland', 'gerealiseerd' of 'buiten gebruik'.")
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.StatusNotValid, problem => new(problem.Severity, "WegsegmentGeometrieStatusNietCorrect",
+                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft een status die verschilt van 'gepland', 'gerealiseerd' of 'buiten gebruik'.")
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.MeasuredNotAllowed, problem => new(problem.Severity, "WegsegmentGeometrieIngemetenNietToegelaten",
+                    $"U heeft niet de machtigingen om deze actie uit te voeren voor (aansluitende) wegsegmenten met geometriemethode 'ingemeten'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingemeten.")
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.PointTooCloseToRoadNode, problem => new(problem.Severity, "WegsegmentGeometriePuntTeDichtBijWegknoop",
+                    $"Het start- of eindpunt van het wegsegment met {GetRoadSegmentIdLabel(problem)} ligt te dicht (<{problem.GetParameterValue("MinimumDistance")}m) bij wegknoop {problem.GetParameterValue("RoadNodeId")}.")
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.RoadNodeMovedTooFar, problem => new(problem.Severity, "WegsegmentGeometrieWegknoopTeVerVerplaatst",
+                    $"Het nieuwe start- of eindpunt van het wegsegment met {GetRoadSegmentIdLabel(problem)} ligt te ver (>{problem.GetParameterValue("MaximumDistance")}m) van het oude start- of eindpunt, wegknoop {problem.GetParameterValue("RoadNodeId")}.")
             },
             {
                 ProblemCode.RoadSegment.Split.NotFound, problem => new(problem.Severity, "WegsegmentNietGevondenOfVerwijderd",

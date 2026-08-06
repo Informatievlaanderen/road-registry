@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.ScopedRoadNetwork;
+namespace RoadRegistry.ScopedRoadNetwork;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -62,8 +62,7 @@ public partial class ScopedRoadNetwork
         }
         problems.ThrowIfError();
 
-        var idTranslator = new IdentifierTranslator();
-        var context = new ScopedRoadNetworkChangeContext(this, idTranslator, provenance, logger);
+        var context = new ScopedRoadNetworkChangeContext(this, provenance, logger);
 
         var lineString = segment.Geometry.Value.GetSingleLineString();
         var totalLength = lineString.Length;

@@ -204,7 +204,7 @@ public class WegknoopV2DetailResponseExamples : IExamplesProvider<WegknoopV2Deta
                 [
                     new WegknoopGeometrieProjectie
                     {
-                        Gml = geometry.EnsureLambert08().ConvertToGml(useHttpsSchema: false)
+                        Gml = geometry.EnsureLambert08().ConvertToGml(useHttpsSchema: false, coordinatePrecision: Precisions.GeometryPrecisionV2)
                     },
                     new WegknoopGeometrieProjectie
                     {

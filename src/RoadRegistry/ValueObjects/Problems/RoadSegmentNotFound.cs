@@ -10,7 +10,7 @@ public class RoadSegmentNotFound : Error
     }
 
     public RoadSegmentNotFound(RoadSegmentId segmentId)
-        : base(ProblemCode.RoadSegment.NotFound,
+        : base(ProblemCode.RoadSegment.NotFound.ToString(),
             new ProblemParameter("SegmentId", segmentId.ToInt32().ToString()))
     {
     }

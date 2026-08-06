@@ -338,6 +338,14 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode StatusNotValid = new("RoadSegmentChangeAttributesStatusNotValid");
         }
 
+        public static class ChangeGeometry
+        {
+            public static readonly ProblemCode StatusNotValid = new("RoadSegmentChangeGeometryStatusNotValid");
+            public static readonly ProblemCode MeasuredNotAllowed = new("RoadSegmentChangeGeometryMeasuredNotAllowed");
+            public static readonly ProblemCode PointTooCloseToRoadNode = new("RoadSegmentChangeGeometryPointTooCloseToRoadNode");
+            public static readonly ProblemCode RoadNodeMovedTooFar = new("RoadSegmentChangeGeometryRoadNodeMovedTooFar");
+        }
+
         public static class Split
         {
             public static readonly ProblemCode NotFound = new("RoadSegmentSplitNotFound");

@@ -755,10 +755,9 @@ public class CreateOutlinedRoadSegmentV2ParametersExamples : IExamplesProvider<C
             new(243279.0160000026, 160244.1570000015),
         ]), WellknownSrids.Lambert72);
 
-
         return new CreateOutlinedRoadSegmentV2Parameters
         {
-            WegsegmentGeometrie = geometry.EnsureLambert08().ConvertToGml(useHttpsSchema: false),
+            WegsegmentGeometrie = geometry.EnsureLambert08().ConvertToGml(useHttpsSchema: false, coordinatePrecision: Precisions.GeometryPrecisionV2),
             Wegsegmentstatus = RoadSegmentStatusV2.Gepland.ToDutchString(),
             Straatnaam = [
                 new IngeschetstWegsegmentStraatnaamAttribuutWaarde
