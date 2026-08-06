@@ -426,8 +426,11 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                         : "De lengte van het wegsegment is 0.")
             },
             {
-                ProblemCode.RoadSegment.Geometry.LineCountMismatch, problem => new(problem.Severity, problem.Reason,
-                    $"De geometrie van het wegsegment met id {problem.GetParameterValue("Identifier")} heeft meer lijnen dan verwacht.")
+                ProblemCode.RoadSegment.Geometry.LineCountMismatch, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")
+                    ? $"De geometrie van het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft meer lijnen dan verwacht."
+                    : problem.HasParameter("Identifier")
+                        ? $"De geometrie van het wegsegment met id {problem.GetParameterValue("Identifier")} heeft meer lijnen dan verwacht."
+                        : "De geometrie van het wegsegment heeft meer lijnen dan verwacht.")
             },
             {
                 ProblemCode.RoadSegment.Geometry.SelfIntersects, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
@@ -462,8 +465,11 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     "De opgegeven geometrie heeft niet het coördinatenstelsel Lambert 2008.")
             },
             {
-                ProblemCode.RoadSegment.Geometry.StartEqualsEnd, problem => new(problem.Severity, problem.Reason,
-                    $"Het begin- en eindvertex van het wegsegment met {GetRoadSegmentIdLabel(problem)} zijn hetzelfde.")
+                ProblemCode.RoadSegment.Geometry.StartEqualsEnd, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")
+                    ? $"Het begin- en eindvertex van het wegsegment met {GetRoadSegmentIdLabel(problem)} zijn hetzelfde."
+                    : problem.HasParameter("Identifier")
+                        ? $"Het begin- en eindvertex van het wegsegment met id {problem.GetParameterValue("Identifier")} zijn hetzelfde."
+                        : "Het begin- en eindvertex van het wegsegment zijn hetzelfde.")
             },
             {
                 ProblemCode.RoadSegment.Geometry.Taken, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")

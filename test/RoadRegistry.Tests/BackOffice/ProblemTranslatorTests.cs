@@ -18,19 +18,27 @@ public class ProblemTranslatorTests
         _testOutputHelper = testOutputHelper;
     }
 
-    [Fact]
-    public void VerticesTooCloseIsTranslatedWhicheverIdentifierItCarries()
+    public static TheoryData<string> GeometryProblemCodesRaisedWithoutAnIdentifier =>
+    [
+        ProblemCode.RoadSegment.Geometry.VerticesTooClose.ToString(),
+        ProblemCode.RoadSegment.Geometry.LineCountMismatch.ToString(),
+        ProblemCode.RoadSegment.Geometry.StartEqualsEnd.ToString()
+    ];
+
+    [Theory]
+    [MemberData(nameof(GeometryProblemCodesRaisedWithoutAnIdentifier))]
+    public void GeometryProblemsAreTranslatedWhicheverIdentifierTheyCarry(string problemCode)
     {
-        // ValidateRoadSegmentGeometryDomainV2 raises this one bare; it picks up a WegsegmentId when it is collected
-        // under a road segment's problem context, and older callers pass an Identifier. Reading a parameter that is
-        // not there throws, which would turn a validation error into a failure to report it at all.
+        // ValidateRoadSegmentGeometryDomainV2 raises these bare; they pick up a WegsegmentId when collected under a
+        // road segment's problem context, and older callers pass an Identifier. Reading a parameter that is not there
+        // throws, which would turn a validation error into a failure to report it at all.
         var translator = WellKnownProblemTranslators.Default;
 
         string Translate(params ProblemParameter[] parameters) =>
             translator.Translate(new Problem
             {
                 Severity = ProblemSeverity.Error,
-                Reason = ProblemCode.RoadSegment.Geometry.VerticesTooClose,
+                Reason = problemCode,
                 Parameters = parameters
             }).Message;
 

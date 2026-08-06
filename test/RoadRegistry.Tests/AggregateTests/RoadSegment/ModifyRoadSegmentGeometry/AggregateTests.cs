@@ -320,6 +320,87 @@ public class AggregateTests : AggregateTestBase
         roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)].GetChanges().Should().BeEmpty();
     }
 
+    // Segment A plus an unrelated segment B hanging off its own node 10m further east, so a move of A's end vertex can
+    // be aimed at node 3.
+    private ScopedRoadNetwork BuildNetworkWithASeparateSegmentNearby()
+    {
+        var startNodeA = BuildNode(1, 0, 0, RoadNodeTypeV2.Eindknoop);
+        var endNodeA = BuildNode(2, 100, 0, RoadNodeTypeV2.Eindknoop);
+        var startNodeB = BuildNode(3, 110, 0, RoadNodeTypeV2.Eindknoop);
+        var endNodeB = BuildNode(4, 110, 100, RoadNodeTypeV2.Eindknoop);
+
+        return BuildNetwork(
+            [startNodeA, endNodeA, startNodeB, endNodeB],
+            [
+                BuildSegment(SegmentAId, startNodeA, endNodeA, BuildGeometry((0, 0), (100, 0))),
+                BuildSegment(SegmentBId, startNodeB, endNodeB, BuildGeometry((110, 0), (110, 100)))
+            ]);
+    }
+
+    [Fact]
+    public void WhenTheNewEndVertexLandsExactlyOnAnotherRoadNode_ThenError()
+    {
+        // The sharpest form of VAL-21: not merely close to another node but exactly on it, which would silently
+        // reconnect the segment to a different node.
+        var roadNetwork = BuildNetworkWithASeparateSegmentNearby();
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().ContainSingle()
+            .Which.Reason.Should().Be("RoadSegmentChangeGeometryPointTooCloseToRoadNode");
+        roadNetwork.RoadNodes[new RoadNodeId(2)].GetChanges().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void WhenTheNewEndVertexIsExactlyTheMinimumDistanceFromAnotherRoadNode_ThenItIsAccepted()
+    {
+        // The boundary of the same rule: a metre of clearance is enough. Rejecting this would block legitimate edits
+        // without any test noticing.
+        var roadNetwork = BuildNetworkWithASeparateSegmentNearby();
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (109, 0))), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+        roadNetwork.RoadNodes[new RoadNodeId(2)].Geometry.Value.Coordinate.X.Should().Be(109);
+    }
+
+    [Fact]
+    public void WhenTheRoadNodeIsDraggedExactlyTheMaximumDistance_ThenItIsAccepted()
+    {
+        // The boundary of VAL-22: a 'validatieknoop' may travel 20m, so exactly 20m is still allowed.
+        var startNode = BuildNode(1, 0, 0, RoadNodeTypeV2.Eindknoop);
+        var endNode = BuildNode(2, 100, 0, RoadNodeTypeV2.Validatieknoop);
+        var roadNetwork = BuildNetwork(
+            [startNode, endNode],
+            [BuildSegment(SegmentAId, startNode, endNode, BuildGeometry((0, 0), (100, 0)))]);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (120, 0))), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+        roadNetwork.RoadNodes[new RoadNodeId(2)].Geometry.Value.Coordinate.X.Should().Be(120);
+    }
+
+    [Fact]
+    public void WhenTheSegmentSitsOnNoRoadNodeAtAll_ThenNothingIsDragged()
+    {
+        // A 'gepland' segment is not knotted into the network yet, so its geometry moves on its own.
+        var geometry = BuildGeometry((0, 0), (100, 0));
+        var segment = BuildSegment(SegmentAId, BuildNode(1, 0, 0), BuildNode(2, 100, 0), geometry, status: RoadSegmentStatusV2.Gepland)
+            with { StartNodeId = null, EndNodeId = null };
+
+        var roadNetwork = BuildNetwork([], [segment]);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+        result.Summary.RoadNodes.Modified.Should().BeEmpty();
+        result.Summary.RoadSegments.Modified.Should().ContainSingle().Which.Should().Be(new RoadSegmentId(SegmentAId));
+    }
+
     [Fact]
     public void WhenTheSegmentIsMeasuredAndTheCallerMayNotEditMeasuredSegments_ThenError()
     {

@@ -202,16 +202,12 @@ public partial class ScopedRoadNetwork
         var currentLine = roadSegment.Geometry.Value.GetSingleLineString();
         var newLine = newGeometry.Value.GetSingleLineString();
 
-        // Only the endpoints that actually sit on a road node: the guard above rules out a segment connected to
-        // nothing, but not one connected on a single side.
+        // A road segment carries both node identifiers or neither, and the guard above returned on neither.
         var endpoints = new[]
         {
-            (RoadNodeId: roadSegment.StartNodeId, Current: currentLine.Coordinates[0], New: newLine.Coordinates[0]),
-            (RoadNodeId: roadSegment.EndNodeId, Current: currentLine.Coordinates[^1], New: newLine.Coordinates[^1])
-        }
-            .Where(x => x.RoadNodeId is not null)
-            .Select(x => (RoadNodeId: x.RoadNodeId!.Value, x.Current, x.New))
-            .ToArray();
+            (RoadNodeId: roadSegment.StartNodeId!.Value, Current: currentLine.Coordinates[0], New: newLine.Coordinates[0]),
+            (RoadNodeId: roadSegment.EndNodeId!.Value, Current: currentLine.Coordinates[^1], New: newLine.Coordinates[^1])
+        };
 
         // The road nodes this change is about to move - at most the segment's own two endpoints. They are held out of
         // the proximity check below, because the spatial index still has them where they are now rather than where
