@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.ScopedRoadNetwork;
+namespace RoadRegistry.ScopedRoadNetwork;
 
 using System;
 using System.Collections.Generic;
@@ -25,8 +25,7 @@ public partial class ScopedRoadNetwork
         logger ??= NullLogger.Instance;
         using var _ = logger.TimeAction();
 
-        var idTranslator = new IdentifierTranslator();
-        var context = new ScopedRoadNetworkChangeContext(this, idTranslator, changes.Provenance, logger);
+        var context = new ScopedRoadNetworkChangeContext(this, changes.Provenance, logger);
 
         var problems = ApplyMigrateChanges(changes, idGenerator, context);
 

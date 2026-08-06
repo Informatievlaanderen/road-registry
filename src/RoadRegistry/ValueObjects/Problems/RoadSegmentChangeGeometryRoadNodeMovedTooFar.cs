@@ -11,7 +11,7 @@ public class RoadSegmentChangeGeometryRoadNodeMovedTooFar : Error
     public static readonly ProblemCode ProblemCode = ProblemCode.RoadSegment.ChangeGeometry.RoadNodeMovedTooFar;
 
     public RoadSegmentChangeGeometryRoadNodeMovedTooFar(RoadSegmentId identifier, RoadNodeId roadNodeId, double maximumDistance)
-        : base(ProblemCode,
+        : base(ProblemCode.ToString(),
             new ProblemParameter("Identifier", identifier.ToString()),
             new ProblemParameter("RoadNodeId", roadNodeId.ToString()),
             new ProblemParameter("MaximumDistance", maximumDistance.ToInvariantString()))

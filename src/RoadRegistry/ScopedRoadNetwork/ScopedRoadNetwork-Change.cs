@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.ScopedRoadNetwork;
+namespace RoadRegistry.ScopedRoadNetwork;
 
 using System;
 using System.Collections.Generic;
@@ -30,8 +30,7 @@ public partial class ScopedRoadNetwork
         // Ensure spatial indexes are built once at the start for optimal performance
         RebuildSpatialIndexes(logger);
 
-        var idTranslator = new IdentifierTranslator();
-        var context = new ScopedRoadNetworkChangeContext(this, idTranslator, changes.Provenance, logger);
+        var context = new ScopedRoadNetworkChangeContext(this, changes.Provenance, logger);
 
         var problems = ApplyChanges(changes, idGenerator, context);
 

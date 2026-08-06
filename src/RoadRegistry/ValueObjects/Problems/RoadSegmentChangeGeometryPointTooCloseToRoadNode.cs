@@ -11,7 +11,7 @@ public class RoadSegmentChangeGeometryPointTooCloseToRoadNode : Error
     public static readonly ProblemCode ProblemCode = ProblemCode.RoadSegment.ChangeGeometry.PointTooCloseToRoadNode;
 
     public RoadSegmentChangeGeometryPointTooCloseToRoadNode(RoadSegmentId identifier, RoadNodeId roadNodeId, double minimumDistance)
-        : base(ProblemCode,
+        : base(ProblemCode.ToString(),
             new ProblemParameter("Identifier", identifier.ToString()),
             new ProblemParameter("RoadNodeId", roadNodeId.ToString()),
             new ProblemParameter("MinimumDistance", minimumDistance.ToInvariantString()))

@@ -10,7 +10,7 @@ public class RoadSegmentChangeAttributesStatusNotValid : Error
     public static readonly ProblemCode ProblemCode = ProblemCode.RoadSegment.ChangeAttributes.StatusNotValid;
 
     public RoadSegmentChangeAttributesStatusNotValid(RoadSegmentId identifier)
-        : base(ProblemCode,
+        : base(ProblemCode.ToString(),
             new ProblemParameter("Identifier", identifier.ToString()))
     {
     }

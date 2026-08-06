@@ -387,7 +387,7 @@ public class AggregateTests : AggregateTestBase
             }, true, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().ContainSingle()
-            .Which.Reason.Should().Be("RoadSegmentChangeGeometryNotFound");
+            .Which.Reason.Should().Be("RoadSegmentNotFound");
     }
 
     [Fact]

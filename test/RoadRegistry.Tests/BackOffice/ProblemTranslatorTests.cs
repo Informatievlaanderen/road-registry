@@ -209,11 +209,6 @@ public class ProblemTranslatorTests
                 ]
             },
             {
-                ProblemCode.RoadSegment.ChangeGeometry.NotFound, [
-                    new ProblemParameter("Identifier", "1")
-                ]
-            },
-            {
                 ProblemCode.RoadSegment.ChangeGeometry.StatusNotValid, [
                     new ProblemParameter("Identifier", "1")
                 ]

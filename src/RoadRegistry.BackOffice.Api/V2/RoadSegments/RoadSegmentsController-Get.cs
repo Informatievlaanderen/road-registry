@@ -792,7 +792,7 @@ public class WegsegmentV2DetailResponseExamples : IExamplesProvider<WegsegmentV2
                 [
                     new WegsegmentGeometrieProjectie
                     {
-                        Gml = geometry.EnsureLambert08().ConvertToGml(useHttpsSchema: false)
+                        Gml = geometry.EnsureLambert08().ConvertToGml(useHttpsSchema: false, coordinatePrecision: Precisions.GeometryPrecisionV2)
                     },
                     new WegsegmentGeometrieProjectie
                     {

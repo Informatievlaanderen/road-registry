@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.ScopedRoadNetwork;
+namespace RoadRegistry.ScopedRoadNetwork;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -84,8 +84,7 @@ public partial class ScopedRoadNetwork
 
         var sharedNodeCoordinate = junction!.Value.Geometry!.Value.Coordinate;
 
-        var idTranslator = new IdentifierTranslator();
-        var context = new ScopedRoadNetworkChangeContext(this, idTranslator, provenance, logger);
+        var context = new ScopedRoadNetworkChangeContext(this, provenance, logger);
 
         // VAL-5: the crossing must lie at least 1m (measured along each segment) from the begin and end node of both
         // segments. Validate both before applying any change.

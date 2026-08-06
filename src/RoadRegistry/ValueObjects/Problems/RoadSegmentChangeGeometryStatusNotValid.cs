@@ -8,7 +8,7 @@ public class RoadSegmentChangeGeometryStatusNotValid : Error
     public static readonly ProblemCode ProblemCode = ProblemCode.RoadSegment.ChangeGeometry.StatusNotValid;
 
     public RoadSegmentChangeGeometryStatusNotValid(RoadSegmentId identifier)
-        : base(ProblemCode,
+        : base(ProblemCode.ToString(),
             new ProblemParameter("Identifier", identifier.ToString()))
     {
     }

@@ -11,7 +11,7 @@ public class RoadSegmentChangeGeometryMeasuredNotAllowed : Error
     public static readonly ProblemCode ProblemCode = ProblemCode.RoadSegment.ChangeGeometry.MeasuredNotAllowed;
 
     public RoadSegmentChangeGeometryMeasuredNotAllowed(RoadSegmentId identifier)
-        : base(ProblemCode,
+        : base(ProblemCode.ToString(),
             new ProblemParameter("Identifier", identifier.ToString()))
     {
     }

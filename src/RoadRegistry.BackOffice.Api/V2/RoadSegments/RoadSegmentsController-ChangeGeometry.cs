@@ -15,6 +15,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using FluentValidation;
 using FluentValidation.Results;
+using Marten;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
+using RoadRegistry.Read.Projections;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.ValueObjects;
 using Swashbuckle.AspNetCore.Annotations;
@@ -42,18 +44,25 @@ public partial class RoadSegmentsController
     /// <param name="idValidator"></param>
     /// <param name="parameters"></param>
     /// <param name="id"></param>
+    /// <param name="store"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het verzoek aanvaard is.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
+    /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
+    /// <response code="410">Als het wegsegment is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost(ChangeGeometryRoute, Name = nameof(ChangeRoadSegmentGeometryV2))]
     [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerResponseHeader(StatusCodes.Status202Accepted, "ETag", JsonSchemaType.String, "De ETag van de response.")]
     [SwaggerResponseHeader(StatusCodes.Status202Accepted, "x-correlation-id", JsonSchemaType.String, "Correlatie identificator van de response.")]
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadSegmentNotFoundResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status410Gone, typeof(RoadSegmentGoneResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerRequestExample(typeof(ChangeRoadSegmentGeometryV2Parameters), typeof(ChangeRoadSegmentGeometryV2ParametersExamples))]
     [SwaggerOperation(OperationId = nameof(ChangeRoadSegmentGeometryV2), Description = "Wijzig de geometrie van een wegsegment. Wegknopen op het start- of eindpunt verplaatsen mee, net als de aansluitende wegsegmenten.")]
@@ -61,6 +70,7 @@ public partial class RoadSegmentsController
         [FromServices] RoadSegmentIdValidator idValidator,
         [FromBody] ChangeRoadSegmentGeometryV2Parameters parameters,
         [FromRoute] int id,
+        [FromServices] IDocumentStore store,
         CancellationToken cancellationToken = default)
     {
         try
@@ -72,6 +82,19 @@ public partial class RoadSegmentsController
             // exist, does it have an editable status, which road nodes and connected segments move along) is validated
             // by the domain, which is the only place that knows the surrounding network.
             var (geometry, attributes) = TranslateAndValidateGeometryChange(parameters);
+
+            await using var session = store.LightweightSession();
+
+            var roadSegment = await session.LoadAsync<RoadSegmentReadItem>(id, cancellationToken);
+            if (roadSegment is null)
+            {
+                return NotFound();
+            }
+
+            if (roadSegment.IsRemoved)
+            {
+                return new StatusCodeResult(StatusCodes.Status410Gone);
+            }
 
             var sqsRequest = new ChangeRoadSegmentGeometryV2SqsRequest
             {
@@ -340,7 +363,7 @@ public class ChangeRoadSegmentGeometryV2ParametersExamples : IExamplesProvider<C
 
         return new ChangeRoadSegmentGeometryV2Parameters
         {
-            WegsegmentGeometrie = geometry.EnsureLambert08().ConvertToGml(useHttpsSchema: false),
+            WegsegmentGeometrie = geometry.EnsureLambert08().ConvertToGml(useHttpsSchema: false, coordinatePrecision: Precisions.GeometryPrecisionV2),
             // Alle verplichte attributen worden meegegeven, ook als ze dezelfde waarde hebben over de volledige
             // lengte: de nieuwe geometrie bepaalt de posities waarop ze van toepassing zijn.
             Morfologie =

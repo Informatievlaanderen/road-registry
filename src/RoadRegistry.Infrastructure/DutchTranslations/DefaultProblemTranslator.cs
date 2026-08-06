@@ -610,10 +610,6 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"Wegsegment {problem.GetParameterValue("Identifier")} heeft een status die verschilt van 'gepland', 'gerealiseerd' of 'buiten gebruik'.")
             },
             {
-                ProblemCode.RoadSegment.ChangeGeometry.NotFound, problem => new(problem.Severity, "WegsegmentNietGevondenOfVerwijderd",
-                    $"Wegsegment {problem.GetParameterValue("Identifier")} bestaat niet of is verwijderd.")
-            },
-            {
                 ProblemCode.RoadSegment.ChangeGeometry.StatusNotValid, problem => new(problem.Severity, "WegsegmentGeometrieStatusNietCorrect",
                     $"Wegsegment {problem.GetParameterValue("Identifier")} heeft een status die verschilt van 'gepland', 'gerealiseerd' of 'buiten gebruik'.")
             },

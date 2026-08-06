@@ -33,8 +33,7 @@ public partial class ScopedRoadNetwork
         logger ??= NullLogger.Instance;
         using var _ = logger.TimeAction();
 
-        var idTranslator = new IdentifierTranslator();
-        var context = new ScopedRoadNetworkChangeContext(this, idTranslator, provenance, logger);
+        var context = new ScopedRoadNetworkChangeContext(this, provenance, logger);
 
         var problems = ValidateRoadSegments(changes);
         if (problems.HasError())

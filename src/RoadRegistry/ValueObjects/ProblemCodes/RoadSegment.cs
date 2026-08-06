@@ -340,7 +340,6 @@ public sealed partial record ProblemCode
 
         public static class ChangeGeometry
         {
-            public static readonly ProblemCode NotFound = new("RoadSegmentChangeGeometryNotFound");
             public static readonly ProblemCode StatusNotValid = new("RoadSegmentChangeGeometryStatusNotValid");
             public static readonly ProblemCode MeasuredNotAllowed = new("RoadSegmentChangeGeometryMeasuredNotAllowed");
             public static readonly ProblemCode PointTooCloseToRoadNode = new("RoadSegmentChangeGeometryPointTooCloseToRoadNode");

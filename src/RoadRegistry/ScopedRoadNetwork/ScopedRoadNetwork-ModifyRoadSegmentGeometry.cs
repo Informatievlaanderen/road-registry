@@ -45,13 +45,12 @@ public partial class ScopedRoadNetwork
         logger ??= NullLogger.Instance;
         using var _ = logger.TimeAction();
 
-        var idTranslator = new IdentifierTranslator();
-        var context = new ScopedRoadNetworkChangeContext(this, idTranslator, provenance, logger);
+        var context = new ScopedRoadNetworkChangeContext(this, provenance, logger);
 
         var roadSegmentId = change.RoadSegmentId;
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
-            return Failed(Problems.Single(new RoadSegmentChangeGeometryNotFound(roadSegmentId)), context);
+            return Failed(Problems.Single(new RoadSegmentNotFound(roadSegmentId)), context);
         }
 
         // Re-validate what the API also checks: the request may have gone stale between being accepted and handled.
