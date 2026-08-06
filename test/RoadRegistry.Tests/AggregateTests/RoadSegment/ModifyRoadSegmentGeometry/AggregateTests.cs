@@ -227,6 +227,57 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
+    public void WhenTheMovedRoadNodeIsTheConnectedSegmentsEndNode_ThenItIsRescaledTheSameWay()
+    {
+        // The mirror of the test above: the moved node is now segment B's END rather than its start, so B is stretched
+        // from the other side. Attribute positions run along the segment from its own start vertex whatever moved, and
+        // the rescale is proportional over the whole length, so the coverages come out at the same numbers. Anchoring
+        // the change on the moved end instead would leave the first coverage at 20.
+        var startNodeA = BuildNode(1, 0, 0, RoadNodeTypeV2.Eindknoop);
+        var sharedNode = BuildNode(2, 100, 0, RoadNodeTypeV2.Validatieknoop);
+        var startNodeB = BuildNode(3, 100, 100, RoadNodeTypeV2.Eindknoop);
+
+        // B runs towards the shared node, so position 0 sits at the far end that stays put.
+        var segmentB = BuildSegment(SegmentBId, startNodeB, sharedNode, BuildGeometry((100, 100), (100, 0)));
+
+        var morphologies = RoadSegmentMorphologyV2.All.Take(2).ToArray();
+        segmentB = segmentB with
+        {
+            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>()
+                .Add(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(20), morphologies[0])
+                .Add(new RoadSegmentPositionV2(20), new RoadSegmentPositionV2(100), morphologies[1])
+        };
+
+        var roadNetwork = BuildNetwork(
+            [startNodeA, sharedNode, startNodeB],
+            [BuildSegment(SegmentAId, startNodeA, sharedNode, BuildGeometry((0, 0), (100, 0))), segmentB]);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+
+        var modifiedB = roadNetwork.RoadSegments[new RoadSegmentId(SegmentBId)];
+        var lineB = modifiedB.Geometry.Value.GetSingleLineString();
+
+        // The start vertex is the one that stayed; the end vertex followed the node.
+        lineB.Coordinates[0].X.Should().Be(100);
+        lineB.Coordinates[0].Y.Should().Be(100);
+        lineB.Coordinates[^1].X.Should().Be(110);
+        lineB.Coordinates[^1].Y.Should().Be(0);
+
+        var newLength = modifiedB.Geometry.Value.Length.RoundToCm();
+        newLength.Should().Be(100.5);
+
+        var coverages = modifiedB.Attributes!.Morphology.Values.OrderBy(x => x.Coverage.From).ToArray();
+        coverages.Should().HaveCount(2);
+        coverages[0].Coverage.From.ToDouble().Should().Be(0);
+        coverages[0].Coverage.To.ToDouble().Should().Be(20.1);
+        coverages[1].Coverage.From.ToDouble().Should().Be(20.1);
+        coverages[1].Coverage.To.ToDouble().Should().Be(newLength);
+    }
+
+    [Fact]
     public void WhenTheRoadNodeWouldBeDraggedTooFar_ThenError()
     {
         // A 'validatieknoop' may travel at most 20m.
