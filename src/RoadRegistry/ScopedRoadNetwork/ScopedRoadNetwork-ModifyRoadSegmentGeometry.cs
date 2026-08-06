@@ -191,7 +191,7 @@ public partial class ScopedRoadNetwork
     {
         if (roadSegment.StartNodeId is null && roadSegment.EndNodeId is null)
         {
-            return ([], Problems.None);
+            return (new Dictionary<RoadNodeId, Coordinate>(), Problems.None);
         }
 
         // Whichever of the two endpoints is at fault, it is this segment being moved, so all of it is reported under
@@ -202,11 +202,16 @@ public partial class ScopedRoadNetwork
         var currentLine = roadSegment.Geometry.Value.GetSingleLineString();
         var newLine = newGeometry.Value.GetSingleLineString();
 
+        // Only the endpoints that actually sit on a road node: the guard above rules out a segment connected to
+        // nothing, but not one connected on a single side.
         var endpoints = new[]
         {
             (RoadNodeId: roadSegment.StartNodeId, Current: currentLine.Coordinates[0], New: newLine.Coordinates[0]),
             (RoadNodeId: roadSegment.EndNodeId, Current: currentLine.Coordinates[^1], New: newLine.Coordinates[^1])
-        };
+        }
+            .Where(x => x.RoadNodeId is not null)
+            .Select(x => (RoadNodeId: x.RoadNodeId!.Value, x.Current, x.New))
+            .ToArray();
 
         // The road nodes this change is about to move - at most the segment's own two endpoints. They are held out of
         // the proximity check below, because the spatial index still has them where they are now rather than where
@@ -214,21 +219,20 @@ public partial class ScopedRoadNetwork
         // and a node moving in from far away is not even returned by a query around the new position. They are
         // compared against each other separately, once both destinations are known.
         var roadNodeIdsBeingMoved = endpoints
-            .Where(x => x.RoadNodeId is not null && !x.Current.Equals2D(x.New))
-            .Select(x => x.RoadNodeId!.Value)
+            .Where(x => !x.Current.Equals2D(x.New))
+            .Select(x => x.RoadNodeId)
             .ToHashSet();
 
         foreach (var endpoint in endpoints)
         {
-            if (endpoint.RoadNodeId is null
-                || endpoint.Current.Equals2D(endpoint.New)
-                || !_roadNodes.TryGetValue(endpoint.RoadNodeId.Value, out var roadNode)
+            if (endpoint.Current.Equals2D(endpoint.New)
+                || !_roadNodes.TryGetValue(endpoint.RoadNodeId, out var roadNode)
                 || roadNode.IsRemoved)
             {
                 continue;
             }
 
-            var roadNodeId = endpoint.RoadNodeId.Value;
+            var roadNodeId = endpoint.RoadNodeId;
 
             // VAL-22
             var maximumDistance = roadNode.Type == RoadNodeTypeV2.Eindknoop

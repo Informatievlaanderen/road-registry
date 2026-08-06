@@ -471,8 +471,11 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     : $"De geometrie werd reeds ingenomen door een ander wegsegment met {problem.Parameters[0].Value}.")
             },
             {
-                ProblemCode.RoadSegment.Geometry.VerticesTooClose, problem => new(problem.Severity, problem.Reason,
-                    $"De afstand tussen de vertices van de geometrie van wegsegment met id {problem.GetParameterValue("Identifier")} bedraagt niet overal 15cm of meer.")
+                ProblemCode.RoadSegment.Geometry.VerticesTooClose, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegsegmentId")
+                    ? $"De afstand tussen de vertices van de geometrie van het wegsegment met {GetRoadSegmentIdLabel(problem)} bedraagt niet overal 15cm of meer."
+                    : problem.HasParameter("Identifier")
+                        ? $"De afstand tussen de vertices van de geometrie van wegsegment met id {problem.GetParameterValue("Identifier")} bedraagt niet overal 15cm of meer."
+                        : "De afstand tussen de vertices van de geometrie bedraagt niet overal 15cm of meer.")
             },
             {
                 ProblemCode.RoadSegment.Geometry.HasCoordinatesMorePreciseThanCm, problem => new(problem.Severity, "GeometrieCoordinatenNauwkeurigerDanCentimeter",

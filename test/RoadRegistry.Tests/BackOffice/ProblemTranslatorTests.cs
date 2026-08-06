@@ -19,6 +19,27 @@ public class ProblemTranslatorTests
     }
 
     [Fact]
+    public void VerticesTooCloseIsTranslatedWhicheverIdentifierItCarries()
+    {
+        // ValidateRoadSegmentGeometryDomainV2 raises this one bare; it picks up a WegsegmentId when it is collected
+        // under a road segment's problem context, and older callers pass an Identifier. Reading a parameter that is
+        // not there throws, which would turn a validation error into a failure to report it at all.
+        var translator = WellKnownProblemTranslators.Default;
+
+        string Translate(params ProblemParameter[] parameters) =>
+            translator.Translate(new Problem
+            {
+                Severity = ProblemSeverity.Error,
+                Reason = ProblemCode.RoadSegment.Geometry.VerticesTooClose,
+                Parameters = parameters
+            }).Message;
+
+        Assert.Contains("id 1", Translate(new ProblemParameter("WegsegmentId", "1")));
+        Assert.Contains("id 2", Translate(new ProblemParameter("Identifier", "2")));
+        Assert.False(string.IsNullOrWhiteSpace(Translate()));
+    }
+
+    [Fact]
     public void EnsureAllProblemCodeHaveADutchTranslation()
     {
         LoadAllProblemCodes();
