@@ -146,10 +146,10 @@ public partial class ScopedRoadNetwork
 
     private Problems AfterChangesApplied(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
     {
-        var problems = VerifyRoadNodesAndUpdateTypeAfterChange(idGenerator, context);
+        var problems = VerifyRoadNodesTopologyAndUpdateTypeAfterChange(idGenerator, context);
 
         problems = problems
-                   + VerifyRoadSegmentsAfterChange(context)
+                   + VerifyRoadSegmentsTopologyAfterChange(context)
                    + VerifyGradeSeparatedJunctionsAfterChange(context);
 
         if (!problems.HasError())
@@ -160,7 +160,7 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
-    private Problems VerifyRoadNodesAndUpdateTypeAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
+    private Problems VerifyRoadNodesTopologyAndUpdateTypeAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
     {
         using var _ = context.Logger.TimeAction();
 
@@ -177,7 +177,7 @@ public partial class ScopedRoadNetwork
             .Aggregate(problems, (p, x) => p + x.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context));
     }
 
-    private Problems VerifyRoadSegmentsAfterChange(ScopedRoadNetworkChangeContext context)
+    private Problems VerifyRoadSegmentsTopologyAfterChange(ScopedRoadNetworkChangeContext context)
     {
         using var _ = context.Logger.TimeAction();
 

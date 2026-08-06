@@ -145,12 +145,6 @@ public partial class ScopedRoadNetwork
             problems += DragRoadSegmentAlong(draggedRoadSegment, movedRoadNodes, context);
         }
 
-        if (!problems.HasError())
-        {
-            problems += VerifyRoadSegmentsAfterChange(context)
-                        + VerifyGradeSeparatedJunctionsAfterChange(context);
-        }
-
         // Junctions can appear or disappear when a geometry moves; this recomputes them for everything that changed.
         if (!problems.HasError())
         {
@@ -300,7 +294,6 @@ public partial class ScopedRoadNetwork
 
         var geometry = new MultiLineString([line.Factory.CreateLineString(coordinates)])
             .WithSrid(roadSegment.Geometry.SRID)
-            .RoundToCm()
             .ToRoadSegmentGeometry();
 
         var currentLength = roadSegment.Geometry.Value.Length;
