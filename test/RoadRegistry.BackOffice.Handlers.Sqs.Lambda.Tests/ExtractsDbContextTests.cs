@@ -2,6 +2,9 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 
 using FluentAssertions;
 using NetTopologySuite.Geometries;
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
+using RoadRegistry.BackOffice;
+using GeometryExtensions = Be.Vlaanderen.Basisregisters.GrAr.Common.NetTopology.GeometryExtensions;
 using RoadRegistry.Extracts.Schema;
 
 public class ExtractsDbContextTests
@@ -114,5 +117,62 @@ public class ExtractsDbContextTests
         var result = await db.IsCompletelyWithinCompletedInwinningszone(geometry, CancellationToken.None);
 
         result.Should().BeFalse();
+    }
+
+    // Realistic Flemish coordinates: the two reference systems only line up over Belgium, so a square around the
+    // origin would not survive the round trip meaningfully.
+    private const double Lambert08X = 217368.75;
+    private const double Lambert08Y = 181577.02;
+
+    private static Geometry SquareLambert08(double cx, double cy, double half) =>
+        GeometryExtensions.WithSrid(Square(cx, cy, half), WellknownSrids.Lambert08);
+
+    private static MultiLineString LineLambert08(double cx, double cy, double len) =>
+        GeometryExtensions.WithSrid(LineInsideSquare(cx, cy, len), WellknownSrids.Lambert08);
+
+    [Fact]
+    public async Task WhenTheZoneIsLambert72AndTheGeometryLambert08_ThenTheyAreComparedInTheSameReferenceSystem()
+    {
+        // How it actually is in production: the zone is stored in Lambert 72 and the road segment arrives in
+        // Lambert 2008. Comparing the raw coordinates would place them a hundred kilometres apart.
+        var db = CreateDbContext();
+        db.Inwinningszones.Add(Zone("11001", SquareLambert08(Lambert08X, Lambert08Y, 500).TransformFromLambert08To72(), completed: true));
+        await db.SaveChangesAsync();
+
+        var geometry = LineLambert08(Lambert08X, Lambert08Y, 100);
+
+        var result = await db.IsCompletelyWithinCompletedInwinningszone(geometry, CancellationToken.None);
+
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task WhenTheZoneIsLambert72AndTheLambert08GeometryLiesOutsideIt_ReturnsFalse()
+    {
+        // The conversion must not make everything match either: a road 5km away is still outside.
+        var db = CreateDbContext();
+        db.Inwinningszones.Add(Zone("11001", SquareLambert08(Lambert08X, Lambert08Y, 500).TransformFromLambert08To72(), completed: true));
+        await db.SaveChangesAsync();
+
+        var geometry = LineLambert08(Lambert08X + 5000, Lambert08Y, 100);
+
+        var result = await db.IsCompletelyWithinCompletedInwinningszone(geometry, CancellationToken.None);
+
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task WhenTheZoneAndTheGeometryAreBothLambert72_ThenNothingIsConverted()
+    {
+        // Both already in the reference system the comparison happens in, so nothing is transformed.
+        var db = CreateDbContext();
+        db.Inwinningszones.Add(Zone("11001", SquareLambert08(Lambert08X, Lambert08Y, 500).TransformFromLambert08To72(), completed: true));
+        await db.SaveChangesAsync();
+
+        var geometry = LineLambert08(Lambert08X, Lambert08Y, 100).TransformFromLambert08To72();
+
+        var result = await db.IsCompletelyWithinCompletedInwinningszone(geometry, CancellationToken.None);
+
+        result.Should().BeTrue();
     }
 }

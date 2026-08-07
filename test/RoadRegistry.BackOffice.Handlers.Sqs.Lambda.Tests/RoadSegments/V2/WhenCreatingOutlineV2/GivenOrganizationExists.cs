@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.V2.WhenCreatingOutlineV2;
 
+using System.Linq;
 using Autofac;
+using FluentAssertions;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -15,6 +17,8 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CreateRoadSegmentOutli
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
+using GeometryExtensions = Be.Vlaanderen.Basisregisters.GrAr.Common.NetTopology.GeometryExtensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
@@ -55,6 +59,87 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
         await using var session = store.LightweightSession();
         var savedSegment = await session.LoadAsync(new RoadSegmentId(1));
         VerifyThatTicketHasCompleted(TicketingMock, "/v3/wegsegmenten/1", savedSegment!.LastEventHash);
+    }
+
+    [Fact]
+    public async Task WhenValidRequest_ThenTheRoadSegmentIsRecordedAsACompletedInwinning()
+    {
+        // A sketched segment is not part of any municipality's inwinning, so it is registered as an inwinning of its
+        // own that is already done - otherwise it would read as 'nietGestart' forever.
+        var streetNameClientMock = new Mock<IStreetNameClient>();
+        streetNameClientMock
+            .Setup(x => x.GetAsync(StreetNameId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new StreetNameItem { Id = StreetNameId, Name = "Teststraat", Status = StreetNameStatus.Current, NisCode = "11001" });
+
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = new RoadNetworkRepository(store);
+        var extractsDbContext = CreateExtractsDbContextWithCompletedZone();
+
+        var sqsRequest = CreateSqsRequest();
+        await HandleRequest(new CreateRoadSegmentOutlineV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest),
+            store: store, roadNetworkRepository: roadNetworkRepository, streetNameClient: streetNameClientMock.Object, extractsDbContext: extractsDbContext);
+
+        var inwinningRoadSegment = extractsDbContext.InwinningRoadSegments.ToList().Should().ContainSingle().Subject;
+        inwinningRoadSegment.RoadSegmentId.Should().Be(sqsRequest.RoadSegmentId.ToInt32());
+        inwinningRoadSegment.Completed.Should().BeTrue();
+        inwinningRoadSegment.NisCode.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task WhenTheSameRequestIsHandledTwice_ThenTheInwinningIsRecordedOnlyOnce()
+    {
+        // The registration happens outside the idempotent session, so a redelivered message runs it again and has to
+        // recognise the segment it already registered.
+        var streetNameClientMock = new Mock<IStreetNameClient>();
+        streetNameClientMock
+            .Setup(x => x.GetAsync(StreetNameId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new StreetNameItem { Id = StreetNameId, Name = "Teststraat", Status = StreetNameStatus.Current, NisCode = "11001" });
+
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = new RoadNetworkRepository(store);
+        var extractsDbContext = CreateExtractsDbContextWithCompletedZone();
+
+        var sqsRequest = CreateSqsRequest();
+        var sqsLambdaRequest = new CreateRoadSegmentOutlineV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest);
+
+        await HandleRequest(sqsLambdaRequest, store: store, roadNetworkRepository: roadNetworkRepository, streetNameClient: streetNameClientMock.Object, extractsDbContext: extractsDbContext);
+        await HandleRequest(sqsLambdaRequest, store: store, roadNetworkRepository: roadNetworkRepository, streetNameClient: streetNameClientMock.Object, extractsDbContext: extractsDbContext);
+
+        extractsDbContext.InwinningRoadSegments
+            .Where(x => x.RoadSegmentId == sqsRequest.RoadSegmentId.ToInt32())
+            .ToList()
+            .Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task WhenTheRoadSegmentIsAlreadyPartOfAnInwinning_ThenItIsLeftAlone()
+    {
+        // An identifier that is already being collected keeps the registration it has; it is not overwritten with a
+        // completed one of its own.
+        var streetNameClientMock = new Mock<IStreetNameClient>();
+        streetNameClientMock
+            .Setup(x => x.GetAsync(StreetNameId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new StreetNameItem { Id = StreetNameId, Name = "Teststraat", Status = StreetNameStatus.Current, NisCode = "11001" });
+
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = new RoadNetworkRepository(store);
+        var extractsDbContext = CreateExtractsDbContextWithCompletedZone();
+
+        var sqsRequest = CreateSqsRequest();
+        extractsDbContext.InwinningRoadSegments.Add(new InwinningRoadSegment
+        {
+            NisCode = "11001",
+            RoadSegmentId = sqsRequest.RoadSegmentId.ToInt32(),
+            Completed = false
+        });
+        await extractsDbContext.SaveChangesAsync();
+
+        await HandleRequest(new CreateRoadSegmentOutlineV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest),
+            store: store, roadNetworkRepository: roadNetworkRepository, streetNameClient: streetNameClientMock.Object, extractsDbContext: extractsDbContext);
+
+        var inwinningRoadSegment = extractsDbContext.InwinningRoadSegments.ToList().Should().ContainSingle().Subject;
+        inwinningRoadSegment.NisCode.Should().Be("11001");
+        inwinningRoadSegment.Completed.Should().BeFalse();
     }
 
     [Fact]
@@ -115,13 +200,15 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
             NisCode = "11001",
             Operator = "op",
             DownloadId = Guid.NewGuid(),
-            Contour = new Polygon(new LinearRing([
-                new Coordinate(-1000, -1000),
-                new Coordinate(1000, -1000),
-                new Coordinate(1000, 1000),
-                new Coordinate(-1000, 1000),
-                new Coordinate(-1000, -1000)
-            ])),
+            // Stored in Lambert 72, as the inwinning extract writes it, while the road segment comes in as
+            // Lambert 2008 - so the zone is the Lambert 72 image of a Lambert 2008 area around the geometry.
+            Contour = GeometryExtensions.WithSrid(new Polygon(new LinearRing([
+                new Coordinate(-100000, -100000),
+                new Coordinate(100000, -100000),
+                new Coordinate(100000, 100000),
+                new Coordinate(-100000, 100000),
+                new Coordinate(-100000, -100000)
+            ])), WellknownSrids.Lambert08).TransformFromLambert08To72(),
             Completed = true
         });
         db.SaveChanges();
@@ -133,7 +220,7 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
         var line = new LineString(
             new CoordinateArraySequence([new CoordinateM(0, 0, 0), new CoordinateM(GeometryLength, 0, GeometryLength)]),
             GeometryConfiguration.GeometryFactory);
-        var geometry = line.ToMultiLineString().ToRoadSegmentGeometry();
+        var geometry = GeometryExtensions.WithSrid(line.ToMultiLineString(), WellknownSrids.Lambert08).ToRoadSegmentGeometry();
 
         return new CreateRoadSegmentOutlineV2SqsRequest
         {
