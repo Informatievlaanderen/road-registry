@@ -1,3 +1,10 @@
+## [5.7.1](https://github.com/informatievlaanderen/road-registry/compare/v5.7.0...v5.7.1) (2026-08-07)
+
+
+### Bug Fixes
+
+* **2.0:** record crossings on a geometry change without judging traffic ([9ee3a37](https://github.com/informatievlaanderen/road-registry/commit/9ee3a37873e189a84290b3929baa07ad3eb0100b))
+
 # [5.7.0](https://github.com/informatievlaanderen/road-registry/compare/v5.6.4...v5.7.0) (2026-08-07)
 
 
