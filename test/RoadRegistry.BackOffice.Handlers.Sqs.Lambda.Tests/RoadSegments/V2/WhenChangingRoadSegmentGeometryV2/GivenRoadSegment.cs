@@ -18,6 +18,8 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentGeome
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
+using GeometryExtensions = Be.Vlaanderen.Basisregisters.GrAr.Common.NetTopology.GeometryExtensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
@@ -53,7 +55,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
         var completedResults = CaptureCompletedResults();
 
-        await HandleRequest(store, extractsDbContext: ExtractsDbContextWithZone(Square(-1000, 1000), completed: true));
+        await HandleRequest(store, extractsDbContext: ExtractsDbContextWithZone(ZoneCovering(-1000, 1000), completed: true));
 
         completedResults.Should().ContainSingle()
             .Which.Summary.RoadSegments.Modified.Should().ContainSingle();
@@ -76,7 +78,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         // The zone covers the whole geometry, but its inwinning is still running.
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
 
-        await HandleRequest(store, extractsDbContext: ExtractsDbContextWithZone(Square(-1000, 1000), completed: false));
+        await HandleRequest(store, extractsDbContext: ExtractsDbContextWithZone(ZoneCovering(-1000, 1000), completed: false));
 
         VerifyThatTicketHasError("RoadSegmentOutsideInwinningszone", null);
     }
@@ -88,20 +90,22 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         // lie there completely, not merely start there.
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
 
-        await HandleRequest(store, extractsDbContext: ExtractsDbContextWithZone(Square(-10, 60), completed: true));
+        await HandleRequest(store, extractsDbContext: ExtractsDbContextWithZone(ZoneCovering(-10, 60), completed: true));
 
         VerifyThatTicketHasError("RoadSegmentOutsideInwinningszone", null);
     }
 
-    private static Geometry Square(double min, double max)
+    // A zone as the inwinning extract stores it: Lambert 72. It is described here in the Lambert 2008 the road
+    // segment lives in and then converted, so the area it covers is the area meant.
+    private static Geometry ZoneCovering(double min, double max)
     {
-        return new Polygon(new LinearRing([
+        return GeometryExtensions.WithSrid(new Polygon(new LinearRing([
             new Coordinate(min, min),
             new Coordinate(max, min),
             new Coordinate(max, max),
             new Coordinate(min, max),
             new Coordinate(min, min)
-        ]));
+        ])), WellknownSrids.Lambert08).TransformFromLambert08To72();
     }
 
     private static ExtractsDbContext ExtractsDbContextWithZone(Geometry contour, bool completed)

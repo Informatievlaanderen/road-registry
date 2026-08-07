@@ -9,6 +9,9 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
+using System.Linq;
+using RoadRegistry.Extracts.Schema;
+using RoadRegistry.ValueObjects;
 using RoadRegistry.Extensions;
 using RoadRegistry.Hosts;
 using RoadRegistry.Infrastructure.MartenDb;
@@ -22,6 +25,7 @@ public sealed class SplitRoadSegmentsByJunctionSqsLambdaRequestHandler : MartenS
 {
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
+    private readonly ExtractsDbContext _extractsDbContext;
 
     public SplitRoadSegmentsByJunctionSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -31,6 +35,7 @@ public sealed class SplitRoadSegmentsByJunctionSqsLambdaRequestHandler : MartenS
         IDocumentStore store,
         IRoadNetworkRepository roadNetworkRepository,
         IRoadNetworkIdGenerator roadNetworkIdGenerator,
+        ExtractsDbContext extractsDbContext,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -42,6 +47,7 @@ public sealed class SplitRoadSegmentsByJunctionSqsLambdaRequestHandler : MartenS
     {
         _roadNetworkRepository = roadNetworkRepository;
         _roadNetworkIdGenerator = roadNetworkIdGenerator;
+        _extractsDbContext = extractsDbContext;
     }
 
     protected override async Task<object> InnerHandle(SplitRoadSegmentsByJunctionSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
@@ -62,6 +68,8 @@ public sealed class SplitRoadSegmentsByJunctionSqsLambdaRequestHandler : MartenS
 
         await Store.IdempotentSession(command, async session =>
         {
+            await ValidateInwinningIsCompleted([command.RoadSegmentId1, command.RoadSegmentId2], cancellationToken);
+
             var roadNetwork = await Load(session, [command.RoadSegmentId1, command.RoadSegmentId2], scopedRoadNetworkId);
 
             roadNetwork.SplitRoadSegmentsByJunction(
@@ -79,6 +87,18 @@ public sealed class SplitRoadSegmentsByJunctionSqsLambdaRequestHandler : MartenS
         await using var readSession = Store.LightweightSession();
         var scopedRoadNetwork = await readSession.LoadAsync(scopedRoadNetworkId, cancellationToken);
         return new RoadNetworkChangeResult(Problems.None, scopedRoadNetwork.SummaryOfLastChange!);
+    }
+
+    // A road segment may only be edited once its inwinning is done: one that is still being collected, or that is not
+    // being collected at all, is not ours to change yet.
+    private async Task ValidateInwinningIsCompleted(IReadOnlyCollection<RoadSegmentId> roadSegmentIds, CancellationToken cancellationToken)
+    {
+        var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus(roadSegmentIds, cancellationToken);
+
+        inwinningsstatus
+            .Where(x => x.Value != Inwinningsstatus.Compleet)
+            .Aggregate(Problems.None, (problems, x) => problems + new RoadSegmentNotCompletedInwinning(x.Key))
+            .ThrowIfError();
     }
 
     private async Task<ScopedRoadNetwork> Load(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)

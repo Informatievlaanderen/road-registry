@@ -18,6 +18,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentAttri
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Infrastructure;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.Infrastructure.MartenDb.Store;
@@ -39,6 +40,7 @@ using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 [Collection("runsequential")]
 public class GivenRoadSegment : BackOfficeLambdaTest
 {
+
     private static readonly OrganizationId MaintenanceAuthorityCode = new("AWV114");
     private static readonly OrganizationId MaintenanceAuthorityOvoCode = new("OVO002949");
     private static readonly StreetNameLocalId StreetNameId = new(123);
@@ -48,6 +50,32 @@ public class GivenRoadSegment : BackOfficeLambdaTest
     public GivenRoadSegment(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
     }
+
+    [Fact]
+    public async Task WhenTheRoadSegmentInwinningIsNotCompleted_ThenTicketError()
+    {
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = BuildRepository(store);
+
+        await HandleRequest(CreateSqsRequest(morphology: OtherMorphology()), store, roadNetworkRepository,
+            extractsDbContext: ExtractsDbContextWithInwinning(completed: false, _testData.Segment1Added.RoadSegmentId.ToInt32()));
+
+        VerifyThatTicketHasError("WegsegmentInwinningsstatusNietCompleet", null);
+    }
+
+    [Fact]
+    public async Task WhenTheRoadSegmentIsPartOfNoInwinningAtAll_ThenTicketError()
+    {
+        // 'nietGestart' is not 'compleet' either: a segment nobody has collected yet may not be edited.
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = BuildRepository(store);
+
+        await HandleRequest(CreateSqsRequest(morphology: OtherMorphology()), store, roadNetworkRepository,
+            extractsDbContext: new FakeExtractsDbContextFactory().CreateDbContext());
+
+        VerifyThatTicketHasError("WegsegmentInwinningsstatusNietCompleet", null);
+    }
+
 
     [Fact]
     public async Task WhenChangingMorphology_ThenTicketCompletedWithSummary()
@@ -324,7 +352,8 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         IDocumentStore store,
         IRoadNetworkRepository roadNetworkRepository,
         Func<int, StreetNameItem> streetNames = null,
-        Func<OrganizationId, OrganizationDetail> organizations = null)
+        Func<OrganizationId, OrganizationDetail> organizations = null,
+        ExtractsDbContext extractsDbContext = null)
     {
         streetNames ??= _ => KnownStreetName(StreetNameStatus.Current);
         // Any code resolves to the known organization code, which is what makes an OVO code end up as its code.
@@ -349,6 +378,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
             roadNetworkRepository,
             organizationCache.Object,
             streetNameClient.Object,
+            extractsDbContext ?? ExtractsDbContextWithCompletedInwinning(_testData.Segment1Added.RoadSegmentId.ToInt32()),
             LoggerFactory);
 
         await handler.Handle(new ChangeRoadSegmentAttributesV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest), CancellationToken.None);
@@ -394,6 +424,28 @@ public class GivenRoadSegment : BackOfficeLambdaTest
                 )
             ]), ApplicationMetadata))
             .SingleInstance();
+    }
+
+
+    private static ExtractsDbContext ExtractsDbContextWithCompletedInwinning(params int[] roadSegmentIds)
+    {
+        return ExtractsDbContextWithInwinning(completed: true, roadSegmentIds);
+    }
+
+    private static ExtractsDbContext ExtractsDbContextWithInwinning(bool completed, params int[] roadSegmentIds)
+    {
+        var db = new FakeExtractsDbContextFactory().CreateDbContext();
+        foreach (var roadSegmentId in roadSegmentIds)
+        {
+            db.InwinningRoadSegments.Add(new InwinningRoadSegment
+            {
+                NisCode = "11001",
+                RoadSegmentId = roadSegmentId,
+                Completed = completed
+            });
+        }
+        db.SaveChanges();
+        return db;
     }
 
     private static StoreOptions BuildStoreOptions()

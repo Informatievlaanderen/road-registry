@@ -11,6 +11,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Hosts;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
@@ -35,6 +36,7 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly IOrganizationCache _organizationCache;
     private readonly IStreetNameClient _streetNameClient;
+    private readonly ExtractsDbContext _extractsDbContext;
 
     public ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -45,6 +47,7 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
         IRoadNetworkRepository roadNetworkRepository,
         IOrganizationCache organizationCache,
         IStreetNameClient streetNameClient,
+        ExtractsDbContext extractsDbContext,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -57,6 +60,7 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
         _roadNetworkRepository = roadNetworkRepository;
         _organizationCache = organizationCache;
         _streetNameClient = streetNameClient;
+        _extractsDbContext = extractsDbContext;
     }
 
     protected override async Task<object> InnerHandle(ChangeRoadSegmentAttributesV2SqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
@@ -85,6 +89,7 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
             // authority against the organization cache. Resolving the authority also maps an OVO code or KBO number
             // onto the organization code that is actually stored.
             var (maintenanceAuthorityIds, referenceProblems) = await ValidateReferences(command, cancellationToken);
+            referenceProblems += await ValidateInwinningIsCompleted(roadSegmentIds, cancellationToken);
             referenceProblems.ThrowIfError();
 
             var provenance = command.ProvenanceData.ToProvenance();
@@ -129,6 +134,17 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
         await using var readSession = Store.LightweightSession();
         var scopedRoadNetwork = await readSession.LoadAsync(scopedRoadNetworkId, cancellationToken);
         return scopedRoadNetwork.SummaryOfLastChange!;
+    }
+
+    // A road segment may only be edited once its inwinning is done: one that is still being collected, or that is not
+    // being collected at all, is not ours to change yet.
+    private async Task<Problems> ValidateInwinningIsCompleted(IReadOnlyCollection<RoadSegmentId> roadSegmentIds, CancellationToken cancellationToken)
+    {
+        var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus(roadSegmentIds, cancellationToken);
+
+        return inwinningsstatus
+            .Where(x => x.Value != Inwinningsstatus.Compleet)
+            .Aggregate(Problems.None, (problems, x) => problems + new RoadSegmentNotCompletedInwinning(x.Key));
     }
 
     // Validates every distinct street name and maintenance authority in the request and returns the resolved
