@@ -78,6 +78,20 @@ public class GivenRoadSegment : BackOfficeLambdaTest
 
 
     [Fact]
+    public async Task WhenTheRoadSegmentDoesNotExist_ThenTicketErrorSaysSoRatherThanReportingItsInwinning()
+    {
+        // Nothing is being collected here at all, so an unknown identifier would read as 'nietGestart' and answer a
+        // missing road segment with an inwinning problem. Whether it exists is the road network's to say.
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = BuildRepository(store);
+
+        await HandleRequest(CreateSqsRequest(morphology: OtherMorphology(), roadSegmentId: new RoadSegmentId(999)), store, roadNetworkRepository,
+            extractsDbContext: new FakeExtractsDbContextFactory().CreateDbContext());
+
+        VerifyThatTicketHasError("NotFound", "Het wegsegment met id 999 bestaat niet.");
+    }
+
+    [Fact]
     public async Task WhenChangingMorphology_ThenTicketCompletedWithSummary()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
@@ -313,7 +327,8 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         OrganizationId? secondMaintenanceAuthority = null,
         RoadSegmentAttributeSide secondMaintenanceAuthoritySide = null,
         RoadSegmentPositionV2? fromPosition = null,
-        RoadSegmentPositionV2? toPosition = null)
+        RoadSegmentPositionV2? toPosition = null,
+        RoadSegmentId? roadSegmentId = null)
     {
         SidedAttributeValue<OrganizationId>[] maintenanceAuthorities = maintenanceAuthority is not null
             ?
@@ -334,7 +349,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
             [
                 new ChangeRoadSegmentAttributesV2Group
                 {
-                    RoadSegmentIds = [_testData.Segment1Added.RoadSegmentId],
+                    RoadSegmentIds = [roadSegmentId ?? _testData.Segment1Added.RoadSegmentId],
                     Morphology = morphologyValues ?? (morphology is not null
                         ? [new AttributeValue<RoadSegmentMorphologyV2>(fromPosition, toPosition, morphology)]
                         : null),
