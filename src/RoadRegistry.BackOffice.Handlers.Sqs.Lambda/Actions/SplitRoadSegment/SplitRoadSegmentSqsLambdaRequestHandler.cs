@@ -68,9 +68,9 @@ public sealed class SplitRoadSegmentSqsLambdaRequestHandler : MartenSqsLambdaHan
 
         await Store.IdempotentSession(command, async session =>
         {
-            await ValidateInwinningIsCompleted([command.RoadSegmentId], cancellationToken);
-
             var roadNetwork = await Load(session, [command.RoadSegmentId], scopedRoadNetworkId);
+
+            await ValidateInwinningIsCompleted(roadNetwork, [command.RoadSegmentId], cancellationToken);
 
             roadNetwork.SplitRoadSegment(
                 command.RoadSegmentId,
@@ -91,9 +91,16 @@ public sealed class SplitRoadSegmentSqsLambdaRequestHandler : MartenSqsLambdaHan
 
     // A road segment may only be edited once its inwinning is done: one that is still being collected, or that is not
     // being collected at all, is not ours to change yet.
-    private async Task ValidateInwinningIsCompleted(IReadOnlyCollection<RoadSegmentId> roadSegmentIds, CancellationToken cancellationToken)
+    private async Task ValidateInwinningIsCompleted(ScopedRoadNetwork roadNetwork, IEnumerable<RoadSegmentId> roadSegmentIds, CancellationToken cancellationToken)
     {
-        var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus(roadSegmentIds, cancellationToken);
+        // Only the segments the road network actually knows. An identifier that is not there at all is the domain's to
+        // report as not found, and 'nietGestart' cannot tell "not being collected" from "does not exist" - so leaving
+        // it in here would answer a missing road segment with the wrong problem entirely.
+        var knownRoadSegmentIds = roadSegmentIds
+            .Where(x => roadNetwork.RoadSegments.TryGetValue(x, out var roadSegment) && !roadSegment.IsRemoved)
+            .ToList();
+
+        var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus(knownRoadSegmentIds, cancellationToken);
 
         inwinningsstatus
             .Where(x => x.Value != Inwinningsstatus.Compleet)

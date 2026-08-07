@@ -89,7 +89,7 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
             // authority against the organization cache. Resolving the authority also maps an OVO code or KBO number
             // onto the organization code that is actually stored.
             var (maintenanceAuthorityIds, referenceProblems) = await ValidateReferences(command, cancellationToken);
-            referenceProblems += await ValidateInwinningIsCompleted(roadSegmentIds, cancellationToken);
+            referenceProblems += await ValidateInwinningIsCompleted(roadNetwork, roadSegmentIds, cancellationToken);
             referenceProblems.ThrowIfError();
 
             var provenance = command.ProvenanceData.ToProvenance();
@@ -138,9 +138,16 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
 
     // A road segment may only be edited once its inwinning is done: one that is still being collected, or that is not
     // being collected at all, is not ours to change yet.
-    private async Task<Problems> ValidateInwinningIsCompleted(IReadOnlyCollection<RoadSegmentId> roadSegmentIds, CancellationToken cancellationToken)
+    private async Task<Problems> ValidateInwinningIsCompleted(ScopedRoadNetwork roadNetwork, IEnumerable<RoadSegmentId> roadSegmentIds, CancellationToken cancellationToken)
     {
-        var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus(roadSegmentIds, cancellationToken);
+        // Only the segments the road network actually knows. An identifier that is not there at all is the domain's to
+        // report as not found, and 'nietGestart' cannot tell "not being collected" from "does not exist" - so leaving
+        // it in here would answer a missing road segment with the wrong problem entirely.
+        var knownRoadSegmentIds = roadSegmentIds
+            .Where(x => roadNetwork.RoadSegments.TryGetValue(x, out var roadSegment) && !roadSegment.IsRemoved)
+            .ToList();
+
+        var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus(knownRoadSegmentIds, cancellationToken);
 
         return inwinningsstatus
             .Where(x => x.Value != Inwinningsstatus.Compleet)
