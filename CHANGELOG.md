@@ -1,3 +1,16 @@
+# [5.7.0](https://github.com/informatievlaanderen/road-registry/compare/v5.6.4...v5.7.0) (2026-08-07)
+
+
+### Bug Fixes
+
+* **2.0:** do not raise a change summary when no roadsegment attributes were modified ([0fcdac9](https://github.com/informatievlaanderen/road-registry/commit/0fcdac9ba97475341cbce13fb4a6241ef211f05e))
+* **2.0:** keep Postgres error when DB migration fails ([4e0e4fe](https://github.com/informatievlaanderen/road-registry/commit/4e0e4fe395f08054cd6c21d1dab245fb5fc34d51))
+
+
+### Features
+
+* **2.0:** change a v2 road segment geometry ([481e600](https://github.com/informatievlaanderen/road-registry/commit/481e6003ac87e54f711d24a1560496da2f5e9552))
+
 ## [5.6.4](https://github.com/informatievlaanderen/road-registry/compare/v5.6.3...v5.6.4) (2026-08-04)
 
 
