@@ -7,6 +7,8 @@ using FluentAssertions;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
 using RoadRegistry.RoadNetwork.Schema;
+using RoadRegistry.GradeJunction.Events.V2;
+using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
@@ -15,6 +17,8 @@ using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
 using RoadRegistry.ValueObjects;
+using GradeJunction = RoadRegistry.GradeJunction.GradeJunction;
+using GradeSeparatedJunction = RoadRegistry.GradeSeparatedJunction.GradeSeparatedJunction;
 using RoadNode = RoadRegistry.RoadNode.RoadNode;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
@@ -24,6 +28,7 @@ public class AggregateTests : AggregateTestBase
     // drags the shared node - and with it B's start vertex - along.
     private const int SegmentAId = 1;
     private const int SegmentBId = 2;
+    private const int SegmentCId = 3;
 
     private RoadNodeWasAdded BuildNode(int id, double x, double y, RoadNodeTypeV2? type = null)
     {
@@ -106,13 +111,36 @@ public class AggregateTests : AggregateTestBase
         };
     }
 
-    private ScopedRoadNetwork BuildNetwork(RoadNodeWasAdded[] nodes, RoadSegmentWasAdded[] segments)
+    private ScopedRoadNetwork BuildNetwork(
+        RoadNodeWasAdded[] nodes,
+        RoadSegmentWasAdded[] segments,
+        GradeSeparatedJunctionWasAdded[]? gradeSeparatedJunctions = null,
+        GradeJunctionWasAdded[]? gradeJunctions = null)
     {
         return new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
             nodes.Select(x => RoadNode.Create(x).WithoutChanges()).ToArray(),
             segments.Select(x => RoadSegment.Create(x).WithoutChanges()).ToArray(),
-            [],
-            []).WithoutChanges();
+            (gradeSeparatedJunctions ?? []).Select(x => GradeSeparatedJunction.Create(x).WithoutChanges()).ToArray(),
+            (gradeJunctions ?? []).Select(x => GradeJunction.Create(x).WithoutChanges()).ToArray()).WithoutChanges();
+    }
+
+    private static RoadSegmentWasAdded WithTraffic(
+        RoadSegmentWasAdded segment,
+        RoadSegmentTrafficDirection car,
+        RoadSegmentTrafficDirection bike,
+        RoadSegmentPedestrianTrafficDirection pedestrian)
+    {
+        return segment with
+        {
+            CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>().Add(car, segment.Geometry),
+            BikeTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>().Add(bike, segment.Geometry),
+            PedestrianTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>().Add(pedestrian, segment.Geometry)
+        };
+    }
+
+    private JunctionGeometry BuildJunctionGeometry(double x, double y)
+    {
+        return JunctionGeometry.Create(new Point(new Coordinate(x, y)) { SRID = WellknownSrids.Lambert08 });
     }
 
     // A single segment (0,0) -> (100,0) with an end node at each side.
@@ -499,6 +527,247 @@ public class AggregateTests : AggregateTestBase
         result.Problems.Should().BeEmpty();
         result.Summary.RoadNodes.Modified.Should().BeEmpty();
         result.Summary.RoadSegments.Modified.Should().ContainSingle().Which.Should().Be(new RoadSegmentId(SegmentAId));
+    }
+
+    // Segment A runs west to east; segment C sits south of it and is only reached once A's middle vertex is pushed
+    // down to (50,-25). A's end vertices - and therefore its road nodes - never move, so nothing else is in play.
+    private ScopedRoadNetwork BuildNetworkWithASegmentToCross(
+        RoadSegmentTrafficDirection carOnC,
+        RoadSegmentTrafficDirection bikeOnC,
+        RoadSegmentPedestrianTrafficDirection pedestrianOnC,
+        RoadSegmentGeometry? geometryA = null,
+        GradeSeparatedJunctionWasAdded[]? gradeSeparatedJunctions = null,
+        GradeJunctionWasAdded[]? gradeJunctions = null)
+    {
+        var startNodeA = BuildNode(1, 0, 0, RoadNodeTypeV2.Eindknoop);
+        var endNodeA = BuildNode(2, 100, 0, RoadNodeTypeV2.Eindknoop);
+        var startNodeC = BuildNode(3, 50, -40, RoadNodeTypeV2.Eindknoop);
+        var endNodeC = BuildNode(4, 50, -10, RoadNodeTypeV2.Eindknoop);
+
+        // Only cars on A, only bikes or nothing on C, unless a test says otherwise.
+        var segmentA = WithTraffic(
+            BuildSegment(SegmentAId, startNodeA, endNodeA, geometryA ?? BuildGeometry((0, 0), (100, 0))),
+            RoadSegmentTrafficDirection.Forward, RoadSegmentTrafficDirection.None, RoadSegmentPedestrianTrafficDirection.None);
+        var segmentC = WithTraffic(
+            BuildSegment(SegmentCId, startNodeC, endNodeC, BuildGeometry((50, -40), (50, -10))),
+            carOnC, bikeOnC, pedestrianOnC);
+
+        return BuildNetwork([startNodeA, endNodeA, startNodeC, endNodeC], [segmentA, segmentC], gradeSeparatedJunctions, gradeJunctions);
+    }
+
+    private RoadSegmentGeometry GeometryCrossingSegmentC()
+    {
+        return BuildGeometry((0, 0), (50, -25), (100, 0));
+    }
+
+    [Fact]
+    public void WhenTheNewGeometryCrossesAnotherSegment_ThenAGradeJunctionIsAdded()
+    {
+        // A crossing that appears is simply recorded, whatever traffic the two segments carry: both admit cars here,
+        // which the road network change flow would have refused without an ongelijkgrondse kruising.
+        var roadNetwork = BuildNetworkWithASegmentToCross(
+            RoadSegmentTrafficDirection.Forward, RoadSegmentTrafficDirection.None, RoadSegmentPedestrianTrafficDirection.None);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, GeometryCrossingSegmentC()), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+        result.Summary.GradeJunctions.Added.Should().ContainSingle();
+
+        var gradeJunction = roadNetwork.GradeJunctions.Values.Single(x => !x.IsRemoved);
+        new[] { gradeJunction.RoadSegmentId1, gradeJunction.RoadSegmentId2 }
+            .Should().BeEquivalentTo([new RoadSegmentId(SegmentAId), new RoadSegmentId(SegmentCId)]);
+        gradeJunction.Geometry!.Value.Coordinate.X.Should().Be(50);
+        gradeJunction.Geometry.Value.Coordinate.Y.Should().Be(-25);
+    }
+
+    [Fact]
+    public void WhenTheCrossingSegmentsShareNoTrafficType_ThenAGradeJunctionIsAddedJustTheSame()
+    {
+        // Traffic is not consulted at all here, so the outcome is the one above whichever modes the segments carry.
+        var roadNetwork = BuildNetworkWithASegmentToCross(
+            RoadSegmentTrafficDirection.None, RoadSegmentTrafficDirection.Both, RoadSegmentPedestrianTrafficDirection.None);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, GeometryCrossingSegmentC()), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+        result.Summary.GradeJunctions.Added.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void WhenTheCrossingIsAlreadyAGradeSeparatedJunction_ThenNoGradeJunctionIsAdded()
+    {
+        // The crossing is already recorded as an ongelijkgrondse kruising, so it is not a new intersection and keeps
+        // what records it.
+        var gradeSeparatedJunction = new GradeSeparatedJunctionWasAdded
+        {
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
+            LowerRoadSegmentId = new RoadSegmentId(SegmentCId),
+            UpperRoadSegmentId = new RoadSegmentId(SegmentAId),
+            Type = GradeSeparatedJunctionTypeV2.Brug,
+            Geometry = BuildJunctionGeometry(50, -25),
+            Provenance = new ProvenanceData(TestData.Provenance)
+        };
+
+        var roadNetwork = BuildNetworkWithASegmentToCross(
+            RoadSegmentTrafficDirection.Forward, RoadSegmentTrafficDirection.None, RoadSegmentPedestrianTrafficDirection.None,
+            gradeSeparatedJunctions: [gradeSeparatedJunction]);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, GeometryCrossingSegmentC()), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+        result.Summary.GradeJunctions.Added.Should().BeEmpty();
+        roadNetwork.GradeSeparatedJunctions[new GradeSeparatedJunctionId(1)].IsRemoved.Should().BeFalse();
+    }
+
+    [Fact]
+    public void WhenTheNewGeometryNoLongerCrossesASegment_ThenItsGradeJunctionIsRemoved()
+    {
+        var gradeJunction = new GradeJunctionWasAdded
+        {
+            GradeJunctionId = new GradeJunctionId(1),
+            RoadSegmentId1 = new RoadSegmentId(SegmentAId),
+            RoadSegmentId2 = new RoadSegmentId(SegmentCId),
+            Geometry = BuildJunctionGeometry(50, -25),
+            Provenance = new ProvenanceData(TestData.Provenance)
+        };
+
+        var roadNetwork = BuildNetworkWithASegmentToCross(
+            RoadSegmentTrafficDirection.None, RoadSegmentTrafficDirection.Both, RoadSegmentPedestrianTrafficDirection.None,
+            geometryA: GeometryCrossingSegmentC(),
+            gradeJunctions: [gradeJunction]);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (100, 0))), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+        result.Summary.GradeJunctions.Removed.Should().ContainSingle()
+            .Which.Should().Be(new GradeJunctionId(1));
+        roadNetwork.GradeJunctions[new GradeJunctionId(1)].IsRemoved.Should().BeTrue();
+    }
+
+    [Fact]
+    public void WhenTheNewGeometryNoLongerCrossesASegment_ThenItsGradeSeparatedJunctionIsRemovedToo()
+    {
+        // A vanished crossing takes whatever recorded it, so an ongelijkgrondse kruising goes the same way.
+        var gradeSeparatedJunction = new GradeSeparatedJunctionWasAdded
+        {
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
+            LowerRoadSegmentId = new RoadSegmentId(SegmentCId),
+            UpperRoadSegmentId = new RoadSegmentId(SegmentAId),
+            Type = GradeSeparatedJunctionTypeV2.Brug,
+            Geometry = BuildJunctionGeometry(50, -25),
+            Provenance = new ProvenanceData(TestData.Provenance)
+        };
+
+        var roadNetwork = BuildNetworkWithASegmentToCross(
+            RoadSegmentTrafficDirection.Forward, RoadSegmentTrafficDirection.None, RoadSegmentPedestrianTrafficDirection.None,
+            geometryA: GeometryCrossingSegmentC(),
+            gradeSeparatedJunctions: [gradeSeparatedJunction]);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (100, 0))), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+        result.Summary.GradeSeparatedJunctions.Removed.Should().ContainSingle()
+            .Which.Should().Be(new GradeSeparatedJunctionId(1));
+        roadNetwork.GradeSeparatedJunctions[new GradeSeparatedJunctionId(1)].IsRemoved.Should().BeTrue();
+    }
+
+    [Fact]
+    public void WhenTheNewGeometryRunsAlongAnotherSegment_ThenError()
+    {
+        // The road segment topology verification: sharing a stretch of road with another segment rather than merely
+        // crossing it.
+        var roadNetwork = BuildNetworkWithASegmentToCross(
+            RoadSegmentTrafficDirection.None, RoadSegmentTrafficDirection.Both, RoadSegmentPedestrianTrafficDirection.None);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (50, -40), (50, -10), (100, 0))),
+            true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().ContainSingle()
+            .Which.Reason.Should().Be("RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
+        result.Summary.GradeJunctions.Added.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void WhenTheNewGeometrySelfIntersects_ThenError()
+    {
+        // VAL-20. The path doubles back over itself between its two end vertices.
+        var roadNetwork = BuildNetworkWithSingleSegment();
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (100, 40), (0, 40), (100, 0))),
+            true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().Contain(x => x.Reason == "RoadSegmentGeometrySelfIntersects");
+        roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)].GetChanges().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void WhenTheNewGeometryHasTheSameStartAndEndPoint_ThenError()
+    {
+        // VAL-19. Caught before any road node is touched, so the end node is not dragged onto the start node either.
+        var roadNetwork = BuildNetworkWithSingleSegment();
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (50, 50), (100, 0), (0, 0))),
+            true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().Contain(x => x.Reason == "RoadSegmentGeometryStartEqualsEnd");
+        roadNetwork.RoadNodes.Values.Should().OnlyContain(x => !x.GetChanges().Any());
+        roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)].GetChanges().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void WhenTheNewGeometryCrossesTheSameSegmentTwice_ThenError()
+    {
+        // VAL-18. Segment D lies horizontally below A, and A is bent down under it and back up, cutting it twice.
+        var startNodeA = BuildNode(1, 0, 0, RoadNodeTypeV2.Eindknoop);
+        var endNodeA = BuildNode(2, 100, 0, RoadNodeTypeV2.Eindknoop);
+        var startNodeD = BuildNode(3, 10, -20, RoadNodeTypeV2.Eindknoop);
+        var endNodeD = BuildNode(4, 90, -20, RoadNodeTypeV2.Eindknoop);
+
+        var roadNetwork = BuildNetwork(
+            [startNodeA, endNodeA, startNodeD, endNodeD],
+            [
+                BuildSegment(SegmentAId, startNodeA, endNodeA, BuildGeometry((0, 0), (100, 0))),
+                BuildSegment(SegmentCId, startNodeD, endNodeD, BuildGeometry((10, -20), (90, -20)))
+            ]);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (40, -40), (60, -40), (100, 0))),
+            true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().Contain(x => x.Reason == "RoadSegmentDuplicateIntersections");
+        result.Summary.GradeJunctions.Added.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void WhenADraggedSegmentWouldSelfIntersect_ThenError()
+    {
+        // The realized rules apply to the segments dragged along too, not only to the one in the request: B is a hook
+        // whose free end folds back over its own tail once its start vertex is pulled westwards.
+        var startNodeA = BuildNode(1, 0, 0, RoadNodeTypeV2.Eindknoop);
+        var sharedNode = BuildNode(2, 100, 0, RoadNodeTypeV2.Validatieknoop);
+        var endNodeB = BuildNode(3, 90, 2, RoadNodeTypeV2.Eindknoop);
+
+        var roadNetwork = BuildNetwork(
+            [startNodeA, sharedNode, endNodeB],
+            [
+                BuildSegment(SegmentAId, startNodeA, sharedNode, BuildGeometry((0, 0), (100, 0))),
+                BuildSegment(SegmentBId, sharedNode, endNodeB, BuildGeometry((100, 0), (110, 20), (90, 20), (90, 2)))
+            ]);
+
+        // Pulling the shared node back to (85,0) swings B's first edge across its own last edge.
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (85, 0))), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().Contain(x => x.Reason == "RoadSegmentGeometrySelfIntersects");
+        result.Summary.RoadSegments.Modified.Should().NotContain(new RoadSegmentId(SegmentBId));
     }
 
     [Fact]

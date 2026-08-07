@@ -8,8 +8,10 @@ using NetTopologySuite.Index.Strtree;
 using RoadRegistry.Extensions;
 using RoadRegistry.GradeJunction;
 using RoadRegistry.GradeSeparatedJunction;
+using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
+using RoadRegistry.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
 
 public partial class ScopedRoadNetwork
@@ -29,7 +31,8 @@ public partial class ScopedRoadNetwork
             .ToDictionary(x => CreateCombinationKey(x.RoadSegmentId1, x.RoadSegmentId2), x => x);
 
         // Find all unique combinations of changed segments with all gerealiseerde segments
-        var segmentCombinationsOfChangedSegments = GetSegmentCombinationsOfChangedSegments(existingGradeJunctions, context.Tolerances);
+        var segmentCombinationsOfChangedSegments = GetSegmentCombinationsOfChangedSegments(
+            existingGradeJunctions.Values.Select(x => (x.RoadSegmentId1, x.RoadSegmentId2)), context.Tolerances);
         if (!segmentCombinationsOfChangedSegments.Any())
         {
             return problems;
@@ -64,12 +67,7 @@ public partial class ScopedRoadNetwork
             var intersection = combination.IntersectingPoints.Single();
 
             // Skip intersections that are at start/end nodes (those are handled by road nodes)
-            var isFarAwayFromNodes = intersection.IsFarEnoughAwayFrom(
-                [
-                    segment1Geometry.StartPoint, segment1Geometry.EndPoint,
-                    segment2Geometry.StartPoint, segment2Geometry.EndPoint
-                ],
-                context.Tolerances.GeometryTolerance);
+            var isFarAwayFromNodes = IsAwayFromTheEndPointsOf(intersection, segment1Geometry, segment2Geometry, context.Tolerances);
 
             if (!isFarAwayFromNodes)
             {
@@ -109,6 +107,114 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
+    // The junction handling of a geometry change, which is deliberately not the one above.
+    //
+    // Changing a geometry is not a statement about how two roads relate to each other: an intersection that appears is
+    // simply recorded as a gelijkgrondse kruising, and one that disappears takes whatever recorded it along - grade or
+    // grade separated. Whether the two segments share a traffic type is not judged here, so an operator moving a road
+    // is never asked to declare an ongelijkgrondse kruising they did not ask for.
+    private Problems VerifyAndUpdateJunctionsAfterGeometryChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
+    {
+        using var _ = context.Logger.TimeAction();
+
+        var problems = Problems.None;
+
+        var existingGradeSeparatedJunctions = _gradeSeparatedJunctions.Values
+            .Where(x => !x.IsRemoved)
+            .ToDictionary(x => CreateCombinationKey(x.LowerRoadSegmentId, x.UpperRoadSegmentId), x => x);
+        var existingGradeJunctions = _gradeJunctions.Values
+            .Where(x => !x.IsRemoved)
+            .ToDictionary(x => CreateCombinationKey(x.RoadSegmentId1, x.RoadSegmentId2), x => x);
+
+        var combinations = GetSegmentCombinationsOfChangedSegments(
+            existingGradeJunctions.Values.Select(x => (x.RoadSegmentId1, x.RoadSegmentId2))
+                .Concat(existingGradeSeparatedJunctions.Values.Select(x => (x.LowerRoadSegmentId, x.UpperRoadSegmentId))),
+            context.Tolerances);
+        if (combinations.Count == 0)
+        {
+            return problems;
+        }
+
+        // VAL-18: a realized segment may not cross the same realized segment more than once.
+        foreach (var combination in combinations.Where(x => x.IntersectingPoints.Length > 1))
+        {
+            var problemContext = ProblemContext.For(context.IdTranslator.TranslateToTemporaryId(combination.Segment1.RoadSegmentId));
+            problems += new RoadSegmentDuplicateIntersections(context.IdTranslator.TranslateToTemporaryId(combination.Segment2.RoadSegmentId))
+                .WithContext(problemContext);
+        }
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
+        foreach (var combination in combinations)
+        {
+            // An intersection where the two segments meet at a shared road node is a normal connection rather than a
+            // crossing, so it counts as no intersection at all.
+            var intersection = combination.IntersectingPoints.SingleOrDefault();
+            if (intersection is not null && !IsAwayFromTheEndPointsOf(
+                    intersection,
+                    combination.Segment1.Geometry.Value.GetSingleLineString(),
+                    combination.Segment2.Geometry.Value.GetSingleLineString(),
+                    context.Tolerances))
+            {
+                intersection = null;
+            }
+
+            if (intersection is null)
+            {
+                if (existingGradeJunctions.TryGetValue(combination.Key, out var goneGradeJunction))
+                {
+                    problems += RemoveGradeJunction(goneGradeJunction.GradeJunctionId, context);
+                }
+                if (existingGradeSeparatedJunctions.TryGetValue(combination.Key, out var goneGradeSeparatedJunction))
+                {
+                    problems += RemoveGradeSeparatedJunction(new RemoveGradeSeparatedJunctionChange
+                    {
+                        GradeSeparatedJunctionId = goneGradeSeparatedJunction.GradeSeparatedJunctionId
+                    }, context);
+                }
+
+                continue;
+            }
+
+            // A crossing that is already recorded keeps what records it, either way; only its geometry follows.
+            if (existingGradeJunctions.TryGetValue(combination.Key, out var gradeJunction))
+            {
+                gradeJunction.ChangeGeometry(JunctionGeometry.Create(intersection.Factory.CreatePoint(intersection.Coordinate.RoundToCm())), context.Provenance);
+                continue;
+            }
+            if (existingGradeSeparatedJunctions.TryGetValue(combination.Key, out var gradeSeparatedJunction))
+            {
+                var geometry = JunctionGeometryCalculator.Calculate(combination.Segment1.Geometry, combination.Segment2.Geometry);
+                if (geometry is not null)
+                {
+                    gradeSeparatedJunction.ChangeGeometry(geometry, context.Provenance);
+                }
+                continue;
+            }
+
+            problems += AddGradeJunction(
+                combination.Segment1.RoadSegmentId,
+                combination.Segment2.RoadSegmentId,
+                JunctionGeometry.Create(intersection.Factory.CreatePoint(intersection.Coordinate.RoundToCm())),
+                idGenerator,
+                context);
+        }
+
+        return problems;
+    }
+
+    private static bool IsAwayFromTheEndPointsOf(Point intersection, LineString segment1Geometry, LineString segment2Geometry, VerificationContextTolerances tolerances)
+    {
+        return intersection.IsFarEnoughAwayFrom(
+            [
+                segment1Geometry.StartPoint, segment1Geometry.EndPoint,
+                segment2Geometry.StartPoint, segment2Geometry.EndPoint
+            ],
+            tolerances.GeometryTolerance);
+    }
+
     private static void RecomputeJunctionGeometries(
         List<(RoadSegment Segment1, RoadSegment Segment2, (int, int) Key, Point[] IntersectingPoints)> segmentCombinationsOfChangedSegments,
         Dictionary<(int, int), GradeJunction> existingGradeJunctions,
@@ -138,8 +244,10 @@ public partial class ScopedRoadNetwork
         }
     }
 
+    // The pairs to evaluate: everything spatially near a changed segment, plus the segment pairs that already carry a
+    // junction - those have to be looked at even when they have drifted apart, otherwise the junction is never removed.
     private List<(RoadSegment Segment1, RoadSegment Segment2, (int, int) Key, Point[] IntersectingPoints)> GetSegmentCombinationsOfChangedSegments(
-        Dictionary<(int, int), GradeJunction> existingGradeJunctions,
+        IEnumerable<(RoadSegmentId RoadSegmentId1, RoadSegmentId RoadSegmentId2)> existingJunctionSegmentPairs,
         VerificationContextTolerances tolerances)
     {
         // Get all "gerealiseerde" segments for comparison
@@ -192,16 +300,16 @@ public partial class ScopedRoadNetwork
             }
         }
 
-        // 2. Existing grade junctions where one or both segments changed
+        // 2. Existing junctions where one or both segments changed
         //    (handles the case where a segment moved away and the junction must be removed)
-        foreach (var junction in existingGradeJunctions.Values)
+        foreach (var (roadSegmentId1, roadSegmentId2) in existingJunctionSegmentPairs)
         {
-            if (!changedSegmentIds.Contains(junction.RoadSegmentId1) &&
-                !changedSegmentIds.Contains(junction.RoadSegmentId2))
+            if (!changedSegmentIds.Contains(roadSegmentId1) &&
+                !changedSegmentIds.Contains(roadSegmentId2))
                 continue;
 
-            if (segmentById.TryGetValue(junction.RoadSegmentId1, out var junctionSeg1) &&
-                segmentById.TryGetValue(junction.RoadSegmentId2, out var junctionSeg2))
+            if (segmentById.TryGetValue(roadSegmentId1, out var junctionSeg1) &&
+                segmentById.TryGetValue(roadSegmentId2, out var junctionSeg2))
             {
                 AddPairIfNew(junctionSeg1, junctionSeg2);
             }
