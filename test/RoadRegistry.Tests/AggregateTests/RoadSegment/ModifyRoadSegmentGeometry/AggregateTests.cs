@@ -771,6 +771,58 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
+    public void WhenADraggedSegmentWouldCrossTheSameSegmentTwice_ThenError()
+    {
+        // VAL-18 on a segment dragged along rather than the one in the request. B already crosses D once over its top
+        // edge; pulling its start vertex westwards swings its first edge across D as well.
+        var startNodeA = BuildNode(1, 0, 0, RoadNodeTypeV2.Eindknoop);
+        var sharedNode = BuildNode(2, 100, 0, RoadNodeTypeV2.Validatieknoop);
+        var endNodeB = BuildNode(3, 60, 20, RoadNodeTypeV2.Eindknoop);
+        var startNodeD = BuildNode(4, 90, 10, RoadNodeTypeV2.Eindknoop);
+        var endNodeD = BuildNode(5, 90, 70, RoadNodeTypeV2.Eindknoop);
+
+        var roadNetwork = BuildNetwork(
+            [startNodeA, sharedNode, endNodeB, startNodeD, endNodeD],
+            [
+                BuildSegment(SegmentAId, startNodeA, sharedNode, BuildGeometry((0, 0), (100, 0))),
+                BuildSegment(SegmentBId, sharedNode, endNodeB, BuildGeometry((100, 0), (100, 50), (60, 50), (60, 20))),
+                BuildSegment(SegmentCId, startNodeD, endNodeD, BuildGeometry((90, 10), (90, 70)))
+            ]);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (85, 0))), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().Contain(x => x.Reason == "RoadSegmentDuplicateIntersections");
+        result.Summary.GradeJunctions.Added.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void WhenADragWouldCloseAConnectedSegmentIntoALoop_ThenTheNodeProximityRuleBlocksItFirst()
+    {
+        // VAL-19 cannot be reached on a dragged segment. Its start and end vertices sit on its two road nodes, so
+        // they can only coincide if the moved node lands on the other one - and VAL-21 forbids coming within a metre
+        // of a road node that is not itself moving. B hangs off the shared node and returns to its own end node 10m
+        // away; dragging the shared node onto it is refused before the loop can be formed.
+        var startNodeA = BuildNode(1, 0, 0, RoadNodeTypeV2.Eindknoop);
+        var sharedNode = BuildNode(2, 100, 0, RoadNodeTypeV2.Validatieknoop);
+        var endNodeB = BuildNode(3, 90, 0, RoadNodeTypeV2.Eindknoop);
+
+        var roadNetwork = BuildNetwork(
+            [startNodeA, sharedNode, endNodeB],
+            [
+                BuildSegment(SegmentAId, startNodeA, sharedNode, BuildGeometry((0, 0), (100, 0))),
+                BuildSegment(SegmentBId, sharedNode, endNodeB, BuildGeometry((100, 0), (95, 30), (90, 0)))
+            ]);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (90, 0))), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().ContainSingle()
+            .Which.Reason.Should().Be("RoadSegmentChangeGeometryPointTooCloseToRoadNode");
+        roadNetwork.RoadSegments[new RoadSegmentId(SegmentBId)].GetChanges().Should().BeEmpty();
+    }
+
+    [Fact]
     public void WhenTheSegmentIsMeasuredAndTheCallerMayNotEditMeasuredSegments_ThenError()
     {
         var roadNetwork = BuildNetworkWithSingleSegment(RoadSegmentGeometryDrawMethodV2.Ingemeten);
