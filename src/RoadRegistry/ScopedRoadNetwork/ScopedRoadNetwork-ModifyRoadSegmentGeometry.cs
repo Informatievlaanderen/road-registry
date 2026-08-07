@@ -145,10 +145,11 @@ public partial class ScopedRoadNetwork
             problems += DragRoadSegmentAlong(draggedRoadSegment, movedRoadNodes, context);
         }
 
-        // Junctions can appear or disappear when a geometry moves; this recomputes them for everything that changed.
+        problems += VerifyRoadSegmentsTopologyAfterChange(context);
+
         if (!problems.HasError())
         {
-            problems += VerifyAndUpdateJunctions(idGenerator, context);
+            problems += VerifyAndUpdateJunctionsAfterGeometryChange(idGenerator, context);
         }
 
         if (!problems.HasError() && context.Summary.HasChanges())

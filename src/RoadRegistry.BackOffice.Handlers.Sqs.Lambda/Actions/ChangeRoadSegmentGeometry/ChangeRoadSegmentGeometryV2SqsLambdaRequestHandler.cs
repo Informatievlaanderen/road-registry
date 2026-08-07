@@ -11,6 +11,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Hosts;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
@@ -36,6 +37,7 @@ public sealed class ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler : MartenS
     private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
     private readonly IOrganizationCache _organizationCache;
     private readonly IStreetNameClient _streetNameClient;
+    private readonly ExtractsDbContext _extractsDbContext;
 
     public ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -47,6 +49,7 @@ public sealed class ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler : MartenS
         IRoadNetworkIdGenerator roadNetworkIdGenerator,
         IOrganizationCache organizationCache,
         IStreetNameClient streetNameClient,
+        ExtractsDbContext extractsDbContext,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -60,6 +63,7 @@ public sealed class ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler : MartenS
         _roadNetworkIdGenerator = roadNetworkIdGenerator;
         _organizationCache = organizationCache;
         _streetNameClient = streetNameClient;
+        _extractsDbContext = extractsDbContext;
     }
 
     protected override async Task<object> InnerHandle(ChangeRoadSegmentGeometryV2SqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
@@ -80,6 +84,8 @@ public sealed class ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler : MartenS
 
         await Store.IdempotentSession(command, async session =>
         {
+            var problems = Problems.None;
+
             // Road nodes are sticky, so the segments connected to this one through its start and end node are part of
             // the change and have to be in scope even though the request does not mention them.
             var ids = await _roadNetworkRepository.GetUnderlyingIdsWithConnectedSegments(session, [command.RoadSegmentId]);
@@ -90,7 +96,15 @@ public sealed class ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler : MartenS
             // authority against the organization cache. Resolving the authority also maps an OVO code or KBO number
             // onto the organization code that is actually stored.
             var (maintenanceAuthorityIds, referenceProblems) = await ValidateReferences(command, cancellationToken);
-            referenceProblems.ThrowIfError();
+            problems += referenceProblems;
+
+            var isCompletelyWithinCompletedInwinningszone = await _extractsDbContext.IsCompletelyWithinCompletedInwinningszone(command.Geometry.Value, cancellationToken);
+            if (!isCompletelyWithinCompletedInwinningszone)
+            {
+                problems += new RoadSegmentOutsideCompletedInwinningszone();
+            }
+
+            problems.ThrowIfError();
 
             // The attribute positions apply to the geometry being submitted, not to the one on record, so an omitted
             // totPositie resolves against the new length.
