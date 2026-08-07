@@ -38,12 +38,12 @@ public partial class InwinningsstatusController
         [FromServices] Marten.IDocumentStore documentStore,
         CancellationToken cancellationToken = default)
     {
-        var inwinningRoadSegmentsCompleted = await extractsDbContext.InwinningRoadSegments
-            .Where(x => x.RoadSegmentId == id)
-            .Select(x => x.Completed)
-            .ToListAsync(cancellationToken);
+        var roadSegmentId = new RoadSegmentId(id);
+        var inwinningsstatus = (await extractsDbContext.GetInwinningsstatus([roadSegmentId], cancellationToken))[roadSegmentId];
 
-        if (inwinningRoadSegmentsCompleted.Count == 0)
+        // 'nietGestart' only means the segment takes part in no inwinning, which a segment that does not exist at all
+        // also satisfies - so that is the one case where it still has to be looked up.
+        if (inwinningsstatus == Inwinningsstatus.NietGestart)
         {
             await using var session = documentStore.LightweightSession();
 
@@ -52,18 +52,11 @@ public partial class InwinningsstatusController
             {
                 return NotFound();
             }
-
-            return Ok(new WegsegmentInwinningsstatus
-            {
-                Inwinningsstatus = Inwinningsstatus.NietGestart
-            });
         }
 
         return Ok(new WegsegmentInwinningsstatus
         {
-            Inwinningsstatus = inwinningRoadSegmentsCompleted.All(completed => completed)
-                ? Inwinningsstatus.Compleet
-                : Inwinningsstatus.Locked
+            Inwinningsstatus = inwinningsstatus
         });
     }
 }

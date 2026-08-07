@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Abstractions.Exceptions;
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -117,6 +118,67 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
         return inwinningRoadSegmentIds;
     }
 
+    // Records a road segment as an inwinning of its own that is already done, unless it takes part in one already.
+    // A sketched segment belongs to no municipality's inwinning, so without this it would read as 'nietGestart'.
+    //
+    // Lives here rather than in the caller because the callers import Marten, whose AnyAsync would be picked over
+    // Entity Framework's and then fail to cast the queryable.
+    public async Task EnsureCompletedInwinningRoadSegment(RoadSegmentId roadSegmentId, CancellationToken cancellationToken)
+    {
+        var isPartOfAnInwinning = await InwinningRoadSegments
+            .AnyAsync(x => x.RoadSegmentId == roadSegmentId.ToInt32(), cancellationToken);
+        if (isPartOfAnInwinning)
+        {
+            return;
+        }
+
+        InwinningRoadSegments.Add(new InwinningRoadSegment
+        {
+            NisCode = null,
+            RoadSegmentId = roadSegmentId.ToInt32(),
+            Completed = true
+        });
+        await SaveChangesAsync(cancellationToken);
+    }
+
+    // The inwinningsstatus of each of the given road segments: 'compleet' once every inwinning a segment takes part in
+    // is done, 'locked' while any of them is still running, and 'nietGestart' when it takes part in none - so every
+    // requested identifier comes back, whether or not it is being collected.
+    //
+    // Not knowing an identifier here is not the same as it not existing: a caller that has to tell those apart has to
+    // look the road segment up itself.
+    public async Task<IReadOnlyDictionary<RoadSegmentId, Inwinningsstatus>> GetInwinningsstatus(IEnumerable<RoadSegmentId> roadSegmentIds, CancellationToken cancellationToken)
+    {
+        const int batchSize = 2000; // SQL Server handles ~2100 params well
+        var segmentIdsList = roadSegmentIds.Distinct().ToList();
+
+        var completedByRoadSegmentId = new Dictionary<int, bool>();
+
+        for (var i = 0; i < segmentIdsList.Count; i += batchSize)
+        {
+            var batch = segmentIdsList.Skip(i).Take(batchSize).Select(x => x.ToInt32());
+            var inwinningRoadSegments = await InwinningRoadSegments
+                .AsNoTracking()
+                .Where(x => batch.Contains(x.RoadSegmentId))
+                .Select(x => new { x.RoadSegmentId, x.Completed })
+                .ToListAsync(cancellationToken);
+
+            foreach (var inwinningRoadSegment in inwinningRoadSegments)
+            {
+                completedByRoadSegmentId[inwinningRoadSegment.RoadSegmentId] =
+                    completedByRoadSegmentId.TryGetValue(inwinningRoadSegment.RoadSegmentId, out var completed)
+                        ? completed && inwinningRoadSegment.Completed
+                        : inwinningRoadSegment.Completed;
+            }
+        }
+
+        return segmentIdsList.ToDictionary(
+            roadSegmentId => roadSegmentId,
+            roadSegmentId => completedByRoadSegmentId.TryGetValue(roadSegmentId.ToInt32(), out var completed)
+                ? completed ? Inwinningsstatus.Compleet : Inwinningsstatus.Locked
+                : Inwinningsstatus.NietGestart);
+    }
+
     public async Task<IReadOnlyCollection<RoadSegmentId>> CheckWhichOverlapWithInwinningszone(IEnumerable<(MultiLineString Geometry, RoadSegmentId TemporaryId)> roadSegments, CancellationToken cancellationToken)
     {
         var inwinningszonesGeometries = await Inwinningszones
@@ -149,7 +211,23 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
             return false;
 
         var union = NetTopologySuite.Operation.Union.UnaryUnionOp.Union(zones);
-        return NetTopologySuite.Geometries.Prepared.PreparedGeometryFactory.Prepare(union).Covers(geometry);
+
+        // The zones are stored in Lambert 72 while a road segment geometry arrives in Lambert 2008, and Covers
+        // compares raw coordinates without ever looking at the SRID - so unless both are put in the same reference
+        // system first, every road reads as lying outside every zone.
+        return NetTopologySuite.Geometries.Prepared.PreparedGeometryFactory
+            .Prepare(union)
+            .Covers(ToLambert72(geometry));
+    }
+
+    // Only Lambert 08 needs converting. Anything else is left as it is rather than rejected: this is a query, and a
+    // geometry whose reference system we cannot place is answered by the comparison itself, not by an exception.
+    private static T ToLambert72<T>(T geometry)
+        where T : Geometry
+    {
+        return geometry.SRID == WellknownSrids.Lambert08
+            ? geometry.TransformFromLambert08To72()
+            : geometry;
     }
 
     public async Task<bool> IsUploadAcceptedAsync(UploadId uploadId, CancellationToken cancellationToken)

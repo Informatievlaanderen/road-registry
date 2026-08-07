@@ -144,6 +144,8 @@ public sealed class CreateRoadSegmentOutlineV2SqsLambdaRequestHandler : MartenSq
             Logger.LogInformation("Created outlined road segment {RoadSegmentId}", roadSegment.RoadSegmentId);
         }, cancellationToken, Logger);
 
+        await _extractsDbContext.EnsureCompletedInwinningRoadSegment(command.RoadSegmentId, cancellationToken);
+
         var roadSegmentHash = await GetRoadSegmentHash(command.RoadSegmentId, cancellationToken);
         return new ETagResponse(string.Format(GetRoadSegmentDetailUrlFormat(WellKnownPublicApiVersions.V3), command.RoadSegmentId), roadSegmentHash);
     }
