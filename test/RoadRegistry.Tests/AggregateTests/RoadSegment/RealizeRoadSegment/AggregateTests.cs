@@ -8,7 +8,6 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
 using RoadRegistry.RoadNetwork.Schema;
 using RoadRegistry.RoadNode.Events.V2;
-using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
@@ -121,7 +120,7 @@ public class AggregateTests : AggregateTestBase
     private RoadNetworkChangeResult Act(ScopedRoadNetwork roadNetwork, bool mayModifyMeasuredRoadSegments = true, int roadSegmentId = PlannedSegmentId)
     {
         return roadNetwork.RealizeRoadSegment(
-            new RealizeRoadSegmentChange { RoadSegmentId = new RoadSegmentId(roadSegmentId) },
+            new RoadSegmentId(roadSegmentId),
             mayModifyMeasuredRoadSegments,
             IdGenerator(),
             TestData.Provenance);

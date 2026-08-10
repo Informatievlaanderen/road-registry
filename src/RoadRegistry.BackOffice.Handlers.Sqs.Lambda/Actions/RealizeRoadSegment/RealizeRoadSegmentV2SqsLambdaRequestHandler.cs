@@ -15,7 +15,6 @@ using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Hosts;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
-using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.Events.V2;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
@@ -82,7 +81,7 @@ public sealed class RealizeRoadSegmentV2SqsLambdaRequestHandler : MartenSqsLambd
             problems.ThrowIfError();
 
             var result = roadNetwork.RealizeRoadSegment(
-                new RealizeRoadSegmentChange { RoadSegmentId = command.RoadSegmentId },
+                command.RoadSegmentId,
                 command.MayModifyMeasuredRoadSegments,
                 _roadNetworkIdGenerator,
                 command.ProvenanceData.ToProvenance(),

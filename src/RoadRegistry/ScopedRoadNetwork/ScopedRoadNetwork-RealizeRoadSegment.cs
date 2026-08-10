@@ -27,7 +27,7 @@ public partial class ScopedRoadNetwork
     // The user is expected to have prepared the connection points by splitting beforehand: an endpoint that lands near
     // an existing *segment* rather than an existing node gets its own end node, however close that segment is.
     public RoadNetworkChangeResult RealizeRoadSegment(
-        RealizeRoadSegmentChange change,
+        RoadSegmentId roadSegmentId,
         bool mayModifyMeasuredRoadSegments,
         IRoadNetworkIdGenerator idGenerator,
         Provenance provenance,
@@ -37,8 +37,6 @@ public partial class ScopedRoadNetwork
         using var _ = logger.TimeAction();
 
         var context = new ScopedRoadNetworkChangeContext(this, provenance, logger);
-
-        var roadSegmentId = change.RoadSegmentId;
 
         // Everything this action can go wrong about is about the one segment it names, but the mutations further down
         // raise problems that identify themselves, so the context is handed to each error rather than carried.
