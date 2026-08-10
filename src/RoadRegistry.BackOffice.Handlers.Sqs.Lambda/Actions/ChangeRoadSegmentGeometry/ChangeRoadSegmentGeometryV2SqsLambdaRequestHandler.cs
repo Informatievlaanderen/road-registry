@@ -88,7 +88,13 @@ public sealed class ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler : MartenS
 
             // Road nodes are sticky, so the segments connected to this one through its start and end node are part of
             // the change and have to be in scope even though the request does not mention them.
-            var ids = await _roadNetworkRepository.GetUnderlyingIdsWithConnectedSegments(session, [command.RoadSegmentId]);
+            var connectedIds = await _roadNetworkRepository.GetUnderlyingIdsWithConnectedSegments(session, [command.RoadSegmentId]);
+
+            // A segment the new geometry runs into shares no road node with it, so it is not in the set above and the
+            // crossing it makes would go unnoticed. Scoping on the new geometry brings it in. The other direction - a
+            // crossing that disappears - is covered by the junction ids: those resolve back to the segment on the far
+            // side of every junction this one takes part in, so a junction left behind is still seen and removed.
+            var ids = await _roadNetworkRepository.GetUnderlyingIds(session, command.Geometry.Value, connectedIds);
             var roadNetwork = await _roadNetworkRepository.Load(session, ids, scopedRoadNetworkId);
 
             // The street name and the maintenance authority live outside the road network, so they are validated here
