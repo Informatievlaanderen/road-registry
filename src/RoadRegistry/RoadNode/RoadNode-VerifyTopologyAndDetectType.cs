@@ -1,4 +1,4 @@
-namespace RoadRegistry.RoadNode;
+﻿namespace RoadRegistry.RoadNode;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -51,7 +51,7 @@ public partial class RoadNode
         }
         else if (segments.Count == 2)
         {
-            if (Grensknoop)
+            if (Grensknoop || !mayMergeRoadSegments)
             {
                 ChangeTypeTo(RoadNodeTypeV2.Validatieknoop, context.Provenance);
             }
@@ -60,7 +60,7 @@ public partial class RoadNode
                 var segment1 = segments[0];
                 var segment2 = segments[1];
 
-                problems += MergeRoadSegmentsIfNodeIsNotNeeded(segment1, segment2, roadSegmentsSpatialIndex, idGenerator, context, mayMergeRoadSegments);
+                problems += MergeRoadSegmentsIfNodeIsNotNeeded(segment1, segment2, roadSegmentsSpatialIndex, idGenerator, context);
             }
         }
         else
@@ -71,10 +71,9 @@ public partial class RoadNode
         return problems;
     }
 
-    private Problems MergeRoadSegmentsIfNodeIsNotNeeded(RoadSegment segment1, RoadSegment segment2, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments)
+    private Problems MergeRoadSegmentsIfNodeIsNotNeeded(RoadSegment segment1, RoadSegment segment2, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
     {
-        var roadNodeIsNeeded = !mayMergeRoadSegments
-                               || segment1.Attributes is null
+        var roadNodeIsNeeded = segment1.Attributes is null
                                || segment2.Attributes is null
                                || RoadNodePreventsInvalidRoadSegmentGeometry(segment1, segment2, roadSegmentsSpatialIndex, context);
         if (roadNodeIsNeeded)
