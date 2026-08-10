@@ -346,6 +346,13 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode RoadNodeMovedTooFar = new("RoadSegmentChangeGeometryRoadNodeMovedTooFar");
         }
 
+        public static class Realize
+        {
+            public static readonly ProblemCode StatusNotValid = new("RoadSegmentRealizeStatusNotValid");
+            public static readonly ProblemCode MeasuredNotAllowed = new("RoadSegmentRealizeMeasuredNotAllowed");
+            public static readonly ProblemCode NoRoadNodeInReach = new("RoadSegmentRealizeNoRoadNodeInReach");
+        }
+
         public static class Split
         {
             public static readonly ProblemCode NotFound = new("RoadSegmentSplitNotFound");

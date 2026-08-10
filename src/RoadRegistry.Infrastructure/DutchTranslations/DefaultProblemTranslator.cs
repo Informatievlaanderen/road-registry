@@ -627,6 +627,18 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"U heeft niet de machtigingen om deze actie uit te voeren voor (aansluitende) wegsegmenten met geometriemethode 'ingemeten'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingemeten.")
             },
             {
+                ProblemCode.RoadSegment.Realize.StatusNotValid, problem => new(problem.Severity, "WegsegmentRealisatieStatusNietCorrect",
+                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft een status die verschilt van 'gepland'.")
+            },
+            {
+                ProblemCode.RoadSegment.Realize.MeasuredNotAllowed, problem => new(problem.Severity, "WegsegmentRealisatieIngemetenNietToegelaten",
+                    $"U heeft niet de machtigingen om deze actie uit te voeren voor wegsegmenten met geometriemethode 'ingemeten'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingemeten.")
+            },
+            {
+                ProblemCode.RoadSegment.Realize.NoRoadNodeInReach, problem => new(problem.Severity, "WegsegmentRealisatieGeenWegknoopGevonden",
+                    $"Er werd geen wegknoop gevonden binnen een straal van ≤{problem.GetParameterValue("MaximumDistance")}m van het start- en/of eindpunt van het wegsegment.")
+            },
+            {
                 ProblemCode.RoadSegment.ChangeGeometry.PointTooCloseToRoadNode, problem => new(problem.Severity, "WegsegmentGeometriePuntTeDichtBijWegknoop",
                     $"Het start- of eindpunt van het wegsegment met {GetRoadSegmentIdLabel(problem)} ligt te dicht (<{problem.GetParameterValue("MinimumDistance")}m) bij wegknoop {problem.GetParameterValue("RoadNodeId")}.")
             },
