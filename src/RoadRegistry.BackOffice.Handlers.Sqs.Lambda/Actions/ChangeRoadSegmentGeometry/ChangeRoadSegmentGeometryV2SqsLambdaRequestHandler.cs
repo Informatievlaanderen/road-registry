@@ -104,6 +104,8 @@ public sealed class ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler : MartenS
                 problems += new RoadSegmentOutsideCompletedInwinningszone();
             }
 
+            problems += await ValidateInwinningIsCompleted(roadNetwork, command.RoadSegmentId, cancellationToken);
+
             problems.ThrowIfError();
 
             // The attribute positions apply to the geometry being submitted, not to the one on record, so an omitted
@@ -141,6 +143,25 @@ public sealed class ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler : MartenS
         await using var readSession = Store.LightweightSession();
         var scopedRoadNetwork = await readSession.LoadAsync(scopedRoadNetworkId, cancellationToken);
         return scopedRoadNetwork.SummaryOfLastChange!;
+    }
+
+    // A road segment may only be edited once its inwinning is done: one that is still being collected, or that is not
+    // being collected at all, is not ours to change yet.
+    private async Task<Problems> ValidateInwinningIsCompleted(ScopedRoadNetwork roadNetwork, RoadSegmentId roadSegmentId, CancellationToken cancellationToken)
+    {
+        // An identifier the road network does not know is the domain's to report as not found, and 'nietGestart' cannot
+        // tell "not being collected" from "does not exist" - so checking it here would answer a missing road segment
+        // with the wrong problem entirely.
+        if (!roadNetwork.RoadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
+        {
+            return Problems.None;
+        }
+
+        var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus([roadSegmentId], cancellationToken);
+
+        return inwinningsstatus
+            .Where(x => x.Value != Inwinningsstatus.Compleet)
+            .Aggregate(Problems.None, (problems, x) => problems + new RoadSegmentNotCompletedInwinning(x.Key));
     }
 
     // Validates every distinct street name and maintenance authority in the request and returns the resolved

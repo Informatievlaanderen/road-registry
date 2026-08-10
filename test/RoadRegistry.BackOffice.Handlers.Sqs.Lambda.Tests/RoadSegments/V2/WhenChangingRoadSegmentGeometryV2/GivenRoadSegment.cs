@@ -66,10 +66,34 @@ public class GivenRoadSegment : BackOfficeLambdaTest
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
 
-        await HandleRequest(store);
+        await HandleRequest(store, extractsDbContext: ExtractsDbContextWithoutZone());
 
         VerifyThatTicketHasError("RoadSegmentOutsideInwinningszone",
             "Het wegsegment valt niet volledig binnen een gemeente die de inwinningsstatus 'compleet' heeft.");
+    }
+
+    [Fact]
+    public async Task WhenTheInwinningOfTheRoadSegmentItselfIsNotCompleted_ThenTicketError()
+    {
+        // The zone is completed, but this particular road segment is still being collected: lying in a finished zone
+        // is not on its own enough to edit it.
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+
+        await HandleRequest(store, extractsDbContext: ExtractsDbContextWithZone(ZoneCovering(-1000, 1000), completed: true, inwinningCompleted: false));
+
+        VerifyThatTicketHasError("WegsegmentInwinningsstatusNietCompleet",
+            $"Het wegsegment met id {_testData.Segment1Added.RoadSegmentId} heeft niet de inwinningsstatus 'compleet'.");
+    }
+
+    [Fact]
+    public async Task WhenTheRoadSegmentHasNoInwinningAtAll_ThenTicketError()
+    {
+        // Never collected at all, which is no more editable than a collection that is still running.
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+
+        await HandleRequest(store, extractsDbContext: ExtractsDbContextWithZone(ZoneCovering(-1000, 1000), completed: true, registerInwinning: false));
+
+        VerifyThatTicketHasError("WegsegmentInwinningsstatusNietCompleet", null);
     }
 
     [Fact]
@@ -108,9 +132,9 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         ])), WellknownSrids.Lambert08).TransformFromLambert08To72();
     }
 
-    private static ExtractsDbContext ExtractsDbContextWithZone(Geometry contour, bool completed)
+    private ExtractsDbContext ExtractsDbContextWithZone(Geometry contour, bool completed, bool registerInwinning = true, bool inwinningCompleted = true)
     {
-        var db = new FakeExtractsDbContextFactory().CreateDbContext();
+        var db = ExtractsDbContextWithoutZone(registerInwinning, inwinningCompleted);
         db.Inwinningszones.Add(new Inwinningszone
         {
             NisCode = "11001",
@@ -119,6 +143,24 @@ public class GivenRoadSegment : BackOfficeLambdaTest
             Contour = contour,
             Completed = completed
         });
+        db.SaveChanges();
+        return db;
+    }
+
+    // The inwinning of the road segment itself is a rule of its own, next to the zone it lies in, so it is registered
+    // as completed by default: a fixture that is about the zone should not trip over it.
+    private ExtractsDbContext ExtractsDbContextWithoutZone(bool registerInwinning = true, bool inwinningCompleted = true)
+    {
+        var db = new FakeExtractsDbContextFactory().CreateDbContext();
+        if (registerInwinning)
+        {
+            db.InwinningRoadSegments.Add(new InwinningRoadSegment
+            {
+                NisCode = "11001",
+                RoadSegmentId = _testData.Segment1Added.RoadSegmentId.ToInt32(),
+                Completed = inwinningCompleted
+            });
+        }
         db.SaveChanges();
         return db;
     }
