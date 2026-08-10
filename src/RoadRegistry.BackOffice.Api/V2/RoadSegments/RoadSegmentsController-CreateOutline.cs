@@ -672,15 +672,9 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
 
     private static bool IsMorePreciseThanCm(string gml)
     {
-        var geometry = GeometryTranslator.ParseGmlLineString(gml)
-            .GetSingleLineString();
-
-        return geometry.Coordinates.Any(c => IsSubCmPrecision(c.X) || IsSubCmPrecision(c.Y));
-    }
-
-    private static bool IsSubCmPrecision(double value)
-    {
-        return Math.Abs(value - Math.Round(value, 2)) > 1e-10;
+        return GeometryTranslator.ParseGmlLineString(gml)
+            .GetSingleLineString()
+            .HasCoordinatesMorePreciseThanCm();
     }
 
     private static void ValidatePositions(
