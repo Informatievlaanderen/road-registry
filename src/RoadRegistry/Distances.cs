@@ -17,6 +17,10 @@ public static class Distances
     // snapped onto it, an endpoint without one gets an 'eindknoop' of its own.
     public static readonly double RoadSegmentRealizeMaximumDistanceToRoadNode = 1.0; // 1 meter
 
+    // A stretch a dynamically segmented attribute value covers may not be shorter than this. When a geometry change
+    // squeezes one below it, the stretch lapses and its neighbour takes over rather than the segment being refused.
+    public static readonly double RoadSegmentDynamicAttributeMinimumLength = 1.0; // 1 meter
+
     // ...and it may not drag a node arbitrarily far. An 'eindknoop' terminates a road and can legitimately be
     // extended over a longer distance; a node that other segments hang off may not wander.
     public static readonly double RoadNodeMaximumMoveDistance = 20.0; // 20 meters

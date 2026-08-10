@@ -141,7 +141,64 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
             x.Side,
             Value: x.Value!)));
 
-        return remapped.WithTrailingCoverageSnappedTo(newVertexPositions[^1].RoundToCm());
+        return remapped
+            .WithTrailingCoverageSnappedTo(newVertexPositions[^1].RoundToCm())
+            .WithoutCoveragesShorterThan(Distances.RoadSegmentDynamicAttributeMinimumLength);
+    }
+
+    // A stretch squeezed below the minimum by a geometry change lapses, and the stretch next to it takes over what it
+    // covered. Which neighbour absorbs it follows the direction it can grow in: the first stretch is absorbed by the
+    // one after it - so that value now runs from the start - and any other by the one before it, which runs on to
+    // where the lapsed stretch ended.
+    //
+    // Sides are handled apart from each other: 'links' and 'rechts' are two independent runs of coverages, and a value
+    // that applies to 'beide' is a run of its own.
+    private RoadSegmentDynamicAttributeValues<T> WithoutCoveragesShorterThan(double minimumLength)
+    {
+        if (Values.Count == 0)
+        {
+            return this;
+        }
+
+        var kept = Values
+            .GroupBy(x => x.Side)
+            .SelectMany(side => WithoutCoveragesShorterThan(
+                side.OrderBy(x => x.Coverage.From).Select(x => (x.Coverage, x.Side, Value: x.Value!)).ToList(),
+                minimumLength));
+
+        return new RoadSegmentDynamicAttributeValues<T>(kept);
+    }
+
+    private static List<(RoadSegmentPositionCoverage Coverage, RoadSegmentAttributeSide Side, T Value)> WithoutCoveragesShorterThan(
+        List<(RoadSegmentPositionCoverage Coverage, RoadSegmentAttributeSide Side, T Value)> ordered,
+        double minimumLength)
+    {
+        // A single stretch has no neighbour to lapse into. It covers the whole segment, so its length is the segment's
+        // own, which is refused elsewhere if it is too short.
+        while (ordered.Count > 1)
+        {
+            var index = ordered.FindIndex(x => x.Coverage.To.ToDouble() - x.Coverage.From.ToDouble() < minimumLength);
+            if (index < 0)
+            {
+                break;
+            }
+
+            var lapsed = ordered[index];
+            if (index == 0)
+            {
+                var next = ordered[1];
+                ordered[1] = (next.Coverage with { From = lapsed.Coverage.From }, next.Side, next.Value);
+            }
+            else
+            {
+                var previous = ordered[index - 1];
+                ordered[index - 1] = (previous.Coverage with { To = lapsed.Coverage.To }, previous.Side, previous.Value);
+            }
+
+            ordered.RemoveAt(index);
+        }
+
+        return ordered;
     }
 
     private static double RemapPosition(double position, IReadOnlyList<double> current, IReadOnlyList<double> updated)
