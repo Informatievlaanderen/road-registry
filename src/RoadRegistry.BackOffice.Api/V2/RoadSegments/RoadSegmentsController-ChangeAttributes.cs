@@ -29,6 +29,10 @@ public partial class RoadSegmentsController
 {
     private const string ChangeAttributesRoute = "acties/wijzigen/attributen";
 
+    // Everything the request names is loaded and changed as one unit of work, so the size of a single request is
+    // bounded here rather than let downstream time out on it.
+    private const int ChangeAttributesMaximumRoadSegmentCount = 1000;
+
     /// <summary>
     ///     Wijzig attribuutwaarde(n) voor één of meerdere wegsegmenten.
     /// </summary>
@@ -80,6 +84,20 @@ public partial class RoadSegmentsController
     private static IReadOnlyList<ChangeRoadSegmentAttributesV2Group> TranslateAndValidate(ChangeRoadSegmentAttributesV2Parameters parameters)
     {
         var failures = new List<ValidationFailure>();
+
+        // A request that is too big is rejected on its own: reporting it together with the per-item failures of a
+        // thousands-of-segments request would bury it.
+        var uniqueRoadSegmentIdCount = parameters
+            .Where(x => x.Wegsegmenten is not null)
+            .SelectMany(x => x.Wegsegmenten!)
+            .Distinct()
+            .Count();
+        if (uniqueRoadSegmentIdCount > ChangeAttributesMaximumRoadSegmentCount)
+        {
+            throw new ValidationException([
+                new ValidationFailure(nameof(parameters), $"Er kunnen maximaal {ChangeAttributesMaximumRoadSegmentCount} wegsegmenten gewijzigd worden. Er werden er {uniqueRoadSegmentIdCount} opgegeven.")
+            ]);
+        }
 
         // VAL-32: the same attribute may only be specified once per road segment (across the whole request).
         var seenAttributePerSegment = new HashSet<(string Attribute, int RoadSegmentId)>();
