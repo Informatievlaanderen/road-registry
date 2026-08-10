@@ -17,6 +17,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.SplitRoadSegment;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.Infrastructure.MartenDb.Store;
@@ -37,10 +38,25 @@ using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 [Collection("runsequential")]
 public class GivenRoadSegment : BackOfficeLambdaTest
 {
+
     private readonly RoadNetworkTestDataV2 _testData = new();
 
     public GivenRoadSegment(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
+    }
+
+    [Fact]
+    public async Task WhenTheRoadSegmentInwinningIsNotCompleted_ThenTicketError()
+    {
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = new FakeRoadNetworkRepository(store,
+            new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [new RoadSegmentId(1)], [], []),
+            BuildSeedNetwork);
+
+        await HandleRequest(CreateSqsRequest(CutPosition(50, 50)), store, roadNetworkRepository,
+            ExtractsDbContextWithInwinning(completed: false, _testData.Segment1Added.RoadSegmentId.ToInt32()));
+
+        VerifyThatTicketHasError("WegsegmentInwinningsstatusNietCompleet", null);
     }
 
     [Fact]
@@ -199,7 +215,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         };
     }
 
-    private async Task HandleRequest(SplitRoadSegmentSqsRequest sqsRequest, IDocumentStore store, IRoadNetworkRepository roadNetworkRepository)
+    private async Task HandleRequest(SplitRoadSegmentSqsRequest sqsRequest, IDocumentStore store, IRoadNetworkRepository roadNetworkRepository, ExtractsDbContext? extractsDbContext = null)
     {
         var sqsLambdaRequest = new SplitRoadSegmentSqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest);
 
@@ -211,6 +227,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
             store,
             roadNetworkRepository,
             new InMemoryRoadNetworkIdGenerator(initialValue: 100),
+            extractsDbContext ?? ExtractsDbContextWithCompletedInwinning(_testData.Segment1Added.RoadSegmentId.ToInt32()),
             LoggerFactory);
 
         await handler.Handle(sqsLambdaRequest, CancellationToken.None);
@@ -233,6 +250,28 @@ public class GivenRoadSegment : BackOfficeLambdaTest
                 )
             ]), ApplicationMetadata))
             .SingleInstance();
+    }
+
+
+    private static ExtractsDbContext ExtractsDbContextWithCompletedInwinning(params int[] roadSegmentIds)
+    {
+        return ExtractsDbContextWithInwinning(completed: true, roadSegmentIds);
+    }
+
+    private static ExtractsDbContext ExtractsDbContextWithInwinning(bool completed, params int[] roadSegmentIds)
+    {
+        var db = new FakeExtractsDbContextFactory().CreateDbContext();
+        foreach (var roadSegmentId in roadSegmentIds)
+        {
+            db.InwinningRoadSegments.Add(new InwinningRoadSegment
+            {
+                NisCode = "11001",
+                RoadSegmentId = roadSegmentId,
+                Completed = completed
+            });
+        }
+        db.SaveChanges();
+        return db;
     }
 
     private static StoreOptions BuildStoreOptions()

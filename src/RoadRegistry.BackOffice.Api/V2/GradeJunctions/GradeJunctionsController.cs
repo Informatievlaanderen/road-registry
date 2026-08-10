@@ -45,7 +45,7 @@ public class GradeJunctionNotFoundResponseExamples : IExamplesProvider<ProblemDe
             ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:gradejunction:not-found",
             HttpStatus = StatusCodes.Status404NotFound,
             Title = ProblemDetails.DefaultTitle,
-            Detail = "Onbestaand gelijkgrondse kruising.",
+            Detail = "Onbestaande gelijkgrondse kruising.",
             ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, PublicApi.ApiVersion)
         };
 }
