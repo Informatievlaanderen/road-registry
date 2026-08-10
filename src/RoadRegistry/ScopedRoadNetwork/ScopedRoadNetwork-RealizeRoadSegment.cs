@@ -142,7 +142,11 @@ public partial class ScopedRoadNetwork
 
         // The node the segment snapped onto now carries one segment more than it did, so its type is re-derived. This
         // is what turns the 'validatieknoop' left behind by a split into an 'echte knoop'.
-        problems += VerifyRoadNodesTopologyAndUpdateTypeAfterChange(idGenerator, context);
+        //
+        // Merging is off: snapping onto the 'eindknoop' of an existing road leaves that node with two segments, and
+        // the network-wide rules would take that as licence to merge the two into one. Realizing a segment is an edit
+        // of the one segment it names - the road it hooks onto keeps its own identity.
+        problems += VerifyRoadNodesTopologyAndUpdateTypeAfterChange(idGenerator, context, mayMergeRoadSegments: false);
 
         // VAL-6, and VAL-7/VAL-8 once more now that the segment counts as realized.
         problems += VerifyRoadSegmentsTopologyAfterChange(context);

@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.RoadNode;
+namespace RoadRegistry.RoadNode;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,10 @@ using ScopedRoadNetwork.ValueObjects;
 
 public partial class RoadNode
 {
-    public Problems VerifyTopologyAndUpdateType(LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
+    // mayMergeRoadSegments: whether a node that turns out to be unnecessary may take the two segments hanging off it
+    // with it, merging them into one. That belongs to the inwinning/change upload, which reshapes the network as a
+    // whole. An editing action names one segment and must leave the others as they are, so it turns this off.
+    public Problems VerifyTopologyAndUpdateType(LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments = true)
     {
         var problems = Problems.WithContext(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
 
@@ -29,12 +32,12 @@ public partial class RoadNode
             problems += new RoadNodeGeometryTaken(context.IdTranslator.TranslateToTemporaryId(byOtherNode.RoadNodeId));
         }
 
-        problems += ValidateTypeAndChangeIfNeeded(segments, roadSegmentsSpatialIndex, idGenerator, context);
+        problems += ValidateTypeAndChangeIfNeeded(segments, roadSegmentsSpatialIndex, idGenerator, context, mayMergeRoadSegments);
 
         return problems;
     }
 
-    private Problems ValidateTypeAndChangeIfNeeded(List<RoadSegment> segments, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
+    private Problems ValidateTypeAndChangeIfNeeded(List<RoadSegment> segments, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments)
     {
         var problems = Problems.None;
 
@@ -57,7 +60,7 @@ public partial class RoadNode
                 var segment1 = segments[0];
                 var segment2 = segments[1];
 
-                problems += MergeRoadSegmentsIfNodeIsNotNeeded(segment1, segment2, roadSegmentsSpatialIndex, idGenerator, context);
+                problems += MergeRoadSegmentsIfNodeIsNotNeeded(segment1, segment2, roadSegmentsSpatialIndex, idGenerator, context, mayMergeRoadSegments);
             }
         }
         else
@@ -68,9 +71,10 @@ public partial class RoadNode
         return problems;
     }
 
-    private Problems MergeRoadSegmentsIfNodeIsNotNeeded(RoadSegment segment1, RoadSegment segment2, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
+    private Problems MergeRoadSegmentsIfNodeIsNotNeeded(RoadSegment segment1, RoadSegment segment2, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments)
     {
-        var roadNodeIsNeeded = segment1.Attributes is null
+        var roadNodeIsNeeded = !mayMergeRoadSegments
+                               || segment1.Attributes is null
                                || segment2.Attributes is null
                                || RoadNodePreventsInvalidRoadSegmentGeometry(segment1, segment2, roadSegmentsSpatialIndex, context);
         if (roadNodeIsNeeded)

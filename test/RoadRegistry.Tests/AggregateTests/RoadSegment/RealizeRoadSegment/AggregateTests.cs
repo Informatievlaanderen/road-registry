@@ -313,6 +313,34 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
+    public void WhenItSnapsOntoAnEindknoop_ThenTheRoadItHooksOntoIsNotMergedAway()
+    {
+        // The node at (100,0) terminates an existing road. Hooking on leaves it with two segments, which the
+        // network-wide rules would take as licence to merge the two into one. An edit of one segment may not do that.
+        var westNode = BuildNode(10, 0, 0, RoadNodeTypeV2.Eindknoop);
+        var deadEndNode = BuildNode(11, 100, 0, RoadNodeTypeV2.Eindknoop);
+
+        var roadNetwork = BuildNetwork(
+            [westNode, deadEndNode],
+            [
+                BuildSegment(PlannedSegmentId, null, null, BuildGeometry((100, 0), (100, 80)), RoadSegmentStatusV2.Gepland),
+                BuildSegment(RealizedSegmentId, westNode, deadEndNode, BuildGeometry((0, 0), (100, 0)), RoadSegmentStatusV2.Gerealiseerd)
+            ]);
+
+        var result = Act(roadNetwork);
+
+        result.Problems.Should().BeEmpty();
+
+        // Both segments are still there under their own identifiers, and neither was removed in favour of a merge.
+        result.Summary.RoadSegments.Removed.Should().BeEmpty();
+        roadNetwork.RoadSegments[new RoadSegmentId(PlannedSegmentId)].IsRemoved.Should().BeFalse();
+        roadNetwork.RoadSegments[new RoadSegmentId(RealizedSegmentId)].IsRemoved.Should().BeFalse();
+
+        // And the planned segment really did hook onto that node.
+        roadNetwork.RoadSegments[new RoadSegmentId(PlannedSegmentId)].StartNodeId.Should().Be(new RoadNodeId(11));
+    }
+
+    [Fact]
     public void WhenTheSegmentIsRealized_ThenTheNodeItConnectedToIsRetyped()
     {
         // The node at (100,0) had two segments and was a 'validatieknoop'; with a third it is an 'echte knoop'.
