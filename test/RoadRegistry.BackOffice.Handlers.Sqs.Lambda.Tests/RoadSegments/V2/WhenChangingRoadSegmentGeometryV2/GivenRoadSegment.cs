@@ -26,6 +26,8 @@ using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.Infrastructure.MartenDb.Store;
 using RoadRegistry.RoadNetwork.Schema;
+using RoadRegistry.RoadNode.Events.V2;
+using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
@@ -70,6 +72,61 @@ public class GivenRoadSegment : BackOfficeLambdaTest
 
         VerifyThatTicketHasError("RoadSegmentOutsideInwinningszone",
             "Het wegsegment valt niet volledig binnen een gemeente die de inwinningsstatus 'compleet' heeft.");
+    }
+
+    [Fact]
+    public async Task WhenTheNewGeometryCrossesASegmentItShareNoNodeWith_ThenAGradeJunctionIsAdded()
+    {
+        // The crossed segment is not reachable through the road nodes of the one being changed, so it is only in scope
+        // if the new geometry itself is used to scope. Without that it is never loaded and the crossing goes unnoticed.
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var completedResults = CaptureCompletedResults();
+
+        await HandleRequest(store,
+            extractsDbContext: ExtractsDbContextWithZone(ZoneCovering(-1000, 1000), completed: true),
+            // The seeded segment runs (0,0) -> (50,50) -> (100,100); this dips it south through the crossing segment
+            // while both end vertices stay on their own road node.
+            newGeometry: new MultiLineString([new LineString([new Coordinate(0, 0), new Coordinate(60, -50), new Coordinate(100, 100)])])
+                .WithSrid(WellknownSrids.Lambert08)
+                .ToRoadSegmentGeometry(),
+            otherSegments: [CrossingSegment()],
+            otherNodes: [CrossingSegmentStartNode(), CrossingSegmentEndNode()]);
+
+        completedResults.Should().ContainSingle()
+            .Which.Summary.GradeJunctions.Added.Should().ContainSingle();
+    }
+
+    // A segment running north-south well below the seeded one, sharing neither of its road nodes. The old geometry
+    // stays clear of it entirely.
+    private RoadSegmentWasAdded CrossingSegment()
+    {
+        return _testData.Segment1Added with
+        {
+            RoadSegmentId = new RoadSegmentId(99),
+            StartNodeId = new RoadNodeId(98),
+            EndNodeId = new RoadNodeId(99),
+            Geometry = new MultiLineString([new LineString([new Coordinate(60, -100), new Coordinate(60, -10)])])
+                .WithSrid(WellknownSrids.Lambert08)
+                .ToRoadSegmentGeometry()
+        };
+    }
+
+    private RoadNodeWasAdded CrossingSegmentStartNode()
+    {
+        return _testData.Segment1StartNodeAdded with
+        {
+            RoadNodeId = new RoadNodeId(98),
+            Geometry = new Point(new Coordinate(60, -100)).WithSrid(WellknownSrids.Lambert08).ToRoadNodeGeometry()
+        };
+    }
+
+    private RoadNodeWasAdded CrossingSegmentEndNode()
+    {
+        return _testData.Segment1EndNodeAdded with
+        {
+            RoadNodeId = new RoadNodeId(99),
+            Geometry = new Point(new Coordinate(60, -10)).WithSrid(WellknownSrids.Lambert08).ToRoadNodeGeometry()
+        };
     }
 
     [Fact]
@@ -184,7 +241,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
             .ToRoadSegmentGeometry();
     }
 
-    private ChangeRoadSegmentGeometryV2SqsRequest CreateSqsRequest()
+    private ChangeRoadSegmentGeometryV2SqsRequest CreateSqsRequest(RoadSegmentGeometry? newGeometry = null)
     {
         var attributes = _testData.Segment1Added;
 
@@ -196,7 +253,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>(),
             RoadSegmentId = attributes.RoadSegmentId,
-            Geometry = NewGeometry(),
+            Geometry = newGeometry ?? NewGeometry(),
             MayModifyMeasuredRoadSegments = true,
             Morphology = [new AttributeValue<RoadSegmentMorphologyV2>(null, null, attributes.Morphology.Values.First().Value)],
             SurfaceType = [new AttributeValue<RoadSegmentSurfaceTypeV2>(null, null, attributes.SurfaceType.Values.First().Value)],
@@ -211,7 +268,12 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         };
     }
 
-    private async Task HandleRequest(IDocumentStore store, ExtractsDbContext? extractsDbContext = null)
+    private async Task HandleRequest(
+        IDocumentStore store,
+        ExtractsDbContext? extractsDbContext = null,
+        RoadSegmentGeometry? newGeometry = null,
+        RoadSegmentWasAdded[]? otherSegments = null,
+        RoadNodeWasAdded[]? otherNodes = null)
     {
         var organizationCache = new Mock<IOrganizationCache>();
         organizationCache
@@ -224,33 +286,25 @@ public class GivenRoadSegment : BackOfficeLambdaTest
             TicketingMock.Object,
             ScopedContainer.Resolve<IIdempotentCommandHandler>(),
             store,
-            BuildRepository(store),
+            BuildRepository(store, otherSegments, otherNodes),
             new InMemoryRoadNetworkIdGenerator(initialValue: 100),
             organizationCache.Object,
             new Mock<IStreetNameClient>().Object,
             extractsDbContext ?? new FakeExtractsDbContextFactory().CreateDbContext(),
             LoggerFactory);
 
-        await handler.Handle(new ChangeRoadSegmentGeometryV2SqsLambdaRequest(Guid.NewGuid().ToString(), CreateSqsRequest()), CancellationToken.None);
+        await handler.Handle(new ChangeRoadSegmentGeometryV2SqsLambdaRequest(Guid.NewGuid().ToString(), CreateSqsRequest(newGeometry)), CancellationToken.None);
     }
 
-    private FakeRoadNetworkRepository BuildRepository(IDocumentStore store)
+    // The whole network the fake repository can hand out; what the handler actually gets is whatever it scopes to.
+    private FakeRoadNetworkRepository BuildRepository(IDocumentStore store, RoadSegmentWasAdded[]? otherSegments, RoadNodeWasAdded[]? otherNodes)
     {
+        RoadNodeWasAdded[] nodes = [_testData.Segment1StartNodeAdded, _testData.Segment1EndNodeAdded, .. otherNodes ?? []];
+        RoadSegmentWasAdded[] segments = [_testData.Segment1Added, .. otherSegments ?? []];
+
         return new FakeRoadNetworkRepository(store,
-            new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [_testData.Segment1Added.RoadSegmentId], [], []),
-            BuildSeedNetwork);
-    }
-
-    private ScopedRoadNetwork BuildSeedNetwork(ScopedRoadNetworkId id)
-    {
-        return new ScopedRoadNetwork(id,
-            [
-                RoadNode.Create(_testData.Segment1StartNodeAdded).WithoutChanges(),
-                RoadNode.Create(_testData.Segment1EndNodeAdded).WithoutChanges()
-            ],
-            [RoadSegment.Create(_testData.Segment1Added).WithoutChanges()],
-            [],
-            []);
+            nodes.Select(x => RoadNode.Create(x).WithoutChanges()).ToArray(),
+            segments.Select(x => RoadSegment.Create(x).WithoutChanges()).ToArray());
     }
 
     protected override void ConfigureContainer(ContainerBuilder containerBuilder)
@@ -279,27 +333,71 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         return storeOptions;
     }
 
+    // Scoping is what decides which segments the domain gets to see, so the fake honours it the way the real
+    // repository does rather than handing out the whole network regardless of what was asked for.
     private sealed class FakeRoadNetworkRepository : IRoadNetworkRepository
     {
         private readonly RoadNetworkRepository _real;
-        private readonly RoadNetworkIds _ids;
-        private readonly Func<ScopedRoadNetworkId, ScopedRoadNetwork> _loadFactory;
+        private readonly IReadOnlyList<RoadNode> _nodes;
+        private readonly IReadOnlyList<RoadSegment> _segments;
 
-        public FakeRoadNetworkRepository(IDocumentStore store, RoadNetworkIds ids, Func<ScopedRoadNetworkId, ScopedRoadNetwork> loadFactory)
+        public FakeRoadNetworkRepository(IDocumentStore store, IReadOnlyList<RoadNode> nodes, IReadOnlyList<RoadSegment> segments)
         {
             _real = new RoadNetworkRepository(store);
-            _ids = ids;
-            _loadFactory = loadFactory;
+            _nodes = nodes;
+            _segments = segments;
         }
 
+        // Whatever was already in scope, plus everything the geometry runs into.
         public Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry? geometry = null, RoadNetworkIds? ids = null)
-            => Task.FromResult(_ids);
+        {
+            var scoped = _segments
+                .Where(x => ids is not null && ids.RoadSegmentIds.Contains(x.RoadSegmentId)
+                            || geometry is not null && x.Geometry.Value.Intersects(geometry))
+                .ToList();
 
+            return Task.FromResult(ToIds(scoped));
+        }
+
+        // The segments reachable through the start and end node of the ones asked for.
         public Task<RoadNetworkIds> GetUnderlyingIdsWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds)
-            => Task.FromResult(_ids);
+        {
+            var nodeIds = _segments
+                .Where(x => roadSegmentIds.Contains(x.RoadSegmentId))
+                .SelectMany(NodeIdsOf)
+                .ToHashSet();
+
+            var connected = _segments
+                .Where(x => NodeIdsOf(x).Any(nodeIds.Contains))
+                .ToList();
+
+            return Task.FromResult(ToIds(connected));
+        }
 
         public Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, ScopedRoadNetworkId roadNetworkId)
-            => Task.FromResult(_loadFactory(roadNetworkId));
+        {
+            return Task.FromResult(new ScopedRoadNetwork(roadNetworkId,
+                _nodes.Where(x => ids.RoadNodeIds.Contains(x.RoadNodeId)).ToArray(),
+                _segments.Where(x => ids.RoadSegmentIds.Contains(x.RoadSegmentId)).ToArray(),
+                [],
+                []));
+        }
+
+        private static IEnumerable<RoadNodeId> NodeIdsOf(RoadSegment segment)
+        {
+            return new[] { segment.StartNodeId, segment.EndNodeId }
+                .Where(x => x is not null)
+                .Select(x => x!.Value);
+        }
+
+        private RoadNetworkIds ToIds(IReadOnlyCollection<RoadSegment> segments)
+        {
+            return new RoadNetworkIds(
+                segments.SelectMany(NodeIdsOf).Distinct().ToArray(),
+                segments.Select(x => x.RoadSegmentId).Distinct().ToArray(),
+                [],
+                []);
+        }
 
         public void Save(IDocumentSession session, ScopedRoadNetwork roadNetwork, string commandName)
             => _real.Save(session, roadNetwork, commandName);

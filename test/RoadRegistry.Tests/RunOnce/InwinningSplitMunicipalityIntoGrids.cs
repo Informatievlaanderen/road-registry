@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Prepared;
 using RoadRegistry.BackOffice;
 using RoadRegistry.Extensions;
 using RoadRegistry.Sync.MunicipalityRegistry;
@@ -25,13 +26,13 @@ public class InwinningSplitMunicipalityIntoGrids
     [Fact(Skip = "For debugging purposes only")]
     public async Task Run()
     {
-        const DbEnvironment env = DbEnvironment.DEV;
+        const DbEnvironment env = DbEnvironment.TST;
         // const DbEnvironment env = DbEnvironment.STG;
         const string nisCode = "44021"; //Gent 44021  Kruisem 45068
         var gridSizes = new[] { 500 }; //, 500, 1000 };
-        var orgCode = "0425258688";
-        var configOrgStartIndex = 10;
-        var maxMunisPerGridSize = 10;
+        var orgCode = "0425258688"; //IKEA
+        var configOrgStartIndex = 20;
+        var maxMunisPerGridSize = 30;
 
         var sp = GetServiceProvider(env);
 
@@ -39,6 +40,10 @@ public class InwinningSplitMunicipalityIntoGrids
 
         var municipality = await dbContext.Municipalities.SingleAsync(m => m.NisCode == nisCode);
         var municipalityGeometry = municipality.Geometry!.EnvelopeInternal;
+
+        // The grid is laid out over the envelope, so the cells along the border stick out of the municipality itself.
+        // Only the ones that lie in it completely are kept, prepared once because every cell is tested against it.
+        var preparedMunicipality = PreparedGeometryFactory.Prepare(municipality.Geometry);
 
         var y = Math.Round((municipalityGeometry.MaxY + municipalityGeometry.MinY) / 2 / 1000.0) * 1000;
         var minX = Math.Round(municipalityGeometry.MinX / 1000.0) * 1000;
@@ -64,6 +69,12 @@ public class InwinningSplitMunicipalityIntoGrids
                     new Coordinate(x + gridSize, y),
                     new Coordinate(x, y),
                 ]).ToMultiPolygon();
+
+                if (!preparedMunicipality.Covers(gridGeometry))
+                {
+                    x += gridSize;
+                    continue;
+                }
 
                 var gridNiscode = $"{municipality.NisCode}_{x:000000}-{y:000000}_{gridSize}x{gridSize}";
                 var existingGrid = await dbContext.Municipalities.SingleOrDefaultAsync(m => m.NisCode == gridNiscode);
