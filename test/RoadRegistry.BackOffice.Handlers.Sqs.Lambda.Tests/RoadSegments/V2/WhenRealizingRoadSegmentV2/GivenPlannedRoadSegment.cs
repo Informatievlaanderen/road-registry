@@ -67,6 +67,33 @@ public class GivenPlannedRoadSegment : BackOfficeLambdaTest
     }
 
     [Fact]
+    public async Task WhenTheRoadSegmentDoesNotExist_ThenTicketError()
+    {
+        // The handler needs the segment's own geometry to work out what to load around it, so it reports a missing
+        // segment itself rather than scoping on nothing and letting the domain find out.
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+
+        await HandleRequest(store, ExtractsDbContextWith(inwinningCompleted: true), seedTheRoadSegment: false);
+
+        VerifyThatTicketHasError("NotFound", null);
+    }
+
+    [Fact]
+    public async Task WhenARoadNodeIsOffTheSegmentButWithinReach_ThenItIsStillInScope()
+    {
+        // The dead end sits 40cm off the planned segment's start point. Scoping on the line alone would not reach it -
+        // the two do not touch - so the segment would find no road node and be refused as an island. The buffer is
+        // what brings it in.
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var completedResults = CaptureCompletedResults();
+
+        await HandleRequest(store, ExtractsDbContextWith(inwinningCompleted: true), plannedStartOffset: 0.4);
+
+        completedResults.Should().ContainSingle()
+            .Which.Summary.RoadSegments.Modified.Should().ContainSingle();
+    }
+
+    [Fact]
     public async Task WhenTheInwinningIsNotCompleted_ThenTicketError()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
@@ -142,15 +169,34 @@ public class GivenPlannedRoadSegment : BackOfficeLambdaTest
         ExtractsDbContext extractsDbContext,
         RoadSegmentStatusV2? plannedStatus = null,
         RoadSegmentGeometryDrawMethodV2? plannedDrawMethod = null,
-        bool mayModifyMeasuredRoadSegments = true)
+        bool mayModifyMeasuredRoadSegments = true,
+        bool seedTheRoadSegment = true,
+        double plannedStartOffset = 0)
     {
+        var (nodes, segments) = BuildNetwork(plannedStatus, plannedDrawMethod, seedTheRoadSegment, plannedStartOffset);
+
+        // The handler reads the road segment straight from the store to work out what to scope on, so the network has
+        // to be there as well as in the repository.
+        await using (var seedSession = store.LightweightSession())
+        {
+            foreach (var segment in segments)
+            {
+                seedSession.Store(segment);
+            }
+            foreach (var node in nodes)
+            {
+                seedSession.Store(node);
+            }
+            await seedSession.SaveChangesAsync();
+        }
+
         var handler = new RealizeRoadSegmentV2SqsLambdaRequestHandler(
             SqsLambdaHandlerOptions,
             new FakeRetryPolicy(),
             TicketingMock.Object,
             ScopedContainer.Resolve<IIdempotentCommandHandler>(),
             store,
-            BuildRepository(store, plannedStatus, plannedDrawMethod),
+            new FakeRoadNetworkRepository(store, nodes, segments),
             new InMemoryRoadNetworkIdGenerator(initialValue: 100),
             extractsDbContext,
             LoggerFactory);
@@ -167,7 +213,11 @@ public class GivenPlannedRoadSegment : BackOfficeLambdaTest
         await handler.Handle(new RealizeRoadSegmentV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest), CancellationToken.None);
     }
 
-    private FakeRoadNetworkRepository BuildRepository(IDocumentStore store, RoadSegmentStatusV2? plannedStatus, RoadSegmentGeometryDrawMethodV2? plannedDrawMethod)
+    private (RoadNode[] Nodes, RoadSegment[] Segments) BuildNetwork(
+        RoadSegmentStatusV2? plannedStatus,
+        RoadSegmentGeometryDrawMethodV2? plannedDrawMethod,
+        bool includeThePlannedRoadSegment,
+        double plannedStartOffset)
     {
         var westNode = BuildNode(10, 0, 0, RoadNodeTypeV2.Eindknoop);
         var deadEndNode = BuildNode(11, 100, 0, RoadNodeTypeV2.Eindknoop);
@@ -176,11 +226,13 @@ public class GivenPlannedRoadSegment : BackOfficeLambdaTest
         RoadSegmentWasAdded[] segments =
         [
             // Hooks onto the dead end at (100,0) and runs north; the far end has nothing within reach.
-            BuildSegment(PlannedSegmentId, null, null, BuildGeometry((100, 0), (100, 80)), plannedStatus ?? RoadSegmentStatusV2.Gepland, plannedDrawMethod),
+            .. includeThePlannedRoadSegment
+                ? new[] { BuildSegment(PlannedSegmentId, null, null, BuildGeometry((100 + plannedStartOffset, 0), (100 + plannedStartOffset, 80)), plannedStatus ?? RoadSegmentStatusV2.Gepland, plannedDrawMethod) }
+                : [],
             BuildSegment(RealizedSegmentId, westNode, deadEndNode, BuildGeometry((0, 0), (100, 0)), RoadSegmentStatusV2.Gerealiseerd)
         ];
 
-        return new FakeRoadNetworkRepository(store,
+        return (
             nodes.Select(x => RoadNode.Create(x).WithoutChanges()).ToArray(),
             segments.Select(x => RoadSegment.Create(x).WithoutChanges()).ToArray());
     }
@@ -292,20 +344,10 @@ public class GivenPlannedRoadSegment : BackOfficeLambdaTest
             return Task.FromResult(ToIds(scoped));
         }
 
+        // A planned road segment carries no road nodes, so there is nothing to reach the surrounding network through:
+        // the handler scopes on the geometry instead and never asks for this.
         public Task<RoadNetworkIds> GetUnderlyingIdsWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds)
-        {
-            var nodeIds = _segments
-                .Where(x => roadSegmentIds.Contains(x.RoadSegmentId))
-                .SelectMany(NodeIdsOf)
-                .ToHashSet();
-
-            // A planned segment carries no nodes, so nothing is reachable through it - but it is in scope itself.
-            var connected = _segments
-                .Where(x => roadSegmentIds.Contains(x.RoadSegmentId) || NodeIdsOf(x).Any(nodeIds.Contains))
-                .ToList();
-
-            return Task.FromResult(ToIds(connected));
-        }
+            => throw new NotImplementedException();
 
         public Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, ScopedRoadNetworkId roadNetworkId)
         {

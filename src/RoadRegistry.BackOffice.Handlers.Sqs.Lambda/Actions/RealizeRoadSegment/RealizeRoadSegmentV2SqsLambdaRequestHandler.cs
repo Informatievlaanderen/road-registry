@@ -6,6 +6,7 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Marten;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
@@ -72,9 +73,15 @@ public sealed class RealizeRoadSegmentV2SqsLambdaRequestHandler : MartenSqsLambd
             // The segments this one is about to hook onto share no road node with it yet - that is the whole point of
             // realizing - so the scope is taken from the segment's own geometry. Its own id is passed along as well,
             // because a 'gepland' segment carries no nodes and so has nothing to be found through.
-            var connectedIds = await _roadNetworkRepository.GetUnderlyingIdsWithConnectedSegments(session, [command.RoadSegmentId]);
-            var roadSegmentGeometry = await GetRoadSegmentGeometry(session, command.RoadSegmentId, cancellationToken);
-            var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadSegmentGeometry, connectedIds);
+            var roadSegment = await session.LoadAsync(command.RoadSegmentId, cancellationToken);
+            if (roadSegment is null)
+            {
+                var roadSegmentContext = Problems.WithContext(command.RoadSegmentId);
+                throw new RoadRegistryProblemsException(roadSegmentContext + new RoadSegmentNotFound());
+            }
+
+            var geometry = roadSegment.Geometry.Value.Buffer(Distances.RoadSegmentRealizeMaximumDistanceToRoadNode + 0.5 /*buffer to get connected segments*/).ConvexHull();
+            var ids = await _roadNetworkRepository.GetUnderlyingIds(session, geometry);
             var roadNetwork = await _roadNetworkRepository.Load(session, ids, scopedRoadNetworkId);
 
             var problems = await ValidateInwinningIsCompleted(roadNetwork, command.RoadSegmentId, cancellationToken);
@@ -96,18 +103,6 @@ public sealed class RealizeRoadSegmentV2SqsLambdaRequestHandler : MartenSqsLambd
         await using var readSession = Store.LightweightSession();
         var scopedRoadNetwork = await readSession.LoadAsync(scopedRoadNetworkId, cancellationToken);
         return scopedRoadNetwork.SummaryOfLastChange!;
-    }
-
-    // The geometry the segment already has, used to scope what has to be loaded around it. A segment that is not there
-    // at all yields nothing to scope on; the domain reports it as not found.
-    private async Task<NetTopologySuite.Geometries.Geometry?> GetRoadSegmentGeometry(IDocumentSession session, RoadSegmentId roadSegmentId, CancellationToken cancellationToken)
-    {
-        var ids = new RoadNetworkIds([], [roadSegmentId], [], []);
-        var roadNetwork = await _roadNetworkRepository.Load(session, ids, new ScopedRoadNetworkId(Guid.NewGuid()));
-
-        return roadNetwork.RoadSegments.TryGetValue(roadSegmentId, out var roadSegment) && !roadSegment.IsRemoved
-            ? roadSegment.Geometry.Value
-            : null;
     }
 
     // A road segment may only be edited once its inwinning is done: one that is still being collected, or that is not
