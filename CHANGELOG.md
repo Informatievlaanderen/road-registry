@@ -1,3 +1,10 @@
+## [5.8.3](https://github.com/informatievlaanderen/road-registry/compare/v5.8.2...v5.8.3) (2026-08-10)
+
+
+### Bug Fixes
+
+* **2.0:** validate gml is lambert 2008 and rounded to cm ([b2717f6](https://github.com/informatievlaanderen/road-registry/commit/b2717f68bcee1d2bc3c2702754e0c4ab9a987a59))
+
 ## [5.8.2](https://github.com/informatievlaanderen/road-registry/compare/v5.8.1...v5.8.2) (2026-08-10)
 
 
