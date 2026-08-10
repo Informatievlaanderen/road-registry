@@ -1,3 +1,10 @@
+## [5.8.2](https://github.com/informatievlaanderen/road-registry/compare/v5.8.1...v5.8.2) (2026-08-10)
+
+
+### Bug Fixes
+
+* **2.0:** scope of loaded roadnetwork when editing roadsegment geometry ([cd73dbd](https://github.com/informatievlaanderen/road-registry/commit/cd73dbd81f151511380d9605efdfd3d4ad932f40))
+
 ## [5.8.1](https://github.com/informatievlaanderen/road-registry/compare/v5.8.0...v5.8.1) (2026-08-10)
 
 
