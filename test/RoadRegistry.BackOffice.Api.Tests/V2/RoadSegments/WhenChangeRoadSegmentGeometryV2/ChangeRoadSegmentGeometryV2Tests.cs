@@ -186,6 +186,52 @@ public class ChangeRoadSegmentGeometryV2Tests : V2ReadEndpointTestBase
         VerifyNothingWasQueued();
     }
 
+    [Theory]
+    // Anything that is not Lambert 2008, and a geometry that does not say what it is in - which parses as Lambert 72,
+    // the reader's default, so it is refused for the same reason rather than passing unnoticed.
+    [InlineData(nameof(GeometryTranslatorTestCases.ValidGmlLineStringLambert72))]
+    [InlineData(nameof(GeometryTranslatorTestCases.GmlLineStringWithoutSrsName))]
+    public async Task GivenAGeometryThatIsNotLambert08_ThenValidationException(string testCase)
+    {
+        var id = SeedRoadSegment();
+        var parameters = ValidParameters();
+        parameters.WegsegmentGeometrie = testCase == nameof(GeometryTranslatorTestCases.ValidGmlLineStringLambert72)
+            ? GeometryTranslatorTestCases.ValidGmlLineStringLambert72
+            : GeometryTranslatorTestCases.GmlLineStringWithoutSrsName;
+
+        var ex = await Assert.ThrowsAsync<ValidationException>(() => Act(id, parameters));
+
+        ex.Errors.Should().ContainSingle()
+            .Which.ErrorMessage.Should().Be("De opgegeven geometrie heeft niet het gewenste coördinatenstelsel: Lambert 2008 (EPSG:3812).");
+        VerifyNothingWasQueued();
+    }
+
+    [Fact]
+    public async Task GivenAGeometryMorePreciseThanCm_ThenValidationException()
+    {
+        // The domain rounds to the centimetre, so more precision than that would be silently discarded.
+        var id = SeedRoadSegment();
+        var parameters = ValidParameters();
+        parameters.WegsegmentGeometrie = GeometryTranslatorTestCases.GmlLineStringLambert08MorePreciseThanCm;
+
+        var ex = await Assert.ThrowsAsync<ValidationException>(() => Act(id, parameters));
+
+        ex.Errors.Should().ContainSingle()
+            .Which.ErrorMessage.Should().Be("De opgegeven geometrie bevat coördinaten met een hogere nauwkeurigheid dan centimeter (meer dan 2 decimalen).");
+        VerifyNothingWasQueued();
+    }
+
+    [Fact]
+    public async Task GivenAGeometryExactlyAtCmPrecision_ThenAccepted()
+    {
+        // Two decimals is the precision the register works in, so it must not be mistaken for too much precision.
+        var id = SeedRoadSegment();
+
+        var result = await Act(id);
+
+        result.Should().BeOfType<AcceptedResult>();
+    }
+
     [Fact]
     public async Task GivenCallerWithIngemetenScope_ThenMeasuredRoadSegmentsMayBeModified()
     {

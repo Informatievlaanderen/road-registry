@@ -203,9 +203,15 @@ public partial class RoadSegmentsController
             failures.Add(new ValidationFailure(path, "De afstand tussen twee opeenvolgende vertices van de opgegeven geometrie bedraagt niet overal 15cm."));
             return null;
         }
+        if (geometry.HasCoordinatesMorePreciseThanCm())
+        {
+            failures.Add(new ValidationFailure(path, "De opgegeven geometrie bevat coördinaten met een hogere nauwkeurigheid dan centimeter (meer dan 2 decimalen)."));
+            return null;
+        }
 
         return geometry.ToRoadSegmentGeometry();
     }
+
 
     private static IReadOnlyList<AttributeValue<T>>? ParseRequiredPositionValues<TParameters, T>(
         TParameters[]? items,

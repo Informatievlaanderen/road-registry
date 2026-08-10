@@ -18,6 +18,21 @@ public static class GeometryTranslatorTestCases
 <gml:posList>217368.75 181577.02 217378.75 181577.02</gml:posList>
 </gml:LineString>";
 
+    // The same line, but stated in Lambert 72 - a coordinate system the v2 endpoints do not accept.
+    public const string ValidGmlLineStringLambert72 = @"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/31370"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
+<gml:posList>217368.75 181577.02 217378.75 181577.02</gml:posList>
+</gml:LineString>";
+
+    // No srsName at all, so nothing says which coordinate system the numbers are in.
+    public const string GmlLineStringWithoutSrsName = @"<gml:LineString xmlns:gml=""http://www.opengis.net/gml/3.2"">
+<gml:posList>217368.75 181577.02 217378.75 181577.02</gml:posList>
+</gml:LineString>";
+
+    // Lambert 2008, but the first vertex carries millimetre precision.
+    public const string GmlLineStringLambert08MorePreciseThanCm = @"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
+<gml:posList>217368.751 181577.024 217378.75 181577.02</gml:posList>
+</gml:LineString>";
+
     public const string ValidGmlMultiLineString = @"<gml:MultiLineString srsName=""https://www.opengis.net/def/crs/EPSG/0/31370"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
 <gml:lineStringMember srsName=""https://www.opengis.net/def/crs/EPSG/0/31370"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
 <gml:posList>217368.75 181577.016 217400.11 181499.516</gml:posList>

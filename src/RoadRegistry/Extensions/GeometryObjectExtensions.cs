@@ -63,6 +63,21 @@ public static class GeometryObjectExtensions
     {
         return geometry.RoundCoordinates(2);
     }
+
+    // Whether a geometry carries more precision than the register works in. Everything stored goes through RoundToCm,
+    // so a caller supplying more than that would silently get back something other than what they sent: the endpoints
+    // refuse it rather than discard it.
+    public static bool HasCoordinatesMorePreciseThanCm(this Geometry geometry)
+    {
+        return geometry.Coordinates.Any(c => IsMorePreciseThanCm(c.X) || IsMorePreciseThanCm(c.Y));
+    }
+
+    private static bool IsMorePreciseThanCm(double value)
+    {
+        // Math.Round returns the bit-identical double for a value that is already at two decimals, so an honest
+        // coordinate compares exactly equal even at Lambert magnitudes.
+        return Math.Abs(value - Math.Round(value, 2)) > 1e-10;
+    }
     public static RoadNodeGeometry RoundToCm(this RoadNodeGeometry geometry)
     {
         return RoadNodeGeometry.Create(geometry.Value.RoundToCm());
