@@ -62,7 +62,7 @@ public partial class ScopedRoadNetwork
         // VAL-9
         if (!mayModifyMeasuredRoadSegments && roadSegment.Attributes?.GeometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingemeten)
         {
-            problems += roadSegmentContext + new RoadSegmentRealizeMeasuredNotAllowed();
+            problems += roadSegmentContext + new RoadSegmentMeasuredNotAllowed();
         }
         if (problems.HasError())
         {
@@ -116,13 +116,8 @@ public partial class ScopedRoadNetwork
         var newVertexPositions = CumulativeVertexPositions(snappedLine);
         var attributes = roadSegment.Attributes!;
 
-        // Modifying the segment resolves its start and end node from whatever sits on its endpoints, so both the
-        // snapped-onto nodes and the ones just added are in place by now.
-        problems += ModifyRoadSegment(new ModifyRoadSegmentChange
+        var realizedAttributes = attributes with
         {
-            RoadSegmentIdReference = new RoadSegmentIdReference(roadSegmentId),
-            Geometry = snappedGeometry,
-            Status = RoadSegmentStatusV2.Gerealiseerd,
             AccessRestriction = attributes.AccessRestriction.RemapTo(currentVertexPositions, newVertexPositions),
             Category = attributes.Category.RemapTo(currentVertexPositions, newVertexPositions),
             Morphology = attributes.Morphology.RemapTo(currentVertexPositions, newVertexPositions),
@@ -132,11 +127,20 @@ public partial class ScopedRoadNetwork
             CarTrafficDirection = attributes.CarTrafficDirection.RemapTo(currentVertexPositions, newVertexPositions),
             BikeTrafficDirection = attributes.BikeTrafficDirection.RemapTo(currentVertexPositions, newVertexPositions),
             PedestrianTrafficDirection = attributes.PedestrianTrafficDirection.RemapTo(currentVertexPositions, newVertexPositions)
-        }, context);
+        };
+
+        // Realizing is its own action rather than a modification: it records what the segment became in one event.
+        // The start and end node are resolved from whatever sits on the endpoints, so both the snapped-onto nodes and
+        // the ones just added are in place by now.
+        var oldEnvelope = roadSegment.Geometry.Value.EnvelopeInternal;
+        problems += roadSegment.Realize(snappedGeometry, realizedAttributes, context);
         if (problems.HasError())
         {
             return Failed(problems, context);
         }
+
+        _roadSegmentsSpatialIndex.Update(oldEnvelope, roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
+        context.Summary.RoadSegments.Modified.Add(roadSegmentId);
 
         // The node the segment snapped onto now carries one segment more than it did, so its type is re-derived. This
         // is what turns the 'validatieknoop' left behind by a split into an 'echte knoop'.

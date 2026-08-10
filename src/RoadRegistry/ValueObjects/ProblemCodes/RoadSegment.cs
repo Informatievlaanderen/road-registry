@@ -22,6 +22,7 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode OverlapsWithInwinningszone = new("RoadSegmentOverlapsWithInwinningszone");
         public static readonly ProblemCode OutsideCompletedInwinningszone = new("RoadSegmentOutsideInwinningszone");
         public static readonly ProblemCode NotCompletedInwinning = new("RoadSegmentNotCompletedInwinning");
+        public static readonly ProblemCode MeasuredNotAllowed = new("RoadSegmentMeasuredNotAllowed");
 
         public static class AccessRestriction
         {
@@ -349,7 +350,6 @@ public sealed partial record ProblemCode
         public static class Realize
         {
             public static readonly ProblemCode StatusNotValid = new("RoadSegmentRealizeStatusNotValid");
-            public static readonly ProblemCode MeasuredNotAllowed = new("RoadSegmentRealizeMeasuredNotAllowed");
             public static readonly ProblemCode NoRoadNodeInReach = new("RoadSegmentRealizeNoRoadNodeInReach");
         }
 

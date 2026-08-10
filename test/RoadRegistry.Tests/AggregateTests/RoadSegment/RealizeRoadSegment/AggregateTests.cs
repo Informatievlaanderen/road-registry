@@ -247,7 +247,7 @@ public class AggregateTests : AggregateTestBase
 
         var result = Act(roadNetwork, mayModifyMeasuredRoadSegments: false);
 
-        result.Problems.Select(x => x.Reason).Should().Contain(RoadSegmentRealizeMeasuredNotAllowed.ProblemCode.ToString());
+        result.Problems.Select(x => x.Reason).Should().Contain(RoadSegmentMeasuredNotAllowed.ProblemCode.ToString());
         roadNetwork.RoadSegments[new RoadSegmentId(PlannedSegmentId)].Status.Should().Be(RoadSegmentStatusV2.Gepland);
     }
 
@@ -337,6 +337,41 @@ public class AggregateTests : AggregateTestBase
 
         // And the planned segment really did hook onto that node.
         roadNetwork.RoadSegments[new RoadSegmentId(PlannedSegmentId)].StartNodeId.Should().Be(new RoadNodeId(11));
+    }
+
+    [Fact]
+    public void WhenTheSegmentIsRealized_ThenARoadSegmentWasRealizedEventIsRecorded()
+    {
+        // Realizing is its own action, not a modification, and the event records what the segment became in full.
+        var roadNetwork = BuildNetworkWith(BuildGeometry((100.4, 0), (100.4, 80)));
+
+        var result = Act(roadNetwork);
+
+        result.Problems.Should().BeEmpty();
+
+        var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(PlannedSegmentId)];
+        roadSegment.GetChanges().OfType<RoadSegmentWasModified>().Should().BeEmpty();
+
+        var @event = roadSegment.GetChanges().OfType<RoadSegmentWasRealized>().Should().ContainSingle().Which;
+        @event.RoadSegmentId.Should().Be(new RoadSegmentId(PlannedSegmentId));
+        @event.StartNodeId.Should().Be(new RoadNodeId(11));
+        @event.EndNodeId.Should().Be(roadSegment.EndNodeId!.Value);
+
+        // The geometry it carries is the snapped one, not the one as drawn.
+        @event.Geometry.Value.GetSingleLineString().Coordinates[0].X.Should().BeApproximately(100, 0.001);
+
+        // Every dynamically segmented attribute is there, remapped onto that geometry.
+        var length = @event.Geometry.Value.Length;
+        @event.AccessRestriction.Values.Should().NotBeEmpty();
+        @event.Category.Values.Should().NotBeEmpty();
+        @event.Morphology.Values.Should().NotBeEmpty();
+        @event.StreetNameId.Values.Should().NotBeEmpty();
+        @event.MaintenanceAuthorityId.Values.Should().NotBeEmpty();
+        @event.SurfaceType.Values.Should().NotBeEmpty();
+        @event.CarTrafficDirection.Values.Should().NotBeEmpty();
+        @event.BikeTrafficDirection.Values.Should().NotBeEmpty();
+        @event.PedestrianTrafficDirection.Values.Should().NotBeEmpty();
+        @event.Morphology.Values.Max(x => x.Coverage.To.ToDouble()).Should().BeApproximately(length, 0.01);
     }
 
     [Fact]

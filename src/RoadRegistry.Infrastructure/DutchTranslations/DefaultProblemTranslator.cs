@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Infrastructure.DutchTranslations;
+namespace RoadRegistry.Infrastructure.DutchTranslations;
 
 using System.Text;
 using RoadRegistry.Infrastructure.Messages;
@@ -631,7 +631,7 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft een status die verschilt van 'gepland'.")
             },
             {
-                ProblemCode.RoadSegment.Realize.MeasuredNotAllowed, problem => new(problem.Severity, "WegsegmentRealisatieIngemetenNietToegelaten",
+                ProblemCode.RoadSegment.MeasuredNotAllowed, problem => new(problem.Severity, "WegsegmentIngemetenNietToegelaten",
                     $"U heeft niet de machtigingen om deze actie uit te voeren voor wegsegmenten met geometriemethode 'ingemeten'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingemeten.")
             },
             {

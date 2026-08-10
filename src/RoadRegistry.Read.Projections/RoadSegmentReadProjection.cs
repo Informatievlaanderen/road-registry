@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Read.Projections;
+namespace RoadRegistry.Read.Projections;
 
 using System;
 using System.Collections.Generic;
@@ -431,6 +431,26 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
                 {
                     segment.PedestrianTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection);
                 }
+            }, e.Data, ct);
+        });
+        When<IEvent<RoadSegmentWasRealized>>((session, e, ct) =>
+        {
+            // The event records the realized state in full, so nothing is left at what it was.
+            return ModifyRoadSegment(session, e.Data.RoadSegmentId, async segment =>
+            {
+                segment.Geometry = ProjectGeometry(e.Data.Geometry, isV2: true);
+                segment.StartNodeId = e.Data.StartNodeId;
+                segment.EndNodeId = e.Data.EndNodeId;
+                segment.Status = RoadSegmentStatusV2.Gerealiseerd.ToString();
+                segment.AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x!.ToString());
+                segment.Category = e.Data.Category.ToStringAttributeValues(x => x!.ToString());
+                segment.Morphology = e.Data.Morphology.ToStringAttributeValues(x => x!.ToString());
+                segment.StreetNameId = await BuildStreetNameAttribute(session, e.Data.StreetNameId, ct);
+                segment.MaintenanceAuthorityId = await BuildMaintenanceAuthority(session, e.Data.MaintenanceAuthorityId, ct);
+                segment.SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x!.ToString());
+                segment.CarTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.CarTrafficDirection);
+                segment.BikeTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.BikeTrafficDirection);
+                segment.PedestrianTrafficDirection = new ReadRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection);
             }, e.Data, ct);
         });
         When<IEvent<RoadSegmentWasMigrated>>((session, e, ct) =>

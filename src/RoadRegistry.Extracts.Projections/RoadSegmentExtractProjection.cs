@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Extracts.Projections;
+namespace RoadRegistry.Extracts.Projections;
 
 using System;
 using System.Collections.Generic;
@@ -367,6 +367,26 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
                 segment.Geometry = e.Data.Geometry;
                 segment.StartNodeId = e.Data.StartNodeId;
                 segment.EndNodeId = e.Data.EndNodeId;
+            }, e.Data, ct);
+        });
+        When<IEvent<RoadSegmentWasRealized>>((session, e, ct) =>
+        {
+            // The event records the realized state in full, so nothing is left at what it was.
+            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
+            {
+                segment.Geometry = e.Data.Geometry;
+                segment.StartNodeId = e.Data.StartNodeId;
+                segment.EndNodeId = e.Data.EndNodeId;
+                segment.Status = RoadSegmentStatusV2.Gerealiseerd;
+                segment.AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString());
+                segment.Category = e.Data.Category.ToStringAttributeValues(x => x.ToString());
+                segment.Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString());
+                segment.StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId);
+                segment.MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId);
+                segment.SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x.ToString());
+                segment.CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.CarTrafficDirection);
+                segment.BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.BikeTrafficDirection);
+                segment.PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection);
             }, e.Data, ct);
         });
         When<IEvent<RoadSegmentWasModified>>((session, e, ct) =>

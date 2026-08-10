@@ -248,7 +248,7 @@ public class ProblemTranslatorTests
                 ]
             },
             {
-                ProblemCode.RoadSegment.Realize.MeasuredNotAllowed, [
+                ProblemCode.RoadSegment.MeasuredNotAllowed, [
                     new ProblemParameter("WegsegmentId", "1")
                 ]
             },

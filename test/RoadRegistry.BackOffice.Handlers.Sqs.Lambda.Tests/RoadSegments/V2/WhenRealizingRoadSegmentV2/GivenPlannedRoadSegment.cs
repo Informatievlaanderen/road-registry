@@ -135,7 +135,7 @@ public class GivenPlannedRoadSegment : BackOfficeLambdaTest
             plannedDrawMethod: RoadSegmentGeometryDrawMethodV2.Ingemeten,
             mayModifyMeasuredRoadSegments: false);
 
-        VerifyThatTicketHasError("WegsegmentRealisatieIngemetenNietToegelaten", null);
+        VerifyThatTicketHasError("WegsegmentIngemetenNietToegelaten", null);
     }
 
     private ExtractsDbContext ExtractsDbContextWith(bool inwinningCompleted = true, bool registerInwinning = true)
