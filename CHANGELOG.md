@@ -1,3 +1,11 @@
+## [5.8.1](https://github.com/informatievlaanderen/road-registry/compare/v5.8.0...v5.8.1) (2026-08-10)
+
+
+### Bug Fixes
+
+* **2.0:** edit geometry validation roadsegment inwinningsstatus ([99c4584](https://github.com/informatievlaanderen/road-registry/commit/99c458457288e36a7dde9ba6fa5cff4b314a3fa2))
+* **2.0:** limit roadsegments changed for edit attributes ([f63ac9c](https://github.com/informatievlaanderen/road-registry/commit/f63ac9c1d28143b7576f7008697fae94a59bf734))
+
 # [5.8.0](https://github.com/informatievlaanderen/road-registry/compare/v5.7.1...v5.8.0) (2026-08-10)
 
 
