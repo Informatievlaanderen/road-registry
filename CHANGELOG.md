@@ -1,3 +1,10 @@
+# [5.8.0](https://github.com/informatievlaanderen/road-registry/compare/v5.7.1...v5.8.0) (2026-08-10)
+
+
+### Features
+
+* **2.0:** require a completed inwinning to edit a road segment ([351adfa](https://github.com/informatievlaanderen/road-registry/commit/351adfa0da5643ad3832bb0df5fb113e1d53c343))
+
 ## [5.7.1](https://github.com/informatievlaanderen/road-registry/compare/v5.7.0...v5.7.1) (2026-08-07)
 
 
