@@ -4,9 +4,13 @@ using System;
 using System.Threading.Tasks;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using NetTopologySuite.Geometries;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.RoadNode.Events.V2;
+using RoadRegistry.RoadNode.Events.V1.ValueObjects;
 using RoadRegistry.Tests.AggregateTests;
+using RoadRegistry.ValueObjects;
+using RoadNodeV1 = RoadRegistry.RoadNode.Events.V1;
 
 public class RoadNodeReadProjectionTests
 {
@@ -29,6 +33,36 @@ public class RoadNodeReadProjectionTests
         Assert.False(node.IsRemoved);
         Assert.Empty(node.RoadSegmentIds);
         Assert.Null(node.Type);
+    }
+
+    [Fact]
+    public async Task WhenImportedRoadNodeWasAdded_ThenLambert72GeometryRoundedToCm()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(new RoadNodeV1.ImportedRoadNode
+        {
+            RoadNodeId = 7,
+            Geometry = RoadNodeGeometry.Create(new Point(155000.1234, 195000.5678) { SRID = WellknownSrids.Lambert72 }),
+            Type = "RealNode",
+            Version = 1,
+            Origin = new ImportedOriginProperties
+            {
+                Application = "unit-test",
+                Operator = "unit-test",
+                Organization = "unit-test",
+                OrganizationId = "unit-test",
+                Since = DateTime.UtcNow,
+                TransactionId = 1
+            },
+            When = DateTimeOffset.UtcNow,
+            Provenance = Provenance
+        });
+
+        var node = await scenario.Load<RoadNodeReadItem>(7);
+        Assert.NotNull(node);
+        Assert.Equal(155000.12, node!.Geometry.Lambert72.Value.X);
+        Assert.Equal(195000.57, node.Geometry.Lambert72.Value.Y);
     }
 
     [Fact]
