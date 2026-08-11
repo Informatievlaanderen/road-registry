@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Pbs.Projections;
+namespace RoadRegistry.Pbs.Projections;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -186,6 +186,16 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
         {
             var m = e.Data;
             await WritePartial(context, m.RoadSegmentId.ToInt32(), m.Geometry, m.Status, m.GeometryDrawMethod,
+                m.StartNodeId, m.EndNodeId, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
+                m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
+                m.PedestrianTrafficDirection, m.Provenance, ct);
+        });
+
+        When<IEvent<RoadSegmentWasRealized>>(async (context, e, ct) =>
+        {
+            // The status is the event itself; the geometry draw method is not touched by realizing.
+            var m = e.Data;
+            await WritePartial(context, m.RoadSegmentId.ToInt32(), m.Geometry, RoadSegmentStatusV2.Gerealiseerd, null,
                 m.StartNodeId, m.EndNodeId, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
                 m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
                 m.PedestrianTrafficDirection, m.Provenance, ct);

@@ -160,7 +160,7 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
-    private Problems VerifyRoadNodesTopologyAndUpdateTypeAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
+    private Problems VerifyRoadNodesTopologyAndUpdateTypeAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments = true)
     {
         using var _ = context.Logger.TimeAction();
 
@@ -174,7 +174,7 @@ public partial class ScopedRoadNetwork
             .ToArray();
 
         return roadNodes
-            .Aggregate(problems, (p, x) => p + x.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context));
+            .Aggregate(problems, (p, x) => p + x.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context, mayMergeRoadSegments));
     }
 
     private Problems VerifyRoadSegmentsTopologyAfterChange(ScopedRoadNetworkChangeContext context)

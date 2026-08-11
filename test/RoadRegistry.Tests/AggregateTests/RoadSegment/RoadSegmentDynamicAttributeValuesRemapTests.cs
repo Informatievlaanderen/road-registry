@@ -166,6 +166,81 @@ public class RoadSegmentDynamicAttributeValuesRemapTests
     }
 
     [Fact]
+    public void WhenTheLastCoverageIsSqueezedBelowAMetre_ThenItLapsesAndTheOneBeforeItRunsToTheEnd()
+    {
+        // Vertices at 0, 4 and 8. The end vertex is pulled back to 4.6, so the last 4m stretch - two coverages
+        // sharing it - is squeezed into 60cm and each half ends up well under a metre.
+        var remapped = BuildFourCoverages().RemapTo([0, 4, 8], [0, 4, 4.6]);
+
+        var values = remapped.Values.OrderBy(x => x.Coverage.From).ToArray();
+
+        // What is left runs uninterrupted from 0 to the new length, and the value that survives to the end is the one
+        // that was there before the squeezed stretches.
+        values.Last().Coverage.To.ToDouble().Should().Be(4.6);
+        values.Should().OnlyContain(x => x.Coverage.To.ToDouble() - x.Coverage.From.ToDouble() >= 1);
+        values.Last().Value.Should().Be(RoadSegmentTrafficDirection.Backward);
+    }
+
+    [Fact]
+    public void WhenTheFirstCoverageIsSqueezedBelowAMetre_ThenItLapsesAndTheOneAfterItRunsFromTheStart()
+    {
+        // The start vertex is pushed in to 3.4, so the first 4m stretch - two coverages - is squeezed into 60cm.
+        var remapped = BuildFourCoverages().RemapTo([0, 4, 8], [0, 0.6, 4.6]);
+
+        var values = remapped.Values.OrderBy(x => x.Coverage.From).ToArray();
+
+        values.First().Coverage.From.ToDouble().Should().Be(0);
+        values.Should().OnlyContain(x => x.Coverage.To.ToDouble() - x.Coverage.From.ToDouble() >= 1);
+
+        // The value that takes over from the start is the one that sat past the squeezed stretches.
+        values.First().Value.Should().Be(RoadSegmentTrafficDirection.Forward);
+    }
+
+    [Fact]
+    public void WhenEveryCoverageStaysAtLeastAMetre_ThenNoneLapses()
+    {
+        var remapped = BuildFourCoverages().RemapTo([0, 4, 8], [0, 4, 12]);
+
+        remapped.Values.Should().HaveCount(4);
+    }
+
+    [Fact]
+    public void WhenASingleCoverageIsSqueezedBelowAMetre_ThenItIsKept()
+    {
+        // Nothing to lapse into: it covers the whole segment, so its length is the segment's own - which is refused
+        // by the geometry validation rather than here.
+        var remapped = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>()
+            .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(8), RoadSegmentTrafficDirection.Forward)
+            .RemapTo([0, 4, 8], [0, 0.4, 0.8]);
+
+        remapped.Values.Should().ContainSingle()
+            .Which.Coverage.To.ToDouble().Should().Be(0.8);
+    }
+
+    [Fact]
+    public void WhenACoverageLapses_ThenEachSideIsHandledOnItsOwn()
+    {
+        // Left is dynamically segmented and loses its squeezed tail; right is one value over the whole length and is
+        // left alone. A lapse on one side may not disturb the other.
+        var remapped = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
+            .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(4), RoadSegmentAttributeSide.Links, new StreetNameLocalId(1))
+            .Add(new RoadSegmentPositionV2(4), new RoadSegmentPositionV2(8), RoadSegmentAttributeSide.Links, new StreetNameLocalId(2))
+            .Add(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(8), RoadSegmentAttributeSide.Rechts, new StreetNameLocalId(3))
+            .RemapTo([0, 4, 8], [0, 4, 4.6]);
+
+        var left = remapped.Values.Where(x => x.Side == RoadSegmentAttributeSide.Links).ToArray();
+        left.Should().ContainSingle();
+        left[0].Value.Should().Be(new StreetNameLocalId(1));
+        left[0].Coverage.From.ToDouble().Should().Be(0);
+        left[0].Coverage.To.ToDouble().Should().Be(4.6);
+
+        var right = remapped.Values.Where(x => x.Side == RoadSegmentAttributeSide.Rechts).ToArray();
+        right.Should().ContainSingle();
+        right[0].Value.Should().Be(new StreetNameLocalId(3));
+        right[0].Coverage.To.ToDouble().Should().Be(4.6);
+    }
+
+    [Fact]
     public void RemappingKeepsSidedValuesOnTheirSide()
     {
         var remapped = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()

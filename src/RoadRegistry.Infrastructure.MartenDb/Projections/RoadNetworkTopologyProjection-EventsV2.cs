@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
+namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
 using GradeSeparatedJunction.Events.V2;
 using JasperFx.Events;
@@ -120,6 +120,18 @@ public partial class RoadNetworkTopologyProjection
             e.Data.Geometry?.SRID ?? 0,
             e.Data.StartNodeId?.ToInt32() ?? 0,
             e.Data.EndNodeId?.ToInt32() ?? 0
+        );
+    }
+
+    public void Project(IEvent<RoadSegmentWasRealized> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+            e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp,
+            e.Data.Geometry.WKT,
+            e.Data.Geometry.SRID,
+            e.Data.StartNodeId.ToInt32(),
+            e.Data.EndNodeId.ToInt32()
         );
     }
 

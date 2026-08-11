@@ -243,6 +243,21 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadSegment.Realize.StatusNotValid, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.MeasuredNotAllowed, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.Realize.NoRoadNodeInReach, [
+                    new ProblemParameter("MaximumDistance", "1")
+                ]
+            },
+            {
                 ProblemCode.RoadSegment.ChangeGeometry.MeasuredNotAllowed, [
                     new ProblemParameter("WegsegmentId", "1")
                 ]

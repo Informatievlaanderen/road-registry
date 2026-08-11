@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Infrastructure.DutchTranslations;
+namespace RoadRegistry.Infrastructure.DutchTranslations;
 
 using System.Text;
 using RoadRegistry.Infrastructure.Messages;
@@ -625,6 +625,18 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             {
                 ProblemCode.RoadSegment.ChangeGeometry.MeasuredNotAllowed, problem => new(problem.Severity, "WegsegmentGeometrieIngemetenNietToegelaten",
                     $"U heeft niet de machtigingen om deze actie uit te voeren voor (aansluitende) wegsegmenten met geometriemethode 'ingemeten'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingemeten.")
+            },
+            {
+                ProblemCode.RoadSegment.Realize.StatusNotValid, problem => new(problem.Severity, "WegsegmentRealisatieStatusNietCorrect",
+                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft een status die verschilt van 'gepland'.")
+            },
+            {
+                ProblemCode.RoadSegment.MeasuredNotAllowed, problem => new(problem.Severity, "WegsegmentIngemetenNietToegelaten",
+                    $"U heeft niet de machtigingen om deze actie uit te voeren voor wegsegmenten met geometriemethode 'ingemeten'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingemeten.")
+            },
+            {
+                ProblemCode.RoadSegment.Realize.NoRoadNodeInReach, problem => new(problem.Severity, "WegsegmentRealisatieGeenWegknoopGevonden",
+                    $"Er werd geen wegknoop gevonden binnen een straal van ≤{problem.GetParameterValue("MaximumDistance")}m van het start- en/of eindpunt van het wegsegment.")
             },
             {
                 ProblemCode.RoadSegment.ChangeGeometry.PointTooCloseToRoadNode, problem => new(problem.Severity, "WegsegmentGeometriePuntTeDichtBijWegknoop",

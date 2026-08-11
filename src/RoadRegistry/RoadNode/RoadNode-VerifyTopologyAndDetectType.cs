@@ -12,7 +12,10 @@ using ScopedRoadNetwork.ValueObjects;
 
 public partial class RoadNode
 {
-    public Problems VerifyTopologyAndUpdateType(LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
+    // mayMergeRoadSegments: whether a node that turns out to be unnecessary may take the two segments hanging off it
+    // with it, merging them into one. That belongs to the inwinning/change upload, which reshapes the network as a
+    // whole. An editing action names one segment and must leave the others as they are, so it turns this off.
+    public Problems VerifyTopologyAndUpdateType(LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments = true)
     {
         var problems = Problems.WithContext(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
 
@@ -29,12 +32,12 @@ public partial class RoadNode
             problems += new RoadNodeGeometryTaken(context.IdTranslator.TranslateToTemporaryId(byOtherNode.RoadNodeId));
         }
 
-        problems += ValidateTypeAndChangeIfNeeded(segments, roadSegmentsSpatialIndex, idGenerator, context);
+        problems += ValidateTypeAndChangeIfNeeded(segments, roadSegmentsSpatialIndex, idGenerator, context, mayMergeRoadSegments);
 
         return problems;
     }
 
-    private Problems ValidateTypeAndChangeIfNeeded(List<RoadSegment> segments, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
+    private Problems ValidateTypeAndChangeIfNeeded(List<RoadSegment> segments, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments)
     {
         var problems = Problems.None;
 
@@ -48,7 +51,7 @@ public partial class RoadNode
         }
         else if (segments.Count == 2)
         {
-            if (Grensknoop)
+            if (Grensknoop || !mayMergeRoadSegments)
             {
                 ChangeTypeTo(RoadNodeTypeV2.Validatieknoop, context.Provenance);
             }

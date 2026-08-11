@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Projections.Tests.Projections.ExtractRoadNode;
+namespace RoadRegistry.Projections.Tests.Projections.ExtractRoadNode;
 
 using AutoFixture;
 using Extracts.Projections;
@@ -50,6 +50,7 @@ public class RoadNodeExtractProjectionTests
             typeof(RoadSegmentWasAddedToEuropeanRoad),
             typeof(RoadSegmentWasAddedToNationalRoad),
             typeof(RoadSegmentWasModified),
+            typeof(RoadSegmentWasRealized),
             typeof(RoadSegmentStreetNameIdWasChanged),
             typeof(RoadSegmentGeometryWasModified),
             typeof(RoadSegmentWasMerged),
