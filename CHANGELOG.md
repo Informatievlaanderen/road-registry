@@ -1,3 +1,10 @@
+## [5.9.1](https://github.com/informatievlaanderen/road-registry/compare/v5.9.0...v5.9.1) (2026-08-11)
+
+
+### Bug Fixes
+
+* geometry check when trying to create outlined v1 roadsegment in … ([b0980a9](https://github.com/informatievlaanderen/road-registry/commit/b0980a90188cacaf22dd5c0fa7a584b17ff36fe1))
+
 # [5.9.0](https://github.com/informatievlaanderen/road-registry/compare/v5.8.3...v5.9.0) (2026-08-11)
 
 
