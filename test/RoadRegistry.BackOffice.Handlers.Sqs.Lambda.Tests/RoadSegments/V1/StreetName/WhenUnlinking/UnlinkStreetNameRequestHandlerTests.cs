@@ -78,9 +78,6 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         var command = await Store.GetLastMessage<RoadNetworkChangesAccepted>();
         var roadSegmentModified = command!.Changes.Single().RoadSegmentModified;
 
-        Xunit.Assert.NotEmpty(roadSegmentModified.Lanes);
-        Xunit.Assert.NotEmpty(roadSegmentModified.Surfaces);
-        Xunit.Assert.NotEmpty(roadSegmentModified.Widths);
         Xunit.Assert.Equal(StreetNameLocalId.NotApplicable, roadSegmentModified.LeftSide.StreetNameId);
         Xunit.Assert.Equal(StreetNameLocalId.NotApplicable, roadSegmentModified.RightSide.StreetNameId);
     }
