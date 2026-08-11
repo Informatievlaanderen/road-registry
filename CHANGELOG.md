@@ -1,3 +1,10 @@
+# [5.9.0](https://github.com/informatievlaanderen/road-registry/compare/v5.8.3...v5.9.0) (2026-08-11)
+
+
+### Features
+
+* **2.0:** realize planned roadsegment ([7627b02](https://github.com/informatievlaanderen/road-registry/commit/7627b023d28751133c09f989e4f1c52e64e94cd5))
+
 ## [5.8.3](https://github.com/informatievlaanderen/road-registry/compare/v5.8.2...v5.8.3) (2026-08-10)
 
 
