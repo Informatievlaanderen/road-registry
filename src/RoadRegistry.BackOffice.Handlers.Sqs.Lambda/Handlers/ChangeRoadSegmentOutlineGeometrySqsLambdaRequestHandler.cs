@@ -79,6 +79,16 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
             {
                 problems += new RoadSegmentIsInInwinning().WithContext(ProblemContext.For(roadSegmentId));
             }
+            else
+            {
+                var temporaryId = new RoadSegmentId(1);
+                var overlapWithInwinningszone = (await _extractsDbContext.CheckWhichOverlapWithInwinningszone(
+                    [(geometry, temporaryId)], cancellationToken)).Any();
+                if (overlapWithInwinningszone)
+                {
+                    problems += new RoadSegmentOverlapsWithInwinningszone().WithContext(ProblemContext.For(roadSegmentId));
+                }
+            }
 
             if (problems.Any())
             {

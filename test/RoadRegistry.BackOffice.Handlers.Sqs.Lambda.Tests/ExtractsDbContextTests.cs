@@ -175,4 +175,84 @@ public class ExtractsDbContextTests
 
         result.Should().BeTrue();
     }
+
+    // CheckWhichOverlapWithInwinningszone puts the road segments in the reference system the zone contours are held
+    // in before asking whether they intersect. Intersects compares raw coordinates and never looks at the SRID, so
+    // without that step a road and the zone it lies in read as a hundred kilometres apart and the check waves
+    // everything through.
+
+    private static readonly RoadSegmentId TemporaryId = new(1);
+
+    [Fact]
+    public async Task WhenTheZoneIsLambert08AndTheRoadSegmentLambert72_ThenTheOverlapIsStillFound()
+    {
+        var db = CreateDbContext();
+        db.Inwinningszones.Add(Zone("11001", SquareLambert08(Lambert08X, Lambert08Y, 500), completed: false));
+        await db.SaveChangesAsync();
+
+        // The same road, stated in Lambert 72 - which is what the v1 outline endpoints hand over.
+        var geometry = LineLambert08(Lambert08X, Lambert08Y, 100).TransformFromLambert08To72();
+
+        var result = await db.CheckWhichOverlapWithInwinningszone([(geometry, TemporaryId)], CancellationToken.None);
+
+        result.Should().BeEquivalentTo([TemporaryId]);
+    }
+
+    [Fact]
+    public async Task WhenTheLambert72RoadSegmentLiesOutsideTheZone_ThenNoOverlapIsFound()
+    {
+        // Converted just the same, but genuinely somewhere else: the conversion must not make everything overlap.
+        var db = CreateDbContext();
+        db.Inwinningszones.Add(Zone("11001", SquareLambert08(Lambert08X, Lambert08Y, 500), completed: false));
+        await db.SaveChangesAsync();
+
+        var geometry = LineLambert08(Lambert08X + 5000, Lambert08Y, 100).TransformFromLambert08To72();
+
+        var result = await db.CheckWhichOverlapWithInwinningszone([(geometry, TemporaryId)], CancellationToken.None);
+
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task WhenTheRoadSegmentIsAlreadyLambert08_ThenNothingIsConverted()
+    {
+        var db = CreateDbContext();
+        db.Inwinningszones.Add(Zone("11001", SquareLambert08(Lambert08X, Lambert08Y, 500), completed: false));
+        await db.SaveChangesAsync();
+
+        var geometry = LineLambert08(Lambert08X, Lambert08Y, 100);
+
+        var result = await db.CheckWhichOverlapWithInwinningszone([(geometry, TemporaryId)], CancellationToken.None);
+
+        result.Should().BeEquivalentTo([TemporaryId]);
+    }
+
+    [Fact]
+    public async Task WhenOnlyOneOfTheRoadSegmentsOverlaps_ThenOnlyThatOneIsReturned()
+    {
+        var db = CreateDbContext();
+        db.Inwinningszones.Add(Zone("11001", SquareLambert08(Lambert08X, Lambert08Y, 500), completed: false));
+        await db.SaveChangesAsync();
+
+        var inside = LineLambert08(Lambert08X, Lambert08Y, 100).TransformFromLambert08To72();
+        var outside = LineLambert08(Lambert08X + 5000, Lambert08Y, 100).TransformFromLambert08To72();
+        var outsideId = new RoadSegmentId(2);
+
+        var result = await db.CheckWhichOverlapWithInwinningszone(
+            [(inside, TemporaryId), (outside, outsideId)], CancellationToken.None);
+
+        result.Should().BeEquivalentTo([TemporaryId]);
+    }
+
+    [Fact]
+    public async Task WhenThereAreNoZones_ThenNoOverlapIsFound()
+    {
+        var db = CreateDbContext();
+
+        var geometry = LineLambert08(Lambert08X, Lambert08Y, 100).TransformFromLambert08To72();
+
+        var result = await db.CheckWhichOverlapWithInwinningszone([(geometry, TemporaryId)], CancellationToken.None);
+
+        result.Should().BeEmpty();
+    }
 }
