@@ -208,7 +208,7 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
         await HandleRequest(request, extractsDbContext: ExtractsDbContextWithZoneAround(Lambert08X, Lambert08Y));
 
         VerifyThatTicketHasError("RoadSegmentOverlapsWithInwinningszone",
-            "Het wegsegment valt (gedeeltelijk) binnen een gemeente die de inwinningsstatus 'locked' of 'compleet' heeft.");
+            $"Het wegsegment met id {roadSegmentId} valt (gedeeltelijk) binnen een gemeente die de inwinningsstatus 'locked' of 'compleet' heeft.");
     }
 
     [Fact]

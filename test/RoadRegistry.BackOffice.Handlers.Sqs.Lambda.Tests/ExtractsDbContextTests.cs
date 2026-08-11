@@ -130,11 +130,15 @@ public class ExtractsDbContextTests
     private static MultiLineString LineLambert08(double cx, double cy, double len) =>
         GeometryExtensions.WithSrid(LineInsideSquare(cx, cy, len), WellknownSrids.Lambert08);
 
+    // Both sides are put in Lambert 2008 before being compared, whatever they arrive in. Covers and Intersects
+    // compare raw coordinates and never look at the SRID, so without that a road and the zone it lies in read as a
+    // hundred kilometres apart and every road passes.
+
     [Fact]
     public async Task WhenTheZoneIsLambert72AndTheGeometryLambert08_ThenTheyAreComparedInTheSameReferenceSystem()
     {
-        // How it actually is in production: the zone is stored in Lambert 72 and the road segment arrives in
-        // Lambert 2008. Comparing the raw coordinates would place them a hundred kilometres apart.
+        // A zone that was stored in Lambert 72 is converted before the comparison; the road segment already is in
+        // Lambert 2008 and is left alone.
         var db = CreateDbContext();
         db.Inwinningszones.Add(Zone("11001", SquareLambert08(Lambert08X, Lambert08Y, 500).TransformFromLambert08To72(), completed: true));
         await db.SaveChangesAsync();
@@ -162,9 +166,10 @@ public class ExtractsDbContextTests
     }
 
     [Fact]
-    public async Task WhenTheZoneAndTheGeometryAreBothLambert72_ThenNothingIsConverted()
+    public async Task WhenTheZoneAndTheGeometryAreBothLambert72_ThenBothAreConverted()
     {
-        // Both already in the reference system the comparison happens in, so nothing is transformed.
+        // Neither side is in the reference system the comparison happens in, so both are transformed - and they
+        // still line up afterwards.
         var db = CreateDbContext();
         db.Inwinningszones.Add(Zone("11001", SquareLambert08(Lambert08X, Lambert08Y, 500).TransformFromLambert08To72(), completed: true));
         await db.SaveChangesAsync();
@@ -176,10 +181,8 @@ public class ExtractsDbContextTests
         result.Should().BeTrue();
     }
 
-    // CheckWhichOverlapWithInwinningszone puts the road segments in the reference system the zone contours are held
-    // in before asking whether they intersect. Intersects compares raw coordinates and never looks at the SRID, so
-    // without that step a road and the zone it lies in read as a hundred kilometres apart and the check waves
-    // everything through.
+    // CheckWhichOverlapWithInwinningszone normalises the same way: zones and road segments alike end up in
+    // Lambert 2008 before being asked whether they intersect.
 
     private static readonly RoadSegmentId TemporaryId = new(1);
 
@@ -214,7 +217,7 @@ public class ExtractsDbContextTests
     }
 
     [Fact]
-    public async Task WhenTheRoadSegmentIsAlreadyLambert08_ThenNothingIsConverted()
+    public async Task WhenTheZoneAndTheRoadSegmentAreBothLambert08_ThenNothingIsConverted()
     {
         var db = CreateDbContext();
         db.Inwinningszones.Add(Zone("11001", SquareLambert08(Lambert08X, Lambert08Y, 500), completed: false));
