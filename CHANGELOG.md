@@ -1,3 +1,10 @@
+## [5.9.2](https://github.com/informatievlaanderen/road-registry/compare/v5.9.1...v5.9.2) (2026-08-11)
+
+
+### Bug Fixes
+
+* **2.0:** always round Lambert72 geometry to cm in read projections and v2 read endpoints ([6be8e7b](https://github.com/informatievlaanderen/road-registry/commit/6be8e7b4fd17e3e068709723ef6f62c45a80a101))
+
 ## [5.9.1](https://github.com/informatievlaanderen/road-registry/compare/v5.9.0...v5.9.1) (2026-08-11)
 
 
