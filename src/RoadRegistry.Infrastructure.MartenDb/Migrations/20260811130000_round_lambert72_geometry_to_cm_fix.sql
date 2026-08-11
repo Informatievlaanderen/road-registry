@@ -1,15 +1,20 @@
--- Round the Lambert72 geometry coordinates in the read projections to cm (2 decimal places).
+-- Re-applies the Lambert72 coordinate rounding that the previous migration
+-- (20260811120000) failed to perform.
 --
--- Marten serialises documents with camelCase property names, and RoadNodeGeometry /
--- RoadSegmentGeometry both inherit from GeometryObject which stores the geometry as a WKT
--- string, not as a nested coordinate array.  The JSON structure is therefore:
+-- The earlier script used PascalCase JSON paths (e.g. 'Geometry', 'Lambert72') and assumed
+-- a nested coordinate-array structure.  In reality, Marten serialises documents with camelCase
+-- property names, and the geometry is stored as a WKT string under:
 --
---   data -> 'geometry' -> 'lambert72' -> 'wkt'   (WKT string, e.g. "POINT (x y)")
---   data -> 'geometry' -> 'lambert72' -> 'srid'  (integer SRID)
+--   data -> 'geometry' -> 'lambert72' -> 'wkt'
 --
--- The rounding is done with PostGIS: parse the WKT into a geometry, snap every vertex to a
--- 0.01-unit (1 cm) grid, then write it back as WKT limited to 2 decimal places.
--- The update is guarded by a table-existence check so it is a safe no-op on fresh databases.
+-- Because the paths did not match, the previous UPDATE was a no-op: the sub-query that drove
+-- jsonb_set returned NULL (iterating over a missing key), and jsonb_set leaves the document
+-- unchanged when the replacement value is NULL.
+--
+-- This script performs the rounding correctly using PostGIS:
+--   1. Parse the WKT string into a PostGIS geometry.
+--   2. Snap all vertices to a 0.01-unit (1 cm) grid with ST_SnapToGrid.
+--   3. Write the result back as a 2-decimal-place WKT string with ST_AsText(..., 2).
 
 DO $do$
 BEGIN
