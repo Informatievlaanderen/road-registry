@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.RoadSegment;
+namespace RoadRegistry.RoadSegment;
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -228,7 +228,18 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         };
     }
 
-    public void Apply(RoadSegmentWasRealized @event)
+    public void Apply(RoadSegmentWasCorrectedFromRealizedToPlanned @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Status = RoadSegmentStatusV2.Gepland;
+
+        // Only a realized segment is knotted into the network; a planned one carries no road nodes at all.
+        StartNodeId = null;
+        EndNodeId = null;
+    }
+
+    public void Apply(RoadSegmentWasRealizedFromPlanned @event)
     {
         UncommittedEvents.Add(@event);
 

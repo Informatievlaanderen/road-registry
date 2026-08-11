@@ -36,7 +36,7 @@ public partial class RoadSegmentsController
     /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
     /// <response code="410">Als het wegsegment is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
-    [HttpPost(RealizeRoute, Name = nameof(RealizeRoadSegmentV2))]
+    [HttpPost(RealizeRoute, Name = nameof(ChangeRoadSegmentFromPlannedToRealizedV2))]
     [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -49,8 +49,8 @@ public partial class RoadSegmentsController
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadSegmentNotFoundResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status410Gone, typeof(RoadSegmentGoneResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
-    [SwaggerOperation(OperationId = nameof(RealizeRoadSegmentV2), Description = "Markeer een gepland wegsegment als gerealiseerd. Het wegsegment wordt aan het wegennet geknoopt: de uiteinden worden naar bestaande wegknopen binnen 1 meter gesnapt, waar er geen ligt komt een eindknoop, en kruisingen met gerealiseerde wegsegmenten worden als gelijkgrondse kruising vastgelegd.")]
-    public async Task<IActionResult> RealizeRoadSegmentV2(
+    [SwaggerOperation(OperationId = nameof(ChangeRoadSegmentFromPlannedToRealizedV2), Description = "Markeer een gepland wegsegment als gerealiseerd. Het wegsegment wordt aan het wegennet geknoopt: de uiteinden worden naar bestaande wegknopen binnen 1 meter gesnapt, waar er geen ligt komt een eindknoop, en kruisingen met gerealiseerde wegsegmenten worden als gelijkgrondse kruising vastgelegd.")]
+    public async Task<IActionResult> ChangeRoadSegmentFromPlannedToRealizedV2(
         [FromServices] RoadSegmentIdValidator idValidator,
         [FromRoute] int id,
         [FromServices] IDocumentStore store,
@@ -77,7 +77,7 @@ public partial class RoadSegmentsController
                 return new StatusCodeResult(StatusCodes.Status410Gone);
             }
 
-            var sqsRequest = new RealizeRoadSegmentV2SqsRequest
+            var sqsRequest = new ChangeRoadSegmentFromPlannedToRealizedV2SqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Update),
                 RoadSegmentId = new RoadSegmentId(id),

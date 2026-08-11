@@ -1,4 +1,4 @@
-namespace RoadRegistry.Tests.AggregateTests.RoadSegment.RealizeRoadSegment;
+namespace RoadRegistry.Tests.AggregateTests.RoadSegment.ChangeRoadSegmentFromPlannedToRealized;
 
 using System.Linq;
 using AutoFixture;
@@ -119,7 +119,7 @@ public class AggregateTests : AggregateTestBase
 
     private RoadNetworkChangeResult Act(ScopedRoadNetwork roadNetwork, bool mayModifyMeasuredRoadSegments = true, int roadSegmentId = PlannedSegmentId)
     {
-        return roadNetwork.RealizeRoadSegment(
+        return roadNetwork.ChangeRoadSegmentFromPlannedToRealized(
             new RoadSegmentId(roadSegmentId),
             mayModifyMeasuredRoadSegments,
             IdGenerator(),
@@ -340,7 +340,7 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
-    public void WhenTheSegmentIsRealized_ThenARoadSegmentWasRealizedEventIsRecorded()
+    public void WhenTheSegmentIsRealized_ThenARoadSegmentWasRealizedFromPlannedEventIsRecorded()
     {
         // Realizing is its own action, not a modification, and the event records what the segment became in full.
         var roadNetwork = BuildNetworkWith(BuildGeometry((100.4, 0), (100.4, 80)));
@@ -352,7 +352,7 @@ public class AggregateTests : AggregateTestBase
         var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(PlannedSegmentId)];
         roadSegment.GetChanges().OfType<RoadSegmentWasModified>().Should().BeEmpty();
 
-        var @event = roadSegment.GetChanges().OfType<RoadSegmentWasRealized>().Should().ContainSingle().Which;
+        var @event = roadSegment.GetChanges().OfType<RoadSegmentWasRealizedFromPlanned>().Should().ContainSingle().Which;
         @event.RoadSegmentId.Should().Be(new RoadSegmentId(PlannedSegmentId));
         @event.StartNodeId.Should().Be(new RoadNodeId(11));
         @event.EndNodeId.Should().Be(roadSegment.EndNodeId!.Value);

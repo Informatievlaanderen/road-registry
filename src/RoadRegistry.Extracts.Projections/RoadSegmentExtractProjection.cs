@@ -369,7 +369,18 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
                 segment.EndNodeId = e.Data.EndNodeId;
             }, e.Data, ct);
         });
-        When<IEvent<RoadSegmentWasRealized>>((session, e, ct) =>
+        When<IEvent<RoadSegmentWasCorrectedFromRealizedToPlanned>>((session, e, ct) =>
+        {
+            // Unhooked from the network: the geometry and every attribute stay as they were, only the status changes
+            // and the road nodes are given up.
+            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
+            {
+                segment.Status = RoadSegmentStatusV2.Gepland;
+                segment.StartNodeId = null;
+                segment.EndNodeId = null;
+            }, e.Data, ct);
+        });
+        When<IEvent<RoadSegmentWasRealizedFromPlanned>>((session, e, ct) =>
         {
             // The event records the realized state in full, so nothing is left at what it was.
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>

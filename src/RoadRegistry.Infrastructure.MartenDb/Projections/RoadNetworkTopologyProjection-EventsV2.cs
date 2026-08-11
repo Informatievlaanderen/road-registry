@@ -123,7 +123,19 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<RoadSegmentWasRealized> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadSegmentWasCorrectedFromRealizedToPlanned> e, IDocumentOperations ops)
+    {
+        // The segment came loose from its road nodes. networktopology_update_roadsegment treats a node id of 0 as
+        // "leave it alone", so it cannot clear them - and leaving them would keep reporting this segment as connected
+        // to whatever still hangs off those nodes.
+        ops.QueueSqlCommand($"UPDATE {RoadNetworkTopologyProjection.RoadSegmentsTableName} SET start_node_id = 0, end_node_id = 0, timestamp = ? WHERE id = ? AND timestamp <= ?;",
+            e.Timestamp,
+            e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp
+        );
+    }
+
+    public void Project(IEvent<RoadSegmentWasRealizedFromPlanned> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
             e.Data.RoadSegmentId.ToInt32(),

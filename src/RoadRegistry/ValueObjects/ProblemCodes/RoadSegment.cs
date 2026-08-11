@@ -347,6 +347,11 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode RoadNodeMovedTooFar = new("RoadSegmentChangeGeometryRoadNodeMovedTooFar");
         }
 
+        public static class CorrectFromRealizedToPlanned
+        {
+            public static readonly ProblemCode StatusNotValid = new("RoadSegmentCorrectFromRealizedToPlannedStatusNotValid");
+        }
+
         public static class Realize
         {
             public static readonly ProblemCode StatusNotValid = new("RoadSegmentRealizeStatusNotValid");

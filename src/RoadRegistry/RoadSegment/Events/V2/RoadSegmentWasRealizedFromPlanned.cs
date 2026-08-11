@@ -12,9 +12,9 @@ using RoadRegistry.BackOffice;
 // Everything the action settled is recorded in full rather than as a delta: the geometry as it ended up after being
 // snapped onto the road nodes it hooked onto, the two nodes it hangs off, and every dynamically segmented attribute
 // remapped onto that geometry. A reader never has to go looking for what the previous value was.
-public record RoadSegmentWasRealized : IMartenEvent
+public record RoadSegmentWasRealizedFromPlanned : IMartenEvent
 {
-    public const string EventName = "RoadSegmentWasRealized"; // BE CAREFUL CHANGING THIS!!
+    public const string EventName = "RoadSegmentWasRealizedFromPlanned"; // BE CAREFUL CHANGING THIS!!
 
     public required RoadSegmentId RoadSegmentId { get; init; }
     public required RoadSegmentGeometry Geometry { get; init; }

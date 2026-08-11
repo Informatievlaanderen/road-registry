@@ -79,6 +79,8 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             new(HttpMethod.Get, "v2/wegsegmenten/{id}"),
             new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/knippen", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/wijzigen/geometrie", Scopes.DvWrGeschetsteWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/geplandnaargerealiseerd", Scopes.DvWrGeschetsteWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/corrigeren/gerealiseerdnaargepland", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v2/wegsegmenten/acties/knippenopkruising", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v2/wegsegmenten/acties/wijzigen/attributen", Scopes.DvWrAttribuutWaardenBeheer),
             new(HttpMethod.Get, "v2/gelijkgrondsekruisingen/{id}"),

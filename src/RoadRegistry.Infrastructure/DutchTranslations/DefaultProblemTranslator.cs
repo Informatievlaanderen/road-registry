@@ -627,6 +627,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"U heeft niet de machtigingen om deze actie uit te voeren voor (aansluitende) wegsegmenten met geometriemethode 'ingemeten'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingemeten.")
             },
             {
+                ProblemCode.RoadSegment.CorrectFromRealizedToPlanned.StatusNotValid, problem => new(problem.Severity, "WegsegmentCorrectieStatusNietCorrect",
+                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft een status die verschilt van 'gerealiseerd'.")
+            },
+            {
                 ProblemCode.RoadSegment.Realize.StatusNotValid, problem => new(problem.Severity, "WegsegmentRealisatieStatusNietCorrect",
                     $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft een status die verschilt van 'gepland'.")
             },

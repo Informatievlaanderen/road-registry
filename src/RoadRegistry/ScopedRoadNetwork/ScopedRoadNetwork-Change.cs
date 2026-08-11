@@ -85,7 +85,7 @@ public partial class ScopedRoadNetwork
                     problems += ModifyRoadNode(change, context);
                     break;
                 case RemoveRoadNodeChange change:
-                    problems += RemoveRoadNode(change, context);
+                    problems += RemoveRoadNode(change.RoadNodeId, context);
                     break;
 
                 case AddRoadSegmentChange change:
@@ -133,7 +133,7 @@ public partial class ScopedRoadNetwork
                     problems += ModifyGradeSeparatedJunction(change, context);
                     break;
                 case RemoveGradeSeparatedJunctionChange change:
-                    problems += RemoveGradeSeparatedJunction(change, context);
+                    problems += RemoveGradeSeparatedJunction(change.GradeSeparatedJunctionId, context);
                     break;
 
                 default:
@@ -289,9 +289,9 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
-    private Problems RemoveRoadNode(RemoveRoadNodeChange change, ScopedRoadNetworkChangeContext context)
+    private Problems RemoveRoadNode(RoadNodeId roadNodeId, ScopedRoadNetworkChangeContext context)
     {
-        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
+        if (!_roadNodes.TryGetValue(roadNodeId, out var roadNode))
         {
             return Problems.None;
         }
@@ -408,13 +408,32 @@ public partial class ScopedRoadNetwork
         var roadSegment = _roadSegments[roadSegmentId];
         if (roadSegment.IsRemoved || roadSegment.Status != RoadSegmentStatusV2.Gerealiseerd)
         {
-            var linkedGradeJunctions = _gradeJunctions
-                .Where(x => !x.Value.IsRemoved && x.Value.IsConnectedTo(roadSegmentId))
-                .Select(x => x.Value)
+            var linkedJunctions = _gradeJunctions.Values
+                .Where(x => !x.IsRemoved && x.IsConnectedTo(roadSegmentId))
                 .ToArray();
-            foreach (var gradeJunction in linkedGradeJunctions)
+            foreach (var junction in linkedJunctions)
             {
-                problems += RemoveGradeJunction(gradeJunction.GradeJunctionId, context);
+                problems += RemoveGradeJunction(junction.GradeJunctionId, context);
+            }
+        }
+
+        return problems;
+    }
+
+    private Problems TryToRemoveLinkedGradeSeparatedJunctions(RoadSegmentId roadSegmentId, ScopedRoadNetworkChangeContext context)
+    {
+        var problems = Problems.None;
+
+        var roadSegment = _roadSegments[roadSegmentId];
+        if (roadSegment.IsRemoved || roadSegment.Status != RoadSegmentStatusV2.Gerealiseerd)
+        {
+            var linkedJunctions = _gradeSeparatedJunctions.Values
+                .Where(x => !x.IsRemoved && x.IsConnectedTo(roadSegmentId))
+                .ToArray();
+
+            foreach (var junction in linkedJunctions)
+            {
+                problems += RemoveGradeSeparatedJunction(junction.GradeSeparatedJunctionId, context);
             }
         }
 
@@ -515,9 +534,9 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
-    private Problems RemoveGradeSeparatedJunction(RemoveGradeSeparatedJunctionChange change, ScopedRoadNetworkChangeContext context)
+    private Problems RemoveGradeSeparatedJunction(GradeSeparatedJunctionId gradeSeparatedJunctionId, ScopedRoadNetworkChangeContext context)
     {
-        if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var gradeSeparatedJunction))
+        if (!_gradeSeparatedJunctions.TryGetValue(gradeSeparatedJunctionId, out var gradeSeparatedJunction))
         {
             return Problems.None;
         }

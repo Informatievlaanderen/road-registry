@@ -26,7 +26,7 @@ public partial class ScopedRoadNetwork
     //
     // The user is expected to have prepared the connection points by splitting beforehand: an endpoint that lands near
     // an existing *segment* rather than an existing node gets its own end node, however close that segment is.
-    public RoadNetworkChangeResult RealizeRoadSegment(
+    public RoadNetworkChangeResult ChangeRoadSegmentFromPlannedToRealized(
         RoadSegmentId roadSegmentId,
         bool mayModifyMeasuredRoadSegments,
         IRoadNetworkIdGenerator idGenerator,
@@ -133,7 +133,7 @@ public partial class ScopedRoadNetwork
         // The start and end node are resolved from whatever sits on the endpoints, so both the snapped-onto nodes and
         // the ones just added are in place by now.
         var oldEnvelope = roadSegment.Geometry.Value.EnvelopeInternal;
-        problems += roadSegment.Realize(snappedGeometry, realizedAttributes, context);
+        problems += roadSegment.RealizeFromPlanned(snappedGeometry, realizedAttributes, context);
         if (problems.HasError())
         {
             return Failed(problems, context);

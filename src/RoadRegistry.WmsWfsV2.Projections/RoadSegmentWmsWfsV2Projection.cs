@@ -194,7 +194,16 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
                 m.PedestrianTrafficDirection, m.Provenance, ct);
         });
 
-        When<IEvent<RoadSegmentWasRealized>>(async (context, e, ct) =>
+        When<IEvent<RoadSegmentWasCorrectedFromRealizedToPlanned>>(async (context, e, ct) =>
+        {
+            // Only the status changes; the geometry and the attributes are untouched.
+            var m = e.Data;
+            await WritePartial(context, m.RoadSegmentId.ToInt32(), null, RoadSegmentStatusV2.Gepland, null,
+                null, null, null, null, null, null, null, null, null, null, null, m.Provenance, ct,
+                clearRoadNodes: true);
+        });
+
+        When<IEvent<RoadSegmentWasRealizedFromPlanned>>(async (context, e, ct) =>
         {
             // The status is the event itself; the geometry draw method is not touched by realizing.
             var m = e.Data;
@@ -347,9 +356,18 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> car,
         RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> bike,
         RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection> pedestrian,
-        ProvenanceData provenance, CancellationToken ct)
+        ProvenanceData provenance, CancellationToken ct,
+        bool clearRoadNodes = false)
     {
         var (normal, isNew) = await LoadOrCreate(context, segId, provenance);
+
+        // A null node id means "not carried by this event". Clearing them is its own instruction, because a segment
+        // that is no longer realized has no road nodes at all.
+        if (clearRoadNodes)
+        {
+            normal.B_WK_OIDN = null;
+            normal.E_WK_OIDN = null;
+        }
 
         if (geometry is not null)
         {

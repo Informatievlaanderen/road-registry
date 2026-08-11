@@ -11,7 +11,7 @@ using RoadRegistry.RoadSegment.ValueObjects;
 // One segment per request: realizing changes the topology, so the order in which two of them are realized can affect
 // the result.
 [BlobRequest]
-public sealed class RealizeRoadSegmentV2SqsRequest : SqsRequest
+public sealed class ChangeRoadSegmentFromPlannedToRealizedV2SqsRequest : SqsRequest
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
 
