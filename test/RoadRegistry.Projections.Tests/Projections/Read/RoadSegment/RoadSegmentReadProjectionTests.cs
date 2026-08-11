@@ -6,9 +6,14 @@ using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
 using RoadRegistry.Read.Projections;
+using RoadRegistry.RoadSegment.Events.V1.ValueObjects;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.Tests.AggregateTests;
+using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadSegmentAddedV1 = RoadRegistry.RoadSegment.Events.V1.RoadSegmentAdded;
 
 public class RoadSegmentReadProjectionTests
 {
@@ -105,6 +110,49 @@ public class RoadSegmentReadProjectionTests
         Assert.Equal(RoadSegmentStatusV2.Gehistoreerd.ToString(), segment!.Status);
         Assert.Equal(new RoadNodeId(1), segment.StartNodeId);
         Assert.Equal(new RoadNodeId(2), segment.EndNodeId);
+    }
+
+    [Fact]
+    public async Task WhenV1RoadSegmentWasAdded_ThenLambert72GeometryIsRoundedToCmAndPointOrderIsPreserved()
+    {
+        var scenario = Scenario();
+        var fixture = new RoadNetworkTestData().ObjectProvider;
+        var evt = fixture.Create<RoadSegmentAddedV1>();
+        evt.RoadSegmentId = 1;
+        evt.StartNodeId = 1;
+        evt.EndNodeId = 2;
+        evt.LeftSide = new RoadSegmentSideAttributes { StreetNameId = StreetNameLocalId.NotApplicable };
+        evt.RightSide = new RoadSegmentSideAttributes { StreetNameId = StreetNameLocalId.NotApplicable };
+        evt.MaintenanceAuthority = new MaintenanceAuthority { Code = OrganizationId.Unknown.ToString(), Name = string.Empty };
+        evt.Geometry = new MultiLineString([new LineString([
+            new Coordinate(300.016, 400.014),
+            new Coordinate(100.011, 200.019),
+            new Coordinate(200.004, 300.006)
+        ])])
+            .WithSrid(WellknownSrids.Lambert72)
+            .ToRoadSegmentGeometry();
+
+        await scenario.GivenAsync(_testData.Segment1StartNodeAdded, _testData.Segment1EndNodeAdded, evt);
+
+        var segment = await scenario.Load<RoadSegmentReadItem>(1);
+        var coordinates = ((LineString)segment!.Geometry.Lambert72.Value.Geometries.Single()).Coordinates;
+
+        Assert.Collection(coordinates,
+            c =>
+            {
+                Assert.Equal(300.02, c.X);
+                Assert.Equal(400.01, c.Y);
+            },
+            c =>
+            {
+                Assert.Equal(100.01, c.X);
+                Assert.Equal(200.02, c.Y);
+            },
+            c =>
+            {
+                Assert.Equal(200.00, c.X);
+                Assert.Equal(300.01, c.Y);
+            });
     }
 
     [Fact]
