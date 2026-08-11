@@ -29,7 +29,7 @@ public class RoadNodeReadProjection : MartenRoadNetworkChangesProjection
             AddOrUpdateRoadNode(session, new RoadNodeReadItem
             {
                 RoadNodeId = new RoadNodeId(e.Data.RoadNodeId),
-                Geometry = ProjectGeometry(e.Data.Geometry, isV2: false),
+                Geometry = ProjectGeometry(e.Data.Geometry),
                 Type = e.Data.Type,
                 Grensknoop = false,
                 RoadSegmentIds = [],
@@ -41,7 +41,7 @@ public class RoadNodeReadProjection : MartenRoadNetworkChangesProjection
             AddOrUpdateRoadNode(session, new RoadNodeReadItem
             {
                 RoadNodeId = new RoadNodeId(e.Data.RoadNodeId),
-                Geometry = ProjectGeometry(e.Data.Geometry, isV2: false),
+                Geometry = ProjectGeometry(e.Data.Geometry),
                 Type = e.Data.Type,
                 Grensknoop = false,
                 RoadSegmentIds = [],
@@ -59,7 +59,7 @@ public class RoadNodeReadProjection : MartenRoadNetworkChangesProjection
 
             node.LastModified = e.Data.Provenance.ToEventTimestamp();
             node.Type = e.Data.Type;
-            node.Geometry = ProjectGeometry(e.Data.Geometry, isV2: false);
+            node.Geometry = ProjectGeometry(e.Data.Geometry);
 
             session.Store(node);
         });
@@ -80,7 +80,7 @@ public class RoadNodeReadProjection : MartenRoadNetworkChangesProjection
             AddOrUpdateRoadNode(session, new RoadNodeReadItem
             {
                 RoadNodeId = e.Data.RoadNodeId,
-                Geometry = ProjectGeometry(e.Data.Geometry, isV2: true),
+                Geometry = ProjectGeometry(e.Data.Geometry),
                 Type = e.Data.Type?.ToString(),
                 Grensknoop = e.Data.Grensknoop,
                 RoadSegmentIds = [],
@@ -97,7 +97,7 @@ public class RoadNodeReadProjection : MartenRoadNetworkChangesProjection
             }
 
             node.LastModified = e.Data.Provenance.ToEventTimestamp();
-            node.Geometry = ProjectGeometry(e.Data.Geometry, isV2: true);
+            node.Geometry = ProjectGeometry(e.Data.Geometry);
             node.Grensknoop = e.Data.Grensknoop;
             node.IsV2 = true;
 
@@ -125,7 +125,7 @@ public class RoadNodeReadProjection : MartenRoadNetworkChangesProjection
             }
 
             node.LastModified = e.Data.Provenance.ToEventTimestamp();
-            node.Geometry = e.Data.Geometry is not null ? ProjectGeometry(e.Data.Geometry, isV2: true) : node.Geometry;
+            node.Geometry = e.Data.Geometry is not null ? ProjectGeometry(e.Data.Geometry) : node.Geometry;
             node.Grensknoop = e.Data.Grensknoop ?? node.Grensknoop;
 
             session.Store(node);
@@ -173,11 +173,11 @@ public class RoadNodeReadProjection : MartenRoadNetworkChangesProjection
         }
     }
 
-    private static RoadNodeGeometryProjections ProjectGeometry(RoadNodeGeometry geometry, bool isV2)
+    private static RoadNodeGeometryProjections ProjectGeometry(RoadNodeGeometry geometry)
     {
         return new RoadNodeGeometryProjections
         {
-            Lambert72 = isV2 ? geometry.EnsureLambert72().RoundToCm() : geometry.EnsureLambert72(),
+            Lambert72 = geometry.EnsureLambert72().RoundToCm(),
             Lambert08 = geometry.EnsureLambert08().RoundToCm(),
         };
     }
