@@ -1,9 +1,10 @@
-﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenChangingOutlineGeometry;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenChangingOutlineGeometry;
 
 using Abstractions.RoadSegmentsOutline;
 using AutoFixture;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
@@ -154,6 +155,78 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
 
         // Assert
         VerifyThatTicketHasError("RoadSegmentIsInInwinning", $"Het wegsegment met id {roadSegmentId} heeft de inwinningsstatus 'locked' of 'compleet'.");
+    }
+
+    // A v1 outline geometry arrives in Lambert 72 while the inwinningszone contours are held in Lambert 2008.
+    // Intersects compares raw coordinates and never looks at the SRID, so unless the road segment is put in the
+    // zone's reference system first the two read as a hundred kilometres apart and every road passes the check.
+    private const double Lambert08X = 217368.75;
+    private const double Lambert08Y = 181577.02;
+
+    private static MultiLineString Lambert72LineAround(double lambert08X, double lambert08Y)
+    {
+        var line = new MultiLineString([
+            new LineString([new Coordinate(lambert08X - 50, lambert08Y), new Coordinate(lambert08X + 50, lambert08Y)])
+        ]).WithSrid(WellknownSrids.Lambert08);
+
+        return line.TransformFromLambert08To72().WithSrid(WellknownSrids.Lambert72);
+    }
+
+    private static ExtractsDbContext ExtractsDbContextWithZoneAround(double lambert08X, double lambert08Y)
+    {
+        var db = new FakeExtractsDbContextFactory().CreateDbContext();
+        db.Inwinningszones.Add(new Inwinningszone
+        {
+            NisCode = "11001",
+            Operator = "op",
+            DownloadId = Guid.NewGuid(),
+            Contour = new Polygon(new LinearRing([
+                new Coordinate(lambert08X - 500, lambert08Y - 500),
+                new Coordinate(lambert08X + 500, lambert08Y - 500),
+                new Coordinate(lambert08X + 500, lambert08Y + 500),
+                new Coordinate(lambert08X - 500, lambert08Y + 500),
+                new Coordinate(lambert08X - 500, lambert08Y - 500)
+            ])).WithSrid(WellknownSrids.Lambert08),
+            Completed = false
+        });
+        db.SaveChanges();
+        return db;
+    }
+
+    [Fact]
+    public async Task GivenGeometryOverlappingAnInwinningszone_ThenError()
+    {
+        await GivenOrganization();
+
+        var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
+        await AddOutlinedRoadSegment(roadSegmentId);
+
+        var request = new ChangeRoadSegmentOutlineGeometryRequest(
+            roadSegmentId,
+            GeometryTranslator.Translate(Lambert72LineAround(Lambert08X, Lambert08Y)));
+
+        await HandleRequest(request, extractsDbContext: ExtractsDbContextWithZoneAround(Lambert08X, Lambert08Y));
+
+        VerifyThatTicketHasError("RoadSegmentOverlapsWithInwinningszone",
+            $"Het wegsegment met id {roadSegmentId} valt (gedeeltelijk) binnen een gemeente die de inwinningsstatus 'locked' of 'compleet' heeft.");
+    }
+
+    [Fact]
+    public async Task GivenGeometryOutsideEveryInwinningszone_ThenSucceeded()
+    {
+        // The same conversion is applied, but the road genuinely lies elsewhere: it must not be refused.
+        await GivenOrganization();
+
+        var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
+        await AddOutlinedRoadSegment(roadSegmentId);
+
+        var request = new ChangeRoadSegmentOutlineGeometryRequest(
+            roadSegmentId,
+            GeometryTranslator.Translate(Lambert72LineAround(Lambert08X + 5000, Lambert08Y)));
+
+        var translatedChanges = await HandleRequest(request, extractsDbContext: ExtractsDbContextWithZoneAround(Lambert08X, Lambert08Y));
+
+        translatedChanges.OfType<ModifyRoadSegment>().Should().ContainSingle();
     }
 
     private async Task<IReadOnlyList<ITranslatedChange>> HandleRequest(

@@ -187,10 +187,12 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
             .ToListAsync(cancellationToken);
 
         var preparedZones = inwinningszonesGeometries
-            .Select(NetTopologySuite.Geometries.Prepared.PreparedGeometryFactory.Prepare)
+            .Select(x => NetTopologySuite.Geometries.Prepared.PreparedGeometryFactory.Prepare(ToLambert08(x)))
             .ToList();
 
-        var overlappingIds = roadSegments
+        var lb08RoadSegments = roadSegments.Select(x => x with { Geometry = ToLambert08(x.Geometry)}).ToArray();
+
+        var overlappingIds = lb08RoadSegments
             .AsParallel()
             .Where(segment => preparedZones.Any(zone => zone.Intersects(segment.Geometry)))
             .Select(x => x.TemporaryId)
@@ -210,23 +212,20 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
         if (zones.Count == 0)
             return false;
 
-        var union = NetTopologySuite.Operation.Union.UnaryUnionOp.Union(zones);
+        var union = NetTopologySuite.Operation.Union.UnaryUnionOp.Union(zones.Select(ToLambert08));
 
-        // The zones are stored in Lambert 72 while a road segment geometry arrives in Lambert 2008, and Covers
-        // compares raw coordinates without ever looking at the SRID - so unless both are put in the same reference
-        // system first, every road reads as lying outside every zone.
         return NetTopologySuite.Geometries.Prepared.PreparedGeometryFactory
             .Prepare(union)
-            .Covers(ToLambert72(geometry));
+            .Covers(ToLambert08(geometry));
     }
 
-    // Only Lambert 08 needs converting. Anything else is left as it is rather than rejected: this is a query, and a
+    // Only Lambert 72 needs converting. Anything else is left as it is rather than rejected: this is a query, and a
     // geometry whose reference system we cannot place is answered by the comparison itself, not by an exception.
-    private static T ToLambert72<T>(T geometry)
+    private static T ToLambert08<T>(T geometry)
         where T : Geometry
     {
-        return geometry.SRID == WellknownSrids.Lambert08
-            ? geometry.TransformFromLambert08To72()
+        return geometry.SRID == WellknownSrids.Lambert72
+            ? geometry.TransformFromLambert72To08()
             : geometry;
     }
 
