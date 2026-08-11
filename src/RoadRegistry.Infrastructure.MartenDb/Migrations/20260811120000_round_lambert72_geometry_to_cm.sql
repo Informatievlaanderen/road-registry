@@ -5,7 +5,8 @@
 -- Road segments: data -> 'Geometry' -> 'Lambert72' -> 'MultiLineString' -> array of line strings,
 --                each containing 'Points' -> array of {X, Y}.
 --
--- Both are updated in a single pass using jsonb path manipulation.
+-- Both are updated using a merge (||) so any future extra fields on point objects are preserved,
+-- and only X and Y are overwritten with their rounded values.
 -- The update is guarded by a table-existence check so it is a safe no-op on fresh databases.
 
 DO $do$
@@ -16,7 +17,8 @@ BEGIN
         SET data = jsonb_set(
             data,
             '{Geometry,Lambert72,Point}',
-            jsonb_build_object(
+            (data -> 'Geometry' -> 'Lambert72' -> 'Point')
+            || jsonb_build_object(
                 'X', round((data -> 'Geometry' -> 'Lambert72' -> 'Point' ->> 'X')::numeric, 2),
                 'Y', round((data -> 'Geometry' -> 'Lambert72' -> 'Point' ->> 'Y')::numeric, 2)
             )
@@ -37,7 +39,7 @@ BEGIN
                         '{Points}',
                         (
                             SELECT jsonb_agg(
-                                jsonb_build_object(
+                                pt || jsonb_build_object(
                                     'X', round((pt ->> 'X')::numeric, 2),
                                     'Y', round((pt ->> 'Y')::numeric, 2)
                                 )
