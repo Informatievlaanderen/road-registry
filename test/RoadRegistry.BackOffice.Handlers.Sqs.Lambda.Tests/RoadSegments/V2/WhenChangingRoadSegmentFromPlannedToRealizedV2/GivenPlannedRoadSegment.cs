@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.V2.WhenRealizingRoadSegmentV2;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.V2.WhenChangingRoadSegmentFromPlannedToRealizedV2;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RealizeRoadSegment;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentFromPlannedToRealized;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
@@ -190,7 +190,7 @@ public class GivenPlannedRoadSegment : BackOfficeLambdaTest
             await seedSession.SaveChangesAsync();
         }
 
-        var handler = new RealizeRoadSegmentV2SqsLambdaRequestHandler(
+        var handler = new ChangeRoadSegmentFromPlannedToRealizedV2SqsLambdaRequestHandler(
             SqsLambdaHandlerOptions,
             new FakeRetryPolicy(),
             TicketingMock.Object,
@@ -201,7 +201,7 @@ public class GivenPlannedRoadSegment : BackOfficeLambdaTest
             extractsDbContext,
             LoggerFactory);
 
-        var sqsRequest = new RealizeRoadSegmentV2SqsRequest
+        var sqsRequest = new ChangeRoadSegmentFromPlannedToRealizedV2SqsRequest
         {
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
@@ -210,7 +210,7 @@ public class GivenPlannedRoadSegment : BackOfficeLambdaTest
             MayModifyMeasuredRoadSegments = mayModifyMeasuredRoadSegments
         };
 
-        await handler.Handle(new RealizeRoadSegmentV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest), CancellationToken.None);
+        await handler.Handle(new ChangeRoadSegmentFromPlannedToRealizedV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest), CancellationToken.None);
     }
 
     private (RoadNode[] Nodes, RoadSegment[] Segments) BuildNetwork(

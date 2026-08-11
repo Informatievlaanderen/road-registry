@@ -243,6 +243,11 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadSegment.CorrectFromRealizedToPlanned.StatusNotValid, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
                 ProblemCode.RoadSegment.Realize.StatusNotValid, [
                     new ProblemParameter("WegsegmentId", "1")
                 ]

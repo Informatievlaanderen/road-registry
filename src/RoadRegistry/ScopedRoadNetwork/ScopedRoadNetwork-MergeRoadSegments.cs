@@ -114,10 +114,7 @@ public partial class ScopedRoadNetwork
         _roadSegmentsSpatialIndex.Update(oldEnvelope, roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
         context.Summary.RoadSegments.Modified.Add(roadSegment.RoadSegmentId);
 
-        problems += RemoveRoadNode(new RemoveRoadNodeChange
-        {
-            RoadNodeId = commonNodeId
-        }, context);
+        problems += RemoveRoadNode(commonNodeId, context);
 
         var nodeSegmentIds = new[] { segment1.RoadSegmentId, segment2.RoadSegmentId };
         var connectedJunctions = _gradeSeparatedJunctions

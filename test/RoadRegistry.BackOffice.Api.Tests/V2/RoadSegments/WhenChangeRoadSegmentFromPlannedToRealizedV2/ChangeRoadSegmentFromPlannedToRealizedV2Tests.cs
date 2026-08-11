@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Tests.V2.RoadSegments.WhenRealizeRoadSegmentV2;
+namespace RoadRegistry.BackOffice.Api.Tests.V2.RoadSegments.WhenChangeRoadSegmentFromPlannedToRealizedV2;
 
 using System.Linq;
 using System.Security.Claims;
@@ -21,16 +21,16 @@ using RoadRegistry.Tests;
 using RoadRegistry.Tests.AggregateTests;
 using RoadRegistry.Tests.BackOffice;
 
-public class RealizeRoadSegmentV2Tests : V2ReadEndpointTestBase
+public class ChangeRoadSegmentFromPlannedToRealizedV2Tests : V2ReadEndpointTestBase
 {
     private readonly Mock<IMediator> _mediator = new();
     private readonly RoadSegmentsController _controller;
     private readonly RoadNetworkTestDataV2 TestData = new();
 
-    public RealizeRoadSegmentV2Tests()
+    public ChangeRoadSegmentFromPlannedToRealizedV2Tests()
     {
         _mediator
-            .Setup(x => x.Send(It.IsAny<RealizeRoadSegmentV2SqsRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.Send(It.IsAny<ChangeRoadSegmentFromPlannedToRealizedV2SqsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Fixture.Create<LocationResult>());
 
         _controller = new RoadSegmentsController(CreateControllerContext(), _mediator.Object);
@@ -39,7 +39,7 @@ public class RealizeRoadSegmentV2Tests : V2ReadEndpointTestBase
 
     private Task<IActionResult> Act(int id)
     {
-        return _controller.RealizeRoadSegmentV2(new RoadSegmentIdValidator(), id, Store, CancellationToken.None);
+        return _controller.ChangeRoadSegmentFromPlannedToRealizedV2(new RoadSegmentIdValidator(), id, Store, CancellationToken.None);
     }
 
     private int SeedRoadSegment(bool isRemoved = false)
@@ -57,19 +57,19 @@ public class RealizeRoadSegmentV2Tests : V2ReadEndpointTestBase
             new ClaimsIdentity(scopes.Select(x => new Claim(AcmIdmClaimTypes.Scope, x)), "Test"));
     }
 
-    private RealizeRoadSegmentV2SqsRequest _capturedSqsRequest;
+    private ChangeRoadSegmentFromPlannedToRealizedV2SqsRequest _capturedSqsRequest;
 
     private void CaptureSqsRequest()
     {
         _mediator
-            .Setup(x => x.Send(It.IsAny<RealizeRoadSegmentV2SqsRequest>(), It.IsAny<CancellationToken>()))
-            .Callback<IRequest<LocationResult>, CancellationToken>((r, _) => _capturedSqsRequest = (RealizeRoadSegmentV2SqsRequest)r)
+            .Setup(x => x.Send(It.IsAny<ChangeRoadSegmentFromPlannedToRealizedV2SqsRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<IRequest<LocationResult>, CancellationToken>((r, _) => _capturedSqsRequest = (ChangeRoadSegmentFromPlannedToRealizedV2SqsRequest)r)
             .ReturnsAsync(Fixture.Create<LocationResult>());
     }
 
     private void VerifyNothingWasQueued()
     {
-        _mediator.Verify(x => x.Send(It.IsAny<RealizeRoadSegmentV2SqsRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mediator.Verify(x => x.Send(It.IsAny<ChangeRoadSegmentFromPlannedToRealizedV2SqsRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public class RealizeRoadSegmentV2Tests : V2ReadEndpointTestBase
         var result = await Act(id);
 
         result.Should().BeOfType<AcceptedResult>();
-        _mediator.Verify(x => x.Send(It.IsAny<RealizeRoadSegmentV2SqsRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mediator.Verify(x => x.Send(It.IsAny<ChangeRoadSegmentFromPlannedToRealizedV2SqsRequest>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

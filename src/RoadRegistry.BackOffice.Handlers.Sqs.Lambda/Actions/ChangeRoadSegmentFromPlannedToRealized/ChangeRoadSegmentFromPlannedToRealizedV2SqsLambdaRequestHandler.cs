@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RealizeRoadSegment;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentFromPlannedToRealized;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -23,13 +23,13 @@ using RoadRegistry.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
 using TicketingService.Abstractions;
 
-public sealed class RealizeRoadSegmentV2SqsLambdaRequestHandler : MartenSqsLambdaHandler<RealizeRoadSegmentV2SqsLambdaRequest>
+public sealed class ChangeRoadSegmentFromPlannedToRealizedV2SqsLambdaRequestHandler : MartenSqsLambdaHandler<ChangeRoadSegmentFromPlannedToRealizedV2SqsLambdaRequest>
 {
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
     private readonly ExtractsDbContext _extractsDbContext;
 
-    public RealizeRoadSegmentV2SqsLambdaRequestHandler(
+    public ChangeRoadSegmentFromPlannedToRealizedV2SqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
@@ -52,7 +52,7 @@ public sealed class RealizeRoadSegmentV2SqsLambdaRequestHandler : MartenSqsLambd
         _extractsDbContext = extractsDbContext;
     }
 
-    protected override async Task<object> InnerHandle(RealizeRoadSegmentV2SqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(ChangeRoadSegmentFromPlannedToRealizedV2SqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
         using var _ = Logger.TimeAction(GetType().Name);
 
@@ -64,7 +64,7 @@ public sealed class RealizeRoadSegmentV2SqsLambdaRequestHandler : MartenSqsLambd
         };
     }
 
-    private async Task<RoadNetworkChangesSummary> Handle(RealizeRoadSegmentV2SqsRequest command, CancellationToken cancellationToken)
+    private async Task<RoadNetworkChangesSummary> Handle(ChangeRoadSegmentFromPlannedToRealizedV2SqsRequest command, CancellationToken cancellationToken)
     {
         var scopedRoadNetworkId = new ScopedRoadNetworkId(command.TicketId);
 
@@ -87,7 +87,7 @@ public sealed class RealizeRoadSegmentV2SqsLambdaRequestHandler : MartenSqsLambd
             var problems = await ValidateInwinningIsCompleted(roadNetwork, command.RoadSegmentId, cancellationToken);
             problems.ThrowIfError();
 
-            var result = roadNetwork.RealizeRoadSegment(
+            var result = roadNetwork.ChangeRoadSegmentFromPlannedToRealized(
                 command.RoadSegmentId,
                 command.MayModifyMeasuredRoadSegments,
                 _roadNetworkIdGenerator,

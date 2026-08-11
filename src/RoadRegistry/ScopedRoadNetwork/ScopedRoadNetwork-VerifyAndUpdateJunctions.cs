@@ -169,10 +169,7 @@ public partial class ScopedRoadNetwork
                 }
                 if (existingGradeSeparatedJunctions.TryGetValue(combination.Key, out var goneGradeSeparatedJunction))
                 {
-                    problems += RemoveGradeSeparatedJunction(new RemoveGradeSeparatedJunctionChange
-                    {
-                        GradeSeparatedJunctionId = goneGradeSeparatedJunction.GradeSeparatedJunctionId
-                    }, context);
+                    problems += RemoveGradeSeparatedJunction(goneGradeSeparatedJunction.GradeSeparatedJunctionId, context);
                 }
 
                 continue;

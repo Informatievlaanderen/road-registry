@@ -10,7 +10,7 @@ public partial class RoadSegment
 {
     // Records that this segment is now knotted into the network and realized. The geometry is the one it ended up
     // with after snapping, and the attributes are already remapped onto it by the caller.
-    public Problems Realize(RoadSegmentGeometry geometry, RoadSegmentAttributes attributes, ScopedRoadNetworkChangeContext context)
+    public Problems RealizeFromPlanned(RoadSegmentGeometry geometry, RoadSegmentAttributes attributes, ScopedRoadNetworkChangeContext context)
     {
         var problems = Problems.WithContext(RoadSegmentId);
 
@@ -27,7 +27,7 @@ public partial class RoadSegment
             return problems;
         }
 
-        Apply(new RoadSegmentWasRealized
+        Apply(new RoadSegmentWasRealizedFromPlanned
         {
             RoadSegmentId = RoadSegmentId,
             Geometry = geometry,
