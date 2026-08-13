@@ -128,7 +128,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
 
         await HandleRequest(CreateSqsRequest(CutPosition(0.5, 0.5)), store, roadNetworkRepository);
 
-        VerifyThatTicketHasError("KnippositieTeDichtBijWegknoop", null);
+        VerifyThatTicketHasError("KnippositieTeDichtBijStartWegsegment", null);
     }
 
     [Fact]

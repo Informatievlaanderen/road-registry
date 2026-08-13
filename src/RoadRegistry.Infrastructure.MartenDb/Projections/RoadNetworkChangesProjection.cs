@@ -45,6 +45,8 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
         try
         {
+            cancellation.ThrowIfCancellationRequested();
+
             await UpdateCatchingUpState(operations, events, cancellation);
 
             // Scope this to the events that can actually be projected, the same way ProcessEvents groups them. An event
@@ -54,6 +56,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
             var batchCorrelationIds = events.Where(IsProjectable).Select(x => x.CorrelationId!).Distinct().ToList();
             var batchProgressionIds = batchCorrelationIds.Select(BuildProgressionId).ToList();
 
+            cancellation.ThrowIfCancellationRequested();
             var processedProjectionProgressions = batchCorrelationIds.Count > 0
                 ? await operations.Query<RoadNetworkChangesProjectionProgression>()
                     .Where(x => x.ProjectionName == _projectionName && batchProgressionIds.Contains(x.Id))
@@ -61,6 +64,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
                 : [];
 
             var pageMaxSequence = events.Max(x => x.Sequence);
+            cancellation.ThrowIfCancellationRequested();
             var tailEvents = IsCatchingUp || batchCorrelationIds.Count == 0
                 ? []
                 : await operations.Events.QueryAllRawEvents()
@@ -70,6 +74,12 @@ public abstract class RoadNetworkChangesProjection : IProjection
             var allEvents = tailEvents.Count > 0 ? events.Concat(tailEvents).ToList() : events;
 
             await ProcessEvents(operations, allEvents, processedProjectionProgressions, cancellation);
+        }
+        catch (OperationCanceledException)
+        {
+            // A pending cancellation is the daemon stopping the shard, not a projection failure; nothing was
+            // committed, so the batch replays whole on the next start.
+            throw;
         }
         catch (Exception ex)
         {
@@ -82,6 +92,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
     {
         if (_isCatchingUp is null)
         {
+            cancellation.ThrowIfCancellationRequested();
             var startupHighWaterMark = await operations.GetHighWaterMark(cancellation);
             _isCatchingUp = events.Max(x => x.Sequence) <= startupHighWaterMark;
         }
@@ -117,6 +128,8 @@ public abstract class RoadNetworkChangesProjection : IProjection
         var correlationWork = eventsPerCorrelationId
             .Select(g =>
             {
+                cancellation.ThrowIfCancellationRequested();
+
                 // Order by the emission ordinal stamped at save time (EventOrdinal header) so a correlation's
                 // events replay in the order they were raised - Marten's seq_id does not preserve that order
                 // (created events land last). Events without the header (pre-ordinal history) fall back to seq_id.
@@ -140,6 +153,8 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
         foreach (var work in correlationWork)
         {
+            cancellation.ThrowIfCancellationRequested();
+
             if (work.Progression is null)
             {
                 operations.Insert(new RoadNetworkChangesProjectionProgression

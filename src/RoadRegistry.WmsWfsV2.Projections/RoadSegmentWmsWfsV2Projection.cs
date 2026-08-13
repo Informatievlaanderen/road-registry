@@ -76,14 +76,14 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
                 streetName = StreetNameFromV1(m.LeftSide?.StreetNameId ?? currentLeft, m.RightSide?.StreetNameId ?? currentRight, length);
             }
 
-            await WritePartial(context, m.RoadSegmentId, null, status, null, null, null,
+            await WritePartial(context, m.RoadSegmentId, null, status, null, null,
                 morphology, category, access, surface, streetName, maintainer, null, null, null, m.Provenance, ct);
         });
 
         When<IEvent<RoadSegmentGeometryModified>>((context, e, ct) =>
         {
             var length = e.Data.Geometry.EnsureLambert08().RoundToCm().Value.Length;
-            return WritePartial(context, e.Data.RoadSegmentId, e.Data.Geometry, null, null, null, null,
+            return WritePartial(context, e.Data.RoadSegmentId, e.Data.Geometry, null, null, null,
                 null, null, null,
                 SurfaceFromV1(e.Data.Surfaces.Select(s => (s.FromPosition, s.ToPosition, s.Type)).ToList(), length),
                 null, null, null, null, null, e.Data.Provenance, ct);
@@ -102,7 +102,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             }
             var (currentLeft, currentRight) = CurrentStreetNameSides(record.DynamicAttributes.StreetName);
             var streetName = StreetNameFromV1(e.Data.LeftSideStreetNameId ?? currentLeft, e.Data.RightSideStreetNameId ?? currentRight, record.GEOMETRIE.Length);
-            await WritePartial(context, e.Data.RoadSegmentId, null, null, null, null, null, null, null, null, null,
+            await WritePartial(context, e.Data.RoadSegmentId, null, null, null, null, null, null, null, null,
                 streetName, null, null, null, null, e.Data.Provenance, ct);
         });
 
@@ -188,21 +188,19 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         When<IEvent<RoadSegmentWasModified>>(async (context, e, ct) =>
         {
             var m = e.Data;
-            // Nodes carries the full new node state; clear both first so null ids inside it stick.
             await WritePartial(context, m.RoadSegmentId.ToInt32(), m.Geometry, m.Status, m.GeometryDrawMethod,
-                m.NodeIds?.Start, m.NodeIds?.End, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
+                m.NodeIds, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
                 m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
-                m.PedestrianTrafficDirection, m.Provenance, ct,
-                clearRoadNodes: m.NodeIds is not null);
+                m.PedestrianTrafficDirection, m.Provenance, ct);
         });
 
         When<IEvent<RoadSegmentWasCorrectedFromRealizedToPlanned>>(async (context, e, ct) =>
         {
-            // Only the status changes; the geometry and the attributes are untouched.
+            // Only the status changes; the geometry and the attributes are untouched. The segment came loose
+            // from its road nodes, so the node state is carried with both ids null.
             var m = e.Data;
             await WritePartial(context, m.RoadSegmentId.ToInt32(), null, RoadSegmentStatusV2.Gepland, null,
-                null, null, null, null, null, null, null, null, null, null, null, m.Provenance, ct,
-                clearRoadNodes: true);
+                new RoadSegmentNodeIds(), null, null, null, null, null, null, null, null, null, m.Provenance, ct);
         });
 
         When<IEvent<RoadSegmentWasRealizedFromPlanned>>(async (context, e, ct) =>
@@ -210,7 +208,8 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             // The status is the event itself; the geometry draw method is not touched by realizing.
             var m = e.Data;
             await WritePartial(context, m.RoadSegmentId.ToInt32(), m.Geometry, RoadSegmentStatusV2.Gerealiseerd, null,
-                m.StartNodeId, m.EndNodeId, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
+                new RoadSegmentNodeIds { Start = m.StartNodeId, End = m.EndNodeId },
+                m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
                 m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
                 m.PedestrianTrafficDirection, m.Provenance, ct);
         });
@@ -219,13 +218,14 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         {
             var m = e.Data;
             await WritePartial(context, m.RoadSegmentId.ToInt32(), m.Geometry, null, null,
-                m.StartNodeId, m.EndNodeId, null, null, null, null, null, null, null, null, null, m.Provenance, ct);
+                new RoadSegmentNodeIds { Start = m.StartNodeId, End = m.EndNodeId },
+                null, null, null, null, null, null, null, null, null, m.Provenance, ct);
         });
 
         When<IEvent<RoadSegmentStreetNameIdWasChanged>>(async (context, e, ct) =>
         {
             var m = e.Data;
-            await WritePartial(context, m.RoadSegmentId.ToInt32(), null, null, null, null, null, null, null, null, null,
+            await WritePartial(context, m.RoadSegmentId.ToInt32(), null, null, null, null, null, null, null, null,
                 m.StreetNameId, null, null, null, null, m.Provenance, ct);
         });
 
@@ -239,7 +239,8 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
 
             var mod = m.Modifications;
             await WritePartial(context, m.RoadSegmentId.ToInt32(), mod.Geometry, null, null,
-                mod.StartNodeId, mod.EndNodeId, mod.Morphology, mod.Category, mod.AccessRestriction, mod.SurfaceType,
+                new RoadSegmentNodeIds { Start = mod.StartNodeId, End = mod.EndNodeId },
+                mod.Morphology, mod.Category, mod.AccessRestriction, mod.SurfaceType,
                 mod.StreetNameId, mod.MaintenanceAuthorityId, mod.CarTrafficDirection, mod.BikeTrafficDirection,
                 mod.PedestrianTrafficDirection, m.Provenance, ct);
         });
@@ -347,29 +348,20 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
     // modify / geometry-modified / streetname-changed / split, which each carry only a subset of the attributes. The
     // unchanged dynamic attributes come straight from the loaded segment's JSON blob — no extra queries.
     private static async Task WritePartial(WmsWfsV2Context context, int segId,
-        RoadSegmentGeometry geometry, RoadSegmentStatusV2 status, RoadSegmentGeometryDrawMethodV2 method,
-        RoadNodeId? startNode, RoadNodeId? endNode,
-        RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> morphology,
-        RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2> category,
-        RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2> access,
-        RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2> surface,
-        RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetName,
-        RoadSegmentDynamicAttributeValues<OrganizationId> maintainer,
-        RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> car,
-        RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection> bike,
-        RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection> pedestrian,
-        ProvenanceData provenance, CancellationToken ct,
-        bool clearRoadNodes = false)
+        RoadSegmentGeometry? geometry, RoadSegmentStatusV2? status, RoadSegmentGeometryDrawMethodV2? method,
+        RoadSegmentNodeIds? nodeIds,
+        RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>? morphology,
+        RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>? category,
+        RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>? access,
+        RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>? surface,
+        RoadSegmentDynamicAttributeValues<StreetNameLocalId>? streetName,
+        RoadSegmentDynamicAttributeValues<OrganizationId>? maintainer,
+        RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>? car,
+        RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>? bike,
+        RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>? pedestrian,
+        ProvenanceData provenance, CancellationToken ct)
     {
         var (normal, isNew) = await LoadOrCreate(context, segId, provenance);
-
-        // A null node id means "not carried by this event". Clearing them is its own instruction, because a segment
-        // that is no longer realized has no road nodes at all.
-        if (clearRoadNodes)
-        {
-            normal.B_WK_OIDN = null;
-            normal.E_WK_OIDN = null;
-        }
 
         if (geometry is not null)
         {
@@ -385,13 +377,12 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             normal.METHODE = method.Translation.Identifier;
             normal.LBLMETHODE = method.Translation.Name;
         }
-        if (startNode is not null)
+        // Null means "not carried by this event"; a value is the full new node state, where a null id inside
+        // it clears the column, because a segment that is not realized has no road nodes at all.
+        if (nodeIds is not null)
         {
-            normal.B_WK_OIDN = startNode.Value.ToInt32();
-        }
-        if (endNode is not null)
-        {
-            normal.E_WK_OIDN = endNode.Value.ToInt32();
+            normal.B_WK_OIDN = nodeIds.Start?.ToInt32();
+            normal.E_WK_OIDN = nodeIds.End?.ToInt32();
         }
         normal.VERSIE = provenance.Timestamp.ToDateTimeOffset();
 
@@ -622,7 +613,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         var v2Method = V1ToV2.Method(method);
         var v2Status = V1ToV2.Status(status, v2Method);
         return WriteFull(context, segId, true, geometry, v2Status, v2Method,
-            new RoadNodeId(startNode), new RoadNodeId(endNode),
+            startNode > 0 ? new RoadNodeId(startNode) : null, endNode > 0 ? new RoadNodeId(endNode) : null,
             ForEntireGeometry(V1ToV2.Morphology(morphology), length),
             ForEntireGeometry(V1ToV2.Category(category), length),
             ForEntireGeometry(V1ToV2.AccessRestriction(accessRestriction), length),
@@ -648,7 +639,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         var v2Method = V1ToV2.Method(method);
         var v2Status = V1ToV2.Status(status, v2Method);
         return WritePartial(context, segId, geometry, v2Status, v2Method,
-            new RoadNodeId(startNode), new RoadNodeId(endNode),
+            new RoadSegmentNodeIds { Start = startNode > 0 ? new RoadNodeId(startNode) : null, End = endNode > 0 ? new RoadNodeId(endNode) : null },
             ForEntireGeometry(V1ToV2.Morphology(morphology), length),
             ForEntireGeometry(V1ToV2.Category(category), length),
             ForEntireGeometry(V1ToV2.AccessRestriction(accessRestriction), length),

@@ -4,7 +4,6 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Events.V2;
 using RoadRegistry.ValueObjects.Problems;
 using ScopedRoadNetwork.ValueObjects;
-using ValueObjects;
 
 public partial class RoadSegment
 {

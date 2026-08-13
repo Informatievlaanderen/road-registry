@@ -31,8 +31,8 @@ public partial class RoadSegment
         {
             RoadSegmentId = RoadSegmentId,
             Geometry = geometry,
-            StartNodeId = startEndNodes.StartNodeId,
-            EndNodeId = startEndNodes.EndNodeId,
+            StartNodeId = startEndNodes.NodeIds.Start!.Value,
+            EndNodeId = startEndNodes.NodeIds.End!.Value,
             AccessRestriction = attributes.AccessRestriction,
             Category = attributes.Category,
             Morphology = attributes.Morphology,

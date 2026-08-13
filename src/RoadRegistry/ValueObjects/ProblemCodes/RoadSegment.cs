@@ -366,7 +366,8 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode PositionGeometryNotValid = new("RoadSegmentSplitPositionGeometryNotValid");
             public static readonly ProblemCode PositionSridNotLambert08 = new("RoadSegmentSplitPositionSridNotLambert08");
             public static readonly ProblemCode PositionTooFarFromRoadSegment = new("RoadSegmentSplitPositionTooFarFromRoadSegment");
-            public static readonly ProblemCode PositionTooCloseToRoadNode = new("RoadSegmentSplitPositionTooCloseToRoadNode");
+            public static readonly ProblemCode PositionTooCloseToStartVertex = new("RoadSegmentSplitPositionTooCloseToStartVertex");
+            public static readonly ProblemCode PositionTooCloseToEndVertex = new("RoadSegmentSplitPositionTooCloseToEndVertex");
         }
 
         public static class SplitByJunction

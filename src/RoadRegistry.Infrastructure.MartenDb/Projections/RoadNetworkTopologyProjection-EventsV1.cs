@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
+namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
 using GradeSeparatedJunction.Events.V1;
 using JasperFx.Events;
@@ -58,12 +58,13 @@ public partial class RoadNetworkTopologyProjection
     {
         var geometry = e.Data.Geometry.EnsureLambert08();
 
+        // V1 uses 0 for "no road node" (outlined segments); NULL is the real no-node value in this table.
         ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?, FALSE)",
             e.Data.RoadSegmentId,
             geometry.WKT,
             geometry.SRID,
-            e.Data.StartNodeId,
-            e.Data.EndNodeId,
+            e.Data.StartNodeId > 0 ? (object)e.Data.StartNodeId : DBNull.Value,
+            e.Data.EndNodeId > 0 ? (object)e.Data.EndNodeId : DBNull.Value,
             e.Timestamp
         );
     }
@@ -72,12 +73,13 @@ public partial class RoadNetworkTopologyProjection
     {
         var geometry = e.Data.Geometry.EnsureLambert08();
 
+        // V1 uses 0 for "no road node" (outlined segments); NULL is the real no-node value in this table.
         ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?, FALSE)",
             e.Data.RoadSegmentId,
             geometry.WKT,
             geometry.SRID,
-            e.Data.StartNodeId,
-            e.Data.EndNodeId,
+            e.Data.StartNodeId > 0 ? (object)e.Data.StartNodeId : DBNull.Value,
+            e.Data.EndNodeId > 0 ? (object)e.Data.EndNodeId : DBNull.Value,
             e.Timestamp
         );
     }
@@ -86,13 +88,14 @@ public partial class RoadNetworkTopologyProjection
     {
         var geometry = e.Data.Geometry.EnsureLambert08();
 
+        // V1 uses 0 for "no road node" (outlined segments); NULL is the real no-node value in this table.
         ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, FALSE);",
             e.Data.RoadSegmentId,
             e.Timestamp,
             geometry.WKT,
             geometry.SRID,
-            e.Data.StartNodeId,
-            e.Data.EndNodeId
+            e.Data.StartNodeId > 0 ? (object)e.Data.StartNodeId : DBNull.Value,
+            e.Data.EndNodeId > 0 ? (object)e.Data.EndNodeId : DBNull.Value
         );
     }
 
@@ -100,7 +103,8 @@ public partial class RoadNetworkTopologyProjection
     {
         var geometry = e.Data.Geometry.EnsureLambert08();
 
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, null, null, FALSE);",
+        // The event carries no node ids; -1 leaves them unchanged.
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, -1, -1, FALSE);",
             e.Data.RoadSegmentId,
             e.Timestamp,
             geometry.WKT,

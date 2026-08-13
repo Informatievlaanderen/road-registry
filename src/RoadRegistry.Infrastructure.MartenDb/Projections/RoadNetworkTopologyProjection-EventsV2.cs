@@ -65,20 +65,19 @@ public partial class RoadNetworkTopologyProjection
             e.Timestamp,
             e.Data.Geometry.WKT,
             e.Data.Geometry.SRID,
-            e.Data.StartNodeId?.ToInt32() ?? 0,
-            e.Data.EndNodeId?.ToInt32() ?? 0
+            (object?)e.Data.StartNodeId?.ToInt32() ?? DBNull.Value,
+            (object?)e.Data.EndNodeId?.ToInt32() ?? DBNull.Value
         );
     }
 
     public void Project(IEvent<OutlinedRoadSegmentWasAdded> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_insert_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+        // An outlined segment is not knotted into the network; it has no road nodes.
+        ops.QueueSqlCommand("SELECT projections.networktopology_insert_roadsegment(?, ?, ?, ?, null, null, TRUE);",
             e.Data.RoadSegmentId.ToInt32(),
             e.Timestamp,
             e.Data.Geometry.WKT,
-            e.Data.Geometry.SRID,
-            0,
-            0
+            e.Data.Geometry.SRID
         );
     }
 
@@ -89,8 +88,8 @@ public partial class RoadNetworkTopologyProjection
             e.Timestamp,
             e.Data.Geometry.WKT,
             e.Data.Geometry.SRID,
-            e.Data.StartNodeId?.ToInt32() ?? 0,
-            e.Data.EndNodeId?.ToInt32() ?? 0
+            (object?)e.Data.StartNodeId?.ToInt32() ?? DBNull.Value,
+            (object?)e.Data.EndNodeId?.ToInt32() ?? DBNull.Value
         );
     }
 
@@ -101,8 +100,8 @@ public partial class RoadNetworkTopologyProjection
             e.Timestamp,
             e.Data.Geometry.WKT,
             e.Data.Geometry.SRID,
-            e.Data.StartNodeId?.ToInt32() ?? 0,
-            e.Data.EndNodeId?.ToInt32() ?? 0
+            (object?)e.Data.StartNodeId?.ToInt32() ?? DBNull.Value,
+            (object?)e.Data.EndNodeId?.ToInt32() ?? DBNull.Value
         );
     }
 
@@ -113,23 +112,22 @@ public partial class RoadNetworkTopologyProjection
             return;
         }
 
+        // Absent NodeIds means the nodes did not change (-1); present NodeIds carries the full new node
+        // state, where an absent id becomes NULL because the segment has no node there.
         ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
             e.Data.RoadSegmentId.ToInt32(),
             e.Timestamp,
             e.Data.Geometry?.WKT ?? string.Empty,
             e.Data.Geometry?.SRID ?? 0,
-            e.Data.NodeIds?.Start?.ToInt32() ?? 0,
-            e.Data.NodeIds?.End?.ToInt32() ?? 0
+            e.Data.NodeIds is null ? -1 : (object?)e.Data.NodeIds.Start?.ToInt32() ?? DBNull.Value,
+            e.Data.NodeIds is null ? -1 : (object?)e.Data.NodeIds.End?.ToInt32() ?? DBNull.Value
         );
     }
 
     public void Project(IEvent<RoadSegmentWasCorrectedFromRealizedToPlanned> e, IDocumentOperations ops)
     {
-        // The segment came loose from its road nodes. networktopology_update_roadsegment treats a node id of 0 as
-        // "leave it alone", so it cannot clear them - and leaving them would keep reporting this segment as connected
-        // to whatever still hangs off those nodes.
-        ops.QueueSqlCommand($"UPDATE {RoadNetworkTopologyProjection.RoadSegmentsTableName} SET start_node_id = 0, end_node_id = 0, timestamp = ? WHERE id = ? AND timestamp <= ?;",
-            e.Timestamp,
+        // The segment came loose from its road nodes: NULL clears them, the empty wkt keeps the geometry.
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, '', 0, null, null, TRUE);",
             e.Data.RoadSegmentId.ToInt32(),
             e.Timestamp
         );
@@ -154,8 +152,8 @@ public partial class RoadNetworkTopologyProjection
             e.Timestamp,
             e.Data.Geometry.WKT ,
             e.Data.Geometry.SRID,
-            e.Data.StartNodeId?.ToInt32() ?? 0,
-            e.Data.EndNodeId?.ToInt32() ?? 0
+            (object?)e.Data.StartNodeId?.ToInt32() ?? DBNull.Value,
+            (object?)e.Data.EndNodeId?.ToInt32() ?? DBNull.Value
         );
     }
 
@@ -212,8 +210,8 @@ public partial class RoadNetworkTopologyProjection
             e.Timestamp,
             e.Data.Modifications.Geometry.WKT,
             e.Data.Modifications.Geometry.SRID,
-            e.Data.Modifications.StartNodeId?.ToInt32() ?? 0,
-            e.Data.Modifications.EndNodeId?.ToInt32() ?? 0
+            (object?)e.Data.Modifications.StartNodeId?.ToInt32() ?? DBNull.Value,
+            (object?)e.Data.Modifications.EndNodeId?.ToInt32() ?? DBNull.Value
         );
     }
 

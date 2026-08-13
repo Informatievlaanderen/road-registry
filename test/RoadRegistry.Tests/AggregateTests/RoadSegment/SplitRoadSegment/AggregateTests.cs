@@ -254,7 +254,7 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         act.Should().Throw<RoadRegistryProblemsException>()
-            .Which.Problems.Should().Contain(x => x.Reason == "RoadSegmentSplitPositionTooCloseToRoadNode");
+            .Which.Problems.Should().Contain(x => x.Reason == "RoadSegmentSplitPositionTooCloseToStartVertex");
     }
 
     [Fact]
@@ -270,7 +270,7 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         act.Should().Throw<RoadRegistryProblemsException>()
-            .Which.Problems.Should().Contain(x => x.Reason == "RoadSegmentSplitPositionTooCloseToRoadNode");
+            .Which.Problems.Should().Contain(x => x.Reason == "RoadSegmentSplitPositionTooCloseToEndVertex");
     }
 
     [Fact]

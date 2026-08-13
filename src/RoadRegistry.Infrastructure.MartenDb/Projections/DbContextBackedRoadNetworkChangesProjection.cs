@@ -31,9 +31,11 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
 
     protected override async Task DispatchAsync(IDocumentOperations operations, IReadOnlyList<CorrelationWorkItem> correlationWork, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         context.ChangeTracker.AutoDetectChangesEnabled = false;
 
+        cancellationToken.ThrowIfCancellationRequested();
         var projectionState = await context.ProjectionStates.FindAsync([ProjectionName], cancellationToken);
         if (projectionState is null)
         {
@@ -48,6 +50,8 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         {
             foreach (var evt in work.ToProcess)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 // Skip events already applied (and committed to SQL Server) before a re-delivery.
                 if (evt.Sequence <= position)
                 {
@@ -61,6 +65,7 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
 
                 foreach (var projection in _projections)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     projection.IsCatchingUp = IsCatchingUp;
                     projection.Logger ??= Logger;
 
@@ -80,6 +85,7 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
 
         // Advance the position right before saving, so it commits atomically with the read-model writes (even when the
         // batch produced no handler changes and only the position moved forward).
+        cancellationToken.ThrowIfCancellationRequested();
         projectionState.Position = newPosition;
         context.ChangeTracker.DetectChanges();
         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

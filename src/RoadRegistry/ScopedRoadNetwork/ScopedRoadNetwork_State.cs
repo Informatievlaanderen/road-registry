@@ -10,6 +10,7 @@ using RoadRegistry.GradeJunction;
 using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadSegment;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using ValueObjects;
@@ -125,7 +126,7 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         return _roadSegments.Values.Where(x => !x.IsRemoved);
     }
 
-    public (RoadNodeId StartNodeId, RoadNodeId EndNodeId, Problems Problems) FindStartEndNodes(
+    public (RoadSegmentNodeIds NodeIds, Problems Problems) FindStartEndNodes(
         RoadSegmentGeometry geometry)
     {
         var problems = Problems.None;
@@ -142,7 +143,7 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
             problems += new RoadSegmentEndNodeMissing();
         }
 
-        return (startNodeId ?? RoadNodeId.Zero, endNodeId ?? RoadNodeId.Zero, problems);
+        return (new RoadSegmentNodeIds { Start = startNodeId, End = endNodeId }, problems);
     }
 
     public Problems ValidatePartiallyOverlappingRoadSegments(

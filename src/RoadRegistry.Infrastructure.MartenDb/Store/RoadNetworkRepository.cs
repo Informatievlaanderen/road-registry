@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Infrastructure.MartenDb.Store;
+namespace RoadRegistry.Infrastructure.MartenDb.Store;
 
 using Dapper;
 using JasperFx.Events;
@@ -137,8 +137,9 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
 
         return new RoadNetworkIds(
             segments.SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })
+                .Where(x => x.HasValue)
                 .Distinct()
-                .Select(x => new RoadNodeId(x))
+                .Select(x => new RoadNodeId(x!.Value))
                 .ToArray(),
             segments.Select(x => x.RoadSegmentId)
                 .Distinct()
@@ -187,8 +188,9 @@ WHERE ST_Intersects(rs.geometry, ST_SetSRID(ST_GeomFromText(@wkt), @srid))
 
         return new RoadNetworkIds(
             segments.SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })
+                .Where(x => x.HasValue)
                 .Distinct()
-                .Select(x => new RoadNodeId(x))
+                .Select(x => new RoadNodeId(x!.Value))
                 .ToArray(),
             segments.Select(x => x.RoadSegmentId)
                 .Distinct()
@@ -241,8 +243,9 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
 
         return new RoadNetworkIds(
             segments.SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })
+                .Where(x => x.HasValue)
                 .Distinct()
-                .Select(x => new RoadNodeId(x))
+                .Select(x => new RoadNodeId(x!.Value))
                 .ToArray(),
             segments.Select(x => x.RoadSegmentId)
                 .Distinct()
@@ -350,7 +353,7 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
         }
     }
 
-    private sealed record RoadNetworkTopologySegment(int RoadSegmentId, int StartNodeId, int EndNodeId, int? GradeSeparatedJunctionId, int? GradeJunctionId);
+    private sealed record RoadNetworkTopologySegment(int RoadSegmentId, int? StartNodeId, int? EndNodeId, int? GradeSeparatedJunctionId, int? GradeJunctionId);
 }
 
 

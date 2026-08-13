@@ -297,8 +297,12 @@ public class ProblemTranslatorTests
                 ]
             },
             {
-                ProblemCode.RoadSegment.Split.PositionTooCloseToRoadNode, [
-                    new ProblemParameter("RoadNodeId", "1"),
+                ProblemCode.RoadSegment.Split.PositionTooCloseToStartVertex, [
+                    new ProblemParameter("MinimumDistance", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.Split.PositionTooCloseToEndVertex, [
                     new ProblemParameter("MinimumDistance", "1")
                 ]
             },
