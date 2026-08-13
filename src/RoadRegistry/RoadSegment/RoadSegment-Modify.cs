@@ -50,7 +50,7 @@ public partial class RoadSegment
         {
             var startEndNodes = context.RoadNetwork.FindStartEndNodes(change.Geometry);
             problems += startEndNodes.Problems;
-            nodeIds = new RoadSegmentNodeIds { Start = startEndNodes.StartNodeId, End = startEndNodes.EndNodeId };
+            nodeIds = startEndNodes.NodeIds;
         }
         else if (Status == RoadSegmentStatusV2.Gerealiseerd && status != RoadSegmentStatusV2.Gerealiseerd)
         {

@@ -45,8 +45,8 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
             {
                 RoadSegmentId = roadSegmentId,
                 Geometry = geometry,
-                StartNodeId = new RoadNodeId(e.Data.StartNodeId),
-                EndNodeId = new RoadNodeId(e.Data.EndNodeId),
+                StartNodeId = e.Data.StartNodeId > 0 ? new RoadNodeId(e.Data.StartNodeId) : null,
+                EndNodeId = e.Data.EndNodeId > 0 ? new RoadNodeId(e.Data.EndNodeId) : null,
                 GeometryDrawMethod = geometryDrawMethod,
                 Status = status,
                 AccessRestriction = ForEntireGeometry(accessRestriction, geometry),
@@ -98,8 +98,8 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
             {
                 RoadSegmentId = roadSegmentId,
                 Geometry = geometry,
-                StartNodeId = new RoadNodeId(e.Data.StartNodeId),
-                EndNodeId = new RoadNodeId(e.Data.EndNodeId),
+                StartNodeId = e.Data.StartNodeId > 0 ? new RoadNodeId(e.Data.StartNodeId) : null,
+                EndNodeId = e.Data.EndNodeId > 0 ? new RoadNodeId(e.Data.EndNodeId) : null,
                 GeometryDrawMethod = geometryDrawMethod,
                 Status = status,
                 AccessRestriction = ForEntireGeometry(accessRestriction, geometry),
@@ -144,8 +144,8 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
                 var accessRestriction = e.Data.AccessRestriction;
 
                 segment.Geometry = e.Data.Geometry.EnsureLambert08().RoundToCm();
-                segment.StartNodeId = new RoadNodeId(e.Data.StartNodeId);
-                segment.EndNodeId = new RoadNodeId(e.Data.EndNodeId);
+                segment.StartNodeId = e.Data.StartNodeId > 0 ? new RoadNodeId(e.Data.StartNodeId) : null;
+                segment.EndNodeId = e.Data.EndNodeId > 0 ? new RoadNodeId(e.Data.EndNodeId) : null;
                 segment.GeometryDrawMethod = geometryDrawMethod;
                 segment.Status = status;
                 segment.AccessRestriction = ForEntireGeometry(accessRestriction, segment.Geometry);

@@ -76,11 +76,11 @@ public partial class ScopedRoadNetwork
         var minimumDistance = Distances.RoadSegmentSplitMinimumDistanceToRoadNode;
         if (cutMeasure < minimumDistance)
         {
-            throw new RoadRegistryProblemsException(Problems.Single(new RoadSegmentSplitPositionTooCloseToRoadNode(segment.StartNodeId ?? RoadNodeId.Zero, minimumDistance)));
+            throw new RoadRegistryProblemsException(Problems.Single(new RoadSegmentSplitPositionTooCloseToStartVertex(minimumDistance)));
         }
         if (totalLength - cutMeasure < minimumDistance)
         {
-            throw new RoadRegistryProblemsException(Problems.Single(new RoadSegmentSplitPositionTooCloseToRoadNode(segment.EndNodeId ?? RoadNodeId.Zero, minimumDistance)));
+            throw new RoadRegistryProblemsException(Problems.Single(new RoadSegmentSplitPositionTooCloseToEndVertex(minimumDistance)));
         }
 
         // Split the geometry at the cut position, preserving the original vertices exactly and
@@ -168,8 +168,8 @@ public partial class ScopedRoadNetwork
                 var startEndNodes = FindStartEndNodes(longestPart.Geometry);
                 problems += startEndNodes.Problems;
                 problems.ThrowIfError();
-                longestStartNodeId = startEndNodes.StartNodeId;
-                longestEndNodeId = startEndNodes.EndNodeId;
+                longestStartNodeId = startEndNodes.NodeIds.Start;
+                longestEndNodeId = startEndNodes.NodeIds.End;
             }
 
             var oldEnvelope = segment.Geometry.Value.EnvelopeInternal;

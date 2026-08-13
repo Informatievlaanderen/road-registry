@@ -34,12 +34,12 @@ public partial class RoadSegment
         };
         problems += new RoadSegmentAttributesValidator().Validate(attributes, segmentLength);
 
-        RoadNodeId? startNodeId = null, endNodeId = null;
+        RoadSegmentNodeIds? nodeIds = null;
+
         if (change.Status == RoadSegmentStatusV2.Gerealiseerd)
         {
             var startEndNodes = context.RoadNetwork.FindStartEndNodes(change.Geometry);
-            startNodeId = startEndNodes.StartNodeId;
-            endNodeId = startEndNodes.EndNodeId;
+            nodeIds = startEndNodes.NodeIds;
             problems += startEndNodes.Problems;
         }
 
@@ -54,8 +54,8 @@ public partial class RoadSegment
             OtherRoadSegmentId = change.OtherRoadSegmentId,
             Geometry = change.Geometry,
             Status = change.Status,
-            StartNodeId = startNodeId,
-            EndNodeId = endNodeId,
+            StartNodeId = nodeIds?.Start,
+            EndNodeId = nodeIds?.End,
             GeometryDrawMethod = attributes.GeometryDrawMethod,
             AccessRestriction = attributes.AccessRestriction,
             Category = attributes.Category,

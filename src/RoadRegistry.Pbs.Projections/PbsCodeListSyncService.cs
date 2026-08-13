@@ -98,14 +98,15 @@ public sealed class PbsCodeListSyncService : IHostedService
         await context.SaveChangesAsync(ct);
     }
 
-    // Smart CRUD: insert new, update changed, delete removed - keyed by keyOf.
+    // Smart CRUD: insert new, update changed, delete removed - keyed by keyOf. Constrained to the marker so a
+    // newly synced list must carry it, which is what keeps the projection rebuild from truncating these tables.
     private static void SyncList<TRecord, TKey>(
         DbSet<TRecord> set,
         List<TRecord> desired,
         Func<TRecord, TKey> keyOf,
         Func<TRecord, TRecord, bool> fieldsEqual,
         Action<TRecord, TRecord> copyFields)
-        where TRecord : class
+        where TRecord : class, IEnumBasedCodeListRecord
     {
         var existing = set.AsNoTracking().ToList();
         var existingByKey = existing.ToDictionary(keyOf);

@@ -9,6 +9,7 @@ using Asp.Versioning;
 using Be.Vlaanderen.Basisregisters.Api;
 using Infrastructure;
 using Infrastructure.Controllers;
+using JasperFx;
 using Marten;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ public partial class ProjectionsController : DefaultProjectionsController
 {
     private readonly IDocumentStore _documentStore;
     private readonly IReadOnlyList<ProjectionDetail> _martenProjections;
+    private readonly MartenProjectionDaemonAccessor _daemonAccessor;
     private readonly ILogger _logger;
 
     public ProjectionsController(
@@ -29,11 +31,13 @@ public partial class ProjectionsController : DefaultProjectionsController
         IDocumentStore documentStore,
         Dictionary<ProjectionDetail, Func<DbContext>> listOfProjections,
         IReadOnlyList<ProjectionDetail> martenProjections,
+        MartenProjectionDaemonAccessor daemonAccessor,
         ILogger<ProjectionsController> logger)
         : base(streamStore, listOfProjections)
     {
         _documentStore = documentStore;
         _martenProjections = martenProjections;
+        _daemonAccessor = daemonAccessor;
         _logger = logger;
     }
 
@@ -58,6 +62,8 @@ public partial class ProjectionsController : DefaultProjectionsController
         var progressions = await session.GetEventProgressions(cancellationToken);
         var storePosition = progressions.Where(x => x.Name == MartenConstants.HighWaterMarkName).Select(x => x.LastSequenceId).SingleOrDefault();
 
+        var daemon = _daemonAccessor.Daemon;
+
         return _martenProjections
             .Select(x =>
             {
@@ -70,7 +76,7 @@ public partial class ProjectionsController : DefaultProjectionsController
                     Id = x.Id,
                     Name = x.Name,
                     Description = x.Description,
-                    State = x.FallbackDesiredState,
+                    State = daemon is not null && daemon.StatusFor(x.Id) == AgentStatus.Stopped ? "stopped" : x.FallbackDesiredState,
                     ErrorMessage = lastSequenceId is null ? "No progression found" : string.Empty
                 };
             })

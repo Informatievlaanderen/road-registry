@@ -25,10 +25,13 @@ public abstract class MartenBackedRoadNetworkChangesProjection : RoadNetworkChan
         {
             foreach (var evt in work.ToProcess)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 using var eventScope = Logger.BeginScope(new Dictionary<string, object> { ["EventTypeName"] = evt.EventTypeName, ["EventSequence"] = evt.Sequence });
 
                 foreach (var projection in _projections)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     projection.IsCatchingUp = IsCatchingUp;
                     projection.Logger ??= Logger;
 

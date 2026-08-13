@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 // Code lists: dumps of the known V2 domain types (code + Dutch label + definition). Kept in sync by a one-time
 // runner, except WegsegmentCodelijstWegbeheerder which is fed by the organization projection.
 
-public class RoadNodeTypeCodeListRecord
+public class RoadNodeTypeCodeListRecord : IEnumBasedCodeListRecord
 {
     public int TYPE { get; set; }
     public string? LBLTYPE { get; set; }
@@ -27,7 +27,7 @@ public class RoadNodeTypeCodeListRecordConfiguration : IEntityTypeConfiguration<
     }
 }
 
-public class GradeSeparatedJunctionTypeCodeListRecord
+public class GradeSeparatedJunctionTypeCodeListRecord : IEnumBasedCodeListRecord
 {
     public int TYPE { get; set; }
     public string? LBLTYPE { get; set; }
@@ -47,7 +47,7 @@ public class GradeSeparatedJunctionTypeCodeListRecordConfiguration : IEntityType
     }
 }
 
-public class RoadSegmentSideCodeListRecord
+public class RoadSegmentSideCodeListRecord : IEnumBasedCodeListRecord
 {
     public int KANT { get; set; }
     public string? LBLKANT { get; set; }
@@ -67,7 +67,7 @@ public class RoadSegmentSideCodeListRecordConfiguration : IEntityTypeConfigurati
     }
 }
 
-public class RoadSegmentMethodCodeListRecord
+public class RoadSegmentMethodCodeListRecord : IEnumBasedCodeListRecord
 {
     public int METHODE { get; set; }
     public string? LBLMETHODE { get; set; }
@@ -87,7 +87,7 @@ public class RoadSegmentMethodCodeListRecordConfiguration : IEntityTypeConfigura
     }
 }
 
-public class RoadSegmentMorphologyCodeListRecord
+public class RoadSegmentMorphologyCodeListRecord : IEnumBasedCodeListRecord
 {
     public int MORF { get; set; }
     public string? LBLMORF { get; set; }
@@ -107,7 +107,7 @@ public class RoadSegmentMorphologyCodeListRecordConfiguration : IEntityTypeConfi
     }
 }
 
-public class RoadSegmentDirectionCodeListRecord
+public class RoadSegmentDirectionCodeListRecord : IEnumBasedCodeListRecord
 {
     public int RICHTING { get; set; }
     public string? LBLRICHT { get; set; }
@@ -127,7 +127,7 @@ public class RoadSegmentDirectionCodeListRecordConfiguration : IEntityTypeConfig
     }
 }
 
-public class RoadSegmentStatusCodeListRecord
+public class RoadSegmentStatusCodeListRecord : IEnumBasedCodeListRecord
 {
     public int STATUS { get; set; }
     public string? LBLSTATUS { get; set; }
@@ -147,7 +147,7 @@ public class RoadSegmentStatusCodeListRecordConfiguration : IEntityTypeConfigura
     }
 }
 
-public class RoadSegmentAccessRestrictionCodeListRecord
+public class RoadSegmentAccessRestrictionCodeListRecord : IEnumBasedCodeListRecord
 {
     public int TOEGANG { get; set; }
     public string? LBLTOEGANG { get; set; }
@@ -167,7 +167,7 @@ public class RoadSegmentAccessRestrictionCodeListRecordConfiguration : IEntityTy
     }
 }
 
-public class RoadSegmentSurfaceTypeCodeListRecord
+public class RoadSegmentSurfaceTypeCodeListRecord : IEnumBasedCodeListRecord
 {
     public int VERHARDING { get; set; }
     public string? LBLVERHARD { get; set; }
@@ -187,7 +187,7 @@ public class RoadSegmentSurfaceTypeCodeListRecordConfiguration : IEntityTypeConf
     }
 }
 
-public class RoadSegmentCategoryCodeListRecord
+public class RoadSegmentCategoryCodeListRecord : IEnumBasedCodeListRecord
 {
     public string? WEGCAT { get; set; }
     public string? LBLWEGCAT { get; set; }

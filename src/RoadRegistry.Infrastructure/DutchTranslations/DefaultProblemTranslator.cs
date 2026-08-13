@@ -675,8 +675,12 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"De afstand van de voorgestelde knippositie tot het opgegeven wegsegment is groter dan {problem.GetParameterValue("MaximumDistance")}m.")
             },
             {
-                ProblemCode.RoadSegment.Split.PositionTooCloseToRoadNode, problem => new(problem.Severity, "KnippositieTeDichtBijWegknoop",
-                    $"De voorgestelde knippositie ligt te dicht (<{problem.GetParameterValue("MinimumDistance")}m) bij wegknoop {problem.GetParameterValue("RoadNodeId")}.")
+                ProblemCode.RoadSegment.Split.PositionTooCloseToStartVertex, problem => new(problem.Severity, "KnippositieTeDichtBijStartWegsegment",
+                    $"De voorgestelde knippositie ligt te dicht (<{problem.GetParameterValue("MinimumDistance")}m) bij de beginvertex van het wegsegment.")
+            },
+            {
+                ProblemCode.RoadSegment.Split.PositionTooCloseToEndVertex, problem => new(problem.Severity, "KnippositieTeDichtBijEindWegsegment",
+                    $"De voorgestelde knippositie ligt te dicht (<{problem.GetParameterValue("MinimumDistance")}m) bij de eindvertex van het wegsegment.")
             },
             {
                 ProblemCode.RoadSegment.SplitByJunction.Wegsegment1IsRequired, problem => new(problem.Severity, "Wegsegment1Verplicht",

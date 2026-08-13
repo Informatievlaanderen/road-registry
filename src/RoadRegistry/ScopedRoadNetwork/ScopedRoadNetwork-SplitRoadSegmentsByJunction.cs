@@ -216,12 +216,12 @@ public partial class ScopedRoadNetwork
         var minimumDistance = Distances.RoadSegmentSplitMinimumDistanceToRoadNode;
         if (cutMeasure < minimumDistance)
         {
-            throw new RoadRegistryProblemsException(Problems.Single(new RoadSegmentSplitPositionTooCloseToRoadNode(segment.StartNodeId ?? RoadNodeId.Zero, minimumDistance)));
+            throw new RoadRegistryProblemsException(Problems.Single(new RoadSegmentSplitPositionTooCloseToStartVertex(minimumDistance)));
         }
 
         if (totalLength - cutMeasure < minimumDistance)
         {
-            throw new RoadRegistryProblemsException(Problems.Single(new RoadSegmentSplitPositionTooCloseToRoadNode(segment.EndNodeId ?? RoadNodeId.Zero, minimumDistance)));
+            throw new RoadRegistryProblemsException(Problems.Single(new RoadSegmentSplitPositionTooCloseToEndVertex(minimumDistance)));
         }
 
         return new CutPlan(lineString, indexedLine, totalLength, cutMeasure);
@@ -311,7 +311,7 @@ public partial class ScopedRoadNetwork
             problems.ThrowIfError();
 
             var oldEnvelope = segment.Geometry.Value.EnvelopeInternal;
-            problems += segment.Split([roadSegmentId, shortestRoadSegmentId], BuildModifications(longestPart, startEndNodes.StartNodeId, startEndNodes.EndNodeId), provenance);
+            problems += segment.Split([roadSegmentId, shortestRoadSegmentId], BuildModifications(longestPart, startEndNodes.NodeIds.Start, startEndNodes.NodeIds.End), provenance);
             problems.ThrowIfError();
             _roadSegmentsSpatialIndex.Update(oldEnvelope, segment.Geometry.Value.EnvelopeInternal, segment);
             context.Summary.RoadSegments.Modified.Add(roadSegmentId);
