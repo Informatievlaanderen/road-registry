@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Projections.Tests.Projections.ExtractRoadSegment;
+namespace RoadRegistry.Projections.Tests.Projections.ExtractRoadSegment;
 
 using AutoFixture;
 using Extensions;
@@ -403,8 +403,8 @@ public class RoadSegmentExtractProjectionTests
         {
             RoadSegmentId = roadSegmentAdded.RoadSegmentId,
             Geometry = roadSegmentModified.Geometry,
-            StartNodeId = roadSegmentModified.StartNodeId!.Value,
-            EndNodeId = roadSegmentModified.EndNodeId!.Value,
+            StartNodeId = roadSegmentModified.NodeIds!.Start!.Value,
+            EndNodeId = roadSegmentModified.NodeIds.End!.Value,
             GeometryDrawMethod = roadSegmentModified.GeometryDrawMethod,
             Status = roadSegmentModified.Status,
             AccessRestriction = ForEntireLength(roadSegmentModified.AccessRestriction!.Values.Single().Value.ToString(), roadSegmentModified.Geometry!),

@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.RoadSegment.Events.V2;
+namespace RoadRegistry.RoadSegment.Events.V2;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using ValueObjects;
@@ -14,8 +14,10 @@ public record RoadSegmentWasModified : IMartenEvent
     public RoadSegmentIdReference OriginalRoadSegmentIdReference { get; init; }
     public RoadSegmentGeometry? Geometry { get; init; }
     public RoadSegmentStatusV2? Status { get; init; }
-    public RoadNodeId? StartNodeId { get; init; }
-    public RoadNodeId? EndNodeId { get; init; }
+
+    // Null means "the nodes did not change"; a value carries the full new node state, so a
+    // RoadSegmentNodeIds with both ids null detaches the segment from its road nodes.
+    public RoadSegmentNodeIds? NodeIds { get; init; }
     public RoadSegmentGeometryDrawMethodV2? GeometryDrawMethod { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>? AccessRestriction { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>? Category { get; init; }

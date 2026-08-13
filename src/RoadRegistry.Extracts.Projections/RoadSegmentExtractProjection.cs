@@ -405,8 +405,11 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
             {
                 segment.Geometry = e.Data.Geometry ?? segment.Geometry;
-                segment.StartNodeId = e.Data.StartNodeId ?? segment.StartNodeId;
-                segment.EndNodeId = e.Data.EndNodeId ?? segment.EndNodeId;
+                if (e.Data.NodeIds is not null)
+                {
+                    segment.StartNodeId = e.Data.NodeIds.Start;
+                    segment.EndNodeId = e.Data.NodeIds.End;
+                }
                 segment.GeometryDrawMethod = e.Data.GeometryDrawMethod ?? segment.GeometryDrawMethod;
                 segment.Status = e.Data.Status ?? segment.Status;
 

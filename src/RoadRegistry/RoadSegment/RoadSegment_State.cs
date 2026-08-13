@@ -211,8 +211,11 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
         Geometry = @event.Geometry ?? Geometry;
         Status = @event.Status ?? Status;
-        StartNodeId = @event.StartNodeId ?? StartNodeId;
-        EndNodeId = @event.EndNodeId ?? EndNodeId;
+        if (@event.NodeIds is not null)
+        {
+            StartNodeId = @event.NodeIds.Start;
+            EndNodeId = @event.NodeIds.End;
+        }
         Attributes = Attributes! with
         {
             GeometryDrawMethod = @event.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,

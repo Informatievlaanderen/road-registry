@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.ModifyRoadSegment;
+namespace RoadRegistry.Tests.AggregateTests.RoadSegment.ModifyRoadSegment;
 
 using AutoFixture;
 using FluentAssertions;
@@ -49,8 +49,9 @@ public class AggregateTests : AggregateTestBase
         segmentModified.RoadSegmentId.Should().Be(change.RoadSegmentIdReference.RoadSegmentId);
         segmentModified.Geometry.Should().BeEquivalentTo(change.Geometry);
         segmentModified.OriginalRoadSegmentIdReference.Should().Be(change.RoadSegmentIdReference);
-        segmentModified.StartNodeId.Should().Be(TestData.Segment1StartNodeAdded.RoadNodeId);
-        segmentModified.EndNodeId.Should().Be(TestData.Segment1EndNodeAdded.RoadNodeId);
+        segmentModified.NodeIds.Should().NotBeNull();
+        segmentModified.NodeIds!.Start.Should().Be(TestData.Segment1StartNodeAdded.RoadNodeId);
+        segmentModified.NodeIds.End.Should().Be(TestData.Segment1EndNodeAdded.RoadNodeId);
         segmentModified.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
         segmentModified.AccessRestriction.Should().Be(change.AccessRestriction);
         segmentModified.Category.Should().Be(change.Category);
@@ -71,7 +72,11 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
-        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
+        // Start from a realized segment so the status change detaches it from its road nodes.
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>() with
+            {
+                Status = RoadSegmentStatusV2.Gerealiseerd
+            })
             .WithoutChanges();
         var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
@@ -93,8 +98,11 @@ public class AggregateTests : AggregateTestBase
         segmentModified.RoadSegmentId.Should().Be(change.RoadSegmentIdReference.RoadSegmentId);;
         segmentModified.Geometry.Should().BeEquivalentTo(change.Geometry);
         segmentModified.OriginalRoadSegmentIdReference.Should().Be(change.RoadSegmentIdReference);
-        segmentModified.StartNodeId.Should().BeNull();
-        segmentModified.EndNodeId.Should().BeNull();
+        segmentModified.NodeIds.Should().NotBeNull();
+        segmentModified.NodeIds!.Start.Should().BeNull();
+        segmentModified.NodeIds.End.Should().BeNull();
+        segment.StartNodeId.Should().BeNull();
+        segment.EndNodeId.Should().BeNull();
         segmentModified.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
         segmentModified.AccessRestriction.Should().Be(change.AccessRestriction);
         segmentModified.Category.Should().Be(change.Category);
@@ -212,8 +220,8 @@ public class AggregateTests : AggregateTestBase
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
         segment.Geometry.Should().BeEquivalentTo(evt.Geometry);
         segment.Status.Should().Be(evt.Status);
-        segment.StartNodeId.Should().Be(evt.StartNodeId!.Value);
-        segment.EndNodeId.Should().Be(evt.EndNodeId!.Value);
+        segment.StartNodeId.Should().Be(evt.NodeIds!.Start!.Value);
+        segment.EndNodeId.Should().Be(evt.NodeIds.End!.Value);
         segment.Attributes!.GeometryDrawMethod.Should().Be(evt.GeometryDrawMethod);
         segment.Attributes!.AccessRestriction.Should().Be(evt.AccessRestriction);
         segment.Attributes!.Category.Should().Be(evt.Category);

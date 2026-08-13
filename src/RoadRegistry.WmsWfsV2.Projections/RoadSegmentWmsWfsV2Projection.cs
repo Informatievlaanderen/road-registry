@@ -188,10 +188,12 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         When<IEvent<RoadSegmentWasModified>>(async (context, e, ct) =>
         {
             var m = e.Data;
+            // Nodes carries the full new node state; clear both first so null ids inside it stick.
             await WritePartial(context, m.RoadSegmentId.ToInt32(), m.Geometry, m.Status, m.GeometryDrawMethod,
-                m.StartNodeId, m.EndNodeId, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
+                m.NodeIds?.Start, m.NodeIds?.End, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
                 m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
-                m.PedestrianTrafficDirection, m.Provenance, ct);
+                m.PedestrianTrafficDirection, m.Provenance, ct,
+                clearRoadNodes: m.NodeIds is not null);
         });
 
         When<IEvent<RoadSegmentWasCorrectedFromRealizedToPlanned>>(async (context, e, ct) =>

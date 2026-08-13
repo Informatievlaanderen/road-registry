@@ -108,7 +108,7 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadSegmentWasModified> e, IDocumentOperations ops)
     {
-        if (e.Data.Geometry is null && e.Data.StartNodeId is null && e.Data.EndNodeId is null)
+        if (e.Data.Geometry is null && e.Data.NodeIds is null)
         {
             return;
         }
@@ -118,8 +118,8 @@ public partial class RoadNetworkTopologyProjection
             e.Timestamp,
             e.Data.Geometry?.WKT ?? string.Empty,
             e.Data.Geometry?.SRID ?? 0,
-            e.Data.StartNodeId?.ToInt32() ?? 0,
-            e.Data.EndNodeId?.ToInt32() ?? 0
+            e.Data.NodeIds?.Start?.ToInt32() ?? 0,
+            e.Data.NodeIds?.End?.ToInt32() ?? 0
         );
     }
 
