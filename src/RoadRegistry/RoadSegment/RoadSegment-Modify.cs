@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.RoadSegment;
+namespace RoadRegistry.RoadSegment;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
@@ -43,15 +43,19 @@ public partial class RoadSegment
         };
         problems += new RoadSegmentAttributesValidator().Validate(attributes, segmentLength);
 
-        RoadNodeId? startNodeId = null, endNodeId = null;
+        RoadSegmentNodeIds? nodeIds = null;
 
         var status = change.Status ?? Status;
         if (change.Geometry is not null && status == RoadSegmentStatusV2.Gerealiseerd)
         {
             var startEndNodes = context.RoadNetwork.FindStartEndNodes(change.Geometry);
             problems += startEndNodes.Problems;
-            startNodeId = startEndNodes.StartNodeId;
-            endNodeId = startEndNodes.EndNodeId;
+            nodeIds = new RoadSegmentNodeIds { Start = startEndNodes.StartNodeId, End = startEndNodes.EndNodeId };
+        }
+        else if (Status == RoadSegmentStatusV2.Gerealiseerd && status != RoadSegmentStatusV2.Gerealiseerd)
+        {
+            // Only a realized segment is knotted into the network; leaving that status detaches it from its nodes.
+            nodeIds = new RoadSegmentNodeIds();
         }
 
         if (problems.HasError())
@@ -59,10 +63,14 @@ public partial class RoadSegment
             return problems;
         }
 
+        if (nodeIds is not null && nodeIds.Start == StartNodeId && nodeIds.End == EndNodeId)
+        {
+            nodeIds = null;
+        }
+
         var hasChanges = (change.Geometry is not null && Geometry != change.Geometry)
                          || (change.Status is not null && Status != change.Status)
-                         || (startNodeId is not null && StartNodeId != startNodeId)
-                         || (endNodeId is not null && EndNodeId != endNodeId)
+                         || nodeIds is not null
                          || !Attributes.Equals(attributes);
         if (!hasChanges)
         {
@@ -75,8 +83,7 @@ public partial class RoadSegment
             OriginalRoadSegmentIdReference = roadSegmentIdReference,
             Geometry = change.Geometry,
             Status = change.Status,
-            StartNodeId = startNodeId,
-            EndNodeId = endNodeId,
+            NodeIds = nodeIds,
             GeometryDrawMethod = change.GeometryDrawMethod,
             AccessRestriction = accessRestriction,
             Category = category,

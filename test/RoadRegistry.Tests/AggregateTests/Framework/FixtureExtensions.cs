@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
+namespace RoadRegistry.Tests.AggregateTests.Framework;
 
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -87,8 +87,11 @@ public static class FixtureExtensions
                         RoadSegmentId = fixture.Create<RoadSegmentId>(),
                         OriginalRoadSegmentIdReference = new RoadSegmentIdReference(fixture.Create<RoadSegmentId>(), [fixture.Create<RoadSegmentTempId>()]),
                         Geometry = geometry,
-                        StartNodeId = fixture.Create<RoadNodeId>(),
-                        EndNodeId = fixture.Create<RoadNodeId>(),
+                        NodeIds = new RoadSegmentNodeIds
+                        {
+                            Start = fixture.Create<RoadNodeId>(),
+                            End = fixture.Create<RoadNodeId>()
+                        },
                         GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
                         Status = fixture.Create<RoadSegmentStatusV2>(),
                         AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(fixture.Create<RoadSegmentAccessRestrictionV2>(), geometry),
