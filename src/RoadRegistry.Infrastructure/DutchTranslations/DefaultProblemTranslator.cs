@@ -623,6 +623,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft een status die verschilt van 'gepland', 'gerealiseerd' of 'buiten gebruik'.")
             },
             {
+                ProblemCode.RoadSegment.ChangeGeometryDrawMethod.StatusNotValid, problem => new(problem.Severity, "WegsegmentGeometriemethodeStatusNietCorrect",
+                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft een status die verschilt van 'gepland', 'gerealiseerd' of 'buiten gebruik'.")
+            },
+            {
                 ProblemCode.RoadSegment.ChangeGeometry.MeasuredNotAllowed, problem => new(problem.Severity, "WegsegmentGeometrieIngemetenNietToegelaten",
                     $"U heeft niet de machtigingen om deze actie uit te voeren voor (aansluitende) wegsegmenten met geometriemethode 'ingemeten'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingemeten.")
             },

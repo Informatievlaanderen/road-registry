@@ -63,6 +63,11 @@ public sealed class RoadSegmentGeometryDrawMethodV2 : IEquatable<RoadSegmentGeom
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
+    public static bool CanParseUsingDutchName(string value)
+    {
+        return TryParseUsingDutchName(value, out _);
+    }
+
     public override int GetHashCode()
     {
         return _value.GetHashCode();
@@ -95,6 +100,12 @@ public sealed class RoadSegmentGeometryDrawMethodV2 : IEquatable<RoadSegmentGeom
         return parsed;
     }
 
+    public static RoadSegmentGeometryDrawMethodV2 ParseUsingDutchName(string value)
+    {
+        if (!TryParseUsingDutchName(value ?? throw new ArgumentNullException(nameof(value)), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment geometry draw method.");
+        return parsed;
+    }
+
     public override string ToString()
     {
         return _value;
@@ -112,6 +123,12 @@ public sealed class RoadSegmentGeometryDrawMethodV2 : IEquatable<RoadSegmentGeom
         value = value.Trim();
 
         parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
+    }
+
+    public static bool TryParseUsingDutchName(string value, out RoadSegmentGeometryDrawMethodV2 parsed)
+    {
+        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
         return parsed != null;
     }
 
