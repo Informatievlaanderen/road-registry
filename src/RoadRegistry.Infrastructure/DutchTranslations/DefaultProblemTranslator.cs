@@ -1240,6 +1240,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"Het fiets terug bevat meerdere attributen voor dezelfde dekking ({problem.Parameters[0].Value} -> {problem.Parameters[1].Value}).")
             },
             {
+                ProblemCode.RoadSegment.AttributeSide.NotValid, problem => new(problem.Severity, "KantNietCorrect",
+                    $"Kant is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")
+            },
+            {
                 ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes.FromOrToPositionIsNull, problem => new(problem.Severity, problem.Reason,
                     $"De van of naar positie van een morfologie attribuut is leeg.")
             },

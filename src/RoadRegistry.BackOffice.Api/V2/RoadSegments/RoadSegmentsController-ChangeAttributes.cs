@@ -22,6 +22,7 @@ using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ValueObjects.ProblemCodes;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -154,6 +155,19 @@ public partial class RoadSegmentsController
                 }
             }
 
+            // The positions of each attribute must cover the (side of the) segment as one gapless run starting at 0.
+            // The length of the road segments is unknown here - they are deliberately not fetched - so where the last
+            // record ends is left to the domain.
+            ValidateAttributePositions(item.Morfologie, $"{path}.morfologie", null, ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes, failures);
+            ValidateAttributePositions(item.Wegverharding, $"{path}.wegverharding", null, ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes, failures);
+            ValidateAttributePositions(item.Toegang, $"{path}.toegang", null, ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes, failures);
+            ValidateAttributePositions(item.Wegcategorie, $"{path}.wegcategorie", null, ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes, failures);
+            ValidateAttributePositions(item.VerkeerstypeAuto, $"{path}.verkeerstypeAuto", null, ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes, failures);
+            ValidateAttributePositions(item.VerkeerstypeFiets, $"{path}.verkeerstypeFiets", null, ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes, failures);
+            ValidateAttributePositions(item.VerkeerstypeVoetganger, $"{path}.verkeerstypeVoetganger", null, ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes, failures);
+            ValidateSidedAttributePositions(item.Straatnaam, x => x.Kant, $"{path}.straatnaam", null, ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes, failures);
+            ValidateSidedAttributePositions(item.Wegbeheerder, x => x.Kant, $"{path}.wegbeheerder", null, ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes, failures);
+
             groups.Add(new ChangeRoadSegmentAttributesV2Group
             {
                 RoadSegmentIds = item.Wegsegmenten.Select(x => new RoadSegmentId(x)).ToList(),
@@ -189,6 +203,41 @@ public partial class RoadSegmentsController
             return null;
         }
         return new RoadSegmentPositionV2(value.Value);
+    }
+
+    private static void ValidateAttributePositions<TParameters>(
+        TParameters[]? items,
+        string path,
+        double? geometryLength,
+        ProblemCode.RoadSegment.DynamicAttributeProblemCodes problemCodes,
+        List<ValidationFailure> failures)
+        where TParameters : VanTotParameters
+    {
+        if (items is null)
+        {
+            return;
+        }
+
+        failures.AddRange(RoadSegmentAttributePositionsValidator.Validate(
+            items.Select(x => (x.VanPositie, x.TotPositie)), path, geometryLength, problemCodes));
+    }
+
+    private static void ValidateSidedAttributePositions<TParameters>(
+        TParameters[]? items,
+        Func<TParameters, string?> kantSelector,
+        string path,
+        double? geometryLength,
+        ProblemCode.RoadSegment.DynamicAttributeProblemCodes problemCodes,
+        List<ValidationFailure> failures)
+        where TParameters : VanTotParameters
+    {
+        if (items is null)
+        {
+            return;
+        }
+
+        failures.AddRange(RoadSegmentAttributePositionsValidator.ValidateSided(
+            items.Select(x => (kantSelector(x), x.VanPositie, x.TotPositie)), path, geometryLength, problemCodes));
     }
 
     private static IReadOnlyList<AttributeValue<T>>? ParsePositionValues<TParameters, T>(

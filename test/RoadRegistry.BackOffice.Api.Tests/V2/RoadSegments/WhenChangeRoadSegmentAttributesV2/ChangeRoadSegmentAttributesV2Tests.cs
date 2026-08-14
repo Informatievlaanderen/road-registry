@@ -13,7 +13,10 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using RoadRegistry.BackOffice.Api.V2.RoadSegments;
 using RoadRegistry.Extensions;
+using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ValueObjects.ProblemCodes;
 
 public class ChangeRoadSegmentAttributesV2Tests : V2ReadEndpointTestBase
 {
@@ -408,6 +411,130 @@ public class ChangeRoadSegmentAttributesV2Tests : V2ReadEndpointTestBase
 
         failure.PropertyName.Should().Be("[0].wegverharding[0].totPositie");
         failure.ErrorMessage.Should().Be("De totPositie -5 heeft een ongeldige waarde.");
+        VerifyNothingWasQueued();
+    }
+
+    [Fact]
+    public async Task GivenAnAttributeWhoseFirstRecordDoesNotStartAtZero_ThenValidationException()
+    {
+        var parameters = new ChangeRoadSegmentAttributesV2Parameters
+        {
+            new()
+            {
+                Wegsegmenten = [1],
+                Wegverharding =
+                [
+                    new WegverhardingParameters { VanPositie = 5, TotPositie = 10, Wegverharding = RoadSegmentSurfaceTypeV2.Verhard.ToDutchString() }
+                ]
+            }
+        };
+
+        var failure = await ActAndExpectSingleFailure(() => Act(parameters));
+
+        failure.PropertyName.Should().Be("[0].wegverharding");
+        failure.ErrorCode.Should().Be(ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes.FromPositionNotEqualToZero.ToString());
+        VerifyNothingWasQueued();
+    }
+
+    [Fact]
+    public async Task GivenAttributeRecordsThatAreNotAdjacent_ThenValidationException()
+    {
+        var parameters = new ChangeRoadSegmentAttributesV2Parameters
+        {
+            new()
+            {
+                Wegsegmenten = [1],
+                Wegverharding =
+                [
+                    new WegverhardingParameters { VanPositie = 0, TotPositie = 5, Wegverharding = RoadSegmentSurfaceTypeV2.Verhard.ToDutchString() },
+                    new WegverhardingParameters { VanPositie = 6, TotPositie = 10, Wegverharding = RoadSegmentSurfaceTypeV2.Onverhard.ToDutchString() }
+                ]
+            }
+        };
+
+        var failure = await ActAndExpectSingleFailure(() => Act(parameters));
+
+        failure.ErrorCode.Should().Be(ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes.NotAdjacent.ToString());
+
+        // The failure carries its positions along, so the Dutch translation - which reads them by index - can name them.
+        var translated = new[] { failure }.TranslateToDutch(WellKnownProblemTranslators.Default).Single();
+        translated.ErrorMessage.Should().Contain("6").And.Contain("5");
+        VerifyNothingWasQueued();
+    }
+
+    [Fact]
+    public async Task GivenARecordAfterARecordWithoutTotPositie_ThenValidationException()
+    {
+        // A null totPositie means "up to the end of the segment", so only the last record may leave it open.
+        var parameters = new ChangeRoadSegmentAttributesV2Parameters
+        {
+            new()
+            {
+                Wegsegmenten = [1],
+                Wegverharding =
+                [
+                    new WegverhardingParameters { Wegverharding = RoadSegmentSurfaceTypeV2.Verhard.ToDutchString() },
+                    new WegverhardingParameters { VanPositie = 50.5, Wegverharding = RoadSegmentSurfaceTypeV2.Onverhard.ToDutchString() }
+                ]
+            }
+        };
+
+        var failure = await ActAndExpectSingleFailure(() => Act(parameters));
+
+        failure.ErrorCode.Should().Be(ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes.FromOrToPositionIsNull.ToString());
+        VerifyNothingWasQueued();
+    }
+
+    [Fact]
+    public async Task GivenAdjacentRecordsEndingOpen_ThenAccepted()
+    {
+        // The segment length is unknown here (the road segments are not fetched), so where the last record ends is
+        // left to the domain.
+        var parameters = new ChangeRoadSegmentAttributesV2Parameters
+        {
+            new()
+            {
+                Wegsegmenten = [1],
+                Wegverharding =
+                [
+                    new WegverhardingParameters { TotPositie = 50.5, Wegverharding = RoadSegmentSurfaceTypeV2.Verhard.ToDutchString() },
+                    new WegverhardingParameters { VanPositie = 50.5, Wegverharding = RoadSegmentSurfaceTypeV2.Onverhard.ToDutchString() }
+                ]
+            }
+        };
+
+        var result = await Act(parameters);
+
+        result.Should().BeOfType<AcceptedResult>();
+    }
+
+    [Fact]
+    public async Task GivenSidedRecordsWhereOneSideDoesNotStartAtZero_ThenValidationException()
+    {
+        // Links plus beide covers the left side from 0; rechts only starts at 10, which leaves the right side uncovered.
+        var parameters = WithStreetName(
+            new StraatnaamParameters { Kant = RoadSegmentAttributeSide.Links.ToDutchString(), Identificator = "71671" },
+            new StraatnaamParameters { Kant = RoadSegmentAttributeSide.Rechts.ToDutchString(), VanPositie = 10, Identificator = "65412" });
+
+        var failure = await ActAndExpectSingleFailure(() => Act(parameters));
+
+        failure.PropertyName.Should().Be("[0].straatnaam");
+        failure.ErrorCode.Should().Be(ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes.FromPositionNotEqualToZero.ToString());
+        VerifyNothingWasQueued();
+    }
+
+    [Fact]
+    public async Task GivenBeideRecordsThatAreNotAdjacent_ThenTheFailureIsReportedOnce()
+    {
+        // Records that apply to both sides describe one and the same run for left and right, so a coverage failure in
+        // them is one failure, not one per side.
+        var parameters = WithStreetName(
+            new StraatnaamParameters { Kant = RoadSegmentAttributeSide.Beide.ToDutchString(), VanPositie = 0, TotPositie = 5, Identificator = "71671" },
+            new StraatnaamParameters { Kant = RoadSegmentAttributeSide.Beide.ToDutchString(), VanPositie = 6, Identificator = "65412" });
+
+        var failure = await ActAndExpectSingleFailure(() => Act(parameters));
+
+        failure.ErrorCode.Should().Be(ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes.NotAdjacent.ToString());
         VerifyNothingWasQueued();
     }
 

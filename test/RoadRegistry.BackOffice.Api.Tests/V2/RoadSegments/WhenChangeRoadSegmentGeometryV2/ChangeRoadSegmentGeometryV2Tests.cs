@@ -20,6 +20,7 @@ using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests;
 using RoadRegistry.Tests.AggregateTests;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.ValueObjects.ProblemCodes;
 
 public class ChangeRoadSegmentGeometryV2Tests : V2ReadEndpointTestBase
 {
@@ -219,6 +220,65 @@ public class ChangeRoadSegmentGeometryV2Tests : V2ReadEndpointTestBase
         ex.Errors.Should().ContainSingle()
             .Which.ErrorMessage.Should().Be("De opgegeven geometrie bevat coördinaten met een hogere nauwkeurigheid dan centimeter (meer dan 2 decimalen).");
         VerifyNothingWasQueued();
+    }
+
+    [Fact]
+    public async Task GivenAnAttributeRunningPastTheGeometry_ThenValidationException()
+    {
+        // The new geometry travels with the request, so the trailing position is checked against its length.
+        var parameters = ValidParameters();
+        parameters.Morfologie![0].TotPositie = 20;
+
+        var ex = await Assert.ThrowsAsync<ValidationException>(() => Act(1, parameters));
+
+        var failure = ex.Errors.Should().ContainSingle().Which;
+        failure.PropertyName.Should().Be("morfologie");
+        failure.ErrorCode.Should().Be(ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes.ToPositionNotEqualToLength.ToString());
+        VerifyNothingWasQueued();
+    }
+
+    [Fact]
+    public async Task GivenAnAttributeWhoseFirstRecordDoesNotStartAtZero_ThenValidationException()
+    {
+        var parameters = ValidParameters();
+        parameters.Wegverharding![0].VanPositie = 2;
+
+        var ex = await Assert.ThrowsAsync<ValidationException>(() => Act(1, parameters));
+
+        var failure = ex.Errors.Should().ContainSingle().Which;
+        failure.PropertyName.Should().Be("wegverharding");
+        failure.ErrorCode.Should().Be(ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes.FromPositionNotEqualToZero.ToString());
+        VerifyNothingWasQueued();
+    }
+
+    [Fact]
+    public async Task GivenAttributeRecordsThatAreNotAdjacent_ThenValidationException()
+    {
+        var parameters = ValidParameters();
+        parameters.Toegang =
+        [
+            new ToegangParameters { VanPositie = 0, TotPositie = 4, Toegang = RoadSegmentAccessRestrictionV2.OpenbareWeg.ToDutchString() },
+            new ToegangParameters { VanPositie = 5, TotPositie = GeometryLength, Toegang = RoadSegmentAccessRestrictionV2.PrivateWeg.ToDutchString() }
+        ];
+
+        var ex = await Assert.ThrowsAsync<ValidationException>(() => Act(1, parameters));
+
+        var failure = ex.Errors.Should().ContainSingle().Which;
+        failure.ErrorCode.Should().Be(ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes.NotAdjacent.ToString());
+        VerifyNothingWasQueued();
+    }
+
+    [Fact]
+    public async Task GivenAnAttributeEndingOpen_ThenAccepted()
+    {
+        // A null totPositie on the last record means "up to the end of the geometry".
+        var id = SeedRoadSegment();
+        var parameters = ValidParameters();
+        parameters.Morfologie![0].TotPositie = null;
+
+        var result = await Act(id, parameters);
+
+        result.Should().BeOfType<AcceptedResult>();
     }
 
     [Fact]
