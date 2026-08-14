@@ -374,15 +374,12 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         });
         When(IsGeometryValid, () =>
         {
-            RuleFor(x => x.Morfologie).Custom((items, ctx) =>
-            {
-                if (items is null || items.Length == 0) return;
-                ValidatePositions(
-                    items.Select(x => (x.VanPositie, x.TotPositie)),
+            RuleFor(x => x.Morfologie).Custom((items, ctx) => AddFailures(ctx,
+                RoadSegmentAttributePositionsValidator.Validate(
+                    (items ?? []).Select(x => ((double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    nameof(CreateOutlinedRoadSegmentV2Parameters.Morfologie),
                     GetGeometryLength(ctx.InstanceToValidate),
-                    ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes,
-                    ctx, nameof(CreateOutlinedRoadSegmentV2Parameters.Morfologie));
-            });
+                    ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes)));
         });
 
         // Wegverharding
@@ -406,15 +403,12 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         });
         When(IsGeometryValid, () =>
         {
-            RuleFor(x => x.Wegverharding).Custom((items, ctx) =>
-            {
-                if (items is null || items.Length == 0) return;
-                ValidatePositions(
-                    items.Select(x => (x.VanPositie, x.TotPositie)),
+            RuleFor(x => x.Wegverharding).Custom((items, ctx) => AddFailures(ctx,
+                RoadSegmentAttributePositionsValidator.Validate(
+                    (items ?? []).Select(x => ((double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    nameof(CreateOutlinedRoadSegmentV2Parameters.Wegverharding),
                     GetGeometryLength(ctx.InstanceToValidate),
-                    ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes,
-                    ctx, nameof(CreateOutlinedRoadSegmentV2Parameters.Wegverharding));
-            });
+                    ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes)));
         });
 
         // Toegang
@@ -438,15 +432,12 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         });
         When(IsGeometryValid, () =>
         {
-            RuleFor(x => x.Toegang).Custom((items, ctx) =>
-            {
-                if (items is null || items.Length == 0) return;
-                ValidatePositions(
-                    items.Select(x => (x.VanPositie, x.TotPositie)),
+            RuleFor(x => x.Toegang).Custom((items, ctx) => AddFailures(ctx,
+                RoadSegmentAttributePositionsValidator.Validate(
+                    (items ?? []).Select(x => ((double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    nameof(CreateOutlinedRoadSegmentV2Parameters.Toegang),
                     GetGeometryLength(ctx.InstanceToValidate),
-                    ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes,
-                    ctx, nameof(CreateOutlinedRoadSegmentV2Parameters.Toegang));
-            });
+                    ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes)));
         });
 
         // Straatnaam
@@ -460,6 +451,12 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         {
             RuleForEach(x => x.Straatnaam).ChildRules(item =>
             {
+                item.RuleFor(x => x.Kant)
+                    .Cascade(CascadeMode.Stop)
+                    .NotEmpty()
+                        .WithProblemCode(ProblemCode.RoadSegment.AttributeSide.NotValid)
+                    .Must(RoadSegmentAttributeSide.CanParseUsingDutchName)
+                        .WithProblemCode(ProblemCode.RoadSegment.AttributeSide.NotValid);
                 item.RuleFor(x => x.Identificator)
                     .Cascade(CascadeMode.Stop)
                     .NotEmpty()
@@ -470,21 +467,12 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         });
         When(IsGeometryValid, () =>
         {
-            RuleFor(x => x.Straatnaam).Custom((items, ctx) =>
-            {
-                if (items is null || items.Length == 0) return;
-                var length = GetGeometryLength(ctx.InstanceToValidate);
-                var codes = ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes;
-                var prop = nameof(CreateOutlinedRoadSegmentV2Parameters.Straatnaam);
-                ValidatePositions(
-                    items.Where(x => x.Kant == RoadSegmentAttributeSide.Links.Translation.Name || x.Kant == RoadSegmentAttributeSide.Beide.Translation.Name)
-                         .Select(x => (x.VanPositie, x.TotPositie)),
-                    length, codes, ctx, prop);
-                ValidatePositions(
-                    items.Where(x => x.Kant == RoadSegmentAttributeSide.Rechts.Translation.Name || x.Kant == RoadSegmentAttributeSide.Beide.Translation.Name)
-                         .Select(x => (x.VanPositie, x.TotPositie)),
-                    length, codes, ctx, prop);
-            });
+            RuleFor(x => x.Straatnaam).Custom((items, ctx) => AddFailures(ctx,
+                RoadSegmentAttributePositionsValidator.ValidateSided(
+                    (items ?? []).Select(x => ((string?)x.Kant, (double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    nameof(CreateOutlinedRoadSegmentV2Parameters.Straatnaam),
+                    GetGeometryLength(ctx.InstanceToValidate),
+                    ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes)));
         });
 
         // Wegbeheerder
@@ -498,6 +486,12 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         {
             RuleForEach(x => x.Wegbeheerder).ChildRules(item =>
             {
+                item.RuleFor(x => x.Kant)
+                    .Cascade(CascadeMode.Stop)
+                    .NotEmpty()
+                        .WithProblemCode(ProblemCode.RoadSegment.AttributeSide.NotValid)
+                    .Must(RoadSegmentAttributeSide.CanParseUsingDutchName)
+                        .WithProblemCode(ProblemCode.RoadSegment.AttributeSide.NotValid);
                 item.RuleFor(x => x.Wegbeheerder)
                     .Cascade(CascadeMode.Stop)
                     .NotEmpty()
@@ -511,21 +505,12 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         });
         When(IsGeometryValid, () =>
         {
-            RuleFor(x => x.Wegbeheerder).Custom((items, ctx) =>
-            {
-                if (items is null || items.Length == 0) return;
-                var length = GetGeometryLength(ctx.InstanceToValidate);
-                var codes = ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes;
-                var prop = nameof(CreateOutlinedRoadSegmentV2Parameters.Wegbeheerder);
-                ValidatePositions(
-                    items.Where(x => x.Kant == RoadSegmentAttributeSide.Links.Translation.Name || x.Kant == RoadSegmentAttributeSide.Beide.Translation.Name)
-                         .Select(x => (x.VanPositie, x.TotPositie)),
-                    length, codes, ctx, prop);
-                ValidatePositions(
-                    items.Where(x => x.Kant == RoadSegmentAttributeSide.Rechts.Translation.Name || x.Kant == RoadSegmentAttributeSide.Beide.Translation.Name)
-                         .Select(x => (x.VanPositie, x.TotPositie)),
-                    length, codes, ctx, prop);
-            });
+            RuleFor(x => x.Wegbeheerder).Custom((items, ctx) => AddFailures(ctx,
+                RoadSegmentAttributePositionsValidator.ValidateSided(
+                    (items ?? []).Select(x => ((string?)x.Kant, (double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    nameof(CreateOutlinedRoadSegmentV2Parameters.Wegbeheerder),
+                    GetGeometryLength(ctx.InstanceToValidate),
+                    ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes)));
         });
 
         // Wegcategorie
@@ -549,15 +534,12 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         });
         When(IsGeometryValid, () =>
         {
-            RuleFor(x => x.Wegcategorie).Custom((items, ctx) =>
-            {
-                if (items is null || items.Length == 0) return;
-                ValidatePositions(
-                    items.Select(x => (x.VanPositie, x.TotPositie)),
+            RuleFor(x => x.Wegcategorie).Custom((items, ctx) => AddFailures(ctx,
+                RoadSegmentAttributePositionsValidator.Validate(
+                    (items ?? []).Select(x => ((double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    nameof(CreateOutlinedRoadSegmentV2Parameters.Wegcategorie),
                     GetGeometryLength(ctx.InstanceToValidate),
-                    ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes,
-                    ctx, nameof(CreateOutlinedRoadSegmentV2Parameters.Wegcategorie));
-            });
+                    ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes)));
         });
 
         // VerkeerstypeAuto
@@ -581,15 +563,12 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         });
         When(IsGeometryValid, () =>
         {
-            RuleFor(x => x.VerkeerstypeAuto).Custom((items, ctx) =>
-            {
-                if (items is null || items.Length == 0) return;
-                ValidatePositions(
-                    items.Select(x => (x.VanPositie, x.TotPositie)),
+            RuleFor(x => x.VerkeerstypeAuto).Custom((items, ctx) => AddFailures(ctx,
+                RoadSegmentAttributePositionsValidator.Validate(
+                    (items ?? []).Select(x => ((double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    nameof(CreateOutlinedRoadSegmentV2Parameters.VerkeerstypeAuto),
                     GetGeometryLength(ctx.InstanceToValidate),
-                    ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes,
-                    ctx, nameof(CreateOutlinedRoadSegmentV2Parameters.VerkeerstypeAuto));
-            });
+                    ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes)));
         });
 
         // VerkeerstypeFiets
@@ -613,15 +592,12 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         });
         When(IsGeometryValid, () =>
         {
-            RuleFor(x => x.VerkeerstypeFiets).Custom((items, ctx) =>
-            {
-                if (items is null || items.Length == 0) return;
-                ValidatePositions(
-                    items.Select(x => (x.VanPositie, x.TotPositie)),
+            RuleFor(x => x.VerkeerstypeFiets).Custom((items, ctx) => AddFailures(ctx,
+                RoadSegmentAttributePositionsValidator.Validate(
+                    (items ?? []).Select(x => ((double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    nameof(CreateOutlinedRoadSegmentV2Parameters.VerkeerstypeFiets),
                     GetGeometryLength(ctx.InstanceToValidate),
-                    ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes,
-                    ctx, nameof(CreateOutlinedRoadSegmentV2Parameters.VerkeerstypeFiets));
-            });
+                    ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes)));
         });
 
         // VerkeerstypeVoetganger (only "beide" and "geen" allowed per RoadSegmentPedestrianTrafficDirection)
@@ -645,15 +621,12 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         });
         When(IsGeometryValid, () =>
         {
-            RuleFor(x => x.VerkeerstypeVoetganger).Custom((items, ctx) =>
-            {
-                if (items is null || items.Length == 0) return;
-                ValidatePositions(
-                    items.Select(x => (x.VanPositie, x.TotPositie)),
+            RuleFor(x => x.VerkeerstypeVoetganger).Custom((items, ctx) => AddFailures(ctx,
+                RoadSegmentAttributePositionsValidator.Validate(
+                    (items ?? []).Select(x => ((double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    nameof(CreateOutlinedRoadSegmentV2Parameters.VerkeerstypeVoetganger),
                     GetGeometryLength(ctx.InstanceToValidate),
-                    ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes,
-                    ctx, nameof(CreateOutlinedRoadSegmentV2Parameters.VerkeerstypeVoetganger));
-            });
+                    ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes)));
         });
     }
 
@@ -677,69 +650,18 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
             .HasCoordinatesMorePreciseThanCm();
     }
 
-    private static void ValidatePositions(
-        IEnumerable<(double From, double To)> positions,
-        double geometryLength,
-        ProblemCode.RoadSegment.DynamicAttributeProblemCodes codes,
+    // On this endpoint every position is stated outright; the only shorthand is a totPositie of 0, which means "up
+    // to the end of the geometry" - the open end the centralised position validation writes as a null.
+    private static double? ToPositie(double totPositie) => totPositie.RoundToCm().Equals(0.0) ? null : totPositie;
+
+    private static void AddFailures(
         ValidationContext<CreateOutlinedRoadSegmentV2Parameters> ctx,
-        string propertyName)
+        IEnumerable<ValidationFailure> failures)
     {
-        var ordered = positions.OrderBy(x => x.From).ThenBy(x => x.To).ToList();
-        if (ordered.Count == 0) return;
-
-        // TotPositie of 0 on the last record means "until the end of the geometry"
-        if (NearlyEqual(ordered[^1].To, 0.0))
-            ordered[^1] = (ordered[^1].From, geometryLength);
-
-        double? previousTo = null;
-        foreach (var (from, to) in ordered)
+        foreach (var failure in failures)
         {
-            if (previousTo is null)
-            {
-                if (!NearlyEqual(from, 0.0))
-                {
-                    AddFailure(ctx, propertyName, codes.FromPositionNotEqualToZero,
-                        new ProblemParameter("FromPosition", from.ToRoundedMeasurementString()));
-                    return;
-                }
-            }
-            else if (!NearlyEqual(from, previousTo.Value))
-            {
-                AddFailure(ctx, propertyName, codes.NotAdjacent,
-                    new ProblemParameter("FromPosition", from.ToRoundedMeasurementString()),
-                    new ProblemParameter("ToPosition", previousTo.Value.ToRoundedMeasurementString()));
-                return;
-            }
-
-            if (to - from < 1.0)
-                AddFailure(ctx, propertyName, codes.HasLengthOfZero,
-                    new ProblemParameter("FromPosition", from.ToRoundedMeasurementString()),
-                    new ProblemParameter("ToPosition", to.ToRoundedMeasurementString()));
-
-            previousTo = to;
+            ctx.AddFailure(failure);
         }
-
-        if (previousTo is not null && !NearlyEqual(previousTo.Value, geometryLength))
-            AddFailure(ctx, propertyName, codes.ToPositionNotEqualToLength,
-                new ProblemParameter("ToPosition", previousTo.Value.ToRoundedMeasurementString()),
-                new ProblemParameter("Length", geometryLength.ToRoundedMeasurementString()));
-    }
-
-    private static bool NearlyEqual(double a, double b) => Math.Abs(a - b) <= 0.001;
-
-    // The Dutch problem translators build their message from these parameters by index, so every failure
-    // must carry the exact parameters its translator expects - translating a failure without them throws.
-    private static void AddFailure(
-        ValidationContext<CreateOutlinedRoadSegmentV2Parameters> ctx,
-        string propertyName,
-        ProblemCode code,
-        params ProblemParameter[] parameters)
-    {
-        ctx.AddFailure(new ValidationFailure(propertyName, code.ToString())
-        {
-            ErrorCode = code.ToString(),
-            CustomState = parameters
-        });
     }
 
     private bool BeKnownOrganization(string code)

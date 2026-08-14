@@ -30,6 +30,7 @@ using RoadRegistry.Extensions;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ValueObjects.ProblemCodes;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using GeometryExtensions = Be.Vlaanderen.Basisregisters.GrAr.Common.NetTopology.GeometryExtensions;
@@ -161,6 +162,19 @@ public partial class RoadSegmentsController
             StreetName = ParseRequired(parameters.Straatnaam, "straatnaam", failures, items => ParseStreetName(items, "straatnaam", failures)),
             MaintenanceAuthority = ParseRequired(parameters.Wegbeheerder, "wegbeheerder", failures, items => ParseMaintenanceAuthority(items, "wegbeheerder", failures))
         };
+
+        // The new geometry travels with the request, so the attribute positions can be validated against its length,
+        // exactly like on the create outline endpoint.
+        var geometryLength = geometry is null ? (double?)null : geometry.Value.Length.RoundToCm();
+        ValidateAttributePositions(parameters.Morfologie, "morfologie", geometryLength, ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes, failures);
+        ValidateAttributePositions(parameters.Wegverharding, "wegverharding", geometryLength, ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes, failures);
+        ValidateAttributePositions(parameters.Toegang, "toegang", geometryLength, ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes, failures);
+        ValidateAttributePositions(parameters.Wegcategorie, "wegcategorie", geometryLength, ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes, failures);
+        ValidateAttributePositions(parameters.VerkeerstypeAuto, "verkeerstypeAuto", geometryLength, ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes, failures);
+        ValidateAttributePositions(parameters.VerkeerstypeFiets, "verkeerstypeFiets", geometryLength, ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes, failures);
+        ValidateAttributePositions(parameters.VerkeerstypeVoetganger, "verkeerstypeVoetganger", geometryLength, ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes, failures);
+        ValidateSidedAttributePositions(parameters.Straatnaam, x => x.Kant, "straatnaam", geometryLength, ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes, failures);
+        ValidateSidedAttributePositions(parameters.Wegbeheerder, x => x.Kant, "wegbeheerder", geometryLength, ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes, failures);
 
         if (failures.Count > 0)
         {

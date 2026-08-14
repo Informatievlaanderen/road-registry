@@ -24,6 +24,11 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode NotCompletedInwinning = new("RoadSegmentNotCompletedInwinning");
         public static readonly ProblemCode MeasuredNotAllowed = new("RoadSegmentMeasuredNotAllowed");
 
+        public static class AttributeSide
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentAttributeSideNotValid");
+        }
+
         public static class AccessRestriction
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentAccessRestrictionNotValid");
