@@ -1,3 +1,11 @@
+## [5.10.1](https://github.com/informatievlaanderen/road-registry/compare/v5.10.0...v5.10.1) (2026-08-14)
+
+
+### Bug Fixes
+
+* **2.0:** include problem parameters when position validation fails in v2 roadsegment outline endpoint ([87aac33](https://github.com/informatievlaanderen/road-registry/commit/87aac33d1c5ee0775ae4b80aefbf029db1296234))
+* **2.0:** validate attribute position coverage on the v2 change attributes and change geometry endpoints ([2e353f8](https://github.com/informatievlaanderen/road-registry/commit/2e353f877a6c1d58629d5a275acde67de2319ca4))
+
 # [5.10.0](https://github.com/informatievlaanderen/road-registry/compare/v5.9.2...v5.10.0) (2026-08-14)
 
 
