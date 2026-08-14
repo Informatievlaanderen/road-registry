@@ -23,7 +23,7 @@ public partial class ScopedRoadNetwork
 
     // 'Wijzig geometriemethode': only the draw method of the named segments changes. The geometry itself is never
     // touched, so the topology stays what it is: no spatial indexes to rebuild and no network-wide verification
-    // needed. The statuses are validated up front: the whole request is rejected when any of the segments is not
+    // needed. Everything is validated up front: the whole request is rejected when any of the segments is not
     // editable, so a request never lands half-applied.
     public RoadNetworkChangeResult ChangeRoadSegmentGeometryDrawMethod(
         IReadOnlyCollection<ChangeRoadSegmentGeometryDrawMethodChange> changes,
@@ -43,13 +43,22 @@ public partial class ScopedRoadNetwork
 
         foreach (var change in changes)
         {
-            // The draw method sits on the segment's attributes, so the change rides the generic road segment
-            // modification with everything else left null and thereby untouched.
-            problems += ModifyRoadSegment(new ModifyRoadSegmentChange
+            // Validated above, but the lookup stands on its own: an identifier that slipped through is still a
+            // not-found, never a crash.
+            if (!_roadSegments.TryGetValue(change.RoadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
             {
-                RoadSegmentIdReference = new RoadSegmentIdReference(change.RoadSegmentId),
-                GeometryDrawMethod = change.GeometryDrawMethod
-            }, context);
+                problems += Problems.WithContext(change.RoadSegmentId) + new RoadSegmentNotFound();
+                continue;
+            }
+
+            roadSegment.ChangeGeometryDrawMethod(change.GeometryDrawMethod, context);
+
+            // A segment already carrying the desired draw method records nothing, and only what actually changed
+            // belongs in the summary.
+            if (roadSegment.GetRecordedChanges().Count > 0)
+            {
+                context.Summary.RoadSegments.Modified.Add(roadSegment.RoadSegmentId);
+            }
         }
 
         if (!problems.HasError() && context.Summary.HasChanges())
@@ -60,21 +69,22 @@ public partial class ScopedRoadNetwork
         return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), context.Summary);
     }
 
-    // A segment that cannot be found is left to ModifyRoadSegment, which reports it as not found.
     private Problems ValidateGeometryDrawMethodRoadSegments(IReadOnlyCollection<ChangeRoadSegmentGeometryDrawMethodChange> changes)
     {
         var problems = Problems.None;
 
         foreach (var change in changes)
         {
-            if (!_roadSegments.TryGetValue(change.RoadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
-            {
-                continue;
-            }
-
             // Everything reported below is about this one road segment, so it is collected under its context: every
             // error then identifies the segment the same way, whatever it is about.
             var roadSegmentProblems = Problems.WithContext(change.RoadSegmentId);
+
+            // VAL-4, VAL-5
+            if (!_roadSegments.TryGetValue(change.RoadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
+            {
+                problems += roadSegmentProblems + new RoadSegmentNotFound();
+                continue;
+            }
 
             // A segment that has not completed its inwinning carries no attributes to change the draw method on.
             if (!roadSegment.HasMigrated())

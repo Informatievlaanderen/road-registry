@@ -62,10 +62,9 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
-    public void WhenGeometryDrawMethodIsChanged_ThenTheEventCarriesOnlyTheDrawMethod()
+    public void WhenGeometryDrawMethodIsChanged_ThenADedicatedEventIsEmitted()
     {
-        // The change rides the generic road segment modification, so everything it does not name has to stay null:
-        // the event says what changed, not what the segment looks like.
+        // The change is its own action, so it records its own event rather than riding the generic modification.
         var roadNetwork = BuildNetworkWith(RoadSegmentStatusV2.Gerealiseerd);
         var geometryDrawMethod = OtherDrawMethodThan(roadNetwork);
 
@@ -73,19 +72,9 @@ public class AggregateTests : AggregateTestBase
 
         result.Problems.Should().BeEmpty();
         var @event = roadNetwork.RoadSegments[TestData.Segment1Added.RoadSegmentId].GetChanges()
-            .OfType<RoadSegmentWasModified>().Should().ContainSingle().Which;
+            .OfType<RoadSegmentGeometryDrawMethodWasChanged>().Should().ContainSingle().Which;
+        @event.RoadSegmentId.Should().Be(TestData.Segment1Added.RoadSegmentId);
         @event.GeometryDrawMethod.Should().Be(geometryDrawMethod);
-        @event.Geometry.Should().BeNull();
-        @event.Status.Should().BeNull();
-        @event.Morphology.Should().BeNull();
-        @event.SurfaceType.Should().BeNull();
-        @event.AccessRestriction.Should().BeNull();
-        @event.Category.Should().BeNull();
-        @event.StreetNameId.Should().BeNull();
-        @event.MaintenanceAuthorityId.Should().BeNull();
-        @event.CarTrafficDirection.Should().BeNull();
-        @event.BikeTrafficDirection.Should().BeNull();
-        @event.PedestrianTrafficDirection.Should().BeNull();
     }
 
     [Theory]
@@ -113,6 +102,21 @@ public class AggregateTests : AggregateTestBase
 
         result.Problems.Should().ContainSingle()
             .Which.Reason.Should().Be("RoadSegmentNotFound");
+    }
+
+    [Fact]
+    public void WhenSegmentIsRemoved_ThenNotFound()
+    {
+        // VAL-5: a removed segment answers with the same not-found as one that never existed.
+        var roadNetwork = BuildNetworkWith(RoadSegmentStatusV2.Gerealiseerd);
+        roadNetwork.RoadSegments[TestData.Segment1Added.RoadSegmentId].Remove(TestData.Provenance);
+
+        var result = roadNetwork.ChangeRoadSegmentGeometryDrawMethod(
+            [BuildChange(RoadSegmentGeometryDrawMethodV2.Ingemeten)], TestData.Provenance);
+
+        result.Problems.Should().ContainSingle()
+            .Which.Reason.Should().Be("RoadSegmentNotFound");
+        result.Summary.RoadSegments.Modified.Should().BeEmpty();
     }
 
     [Fact]

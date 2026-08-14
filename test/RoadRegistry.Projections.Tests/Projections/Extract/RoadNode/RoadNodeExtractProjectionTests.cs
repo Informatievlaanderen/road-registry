@@ -52,7 +52,7 @@ public class RoadNodeExtractProjectionTests
             typeof(RoadSegmentWasModified),
             typeof(RoadSegmentWasRealizedFromPlanned),
             typeof(RoadSegmentWasCorrectedFromRealizedToPlanned),
-            typeof(RoadSegmentStreetNameIdWasChanged),
+            typeof(RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentGeometryDrawMethodWasChanged),
             typeof(RoadSegmentGeometryWasModified),
             typeof(RoadSegmentWasMerged),
             typeof(RoadSegmentWasMigrated),
