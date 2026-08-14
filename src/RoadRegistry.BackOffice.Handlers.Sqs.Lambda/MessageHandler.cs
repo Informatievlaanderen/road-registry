@@ -14,6 +14,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CreateRoadSegmentOutli
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.DataValidation;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentAttributes;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentGeometry;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentGeometryDrawMethod;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.LinkRoadSegmentsToStreetNameIds;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateDryRunRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
@@ -85,6 +86,7 @@ public sealed class MessageHandler : BlobMessageHandler
             SplitRoadSegmentsByJunctionSqsRequest request => new SplitRoadSegmentsByJunctionSqsLambdaRequest(groupId, request),
             ChangeRoadSegmentAttributesV2SqsRequest request => new ChangeRoadSegmentAttributesV2SqsLambdaRequest(groupId, request),
             ChangeRoadSegmentGeometryV2SqsRequest request => new ChangeRoadSegmentGeometryV2SqsLambdaRequest(groupId, request),
+            ChangeRoadSegmentGeometryDrawMethodV2SqsRequest request => new ChangeRoadSegmentGeometryDrawMethodV2SqsLambdaRequest(groupId, request),
             ChangeRoadSegmentFromPlannedToRealizedV2SqsRequest request => new ChangeRoadSegmentFromPlannedToRealizedV2SqsLambdaRequest(groupId, request),
             CorrectRoadSegmentFromRealizedToPlannedV2SqsRequest request => new CorrectRoadSegmentFromRealizedToPlannedV2SqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(

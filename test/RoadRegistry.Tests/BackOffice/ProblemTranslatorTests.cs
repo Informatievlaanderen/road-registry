@@ -238,6 +238,11 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadSegment.ChangeGeometryDrawMethod.StatusNotValid, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
                 ProblemCode.RoadSegment.ChangeGeometry.StatusNotValid, [
                     new ProblemParameter("WegsegmentId", "1")
                 ]
