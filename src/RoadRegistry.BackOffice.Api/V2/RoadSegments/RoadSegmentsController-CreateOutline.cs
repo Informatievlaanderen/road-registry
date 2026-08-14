@@ -698,34 +698,48 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
             {
                 if (!NearlyEqual(from, 0.0))
                 {
-                    AddFailure(ctx, propertyName, codes.FromPositionNotEqualToZero);
+                    AddFailure(ctx, propertyName, codes.FromPositionNotEqualToZero,
+                        new ProblemParameter("FromPosition", from.ToRoundedMeasurementString()));
                     return;
                 }
             }
             else if (!NearlyEqual(from, previousTo.Value))
             {
-                AddFailure(ctx, propertyName, codes.NotAdjacent);
+                AddFailure(ctx, propertyName, codes.NotAdjacent,
+                    new ProblemParameter("FromPosition", from.ToRoundedMeasurementString()),
+                    new ProblemParameter("ToPosition", previousTo.Value.ToRoundedMeasurementString()));
                 return;
             }
 
             if (to - from < 1.0)
-                AddFailure(ctx, propertyName, codes.HasLengthOfZero);
+                AddFailure(ctx, propertyName, codes.HasLengthOfZero,
+                    new ProblemParameter("FromPosition", from.ToRoundedMeasurementString()),
+                    new ProblemParameter("ToPosition", to.ToRoundedMeasurementString()));
 
             previousTo = to;
         }
 
         if (previousTo is not null && !NearlyEqual(previousTo.Value, geometryLength))
-            AddFailure(ctx, propertyName, codes.ToPositionNotEqualToLength);
+            AddFailure(ctx, propertyName, codes.ToPositionNotEqualToLength,
+                new ProblemParameter("ToPosition", previousTo.Value.ToRoundedMeasurementString()),
+                new ProblemParameter("Length", geometryLength.ToRoundedMeasurementString()));
     }
 
     private static bool NearlyEqual(double a, double b) => Math.Abs(a - b) <= 0.001;
 
+    // The Dutch problem translators build their message from these parameters by index, so every failure
+    // must carry the exact parameters its translator expects - translating a failure without them throws.
     private static void AddFailure(
         ValidationContext<CreateOutlinedRoadSegmentV2Parameters> ctx,
         string propertyName,
-        ProblemCode code)
+        ProblemCode code,
+        params ProblemParameter[] parameters)
     {
-        ctx.AddFailure(new ValidationFailure(propertyName, code.ToString()) { ErrorCode = code.ToString() });
+        ctx.AddFailure(new ValidationFailure(propertyName, code.ToString())
+        {
+            ErrorCode = code.ToString(),
+            CustomState = parameters
+        });
     }
 
     private bool BeKnownOrganization(string code)
