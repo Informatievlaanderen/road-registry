@@ -1,3 +1,16 @@
+# [5.10.0](https://github.com/informatievlaanderen/road-registry/compare/v5.9.2...v5.10.0) (2026-08-14)
+
+
+### Bug Fixes
+
+* **2.0:** detach road segment from its nodes when modify leaves realized status ([33bb8b4](https://github.com/informatievlaanderen/road-registry/commit/33bb8b497503cad6b80b0aa4ed4f1730fc9d7ae9))
+* **2.0:** store NULL for road segments without nodes in the topology projection + added rebuild projection endpoints ([4c6b4bc](https://github.com/informatievlaanderen/road-registry/commit/4c6b4bc5395cc66d499d21cbdb20752013d7f055))
+
+
+### Features
+
+* **2.0:** correct a realized roadsegment back to planned ([f6db746](https://github.com/informatievlaanderen/road-registry/commit/f6db74654bacb1a5e41f3338c1ec89f721850175))
+
 ## [5.9.2](https://github.com/informatievlaanderen/road-registry/compare/v5.9.1...v5.9.2) (2026-08-11)
 
 
