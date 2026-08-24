@@ -1,3 +1,10 @@
+## [5.10.2](https://github.com/informatievlaanderen/road-registry/compare/v5.10.1...v5.10.2) (2026-08-24)
+
+
+### Bug Fixes
+
+* **2.0:** widen the change-geometry scope to segments near the new geometry ([bc2fe65](https://github.com/informatievlaanderen/road-registry/commit/bc2fe650536654cdf4f6171d0484168f68e9d063))
+
 ## [5.10.1](https://github.com/informatievlaanderen/road-registry/compare/v5.10.0...v5.10.1) (2026-08-14)
 
 
