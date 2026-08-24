@@ -74,6 +74,11 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadNode.NotCompletedInwinning, [
+                    new ProblemParameter { Name = "WegknoopId", Value = "1" }
+                ]
+            },
+            {
                 ProblemCode.RoadNode.IsNotAllowed, [
                     new ProblemParameter { Name = "WegknoopId", Value = "1" }
                 ]

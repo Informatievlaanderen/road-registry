@@ -647,6 +647,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"Er werd geen wegknoop gevonden binnen een straal van ≤{problem.GetParameterValue("MaximumDistance")}m van het start- en/of eindpunt van het wegsegment.")
             },
             {
+                ProblemCode.RoadNode.NotCompletedInwinning, problem => new(problem.Severity, "WegknoopInwinningsstatusNietCompleet",
+                    $"De wegknoop met {GetRoadNodeIdLabel(problem)} heeft niet de inwinningsstatus 'compleet'.")
+            },
+            {
                 ProblemCode.RoadSegment.ChangeGeometry.PointTooCloseToRoadNode, problem => new(problem.Severity, "WegsegmentGeometriePuntTeDichtBijWegknoop",
                     $"Het start- of eindpunt van het wegsegment met {GetRoadSegmentIdLabel(problem)} ligt te dicht (<{problem.GetParameterValue("MinimumDistance")}m) bij wegknoop {problem.GetParameterValue("RoadNodeId")}.")
             },

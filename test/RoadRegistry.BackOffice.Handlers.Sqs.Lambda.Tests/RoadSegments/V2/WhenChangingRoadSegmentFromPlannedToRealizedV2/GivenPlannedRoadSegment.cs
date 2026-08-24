@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.V2.WhenChangingRoadSegmentFromPlannedToRealizedV2;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.V2.WhenChangingRoadSegmentFromPlannedToRealizedV2;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -94,6 +94,20 @@ public class GivenPlannedRoadSegment : BackOfficeLambdaTest
     }
 
     [Fact]
+    public async Task WhenTheRoadNodeInReachHasNotCompletedItsInwinning_ThenTicketError()
+    {
+        // A V1 node carries no type and still sits on the coordinate it was imported with, which is more precise than
+        // the centimetre the register works in. Snapping onto it cannot produce a segment that agrees with it on where
+        // it is, so it is refused rather than knotted onto.
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+
+        await HandleRequest(store, ExtractsDbContextWith(inwinningCompleted: true), deadEndNodeIsMigrated: false);
+
+        VerifyThatTicketHasError("WegknoopInwinningsstatusNietCompleet",
+            "De wegknoop met id 11 heeft niet de inwinningsstatus 'compleet'.");
+    }
+
+    [Fact]
     public async Task WhenTheInwinningIsNotCompleted_ThenTicketError()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
@@ -171,9 +185,10 @@ public class GivenPlannedRoadSegment : BackOfficeLambdaTest
         RoadSegmentGeometryDrawMethodV2? plannedDrawMethod = null,
         bool mayModifyMeasuredRoadSegments = true,
         bool seedTheRoadSegment = true,
-        double plannedStartOffset = 0)
+        double plannedStartOffset = 0,
+        bool deadEndNodeIsMigrated = true)
     {
-        var (nodes, segments) = BuildNetwork(plannedStatus, plannedDrawMethod, seedTheRoadSegment, plannedStartOffset);
+        var (nodes, segments) = BuildNetwork(plannedStatus, plannedDrawMethod, seedTheRoadSegment, plannedStartOffset, deadEndNodeIsMigrated);
 
         // The handler reads the road segment straight from the store to work out what to scope on, so the network has
         // to be there as well as in the repository.
@@ -217,10 +232,12 @@ public class GivenPlannedRoadSegment : BackOfficeLambdaTest
         RoadSegmentStatusV2? plannedStatus,
         RoadSegmentGeometryDrawMethodV2? plannedDrawMethod,
         bool includeThePlannedRoadSegment,
-        double plannedStartOffset)
+        double plannedStartOffset,
+        bool deadEndNodeIsMigrated)
     {
         var westNode = BuildNode(10, 0, 0, RoadNodeTypeV2.Eindknoop);
-        var deadEndNode = BuildNode(11, 100, 0, RoadNodeTypeV2.Eindknoop);
+        // A node that has not completed its inwinning carries no type - that is what HasMigrated() reads.
+        var deadEndNode = BuildNode(11, 100, 0, deadEndNodeIsMigrated ? RoadNodeTypeV2.Eindknoop : null);
 
         RoadNodeWasAdded[] nodes = [westNode, deadEndNode];
         RoadSegmentWasAdded[] segments =
@@ -237,7 +254,7 @@ public class GivenPlannedRoadSegment : BackOfficeLambdaTest
             segments.Select(x => RoadSegment.Create(x).WithoutChanges()).ToArray());
     }
 
-    private RoadNodeWasAdded BuildNode(int id, double x, double y, RoadNodeTypeV2 type)
+    private RoadNodeWasAdded BuildNode(int id, double x, double y, RoadNodeTypeV2? type)
     {
         return new RoadNodeWasAdded
         {
