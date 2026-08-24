@@ -300,7 +300,7 @@ public partial class ProjectionsController
     // Truncates every table in the model - so a newly added table is wiped automatically - except the
     // projection-state row (deleted by name, it is the SQL-side idempotency position that would otherwise make
     // the restarted projection skip every replayed event) and whatever the caller excludes.
-    private static async Task TruncateProjectionTables<TContext>(
+    private async Task TruncateProjectionTables<TContext>(
         TContext context,
         string projectionName,
         Func<Type, bool>? excludeEntity,
@@ -323,6 +323,7 @@ public partial class ProjectionsController
 
             var schema = entityType.GetSchema();
             var qualifiedName = schema is null ? $"[{table}]" : $"[{schema}].[{table}]";
+            _logger.LogInformation("Rebuilding {ProjectionName}: truncating table {Table}.", projectionName, qualifiedName);
             await context.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE {qualifiedName};", cancellationToken);
         }
 
