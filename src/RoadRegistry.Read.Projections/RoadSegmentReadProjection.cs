@@ -583,6 +583,13 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
                 segment.StreetNameId = await BuildStreetNameAttribute(session, e.Data.StreetNameId, ct);
             }, e.Data, ct);
         });
+        When<IEvent<RoadSegmentGeometryDrawMethodWasChanged>>((session, e, ct) =>
+        {
+            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
+            {
+                segment.GeometryDrawMethod = e.Data.GeometryDrawMethod.ToString();
+            }, e.Data, ct);
+        });
 
         // StreetName: keep the denormalized labels on linked road segments in sync.
         When<IEvent<StreetNameWasCreated>>((session, e, ct) => UpdateStreetNameLabels(session, e.Data.StreetNameId, e.Data.DutchName, ct));

@@ -344,6 +344,11 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode StatusNotValid = new("RoadSegmentChangeAttributesStatusNotValid");
         }
 
+        public static class ChangeGeometryDrawMethod
+        {
+            public static readonly ProblemCode StatusNotValid = new("RoadSegmentChangeGeometryDrawMethodStatusNotValid");
+        }
+
         public static class ChangeGeometry
         {
             public static readonly ProblemCode StatusNotValid = new("RoadSegmentChangeGeometryStatusNotValid");

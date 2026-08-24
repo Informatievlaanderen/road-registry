@@ -226,6 +226,13 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
                 m.StreetNameId, null, null, null, null, m.Provenance, ct);
         });
 
+        When<IEvent<RoadSegmentGeometryDrawMethodWasChanged>>(async (context, e, ct) =>
+        {
+            var m = e.Data;
+            await WritePartial(context, m.RoadSegmentId.ToInt32(), null, null, m.GeometryDrawMethod, null, null, null,
+                null, null, null, null, null, null, null, m.Provenance, ct);
+        });
+
         When<IEvent<RoadSegmentWasSplit>>(async (context, e, ct) =>
         {
             var m = e.Data;

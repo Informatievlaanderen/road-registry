@@ -51,7 +51,7 @@ public class GradeJunctionPbsProjectionTests
             typeof(RoadSegmentV1.RoadSegmentRemovedFromNumberedRoad), typeof(RoadSegmentV1.RoadSegmentStreetNamesChanged),
             // RoadSegment V2
             typeof(RoadSegmentV2.OutlinedRoadSegmentWasAdded), typeof(RoadSegmentV2.RoadSegmentGeometryWasModified),
-            typeof(RoadSegmentV2.RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentV2.RoadSegmentWasAdded),
+            typeof(RoadSegmentV2.RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentV2.RoadSegmentGeometryDrawMethodWasChanged), typeof(RoadSegmentV2.RoadSegmentWasAdded),
             typeof(RoadSegmentV2.RoadSegmentWasAddedToEuropeanRoad), typeof(RoadSegmentV2.RoadSegmentWasAddedToNationalRoad),
             typeof(RoadSegmentV2.RoadSegmentWasMerged), typeof(RoadSegmentV2.RoadSegmentWasMigrated),
             typeof(RoadSegmentV2.RoadSegmentWasModified), typeof(RoadSegmentV2.RoadSegmentWasRealizedFromPlanned),
