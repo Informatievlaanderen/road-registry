@@ -325,6 +325,10 @@ public partial class RoadNetworkTopologyProjection
     {
         // Do nothing
     }
+    public void Project(IEvent<RoadSegmentGeometryDrawMethodWasChanged> e, IDocumentOperations ops)
+    {
+        // Do nothing
+    }
     public void Project(IEvent<StreetNameWasRemoved> e, IDocumentOperations ops)
     {
         // Do nothing
