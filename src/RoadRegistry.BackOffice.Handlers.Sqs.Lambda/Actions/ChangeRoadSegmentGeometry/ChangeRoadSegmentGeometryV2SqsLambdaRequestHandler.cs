@@ -6,6 +6,8 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Marten;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
@@ -86,15 +88,22 @@ public sealed class ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler : MartenS
         {
             var problems = Problems.None;
 
-            // Road nodes are sticky, so the segments connected to this one through its start and end node are part of
-            // the change and have to be in scope even though the request does not mention them.
-            var connectedIds = await _roadNetworkRepository.GetUnderlyingIdsWithConnectedSegments(session, [command.RoadSegmentId]);
+            var roadSegment = await session.LoadAsync(command.RoadSegmentId, cancellationToken);
+            if (roadSegment is null)
+            {
+                var roadSegmentContext = Problems.WithContext(command.RoadSegmentId);
+                throw new RoadRegistryProblemsException(roadSegmentContext + new RoadSegmentNotFound());
+            }
 
-            // A segment the new geometry runs into shares no road node with it, so it is not in the set above and the
-            // crossing it makes would go unnoticed. Scoping on the new geometry brings it in. The other direction - a
-            // crossing that disappears - is covered by the junction ids: those resolve back to the segment on the far
-            // side of every junction this one takes part in, so a junction left behind is still seen and removed.
-            var ids = await _roadNetworkRepository.GetUnderlyingIds(session, command.Geometry.Value, connectedIds);
+            // Unioned rather than collected into a multi polygon: the two buffers overlap around the road nodes the
+            // geometry keeps, and a multi polygon whose parts overlap is invalid - every overlay operation on it, here
+            // and in PostGIS, throws a side location conflict. The union is a single polygon when they meet and a
+            // valid multi polygon when they do not.
+            var lineStringBuffer = Distances.RoadSegmentChangeGeometryMinimumDistanceToRoadNode + 0.5 /*buffer to get connected segments*/;
+            var geometry = roadSegment.Geometry.Value.Buffer(lineStringBuffer)
+                .Union(command.Geometry.Value.Buffer(lineStringBuffer))
+                .WithSrid(roadSegment.Geometry.SRID);
+            var ids = await _roadNetworkRepository.GetUnderlyingIds(session, geometry);
             var roadNetwork = await _roadNetworkRepository.Load(session, ids, scopedRoadNetworkId);
 
             // The street name and the maintenance authority live outside the road network, so they are validated here
