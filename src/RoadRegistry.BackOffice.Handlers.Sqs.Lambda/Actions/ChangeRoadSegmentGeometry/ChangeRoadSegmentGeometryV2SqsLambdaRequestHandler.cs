@@ -95,12 +95,14 @@ public sealed class ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler : MartenS
                 throw new RoadRegistryProblemsException(roadSegmentContext + new RoadSegmentNotFound());
             }
 
+            // Unioned rather than collected into a multi polygon: the two buffers overlap around the road nodes the
+            // geometry keeps, and a multi polygon whose parts overlap is invalid - every overlay operation on it, here
+            // and in PostGIS, throws a side location conflict. The union is a single polygon when they meet and a
+            // valid multi polygon when they do not.
             var lineStringBuffer = Distances.RoadSegmentChangeGeometryMinimumDistanceToRoadNode + 0.5 /*buffer to get connected segments*/;
-            var geometry = roadSegment.Geometry.Value.Factory.CreateMultiPolygon(
-                    roadSegment.Geometry.Value.Buffer(lineStringBuffer).ToMultiPolygon().Geometries.Cast<Polygon>()
-                        .Concat(command.Geometry.Value.Buffer(lineStringBuffer).ToMultiPolygon().Geometries.Cast<Polygon>())
-                        .ToArray()
-                ).WithSrid(roadSegment.Geometry.SRID);
+            var geometry = roadSegment.Geometry.Value.Buffer(lineStringBuffer)
+                .Union(command.Geometry.Value.Buffer(lineStringBuffer))
+                .WithSrid(roadSegment.Geometry.SRID);
             var ids = await _roadNetworkRepository.GetUnderlyingIds(session, geometry);
             var roadNetwork = await _roadNetworkRepository.Load(session, ids, scopedRoadNetworkId);
 
