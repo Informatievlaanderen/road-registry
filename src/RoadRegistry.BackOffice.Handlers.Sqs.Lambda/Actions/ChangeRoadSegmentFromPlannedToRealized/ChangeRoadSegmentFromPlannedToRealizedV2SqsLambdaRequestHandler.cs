@@ -80,7 +80,7 @@ public sealed class ChangeRoadSegmentFromPlannedToRealizedV2SqsLambdaRequestHand
                 throw new RoadRegistryProblemsException(roadSegmentContext + new RoadSegmentNotFound());
             }
 
-            var geometry = roadSegment.Geometry.Value.Buffer(Distances.RoadSegmentRealizeMaximumDistanceToRoadNode + 0.5 /*buffer to get connected segments*/).ConvexHull();
+            var geometry = roadSegment.Geometry.Value.Buffer(Distances.RoadSegmentRealizeMaximumDistanceToRoadNode + 0.5 /*buffer to get connected segments*/);
             var ids = await _roadNetworkRepository.GetUnderlyingIds(session, geometry);
             var roadNetwork = await _roadNetworkRepository.Load(session, ids, scopedRoadNetworkId);
 
