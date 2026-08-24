@@ -91,6 +91,20 @@ public partial class ScopedRoadNetwork
                 context);
         }
 
+        // A road node that has not completed its inwinning is still a V1 node: it carries no type, and it sits on the
+        // coordinate it was imported with, which is more precise than the centimetre this register works in. Snapping
+        // onto it would either move the segment off the centimetre grid or, once the geometry is rounded, off the node
+        // itself - and the segment would then fail to resolve the very node it snapped to. It is not ours to knot onto
+        // until it has been migrated.
+        foreach (var roadNode in new[] { startNode, endNode }.Where(x => x is not null && !x.HasMigrated()))
+        {
+            problems += new RoadNodeNotCompletedInwinning(roadNode!.RoadNodeId);
+        }
+        if (problems.HasError())
+        {
+            return Failed(problems, context);
+        }
+
         // Snapping replaces the endpoint vertex with the node it snapped to; every other vertex stays where it is.
         var snappedGeometry = SnapEndpointsTo(roadSegment.Geometry, startNode, endNode);
 
