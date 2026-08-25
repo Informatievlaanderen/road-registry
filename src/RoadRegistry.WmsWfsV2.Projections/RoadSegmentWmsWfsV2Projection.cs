@@ -1,4 +1,4 @@
-namespace RoadRegistry.WmsWfsV2.Projections;
+﻿namespace RoadRegistry.WmsWfsV2.Projections;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +14,7 @@ using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using Schema;
 using Schema.Records;
+using RoadRegistry.BackOffice.Extensions;
 
 public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context>
 {
@@ -113,7 +114,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         {
             var segId = e.Data.RoadSegmentId;
             var nummer = EuropeanRoadNumber.Parse(e.Data.Number).ToString();
-            if (!await context.EuropeanRoads.AnyAsync(x => x.WS_OIDN == segId && x.EUNUMMER == nummer, ct))
+            if (!await context.EuropeanRoads.IncludeLocalAnyAsync(x => x.WS_OIDN == segId && x.EUNUMMER == nummer, ct))
             {
                 context.EuropeanRoads.Add(new EuropeanRoadRecord { WS_OIDN = segId, EUNUMMER = nummer, CREATIE = e.Data.Provenance.Timestamp.ToDateTimeOffset(), VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset() });
             }
@@ -123,7 +124,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         {
             var segId = e.Data.RoadSegmentId;
             var nummer = EuropeanRoadNumber.Parse(e.Data.Number).ToString();
-            var rows = await context.EuropeanRoads.Where(x => x.WS_OIDN == segId && x.EUNUMMER == nummer).ToListAsync(ct);
+            var rows = await context.EuropeanRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId && x.EUNUMMER == nummer), ct);
             context.EuropeanRoads.RemoveRange(rows);
             await RefreshDerivedEuropeanNumbers(context, segId, null, nummer, ct);
         });
@@ -131,7 +132,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         {
             var segId = e.Data.RoadSegmentId;
             var nummer = NationalRoadNumber.Parse(e.Data.Number).ToString();
-            if (!await context.NationalRoads.AnyAsync(x => x.WS_OIDN == segId && x.NWNUMMER == nummer, ct))
+            if (!await context.NationalRoads.IncludeLocalAnyAsync(x => x.WS_OIDN == segId && x.NWNUMMER == nummer, ct))
             {
                 context.NationalRoads.Add(new NationalRoadRecord { WS_OIDN = segId, NWNUMMER = nummer, CREATIE = e.Data.Provenance.Timestamp.ToDateTimeOffset(), VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset() });
             }
@@ -141,7 +142,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         {
             var segId = e.Data.RoadSegmentId;
             var nummer = NationalRoadNumber.Parse(e.Data.Number).ToString();
-            var rows = await context.NationalRoads.Where(x => x.WS_OIDN == segId && x.NWNUMMER == nummer).ToListAsync(ct);
+            var rows = await context.NationalRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId && x.NWNUMMER == nummer), ct);
             context.NationalRoads.RemoveRange(rows);
             await RefreshDerivedNationalNumbers(context, segId, null, nummer, ct);
         });
@@ -262,7 +263,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         {
             var segId = e.Data.RoadSegmentId.ToInt32();
             var nummer = e.Data.Number.ToString();
-            if (!await context.EuropeanRoads.AnyAsync(x => x.WS_OIDN == segId && x.EUNUMMER == nummer, ct))
+            if (!await context.EuropeanRoads.IncludeLocalAnyAsync(x => x.WS_OIDN == segId && x.EUNUMMER == nummer, ct))
             {
                 context.EuropeanRoads.Add(new EuropeanRoadRecord { WS_OIDN = segId, EUNUMMER = nummer, CREATIE = e.Data.Provenance.Timestamp.ToDateTimeOffset(), VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset() });
             }
@@ -272,7 +273,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         {
             var segId = e.Data.RoadSegmentId.ToInt32();
             var nummer = e.Data.Number.ToString();
-            var rows = await context.EuropeanRoads.Where(x => x.WS_OIDN == segId && x.EUNUMMER == nummer).ToListAsync(ct);
+            var rows = await context.EuropeanRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId && x.EUNUMMER == nummer), ct);
             context.EuropeanRoads.RemoveRange(rows);
             await RefreshDerivedEuropeanNumbers(context, segId, null, nummer, ct);
         });
@@ -280,7 +281,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         {
             var segId = e.Data.RoadSegmentId.ToInt32();
             var nummer = e.Data.Number.ToString();
-            if (!await context.NationalRoads.AnyAsync(x => x.WS_OIDN == segId && x.NWNUMMER == nummer, ct))
+            if (!await context.NationalRoads.IncludeLocalAnyAsync(x => x.WS_OIDN == segId && x.NWNUMMER == nummer, ct))
             {
                 context.NationalRoads.Add(new NationalRoadRecord { WS_OIDN = segId, NWNUMMER = nummer, CREATIE = e.Data.Provenance.Timestamp.ToDateTimeOffset(), VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset() });
             }
@@ -290,7 +291,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         {
             var segId = e.Data.RoadSegmentId.ToInt32();
             var nummer = e.Data.Number.ToString();
-            var rows = await context.NationalRoads.Where(x => x.WS_OIDN == segId && x.NWNUMMER == nummer).ToListAsync(ct);
+            var rows = await context.NationalRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId && x.NWNUMMER == nummer), ct);
             context.NationalRoads.RemoveRange(rows);
             await RefreshDerivedNationalNumbers(context, segId, null, nummer, ct);
         });
@@ -412,8 +413,8 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         }
 
         // Road numbers are not carried by the partial events, so keep the stored aggregate from the road tables.
-        var euNummers = AggregateRoadNumbers(await context.EuropeanRoads.Where(x => x.WS_OIDN == segId).Select(x => x.EUNUMMER).ToListAsync(ct));
-        var nwNummers = AggregateRoadNumbers(await context.NationalRoads.Where(x => x.WS_OIDN == segId).Select(x => x.NWNUMMER).ToListAsync(ct));
+        var euNummers = AggregateRoadNumbers((await context.EuropeanRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct)).Select(x => x.EUNUMMER).ToList());
+        var nwNummers = AggregateRoadNumbers((await context.NationalRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct)).Select(x => x.NWNUMMER).ToList());
         await RebuildDerived(context, segId, normal, euNummers, nwNummers, false, ct);
     }
 
@@ -429,7 +430,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
     {
         if (!assumeNew)
         {
-            context.DerivedRoadSegments.RemoveRange(await context.DerivedRoadSegments.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
+            context.DerivedRoadSegments.RemoveRange(await context.DerivedRoadSegments.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct));
         }
         if (normal.GEOMETRIE is null)
         {
@@ -501,7 +502,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
 
     private static async Task SetDerivedEuNummer(WmsWfsV2Context c, int segId, string? value, CancellationToken ct)
     {
-        foreach (var d in await c.DerivedRoadSegments.Where(x => x.WS_OIDN == segId).ToListAsync(ct))
+        foreach (var d in await c.DerivedRoadSegments.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct))
         {
             d.EUNUMMERS = value;
         }
@@ -509,7 +510,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
 
     private static async Task SetDerivedNwNummer(WmsWfsV2Context c, int segId, string? value, CancellationToken ct)
     {
-        foreach (var d in await c.DerivedRoadSegments.Where(x => x.WS_OIDN == segId).ToListAsync(ct))
+        foreach (var d in await c.DerivedRoadSegments.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct))
         {
             d.NWNUMMERS = value;
         }
@@ -519,10 +520,10 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
     // so it is folded into the queried set explicitly (add) or filtered out (remove).
     private static async Task RefreshDerivedEuropeanNumbers(WmsWfsV2Context c, int segId, string? added, string? removed, CancellationToken ct)
     {
-        var numbers = await c.EuropeanRoads
-            .Where(x => x.WS_OIDN == segId && (removed == null || x.EUNUMMER != removed))
+        var numbers = (await c.EuropeanRoads
+                .IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId && (removed == null || x.EUNUMMER != removed)), ct))
             .Select(x => x.EUNUMMER)
-            .ToListAsync(ct);
+            .ToList();
         if (added != null)
         {
             numbers.Add(added);
@@ -532,10 +533,10 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
 
     private static async Task RefreshDerivedNationalNumbers(WmsWfsV2Context c, int segId, string? added, string? removed, CancellationToken ct)
     {
-        var numbers = await c.NationalRoads
-            .Where(x => x.WS_OIDN == segId && (removed == null || x.NWNUMMER != removed))
+        var numbers = (await c.NationalRoads
+                .IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId && (removed == null || x.NWNUMMER != removed)), ct))
             .Select(x => x.NWNUMMER)
-            .ToListAsync(ct);
+            .ToList();
         if (added != null)
         {
             numbers.Add(added);
@@ -550,9 +551,9 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         {
             context.RoadSegments.Remove(normal);
         }
-        context.DerivedRoadSegments.RemoveRange(await context.DerivedRoadSegments.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        context.EuropeanRoads.RemoveRange(await context.EuropeanRoads.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
-        context.NationalRoads.RemoveRange(await context.NationalRoads.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
+        context.DerivedRoadSegments.RemoveRange(await context.DerivedRoadSegments.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct));
+        context.EuropeanRoads.RemoveRange(await context.EuropeanRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct));
+        context.NationalRoads.RemoveRange(await context.NationalRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct));
     }
 
     // The dynamic-attribute builders are pure: they turn the event's per-position values into the staging lists that go
@@ -588,7 +589,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
     {
         if (!assumeNew)
         {
-            c.EuropeanRoads.RemoveRange(await c.EuropeanRoads.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
+            c.EuropeanRoads.RemoveRange(await c.EuropeanRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct));
         }
         foreach (var number in numbers)
             c.EuropeanRoads.Add(new EuropeanRoadRecord { WS_OIDN = segId, EUNUMMER = number.ToString(), CREATIE = provenance.Timestamp.ToDateTimeOffset(), VERSIE = provenance.Timestamp.ToDateTimeOffset() });
@@ -598,7 +599,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
     {
         if (!assumeNew)
         {
-            c.NationalRoads.RemoveRange(await c.NationalRoads.Where(x => x.WS_OIDN == segId).ToListAsync(ct));
+            c.NationalRoads.RemoveRange(await c.NationalRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct));
         }
         foreach (var number in numbers)
             c.NationalRoads.Add(new NationalRoadRecord { WS_OIDN = segId, NWNUMMER = number.ToString(), CREATIE = provenance.Timestamp.ToDateTimeOffset(), VERSIE = provenance.Timestamp.ToDateTimeOffset() });
