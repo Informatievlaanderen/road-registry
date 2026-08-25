@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 
 using Abstractions;
 using Abstractions.Exceptions;
@@ -16,6 +16,7 @@ using Marten;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.Infrastructure.MartenDb;
+using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 using ValueObjects.Problems;
 using ETag = Be.Vlaanderen.Basisregisters.Api.ETag.ETag;
@@ -57,6 +58,23 @@ public abstract class MartenSqsLambdaHandler<TSqsLambdaRequest> : RoadRegistryMa
         }
 
         return roadSegment.LastEventHash;
+    }
+
+    // The summary is recovered from the persisted scoped road network aggregate (populated by the change-summary
+    // event) rather than from the domain call, so a retry that skips the mutation still yields the same response.
+    //
+    // An action that turns out to change nothing - every road segment already had the value being asked for - records
+    // no events at all, so the aggregate stream is never written and there is nothing to load back. That is a
+    // successful no-op, not a failure, and it is answered with an empty summary.
+    protected async Task<RoadNetworkChangesSummary> GetSummaryOfLastChange(
+        ScopedRoadNetworkId scopedRoadNetworkId,
+        CancellationToken cancellationToken)
+    {
+        await using var session = Store.LightweightSession();
+
+        var scopedRoadNetwork = await session.LoadAsync(scopedRoadNetworkId, cancellationToken);
+
+        return scopedRoadNetwork?.SummaryOfLastChange ?? new RoadNetworkChangesSummary();
     }
 
     protected override TicketError? InnerMapDomainException(DomainException exception, TSqsLambdaRequest request)

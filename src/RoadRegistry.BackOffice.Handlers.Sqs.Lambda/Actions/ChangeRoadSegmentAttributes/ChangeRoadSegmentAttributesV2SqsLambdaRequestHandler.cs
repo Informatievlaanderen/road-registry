@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentAttributes;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentAttributes;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -129,11 +129,7 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
             _roadNetworkRepository.Save(session, roadNetwork, command.GetType().Name);
         }, cancellationToken, Logger);
 
-        // The summary is recovered from the persisted scoped road network aggregate (populated by the change-summary
-        // event) rather than from the domain call, so a retry that skips the mutation still yields the same response.
-        await using var readSession = Store.LightweightSession();
-        var scopedRoadNetwork = await readSession.LoadAsync(scopedRoadNetworkId, cancellationToken);
-        return scopedRoadNetwork.SummaryOfLastChange!;
+        return await GetSummaryOfLastChange(scopedRoadNetworkId, cancellationToken);
     }
 
     // A road segment may only be edited once its inwinning is done: one that is still being collected, or that is not
