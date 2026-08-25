@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
 
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
@@ -87,10 +87,7 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : MartenSqsLambdaH
         }, cancellationToken, Logger);
 
         {
-            await using var session = Store.LightweightSession();
-
-            var roadNetwork = await session.LoadAsync(scopedRoadNetworkId, cancellationToken);
-            var changeResult = new RoadNetworkChangeResult(Problems.None, roadNetwork.SummaryOfLastChange!);
+            var changeResult = new RoadNetworkChangeResult(Problems.None, await GetSummaryOfLastChange(scopedRoadNetworkId, cancellationToken));
 
             if (!await _extractsDbContext.IsUploadAcceptedAsync(command.UploadId, cancellationToken))
             {

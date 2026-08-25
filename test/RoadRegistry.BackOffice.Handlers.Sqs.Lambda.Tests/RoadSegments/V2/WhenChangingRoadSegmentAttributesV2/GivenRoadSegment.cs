@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.V2.WhenChangingRoadSegmentAttributesV2;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.V2.WhenChangingRoadSegmentAttributesV2;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -102,6 +102,26 @@ public class GivenRoadSegment : BackOfficeLambdaTest
 
         completedResults.Should().ContainSingle()
             .Which.Summary.RoadSegments.Modified.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task WhenTheSegmentAlreadyHasTheRequestedMorphology_ThenTicketCompletedWithAnEmptySummary()
+    {
+        // Nothing changes, so the domain records no events and the scoped road network aggregate is never written.
+        // The summary is recovered from that aggregate, so there is nothing to load back - which is a successful
+        // no-op, not a failure.
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = BuildRepository(store);
+        var completedResults = CaptureCompletedResults();
+
+        await HandleRequest(CreateSqsRequest(morphology: CurrentMorphology()), store, roadNetworkRepository);
+
+        TicketingMock.Verify(x => x.Error(It.IsAny<Guid>(), It.IsAny<TicketError>(), It.IsAny<CancellationToken>()), Times.Never);
+
+        var summary = completedResults.Should().ContainSingle().Which.Summary;
+        summary.RoadSegments.Added.Should().BeEmpty();
+        summary.RoadSegments.Modified.Should().BeEmpty();
+        summary.RoadSegments.Removed.Should().BeEmpty();
     }
 
     [Fact]
