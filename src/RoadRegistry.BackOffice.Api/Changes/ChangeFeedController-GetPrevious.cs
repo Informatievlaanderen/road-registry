@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Changes;
+﻿namespace RoadRegistry.BackOffice.Api.Changes;
 
 using Editor.Schema;
 using FluentValidation;
@@ -53,6 +53,13 @@ public partial class ChangeFeedController
         if (maxEntryCount is null)
         {
             throw new ValidationException(new[] { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter is missing.") });
+        }
+
+        // A negative count reaches SQL Server as a negative TOP and is refused there, which surfaces as an unhandled
+        // 500 rather than as the bad request it is. Zero is left alone: asking for no entries is answered with none.
+        if (maxEntryCount < 0)
+        {
+            throw new ValidationException(new[] { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter must not be negative.") });
         }
 
         var entries = await GetChangeFeedEntries(context, q =>
