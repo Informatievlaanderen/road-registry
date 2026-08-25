@@ -1,4 +1,4 @@
-namespace RoadRegistry.WmsWfsV2.Projections;
+﻿namespace RoadRegistry.WmsWfsV2.Projections;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +13,7 @@ using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using Schema;
 using Schema.Records;
+using RoadRegistry.BackOffice.Extensions;
 
 public class OrganizationWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context>
 {
@@ -87,8 +88,7 @@ public class OrganizationWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesP
     private static async Task RefreshBeheerLabels(WmsWfsV2Context context, string organisatieId, string? newName, CancellationToken ct)
     {
         var rows = await context.DerivedRoadSegments
-            .Where(x => x.LBEHEER == organisatieId || x.RBEHEER == organisatieId)
-            .ToListAsync(ct);
+            .IncludeLocalToListAsync(q => q.Where(x => x.LBEHEER == organisatieId || x.RBEHEER == organisatieId), ct);
         if (rows.Count == 0)
         {
             return;

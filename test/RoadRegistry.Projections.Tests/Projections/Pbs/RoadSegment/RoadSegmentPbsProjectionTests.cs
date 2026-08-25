@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.Pbs.RoadSegment;
+﻿namespace RoadRegistry.Projections.Tests.Projections.Pbs.RoadSegment;
 
 using System.Linq;
 using System.Threading.Tasks;
@@ -204,6 +204,82 @@ public class RoadSegmentPbsProjectionTests
         Assert.Empty(await scenario.Query<RoadSegmentMorphologyAttributeRecord>(q => q.Where(x => x.WS_OIDN == 1)));
         Assert.Empty(await scenario.Query<EuropeanRoadRecord>(q => q.Where(x => x.WS_OIDN == 1)));
         Assert.Empty(await scenario.Query<NationalRoadRecord>(q => q.Where(x => x.WS_OIDN == 1)));
+    }
+
+    // The projection applies a whole batch of events to one DbContext and saves once at the end, so anything written
+    // earlier in the batch is still only in the change tracker. A lookup that queries the database will not see it.
+    // Every test above splits its events over separate batches, which is why that never showed.
+
+    [Fact]
+    public async Task WhenRoadSegmentIsAddedAndRemovedInTheSameBatch_ThenTheDerivedRowsAreDeletedToo()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(
+            _testData.Segment1Added,
+            new RoadSegmentWasRemoved
+            {
+                RoadSegmentId = new RoadSegmentId(1),
+                Provenance = Provenance
+            });
+
+        Assert.Null(await scenario.Find<RoadSegmentRecord>(1));
+        Assert.Empty(await scenario.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1)));
+        Assert.Empty(await scenario.Query<RoadSegmentMorphologyAttributeRecord>(q => q.Where(x => x.WS_OIDN == 1)));
+        Assert.Empty(await scenario.Query<RoadSegmentCategoryAttributeRecord>(q => q.Where(x => x.WS_OIDN == 1)));
+        Assert.Empty(await scenario.Query<EuropeanRoadRecord>(q => q.Where(x => x.WS_OIDN == 1)));
+        Assert.Empty(await scenario.Query<NationalRoadRecord>(q => q.Where(x => x.WS_OIDN == 1)));
+    }
+
+    [Fact]
+    public async Task WhenRoadSegmentIsAddedAndModifiedInTheSameBatch_ThenTheDerivedRowsKeepTheAttributesTheEventDoesNotCarry()
+    {
+        var scenario = Scenario();
+
+        // The modify event carries only the status, so every other attribute has to be kept as stored - including the
+        // ones written by the add event earlier in this same batch.
+        await scenario.GivenAsync(
+            _testData.Segment1Added,
+            new RoadSegmentWasModified
+            {
+                RoadSegmentId = new RoadSegmentId(1),
+                Status = RoadSegmentStatusV2.BuitenGebruik,
+                Provenance = Provenance
+            });
+
+        var derived = await scenario.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1));
+        Assert.NotEmpty(derived);
+        Assert.All(derived, row =>
+        {
+            Assert.NotNull(row.WEGCAT);
+            Assert.NotNull(row.LBLWEGCAT);
+            Assert.NotNull(row.MORF);
+            Assert.NotNull(row.LBEHEER);
+        });
+    }
+
+    [Fact]
+    public async Task WhenRoadSegmentIsAddedAndModifiedInTheSameBatch_ThenTheDerivedRowsAreReplacedRatherThanAppended()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(_testData.Segment1Added);
+        var afterAdd = await scenario.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1));
+
+        var other = Scenario();
+        await other.GivenAsync(
+            _testData.Segment1Added,
+            new RoadSegmentWasModified
+            {
+                RoadSegmentId = new RoadSegmentId(1),
+                Status = RoadSegmentStatusV2.BuitenGebruik,
+                Provenance = Provenance
+            });
+
+        // A rebuild replaces the derived rows. WS_TEMPID is an identity column, so a delete that misses the rows added
+        // earlier in the batch appends a second set instead of failing on the key.
+        var afterModify = await other.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1));
+        Assert.Equal(afterAdd.Count, afterModify.Count);
     }
 
     [Fact]

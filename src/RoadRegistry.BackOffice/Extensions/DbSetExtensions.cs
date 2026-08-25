@@ -40,6 +40,13 @@ public static class DbSetExtensions
         return items.Union(localItems).ToList();
     }
 
+    public static async Task<bool> IncludeLocalAnyAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+        where T : class
+    {
+        return dbSet.Local.Any(predicate.Compile())
+               || await dbSet.AnyAsync(predicate, cancellationToken);
+    }
+
     public static async Task IncludeLocalForEachBatchAsync<T>(this DbSet<T> dbSet, Func<IQueryable<T>, IQueryable<T>> queryBuilder, int batchSize, Func<ICollection<T>, Task> action, CancellationToken cancellationToken)
         where T : class
     {
