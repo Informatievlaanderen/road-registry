@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Tests.Changes;
+﻿namespace RoadRegistry.BackOffice.Api.Tests.Changes;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -80,6 +80,24 @@ public partial class ChangeFeedControllerTests
         catch (ValidationException exception)
         {
             exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter is missing.") });
+        }
+    }
+
+    [Fact]
+    public async Task When_downloading_head_changes_with_a_negative_max_entry_count()
+    {
+        // A negative count used to reach SQL Server as a negative TOP, which it refuses - the caller got a 500 for
+        // what is a bad request.
+        await using var context = _fixture.CreateEditorContext();
+
+        try
+        {
+            await Controller.GetHead(-1, null, context);
+            throw new XunitException("Expected a validation exception but did not receive any");
+        }
+        catch (ValidationException exception)
+        {
+            exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter must not be negative.") });
         }
     }
 }
