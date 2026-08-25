@@ -1,3 +1,15 @@
+# [5.11.0](https://github.com/informatievlaanderen/road-registry/compare/v5.10.2...v5.11.0) (2026-08-25)
+
+
+### Bug Fixes
+
+* **2.0:** refuse realizing a planned road segment onto a V1 road node ([8ba1138](https://github.com/informatievlaanderen/road-registry/commit/8ba1138fa5512619baf3f94b875b60ac62c2f63f))
+
+
+### Features
+
+* **2.0:** change the geometry draw method of road segments via endpoint ([47aab49](https://github.com/informatievlaanderen/road-registry/commit/47aab494409c37bd4d0c89b77906bab59b5ac48f))
+
 ## [5.10.2](https://github.com/informatievlaanderen/road-registry/compare/v5.10.1...v5.10.2) (2026-08-24)
 
 
