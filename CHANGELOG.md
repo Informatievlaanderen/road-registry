@@ -1,3 +1,11 @@
+## [5.11.1](https://github.com/informatievlaanderen/road-registry/compare/v5.11.0...v5.11.1) (2026-08-25)
+
+
+### Bug Fixes
+
+* **2.0:** let the pbs and wmswfsv2 projections see their own pending writes ([e9bc15b](https://github.com/informatievlaanderen/road-registry/commit/e9bc15bfa31e0b5a4e6224c9d01a1de11cf15a98))
+* changefeed negative max entry count ([a7d055b](https://github.com/informatievlaanderen/road-registry/commit/a7d055b524fabb5947afcb076ec468c217937eeb))
+
 # [5.11.0](https://github.com/informatievlaanderen/road-registry/compare/v5.10.2...v5.11.0) (2026-08-25)
 
 
