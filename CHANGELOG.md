@@ -1,3 +1,10 @@
+## [5.11.2](https://github.com/informatievlaanderen/road-registry/compare/v5.11.1...v5.11.2) (2026-08-25)
+
+
+### Bug Fixes
+
+* **2.0:** answer a no-op action with an empty summary instead of throwing ([8f695b4](https://github.com/informatievlaanderen/road-registry/commit/8f695b462fe08778685d7d4a0aa0e3a69558bf1d))
+
 ## [5.11.1](https://github.com/informatievlaanderen/road-registry/compare/v5.11.0...v5.11.1) (2026-08-25)
 
 
