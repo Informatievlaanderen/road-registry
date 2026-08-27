@@ -48,6 +48,25 @@ public class ProblemTranslatorTests
     }
 
     [Fact]
+    public void GradeSeparatedJunctionNotFoundCarriesItsIdentifier()
+    {
+        // The requested change knows which junction it could not find; it has to end up in the message,
+        // labelled the same way a road segment is (WS_OIDN) so an extract upload points at OK_OIDN.
+        string Translate(IProblemTranslator translator, params ProblemParameter[] parameters) =>
+            translator.Translate(new Problem
+            {
+                Severity = ProblemSeverity.Error,
+                Reason = ProblemCode.GradeSeparatedJunction.NotFound.ToString(),
+                Parameters = parameters
+            }).Message;
+
+        Assert.Contains("id 1", Translate(WellKnownProblemTranslators.Default, new ProblemParameter("OngelijkGrondseKruisingId", "1")));
+        Assert.Contains("OK_OIDN 1", Translate(WellKnownProblemTranslators.Extract, new ProblemParameter("OngelijkGrondseKruisingId", "1")));
+        Assert.Contains("id 2", Translate(WellKnownProblemTranslators.Default, new ProblemParameter("Identifier", "2")));
+        Assert.False(string.IsNullOrWhiteSpace(Translate(WellKnownProblemTranslators.Default)));
+    }
+
+    [Fact]
     public void EnsureAllProblemCodeHaveADutchTranslation()
     {
         LoadAllProblemCodes();
