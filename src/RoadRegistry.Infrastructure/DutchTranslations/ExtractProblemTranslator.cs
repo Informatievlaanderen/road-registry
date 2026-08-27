@@ -18,4 +18,9 @@ public sealed class ExtractProblemTranslator : DefaultProblemTranslator
     {
         return $"WK_OIDN {problem.GetParameterValue($"{namePrefix}Id")}";
     }
+
+    protected override string GetGradeSeparatedJunctionIdLabel(Problem problem, string namePrefix = "OngelijkGrondseKruising")
+    {
+        return $"OK_OIDN {problem.GetParameterValue($"{namePrefix}Id")}";
+    }
 }

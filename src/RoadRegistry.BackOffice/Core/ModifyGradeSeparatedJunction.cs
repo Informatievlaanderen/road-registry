@@ -100,7 +100,7 @@ public class ModifyGradeSeparatedJunction : IRequestedChange
     {
         if (context == null) throw new ArgumentNullException(nameof(context));
 
-        var problems = Problems.None;
+        var problems = Problems.None.WithContext(ProblemContext.For(Id));
 
         if (!context.BeforeView.View.GradeSeparatedJunctions.ContainsKey(Id))
         {

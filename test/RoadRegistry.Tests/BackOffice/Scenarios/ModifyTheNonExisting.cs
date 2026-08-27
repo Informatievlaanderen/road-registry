@@ -1,4 +1,4 @@
-namespace RoadRegistry.Tests.BackOffice.Scenarios;
+﻿namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -367,7 +367,14 @@ public class ModifyTheNonExisting : RoadRegistryTestBase
                                 {
                                     Reason = "GradeSeparatedJunctionNotFound",
                                     Severity = ProblemSeverity.Error,
-                                    Parameters = Array.Empty<ProblemParameter>()
+                                    Parameters = new[]
+                                    {
+                                        new ProblemParameter
+                                        {
+                                            Name = "OngelijkGrondseKruisingId",
+                                            Value = "1"
+                                        }
+                                    }
                                 }
                             }
                         }
