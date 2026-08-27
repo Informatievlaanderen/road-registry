@@ -1,3 +1,10 @@
+## [5.11.4](https://github.com/informatievlaanderen/road-registry/compare/v5.11.3...v5.11.4) (2026-08-27)
+
+
+### Bug Fixes
+
+* **backoffice:** report which grade separated junction was not found ([e095acd](https://github.com/informatievlaanderen/road-registry/commit/e095acd15a3c35ee876706465deffcbec40055f9))
+
 ## [5.11.3](https://github.com/informatievlaanderen/road-registry/compare/v5.11.2...v5.11.3) (2026-08-27)
 
 
