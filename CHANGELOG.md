@@ -1,3 +1,10 @@
+## [5.11.3](https://github.com/informatievlaanderen/road-registry/compare/v5.11.2...v5.11.3) (2026-08-27)
+
+
+### Bug Fixes
+
+* **extracts:** write a valid shape file header when there are no records ([2883ce8](https://github.com/informatievlaanderen/road-registry/commit/2883ce8cfa7e05c72b0691274b3d92e24095aa97))
+
 ## [5.11.2](https://github.com/informatievlaanderen/road-registry/compare/v5.11.1...v5.11.2) (2026-08-25)
 
 
