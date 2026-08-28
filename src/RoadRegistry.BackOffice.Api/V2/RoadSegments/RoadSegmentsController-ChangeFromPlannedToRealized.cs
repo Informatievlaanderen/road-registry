@@ -4,25 +4,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
-using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Marten;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
-using RoadRegistry.BackOffice.Abstractions.Extensions;
-using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
-using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
-using RoadRegistry.Read.Projections;
 using RoadRegistry.RoadSegment.ValueObjects;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
 public partial class RoadSegmentsController
 {
-    private const string RealizeRoute = "{id}/acties/geplandnaargerealiseerd";
+    private const string ChangeFromPlannedToRealizedRoute = "{id}/acties/geplandnaargerealiseerd";
 
     /// <summary>
     ///     Markeer een gepland wegsegment als gerealiseerd.
@@ -36,7 +30,7 @@ public partial class RoadSegmentsController
     /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
     /// <response code="410">Als het wegsegment is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
-    [HttpPost(RealizeRoute, Name = nameof(ChangeRoadSegmentFromPlannedToRealizedV2))]
+    [HttpPost(ChangeFromPlannedToRealizedRoute, Name = nameof(ChangeRoadSegmentFromPlannedToRealizedV2))]
     [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -50,48 +44,12 @@ public partial class RoadSegmentsController
     [SwaggerResponseExample(StatusCodes.Status410Gone, typeof(RoadSegmentGoneResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerOperation(OperationId = nameof(ChangeRoadSegmentFromPlannedToRealizedV2), Description = "Markeer een gepland wegsegment als gerealiseerd. Het wegsegment wordt aan het wegennet geknoopt: de uiteinden worden naar bestaande wegknopen binnen 1 meter gesnapt, waar er geen ligt komt een eindknoop, en kruisingen met gerealiseerde wegsegmenten worden als gelijkgrondse kruising vastgelegd.")]
-    public async Task<IActionResult> ChangeRoadSegmentFromPlannedToRealizedV2(
+    public Task<IActionResult> ChangeRoadSegmentFromPlannedToRealizedV2(
         [FromServices] RoadSegmentIdValidator idValidator,
         [FromRoute] int id,
         [FromServices] IDocumentStore store,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            // VAL-1
-            await idValidator.ValidateRoadSegmentIdAndThrowAsync(id, cancellationToken);
-
-            await using var session = store.LightweightSession();
-
-            // VAL-2, VAL-3. Everything else - does it have status 'gepland', is there a road node within reach, does
-            // it cross anything - is validated by the domain, which is the only place that knows the surrounding
-            // network. The request carries no body: what happens follows entirely from that network.
-            var roadSegment = await session.LoadAsync<RoadSegmentReadItem>(id, cancellationToken);
-            if (roadSegment is null)
-            {
-                return NotFound();
-            }
-
-            if (roadSegment.IsRemoved)
-            {
-                return new StatusCodeResult(StatusCodes.Status410Gone);
-            }
-
-            var sqsRequest = new ChangeRoadSegmentFromPlannedToRealizedV2SqsRequest
-            {
-                ProvenanceData = CreateProvenanceData(Modification.Update),
-                RoadSegmentId = new RoadSegmentId(id),
-                // VAL-9: only a holder of the 'ingemeten' scope may realize a measured road segment. The entitlement
-                // travels with the request; the domain decides whether it is needed.
-                MayModifyMeasuredRoadSegments = HasIngemetenWegScope()
-            };
-            var result = await _mediator.Send(sqsRequest, cancellationToken);
-
-            return Accepted(result);
-        }
-        catch (IdempotencyException)
-        {
-            return Accepted();
-        }
+        return ChangeRoadSegmentStatusV2(RoadSegmentStatusChange.PlannedToRealized, idValidator, id, store, cancellationToken);
     }
 }

@@ -9,7 +9,6 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CloseExtract;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CorrectRoadSegmentFromRealizedToPlanned;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CreateRoadSegmentOutlineV2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.DataValidation;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentAttributes;
@@ -18,7 +17,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentGeome
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.LinkRoadSegmentsToStreetNameIds;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateDryRunRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentFromPlannedToRealized;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentStatus;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RemoveRoadSegments;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestExtract;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.SplitRoadSegmentsByJunction;
@@ -87,8 +86,7 @@ public sealed class MessageHandler : BlobMessageHandler
             ChangeRoadSegmentAttributesV2SqsRequest request => new ChangeRoadSegmentAttributesV2SqsLambdaRequest(groupId, request),
             ChangeRoadSegmentGeometryV2SqsRequest request => new ChangeRoadSegmentGeometryV2SqsLambdaRequest(groupId, request),
             ChangeRoadSegmentGeometryDrawMethodV2SqsRequest request => new ChangeRoadSegmentGeometryDrawMethodV2SqsLambdaRequest(groupId, request),
-            ChangeRoadSegmentFromPlannedToRealizedV2SqsRequest request => new ChangeRoadSegmentFromPlannedToRealizedV2SqsLambdaRequest(groupId, request),
-            CorrectRoadSegmentFromRealizedToPlannedV2SqsRequest request => new CorrectRoadSegmentFromRealizedToPlannedV2SqsLambdaRequest(groupId, request),
+            ChangeRoadSegmentStatusV2SqsRequest request => new ChangeRoadSegmentStatusV2SqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(
                 $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
         };

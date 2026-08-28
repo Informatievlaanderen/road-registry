@@ -635,6 +635,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft een status die verschilt van 'gerealiseerd'.")
             },
             {
+                ProblemCode.RoadSegment.ChangeStatus.StatusNotValid, problem => new(problem.Severity, "WegsegmentStatuswijzigingStatusNietCorrect",
+                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft een status die verschilt van '{problem.GetParameterValue("RequiredStatus")}'.")
+            },
+            {
                 ProblemCode.RoadSegment.Realize.StatusNotValid, problem => new(problem.Severity, "WegsegmentRealisatieStatusNietCorrect",
                     $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft een status die verschilt van 'gepland'.")
             },

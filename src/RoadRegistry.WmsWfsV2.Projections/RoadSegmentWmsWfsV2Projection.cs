@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.WmsWfsV2.Projections;
+namespace RoadRegistry.WmsWfsV2.Projections;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -201,25 +201,20 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
                 m.PedestrianTrafficDirection, m.Provenance, ct);
         });
 
-        When<IEvent<RoadSegmentWasCorrectedFromRealizedToPlanned>>(async (context, e, ct) =>
-        {
-            // Only the status changes; the geometry and the attributes are untouched. The segment came loose
-            // from its road nodes, so the node state is carried with both ids null.
-            var m = e.Data;
-            await WritePartial(context, m.RoadSegmentId.ToInt32(), null, RoadSegmentStatusV2.Gepland, null,
-                new RoadSegmentNodeIds(), null, null, null, null, null, null, null, null, null, m.Provenance, ct);
-        });
+        // The status changes. Each transition raises an event of its own - the status a segment takes on is the
+        // event itself - but what a projection has to do with one follows entirely from the kind of change it is, so
+        // the three shapes below are all there is. RoadSegmentStatusChange.ForEvent supplies the status.
+        When<IEvent<RoadSegmentWasRealizedFromPlanned>>((context, e, ct) => ProjectConnected(context, e.Data, ct));
+        When<IEvent<RoadSegmentWasRealizedFromOutOfUse>>((context, e, ct) => ProjectConnected(context, e.Data, ct));
+        When<IEvent<RoadSegmentWasCorrectedFromHistorizedToRealized>>((context, e, ct) => ProjectConnected(context, e.Data, ct));
 
-        When<IEvent<RoadSegmentWasRealizedFromPlanned>>(async (context, e, ct) =>
-        {
-            // The status is the event itself; the geometry draw method is not touched by realizing.
-            var m = e.Data;
-            await WritePartial(context, m.RoadSegmentId.ToInt32(), m.Geometry, RoadSegmentStatusV2.Gerealiseerd, null,
-                new RoadSegmentNodeIds { Start = m.StartNodeId, End = m.EndNodeId },
-                m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
-                m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
-                m.PedestrianTrafficDirection, m.Provenance, ct);
-        });
+        When<IEvent<RoadSegmentWasCorrectedFromRealizedToPlanned>>((context, e, ct) => ProjectDisconnected(context, e.Data, ct));
+        When<IEvent<RoadSegmentWasTakenOutOfUseFromRealized>>((context, e, ct) => ProjectDisconnected(context, e.Data, ct));
+        When<IEvent<RoadSegmentWasHistorizedFromRealized>>((context, e, ct) => ProjectDisconnected(context, e.Data, ct));
+
+        When<IEvent<RoadSegmentWasHistorizedFromOutOfUse>>((context, e, ct) => ProjectUnconnectedStatusChange(context, e.Data, ct));
+        When<IEvent<RoadSegmentWasCorrectedFromNotRealizedToPlanned>>((context, e, ct) => ProjectUnconnectedStatusChange(context, e.Data, ct));
+        When<IEvent<RoadSegmentWasCorrectedFromHistorizedToOutOfUse>>((context, e, ct) => ProjectUnconnectedStatusChange(context, e.Data, ct));
 
         When<IEvent<RoadSegmentGeometryWasModified>>(async (context, e, ct) =>
         {
@@ -361,6 +356,32 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
     // Partial update: only the non-null arguments are applied to the segment; the rest are kept as stored. Used for
     // modify / geometry-modified / streetname-changed / split, which each carry only a subset of the attributes. The
     // unchanged dynamic attributes come straight from the loaded segment's JSON blob — no extra queries.
+    // Knotted into the network: the event records the realized state in full. The geometry draw method is not
+    // touched by a status change.
+    private Task ProjectConnected(WmsWfsV2Context context, IRoadSegmentWasConnectedEvent m, CancellationToken ct)
+    {
+        return WritePartial(context, m.RoadSegmentId.ToInt32(), m.Geometry, RoadSegmentStatusChange.ForEvent(m).To, null,
+            new RoadSegmentNodeIds { Start = m.StartNodeId, End = m.EndNodeId },
+            m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
+            m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
+            m.PedestrianTrafficDirection, m.Provenance, ct);
+    }
+
+    // Unhooked from the network: only the status changes; the geometry and the attributes are untouched. The segment
+    // came loose from its road nodes, so the node state is carried with both ids null.
+    private Task ProjectDisconnected(WmsWfsV2Context context, IRoadSegmentWasDisconnectedEvent m, CancellationToken ct)
+    {
+        return WritePartial(context, m.RoadSegmentId.ToInt32(), null, RoadSegmentStatusChange.ForEvent(m).To, null,
+            new RoadSegmentNodeIds(), null, null, null, null, null, null, null, null, null, m.Provenance, ct);
+    }
+
+    // Outside the network before and after, so nothing but the status moves - the road nodes are left alone.
+    private Task ProjectUnconnectedStatusChange(WmsWfsV2Context context, IRoadSegmentUnconnectedStatusChangeEvent m, CancellationToken ct)
+    {
+        return WritePartial(context, m.RoadSegmentId.ToInt32(), null, RoadSegmentStatusChange.ForEvent(m).To, null,
+            null, null, null, null, null, null, null, null, null, null, m.Provenance, ct);
+    }
+
     private async Task WritePartial(WmsWfsV2Context context, int segId,
         RoadSegmentGeometry? geometry, RoadSegmentStatusV2? status, RoadSegmentGeometryDrawMethodV2? method,
         RoadSegmentNodeIds? nodeIds,

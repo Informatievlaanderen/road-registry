@@ -4,17 +4,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
-using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Marten;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
-using RoadRegistry.BackOffice.Abstractions.Extensions;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
-using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
-using RoadRegistry.Read.Projections;
+using RoadRegistry.RoadSegment.ValueObjects;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -48,47 +44,12 @@ public partial class RoadSegmentsController
     [SwaggerResponseExample(StatusCodes.Status410Gone, typeof(RoadSegmentGoneResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerOperation(OperationId = nameof(CorrectRoadSegmentFromRealizedToPlannedV2), Description = "Corrigeer een gerealiseerd wegsegment naar gepland. Het wegsegment wordt losgemaakt van het wegennet: begin- en eindknoop worden verwijderd waar ze niets meer dragen, de kruisingen waartoe het wegsegment behoort verdwijnen, en de wegknooptypes van aansluitende wegsegmenten worden aangepast waar nodig.")]
-    public async Task<IActionResult> CorrectRoadSegmentFromRealizedToPlannedV2(
+    public Task<IActionResult> CorrectRoadSegmentFromRealizedToPlannedV2(
         [FromServices] RoadSegmentIdValidator idValidator,
         [FromRoute] int id,
         [FromServices] IDocumentStore store,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            // VAL-1
-            await idValidator.ValidateRoadSegmentIdAndThrowAsync(id, cancellationToken);
-
-            await using var session = store.LightweightSession();
-
-            // VAL-2, VAL-3. The status check (VAL-4) needs the aggregate rather than the read model, so it is left to
-            // the domain. The request carries no body: what happens follows entirely from the surrounding network.
-            var roadSegment = await session.LoadAsync<RoadSegmentReadItem>(id, cancellationToken);
-            if (roadSegment is null)
-            {
-                return NotFound();
-            }
-
-            if (roadSegment.IsRemoved)
-            {
-                return new StatusCodeResult(StatusCodes.Status410Gone);
-            }
-
-            var sqsRequest = new CorrectRoadSegmentFromRealizedToPlannedV2SqsRequest
-            {
-                ProvenanceData = CreateProvenanceData(Modification.Update),
-                RoadSegmentId = new RoadSegmentId(id),
-                // VAL-5: only a holder of the 'ingemeten' scope may correct a measured road segment. The entitlement
-                // travels with the request; the domain decides whether it is needed.
-                MayModifyMeasuredRoadSegments = HasIngemetenWegScope()
-            };
-            var result = await _mediator.Send(sqsRequest, cancellationToken);
-
-            return Accepted(result);
-        }
-        catch (IdempotencyException)
-        {
-            return Accepted();
-        }
+        return ChangeRoadSegmentStatusV2(RoadSegmentStatusChange.RealizedToPlanned, idValidator, id, store, cancellationToken);
     }
 }

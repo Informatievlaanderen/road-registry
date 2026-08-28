@@ -63,6 +63,11 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
         Gepland, Gerealiseerd, NietGerealiseerd, BuitenGebruik, Gehistoreerd
     ];
 
+    // 'gerealiseerd' is the only status that knots a road segment into the road network: a segment in any other
+    // status is drawn where it is drawn but hangs off no road nodes at all. Which of the two a status is decides the
+    // shape of every status change (see RoadSegmentStatusChange).
+    public bool ConnectsToRoadNodes => Equals(Gerealiseerd);
+
     public sealed record EditOutlined
     {
         public static readonly ImmutableArray<RoadSegmentStatusV2> Values = [Gepland, BuitenGebruik];

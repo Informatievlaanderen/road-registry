@@ -231,23 +231,29 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         };
     }
 
-    public void Apply(RoadSegmentWasCorrectedFromRealizedToPlanned @event)
-    {
-        UncommittedEvents.Add(@event);
+    // The status change events. Every one of them is applied by the shared handler for its kind - the transition it
+    // stands for is looked up from the event type - but each concrete event keeps an Apply of its own because that is
+    // what Marten's snapshot aggregation binds to.
 
-        Status = RoadSegmentStatusV2.Gepland;
+    public void Apply(RoadSegmentWasRealizedFromPlanned @event) => ApplyStatusChangeToConnected(@event);
+    public void Apply(RoadSegmentWasRealizedFromOutOfUse @event) => ApplyStatusChangeToConnected(@event);
+    public void Apply(RoadSegmentWasCorrectedFromHistorizedToRealized @event) => ApplyStatusChangeToConnected(@event);
 
-        // Only a realized segment is knotted into the network; a planned one carries no road nodes at all.
-        StartNodeId = null;
-        EndNodeId = null;
-    }
+    public void Apply(RoadSegmentWasCorrectedFromRealizedToPlanned @event) => ApplyStatusChangeFromConnected(@event);
+    public void Apply(RoadSegmentWasTakenOutOfUseFromRealized @event) => ApplyStatusChangeFromConnected(@event);
+    public void Apply(RoadSegmentWasHistorizedFromRealized @event) => ApplyStatusChangeFromConnected(@event);
 
-    public void Apply(RoadSegmentWasRealizedFromPlanned @event)
+    public void Apply(RoadSegmentWasHistorizedFromOutOfUse @event) => ApplyStatusChangeWhileUnconnected(@event);
+    public void Apply(RoadSegmentWasCorrectedFromNotRealizedToPlanned @event) => ApplyStatusChangeWhileUnconnected(@event);
+    public void Apply(RoadSegmentWasCorrectedFromHistorizedToOutOfUse @event) => ApplyStatusChangeWhileUnconnected(@event);
+
+    // Knotted into the network: the event records the realized state in full, so nothing is left at what it was.
+    private void ApplyStatusChangeToConnected(IRoadSegmentWasConnectedEvent @event)
     {
         UncommittedEvents.Add(@event);
 
         Geometry = @event.Geometry;
-        Status = RoadSegmentStatusV2.Gerealiseerd;
+        Status = RoadSegmentStatusChange.ForEvent(@event).To;
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
         Attributes = Attributes! with
@@ -262,6 +268,27 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             BikeTrafficDirection = @event.BikeTrafficDirection,
             PedestrianTrafficDirection = @event.PedestrianTrafficDirection
         };
+    }
+
+    // Come loose from the network: the geometry and every attribute stay as they were, only the status changes and
+    // the road nodes are given up.
+    private void ApplyStatusChangeFromConnected(IRoadSegmentWasDisconnectedEvent @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Status = RoadSegmentStatusChange.ForEvent(@event).To;
+
+        // Only a realized segment is knotted into the network; a segment in any other status carries no road nodes.
+        StartNodeId = null;
+        EndNodeId = null;
+    }
+
+    // Outside the network before and after, so nothing but the status moves.
+    private void ApplyStatusChangeWhileUnconnected(IRoadSegmentUnconnectedStatusChangeEvent @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Status = RoadSegmentStatusChange.ForEvent(@event).To;
     }
 
     public void Apply(RoadSegmentGeometryWasModified @event)
