@@ -10,6 +10,7 @@ using Be.Vlaanderen.Basisregisters.Api;
 using Infrastructure;
 using Infrastructure.Controllers;
 using JasperFx;
+using JasperFx.Events.Daemon;
 using Marten;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,7 @@ public partial class ProjectionsController : DefaultProjectionsController
     private readonly IDocumentStore _documentStore;
     private readonly IReadOnlyList<ProjectionDetail> _martenProjections;
     private readonly MartenProjectionDaemonAccessor _daemonAccessor;
+    private readonly MartenProjectionDesiredStateStore _desiredStateStore;
     private readonly ILogger _logger;
 
     public ProjectionsController(
@@ -32,12 +34,14 @@ public partial class ProjectionsController : DefaultProjectionsController
         Dictionary<ProjectionDetail, Func<DbContext>> listOfProjections,
         IReadOnlyList<ProjectionDetail> martenProjections,
         MartenProjectionDaemonAccessor daemonAccessor,
+        MartenProjectionDesiredStateStore desiredStateStore,
         ILogger<ProjectionsController> logger)
         : base(streamStore, listOfProjections)
     {
         _documentStore = documentStore;
         _martenProjections = martenProjections;
         _daemonAccessor = daemonAccessor;
+        _desiredStateStore = desiredStateStore;
         _logger = logger;
     }
 
@@ -63,11 +67,19 @@ public partial class ProjectionsController : DefaultProjectionsController
         var storePosition = progressions.Where(x => x.Name == MartenConstants.HighWaterMarkName).Select(x => x.LastSequenceId).SingleOrDefault();
 
         var daemon = _daemonAccessor.Daemon;
+        var desiredStates = await _desiredStateStore.GetAllAsync(cancellationToken);
 
         return _martenProjections
             .Select(x =>
             {
                 var lastSequenceId = progressions.SingleOrDefault(p => p.Name == x.Id)?.LastSequenceId;
+                var actualStatus = daemon?.StatusFor(x.Id);
+
+                // State is the desired state, matching what the stream-store projections have always reported: the
+                // page's start/stop control shows intent. What the shard is actually doing goes alongside it, because
+                // the two disagreeing is precisely the situation worth seeing - a projection that fell over used to
+                // render as healthy here.
+                var desiredState = desiredStates.GetValueOrDefault(x.Id) ?? x.FallbackDesiredState;
 
                 return new ProjectionStatus
                 {
@@ -76,12 +88,14 @@ public partial class ProjectionsController : DefaultProjectionsController
                     Id = x.Id,
                     Name = x.Name,
                     Description = x.Description,
-                    State = daemon is not null && daemon.StatusFor(x.Id) == AgentStatus.Stopped ? "stopped" : x.FallbackDesiredState,
-                    ErrorMessage = lastSequenceId is null ? "No progression found" : string.Empty
+                    State = desiredState,
+                    ActualState = ProjectionHealth.DescribeAgentStatus(actualStatus),
+                    ErrorMessage = ProjectionHealth.DescribeProblem(desiredState, actualStatus, lastSequenceId)
                 };
             })
             .ToList();
     }
+
 
     private async Task<List<ProjectionStatus>> GetStreamStoreProjectionStatusses(CancellationToken cancellationToken)
     {

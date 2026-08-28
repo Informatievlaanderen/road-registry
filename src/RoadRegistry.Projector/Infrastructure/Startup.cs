@@ -223,6 +223,10 @@ public class Startup
             .AddStreetNameClient()
             .AddMartenRoad((options, sp) =>
             {
+                // Registered whatever is enabled: the desired state of a projection has to outlive the projection
+                // being switched off, and the supervisor and status page read it for every known shard.
+                options.ConfigureMartenProjectionDesiredState();
+
                 if (projectionOptions.Extract.Enabled)
                 {
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesExtractProjection)}:BatchSize");
@@ -249,6 +253,7 @@ public class Startup
             }).Services
             .AddMartenDatabaseMigrator()
             .AddSingleton<MartenProjectionDaemonAccessor>()
+            .AddSingleton<MartenProjectionDesiredStateStore>()
             .AddHostedService<MartenProjectionsDaemonHostedService>()
             // Keeps every Marten projection resilient: if a shard pauses on an error it is periodically resumed, while
             // all other projections keep running and the host is never affected.

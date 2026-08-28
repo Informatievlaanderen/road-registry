@@ -35,10 +35,9 @@ public partial class ProjectionsController
     /// Stops a Marten projection so it no longer processes events.
     /// </summary>
     /// <remarks>
-    /// Waits until the daemon reports the shard as fully stopped before answering. The projection stays stopped
-    /// until it is started again (or until the supervisor resumes all shards because another shard paused on an
-    /// error). The special id "topology" is not supported here: the topology projection runs inline with the
-    /// event store writes and cannot be stopped.
+    /// Waits until the daemon reports the shard as fully stopped before answering, and records that the projection is
+    /// meant to stay stopped, so the supervisor leaves it alone until it is started again. The special id "topology"
+    /// is not supported here: the topology projection runs inline with the event store writes and cannot be stopped.
     /// </remarks>
     /// <param name="id">The projection id, case-insensitive, with or without the ":All" shard suffix (e.g. "RoadNetworkChangesExtractProjection").</param>
     /// <param name="daemonAccessor"></param>
@@ -48,6 +47,7 @@ public partial class ProjectionsController
     public async Task<IActionResult> StopMartenProjection(
         [FromRoute] string id,
         [FromServices] MartenProjectionDaemonAccessor daemonAccessor,
+        [FromServices] MartenProjectionDesiredStateStore desiredStateStore,
         CancellationToken cancellationToken)
     {
         var projection = FindMartenProjection(id);
@@ -63,13 +63,18 @@ public partial class ProjectionsController
         }
 
         var shardName = projection.Id;
-        if (daemon.StatusFor(shardName) != AgentStatus.Running)
+
+        // Record the intent first and unconditionally. A paused shard is not stopped - it is a shard that fell over and
+        // that the supervisor would otherwise resume - so "it is already down" is not a reason to skip saying that it
+        // should stay down.
+        await desiredStateStore.SetAsync(shardName, ProjectionDesiredStates.Stopped, cancellationToken);
+
+        var status = daemon.StatusFor(shardName);
+        if (status != AgentStatus.Running)
         {
-            return Ok($"{shardName} is already stopped.");
+            return Ok($"{shardName} was already {DescribeStatus(status)}; its desired state is now stopped.");
         }
 
-        // Note: the shard stays stopped until it is started again or the MartenProjectionSupervisor's StartAllAsync
-        // resumes everything because some other shard paused on an error.
         await daemon.StopAgentAsync(shardName, null);
         await WaitUntilShardStopped(daemon, shardName, cancellationToken);
 
@@ -91,6 +96,7 @@ public partial class ProjectionsController
     public async Task<IActionResult> StartMartenProjection(
         [FromRoute] string id,
         [FromServices] MartenProjectionDaemonAccessor daemonAccessor,
+        [FromServices] MartenProjectionDesiredStateStore desiredStateStore,
         CancellationToken cancellationToken)
     {
         var projection = FindMartenProjection(id);
@@ -106,6 +112,10 @@ public partial class ProjectionsController
         }
 
         var shardName = projection.Id;
+
+        // Before starting, so that a start which then fails still leaves the supervisor with a mandate to retry.
+        await desiredStateStore.SetAsync(shardName, ProjectionDesiredStates.Subscribed, cancellationToken);
+
         if (daemon.StatusFor(shardName) == AgentStatus.Running)
         {
             return Ok($"{shardName} is already running.");
@@ -120,8 +130,9 @@ public partial class ProjectionsController
     /// Rebuilds a projection: wipes its read model and replays the full event stream.
     /// </summary>
     /// <remarks>
-    /// The projection has to be stopped first (via {id}/stop); a running projection is refused with a 409 so the
-    /// truncate never races a batch that is still being processed. The read model and every progression the
+    /// The projection has to be stopped first (via {id}/stop); anything else - running, or paused after an error - is
+    /// refused with a 409 so the truncate never races a batch that is still being processed or an agent the supervisor
+    /// is about to resume. The read model and every progression the
     /// projection keeps are wiped, then the projection is started again and replays the event stream in the
     /// background; the call returns as soon as the replay has started.
     ///
@@ -139,6 +150,7 @@ public partial class ProjectionsController
     public async Task<IActionResult> RebuildMartenProjection(
         [FromRoute] string id,
         [FromServices] MartenProjectionDaemonAccessor daemonAccessor,
+        [FromServices] MartenProjectionDesiredStateStore desiredStateStore,
         [FromServices] IConfiguration configuration,
         [FromQuery] int timeoutHours = 12,
         CancellationToken cancellationToken = default)
@@ -174,9 +186,13 @@ public partial class ProjectionsController
         var shardName = projection.Id;
         var projectionName = shardName[..shardName.IndexOf(':')];
 
-        if (daemon.StatusFor(shardName) == AgentStatus.Running)
+        // Stopped, not merely "not running". A paused shard still belongs to a live agent that the supervisor will
+        // restart, so truncating against one races that restart - and an agent that comes back mid-rebuild persists
+        // its old position, leaving the shard progression ahead of a read model that was just wiped.
+        var status = daemon.StatusFor(shardName);
+        if (status != AgentStatus.Stopped)
         {
-            return Conflict($"{shardName} is still running; stop it via projections/{id}/stop before rebuilding.");
+            return Conflict($"{shardName} is {DescribeStatus(status)}; stop it via projections/{id}/stop before rebuilding.");
         }
 
         _logger.LogWarning("Rebuilding {ShardName}: truncating the read model and resetting the progressions.", shardName);
@@ -192,6 +208,7 @@ public partial class ProjectionsController
             await session.SaveChangesAsync(cancellationToken);
         }
 
+        await desiredStateStore.SetAsync(shardName, ProjectionDesiredStates.Subscribed, cancellationToken);
         await daemon.StartAgentAsync(shardName, cancellationToken);
         _logger.LogWarning("Rebuilding {ShardName}: the shard was started and replays from the beginning of the event stream.", shardName);
 
@@ -216,6 +233,19 @@ public partial class ProjectionsController
         await projectionDaemon.RebuildProjectionAsync<RoadNetworkTopologyProjection>(TimeSpan.FromHours(timeoutHours), cancellationToken);
 
         return Ok($"{nameof(RoadNetworkTopologyProjection)} rebuild completed.");
+    }
+
+    // The daemon has three states and they are not interchangeable: a paused shard fell over on its own, a stopped one
+    // was told to stop. Saying which one it is, is the difference between "nothing to do" and "something is wrong".
+    private static string DescribeStatus(AgentStatus status)
+    {
+        return status switch
+        {
+            AgentStatus.Running => "running",
+            AgentStatus.Paused => "paused after an error",
+            AgentStatus.Stopped => "stopped",
+            _ => status.ToString().ToLowerInvariant()
+        };
     }
 
     private static bool IsTopology(string id)
