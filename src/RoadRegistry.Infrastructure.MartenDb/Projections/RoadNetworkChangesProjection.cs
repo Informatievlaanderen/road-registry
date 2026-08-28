@@ -90,16 +90,64 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
     private async Task UpdateCatchingUpState(IDocumentOperations operations, IReadOnlyList<IEvent> events, CancellationToken cancellation)
     {
+        var wasCatchingUp = _isCatchingUp;
+        var backlog = 0L;
+
         if (_isCatchingUp is null)
         {
             cancellation.ThrowIfCancellationRequested();
             var startupHighWaterMark = await operations.GetHighWaterMark(cancellation);
-            _isCatchingUp = events.Max(x => x.Sequence) <= startupHighWaterMark;
+            var batchMaxSequence = events.Max(x => x.Sequence);
+
+            _isCatchingUp = IsBehind(batchMaxSequence, startupHighWaterMark);
+            backlog = startupHighWaterMark - batchMaxSequence;
         }
         else if (events.Count < BatchSize)
         {
             _isCatchingUp = false;
         }
+
+        if (wasCatchingUp == _isCatchingUp)
+        {
+            return;
+        }
+
+        if (_isCatchingUp is true)
+        {
+            await OnCatchUpStartedAsync(backlog, cancellation).ConfigureAwait(false);
+        }
+        else
+        {
+            await OnCatchUpFinishedAsync(cancellation).ConfigureAwait(false);
+        }
+    }
+
+    // Strictly less than: the high water mark is the store's ceiling, so a batch that reaches it has nothing beyond it
+    // and sits at the tail, not behind it. Counting that as catching up would have an up-to-date projection run its
+    // catch-up behaviour for a single event on every start - which, now that catching up takes the read model's indexes
+    // apart, is the difference between a no-op and a rebuild of every index on the table.
+    internal static bool IsBehind(long batchMaxSequence, long startupHighWaterMark)
+    {
+        return batchMaxSequence < startupHighWaterMark;
+    }
+
+    // Called once when the projection discovers it is behind, before the first batch is applied. A driver can use it to
+    // trade read-model availability for write throughput while the read model is incomplete anyway.
+    //
+    // estimatedBacklog is how many events sit between this first batch and the high water mark. It is the difference
+    // between "rebuilt from scratch" and "restarted after a deploy", which matters because the trade only pays off over
+    // a long replay: a driver should not take a read model apart to catch up on a few thousand events.
+    protected virtual Task OnCatchUpStartedAsync(long estimatedBacklog, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    // Called once when the projection reaches the tail. It also fires on the first batch of a projection that was
+    // already caught up at startup - which is deliberate: that is what lets a host killed mid-catch-up undo whatever
+    // OnCatchUpStartedAsync had turned off, without needing to know that it crashed.
+    protected virtual Task OnCatchUpFinishedAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
     }
 
     private async Task ProcessEvents(IDocumentOperations operations, IReadOnlyList<IEvent> events, IReadOnlyList<RoadNetworkChangesProjectionProgression> processedProjectionProgressions, CancellationToken cancellation)

@@ -17,8 +17,14 @@ using RoadRegistry.BackOffice.Extensions;
 
 public class OrganizationWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context>
 {
-    public OrganizationWmsWfsV2Projection()
+    private readonly DerivedLabelCache _labelCache;
+
+    // The cache is shared with the sibling sub-projections that write the label tables. Constructed on its own
+    // - as the tests do - it gets a private one, which is never loaded and so always resolves against the database.
+    public OrganizationWmsWfsV2Projection(DerivedLabelCache? labelCache = null)
     {
+        _labelCache = labelCache ?? new DerivedLabelCache();
+
         When<IEvent<OrganizationWasImported>>((context, e, ct) =>
             Insert(context, e.Data.OrganizationId.ToString(), e.Data.Name, null, ct));
 
@@ -45,23 +51,26 @@ public class OrganizationWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesP
             {
                 context.OrganizationCache.Remove(cache);
             }
+            _labelCache.RemoveOrganization(organisatieId);
 
             await RefreshBeheerLabels(context, organisatieId, null, ct);
         });
     }
 
-    private static Task Insert(WmsWfsV2Context context, string organisatieId, string? name, string? ovoCode, CancellationToken ct)
+    private Task Insert(WmsWfsV2Context context, string organisatieId, string? name, string? ovoCode, CancellationToken ct)
     {
+        var naam = name?.WithMaxLength(OrganizationName.MaxLength);
         context.OrganizationCache.Add(new OrganizationCacheRecord
         {
             OrganisatieId = organisatieId,
-            Naam = name?.WithMaxLength(OrganizationName.MaxLength),
+            Naam = naam,
             OvoCode = ovoCode
         });
+        _labelCache.SetOrganization(organisatieId, naam);
         return Task.CompletedTask;
     }
 
-    private static async Task Update(WmsWfsV2Context context, string organisatieId, string? name, string? ovoCode, bool? isMaintainer, CancellationToken ct)
+    private async Task Update(WmsWfsV2Context context, string organisatieId, string? name, string? ovoCode, bool? isMaintainer, CancellationToken ct)
     {
         var cache = await context.OrganizationCache.FindAsync([organisatieId], ct);
         if (cache is null)
@@ -71,6 +80,7 @@ public class OrganizationWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesP
         if (name is not null)
         {
             cache.Naam = name.WithMaxLength(OrganizationName.MaxLength);
+            _labelCache.SetOrganization(organisatieId, cache.Naam);
         }
         if (ovoCode is not null)
         {
@@ -85,7 +95,7 @@ public class OrganizationWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesP
     // Recompute the maintainer name (LBLLBEHEER/LBLRBEHEER) and category (LBLBEHEER) on every derived row maintained by
     // this organization. The changed name is applied directly (its cache row is mutated but not yet saved); the opposite
     // side's organization name is read from the cache.
-    private static async Task RefreshBeheerLabels(WmsWfsV2Context context, string organisatieId, string? newName, CancellationToken ct)
+    private async Task RefreshBeheerLabels(WmsWfsV2Context context, string organisatieId, string? newName, CancellationToken ct)
     {
         var rows = await context.DerivedRoadSegments
             .IncludeLocalToListAsync(q => q.Where(x => x.LBEHEER == organisatieId || x.RBEHEER == organisatieId), ct);
@@ -102,7 +112,9 @@ public class OrganizationWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesP
             .ToList();
         var otherNames = otherIds.Count == 0
             ? new Dictionary<string, string?>()
-            : await context.OrganizationCache.Where(x => otherIds.Contains(x.OrganisatieId)).ToDictionaryAsync(x => x.OrganisatieId!, x => x.Naam, ct);
+            : _labelCache.IsLoaded
+                ? _labelCache.GetOrganizations(otherIds)
+                : await context.OrganizationCache.Where(x => otherIds.Contains(x.OrganisatieId)).ToDictionaryAsync(x => x.OrganisatieId!, x => x.Naam, ct);
 
         string? NameFor(string? id) => id is null
             ? null
