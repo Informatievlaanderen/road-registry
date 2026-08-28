@@ -1,3 +1,10 @@
+# [5.12.0](https://github.com/informatievlaanderen/road-registry/compare/v5.11.4...v5.12.0) (2026-08-28)
+
+
+### Features
+
+* **ui:** show inwinning menu item for wegenregister admins ([e1699c9](https://github.com/informatievlaanderen/road-registry/commit/e1699c986475fc84529305c706b712caac46b5c4))
+
 ## [5.11.4](https://github.com/informatievlaanderen/road-registry/compare/v5.11.3...v5.11.4) (2026-08-27)
 
 
