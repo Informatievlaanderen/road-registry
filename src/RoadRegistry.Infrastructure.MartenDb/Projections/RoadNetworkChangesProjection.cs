@@ -90,6 +90,8 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
     private async Task UpdateCatchingUpState(IDocumentOperations operations, IReadOnlyList<IEvent> events, CancellationToken cancellation)
     {
+        var wasCatchingUp = _isCatchingUp;
+
         if (_isCatchingUp is null)
         {
             cancellation.ThrowIfCancellationRequested();
@@ -100,6 +102,35 @@ public abstract class RoadNetworkChangesProjection : IProjection
         {
             _isCatchingUp = false;
         }
+
+        if (wasCatchingUp == _isCatchingUp)
+        {
+            return;
+        }
+
+        if (_isCatchingUp is true)
+        {
+            await OnCatchUpStartedAsync(cancellation).ConfigureAwait(false);
+        }
+        else
+        {
+            await OnCatchUpFinishedAsync(cancellation).ConfigureAwait(false);
+        }
+    }
+
+    // Called once when the projection discovers it is behind, before the first batch is applied. A driver can use it to
+    // trade read-model availability for write throughput while the read model is incomplete anyway.
+    protected virtual Task OnCatchUpStartedAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    // Called once when the projection reaches the tail. It also fires on the first batch of a projection that was
+    // already caught up at startup - which is deliberate: that is what lets a host killed mid-catch-up undo whatever
+    // OnCatchUpStartedAsync had turned off, without needing to know that it crashed.
+    protected virtual Task OnCatchUpFinishedAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
     }
 
     private async Task ProcessEvents(IDocumentOperations operations, IReadOnlyList<IEvent> events, IReadOnlyList<RoadNetworkChangesProjectionProgression> processedProjectionProgressions, CancellationToken cancellation)

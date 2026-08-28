@@ -7,7 +7,7 @@ using Schema;
 
 public class RoadNetworkChangesPbsProjection : DbContextBackedRoadNetworkChangesProjection<PbsContext>
 {
-    public RoadNetworkChangesPbsProjection(int batchSize, ILoggerFactory loggerFactory, IDbContextFactory<PbsContext> dbContextFactory)
+    public RoadNetworkChangesPbsProjection(int batchSize, ILoggerFactory loggerFactory, IDbContextFactory<PbsContext> dbContextFactory, ProjectionCatchUpOptions? catchUpOptions = null)
         : base(dbContextFactory,
             [
                 new OrganizationPbsProjection(),
@@ -17,7 +17,8 @@ public class RoadNetworkChangesPbsProjection : DbContextBackedRoadNetworkChanges
                 new GradeJunctionPbsProjection(),
                 new GradeSeparatedJunctionPbsProjection()
             ], loggerFactory,
-            batchSize: batchSize)
+            batchSize: batchSize,
+            catchUpOptions: catchUpOptions)
     {
     }
 }

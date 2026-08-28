@@ -16,10 +16,16 @@ using Schema;
 using Schema.Records;
 using RoadRegistry.BackOffice.Extensions;
 
-public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context>
+public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context>, IProjectionCatchUpAware
 {
-    public RoadSegmentWmsWfsV2Projection()
+    private readonly DerivedLabelCache _labelCache;
+
+    // The cache is shared with the sibling sub-projections that write the label tables. Constructed on its own
+    // - as the tests do - it gets a private one, which is never loaded and so always resolves against the database.
+    public RoadSegmentWmsWfsV2Projection(DerivedLabelCache? labelCache = null)
     {
+        _labelCache = labelCache ?? new DerivedLabelCache();
+
         // V1
         // Legacy events carry raw string values; each is mapped to its V2 equivalent (see V1ToV2), storing null when a
         // value has no V2 mapping. Traffic direction does not exist in V1, so it is left empty. Numbered roads are not
@@ -297,7 +303,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         });
     }
 
-    private static async Task WriteFull(WmsWfsV2Context context, int segId, bool assumeNew,
+    private async Task WriteFull(WmsWfsV2Context context, int segId, bool assumeNew,
         RoadSegmentGeometry geometry, RoadSegmentStatusV2 status, RoadSegmentGeometryDrawMethodV2 method,
         RoadNodeId? startNode, RoadNodeId? endNode,
         RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> morphology,
@@ -355,7 +361,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
     // Partial update: only the non-null arguments are applied to the segment; the rest are kept as stored. Used for
     // modify / geometry-modified / streetname-changed / split, which each carry only a subset of the attributes. The
     // unchanged dynamic attributes come straight from the loaded segment's JSON blob — no extra queries.
-    private static async Task WritePartial(WmsWfsV2Context context, int segId,
+    private async Task WritePartial(WmsWfsV2Context context, int segId,
         RoadSegmentGeometry? geometry, RoadSegmentStatusV2? status, RoadSegmentGeometryDrawMethodV2? method,
         RoadSegmentNodeIds? nodeIds,
         RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>? morphology,
@@ -426,7 +432,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         return (normal, isNew);
     }
 
-    private static async Task RebuildDerived(WmsWfsV2Context context, int segId, RoadSegmentRecord normal, string? euNummers, string? nwNummers, bool assumeNew, CancellationToken ct)
+    private async Task RebuildDerived(WmsWfsV2Context context, int segId, RoadSegmentRecord normal, string? euNummers, string? nwNummers, bool assumeNew, CancellationToken ct)
     {
         if (!assumeNew)
         {
@@ -450,7 +456,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
 
     // Resolve the denormalized street-name (LSTRNM/RSTRNM/STRNM) and maintainer (LBLBEHEER) labels for freshly derived
     // rows from the street-name and organization caches, so the WMS view can read them straight from the table.
-    private static async Task ApplyStreetNameAndOrganizationLabels(WmsWfsV2Context context, IReadOnlyList<DerivedRoadSegmentRecord> rows, CancellationToken ct)
+    private async Task ApplyStreetNameAndOrganizationLabels(WmsWfsV2Context context, IReadOnlyList<DerivedRoadSegmentRecord> rows, CancellationToken ct)
     {
         var streetNameIds = rows
             .SelectMany(r => new[] { r.LSTRNMID, r.RSTRNMID })
@@ -465,12 +471,23 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             .Distinct()
             .ToList();
 
+        // While catching up both lookup tables are held in memory, which is what removes the last per-event round trip
+        // from the insert path. Live the cache stays empty and these resolve against the database as before.
+        if (IsCatchingUp && !_labelCache.IsLoaded)
+        {
+            await _labelCache.LoadAsync(context, ct);
+        }
+
         var streetNames = streetNameIds.Count == 0
             ? new Dictionary<int, string?>()
-            : await context.StreetNameCache.Where(x => streetNameIds.Contains(x.StraatnaamId)).ToDictionaryAsync(x => x.StraatnaamId, x => x.Naam, ct);
+            : _labelCache.IsLoaded
+                ? _labelCache.GetStreetNames(streetNameIds)
+                : await context.StreetNameCache.Where(x => streetNameIds.Contains(x.StraatnaamId)).ToDictionaryAsync(x => x.StraatnaamId, x => x.Naam, ct);
         var orgNames = orgIds.Count == 0
             ? new Dictionary<string, string?>()
-            : await context.OrganizationCache.Where(x => orgIds.Contains(x.OrganisatieId)).ToDictionaryAsync(x => x.OrganisatieId!, x => x.Naam, ct);
+            : _labelCache.IsLoaded
+                ? _labelCache.GetOrganizations(orgIds)
+                : await context.OrganizationCache.Where(x => orgIds.Contains(x.OrganisatieId)).ToDictionaryAsync(x => x.OrganisatieId!, x => x.Naam, ct);
 
         foreach (var r in rows)
         {
@@ -486,6 +503,18 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             r.LBLRBEHEER = rOrg;
             r.LBLBEHEER = WmsWfsV2DerivedLabels.BuildMaintainerCategoryLabel(r.STATUS, r.LBEHEER, r.RBEHEER, lOrg, rOrg);
         }
+    }
+
+    public Task OnCatchUpStartedAsync(CancellationToken cancellationToken)
+    {
+        // Loaded lazily on first use instead, where a DbContext is at hand.
+        return Task.CompletedTask;
+    }
+
+    public Task OnCatchUpFinishedAsync(CancellationToken cancellationToken)
+    {
+        _labelCache.Clear();
+        return Task.CompletedTask;
     }
 
     // Distinct, alphabetically sorted road numbers joined with " / " (null when there are none).
@@ -609,7 +638,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
     // exist yet (assumeNew) — the lookup and all derived/road delete queries are skipped. Maps the legacy string values to
     // V2 (null when unmapped) and sets the European/national roads from the event (Imported carries them inline; Added
     // starts empty and gets separate events).
-    private static Task WriteV1Full(WmsWfsV2Context context, int segId, RoadSegmentGeometry geometry,
+    private Task WriteV1Full(WmsWfsV2Context context, int segId, RoadSegmentGeometry geometry,
         string status, string method, int startNode, int endNode,
         string morphology, string category, string accessRestriction,
         IReadOnlyList<(double From, double To, string Type)> surfaces,
@@ -636,7 +665,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
 
     // V1 modify: rewrites every attribute the event carries but leaves the European/national roads untouched (those are
     // maintained through their own add/remove events).
-    private static Task WriteV1Modified(WmsWfsV2Context context, int segId, RoadSegmentGeometry geometry,
+    private Task WriteV1Modified(WmsWfsV2Context context, int segId, RoadSegmentGeometry geometry,
         string status, string method, int startNode, int endNode,
         string morphology, string category, string accessRestriction,
         IReadOnlyList<(double From, double To, string Type)> surfaces,

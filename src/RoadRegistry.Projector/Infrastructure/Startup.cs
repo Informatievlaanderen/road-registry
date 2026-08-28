@@ -62,6 +62,13 @@ public class Startup
         _configuration = configuration;
     }
 
+    // Catch-up tuning lives in the same configuration section as the projection's BatchSize. Absent keys fall back to
+    // the defaults on ProjectionCatchUpOptions, so an environment only has to name what it wants to change.
+    private ProjectionCatchUpOptions GetCatchUpOptions(string projectionName)
+    {
+        return _configuration.GetSection(projectionName).Get<ProjectionCatchUpOptions>() ?? ProjectionCatchUpOptions.Default;
+    }
+
     public void ConfigureServices(IServiceCollection services)
     {
         var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
@@ -231,13 +238,13 @@ public class Startup
                 if (projectionOptions.Pbs.Enabled)
                 {
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesPbsProjection)}:BatchSize");
-                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesPbsProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<PbsContext>>()));
+                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesPbsProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<PbsContext>>(), GetCatchUpOptions(nameof(RoadNetworkChangesPbsProjection))));
                 }
 
                 if (projectionOptions.WmsWfsV2.Enabled)
                 {
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesWmsWfsV2Projection)}:BatchSize");
-                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesWmsWfsV2Projection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<WmsWfsV2Context>>()));
+                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesWmsWfsV2Projection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<WmsWfsV2Context>>(), GetCatchUpOptions(nameof(RoadNetworkChangesWmsWfsV2Projection))));
                 }
             }).Services
             .AddMartenDatabaseMigrator()

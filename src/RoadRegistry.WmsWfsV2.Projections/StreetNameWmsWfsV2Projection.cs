@@ -14,8 +14,14 @@ using Schema.Records;
 
 public class StreetNameWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context>
 {
-    public StreetNameWmsWfsV2Projection()
+    private readonly DerivedLabelCache _labelCache;
+
+    // The cache is shared with the sibling sub-projections that write the label tables. Constructed on its own
+    // - as the tests do - it gets a private one, which is never loaded and so always resolves against the database.
+    public StreetNameWmsWfsV2Projection(DerivedLabelCache? labelCache = null)
     {
+        _labelCache = labelCache ?? new DerivedLabelCache();
+
         When<IEvent<StreetNameWasCreated>>((context, e, ct) =>
             Insert(context, e.Data.StreetNameId.ToInt32(), e.Data.DutchName, ct));
 
@@ -33,13 +39,14 @@ public class StreetNameWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPro
             Remove(context, e.Data.StreetNameId.ToInt32(), ct));
     }
 
-    private static Task Insert(WmsWfsV2Context context, int id, string? naam, CancellationToken ct)
+    private Task Insert(WmsWfsV2Context context, int id, string? naam, CancellationToken ct)
     {
         context.StreetNameCache.Add(new StreetNameCacheRecord { StraatnaamId = id, Naam = naam });
+        _labelCache.SetStreetName(id, naam);
         return Task.CompletedTask;
     }
 
-    private static async Task Update(WmsWfsV2Context context, int id, string? naam, CancellationToken ct)
+    private async Task Update(WmsWfsV2Context context, int id, string? naam, CancellationToken ct)
     {
         var record = await context.StreetNameCache.FindAsync([id], ct);
         if (record is null)
@@ -47,20 +54,22 @@ public class StreetNameWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPro
             return;
         }
         record.Naam = naam;
+        _labelCache.SetStreetName(id, naam);
     }
 
-    private static async Task Remove(WmsWfsV2Context context, int id, CancellationToken ct)
+    private async Task Remove(WmsWfsV2Context context, int id, CancellationToken ct)
     {
         var record = await context.StreetNameCache.FindAsync([id], ct);
         if (record is not null)
         {
             context.StreetNameCache.Remove(record);
         }
+        _labelCache.RemoveStreetName(id);
     }
 
     // Recompute LSTRNM / RSTRNM / STRNM on every derived row referencing this street name. The changed name is applied
     // directly (its cache row is mutated but not yet saved); the opposite side's name is read from the cache.
-    private static async Task RefreshStreetNameLabels(WmsWfsV2Context context, int streetNameId, string? newName, CancellationToken ct)
+    private async Task RefreshStreetNameLabels(WmsWfsV2Context context, int streetNameId, string? newName, CancellationToken ct)
     {
         var rows = await context.DerivedRoadSegments
             .Where(x => x.LSTRNMID == streetNameId || x.RSTRNMID == streetNameId)
@@ -78,7 +87,9 @@ public class StreetNameWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPro
             .ToList();
         var otherNames = otherIds.Count == 0
             ? new Dictionary<int, string?>()
-            : await context.StreetNameCache.Where(x => otherIds.Contains(x.StraatnaamId)).ToDictionaryAsync(x => x.StraatnaamId, x => x.Naam, ct);
+            : _labelCache.IsLoaded
+                ? _labelCache.GetStreetNames(otherIds)
+                : await context.StreetNameCache.Where(x => otherIds.Contains(x.StraatnaamId)).ToDictionaryAsync(x => x.StraatnaamId, x => x.Naam, ct);
 
         string? NameFor(int? id) => id is null
             ? null
