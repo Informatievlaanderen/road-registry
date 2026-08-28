@@ -20,7 +20,7 @@ public sealed class ProjectionCatchUpOptions
     // work on a table of millions of rows, so it has to be earned: a projection that is a few thousand events behind
     // after a deploy would spend far longer tearing its indexes down and putting them back than it saves. Only a
     // backlog on the scale of a real rebuild is worth it.
-    public long MinimumBacklogForIndexDisabling { get; init; } = 1_000_000;
+    public long MinimumBacklogForIndexDisabling { get; init; } = 100_000;
 
     // Emit a throughput line every N batches, so a rebuild can be measured rather than guessed at.
     public int MetricsLogIntervalInBatches { get; init; } = 25;
