@@ -49,6 +49,9 @@ export default class UserTokenResult {
   get isInwinner(): boolean {
     return this.token.vo_doelgroepcode === 'EA';
   }
+  get isAdmin(): boolean {
+    return this.contexts.includes(RoadRegistry.UserContext.Admin);
+  }
 
   parseContexts(): string[] {
     const dvWegenregister = this.token.dv_wegenregister ?? [];
