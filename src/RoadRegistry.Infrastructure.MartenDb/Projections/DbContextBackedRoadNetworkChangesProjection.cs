@@ -14,11 +14,13 @@ using Microsoft.Extensions.Logging;
 // position is the SQL-side idempotency guard for events re-delivered after the Marten progression and the SQL Server
 // write diverged; it replaces the per-sub-projection positions that used to exist.
 //
-// While the projection is catching up two things change, both under ProjectionCatchUpOptions:
-//   - high-volume inserts are streamed with SqlBulkCopy instead of EF's per-row INSERT batching;
-//   - the read model's non-clustered indexes are disabled, and rebuilt once the tail is reached.
-// Neither changes what is written. The commit stays atomic: the bulk copy runs on the context's own connection inside
-// the same transaction as SaveChangesAsync, so the rows and the position still land together or not at all.
+// Two things speed up the write side, both under ProjectionCatchUpOptions, neither changing what is written:
+//   - a batch's high-volume inserts are streamed with SqlBulkCopy instead of EF's per-row INSERT batching. This is
+//     driven by how many rows of one type a batch holds, not by catching up, so a large live batch benefits too;
+//   - the read model's non-clustered indexes are disabled while catching up on a backlog big enough to be worth it,
+//     and rebuilt once the tail is reached.
+// The commit stays atomic: the bulk copy runs on the context's own connection inside the same transaction as
+// SaveChangesAsync, so the rows and the position still land together or not at all.
 public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : RoadNetworkChangesProjection
     where TDbContext : RunnerDbContext<TDbContext>
 {
@@ -173,7 +175,7 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
             IsCatchingUp);
     }
 
-    protected override async Task OnCatchUpStartedAsync(CancellationToken cancellationToken)
+    protected override async Task OnCatchUpStartedAsync(long estimatedBacklog, CancellationToken cancellationToken)
     {
         await ForEachCatchUpAwareProjection(
             projection => projection.OnCatchUpStartedAsync(cancellationToken),
@@ -181,6 +183,16 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
 
         if (!_options.DisableIndexesWhileCatchingUp)
         {
+            return;
+        }
+
+        // Putting the indexes back afterwards is heavy work in its own right, so a short replay - a restart, a deploy -
+        // must not pay for it. Only a backlog on the scale of a real rebuild earns it.
+        if (estimatedBacklog < _options.MinimumBacklogForIndexDisabling)
+        {
+            Logger.LogInformation(
+                "{Projection} is catching up on about {Backlog} event(s), below the {Minimum} needed to make disabling the indexes worthwhile; leaving them in place.",
+                ProjectionName, estimatedBacklog, _options.MinimumBacklogForIndexDisabling);
             return;
         }
 
