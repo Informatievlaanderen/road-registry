@@ -34,8 +34,10 @@
               <div data-vl-tabs data-vl-tabs-responsive-label="Navigatie">
                 <div class="vl-tabs__wrapper">
                   <div class="vl-tabs" data-vl-tabs-list role="tablist">
-                    <router-link v-if="isInwinner" :to="`/inwinning`" class="vl-tab" role="tab">Inwinning</router-link>
                     <router-link v-if="!isInwinner" :to="`/extracten`" class="vl-tab" role="tab">Extracten</router-link>
+                    <router-link v-if="canAccessInwinning" :to="`/inwinning`" class="vl-tab" role="tab"
+                      >Inwinning</router-link
+                    >
                     <router-link v-if="!isInwinner" :to="`/activiteit`" class="vl-tab" role="tab"
                       >Activiteit</router-link
                     >
@@ -73,6 +75,9 @@ export default defineComponent({
     },
     isInwinner() {
       return user.state.isInwinner;
+    },
+    canAccessInwinning() {
+      return user.state.isInwinner || user.state.isAdmin;
     },
     environmentHeaderStyle() {
       const style: any = {};
