@@ -1,3 +1,10 @@
+## [5.12.1](https://github.com/informatievlaanderen/road-registry/compare/v5.12.0...v5.12.1) (2026-08-28)
+
+
+### Performance Improvements
+
+* **2.0:** speed up Pbs and WmsWfsV2 rebuilds ([b18730f](https://github.com/informatievlaanderen/road-registry/commit/b18730ff4a289babf4337401be58cbc21071da3e))
+
 # [5.12.0](https://github.com/informatievlaanderen/road-registry/compare/v5.11.4...v5.12.0) (2026-08-28)
 
 
