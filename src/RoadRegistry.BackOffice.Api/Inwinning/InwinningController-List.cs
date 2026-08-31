@@ -23,13 +23,20 @@ public partial class InwinningController
     public async Task<ActionResult> ListInwinningExtracten(
         CancellationToken cancellationToken = default)
     {
-        var @operator = ApiContext.HttpContextAccessor.HttpContext.GetOperator();
-        if (@operator is null)
+        var httpContext = ApiContext.HttpContextAccessor.HttpContext;
+
+        // An administrator of Digitaal Vlaanderen oversees the inwinning of every organization, not just its own.
+        string? filterByOrganizationCode = null;
+        if (!(httpContext.IsDigitaalVlaanderen() && httpContext.IsAdmin()))
         {
-            throw new InvalidOperationException("User is authenticated but no operator could be found.");
+            filterByOrganizationCode = httpContext.GetOperator();
+            if (filterByOrganizationCode is null)
+            {
+                throw new InvalidOperationException("User is authenticated but no operator could be found.");
+            }
         }
 
-        var request = new InwinningExtractListRequest(@operator);
+        var request = new InwinningExtractListRequest(filterByOrganizationCode);
         var response = await _mediator.Send(request, cancellationToken);
 
         return Ok(new InwinningExtractsListResponse
