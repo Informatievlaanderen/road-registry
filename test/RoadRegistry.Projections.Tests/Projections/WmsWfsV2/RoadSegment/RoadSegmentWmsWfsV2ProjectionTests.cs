@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Microsoft.EntityFrameworkCore;
 using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.GradeSeparatedJunction.Events.V1;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.Organization.Events.V2;
+using RoadRegistry.Projections.Tests.Projections;
 using RoadRegistry.WmsWfsV2.Projections;
 using RoadRegistry.WmsWfsV2.Schema.Records;
 using RoadRegistry.RoadNode.Events.V1;
@@ -114,20 +116,43 @@ public class RoadSegmentWmsWfsV2ProjectionTests
         // The WMS/WFS target database must hold plain 2D geometries (no Z, no M), whatever the incoming geometry
         // carries.
         var segment = await scenario.Find<RoadSegmentRecord>(1);
-        AssertIs2D(segment!.GEOMETRIE!);
+        SqlServerGeometry.AssertIs2D(segment!.GEOMETRIE!);
 
         var derived = await scenario.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1));
         Assert.NotEmpty(derived);
-        Assert.All(derived, row => AssertIs2D(row.GEOMETRIE!));
+        Assert.All(derived, row => SqlServerGeometry.AssertIs2D(row.GEOMETRIE!));
     }
 
-    private static void AssertIs2D(NetTopologySuite.Geometries.Geometry geometry)
+    [Fact]
+    public async Task WhenRoadSegmentIsRederivedFromItsStoredGeometry_ThenGeometriesAreStillStoredAs2D()
     {
-        Assert.All(geometry.Coordinates, coordinate =>
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(_testData.Segment1Added);
+
+        // Every event after the add re-derives the flattened rows from the segment geometry as it comes back out of
+        // the database, and EF hands that back with a Z and an M ordinate declared (see SqlServerGeometry). The
+        // in-memory provider returns the instance that was written, so stand in for the round trip here.
+        await scenario.SeedAsync(async context =>
         {
-            Assert.True(double.IsNaN(coordinate.Z), "Geometry must not carry a Z ordinate.");
-            Assert.True(double.IsNaN(coordinate.M), "Geometry must not carry an M ordinate.");
+            var stored = await context.RoadSegments.FindAsync(1);
+            stored!.GEOMETRIE = SqlServerGeometry.AsReadFromSqlServer(stored.GEOMETRIE!);
+            // The replacement holds the same X/Y, so EF's geometry comparer sees no change and would drop it.
+            context.Entry(stored).Property(x => x.GEOMETRIE).IsModified = true;
         });
+
+        await scenario.GivenAsync(new RoadSegmentWasModified
+        {
+            RoadSegmentId = new RoadSegmentId(1),
+            Status = RoadSegmentStatusV2.BuitenGebruik,
+            Provenance = Provenance
+        });
+
+        // The segment's own column is not asserted here: it is only ever written from an event geometry, and this
+        // event carries none, so EF leaves the stored value alone. The flattened rows are rewritten from it every time.
+        var derived = await scenario.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1));
+        Assert.NotEmpty(derived);
+        Assert.All(derived, row => SqlServerGeometry.AssertIs2D(row.GEOMETRIE!));
     }
 
     [Fact]

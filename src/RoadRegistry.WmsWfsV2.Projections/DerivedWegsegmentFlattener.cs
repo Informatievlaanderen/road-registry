@@ -35,6 +35,13 @@ internal static class DerivedWegsegmentFlattener
         string? euNummers, string? nwNummers,
         DateTimeOffset creatie, DateTimeOffset versie)
     {
+        // The caller hands over the segment geometry as it is held on the record, which - once the record has been read
+        // back from SQL Server - carries a declared Z and M ordinate: SqlServerBytesReader always builds coordinate
+        // sequences with both, NaN-valued, even for a column holding plain 2D geometries. Everything cut out of the
+        // geometry below inherits that, and would be written back to the target database as a 3D/measured geometry.
+        // Normalizing once here keeps every derived row 2D, whichever event re-derived the segment.
+        geometry = geometry.Force2D();
+
         var length = geometry.Length;
 
         var morphologyCov = Normalize(morphology, length, x => x.VANPOS, x => x.TOTPOS);
