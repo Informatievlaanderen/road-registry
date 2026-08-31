@@ -1,5 +1,6 @@
 namespace RoadRegistry.Projector.Infrastructure;
 
+using RoadRegistry.Infrastructure.MartenDb.Projections;
 using System;
 using System.Collections.Generic;
 using System.Linq;

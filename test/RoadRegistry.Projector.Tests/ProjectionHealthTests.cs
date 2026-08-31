@@ -3,6 +3,7 @@ namespace RoadRegistry.Projector.Tests;
 using FluentAssertions;
 using JasperFx;
 using JasperFx.Events.Daemon;
+using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Projector.Infrastructure;
 
 // The status page used to read a projection's state straight off the daemon and only recognise Stopped, so a shard that
