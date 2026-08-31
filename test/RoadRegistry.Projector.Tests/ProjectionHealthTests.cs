@@ -53,6 +53,23 @@ public class ProjectionHealthTests
             .Should().Contain("supposed to be stopped");
     }
 
+    // The case that motivated the whole change, in its quietest form: a projection somebody stopped, which has never
+    // recorded a position. "No progression found" is what "has not run yet" looks like, and reporting it here would
+    // make a deliberate stop read as an incident all over again.
+    [Fact]
+    public void AnIntentionallyStoppedProjectionWithNoProgressionIsQuiet()
+    {
+        ProjectionHealth.DescribeProblem(ProjectionDesiredStates.Stopped, AgentStatus.Stopped, null)
+            .Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AnIntentionallyStoppedProjectionThatIsStillRunningIsReportedEvenWithNoProgression()
+    {
+        ProjectionHealth.DescribeProblem(ProjectionDesiredStates.Stopped, AgentStatus.Running, null)
+            .Should().Contain("supposed to be stopped");
+    }
+
     [Fact]
     public void AMissingProgressionIsStillReportedWhenNothingElseIsWrong()
     {
