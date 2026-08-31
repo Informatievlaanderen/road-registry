@@ -52,6 +52,30 @@ public partial class InwinningControllerTests
     }
 
     [Fact]
+    public async Task WhenListingInwinningExtractenAsDigitaalVlaanderenAdminByOvoCodeClaim_ThenNoFilter()
+    {
+        // Arrange
+        // ACM/IDM hands the OVO-code over in 'vo_ovocode' for some clients and in 'vo_orgcode' for others.
+        var controller = BuildController(
+            new Claim("vo_ovocode", OrganizationOvoCode.DigitaalVlaanderen),
+            new Claim("vo_orgcode", TestOrgCode),
+            new Claim(RoadRegistryClaim.ClaimType, RoadRegistryClaim.ConvertRoleToClaimValue(RoadRegistryRoles.Admin)));
+
+        Mediator
+            .Setup(x => x.Send(new InwinningExtractListRequest(null), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExtractListResponse { Items = [new ExtractListItem(), new ExtractListItem()] });
+
+        // Act
+        var result = await controller.ListInwinningExtracten();
+
+        // Assert
+        var okObjectResult = Assert.IsType<OkObjectResult>(result);
+        var responseObject = Assert.IsType<InwinningExtractsListResponse>(okObjectResult.Value);
+
+        responseObject.Items.Count.Should().Be(2);
+    }
+
+    [Fact]
     public async Task WhenListingInwinningExtractenAsDigitaalVlaanderenEditor_ThenFilteredByOrganizationCode()
     {
         // Arrange
