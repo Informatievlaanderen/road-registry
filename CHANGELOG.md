@@ -1,3 +1,10 @@
+## [5.12.2](https://github.com/informatievlaanderen/road-registry/compare/v5.12.1...v5.12.2) (2026-08-31)
+
+
+### Bug Fixes
+
+* **2.0:** keep the flattened WmsWfsV2 and PBS geometries 2D ([764cc30](https://github.com/informatievlaanderen/road-registry/commit/764cc30687ddf0f80d961e7fa5da9750bddc6223))
+
 ## [5.12.1](https://github.com/informatievlaanderen/road-registry/compare/v5.12.0...v5.12.1) (2026-08-28)
 
 
