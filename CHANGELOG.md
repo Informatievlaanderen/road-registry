@@ -1,3 +1,10 @@
+# [5.13.0](https://github.com/informatievlaanderen/road-registry/compare/v5.12.2...v5.13.0) (2026-08-31)
+
+
+### Features
+
+* **2.0:** let Digitaal Vlaanderen admins list all inwinning extracten ([06805af](https://github.com/informatievlaanderen/road-registry/commit/06805af1610b929e978c2637fcc35ceb8ef37d5f))
+
 ## [5.12.2](https://github.com/informatievlaanderen/road-registry/compare/v5.12.1...v5.12.2) (2026-08-31)
 
 
