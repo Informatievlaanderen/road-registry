@@ -26,7 +26,12 @@ public class InwinningExtractListRequestHandler : EndpointRequestHandler<Inwinni
     protected override async Task<ExtractListResponse> InnerHandleAsync(InwinningExtractListRequest request, CancellationToken cancellationToken)
     {
         var extractRequestsQuery = _extractsDbContext.ExtractRequests
-            .Where(er => er.OrganizationCode == request.OrganizationCode && er.ExternalRequestId.StartsWith("INWINNING_"));
+            .Where(er => er.ExternalRequestId.StartsWith("INWINNING_"));
+
+        if (request.OrganizationCode is not null)
+        {
+            extractRequestsQuery = extractRequestsQuery.Where(er => er.OrganizationCode == request.OrganizationCode);
+        }
 
         var query =
                 from extractRequest in extractRequestsQuery

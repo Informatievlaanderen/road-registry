@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Tests.Inwinning;
+﻿namespace RoadRegistry.BackOffice.Api.Tests.Inwinning;
 
 using System.Security.Claims;
 using AutoFixture;
@@ -32,11 +32,16 @@ public partial class InwinningControllerTests : IAsyncLifetime
         Controller = BuildController();
     }
 
-    private InwinningController BuildController()
+    private InwinningController BuildController(params Claim[] claims)
     {
+        if (claims.Length == 0)
+        {
+            claims = [new Claim("vo_orgcode", TestOrgCode)];
+        }
+
         var httpContext = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity([new Claim("vo_orgcode", TestOrgCode)]))
+            User = new ClaimsPrincipal(new ClaimsIdentity(claims))
         };
 
         return new InwinningController(new BackofficeApiControllerContext(
