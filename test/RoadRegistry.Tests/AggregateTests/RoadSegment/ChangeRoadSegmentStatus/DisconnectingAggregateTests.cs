@@ -97,8 +97,28 @@ public class DisconnectingAggregateTests : StatusChangeAggregateTestBase
         roadNetwork.RoadNodes[new RoadNodeId(11)].IsRemoved.Should().BeTrue();
     }
 
+    // Already out of the network: nothing is unhooked a second time, so the road nodes it once hung off stay put.
     [Theory]
-    [InlineData(RealizedToPlanned, nameof(RoadSegmentStatusV2.Gepland))]
+    [InlineData(RealizedToPlanned)]
+    [InlineData(RealizedToOutOfUse)]
+    [InlineData(RealizedToHistorized)]
+    public void WhenTheSegmentAlreadyHasTheStatusItIsChangedTo_ThenNothingHappens(string change)
+    {
+        var statusChange = RoadSegmentStatusChange.Parse(change);
+        var roadNetwork = BuildNetworkWithASegmentOnItsOwn(statusChange.To);
+        var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
+
+        var result = Act(roadNetwork, statusChange);
+
+        result.Problems.Should().BeEmpty();
+        result.Summary.HasChanges().Should().BeFalse();
+        roadSegment.GetChanges().Should().BeEmpty();
+        roadSegment.Status.Should().Be(statusChange.To);
+        roadNetwork.RoadNodes[new RoadNodeId(10)].IsRemoved.Should().BeFalse();
+        roadNetwork.RoadNodes[new RoadNodeId(11)].IsRemoved.Should().BeFalse();
+    }
+
+    [Theory]
     [InlineData(RealizedToPlanned, nameof(RoadSegmentStatusV2.BuitenGebruik))]
     [InlineData(RealizedToOutOfUse, nameof(RoadSegmentStatusV2.Gepland))]
     [InlineData(RealizedToHistorized, nameof(RoadSegmentStatusV2.BuitenGebruik))]

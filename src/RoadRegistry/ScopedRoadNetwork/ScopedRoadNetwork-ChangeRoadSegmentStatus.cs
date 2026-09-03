@@ -1,4 +1,4 @@
-namespace RoadRegistry.ScopedRoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +42,16 @@ public partial class ScopedRoadNetwork
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
             return Failed(roadSegmentContext + new RoadSegmentNotFound(), context);
+        }
+
+        // A segment that already has the status being changed to has nothing to change: the action is done. It is
+        // answered as a success with an empty summary rather than as a problem, because the alternative is telling a
+        // caller that repeats an action - a retry, a second click, two operators on the same segment - that the
+        // segment is not in the status it is changing away from, which is a validation error about the very thing
+        // that already succeeded. Nothing is validated beyond this point either: there is nothing to be wrong about.
+        if (roadSegment.Status == statusChange.To)
+        {
+            return new RoadNetworkChangeResult(Problems.None, context.Summary);
         }
 
         var problems = ValidateRoadSegmentIsChangeable(roadSegment, statusChange, mayModifyMeasuredRoadSegments, roadSegmentContext);

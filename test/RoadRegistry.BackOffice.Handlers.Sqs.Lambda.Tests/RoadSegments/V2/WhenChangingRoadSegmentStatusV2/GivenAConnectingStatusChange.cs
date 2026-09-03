@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.V2.WhenChangingRoadSegmentStatusV2;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.V2.WhenChangingRoadSegmentStatusV2;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -131,14 +131,29 @@ public class GivenAConnectingStatusChange : BackOfficeLambdaTest
     }
 
     [Fact]
-    public async Task WhenTheRoadSegmentIsAlreadyRealized_ThenTicketError()
+    public async Task WhenTheRoadSegmentHasNeitherStatusOfTheChange_ThenTicketError()
     {
         // VAL-4, re-validated here because the request may have gone stale between being accepted and handled.
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
 
-        await HandleRequest(store, ExtractsDbContextWith(inwinningCompleted: true), plannedStatus: RoadSegmentStatusV2.Gerealiseerd);
+        await HandleRequest(store, ExtractsDbContextWith(inwinningCompleted: true), plannedStatus: RoadSegmentStatusV2.BuitenGebruik);
 
         VerifyThatTicketHasError("WegsegmentRealisatieStatusNietCorrect", null);
+    }
+
+    [Fact]
+    public async Task WhenTheRoadSegmentIsAlreadyRealized_ThenTicketIsCompletedWithoutChanges()
+    {
+        // Repeating an action that already succeeded - a retry, a second click - is not an error: the segment is
+        // already where the caller wants it, so nothing is validated, nothing is raised and nothing is summarised.
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var completedResults = CaptureCompletedResults();
+
+        await HandleRequest(store, ExtractsDbContextWith(inwinningCompleted: true), plannedStatus: RoadSegmentStatusV2.Gerealiseerd);
+
+        var summary = completedResults.Should().ContainSingle().Which.Summary;
+        summary.RoadSegments.Modified.Should().BeEmpty();
+        summary.RoadNodes.Added.Should().BeEmpty();
     }
 
     [Fact]

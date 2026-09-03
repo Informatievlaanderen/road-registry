@@ -107,11 +107,28 @@ public class ConnectingAggregateTests : StatusChangeAggregateTestBase
         @event.Morphology.Values.Max(x => x.Coverage.To.ToDouble()).Should().BeApproximately(length, 0.01);
     }
 
+    // Already realized: nothing is hooked up a second time, and no road node is added or re-typed.
     [Theory]
-    [InlineData(PlannedToRealized, nameof(RoadSegmentStatusV2.Gerealiseerd))]
+    [InlineData(PlannedToRealized)]
+    [InlineData(OutOfUseToRealized)]
+    [InlineData(HistorizedToRealized)]
+    public void WhenTheSegmentAlreadyHasTheStatusItIsChangedTo_ThenNothingHappens(string change)
+    {
+        var statusChange = RoadSegmentStatusChange.Parse(change);
+        var roadNetwork = BuildNetworkWith(BuildGeometry((100, 0), (100, 80)), statusChange.To);
+        var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
+
+        var result = Act(roadNetwork, statusChange);
+
+        result.Problems.Should().BeEmpty();
+        result.Summary.HasChanges().Should().BeFalse();
+        roadSegment.GetChanges().Should().BeEmpty();
+        roadSegment.Status.Should().Be(statusChange.To);
+    }
+
+    [Theory]
     [InlineData(PlannedToRealized, nameof(RoadSegmentStatusV2.BuitenGebruik))]
     [InlineData(OutOfUseToRealized, nameof(RoadSegmentStatusV2.Gepland))]
-    [InlineData(OutOfUseToRealized, nameof(RoadSegmentStatusV2.Gerealiseerd))]
     [InlineData(HistorizedToRealized, nameof(RoadSegmentStatusV2.Gepland))]
     [InlineData(HistorizedToRealized, nameof(RoadSegmentStatusV2.BuitenGebruik))]
     public void WhenTheStatusIsNotTheOneBeingChangedAwayFrom_ThenError(string change, string status)

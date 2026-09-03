@@ -102,12 +102,30 @@ public class UnconnectedAggregateTests : StatusChangeAggregateTestBase
         result.Summary.GradeSeparatedJunctions.Removed.Should().BeEmpty();
     }
 
+    // Already there: the change has nothing left to do, so it is answered as the success it is rather than as a
+    // problem about the status the segment is not changing away from.
+    [Theory]
+    [InlineData(OutOfUseToHistorized)]
+    [InlineData(NotRealizedToPlanned)]
+    [InlineData(HistorizedToOutOfUse)]
+    public void WhenTheSegmentAlreadyHasTheStatusItIsChangedTo_ThenNothingHappens(string change)
+    {
+        var statusChange = RoadSegmentStatusChange.Parse(change);
+        var roadNetwork = BuildNetworkWith(statusChange.To);
+        var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
+
+        var result = Act(roadNetwork, statusChange);
+
+        result.Problems.Should().BeEmpty();
+        result.Summary.HasChanges().Should().BeFalse();
+        roadSegment.GetChanges().Should().BeEmpty();
+        roadSegment.Status.Should().Be(statusChange.To);
+    }
+
     [Theory]
     [InlineData(OutOfUseToHistorized, nameof(RoadSegmentStatusV2.Gepland))]
     [InlineData(OutOfUseToHistorized, nameof(RoadSegmentStatusV2.Gerealiseerd))]
-    [InlineData(NotRealizedToPlanned, nameof(RoadSegmentStatusV2.Gepland))]
     [InlineData(NotRealizedToPlanned, nameof(RoadSegmentStatusV2.BuitenGebruik))]
-    [InlineData(HistorizedToOutOfUse, nameof(RoadSegmentStatusV2.BuitenGebruik))]
     [InlineData(HistorizedToOutOfUse, nameof(RoadSegmentStatusV2.Gerealiseerd))]
     public void WhenTheStatusIsNotTheOneBeingChangedAwayFrom_ThenError(string change, string status)
     {
