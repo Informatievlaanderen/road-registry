@@ -1,3 +1,19 @@
+# [5.14.0](https://github.com/informatievlaanderen/road-registry/compare/v5.13.0...v5.14.0) (2026-09-03)
+
+
+### Bug Fixes
+
+* **2.0:** document the V2 request and response schemas in swagger ([cea7cf1](https://github.com/informatievlaanderen/road-registry/commit/cea7cf1f343e0367ee5bb6e91f3e6b3a35f787cc))
+* **2.0:** only open a transaction when a projection batch bulk copies ([09542f6](https://github.com/informatievlaanderen/road-registry/commit/09542f669504531a0510038565d3f6cec37b3141))
+* **2.0:** stop the SQL projection position running ahead of its page ([d64910a](https://github.com/informatievlaanderen/road-registry/commit/d64910a3a72f4e0603835828b4a8afe6ac8c7a5a))
+* **projector:** report what a Marten projection is actually doing ([5d22f44](https://github.com/informatievlaanderen/road-registry/commit/5d22f44c43e0a3a7a9bc049dbacecf21b5297698))
+
+
+### Features
+
+* **2.0:** add the remaining road segment v2 status change endpoints ([3521921](https://github.com/informatievlaanderen/road-registry/commit/352192132fa31180650537e5370d4753c87db45b))
+* **2.0:** rebuild PBS and WmsWfsV2 into a shadow schema instead of taking them down ([4e03c41](https://github.com/informatievlaanderen/road-registry/commit/4e03c41ef4e67020def1ee01673bc489ee75c8ad))
+
 # [5.13.0](https://github.com/informatievlaanderen/road-registry/compare/v5.12.2...v5.13.0) (2026-08-31)
 
 
