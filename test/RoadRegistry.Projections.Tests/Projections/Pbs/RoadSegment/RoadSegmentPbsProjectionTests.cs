@@ -212,6 +212,126 @@ public class RoadSegmentPbsProjectionTests
         Assert.NotNull(segment.GEOMETRIE); // geometry not carried on this event, so it is kept
     }
 
+
+    // Every status change the register supports, projected. Which shape a change has follows from the two statuses,
+    // and each shape writes something different: connecting carries the road nodes the segment hooked onto,
+    // disconnecting gives them up, and a change between two statuses outside the network leaves them alone.
+    public static TheoryData<string> AllStatusChanges()
+    {
+        var data = new TheoryData<string>();
+        foreach (var statusChange in RoadSegmentStatusChange.All)
+        {
+            data.Add(statusChange.Name);
+        }
+
+        return data;
+    }
+
+    [Theory]
+    [MemberData(nameof(AllStatusChanges))]
+    public async Task WhenTheStatusIsChanged_ThenTheSegmentTakesTheStatusOfThatTransition(string change)
+    {
+        var statusChange = RoadSegmentStatusChange.Parse(change);
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(_testData.Segment1Added with { Status = statusChange.From });
+        await scenario.GivenAsync(BuildStatusChangeEvent(statusChange));
+
+        var segment = await scenario.Find<RoadSegmentRecord>(1);
+        Assert.Equal(statusChange.To.Translation.Identifier, segment!.STATUS);
+        Assert.Equal(statusChange.To.Translation.Name, segment.LBLSTATUS);
+    }
+
+    [Theory]
+    [MemberData(nameof(AllStatusChanges))]
+    public async Task WhenTheStatusIsChanged_ThenTheRoadNodesFollowTheShapeOfTheChange(string change)
+    {
+        var statusChange = RoadSegmentStatusChange.Parse(change);
+        var scenario = Scenario();
+
+        var added = _testData.Segment1Added with
+        {
+            Status = statusChange.From,
+            StartNodeId = new RoadNodeId(1),
+            EndNodeId = new RoadNodeId(2)
+        };
+        await scenario.GivenAsync(added);
+        await scenario.GivenAsync(BuildStatusChangeEvent(statusChange));
+
+        var segment = await scenario.Find<RoadSegmentRecord>(1);
+
+        if (statusChange.Connects)
+        {
+            // Hooked into the network: the nodes it snapped onto are the ones the event carries.
+            Assert.Equal(ConnectedStartNodeId.ToInt32(), segment!.B_WK_OIDN);
+            Assert.Equal(ConnectedEndNodeId.ToInt32(), segment.E_WK_OIDN);
+        }
+        else if (statusChange.Disconnects)
+        {
+            // Come loose from the network: a segment outside it carries no road nodes at all.
+            Assert.Null(segment!.B_WK_OIDN);
+            Assert.Null(segment.E_WK_OIDN);
+        }
+        else
+        {
+            // Outside the network before and after, so whatever it carried is left exactly as it was.
+            Assert.Equal(added.StartNodeId!.Value.ToInt32(), segment!.B_WK_OIDN);
+            Assert.Equal(added.EndNodeId!.Value.ToInt32(), segment.E_WK_OIDN);
+        }
+    }
+
+    // The event of a transition, built the way the domain builds it, so the table that maps a transition to its event
+    // is exercised here too.
+    private object BuildStatusChangeEvent(RoadSegmentStatusChange statusChange)
+    {
+        var segment = _testData.Segment1Added;
+
+        if (statusChange.Connects)
+        {
+            return statusChange.BuildEvent(new RoadSegmentConnectedChangeData
+            {
+                RoadSegmentId = segment.RoadSegmentId,
+                Geometry = segment.Geometry,
+                StartNodeId = ConnectedStartNodeId,
+                EndNodeId = ConnectedEndNodeId,
+                Attributes = new RoadSegmentAttributes
+                {
+                    GeometryDrawMethod = segment.GeometryDrawMethod,
+                    AccessRestriction = segment.AccessRestriction,
+                    Category = segment.Category,
+                    Morphology = segment.Morphology,
+                    StreetNameId = segment.StreetNameId,
+                    MaintenanceAuthorityId = segment.MaintenanceAuthorityId,
+                    SurfaceType = segment.SurfaceType,
+                    CarTrafficDirection = segment.CarTrafficDirection,
+                    BikeTrafficDirection = segment.BikeTrafficDirection,
+                    PedestrianTrafficDirection = segment.PedestrianTrafficDirection
+                },
+                Provenance = Provenance
+            });
+        }
+
+        if (statusChange.Disconnects)
+        {
+            return statusChange.BuildEvent(new RoadSegmentDisconnectedChangeData
+            {
+                RoadSegmentId = segment.RoadSegmentId,
+                PreviousStartNodeId = new RoadNodeId(1),
+                PreviousEndNodeId = new RoadNodeId(2),
+                Provenance = Provenance
+            });
+        }
+
+        return statusChange.BuildEvent(new RoadSegmentUnconnectedChangeData
+        {
+            RoadSegmentId = segment.RoadSegmentId,
+            Provenance = Provenance
+        });
+    }
+
+    private static readonly RoadNodeId ConnectedStartNodeId = new(100);
+    private static readonly RoadNodeId ConnectedEndNodeId = new(200);
+
     [Fact]
     public async Task WhenRoadSegmentWasRemoved_ThenSegmentAndAllRelatedRowsDeleted()
     {
