@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice;
+﻿namespace RoadRegistry.BackOffice;
 
 public static class WellKnownSchemas
 {
@@ -19,6 +19,12 @@ public static class WellKnownSchemas
     public const string WfsSchema = "RoadRegistryWfs";
     public const string PbsSchema = "RoadRegistryPbs";
     public const string WmsWfsV2Schema = "road";
+
+    // The shadow copies of the two SQL Server read models: the same tables, in a schema of their own, so a
+    // projection can be rebuilt from the start of the event stream while the live one keeps serving. Once the
+    // shadow has caught up the two are swapped, and both the shadow schema and the projections that fill it go.
+    public const string PbsTempSchema = "RoadRegistryPbsTemp";
+    public const string WmsWfsV2TempSchema = "roadTemp";
     public const string StreetNameSchema = "RoadRegistryStreetName";
     public const string StreetNameEventSchema = "RoadRegistryStreetNameEvent";
     public const string StreetNameEventConsumerSchema = "RoadRegistryStreetNameEventConsumer";
