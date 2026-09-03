@@ -1,5 +1,6 @@
 namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
+using System;
 using GradeSeparatedJunction.Events.V2;
 using JasperFx.Events;
 using Marten;
@@ -124,25 +125,47 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<RoadSegmentWasCorrectedFromRealizedToPlanned> e, IDocumentOperations ops)
+    // The status changes. Each transition raises an event of its own, but what the topology has to do with one
+    // follows entirely from the kind of change it is: a segment is hooked onto road nodes, comes loose from them, or -
+    // outside the network before and after - is not part of the topology either way and needs no entry at all.
+
+    public void Project(IEvent<RoadSegmentWasRealizedFromPlanned> e, IDocumentOperations ops) => ProjectConnected(e.Data, e.Timestamp, ops);
+    public void Project(IEvent<RoadSegmentWasRealizedFromOutOfUse> e, IDocumentOperations ops) => ProjectConnected(e.Data, e.Timestamp, ops);
+    public void Project(IEvent<RoadSegmentWasCorrectedFromHistorizedToRealized> e, IDocumentOperations ops) => ProjectConnected(e.Data, e.Timestamp, ops);
+
+    public void Project(IEvent<RoadSegmentWasCorrectedFromRealizedToPlanned> e, IDocumentOperations ops) => ProjectDisconnected(e.Data, e.Timestamp, ops);
+    public void Project(IEvent<RoadSegmentWasTakenOutOfUseFromRealized> e, IDocumentOperations ops) => ProjectDisconnected(e.Data, e.Timestamp, ops);
+    public void Project(IEvent<RoadSegmentWasHistorizedFromRealized> e, IDocumentOperations ops) => ProjectDisconnected(e.Data, e.Timestamp, ops);
+
+    public void Project(IEvent<RoadSegmentWasHistorizedFromOutOfUse> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange();
+    public void Project(IEvent<RoadSegmentWasCorrectedFromNotRealizedToPlanned> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange();
+    public void Project(IEvent<RoadSegmentWasCorrectedFromHistorizedToOutOfUse> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange();
+
+    private static void ProjectConnected(IRoadSegmentWasConnectedEvent m, DateTimeOffset timestamp, IDocumentOperations ops)
     {
-        // The segment came loose from its road nodes: NULL clears them, the empty wkt keeps the geometry.
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, '', 0, null, null, TRUE);",
-            e.Data.RoadSegmentId.ToInt32(),
-            e.Timestamp
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+            m.RoadSegmentId.ToInt32(),
+            timestamp,
+            m.Geometry.WKT,
+            m.Geometry.SRID,
+            m.StartNodeId.ToInt32(),
+            m.EndNodeId.ToInt32()
         );
     }
 
-    public void Project(IEvent<RoadSegmentWasRealizedFromPlanned> e, IDocumentOperations ops)
+    private static void ProjectDisconnected(IRoadSegmentWasDisconnectedEvent m, DateTimeOffset timestamp, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
-            e.Data.RoadSegmentId.ToInt32(),
-            e.Timestamp,
-            e.Data.Geometry.WKT,
-            e.Data.Geometry.SRID,
-            e.Data.StartNodeId.ToInt32(),
-            e.Data.EndNodeId.ToInt32()
+        // The segment came loose from its road nodes: NULL clears them, the empty wkt keeps the geometry.
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, '', 0, null, null, TRUE);",
+            m.RoadSegmentId.ToInt32(),
+            timestamp
         );
+    }
+
+    // The segment was outside the network before and stays outside it: it carries no road nodes either way, so the
+    // topology has nothing to record.
+    private static void ProjectUnconnectedStatusChange()
+    {
     }
 
     public void Project(IEvent<RoadSegmentWasMigrated> e, IDocumentOperations ops)

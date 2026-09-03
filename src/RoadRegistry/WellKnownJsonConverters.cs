@@ -52,6 +52,7 @@ namespace RoadRegistry
                 new RoadSegmentGeometryDrawMethodV2Converter(),
                 new RoadSegmentMorphologyV2Converter(),
                 new RoadSegmentStatusV2Converter(),
+                new RoadSegmentStatusChangeConverter(),
                 new RoadSegmentSurfaceTypeV2Converter(),
                 new RoadSegmentTrafficDirectionConverter(),
                 new RoadSegmentPedestrianTrafficDirectionConverter(),

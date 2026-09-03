@@ -369,37 +369,20 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
                 segment.EndNodeId = e.Data.EndNodeId;
             }, e.Data, ct);
         });
-        When<IEvent<RoadSegmentWasCorrectedFromRealizedToPlanned>>((session, e, ct) =>
-        {
-            // Unhooked from the network: the geometry and every attribute stay as they were, only the status changes
-            // and the road nodes are given up.
-            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
-            {
-                segment.Status = RoadSegmentStatusV2.Gepland;
-                segment.StartNodeId = null;
-                segment.EndNodeId = null;
-            }, e.Data, ct);
-        });
-        When<IEvent<RoadSegmentWasRealizedFromPlanned>>((session, e, ct) =>
-        {
-            // The event records the realized state in full, so nothing is left at what it was.
-            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
-            {
-                segment.Geometry = e.Data.Geometry;
-                segment.StartNodeId = e.Data.StartNodeId;
-                segment.EndNodeId = e.Data.EndNodeId;
-                segment.Status = RoadSegmentStatusV2.Gerealiseerd;
-                segment.AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString());
-                segment.Category = e.Data.Category.ToStringAttributeValues(x => x.ToString());
-                segment.Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString());
-                segment.StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId);
-                segment.MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId);
-                segment.SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x.ToString());
-                segment.CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.CarTrafficDirection);
-                segment.BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.BikeTrafficDirection);
-                segment.PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection);
-            }, e.Data, ct);
-        });
+        // The status changes. Each transition raises an event of its own - the status a segment takes on is the event
+        // itself - but what a projection has to do with one follows entirely from the kind of change it is, so the
+        // three shapes below are all there is. RoadSegmentStatusChange.ForEvent supplies the status.
+        When<IEvent<RoadSegmentWasRealizedFromPlanned>>((session, e, ct) => ProjectConnected(session, e.Data, ct));
+        When<IEvent<RoadSegmentWasRealizedFromOutOfUse>>((session, e, ct) => ProjectConnected(session, e.Data, ct));
+        When<IEvent<RoadSegmentWasCorrectedFromHistorizedToRealized>>((session, e, ct) => ProjectConnected(session, e.Data, ct));
+
+        When<IEvent<RoadSegmentWasCorrectedFromRealizedToPlanned>>((session, e, ct) => ProjectDisconnected(session, e.Data, ct));
+        When<IEvent<RoadSegmentWasTakenOutOfUseFromRealized>>((session, e, ct) => ProjectDisconnected(session, e.Data, ct));
+        When<IEvent<RoadSegmentWasHistorizedFromRealized>>((session, e, ct) => ProjectDisconnected(session, e.Data, ct));
+
+        When<IEvent<RoadSegmentWasHistorizedFromOutOfUse>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
+        When<IEvent<RoadSegmentWasCorrectedFromNotRealizedToPlanned>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
+        When<IEvent<RoadSegmentWasCorrectedFromHistorizedToOutOfUse>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
         When<IEvent<RoadSegmentWasModified>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
@@ -578,6 +561,48 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
         When<IEvent<RoadSegmentWasRemovedFromNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.NationalRoadNumbers.Remove(e.Data.Number); }, e.Data, ct); });
         When<IEvent<RoadSegmentStreetNameIdWasChanged>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId); }, e.Data, ct); });
         When<IEvent<RoadSegmentGeometryDrawMethodWasChanged>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.GeometryDrawMethod = e.Data.GeometryDrawMethod; }, e.Data, ct); });
+    }
+
+    // Knotted into the network: the event records the realized state in full, so nothing is left at what it was.
+    private Task ProjectConnected(IDocumentOperations session, IRoadSegmentWasConnectedEvent e, CancellationToken ct)
+    {
+        return ModifyRoadSegment(session, e.RoadSegmentId, segment =>
+        {
+            segment.Geometry = e.Geometry;
+            segment.StartNodeId = e.StartNodeId;
+            segment.EndNodeId = e.EndNodeId;
+            segment.Status = RoadSegmentStatusChange.ForEvent(e).To;
+            segment.AccessRestriction = e.AccessRestriction.ToStringAttributeValues(x => x.ToString());
+            segment.Category = e.Category.ToStringAttributeValues(x => x.ToString());
+            segment.Morphology = e.Morphology.ToStringAttributeValues(x => x.ToString());
+            segment.StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.StreetNameId);
+            segment.MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.MaintenanceAuthorityId);
+            segment.SurfaceType = e.SurfaceType.ToStringAttributeValues(x => x.ToString());
+            segment.CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.CarTrafficDirection);
+            segment.BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.BikeTrafficDirection);
+            segment.PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.PedestrianTrafficDirection);
+        }, e, ct);
+    }
+
+    // Unhooked from the network: the geometry and every attribute stay as they were, only the status changes and the
+    // road nodes are given up.
+    private Task ProjectDisconnected(IDocumentOperations session, IRoadSegmentWasDisconnectedEvent e, CancellationToken ct)
+    {
+        return ModifyRoadSegment(session, e.RoadSegmentId, segment =>
+        {
+            segment.Status = RoadSegmentStatusChange.ForEvent(e).To;
+            segment.StartNodeId = null;
+            segment.EndNodeId = null;
+        }, e, ct);
+    }
+
+    // Outside the network before and after, so nothing but the status moves.
+    private Task ProjectUnconnectedStatusChange(IDocumentOperations session, IRoadSegmentUnconnectedStatusChangeEvent e, CancellationToken ct)
+    {
+        return ModifyRoadSegment(session, e.RoadSegmentId, segment =>
+        {
+            segment.Status = RoadSegmentStatusChange.ForEvent(e).To;
+        }, e, ct);
     }
 
     private async Task ModifyRoadSegment<TEvent>(IDocumentOperations operations, RoadSegmentId roadSegmentId, Action<RoadSegmentExtractItem> modify, TEvent evt, CancellationToken ct)

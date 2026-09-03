@@ -14,7 +14,7 @@ using RoadRegistry.BackOffice;
 // recorded on them.
 //
 // Nothing else about the segment changes: the geometry and every attribute stay exactly as they were.
-public record RoadSegmentWasCorrectedFromRealizedToPlanned : IMartenEvent
+public record RoadSegmentWasCorrectedFromRealizedToPlanned : IRoadSegmentWasDisconnectedEvent
 {
     public const string EventName = "RoadSegmentWasCorrectedFromRealizedToPlanned"; // BE CAREFUL CHANGING THIS!!
 
