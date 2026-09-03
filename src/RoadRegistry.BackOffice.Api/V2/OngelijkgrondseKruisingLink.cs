@@ -4,6 +4,9 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 
+/// <summary>
+///     Bevat informatie waarmee de ongelijkgrondse kruising kan geïdentificeerd en opgevraagd worden.
+/// </summary>
 [DataContract(Name = "OngelijkgrondseKruisingLink", Namespace = "")]
 [CustomSwaggerSchemaId("OngelijkgrondseKruisingLink")]
 public sealed class OngelijkgrondseKruisingLink

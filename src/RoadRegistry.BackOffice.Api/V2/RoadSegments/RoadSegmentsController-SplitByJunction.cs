@@ -186,6 +186,9 @@ public partial class RoadSegmentsController
     }
 }
 
+/// <summary>
+///     De twee wegsegmenten die op hun onderlinge kruising geknipt worden.
+/// </summary>
 [DataContract(Name = "WegsegmentenV2KnippenOpKruising", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentenV2KnippenOpKruising")]
 public record SplitRoadSegmentsByJunctionV2Parameters

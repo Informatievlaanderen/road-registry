@@ -159,6 +159,9 @@ public class ChangeRoadSegmentGeometryDrawMethodV2Parameters : List<ChangeRoadSe
 {
 }
 
+/// <summary>
+///     Een groep wegsegmenten samen met de geometriemethode die erop van toepassing wordt.
+/// </summary>
 public record ChangeRoadSegmentGeometryDrawMethodV2GroupParameters
 {
     /// <summary>

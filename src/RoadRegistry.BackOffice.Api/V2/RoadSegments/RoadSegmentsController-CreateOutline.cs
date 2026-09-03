@@ -170,6 +170,9 @@ public partial class RoadSegmentsController
     }
 }
 
+/// <summary>
+///     De gegevens van het in te schetsen wegsegment.
+/// </summary>
 [DataContract(Name = "WegsegmentV2Schetsen", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentV2Schetsen")]
 public record CreateOutlinedRoadSegmentV2Parameters
@@ -253,6 +256,9 @@ public record CreateOutlinedRoadSegmentV2Parameters
     public WegsegmentVerkeerstypeVoetgangerAttribuutWaarde[] VerkeerstypeVoetganger { get; set; }
 }
 
+/// <summary>
+///     De straatnaam die geldt voor een bepaald deel en een bepaalde kant van het ingeschetste wegsegment.
+/// </summary>
 [DataContract(Name = "IngeschetstWegsegmentStraatnaamAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("IngeschetstWegsegmentStraatnaamAttribuutWaarde")]
 public class IngeschetstWegsegmentStraatnaamAttribuutWaarde
@@ -287,6 +293,9 @@ public class IngeschetstWegsegmentStraatnaamAttribuutWaarde
     public required string Identificator { get; set; }
 }
 
+/// <summary>
+///     De wegbeheerder die geldt voor een bepaald deel en een bepaalde kant van het ingeschetste wegsegment.
+/// </summary>
 [DataContract(Name = "IngeschetstWegsegmentWegbeheerderAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("IngeschetstWegsegmentWegbeheerderAttribuutWaarde")]
 public class IngeschetstWegsegmentWegbeheerderAttribuutWaarde

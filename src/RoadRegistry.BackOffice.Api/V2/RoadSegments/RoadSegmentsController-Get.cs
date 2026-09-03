@@ -252,6 +252,9 @@ public partial class RoadSegmentsController
     }
 }
 
+/// <summary>
+///     Bevat de detailgegevens van een wegsegment.
+/// </summary>
 [DataContract(Name = "WegsegmentV2Detail", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentV2Detail")]
 public class WegsegmentV2Detail
@@ -392,6 +395,9 @@ public class WegsegmentV2Detail
     public required OngelijkgrondseKruisingLink[] OngelijkgrondseKruisingen { get; set; }
 }
 
+/// <summary>
+///     Bevat informatie waarmee het wegsegment kan geïdentificeerd worden.
+/// </summary>
 [DataContract(Name = "WegsegmentV2Identificator", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentV2Identificator")]
 public class WegsegmentIdentificator : Identificator
@@ -407,6 +413,9 @@ public class WegsegmentIdentificator : Identificator
     }
 }
 
+/// <summary>
+///     Bevat informatie waarmee de straatnaam uit het Adressenregister kan geïdentificeerd en opgevraagd worden.
+/// </summary>
 [DataContract(Name = "StraatnaamLink", Namespace = "")]
 [CustomSwaggerSchemaId("StraatnaamLink")]
 public sealed class StraatnaamLink
@@ -448,19 +457,31 @@ public sealed class StraatnaamLink
     }
 }
 
+/// <summary>
+///     De geografische naam van de straat.
+/// </summary>
 [DataContract(Name = "StraatnaamGeografischeNaam", Namespace = "")]
 [CustomSwaggerSchemaId("StraatnaamGeografischeNaam")]
 public class StraatnaamGeografischeNaam
 {
+    /// <summary>
+    /// De spelling van de geografische naam.
+    /// </summary>
     [DataMember(Name = "Spelling", Order = 1)]
     [JsonProperty]
     public required string Spelling { get; set; }
 
+    /// <summary>
+    /// De taal waarin de geografische naam is opgesteld.
+    /// </summary>
     [DataMember(Name = "Taal", Order = 2)]
     [JsonProperty]
     public required string Taal { get; set; }
 }
 
+/// <summary>
+///     De middellijngeometrie van het wegsegment, uitgedrukt in de ondersteunde coördinatenstelsels.
+/// </summary>
 [DataContract(Name = "WegsegmentGeometrie", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentGeometrie")]
 public class WegsegmentGeometrie
@@ -480,15 +501,24 @@ public class WegsegmentGeometrie
     public string Type { get; set; } = "LineString";
 }
 
+/// <summary>
+///     De middellijngeometrie van het wegsegment in één welbepaald coördinatenstelsel.
+/// </summary>
 [DataContract(Name = "WegsegmentGeometrieProjectie", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentGeometrieProjectie")]
 public class WegsegmentGeometrieProjectie
 {
+    /// <summary>
+    /// De geometrie in GML-formaat.
+    /// </summary>
     [DataMember(Name = "gml", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
     public required string Gml { get; set; }
 }
 
+/// <summary>
+///     De straatnaam die geldt voor een bepaald deel en een bepaalde kant van het wegsegment.
+/// </summary>
 [DataContract(Name = "WegsegmentStraatnaamAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentStraatnaamAttribuutWaarde")]
 public class WegsegmentStraatnaamAttribuutWaarde
@@ -515,11 +545,17 @@ public class WegsegmentStraatnaamAttribuutWaarde
     [JsonProperty(Required = Required.DisallowNull)]
     public required double TotPositie { get; set; }
 
+    /// <summary>
+    /// De straatnaam die van toepassing is op dit deel van het wegsegment.
+    /// </summary>
     [DataMember(Name = "Straatnaam", Order = 4)]
     [JsonProperty(Required = Required.AllowNull)]
     public required StraatnaamLink? Straatnaam { get; set; }
 }
 
+/// <summary>
+///     De morfologie die geldt voor een bepaald deel van het wegsegment.
+/// </summary>
 [DataContract(Name = "WegsegmentMorfologieAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentMorfologieAttribuutWaarde")]
 public class WegsegmentMorfologieAttribuutWaarde
@@ -538,12 +574,18 @@ public class WegsegmentMorfologieAttribuutWaarde
     [JsonProperty(Required = Required.DisallowNull)]
     public required double TotPositie { get; set; }
 
+    /// <summary>
+    /// De vorm die de weg aanneemt, rekening houdend met fysieke en verkeerskundige eigenschappen.
+    /// </summary>
     [DataMember(Name = "Morfologie", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentMorphologyV2))]
     public required string Morfologie { get; set; }
 }
 
+/// <summary>
+///     De toegankelijkheid die geldt voor een bepaald deel van het wegsegment.
+/// </summary>
 [DataContract(Name = "WegsegmentToegangAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentToegangAttribuutWaarde")]
 public class WegsegmentToegangAttribuutWaarde
@@ -562,12 +604,18 @@ public class WegsegmentToegangAttribuutWaarde
     [JsonProperty(Required = Required.DisallowNull)]
     public required double TotPositie { get; set; }
 
+    /// <summary>
+    /// De mate waarin de weg toegankelijk is voor weggebruikers in het algemeen, ongeacht het type weggebruiker.
+    /// </summary>
     [DataMember(Name = "Toegang", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAccessRestrictionV2))]
     public required string Toegang { get; set; }
 }
 
+/// <summary>
+///     De wegbeheerder die geldt voor een bepaald deel en een bepaalde kant van het wegsegment.
+/// </summary>
 [DataContract(Name = "WegsegmentWegbeheerderAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentWegbeheerderAttribuutWaarde")]
 public class WegsegmentWegbeheerderAttribuutWaarde
@@ -601,6 +649,9 @@ public class WegsegmentWegbeheerderAttribuutWaarde
     [JsonProperty(Required = Required.DisallowNull)]
     public required WegbeheerderObject Wegbeheerder { get; set; }
 }
+/// <summary>
+///     De organisatie die verantwoordelijk is voor het fysieke onderhoud en beheer van de weg op het terrein.
+/// </summary>
 [DataContract(Name = "WegbeheerderObject", Namespace = "")]
 [CustomSwaggerSchemaId("WegbeheerderObject")]
 public class WegbeheerderObject
@@ -620,6 +671,9 @@ public class WegbeheerderObject
     public required string Label { get; set; }
 }
 
+/// <summary>
+///     De wegcategorie die geldt voor een bepaald deel van het wegsegment.
+/// </summary>
 [DataContract(Name = "WegsegmentWegcategorieAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentWegcategorieAttribuutWaarde")]
 public class WegsegmentWegcategorieAttribuutWaarde
@@ -638,12 +692,18 @@ public class WegsegmentWegcategorieAttribuutWaarde
     [JsonProperty(Required = Required.DisallowNull)]
     public required double TotPositie { get; set; }
 
+    /// <summary>
+    /// De categorie van de weg zoals vastgelegd door de Vlaamse Overheid.
+    /// </summary>
     [DataMember(Name = "Wegcategorie", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentCategoryV2))]
     public required string Wegcategorie { get; set; }
 }
 
+/// <summary>
+///     De wegverharding die geldt voor een bepaald deel van het wegsegment.
+/// </summary>
 [DataContract(Name = "WegsegmentWegverhardingAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentWegverhardingAttribuutWaarde")]
 public class WegsegmentWegverhardingAttribuutWaarde
@@ -662,12 +722,18 @@ public class WegsegmentWegverhardingAttribuutWaarde
     [JsonProperty(Required = Required.DisallowNull)]
     public required double TotPositie { get; set; }
 
+    /// <summary>
+    /// Het type verharding dat van toepassing is op de weg.
+    /// </summary>
     [DataMember(Name = "Wegverharding", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentSurfaceTypeV2))]
     public required string Wegverharding { get; set; }
 }
 
+/// <summary>
+///     De rijrichting voor auto’s die geldt voor een bepaald deel van het wegsegment.
+/// </summary>
 [DataContract(Name = "WegsegmentVerkeerstypeAutoAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentVerkeerstypeAutoAttribuutWaarde")]
 public class WegsegmentVerkeerstypeAutoAttribuutWaarde
@@ -686,12 +752,18 @@ public class WegsegmentVerkeerstypeAutoAttribuutWaarde
     [JsonProperty(Required = Required.DisallowNull)]
     public required double TotPositie { get; set; }
 
+    /// <summary>
+    /// De richting waarin het wegsegment toegankelijk is, t.o.v. de richting van het wegsegment (begin- naar eindknoop).
+    /// </summary>
     [DataMember(Name = "Richting", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentTrafficDirection))]
     public required string Richting { get; set; }
 }
 
+/// <summary>
+///     De rijrichting voor fietsers die geldt voor een bepaald deel van het wegsegment.
+/// </summary>
 [DataContract(Name = "WegsegmentVerkeerstypeFietsAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentVerkeerstypeFietsAttribuutWaarde")]
 public class WegsegmentVerkeerstypeFietsAttribuutWaarde
@@ -710,12 +782,18 @@ public class WegsegmentVerkeerstypeFietsAttribuutWaarde
     [JsonProperty(Required = Required.DisallowNull)]
     public required double TotPositie { get; set; }
 
+    /// <summary>
+    /// De richting waarin het wegsegment toegankelijk is, t.o.v. de richting van het wegsegment (begin- naar eindknoop).
+    /// </summary>
     [DataMember(Name = "Richting", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentTrafficDirection))]
     public required string Richting { get; set; }
 }
 
+/// <summary>
+///     De toegankelijkheid voor voetgangers die geldt voor een bepaald deel van het wegsegment.
+/// </summary>
 [DataContract(Name = "WegsegmentVerkeerstypeVoetgangerAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentVerkeerstypeVoetgangerAttribuutWaarde")]
 public class WegsegmentVerkeerstypeVoetgangerAttribuutWaarde
@@ -734,12 +812,18 @@ public class WegsegmentVerkeerstypeVoetgangerAttribuutWaarde
     [JsonProperty(Required = Required.DisallowNull)]
     public required double TotPositie { get; set; }
 
+    /// <summary>
+    /// De richting waarin het wegsegment toegankelijk is, t.o.v. de richting van het wegsegment (begin- naar eindknoop).
+    /// </summary>
     [DataMember(Name = "Richting", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentPedestrianTrafficDirection))]
     public required string Richting { get; set; }
 }
 
+/// <summary>
+///     Een Europese weg waartoe het wegsegment behoort.
+/// </summary>
 [DataContract(Name = "WegsegmentV2EuropeseWeg", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentV2EuropeseWeg")]
 public class EuropeseWegObject
@@ -753,6 +837,9 @@ public class EuropeseWegObject
     public required string EuropeesWegnummer { get; set; }
 }
 
+/// <summary>
+///     Een nationale weg waartoe het wegsegment behoort.
+/// </summary>
 [DataContract(Name = "WegsegmentV2NationaleWeg", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentV2NationaleWeg")]
 public class NationaleWegObject

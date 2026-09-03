@@ -4,6 +4,9 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 
+/// <summary>
+///     Bevat informatie waarmee het wegsegment kan geïdentificeerd en opgevraagd worden.
+/// </summary>
 [DataContract(Name = "WegsegmentLink", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentLink")]
 public sealed class WegsegmentLink

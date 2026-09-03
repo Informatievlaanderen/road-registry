@@ -14,6 +14,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using RoadRegistry.BackOffice.Api.Infrastructure;
+using RoadRegistry.BackOffice.Api.V2.GradeJunctions;
+using RoadRegistry.BackOffice.Api.V2.GradeSeparatedJunctions;
+using RoadRegistry.BackOffice.Api.V2.RoadNodes;
 using RoadRegistry.BackOffice.Api.V2.RoadSegments;
 using RoadRegistry.Extracts;
 using Swashbuckle.AspNetCore.Swagger;
@@ -94,6 +97,41 @@ public class SwaggerTests
         var morfologie = schemaRepository.Schemas[nameof(MorfologieParameters)];
         morfologie.Properties.Keys.Should().Equal("vanPositie", "totPositie", "morfologie");
         morfologie.Required.Should().BeEquivalentTo(new[] { "morfologie" });
+    }
+
+    // Guards that every V2 request and response schema carries a description. A description on the property alone is
+    // not enough: a property whose schema is a $ref renders as the referenced schema, so the reference documentation
+    // shows the *type's* description and drops the property's. Missing type-level XML docs therefore show up as
+    // blank objects in the reference documentation (as WegsegmentV2Identificator did), even though the properties
+    // pointing at them are documented.
+    [Theory]
+    [InlineData(typeof(WegsegmentV2Detail))]
+    [InlineData(typeof(WegknoopV2Detail))]
+    [InlineData(typeof(GelijkgrondseKruisingV2Detail))]
+    [InlineData(typeof(OngelijkgrondseKruisingV2Detail))]
+    [InlineData(typeof(ChangeRoadSegmentAttributesV2Parameters))]
+    [InlineData(typeof(ChangeRoadSegmentGeometryV2Parameters))]
+    [InlineData(typeof(ChangeRoadSegmentGeometryDrawMethodV2Parameters))]
+    [InlineData(typeof(CreateOutlinedRoadSegmentV2Parameters))]
+    [InlineData(typeof(SplitRoadSegmentV2Parameters))]
+    [InlineData(typeof(SplitRoadSegmentsByJunctionV2Parameters))]
+    public void V2_EverySchemaHasADescription(Type schemaType)
+    {
+        var serviceProvider = BuildApiServiceProvider();
+        var schemaGenerator = serviceProvider.GetRequiredService<ISchemaGenerator>();
+
+        var schemaRepository = new SchemaRepository();
+        schemaGenerator.GenerateSchema(schemaType, schemaRepository);
+
+        // The Identificator base class lives in an external package, so its members carry no XML docs of their own.
+        var schemasWithoutDescription = schemaRepository.Schemas
+            .Where(x => string.IsNullOrWhiteSpace(x.Value.Description))
+            .Select(x => x.Key)
+            .ToArray();
+
+        schemasWithoutDescription.Should().BeEmpty(
+            "every schema reachable from {0} must document itself, because the reference documentation renders a "
+            + "$ref property using the referenced schema's description", schemaType.Name);
     }
 
     private static IServiceProvider BuildApiServiceProvider()

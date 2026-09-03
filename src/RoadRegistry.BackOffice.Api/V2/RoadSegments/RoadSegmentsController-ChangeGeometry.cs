@@ -294,6 +294,9 @@ public partial class RoadSegmentsController
     }
 }
 
+/// <summary>
+///     De nieuwe geometrie van het wegsegment, samen met de attribuutwaarden die na de wijziging gelden.
+/// </summary>
 [DataContract(Name = "WegsegmentV2GeometrieWijzigen", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentV2GeometrieWijzigen")]
 public record ChangeRoadSegmentGeometryV2Parameters

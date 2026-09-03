@@ -98,6 +98,9 @@ public partial class RoadNodesController
     }
 }
 
+/// <summary>
+///     Bevat de detailgegevens van een wegknoop.
+/// </summary>
 [DataContract(Name = "WegknoopV2Detail", Namespace = "")]
 [CustomSwaggerSchemaId("WegknoopV2Detail")]
 public class WegknoopV2Detail
@@ -110,14 +113,14 @@ public class WegknoopV2Detail
     public required WegknoopIdentificator Identificator { get; set; }
 
     /// <summary>
-    ///     De middellijngeometrie van het wegknoop.
+    ///     De geometrie van de wegknoop.
     /// </summary>
     [DataMember(Name = "wegknoopGeometrie", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
     public required WegknoopGeometrie WegknoopGeometrie { get; set; }
 
     /// <summary>
-    ///     De geometriemethode van het wegknoop.
+    ///     Het type van de wegknoop.
     /// </summary>
     [DataMember(Name = "WegknoopType", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
@@ -139,6 +142,9 @@ public class WegknoopV2Detail
     public required WegsegmentLink[] AansluitendeWegsegmenten { get; set; } = [];
 }
 
+/// <summary>
+///     Bevat informatie waarmee de wegknoop kan geïdentificeerd worden.
+/// </summary>
 [DataContract(Name = "WegknoopV2Identificator", Namespace = "")]
 [CustomSwaggerSchemaId("WegknoopV2Identificator")]
 public class WegknoopIdentificator : Identificator
@@ -154,6 +160,9 @@ public class WegknoopIdentificator : Identificator
     }
 }
 
+/// <summary>
+///     De geometrie van de wegknoop, uitgedrukt in de ondersteunde coördinatenstelsels.
+/// </summary>
 [DataContract(Name = "WegknoopGeometrie", Namespace = "")]
 [CustomSwaggerSchemaId("WegknoopGeometrie")]
 public class WegknoopGeometrie
@@ -173,10 +182,16 @@ public class WegknoopGeometrie
     public string Type { get; set; } = "Point";
 }
 
+/// <summary>
+///     De geometrie van de wegknoop in één welbepaald coördinatenstelsel.
+/// </summary>
 [DataContract(Name = "WegknoopGeometrieProjectie", Namespace = "")]
 [CustomSwaggerSchemaId("WegknoopGeometrieProjectie")]
 public class WegknoopGeometrieProjectie
 {
+    /// <summary>
+    /// De geometrie in GML-formaat.
+    /// </summary>
     [DataMember(Name = "gml", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
     public required string Gml { get; set; }

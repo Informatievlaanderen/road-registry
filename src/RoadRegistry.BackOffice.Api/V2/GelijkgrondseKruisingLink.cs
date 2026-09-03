@@ -4,6 +4,9 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 
+/// <summary>
+///     Bevat informatie waarmee de gelijkgrondse kruising kan geïdentificeerd en opgevraagd worden.
+/// </summary>
 [DataContract(Name = "GelijkgrondseKruisingLink", Namespace = "")]
 [CustomSwaggerSchemaId("GelijkgrondseKruisingLink")]
 public sealed class GelijkgrondseKruisingLink
