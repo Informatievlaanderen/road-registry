@@ -19,8 +19,9 @@ using Microsoft.Extensions.Logging;
 //     driven by how many rows of one type a batch holds, not by catching up, so a large live batch benefits too;
 //   - the read model's non-clustered indexes are disabled while catching up on a backlog big enough to be worth it,
 //     and rebuilt once the tail is reached.
-// The commit stays atomic: the bulk copy runs on the context's own connection inside the same transaction as
-// SaveChangesAsync, so the rows and the position still land together or not at all.
+// The commit stays atomic: when a batch bulk-copies, the copy runs on the context's own connection inside an
+// explicit transaction that SaveChangesAsync then commits, so the rows and the position still land together or not at
+// all. A batch without a bulk copy needs no transaction of its own - SaveChangesAsync is atomic already.
 public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : RoadNetworkChangesProjection
     where TDbContext : RunnerDbContext<TDbContext>
 {
@@ -124,37 +125,46 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         projectionState.Position = newPosition;
         context.ChangeTracker.DetectChanges();
 
-        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        // Bulk copy is a SQL Server path: on a provider without relational metadata Collect itself would fail, so keep
+        // the whole thing out of the way there.
+        IReadOnlyList<SqlServerBulkInserter.BulkInsertBatch> bulkInsertBatches =
+            _bulkInsertEnabled && context.Database.IsRelational()
+                ? SqlServerBulkInserter.Collect(context, _options.BulkInsertThreshold)
+                : [];
+
+        // The explicit transaction is only here to make the bulk copy commit together with SaveChangesAsync. A batch
+        // with nothing to bulk copy is a plain SaveChangesAsync, which is atomic on its own, so there is nothing to
+        // span - and opening a transaction the batch does not need makes this projection unusable on a provider that
+        // has none: the in-memory provider throws on BeginTransactionAsync, which pauses the shard.
+        await using var transaction = bulkInsertBatches.Count > 0
+            ? await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false)
+            : null;
 
         var bulkCopyDuration = new Stopwatch();
         var rowsBulkInserted = 0;
-        if (_bulkInsertEnabled)
+        if (bulkInsertBatches.Count > 0)
         {
-            var bulkInsertBatches = SqlServerBulkInserter.Collect(context, _options.BulkInsertThreshold);
-            if (bulkInsertBatches.Count > 0)
+            bulkCopyDuration.Start();
+            try
             {
-                bulkCopyDuration.Start();
-                try
-                {
-                    await SqlServerBulkInserter.WriteAsync(context, bulkInsertBatches, cancellationToken).ConfigureAwait(false);
-                    rowsBulkInserted = SqlServerBulkInserter.RowCount(bulkInsertBatches);
-                    // Only once the rows are actually on the server, so a failure leaves them tracked for the EF path.
-                    SqlServerBulkInserter.Detach(context, bulkInsertBatches);
-                }
-                catch (Exception ex) when (ex is not OperationCanceledException)
-                {
-                    // The transaction cannot be trusted after a failed copy, so let the batch fail and be replayed -
-                    // with bulk insert switched off, the replay goes through EF and makes progress.
-                    _bulkInsertEnabled = false;
-                    Logger.LogWarning(ex,
-                        "Bulk insert failed for {Projection}; falling back to the Entity Framework insert path for the remainder of this run. The batch will be replayed.",
-                        ProjectionName);
-                    throw;
-                }
-                finally
-                {
-                    bulkCopyDuration.Stop();
-                }
+                await SqlServerBulkInserter.WriteAsync(context, bulkInsertBatches, cancellationToken).ConfigureAwait(false);
+                rowsBulkInserted = SqlServerBulkInserter.RowCount(bulkInsertBatches);
+                // Only once the rows are actually on the server, so a failure leaves them tracked for the EF path.
+                SqlServerBulkInserter.Detach(context, bulkInsertBatches);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                // The transaction cannot be trusted after a failed copy, so let the batch fail and be replayed -
+                // with bulk insert switched off, the replay goes through EF and makes progress.
+                _bulkInsertEnabled = false;
+                Logger.LogWarning(ex,
+                    "Bulk insert failed for {Projection}; falling back to the Entity Framework insert path for the remainder of this run. The batch will be replayed.",
+                    ProjectionName);
+                throw;
+            }
+            finally
+            {
+                bulkCopyDuration.Stop();
             }
         }
 
@@ -162,7 +172,10 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
 
         var saveChangesDuration = Stopwatch.StartNew();
         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        }
         saveChangesDuration.Stop();
 
         _metrics.RecordBatch(
