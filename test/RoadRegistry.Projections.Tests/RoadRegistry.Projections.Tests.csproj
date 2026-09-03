@@ -26,6 +26,7 @@
     <PackageReference Include="AWSSDK.Core" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="MediatR.Contracts" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Configuration" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />

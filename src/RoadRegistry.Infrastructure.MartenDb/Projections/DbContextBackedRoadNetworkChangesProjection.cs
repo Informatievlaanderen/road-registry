@@ -49,7 +49,7 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         _metrics = new ProjectionThroughputMetrics(Logger, ProjectionName, _options.MetricsLogIntervalInBatches);
     }
 
-    protected override async Task DispatchAsync(IDocumentOperations operations, IReadOnlyList<CorrelationWorkItem> correlationWork, CancellationToken cancellationToken)
+    protected override async Task DispatchAsync(IDocumentOperations operations, IReadOnlyList<CorrelationWorkItem> correlationWork, long pageMaxSequence, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
@@ -61,11 +61,11 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         await strategy.ExecuteAsync(async () =>
         {
             context.ChangeTracker.Clear();
-            await ApplyBatchAsync(context, correlationWork, cancellationToken).ConfigureAwait(false);
+            await ApplyBatchAsync(context, correlationWork, pageMaxSequence, cancellationToken).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
-    private async Task ApplyBatchAsync(TDbContext context, IReadOnlyList<CorrelationWorkItem> correlationWork, CancellationToken cancellationToken)
+    private async Task ApplyBatchAsync(TDbContext context, IReadOnlyList<CorrelationWorkItem> correlationWork, long pageMaxSequence, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var projectionState = await context.ProjectionStates.FindAsync([ProjectionName], cancellationToken);
@@ -76,7 +76,6 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         }
 
         var position = projectionState.Position;
-        var newPosition = position;
         var eventsProcessed = 0;
 
         var handlerDuration = Stopwatch.StartNew();
@@ -86,7 +85,8 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                // Skip events already applied (and committed to SQL Server) before a re-delivery.
+                // Skip events already applied (and committed to SQL Server) before a re-delivery. This is only sound
+                // because the position never runs ahead of the page the daemon delivered - see below.
                 if (evt.Sequence <= position)
                 {
                     Logger.LogInformation(
@@ -108,13 +108,23 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
                 }
 
                 eventsProcessed++;
-                newPosition = Math.Max(newPosition, evt.Sequence);
             }
         }
         handlerDuration.Stop();
 
-        // Everything in this batch was already applied; nothing to advance or save.
-        if (newPosition == position)
+        // The position is "everything at or below this sequence has been applied", so it can only be the page the
+        // daemon delivered - never the highest sequence this batch happened to apply. The batch can reach past its own
+        // page: the base class pulls a correlation's later events in with it, and those sit above events the next page
+        // still has to deliver. Recording one of those as the position made the guard above skip that whole window of
+        // never-applied events - silently, and for good: this is how a road segment ended up on the read model with
+        // its imported street name, its later modifications dropped between two pages.
+        //
+        // Those pulled-in events are still protected from being applied twice, by their correlation's progression
+        // document - the same and only guard the Marten-backed projections have ever had.
+        var newPosition = Math.Max(position, pageMaxSequence);
+
+        // Nothing applied and no ground gained; nothing to save.
+        if (eventsProcessed == 0 && newPosition == position)
         {
             return;
         }

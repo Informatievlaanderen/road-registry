@@ -73,7 +73,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
             var allEvents = tailEvents.Count > 0 ? events.Concat(tailEvents).ToList() : events;
 
-            await ProcessEvents(operations, allEvents, processedProjectionProgressions, cancellation);
+            await ProcessEvents(operations, allEvents, processedProjectionProgressions, pageMaxSequence, cancellation);
         }
         catch (OperationCanceledException)
         {
@@ -150,7 +150,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
         return Task.CompletedTask;
     }
 
-    private async Task ProcessEvents(IDocumentOperations operations, IReadOnlyList<IEvent> events, IReadOnlyList<RoadNetworkChangesProjectionProgression> processedProjectionProgressions, CancellationToken cancellation)
+    private async Task ProcessEvents(IDocumentOperations operations, IReadOnlyList<IEvent> events, IReadOnlyList<RoadNetworkChangesProjectionProgression> processedProjectionProgressions, long pageMaxSequence, CancellationToken cancellation)
     {
         // An event without a correlation id cannot be grouped and is dropped here. That is expected for Marten's own
         // bookkeeping streams, but for anything else it means the event is never applied and never will be, since the
@@ -197,7 +197,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
             .Where(x => x.ToProcess.Count > 0)
             .ToList();
 
-        await DispatchAsync(operations, correlationWork, cancellation).ConfigureAwait(false);
+        await DispatchAsync(operations, correlationWork, pageMaxSequence, cancellation).ConfigureAwait(false);
 
         foreach (var work in correlationWork)
         {
@@ -223,7 +223,12 @@ public abstract class RoadNetworkChangesProjection : IProjection
     // Applies the per-correlation work to the sub-projections. The concrete driver decides what "session" the
     // sub-projections write to (the Marten operations, or a freshly created TDbContext) and owns any read-side
     // projection-state/commit for that session.
-    protected abstract Task DispatchAsync(IDocumentOperations operations, IReadOnlyList<CorrelationWorkItem> correlationWork, CancellationToken cancellationToken);
+    //
+    // pageMaxSequence is the highest sequence the daemon delivered in this page - which is NOT the highest sequence in
+    // correlationWork: the tail fetch above deliberately pulls a correlation's later events into this batch, so the
+    // work can reach past the page. It is the only sequence a driver may record as "everything up to here is applied",
+    // because it is the only one the next page is guaranteed to start after.
+    protected abstract Task DispatchAsync(IDocumentOperations operations, IReadOnlyList<CorrelationWorkItem> correlationWork, long pageMaxSequence, CancellationToken cancellationToken);
 
     private string BuildProgressionId(string correlationId)
     {
