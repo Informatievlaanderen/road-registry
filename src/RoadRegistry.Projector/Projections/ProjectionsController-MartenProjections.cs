@@ -35,10 +35,10 @@ public partial class ProjectionsController
     /// Stops a Marten projection so it no longer processes events.
     /// </summary>
     /// <remarks>
-    /// Waits until the daemon reports the shard as fully stopped before answering. The projection stays stopped
-    /// until it is started again (or until the supervisor resumes all shards because another shard paused on an
-    /// error). The special id "topology" is not supported here: the topology projection runs inline with the
-    /// event store writes and cannot be stopped.
+    /// Waits until the daemon reports the shard as fully stopped before answering, and records that the projection is
+    /// meant to stay stopped, so neither the supervisor nor the next restart of the host brings it back. The special
+    /// id "topology" is not supported here: the topology projection runs inline with the event store writes and cannot
+    /// be stopped.
     /// </remarks>
     /// <param name="id">The projection id, case-insensitive, with or without the ":All" shard suffix (e.g. "RoadNetworkChangesExtractProjection").</param>
     /// <param name="daemonAccessor"></param>
@@ -63,13 +63,18 @@ public partial class ProjectionsController
         }
 
         var shardName = projection.Id;
-        if (daemon.StatusFor(shardName) != AgentStatus.Running)
+
+        // Record the intent first and unconditionally. A paused shard is not stopped - it is a shard that fell over and
+        // that the supervisor would otherwise resume - so "it is already down" is not a reason to skip saying that it
+        // should stay down.
+        await _projectionStateStore.SetDesiredStateAsync(shardName, ProjectionDesiredStates.Stopped, cancellationToken);
+
+        var status = daemon.StatusFor(shardName);
+        if (status != AgentStatus.Running)
         {
-            return Ok($"{shardName} is already stopped.");
+            return Ok($"{shardName} was already {DescribeStatus(status)}; its desired state is now stopped.");
         }
 
-        // Note: the shard stays stopped until it is started again or the MartenProjectionSupervisor's StartAllAsync
-        // resumes everything because some other shard paused on an error.
         await daemon.StopAgentAsync(shardName, null);
         await WaitUntilShardStopped(daemon, shardName, cancellationToken);
 
@@ -106,6 +111,10 @@ public partial class ProjectionsController
         }
 
         var shardName = projection.Id;
+
+        // Before starting, so that a start which then fails still leaves the supervisor with a mandate to retry.
+        await _projectionStateStore.SetDesiredStateAsync(shardName, ProjectionDesiredStates.Subscribed, cancellationToken);
+
         if (daemon.StatusFor(shardName) == AgentStatus.Running)
         {
             return Ok($"{shardName} is already running.");
@@ -192,6 +201,7 @@ public partial class ProjectionsController
             await session.SaveChangesAsync(cancellationToken);
         }
 
+        await _projectionStateStore.SetDesiredStateAsync(shardName, ProjectionDesiredStates.Subscribed, cancellationToken);
         await daemon.StartAgentAsync(shardName, cancellationToken);
         _logger.LogWarning("Rebuilding {ShardName}: the shard was started and replays from the beginning of the event stream.", shardName);
 
@@ -216,6 +226,19 @@ public partial class ProjectionsController
         await projectionDaemon.RebuildProjectionAsync<RoadNetworkTopologyProjection>(TimeSpan.FromHours(timeoutHours), cancellationToken);
 
         return Ok($"{nameof(RoadNetworkTopologyProjection)} rebuild completed.");
+    }
+
+    // The daemon has three states and they are not interchangeable: a paused shard fell over on its own, a stopped one
+    // was told to stop. Saying which one it is, is the difference between "nothing to do" and "something is wrong".
+    private static string DescribeStatus(AgentStatus status)
+    {
+        return status switch
+        {
+            AgentStatus.Running => "running",
+            AgentStatus.Paused => "paused after an error",
+            AgentStatus.Stopped => "stopped",
+            _ => status.ToString().ToLowerInvariant()
+        };
     }
 
     private static bool IsTopology(string id)
