@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Projector.Infrastructure;
+namespace RoadRegistry.Projector.Infrastructure;
 
 using System;
 using System.Linq;
