@@ -78,6 +78,9 @@ public partial class GradeJunctionsController
     }
 }
 
+/// <summary>
+///     Bevat de detailgegevens van een gelijkgrondse kruising.
+/// </summary>
 [DataContract(Name = "GelijkgrondseKruisingV2Detail", Namespace = "")]
 [CustomSwaggerSchemaId("GelijkgrondseKruisingV2Detail")]
 public class GelijkgrondseKruisingV2Detail
@@ -97,6 +100,9 @@ public class GelijkgrondseKruisingV2Detail
     public required WegsegmentLink[] KruisendeWegsegmenten { get; set; }
 }
 
+/// <summary>
+///     Bevat informatie waarmee de gelijkgrondse kruising kan geïdentificeerd worden.
+/// </summary>
 [DataContract(Name = "GelijkgrondseKruisingV2Identificator", Namespace = "")]
 [CustomSwaggerSchemaId("GelijkgrondseKruisingV2Identificator")]
 public class GelijkgrondseKruisingIdentificator : Identificator

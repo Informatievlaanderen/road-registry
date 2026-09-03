@@ -431,44 +431,78 @@ public class ChangeRoadSegmentAttributesV2Parameters : List<ChangeRoadSegmentAtt
 {
 }
 
+/// <summary>
+///     Een groep wegsegmenten samen met de attribuutwaarden die erop gewijzigd worden. Enkel de opgegeven attributen
+///     worden gewijzigd; de overige blijven ongewijzigd.
+/// </summary>
 public record ChangeRoadSegmentAttributeV2Parameters
 {
+    /// <summary>
+    ///     Objectidentificatoren van de wegsegmenten waarop de wijziging van toepassing is.
+    /// </summary>
     [DataMember(Name = "Wegsegmenten", Order = 0)]
     [JsonProperty("wegsegmenten", Required = Required.Always)]
     public int[]? Wegsegmenten { get; set; }
 
+    /// <summary>
+    ///     Lineair gerefereerd attribuut dat de vorm beschrijft die een weg aanneemt, rekening houdend met fysieke en verkeerskundige eigenschappen.
+    /// </summary>
     [DataMember(Name = "Morfologie", Order = 1)]
     [JsonProperty("morfologie")]
     public MorfologieParameters[]? Morfologie { get; set; }
 
+    /// <summary>
+    ///     Lineair gerefereerd attribuut dat aangeeft welk type verharding van toepassing is op de weg.
+    /// </summary>
     [DataMember(Name = "Wegverharding", Order = 2)]
     [JsonProperty("wegverharding")]
     public WegverhardingParameters[]? Wegverharding { get; set; }
 
+    /// <summary>
+    ///     Lineair gerefereerd attribuut dat aangeeft in welke mate een weg toegankelijk is voor weggebruikers in het algemeen, ongeacht het type weggebruiker (voetgangers, fietsers, etc.).
+    /// </summary>
     [DataMember(Name = "Toegang", Order = 3)]
     [JsonProperty("toegang")]
     public ToegangParameters[]? Toegang { get; set; }
 
+    /// <summary>
+    ///     De straatnaam uit het Adressenregister gekoppeld aan het wegsegment.
+    /// </summary>
     [DataMember(Name = "Straatnaam", Order = 4)]
     [JsonProperty("straatnaam")]
     public StraatnaamParameters[]? Straatnaam { get; set; }
 
+    /// <summary>
+    ///     Lineair gerefereerd attribuut dat aangeeft wie verantwoordelijk is voor het fysieke onderhoud en beheer van de weg op het terrein.
+    /// </summary>
     [DataMember(Name = "Wegbeheerder", Order = 5)]
     [JsonProperty("wegbeheerder")]
     public WegbeheerderParameters[]? Wegbeheerder { get; set; }
 
+    /// <summary>
+    ///     Lineair gerefereerd attribuut dat de categorie weergeeft van een weg zoals vastgelegd door de Vlaamse Overheid.
+    /// </summary>
     [DataMember(Name = "Wegcategorie", Order = 6)]
     [JsonProperty("wegcategorie")]
     public WegcategorieParameters[]? Wegcategorie { get; set; }
 
+    /// <summary>
+    ///     Lineair gerefereerd attribuut dat aangeeft in welke richting het wegsegment toegankelijk is voor auto’s.
+    /// </summary>
     [DataMember(Name = "VerkeerstypeAuto", Order = 7)]
     [JsonProperty("verkeerstypeAuto")]
     public VerkeerstypeParameters[]? VerkeerstypeAuto { get; set; }
 
+    /// <summary>
+    ///     Lineair gerefereerd attribuut dat aangeeft in welke richting het wegsegment toegankelijk is voor fietsers.
+    /// </summary>
     [DataMember(Name = "VerkeerstypeFiets", Order = 8)]
     [JsonProperty("verkeerstypeFiets")]
     public VerkeerstypeParameters[]? VerkeerstypeFiets { get; set; }
 
+    /// <summary>
+    ///     Lineair gerefereerd attribuut dat aangeeft of het wegsegment toegankelijk is voor voetgangers.
+    /// </summary>
     [DataMember(Name = "VerkeerstypeVoetganger", Order = 9)]
     [JsonProperty("verkeerstypeVoetganger")]
     public VerkeerstypeVoetgangerParameters[]? VerkeerstypeVoetganger { get; set; }
@@ -476,81 +510,141 @@ public record ChangeRoadSegmentAttributeV2Parameters
 
 public record VanTotParameters
 {
+    /// <summary>
+    ///     Positie vanaf waar het attribuut van toepassing is.
+    /// </summary>
     [DataMember(Name = "vanPositie", Order = 1)]
     [JsonProperty("vanPositie")]
     public double? VanPositie { get; set; }
 
+    /// <summary>
+    ///     Positie tot waar het attribuut van toepassing is.
+    /// </summary>
     [DataMember(Name = "totPositie", Order = 2)]
     [JsonProperty("totPositie")]
     public double? TotPositie { get; set; }
 }
 
+/// <summary>
+///     De morfologie die geldt voor een bepaald deel van het wegsegment.
+/// </summary>
 public record MorfologieParameters : VanTotParameters
 {
+    /// <summary>
+    ///     De vorm die de weg aanneemt, rekening houdend met fysieke en verkeerskundige eigenschappen.
+    /// </summary>
     [DataMember(Name = "morfologie", Order = 3)]
     [JsonProperty("morfologie", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentMorphologyV2))]
     public string Morfologie { get; set; }
 }
 
+/// <summary>
+///     De wegverharding die geldt voor een bepaald deel van het wegsegment.
+/// </summary>
 public record WegverhardingParameters : VanTotParameters
 {
+    /// <summary>
+    ///     Het type verharding dat van toepassing is op de weg.
+    /// </summary>
     [DataMember(Name = "wegverharding", Order = 3)]
     [JsonProperty("wegverharding", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentSurfaceTypeV2))]
     public string Wegverharding { get; set; }
 }
 
+/// <summary>
+///     De toegankelijkheid die geldt voor een bepaald deel van het wegsegment.
+/// </summary>
 public record ToegangParameters : VanTotParameters
 {
+    /// <summary>
+    ///     De mate waarin de weg toegankelijk is voor weggebruikers in het algemeen, ongeacht het type weggebruiker.
+    /// </summary>
     [DataMember(Name = "toegang", Order = 3)]
     [JsonProperty("toegang", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAccessRestrictionV2))]
     public string Toegang { get; set; }
 }
 
+/// <summary>
+///     De wegcategorie die geldt voor een bepaald deel van het wegsegment.
+/// </summary>
 public record WegcategorieParameters : VanTotParameters
 {
+    /// <summary>
+    ///     De categorie van de weg zoals vastgelegd door de Vlaamse Overheid.
+    /// </summary>
     [DataMember(Name = "wegcategorie", Order = 3)]
     [JsonProperty("wegcategorie", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentCategoryV2))]
     public string Wegcategorie { get; set; }
 }
 
+/// <summary>
+///     De straatnaam die geldt voor een bepaald deel en een bepaalde kant van het wegsegment.
+/// </summary>
 public record StraatnaamParameters : VanTotParameters
 {
+    /// <summary>
+    ///     Kant waarop het attribuut van toepassing is.
+    /// </summary>
     [DataMember(Name = "kant", Order = 0)]
     [JsonProperty("kant")]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
     public string Kant { get; set; }
 
+    /// <summary>
+    ///     Identificator van de straatnaam uit het Adressenregister.
+    /// </summary>
     [DataMember(Name = "identificator", Order = 3)]
     [JsonProperty("identificator", Required = Required.Always)]
     public string Identificator { get; set; }
 }
 
+/// <summary>
+///     De wegbeheerder die geldt voor een bepaald deel en een bepaalde kant van het wegsegment.
+/// </summary>
 public record WegbeheerderParameters : VanTotParameters
 {
+    /// <summary>
+    ///     Kant waarop het attribuut van toepassing is.
+    /// </summary>
     [DataMember(Name = "kant", Order = 0)]
     [JsonProperty("kant")]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
     public string Kant { get; set; }
 
+    /// <summary>
+    ///     Organisatiecode van de wegbeheerder.
+    /// </summary>
     [DataMember(Name = "wegbeheerder", Order = 3)]
     [JsonProperty("wegbeheerder", Required = Required.Always)]
     public string Wegbeheerder { get; set; }
 }
 
+/// <summary>
+///     De rijrichting die geldt voor een bepaald deel van het wegsegment.
+/// </summary>
 public record VerkeerstypeParameters : VanTotParameters
 {
+    /// <summary>
+    ///     De richting waarin het wegsegment toegankelijk is, t.o.v. de richting van het wegsegment (begin- naar eindknoop).
+    /// </summary>
     [DataMember(Name = "richting", Order = 3)]
     [JsonProperty("richting", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentTrafficDirection))]
     public string Richting { get; set; }
 }
 
+/// <summary>
+///     De toegankelijkheid voor voetgangers die geldt voor een bepaald deel van het wegsegment.
+/// </summary>
 public record VerkeerstypeVoetgangerParameters : VanTotParameters
 {
+    /// <summary>
+    ///     De richting waarin het wegsegment toegankelijk is, t.o.v. de richting van het wegsegment (begin- naar eindknoop).
+    /// </summary>
     [DataMember(Name = "richting", Order = 3)]
     [JsonProperty("richting", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentPedestrianTrafficDirection))]

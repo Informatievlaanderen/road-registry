@@ -168,6 +168,9 @@ public partial class RoadSegmentsController
     }
 }
 
+/// <summary>
+///     De positie waarop het wegsegment geknipt wordt.
+/// </summary>
 [DataContract(Name = "WegsegmentV2Knippen", Namespace = "")]
 [CustomSwaggerSchemaId("WegsegmentV2Knippen")]
 public record SplitRoadSegmentV2Parameters

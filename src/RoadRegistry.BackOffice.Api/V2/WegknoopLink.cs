@@ -4,6 +4,9 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 
+/// <summary>
+///     Bevat informatie waarmee de wegknoop kan geïdentificeerd en opgevraagd worden.
+/// </summary>
 [DataContract(Name = "WegknoopLink", Namespace = "")]
 [CustomSwaggerSchemaId("WegknoopLink")]
 public sealed class WegknoopLink

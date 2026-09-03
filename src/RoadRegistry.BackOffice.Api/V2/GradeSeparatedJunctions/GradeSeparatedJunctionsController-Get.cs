@@ -77,6 +77,9 @@ public partial class GradeSeparatedJunctionsController
     }
 }
 
+/// <summary>
+///     Bevat de detailgegevens van een ongelijkgrondse kruising.
+/// </summary>
 [DataContract(Name = "OngelijkgrondseKruisingV2Detail", Namespace = "")]
 [CustomSwaggerSchemaId("OngelijkgrondseKruisingV2Detail")]
 public class OngelijkgrondseKruisingV2Detail
@@ -111,6 +114,9 @@ public class OngelijkgrondseKruisingV2Detail
     public required string OngelijkgrondseKruisingType { get; set; }
 }
 
+/// <summary>
+///     Bevat informatie waarmee de ongelijkgrondse kruising kan geïdentificeerd worden.
+/// </summary>
 [DataContract(Name = "OngelijkgrondseKruisingV2Identificator", Namespace = "")]
 [CustomSwaggerSchemaId("OngelijkgrondseKruisingV2Identificator")]
 public class OngelijkgrondseKruisingIdentificator : Identificator
