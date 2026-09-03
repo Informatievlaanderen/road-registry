@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice
+﻿namespace RoadRegistry.BackOffice
 {
     public static class WellKnownProjectionStateNames
     {
@@ -11,5 +11,10 @@ namespace RoadRegistry.BackOffice
         public const string RoadNetworkChangesReadProjection = "RoadNetworkChangesReadProjection:All";
         public const string RoadNetworkChangesPbsProjection = "RoadNetworkChangesPbsProjection:All";
         public const string RoadNetworkChangesWmsWfsV2Projection = "RoadNetworkChangesWmsWfsV2Projection:All";
+
+        // The shadow projections: the same two read models being rebuilt into a schema of their own while the
+        // live ones keep serving. They go with the change that swaps the two schemas.
+        public const string RoadNetworkChangesPbsTempProjection = "RoadNetworkChangesPbsTempProjection:All";
+        public const string RoadNetworkChangesWmsWfsV2TempProjection = "RoadNetworkChangesWmsWfsV2TempProjection:All";
     }
 }
