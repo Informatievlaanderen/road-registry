@@ -19,7 +19,9 @@ public abstract class MartenBackedRoadNetworkChangesProjection : RoadNetworkChan
         _projections = projections;
     }
 
-    protected override async Task DispatchAsync(IDocumentOperations operations, IReadOnlyList<CorrelationWorkItem> correlationWork, CancellationToken cancellationToken)
+    // pageMaxSequence is unused here: these sub-projections write into the same Marten session as the progressions,
+    // so there is no second position to keep - Marten's own transaction is the idempotency boundary.
+    protected override async Task DispatchAsync(IDocumentOperations operations, IReadOnlyList<CorrelationWorkItem> correlationWork, long pageMaxSequence, CancellationToken cancellationToken)
     {
         foreach (var work in correlationWork)
         {
