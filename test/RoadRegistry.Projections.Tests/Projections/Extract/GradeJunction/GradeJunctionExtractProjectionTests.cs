@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.ExtractGradeJunction;
+﻿namespace RoadRegistry.Projections.Tests.Projections.ExtractGradeJunction;
 
 using AutoFixture;
 using FluentAssertions;
@@ -87,6 +87,7 @@ public class GradeJunctionExtractProjectionTests
             typeof(RoadSegmentWasHistorizedFromOutOfUse),
             typeof(RoadSegmentWasCorrectedFromNotRealizedToPlanned),
             typeof(RoadSegmentWasCorrectedFromHistorizedToOutOfUse),
+            typeof(RoadSegmentWasNotRealizedFromPlanned),
             typeof(RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentGeometryDrawMethodWasChanged),
             typeof(RoadSegmentWasMerged),
             typeof(RoadSegmentWasMigrated),

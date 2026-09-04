@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Tests.V2.RoadSegments.WhenChangeRoadSegmentStatusV2;
+﻿namespace RoadRegistry.BackOffice.Api.Tests.V2.RoadSegments.WhenChangeRoadSegmentStatusV2;
 
 using System;
 using System.Collections.Generic;
@@ -54,7 +54,8 @@ public class ChangeRoadSegmentStatusV2Tests : V2ReadEndpointTestBase
             [RoadSegmentStatusChange.RealizedToPlanned] = id => _controller.CorrectRoadSegmentFromRealizedToPlannedV2(new RoadSegmentIdValidator(), id, Store, CancellationToken.None),
             [RoadSegmentStatusChange.NotRealizedToPlanned] = id => _controller.CorrectRoadSegmentFromNotRealizedToPlannedV2(new RoadSegmentIdValidator(), id, Store, CancellationToken.None),
             [RoadSegmentStatusChange.HistorizedToRealized] = id => _controller.CorrectRoadSegmentFromHistorizedToRealizedV2(new RoadSegmentIdValidator(), id, Store, CancellationToken.None),
-            [RoadSegmentStatusChange.HistorizedToOutOfUse] = id => _controller.CorrectRoadSegmentFromHistorizedToOutOfUseV2(new RoadSegmentIdValidator(), id, Store, CancellationToken.None)
+            [RoadSegmentStatusChange.HistorizedToOutOfUse] = id => _controller.CorrectRoadSegmentFromHistorizedToOutOfUseV2(new RoadSegmentIdValidator(), id, Store, CancellationToken.None),
+            [RoadSegmentStatusChange.PlannedToNotRealized] = id => _controller.ChangeRoadSegmentFromPlannedToNotRealizedV2(new RoadSegmentIdValidator(), id, Store, CancellationToken.None)
         };
 
     public static TheoryData<string> AllChanges()

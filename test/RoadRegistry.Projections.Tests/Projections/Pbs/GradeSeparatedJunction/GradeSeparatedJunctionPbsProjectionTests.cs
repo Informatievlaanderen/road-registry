@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.Pbs.GradeSeparatedJunction;
+﻿namespace RoadRegistry.Projections.Tests.Projections.Pbs.GradeSeparatedJunction;
 
 using System.Threading.Tasks;
 using AutoFixture;
@@ -65,6 +65,7 @@ public class GradeSeparatedJunctionPbsProjectionTests
             typeof(RoadSegmentV2.RoadSegmentWasHistorizedFromOutOfUse),
             typeof(RoadSegmentV2.RoadSegmentWasCorrectedFromNotRealizedToPlanned),
             typeof(RoadSegmentV2.RoadSegmentWasCorrectedFromHistorizedToOutOfUse),
+            typeof(RoadSegmentV2.RoadSegmentWasNotRealizedFromPlanned),
             typeof(RoadSegmentV2.RoadSegmentWasRemoved),
             typeof(RoadSegmentV2.RoadSegmentWasRemovedBecauseOfMigration), typeof(RoadSegmentV2.RoadSegmentWasRemovedFromEuropeanRoad),
             typeof(RoadSegmentV2.RoadSegmentWasRemovedFromNationalRoad), typeof(RoadSegmentV2.RoadSegmentWasRetired),

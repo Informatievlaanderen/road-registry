@@ -1,4 +1,4 @@
-namespace RoadRegistry.Tests.AggregateTests.RoadSegment.ChangeRoadSegmentStatus;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.ChangeRoadSegmentStatus;
 
 using System.Linq;
 using FluentAssertions;
@@ -18,6 +18,7 @@ public class UnconnectedAggregateTests : StatusChangeAggregateTestBase
     public const string OutOfUseToHistorized = "ChangeRoadSegmentFromOutOfUseToHistorized";
     public const string NotRealizedToPlanned = "CorrectRoadSegmentFromNotRealizedToPlanned";
     public const string HistorizedToOutOfUse = "CorrectRoadSegmentFromHistorizedToOutOfUse";
+    public const string PlannedToNotRealized = "ChangeRoadSegmentFromPlannedToNotRealized";
 
     // A segment outside the network, running north from (100,0), alongside a realized road that shares no node with
     // it - it carries no road nodes at all.
@@ -40,6 +41,7 @@ public class UnconnectedAggregateTests : StatusChangeAggregateTestBase
     [InlineData(OutOfUseToHistorized)]
     [InlineData(NotRealizedToPlanned)]
     [InlineData(HistorizedToOutOfUse)]
+    [InlineData(PlannedToNotRealized)]
     public void WhenTheStatusIsChanged_ThenNothingButTheStatusMoves(string change)
     {
         var statusChange = RoadSegmentStatusChange.Parse(change);
@@ -62,6 +64,7 @@ public class UnconnectedAggregateTests : StatusChangeAggregateTestBase
     [InlineData(OutOfUseToHistorized)]
     [InlineData(NotRealizedToPlanned)]
     [InlineData(HistorizedToOutOfUse)]
+    [InlineData(PlannedToNotRealized)]
     public void WhenTheStatusIsChanged_ThenTheEventOfThatTransitionIsRecorded(string change)
     {
         var statusChange = RoadSegmentStatusChange.Parse(change);
@@ -83,6 +86,7 @@ public class UnconnectedAggregateTests : StatusChangeAggregateTestBase
     [InlineData(OutOfUseToHistorized)]
     [InlineData(NotRealizedToPlanned)]
     [InlineData(HistorizedToOutOfUse)]
+    [InlineData(PlannedToNotRealized)]
     public void WhenTheStatusIsChanged_ThenTheSurroundingNetworkIsLeftAlone(string change)
     {
         // The segment is not part of the network before or after, so there is no topology to work out at all.
@@ -108,6 +112,7 @@ public class UnconnectedAggregateTests : StatusChangeAggregateTestBase
     [InlineData(OutOfUseToHistorized)]
     [InlineData(NotRealizedToPlanned)]
     [InlineData(HistorizedToOutOfUse)]
+    [InlineData(PlannedToNotRealized)]
     public void WhenTheSegmentAlreadyHasTheStatusItIsChangedTo_ThenNothingHappens(string change)
     {
         var statusChange = RoadSegmentStatusChange.Parse(change);
@@ -127,6 +132,8 @@ public class UnconnectedAggregateTests : StatusChangeAggregateTestBase
     [InlineData(OutOfUseToHistorized, nameof(RoadSegmentStatusV2.Gerealiseerd))]
     [InlineData(NotRealizedToPlanned, nameof(RoadSegmentStatusV2.BuitenGebruik))]
     [InlineData(HistorizedToOutOfUse, nameof(RoadSegmentStatusV2.Gerealiseerd))]
+    [InlineData(PlannedToNotRealized, nameof(RoadSegmentStatusV2.BuitenGebruik))]
+    [InlineData(PlannedToNotRealized, nameof(RoadSegmentStatusV2.Gerealiseerd))]
     public void WhenTheStatusIsNotTheOneBeingChangedAwayFrom_ThenError(string change, string status)
     {
         // VAL-4
