@@ -79,7 +79,7 @@
 
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.Utilities.Rfc3339DateTimeOffset" Version="5.1.0" />
     <PackageVersion Include="CompareNETObjects" Version="4.84.0" />
-    <PackageVersion Include="Dapper" Version="2.1.66" />
+    <PackageVersion Include="Dapper" Version="2.1.79" />
     <PackageVersion Include="Datadog.Trace.Bundle" Version="3.15.0" />
     <PackageVersion Include="Destructurama.JsonNet" Version="4.0.2" />
     <PackageVersion Include="Docker.DotNet" Version="3.125.15" />
