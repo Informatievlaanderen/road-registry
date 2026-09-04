@@ -1,3 +1,10 @@
+# [5.15.0](https://github.com/informatievlaanderen/road-registry/compare/v5.14.0...v5.15.0) (2026-09-04)
+
+
+### Features
+
+* **2.0:** mark a planned road segment as not realized ([f86a179](https://github.com/informatievlaanderen/road-registry/commit/f86a1796751e20ac668ae7f88b92a9845f149c50))
+
 # [5.14.0](https://github.com/informatievlaanderen/road-registry/compare/v5.13.0...v5.14.0) (2026-09-03)
 
 
