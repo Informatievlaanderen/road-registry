@@ -1,4 +1,4 @@
-namespace RoadRegistry.Pbs.Projections;
+﻿namespace RoadRegistry.Pbs.Projections;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -206,6 +206,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
         When<IEvent<RoadSegmentWasHistorizedFromOutOfUse>>((context, e, ct) => ProjectUnconnectedStatusChange(context, e.Data, ct));
         When<IEvent<RoadSegmentWasCorrectedFromNotRealizedToPlanned>>((context, e, ct) => ProjectUnconnectedStatusChange(context, e.Data, ct));
         When<IEvent<RoadSegmentWasCorrectedFromHistorizedToOutOfUse>>((context, e, ct) => ProjectUnconnectedStatusChange(context, e.Data, ct));
+        When<IEvent<RoadSegmentWasNotRealizedFromPlanned>>((context, e, ct) => ProjectUnconnectedStatusChange(context, e.Data, ct));
 
         When<IEvent<RoadSegmentGeometryWasModified>>(async (context, e, ct) =>
         {

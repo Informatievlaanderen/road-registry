@@ -1,4 +1,4 @@
-namespace RoadRegistry.Infrastructure.MartenDb.Projections;
+﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
 using System;
 using GradeSeparatedJunction.Events.V2;
@@ -140,6 +140,7 @@ public partial class RoadNetworkTopologyProjection
     public void Project(IEvent<RoadSegmentWasHistorizedFromOutOfUse> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange();
     public void Project(IEvent<RoadSegmentWasCorrectedFromNotRealizedToPlanned> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange();
     public void Project(IEvent<RoadSegmentWasCorrectedFromHistorizedToOutOfUse> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange();
+    public void Project(IEvent<RoadSegmentWasNotRealizedFromPlanned> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange();
 
     private static void ProjectConnected(IRoadSegmentWasConnectedEvent m, DateTimeOffset timestamp, IDocumentOperations ops)
     {

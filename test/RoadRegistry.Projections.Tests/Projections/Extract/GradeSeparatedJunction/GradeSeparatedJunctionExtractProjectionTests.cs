@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.ExtractGradeSeparatedJunction;
+﻿namespace RoadRegistry.Projections.Tests.Projections.ExtractGradeSeparatedJunction;
 
 using AutoFixture;
 using Extracts.Projections;
@@ -66,6 +66,7 @@ public class GradeSeparatedJunctionExtractProjectionTests
             typeof(RoadSegmentWasHistorizedFromOutOfUse),
             typeof(RoadSegmentWasCorrectedFromNotRealizedToPlanned),
             typeof(RoadSegmentWasCorrectedFromHistorizedToOutOfUse),
+            typeof(RoadSegmentWasNotRealizedFromPlanned),
             typeof(RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentGeometryDrawMethodWasChanged),
             typeof(RoadSegmentWasMerged),
             typeof(RoadSegmentWasMigrated),

@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.Projections;
+﻿namespace RoadRegistry.Extracts.Projections;
 
 using System;
 using System.Collections.Generic;
@@ -383,6 +383,7 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
         When<IEvent<RoadSegmentWasHistorizedFromOutOfUse>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
         When<IEvent<RoadSegmentWasCorrectedFromNotRealizedToPlanned>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
         When<IEvent<RoadSegmentWasCorrectedFromHistorizedToOutOfUse>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
+        When<IEvent<RoadSegmentWasNotRealizedFromPlanned>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
         When<IEvent<RoadSegmentWasModified>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>

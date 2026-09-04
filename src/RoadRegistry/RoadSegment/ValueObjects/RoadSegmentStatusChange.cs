@@ -1,4 +1,4 @@
-namespace RoadRegistry.RoadSegment.ValueObjects;
+﻿namespace RoadRegistry.RoadSegment.ValueObjects;
 
 using System;
 using System.Collections.Generic;
@@ -143,6 +143,17 @@ public sealed class RoadSegmentStatusChange : IEquatable<RoadSegmentStatusChange
                 Provenance = data.Provenance
             });
 
+    public static readonly RoadSegmentStatusChange PlannedToNotRealized =
+        Unconnected<RoadSegmentWasNotRealizedFromPlanned>(
+            "ChangeRoadSegmentFromPlannedToNotRealized",
+            RoadSegmentStatusV2.Gepland,
+            RoadSegmentStatusV2.NietGerealiseerd,
+            data => new RoadSegmentWasNotRealizedFromPlanned
+            {
+                RoadSegmentId = data.RoadSegmentId,
+                Provenance = data.Provenance
+            });
+
     public static readonly RoadSegmentStatusChange NotRealizedToPlanned =
         Unconnected<RoadSegmentWasCorrectedFromNotRealizedToPlanned>(
             "CorrectRoadSegmentFromNotRealizedToPlanned",
@@ -169,7 +180,8 @@ public sealed class RoadSegmentStatusChange : IEquatable<RoadSegmentStatusChange
     [
         PlannedToRealized, OutOfUseToRealized, HistorizedToRealized,
         RealizedToPlanned, RealizedToOutOfUse, RealizedToHistorized,
-        OutOfUseToHistorized, NotRealizedToPlanned, HistorizedToOutOfUse
+        OutOfUseToHistorized, NotRealizedToPlanned, HistorizedToOutOfUse,
+        PlannedToNotRealized
     ];
 
     private static readonly IReadOnlyDictionary<string, RoadSegmentStatusChange> ByName =

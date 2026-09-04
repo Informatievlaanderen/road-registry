@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
+﻿namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
 {
     using System;
     using System.Collections.Generic;
@@ -80,7 +80,15 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/knippen", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/wijzigen/geometrie", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/geplandnaargerealiseerd", Scopes.DvWrGeschetsteWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/geplandnaarnietgerealiseerd", Scopes.DvWrGeschetsteWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/buitengebruiknaargerealiseerd", Scopes.DvWrGeschetsteWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/gerealiseerdnaarbuitengebruik", Scopes.DvWrGeschetsteWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/gerealiseerdnaargehistoreerd", Scopes.DvWrGeschetsteWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/buitengebruiknaargehistoreerd", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/corrigeren/gerealiseerdnaargepland", Scopes.DvWrGeschetsteWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/corrigeren/nietgerealiseerdnaargepland", Scopes.DvWrGeschetsteWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/corrigeren/gehistoreerdnaargerealiseerd", Scopes.DvWrGeschetsteWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/corrigeren/gehistoreerdnaarbuitengebruik", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v2/wegsegmenten/acties/knippenopkruising", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v2/wegsegmenten/acties/wijzigen/attributen", Scopes.DvWrAttribuutWaardenBeheer),
             new(HttpMethod.Post, "v2/wegsegmenten/acties/wijzigen/geometriemethode", Scopes.DvWrIngemetenWegBeheer),

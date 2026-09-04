@@ -1,4 +1,4 @@
-namespace RoadRegistry.RoadSegment;
+﻿namespace RoadRegistry.RoadSegment;
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -246,6 +246,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     public void Apply(RoadSegmentWasHistorizedFromOutOfUse @event) => ApplyStatusChangeWhileUnconnected(@event);
     public void Apply(RoadSegmentWasCorrectedFromNotRealizedToPlanned @event) => ApplyStatusChangeWhileUnconnected(@event);
     public void Apply(RoadSegmentWasCorrectedFromHistorizedToOutOfUse @event) => ApplyStatusChangeWhileUnconnected(@event);
+    public void Apply(RoadSegmentWasNotRealizedFromPlanned @event) => ApplyStatusChangeWhileUnconnected(@event);
 
     // Knotted into the network: the event records the realized state in full, so nothing is left at what it was.
     private void ApplyStatusChangeToConnected(IRoadSegmentWasConnectedEvent @event)

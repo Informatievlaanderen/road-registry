@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.Pbs;
+﻿namespace RoadRegistry.Projections.Tests.Projections.Pbs;
 
 using System;
 using System.Linq;
@@ -54,6 +54,7 @@ internal static class PbsProjectionEventCoverage
             typeof(RoadSegmentWasHistorizedFromOutOfUse),
             typeof(RoadSegmentWasCorrectedFromNotRealizedToPlanned),
             typeof(RoadSegmentWasCorrectedFromHistorizedToOutOfUse),
+            typeof(RoadSegmentWasNotRealizedFromPlanned),
         typeof(RoadSegmentWasRemoved), typeof(RoadSegmentWasRemovedBecauseOfMigration), typeof(RoadSegmentWasRemovedFromEuropeanRoad),
         typeof(RoadSegmentWasRemovedFromNationalRoad), typeof(RoadSegmentWasRetired), typeof(RoadSegmentWasRetiredBecauseOfMerger),
         typeof(RoadSegmentWasRetiredBecauseOfSplit), typeof(RoadSegmentWasSplit),

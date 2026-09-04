@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.Pbs.GradeJunction;
+﻿namespace RoadRegistry.Projections.Tests.Projections.Pbs.GradeJunction;
 
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -64,6 +64,7 @@ public class GradeJunctionPbsProjectionTests
             typeof(RoadSegmentV2.RoadSegmentWasHistorizedFromOutOfUse),
             typeof(RoadSegmentV2.RoadSegmentWasCorrectedFromNotRealizedToPlanned),
             typeof(RoadSegmentV2.RoadSegmentWasCorrectedFromHistorizedToOutOfUse),
+            typeof(RoadSegmentV2.RoadSegmentWasNotRealizedFromPlanned),
             typeof(RoadSegmentV2.RoadSegmentWasRemoved),
             typeof(RoadSegmentV2.RoadSegmentWasRemovedBecauseOfMigration), typeof(RoadSegmentV2.RoadSegmentWasRemovedFromEuropeanRoad),
             typeof(RoadSegmentV2.RoadSegmentWasRemovedFromNationalRoad), typeof(RoadSegmentV2.RoadSegmentWasRetired),

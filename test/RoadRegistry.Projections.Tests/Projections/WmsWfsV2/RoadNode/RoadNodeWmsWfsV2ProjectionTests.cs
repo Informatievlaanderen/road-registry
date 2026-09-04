@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.WmsWfsV2.RoadNode;
+﻿namespace RoadRegistry.Projections.Tests.Projections.WmsWfsV2.RoadNode;
 
 using System.Threading.Tasks;
 using AutoFixture;
@@ -53,6 +53,7 @@ public class RoadNodeWmsWfsV2ProjectionTests
             typeof(RoadSegmentWasHistorizedFromOutOfUse),
             typeof(RoadSegmentWasCorrectedFromNotRealizedToPlanned),
             typeof(RoadSegmentWasCorrectedFromHistorizedToOutOfUse),
+            typeof(RoadSegmentWasNotRealizedFromPlanned),
             typeof(RoadSegmentWasRemoved), typeof(RoadSegmentWasRemovedBecauseOfMigration), typeof(RoadSegmentWasRemovedFromEuropeanRoad),
             typeof(RoadSegmentWasRemovedFromNationalRoad), typeof(RoadSegmentWasRetired), typeof(RoadSegmentWasRetiredBecauseOfMerger),
             typeof(RoadSegmentWasRetiredBecauseOfSplit), typeof(RoadSegmentWasSplit),

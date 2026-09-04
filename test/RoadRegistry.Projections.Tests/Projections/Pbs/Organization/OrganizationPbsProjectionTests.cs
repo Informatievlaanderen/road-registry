@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.Pbs.Organization;
+﻿namespace RoadRegistry.Projections.Tests.Projections.Pbs.Organization;
 
 using System.Threading.Tasks;
 using AutoFixture;
@@ -59,6 +59,7 @@ public class OrganizationPbsProjectionTests
             typeof(RoadSegmentWasHistorizedFromOutOfUse),
             typeof(RoadSegmentWasCorrectedFromNotRealizedToPlanned),
             typeof(RoadSegmentWasCorrectedFromHistorizedToOutOfUse),
+            typeof(RoadSegmentWasNotRealizedFromPlanned),
             typeof(RoadSegmentWasRemoved), typeof(RoadSegmentWasRemovedBecauseOfMigration), typeof(RoadSegmentWasRemovedFromEuropeanRoad),
             typeof(RoadSegmentWasRemovedFromNationalRoad), typeof(RoadSegmentWasRetired), typeof(RoadSegmentWasRetiredBecauseOfMerger),
             typeof(RoadSegmentWasRetiredBecauseOfSplit), typeof(RoadSegmentWasSplit),

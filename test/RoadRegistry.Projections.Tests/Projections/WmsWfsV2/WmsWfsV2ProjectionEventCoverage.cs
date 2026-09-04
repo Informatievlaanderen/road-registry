@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.WmsWfsV2;
+﻿namespace RoadRegistry.Projections.Tests.Projections.WmsWfsV2;
 
 using System;
 using System.Linq;
@@ -54,6 +54,7 @@ internal static class WmsWfsV2ProjectionEventCoverage
             typeof(RoadSegmentWasHistorizedFromOutOfUse),
             typeof(RoadSegmentWasCorrectedFromNotRealizedToPlanned),
             typeof(RoadSegmentWasCorrectedFromHistorizedToOutOfUse),
+            typeof(RoadSegmentWasNotRealizedFromPlanned),
         typeof(RoadSegmentWasRemoved), typeof(RoadSegmentWasRemovedBecauseOfMigration), typeof(RoadSegmentWasRemovedFromEuropeanRoad),
         typeof(RoadSegmentWasRemovedFromNationalRoad), typeof(RoadSegmentWasRetired), typeof(RoadSegmentWasRetiredBecauseOfMerger),
         typeof(RoadSegmentWasRetiredBecauseOfSplit), typeof(RoadSegmentWasSplit),
