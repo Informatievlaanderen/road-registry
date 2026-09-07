@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.ScopedRoadNetwork;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -370,9 +371,17 @@ public partial class ScopedRoadNetwork
 
         foreach (var roadNodeId in roadNodeIds)
         {
-            if (!_roadNodes.TryGetValue(roadNodeId, out var roadNode) || roadNode.IsRemoved)
+            // The segment hung off this node and the network is loaded with the nodes its segments name, so a node
+            // that is missing or already gone is a corrupt aggregate rather than something the caller did. Saying
+            // nothing would leave it behind carrying a type that no longer matches what hangs off it.
+            if (!_roadNodes.TryGetValue(roadNodeId, out var roadNode))
             {
-                continue;
+                throw new InvalidOperationException($"Road node {roadNodeId} is connected to road segments but is not part of the road network. This should not happen.");
+            }
+
+            if (roadNode.IsRemoved)
+            {
+                throw new InvalidOperationException($"Road node {roadNodeId} is connected to road segments but is already removed. This should not happen.");
             }
 
             var remainingSegments = GetNonRemovedRoadSegments()

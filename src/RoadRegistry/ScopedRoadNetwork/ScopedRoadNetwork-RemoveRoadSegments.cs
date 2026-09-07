@@ -76,6 +76,14 @@ public partial class ScopedRoadNetwork
             return Problems.None;
         }
 
+        // A segment whose inwinning is not finished is not a V2 segment yet: it carries no attributes, so what is left
+        // at its nodes cannot be derived and it is not this action's to remove. Every other editing action refuses it
+        // for the same reason.
+        if (!segment.HasMigrated())
+        {
+            return problems + new RoadSegmentNotCompletedInwinning();
+        }
+
         // Held on to before the segment lets go of them: once it is removed it no longer says which nodes it hung off.
         // Only a realized segment is knotted into the network, so only that one leaves nodes behind.
         var previousRoadNodeIds = segment.Status == RoadSegmentStatusV2.Gerealiseerd

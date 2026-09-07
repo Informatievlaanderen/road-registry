@@ -3,11 +3,13 @@ namespace RoadRegistry.Tests.AggregateTests.RoadSegment.RemoveRoadSegments;
 using System;
 using System.Linq;
 using FluentAssertions;
+using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.Tests.AggregateTests.Framework;
 using RoadRegistry.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork.Events.V2;
+using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 public class AggregateTests : RemoveRoadSegmentsTestBase
 {
@@ -214,6 +216,28 @@ public class AggregateTests : RemoveRoadSegmentsTestBase
         var summary = roadNetwork.GetChanges().OfType<RoadNetworkWasChanged>().Should().ContainSingle().Which.Summary;
         summary.RoadNodes.Modified.Should().BeEquivalentTo([11]);
         summary.RoadNodes.Removed.Should().BeEquivalentTo([12, 13]);
+    }
+
+    // A segment whose inwinning is not finished is not a V2 segment yet and carries no attributes, so what is left at
+    // its nodes cannot be derived. Every other editing action refuses it and so does this one.
+    [Fact]
+    public void WhenTheSegmentHasNotCompletedItsInwinning_ThenItIsNotRemoved()
+    {
+        var southNode = BuildNode(10, 100, 0, RoadNodeTypeV2.Eindknoop);
+        var northNode = BuildNode(11, 100, 80, RoadNodeTypeV2.Eindknoop);
+        var notMigratedSegment = RoadSegment.CreateForMigration(
+            new RoadSegmentId(RemovedSegmentId),
+            BuildGeometry((100, 0), (100, 80)),
+            RoadSegmentStatusV2.Gerealiseerd,
+            new RoadNodeId(10),
+            new RoadNodeId(11));
+        var roadNetwork = BuildNetworkWith([southNode, northNode], notMigratedSegment);
+
+        var act = () => roadNetwork.RemoveRoadSegments([new RoadSegmentId(RemovedSegmentId)], IdGenerator(), TestData.Provenance);
+
+        act.Should().Throw<RoadRegistryProblemsException>()
+            .Which.Problems.Should().Contain(x => x.Reason == "RoadSegmentNotCompletedInwinning");
+        roadNetwork.RoadSegments[new RoadSegmentId(RemovedSegmentId)].IsRemoved.Should().BeFalse();
     }
 
     // A realized segment always hangs off two nodes and they are loaded with it, so a node it names that the network

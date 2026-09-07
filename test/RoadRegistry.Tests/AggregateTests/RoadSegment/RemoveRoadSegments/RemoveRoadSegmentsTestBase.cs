@@ -90,6 +90,16 @@ public abstract class RemoveRoadSegmentsTestBase : AggregateTestBase
             []).WithoutChanges();
     }
 
+    // For the shapes an event cannot describe, such as a segment whose inwinning is not finished.
+    protected ScopedRoadNetwork BuildNetworkWith(RoadNodeWasAdded[] nodes, params RoadSegment[] segments)
+    {
+        return new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
+            nodes.Select(x => RoadNode.Create(x).WithoutChanges()).ToArray(),
+            segments,
+            [],
+            []).WithoutChanges();
+    }
+
     protected static InMemoryRoadNetworkIdGenerator IdGenerator()
     {
         return new InMemoryRoadNetworkIdGenerator(initialValue: 100);

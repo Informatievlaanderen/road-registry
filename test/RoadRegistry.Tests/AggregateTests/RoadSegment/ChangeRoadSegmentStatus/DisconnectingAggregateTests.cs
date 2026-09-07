@@ -1,5 +1,6 @@
 namespace RoadRegistry.Tests.AggregateTests.RoadSegment.ChangeRoadSegmentStatus;
 
+using System;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using FluentAssertions;
@@ -36,6 +37,23 @@ public class DisconnectingAggregateTests : StatusChangeAggregateTestBase
         return BuildNetwork(
             [southNode, northNode],
             [BuildSegment(ChangedSegmentId, southNode, northNode, BuildGeometry((100, 0), (100, 80)), status ?? RoadSegmentStatusV2.Gerealiseerd, drawMethod)]);
+    }
+
+    // The nodes a segment names are loaded along with it, so one the network does not have - or one that is already
+    // gone - is a corrupt aggregate rather than something the caller did. Saying nothing would leave that node behind
+    // carrying a type that no longer matches what hangs off it.
+    [Fact]
+    public void WhenARoadNodeTheSegmentNamesIsMissing_ThenItThrows()
+    {
+        var southNode = BuildNode(10, 100, 0, RoadNodeTypeV2.Eindknoop);
+        var northNode = BuildNode(11, 100, 80, RoadNodeTypeV2.Eindknoop);
+        var roadNetwork = BuildNetwork(
+            [southNode],
+            [BuildSegment(ChangedSegmentId, southNode, northNode, BuildGeometry((100, 0), (100, 80)), RoadSegmentStatusV2.Gerealiseerd)]);
+
+        var act = () => Act(roadNetwork, RoadSegmentStatusChange.Parse(RealizedToHistorized));
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*is not part of the road network*");
     }
 
     [Theory]
