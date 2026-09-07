@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Api.V2.RoadSegments;
+namespace RoadRegistry.BackOffice.Api.V2.RoadSegments;
 
 using System.Threading;
 using System.Threading.Tasks;
