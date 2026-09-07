@@ -18,6 +18,8 @@ using BackOffice.Handlers.Sqs;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Logging;
+using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Behaviors;
@@ -38,6 +40,7 @@ using Duende.AspNetCore.Authentication.OAuth2Introspection;
 using Jobs;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
@@ -217,6 +220,19 @@ public class Startup
                 },
                 MiddlewareHooks =
                 {
+                    // A request that never fully arrives is the caller's to answer for, not the register's. Kestrel
+                    // already says which: 408 when the body comes in more slowly than MinRequestBodyDataRate, 400
+                    // when it is malformed, 413 when it is too large. Reported as that status rather than logged as
+                    // an unhandled error and answered with a 500.
+                    ConfigureProblemDetails = options =>
+                    {
+                        options.Map<BadHttpRequestException>(exception => new StatusCodeProblemDetails(exception.StatusCode)
+                        {
+                            Detail = exception.StatusCode == StatusCodes.Status408RequestTimeout
+                                ? "De aanvraag werd niet volledig ontvangen binnen de toegestane tijd."
+                                : null
+                        });
+                    },
                     Authorization = options =>
                     {
                         var blacklistedOvoCodes =  _configuration
@@ -373,6 +389,15 @@ public class Startup
             .AddMvc(options =>
             {
                 options.Filters.Add<ValidationFilterAttribute>();
+
+                // Runs after ConfigureDefaultForApi has added its own, so this is where it can be taken back out
+                // again. See RequestBodyLoggingFilter for why.
+                foreach (var loggingFilter in options.Filters.OfType<LoggingFilterFactory>().ToArray())
+                {
+                    options.Filters.Remove(loggingFilter);
+                }
+                options.Filters.Add<RequestBodyLoggingFilter>();
+
                 options.OutputFormatters.Add(new XmlSerializerOutputFormatter(new SerilogLoggerFactory()));
             });
     }
