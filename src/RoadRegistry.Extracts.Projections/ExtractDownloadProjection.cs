@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.Projections;
+﻿namespace RoadRegistry.Extracts.Projections;
 
 using System;
 using System.Linq;
@@ -158,7 +158,7 @@ public class ExtractDownloadProjection : ConnectedProjection<ExtractsDbContext>
 
             if (upload is not null)
             {
-                upload.Status = ExtractUploadStatus.AutomaticValidationFailed;
+                upload.Status = ExtractUploadStatusTransitions.OnRoadNetworkChangesRejected(upload.Status);
             }
         });
 

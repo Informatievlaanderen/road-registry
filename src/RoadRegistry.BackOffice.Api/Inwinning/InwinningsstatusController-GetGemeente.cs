@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Inwinning;
+﻿namespace RoadRegistry.BackOffice.Api.Inwinning;
 
 using System;
 using System.Collections.Generic;
@@ -95,7 +95,8 @@ public partial class InwinningsstatusController
                     {
                         ExtractUploadStatus.AutomaticValidationFailed => "verworpen",
                         ExtractUploadStatus.AutomaticValidationSucceeded => "automatische controles geslaagd",
-                        ExtractUploadStatus.ManualValidationFailed => "geweigerd",
+                        ExtractUploadStatus.ManualValidationFailed => "afgekeurd",
+                        ExtractUploadStatus.ProcessingFailed => "verworpen",
                         ExtractUploadStatus.Accepted => "goedgekeurd",
                         _ => throw new ArgumentOutOfRangeException($"Status {uploadStatusHistoryItem.Status}")
                     },
