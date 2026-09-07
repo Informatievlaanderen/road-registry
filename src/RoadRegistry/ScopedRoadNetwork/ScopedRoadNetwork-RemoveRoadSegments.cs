@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.ScopedRoadNetwork;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -110,9 +111,18 @@ public partial class ScopedRoadNetwork
         IRoadNetworkIdGenerator idGenerator,
         ScopedRoadNetworkChangeContext context)
     {
-        if (!_roadNodes.TryGetValue(roadNodeId, out var roadNode) || roadNode.IsRemoved)
+        // A realized segment hangs off two road nodes and the network is loaded with them, and nothing in this action
+        // removes a node other than the one it is looking at. A node named by the segment that the network does not
+        // have, or one that is already gone, is therefore not something the caller did: the aggregate is wrong. Saying
+        // nothing would leave a node behind carrying a type that no longer matches what hangs off it.
+        if (!_roadNodes.TryGetValue(roadNodeId, out var roadNode))
         {
-            return Problems.None;
+            throw new InvalidOperationException($"Road node {roadNodeId} is connected to road segments but is not part of the road network. This should not happen.");
+        }
+
+        if (roadNode.IsRemoved)
+        {
+            throw new InvalidOperationException($"Road node {roadNodeId} is connected to road segments but is already removed. This should not happen.");
         }
 
         var remainingSegments = GetNonRemovedRoadSegments()
@@ -124,6 +134,15 @@ public partial class ScopedRoadNetwork
 
         // Merging is on: two segments left at a node that is no longer needed become one, which is the
         // 'samenvoegen' step the story asks for.
-        return roadNode.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context, mayMergeRoadSegments: true);
+        var problems = roadNode.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context, mayMergeRoadSegments: true);
+
+        // A node that was re-typed is a change of its own and the ticket has to say so. Not when it was merged away:
+        // it changed too, but RemoveRoadNode already reported that, and it is removed rather than modified.
+        if (!roadNode.IsRemoved && roadNode.HasChanges())
+        {
+            context.Summary.RoadNodes.Modified.Add(roadNodeId);
+        }
+
+        return problems;
     }
 }

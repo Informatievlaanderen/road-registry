@@ -1,5 +1,6 @@
 namespace RoadRegistry.Tests.AggregateTests.RoadSegment.RemoveRoadSegments;
 
+using System;
 using System.Linq;
 using FluentAssertions;
 using RoadRegistry.RoadNode.Events.V2;
@@ -185,6 +186,51 @@ public class AggregateTests : RemoveRoadSegmentsTestBase
         var summary = roadNetwork.GetChanges().OfType<RoadNetworkWasChanged>().Should().ContainSingle().Which.Summary;
         summary.RoadSegments.Removed.Should().BeEquivalentTo([RemovedSegmentId]);
         summary.RoadNodes.Removed.Should().BeEquivalentTo([10, 11]);
+    }
+
+    // A node that is left standing but no longer means the same thing changed too, and the ticket has to say so.
+    [Fact]
+    public void WhenANodeIsRetyped_ThenItIsSummarisedAsModified()
+    {
+        var southNode = BuildNode(10, 100, 0, RoadNodeTypeV2.Eindknoop);
+        var middleNode = BuildNode(11, 100, 80, RoadNodeTypeV2.EchteKnoop);
+        var northNode = BuildNode(12, 100, 160, RoadNodeTypeV2.Eindknoop);
+        var eastNode = BuildNode(13, 200, 80, RoadNodeTypeV2.Eindknoop);
+
+        var roadNetwork = BuildNetwork(
+            [southNode, middleNode, northNode, eastNode],
+            [
+                BuildSegment(RemovedSegmentId, middleNode, northNode, BuildGeometry((100, 80), (100, 160))),
+                BuildSegment(NeighbourSegmentId, southNode, middleNode, BuildGeometry((100, 0), (100, 80))),
+                BuildSegment(3, middleNode, eastNode, BuildGeometry((100, 80), (200, 80)))
+            ]);
+
+        // Two of the three arms go, so the middle node is left carrying one road that now ends there: it stays put as
+        // an eindknoop instead of the echte knoop it was, and the two nodes at the far ends go.
+        roadNetwork.RemoveRoadSegments([new RoadSegmentId(RemovedSegmentId), new RoadSegmentId(3)], IdGenerator(), TestData.Provenance);
+
+        roadNetwork.RoadNodes[new RoadNodeId(11)].Type.Should().Be(RoadNodeTypeV2.Eindknoop);
+
+        var summary = roadNetwork.GetChanges().OfType<RoadNetworkWasChanged>().Should().ContainSingle().Which.Summary;
+        summary.RoadNodes.Modified.Should().BeEquivalentTo([11]);
+        summary.RoadNodes.Removed.Should().BeEquivalentTo([12, 13]);
+    }
+
+    // A realized segment always hangs off two nodes and they are loaded with it, so a node it names that the network
+    // does not have is a corrupt aggregate, not something the caller did - and it says so rather than quietly leaving
+    // that node behind at a type that no longer fits.
+    [Fact]
+    public void WhenARoadNodeTheSegmentNamesIsMissing_ThenItThrows()
+    {
+        var southNode = BuildNode(10, 100, 0, RoadNodeTypeV2.Eindknoop);
+        var northNode = BuildNode(11, 100, 80, RoadNodeTypeV2.Eindknoop);
+        var roadNetwork = BuildNetwork(
+            [],
+            [BuildSegment(RemovedSegmentId, southNode, northNode, BuildGeometry((100, 0), (100, 80)))]);
+
+        var act = () => roadNetwork.RemoveRoadSegments([new RoadSegmentId(RemovedSegmentId)], IdGenerator(), TestData.Provenance);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*is not part of the road network*");
     }
 
     // Nothing changed, so there is nothing to summarise: an event saying so would have the projections apply a summary
