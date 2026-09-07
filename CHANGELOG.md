@@ -1,3 +1,10 @@
+# [5.16.0](https://github.com/informatievlaanderen/road-registry/compare/v5.15.0...v5.16.0) (2026-09-07)
+
+
+### Features
+
+* **inwinning:** tell the uploader and Digitaal Vlaanderen apart for a delivery that failed processing ([b25f22a](https://github.com/informatievlaanderen/road-registry/commit/b25f22ad7332ead10bb79c282c145bda87b8a1ac))
+
 # [5.15.0](https://github.com/informatievlaanderen/road-registry/compare/v5.14.0...v5.15.0) (2026-09-04)
 
 
