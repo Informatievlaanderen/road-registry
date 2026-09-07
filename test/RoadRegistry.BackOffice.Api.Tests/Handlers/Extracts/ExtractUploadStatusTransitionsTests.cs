@@ -9,11 +9,16 @@ public class ExtractUploadStatusTransitionsTests
     // Validation had succeeded - ours, and Datavalidatie's where it applies - so the delivery was approved and it is
     // the processing of its changes that failed. That is the state Digitaal Vlaanderen corrects and the uploader is
     // not told about.
-    [Fact]
-    public void GivenValidationSucceeded_ThenTheProcessingFailed()
+    //
+    // ProcessingFailed answers the same, because the same rejection can arrive twice - a retried batch, a
+    // replay - and the second time the delivery no longer sits on the status it was approved with.
+    [Theory]
+    [InlineData(ExtractUploadStatus.AutomaticValidationSucceeded)]
+    [InlineData(ExtractUploadStatus.ProcessingFailed)]
+    public void GivenValidationSucceeded_ThenTheProcessingFailed(ExtractUploadStatus currentStatus)
     {
         ExtractUploadStatusTransitions
-            .OnRoadNetworkChangesRejected(ExtractUploadStatus.AutomaticValidationSucceeded)
+            .OnRoadNetworkChangesRejected(currentStatus)
             .Should().Be(ExtractUploadStatus.ProcessingFailed);
     }
 

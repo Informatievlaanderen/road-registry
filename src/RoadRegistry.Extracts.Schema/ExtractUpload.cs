@@ -37,7 +37,10 @@ public static class ExtractUploadStatusTransitions
     // changes that failed - the one case where the uploader and Digitaal Vlaanderen are told different things.
     public static ExtractUploadStatus OnRoadNetworkChangesRejected(ExtractUploadStatus currentStatus)
     {
-        return currentStatus == ExtractUploadStatus.AutomaticValidationSucceeded
+        // ProcessingFailed is in here because the same rejection can arrive twice - a retried batch, a replay - and
+        // the second time the delivery is no longer sitting on the status it was approved with. Reading that as a
+        // validation failure would undo the distinction on the way back through.
+        return currentStatus is ExtractUploadStatus.AutomaticValidationSucceeded or ExtractUploadStatus.ProcessingFailed
             ? ExtractUploadStatus.ProcessingFailed
             : ExtractUploadStatus.AutomaticValidationFailed;
     }
