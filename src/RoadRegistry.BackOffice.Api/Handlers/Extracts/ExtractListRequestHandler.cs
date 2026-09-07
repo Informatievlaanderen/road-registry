@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Handlers.Extracts;
+﻿namespace RoadRegistry.BackOffice.Api.Handlers.Extracts;
 
 using System.Linq;
 using System.Threading;
@@ -51,7 +51,7 @@ public class ExtractListRequestHandler : EndpointRequestHandler<ExtractListReque
         query = query
             .OrderBy(x => x.Download.Closed
                 ? 9
-                : x.Upload != null && (x.Upload.Status == ExtractUploadStatus.AutomaticValidationFailed || x.Upload.Status == ExtractUploadStatus.ManualValidationFailed)
+                : x.Upload != null && (x.Upload.Status == ExtractUploadStatus.AutomaticValidationFailed || x.Upload.Status == ExtractUploadStatus.ManualValidationFailed || x.Upload.Status == ExtractUploadStatus.ProcessingFailed)
                     ? 0
                     : x.Upload != null && x.Upload.Status == ExtractUploadStatus.Processing
                         ? 1

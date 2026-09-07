@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Inwinning;
+﻿namespace RoadRegistry.BackOffice.Api.Inwinning;
 
 using System;
 using System.Collections.Generic;
@@ -49,7 +49,7 @@ public partial class InwinningController
                     AangevraagdOp = x.RequestedOn,
                     Informatief = x.IsInformative,
                     DownloadStatus = x.DownloadStatus,
-                    UploadStatus = x.UploadStatus,
+                    UploadStatus = x.UploadStatus.AsSeenBy(httpContext),
                     Gesloten = x.Closed
                 })
                 .ToList()

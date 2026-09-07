@@ -215,6 +215,8 @@ export default defineComponent({
           case "AutomaticValidationFailed":
           case "ManualValidationFailed":
             return "Geweigerd";
+          case "ProcessingFailed":
+            return "Verworpen";
           case "Accepted":
             return "Aanvaard";
         }
@@ -236,7 +238,8 @@ export default defineComponent({
         !extract.gesloten &&
         (extract.downloadStatus === "Error" ||
           extract.uploadStatus == "AutomaticValidationFailed" ||
-          extract.uploadStatus == "ManualValidationFailed")
+          extract.uploadStatus == "ManualValidationFailed" ||
+          extract.uploadStatus == "ProcessingFailed")
       );
     },
     formatDate(iso: string) {

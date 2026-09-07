@@ -1,4 +1,4 @@
-namespace RoadRegistry.Extracts.Schema;
+﻿namespace RoadRegistry.Extracts.Schema;
 
 using System;
 using BackOffice;
@@ -21,7 +21,29 @@ public enum ExtractUploadStatus
     AutomaticValidationFailed = 1,
     Accepted = 2,
     AutomaticValidationSucceeded = 3,
-    ManualValidationFailed = 4
+    ManualValidationFailed = 4,
+
+    // The delivery cleared validation - ours and, where it applies, Datavalidatie's - but the road network refused
+    // the changes it carries, for instance because they conflict with a neighbouring municipality collected earlier.
+    // It is not a validation failure: the delivery was approved and it is Digitaal Vlaanderen who corrects it and has
+    // it approved again, which is why the two are not the same status.
+    ProcessingFailed = 5
+}
+
+public static class ExtractUploadStatusTransitions
+{
+    // What a rejection by the road network means depends on how far the delivery had come. Before validation
+    // succeeded it is the upload that was refused; after, the upload was approved and it is the processing of its
+    // changes that failed - the one case where the uploader and Digitaal Vlaanderen are told different things.
+    public static ExtractUploadStatus OnRoadNetworkChangesRejected(ExtractUploadStatus currentStatus)
+    {
+        // ProcessingFailed is in here because the same rejection can arrive twice - a retried batch, a replay - and
+        // the second time the delivery is no longer sitting on the status it was approved with. Reading that as a
+        // validation failure would undo the distinction on the way back through.
+        return currentStatus is ExtractUploadStatus.AutomaticValidationSucceeded or ExtractUploadStatus.ProcessingFailed
+            ? ExtractUploadStatus.ProcessingFailed
+            : ExtractUploadStatus.AutomaticValidationFailed;
+    }
 }
 
 public class ExtractUploadConfiguration : IEntityTypeConfiguration<ExtractUpload>

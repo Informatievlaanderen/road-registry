@@ -158,7 +158,11 @@ export default defineComponent({
           case "AutomaticValidationSucceeded":
             return "Automatische controles geslaagd";
           case "ManualValidationFailed":
-            return "Geweigerd";
+            return "Afgekeurd";
+          // Only Digitaal Vlaanderen is served this status; the uploader is served "Accepted" instead, because
+          // their delivery was approved and it is not theirs to correct.
+          case "ProcessingFailed":
+            return "Verworpen";
         }
       }
 
@@ -178,7 +182,8 @@ export default defineComponent({
         !extract.gesloten &&
         (extract.downloadStatus === "Error" ||
           extract.uploadStatus == "AutomaticValidationFailed" ||
-          extract.uploadStatus == "ManualValidationFailed")
+          extract.uploadStatus == "ManualValidationFailed" ||
+          extract.uploadStatus == "ProcessingFailed")
       );
     },
     formatDate(iso: string) {

@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Extracten;
+﻿namespace RoadRegistry.BackOffice.Api.Extracten;
 
 using System;
 using System.Collections.Generic;
@@ -56,7 +56,8 @@ public partial class ExtractenController
                     AangevraagdOp = x.RequestedOn,
                     Informatief = x.IsInformative,
                     DownloadStatus = x.DownloadStatus,
-                    UploadStatus = x.UploadStatus,
+                    // The same answer the detail screen gives, so a list and the extract it opens never disagree.
+                    UploadStatus = x.UploadStatus.AsSeenBy(ApiContext.HttpContextAccessor.HttpContext),
                     Gesloten = x.Closed
                 })
                 .ToList(),

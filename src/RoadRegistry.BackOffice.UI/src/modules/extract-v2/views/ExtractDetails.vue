@@ -174,6 +174,8 @@ export default defineComponent({
           case "AutomaticValidationFailed":
           case "ManualValidationFailed":
             return "Geweigerd";
+          case "ProcessingFailed":
+            return "Verworpen";
         }
       }
 

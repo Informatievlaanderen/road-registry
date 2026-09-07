@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Extracten;
+﻿namespace RoadRegistry.BackOffice.Api.Extracten;
 
 using System;
 using System.Collections.Generic;
@@ -12,6 +12,7 @@ using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Extensions;
+using RoadRegistry.BackOffice.Api.Infrastructure.Extensions;
 using Swashbuckle.AspNetCore.Annotations;
 
 public partial class ExtractenController
@@ -55,7 +56,8 @@ public partial class ExtractenController
                 Informatief = response.IsInformative,
                 DownloadStatus = response.DownloadStatus,
                 GedownloadOp = response.DownloadedOn,
-                UploadStatus = response.UploadStatus,
+                // The detail screen shows the same status as the list, so it answers the same way.
+                UploadStatus = response.UploadStatus.AsSeenBy(HttpContext),
                 UploadId = response.UploadId,
                 TicketId = response.TicketId,
                 Gesloten = response.Closed,
