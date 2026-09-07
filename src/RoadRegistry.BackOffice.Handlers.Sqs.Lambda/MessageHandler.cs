@@ -11,6 +11,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CloseExtract;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CreateRoadSegmentOutlineV2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.DataValidation;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNodeAttributes;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentAttributes;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentGeometry;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentGeometryDrawMethod;
@@ -28,6 +29,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadInwinningExtract
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadNodes.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.SystemFlows;
 using RoadRegistry.BackOffice.Uploads;
@@ -87,6 +89,7 @@ public sealed class MessageHandler : BlobMessageHandler
             ChangeRoadSegmentGeometryV2SqsRequest request => new ChangeRoadSegmentGeometryV2SqsLambdaRequest(groupId, request),
             ChangeRoadSegmentGeometryDrawMethodV2SqsRequest request => new ChangeRoadSegmentGeometryDrawMethodV2SqsLambdaRequest(groupId, request),
             ChangeRoadSegmentStatusV2SqsRequest request => new ChangeRoadSegmentStatusV2SqsLambdaRequest(groupId, request),
+            ChangeRoadNodeAttributesV2SqsRequest request => new ChangeRoadNodeAttributesV2SqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(
                 $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
         };

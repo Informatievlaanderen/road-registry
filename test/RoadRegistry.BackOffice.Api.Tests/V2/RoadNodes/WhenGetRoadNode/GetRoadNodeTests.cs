@@ -2,8 +2,10 @@ namespace RoadRegistry.BackOffice.Api.Tests.V2.RoadNodes.WhenGetRoadNode;
 
 using AutoFixture;
 using FluentAssertions;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
 using RoadRegistry.BackOffice.Api.V2.RoadNodes;
 using RoadRegistry.Extensions;
 using RoadRegistry.Read.Projections;
@@ -17,7 +19,7 @@ public class GetRoadNodeTests : V2ReadEndpointTestBase
 
     public GetRoadNodeTests()
     {
-        _controller = new RoadNodesController(CreateControllerContext());
+        _controller = new RoadNodesController(CreateControllerContext(), new Mock<IMediator>().Object);
         SetHttpContext(_controller);
     }
 
