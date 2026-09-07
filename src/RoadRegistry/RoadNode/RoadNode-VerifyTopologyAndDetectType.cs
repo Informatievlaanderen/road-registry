@@ -14,8 +14,10 @@ public partial class RoadNode
 {
     // mayMergeRoadSegments: whether a node that turns out to be unnecessary may take the two segments hanging off it
     // with it, merging them into one. That belongs to the inwinning/change upload, which reshapes the network as a
-    // whole. An editing action names one segment and must leave the others as they are, so it turns this off.
-    public Problems VerifyTopologyAndUpdateType(LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments = true)
+    // whole, and to removing a segment, where the story asks for it. An editing action that names one segment and has
+    // to leave the others as they are turns it off. It has no default: which of the two an action is, is the caller's
+    // to state.
+    public Problems VerifyTopologyAndUpdateType(LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments)
     {
         var problems = Problems.WithContext(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
 
