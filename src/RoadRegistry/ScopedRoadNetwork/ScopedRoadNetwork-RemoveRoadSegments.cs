@@ -1,4 +1,4 @@
-namespace RoadRegistry.ScopedRoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -50,6 +50,14 @@ public partial class ScopedRoadNetwork
         }
 
         problems.ThrowIfError();
+
+        // What the ticket reports back. A request naming only segments the network no longer has changed nothing, and
+        // an event saying that is worse than no event: the projections would have a summary to apply with nothing in
+        // it, and the ticket would report a change that never happened.
+        if (context.Summary.HasChanges())
+        {
+            ApplyChangeSummary(context, provenance);
+        }
     }
 
     private Problems TryRemoveRoadSegment(
@@ -59,9 +67,12 @@ public partial class ScopedRoadNetwork
     {
         var problems = Problems.WithContext(roadSegmentId);
 
+        // A segment the network does not have, or one that is already gone, is what the caller asked for: there is
+        // nothing left to remove and nothing to report. Naming it changes nothing, and a request sent twice does not
+        // fail the second time.
         if (!_roadSegments.TryGetValue(roadSegmentId, out var segment) || segment.IsRemoved)
         {
-            return problems + new RoadSegmentNotFound();
+            return Problems.None;
         }
 
         // Held on to before the segment lets go of them: once it is removed it no longer says which nodes it hung off.
@@ -75,6 +86,8 @@ public partial class ScopedRoadNetwork
         {
             return problems;
         }
+
+        context.Summary.RoadSegments.Removed.Add(roadSegmentId);
 
         // A crossing is a statement about two realized roads and this one is gone, so whatever recorded its crossings
         // goes with it - grade and grade separated alike, the same as when a segment is historeerd.
@@ -109,6 +122,8 @@ public partial class ScopedRoadNetwork
             return RemoveRoadNode(roadNodeId, context);
         }
 
-        return roadNode.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context);
+        // Merging is on: two segments left at a node that is no longer needed become one, which is the
+        // 'samenvoegen' step the story asks for.
+        return roadNode.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context, mayMergeRoadSegments: true);
     }
 }

@@ -4,11 +4,13 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Marten;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
 using RoadRegistry.Hosts;
 using RoadRegistry.ScopedRoadNetwork;
+using RoadRegistry.ScopedRoadNetwork.Events.V2;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 
@@ -40,12 +42,15 @@ public sealed class RemoveRoadSegmentsSqsLambdaRequestHandler : MartenSqsLambdaH
 
     protected override async Task<object> InnerHandle(RemoveRoadSegmentsSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
-        await Handle(sqsLambdaRequest.Request, cancellationToken);
+        var changeResultSummary = await Handle(sqsLambdaRequest.Request, cancellationToken);
 
-        return new object();
+        return new ChangeRoadNetworkTicketResult
+        {
+            Summary = new RoadNetworkChangedSummary(changeResultSummary)
+        };
     }
 
-    private async Task Handle(RemoveRoadSegmentsSqsRequest command, CancellationToken cancellationToken)
+    private async Task<RoadNetworkChangesSummary> Handle(RemoveRoadSegmentsSqsRequest command, CancellationToken cancellationToken)
     {
         var scopedRoadNetworkId = new ScopedRoadNetworkId(command.TicketId);
 
@@ -57,6 +62,10 @@ public sealed class RemoveRoadSegmentsSqsLambdaRequestHandler : MartenSqsLambdaH
 
             _roadNetworkRepository.Save(session, roadNetwork, command.GetType().Name);
         }, cancellationToken, Logger);
+
+        // Read back rather than carried out of the domain: a request that removed nothing raises no change at all, and
+        // then there is no summary to report - the same answer the status changes give.
+        return await GetSummaryOfLastChange(scopedRoadNetworkId, cancellationToken);
     }
 
     private async Task<ScopedRoadNetwork> Load(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)

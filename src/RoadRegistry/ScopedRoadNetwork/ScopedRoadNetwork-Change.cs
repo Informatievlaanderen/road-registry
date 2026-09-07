@@ -1,4 +1,4 @@
-namespace RoadRegistry.ScopedRoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System;
 using System.Collections.Generic;
@@ -146,7 +146,7 @@ public partial class ScopedRoadNetwork
 
     private Problems AfterChangesApplied(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
     {
-        var problems = VerifyRoadNodesTopologyAndUpdateTypeAfterChange(idGenerator, context);
+        var problems = VerifyRoadNodesTopologyAndUpdateTypeAfterChange(idGenerator, context, mayMergeRoadSegments: true);
 
         problems = problems
                    + VerifyRoadSegmentsTopologyAfterChange(context)
@@ -160,7 +160,7 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
-    private Problems VerifyRoadNodesTopologyAndUpdateTypeAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments = true)
+    private Problems VerifyRoadNodesTopologyAndUpdateTypeAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments)
     {
         using var _ = context.Logger.TimeAction();
 

@@ -2,12 +2,11 @@ namespace RoadRegistry.Tests.AggregateTests.RoadSegment.RemoveRoadSegments;
 
 using System.Linq;
 using FluentAssertions;
-using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.Tests.AggregateTests.Framework;
 using RoadRegistry.ValueObjects;
-using RoadRegistry.ValueObjects.ProblemCodes;
+using RoadRegistry.ScopedRoadNetwork.Events.V2;
 
 public class AggregateTests : RemoveRoadSegmentsTestBase
 {
@@ -129,9 +128,10 @@ public class AggregateTests : RemoveRoadSegmentsTestBase
         roadNetwork.RoadSegments.Values.SelectMany(x => x.GetChanges()).OfType<RoadSegmentWasMerged>().Should().BeEmpty();
     }
 
-    // VAL-2, and reported for every identifier the request names rather than the first one that is wrong.
+    // Removing what is not there is what the caller asked for, so it is not an error - and with nothing changed there
+    // is nothing to report either.
     [Fact]
-    public void WhenTheSegmentsAreNotFound_ThenEveryOneOfThemIsReported()
+    public void WhenTheSegmentsAreNotFound_ThenNothingHappens()
     {
         var roadNetwork = BuildNetwork([], []);
 
@@ -140,8 +140,62 @@ public class AggregateTests : RemoveRoadSegmentsTestBase
             IdGenerator(),
             TestData.Provenance);
 
-        var problems = act.Should().Throw<RoadRegistryProblemsException>().Which.Problems;
-        problems.Should().HaveCount(2);
-        problems.Select(x => x.Reason).Should().AllBe(ProblemCode.RoadSegment.NotFound.ToString());
+        act.Should().NotThrow();
+        roadNetwork.GetChanges().Should().BeEmpty();
+    }
+
+    // The same segment reached twice within one request: the second time it is already gone, which is not an error and
+    // not a second removal either.
+    [Fact]
+    public void WhenTheSegmentIsNamedTwice_ThenItIsRemovedOnce()
+    {
+        var southNode = BuildNode(10, 100, 0, RoadNodeTypeV2.Eindknoop);
+        var northNode = BuildNode(11, 100, 80, RoadNodeTypeV2.Eindknoop);
+        var roadNetwork = BuildNetwork(
+            [southNode, northNode],
+            [BuildSegment(RemovedSegmentId, southNode, northNode, BuildGeometry((100, 0), (100, 80)))]);
+
+        var act = () => roadNetwork.RemoveRoadSegments(
+            [new RoadSegmentId(RemovedSegmentId), new RoadSegmentId(RemovedSegmentId)],
+            IdGenerator(),
+            TestData.Provenance);
+
+        act.Should().NotThrow();
+
+        var segment = roadNetwork.RoadSegments[new RoadSegmentId(RemovedSegmentId)];
+        segment.IsRemoved.Should().BeTrue();
+        segment.GetChanges().OfType<RoadSegmentWasRemoved>().Should().ContainSingle();
+
+        var summary = roadNetwork.GetChanges().OfType<RoadNetworkWasChanged>().Should().ContainSingle().Which.Summary;
+        summary.RoadSegments.Removed.Should().BeEquivalentTo([RemovedSegmentId]);
+    }
+
+    // The summary the ticket reports back, and the event that carries it.
+    [Fact]
+    public void WhenSegmentsAreRemoved_ThenTheChangeIsSummarised()
+    {
+        var southNode = BuildNode(10, 100, 0, RoadNodeTypeV2.Eindknoop);
+        var northNode = BuildNode(11, 100, 80, RoadNodeTypeV2.Eindknoop);
+        var roadNetwork = BuildNetwork(
+            [southNode, northNode],
+            [BuildSegment(RemovedSegmentId, southNode, northNode, BuildGeometry((100, 0), (100, 80)))]);
+
+        roadNetwork.RemoveRoadSegments([new RoadSegmentId(RemovedSegmentId)], IdGenerator(), TestData.Provenance);
+
+        var summary = roadNetwork.GetChanges().OfType<RoadNetworkWasChanged>().Should().ContainSingle().Which.Summary;
+        summary.RoadSegments.Removed.Should().BeEquivalentTo([RemovedSegmentId]);
+        summary.RoadNodes.Removed.Should().BeEquivalentTo([10, 11]);
+    }
+
+    // Nothing changed, so there is nothing to summarise: an event saying so would have the projections apply a summary
+    // with nothing in it and the ticket report a change that never happened.
+    [Fact]
+    public void WhenNothingIsRemoved_ThenNoSummaryEventIsRaised()
+    {
+        var roadNetwork = BuildNetwork([], []);
+
+        roadNetwork.RemoveRoadSegments([new RoadSegmentId(RemovedSegmentId)], IdGenerator(), TestData.Provenance);
+
+        roadNetwork.GetChanges().OfType<RoadNetworkWasChanged>().Should().BeEmpty();
     }
 }
