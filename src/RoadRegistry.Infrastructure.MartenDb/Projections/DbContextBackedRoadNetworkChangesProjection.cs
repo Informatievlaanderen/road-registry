@@ -116,8 +116,8 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         // daemon delivered - never the highest sequence this batch happened to apply. The batch can reach past its own
         // page: the base class pulls a correlation's later events in with it, and those sit above events the next page
         // still has to deliver. Recording one of those as the position made the guard above skip that whole window of
-        // never-applied events - silently, and for good: this is how a road segment ended up on the read model with
-        // its imported street name, its later modifications dropped between two pages.
+        // never-applied events - silently, and for good: whatever a segment's later events would have changed
+        // stays as it was, and its correlation is marked processed on the way out.
         //
         // Those pulled-in events are still protected from being applied twice, by their correlation's progression
         // document - the same and only guard the Marten-backed projections have ever had.
