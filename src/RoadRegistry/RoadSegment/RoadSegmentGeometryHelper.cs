@@ -39,6 +39,64 @@ public static class RoadSegmentGeometryHelper
         return RoadSegmentGeometryDrawMethodV2.Ingeschetst;
     }
 
+    // How far along a road the direction it leaves a node in is measured.
+    //
+    // It is the minimum distance between two vertices, which makes it the shortest probe that is guaranteed to land on
+    // real geometry rather than between two coincident points - and, because a road's turn can begin within the first
+    // metre, the largest one that still measures the departure direction instead of where the road has already turned
+    // to. The cost is angular noise: coordinates are stored to the centimetre, so one centimetre of jitter on the
+    // first vertex rotates the bearing by atan(0.01 / 0.15) = 3.8 degrees. Roads that leave a node less than about
+    // four degrees apart therefore cannot be ordered by this reliably.
+    private static readonly double BearingProbeDistance = Distances.MinimumDistanceBetweenVertices;
+
+    // The direction a road leaves a node in, in radians [0, 2pi), whichever way the road was digitised.
+    //
+    // It is measured close to the node on purpose: a road is judged on how it leaves, not on where it ends up. A road
+    // that heads west out of the node and then swings north to end north-east of it - a perfectly normal bridge
+    // situation - leaves westwards, and taking the bearing from its far end would say otherwise.
+    public static double BearingAwayFromNode(LineString geometry, Coordinate node, double? probeDistance = null)
+    {
+        var awayFromNode = geometry.StartPoint.Coordinate.Distance(node) <= geometry.EndPoint.Coordinate.Distance(node)
+            ? geometry
+            : (LineString)geometry.Reverse();
+
+        // Clamped only as a backstop: a valid road segment is a metre long at least, so this cannot bite unless the
+        // caller is handed legacy or not-yet-validated geometry.
+        var probe = new LengthIndexedLine(awayFromNode)
+            .ExtractPoint(Math.Min(probeDistance ?? BearingProbeDistance, awayFromNode.Length));
+
+        var angle = Math.Atan2(probe.Y - node.Y, probe.X - node.X);
+        return angle < 0 ? angle + 2 * Math.PI : angle;
+    }
+
+    // The two pairs of roads that lie across from one another at a four-way node.
+    //
+    // The rule is purely positional, whatever the angles: order the roads around the node and pair each one with the
+    // road that is neither its clockwise nor its counter-clockwise neighbour. Exactly one road qualifies, which is why
+    // this needs a four-way node - with three every other road is a neighbour, with five there are two non-neighbours.
+    //
+    // Drawing a circle around the node and walking its border computes precisely that ordering, and "skip one, take
+    // the next" is "not a neighbour". So the ordering can be taken directly from the bearing of each road as it leaves
+    // the node: no buffer, no boundary intersection, no radius to tune, and nothing to go wrong when a road is shorter
+    // than the radius or crosses the circle more than once.
+    public static IReadOnlyList<(T First, T Second)> PairOppositeLegs<T>(
+        IReadOnlyList<T> legs,
+        Func<T, LineString> getGeometry,
+        Coordinate node,
+        double? probeDistance = null)
+    {
+        if (legs.Count != 4)
+        {
+            throw new ArgumentException($"An opposite road is only well defined on a four-way node, got {legs.Count}.", nameof(legs));
+        }
+
+        var ordered = legs
+            .OrderBy(leg => BearingAwayFromNode(getGeometry(leg), node, probeDistance))
+            .ToArray();
+
+        return [(ordered[0], ordered[2]), (ordered[1], ordered[3])];
+    }
+
     public static MultiLineString MergeGeometries(
         RoadSegment segment1, RoadSegment segment2,
         RoadNodeId commonNodeId,

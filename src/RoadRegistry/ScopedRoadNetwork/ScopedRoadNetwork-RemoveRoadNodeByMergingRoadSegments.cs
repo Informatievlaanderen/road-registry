@@ -1,4 +1,4 @@
-namespace RoadRegistry.ScopedRoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System;
 using System.Collections.Generic;
@@ -66,7 +66,7 @@ public partial class ScopedRoadNetwork
 
         // VAL-4. A road that begins and ends at this node has no other road to become: it is already the whole loop,
         // so a node it hangs off twice is not one this action can undo either.
-        var pairs = PairRoadSegments(roadNodeId, roadNode.Type, connectedRoadSegments);
+        var pairs = PairRoadSegments(roadNodeId, roadNode, connectedRoadSegments);
         if (pairs is null)
         {
             return Failed(new RoadNodeCannotBeRemovedByMerging(roadNodeId), context);
@@ -113,7 +113,7 @@ public partial class ScopedRoadNetwork
     // Which roads become one. Null means the node is not one this action can undo (VAL-4).
     private static IReadOnlyList<(RoadSegment First, RoadSegment Second)>? PairRoadSegments(
         RoadNodeId roadNodeId,
-        RoadNodeTypeV2? roadNodeType,
+        RoadNode.RoadNode roadNode,
         IReadOnlyList<RoadSegment> connectedRoadSegments)
     {
         if (connectedRoadSegments.Any(x => x.StartNodeId == roadNodeId && x.EndNodeId == roadNodeId))
@@ -121,36 +121,23 @@ public partial class ScopedRoadNetwork
             return null;
         }
 
-        if (roadNodeType == RoadNodeTypeV2.Validatieknoop && connectedRoadSegments.Count == 2)
+        if (roadNode.Type == RoadNodeTypeV2.Validatieknoop && connectedRoadSegments.Count == 2)
         {
             return [(connectedRoadSegments[0], connectedRoadSegments[1])];
         }
 
-        if (roadNodeType == RoadNodeTypeV2.EchteKnoop && connectedRoadSegments.Count == 4)
+        if (roadNode.Type == RoadNodeTypeV2.EchteKnoop && connectedRoadSegments.Count == 4)
         {
-            // Ordered by the direction each road leaves the node in, so that opposite roads end up two apart - the
-            // 'second road you cross walking the circle'.
-            var byBearing = connectedRoadSegments
-                .OrderBy(x => BearingAwayFromNode(x, roadNodeId))
-                .ToArray();
-
-            return [(byBearing[0], byBearing[2]), (byBearing[1], byBearing[3])];
+            // The roads across from one another - the 'second road you cross walking a circle around the node'.
+            return RoadSegmentGeometryHelper.PairOppositeLegs(
+                connectedRoadSegments,
+                x => x.Geometry.Value.GetSingleLineString(),
+                roadNode.Geometry.Value.Coordinate);
         }
 
         return null;
     }
 
-    // The direction the road leaves the node in, taken from the vertex next to it.
-    private static double BearingAwayFromNode(RoadSegment roadSegment, RoadNodeId roadNodeId)
-    {
-        var coordinates = roadSegment.Geometry.Value.GetSingleLineString().Coordinates;
-
-        var (at, next) = roadSegment.StartNodeId == roadNodeId
-            ? (coordinates[0], coordinates[1])
-            : (coordinates[^1], coordinates[^2]);
-
-        return Math.Atan2(next.Y - at.Y, next.X - at.X);
-    }
 
     // VAL-5 through VAL-8: what the merged road would look like, before anything is changed.
     private Problems ValidateMergeIsAllowed(
