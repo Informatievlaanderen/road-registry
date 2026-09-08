@@ -174,6 +174,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                         : "Voor de wijziging van de ongelijkgrondse kruising moet minstens één wegsegment opgegeven worden.")
             },
             {
+                ProblemCode.GradeSeparatedJunction.RoadSegmentDoesNotBelong, problem => new(problem.Severity, problem.Reason,
+                    $"Wegsegment {problem.GetParameterValue("WegsegmentId")} behoort niet tot ongelijkgrondse kruising {problem.GetParameterValue("OngelijkGrondseKruisingId")}.")
+            },
+            {
                 ProblemCode.GradeSeparatedJunction.DoesNotExist, problem => new(problem.Severity, problem.Reason,
                     $"Ongelijkgrondse kruising {problem.GetParameterValue("OngelijkGrondseKruisingId")} bestaat niet.")
             },

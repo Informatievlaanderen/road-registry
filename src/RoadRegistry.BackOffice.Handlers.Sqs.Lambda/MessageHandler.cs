@@ -34,6 +34,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.GradeJunctions.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeGradeJunctionToGradeSeparatedJunction;
 using RoadRegistry.BackOffice.Handlers.Sqs.GradeSeparatedJunctions.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeGradeSeparatedJunctionToGradeJunction;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeGradeSeparatedJunctionAttributes;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.SystemFlows;
 using RoadRegistry.BackOffice.Uploads;
@@ -96,6 +97,7 @@ public sealed class MessageHandler : BlobMessageHandler
             ChangeRoadNodeAttributesV2SqsRequest request => new ChangeRoadNodeAttributesV2SqsLambdaRequest(groupId, request),
             ChangeGradeJunctionToGradeSeparatedJunctionSqsRequest request => new ChangeGradeJunctionToGradeSeparatedJunctionSqsLambdaRequest(groupId, request),
             ChangeGradeSeparatedJunctionToGradeJunctionSqsRequest request => new ChangeGradeSeparatedJunctionToGradeJunctionSqsLambdaRequest(groupId, request),
+            ChangeGradeSeparatedJunctionAttributesV2SqsRequest request => new ChangeGradeSeparatedJunctionAttributesV2SqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(
                 $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
         };
