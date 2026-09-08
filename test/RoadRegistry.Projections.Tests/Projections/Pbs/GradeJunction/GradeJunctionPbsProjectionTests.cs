@@ -36,6 +36,7 @@ public class GradeJunctionPbsProjectionTests
         // point now arrives on those events, so RoadSegment events are no longer handled. Everything else is excluded.
         var excludeEventTypes = new[]
         {
+            typeof(global::RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange),
             // RoadNode V1
             typeof(ImportedRoadNode), typeof(RoadNodeAdded), typeof(RoadNodeModified), typeof(RoadNodeRemoved),
             // RoadNode V2
@@ -161,6 +162,31 @@ public class GradeJunctionPbsProjectionTests
         await scenario.GivenAsync(new GradeJunctionWasRemoved
         {
             GradeJunctionId = new GradeJunctionId(1),
+            Provenance = Provenance
+        });
+
+        Assert.Null(await scenario.Find<GradeJunctionRecord>(1));
+    }
+
+    // The crossing did not disappear - it is a grade separated junction from here on, which the grade separated
+    // projection inserts - but this projection no longer has anything to show for it.
+    [Fact]
+    public async Task WhenGradeJunctionWasChangedToGradeSeparatedJunction_ThenDeleted()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(new GradeJunctionWasAdded
+        {
+            GradeJunctionId = new GradeJunctionId(1),
+            RoadSegmentId1 = new RoadSegmentId(1),
+            RoadSegmentId2 = new RoadSegmentId(2),
+            Geometry = JunctionPoint((50, 50)),
+            Provenance = Provenance
+        });
+        await scenario.GivenAsync(new GradeJunctionWasChangedToGradeSeparatedJunction
+        {
+            GradeJunctionId = new GradeJunctionId(1),
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(7),
             Provenance = Provenance
         });
 

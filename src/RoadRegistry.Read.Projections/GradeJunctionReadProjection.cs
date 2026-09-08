@@ -69,6 +69,22 @@ public class GradeJunctionReadProjection : MartenRoadNetworkChangesProjection
 
             await UpdateRoadSegmentGradeJunctionIds(session, junction.GradeJunctionId, (junction.RoadSegmentId1, junction.RoadSegmentId2), (null, null), ct);
         });
+
+        // The crossing did not disappear: it is a grade separated junction from here on, which the grade separated
+        // projection inserts. For this projection the grade junction is gone all the same.
+        When<IEvent<GradeJunctionWasChangedToGradeSeparatedJunction>>(async (session, e, ct) =>
+        {
+            var junction = await session.LoadAsync<GradeJunctionReadItem>(e.Data.GradeJunctionId, ct);
+            if (junction is null)
+            {
+                throw new InvalidOperationException($"No grade junction found for Id {e.Data.GradeJunctionId}");
+            }
+
+            junction.IsRemoved = true;
+            session.Store(junction);
+
+            await UpdateRoadSegmentGradeJunctionIds(session, junction.GradeJunctionId, (junction.RoadSegmentId1, junction.RoadSegmentId2), (null, null), ct);
+        });
     }
 
     private static async Task UpdateRoadSegmentGradeJunctionIds(

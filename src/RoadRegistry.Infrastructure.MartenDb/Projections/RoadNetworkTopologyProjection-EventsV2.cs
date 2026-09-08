@@ -313,6 +313,26 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
+    // The crossing did not disappear, it is recorded as a grade separated junction from here on - but for the
+    // topology the grade junction is gone all the same.
+    public void Project(IEvent<GradeJunctionWasChangedToGradeSeparatedJunction> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradejunction(?, ?);",
+            e.Data.GradeJunctionId.ToInt32(),
+            e.Timestamp
+        );
+    }
+
+    public void Project(IEvent<GradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_insert_gradeseparatedjunction(?, ?, ?, ?, TRUE);",
+            e.Data.GradeSeparatedJunctionId.ToInt32(),
+            e.Timestamp,
+            e.Data.LowerRoadSegmentId.ToInt32(),
+            e.Data.UpperRoadSegmentId.ToInt32()
+        );
+    }
+
     public void Project(IEvent<RoadNetworkWasChanged> e, IDocumentOperations ops)
     {
         // Do nothing

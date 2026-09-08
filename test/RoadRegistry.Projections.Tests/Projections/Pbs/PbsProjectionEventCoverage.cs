@@ -60,6 +60,7 @@ internal static class PbsProjectionEventCoverage
         typeof(RoadSegmentWasRetiredBecauseOfSplit), typeof(RoadSegmentWasSplit),
         // GradeJunction V2
         typeof(GradeJunctionWasAdded), typeof(GradeJunctionWasModified), typeof(GradeJunctionGeometryWasChanged), typeof(GradeJunctionWasRemoved),
+        typeof(global::RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasChangedToGradeSeparatedJunction), typeof(global::RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange),
         // GradeSeparatedJunction V1
         typeof(ImportedGradeSeparatedJunction), typeof(GradeSeparatedJunctionAdded), typeof(GradeSeparatedJunctionModified),
         typeof(GradeSeparatedJunctionRemoved), typeof(GradeSeparatedJunctionGeometryModified),

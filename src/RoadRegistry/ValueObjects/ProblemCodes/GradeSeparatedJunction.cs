@@ -11,5 +11,6 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode NotUnique = new("GradeSeparatedJunctionNotUnique");
         public static readonly ProblemCode TemporaryIdNotUnique = new("GradeSeparatedJunctionTemporaryIdNotUnique");
         public static readonly ProblemCode NoRoadSegmentSpecified = new("GradeSeparatedJunctionNoRoadSegmentSpecified");
+        public static readonly ProblemCode UpperEqualsLowerRoadSegment = new("GradeSeparatedJunctionUpperEqualsLowerRoadSegment");
     }
 }
