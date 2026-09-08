@@ -37,6 +37,9 @@
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac" Version="11.0.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit" Version="11.0.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.Api" Version="27.0.0" />
+    <!-- Comes in transitively with Be.Vlaanderen.Basisregisters.Api at 5.1.0, which reads the request body of every
+         POST and PUT whether or not it is going to be logged. Pinned to the version that stopped doing that. -->
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Logging" Version="5.1.1" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.Auth.AcmIdm" Version="5.0.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.Aws.DistributedMutex" Version="5.1.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache" Version="3.1.0" />
