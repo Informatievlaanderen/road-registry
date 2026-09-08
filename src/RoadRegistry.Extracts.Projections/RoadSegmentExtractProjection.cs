@@ -496,16 +496,6 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
 
             session.Delete(roadSegment);
         });
-        When<IEvent<RoadSegmentWasRetired>>(async (session, e, _) =>
-        {
-            var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
-            if (roadSegment is null)
-            {
-                throw new InvalidOperationException($"No road segment found for Id {e.Data.RoadSegmentId}");
-            }
-
-            session.Delete(roadSegment);
-        });
         When<IEvent<RoadSegmentWasRetiredBecauseOfMerger>>(async (session, e, _) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);

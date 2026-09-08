@@ -528,21 +528,6 @@ public class RoadSegmentExtractProjectionTests
     }
 
     [Fact]
-    public async Task WhenRoadSegmentWasRetiredBecauseOfMigration_ThenNone()
-    {
-        var fixture = new RoadNetworkTestDataV2().Fixture;
-        fixture.Freeze<RoadSegmentId>();
-
-        var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
-        var roadSegment1Removed = fixture.Create<RoadSegmentWasRetired>();
-
-        await BuildProjection()
-            .Scenario()
-            .Given(roadSegment1Added, roadSegment1Removed)
-            .ExpectNone();
-    }
-
-    [Fact]
     public Task WhenRoadSegmentWasAddedToEuropeanRoad_ThenSucceeded()
     {
         var fixture = new RoadNetworkTestDataV2().Fixture;
