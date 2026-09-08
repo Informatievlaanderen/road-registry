@@ -14,6 +14,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using RoadRegistry.BackOffice.Api.Infrastructure;
+using RoadRegistry.BackOffice.Api.Infrastructure.SchemaFilters;
+using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
+using System.Reflection;
 using RoadRegistry.BackOffice.Api.V2.GradeJunctions;
 using RoadRegistry.BackOffice.Api.V2.GradeSeparatedJunctions;
 using RoadRegistry.BackOffice.Api.V2.RoadNodes;
@@ -132,6 +135,52 @@ public class SwaggerTests
         schemasWithoutDescription.Should().BeEmpty(
             "every schema reachable from {0} must document itself, because the reference documentation renders a "
             + "$ref property using the referenced schema's description", schemaType.Name);
+    }
+
+    // Guards that every property documented with a RoadRegistryEnumDataType actually gets its values listed. The
+    // attribute alone does nothing: EnumSchemaFilter only fills in the values when a filter for that very type is
+    // registered, so an attribute without one leaves the reference documentation saying no more than "string" - as the
+    // wegknoopType and ongelijkgrondseKruisingType of the detail endpoints did.
+    [Fact]
+    public void EveryEnumDataTypeHasARegisteredSchemaFilter()
+    {
+        var annotatedEnumTypes = typeof(Startup).Assembly
+            .GetTypes()
+            .SelectMany(x => x.GetProperties())
+            .Select(x => x.GetCustomAttribute<RoadRegistryEnumDataTypeAttribute>())
+            .Where(x => x is not null)
+            .Select(x => x!.EnumType)
+            .Distinct()
+            .ToArray();
+
+        annotatedEnumTypes.Should().NotBeEmpty();
+
+        var serviceProvider = BuildApiServiceProvider();
+        var schemaGeneratorOptions = serviceProvider.GetRequiredService<IOptions<SchemaGeneratorOptions>>().Value;
+
+        var documentedEnumTypes = schemaGeneratorOptions.SchemaFilters
+            .Select(x => FindEnumSchemaFilterBase(x.GetType()))
+            .Where(x => x is not null)
+            .Select(x => x!.GetGenericArguments()[0])
+            .ToArray();
+
+        annotatedEnumTypes.Except(documentedEnumTypes).Should().BeEmpty(
+            "every type named in a RoadRegistryEnumDataType needs an EnumSchemaFilter registered for it, or its values are not documented");
+    }
+
+    private static Type? FindEnumSchemaFilterBase(Type? schemaFilterType)
+    {
+        while (schemaFilterType is not null)
+        {
+            if (schemaFilterType.IsGenericType && schemaFilterType.GetGenericTypeDefinition() == typeof(EnumSchemaFilter<,>))
+            {
+                return schemaFilterType;
+            }
+
+            schemaFilterType = schemaFilterType.BaseType;
+        }
+
+        return null;
     }
 
     private static IServiceProvider BuildApiServiceProvider()
