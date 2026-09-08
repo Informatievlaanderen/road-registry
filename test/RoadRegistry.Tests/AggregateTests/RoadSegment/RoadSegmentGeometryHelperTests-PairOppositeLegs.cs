@@ -1,4 +1,4 @@
-namespace RoadRegistry.Tests.RoadSegment;
+namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
 
 using System;
 using System.Collections.Concurrent;
@@ -7,36 +7,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.LinearReferencing;
-using Xunit;
-using Xunit.Abstractions;
+using RoadRegistry.RoadSegment;
 
-// POC: given the four road segments that meet in one node, find the one opposite a given segment.
-//
-// The rule is purely positional, whatever the angles: order the legs around the node and take the one that is neither
-// the clockwise nor the counter-clockwise neighbour. Exactly one leg qualifies, which is why this needs a four-way
-// node - with three every other leg is a neighbour, with five there are two non-neighbours.
-//
-// Drawing a circle around the intersection and walking its border computes precisely that ordering, and "skip one,
-// take the next" is "not a neighbour". So the ordering can be taken directly from the bearing of each leg as it
-// leaves the node: no buffer, no boundary intersection, no radius to tune, and nothing to go wrong when a leg is
-// shorter than the radius or crosses the circle more than once.
-public class OppositeRoadSegmentAtIntersectionTests
+// Which of the four roads meeting in one node lies across from which - the rule 'verwijder wegknoop' pairs an echte
+// knoop's four roads by. See RoadSegmentGeometryHelper.PairOppositeLegs for why ordering them by the direction they
+// leave the node is the whole of it.
+public class RoadSegmentGeometryHelperPairOppositeLegsTests
 {
-    // How far along the leg the direction is measured, i.e. how the leg "leaves" the node.
-    //
-    // It is the minimum distance between two vertices, which makes it the shortest probe that is guaranteed to land
-    // on real geometry rather than between two coincident points - and, because a leg's turn can begin within the
-    // first metre, the largest one that still measures the departure direction instead of where the leg has already
-    // turned to. The cost is angular noise: coordinates are stored to the centimetre, so one centimetre of jitter on
-    // the first vertex rotates the bearing by atan(0.01 / 0.15) = 3.8 degrees (see ProbeDistance_TradeOff below).
-    // Legs that leave the node less than ~4 degrees apart therefore cannot be ordered reliably.
     private static readonly double ProbeDistance = Distances.MinimumDistanceBetweenVertices;
-    private const double NodeTolerance = 0.01;
+    private static readonly Coordinate Node = new(0, 0);
 
     private readonly ITestOutputHelper _output;
 
-    public OppositeRoadSegmentAtIntersectionTests(ITestOutputHelper output)
+    public RoadSegmentGeometryHelperPairOppositeLegsTests(ITestOutputHelper output)
     {
         _output = output;
     }
@@ -46,47 +29,16 @@ public class OppositeRoadSegmentAtIntersectionTests
     // The one leg that is not a neighbour of the given leg in the angular order around the node.
     private static string Opposite(IReadOnlyList<Leg> legs, Coordinate node, string startId, double? probeDistance = null)
     {
-        if (legs.Count != 4)
-        {
-            throw new ArgumentException($"An opposite leg is only well defined on a four-way node, got {legs.Count}.", nameof(legs));
-        }
+        var pairs = RoadSegmentGeometryHelper.PairOppositeLegs(legs, leg => leg.Geometry, node, probeDistance);
 
-        var ordered = legs
-            .OrderBy(leg => BearingFromNode(leg.Geometry, node, probeDistance))
-            .ToList();
-
-        var start = ordered.FindIndex(leg => leg.Id == startId);
-        var counterClockwiseNeighbour = (start + 1) % ordered.Count;
-        var clockwiseNeighbour = (start + ordered.Count - 1) % ordered.Count;
-
-        return ordered
-            .Where((_, index) => index != start && index != counterClockwiseNeighbour && index != clockwiseNeighbour)
-            .Single()
-            .Id;
+        var pair = pairs.Single(x => x.First.Id == startId || x.Second.Id == startId);
+        return pair.First.Id == startId ? pair.Second.Id : pair.First.Id;
     }
 
-    // The bearing (radians, [0, 2pi)) of the leg as it leaves the node, regardless of which way it was digitised.
-    private static double BearingFromNode(LineString geometry, Coordinate node, double? probeDistance = null)
+    private static double Bearing(LineString geometry, Coordinate node, double? probeDistance = null)
     {
-        var awayFromNode = geometry.StartPoint.Coordinate.Distance(node) <= NodeTolerance
-            ? geometry
-            : (LineString)geometry.Reverse();
-
-        if (awayFromNode.StartPoint.Coordinate.Distance(node) > NodeTolerance)
-        {
-            throw new InvalidOperationException("The leg must touch the node with one of its end vertices.");
-        }
-
-        // Clamped only as a backstop: a valid road segment is a metre long at least, so this cannot bite unless the
-        // caller is handed legacy or not-yet-validated geometry.
-        var probe = new LengthIndexedLine(awayFromNode)
-            .ExtractPoint(Math.Min(probeDistance ?? ProbeDistance, awayFromNode.Length));
-
-        var angle = Math.Atan2(probe.Y - node.Y, probe.X - node.X);
-        return angle < 0 ? angle + 2 * Math.PI : angle;
+        return RoadSegmentGeometryHelper.BearingAwayFromNode(geometry, node, probeDistance);
     }
-
-    private static readonly Coordinate Node = new(0, 0);
 
     // A straight leg leaving the node at the given bearing, digitised away from the node.
     private static Leg Radial(string id, double degrees, double length = 50)
@@ -189,8 +141,8 @@ public class OppositeRoadSegmentAtIntersectionTests
         ]));
         List<Leg> legs = [Radial("east", 0), Radial("northwest", 140), west, Radial("south", 270)];
 
-        (BearingFromNode(west.Geometry, Node, 0.15) * 180 / Math.PI).Should().BeApproximately(180, 0.01);
-        (BearingFromNode(west.Geometry, Node, 1.0) * 180 / Math.PI).Should().BeApproximately(137, 0.01);
+        (Bearing(west.Geometry, Node, 0.15) * 180 / Math.PI).Should().BeApproximately(180, 0.01);
+        (Bearing(west.Geometry, Node, 1.0) * 180 / Math.PI).Should().BeApproximately(137, 0.01);
 
         Opposite(legs, Node, "east").Should().Be("west");
 
@@ -217,9 +169,9 @@ public class OppositeRoadSegmentAtIntersectionTests
         // rotates the measured bearing, and 15cm is the noisiest of the three.
         var jittery = new LineString([new Coordinate(0, 0), new Coordinate(0.15, 0.01), new Coordinate(50, 0)]);
 
-        (BearingFromNode(jittery, Node, 0.15) * 180 / Math.PI).Should().BeApproximately(3.81, 0.02);
-        (BearingFromNode(jittery, Node, 0.5) * 180 / Math.PI).Should().BeApproximately(1.15, 0.02);
-        (BearingFromNode(jittery, Node, 1.0) * 180 / Math.PI).Should().BeApproximately(0.57, 0.02);
+        (Bearing(jittery, Node, 0.15) * 180 / Math.PI).Should().BeApproximately(3.81, 0.02);
+        (Bearing(jittery, Node, 0.5) * 180 / Math.PI).Should().BeApproximately(1.15, 0.02);
+        (Bearing(jittery, Node, 1.0) * 180 / Math.PI).Should().BeApproximately(0.57, 0.02);
 
         // Which is the price of reading the departure direction: two legs leaving less than ~4 degrees apart cannot
         // be told apart, so a node like that needs something other than geometry to resolve it.
@@ -233,7 +185,7 @@ public class OppositeRoadSegmentAtIntersectionTests
         // A real four-way node should never look like this; worth detecting rather than trusting the answer.
         List<Leg> legs = [Radial("east", 0), Radial("north", 90), Radial("west", 180), Radial("west-again", 180)];
 
-        var bearings = legs.Select(leg => BearingFromNode(leg.Geometry, Node)).ToList();
+        var bearings = legs.Select(leg => Bearing(leg.Geometry, Node)).ToList();
 
         bearings.Distinct().Should().HaveCount(3, "two legs share a bearing, so the ordering between them is arbitrary");
     }
@@ -426,5 +378,20 @@ public class OppositeRoadSegmentAtIntersectionTests
         var act = () => Opposite(legs, Node, "leg0");
 
         act.Should().Throw<ArgumentException>();
+    }
+
+    // The node is not always at the origin, and the roads meet it with whichever end vertex they were digitised with.
+    [Fact]
+    public void TheNodeIsWhereverTheRoadsMeet_NotTheOrigin()
+    {
+        var node = new Coordinate(100, 80);
+
+        Leg Away(string id, double dx, double dy) => new(id, new LineString([node, new Coordinate(node.X + dx, node.Y + dy)]));
+        Leg Towards(string id, double dx, double dy) => Reversed(Away(id, dx, dy));
+
+        List<Leg> legs = [Away("east", 50, 0), Towards("north", 0, 50), Away("west", -50, 0), Towards("south", 0, -50)];
+
+        Opposite(legs, node, "east").Should().Be("west");
+        Opposite(legs, node, "north").Should().Be("south");
     }
 }
