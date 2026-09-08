@@ -1,8 +1,5 @@
-namespace RoadRegistry.BackOffice.Api.V2.GradeJunctions;
+namespace RoadRegistry.BackOffice.Api.V2.GradeSeparatedJunctions;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,31 +17,31 @@ using Microsoft.OpenApi;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
-using RoadRegistry.BackOffice.Handlers.Sqs.GradeJunctions.V2;
+using RoadRegistry.BackOffice.Handlers.Sqs.GradeSeparatedJunctions.V2;
 using RoadRegistry.Extensions;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.ValueObjects;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
-public partial class GradeJunctionsController
+public partial class GradeSeparatedJunctionsController
 {
-    private const string ChangeToGradeSeparatedJunctionRoute = "{id}/acties/wijzigen/naarongelijkgrondsekruising";
+    private const string ChangeAttributesRoute = "{id}/acties/wijzigen/attributen";
 
     /// <summary>
-    ///     Wijzig een gelijkgrondse kruising naar een ongelijkgrondse kruising.
+    ///     Wijzig attribuutwaarde(n) voor een ongelijkgrondse kruising.
     /// </summary>
-    /// <param name="id">De identificator van de gelijkgrondse kruising.</param>
+    /// <param name="id">De identificator van de ongelijkgrondse kruising.</param>
     /// <param name="parameters"></param>
     /// <param name="store"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het verzoek aanvaard is.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
-    /// <response code="404">Als de gelijkgrondse kruising niet gevonden kan worden.</response>
-    /// <response code="410">Als de gelijkgrondse kruising is verwijderd.</response>
+    /// <response code="404">Als de ongelijkgrondse kruising niet gevonden kan worden.</response>
+    /// <response code="410">Als de ongelijkgrondse kruising is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
-    [HttpPost(ChangeToGradeSeparatedJunctionRoute, Name = nameof(ChangeGradeJunctionToGradeSeparatedJunctionV2))]
-    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
+    [HttpPost(ChangeAttributesRoute, Name = nameof(ChangeGradeSeparatedJunctionAttributesV2))]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.WegenAttribuutWaarden.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -53,21 +50,21 @@ public partial class GradeJunctionsController
     [SwaggerResponseHeader(StatusCodes.Status202Accepted, "ETag", JsonSchemaType.String, "De ETag van de response.")]
     [SwaggerResponseHeader(StatusCodes.Status202Accepted, "x-correlation-id", JsonSchemaType.String, "Correlatie identificator van de response.")]
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
-    [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(GradeJunctionNotFoundResponseExamples))]
-    [SwaggerResponseExample(StatusCodes.Status410Gone, typeof(GradeJunctionGoneResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(GradeSeparatedJunctionNotFoundResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status410Gone, typeof(GradeSeparatedJunctionGoneResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
-    [SwaggerRequestExample(typeof(ChangeToGradeSeparatedJunctionV2Parameters), typeof(ChangeToGradeSeparatedJunctionV2ParametersExamples))]
-    [SwaggerOperation(OperationId = nameof(ChangeGradeJunctionToGradeSeparatedJunctionV2), Description = "Wijzig een gelijkgrondse kruising naar een ongelijkgrondse kruising.")]
-    public async Task<IActionResult> ChangeGradeJunctionToGradeSeparatedJunctionV2(
+    [SwaggerRequestExample(typeof(ChangeGradeSeparatedJunctionAttributesV2Parameters), typeof(ChangeGradeSeparatedJunctionAttributesV2ParametersExamples))]
+    [SwaggerOperation(OperationId = nameof(ChangeGradeSeparatedJunctionAttributesV2), Description = "Wijzig attribuutwaarde(n) voor een ongelijkgrondse kruising: het onder- en bovenliggende wegsegment omwisselen, of het type aanpassen.")]
+    public async Task<IActionResult> ChangeGradeSeparatedJunctionAttributesV2(
         [FromRoute] int id,
-        [FromBody] ChangeToGradeSeparatedJunctionV2Parameters parameters,
+        [FromBody] ChangeGradeSeparatedJunctionAttributesV2Parameters parameters,
         [FromServices] IDocumentStore store,
         CancellationToken cancellationToken = default)
     {
         try
         {
             // VAL-1
-            if (!GradeJunctionId.Accepts(id))
+            if (!GradeSeparatedJunctionId.Accepts(id))
             {
                 throw new ValidationException([new ValidationFailure("id", $"De waarde {id} is ongeldig.")]);
             }
@@ -76,13 +73,13 @@ public partial class GradeJunctionsController
 
             // VAL-2, VAL-3. Whether the named road segments are this crossing's, and whether they differ, is left to
             // the domain: it is the only place that knows what the junction is about.
-            var gradeJunction = await session.LoadAsync<GradeJunctionReadItem>(id, cancellationToken);
-            if (gradeJunction is null)
+            var gradeSeparatedJunction = await session.LoadAsync<GradeSeparatedJunctionReadItem>(id, cancellationToken);
+            if (gradeSeparatedJunction is null)
             {
                 return NotFound();
             }
 
-            if (gradeJunction.IsRemoved)
+            if (gradeSeparatedJunction.IsRemoved)
             {
                 return new StatusCodeResult(StatusCodes.Status410Gone);
             }
@@ -92,10 +89,10 @@ public partial class GradeJunctionsController
                 parameters?.BovenliggendWegsegment,
                 parameters?.OngelijkgrondseKruisingType);
 
-            var sqsRequest = new ChangeGradeJunctionToGradeSeparatedJunctionSqsRequest
+            var sqsRequest = new ChangeGradeSeparatedJunctionAttributesV2SqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Update),
-                GradeJunctionId = new GradeJunctionId(id),
+                GradeSeparatedJunctionId = new GradeSeparatedJunctionId(id),
                 LowerRoadSegmentId = lowerRoadSegmentId,
                 UpperRoadSegmentId = upperRoadSegmentId,
                 Type = type
@@ -109,14 +106,13 @@ public partial class GradeJunctionsController
             return Accepted();
         }
     }
-
 }
 
 /// <summary>
-///     De attribuutwaarden van de ongelijkgrondse kruising die in de plaats komt van de gelijkgrondse kruising.
+///     De attribuutwaarden van de ongelijkgrondse kruising.
 /// </summary>
-[DataContract(Name = "GelijkgrondseKruisingV2NaarOngelijkgrondseKruisingWijzigen", Namespace = "")]
-public record ChangeToGradeSeparatedJunctionV2Parameters
+[DataContract(Name = "OngelijkgrondseKruisingV2AttribuutwaardenWijzigen", Namespace = "")]
+public record ChangeGradeSeparatedJunctionAttributesV2Parameters
 {
     /// <summary>
     ///     Objectidentificator van het onderliggende wegsegment van de ongelijkgrondse kruising.
@@ -141,11 +137,11 @@ public record ChangeToGradeSeparatedJunctionV2Parameters
     public string? OngelijkgrondseKruisingType { get; set; }
 }
 
-public class ChangeToGradeSeparatedJunctionV2ParametersExamples : IExamplesProvider<ChangeToGradeSeparatedJunctionV2Parameters>
+public class ChangeGradeSeparatedJunctionAttributesV2ParametersExamples : IExamplesProvider<ChangeGradeSeparatedJunctionAttributesV2Parameters>
 {
-    public ChangeToGradeSeparatedJunctionV2Parameters GetExamples()
+    public ChangeGradeSeparatedJunctionAttributesV2Parameters GetExamples()
     {
-        return new ChangeToGradeSeparatedJunctionV2Parameters
+        return new ChangeGradeSeparatedJunctionAttributesV2Parameters
         {
             OnderliggendWegsegment = "432756",
             BovenliggendWegsegment = "987567",

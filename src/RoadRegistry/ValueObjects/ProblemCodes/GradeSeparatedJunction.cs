@@ -14,5 +14,6 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode UpperEqualsLowerRoadSegment = new("GradeSeparatedJunctionUpperEqualsLowerRoadSegment");
         public static readonly ProblemCode DoesNotExist = new("GradeSeparatedJunctionDoesNotExist");
         public static readonly ProblemCode IsRemoved = new("GradeSeparatedJunctionIsRemoved");
+        public static readonly ProblemCode RoadSegmentDoesNotBelong = new("RoadSegmentDoesNotBelongToGradeSeparatedJunction");
     }
 }

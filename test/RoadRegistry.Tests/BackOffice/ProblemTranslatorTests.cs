@@ -118,6 +118,12 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.GradeSeparatedJunction.RoadSegmentDoesNotBelong, [
+                    new ProblemParameter { Name = "WegsegmentId", Value = "1" },
+                    new ProblemParameter { Name = "OngelijkGrondseKruisingId", Value = "2" }
+                ]
+            },
+            {
                 ProblemCode.GradeSeparatedJunction.IsRemoved, [
                     new ProblemParameter { Name = "OngelijkGrondseKruisingId", Value = "1" }
                 ]
