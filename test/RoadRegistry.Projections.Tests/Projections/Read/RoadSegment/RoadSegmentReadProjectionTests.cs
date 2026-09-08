@@ -80,20 +80,6 @@ public class RoadSegmentReadProjectionTests
     }
 
     [Fact]
-    public async Task WhenRoadSegmentWasRetired_ThenStatusGehistoreerdAndNodesCleared()
-    {
-        var scenario = Scenario();
-
-        await scenario.GivenAsync(_testData.Segment1StartNodeAdded, _testData.Segment1EndNodeAdded, _testData.Segment1Added);
-        await scenario.GivenAsync(new RoadSegmentWasRetired { RoadSegmentId = new RoadSegmentId(1), Provenance = Provenance });
-
-        var segment = await scenario.Load<RoadSegmentReadItem>(1);
-        Assert.Equal(RoadSegmentStatusV2.Gehistoreerd.ToString(), segment!.Status);
-        Assert.Null(segment.StartNodeId);
-        Assert.Null(segment.EndNodeId);
-    }
-
-    [Fact]
     public async Task WhenRoadSegmentWasModified_StatusOnly_ThenOtherFieldsKept()
     {
         var scenario = Scenario();

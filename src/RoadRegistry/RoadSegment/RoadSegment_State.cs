@@ -320,15 +320,6 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         IsRemoved = true;
     }
 
-    public void Apply(RoadSegmentWasRetired @event)
-    {
-        UncommittedEvents.Add(@event);
-
-        Status = RoadSegmentStatusV2.Gehistoreerd;
-        StartNodeId = null;
-        EndNodeId = null;
-    }
-
     public void Apply(RoadSegmentWasRetiredBecauseOfMerger @event)
     {
         UncommittedEvents.Add(@event);

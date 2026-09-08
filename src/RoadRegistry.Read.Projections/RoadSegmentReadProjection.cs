@@ -504,15 +504,6 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
             await SyncStreetNameLinks(session, roadSegment.RoadSegmentId, roadSegment.GetStreetNameHashSet(), [], ct);
             await SyncOrganizationLinks(session, roadSegment.RoadSegmentId, roadSegment.GetMaintenanceAuthorityHashSet(), [], ct);
         });
-        When<IEvent<RoadSegmentWasRetired>>((session, e, ct) =>
-        {
-            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
-            {
-                segment.Status = RoadSegmentStatusV2.Gehistoreerd.ToString();
-                segment.StartNodeId = null;
-                segment.EndNodeId = null;
-            }, e.Data, ct);
-        });
         When<IEvent<RoadSegmentWasRetiredBecauseOfMerger>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>

@@ -197,14 +197,6 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<RoadSegmentWasRetired> e, IDocumentOperations ops)
-    {
-        ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",
-            e.Data.RoadSegmentId.ToInt32(),
-            e.Timestamp
-        );
-    }
-
     public void Project(IEvent<RoadSegmentWasRetiredBecauseOfMerger> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",

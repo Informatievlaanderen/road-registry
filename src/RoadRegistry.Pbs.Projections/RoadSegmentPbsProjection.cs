@@ -248,7 +248,6 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
 
         When<IEvent<RoadSegmentWasRemoved>>((context, e, ct) => Remove(context, e.Data.RoadSegmentId.ToInt32(), ct));
         When<IEvent<RoadSegmentWasRemovedBecauseOfMigration>>((context, e, ct) => Remove(context, e.Data.RoadSegmentId.ToInt32(), ct));
-        When<IEvent<RoadSegmentWasRetired>>((context, e, ct) => Remove(context, e.Data.RoadSegmentId.ToInt32(), ct));
         When<IEvent<RoadSegmentWasRetiredBecauseOfMerger>>((context, e, ct) => Remove(context, e.Data.RoadSegmentId.ToInt32(), ct));
         When<IEvent<RoadSegmentWasRetiredBecauseOfSplit>>((context, e, ct) => Remove(context, e.Data.RoadSegmentId.ToInt32(), ct));
 
