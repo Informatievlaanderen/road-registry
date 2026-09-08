@@ -113,6 +113,16 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.GradeSeparatedJunction.DoesNotExist, [
+                    new ProblemParameter { Name = "OngelijkGrondseKruisingId", Value = "1" }
+                ]
+            },
+            {
+                ProblemCode.GradeSeparatedJunction.IsRemoved, [
+                    new ProblemParameter { Name = "OngelijkGrondseKruisingId", Value = "1" }
+                ]
+            },
+            {
                 ProblemCode.GradeJunction.IsRemoved, [
                     new ProblemParameter { Name = "GelijkGrondseKruisingId", Value = "1" }
                 ]

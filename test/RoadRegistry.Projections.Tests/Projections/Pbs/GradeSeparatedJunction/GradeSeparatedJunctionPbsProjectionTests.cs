@@ -37,6 +37,7 @@ public class GradeSeparatedJunctionPbsProjectionTests
         // point now arrives on those events, so RoadSegment events are no longer handled. Everything else is excluded.
         var excludeEventTypes = new[]
         {
+            typeof(global::RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasAddedBecauseOfGradeSeparatedJunctionChange),
             typeof(global::RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasChangedToGradeSeparatedJunction),
             // RoadNode V1
             typeof(ImportedRoadNode), typeof(RoadNodeAdded), typeof(RoadNodeModified), typeof(RoadNodeRemoved),
@@ -117,6 +118,32 @@ public class GradeSeparatedJunctionPbsProjectionTests
         Assert.NotNull(junction.GEOMETRIE);
         Assert.Equal(50.0, junction.GEOMETRIE.Coordinate.X, 3);
         Assert.Equal(50.0, junction.GEOMETRIE.Coordinate.Y, 3);
+    }
+
+    // The crossing did not disappear - it is a grade junction from here on - but this projection no longer has
+    // anything to show for it.
+    [Fact]
+    public async Task WhenGradeSeparatedJunctionWasChangedToGradeJunction_ThenDeleted()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(new GradeSeparatedJunctionWasAdded
+        {
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
+            LowerRoadSegmentId = new RoadSegmentId(1),
+            UpperRoadSegmentId = new RoadSegmentId(2),
+            Type = _testData.Fixture.Create<GradeSeparatedJunctionTypeV2>(),
+            Geometry = JunctionPoint((50, 50)),
+            Provenance = Provenance
+        });
+        await scenario.GivenAsync(new GradeSeparatedJunctionWasChangedToGradeJunction
+        {
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
+            GradeJunctionId = new GradeJunctionId(9),
+            Provenance = Provenance
+        });
+
+        Assert.Null(await scenario.Find<GradeSeparatedJunctionRecord>(1));
     }
 
     // Not a newly observed crossing: it is the one a grade junction used to record. For this projection it is an

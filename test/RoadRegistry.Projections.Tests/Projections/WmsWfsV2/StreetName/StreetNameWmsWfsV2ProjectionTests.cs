@@ -32,6 +32,8 @@ public class StreetNameWmsWfsV2ProjectionTests
         // This projection handles only the StreetName V2 events; everything else is excluded.
         var excludeEventTypes = new[]
         {
+            typeof(global::RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasAddedBecauseOfGradeSeparatedJunctionChange),
+            typeof(global::RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasChangedToGradeJunction),
             typeof(global::RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasChangedToGradeSeparatedJunction),
             typeof(global::RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange),
             // RoadNode V1

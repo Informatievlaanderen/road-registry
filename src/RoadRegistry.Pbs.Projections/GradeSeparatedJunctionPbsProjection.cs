@@ -130,6 +130,17 @@ public class GradeSeparatedJunctionPbsProjection : RunnerDbContextRoadNetworkCha
                 context.GradeSeparatedJunctions.Remove(record);
             }
         });
+
+        // The crossing did not disappear: it is a grade junction from here on, which the grade junction projection
+        // inserts. For this projection the grade separated junction is gone all the same.
+        When<IEvent<GradeSeparatedJunctionWasChangedToGradeJunction>>(async (context, e, ct) =>
+        {
+            var record = await context.GradeSeparatedJunctions.FindAsync([e.Data.GradeSeparatedJunctionId.ToInt32()], ct);
+            if (record is not null)
+            {
+                context.GradeSeparatedJunctions.Remove(record);
+            }
+        });
         When<IEvent<GradeSeparatedJunctionWasRemovedBecauseOfMigration>>(async (context, e, ct) =>
         {
             var record = await context.GradeSeparatedJunctions.FindAsync([e.Data.GradeSeparatedJunctionId.ToInt32()], ct);

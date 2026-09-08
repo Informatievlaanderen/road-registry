@@ -39,6 +39,24 @@ public class GradeJunctionReadProjection : MartenRoadNetworkChangesProjection
 
             await UpdateRoadSegmentGradeJunctionIds(session, junction.GradeJunctionId, (null, null), (junction.RoadSegmentId1, junction.RoadSegmentId2), ct);
         });
+
+        // Not a newly observed crossing: it is the one the named grade separated junction used to record, now recorded
+        // as a grade junction. For this projection it is an insert all the same.
+        When<IEvent<GradeJunctionWasAddedBecauseOfGradeSeparatedJunctionChange>>(async (session, e, ct) =>
+        {
+            var junction = new GradeJunctionReadItem
+            {
+                GradeJunctionId = e.Data.GradeJunctionId,
+                RoadSegmentId1 = new RoadSegmentId(e.Data.RoadSegmentId1),
+                RoadSegmentId2 = new RoadSegmentId(e.Data.RoadSegmentId2),
+                Origin = e.Data.Provenance.ToEventTimestamp(),
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = true
+            };
+            session.Store(junction);
+
+            await UpdateRoadSegmentGradeJunctionIds(session, junction.GradeJunctionId, (null, null), (junction.RoadSegmentId1, junction.RoadSegmentId2), ct);
+        });
         When<IEvent<GradeJunctionWasModified>>(async (session, e, ct) =>
         {
             var junction = await session.LoadAsync<GradeJunctionReadItem>(e.Data.GradeJunctionId, ct);

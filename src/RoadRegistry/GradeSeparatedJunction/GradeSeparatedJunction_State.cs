@@ -107,6 +107,18 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         Type = @event.Type ?? Type;
     }
 
+    public void Apply(GradeSeparatedJunctionWasChangedToGradeJunction @event)
+    {
+        if (IsRemoved)
+        {
+            return;
+        }
+
+        UncommittedEvents.Add(@event);
+
+        IsRemoved = true;
+    }
+
     public void Apply(GradeSeparatedJunctionWasRemoved @event)
     {
         if (IsRemoved)
