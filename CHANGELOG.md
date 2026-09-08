@@ -1,3 +1,21 @@
+# [5.17.0](https://github.com/informatievlaanderen/road-registry/compare/v5.16.0...v5.17.0) (2026-09-08)
+
+
+### Bug Fixes
+
+* bepaal de tegenoverliggende wegsegmenten op hun vertrekrichting uit de wegknoop ([16161d2](https://github.com/informatievlaanderen/road-registry/commit/16161d282456649c55f5a3dd0fc339935133a90a))
+* documenteer de mogelijke waardes van wegknooptype en ongelijkgrondsekruisingtype ([a5ae743](https://github.com/informatievlaanderen/road-registry/commit/a5ae743acb00c39537b649b2bbdbb081689cec8e))
+
+
+### Features
+
+* **2.0:** verwijder één of meerdere wegsegmenten GAWR-7714 ([4d1adb5](https://github.com/informatievlaanderen/road-registry/commit/4d1adb51b46d12d4560163bc7d65e6cfade12d30))
+* verwijder wegknoop en voeg de wegsegmenten samen GAWR-7682 ([b7b494c](https://github.com/informatievlaanderen/road-registry/commit/b7b494c1932ea08f9198cfae578b152cb3c920e9))
+* wijzig attribuutwaarden van een ongelijkgrondse kruising GAWR-7718 ([ff20265](https://github.com/informatievlaanderen/road-registry/commit/ff2026518099d5ea4260482ea9ad1f2c1623ab15))
+* wijzig attribuutwaarden van wegknopen GAWR-7681 ([20bd386](https://github.com/informatievlaanderen/road-registry/commit/20bd38633e3d6d99f61fdfcea4421adbf5ab449e))
+* wijzig gelijkgrondse kruising naar ongelijkgrondse kruising GAWR-7716 ([ad9f9dd](https://github.com/informatievlaanderen/road-registry/commit/ad9f9dd49e0f85a0c26e20e93073ba04f6c048f7))
+* wijzig ongelijkgrondse kruising naar gelijkgrondse kruising GAWR-7717 ([055ab5a](https://github.com/informatievlaanderen/road-registry/commit/055ab5af9f8fbf4a6f528475e7f5b67e9ac729af))
+
 # [5.16.0](https://github.com/informatievlaanderen/road-registry/compare/v5.15.0...v5.16.0) (2026-09-07)
 
 
