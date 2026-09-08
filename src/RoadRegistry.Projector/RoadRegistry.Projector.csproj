@@ -36,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Be.Vlaanderen.Basisregisters.Api" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Logging" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.Aws.DistributedMutex" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.EventHandling" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.EventHandling.Autofac" />
