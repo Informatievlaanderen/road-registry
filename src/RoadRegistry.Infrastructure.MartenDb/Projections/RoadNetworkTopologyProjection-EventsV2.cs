@@ -333,6 +333,24 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
+    public void Project(IEvent<GradeSeparatedJunctionWasChangedToGradeJunction> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradeseparatedjunction(?, ?);",
+            e.Data.GradeSeparatedJunctionId.ToInt32(),
+            e.Timestamp
+        );
+    }
+
+    public void Project(IEvent<GradeJunctionWasAddedBecauseOfGradeSeparatedJunctionChange> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_insert_gradejunction(?, ?, ?, ?, TRUE);",
+            e.Data.GradeJunctionId.ToInt32(),
+            e.Timestamp,
+            e.Data.RoadSegmentId1.ToInt32(),
+            e.Data.RoadSegmentId2.ToInt32()
+        );
+    }
+
     public void Project(IEvent<RoadNetworkWasChanged> e, IDocumentOperations ops)
     {
         // Do nothing

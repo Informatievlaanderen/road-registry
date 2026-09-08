@@ -24,6 +24,7 @@ public class GradeSeparatedJunctionExtractProjectionTests
     {
         var excludeEventTypes = new[]
         {
+            typeof(global::RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasAddedBecauseOfGradeSeparatedJunctionChange),
             typeof(global::RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasChangedToGradeSeparatedJunction),
             typeof(RoadNetworkChangesAccepted),
             typeof(ImportedRoadNode),

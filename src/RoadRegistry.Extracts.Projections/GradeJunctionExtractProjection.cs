@@ -35,6 +35,22 @@ public class GradeJunctionExtractProjection : MartenRoadNetworkChangesProjection
             });
             return Task.CompletedTask;
         });
+
+        // Not a newly observed crossing: it is the one the named grade separated junction used to record, now recorded
+        // as a grade junction. For this projection it is an insert all the same.
+        When<IEvent<GradeJunctionWasAddedBecauseOfGradeSeparatedJunctionChange>>((session, e, _) =>
+        {
+            session.Store(new GradeJunctionExtractItem
+            {
+                GradeJunctionId = e.Data.GradeJunctionId,
+                RoadSegmentId1 = new RoadSegmentId(e.Data.RoadSegmentId1),
+                RoadSegmentId2 = new RoadSegmentId(e.Data.RoadSegmentId2),
+                Origin = e.Data.Provenance.ToEventTimestamp(),
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = true
+            });
+            return Task.CompletedTask;
+        });
         When<IEvent<GradeJunctionWasModified>>(async (session, e, _) =>
         {
             var junction = await session.LoadAsync<GradeJunctionExtractItem>(e.Data.GradeJunctionId);

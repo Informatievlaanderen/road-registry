@@ -37,6 +37,7 @@ public class GradeSeparatedJunctionWmsWfsV2ProjectionTests
         // point now arrives on those events, so RoadSegment events are no longer handled. Everything else is excluded.
         var excludeEventTypes = new[]
         {
+            typeof(global::RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasAddedBecauseOfGradeSeparatedJunctionChange),
             typeof(global::RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasChangedToGradeSeparatedJunction),
             // RoadNode V1
             typeof(ImportedRoadNode), typeof(RoadNodeAdded), typeof(RoadNodeModified), typeof(RoadNodeRemoved),

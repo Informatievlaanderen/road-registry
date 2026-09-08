@@ -36,6 +36,7 @@ public class GradeJunctionPbsProjectionTests
         // point now arrives on those events, so RoadSegment events are no longer handled. Everything else is excluded.
         var excludeEventTypes = new[]
         {
+            typeof(global::RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasChangedToGradeJunction),
             typeof(global::RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange),
             // RoadNode V1
             typeof(ImportedRoadNode), typeof(RoadNodeAdded), typeof(RoadNodeModified), typeof(RoadNodeRemoved),
@@ -166,6 +167,32 @@ public class GradeJunctionPbsProjectionTests
         });
 
         Assert.Null(await scenario.Find<GradeJunctionRecord>(1));
+    }
+
+    // Not a newly observed crossing: it is the one a grade separated junction used to record. For this projection it
+    // is an insert all the same.
+    [Fact]
+    public async Task WhenGradeJunctionWasAddedBecauseOfGradeSeparatedJunctionChange_ThenStoredWithGeometryFromEvent()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(new GradeJunctionWasAddedBecauseOfGradeSeparatedJunctionChange
+        {
+            GradeJunctionId = new GradeJunctionId(1),
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(9),
+            RoadSegmentId1 = new RoadSegmentId(1),
+            RoadSegmentId2 = new RoadSegmentId(2),
+            Geometry = JunctionPoint((50, 50)),
+            Provenance = Provenance
+        });
+
+        var junction = await scenario.Find<GradeJunctionRecord>(1);
+        Assert.NotNull(junction);
+        Assert.Equal(1, junction!.WS1_OIDN);
+        Assert.Equal(2, junction.WS2_OIDN);
+        Assert.NotNull(junction.GEOMETRIE);
+        Assert.Equal(50.0, junction.GEOMETRIE.Coordinate.X, 3);
+        Assert.Equal(50.0, junction.GEOMETRIE.Coordinate.Y, 3);
     }
 
     // The crossing did not disappear - it is a grade separated junction from here on, which the grade separated

@@ -4,6 +4,8 @@ using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
+using MediatR;
 using RoadRegistry.BackOffice.Api.V2.GradeSeparatedJunctions;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.Read.Projections;
@@ -16,7 +18,7 @@ public class GetGradeSeparatedJunctionTests : V2ReadEndpointTestBase
 
     public GetGradeSeparatedJunctionTests()
     {
-        _controller = new GradeSeparatedJunctionsController(CreateControllerContext());
+        _controller = new GradeSeparatedJunctionsController(CreateControllerContext(), new Mock<IMediator>().Object);
         SetHttpContext(_controller);
     }
 
