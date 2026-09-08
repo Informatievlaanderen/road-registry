@@ -35,6 +35,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeGradeJunctionToG
 using RoadRegistry.BackOffice.Handlers.Sqs.GradeSeparatedJunctions.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeGradeSeparatedJunctionToGradeJunction;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeGradeSeparatedJunctionAttributes;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RemoveRoadNode;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.SystemFlows;
 using RoadRegistry.BackOffice.Uploads;
@@ -95,6 +96,7 @@ public sealed class MessageHandler : BlobMessageHandler
             ChangeRoadSegmentGeometryDrawMethodV2SqsRequest request => new ChangeRoadSegmentGeometryDrawMethodV2SqsLambdaRequest(groupId, request),
             ChangeRoadSegmentStatusV2SqsRequest request => new ChangeRoadSegmentStatusV2SqsLambdaRequest(groupId, request),
             ChangeRoadNodeAttributesV2SqsRequest request => new ChangeRoadNodeAttributesV2SqsLambdaRequest(groupId, request),
+            RemoveRoadNodeV2SqsRequest request => new RemoveRoadNodeV2SqsLambdaRequest(groupId, request),
             ChangeGradeJunctionToGradeSeparatedJunctionSqsRequest request => new ChangeGradeJunctionToGradeSeparatedJunctionSqsLambdaRequest(groupId, request),
             ChangeGradeSeparatedJunctionToGradeJunctionSqsRequest request => new ChangeGradeSeparatedJunctionToGradeJunctionSqsLambdaRequest(groupId, request),
             ChangeGradeSeparatedJunctionAttributesV2SqsRequest request => new ChangeGradeSeparatedJunctionAttributesV2SqsLambdaRequest(groupId, request),

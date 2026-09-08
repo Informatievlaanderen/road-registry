@@ -385,6 +385,14 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode PositionTooCloseToEndVertex = new("RoadSegmentSplitPositionTooCloseToEndVertex");
         }
 
+        public static class Merge
+        {
+            public static readonly ProblemCode GeometryDrawMethodNotEqual = new("RoadSegmentsMergeGeometryDrawMethodNotEqual");
+            public static readonly ProblemCode SameStartEndNode = new("RoadSegmentsMergeSameStartEndNode");
+            public static readonly ProblemCode SelfIntersecting = new("RoadSegmentsMergeSelfIntersecting");
+            public static readonly ProblemCode MultipleIntersections = new("RoadSegmentsMergeMultipleIntersections");
+        }
+
         public static class SplitByJunction
         {
             public static readonly ProblemCode Wegsegment1IsRequired = new("RoadSegmentsSplitByJunctionWegsegment1IsRequired");

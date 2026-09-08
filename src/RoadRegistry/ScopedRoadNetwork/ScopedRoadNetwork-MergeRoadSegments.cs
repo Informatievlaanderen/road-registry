@@ -149,6 +149,31 @@ public partial class ScopedRoadNetwork
             context.Summary.GradeSeparatedJunctions.Modified.Add(junction.GradeSeparatedJunctionId);
         }
 
+        // The same for the crossings at grade: a kruising that was about one of the two roads is about the road they
+        // became, and keeps its own identifier while saying so.
+        var connectedGradeJunctions = _gradeJunctions
+            .Where(x => !x.Value.IsRemoved && nodeSegmentIds.Any(segmentId => x.Value.IsConnectedTo(segmentId)))
+            .Select(x => x.Value)
+            .ToArray();
+
+        foreach (var junction in connectedGradeJunctions)
+        {
+            var newRoadSegmentId1 = nodeSegmentIds.Contains(junction.RoadSegmentId1) && junction.RoadSegmentId1 != mergeSegmentChange.RoadSegmentId
+                ? (RoadSegmentId?)mergeSegmentChange.RoadSegmentId
+                : null;
+            var newRoadSegmentId2 = nodeSegmentIds.Contains(junction.RoadSegmentId2) && junction.RoadSegmentId2 != mergeSegmentChange.RoadSegmentId
+                ? (RoadSegmentId?)mergeSegmentChange.RoadSegmentId
+                : null;
+
+            if (newRoadSegmentId1 is null && newRoadSegmentId2 is null)
+            {
+                continue;
+            }
+
+            problems += junction.Modify(newRoadSegmentId1, newRoadSegmentId2, context.Provenance);
+            context.Summary.GradeJunctions.Modified.Add(junction.GradeJunctionId);
+        }
+
         return problems;
     }
 }
