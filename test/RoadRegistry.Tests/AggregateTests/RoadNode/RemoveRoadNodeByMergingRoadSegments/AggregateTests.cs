@@ -7,6 +7,8 @@ using FluentAssertions;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
 using RoadRegistry.RoadNetwork.Schema;
+using RoadRegistry.GradeJunction.Events.V2;
+using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
@@ -15,6 +17,8 @@ using RoadRegistry.ScopedRoadNetwork.Events.V2;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
 using RoadRegistry.ValueObjects;
+using GradeJunction = RoadRegistry.GradeJunction.GradeJunction;
+using GradeSeparatedJunction = RoadRegistry.GradeSeparatedJunction.GradeSeparatedJunction;
 using RoadNode = RoadRegistry.RoadNode.RoadNode;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
@@ -32,6 +36,9 @@ public class AggregateTests : AggregateTestBase
     private const int NorthSegmentId = 2;
     private const int EastSegmentId = 3;
     private const int WestSegmentId = 4;
+    private const int CrossingSegmentId = 5;
+
+    private const int JunctionId = 1;
 
     private RoadNodeWasAdded BuildNode(int id, double x, double y, RoadNodeTypeV2 type)
     {
@@ -98,13 +105,17 @@ public class AggregateTests : AggregateTestBase
         };
     }
 
-    private ScopedRoadNetwork BuildNetwork(RoadNodeWasAdded[] nodes, RoadSegmentWasAdded[] segments)
+    private ScopedRoadNetwork BuildNetwork(
+        RoadNodeWasAdded[] nodes,
+        RoadSegmentWasAdded[] segments,
+        GradeSeparatedJunction[]? gradeSeparatedJunctions = null,
+        GradeJunction[]? gradeJunctions = null)
     {
         return new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
             nodes.Select(x => RoadNode.Create(x).WithoutChanges()).ToArray(),
             segments.Select(x => RoadSegment.Create(x).WithoutChanges()).ToArray(),
-            [],
-            []).WithoutChanges();
+            gradeSeparatedJunctions ?? [],
+            gradeJunctions ?? []).WithoutChanges();
     }
 
     // A road running north, cut in two at a validatieknoop that is not needed.
@@ -548,5 +559,151 @@ public class AggregateTests : AggregateTestBase
                 BuildSegment(EastSegmentId, middleNode, eastNode, BuildGeometry((100, 80), (200, 80)), carTrafficDirection: RoadSegmentTrafficDirection.None, bikeTrafficDirection: RoadSegmentTrafficDirection.Both),
                 BuildSegment(WestSegmentId, middleNode, westNode, BuildGeometry((100, 80), (99, 80), (80, 110), (104, 125)), carTrafficDirection: RoadSegmentTrafficDirection.None, bikeTrafficDirection: RoadSegmentTrafficDirection.Both)
             ]);
+    }
+
+    // An ongelijkgrondse kruising that was about one of the two roads is about the road they became, and says so under
+    // its own identifier rather than being torn down and put back.
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void WhenAGradeSeparatedJunctionIsAttachedToOneOfTheMergedRoads_ThenItPointsAtTheRoadTheyBecame(bool theSouthRoadKeepsItsIdentifier)
+    {
+        var roadNetwork = BuildCrossedValidatieknoopNetwork(
+            withGradeSeparatedJunction: true,
+            theSouthRoadKeepsItsIdentifier: theSouthRoadKeepsItsIdentifier);
+
+        var result = Act(roadNetwork);
+
+        result.Problems.Should().HaveNoError();
+
+        var mergedRoadSegmentId = MergedInto(roadNetwork, NorthSegmentId);
+        mergedRoadSegmentId.Should().Be(new RoadSegmentId(theSouthRoadKeepsItsIdentifier ? SouthSegmentId : 100));
+
+        var junction = roadNetwork.GradeSeparatedJunctions.Values.Should().ContainSingle().Which;
+        junction.GradeSeparatedJunctionId.Should().Be(new GradeSeparatedJunctionId(JunctionId),
+            "the crossing is the same crossing, so it keeps its identifier");
+        junction.IsRemoved.Should().BeFalse();
+        junction.UpperRoadSegmentId.Should().Be(mergedRoadSegmentId);
+        junction.LowerRoadSegmentId.Should().Be(new RoadSegmentId(CrossingSegmentId));
+
+        junction.GetChanges().OfType<GradeSeparatedJunctionWasModified>().Should().ContainSingle();
+    }
+
+    // The same for the crossings at grade.
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void WhenAGradeJunctionIsAttachedToOneOfTheMergedRoads_ThenItPointsAtTheRoadTheyBecame(bool theSouthRoadKeepsItsIdentifier)
+    {
+        var roadNetwork = BuildCrossedValidatieknoopNetwork(
+            withGradeSeparatedJunction: false,
+            theSouthRoadKeepsItsIdentifier: theSouthRoadKeepsItsIdentifier);
+
+        var result = Act(roadNetwork);
+
+        result.Problems.Should().HaveNoError();
+
+        var mergedRoadSegmentId = MergedInto(roadNetwork, NorthSegmentId);
+
+        var junction = roadNetwork.GradeJunctions.Values.Should().ContainSingle().Which;
+        junction.GradeJunctionId.Should().Be(new GradeJunctionId(JunctionId),
+            "the crossing is the same crossing, so it keeps its identifier");
+        junction.IsRemoved.Should().BeFalse();
+        junction.RoadSegmentId1.Should().Be(mergedRoadSegmentId);
+        junction.RoadSegmentId2.Should().Be(new RoadSegmentId(CrossingSegmentId));
+
+        junction.GetChanges().OfType<GradeJunctionWasModified>().Should().ContainSingle();
+    }
+
+    // The two roads that were kept apart by the node now simply cross, and that crossing is recorded as a
+    // gelijkgrondse kruising between the two roads they became.
+    [Fact]
+    public void WhenFourRoadSegmentsAreMerged_ThenAGradeJunctionIsAddedBetweenTheTwoRoadsTheyBecame()
+    {
+        var roadNetwork = BuildEchteKnoopNetwork();
+
+        var result = Act(roadNetwork);
+
+        result.Problems.Should().HaveNoError();
+
+        var junction = roadNetwork.GradeJunctions.Values.Where(x => !x.IsRemoved).Should().ContainSingle().Which;
+        new[] { junction.RoadSegmentId1, junction.RoadSegmentId2 }.Should().BeEquivalentTo(new[]
+        {
+            MergedInto(roadNetwork, SouthSegmentId),
+            MergedInto(roadNetwork, EastSegmentId)
+        });
+        junction.GetChanges().OfType<GradeJunctionWasAdded>().Should().ContainSingle();
+    }
+
+    // What a road became: the identifier of the longest of the two when it was long enough to keep it, and the
+    // identifier of the newly added road when neither was.
+    private static RoadSegmentId MergedInto(ScopedRoadNetwork roadNetwork, int originalRoadSegmentId)
+    {
+        var retired = roadNetwork.RoadSegments.Values
+            .SelectMany(x => x.GetChanges())
+            .OfType<RoadSegmentWasRetiredBecauseOfMerger>()
+            .SingleOrDefault(x => x.RoadSegmentId == new RoadSegmentId(originalRoadSegmentId));
+
+        return retired?.MergedRoadSegmentId ?? new RoadSegmentId(originalRoadSegmentId);
+    }
+
+    // The road cut in two at a validatieknoop, with a third road crossing its northern half - and a crossing recorded
+    // for it. Merging is expected to leave that crossing be, other than saying which road it is about now.
+    //
+    // The southern road is either as long as the northern one, in which case neither is long enough to keep its
+    // identifier and the merged road is a new one, or long enough that the merged road continues under its identifier.
+    private ScopedRoadNetwork BuildCrossedValidatieknoopNetwork(bool withGradeSeparatedJunction, bool theSouthRoadKeepsItsIdentifier)
+    {
+        var southNode = BuildNode(SouthNodeId, 100, theSouthRoadKeepsItsIdentifier ? -220 : 0, RoadNodeTypeV2.Eindknoop);
+        var middleNode = BuildNode(MiddleNodeId, 100, 80, RoadNodeTypeV2.Validatieknoop);
+        var northNode = BuildNode(NorthNodeId, 100, 160, RoadNodeTypeV2.Eindknoop);
+        var westNode = BuildNode(WestNodeId, 50, 120, RoadNodeTypeV2.Eindknoop);
+        var eastNode = BuildNode(EastNodeId, 150, 120, RoadNodeTypeV2.Eindknoop);
+
+        var crossing = new Point(new Coordinate(100, 120)) { SRID = WellknownSrids.Lambert08 };
+
+        // An ongelijkgrondse kruising is what a crossing needs when the two roads carry the same kind of traffic; a
+        // gelijkgrondse one is only allowed when they do not.
+        var crossingRoadBikeTrafficDirection = withGradeSeparatedJunction
+            ? RoadSegmentTrafficDirection.None
+            : RoadSegmentTrafficDirection.Both;
+        var crossingRoadCarTrafficDirection = withGradeSeparatedJunction
+            ? RoadSegmentTrafficDirection.Both
+            : RoadSegmentTrafficDirection.None;
+
+        return BuildNetwork(
+            [southNode, middleNode, northNode, westNode, eastNode],
+            [
+                BuildSegment(SouthSegmentId, southNode, middleNode, BuildGeometry((100, theSouthRoadKeepsItsIdentifier ? -220 : 0), (100, 80)), carTrafficDirection: RoadSegmentTrafficDirection.Both, bikeTrafficDirection: RoadSegmentTrafficDirection.None),
+                BuildSegment(NorthSegmentId, middleNode, northNode, BuildGeometry((100, 80), (100, 160)), carTrafficDirection: RoadSegmentTrafficDirection.Both, bikeTrafficDirection: RoadSegmentTrafficDirection.None),
+                BuildSegment(CrossingSegmentId, westNode, eastNode, BuildGeometry((50, 120), (150, 120)), carTrafficDirection: crossingRoadCarTrafficDirection, bikeTrafficDirection: crossingRoadBikeTrafficDirection)
+            ],
+            gradeSeparatedJunctions: withGradeSeparatedJunction
+                ?
+                [
+                    GradeSeparatedJunction.Create(new GradeSeparatedJunctionWasAdded
+                    {
+                        GradeSeparatedJunctionId = new GradeSeparatedJunctionId(JunctionId),
+                        UpperRoadSegmentId = new RoadSegmentId(NorthSegmentId),
+                        LowerRoadSegmentId = new RoadSegmentId(CrossingSegmentId),
+                        Type = GradeSeparatedJunctionTypeV2.Brug,
+                        Geometry = JunctionGeometry.Create(crossing),
+                        Provenance = new ProvenanceData(TestData.Provenance)
+                    }).WithoutChanges()
+                ]
+                : [],
+            gradeJunctions: withGradeSeparatedJunction
+                ? []
+                :
+                [
+                    GradeJunction.Create(new GradeJunctionWasAdded
+                    {
+                        GradeJunctionId = new GradeJunctionId(JunctionId),
+                        RoadSegmentId1 = new RoadSegmentId(NorthSegmentId),
+                        RoadSegmentId2 = new RoadSegmentId(CrossingSegmentId),
+                        Geometry = JunctionGeometry.Create(crossing),
+                        Provenance = new ProvenanceData(TestData.Provenance)
+                    }).WithoutChanges()
+                ]);
     }
 }
