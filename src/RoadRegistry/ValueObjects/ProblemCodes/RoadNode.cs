@@ -13,6 +13,12 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode TypeV2Mismatch = new("RoadNodeTypeV2Mismatch");
         public static readonly ProblemCode IsNotAllowed = new("RoadNodeIsNotAllowed");
 
+        public static class ChangeAttributes
+        {
+            public static readonly ProblemCode NotFound = new("RoadNodeChangeAttributesNotFound");
+            public static readonly ProblemCode IsRemoved = new("RoadNodeChangeAttributesIsRemoved");
+        }
+
         public static class Geometry
         {
             public static readonly ProblemCode Taken = new("RoadNodeGeometryTaken");

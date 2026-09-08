@@ -98,6 +98,16 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadNode.ChangeAttributes.NotFound, [
+                    new ProblemParameter { Name = "WegknoopId", Value = "1" }
+                ]
+            },
+            {
+                ProblemCode.RoadNode.ChangeAttributes.IsRemoved, [
+                    new ProblemParameter { Name = "WegknoopId", Value = "1" }
+                ]
+            },
+            {
                 ProblemCode.RoadNode.IsNotAllowed, [
                     new ProblemParameter { Name = "WegknoopId", Value = "1" }
                 ]

@@ -222,6 +222,14 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     : "De wegknoop is niet langer onderdeel van het wegen netwerk.")
             },
             {
+                ProblemCode.RoadNode.ChangeAttributes.NotFound, problem => new(problem.Severity, problem.Reason,
+                    $"De wegknoop {problem.GetParameterValue("WegknoopId")} bestaat niet.")
+            },
+            {
+                ProblemCode.RoadNode.ChangeAttributes.IsRemoved, problem => new(problem.Severity, problem.Reason,
+                    $"De wegknoop {problem.GetParameterValue("WegknoopId")} is verwijderd.")
+            },
+            {
                 ProblemCode.RoadNode.TemporaryIdNotUnique, problem => new(problem.Severity, problem.Reason,
                     $"De opgegeven tijdelijke wegknoop ID {problem.Parameters[0].Value} is niet uniek.")
             },
