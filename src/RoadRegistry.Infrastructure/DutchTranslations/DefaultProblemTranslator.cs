@@ -250,6 +250,34 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     : "De wegknoop is niet langer onderdeel van het wegen netwerk.")
             },
             {
+                ProblemCode.RoadNode.Remove.DoesNotExist, problem => new(problem.Severity, problem.Reason,
+                    $"Wegknoop {problem.GetParameterValue("WegknoopId")} bestaat niet.")
+            },
+            {
+                ProblemCode.RoadNode.Remove.IsRemoved, problem => new(problem.Severity, problem.Reason,
+                    $"Wegknoop {problem.GetParameterValue("WegknoopId")} is verwijderd.")
+            },
+            {
+                ProblemCode.RoadNode.Remove.CannotBeRemovedByMerging, problem => new(problem.Severity, problem.Reason,
+                    $"Wegknoop {problem.GetParameterValue("WegknoopId")} is geen validatieknoop en is geen echte knoop met precies 4 aansluitende wegsegmenten.")
+            },
+            {
+                ProblemCode.RoadSegment.Merge.GeometryDrawMethodNotEqual, problem => new(problem.Severity, problem.Reason,
+                    $"Wegsegmenten {problem.GetParameterValue("Wegsegment1Id")} en {problem.GetParameterValue("Wegsegment2Id")} kunnen niet worden samengevoegd omdat ze een verschillende geometriemethode hebben.")
+            },
+            {
+                ProblemCode.RoadSegment.Merge.SameStartEndNode, problem => new(problem.Severity, problem.Reason,
+                    $"Het samenvoegen van wegsegmenten {problem.GetParameterValue("Wegsegment1Id")} en {problem.GetParameterValue("Wegsegment2Id")} zou resulteren in een wegsegment dat dezelfde begin- en eindknoop heeft.")
+            },
+            {
+                ProblemCode.RoadSegment.Merge.SelfIntersecting, problem => new(problem.Severity, problem.Reason,
+                    $"Het samenvoegen van wegsegmenten {problem.GetParameterValue("Wegsegment1Id")} en {problem.GetParameterValue("Wegsegment2Id")} zou resulteren in een wegsegment dat zichzelf kruist.")
+            },
+            {
+                ProblemCode.RoadSegment.Merge.MultipleIntersections, problem => new(problem.Severity, problem.Reason,
+                    $"Het samenvoegen van wegsegmenten {problem.GetParameterValue("Wegsegment1Id")} en {problem.GetParameterValue("Wegsegment2Id")} zou resulteren in een wegsegment dat meermaals kruist met wegsegment {problem.GetParameterValue("OtherWegsegmentId")}.")
+            },
+            {
                 ProblemCode.RoadNode.ChangeAttributes.NotFound, problem => new(problem.Severity, problem.Reason,
                     $"De wegknoop {problem.GetParameterValue("WegknoopId")} bestaat niet.")
             },

@@ -98,6 +98,46 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadNode.Remove.DoesNotExist, [
+                    new ProblemParameter { Name = "WegknoopId", Value = "1" }
+                ]
+            },
+            {
+                ProblemCode.RoadNode.Remove.IsRemoved, [
+                    new ProblemParameter { Name = "WegknoopId", Value = "1" }
+                ]
+            },
+            {
+                ProblemCode.RoadNode.Remove.CannotBeRemovedByMerging, [
+                    new ProblemParameter { Name = "WegknoopId", Value = "1" }
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.Merge.GeometryDrawMethodNotEqual, [
+                    new ProblemParameter { Name = "Wegsegment1Id", Value = "1" },
+                    new ProblemParameter { Name = "Wegsegment2Id", Value = "2" }
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.Merge.SameStartEndNode, [
+                    new ProblemParameter { Name = "Wegsegment1Id", Value = "1" },
+                    new ProblemParameter { Name = "Wegsegment2Id", Value = "2" }
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.Merge.SelfIntersecting, [
+                    new ProblemParameter { Name = "Wegsegment1Id", Value = "1" },
+                    new ProblemParameter { Name = "Wegsegment2Id", Value = "2" }
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.Merge.MultipleIntersections, [
+                    new ProblemParameter { Name = "Wegsegment1Id", Value = "1" },
+                    new ProblemParameter { Name = "Wegsegment2Id", Value = "2" },
+                    new ProblemParameter { Name = "OtherWegsegmentId", Value = "3" }
+                ]
+            },
+            {
                 ProblemCode.RoadNode.ChangeAttributes.NotFound, [
                     new ProblemParameter { Name = "WegknoopId", Value = "1" }
                 ]

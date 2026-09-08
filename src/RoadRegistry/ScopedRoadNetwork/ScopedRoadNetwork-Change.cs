@@ -291,7 +291,9 @@ public partial class ScopedRoadNetwork
 
     private Problems RemoveRoadNode(RoadNodeId roadNodeId, ScopedRoadNetworkChangeContext context)
     {
-        if (!_roadNodes.TryGetValue(roadNodeId, out var roadNode))
+        // A node already gone is nothing to remove again. Merging the four road segments of an echte knoop reaches
+        // this twice - once per pair - and the second time there is nothing left to do but say so once.
+        if (!_roadNodes.TryGetValue(roadNodeId, out var roadNode) || roadNode.IsRemoved)
         {
             return Problems.None;
         }
