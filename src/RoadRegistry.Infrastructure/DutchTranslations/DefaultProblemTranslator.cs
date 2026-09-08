@@ -174,6 +174,22 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                         : "Voor de wijziging van de ongelijkgrondse kruising moet minstens één wegsegment opgegeven worden.")
             },
             {
+                ProblemCode.GradeJunction.DoesNotExist, problem => new(problem.Severity, problem.Reason,
+                    $"Gelijkgrondse kruising {problem.GetParameterValue("GelijkGrondseKruisingId")} bestaat niet.")
+            },
+            {
+                ProblemCode.GradeJunction.IsRemoved, problem => new(problem.Severity, problem.Reason,
+                    $"Gelijkgrondse kruising {problem.GetParameterValue("GelijkGrondseKruisingId")} is verwijderd.")
+            },
+            {
+                ProblemCode.GradeJunction.RoadSegmentDoesNotBelong, problem => new(problem.Severity, problem.Reason,
+                    $"Wegsegment {problem.GetParameterValue("WegsegmentId")} behoort niet tot gelijkgrondse kruising {problem.GetParameterValue("GelijkGrondseKruisingId")}.")
+            },
+            {
+                ProblemCode.GradeSeparatedJunction.UpperEqualsLowerRoadSegment, problem => new(problem.Severity, problem.Reason,
+                    "Het bovenliggende wegsegment is hetzelfde als het onderliggende wegsegment.")
+            },
+            {
                 ProblemCode.GradeJunction.NotFound, problem => new(problem.Severity, problem.Reason, problem.HasParameter("GelijkGrondseKruisingId")
                     ? $"De gelijkgrondse kruising met {GetGradeJunctionIdLabel(problem)} is niet langer onderdeel van het wegen netwerk."
                     : problem.HasParameter("Identifier")

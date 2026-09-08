@@ -69,6 +69,24 @@ public class GradeSeparatedJunctionWmsWfsV2Projection : RunnerDbContextRoadNetwo
             return Task.CompletedTask;
         });
 
+        // Not a newly observed crossing: it is the one the named grade junction used to record, now recorded as a
+        // grade separated junction. For this projection it is an insert all the same.
+        When<IEvent<GradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange>>((context, e, ct) =>
+        {
+            context.GradeSeparatedJunctions.Add(new GradeSeparatedJunctionRecord
+            {
+                OK_OIDN = e.Data.GradeSeparatedJunctionId.ToInt32(),
+                ON_WS_OIDN = e.Data.LowerRoadSegmentId.ToInt32(),
+                BO_WS_OIDN = e.Data.UpperRoadSegmentId.ToInt32(),
+                TYPE = e.Data.Type.Translation.Identifier,
+                LBLTYPE = e.Data.Type.Translation.Name,
+                GEOMETRIE = e.Data.Geometry.EnsureLambert08().Value.Force2D(),
+                CREATIE = e.Data.Provenance.Timestamp.ToDateTimeOffset(),
+                VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset()
+            });
+            return Task.CompletedTask;
+        });
+
         When<IEvent<GradeSeparatedJunctionWasModified>>(async (context, e, ct) =>
         {
             var record = await context.GradeSeparatedJunctions.FindAsync([e.Data.GradeSeparatedJunctionId.ToInt32()], ct);

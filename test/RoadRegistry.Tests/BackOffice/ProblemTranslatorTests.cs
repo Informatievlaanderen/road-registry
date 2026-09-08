@@ -108,6 +108,22 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.GradeJunction.DoesNotExist, [
+                    new ProblemParameter { Name = "GelijkGrondseKruisingId", Value = "1" }
+                ]
+            },
+            {
+                ProblemCode.GradeJunction.IsRemoved, [
+                    new ProblemParameter { Name = "GelijkGrondseKruisingId", Value = "1" }
+                ]
+            },
+            {
+                ProblemCode.GradeJunction.RoadSegmentDoesNotBelong, [
+                    new ProblemParameter { Name = "WegsegmentId", Value = "1" },
+                    new ProblemParameter { Name = "GelijkGrondseKruisingId", Value = "2" }
+                ]
+            },
+            {
                 ProblemCode.RoadNode.IsNotAllowed, [
                     new ProblemParameter { Name = "WegknoopId", Value = "1" }
                 ]

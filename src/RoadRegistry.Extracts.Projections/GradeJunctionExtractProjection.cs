@@ -59,6 +59,19 @@ public class GradeJunctionExtractProjection : MartenRoadNetworkChangesProjection
 
             session.Delete(junction);
         });
+
+        // The crossing did not disappear: it is a grade separated junction from here on, which the grade separated
+        // projection inserts. For this projection the grade junction is gone all the same.
+        When<IEvent<GradeJunctionWasChangedToGradeSeparatedJunction>>(async (session, e, _) =>
+        {
+            var junction = await session.LoadAsync<GradeJunctionExtractItem>(e.Data.GradeJunctionId);
+            if (junction is null)
+            {
+                throw new InvalidOperationException($"No grade junction found for Id {e.Data.GradeJunctionId}");
+            }
+
+            session.Delete(junction);
+        });
     }
 }
 

@@ -37,6 +37,7 @@ public class GradeSeparatedJunctionPbsProjectionTests
         // point now arrives on those events, so RoadSegment events are no longer handled. Everything else is excluded.
         var excludeEventTypes = new[]
         {
+            typeof(global::RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasChangedToGradeSeparatedJunction),
             // RoadNode V1
             typeof(ImportedRoadNode), typeof(RoadNodeAdded), typeof(RoadNodeModified), typeof(RoadNodeRemoved),
             // RoadNode V2
@@ -100,6 +101,36 @@ public class GradeSeparatedJunctionPbsProjectionTests
         await scenario.GivenAsync(new GradeSeparatedJunctionWasAdded
         {
             GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
+            LowerRoadSegmentId = new RoadSegmentId(1),
+            UpperRoadSegmentId = new RoadSegmentId(2),
+            Type = type,
+            Geometry = JunctionPoint((50, 50)),
+            Provenance = Provenance
+        });
+
+        var junction = await scenario.Find<GradeSeparatedJunctionRecord>(1);
+        Assert.NotNull(junction);
+        Assert.Equal(1, junction!.ON_WS_OIDN);
+        Assert.Equal(2, junction.BO_WS_OIDN);
+        Assert.Equal(type.Translation.Identifier, junction.TYPE);
+        Assert.Equal(type.Translation.Name, junction.LBLTYPE);
+        Assert.NotNull(junction.GEOMETRIE);
+        Assert.Equal(50.0, junction.GEOMETRIE.Coordinate.X, 3);
+        Assert.Equal(50.0, junction.GEOMETRIE.Coordinate.Y, 3);
+    }
+
+    // Not a newly observed crossing: it is the one a grade junction used to record. For this projection it is an
+    // insert all the same.
+    [Fact]
+    public async Task WhenGradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange_ThenStoredWithTypeAndGeometryFromEvent()
+    {
+        var scenario = Scenario();
+        var type = _testData.Fixture.Create<GradeSeparatedJunctionTypeV2>();
+
+        await scenario.GivenAsync(new GradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange
+        {
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
+            GradeJunctionId = new GradeJunctionId(9),
             LowerRoadSegmentId = new RoadSegmentId(1),
             UpperRoadSegmentId = new RoadSegmentId(2),
             Type = type,

@@ -72,6 +72,25 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         return junction;
     }
 
+    public static GradeSeparatedJunction Create(GradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange @event)
+    {
+        return CreateWithProvider(@event, EventOrdinalProvider.None);
+    }
+
+    // See the comment on the other CreateWithProvider: deliberately not named "Create".
+    private static GradeSeparatedJunction CreateWithProvider(GradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange @event, IEventOrdinalProvider ordinalProvider)
+    {
+        var junction = new GradeSeparatedJunction(@event.GradeSeparatedJunctionId, ordinalProvider)
+        {
+            LowerRoadSegmentId = @event.LowerRoadSegmentId,
+            UpperRoadSegmentId = @event.UpperRoadSegmentId,
+            Type = @event.Type,
+            Geometry = @event.Geometry
+        };
+        junction.UncommittedEvents.Add(@event);
+        return junction;
+    }
+
     public void Apply(GradeSeparatedJunctionGeometryWasChanged @event)
     {
         UncommittedEvents.Add(@event);

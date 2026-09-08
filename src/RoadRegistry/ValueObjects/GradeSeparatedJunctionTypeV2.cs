@@ -2,6 +2,7 @@ namespace RoadRegistry.ValueObjects;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 public sealed class GradeSeparatedJunctionTypeV2 : IEquatable<GradeSeparatedJunctionTypeV2>, IDutchToString
@@ -40,6 +41,13 @@ public sealed class GradeSeparatedJunctionTypeV2 : IEquatable<GradeSeparatedJunc
     {
         NietGekend, Tunnel, Brug
     };
+
+    // What a caller may ask for. 'nietGekend' exists for what was imported without a known kind and is not something
+    // anyone can choose, so the editing endpoints - and the documentation of their request bodies - offer these two.
+    public sealed record Edit
+    {
+        public static readonly ImmutableArray<GradeSeparatedJunctionTypeV2> Values = [Brug, Tunnel];
+    }
 
     public static readonly IReadOnlyDictionary<int, GradeSeparatedJunctionTypeV2> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);

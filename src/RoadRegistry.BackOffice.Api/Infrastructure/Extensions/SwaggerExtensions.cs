@@ -32,5 +32,6 @@ public static class SwaggerExtensions
         options.SchemaFilter<RoadSegmentTrafficDirectionSchemaFilter>();
         options.SchemaFilter<RoadSegmentTrafficDirectionPedestrianSchemaFilter>();
         options.SchemaFilter<RoadSegmentAttributeSideSchemaFilter>();
+        options.SchemaFilter<EditGradeSeparatedJunctionTypeV2SchemaFilter>();
     }
 }
