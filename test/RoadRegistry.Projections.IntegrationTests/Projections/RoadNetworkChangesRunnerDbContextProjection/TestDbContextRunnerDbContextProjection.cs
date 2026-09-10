@@ -20,8 +20,9 @@ public class TestDbContextRoadNetworkChangesProjection : DbContextBackedRoadNetw
 {
     public TestDbContextRoadNetworkChangesProjection(
         IDbContextFactory<TestDbContext> dbContextFactory,
-        IReadOnlyCollection<IRoadNetworkChangesProjection<TestDbContext>> projections)
-        : base(dbContextFactory, projections, NullLoggerFactory.Instance)
+        IReadOnlyCollection<IRoadNetworkChangesProjection<TestDbContext>> projections,
+        int batchSize = DefaultBatchSize)
+        : base(dbContextFactory, projections, NullLoggerFactory.Instance, batchSize)
     {
     }
 }

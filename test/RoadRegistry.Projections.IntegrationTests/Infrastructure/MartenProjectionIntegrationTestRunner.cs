@@ -26,7 +26,7 @@ public class MartenProjectionIntegrationTestRunner
     private readonly List<Action<IServiceCollection>> _servicesConfigurations = [];
     private readonly List<Action<StoreOptions>> _storeConfigurations = [];
     private TimeSpan _projectionWaitTimeout;
-    private readonly List<List<(string StreamKey, object Event)>> _givenEvents = [];
+    private readonly List<List<(string StreamKey, object Event, long? Ordinal)>> _givenEvents = [];
 
     public MartenProjectionIntegrationTestRunner(DatabaseFixture databaseFixture, ILogger? logger = null)
     {
@@ -53,12 +53,22 @@ public class MartenProjectionIntegrationTestRunner
 
     public MartenProjectionIntegrationTestRunner Given(string streamKey, params object[] events)
     {
-        _givenEvents.Add(events.Select(evt => (streamKey, evt)).ToList());
+        _givenEvents.Add(events.Select(evt => (streamKey, evt, (long?)null)).ToList());
         return this;
     }
     public MartenProjectionIntegrationTestRunner Given(IEnumerable<(string StreamKey, object Event)> eventsPerStreamKey)
     {
-        _givenEvents.Add(eventsPerStreamKey.ToList());
+        _givenEvents.Add(eventsPerStreamKey.Select(x => (x.StreamKey, x.Event, (long?)null)).ToList());
+        return this;
+    }
+
+    // The same, with the emission ordinal RoadNetworkRepository.SetOrdinalHeader stamps on every event it appends.
+    // Marten's seq_id does not preserve emission order across appends to existing streams versus new-stream
+    // creations, so a projection that has to replay a correlation in the order it was raised reads this header
+    // instead - see RoadNetworkChangesProjection.GetChangeOrdinal.
+    public MartenProjectionIntegrationTestRunner GivenWithOrdinals(IEnumerable<(string StreamKey, object Event, long Ordinal)> eventsPerStreamKey)
+    {
+        _givenEvents.Add(eventsPerStreamKey.Select(x => (x.StreamKey, x.Event, (long?)x.Ordinal)).ToList());
         return this;
     }
 
@@ -162,13 +172,13 @@ public class MartenProjectionIntegrationTestRunner
             var startedStreams = new HashSet<string>();
             foreach (var @event in events)
             {
-                if (@event.Event is ICreatedEvent && startedStreams.Add(@event.StreamKey))
+                var action = @event.Event is ICreatedEvent && startedStreams.Add(@event.StreamKey)
+                    ? session.Events.StartStream(@event.StreamKey, @event.Event)
+                    : session.Events.Append(@event.StreamKey, @event.Event);
+
+                if (@event.Ordinal is not null && action.Events.Count > 0)
                 {
-                    session.Events.StartStream(@event.StreamKey, @event.Event);
-                }
-                else
-                {
-                    session.Events.Append(@event.StreamKey, @event.Event);
+                    action.Events[^1].SetHeader(EventOrdinal.HeaderKey, @event.Ordinal.Value);
                 }
             }
 
