@@ -90,6 +90,15 @@ public partial class ScopedRoadNetwork
             ? segment.GetNodeIds().ToArray()
             : [];
 
+        // Removing the segment is only half of it: FixRoadNodeAfterRemoval then re-derives the type of every node it
+        // hung off, or removes it. A node whose inwinning is not finished has no type to re-derive - deriving one would
+        // migrate it as a side effect of removing a segment - so it is refused here, before anything is taken out.
+        var roadNodeProblems = ValidateRoadNodesHaveCompletedInwinning(previousRoadNodeIds);
+        if (roadNodeProblems.HasError())
+        {
+            return problems + roadNodeProblems;
+        }
+
         problems += segment.Remove(context.Provenance);
         if (problems.HasError())
         {

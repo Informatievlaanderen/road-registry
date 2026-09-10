@@ -27,4 +27,23 @@ public partial class ScopedRoadNetwork
 
         return problems;
     }
+
+    // The same for the road nodes. A node whose inwinning is not finished is still a V1 node: it carries no type, so
+    // there is nothing to record on it and nothing that can be derived from what hangs off it.
+    //
+    // Only the nodes the road network actually knows are judged, for the same reason as above.
+    private Problems ValidateRoadNodesHaveCompletedInwinning(IEnumerable<RoadNodeId> roadNodeIds)
+    {
+        var problems = Problems.None;
+
+        foreach (var roadNodeId in roadNodeIds.Distinct())
+        {
+            if (_roadNodes.TryGetValue(roadNodeId, out var roadNode) && !roadNode.HasMigrated())
+            {
+                problems += new RoadNodeNotCompletedInwinning(roadNodeId);
+            }
+        }
+
+        return problems;
+    }
 }
