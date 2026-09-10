@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
@@ -55,7 +54,6 @@ using RoadRegistry.Wms.Schema;
 
 public class Startup
 {
-    private const string DatabaseTag = "db";
     private readonly IConfiguration _configuration;
 
     public Startup(IConfiguration configuration)
@@ -120,97 +118,6 @@ public class Startup
                         }
                     },
                     XmlCommentPaths = [typeof(Startup).GetTypeInfo().Assembly.GetName().Name ?? "RoadRegistry.Projector"]
-                },
-                MiddlewareHooks =
-                {
-                    AfterHealthChecks = health =>
-                    {
-                        var connectionStrings = _configuration
-                            .GetSection("ConnectionStrings")
-                            .GetChildren()
-                            .Where(x => !string.IsNullOrEmpty(x.Value) && x.Value != "TODO");
-
-                        foreach (var connectionString in connectionStrings)
-                        {
-                            if (connectionString.Value!.Contains("host=", StringComparison.InvariantCultureIgnoreCase))
-                            {
-                                health.AddNpgSql(
-                                    connectionString.Value,
-                                    name: $"npgsql-{connectionString.Key.ToLowerInvariant()}",
-                                    tags: [DatabaseTag, "sql", "npgsql"],
-                                    timeout: TimeSpan.FromSeconds(10));
-                            }
-                            else
-                            {
-                                health.AddSqlServer(
-                                    connectionString.Value,
-                                    name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
-                                    tags: [DatabaseTag, "sql", "sqlserver"]);
-                            }
-                        }
-
-                        if (projectionOptions.Editor.Enabled)
-                        {
-                            health.AddDbContextCheck<EditorContext>();
-                        }
-
-                        if (projectionOptions.Product.Enabled)
-                        {
-                            health.AddDbContextCheck<ProductContext>();
-                        }
-
-                        if (projectionOptions.Wfs.Enabled)
-                        {
-                            health.AddDbContextCheck<WfsContext>();
-                        }
-
-                        if (projectionOptions.Wms.Enabled)
-                        {
-                            health.AddDbContextCheck<WmsContext>();
-                        }
-
-                        if (projectionOptions.ProducerSnapshot.Enabled)
-                        {
-                            health.AddDbContextCheck<RoadNodeProducerSnapshotContext>();
-                            health.AddDbContextCheck<RoadSegmentProducerSnapshotContext>();
-                            health.AddDbContextCheck<RoadSegmentSurfaceProducerSnapshotContext>();
-                            health.AddDbContextCheck<GradeSeparatedJunctionProducerSnapshotContext>();
-                            health.AddDbContextCheck<NationalRoadProducerSnapshotContext>();
-                        }
-
-                        if (projectionOptions.BackOfficeProcessors.Enabled)
-                        {
-                            health.AddDbContextCheck<BackOfficeProcessorDbContext>();
-                        }
-
-                        if (projectionOptions.OrganizationSync.Enabled)
-                        {
-                            health.AddDbContextCheck<OrganizationConsumerContext>();
-                        }
-
-                        if (projectionOptions.StreetNameSync.Enabled)
-                        {
-                            health.AddDbContextCheck<StreetNameSnapshotConsumerContext>();
-                            health.AddDbContextCheck<StreetNameSnapshotProjectionContext>();
-                            health.AddDbContextCheck<StreetNameEventConsumerContext>();
-                            health.AddDbContextCheck<StreetNameEventProjectionContext>();
-                        }
-
-                        if (projectionOptions.MartenMigration.Enabled)
-                        {
-                            health.AddDbContextCheck<MartenMigrationContext>();
-                        }
-
-                        if (projectionOptions.Pbs.Enabled)
-                        {
-                            health.AddDbContextCheck<PbsContext>();
-                        }
-
-                        if (projectionOptions.WmsWfsV2.Enabled)
-                        {
-                            health.AddDbContextCheck<WmsWfsV2Context>();
-                        }
-                    }
                 }
             })
             .AddValidatorsFromAssemblyContaining<Startup>()
@@ -365,25 +272,8 @@ public class Startup
         IWebHostEnvironment env,
         IHostApplicationLifetime appLifetime,
         ILoggerFactory loggerFactory,
-        IApiVersionDescriptionProvider apiVersionProvider,
-        HealthCheckService healthCheckService)
+        IApiVersionDescriptionProvider apiVersionProvider)
     {
-        try
-        {
-            StartupHelpers.CheckDatabases(healthCheckService, DatabaseTag, loggerFactory).GetAwaiter().GetResult();
-        }
-        catch (Exception ex) when (_configuration.GetValue<bool>("DetailedStartupErrors"))
-        {
-            // With DetailedStartupErrors enabled, dump the full startup exception straight to the console. Otherwise a
-            // boot failure here is captured by the host (CaptureStartupErrors), served as the generic "An error occurred
-            // while starting the application." page, and swallowed by the Serilog ExcludeCommonErrors filter - leaving no
-            // stack trace. Writing to the console bypasses both so the real cause is visible in the container logs.
-            Console.Error.WriteLine("[DetailedStartupErrors] Startup database check failed:");
-            Console.Error.WriteLine(ex);
-            loggerFactory.CreateLogger<Startup>().LogCritical(ex, "Startup database check failed");
-            throw;
-        }
-
         app
             .UseDefaultForApi(new StartupUseOptions
             {
