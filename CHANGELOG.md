@@ -1,3 +1,10 @@
+## [5.17.1](https://github.com/informatievlaanderen/road-registry/compare/v5.17.0...v5.17.1) (2026-09-10)
+
+
+### Bug Fixes
+
+* **2.0:** process only the delivered page in the dbcontext projections ([6111237](https://github.com/informatievlaanderen/road-registry/commit/61112373be1910c1537ad24c5873134374d4b7c7))
+
 # [5.17.0](https://github.com/informatievlaanderen/road-registry/compare/v5.16.0...v5.17.0) (2026-09-08)
 
 
