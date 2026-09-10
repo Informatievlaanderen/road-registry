@@ -1,3 +1,10 @@
+## [5.17.2](https://github.com/informatievlaanderen/road-registry/compare/v5.17.1...v5.17.2) (2026-09-10)
+
+
+### Bug Fixes
+
+* **2.0:** refuse road nodes that have not completed their inwinning ([f413fc2](https://github.com/informatievlaanderen/road-registry/commit/f413fc24ff84182180fa8ecc2b2ceb3ac2cf5a9b))
+
 ## [5.17.1](https://github.com/informatievlaanderen/road-registry/compare/v5.17.0...v5.17.1) (2026-09-10)
 
 
