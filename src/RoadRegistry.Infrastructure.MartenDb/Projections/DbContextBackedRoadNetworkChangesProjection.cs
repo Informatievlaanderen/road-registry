@@ -12,7 +12,9 @@ using Microsoft.Extensions.Logging;
 // it creates one TDbContext, applies every sub-projection's handlers for every event, and commits once - advancing a
 // single projection-state row (keyed by this projection's name) atomically with the read-model writes. That single
 // position is the SQL-side idempotency guard for events re-delivered after the Marten progression and the SQL Server
-// write diverged; it replaces the per-sub-projection positions that used to exist.
+// write diverged; it replaces the per-sub-projection positions that used to exist. Because a batch here is exactly the
+// page it was given, that one position covers every event the batch applied, so a re-delivered page is skipped whole
+// and the handlers do not have to be idempotent themselves.
 //
 // Two things speed up the write side, both under ProjectionCatchUpOptions, neither changing what is written:
 //   - a batch's high-volume inserts are streamed with SqlBulkCopy instead of EF's per-row INSERT batching. This is
@@ -33,6 +35,13 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
     // Turned off for the rest of the run the first time a bulk copy fails, so an environment where it cannot work
     // degrades to the ordinary EF path instead of failing every batch.
     private bool _bulkInsertEnabled;
+
+    // Every sub-projection here writes only the rows of the entity its event belongs to, so no two events of one
+    // change compete for the same row and the order they arrive in does not matter. That buys the guarantee this
+    // driver rests on: a batch is exactly the page the daemon delivered, nothing above it, so the position below is
+    // "everything at or under this sequence has been applied" without qualification - and a page re-delivered after
+    // the SQL Server commit landed but the Marten commit did not is skipped whole.
+    protected override bool RequiresEmissionOrder => false;
 
     protected DbContextBackedRoadNetworkChangesProjection(
         IDbContextFactory<TDbContext> dbContextFactory,
@@ -85,8 +94,8 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                // Skip events already applied (and committed to SQL Server) before a re-delivery. This is only sound
-                // because the position never runs ahead of the page the daemon delivered - see below.
+                // Skip events already applied (and committed to SQL Server) before a re-delivery. Sound because the
+                // position never runs ahead of the page the daemon delivered, and the batch never reaches past it.
                 if (evt.Sequence <= position)
                 {
                     Logger.LogInformation(
@@ -112,15 +121,12 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         }
         handlerDuration.Stop();
 
-        // The position is "everything at or below this sequence has been applied", so it can only be the page the
-        // daemon delivered - never the highest sequence this batch happened to apply. The batch can reach past its own
-        // page: the base class pulls a correlation's later events in with it, and those sit above events the next page
-        // still has to deliver. Recording one of those as the position made the guard above skip that whole window of
-        // never-applied events - silently, and for good: whatever a segment's later events would have changed
-        // stays as it was, and its correlation is marked processed on the way out.
+        // The position is "everything at or below this sequence has been applied". With RequiresEmissionOrder off the
+        // batch is exactly the page, so every event it applied sits at or below pageMaxSequence and that sentence is
+        // simply true - which is what makes the guard above complete rather than partial.
         //
-        // Those pulled-in events are still protected from being applied twice, by their correlation's progression
-        // document - the same and only guard the Marten-backed projections have ever had.
+        // It moves forward even when the page held nothing this projection handles: those events are accounted for by
+        // being irrelevant, and leaving the position behind them would only make the guard skip less than it could.
         var newPosition = Math.Max(position, pageMaxSequence);
 
         // Nothing applied and no ground gained; nothing to save.

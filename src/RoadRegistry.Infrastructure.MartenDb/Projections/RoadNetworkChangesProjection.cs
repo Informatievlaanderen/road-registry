@@ -18,6 +18,18 @@ public abstract class RoadNetworkChangesProjection : IProjection
     private bool? _isCatchingUp;
 
     protected bool IsCatchingUp => _isCatchingUp ?? false;
+
+    // Whether a correlation's events have to reach DispatchAsync in the order they were raised, rather than the order
+    // Marten stored them in. Marten's seq_id does not preserve emission order - events appended to existing streams
+    // come back before events that started new streams - so a driver that needs it pays for two things: a correlation's
+    // later events are fetched into the batch that first touches it (so the ordinal can order them together), and a
+    // progression document per correlation guards those pulled-in events against being applied twice.
+    //
+    // A driver whose handlers write only the rows of the entity an event belongs to does not need any of it: two
+    // events of different entities touch different rows, and two events of the same entity are on the same stream and
+    // already come back in order. Turning it off makes a batch exactly its page, which is what makes the driver's own
+    // position a complete idempotency guard - see DbContextBackedRoadNetworkChangesProjection.
+    protected virtual bool RequiresEmissionOrder => true;
     protected string ProjectionName => _projectionName;
     protected ILogger Logger => _logger;
 
@@ -30,6 +42,11 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
     public void Configure(StoreOptions options)
     {
+        // Unconditional, also for a projection that does not keep progressions: this maps a document type onto the
+        // store every projection shares, not per-projection state. Skipping it when RequiresEmissionOrder is false
+        // would leave the type unmapped on a host that runs only such projections - each of them is toggled on its
+        // own - and the rebuild endpoint deletes progressions for whatever projection it rebuilds. Unmapped, that
+        // delete goes to Marten's default schema and alias instead of the migration-owned table.
         options.ConfigureRoadNetworkChangesProgression();
 
         ConfigureSchema(options);
@@ -57,7 +74,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
             var batchProgressionIds = batchCorrelationIds.Select(BuildProgressionId).ToList();
 
             cancellation.ThrowIfCancellationRequested();
-            var processedProjectionProgressions = batchCorrelationIds.Count > 0
+            var processedProjectionProgressions = RequiresEmissionOrder && batchCorrelationIds.Count > 0
                 ? await operations.Query<RoadNetworkChangesProjectionProgression>()
                     .Where(x => x.ProjectionName == _projectionName && batchProgressionIds.Contains(x.Id))
                     .ToListAsync(cancellation)
@@ -65,7 +82,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
             var pageMaxSequence = events.Max(x => x.Sequence);
             cancellation.ThrowIfCancellationRequested();
-            var tailEvents = IsCatchingUp || batchCorrelationIds.Count == 0
+            var tailEvents = !RequiresEmissionOrder || IsCatchingUp || batchCorrelationIds.Count == 0
                 ? []
                 : await operations.Events.QueryAllRawEvents()
                     .Where(x => batchCorrelationIds.Contains(x.CorrelationId!) && x.Sequence > pageMaxSequence)
@@ -181,7 +198,13 @@ public abstract class RoadNetworkChangesProjection : IProjection
                 // Order by the emission ordinal stamped at save time (EventOrdinal header) so a correlation's
                 // events replay in the order they were raised - Marten's seq_id does not preserve that order
                 // (created events land last). Events without the header (pre-ordinal history) fall back to seq_id.
-                var orderedEvents = g.OrderBy(GetChangeOrdinal).ThenBy(x => x.Sequence).ToList();
+                //
+                // A driver that does not need emission order takes plain seq_id instead. That is not a smaller
+                // version of the same thing: it is the one ordering that does not depend on where the page
+                // boundaries happen to fall, so the driver behaves the same whether it is catching up or at the tail.
+                var orderedEvents = RequiresEmissionOrder
+                    ? g.OrderBy(GetChangeOrdinal).ThenBy(x => x.Sequence).ToList()
+                    : g.OrderBy(x => x.Sequence).ToList();
                 var progressionId = BuildProgressionId(g.Key);
                 // The watermark has to be the highest sequence seen for this correlation, not the last one in ordinal
                 // order: the ordinal reorders the events (that is its whole purpose), so the last of the ordered list
@@ -198,6 +221,11 @@ public abstract class RoadNetworkChangesProjection : IProjection
             .ToList();
 
         await DispatchAsync(operations, correlationWork, pageMaxSequence, cancellation).ConfigureAwait(false);
+
+        if (!RequiresEmissionOrder)
+        {
+            return;
+        }
 
         foreach (var work in correlationWork)
         {
