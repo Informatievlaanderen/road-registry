@@ -52,6 +52,14 @@ public class AggregateTests : AggregateTestBase
         return roadNode.WithoutChanges();
     }
 
+    // A road node that has not completed its inwinning: a V1 node, so it carries no type.
+    private RoadNode NotMigrated(int id)
+    {
+        return RoadNode.CreateForMigration(
+            new RoadNodeId(id),
+            new Point(new Coordinate(100, id)) { SRID = WellknownSrids.Lambert08 }.ToRoadNodeGeometry()).WithoutChanges();
+    }
+
     private static ModifyRoadNodeChange Grensknoop(int roadNodeId, bool grensknoop)
     {
         return new ModifyRoadNodeChange
@@ -147,6 +155,35 @@ public class AggregateTests : AggregateTestBase
         var result = roadNetwork.ModifyRoadNodeAttributes([Grensknoop(RoadNodeId1, true)], TestData.Provenance);
 
         result.Problems.Should().Contain(x => x.Reason == "RoadNodeChangeAttributesIsRemoved");
+        roadNetwork.RoadNodes[new RoadNodeId(RoadNodeId1)].Grensknoop.Should().BeFalse();
+        roadNetwork.GetChanges().Should().BeEmpty();
+    }
+
+    // 'Grensknoop' is a V2 attribute, so a road node that is still a V1 node has nothing to set it on.
+    [Fact]
+    public void WhenTheRoadNodeHasNotCompletedItsInwinning_ThenItIsReported()
+    {
+        var roadNetwork = BuildNetwork(NotMigrated(RoadNodeId1));
+
+        var result = roadNetwork.ModifyRoadNodeAttributes([Grensknoop(RoadNodeId1, true)], TestData.Provenance);
+
+        result.Problems.Should().Contain(x => x.Reason == "RoadNodeNotCompletedInwinning");
+        roadNetwork.GetChanges().Should().BeEmpty();
+    }
+
+    // One road node that is not migrated holds back the whole request, like every other validation here.
+    [Fact]
+    public void WhenOneOfTheRoadNodesHasNotCompletedItsInwinning_ThenNothingIsChanged()
+    {
+        var roadNetwork = BuildNetwork(
+            Existing(BuildNode(RoadNodeId1, grensknoop: false)),
+            NotMigrated(RoadNodeId2));
+
+        var result = roadNetwork.ModifyRoadNodeAttributes(
+            [Grensknoop(RoadNodeId1, true), Grensknoop(RoadNodeId2, true)],
+            TestData.Provenance);
+
+        result.Problems.Should().Contain(x => x.Reason == "RoadNodeNotCompletedInwinning");
         roadNetwork.RoadNodes[new RoadNodeId(RoadNodeId1)].Grensknoop.Should().BeFalse();
         roadNetwork.GetChanges().Should().BeEmpty();
     }

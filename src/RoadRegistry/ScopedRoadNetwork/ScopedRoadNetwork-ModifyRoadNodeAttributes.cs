@@ -67,7 +67,13 @@ public partial class ScopedRoadNetwork
             if (roadNode.IsRemoved)
             {
                 problems += new RoadNodeChangeAttributesIsRemoved(change.RoadNodeId);
+                continue;
             }
+
+            // A road node that has not completed its inwinning is still a V1 node: it carries no type, and 'grensknoop'
+            // is a V2 attribute. Setting it would record an attribute on something that is not a V2 road node yet - the
+            // same reason every other editing action refuses one, ModifyRoadSegmentAttributes included.
+            problems += ValidateRoadNodesHaveCompletedInwinning([change.RoadNodeId]);
         }
 
         return problems;

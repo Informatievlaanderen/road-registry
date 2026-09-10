@@ -240,6 +240,27 @@ public class AggregateTests : RemoveRoadSegmentsTestBase
         roadNetwork.RoadSegments[new RoadSegmentId(RemovedSegmentId)].IsRemoved.Should().BeFalse();
     }
 
+    // Removing the segment is only half of it: the road nodes it hung off are re-typed or removed afterwards. A node
+    // whose inwinning is not finished has no type to re-derive, so deriving one would migrate it as a side effect of
+    // removing a segment. The request is refused before anything is taken out.
+    [Fact]
+    public void WhenARoadNodeTheSegmentHangsOffHasNotCompletedItsInwinning_ThenNothingIsRemoved()
+    {
+        var southNode = BuildNode(10, 100, 0, RoadNodeTypeV2.Eindknoop);
+        var notMigratedNorthNode = NotMigratedNode(11, 100, 80);
+
+        var roadNetwork = BuildNetworkWith(
+            [ExistingNode(southNode), notMigratedNorthNode],
+            ExistingSegment(BuildSegment(RemovedSegmentId, southNode, BuildNode(11, 100, 80, RoadNodeTypeV2.Eindknoop), BuildGeometry((100, 0), (100, 80)))));
+
+        var act = () => roadNetwork.RemoveRoadSegments([new RoadSegmentId(RemovedSegmentId)], IdGenerator(), TestData.Provenance);
+
+        act.Should().Throw<RoadRegistryProblemsException>()
+            .Which.Problems.Should().Contain(x => x.Reason == "RoadNodeNotCompletedInwinning");
+        roadNetwork.RoadSegments[new RoadSegmentId(RemovedSegmentId)].IsRemoved.Should().BeFalse();
+        roadNetwork.GetChanges().Should().BeEmpty();
+    }
+
     // A realized segment always hangs off two nodes and they are loaded with it, so a node it names that the network
     // does not have is a corrupt aggregate, not something the caller did - and it says so rather than quietly leaving
     // that node behind at a type that no longer fits.

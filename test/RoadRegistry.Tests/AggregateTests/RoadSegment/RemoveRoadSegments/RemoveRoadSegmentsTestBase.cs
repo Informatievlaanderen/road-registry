@@ -100,6 +100,35 @@ public abstract class RemoveRoadSegmentsTestBase : AggregateTestBase
             []).WithoutChanges();
     }
 
+    // The same, for a network that also holds road nodes an event cannot describe - a node whose inwinning is not
+    // finished carries no type.
+    protected ScopedRoadNetwork BuildNetworkWith(RoadNode[] roadNodes, params RoadSegment[] segments)
+    {
+        return new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
+            roadNodes,
+            segments,
+            [],
+            []).WithoutChanges();
+    }
+
+    protected RoadSegment ExistingSegment(RoadSegmentWasAdded added)
+    {
+        return RoadSegment.Create(added).WithoutChanges();
+    }
+
+    protected RoadNode ExistingNode(RoadNodeWasAdded added)
+    {
+        return RoadNode.Create(added).WithoutChanges();
+    }
+
+    // A road node that has not completed its inwinning: still a V1 node, so it carries no type.
+    protected RoadNode NotMigratedNode(int id, double x, double y)
+    {
+        return RoadNode.CreateForMigration(
+            new RoadNodeId(id),
+            new Point(new Coordinate(x, y)) { SRID = WellknownSrids.Lambert08 }.ToRoadNodeGeometry()).WithoutChanges();
+    }
+
     protected static InMemoryRoadNetworkIdGenerator IdGenerator()
     {
         return new InMemoryRoadNetworkIdGenerator(initialValue: 100);
