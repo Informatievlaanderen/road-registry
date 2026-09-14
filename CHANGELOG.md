@@ -1,3 +1,10 @@
+## [5.17.4](https://github.com/informatievlaanderen/road-registry/compare/v5.17.3...v5.17.4) (2026-09-14)
+
+
+### Bug Fixes
+
+* **inwinning:** treat an accepted delivery as final for the uploader ([dd655c3](https://github.com/informatievlaanderen/road-registry/commit/dd655c3f00add93fadab6601c2ac575ceb855126))
+
 ## [5.17.3](https://github.com/informatievlaanderen/road-registry/compare/v5.17.2...v5.17.3) (2026-09-14)
 
 
