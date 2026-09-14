@@ -51,9 +51,16 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
 
     private string BuildExtractDetailsUrl(FailedExtractUpload extract)
     {
-        return !string.IsNullOrEmpty(_emailClientOptions?.ExtractDetailsPortaalUrl)
+        var url = !string.IsNullOrEmpty(_emailClientOptions?.ExtractDetailsPortaalUrl)
             ? _emailClientOptions.ExtractDetailsPortaalUrl.Replace("{downloadId}", extract.DownloadId)
             : string.Empty;
+
+        if (extract.Inwinning)
+        {
+            url = url.Replace("/extracten/", "/inwinning/");
+        }
+
+        return url;
     }
 
     private SendEmailRequest CreateSendEmailRequest(FailedExtractUpload extract)
@@ -86,7 +93,7 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
                             Data = $"""
                                     <html>
                                     <body>
-                                    <p>De oplading kon niet verwerkt worden wegens een validatiefout.</p>
+                                    <p>De oplading kon niet verwerkt worden.</p>
                                     <a href="{portaalUrl}">{portaalUrl}</a>
                                     </body>
                                     </html>
@@ -116,4 +123,4 @@ public class NotConfiguredExtractUploadFailedEmailClient : IExtractUploadFailedE
     }
 }
 
-public sealed record FailedExtractUpload(DownloadId DownloadId, string Description);
+public sealed record FailedExtractUpload(DownloadId DownloadId, string Description, bool Inwinning = false);
