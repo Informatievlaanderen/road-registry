@@ -1,3 +1,10 @@
+## [5.17.3](https://github.com/informatievlaanderen/road-registry/compare/v5.17.2...v5.17.3) (2026-09-14)
+
+
+### Bug Fixes
+
+* **2.0:** ProcessingFailed status+send email when inwinning upload fails at the very end ([84fab76](https://github.com/informatievlaanderen/road-registry/commit/84fab76720e29e4188034e524eead57670ccb0d7))
+
 ## [5.17.2](https://github.com/informatievlaanderen/road-registry/compare/v5.17.1...v5.17.2) (2026-09-10)
 
 
