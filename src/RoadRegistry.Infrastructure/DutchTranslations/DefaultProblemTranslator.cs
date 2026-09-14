@@ -239,8 +239,8 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
 
             {
                 ProblemCode.RoadNode.NotConnectedToAnySegment, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegknoopId")
-                    ? $"De wegknoop {GetRoadNodeIdLabel(problem)} is met geen enkel wegsegment verbonden."
-                    : $"De wegknoop {problem.Parameters[0].Value} is met geen enkel wegsegment verbonden.")
+                    ? $"De wegknoop {GetRoadNodeIdLabel(problem)} is met geen enkel gerealiseerd wegsegment verbonden."
+                    : $"De wegknoop {problem.Parameters[0].Value} is met geen enkel gerealiseerd wegsegment verbonden.")
             },
             {
                 ProblemCode.RoadNode.NotFound, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegknoopId")
