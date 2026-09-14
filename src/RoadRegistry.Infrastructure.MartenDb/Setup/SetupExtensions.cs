@@ -1,12 +1,16 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Setup;
 
+using System.IO;
+using System.Linq;
 using JasperFx;
+using JasperFx.CodeGeneration;
 using JasperFx.Events;
 using JasperFx.Events.Projections;
 using Marten;
 using Marten.Events.Projections;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Npgsql;
 using RoadRegistry.BackOffice;
 using RoadRegistry.GradeJunction;
@@ -43,10 +47,61 @@ public static class SetupExtensions
                     .UseNetTopologySuite()
                     .Build());
                 options.ConfigureRoad();
+                options.ConfigureGeneratedCode(sp.GetService<IHostEnvironment>());
                 configure?.Invoke(options, sp);
 
                 return options;
             });
+    }
+
+    // How Marten gets the code it generates for storage, event handling and projections (GAWR-7236). Generating it at
+    // runtime means compiling it with Roslyn on the first use of every document type and projection, which is slow and
+    // memory hungry at startup; the build pipeline therefore pre-generates it with `codegen write` into the host's
+    // Internal/Generated folder, where it is compiled into the host's own assembly.
+    //
+    // Outside development the pre-built types are used when they are there, and generated as before when they are not
+    // (Auto): a host whose build did not pre-generate still starts. Development always generates, so a model change is
+    // never answered by stale code left over from an earlier `codegen write`. Writing generated source back to disk is
+    // a development convenience only - a container has no business changing its own files.
+    public static void ConfigureGeneratedCode(this StoreOptions options, IHostEnvironment? environment)
+    {
+        var isDevelopment = environment?.IsDevelopment() ?? false;
+
+        options.GeneratedCodeMode = isDevelopment ? TypeLoadMode.Dynamic : TypeLoadMode.Auto;
+        options.SourceCodeWritingEnabled = isDevelopment;
+
+        // Where `codegen write` puts the files, which is where they have to be to get compiled into the host: its own
+        // project folder. Left to the default, that is the content root, and it differs per host - the hosts built on
+        // RoadRegistryHostBuilder use a plain HostBuilder, whose content root is the bin folder, so their code landed
+        // where no build would pick it up. Nor is the working directory any better: `dotnet run --project` keeps the
+        // one it was started from. The project folder is the nearest one up from the assembly holding a .csproj.
+        //
+        // A deployed host has no .csproj above it and keeps the default; it never writes code anyway (see above).
+        var projectDirectory = FindProjectDirectory(AppContext.BaseDirectory);
+        if (projectDirectory is not null)
+        {
+            options.GeneratedCodeOutputPath = Path.Combine(projectDirectory, "Internal", "Generated");
+        }
+    }
+
+    private static string? FindProjectDirectory(string startDirectory)
+    {
+        try
+        {
+            for (var directory = new DirectoryInfo(startDirectory); directory is not null; directory = directory.Parent)
+            {
+                if (directory.EnumerateFiles("*.csproj").Any())
+                {
+                    return directory.FullName;
+                }
+            }
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
+        {
+            // A deployed host walking up into a folder it may not read has no project folder to find either.
+        }
+
+        return null;
     }
 
     public static void ConfigureRoad(this StoreOptions options)

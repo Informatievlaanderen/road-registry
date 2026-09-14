@@ -4,6 +4,7 @@ using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
+using JasperFx;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using SqlStreamStore;
+using System.Linq;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,6 +60,15 @@ public class Program
     public static async Task Main(string[] args)
     {
         var host = CreateWebHostBuilder(args).Build();
+
+        // `codegen write` pre-generates the Marten code at build time (GAWR-7236); it needs the registrations only,
+        // so it returns before the host waits for Seq and the stream store.
+        if (args.Contains("codegen", StringComparer.OrdinalIgnoreCase))
+        {
+            Environment.ExitCode = await host.RunJasperFxCommands(args);
+            return;
+        }
+
         var configuration = host.Services.GetRequiredService<IConfiguration>();
 
         var streamStore = host.Services.GetRequiredService<IStreamStore>();

@@ -1,6 +1,7 @@
 namespace RoadRegistry.Projector.Infrastructure;
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
@@ -8,6 +9,7 @@ using Autofac.Extensions.DependencyInjection;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
+using JasperFx;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -64,6 +66,14 @@ public class Program
     public static async Task Main(string[] args)
     {
         using var host = CreateWebHostBuilder(args).Build();
+
+        // `codegen write` pre-generates the Marten code at build time (GAWR-7236); it needs the registrations only,
+        // so it returns before the migrations and the distributed lock.
+        if (args.Contains("codegen", StringComparer.OrdinalIgnoreCase))
+        {
+            Environment.ExitCode = await host.RunJasperFxCommands(args);
+            return;
+        }
 
         var logger = host.Services.GetRequiredService<ILogger<Program>>();
 

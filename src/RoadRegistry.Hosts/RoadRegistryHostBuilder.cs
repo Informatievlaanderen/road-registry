@@ -57,7 +57,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
         UseServiceProviderFactory(new AutofacServiceProviderFactory());
         var app = base.Build();
 
-        var host = new RoadRegistryHost<T>(app, _runCommandDelegate);
+        var host = new RoadRegistryHost<T>(app, _runCommandDelegate, _args);
         return host;
     }
 
