@@ -287,6 +287,15 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
         }, cancellationToken);
     }
 
+    public async Task ProcessingFailedAsync(UploadId uploadId, CancellationToken cancellationToken)
+    {
+        await UpdateExtractUpload(uploadId, record =>
+        {
+            record.Status = ExtractUploadStatus.ProcessingFailed;
+            return Task.CompletedTask;
+        }, cancellationToken);
+    }
+
     public async Task SetQualityReportUrlAsync(UploadId uploadId, string qualityReportUrl, CancellationToken cancellationToken)
     {
         await UpdateExtractUpload(uploadId, record =>

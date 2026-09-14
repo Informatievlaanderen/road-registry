@@ -27,6 +27,7 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : MartenSqsLambdaH
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
     private readonly ExtractsDbContext _extractsDbContext;
+    private readonly IExtractUploadFailedEmailClient _extractUploadFailedEmailClient;
 
     public MigrateRoadNetworkSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -37,6 +38,7 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : MartenSqsLambdaH
         IRoadNetworkRepository roadNetworkRepository,
         IRoadNetworkIdGenerator roadNetworkIdGenerator,
         ExtractsDbContext extractsDbContext,
+        IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -51,6 +53,7 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : MartenSqsLambdaH
         _roadNetworkRepository = roadNetworkRepository;
         _roadNetworkIdGenerator = roadNetworkIdGenerator;
         _extractsDbContext = extractsDbContext;
+        _extractUploadFailedEmailClient = extractUploadFailedEmailClient;
     }
 
     protected override async Task<object> InnerHandle(MigrateRoadNetworkSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
@@ -104,7 +107,8 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : MartenSqsLambdaH
         var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator, Logger);
         if (changeResult.Problems.HasError())
         {
-            await _extractsDbContext.AutomaticValidationFailedAsync(command.UploadId, cancellationToken);
+            await _extractsDbContext.ProcessingFailedAsync(command.UploadId, cancellationToken);
+            await _extractUploadFailedEmailClient.SendAsync(new(command.DownloadId, command.ProvenanceData.Reason, Inwinning: true), cancellationToken);
 
             throw new RoadRegistryProblemsException(changeResult.Problems);
         }

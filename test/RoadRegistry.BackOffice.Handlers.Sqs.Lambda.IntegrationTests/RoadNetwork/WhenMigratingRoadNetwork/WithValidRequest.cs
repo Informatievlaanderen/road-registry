@@ -4,6 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using Marten;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
@@ -103,6 +104,8 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             .Single(x => x.RoadSegmentId == TestData.Segment1Added.RoadSegmentId);
         newInwinningRoadSegment.NisCode.Should().Be(nisCode);
         newInwinningRoadSegment.Completed.Should().BeTrue();
+
+        ExtractUploadFailedEmailClientMock.Verify(x => x.SendAsync(It.IsAny<FailedExtractUpload>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

@@ -1,8 +1,10 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenMigratingRoadNetwork;
 
 using AutoFixture;
+using FluentAssertions;
 using Marten;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
@@ -29,6 +31,56 @@ public class GivenRoadNetwork : RoadNetworkIntegrationTest
     public async Task GivenV1RoadSegment_WhenAddingSegmentWithPartialOverlap_ThenError()
     {
         // Arrange
+        var (sp, command) = await GivenV1RoadSegmentAndMigrateRequestWithPartialOverlap();
+
+        // Act
+        var handler = sp.GetRequiredService<MigrateRoadNetworkSqsLambdaRequestHandler>();
+        await handler.Handle(new MigrateRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
+
+        // Assert
+        TicketingMock.VerifyThatTicketHasError("RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
+    }
+
+    [Fact]
+    public async Task GivenV1RoadSegment_WhenAddingSegmentWithPartialOverlap_ThenUploadStatusIsProcessingFailed()
+    {
+        // Arrange
+        var (sp, command) = await GivenV1RoadSegmentAndMigrateRequestWithPartialOverlap();
+
+        // Act
+        var handler = sp.GetRequiredService<MigrateRoadNetworkSqsLambdaRequestHandler>();
+        await handler.Handle(new MigrateRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
+
+        // Assert
+        var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        var extractUpload = extractsDbContext.ExtractUploads.Single(x => x.UploadId == command.UploadId.ToGuid());
+        extractUpload.Status.Should().Be(ExtractUploadStatus.ProcessingFailed);
+
+        var inwinningszone = extractsDbContext.Inwinningszones.Single(x => x.DownloadId == command.DownloadId.ToGuid());
+        inwinningszone.Completed.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task GivenV1RoadSegment_WhenAddingSegmentWithPartialOverlap_ThenFailedEmailIsSentForInwinning()
+    {
+        // Arrange
+        var (sp, command) = await GivenV1RoadSegmentAndMigrateRequestWithPartialOverlap();
+
+        // Act
+        var handler = sp.GetRequiredService<MigrateRoadNetworkSqsLambdaRequestHandler>();
+        await handler.Handle(new MigrateRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
+
+        // Assert
+        ExtractUploadFailedEmailClientMock.Verify(x => x.SendAsync(
+            It.Is<FailedExtractUpload>(extract =>
+                extract.DownloadId == command.DownloadId
+                && extract.Description == command.ProvenanceData.Reason
+                && extract.Inwinning),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    private async Task<(IServiceProvider, MigrateRoadNetworkSqsRequest)> GivenV1RoadSegmentAndMigrateRequestWithPartialOverlap()
+    {
         var sp = await BuildServiceProvider();
 
         // existing road network
@@ -88,7 +140,7 @@ public class GivenRoadNetwork : RoadNetworkIntegrationTest
         // changes to road network
         var addSegmentGeometry = ((MultiLineString)new WKTReader().Read("MULTILINESTRING ((597980 697818, 597971.1015208486 697818.2053713053, 597950.7802565437 697829.8443076871, 597940.273913426 697835.9022689406, 597920 697835))")).WithSrid(WellknownSrids.Lambert08).ToRoadSegmentGeometry();
 
-        var provenanceData = new RoadRegistryProvenanceData();
+        var provenanceData = new RoadRegistryProvenanceData(reason: "Inwinning 12345");
         var command = new MigrateRoadNetworkSqsRequest
         {
             UploadId = TestData.Fixture.Create<UploadId>(),
@@ -125,7 +177,7 @@ public class GivenRoadNetwork : RoadNetworkIntegrationTest
             ProvenanceData = provenanceData
         };
 
-        await using var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
         await AddExtractDownloadAndUpload(extractsDbContext, command);
 
         var nisCode = "12345";
@@ -145,12 +197,7 @@ public class GivenRoadNetwork : RoadNetworkIntegrationTest
         });
         await extractsDbContext.SaveChangesAsync(CancellationToken.None);
 
-        // Act
-        var handler = sp.GetRequiredService<MigrateRoadNetworkSqsLambdaRequestHandler>();
-        await handler.Handle(new MigrateRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
-
-        // Assert
-        TicketingMock.VerifyThatTicketHasError("RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
+        return (sp, command);
     }
 
     protected override void ConfigureServices(IServiceCollection services)

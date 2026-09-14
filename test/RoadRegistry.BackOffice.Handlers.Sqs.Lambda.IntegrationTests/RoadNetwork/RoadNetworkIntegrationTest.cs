@@ -34,6 +34,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
     protected readonly Mock<ITicketing> TicketingMock = new();
     protected readonly Mock<IDataValidationApiClient> DataValidationClientMock = new();
     protected readonly Mock<IMediator> MediatorMock = new();
+    protected readonly Mock<IExtractUploadFailedEmailClient> ExtractUploadFailedEmailClientMock = new();
     protected readonly RoadNetworkTestDataV2 TestData;
     private readonly DatabaseFixture _databaseFixture;
 
@@ -96,7 +97,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
             .AddSingleton(MediatorMock.Object)
             .AddSingleton(Mock.Of<IIdempotentCommandHandler>())
             .AddSingleton(Mock.Of<IRoadRegistryContext>())
-            .AddSingleton(Mock.Of<IExtractUploadFailedEmailClient>());
+            .AddSingleton(ExtractUploadFailedEmailClientMock.Object);
 
         services
             .AddMartenRoad(options =>
