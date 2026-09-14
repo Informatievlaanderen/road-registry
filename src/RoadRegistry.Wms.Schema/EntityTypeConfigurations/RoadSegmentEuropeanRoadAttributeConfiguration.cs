@@ -10,7 +10,7 @@ public class RoadSegmentEuropeanRoadAttributeConfiguration : IEntityTypeConfigur
 
     public void Configure(EntityTypeBuilder<RoadSegmentEuropeanRoadAttributeRecord> b)
     {
-        b.ToTable(TableName, WellKnownSchemas.WmsSchema)
+        b.ToTable(TableName, WellKnownSchemas.WmsDataSchema)
             .HasKey(p => p.EU_OIDN)
             .IsClustered(false);
 
@@ -29,5 +29,15 @@ public class RoadSegmentEuropeanRoadAttributeConfiguration : IEntityTypeConfigur
             .HasColumnName("EUNUMMER");
         b.Property(p => p.LBLBGNORG)
             .HasColumnName("LBLBGNORG");
+        b.Property(p => p.IsV2)
+            .HasColumnName("IsV2")
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        b.HasIndex(p => p.IsV2)
+            .IsClustered(false);
+        // Looked up by road segment to mark the attributes of a road segment that is ingewonnen.
+        b.HasIndex(p => p.WS_OIDN)
+            .IsClustered(false);
     }
 }

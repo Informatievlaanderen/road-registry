@@ -11,6 +11,7 @@
         public const string RoadNetworkChangesReadProjection = "RoadNetworkChangesReadProjection:All";
         public const string RoadNetworkChangesPbsProjection = "RoadNetworkChangesPbsProjection:All";
         public const string RoadNetworkChangesWmsWfsV2Projection = "RoadNetworkChangesWmsWfsV2Projection:All";
+        public const string RoadNetworkChangesWmsWfsV1InwinningProjection = "RoadNetworkChangesWmsWfsV1InwinningProjection:All";
 
         // The shadow projections: the same two read models being rebuilt into a schema of their own while the
         // live ones keep serving. They go with the change that swaps the two schemas.

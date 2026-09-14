@@ -15,8 +15,10 @@ public static class WellKnownSchemas
     public const string ProductSchema = "RoadRegistryProduct";
     public const string WmsMetaSchema = "RoadRegistryWmsMeta";
     public const string WmsSchema = "RoadRegistryWms";
+    public const string WmsDataSchema = "RoadRegistryWmsData";
     public const string WfsMetaSchema = "RoadRegistryWfsMeta";
     public const string WfsSchema = "RoadRegistryWfs";
+    public const string WfsDataSchema = "RoadRegistryWfsData";
     public const string PbsSchema = "RoadRegistryPbs";
     public const string WmsWfsV2Schema = "road";
 
@@ -25,6 +27,9 @@ public static class WellKnownSchemas
     // shadow has caught up the two are swapped, and both the shadow schema and the projections that fill it go.
     public const string PbsTempSchema = "RoadRegistryPbsTemp";
     public const string WmsWfsV2TempSchema = "roadTemp";
+
+    // What the V1 WMS and WFS leave out because it is ingewonnen; goes when there is no V1 data left.
+    public const string WmsWfsV1InwinningSchema = "RoadRegistry";
     public const string StreetNameSchema = "RoadRegistryStreetName";
     public const string StreetNameEventSchema = "RoadRegistryStreetNameEvent";
     public const string StreetNameEventConsumerSchema = "RoadRegistryStreetNameEventConsumer";
@@ -59,6 +64,7 @@ public static class MigrationTables
     public const string Wfs = "__EFMigrationsHistoryWfs";
     public const string Pbs = "__EFMigrationsHistoryPbs";
     public const string WmsWfsV2 = "__EFMigrationsHistoryWmsWfsV2";
+    public const string WmsWfsV1Inwinning = "__EFMigrationsHistoryWmsWfsV1Inwinning";
     public const string StreetName = "__EFMigrationsHistoryStreetName";
     public const string StreetNameEvent = "__EFMigrationsHistoryStreetNameEvent";
     public const string StreetNameEventConsumer = "__EFMigrationsHistoryStreetNameEventConsumer";

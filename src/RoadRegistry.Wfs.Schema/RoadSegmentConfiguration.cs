@@ -10,7 +10,7 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
 
     public void Configure(EntityTypeBuilder<RoadSegmentRecord> b)
     {
-        b.ToTable(TableName, WellKnownSchemas.WfsSchema)
+        b.ToTable(TableName, WellKnownSchemas.WfsDataSchema)
             .HasKey(p => p.Id)
             .IsClustered();
 
@@ -80,7 +80,14 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
             .HasDefaultValue(false)
             .IsRequired();
 
+        b.Property(p => p.IsV2)
+            .HasColumnName("IsV2")
+            .HasDefaultValue(false)
+            .IsRequired();
+
         b.HasIndex(p => p.IsRemoved)
+            .IsClustered(false);
+        b.HasIndex(p => p.IsV2)
             .IsClustered(false);
         b.HasIndex(p => p.BeginRoadNodeId)
             .IsClustered(false);

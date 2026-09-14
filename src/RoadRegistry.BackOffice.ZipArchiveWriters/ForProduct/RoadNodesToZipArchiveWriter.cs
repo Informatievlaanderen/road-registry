@@ -14,12 +14,14 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<ProductContext>
     private readonly Encoding _encoding;
     private readonly string _entryFormat;
     private readonly RecyclableMemoryStreamManager _manager;
+    private readonly ProductInwinningFilter _inwinningFilter;
 
-    public RoadNodesToZipArchiveWriter(string entryFormat, RecyclableMemoryStreamManager manager, Encoding encoding)
+    public RoadNodesToZipArchiveWriter(string entryFormat, RecyclableMemoryStreamManager manager, Encoding encoding, ProductInwinningFilter? inwinningFilter = null)
     {
         _entryFormat = entryFormat ?? throw new ArgumentNullException(nameof(entryFormat));
         _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
+        _inwinningFilter = inwinningFilter ?? ProductInwinningFilter.None;
     }
 
     public async Task WriteAsync(ZipArchive archive, ProductContext context, CancellationToken cancellationToken)
@@ -27,7 +29,30 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<ProductContext>
         if (archive == null) throw new ArgumentNullException(nameof(archive));
         if (context == null) throw new ArgumentNullException(nameof(context));
 
-        var count = await context.RoadNodes.CountAsync(cancellationToken);
+        // The shape file length the projection keeps covers every road node, so what is left out is taken off it. Only
+        // when there is something to leave out are the road nodes gone through for it.
+        int count;
+        var excludedShapeLength = 0;
+        if (_inwinningFilter.ExcludesAnything)
+        {
+            count = 0;
+            await foreach (var roadNode in context.RoadNodes.Select(_ => new { _.Id, _.ShapeRecordContentLength }).AsAsyncEnumerable().WithCancellation(cancellationToken))
+            {
+                if (_inwinningFilter.ExcludesRoadNode(roadNode.Id))
+                {
+                    excludedShapeLength += new WordLength(roadNode.ShapeRecordContentLength).Plus(ShapeRecord.HeaderLength).ToInt32();
+                }
+                else
+                {
+                    count++;
+                }
+            }
+        }
+        else
+        {
+            count = await context.RoadNodes.CountAsync(cancellationToken);
+        }
+
         var dbfEntry = archive.CreateEntry(string.Format(_entryFormat, "Wegknoop.dbf"));
         var dbfHeader = new DbaseFileHeader(
             DateTime.Now,
@@ -42,7 +67,12 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<ProductContext>
                    new BinaryWriter(dbfEntryStream, _encoding, true)))
         {
             var dbfRecord = new RoadNodeDbaseRecord();
-            foreach (var data in context.RoadNodes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
+            foreach (var data in context.RoadNodes
+                         .OrderBy(_ => _.Id)
+                         .Select(_ => new { _.Id, _.DbaseRecord })
+                         .AsEnumerable()
+                         .Where(_ => !_inwinningFilter.ExcludesRoadNode(_.Id))
+                         .Select(_ => _.DbaseRecord))
             {
                 dbfRecord.FromBytes(data, _manager, _encoding);
                 dbfWriter.Write(dbfRecord);
@@ -60,7 +90,7 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<ProductContext>
 
         var shpEntry = archive.CreateEntry(string.Format(_entryFormat, "Wegknoop.shp"));
         var shpHeader = new ShapeFileHeader(
-            new WordLength(info.TotalRoadNodeShapeLength),
+            new WordLength(info.TotalRoadNodeShapeLength - excludedShapeLength),
             ShapeType.Point,
             shpBoundingBox);
         await using (var shpEntryStream = shpEntry.Open())
@@ -70,7 +100,12 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<ProductContext>
                    new BinaryWriter(shpEntryStream, _encoding, true)))
         {
             var number = RecordNumber.Initial;
-            foreach (var data in context.RoadNodes.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
+            foreach (var data in context.RoadNodes
+                         .OrderBy(_ => _.Id)
+                         .Select(_ => new { _.Id, _.ShapeRecordContent })
+                         .AsEnumerable()
+                         .Where(_ => !_inwinningFilter.ExcludesRoadNode(_.Id))
+                         .Select(_ => _.ShapeRecordContent))
             {
                 shpWriter.Write(
                     ShapeContentFactory
@@ -94,7 +129,12 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<ProductContext>
         {
             var offset = ShapeIndexRecord.InitialOffset;
             var number = RecordNumber.Initial;
-            foreach (var data in context.RoadNodes.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
+            foreach (var data in context.RoadNodes
+                         .OrderBy(_ => _.Id)
+                         .Select(_ => new { _.Id, _.ShapeRecordContent })
+                         .AsEnumerable()
+                         .Where(_ => !_inwinningFilter.ExcludesRoadNode(_.Id))
+                         .Select(_ => _.ShapeRecordContent))
             {
                 var shpRecord = ShapeContentFactory
                     .FromBytes(data, _manager, _encoding)

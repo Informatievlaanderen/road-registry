@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Projector.Projections;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using Marten;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +26,8 @@ using RoadRegistry.Pbs.Projections;
 using RoadRegistry.Pbs.Schema;
 using RoadRegistry.Pbs.Schema.Records;
 using RoadRegistry.Read.Projections.Setup;
+using RoadRegistry.WmsWfsV1Inwinning;
+using RoadRegistry.WmsWfsV1Inwinning.Projections;
 using RoadRegistry.WmsWfsV2.Projections;
 using RoadRegistry.WmsWfsV2.Schema;
 
@@ -263,6 +267,7 @@ public partial class ProjectionsController
             WellKnownProjectionStateNames.RoadNetworkChangesReadProjection => TruncateReadReadModel,
             WellKnownProjectionStateNames.RoadNetworkChangesPbsProjection => TruncatePbsReadModel,
             WellKnownProjectionStateNames.RoadNetworkChangesWmsWfsV2Projection => TruncateWmsWfsV2ReadModel,
+            WellKnownProjectionStateNames.RoadNetworkChangesWmsWfsV1InwinningProjection => TruncateWmsWfsV1InwinningReadModel,
             WellKnownProjectionStateNames.RoadNetworkChangesPbsTempProjection => TruncatePbsTempReadModel,
             WellKnownProjectionStateNames.RoadNetworkChangesWmsWfsV2TempProjection => TruncateWmsWfsV2TempReadModel,
             _ => null
@@ -317,6 +322,45 @@ public partial class ProjectionsController
         await TruncateProjectionTables(context, nameof(RoadNetworkChangesWmsWfsV2Projection), excludeEntity: null, cancellationToken);
     }
 
+    private async Task TruncateWmsWfsV1InwinningReadModel(CancellationToken cancellationToken)
+    {
+        var factory = HttpContext.RequestServices.GetRequiredService<IDbContextFactory<WmsWfsV1InwinningContext>>();
+        await using var context = await factory.CreateDbContextAsync(cancellationToken);
+
+        // Only the lists: the V1 tables are mapped, not migrated, so they are left alone - a replay sets their IsV2
+        // flags again.
+        await TruncateProjectionTables(context, nameof(RoadNetworkChangesWmsWfsV1InwinningProjection), excludeEntity: null, cancellationToken);
+    }
+
+    // Every table in the model - so a newly added table is wiped automatically - except the projection-state row
+    // (deleted by name, it is the SQL-side idempotency position that would otherwise make the restarted projection skip
+    // every replayed event), a table the context maps but does not migrate - it belongs to another read model - and
+    // whatever the caller excludes.
+    internal static IReadOnlyList<string> GetTablesToTruncate(DbContext context, Func<Type, bool>? excludeEntity)
+    {
+        // The design-time model: the read-optimized runtime model does not keep which tables are excluded from migrations.
+        var tables = new List<string>();
+        foreach (var entityType in context.GetService<IDesignTimeModel>().Model.GetEntityTypes())
+        {
+            var clrType = entityType.ClrType;
+            if (clrType == typeof(ProjectionStateItem) || entityType.IsTableExcludedFromMigrations() || excludeEntity?.Invoke(clrType) == true)
+            {
+                continue;
+            }
+
+            var table = entityType.GetTableName();
+            if (table is null)
+            {
+                continue;
+            }
+
+            var schema = entityType.GetSchema();
+            tables.Add(schema is null ? $"[{table}]" : $"[{schema}].[{table}]");
+        }
+
+        return tables;
+    }
+
     private static async Task WaitUntilShardStopped(IProjectionDaemon daemon, string shardName, CancellationToken cancellationToken)
     {
         var timeout = TimeSpan.FromMinutes(1);
@@ -341,9 +385,6 @@ public partial class ProjectionsController
         }
     }
 
-    // Truncates every table in the model - so a newly added table is wiped automatically - except the
-    // projection-state row (deleted by name, it is the SQL-side idempotency position that would otherwise make
-    // the restarted projection skip every replayed event) and whatever the caller excludes.
     private async Task TruncateProjectionTables<TContext>(
         TContext context,
         string projectionName,
@@ -351,22 +392,8 @@ public partial class ProjectionsController
         CancellationToken cancellationToken)
         where TContext : Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.RunnerDbContext<TContext>
     {
-        foreach (var entityType in context.Model.GetEntityTypes())
+        foreach (var qualifiedName in GetTablesToTruncate(context, excludeEntity))
         {
-            var clrType = entityType.ClrType;
-            if (clrType == typeof(ProjectionStateItem) || excludeEntity?.Invoke(clrType) == true)
-            {
-                continue;
-            }
-
-            var table = entityType.GetTableName();
-            if (table is null)
-            {
-                continue;
-            }
-
-            var schema = entityType.GetSchema();
-            var qualifiedName = schema is null ? $"[{table}]" : $"[{schema}].[{table}]";
             _logger.LogInformation("Rebuilding {ProjectionName}: truncating table {Table}.", projectionName, qualifiedName);
             await context.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE {qualifiedName};", cancellationToken);
         }

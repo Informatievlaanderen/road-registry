@@ -18,7 +18,7 @@ namespace RoadRegistry.Wfs.Schema.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -59,6 +59,12 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                         .HasColumnType("Geometry")
                         .HasColumnName("puntGeometrie");
 
+                    b.Property<bool>("IsV2")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsV2");
+
                     b.Property<string>("Type")
                         .HasColumnType("varchar(255)")
                         .HasColumnName("type");
@@ -67,7 +73,11 @@ namespace RoadRegistry.Wfs.Schema.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
 
-                    b.ToTable("Wegknoop", "RoadRegistryWfs");
+                    b.HasIndex("IsV2");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsV2"), false);
+
+                    b.ToTable("Wegknoop", "RoadRegistryWfsData");
                 });
 
             modelBuilder.Entity("RoadRegistry.Wfs.Schema.RoadSegmentRecord", b =>
@@ -105,6 +115,12 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("verwijderd");
+
+                    b.Property<bool>("IsV2")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsV2");
 
                     b.Property<string>("LeftSideStreetName")
                         .HasColumnType("varchar(128)")
@@ -166,6 +182,10 @@ namespace RoadRegistry.Wfs.Schema.Migrations
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsRemoved"), false);
 
+                    b.HasIndex("IsV2");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsV2"), false);
+
                     b.HasIndex("LeftSideStreetNameId");
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("LeftSideStreetNameId"), false);
@@ -190,7 +210,7 @@ namespace RoadRegistry.Wfs.Schema.Migrations
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("StatusDutchName"), false);
 
-                    b.ToTable("Wegsegment", "RoadRegistryWfs");
+                    b.ToTable("Wegsegment", "RoadRegistryWfsData");
                 });
 #pragma warning restore 612, 618
         }

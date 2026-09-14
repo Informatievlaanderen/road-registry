@@ -32,6 +32,8 @@ using RoadRegistry.Integration.Schema;
 using RoadRegistry.MartenMigration.Projections;
 using RoadRegistry.Pbs.Projections;
 using RoadRegistry.Pbs.Schema;
+using RoadRegistry.WmsWfsV1Inwinning;
+using RoadRegistry.WmsWfsV1Inwinning.Projections;
 using RoadRegistry.WmsWfsV2.Projections;
 using RoadRegistry.WmsWfsV2.Schema;
 using RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction;
@@ -178,6 +180,9 @@ public class Startup
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesWmsWfsV2Projection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<WmsWfsV2Context>>(), GetCatchUpOptions(nameof(RoadNetworkChangesWmsWfsV2Projection))));
 
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesWmsWfsV2TempProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<TempSchemaDbContextFactory<WmsWfsV2Context>>(), GetCatchUpOptions(nameof(RoadNetworkChangesWmsWfsV2Projection))));
+
+                    // What the V1 WMS/WFS leave out because it is ingewonnen; goes with the V1 data.
+                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesWmsWfsV1InwinningProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<WmsWfsV1InwinningContext>>(), GetCatchUpOptions(nameof(RoadNetworkChangesWmsWfsV1InwinningProjection))));
                 }
             }).Services
             .AddMartenDatabaseMigrator()
@@ -222,6 +227,13 @@ public class Startup
                         .UseNetTopologySuite());
                 })
                 .AddSingleton<IDbMigratorFactory, WmsWfsV2ContextMigratorFactory>()
+                // The same database, which the V1 WMS/WFS read models share.
+                .AddDbContextFactory<WmsWfsV1InwinningContext>((sp, options) =>
+                {
+                    var connectionString = sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.WmsWfsV2Projections);
+                    options.UseSqlServer(connectionString, o => o.EnableRetryOnFailure());
+                })
+                .AddSingleton<IDbMigratorFactory, WmsWfsV1InwinningContextMigratorFactory>()
                 .AddSingleton(sp => new TempSchemaDbContextFactory<WmsWfsV2Context>(
                     () => new WmsWfsV2Context(BuildSqlServerOptions<WmsWfsV2Context>(sp, WellKnownConnectionNames.WmsWfsV2Projections, WellKnownSchemas.WmsWfsV2TempSchema))));
         }
