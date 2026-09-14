@@ -22,7 +22,7 @@ project="${1:?usage: marten-codegen.sh <project> [<project receiving the code>]}
 target="${2:-${project}}"
 output="src/${target}/Internal/Generated"
 
-rm -rf "src/${target}/Internal"
+rm -rf "${output}"
 
 # Development, because that is the configuration a host can be built from outside its deployment: every host ships
 # an appsettings.development.json, while the settings it needs in production only exist in its deployment. A host whose

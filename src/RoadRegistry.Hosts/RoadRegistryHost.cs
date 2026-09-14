@@ -61,7 +61,23 @@ public class RoadRegistryHost<T>
         // world to be there - Seq, the stream store, the distributed lock - and the host is never started.
         if (_args.Contains("codegen", StringComparer.OrdinalIgnoreCase))
         {
-            Environment.ExitCode = await _host.RunJasperFxCommands(_args);
+            try
+            {
+                Environment.ExitCode = await _host.RunJasperFxCommands(_args);
+            }
+            finally
+            {
+                // The host is never run on this path, and running it is what disposes it otherwise.
+                if (_host is IAsyncDisposable asyncDisposable)
+                {
+                    await asyncDisposable.DisposeAsync();
+                }
+                else
+                {
+                    _host.Dispose();
+                }
+            }
+
             return;
         }
 

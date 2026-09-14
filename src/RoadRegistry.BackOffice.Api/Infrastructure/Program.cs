@@ -59,7 +59,7 @@ public class Program
 
     public static async Task Main(string[] args)
     {
-        var host = CreateWebHostBuilder(args).Build();
+        using var host = CreateWebHostBuilder(args).Build();
 
         // `codegen write` pre-generates the Marten code at build time (GAWR-7236); it needs the registrations only,
         // so it returns before the host waits for Seq and the stream store.
