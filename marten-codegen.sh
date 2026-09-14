@@ -8,15 +8,21 @@
 #
 #   ./marten-codegen.sh RoadRegistry.Projector
 #
+# A project that cannot be run - the backoffice Lambda is a class library - is generated for by a host of its own, and
+# the project receiving the code is then named second:
+#
+#   ./marten-codegen.sh RoadRegistry.BackOffice.Handlers.Sqs.Lambda.CodeGen RoadRegistry.BackOffice.Handlers.Sqs.Lambda
+#
 # The build pipeline calls it through the prerestore-script input of the shared build workflows, which is the only
 # hook they offer before the host is built.
 
 set -euo pipefail
 
-project="${1:?usage: marten-codegen.sh <project>}"
-output="src/${project}/Internal/Generated"
+project="${1:?usage: marten-codegen.sh <project> [<project receiving the code>]}"
+target="${2:-${project}}"
+output="src/${target}/Internal/Generated"
 
-rm -rf "src/${project}/Internal"
+rm -rf "src/${target}/Internal"
 
 # Development, because that is the configuration a host can be built from outside its deployment: every host ships
 # an appsettings.development.json, while the settings it needs in production only exist in its deployment. A host whose
@@ -29,8 +35,8 @@ ASPNETCORE_ENVIRONMENT=Development DOTNET_ENVIRONMENT=Development \
 
 count=$(find "${output}" -name '*.cs' 2>/dev/null | wc -l)
 if [ "${count}" -eq 0 ]; then
-  echo "No Marten code was generated for ${project}: the host did not register a Marten store." >&2
+  echo "No Marten code was generated for ${target}: ${project} did not register a Marten store." >&2
   exit 1
 fi
 
-echo "Generated ${count} Marten code file(s) for ${project}."
+echo "Generated ${count} Marten code file(s) for ${target}."

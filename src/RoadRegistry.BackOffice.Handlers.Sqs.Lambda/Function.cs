@@ -21,7 +21,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.DataValidation;
-using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.ZipArchiveWriters;
 using RoadRegistry.Infrastructure;
@@ -58,10 +57,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddStreetNameClient()
 
             // ChangeRoadNetwork
-            .AddMartenRoad(options => options
-                .AddRoadNetworkTopologyProjection()
-                .AddRoadAggregatesSnapshots()
-                .ConfigureExtractDocuments()).Services
+            .AddMartenRoad(FunctionMartenConfiguration.Configure).Services
 
             // Extracts-domainv1
             .AddEditorContext()
