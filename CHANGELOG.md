@@ -1,3 +1,15 @@
+# [5.18.0](https://github.com/informatievlaanderen/road-registry/compare/v5.17.4...v5.18.0) (2026-09-14)
+
+
+### Bug Fixes
+
+* a road node is not connected to any realized road segment GAWR-7733 ([f8c260d](https://github.com/informatievlaanderen/road-registry/commit/f8c260d2bbadafc343a8aef76cfd5ed258d17360))
+
+
+### Features
+
+* **wmswfsv2:** add WFS views for road segments, road nodes and junctions GAWR-7733 ([9356552](https://github.com/informatievlaanderen/road-registry/commit/93565520a178fe783416bb1a4223622dc1334d25))
+
 ## [5.17.4](https://github.com/informatievlaanderen/road-registry/compare/v5.17.3...v5.17.4) (2026-09-14)
 
 
