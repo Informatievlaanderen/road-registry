@@ -10,7 +10,7 @@ public class RoadSegmentNationalRoadAttributeConfiguration : IEntityTypeConfigur
 
     public void Configure(EntityTypeBuilder<RoadSegmentNationalRoadAttributeRecord> b)
     {
-        b.ToTable(TableName, WellKnownSchemas.WmsSchema)
+        b.ToTable(TableName, WellKnownSchemas.WmsDataSchema)
             .HasKey(p => p.NW_OIDN)
             .IsClustered(false);
 
@@ -29,5 +29,15 @@ public class RoadSegmentNationalRoadAttributeConfiguration : IEntityTypeConfigur
             .HasColumnName("BEGINTIJD");
         b.Property(p => p.LBLBGNORG)
             .HasColumnName("LBLBGNORG");
+        b.Property(p => p.IsV2)
+            .HasColumnName("IsV2")
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        b.HasIndex(p => p.IsV2)
+            .IsClustered(false);
+        // Looked up by road segment to mark the attributes of a road segment that is ingewonnen.
+        b.HasIndex(p => p.WS_OIDN)
+            .IsClustered(false);
     }
 }

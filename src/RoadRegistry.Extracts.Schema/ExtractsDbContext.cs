@@ -179,6 +179,20 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
                 : Inwinningsstatus.NietGestart);
     }
 
+    // Every road segment whose inwinningsstatus is 'compleet' (see GetInwinningsstatus): it takes part in at least one
+    // inwinning, and every inwinning it takes part in is done.
+    public async Task<IReadOnlyCollection<RoadSegmentId>> GetCompletedInwinningRoadSegmentIds(CancellationToken cancellationToken)
+    {
+        var roadSegmentIds = await InwinningRoadSegments
+            .AsNoTracking()
+            .GroupBy(x => x.RoadSegmentId)
+            .Where(x => x.Count(inwinningRoadSegment => !inwinningRoadSegment.Completed) == 0)
+            .Select(x => x.Key)
+            .ToListAsync(cancellationToken);
+
+        return roadSegmentIds.Select(x => new RoadSegmentId(x)).ToList();
+    }
+
     public async Task<IReadOnlyCollection<RoadSegmentId>> CheckWhichOverlapWithInwinningszone(IEnumerable<(MultiLineString Geometry, RoadSegmentId TemporaryId)> roadSegments, CancellationToken cancellationToken)
     {
         var inwinningszonesGeometries = await Inwinningszones

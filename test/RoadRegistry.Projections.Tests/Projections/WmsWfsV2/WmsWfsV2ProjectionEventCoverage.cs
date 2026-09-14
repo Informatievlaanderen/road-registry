@@ -79,7 +79,8 @@ internal static class WmsWfsV2ProjectionEventCoverage
     // Each projection passes the events it deliberately does NOT handle (the exclude list); every remaining known event
     // must be handled. Adding a new domain event therefore fails every projection's test until it is either handled or
     // consciously added to that projection's exclude list.
-    public static void AssertHandledExactlyOnce(RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context> projection, params Type[] excludeEventTypes)
+    public static void AssertHandledExactlyOnce<TContext>(RunnerDbContextRoadNetworkChangesProjection<TContext> projection, params Type[] excludeEventTypes)
+        where TContext : Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.RunnerDbContext<TContext>
     {
         // First make sure our AllRoadNetworkEvents list still mirrors the domain, so a newly added event cannot pass
         // unnoticed through the per-projection checks below.

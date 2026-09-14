@@ -17,7 +17,8 @@ public class RoadNetworkForProductPublishToZipArchiveWriter : IZipArchiveWriter<
         ZipArchiveWriterOptions zipArchiveWriterOptions,
         IStreetNameCache streetNameCache,
         RecyclableMemoryStreamManager manager,
-        Encoding encoding)
+        Encoding encoding,
+        ProductInwinningFilter? inwinningFilter = null)
     {
         ArgumentNullException.ThrowIfNull(zipArchiveWriterOptions);
         ArgumentNullException.ThrowIfNull(streetNameCache);
@@ -33,15 +34,15 @@ public class RoadNetworkForProductPublishToZipArchiveWriter : IZipArchiveWriter<
 
         _writer = new CompositeZipArchiveWriter<ProductContext>(
             new OrganizationsToZipArchiveWriter(extraFileEntryFormat, encoding),
-            new RoadNodesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
-            new RoadSegmentsToZipArchiveWriter(shapeFileEntryFormat, zipArchiveWriterOptions, streetNameCache, manager, encoding),
-            new RoadSegmentLaneAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
-            new RoadSegmentWidthAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
-            new RoadSegmentSurfaceAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
-            new RoadSegmentNationalRoadAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
-            new RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
-            new RoadSegmentNumberedRoadAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
-            new GradeSeparatedJunctionArchiveWriter(shapeFileEntryFormat, manager, encoding),
+            new RoadNodesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding, inwinningFilter),
+            new RoadSegmentsToZipArchiveWriter(shapeFileEntryFormat, zipArchiveWriterOptions, streetNameCache, manager, encoding, inwinningFilter),
+            new RoadSegmentLaneAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding, inwinningFilter),
+            new RoadSegmentWidthAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding, inwinningFilter),
+            new RoadSegmentSurfaceAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding, inwinningFilter),
+            new RoadSegmentNationalRoadAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding, inwinningFilter),
+            new RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding, inwinningFilter),
+            new RoadSegmentNumberedRoadAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding, inwinningFilter),
+            new GradeSeparatedJunctionArchiveWriter(shapeFileEntryFormat, manager, encoding, inwinningFilter),
 
             new DbaseFileArchiveWriter<ProductContext>(string.Format(extraFileEntryFormat, "WegknoopLktType.dbf"), RoadNodeTypeDbaseRecord.Schema, Lists.AllRoadNodeTypeDbaseRecords, encoding),
             new DbaseFileArchiveWriter<ProductContext>(string.Format(extraFileEntryFormat, "WegverhardLktType.dbf"), SurfaceTypeDbaseRecord.Schema, Lists.AllSurfaceTypeDbaseRecords, encoding),
