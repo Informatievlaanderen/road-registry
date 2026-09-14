@@ -152,8 +152,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         }
 
         // remove actual schijnknopen which are consumed during unflatten
+        // a new road node can have an id in the temporary schijnknoop range as well, only the ones from the extract are temporary
         var roadNodeIdsToRemove = consumedRoadNodeIds
-            .Where(x => x < RoadNodeConstants.InitialTemporarySchijnknoopId)
+            .Where(x => !context.TemporarySchijnknoopIds.ContainsKey(x))
             .ToArray();
         foreach (var roadNodeId in roadNodeIdsToRemove)
         {
