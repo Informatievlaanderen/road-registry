@@ -1,3 +1,10 @@
+## [5.18.1](https://github.com/informatievlaanderen/road-registry/compare/v5.18.0...v5.18.1) (2026-09-14)
+
+
+### Bug Fixes
+
+* **2.0:** remove consumed new schijnknopen with an id in the temporary schijnknoop range ([a01470a](https://github.com/informatievlaanderen/road-registry/commit/a01470ab0d7b8da253e1f7bb518f12e881bf71d4))
+
 # [5.18.0](https://github.com/informatievlaanderen/road-registry/compare/v5.17.4...v5.18.0) (2026-09-14)
 
 
