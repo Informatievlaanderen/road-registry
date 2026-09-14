@@ -51,6 +51,7 @@
                   v-if="
                     downloadAvailable &&
                     !extract.informatief &&
+                    !deliveryAccepted &&
                     (!extract.uploadStatus || allowRequestExtractWhenUploaded)
                   "
                   style="margin-left: 1rem"
@@ -118,7 +119,7 @@
                 </vl-alert>
               </div>
 
-              <div v-if="fileProblems.length > 0">
+              <div v-if="fileProblems.length > 0 && !deliveryAccepted">
                 <div v-for="fileProblem in fileProblems" :key="fileProblem.file">
                   <br />
                   <h3 v-if="fileProblem.file && fileProblem.file !== 'ticketId'">
@@ -216,6 +217,15 @@ export default defineComponent({
     },
     downloadId(): string {
       return this.$route.params.downloadId as string;
+    },
+    // Once a delivery is accepted there is nothing left for the uploader to do: no new upload, no new extract, and no
+    // validation errors to act on. That includes a delivery whose processing failed afterwards - the uploader is served
+    // "Accepted" for it while Digitaal Vlaanderen is served "ProcessingFailed", because correcting it is Digitaal
+    // Vlaanderen's job. Its upload ticket does carry the errors, and its extract is not closed yet, which is the only
+    // thing that sets it apart from an ordinary accepted delivery - so it has to be recognised by its status, not by
+    // the extract being closed.
+    deliveryAccepted(): boolean {
+      return this.extract?.uploadStatus === "Accepted";
     },
     status() {
       if (!this.extract) {
@@ -340,7 +350,8 @@ export default defineComponent({
         !this.extract?.gesloten &&
         this.extract?.gedownloadOp &&
         this.extract?.uploadStatus !== "Processing" &&
-        this.extract?.uploadStatus !== "AutomaticValidationSucceeded"
+        this.extract?.uploadStatus !== "AutomaticValidationSucceeded" &&
+        !this.deliveryAccepted
       );
     },
   },
