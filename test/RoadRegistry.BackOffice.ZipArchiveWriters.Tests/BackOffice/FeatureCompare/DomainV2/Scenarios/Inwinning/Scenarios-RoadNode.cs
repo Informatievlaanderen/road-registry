@@ -657,4 +657,107 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
         changes.Should().Contain(x => x is RemoveRoadNodeChange && ((RemoveRoadNodeChange)x).RoadNodeId == 2);
         changes.Should().NotContain(x => x is ModifyRoadNodeChange && ((ModifyRoadNodeChange)x).RoadNodeId == 2);
     }
+
+    // Editing tools number new road nodes after the highest id in the extract, which lands them in the temporary
+    // schijnknoop range as soon as the extract holds a temporary schijnknoop.
+    [Theory]
+    [InlineData(5)]
+    [InlineData(1_000_000_012)]
+    public async Task WhenNewSchijnknoopIsAdded_ThenItIsConsumedAndNotAdded(int newSchijnknoopId)
+    {
+        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+            .WithIntegration((builder, _) =>
+            {
+                builder.DataSet.Clear();
+            })
+            .WithExtract((builder, _) =>
+            {
+                builder.DataSet.Clear();
+
+                var start = new Point(650000, 650000).WithSrid(WellknownSrids.Lambert08);
+                var end = new Point(650030, 650000).WithSrid(WellknownSrids.Lambert08);
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(start));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
+                {
+                    x.WK_OIDN.Value = 1;
+                    x.TYPE.Value = RoadNodeTypeV2.Eindknoop;
+                    x.GRENSKNOOP.Value = 0;
+                }));
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(end));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
+                {
+                    x.WK_OIDN.Value = 4;
+                    x.TYPE.Value = RoadNodeTypeV2.Eindknoop;
+                    x.GRENSKNOOP.Value = 0;
+                }));
+
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.CreateRoadSegmentShapeRecord(new LineString([start.Coordinate, end.Coordinate])));
+                builder.DataSet.RoadSegmentDbaseRecords.Add(builder.CreateRoadSegmentDbaseRecord(x =>
+                {
+                    x.WS_TEMPID.Value = 1;
+                    x.WS_OIDN.Value = 1;
+                    x.VERHARDING.Value = RoadSegmentSurfaceTypeV2.Halfverhard;
+                }));
+
+                builder.DataSet.TransactionZoneShapeRecords[0].Geometry = ((NetTopologySuite.Geometries.Polygon)start.Buffer(100)).ToMultiPolygon();
+            })
+            .WithChange((builder, context) =>
+            {
+                builder.DataSet.Clear();
+
+                // the segment is split by a new schijnknoop where the surface type changes
+                var start = new Point(650000, 650000).WithSrid(WellknownSrids.Lambert08);
+                var newSchijnknoop = new Point(650010, 650000).WithSrid(WellknownSrids.Lambert08);
+                var end = new Point(650030, 650000).WithSrid(WellknownSrids.Lambert08);
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(start));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
+                {
+                    x.WK_OIDN.Value = 1;
+                    x.TYPE.Value = RoadNodeTypeV2.Eindknoop;
+                    x.GRENSKNOOP.Value = 0;
+                }));
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(newSchijnknoop));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
+                {
+                    x.WK_OIDN.Value = newSchijnknoopId;
+                    x.TYPE.Value = RoadNodeTypeV2.Schijnknoop;
+                    x.GRENSKNOOP.Value = 0;
+                }));
+
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(end));
+                builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>
+                {
+                    x.WK_OIDN.Value = 4;
+                    x.TYPE.Value = RoadNodeTypeV2.Eindknoop;
+                    x.GRENSKNOOP.Value = 0;
+                }));
+
+                var baseRecord = context.Extract.DataSet.RoadSegmentDbaseRecords[0];
+
+                var seg1 = baseRecord.Clone(new RecyclableMemoryStreamManager(), FileEncoding.UTF8);
+                seg1.WS_TEMPID.Value = 1;
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.CreateRoadSegmentShapeRecord(new LineString([start.Coordinate, newSchijnknoop.Coordinate])));
+                builder.DataSet.RoadSegmentDbaseRecords.Add(seg1);
+
+                var seg2 = baseRecord.Clone(new RecyclableMemoryStreamManager(), FileEncoding.UTF8);
+                seg2.WS_TEMPID.Value = 2;
+                seg2.VERHARDING.Value = RoadSegmentSurfaceTypeV2.Verhard;
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.CreateRoadSegmentShapeRecord(new LineString([newSchijnknoop.Coordinate, end.Coordinate])));
+                builder.DataSet.RoadSegmentDbaseRecords.Add(seg2);
+
+                builder.DataSet.TransactionZoneShapeRecords[0].Geometry = ((NetTopologySuite.Geometries.Polygon)start.Buffer(100)).ToMultiPolygon();
+            })
+            .Build();
+
+        var changes = await TranslateSucceeds(zipArchive);
+
+        changes.Should().Contain(x => x is ModifyRoadSegmentChange && ((ModifyRoadSegmentChange)x).RoadSegmentIdReference.RoadSegmentId == 1);
+        changes.Should().NotContain(x => x is AddRoadNodeChange && ((AddRoadNodeChange)x).TemporaryId == newSchijnknoopId);
+        changes.Should().NotContain(x => x is ModifyRoadNodeChange && ((ModifyRoadNodeChange)x).RoadNodeId == newSchijnknoopId);
+        changes.Should().NotContain(x => x is RemoveRoadNodeChange && ((RemoveRoadNodeChange)x).RoadNodeId == newSchijnknoopId);
+    }
 }
