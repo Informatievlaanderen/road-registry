@@ -18,7 +18,10 @@ using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
+using RoadRegistry.BackOffice.Api.Infrastructure.Options;
+using RoadRegistry.BackOffice.Api.V2;
 using RoadRegistry.BackOffice.Extensions;
+using RoadRegistry.Extracts.Schema;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using Identificator = Be.Vlaanderen.Basisregisters.GrAr.Legacy.Identificator;
@@ -33,7 +36,7 @@ public partial class RoadSegmentsController
     /// <param name="id">De identificator van het wegsegment.</param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als het wegsegment gevonden is.</response>
-    /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
+    /// <response code="404">Als het wegsegment niet gevonden kan worden, of als de inwinning ervan compleet is - dan verwijst de Link-header naar het wegsegment in v3.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpGet(GetRoadSegmentRoute, Name = nameof(GetRoadSegment))]
     [AllowAnonymous]
@@ -46,8 +49,23 @@ public partial class RoadSegmentsController
     [SwaggerOperation(OperationId = nameof(GetRoadSegment), Description = "Attributen wijzigen van een wegsegment: status, toegangsbeperking, wegklasse, wegbeheerder en wegcategorie.")]
     public async Task<IActionResult> GetRoadSegment(
         [FromRoute] int id,
+        [FromServices] ExtractsDbContext extractsDbContext,
+        [FromServices] ApiOptions apiOptions,
         CancellationToken cancellationToken = default)
     {
+        // Once its inwinning is complete a road segment is only served by the v3 API: this version answers as if it does
+        // not exist and links to where it lives now, which answers 410 for a road segment that was removed since.
+        if (RoadSegmentId.Accepts(id))
+        {
+            var roadSegmentId = new RoadSegmentId(id);
+            var inwinningsstatus = (await extractsDbContext.GetInwinningsstatus([roadSegmentId], cancellationToken))[roadSegmentId];
+            if (inwinningsstatus == Inwinningsstatus.Compleet)
+            {
+                Response.Headers.Link = $"<{string.Format(apiOptions.GetWegsegmentDetailUrlFormat(), id)}>; rel=\"successor-version\"";
+                return NotFound();
+            }
+        }
+
         try
         {
             var detailResponse = await _mediator.Send(new RoadSegmentDetailRequest(id), cancellationToken);

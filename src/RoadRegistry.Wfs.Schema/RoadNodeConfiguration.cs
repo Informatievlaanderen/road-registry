@@ -10,7 +10,7 @@ public class RoadNodeConfiguration : IEntityTypeConfiguration<RoadNodeRecord>
 
     public void Configure(EntityTypeBuilder<RoadNodeRecord> b)
     {
-        b.ToTable(TableName, WellKnownSchemas.WfsSchema)
+        b.ToTable(TableName, WellKnownSchemas.WfsDataSchema)
             .HasKey(i => i.Id)
             .IsClustered();
 
@@ -30,5 +30,13 @@ public class RoadNodeConfiguration : IEntityTypeConfiguration<RoadNodeRecord>
         b.Property(p => p.Geometry)
             .HasColumnName("puntGeometrie")
             .HasColumnType("Geometry");
+
+        b.Property(p => p.IsV2)
+            .HasColumnName("IsV2")
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        b.HasIndex(p => p.IsV2)
+            .IsClustered(false);
     }
 }

@@ -18,7 +18,7 @@ namespace RoadRegistry.Wms.Schema.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.4")
+                .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -94,6 +94,12 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("EUNUMMER");
 
+                    b.Property<bool>("IsV2")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsV2");
+
                     b.Property<string>("LBLBGNORG")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("LBLBGNORG");
@@ -106,7 +112,15 @@ namespace RoadRegistry.Wms.Schema.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("EU_OIDN"), false);
 
-                    b.ToTable("EuropeseWeg", "RoadRegistryWms");
+                    b.HasIndex("IsV2");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsV2"), false);
+
+                    b.HasIndex("WS_OIDN");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("WS_OIDN"), false);
+
+                    b.ToTable("EuropeseWeg", "RoadRegistryWmsData");
                 });
 
             modelBuilder.Entity("RoadRegistry.Wms.Schema.RoadSegmentNationalRoadAttributeRecord", b =>
@@ -127,6 +141,12 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("IDENT2");
 
+                    b.Property<bool>("IsV2")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsV2");
+
                     b.Property<string>("LBLBGNORG")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("LBLBGNORG");
@@ -139,7 +159,15 @@ namespace RoadRegistry.Wms.Schema.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("NW_OIDN"), false);
 
-                    b.ToTable("NationaleWeg", "RoadRegistryWms");
+                    b.HasIndex("IsV2");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsV2"), false);
+
+                    b.HasIndex("WS_OIDN");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("WS_OIDN"), false);
+
+                    b.ToTable("NationaleWeg", "RoadRegistryWmsData");
                 });
 
             modelBuilder.Entity("RoadRegistry.Wms.Schema.RoadSegmentRecord", b =>
@@ -201,6 +229,12 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("verwijderd");
+
+                    b.Property<bool>("IsV2")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsV2");
 
                     b.Property<int?>("LeftSideMunicipalityId")
                         .HasColumnType("int")
@@ -302,6 +336,10 @@ namespace RoadRegistry.Wms.Schema.Migrations
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsRemoved"), false);
 
+                    b.HasIndex("IsV2");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsV2"), false);
+
                     b.HasIndex("LeftSideStreetName");
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("LeftSideStreetName"), false);
@@ -335,7 +373,7 @@ namespace RoadRegistry.Wms.Schema.Migrations
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("StatusId"), false);
 
-                    b.ToTable("wegsegmentDenorm", "RoadRegistryWms");
+                    b.ToTable("wegsegmentDenorm", "RoadRegistryWmsData");
                 });
 
             modelBuilder.Entity("RoadRegistry.Wms.Schema.TransactionZoneRecord", b =>
