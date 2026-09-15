@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Azure.Identity;
 using Azure.Storage.Blobs;
+using BackOffice;
 using BackOffice.Abstractions;
 using BackOffice.Extensions;
 using BackOffice.Framework;
@@ -15,8 +16,10 @@ using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
 using HttpClients;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using RoadRegistry.Extracts.Schema;
 using BlobClientOptions = BackOffice.Configuration.BlobClientOptions;
 
 public class Program
@@ -33,6 +36,7 @@ public class Program
                     services
                         .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
                         .AddProductContext()
+                        .AddExtractsDbContextFactory(QueryTrackingBehavior.NoTracking, WellKnownConnectionNames.Extracts)
                         .RegisterOptions<ZipArchiveWriterOptions>()
                         .AddStreetNameCache()
 

@@ -13,13 +13,15 @@ public class RoadSegmentNationalRoadAttributesToZipArchiveWriter : IZipArchiveWr
     private readonly Encoding _encoding;
     private readonly string _entryFormat;
     private readonly RecyclableMemoryStreamManager _manager;
+    private readonly ProductInwinningFilter _inwinningFilter;
 
     public RoadSegmentNationalRoadAttributesToZipArchiveWriter(string entryFormat, RecyclableMemoryStreamManager manager,
-        Encoding encoding)
+        Encoding encoding, ProductInwinningFilter? inwinningFilter = null)
     {
         _entryFormat = entryFormat ?? throw new ArgumentNullException(nameof(entryFormat));
         _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
+        _inwinningFilter = inwinningFilter ?? ProductInwinningFilter.None;
     }
 
     public async Task WriteAsync(ZipArchive archive, ProductContext context, CancellationToken cancellationToken)
@@ -27,7 +29,7 @@ public class RoadSegmentNationalRoadAttributesToZipArchiveWriter : IZipArchiveWr
         if (archive == null) throw new ArgumentNullException(nameof(archive));
         if (context == null) throw new ArgumentNullException(nameof(context));
 
-        var count = await context.RoadSegmentNationalRoadAttributes.CountAsync(cancellationToken);
+        var count = await _inwinningFilter.CountRoadSegmentRecordsAsync(context.RoadSegmentNationalRoadAttributes.Select(_ => _.RoadSegmentId), cancellationToken);
         var dbfEntry = archive.CreateEntry(string.Format(_entryFormat, "AttNationweg.dbf"));
         var dbfHeader = new DbaseFileHeader(
             DateTime.Now,
@@ -42,7 +44,12 @@ public class RoadSegmentNationalRoadAttributesToZipArchiveWriter : IZipArchiveWr
                    new BinaryWriter(dbfEntryStream, _encoding, true)))
         {
             var dbfRecord = new RoadSegmentNationalRoadAttributeDbaseRecord();
-            foreach (var data in context.RoadSegmentNationalRoadAttributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
+            foreach (var data in context.RoadSegmentNationalRoadAttributes
+                         .OrderBy(_ => _.Id)
+                         .Select(_ => new { _.RoadSegmentId, _.DbaseRecord })
+                         .AsEnumerable()
+                         .Where(_ => !_inwinningFilter.ExcludesRoadSegment(_.RoadSegmentId))
+                         .Select(_ => _.DbaseRecord))
             {
                 dbfRecord.FromBytes(data, _manager, _encoding);
                 dbfWriter.Write(dbfRecord);
