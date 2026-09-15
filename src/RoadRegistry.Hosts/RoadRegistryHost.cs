@@ -2,11 +2,13 @@ namespace RoadRegistry.Hosts;
 
 using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Infrastructure.Extensions;
+using JasperFx;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
+using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -22,9 +24,11 @@ public class RoadRegistryHost<T>
     private readonly List<Action<IServiceProvider, ILogger<T>>> _configureLoggingActions = new();
     private readonly List<string> _wellKnownConnectionNames = new();
     private readonly Func<IServiceProvider, CancellationToken, Task> _runCommandDelegate;
+    private readonly string[] _args;
 
-    public RoadRegistryHost(IHost host, Func<IServiceProvider, CancellationToken, Task>? runCommandDelegate)
+    public RoadRegistryHost(IHost host, Func<IServiceProvider, CancellationToken, Task>? runCommandDelegate, string[]? args = null)
     {
+        _args = args ?? [];
         Configuration = host.Services.GetRequiredService<IConfiguration>();
         _host = host;
         _streamStore = host.Services.GetRequiredService<IStreamStore>();
@@ -52,6 +56,31 @@ public class RoadRegistryHost<T>
 
     public async Task RunAsync(Func<IServiceProvider, IHost, IConfiguration, Task> distributedLockCallback)
     {
+        // `codegen write` pre-generates the Marten code into the host's Internal/Generated folder at build time
+        // (GAWR-7236). It only needs the service registrations, so it runs before anything that expects the outside
+        // world to be there - Seq, the stream store, the distributed lock - and the host is never started.
+        if (_args.Contains("codegen", StringComparer.OrdinalIgnoreCase))
+        {
+            try
+            {
+                Environment.ExitCode = await _host.RunJasperFxCommands(_args);
+            }
+            finally
+            {
+                // The host is never run on this path, and running it is what disposes it otherwise.
+                if (_host is IAsyncDisposable asyncDisposable)
+                {
+                    await asyncDisposable.DisposeAsync();
+                }
+                else
+                {
+                    _host.Dispose();
+                }
+            }
+
+            return;
+        }
+
         try
         {
             await WaitFor.SeqToBecomeAvailable(Configuration);

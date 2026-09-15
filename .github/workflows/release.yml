@@ -81,7 +81,7 @@ jobs:
       build-project: RoadRegistry.BackOffice.Api
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
-      prerestore-script: ./pre-restore.sh
+      prerestore-script: ./pre-restore.sh && ./marten-codegen.sh RoadRegistry.BackOffice.Api
       use-packages-lock: false
     secrets: inherit
 
@@ -179,7 +179,7 @@ jobs:
       build-project: RoadRegistry.Projector
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
-      prerestore-script: ./pre-restore.sh
+      prerestore-script: ./pre-restore.sh && ./marten-codegen.sh RoadRegistry.Projector
       use-packages-lock: false
     secrets: inherit
 
@@ -196,7 +196,7 @@ jobs:
       build-project: RoadRegistry.Editor.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
-      prerestore-script: ./pre-restore.sh
+      prerestore-script: ./pre-restore.sh && ./marten-codegen.sh RoadRegistry.Editor.ProjectionHost
       use-packages-lock: false
     secrets: inherit
 
@@ -281,7 +281,7 @@ jobs:
       build-project: RoadRegistry.SyncHost
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
-      prerestore-script: ./pre-restore.sh
+      prerestore-script: ./pre-restore.sh && ./marten-codegen.sh RoadRegistry.SyncHost
       use-packages-lock: false
     secrets: inherit
 
@@ -347,7 +347,7 @@ jobs:
       build-project: RoadRegistry.BackOffice.Handlers.Sqs.Lambda
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_10 }}
-      prerestore-script: ./pre-restore.sh
+      prerestore-script: ./pre-restore.sh && ./marten-codegen.sh RoadRegistry.BackOffice.Handlers.Sqs.Lambda.CodeGen RoadRegistry.BackOffice.Handlers.Sqs.Lambda
       use-packages-lock: false
     secrets: inherit
 
