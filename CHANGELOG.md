@@ -1,3 +1,10 @@
+## [5.18.2](https://github.com/informatievlaanderen/road-registry/compare/v5.18.1...v5.18.2) (2026-09-15)
+
+
+### Performance Improvements
+
+* pre-generate the Marten code for the hosts and the backoffice lambda GAWR-7236 ([11198a5](https://github.com/informatievlaanderen/road-registry/commit/11198a5ea5dd41d53fe670df01f6148ef922a554))
+
 ## [5.18.1](https://github.com/informatievlaanderen/road-registry/compare/v5.18.0...v5.18.1) (2026-09-14)
 
 
