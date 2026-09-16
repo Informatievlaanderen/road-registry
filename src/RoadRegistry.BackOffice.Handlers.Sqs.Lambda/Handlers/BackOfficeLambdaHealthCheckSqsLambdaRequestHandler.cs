@@ -8,13 +8,16 @@ using Core;
 using Exceptions;
 using Hosts;
 using Infrastructure;
+using Marten;
 using Microsoft.Extensions.Logging;
 using Requests;
 using TicketingService.Abstractions;
+using MartenRoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 public sealed class BackOfficeLambdaHealthCheckSqsLambdaRequestHandler : SqsLambdaHandler<BackOfficeLambdaHealthCheckSqsLambdaRequest>
 {
     private readonly DistributedStreamStoreLockOptions _distributedStreamStoreLockOptions;
+    private readonly IDocumentStore _store;
 
     public BackOfficeLambdaHealthCheckSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -23,6 +26,7 @@ public sealed class BackOfficeLambdaHealthCheckSqsLambdaRequestHandler : SqsLamb
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
+        IDocumentStore store,
         ILogger<BackOfficeLambdaHealthCheckSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -33,6 +37,7 @@ public sealed class BackOfficeLambdaHealthCheckSqsLambdaRequestHandler : SqsLamb
             logger)
     {
         _distributedStreamStoreLockOptions = distributedStreamStoreLockOptions;
+        _store = store;
     }
 
     protected override async Task<object> InnerHandle(BackOfficeLambdaHealthCheckSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -55,6 +60,11 @@ public sealed class BackOfficeLambdaHealthCheckSqsLambdaRequestHandler : SqsLamb
             // test db connection
             await RoadRegistryContext.RoadNetworks.ForOutlinedRoadSegment(outlinedRoadSegment.Id, cancellationToken);
         }
+
+        // load a document from marten, so the code it generates for its documents is exercised as well - the code
+        // pre-generated into the function at build time (GAWR-7236), or generated at runtime when that is missing
+        await using var session = _store.QuerySession();
+        await session.Query<MartenRoadSegment>().FirstOrDefaultAsync(cancellationToken);
 
         return new {};
     }
