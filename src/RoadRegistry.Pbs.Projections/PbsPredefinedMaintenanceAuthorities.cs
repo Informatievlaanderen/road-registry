@@ -8,9 +8,10 @@ using Schema;
 using Schema.Records;
 
 // "andere" (-7) and "niet gekend" (-8) are maintenance authorities a road segment can carry without an organization
-// behind them, so no organization event ever puts them in the Wegbeheerder code list. They are seeded instead: by
-// PbsCodeListSyncService at startup, and again by the rebuild right after it truncated the table (the code list is
-// otherwise projection output). The organization projection leaves these two rows alone.
+// behind them, so no organization event ever puts them in the Wegbeheerder code list. They are seeded instead: when the
+// organization projection is initialized - a new read model, or one a rebuild emptied - and by PbsCodeListSyncService at
+// startup, for a read model that was projected before these rows existed. Otherwise the organization projection leaves
+// these two rows alone.
 public static class PbsPredefinedMaintenanceAuthorities
 {
     public static bool Contains(string? organisatieId)

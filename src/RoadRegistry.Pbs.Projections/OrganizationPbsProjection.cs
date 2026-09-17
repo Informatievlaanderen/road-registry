@@ -10,7 +10,7 @@ using RoadRegistry.Infrastructure.MartenDb.Projections;
 using Schema;
 using Schema.Records;
 
-public class OrganizationPbsProjection : RunnerDbContextRoadNetworkChangesProjection<PbsContext>
+public class OrganizationPbsProjection : RunnerDbContextRoadNetworkChangesProjection<PbsContext>, IInitializableRoadNetworkChangesProjection<PbsContext>
 {
     public OrganizationPbsProjection()
     {
@@ -45,6 +45,13 @@ public class OrganizationPbsProjection : RunnerDbContextRoadNetworkChangesProjec
                 context.RoadSegmentMaintenanceAuthorityCodeList.Remove(codeList);
             }
         });
+    }
+
+    // The Wegbeheerder code list is projection output, but its "andere" and "niet gekend" rows have no organization
+    // event behind them.
+    public Task InitializeAsync(PbsContext session, CancellationToken cancellationToken)
+    {
+        return PbsPredefinedMaintenanceAuthorities.SyncAsync(session, cancellationToken);
     }
 
     private static Task Insert(PbsContext context, string organisatieId, string? name, string? ovoCode, CancellationToken ct)

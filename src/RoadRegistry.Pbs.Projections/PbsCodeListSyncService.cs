@@ -15,8 +15,8 @@ using Schema.Records;
 // One-time sync of the enum-based code lists (the "xxxCodelijstxxx" tables) from the V2 domain into SQL Server.
 // These carry no events, so we diff the known code values against the table and apply smart CRUD (insert new,
 // update changed labels/definitions, delete removed) rather than truncate-and-reload. The Wegbeheerder code list is
-// event-driven (see OrganizationPbsProjection); only its predefined "andere" and "niet gekend" rows are synced here
-// (see PbsPredefinedMaintenanceAuthorities).
+// event-driven (see OrganizationPbsProjection); its predefined "andere" and "niet gekend" rows are synced
+// here as well, for a read model that was projected before they existed (see PbsPredefinedMaintenanceAuthorities).
 public sealed class PbsCodeListSyncService : IHostedService
 {
     private const int MaxAttempts = 20;

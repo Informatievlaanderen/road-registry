@@ -82,6 +82,15 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         {
             projectionState = new ProjectionStateItem { Name = ProjectionName };
             await context.ProjectionStates.AddAsync(projectionState, cancellationToken);
+
+            // No projection state means the projection starts from nothing: a new read model, or one a rebuild emptied
+            // (the rebuild removes the state row with the tables). The initialization commits with this first batch,
+            // so a batch that fails initializes again when it is retried.
+            foreach (var projection in _projections.OfType<IInitializableRoadNetworkChangesProjection<TDbContext>>())
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await projection.InitializeAsync(context, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         var position = projectionState.Position;
