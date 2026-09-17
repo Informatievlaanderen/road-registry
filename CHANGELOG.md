@@ -1,3 +1,11 @@
+## [5.18.3](https://github.com/informatievlaanderen/road-registry/compare/v5.18.2...v5.18.3) (2026-09-17)
+
+
+### Bug Fixes
+
+* **2.0:** sketch road segment testing feedback GAWR-7607, split/merge summary and 410 GAWR-7625 ([d7bf1cb](https://github.com/informatievlaanderen/road-registry/commit/d7bf1cb4a2dff087c7972e1259af02449205f169))
+* **lambda:** load a marten document in the backoffice lambda health check GAWR-7236 ([ea3f28a](https://github.com/informatievlaanderen/road-registry/commit/ea3f28a8e32c8238f286dfbe026a509abfc436fc))
+
 ## [5.18.2](https://github.com/informatievlaanderen/road-registry/compare/v5.18.1...v5.18.2) (2026-09-15)
 
 
