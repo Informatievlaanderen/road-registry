@@ -102,7 +102,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
         services
             .AddMartenRoad(options =>
             {
-                options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots();
+                options.AddRoadAggregatesSnapshots();
             }).Services
             .AddMartenDatabaseMigrator()
             .AddSingleton<IRoadNetworkIdGenerator>(new InMemoryRoadNetworkIdGenerator())

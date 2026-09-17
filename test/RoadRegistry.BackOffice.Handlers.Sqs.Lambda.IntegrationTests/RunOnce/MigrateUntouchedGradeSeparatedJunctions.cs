@@ -15,7 +15,6 @@ using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.Hosts;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
 using RoadRegistry.Infrastructure;
-using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.Infrastructure.MartenDb.Store;
 using RoadRegistry.ScopedRoadNetwork;
@@ -124,19 +123,19 @@ public class MigrateUntouchedGradeSeparatedJunctions
         }
     }
 
-    // The topology projection is inline, so it is as current as the aggregates. It only preselects: every candidate is
+    // The topology columns are generated from the aggregate documents, so they are as current as the aggregates. They only preselect: every candidate is
     // judged again on its aggregate before it is migrated.
     private static async Task<IReadOnlyList<GradeSeparatedJunctionId>> FindCandidates(IDocumentStore store)
     {
         await using var session = store.QuerySession();
 
         var ids = await session.Connection!.QueryAsync<int>($@"
-SELECT j.id
-FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j
-JOIN {RoadNetworkTopologyProjection.RoadSegmentsTableName} lower_segment ON lower_segment.id = j.lower_road_segment_id
-JOIN {RoadNetworkTopologyProjection.RoadSegmentsTableName} upper_segment ON upper_segment.id = j.upper_road_segment_id
-WHERE NOT j.is_v2 AND lower_segment.is_v2 AND upper_segment.is_v2
-ORDER BY j.id");
+SELECT j.grade_separated_junction_id
+FROM {RoadNetworkTopologyTables.GradeSeparatedJunctions} j
+JOIN {RoadNetworkTopologyTables.RoadSegments} lower_segment ON lower_segment.road_segment_id = j.lower_road_segment_id
+JOIN {RoadNetworkTopologyTables.RoadSegments} upper_segment ON upper_segment.road_segment_id = j.upper_road_segment_id
+WHERE NOT j.has_migrated AND lower_segment.has_migrated AND upper_segment.has_migrated
+ORDER BY j.grade_separated_junction_id");
 
         return ids.Select(x => new GradeSeparatedJunctionId(x)).ToList();
     }
@@ -274,7 +273,6 @@ ORDER BY j.id");
 
         services
             .AddMartenRoad(options => options
-                .AddRoadNetworkTopologyProjection()
                 .AddRoadAggregatesSnapshots()
                 .ConfigureExtractDocuments()).Services
             // Nothing is expected to draw a new id, but if something does it must not collide with the real network.

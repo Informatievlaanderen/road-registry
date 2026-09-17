@@ -4,7 +4,6 @@ using Dapper;
 using JasperFx.Events;
 using Marten;
 using NetTopologySuite.Geometries;
-using Projections;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
 
@@ -15,8 +14,8 @@ public class RoadNetworkRepository : IRoadNetworkRepository
     // (RoadSegmentFeatureCompareFeatureReader.ReadStatus), so anything else - gehistoreerd above all, which says
     // the road was opgeheven, samengevoegd or gesplitst - is left out, and so is everything removed.
     //
-    // A V1 road segment has no V2 status and is taken whatever state it is in; V1 removals delete the topology row,
-    // so a removed one is not there to begin with.
+    // A road segment that is not migrated yet is taken whatever its status: the one the aggregate carries was only
+    // derived from its geometry draw method when it was carried over from the legacy road network.
     //
     // The road nodes and the crossings come along per road segment, and each is left out when it is marked removed
     // itself: a crossing a merger or a split did away with still hangs off a road segment that is very much there.
@@ -61,8 +60,8 @@ input AS (
 */
 seed_segments AS (
   -- spatial
-  SELECT rs.id
-  FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
+  SELECT rs.road_segment_id AS id
+  FROM {RoadNetworkTopologyTables.RoadSegments} rs
   CROSS JOIN input i
   WHERE i.boundary_geom IS NOT NULL
     AND ST_Intersects(rs.geometry, i.boundary_geom)
@@ -70,18 +69,18 @@ seed_segments AS (
   UNION
 
   -- roadsegmentids
-  SELECT rs.id
-  FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
+  SELECT rs.road_segment_id
+  FROM {RoadNetworkTopologyTables.RoadSegments} rs
   CROSS JOIN input i
   WHERE i.roadsegmentids IS NOT NULL
     AND cardinality(i.roadsegmentids) > 0
-    AND rs.id = ANY(i.roadsegmentids)
+    AND rs.road_segment_id = ANY(i.roadsegmentids)
 
   UNION
 
   -- roadnodeids
-  SELECT rs.id
-  FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
+  SELECT rs.road_segment_id
+  FROM {RoadNetworkTopologyTables.RoadSegments} rs
   CROSS JOIN input i
   WHERE i.roadnodeids IS NOT NULL
     AND cardinality(i.roadnodeids) > 0
@@ -91,54 +90,54 @@ seed_segments AS (
 
   -- segments implied by gradeseparatedjunctionids
   SELECT j.upper_road_segment_id
-  FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j
+  FROM {RoadNetworkTopologyTables.GradeSeparatedJunctions} j
   CROSS JOIN input i
   WHERE i.gradeseparatedjunctionids IS NOT NULL
     AND cardinality(i.gradeseparatedjunctionids) > 0
-    AND j.id = ANY(i.gradeseparatedjunctionids)
+    AND j.grade_separated_junction_id = ANY(i.gradeseparatedjunctionids)
 
   UNION
 
   SELECT j.lower_road_segment_id
-  FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j
+  FROM {RoadNetworkTopologyTables.GradeSeparatedJunctions} j
   CROSS JOIN input i
   WHERE i.gradeseparatedjunctionids IS NOT NULL
     AND cardinality(i.gradeseparatedjunctionids) > 0
-    AND j.id = ANY(i.gradeseparatedjunctionids)
+    AND j.grade_separated_junction_id = ANY(i.gradeseparatedjunctionids)
 
   UNION
 
   -- segments implied by gradejunctionids
   SELECT j.road_segment_id_1
-  FROM {RoadNetworkTopologyProjection.GradeJunctionsTableName} j
+  FROM {RoadNetworkTopologyTables.GradeJunctions} j
   CROSS JOIN input i
   WHERE i.gradejunctionids IS NOT NULL
     AND cardinality(i.gradejunctionids) > 0
-    AND j.id = ANY(i.gradejunctionids)
+    AND j.grade_junction_id = ANY(i.gradejunctionids)
 
   UNION
 
   SELECT j.road_segment_id_2
-  FROM {RoadNetworkTopologyProjection.GradeJunctionsTableName} j
+  FROM {RoadNetworkTopologyTables.GradeJunctions} j
   CROSS JOIN input i
   WHERE i.gradejunctionids IS NOT NULL
     AND cardinality(i.gradejunctionids) > 0
-    AND j.id = ANY(i.gradejunctionids)
+    AND j.grade_junction_id = ANY(i.gradejunctionids)
 )
 
 SELECT
-  rs.id                     AS RoadSegmentId,
+  rs.road_segment_id                     AS RoadSegmentId,
   rs.start_node_id          AS StartNodeId,
   rs.end_node_id            AS EndNodeId,
-  gradeseparatedjunction.id AS GradeSeparatedJunctionId,
-  gradejunction.id          AS GradeJunctionId
+  gradeseparatedjunction.grade_separated_junction_id AS GradeSeparatedJunctionId,
+  gradejunction.grade_junction_id          AS GradeJunctionId
 FROM seed_segments es
-JOIN {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
-  ON rs.id = es.id
-LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} gradeseparatedjunction
-  ON gradeseparatedjunction.lower_road_segment_id = rs.id OR gradeseparatedjunction.upper_road_segment_id = rs.id
-LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
-  ON gradejunction.road_segment_id_1 = rs.id OR gradejunction.road_segment_id_2 = rs.id
+JOIN {RoadNetworkTopologyTables.RoadSegments} rs
+  ON rs.road_segment_id = es.id
+LEFT JOIN {RoadNetworkTopologyTables.GradeSeparatedJunctions} gradeseparatedjunction
+  ON gradeseparatedjunction.lower_road_segment_id = rs.road_segment_id OR gradeseparatedjunction.upper_road_segment_id = rs.road_segment_id
+LEFT JOIN {RoadNetworkTopologyTables.GradeJunctions} gradejunction
+  ON gradejunction.road_segment_id_1 = rs.road_segment_id OR gradejunction.road_segment_id_2 = rs.road_segment_id
 ";
         var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql,
             new
@@ -158,8 +157,7 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
         // migration has to be handed it - as removed, so it can cut the upload back against what the neighbour
         // already collected, rather than refuse the upload over a road node it cannot find.
         //
-        // The row is still there: a V2 removal only marks it. A V1 removal deletes it, so a V1 road node that is
-        // really gone stays out, as it should.
+        // The document is still there: a removal only marks it.
         var namedRoadNodeIds = await GetExistingRoadNodeIds(session, ids);
 
         return new RoadNetworkIds(
@@ -195,9 +193,9 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
         }
 
         var sql = $@"
-SELECT rn.id
-FROM {RoadNetworkTopologyProjection.RoadNodesTableName} rn
-WHERE rn.id = ANY(@roadnodeids)
+SELECT rn.road_node_id
+FROM {RoadNetworkTopologyTables.RoadNodes} rn
+WHERE rn.road_node_id = ANY(@roadnodeids)
 ";
         return (await session.Connection.QueryAsync<int>(sql,
             new
@@ -215,25 +213,25 @@ WHERE rn.id = ANY(@roadnodeids)
 
         var sql = $@"
 SELECT
-  rs.id                     AS RoadSegmentId,
-  startnode.id              AS StartNodeId,
-  endnode.id                AS EndNodeId,
-  gradeseparatedjunction.id AS GradeSeparatedJunctionId,
-  gradejunction.id          AS GradeJunctionId
-FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
-LEFT JOIN {RoadNetworkTopologyProjection.RoadNodesTableName} startnode
-  ON startnode.id = rs.start_node_id AND NOT startnode.is_removed
-LEFT JOIN {RoadNetworkTopologyProjection.RoadNodesTableName} endnode
-  ON endnode.id = rs.end_node_id AND NOT endnode.is_removed
-LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} gradeseparatedjunction
-  ON (gradeseparatedjunction.lower_road_segment_id = rs.id OR gradeseparatedjunction.upper_road_segment_id = rs.id)
+  rs.road_segment_id                     AS RoadSegmentId,
+  startnode.road_node_id              AS StartNodeId,
+  endnode.road_node_id                AS EndNodeId,
+  gradeseparatedjunction.grade_separated_junction_id AS GradeSeparatedJunctionId,
+  gradejunction.grade_junction_id          AS GradeJunctionId
+FROM {RoadNetworkTopologyTables.RoadSegments} rs
+LEFT JOIN {RoadNetworkTopologyTables.RoadNodes} startnode
+  ON startnode.road_node_id = rs.start_node_id AND NOT startnode.is_removed
+LEFT JOIN {RoadNetworkTopologyTables.RoadNodes} endnode
+  ON endnode.road_node_id = rs.end_node_id AND NOT endnode.is_removed
+LEFT JOIN {RoadNetworkTopologyTables.GradeSeparatedJunctions} gradeseparatedjunction
+  ON (gradeseparatedjunction.lower_road_segment_id = rs.road_segment_id OR gradeseparatedjunction.upper_road_segment_id = rs.road_segment_id)
   AND NOT gradeseparatedjunction.is_removed
-LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
-  ON (gradejunction.road_segment_id_1 = rs.id OR gradejunction.road_segment_id_2 = rs.id)
+LEFT JOIN {RoadNetworkTopologyTables.GradeJunctions} gradejunction
+  ON (gradejunction.road_segment_id_1 = rs.road_segment_id OR gradejunction.road_segment_id_2 = rs.road_segment_id)
   AND NOT gradejunction.is_removed
 WHERE ST_Intersects(rs.geometry, ST_SetSRID(ST_GeomFromText(@wkt), @srid))
   AND NOT rs.is_removed
-  AND (NOT rs.is_v2 OR rs.status = ANY(@statuses))
+  AND (NOT rs.has_migrated OR rs.status = ANY(@statuses))
 ";
         var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql,
             new
@@ -275,9 +273,9 @@ WHERE ST_Intersects(rs.geometry, ST_SetSRID(ST_GeomFromText(@wkt), @srid))
 
         var sql = @$"
 WITH requested AS (
-    SELECT rs.id, rs.start_node_id, rs.end_node_id
-    FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
-    WHERE rs.is_v2 AND rs.id IN ({string.Join(",", roadSegmentIds.Select(x => x.ToInt32()))})
+    SELECT rs.road_segment_id AS id, rs.start_node_id, rs.end_node_id
+    FROM {RoadNetworkTopologyTables.RoadSegments} rs
+    WHERE rs.has_migrated AND rs.road_segment_id IN ({string.Join(",", roadSegmentIds.Select(x => x.ToInt32()))})
 ),
 flat_ids AS (
     -- The road segments the caller named, knotted into the road network or not. An ingeschetst road segment has no
@@ -288,20 +286,20 @@ flat_ids AS (
     UNION
     -- And every road segment meeting one of them at a road node: what an action does to the one is a statement
     -- about the other.
-    SELECT other.id
+    SELECT other.road_segment_id AS id
     FROM requested
-    JOIN {RoadNetworkTopologyProjection.RoadSegmentsTableName} other ON other.is_v2 AND (
+    JOIN {RoadNetworkTopologyTables.RoadSegments} other ON other.has_migrated AND (
         requested.start_node_id = other.start_node_id
         OR requested.start_node_id = other.end_node_id
         OR requested.end_node_id = other.start_node_id
         OR requested.end_node_id = other.end_node_id
     )
 )
-SELECT rs.id as RoadSegmentId, rs.start_node_id as StartNodeId, rs.end_node_id as EndNodeId, gsj.id as GradeSeparatedJunctionId, gj.id as GradeJunctionId
-FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
-JOIN flat_ids f ON rs.id = f.id
-LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} gsj ON gsj.is_v2 AND (rs.id = gsj.upper_road_segment_id OR rs.id = gsj.lower_road_segment_id)
-LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2 AND (rs.id = gj.road_segment_id_1 OR rs.id = gj.road_segment_id_2)
+SELECT rs.road_segment_id as RoadSegmentId, rs.start_node_id as StartNodeId, rs.end_node_id as EndNodeId, gsj.grade_separated_junction_id as GradeSeparatedJunctionId, gj.grade_junction_id as GradeJunctionId
+FROM {RoadNetworkTopologyTables.RoadSegments} rs
+JOIN flat_ids f ON rs.road_segment_id = f.id
+LEFT JOIN {RoadNetworkTopologyTables.GradeSeparatedJunctions} gsj ON gsj.has_migrated AND (rs.road_segment_id = gsj.upper_road_segment_id OR rs.road_segment_id = gsj.lower_road_segment_id)
+LEFT JOIN {RoadNetworkTopologyTables.GradeJunctions} gj ON (rs.road_segment_id = gj.road_segment_id_1 OR rs.road_segment_id = gj.road_segment_id_2)
 ";
 
         var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql)).ToList();

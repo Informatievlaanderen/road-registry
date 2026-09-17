@@ -14,7 +14,6 @@ public static class MigrationModel
     {
         options.ConfigureReadDocuments();
         options.ConfigureExtractDocuments();
-        options.AddRoadNetworkTopologyProjection();
         options.AddRoadAggregatesSnapshots();
         options.ConfigureRoadNetworkChangesProgression();
         options.ConfigureMartenProjectionState();

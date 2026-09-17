@@ -243,8 +243,8 @@ public class WhenGetUnderlyingIdsForExtract : RoadNetworkIntegrationTest
         ids.RoadSegmentIds.Should().BeEquivalentTo([new RoadSegmentId(1), new RoadSegmentId(2)]);
     }
 
-    // Nothing that is marked removed lands in an extract, whatever kind of entity it is. The topology keeps the rows
-    // - see RoadNetworkTopologyProjection-EventsV2 - so every kind is filtered on its own mark.
+    // Nothing that is marked removed lands in an extract, whatever kind of entity it is. A removal only marks the
+    // aggregate document, so every kind is filtered on its own mark.
     [Fact]
     public async Task GivenRemovedEntities_ThenNoneOfThemInTheExtract()
     {
@@ -292,8 +292,8 @@ public class WhenGetUnderlyingIdsForExtract : RoadNetworkIntegrationTest
         ids.GradeJunctionIds.Should().BeEquivalentTo([new GradeJunctionId(1)]);
     }
 
-    // A V1 road segment has no V2 status and is taken into an extract whatever state it is in; a V1 removal deletes
-    // the topology row, so a removed one is not there to begin with.
+    // A road segment that is not migrated yet is taken into an extract whatever its status: the one its aggregate carries
+    // was only derived from the geometry draw method when it was carried over from the legacy road network.
     [Fact]
     public async Task GivenAV1RoadSegment_ThenInTheExtractWhateverItsStatus()
     {
@@ -303,16 +303,19 @@ public class WhenGetUnderlyingIdsForExtract : RoadNetworkIntegrationTest
 
         var geometry = BuildRoadSegmentGeometry(0, 0, 10, 0);
 
-        var v1RoadSegment = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V1.ImportedRoadSegment>();
-        v1RoadSegment.RoadSegmentId = 1;
-        v1RoadSegment.StartNodeId = 11;
-        v1RoadSegment.EndNodeId = 12;
-        v1RoadSegment.Geometry = geometry;
-        v1RoadSegment.Status = RoadSegmentStatus.OutOfUse;
+        // Stored the way MartenMigrationProjection carries a V1 road segment over: a document without attributes.
+        await using (var session = store.LightweightSession())
+        {
+            session.Store(RoadSegment.CreateForMigration(
+                new RoadSegmentId(1),
+                geometry.EnsureLambert08(),
+                RoadSegmentStatusV2.BuitenGebruik,
+                new RoadNodeId(11),
+                new RoadNodeId(12)));
+            await session.SaveChangesAsync();
+        }
 
-        await Append(store, 1, v1RoadSegment);
-
-        // A V1 road segment is stored in Lambert08 - the projection converts it - while the rest of this file works
+        // A V1 road segment is stored in Lambert08 - the migration converts it - while the rest of this file works
         // in the Lambert72 the test data is built in, so the contour has to be asked for in the same coordinates.
         var contour = geometry.EnsureLambert08().Value.Buffer(1).Envelope;
 

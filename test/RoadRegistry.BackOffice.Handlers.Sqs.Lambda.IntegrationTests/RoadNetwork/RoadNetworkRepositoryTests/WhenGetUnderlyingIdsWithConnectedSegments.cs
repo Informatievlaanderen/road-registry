@@ -62,6 +62,20 @@ public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationT
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), v1RoadSegment.RoadSegmentId), v1RoadSegment);
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), v1Junction.Id), v1Junction);
 
+            // As the migration of the legacy road network does: next to the legacy events it stores the aggregates they
+            // describe, which have not migrated yet.
+            session.Store(RoadSegment.CreateForMigration(
+                new RoadSegmentId(v1RoadSegment.RoadSegmentId),
+                BuildRoadSegmentGeometry(0, 0, 10, 0),
+                RoadSegmentStatusV2.Gerealiseerd,
+                new RoadNodeId(v1RoadNode1.RoadNodeId),
+                new RoadNodeId(v1RoadNode2.RoadNodeId)));
+            session.Store(GradeSeparatedJunction.CreateForMigration(
+                new GradeSeparatedJunctionId(v1Junction.Id),
+                new RoadSegmentId(v1Junction.LowerRoadSegmentId),
+                new RoadSegmentId(v1Junction.UpperRoadSegmentId),
+                null));
+
             var v2RoadNode1 = TestData.Fixture.Create<RoadRegistry.RoadNode.Events.V2.RoadNodeWasAdded>() with
             {
                 RoadNodeId = new RoadNodeId(11)
