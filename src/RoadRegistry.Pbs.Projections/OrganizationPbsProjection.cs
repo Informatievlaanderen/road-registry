@@ -34,6 +34,11 @@ public class OrganizationPbsProjection : RunnerDbContextRoadNetworkChangesProjec
                 context.OrganizationCache.Remove(cache);
             }
 
+            if (PbsPredefinedMaintenanceAuthorities.Contains(organisatieId))
+            {
+                return;
+            }
+
             var codeList = await context.RoadSegmentMaintenanceAuthorityCodeList.FindAsync([organisatieId], ct);
             if (codeList is not null)
             {
@@ -76,9 +81,15 @@ public class OrganizationPbsProjection : RunnerDbContextRoadNetworkChangesProjec
         await SyncCodeList(context, cache, ct);
     }
 
-    // The code list only holds the organizations that are a road maintainer; keep it in sync with the cache.
+    // The code list only holds the organizations that are a road maintainer; keep it in sync with the cache. The
+    // predefined "andere" and "niet gekend" rows are not organizations and are not this projection's to change.
     private static async Task SyncCodeList(PbsContext context, OrganizationCacheRecord cache, CancellationToken ct)
     {
+        if (PbsPredefinedMaintenanceAuthorities.Contains(cache.OrganisatieId))
+        {
+            return;
+        }
+
         var codeList = await context.RoadSegmentMaintenanceAuthorityCodeList.FindAsync([cache.OrganisatieId], ct);
 
         if (cache.IsWegbeheerder)

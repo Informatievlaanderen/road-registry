@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Projections.Tests.Projections.Pbs.Organization;
 
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -224,5 +225,70 @@ public class OrganizationPbsProjectionTests
 
         Assert.Null(await scenario.Find<OrganizationCacheRecord>(organizationId.ToString()));
         Assert.Null(await scenario.Find<RoadSegmentMaintenanceAuthorityCodeListRecord>(organizationId.ToString()));
+    }
+
+    [Fact]
+    public async Task WhenPredefinedMaintenanceAuthoritiesAreSynced_ThenAndereAndNietGekendAreInTheCodeList()
+    {
+        var scenario = Scenario();
+        await scenario.SeedAsync(context =>
+        {
+            context.RoadSegmentMaintenanceAuthorityCodeList.Add(new RoadSegmentMaintenanceAuthorityCodeListRecord
+            {
+                BEHEER = "-8",
+                LBLBEHEER = "outdated",
+                OVOCODE = "OVO000001"
+            });
+            return Task.CompletedTask;
+        });
+
+        await scenario.SeedAsync(context => PbsPredefinedMaintenanceAuthorities.SyncAsync(context, CancellationToken.None));
+
+        var codeList = await scenario.Query<RoadSegmentMaintenanceAuthorityCodeListRecord>();
+        Assert.Equal(2, codeList.Count);
+
+        var other = Assert.Single(codeList, x => x.BEHEER == "-7");
+        Assert.Equal("andere", other.LBLBEHEER);
+        Assert.Null(other.OVOCODE);
+
+        var unknown = Assert.Single(codeList, x => x.BEHEER == "-8");
+        Assert.Equal("niet gekend", unknown.LBLBEHEER);
+        Assert.Null(unknown.OVOCODE);
+    }
+
+    // "andere" and "niet gekend" are seeded, not projected: an organization event carrying their id leaves the code
+    // list as it is.
+    [Theory]
+    [InlineData("-7", "andere")]
+    [InlineData("-8", "niet gekend")]
+    public async Task WhenPredefinedMaintenanceAuthorityIsModifiedOrRemoved_ThenCodeListIsLeftAlone(string organisatieId, string label)
+    {
+        var scenario = Scenario();
+        await scenario.SeedAsync(context => PbsPredefinedMaintenanceAuthorities.SyncAsync(context, CancellationToken.None));
+
+        await scenario.GivenAsync(new OrganizationWasImported
+        {
+            OrganizationId = new OrganizationId(organisatieId),
+            Name = "Imported org",
+            Provenance = Provenance
+        });
+        await scenario.GivenAsync(new OrganizationWasModified
+        {
+            OrganizationId = new OrganizationId(organisatieId),
+            IsMaintainer = false,
+            Provenance = Provenance
+        });
+
+        var codeList = await scenario.Find<RoadSegmentMaintenanceAuthorityCodeListRecord>(organisatieId);
+        Assert.NotNull(codeList);
+        Assert.Equal(label, codeList!.LBLBEHEER);
+
+        await scenario.GivenAsync(new OrganizationWasRemoved
+        {
+            OrganizationId = new OrganizationId(organisatieId),
+            Provenance = Provenance
+        });
+
+        Assert.NotNull(await scenario.Find<RoadSegmentMaintenanceAuthorityCodeListRecord>(organisatieId));
     }
 }

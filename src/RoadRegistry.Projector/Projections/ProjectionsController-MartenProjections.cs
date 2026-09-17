@@ -288,6 +288,10 @@ public partial class ProjectionsController
         // restore them; everything else in the model is projection output and goes.
         await TruncateProjectionTables(context, nameof(RoadNetworkChangesPbsProjection),
             clrType => typeof(IEnumBasedCodeListRecord).IsAssignableFrom(clrType), cancellationToken);
+
+        // The Wegbeheerder code list went with it, including the predefined rows no replay brings back.
+        await PbsPredefinedMaintenanceAuthorities.SyncAsync(context, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     // The shadow read models, truncated through a context scoped to their own schema. Same tables, same rules - a
@@ -299,6 +303,9 @@ public partial class ProjectionsController
 
         await TruncateProjectionTables(context, nameof(RoadNetworkChangesPbsTempProjection),
             clrType => typeof(IEnumBasedCodeListRecord).IsAssignableFrom(clrType), cancellationToken);
+
+        await PbsPredefinedMaintenanceAuthorities.SyncAsync(context, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     private async Task TruncateWmsWfsV2TempReadModel(CancellationToken cancellationToken)
