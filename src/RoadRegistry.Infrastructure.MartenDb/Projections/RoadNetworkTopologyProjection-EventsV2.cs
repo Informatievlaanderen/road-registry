@@ -156,9 +156,14 @@ public partial class RoadNetworkTopologyProjection
 
     private static void ProjectDisconnected(IRoadSegmentWasDisconnectedEvent m, DateTimeOffset timestamp, IDocumentOperations ops)
     {
+        ProjectDisconnected(m.RoadSegmentId, timestamp, ops);
+    }
+
+    private static void ProjectDisconnected(RoadSegmentId roadSegmentId, DateTimeOffset timestamp, IDocumentOperations ops)
+    {
         // The segment came loose from its road nodes: NULL clears them, the empty wkt keeps the geometry.
         ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, '', 0, null, null, TRUE);",
-            m.RoadSegmentId.ToInt32(),
+            roadSegmentId.ToInt32(),
             timestamp
         );
     }
@@ -197,21 +202,10 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<RoadSegmentWasRetiredBecauseOfMerger> e, IDocumentOperations ops)
-    {
-        ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",
-            e.Data.RoadSegmentId.ToInt32(),
-            e.Timestamp
-        );
-    }
-
-    public void Project(IEvent<RoadSegmentWasRetiredBecauseOfSplit> e, IDocumentOperations ops)
-    {
-        ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",
-            e.Data.RoadSegmentId.ToInt32(),
-            e.Timestamp
-        );
-    }
+    // A segment retired by a merger or a split is historized, not removed: the aggregate keeps it - status gehistoreerd,
+    // no road nodes - so the topology keeps it as well, the same as a segment historized from realized.
+    public void Project(IEvent<RoadSegmentWasRetiredBecauseOfMerger> e, IDocumentOperations ops) => ProjectDisconnected(e.Data.RoadSegmentId, e.Timestamp, ops);
+    public void Project(IEvent<RoadSegmentWasRetiredBecauseOfSplit> e, IDocumentOperations ops) => ProjectDisconnected(e.Data.RoadSegmentId, e.Timestamp, ops);
 
     public void Project(IEvent<RoadSegmentWasSplit> e, IDocumentOperations ops)
     {
