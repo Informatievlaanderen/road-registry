@@ -622,6 +622,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"Wegbeheerder is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")
             },
             {
+                ProblemCode.RoadSegment.MaintenanceAuthority.NotOnBothSides, problem => new(problem.Severity, "WegbeheerderNietLangsBeideKanten",
+                    "Er werd geen wegbeheerder opgegeven langs beide kanten van de weg, over de ganse lengte van het wegsegment.")
+            },
+            {
                 ProblemCode.RoadSegment.MaintenanceAuthority.NotKnown, problem => new(problem.Severity, "WegbeheerderNietGekend",
                     $"De opgegeven wegbeheerdercode '{problem.GetParameterValue(MaintenanceAuthorityNotKnown.ParameterName.OrganizationId)}' komt niet overeen met een (OVO-code die correspondeert met een) code gekend door het Wegenregister.")
             },
@@ -801,7 +805,7 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.RoadSegment.StreetName.Left.NotValid, problem => new(problem.Severity, "LinkerstraatnaamNietCorrect",
-                    $"De linkstraatnaam '{problem.Parameters[0].Value}' is geen geldige waarde.")
+                    $"De linkerstraatnaam '{problem.Parameters[0].Value}' is geen geldige waarde.")
             },
 
             {
@@ -821,8 +825,16 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"De rechterstraatnaam voor het wegsegment met id {problem.GetParameterValue("SegmentId")} is niet gekend in het Straatnamenregister.")
             },
             {
-                ProblemCode.RoadSegment.StreetName.Right.NotValid, problem => new(problem.Severity, "LinkerstraatnaamNietCorrect",
-                    $"De linkstraatnaam '{problem.Parameters[0].Value}' is geen geldige waarde.")
+                ProblemCode.RoadSegment.StreetName.Right.NotValid, problem => new(problem.Severity, "RechterstraatnaamNietCorrect",
+                    $"De rechterstraatnaam '{problem.Parameters[0].Value}' is geen geldige waarde.")
+            },
+            {
+                ProblemCode.RoadSegment.StreetName.NotValid, problem => new(problem.Severity, "StraatnaamNietCorrect",
+                    $"De straatnaam '{problem.Parameters[0].Value}' is geen geldige waarde.")
+            },
+            {
+                ProblemCode.RoadSegment.StreetName.NotOnBothSides, problem => new(problem.Severity, "StraatnaamNietLangsBeideKanten",
+                    "Er werd geen straatnaam opgegeven langs beide kanten van de weg, over de ganse lengte van het wegsegment.")
             },
 
             // {
@@ -1017,7 +1029,7 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
-                    $"De van ({problem.Parameters[0].Value}) en tot positie ({problem.Parameters[1].Value}) van een toegangsbeperking attribuut heeft lengte 0.")
+                    $"De totPositie ({problem.Parameters[1].Value}) ligt minder dan 1m verwijderd van de vanPositie ({problem.Parameters[0].Value}) voor het attribuut 'toegang'.")
             },
             {
                 ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
@@ -1056,7 +1068,7 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
-                    $"De van ({problem.Parameters[0].Value}) en tot positie ({problem.Parameters[1].Value}) van een categorie attribuut heeft lengte 0.")
+                    $"De totPositie ({problem.Parameters[1].Value}) ligt minder dan 1m verwijderd van de vanPositie ({problem.Parameters[0].Value}) voor het attribuut 'wegcategorie'.")
             },
             {
                 ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
@@ -1161,7 +1173,7 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
-                    $"De van ({problem.Parameters[0].Value}) en tot positie ({problem.Parameters[1].Value}) van een auto richting attribuut heeft lengte 0.")
+                    $"De totPositie ({problem.Parameters[1].Value}) ligt minder dan 1m verwijderd van de vanPositie ({problem.Parameters[0].Value}) voor het attribuut 'verkeerstypeAuto'.")
             },
             {
                 ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
@@ -1196,7 +1208,7 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
-                    $"De van ({problem.Parameters[0].Value}) en tot positie ({problem.Parameters[1].Value}) van een fiets richting attribuut heeft lengte 0.")
+                    $"De totPositie ({problem.Parameters[1].Value}) ligt minder dan 1m verwijderd van de vanPositie ({problem.Parameters[0].Value}) voor het attribuut 'verkeerstypeFiets'.")
             },
             {
                 ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
@@ -1231,7 +1243,7 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
-                    $"De van ({problem.Parameters[0].Value}) en tot positie ({problem.Parameters[1].Value}) van een voetgangers richting attribuut heeft lengte 0.")
+                    $"De totPositie ({problem.Parameters[1].Value}) ligt minder dan 1m verwijderd van de vanPositie ({problem.Parameters[0].Value}) voor het attribuut 'verkeerstypeVoetganger'.")
             },
             {
                 ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
@@ -1332,7 +1344,7 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
-                    $"De van ({problem.Parameters[0].Value}) en tot positie ({problem.Parameters[1].Value}) van een morfologie attribuut heeft lengte 0.")
+                    $"De totPositie ({problem.Parameters[1].Value}) ligt minder dan 1m verwijderd van de vanPositie ({problem.Parameters[0].Value}) voor het attribuut 'morfologie'.")
             },
             {
                 ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
@@ -1394,7 +1406,7 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
-                    $"De van ({problem.Parameters[0].Value}) en tot positie ({problem.Parameters[1].Value}) van een straatnaam attribuut heeft lengte 0.")
+                    $"De totPositie ({problem.Parameters[1].Value}) ligt minder dan 1m verwijderd van de vanPositie ({problem.Parameters[0].Value}) voor het attribuut 'straatnaam'.")
             },
             {
                 ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
@@ -1421,7 +1433,7 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
-                    $"De van ({problem.Parameters[0].Value}) en tot positie ({problem.Parameters[1].Value}) van een wegbeheerder attribuut heeft lengte 0.")
+                    $"De totPositie ({problem.Parameters[1].Value}) ligt minder dan 1m verwijderd van de vanPositie ({problem.Parameters[0].Value}) voor het attribuut 'wegbeheerder'.")
             },
             {
                 ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,
@@ -1448,7 +1460,7 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             },
             {
                 ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
-                    $"De van ({problem.Parameters[0].Value}) en tot positie ({problem.Parameters[1].Value}) van een wegverharding attribuut heeft lengte 0.")
+                    $"De totPositie ({problem.Parameters[1].Value}) ligt minder dan 1m verwijderd van de vanPositie ({problem.Parameters[0].Value}) voor het attribuut 'wegverharding'.")
             },
             {
                 ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes.NotAdjacent, problem => new(problem.Severity, problem.Reason,

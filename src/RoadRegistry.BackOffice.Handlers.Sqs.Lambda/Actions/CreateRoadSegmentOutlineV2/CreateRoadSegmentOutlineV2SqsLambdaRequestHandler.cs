@@ -81,8 +81,10 @@ public sealed class CreateRoadSegmentOutlineV2SqsLambdaRequestHandler : MartenSq
                 maintenanceAuthorityIdMapping.Add(maintenanceAuthorityId, actualMaintenanceAuthorityId);
             }
 
+            // 'niet van toepassing' is not a street name, so there is nothing to look up in the street name registry.
             var streetNameIds = command.StreetNameId
                 .Select(x => x.StreetNameId)
+                .Where(x => x > 0)
                 .Distinct()
                 .ToArray();
             var streetNameIdProblemsCollection = await Task.WhenAll(streetNameIds.Select(streetNameId => ValidateStreetNameId(streetNameId, cancellationToken)));

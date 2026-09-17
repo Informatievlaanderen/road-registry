@@ -184,6 +184,15 @@ public class AggregateTests : AggregateTestBase
 
         var summary = roadNetwork.GetChanges().OfType<RoadNetworkWasChanged>().Should().ContainSingle().Which.Summary;
         summary.RoadNodes.Removed.Should().BeEquivalentTo([MiddleNodeId]);
+
+        // The road segments retired by the merge had a status change: they are reported as modified, not removed.
+        var retiredRoadSegmentIds = roadNetwork.RoadSegments.Values
+            .Where(x => x.GetChanges().OfType<RoadSegmentWasRetiredBecauseOfMerger>().Any())
+            .Select(x => x.RoadSegmentId.ToInt32())
+            .ToArray();
+        retiredRoadSegmentIds.Should().NotBeEmpty();
+        summary.RoadSegments.Modified.Should().Contain(retiredRoadSegmentIds);
+        summary.RoadSegments.Removed.Should().BeEmpty();
     }
 
     // The pairs are the roads across from one another, not the neighbours: the second road you cross walking a circle

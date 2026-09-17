@@ -90,11 +90,14 @@ public class GivenTwoCrossingRoadSegments : BackOfficeLambdaTest
 
         await HandleRequest(CreateSqsRequest(Segment1Id, Segment2Id), store, roadNetworkRepository);
 
-        // Both segments are split at the crossing into four resulting parts (added and/or modified in place), meeting
-        // at the single new shared road node.
+        // Both segments are cut halfway at the crossing, so both originals are historized and four new parts are added,
+        // meeting at the single new shared road node. Historizing is a status change, so the originals are reported as
+        // modified rather than removed.
         completedResult.Should().NotBeNull();
         completedResult.Summary.HasChanges.Should().BeTrue();
-        (completedResult.Summary.RoadSegments.Added.Count + completedResult.Summary.RoadSegments.Modified.Count).Should().Be(4);
+        completedResult.Summary.RoadSegments.Added.Should().HaveCount(4);
+        completedResult.Summary.RoadSegments.Modified.Should().BeEquivalentTo([Segment1Id.ToInt32(), Segment2Id.ToInt32()]);
+        completedResult.Summary.RoadSegments.Removed.Should().BeEmpty();
         completedResult.Summary.RoadNodes.Added.Should().ContainSingle();
     }
 

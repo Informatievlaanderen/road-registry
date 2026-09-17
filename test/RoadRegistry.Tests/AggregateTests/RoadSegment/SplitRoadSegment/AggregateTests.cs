@@ -78,6 +78,11 @@ public class AggregateTests : AggregateTestBase
 
         newSegments.Should().OnlyContain(x => x.GetChanges().OfType<RoadSegmentWasAdded>().Any());
 
+        // Historizing the original is a status change: it is reported as modified, never as removed.
+        roadNetwork.SummaryOfLastChange!.RoadSegments.Modified.Should().BeEquivalentTo([originalRoadSegmentId]);
+        roadNetwork.SummaryOfLastChange.RoadSegments.Added.Should().BeEquivalentTo(newSegments.Select(x => x.RoadSegmentId));
+        roadNetwork.SummaryOfLastChange.RoadSegments.Removed.Should().BeEmpty();
+
         // A new road node (validatieknoop) is inserted at the cut position (50, 50).
         var originalNodeIds = new[] { TestData.Segment1StartNodeAdded.RoadNodeId, TestData.Segment1EndNodeAdded.RoadNodeId };
         var roadNodes = roadNetwork.GetNonRemovedRoadNodes().ToList();

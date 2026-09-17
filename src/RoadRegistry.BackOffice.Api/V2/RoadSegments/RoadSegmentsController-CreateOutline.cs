@@ -75,8 +75,12 @@ public partial class RoadSegmentsController
             var parsedGeometry = GeometryTranslator.ParseGmlLineString(parameters.WegsegmentGeometrie);
             var geometryLength = parsedGeometry.Length;
 
-            double ResolveToPosition(double totPositie) =>
-                totPositie == 0 ? geometryLength : totPositie;
+            // A missing vanPositie means the start of the segment and a missing totPositie its end. A totPositie of 0
+            // still means the end as well, as it did before null was accepted.
+            RoadSegmentPositionV2 ResolveFromPosition(double? vanPositie) =>
+                new(vanPositie ?? 0);
+            RoadSegmentPositionV2 ResolveToPosition(double? totPositie) =>
+                new(totPositie is null || totPositie.Value.RoundToCm().Equals(0.0) ? geometryLength : totPositie.Value);
 
             var sqsRequest = new CreateRoadSegmentOutlineV2SqsRequest
             {
@@ -87,24 +91,24 @@ public partial class RoadSegmentsController
                 Morphology = parameters.Morfologie
                     .Select(x => new ChangeRoadSegmentMorphologyAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
+                        FromPosition = ResolveFromPosition(x.VanPositie),
+                        ToPosition = ResolveToPosition(x.TotPositie),
                         Morphology = RoadSegmentMorphologyV2.ParseUsingDutchName(x.Morfologie)
                     })
                     .ToArray(),
                 SurfaceType = parameters.Wegverharding
                     .Select(x => new ChangeRoadSegmentSurfaceTypeAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
+                        FromPosition = ResolveFromPosition(x.VanPositie),
+                        ToPosition = ResolveToPosition(x.TotPositie),
                         SurfaceType = RoadSegmentSurfaceTypeV2.ParseUsingDutchName(x.Wegverharding)
                     })
                     .ToArray(),
                 AccessRestriction = parameters.Toegang
                     .Select(x => new ChangeRoadSegmentAccessRestrictionAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
+                        FromPosition = ResolveFromPosition(x.VanPositie),
+                        ToPosition = ResolveToPosition(x.TotPositie),
                         AccessRestriction = RoadSegmentAccessRestrictionV2.ParseUsingDutchName(x.Toegang)
                     })
                     .ToArray(),
@@ -112,49 +116,49 @@ public partial class RoadSegmentsController
                     .Select(x => new ChangeRoadSegmentStreetNameIdAttributeValue
                     {
                         Side = RoadSegmentAttributeSide.ParseUsingDutchName(x.Kant),
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
-                        StreetNameId = new StreetNameLocalId(x.Identificator.GetIdentifierFromPuri())
+                        FromPosition = ResolveFromPosition(x.VanPositie),
+                        ToPosition = ResolveToPosition(x.TotPositie),
+                        StreetNameId = ParseStreetNameLocalId(x.Identificator)
                     })
                     .ToArray(),
                 MaintenanceAuthorityId = parameters.Wegbeheerder
                     .Select(x => new ChangeRoadSegmentMaintenanceAuthorityIdAttributeValue
                     {
                         Side = RoadSegmentAttributeSide.ParseUsingDutchName(x.Kant),
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
+                        FromPosition = ResolveFromPosition(x.VanPositie),
+                        ToPosition = ResolveToPosition(x.TotPositie),
                         MaintenanceAuthorityId = new OrganizationId(x.Wegbeheerder)
                     })
                     .ToArray(),
                 Category = parameters.Wegcategorie
                     .Select(x => new ChangeRoadSegmentCategoryAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
+                        FromPosition = ResolveFromPosition(x.VanPositie),
+                        ToPosition = ResolveToPosition(x.TotPositie),
                         Category = RoadSegmentCategoryV2.ParseUsingDutchName(x.Wegcategorie)
                     })
                     .ToArray(),
                 CarTrafficDirection = parameters.VerkeerstypeAuto
                     .Select(x => new ChangeRoadSegmentCarTrafficDirectionAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
+                        FromPosition = ResolveFromPosition(x.VanPositie),
+                        ToPosition = ResolveToPosition(x.TotPositie),
                         TrafficDirection = RoadSegmentTrafficDirection.ParseUsingDutchName(x.Richting)
                     })
                     .ToArray(),
                 BikeTrafficDirection = parameters.VerkeerstypeFiets
                     .Select(x => new ChangeRoadSegmentBikeTrafficDirectionAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
+                        FromPosition = ResolveFromPosition(x.VanPositie),
+                        ToPosition = ResolveToPosition(x.TotPositie),
                         TrafficDirection = RoadSegmentTrafficDirection.ParseUsingDutchName(x.Richting)
                     })
                     .ToArray(),
                 PedestrianTrafficDirection = parameters.VerkeerstypeVoetganger
                     .Select(x => new ChangeRoadSegmentPedestrianTrafficDirectionAttributeValue
                     {
-                        FromPosition = new RoadSegmentPositionV2(x.VanPositie),
-                        ToPosition = new RoadSegmentPositionV2(ResolveToPosition(x.TotPositie)),
+                        FromPosition = ResolveFromPosition(x.VanPositie),
+                        ToPosition = ResolveToPosition(x.TotPositie),
                         TrafficDirection = RoadSegmentPedestrianTrafficDirection.ParseUsingDutchName(x.Richting)
                     })
                     .ToArray(),
@@ -167,6 +171,13 @@ public partial class RoadSegmentsController
         {
             return Accepted();
         }
+    }
+
+    private static StreetNameLocalId ParseStreetNameLocalId(string identificator)
+    {
+        return StreetNameLocalId.TryParseUsingDutchName(identificator, out var streetNameLocalId) && streetNameLocalId == StreetNameLocalId.NotApplicable
+            ? StreetNameLocalId.NotApplicable
+            : new StreetNameLocalId(identificator.GetIdentifierFromPuri());
     }
 }
 
@@ -197,21 +208,21 @@ public record CreateOutlinedRoadSegmentV2Parameters
     /// </summary>
     [DataMember(Name = "Morfologie", Order = 3)]
     [JsonProperty(Required = Required.Always)]
-    public WegsegmentMorfologieAttribuutWaarde[] Morfologie { get; set; }
+    public MorfologieParameters[] Morfologie { get; set; }
 
     /// <summary>
     ///     Lineair gerefereerd attribuut dat aangeeft welk type verharding van toepassing is op de weg.
     /// </summary>
     [DataMember(Name = "Wegverharding", Order = 4)]
     [JsonProperty(Required = Required.Always)]
-    public WegsegmentWegverhardingAttribuutWaarde[] Wegverharding { get; set; }
+    public WegverhardingParameters[] Wegverharding { get; set; }
 
     /// <summary>
     ///     Lineair gerefereerd attribuut dat aangeeft in welke mate een weg toegankelijk is voor weggebruikers in het algemeen, ongeacht het type weggebruiker (voetgangers, fietsers, etc.).
     /// </summary>
     [DataMember(Name = "Toegang", Order = 5)]
     [JsonProperty(Required = Required.Always)]
-    public WegsegmentToegangAttribuutWaarde[] Toegang { get; set; }
+    public ToegangParameters[] Toegang { get; set; }
 
     /// <summary>
     ///     De straatnaam uit het Adressenregister gekoppeld aan het wegsegment.
@@ -232,102 +243,76 @@ public record CreateOutlinedRoadSegmentV2Parameters
     /// </summary>
     [DataMember(Name = "Wegcategorie", Order = 8)]
     [JsonProperty(Required = Required.Always)]
-    public WegsegmentWegcategorieAttribuutWaarde[] Wegcategorie { get; set; }
+    public WegcategorieParameters[] Wegcategorie { get; set; }
 
     /// <summary>
     ///     Lineair gerefereerd attribuut dat aangeeft in welke richting het wegsegment toegankelijk is voor auto’s.
     /// </summary>
     [DataMember(Name = "VerkeerstypeAuto", Order = 9)]
     [JsonProperty(Required = Required.Always)]
-    public WegsegmentVerkeerstypeAutoAttribuutWaarde[] VerkeerstypeAuto { get; set; }
+    public VerkeerstypeParameters[] VerkeerstypeAuto { get; set; }
 
     /// <summary>
     ///     Lineair gerefereerd attribuut dat aangeeft in welke richting het wegsegment toegankelijk is voor fietsers.
     /// </summary>
     [DataMember(Name = "VerkeerstypeFiets", Order = 10)]
     [JsonProperty(Required = Required.Always)]
-    public WegsegmentVerkeerstypeFietsAttribuutWaarde[] VerkeerstypeFiets { get; set; }
+    public VerkeerstypeParameters[] VerkeerstypeFiets { get; set; }
 
     /// <summary>
     ///     Lineair gerefereerd attribuut dat aangeeft of het wegsegment toegankelijk is voor voetgangers.
     /// </summary>
     [DataMember(Name = "VerkeerstypeVoetganger", Order = 11)]
     [JsonProperty(Required = Required.Always)]
-    public WegsegmentVerkeerstypeVoetgangerAttribuutWaarde[] VerkeerstypeVoetganger { get; set; }
+    public VerkeerstypeVoetgangerParameters[] VerkeerstypeVoetganger { get; set; }
 }
+
+// Like the attribute values of the change attributes and change geometry endpoints, vanPositie and totPositie may be
+// left out (or null) while the value itself is required, so a request missing it is refused as invalid JSON. Unlike
+// there, kant is required as well.
 
 /// <summary>
 ///     De straatnaam die geldt voor een bepaald deel en een bepaalde kant van het ingeschetste wegsegment.
 /// </summary>
-[DataContract(Name = "IngeschetstWegsegmentStraatnaamAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("IngeschetstWegsegmentStraatnaamAttribuutWaarde")]
-public class IngeschetstWegsegmentStraatnaamAttribuutWaarde
+public record IngeschetstWegsegmentStraatnaamAttribuutWaarde : VanTotParameters
 {
     /// <summary>
-    /// Kant waarop het attribuut van toepassing is.
+    ///     Kant waarop het attribuut van toepassing is.
     /// </summary>
-    [DataMember(Name = "Kant", Order = 1)]
-    [JsonProperty(Required = Required.DisallowNull)]
+    [DataMember(Name = "kant", Order = 0)]
+    [JsonProperty("kant", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
-    public required string Kant { get; set; }
+    public string Kant { get; set; }
 
     /// <summary>
-    /// Positie vanaf waar het attribuut van toepassing is.
+    ///     Identificator van de straatnaam uit het Adressenregister, of 'niet van toepassing'.
     /// </summary>
-    [DataMember(Name = "VanPositie", Order = 2)]
-    [JsonProperty(Required = Required.DisallowNull)]
-    public required double VanPositie { get; set; }
-
-    /// <summary>
-    /// Positie tot waar het attribuut van toepassing is.
-    /// </summary>
-    [DataMember(Name = "TotPositie", Order = 3)]
-    [JsonProperty(Required = Required.DisallowNull)]
-    public required double TotPositie { get; set; }
-
-    /// <summary>
-    /// Identificator van de straatnaam.
-    /// </summary>
-    [DataMember(Name = "Identificator", Order = 4)]
-    [JsonProperty(Required = Required.DisallowNull)]
-    public required string Identificator { get; set; }
+    [DataMember(Name = "identificator", Order = 3)]
+    [JsonProperty("identificator", Required = Required.Always)]
+    public string Identificator { get; set; }
 }
 
 /// <summary>
 ///     De wegbeheerder die geldt voor een bepaald deel en een bepaalde kant van het ingeschetste wegsegment.
 /// </summary>
-[DataContract(Name = "IngeschetstWegsegmentWegbeheerderAttribuutWaarde", Namespace = "")]
 [CustomSwaggerSchemaId("IngeschetstWegsegmentWegbeheerderAttribuutWaarde")]
-public class IngeschetstWegsegmentWegbeheerderAttribuutWaarde
+public record IngeschetstWegsegmentWegbeheerderAttribuutWaarde : VanTotParameters
 {
     /// <summary>
-    /// Kant waarop het attribuut van toepassing is.
+    ///     Kant waarop het attribuut van toepassing is.
     /// </summary>
-    [DataMember(Name = "Kant", Order = 1)]
-    [JsonProperty(Required = Required.DisallowNull)]
+    [DataMember(Name = "kant", Order = 0)]
+    [JsonProperty("kant", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
-    public required string Kant { get; set; }
+    public string Kant { get; set; }
 
     /// <summary>
-    /// Positie vanaf waar het attribuut van toepassing is.
+    ///     Organisatiecode van de wegbeheerder.
     /// </summary>
-    [DataMember(Name = "VanPositie", Order = 2)]
-    [JsonProperty(Required = Required.DisallowNull)]
-    public required double VanPositie { get; set; }
-
-    /// <summary>
-    /// Positie tot waar het attribuut van toepassing is.
-    /// </summary>
-    [DataMember(Name = "TotPositie", Order = 3)]
-    [JsonProperty(Required = Required.DisallowNull)]
-    public required double TotPositie { get; set; }
-
-    /// <summary>
-    /// Organisatiecode van de wegbeheerder.
-    /// </summary>
-    [DataMember(Name = "Wegbeheerder", Order = 4)]
-    [JsonProperty(Required = Required.DisallowNull)]
-    public required string Wegbeheerder { get; set; }
+    [DataMember(Name = "wegbeheerder", Order = 3)]
+    [JsonProperty("wegbeheerder", Required = Required.Always)]
+    public string Wegbeheerder { get; set; }
 }
 
 public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<CreateOutlinedRoadSegmentV2Parameters>
@@ -385,7 +370,7 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         {
             RuleFor(x => x.Morfologie).Custom((items, ctx) => AddFailures(ctx,
                 RoadSegmentAttributePositionsValidator.Validate(
-                    (items ?? []).Select(x => ((double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    (items ?? []).Select(x => (x.VanPositie, ToPositie(x.TotPositie))),
                     nameof(CreateOutlinedRoadSegmentV2Parameters.Morfologie),
                     GetGeometryLength(ctx.InstanceToValidate),
                     ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes)));
@@ -414,7 +399,7 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         {
             RuleFor(x => x.Wegverharding).Custom((items, ctx) => AddFailures(ctx,
                 RoadSegmentAttributePositionsValidator.Validate(
-                    (items ?? []).Select(x => ((double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    (items ?? []).Select(x => (x.VanPositie, ToPositie(x.TotPositie))),
                     nameof(CreateOutlinedRoadSegmentV2Parameters.Wegverharding),
                     GetGeometryLength(ctx.InstanceToValidate),
                     ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes)));
@@ -443,7 +428,7 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         {
             RuleFor(x => x.Toegang).Custom((items, ctx) => AddFailures(ctx,
                 RoadSegmentAttributePositionsValidator.Validate(
-                    (items ?? []).Select(x => ((double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    (items ?? []).Select(x => (x.VanPositie, ToPositie(x.TotPositie))),
                     nameof(CreateOutlinedRoadSegmentV2Parameters.Toegang),
                     GetGeometryLength(ctx.InstanceToValidate),
                     ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes)));
@@ -466,22 +451,36 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
                         .WithProblemCode(ProblemCode.RoadSegment.AttributeSide.NotValid)
                     .Must(RoadSegmentAttributeSide.CanParseUsingDutchName)
                         .WithProblemCode(ProblemCode.RoadSegment.AttributeSide.NotValid);
-                item.RuleFor(x => x.Identificator)
-                    .Cascade(CascadeMode.Stop)
-                    .NotEmpty()
-                        .WithProblemCode(ProblemCode.RoadSegment.StreetName.Left.NotValid)
-                    .MustBeValidStreetNameId(allowNotApplicable: true)
-                        .WithProblemCode(ProblemCode.RoadSegment.StreetName.Left.NotValid);
+                // The problem names the side the identificator was given for. With a kant that is missing or unknown
+                // (reported on its own) the side is unknown, so the identificator is checked without one.
+                foreach (var (side, notValidProblemCode) in new[]
+                         {
+                             (RoadSegmentAttributeSide.Links, ProblemCode.RoadSegment.StreetName.Left.NotValid),
+                             (RoadSegmentAttributeSide.Rechts, ProblemCode.RoadSegment.StreetName.Right.NotValid),
+                             ((RoadSegmentAttributeSide?)null, ProblemCode.RoadSegment.StreetName.NotValid)
+                         })
+                {
+                    item.RuleFor(x => x.Identificator)
+                        .Cascade(CascadeMode.Stop)
+                        .NotEmpty()
+                            .WithProblemCode(notValidProblemCode)
+                        .MustBeValidStreetNameId(allowNotApplicable: true)
+                            .WithProblemCode(notValidProblemCode)
+                        .When(x => ParseSideOrNull(x.Kant) is var kant && (side is null
+                            ? kant is null || kant == RoadSegmentAttributeSide.Beide
+                            : kant == side));
+                }
             });
         });
         When(IsGeometryValid, () =>
         {
             RuleFor(x => x.Straatnaam).Custom((items, ctx) => AddFailures(ctx,
                 RoadSegmentAttributePositionsValidator.ValidateSided(
-                    (items ?? []).Select(x => ((string?)x.Kant, (double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    (items ?? []).Select(x => ((string?)x.Kant, x.VanPositie, ToPositie(x.TotPositie))),
                     nameof(CreateOutlinedRoadSegmentV2Parameters.Straatnaam),
                     GetGeometryLength(ctx.InstanceToValidate),
-                    ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes)));
+                    ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes,
+                    ProblemCode.RoadSegment.StreetName.NotOnBothSides)));
         });
 
         // Wegbeheerder
@@ -516,10 +515,11 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         {
             RuleFor(x => x.Wegbeheerder).Custom((items, ctx) => AddFailures(ctx,
                 RoadSegmentAttributePositionsValidator.ValidateSided(
-                    (items ?? []).Select(x => ((string?)x.Kant, (double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    (items ?? []).Select(x => ((string?)x.Kant, x.VanPositie, ToPositie(x.TotPositie))),
                     nameof(CreateOutlinedRoadSegmentV2Parameters.Wegbeheerder),
                     GetGeometryLength(ctx.InstanceToValidate),
-                    ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes)));
+                    ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes,
+                    ProblemCode.RoadSegment.MaintenanceAuthority.NotOnBothSides)));
         });
 
         // Wegcategorie
@@ -545,7 +545,7 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         {
             RuleFor(x => x.Wegcategorie).Custom((items, ctx) => AddFailures(ctx,
                 RoadSegmentAttributePositionsValidator.Validate(
-                    (items ?? []).Select(x => ((double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    (items ?? []).Select(x => (x.VanPositie, ToPositie(x.TotPositie))),
                     nameof(CreateOutlinedRoadSegmentV2Parameters.Wegcategorie),
                     GetGeometryLength(ctx.InstanceToValidate),
                     ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes)));
@@ -574,7 +574,7 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         {
             RuleFor(x => x.VerkeerstypeAuto).Custom((items, ctx) => AddFailures(ctx,
                 RoadSegmentAttributePositionsValidator.Validate(
-                    (items ?? []).Select(x => ((double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    (items ?? []).Select(x => (x.VanPositie, ToPositie(x.TotPositie))),
                     nameof(CreateOutlinedRoadSegmentV2Parameters.VerkeerstypeAuto),
                     GetGeometryLength(ctx.InstanceToValidate),
                     ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes)));
@@ -603,7 +603,7 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         {
             RuleFor(x => x.VerkeerstypeFiets).Custom((items, ctx) => AddFailures(ctx,
                 RoadSegmentAttributePositionsValidator.Validate(
-                    (items ?? []).Select(x => ((double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    (items ?? []).Select(x => (x.VanPositie, ToPositie(x.TotPositie))),
                     nameof(CreateOutlinedRoadSegmentV2Parameters.VerkeerstypeFiets),
                     GetGeometryLength(ctx.InstanceToValidate),
                     ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes)));
@@ -632,12 +632,15 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
         {
             RuleFor(x => x.VerkeerstypeVoetganger).Custom((items, ctx) => AddFailures(ctx,
                 RoadSegmentAttributePositionsValidator.Validate(
-                    (items ?? []).Select(x => ((double?)x.VanPositie, ToPositie(x.TotPositie))),
+                    (items ?? []).Select(x => (x.VanPositie, ToPositie(x.TotPositie))),
                     nameof(CreateOutlinedRoadSegmentV2Parameters.VerkeerstypeVoetganger),
                     GetGeometryLength(ctx.InstanceToValidate),
                     ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes)));
         });
     }
+
+    private static RoadSegmentAttributeSide? ParseSideOrNull(string? kant)
+        => kant is not null && RoadSegmentAttributeSide.CanParseUsingDutchName(kant) ? RoadSegmentAttributeSide.ParseUsingDutchName(kant) : null;
 
     private static bool IsGeometryValid(CreateOutlinedRoadSegmentV2Parameters x)
         => x.WegsegmentGeometrie is not null && GeometryTranslator.GmlIsValidLineString(x.WegsegmentGeometrie);
@@ -659,9 +662,9 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
             .HasCoordinatesMorePreciseThanCm();
     }
 
-    // On this endpoint every position is stated outright; the only shorthand is a totPositie of 0, which means "up
-    // to the end of the geometry" - the open end the centralised position validation writes as a null.
-    private static double? ToPositie(double totPositie) => totPositie.RoundToCm().Equals(0.0) ? null : totPositie;
+    // A missing totPositie means "up to the end of the geometry", and so does a totPositie of 0 - the only way to say
+    // so before null was accepted.
+    private static double? ToPositie(double? totPositie) => totPositie?.RoundToCm().Equals(0.0) == true ? null : totPositie;
 
     private static void AddFailures(
         ValidationContext<CreateOutlinedRoadSegmentV2Parameters> ctx,
@@ -722,7 +725,7 @@ public class CreateOutlinedRoadSegmentV2ParametersExamples : IExamplesProvider<C
                 },
             ],
             Morfologie = new [] { RoadSegmentMorphologyV2.Parallelweg }
-                .Select(x => new WegsegmentMorfologieAttribuutWaarde
+                .Select(x => new MorfologieParameters
                 {
                     VanPositie = 0,
                     TotPositie = geometry.Length.RoundToCm(),
@@ -730,7 +733,7 @@ public class CreateOutlinedRoadSegmentV2ParametersExamples : IExamplesProvider<C
                 })
                 .ToArray(),
             Toegang = new [] { RoadSegmentAccessRestrictionV2.OpenbareWeg }
-                .Select(x => new WegsegmentToegangAttribuutWaarde
+                .Select(x => new ToegangParameters
                 {
                     VanPositie = 0,
                     TotPositie = geometry.Length.RoundToCm(),
@@ -747,7 +750,7 @@ public class CreateOutlinedRoadSegmentV2ParametersExamples : IExamplesProvider<C
                 })
                 .ToArray(),
             Wegcategorie = new [] { RoadSegmentCategoryV2.RegionaleWeg }
-                .Select(x => new WegsegmentWegcategorieAttribuutWaarde
+                .Select(x => new WegcategorieParameters
                 {
                     VanPositie = 0,
                     TotPositie = geometry.Length.RoundToCm(),
@@ -755,7 +758,7 @@ public class CreateOutlinedRoadSegmentV2ParametersExamples : IExamplesProvider<C
                 })
                 .ToArray(),
             Wegverharding = new [] { RoadSegmentSurfaceTypeV2.Verhard }
-                .Select(x => new WegsegmentWegverhardingAttribuutWaarde
+                .Select(x => new WegverhardingParameters
                 {
                     VanPositie = 0,
                     TotPositie = geometry.Length.RoundToCm(),
@@ -763,7 +766,7 @@ public class CreateOutlinedRoadSegmentV2ParametersExamples : IExamplesProvider<C
                 })
                 .ToArray(),
             VerkeerstypeAuto = new [] { RoadSegmentTrafficDirection.Forward }
-                .Select(x => new WegsegmentVerkeerstypeAutoAttribuutWaarde
+                .Select(x => new VerkeerstypeParameters
                 {
                     VanPositie = 0,
                     TotPositie = geometry.Length.RoundToCm(),
@@ -771,7 +774,7 @@ public class CreateOutlinedRoadSegmentV2ParametersExamples : IExamplesProvider<C
                 })
                 .ToArray(),
             VerkeerstypeFiets = new [] { RoadSegmentTrafficDirection.Both }
-                .Select(x => new WegsegmentVerkeerstypeFietsAttribuutWaarde
+                .Select(x => new VerkeerstypeParameters
                 {
                     VanPositie = 0,
                     TotPositie = geometry.Length.RoundToCm(),
@@ -779,7 +782,7 @@ public class CreateOutlinedRoadSegmentV2ParametersExamples : IExamplesProvider<C
                 })
                 .ToArray(),
             VerkeerstypeVoetganger = new [] { RoadSegmentTrafficDirection.None }
-                .Select(x => new WegsegmentVerkeerstypeVoetgangerAttribuutWaarde
+                .Select(x => new VerkeerstypeVoetgangerParameters
                 {
                     VanPositie = 0,
                     TotPositie = geometry.Length.RoundToCm(),

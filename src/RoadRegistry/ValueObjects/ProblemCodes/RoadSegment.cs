@@ -286,6 +286,7 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode NotValid = new("RoadSegmentMaintenanceAuthorityNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentMaintenanceAuthorityIsRequired");
             public static readonly ProblemCode NotKnown = new("RoadSegmentMaintenanceAuthorityNotKnown");
+            public static readonly ProblemCode NotOnBothSides = new("RoadSegmentMaintenanceAuthorityNotOnBothSides");
 
             public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
             {
@@ -453,6 +454,8 @@ public sealed partial record ProblemCode
         public static class StreetName
         {
             public static readonly ProblemCode NotProposedOrCurrent = new("RoadSegmentStreetNameNotProposedOrCurrent");
+            public static readonly ProblemCode NotValid = new("RoadSegmentStreetNameNotValid");
+            public static readonly ProblemCode NotOnBothSides = new("RoadSegmentStreetNameNotOnBothSides");
 
             public static class Left
             {

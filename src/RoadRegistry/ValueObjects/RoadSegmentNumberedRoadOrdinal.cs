@@ -11,7 +11,7 @@ public readonly struct RoadSegmentNumberedRoadOrdinal : IEquatable<RoadSegmentNu
 
     private readonly int _value;
 
-    private static readonly IDictionary<string, RoadSegmentNumberedRoadOrdinal> DutchNameMapping = new Dictionary<string, RoadSegmentNumberedRoadOrdinal>()
+    private static readonly IDictionary<string, RoadSegmentNumberedRoadOrdinal> DutchNameMapping = new Dictionary<string, RoadSegmentNumberedRoadOrdinal>(StringComparer.OrdinalIgnoreCase)
     {
         { "niet gekend", Unknown }
     };

@@ -75,11 +75,13 @@ public class GivenRoadSegment : BackOfficeLambdaTest
 
         await HandleRequest(CreateSqsRequest(CutPosition(50, 50)), store, roadNetworkRepository);
 
-        // A middle cut of a realized segment historizes the original and adds the two new parts.
+        // A middle cut of a realized segment historizes the original and adds the two new parts. Historizing is a
+        // status change, so the original is reported as modified rather than removed.
         completedResult.Should().NotBeNull();
         completedResult.Summary.HasChanges.Should().BeTrue();
         completedResult.Summary.RoadSegments.Added.Should().HaveCount(2);
-        completedResult.Summary.RoadSegments.Removed.Should().ContainSingle();
+        completedResult.Summary.RoadSegments.Modified.Should().ContainSingle();
+        completedResult.Summary.RoadSegments.Removed.Should().BeEmpty();
     }
 
     [Fact]

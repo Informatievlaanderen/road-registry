@@ -188,7 +188,8 @@ public partial class ScopedRoadNetwork
             problems += segment.RetireBecauseOfSplit(provenance);
             problems.ThrowIfError();
             _roadSegmentsSpatialIndex.Remove(segment.Geometry.Value.EnvelopeInternal, segment);
-            context.Summary.RoadSegments.Removed.Add(roadSegmentId);
+            // Historizing is a status change of the original, not a removal: only an actual remove is reported as such.
+            context.Summary.RoadSegments.Modified.Add(roadSegmentId);
 
             problems += AddRoadSegment(BuildAddChange(new RoadSegmentIdReference(new RoadSegmentId(1)), originalStatus, attributes, firstPart), idGenerator, context);
             problems.ThrowIfError();

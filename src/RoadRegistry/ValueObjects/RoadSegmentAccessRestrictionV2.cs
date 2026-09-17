@@ -128,7 +128,7 @@ public sealed class RoadSegmentAccessRestrictionV2 : IEquatable<RoadSegmentAcces
 
     public static bool TryParseUsingDutchName(string value, out RoadSegmentAccessRestrictionV2 parsed)
     {
-        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
+        parsed = Array.Find(All, candidate => string.Equals(candidate.Translation.Name, value, StringComparison.OrdinalIgnoreCase));
         return parsed != null;
     }
 

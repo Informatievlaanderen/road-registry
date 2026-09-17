@@ -42,15 +42,21 @@ public partial class RoadSegmentsController
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het wegsegment gevonden is.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
+    /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
+    /// <response code="410">Als het wegsegment is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost(SplitRoute, Name = nameof(SplitRoadSegmentV2))]
     [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerResponseHeader(StatusCodes.Status202Accepted, "ETag", JsonSchemaType.String, "De ETag van de response.")]
     [SwaggerResponseHeader(StatusCodes.Status202Accepted, "x-correlation-id", JsonSchemaType.String, "Correlatie identificator van de response.")]
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadSegmentNotFoundResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status410Gone, typeof(RoadSegmentGoneResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerRequestExample(typeof(SplitRoadSegmentV2Parameters), typeof(SplitRoadSegmentV2ParametersExamples))]
     [SwaggerOperation(OperationId = nameof(SplitRoadSegmentV2), Description = "Knip een wegsegment op de opgegeven knippositie.")]
@@ -67,9 +73,15 @@ public partial class RoadSegmentsController
 
             await using var session = store.LightweightSession();
             var roadSegment = await session.LoadAsync<RoadSegmentReadItem>(id, cancellationToken);
-            if (roadSegment is null || roadSegment.IsRemoved)
+            if (roadSegment is null)
             {
                 throw new RoadSegmentNotFoundException();
+            }
+
+            // Like the detail endpoint: a road segment that existed but is removed is gone, not unknown.
+            if (roadSegment.IsRemoved)
+            {
+                return new StatusCodeResult(StatusCodes.Status410Gone);
             }
 
             var request = new SplitRoadSegmentV2Request

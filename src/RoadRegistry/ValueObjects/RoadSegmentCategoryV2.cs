@@ -196,7 +196,7 @@ public sealed class RoadSegmentCategoryV2 : IEquatable<RoadSegmentCategoryV2>, I
 
     public static bool TryParseUsingDutchName(string value, out RoadSegmentCategoryV2 parsed)
     {
-        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
+        parsed = Array.Find(All, candidate => string.Equals(candidate.Translation.Name, value, StringComparison.OrdinalIgnoreCase));
         return parsed != null;
     }
 

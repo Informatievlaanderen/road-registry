@@ -173,8 +173,8 @@ public partial class RoadSegmentsController
         ValidateAttributePositions(parameters.VerkeerstypeAuto, "verkeerstypeAuto", geometryLength, ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes, failures);
         ValidateAttributePositions(parameters.VerkeerstypeFiets, "verkeerstypeFiets", geometryLength, ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes, failures);
         ValidateAttributePositions(parameters.VerkeerstypeVoetganger, "verkeerstypeVoetganger", geometryLength, ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes, failures);
-        ValidateSidedAttributePositions(parameters.Straatnaam, x => x.Kant, "straatnaam", geometryLength, ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes, failures);
-        ValidateSidedAttributePositions(parameters.Wegbeheerder, x => x.Kant, "wegbeheerder", geometryLength, ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes, failures);
+        ValidateSidedAttributePositions(parameters.Straatnaam, x => x.Kant, "straatnaam", geometryLength, ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes, ProblemCode.RoadSegment.StreetName.NotOnBothSides, failures);
+        ValidateSidedAttributePositions(parameters.Wegbeheerder, x => x.Kant, "wegbeheerder", geometryLength, ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes, ProblemCode.RoadSegment.MaintenanceAuthority.NotOnBothSides, failures);
 
         if (failures.Count > 0)
         {

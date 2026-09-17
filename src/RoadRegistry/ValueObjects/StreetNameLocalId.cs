@@ -41,7 +41,7 @@ public readonly struct StreetNameLocalId : IEquatable<StreetNameLocalId>, IDutch
             : new StreetNameLocalId?();
     }
 
-    private static readonly IDictionary<string, StreetNameLocalId> DutchNameMapping = new Dictionary<string, StreetNameLocalId>()
+    private static readonly IDictionary<string, StreetNameLocalId> DutchNameMapping = new Dictionary<string, StreetNameLocalId>(StringComparer.OrdinalIgnoreCase)
     {
         { "niet gekend", Unknown },
         { "niet van toepassing", NotApplicable }

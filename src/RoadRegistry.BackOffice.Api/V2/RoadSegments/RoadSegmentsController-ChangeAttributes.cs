@@ -165,8 +165,8 @@ public partial class RoadSegmentsController
             ValidateAttributePositions(item.VerkeerstypeAuto, $"{path}.verkeerstypeAuto", null, ProblemCode.RoadSegment.CarTrafficDirection.DynamicAttributeProblemCodes, failures);
             ValidateAttributePositions(item.VerkeerstypeFiets, $"{path}.verkeerstypeFiets", null, ProblemCode.RoadSegment.BikeTrafficDirection.DynamicAttributeProblemCodes, failures);
             ValidateAttributePositions(item.VerkeerstypeVoetganger, $"{path}.verkeerstypeVoetganger", null, ProblemCode.RoadSegment.PedestrianTrafficDirection.DynamicAttributeProblemCodes, failures);
-            ValidateSidedAttributePositions(item.Straatnaam, x => x.Kant, $"{path}.straatnaam", null, ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes, failures);
-            ValidateSidedAttributePositions(item.Wegbeheerder, x => x.Kant, $"{path}.wegbeheerder", null, ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes, failures);
+            ValidateSidedAttributePositions(item.Straatnaam, x => x.Kant, $"{path}.straatnaam", null, ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes, ProblemCode.RoadSegment.StreetName.NotOnBothSides, failures);
+            ValidateSidedAttributePositions(item.Wegbeheerder, x => x.Kant, $"{path}.wegbeheerder", null, ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes, ProblemCode.RoadSegment.MaintenanceAuthority.NotOnBothSides, failures);
 
             groups.Add(new ChangeRoadSegmentAttributesV2Group
             {
@@ -228,6 +228,7 @@ public partial class RoadSegmentsController
         string path,
         double? geometryLength,
         ProblemCode.RoadSegment.DynamicAttributeProblemCodes problemCodes,
+        ProblemCode notOnBothSidesProblemCode,
         List<ValidationFailure> failures)
         where TParameters : VanTotParameters
     {
@@ -237,7 +238,7 @@ public partial class RoadSegmentsController
         }
 
         failures.AddRange(RoadSegmentAttributePositionsValidator.ValidateSided(
-            items.Select(x => (kantSelector(x), x.VanPositie, x.TotPositie)), path, geometryLength, problemCodes));
+            items.Select(x => (kantSelector(x), x.VanPositie, x.TotPositie)), path, geometryLength, problemCodes, notOnBothSidesProblemCode));
     }
 
     private static IReadOnlyList<AttributeValue<T>>? ParsePositionValues<TParameters, T>(
