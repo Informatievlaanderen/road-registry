@@ -28,5 +28,10 @@ writes migration SQL from it via Marten's schema API — no runtime host is invo
 `generate-migration.sh` spins a scratch Postgres, applies the existing migrations to bring it to the current state,
 then runs the model host's `patch` (Marten `CreateMigrationAsync`) to diff the model against it and writes the delta
 as the next file. **Review and hand-edit** the generated SQL before committing (custom indexes, fixes for anything
-Marten generates that Postgres rejects, etc.). Marten only manages its own objects, so hand-added objects like
-`ix_mt_events_correlation_seq` survive future `patch` runs.
+Marten generates that Postgres rejects, etc.).
+
+Marten does not know the objects a migration adds by hand to its own tables - the `ix_mt_events_correlation_seq` index,
+or the columns generated from the document JSON on the aggregate document tables that the road network topology is
+looked up in (see `RoadNetworkTopologyTables`) - and its `patch` proposes to drop them. The generator leaves drops of
+the objects listed in `RoadRegistry.MartenDb.MigrationGenerator/HandManagedSchema.cs` out of the delta, so add a
+hand-managed column or index to that list together with the migration that creates it.

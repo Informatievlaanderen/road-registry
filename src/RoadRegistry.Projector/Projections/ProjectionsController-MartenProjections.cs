@@ -29,16 +29,12 @@ using RoadRegistry.WmsWfsV2.Schema;
 
 public partial class ProjectionsController
 {
-    private const string TopologyProjectionId = "topology";
-
     /// <summary>
     /// Stops a Marten projection so it no longer processes events.
     /// </summary>
     /// <remarks>
     /// Waits until the daemon reports the shard as fully stopped before answering, and records that the projection is
-    /// meant to stay stopped, so neither the supervisor nor the next restart of the host brings it back. The special
-    /// id "topology" is not supported here: the topology projection runs inline with the event store writes and cannot
-    /// be stopped.
+    /// meant to stay stopped, so neither the supervisor nor the next restart of the host brings it back.
     /// </remarks>
     /// <param name="id">The projection id, case-insensitive, with or without the ":All" shard suffix (e.g. "RoadNetworkChangesExtractProjection").</param>
     /// <param name="daemonAccessor"></param>
@@ -84,10 +80,6 @@ public partial class ProjectionsController
     /// <summary>
     /// Starts a stopped Marten projection so it resumes processing events from its last position.
     /// </summary>
-    /// <remarks>
-    /// The special id "topology" is not supported here: the topology projection runs inline with the event store
-    /// writes and is always running.
-    /// </remarks>
     /// <param name="id">The projection id, case-insensitive, with or without the ":All" shard suffix (e.g. "RoadNetworkChangesExtractProjection").</param>
     /// <param name="daemonAccessor"></param>
     /// <param name="cancellationToken"></param>
@@ -133,30 +125,17 @@ public partial class ProjectionsController
     /// truncate never races a batch that is still being processed. The read model and every progression the
     /// projection keeps are wiped, then the projection is started again and replays the event stream in the
     /// background; the call returns as soon as the replay has started.
-    ///
-    /// Special rule for the id "topology": the topology projection runs inline and is rebuilt through a one-off
-    /// daemon instead - it does not need to be stopped first, and the call blocks until the rebuild completed
-    /// (bounded by timeoutHours).
     /// </remarks>
-    /// <param name="id">The projection id, case-insensitive, with or without the ":All" shard suffix (e.g. "RoadNetworkChangesExtractProjection"), or "topology".</param>
+    /// <param name="id">The projection id, case-insensitive, with or without the ":All" shard suffix (e.g. "RoadNetworkChangesExtractProjection").</param>
     /// <param name="daemonAccessor"></param>
-    /// <param name="configuration"></param>
-    /// <param name="timeoutHours">Only used for "topology": how long the blocking rebuild may take.</param>
     /// <param name="cancellationToken"></param>
     [HttpGet("{id}/rebuild")]
     [HttpPost("{id}/rebuild")]
     public async Task<IActionResult> RebuildMartenProjection(
         [FromRoute] string id,
         [FromServices] MartenProjectionDaemonAccessor daemonAccessor,
-        [FromServices] IConfiguration configuration,
-        [FromQuery] int timeoutHours = 12,
         CancellationToken cancellationToken = default)
     {
-        if (IsTopology(id))
-        {
-            return await RebuildTopology(configuration, timeoutHours, cancellationToken);
-        }
-
         var projection = FindMartenProjection(id);
         if (projection is null)
         {
@@ -208,26 +187,6 @@ public partial class ProjectionsController
         return Ok($"{shardName} is rebuilding: the read model was truncated and the projection replays from the start of the event stream.");
     }
 
-    // The topology projection runs inline, so its rebuild goes through a one-off daemon built for just this
-    // projection: Marten tears the topology tables down (DeleteDataInTableOnTeardown) and replays the full event
-    // stream through the current handlers. Blocks until the rebuild completed.
-    private async Task<IActionResult> RebuildTopology(IConfiguration configuration, int timeoutHours, CancellationToken cancellationToken)
-    {
-        var sp = new ServiceCollection()
-            .AddSingleton(configuration)
-            .AddMartenRoad(options =>
-            {
-                options.AddRoadNetworkTopologyProjection();
-            }).Services
-            .BuildServiceProvider();
-
-        var store = sp.GetRequiredService<IDocumentStore>();
-        var projectionDaemon = await store.BuildProjectionDaemonAsync();
-        await projectionDaemon.RebuildProjectionAsync<RoadNetworkTopologyProjection>(TimeSpan.FromHours(timeoutHours), cancellationToken);
-
-        return Ok($"{nameof(RoadNetworkTopologyProjection)} rebuild completed.");
-    }
-
     // The daemon has three states and they are not interchangeable: a paused shard fell over on its own, a stopped one
     // was told to stop. Saying which one it is, is the difference between "nothing to do" and "something is wrong".
     private static string DescribeStatus(AgentStatus status)
@@ -239,11 +198,6 @@ public partial class ProjectionsController
             AgentStatus.Stopped => "stopped",
             _ => status.ToString().ToLowerInvariant()
         };
-    }
-
-    private static bool IsTopology(string id)
-    {
-        return string.Equals(id, TopologyProjectionId, StringComparison.OrdinalIgnoreCase);
     }
 
     // Case-insensitive on the projection id, with or without the ":All" shard suffix, so

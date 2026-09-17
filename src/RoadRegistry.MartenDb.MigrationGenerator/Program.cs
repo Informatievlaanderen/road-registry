@@ -52,7 +52,17 @@ if (migration.Difference == SchemaPatchDifference.None)
     return 0;
 }
 
-await using var writer = new StreamWriter(file);
-migration.WriteAllUpdates(writer, new PostgresqlMigrator(), AutoCreate.CreateOrUpdate);
+var delta = new StringWriter();
+migration.WriteAllUpdates(delta, new PostgresqlMigrator(), AutoCreate.CreateOrUpdate);
+
+// Marten proposes to drop what the migrations added by hand; keep those out of the delta.
+var updates = HandManagedSchema.RemoveDrops(delta.ToString());
+if (string.IsNullOrWhiteSpace(updates))
+{
+    Console.WriteLine("no schema changes detected");
+    return 0;
+}
+
+await File.WriteAllTextAsync(file, updates);
 Console.WriteLine($"wrote migration delta to {file}");
 return 0;

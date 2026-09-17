@@ -472,6 +472,142 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
+    [Fact]
+    public async Task GivenRemovedRoadSegmentAndJunctions_ThenNotRetrieved()
+    {
+        // Arrange
+        var sp = await BuildServiceProvider();
+
+        var store = sp.GetRequiredService<IDocumentStore>();
+
+        var roadSegment = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
+        {
+            RoadSegmentId = new RoadSegmentId(1),
+            Geometry = BuildRoadSegmentGeometry(0, 0, 10, 0),
+            StartNodeId = new RoadNodeId(1),
+            EndNodeId = new RoadNodeId(2)
+        };
+        var removedRoadSegment = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
+        {
+            RoadSegmentId = new RoadSegmentId(2),
+            Geometry = BuildRoadSegmentGeometry(0, 1, 10, 1),
+            StartNodeId = new RoadNodeId(3),
+            EndNodeId = new RoadNodeId(4)
+        };
+        var removedGradeSeparatedJunction = TestData.Fixture.Create<RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAdded>() with
+        {
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
+            LowerRoadSegmentId = roadSegment.RoadSegmentId,
+            UpperRoadSegmentId = removedRoadSegment.RoadSegmentId
+        };
+        var removedGradeJunction = TestData.Fixture.Create<RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasAdded>() with
+        {
+            GradeJunctionId = new GradeJunctionId(1),
+            RoadSegmentId1 = roadSegment.RoadSegmentId,
+            RoadSegmentId2 = removedRoadSegment.RoadSegmentId
+        };
+
+        await using (var session = store.LightweightSession())
+        {
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), roadSegment.RoadSegmentId), roadSegment);
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), removedRoadSegment.RoadSegmentId), removedRoadSegment);
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), removedGradeSeparatedJunction.GradeSeparatedJunctionId), removedGradeSeparatedJunction);
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeJunction), removedGradeJunction.GradeJunctionId), removedGradeJunction);
+            await session.SaveChangesAsync();
+        }
+
+        await using (var session = store.LightweightSession())
+        {
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), removedRoadSegment.RoadSegmentId), TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRemoved>() with
+            {
+                RoadSegmentId = removedRoadSegment.RoadSegmentId
+            });
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), removedGradeSeparatedJunction.GradeSeparatedJunctionId), TestData.Fixture.Create<RoadRegistry.GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasRemoved>() with
+            {
+                GradeSeparatedJunctionId = removedGradeSeparatedJunction.GradeSeparatedJunctionId
+            });
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeJunction), removedGradeJunction.GradeJunctionId), TestData.Fixture.Create<RoadRegistry.GradeJunction.Events.V2.GradeJunctionWasRemoved>() with
+            {
+                GradeJunctionId = removedGradeJunction.GradeJunctionId
+            });
+            await session.SaveChangesAsync();
+        }
+
+        var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).Value;
+        var requestIds = new RoadNetworkIds(
+            [new RoadNodeId(3)],
+            [removedRoadSegment.RoadSegmentId],
+            [removedGradeSeparatedJunction.GradeSeparatedJunctionId],
+            [removedGradeJunction.GradeJunctionId]);
+
+        // Act
+        var ids = await GetUnderlyingIds(sp, requestGeometry, requestIds);
+
+        // Assert
+        var expectedIds = new RoadNetworkIds(
+            [new(1), new(2)],
+            [new(1)],
+            [],
+            []);
+        ids.Should().BeEquivalentTo(expectedIds);
+    }
+
+    // A road segment retired by a merger or a split is historized, not removed: it is still found, but it no longer
+    // hangs off any road node.
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task GivenRoadSegmentRetiredBecauseOfMergerOrSplit_ThenRetrievedWithoutRoadNodes(bool retiredBecauseOfSplit)
+    {
+        // Arrange
+        var sp = await BuildServiceProvider();
+
+        var store = sp.GetRequiredService<IDocumentStore>();
+
+        var roadSegment = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
+        {
+            RoadSegmentId = new RoadSegmentId(1),
+            Geometry = BuildRoadSegmentGeometry(0, 0, 10, 0),
+            StartNodeId = new RoadNodeId(1),
+            EndNodeId = new RoadNodeId(2)
+        };
+
+        await using (var session = store.LightweightSession())
+        {
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), roadSegment.RoadSegmentId), roadSegment);
+            await session.SaveChangesAsync();
+        }
+
+        await using (var session = store.LightweightSession())
+        {
+            object retired = retiredBecauseOfSplit
+                ? TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRetiredBecauseOfSplit>() with
+                {
+                    RoadSegmentId = roadSegment.RoadSegmentId
+                }
+                : TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRetiredBecauseOfMerger>() with
+                {
+                    RoadSegmentId = roadSegment.RoadSegmentId,
+                    MergedRoadSegmentId = new RoadSegmentId(3)
+                };
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), roadSegment.RoadSegmentId), retired);
+            await session.SaveChangesAsync();
+        }
+
+        var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).Value;
+
+        // Act
+        var ids = await GetUnderlyingIds(sp, requestGeometry);
+
+        // Assert
+        var expectedIds = new RoadNetworkIds(
+            [],
+            [new(1)],
+            [],
+            []);
+        ids.Should().BeEquivalentTo(expectedIds);
+    }
+
     private async Task<RoadNetworkIds> GetUnderlyingIds(IServiceProvider sp, Geometry? geometry = null, RoadNetworkIds? ids = null)
     {
         var store = sp.GetRequiredService<IDocumentStore>();
