@@ -117,7 +117,7 @@ public sealed class RoadSegmentPedestrianTrafficDirection : IEquatable<RoadSegme
 
     public static bool TryParseUsingDutchName(string value, out RoadSegmentPedestrianTrafficDirection? parsed)
     {
-        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
+        parsed = Array.Find(All, candidate => string.Equals(candidate.Translation.Name, value, StringComparison.OrdinalIgnoreCase));
         return parsed != null;
     }
 

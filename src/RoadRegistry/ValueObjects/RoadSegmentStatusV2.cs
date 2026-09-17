@@ -168,7 +168,7 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
 
     public static bool TryParseUsingDutchName(string value, out RoadSegmentStatusV2 parsed)
     {
-        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
+        parsed = Array.Find(All, candidate => string.Equals(candidate.Translation.Name, value, StringComparison.OrdinalIgnoreCase));
         return parsed != null;
     }
 

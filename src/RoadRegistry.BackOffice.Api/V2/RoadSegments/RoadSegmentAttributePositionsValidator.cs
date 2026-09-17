@@ -94,12 +94,14 @@ internal static class RoadSegmentAttributePositionsValidator
     }
 
     // Sided attributes are two independent runs: what the caller states for 'links' plus 'beide' has to cover the
-    // left side, and 'rechts' plus 'beide' the right side.
+    // left side, and 'rechts' plus 'beide' the right side. Both sides are mandatory: a side nobody states a value for
+    // would end up without one.
     public static List<ValidationFailure> ValidateSided(
         IEnumerable<(string? Kant, double? VanPositie, double? TotPositie)> items,
         string propertyName,
         double? geometryLength,
-        ProblemCode.RoadSegment.DynamicAttributeProblemCodes problemCodes)
+        ProblemCode.RoadSegment.DynamicAttributeProblemCodes problemCodes,
+        ProblemCode notOnBothSidesProblemCode)
     {
         var failures = new List<ValidationFailure>();
 
@@ -113,6 +115,12 @@ internal static class RoadSegmentAttributePositionsValidator
             .ToList();
         if (sided.Count != list.Count)
         {
+            return failures;
+        }
+
+        if (sided.Count > 0 && !(CoversSide(RoadSegmentAttributeSide.Links) && CoversSide(RoadSegmentAttributeSide.Rechts)))
+        {
+            AddFailure(failures, propertyName, notOnBothSidesProblemCode);
             return failures;
         }
 
@@ -131,6 +139,9 @@ internal static class RoadSegmentAttributePositionsValidator
         }
 
         return failures;
+
+        bool CoversSide(RoadSegmentAttributeSide side) =>
+            sided.Any(x => x.Side == side || x.Side == RoadSegmentAttributeSide.Beide);
     }
 
     // All positions and coordinates are rounded to the centimetre, so two positions are the same position when they

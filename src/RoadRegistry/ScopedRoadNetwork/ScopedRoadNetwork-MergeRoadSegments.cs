@@ -95,18 +95,19 @@ public partial class ScopedRoadNetwork
             };
         }
 
+        // Retiring a merged road segment is a status change, not a removal: only an actual remove is reported as such.
         if (segment1.RoadSegmentId != roadSegment.RoadSegmentId)
         {
             problems += segment1.RetireBecauseOfMerger(roadSegment.RoadSegmentId, context.Provenance);
             _roadSegmentsSpatialIndex.Remove(segment1.Geometry.Value.EnvelopeInternal, segment1);
-            context.Summary.RoadSegments.Removed.Add(segment1.RoadSegmentId);
+            context.Summary.RoadSegments.Modified.Add(segment1.RoadSegmentId);
         }
 
         if (segment2.RoadSegmentId != roadSegment.RoadSegmentId)
         {
             problems += segment2.RetireBecauseOfMerger(roadSegment.RoadSegmentId, context.Provenance);
             _roadSegmentsSpatialIndex.Remove(segment2.Geometry.Value.EnvelopeInternal, segment2);
-            context.Summary.RoadSegments.Removed.Add(segment2.RoadSegmentId);
+            context.Summary.RoadSegments.Modified.Add(segment2.RoadSegmentId);
         }
 
         var oldEnvelope = roadSegment.Geometry.Value.EnvelopeInternal;

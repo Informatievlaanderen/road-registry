@@ -405,4 +405,23 @@ public class ChangeRoadSegmentGeometryV2Tests : V2ReadEndpointTestBase
         return new ReadRoadSegmentDynamicAttribute<string>(attribute.Values
             .Select(x => (x.Coverage.From, x.Coverage.To, x.Side, (string?)x.Value!.ToString())));
     }
+
+    [Theory]
+    [InlineData("links")]
+    [InlineData("rechts")]
+    public async Task GivenAStreetNameOrMaintenanceAuthorityForOneSideOnly_ThenValidationException(string kant)
+    {
+        var id = SeedRoadSegment();
+        var parameters = ValidParameters();
+        parameters.Straatnaam = [new StraatnaamParameters { Kant = kant, Identificator = "79632" }];
+        parameters.Wegbeheerder = [new WegbeheerderParameters { Kant = kant, Wegbeheerder = "AWV114" }];
+
+        var ex = await Assert.ThrowsAsync<ValidationException>(() => Act(id, parameters));
+
+        ex.Errors.Select(x => (x.PropertyName, x.ErrorCode)).Should().BeEquivalentTo([
+            ("straatnaam", ProblemCode.RoadSegment.StreetName.NotOnBothSides.ToString()),
+            ("wegbeheerder", ProblemCode.RoadSegment.MaintenanceAuthority.NotOnBothSides.ToString())
+        ]);
+        VerifyNothingWasQueued();
+    }
 }

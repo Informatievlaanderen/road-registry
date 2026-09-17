@@ -24,7 +24,7 @@ public readonly struct RoadSegmentWidth : IEquatable<RoadSegmentWidth>, IDutchTo
                 .Concat(Enumerable.Range(MinimumValue, MaximumValue - MinimumValue + 1).Select(value => new RoadSegmentWidth(value)))
                 .ToArray();
 
-    private static readonly IDictionary<string, RoadSegmentWidth> DutchNameMapping = new Dictionary<string, RoadSegmentWidth>()
+    private static readonly IDictionary<string, RoadSegmentWidth> DutchNameMapping = new Dictionary<string, RoadSegmentWidth>(StringComparer.OrdinalIgnoreCase)
     {
         { "niet gekend", Unknown },
         { "niet van toepassing", NotApplicable }

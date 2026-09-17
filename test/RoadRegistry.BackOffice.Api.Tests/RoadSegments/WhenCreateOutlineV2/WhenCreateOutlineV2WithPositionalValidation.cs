@@ -19,7 +19,7 @@ public class WhenCreateOutlineV2WithPositionalValidation
             WegsegmentGeometrie = GeometryTranslatorTestCases.ValidGmlLineStringLambert08,
             Morfologie =
             [
-                new WegsegmentMorfologieAttribuutWaarde
+                new MorfologieParameters
                 {
                     VanPositie = 0,
                     TotPositie = 0,
@@ -45,7 +45,7 @@ public class WhenCreateOutlineV2WithPositionalValidation
             WegsegmentGeometrie = GeometryTranslatorTestCases.ValidGmlLineStringLambert08,
             Morfologie =
             [
-                new WegsegmentMorfologieAttribuutWaarde
+                new MorfologieParameters
                 {
                     VanPositie = 0,
                     TotPositie = 20,
@@ -75,7 +75,7 @@ public class WhenCreateOutlineV2WithPositionalValidation
         {
             WegsegmentGeometrie = GeometryTranslatorTestCases.ValidGmlLineStringLambert08,
             Morfologie = vanTotPairs.Chunk(2)
-                .Select(pair => new WegsegmentMorfologieAttribuutWaarde
+                .Select(pair => new MorfologieParameters
                 {
                     VanPositie = pair[0],
                     TotPositie = pair[1],
@@ -101,7 +101,7 @@ public class WhenCreateOutlineV2WithPositionalValidation
             WegsegmentGeometrie = GeometryTranslatorTestCases.ValidGmlLineStringLambert08,
             Morfologie =
             [
-                new WegsegmentMorfologieAttribuutWaarde
+                new MorfologieParameters
                 {
                     VanPositie = van,
                     TotPositie = tot,
@@ -116,6 +116,24 @@ public class WhenCreateOutlineV2WithPositionalValidation
             e => e.ErrorCode == ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes.HasLengthOfZero.ToString());
     }
 
+    [Fact]
+    public async Task WhenTotPositieMinusVanPositieIsLessThanOne_ThenTheErrorSaysSoForTheAttribute()
+    {
+        var parameters = CreateOutlineV2Parameters.Valid() with
+        {
+            Wegverharding =
+            [
+                new WegverhardingParameters { VanPositie = 0, TotPositie = 0.5, Wegverharding = RoadSegmentSurfaceTypeV2.Verhard.ToDutchString() },
+                new WegverhardingParameters { VanPositie = 0.5, Wegverharding = RoadSegmentSurfaceTypeV2.Onverhard.ToDutchString() }
+            ]
+        };
+
+        var result = await _validator.ValidateAsync(parameters);
+
+        var error = Assert.Single(result.Errors.TranslateToDutch(WellKnownProblemTranslators.Default));
+        Assert.Equal("De totPositie (0.5) ligt minder dan 1m verwijderd van de vanPositie (0) voor het attribuut 'wegverharding'.", error.ErrorMessage);
+    }
+
     [Theory]
     [InlineData(0.0, 1.0)]
     [InlineData(0.0, 5.0)]
@@ -127,7 +145,7 @@ public class WhenCreateOutlineV2WithPositionalValidation
             WegsegmentGeometrie = GeometryTranslatorTestCases.ValidGmlLineStringLambert08,
             Morfologie =
             [
-                new WegsegmentMorfologieAttribuutWaarde
+                new MorfologieParameters
                 {
                     VanPositie = van,
                     TotPositie = tot,

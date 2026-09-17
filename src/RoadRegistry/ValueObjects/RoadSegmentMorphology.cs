@@ -323,7 +323,7 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>, I
 
     public static bool TryParseUsingDutchName(string value, out RoadSegmentMorphology? parsed)
     {
-        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
+        parsed = Array.Find(All, candidate => string.Equals(candidate.Translation.Name, value, StringComparison.OrdinalIgnoreCase));
         return parsed != null;
     }
 

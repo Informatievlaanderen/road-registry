@@ -268,14 +268,15 @@ public class ChangeRoadSegmentAttributesV2Tests : V2ReadEndpointTestBase
     [InlineData("https://data.vlaanderen.be/id/straatnaam/79632/")]
     public async Task GivenAStreetNameIdentifierInAnyAcceptedShape_ThenTheLocalIdIsSentAlong(string identificator)
     {
-        var parameters = WithStreetName(new StraatnaamParameters { Kant = RoadSegmentAttributeSide.Links.ToDutchString(), Identificator = identificator });
+        var parameters = WithStreetName(
+            new StraatnaamParameters { Kant = RoadSegmentAttributeSide.Links.ToDutchString(), Identificator = identificator },
+            new StraatnaamParameters { Kant = RoadSegmentAttributeSide.Rechts.ToDutchString(), Identificator = "niet van toepassing" });
         CaptureSqsRequest();
 
         await Act(parameters);
 
-        var streetName = _capturedSqsRequest.Groups.Should().ContainSingle().Which.StreetName.Should().ContainSingle().Which;
+        var streetName = _capturedSqsRequest.Groups.Should().ContainSingle().Which.StreetName.Should().HaveCount(2).And.ContainSingle(x => x.Side == RoadSegmentAttributeSide.Links).Which;
         streetName.Value.Should().Be(new StreetNameLocalId(79632));
-        streetName.Side.Should().Be(RoadSegmentAttributeSide.Links);
     }
 
     [Fact]
@@ -624,5 +625,34 @@ public class ChangeRoadSegmentAttributesV2Tests : V2ReadEndpointTestBase
         var result = await Act(parameters);
 
         result.Should().BeOfType<AcceptedResult>();
+    }
+
+    [Theory]
+    [InlineData("links")]
+    [InlineData("rechts")]
+    public async Task GivenAStreetNameForOneSideOnly_ThenValidationException(string kant)
+    {
+        // The given street names replace the current ones, so a side that is left out would end up without one.
+        var parameters = WithStreetName(new StraatnaamParameters { Kant = kant, Identificator = "71671" });
+
+        var failure = await ActAndExpectSingleFailure(() => Act(parameters));
+
+        failure.PropertyName.Should().Be("[0].straatnaam");
+        failure.ErrorCode.Should().Be(ProblemCode.RoadSegment.StreetName.NotOnBothSides.ToString());
+        VerifyNothingWasQueued();
+    }
+
+    [Theory]
+    [InlineData("links")]
+    [InlineData("rechts")]
+    public async Task GivenAMaintenanceAuthorityForOneSideOnly_ThenValidationException(string kant)
+    {
+        var parameters = WithMaintenanceAuthority(new WegbeheerderParameters { Kant = kant, Wegbeheerder = "AWV114" });
+
+        var failure = await ActAndExpectSingleFailure(() => Act(parameters));
+
+        failure.PropertyName.Should().Be("[0].wegbeheerder");
+        failure.ErrorCode.Should().Be(ProblemCode.RoadSegment.MaintenanceAuthority.NotOnBothSides.ToString());
+        VerifyNothingWasQueued();
     }
 }

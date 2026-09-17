@@ -168,6 +168,39 @@ public class SwaggerTests
             "every type named in a RoadRegistryEnumDataType needs an EnumSchemaFilter registered for it, or its values are not documented");
     }
 
+    [Fact]
+    public void CreateOutlineV2_OnlyTheAttributeValueAndKantAreRequired()
+    {
+        var serviceProvider = BuildApiServiceProvider();
+        var schemaGenerator = serviceProvider.GetRequiredService<ISchemaGenerator>();
+
+        var schemaRepository = new SchemaRepository();
+        schemaGenerator.GenerateSchema(typeof(CreateOutlinedRoadSegmentV2Parameters), schemaRepository);
+
+        // vanPositie and totPositie may be left out: the attribute then applies from the start and up to the end of the
+        // segment. The documentation must not mark them as required.
+        var straatnaam = schemaRepository.Schemas["IngeschetstWegsegmentStraatnaamAttribuutWaarde"];
+        straatnaam.Properties.Keys.Should().Equal("kant", "vanPositie", "totPositie", "identificator");
+        straatnaam.Required.Should().BeEquivalentTo(new[] { "kant", "identificator" });
+
+        var wegbeheerder = schemaRepository.Schemas["IngeschetstWegsegmentWegbeheerderAttribuutWaarde"];
+        wegbeheerder.Properties.Keys.Should().Equal("kant", "vanPositie", "totPositie", "wegbeheerder");
+        wegbeheerder.Required.Should().BeEquivalentTo(new[] { "kant", "wegbeheerder" });
+
+        foreach (var (schemaName, attribute) in new[]
+                 {
+                     (nameof(MorfologieParameters), "morfologie"),
+                     (nameof(WegverhardingParameters), "wegverharding"),
+                     (nameof(ToegangParameters), "toegang"),
+                     (nameof(WegcategorieParameters), "wegcategorie"),
+                     (nameof(VerkeerstypeParameters), "richting"),
+                     (nameof(VerkeerstypeVoetgangerParameters), "richting")
+                 })
+        {
+            schemaRepository.Schemas[schemaName].Required.Should().BeEquivalentTo(new[] { attribute }, schemaName);
+        }
+    }
+
     private static Type? FindEnumSchemaFilterBase(Type? schemaFilterType)
     {
         while (schemaFilterType is not null)

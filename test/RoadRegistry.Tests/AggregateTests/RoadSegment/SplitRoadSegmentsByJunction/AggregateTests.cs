@@ -122,6 +122,11 @@ public class AggregateTests : AggregateTestBase
 
         roadNetwork.RoadSegments[Segment1Id].GetChanges().Should().Contain(x => x is RoadSegmentWasRetiredBecauseOfSplit);
         roadNetwork.RoadSegments[Segment2Id].GetChanges().Should().Contain(x => x is RoadSegmentWasRetiredBecauseOfSplit);
+
+        // Historizing the originals is a status change: they are reported as modified, never as removed.
+        roadNetwork.SummaryOfLastChange!.RoadSegments.Modified.Should().BeEquivalentTo([Segment1Id, Segment2Id]);
+        roadNetwork.SummaryOfLastChange.RoadSegments.Added.Should().BeEquivalentTo(newSegments.Select(x => x.RoadSegmentId));
+        roadNetwork.SummaryOfLastChange.RoadSegments.Removed.Should().BeEmpty();
     }
 
     [Fact]

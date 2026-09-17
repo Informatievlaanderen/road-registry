@@ -126,7 +126,7 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
 
     public static RoadSegmentLaneDirection? ParseUsingDutchName(string? value)
     {
-        return value == null ? null : Array.Find(All, candidate => candidate.Translation.Name == value);
+        return value == null ? null : Array.Find(All, candidate => string.Equals(candidate.Translation.Name, value, StringComparison.OrdinalIgnoreCase));
     }
 
     public override string ToString()

@@ -111,7 +111,7 @@ public sealed class RoadSegmentAttributeSide : IEquatable<RoadSegmentAttributeSi
 
     public static bool TryParseUsingDutchName(string value, out RoadSegmentAttributeSide? parsed)
     {
-        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
+        parsed = Array.Find(All, candidate => string.Equals(candidate.Translation.Name, value, StringComparison.OrdinalIgnoreCase));
         return parsed != null;
     }
 

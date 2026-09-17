@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using FluentAssertions;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NetTopologySuite.Geometries;
@@ -108,14 +109,18 @@ public class SplitRoadSegmentV2Tests : V2ReadEndpointTestBase
     }
 
     [Fact]
-    public async Task GivenRemovedRoadSegment_ThenRoadSegmentNotFoundException()
+    public async Task GivenRemovedRoadSegment_ThenGone()
     {
         var e = TestData.Segment1Added;
         var readItem = BuildReadItem(e, null, true);
         readItem.IsRemoved = true;
         Seed(readItem);
 
-        await Assert.ThrowsAsync<RoadSegmentNotFoundException>(() => Act((int)e.RoadSegmentId, ValidCutPositionLambert08));
+        var result = await Act((int)e.RoadSegmentId, ValidCutPositionLambert08);
+
+        var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
+        Assert.Equal(StatusCodes.Status410Gone, statusCodeResult.StatusCode);
+        _mediator.Verify(x => x.Send(It.IsAny<SplitRoadSegmentSqsRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

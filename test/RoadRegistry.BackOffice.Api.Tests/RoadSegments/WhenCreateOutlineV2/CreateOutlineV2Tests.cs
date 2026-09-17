@@ -57,7 +57,7 @@ public class CreateOutlineV2Tests
             Wegsegmentstatus = RoadSegmentStatusV2.Gepland.ToDutchString(),
             Morfologie =
             [
-                new WegsegmentMorfologieAttribuutWaarde
+                new MorfologieParameters
                 {
                     VanPositie = 0,
                     TotPositie = length,
@@ -66,7 +66,7 @@ public class CreateOutlineV2Tests
             ],
             Wegverharding =
             [
-                new WegsegmentWegverhardingAttribuutWaarde
+                new WegverhardingParameters
                 {
                     VanPositie = 0,
                     TotPositie = length,
@@ -75,7 +75,7 @@ public class CreateOutlineV2Tests
             ],
             Toegang =
             [
-                new WegsegmentToegangAttribuutWaarde
+                new ToegangParameters
                 {
                     VanPositie = 0,
                     TotPositie = length,
@@ -104,7 +104,7 @@ public class CreateOutlineV2Tests
             ],
             Wegcategorie =
             [
-                new WegsegmentWegcategorieAttribuutWaarde
+                new WegcategorieParameters
                 {
                     VanPositie = 0,
                     TotPositie = length,
@@ -113,7 +113,7 @@ public class CreateOutlineV2Tests
             ],
             VerkeerstypeAuto =
             [
-                new WegsegmentVerkeerstypeAutoAttribuutWaarde
+                new VerkeerstypeParameters
                 {
                     VanPositie = 0,
                     TotPositie = length,
@@ -122,7 +122,7 @@ public class CreateOutlineV2Tests
             ],
             VerkeerstypeFiets =
             [
-                new WegsegmentVerkeerstypeFietsAttribuutWaarde
+                new VerkeerstypeParameters
                 {
                     VanPositie = 0,
                     TotPositie = length,
@@ -131,7 +131,7 @@ public class CreateOutlineV2Tests
             ],
             VerkeerstypeVoetganger =
             [
-                new WegsegmentVerkeerstypeVoetgangerAttribuutWaarde
+                new VerkeerstypeVoetgangerParameters
                 {
                     VanPositie = 0,
                     TotPositie = length,

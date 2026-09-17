@@ -81,12 +81,16 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     Status = RoadSegmentStatusV2.Gerealiseerd,
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
-            .Then((_, events) =>
+            .Then((result, events) =>
             {
                 var roadNodeWasRemoved = events
                     .OfType<RoadNodeWasRemoved>()
                     .SingleOrDefault(x => x.RoadNodeId == 2);
                 roadNodeWasRemoved.Should().NotBeNull();
+
+                // Retiring the merged road segments is a status change: they are reported as modified, not removed.
+                result.Summary.RoadSegments.Modified.Should().Contain([new RoadSegmentId(1), new RoadSegmentId(2)]);
+                result.Summary.RoadSegments.Removed.Should().BeEmpty();
 
                 events.OfType<RoadSegmentWasRetiredBecauseOfMerger>().Should().HaveCount(2);
                 var roadSegment1WasRetiredBecauseOfMerger = events
@@ -145,12 +149,16 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     Status = RoadSegmentStatusV2.Gerealiseerd,
                 }).WithDynamicAttributePositionsOnEntireGeometryLength())
             )
-            .Then((_, events) =>
+            .Then((result, events) =>
             {
                 var roadNodeWasRemoved = events
                     .OfType<RoadNodeWasRemoved>()
                     .SingleOrDefault(x => x.RoadNodeId == 2);
                 roadNodeWasRemoved.Should().NotBeNull();
+
+                // Retiring the merged road segment is a status change: it is reported as modified, not removed.
+                result.Summary.RoadSegments.Modified.Should().Contain(new RoadSegmentId(2));
+                result.Summary.RoadSegments.Removed.Should().BeEmpty();
 
                 events.OfType<RoadSegmentWasMerged>().Should().HaveCount(1);
                 var roadSegment1WasMerged = events

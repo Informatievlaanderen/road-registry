@@ -128,7 +128,7 @@ public sealed class RoadSegmentGeometryDrawMethodV2 : IEquatable<RoadSegmentGeom
 
     public static bool TryParseUsingDutchName(string value, out RoadSegmentGeometryDrawMethodV2 parsed)
     {
-        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
+        parsed = Array.Find(All, candidate => string.Equals(candidate.Translation.Name, value, StringComparison.OrdinalIgnoreCase));
         return parsed != null;
     }
 

@@ -160,6 +160,47 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
     }
 
     [Fact]
+    public async Task WhenStreetNameIsNotApplicable_ThenItIsNotLookedUpAndTicketIsCompleted()
+    {
+        // 'niet van toepassing' is not a street name in the street name registry, so looking it up would turn a valid
+        // request into a StraatnaamNietGekend ticket error.
+        var streetNameClientMock = new Mock<IStreetNameClient>();
+        streetNameClientMock
+            .Setup(x => x.GetAsync(StreetNameId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new StreetNameItem { Id = StreetNameId, Name = "Teststraat", Status = StreetNameStatus.Current, NisCode = "11001" });
+
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = new RoadNetworkRepository(store);
+        var extractsDbContext = CreateExtractsDbContextWithCompletedZone();
+
+        var sqsRequest = CreateSqsRequest(
+            [
+                new ChangeRoadSegmentStreetNameIdAttributeValue
+                {
+                    Side = RoadSegmentAttributeSide.Links,
+                    FromPosition = RoadSegmentPositionV2.Zero,
+                    ToPosition = new RoadSegmentPositionV2(GeometryLength),
+                    StreetNameId = new StreetNameLocalId(StreetNameId)
+                },
+                new ChangeRoadSegmentStreetNameIdAttributeValue
+                {
+                    Side = RoadSegmentAttributeSide.Rechts,
+                    FromPosition = RoadSegmentPositionV2.Zero,
+                    ToPosition = new RoadSegmentPositionV2(GeometryLength),
+                    StreetNameId = StreetNameLocalId.NotApplicable
+                }
+            ]);
+
+        await HandleRequest(new CreateRoadSegmentOutlineV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest),
+            store: store, roadNetworkRepository: roadNetworkRepository, streetNameClient: streetNameClientMock.Object, extractsDbContext: extractsDbContext);
+
+        streetNameClientMock.Verify(x => x.GetAsync(It.Is<int>(id => id != StreetNameId), It.IsAny<CancellationToken>()), Times.Never);
+        await using var session = store.LightweightSession();
+        var savedSegment = await session.LoadAsync(new RoadSegmentId(1));
+        VerifyThatTicketHasCompleted(TicketingMock, "/v3/wegsegmenten/1", savedSegment!.LastEventHash);
+    }
+
+    [Fact]
     public async Task WhenStreetNameNotProposedOrCurrent_ThenTicketError()
     {
         var streetNameClientMock = new Mock<IStreetNameClient>();
@@ -215,7 +256,7 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
         return db;
     }
 
-    private CreateRoadSegmentOutlineV2SqsRequest CreateSqsRequest()
+    private CreateRoadSegmentOutlineV2SqsRequest CreateSqsRequest(ChangeRoadSegmentStreetNameIdAttributeValue[]? streetNameId = null)
     {
         var line = new LineString(
             new CoordinateArraySequence([new CoordinateM(0, 0, 0), new CoordinateM(GeometryLength, 0, GeometryLength)]),
@@ -257,7 +298,7 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
                     AccessRestriction = RoadSegmentAccessRestrictionV2.OpenbareWeg
                 }
             ],
-            StreetNameId =
+            StreetNameId = streetNameId ??
             [
                 new ChangeRoadSegmentStreetNameIdAttributeValue
                 {
