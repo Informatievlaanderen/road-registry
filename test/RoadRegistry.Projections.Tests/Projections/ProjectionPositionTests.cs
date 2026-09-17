@@ -75,6 +75,32 @@ public class ProjectionPositionTests
         (await projection.Position()).Should().Be(40);
     }
 
+    // A read model starting from nothing gets its initialization once, before the first events, and again only once
+    // the projection state is gone - which is what a rebuild does.
+    [Fact]
+    public async Task GivenNoProjectionState_ThenTheInitializableProjectionsAreInitializedOnceBeforeTheFirstEvents()
+    {
+        var recorder = new RecordingProjection();
+        var initializable = new InitializableRecordingProjection(recorder);
+        var dbContextFactory = new TestDbContextFactory(Guid.NewGuid().ToString());
+        var projection = new TestProjection(dbContextFactory, [recorder, initializable]);
+
+        await projection.Dispatch(pageMaxSequence: 10, ("A", [Event(10)]));
+        await projection.Dispatch(pageMaxSequence: 20, ("A", [Event(20)]));
+
+        initializable.Initializations.Should().Equal(0);
+
+        await using (var context = dbContextFactory.CreateDbContext())
+        {
+            context.ProjectionStates.RemoveRange(context.ProjectionStates);
+            await context.SaveChangesAsync();
+        }
+
+        await projection.Dispatch(pageMaxSequence: 30, ("A", [Event(30)]));
+
+        initializable.Initializations.Should().Equal(0, 2);
+    }
+
     private static TestProjection CreateProjection(RecordingProjection recorder)
     {
         return new TestProjection(new TestDbContextFactory(Guid.NewGuid().ToString()), [recorder]);
@@ -100,6 +126,32 @@ public class ProjectionPositionTests
         public Task Project(TestDbContext session, IReadOnlyList<IEvent> events, CancellationToken cancellationToken)
         {
             AppliedSequences.AddRange(events.Select(x => x.Sequence));
+            return Task.CompletedTask;
+        }
+    }
+
+    // Records, for every initialization, how many events the other projection had been applied by then.
+    private sealed class InitializableRecordingProjection : IRoadNetworkChangesProjection<TestDbContext>, IInitializableRoadNetworkChangesProjection<TestDbContext>
+    {
+        private readonly RecordingProjection _recorder;
+
+        public InitializableRecordingProjection(RecordingProjection recorder)
+        {
+            _recorder = recorder;
+        }
+
+        public List<int> Initializations { get; } = [];
+        public bool IsCatchingUp { get; set; }
+        public ILogger? Logger { get; set; }
+
+        public Task InitializeAsync(TestDbContext session, CancellationToken cancellationToken)
+        {
+            Initializations.Add(_recorder.AppliedSequences.Count);
+            return Task.CompletedTask;
+        }
+
+        public Task Project(TestDbContext session, IReadOnlyList<IEvent> events, CancellationToken cancellationToken)
+        {
             return Task.CompletedTask;
         }
     }

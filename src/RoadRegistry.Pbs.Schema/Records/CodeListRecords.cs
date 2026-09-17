@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 // Code lists: dumps of the known V2 domain types (code + Dutch label + definition). Kept in sync by a one-time
-// runner, except WegsegmentCodelijstWegbeheerder which is fed by the organization projection.
+// runner, except WegsegmentCodelijstWegbeheerder which is fed by the organization projection (apart from its predefined
+// "andere" and "niet gekend" rows).
 
 public class RoadNodeTypeCodeListRecord : IEnumBasedCodeListRecord
 {

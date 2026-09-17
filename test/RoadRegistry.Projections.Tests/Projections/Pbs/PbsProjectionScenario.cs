@@ -65,6 +65,11 @@ public sealed class PbsProjectionScenario
         {
             projectionState = new ProjectionStateItem { Name = ProjectionStateName };
             await context.ProjectionStates.AddAsync(projectionState);
+
+            foreach (var projection in _projections.OfType<IInitializableRoadNetworkChangesProjection<PbsContext>>())
+            {
+                await projection.InitializeAsync(context, CancellationToken.None);
+            }
         }
 
         var position = projectionState.Position;
