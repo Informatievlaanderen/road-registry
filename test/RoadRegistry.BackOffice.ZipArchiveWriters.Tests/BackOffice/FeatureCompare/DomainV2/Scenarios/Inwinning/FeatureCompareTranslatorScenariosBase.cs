@@ -7,6 +7,7 @@ using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Infrastructure.Dbase;
 using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
@@ -47,6 +48,18 @@ public abstract class FeatureCompareTranslatorScenariosBase
                 throw;
             }
         }
+    }
+
+    // An inwinning takes over the grade separated junction it leaves untouched, so it is migrated along with its road segments.
+    protected static ModifyGradeSeparatedJunctionChange MigrateUnchangedGradeSeparatedJunction(DomainV2ZipArchiveBuilder.ZipArchiveBuildContext context)
+    {
+        return new ModifyGradeSeparatedJunctionChange
+        {
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(context.Extract.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN.Value),
+            LowerRoadSegmentId = new RoadSegmentId(context.Extract.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value!.Value),
+            UpperRoadSegmentId = new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value!.Value),
+            Type = GradeSeparatedJunctionTypeV2.ByIdentifier[context.Extract.TestData.GradeSeparatedJunctionDbaseRecord.TYPE.Value]
+        };
     }
 
     protected async Task TranslateReturnsExpectedResult(ZipArchive archive, TranslatedChanges expected, IZipArchiveFeatureCompareTranslator translator = null)

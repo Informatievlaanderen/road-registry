@@ -181,7 +181,8 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                         Geometry = context.Change.TestData.RoadSegment2EndNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
                         Grensknoop = context.Change.TestData.RoadSegment2EndNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
                     }
-                ));
+                )
+                .AppendChange(MigrateUnchangedGradeSeparatedJunction(context)));
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }

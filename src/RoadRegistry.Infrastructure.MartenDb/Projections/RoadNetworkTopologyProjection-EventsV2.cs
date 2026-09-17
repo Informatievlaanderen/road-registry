@@ -250,6 +250,16 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
+    public void Project(IEvent<GradeSeparatedJunctionWasMigrated> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand($"UPDATE {GradeSeparatedJunctionsTableName} SET lower_road_segment_id = ?, upper_road_segment_id = ?, timestamp = ?, is_v2 = TRUE WHERE id = ?",
+            e.Data.LowerRoadSegmentId.ToInt32(),
+            e.Data.UpperRoadSegmentId.ToInt32(),
+            e.Timestamp,
+            e.Data.GradeSeparatedJunctionId.ToInt32()
+        );
+    }
+
     public void Project(IEvent<GradeSeparatedJunctionWasRemoved> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradeseparatedjunction(?, ?);",

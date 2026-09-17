@@ -162,6 +162,41 @@ public class GradeSeparatedJunctionReadProjectionTests
     }
 
     [Fact]
+    public async Task WhenV1GradeSeparatedJunctionWasMigrated_ThenV2AndReassignsRoadSegmentLinks()
+    {
+        var scenario = Scenario();
+        var type = _testData.Fixture.Create<GradeSeparatedJunctionTypeV2>();
+        await GivenRoadSegments1To3(scenario);
+        await scenario.GivenAsync(new V1.GradeSeparatedJunctionAdded
+        {
+            Id = 1,
+            TemporaryId = -1,
+            LowerRoadSegmentId = 1,
+            UpperRoadSegmentId = 2,
+            Type = "Tunnel",
+            Provenance = Provenance
+        });
+
+        await scenario.GivenAsync(new GradeSeparatedJunctionWasMigrated
+        {
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
+            LowerRoadSegmentId = new RoadSegmentId(1),
+            UpperRoadSegmentId = new RoadSegmentId(3),
+            Type = type,
+            Provenance = Provenance
+        });
+
+        var junction = await scenario.Load<GradeSeparatedJunctionReadItem>(1);
+        Assert.True(junction!.IsV2);
+        Assert.Equal(type.ToString(), junction.Type);
+        Assert.Equal(new RoadSegmentId(1), junction.LowerRoadSegmentId);
+        Assert.Equal(new RoadSegmentId(3), junction.UpperRoadSegmentId);
+        Assert.Contains(new GradeSeparatedJunctionId(1), (await scenario.Load<RoadSegmentReadItem>(1))!.GradeSeparatedJunctionIds);
+        Assert.DoesNotContain(new GradeSeparatedJunctionId(1), (await scenario.Load<RoadSegmentReadItem>(2))!.GradeSeparatedJunctionIds);
+        Assert.Contains(new GradeSeparatedJunctionId(1), (await scenario.Load<RoadSegmentReadItem>(3))!.GradeSeparatedJunctionIds);
+    }
+
+    [Fact]
     public async Task WhenGradeSeparatedJunctionWasRemoved_ThenMarkedRemovedAndLinksRemoved()
     {
         var scenario = Scenario();

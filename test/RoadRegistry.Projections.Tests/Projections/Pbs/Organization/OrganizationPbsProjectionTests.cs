@@ -76,7 +76,7 @@ public class OrganizationPbsProjectionTests
             typeof(GradeSeparatedJunctionModified), typeof(GradeSeparatedJunctionRemoved),
             typeof(GradeSeparatedJunctionGeometryModified),
             // GradeSeparatedJunction V2
-            typeof(GradeSeparatedJunctionWasAdded), typeof(GradeSeparatedJunctionWasModified), typeof(GradeSeparatedJunctionGeometryWasChanged),
+            typeof(GradeSeparatedJunctionWasAdded), typeof(GradeSeparatedJunctionWasModified), typeof(GradeSeparatedJunctionWasMigrated), typeof(GradeSeparatedJunctionGeometryWasChanged),
             typeof(GradeSeparatedJunctionWasRemoved), typeof(GradeSeparatedJunctionWasRemovedBecauseOfMigration),
             // StreetName V2
             typeof(StreetNameWasCreated), typeof(StreetNameWasModified),

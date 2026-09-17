@@ -123,6 +123,22 @@ public class GradeSeparatedJunctionExtractProjection : MartenRoadNetworkChangesP
 
             session.Store(junction);
         });
+        When<IEvent<GradeSeparatedJunctionWasMigrated>>(async (session, e, _) =>
+        {
+            var junction = await session.LoadAsync<GradeSeparatedJunctionExtractItem>(e.Data.GradeSeparatedJunctionId);
+            if (junction is null)
+            {
+                throw new InvalidOperationException($"No grade separated junction found for Id {e.Data.GradeSeparatedJunctionId}");
+            }
+
+            junction.LastModified = e.Data.Provenance.ToEventTimestamp();
+            junction.Type = e.Data.Type;
+            junction.LowerRoadSegmentId = e.Data.LowerRoadSegmentId;
+            junction.UpperRoadSegmentId = e.Data.UpperRoadSegmentId;
+            junction.IsV2 = true;
+
+            session.Store(junction);
+        });
         When<IEvent<GradeSeparatedJunctionWasRemoved>>(async (session, e, _) =>
         {
             var junction = await session.LoadAsync<GradeSeparatedJunctionExtractItem>(e.Data.GradeSeparatedJunctionId);

@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Projections.Tests.Projections.ExtractGradeSeparatedJunction;
 
 using AutoFixture;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Extracts.Projections;
 using FluentAssertions;
 using GradeSeparatedJunction.Events.V1;
@@ -173,6 +174,40 @@ public class GradeSeparatedJunctionExtractProjectionTests
             .Scenario()
             .Given(junctionAdded, junctionModified)
             .Expect(expectedRoadNode);
+    }
+
+    [Fact]
+    public Task WhenV1GradeSeparatedJunctionWasMigrated_ThenV2WithTypeAndRoadSegmentsFromEvent()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<GradeSeparatedJunctionId>();
+
+        var junctionMigrated = fixture.Create<GradeSeparatedJunctionWasMigrated>();
+        var junctionAdded = new GradeSeparatedJunctionAdded
+        {
+            Id = junctionMigrated.GradeSeparatedJunctionId.ToInt32(),
+            TemporaryId = -1,
+            LowerRoadSegmentId = junctionMigrated.LowerRoadSegmentId.ToInt32() + 1,
+            UpperRoadSegmentId = junctionMigrated.UpperRoadSegmentId.ToInt32() + 1,
+            Type = "Tunnel",
+            Provenance = fixture.Create<ProvenanceData>()
+        };
+
+        var expectedJunction = new GradeSeparatedJunctionExtractItem
+        {
+            GradeSeparatedJunctionId = junctionMigrated.GradeSeparatedJunctionId,
+            LowerRoadSegmentId = junctionMigrated.LowerRoadSegmentId,
+            UpperRoadSegmentId = junctionMigrated.UpperRoadSegmentId,
+            Type = junctionMigrated.Type,
+            IsV2 = true,
+            Origin = junctionAdded.Provenance.ToEventTimestamp(),
+            LastModified = junctionMigrated.Provenance.ToEventTimestamp()
+        };
+
+        return BuildProjection()
+            .Scenario()
+            .Given(junctionAdded, junctionMigrated)
+            .Expect(expectedJunction);
     }
 
     [Fact]

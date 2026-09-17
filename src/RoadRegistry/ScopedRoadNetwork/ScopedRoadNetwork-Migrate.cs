@@ -111,6 +111,9 @@ public partial class ScopedRoadNetwork
                 case AddGradeSeparatedJunctionChange change:
                     problems += AddGradeSeparatedJunction(change, idGenerator, context);
                     break;
+                case ModifyGradeSeparatedJunctionChange change:
+                    problems += MigrateGradeSeparatedJunction(change, context);
+                    break;
                 case RemoveGradeSeparatedJunctionChange change:
                     problems += RemoveGradeSeparatedJunctionBecauseOfMigration(change, context);
                     break;
@@ -342,6 +345,39 @@ public partial class ScopedRoadNetwork
         _roadSegmentsSpatialIndex.Remove(roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
         context.Summary.RoadSegments.Removed.Add(roadSegment.RoadSegmentId);
 
+        return problems;
+    }
+
+    private Problems MigrateGradeSeparatedJunction(ModifyGradeSeparatedJunctionChange change, ScopedRoadNetworkChangeContext context)
+    {
+        var problems = Problems.WithContext(change.GradeSeparatedJunctionId);
+
+        if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var gradeSeparatedJunction))
+        {
+            return problems + new GradeSeparatedJunctionNotFound();
+        }
+
+        if (gradeSeparatedJunction.HasMigrated())
+        {
+            return problems;
+        }
+
+        var migrateChange = new MigrateGradeSeparatedJunctionChange
+        {
+            GradeSeparatedJunctionId = change.GradeSeparatedJunctionId,
+            // A road segment the change does not mention is the one the junction already has
+            LowerRoadSegmentId = context.IdTranslator.TranslateToPermanentId(change.LowerRoadSegmentId ?? gradeSeparatedJunction.LowerRoadSegmentId),
+            UpperRoadSegmentId = context.IdTranslator.TranslateToPermanentId(change.UpperRoadSegmentId ?? gradeSeparatedJunction.UpperRoadSegmentId),
+            Type = change.Type ?? throw new InvalidOperationException($"{nameof(change.Type)} is required to migrate grade separated junction {change.GradeSeparatedJunctionId}.")
+        };
+
+        problems += gradeSeparatedJunction.Migrate(migrateChange, context.Provenance);
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
+        context.Summary.GradeSeparatedJunctions.Modified.Add(gradeSeparatedJunction.GradeSeparatedJunctionId);
         return problems;
     }
 

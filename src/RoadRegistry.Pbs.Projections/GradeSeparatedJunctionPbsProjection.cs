@@ -111,6 +111,21 @@ public class GradeSeparatedJunctionPbsProjection : RunnerDbContextRoadNetworkCha
             record.VERSIE = e.Data.Provenance.ToPbsDate();
         });
 
+        When<IEvent<GradeSeparatedJunctionWasMigrated>>(async (context, e, ct) =>
+        {
+            var record = await context.GradeSeparatedJunctions.FindAsync([e.Data.GradeSeparatedJunctionId.ToInt32()], ct);
+            if (record is null)
+            {
+                return;
+            }
+            record.ON_WS_OIDN = e.Data.LowerRoadSegmentId.ToInt32();
+            record.BO_WS_OIDN = e.Data.UpperRoadSegmentId.ToInt32();
+            record.TYPE = e.Data.Type.Translation.Identifier;
+            record.LBLTYPE = e.Data.Type.Translation.Name;
+            // Geometry is not carried on the migrate event; it arrives via GradeSeparatedJunctionGeometryWasChanged.
+            record.VERSIE = e.Data.Provenance.ToPbsDate();
+        });
+
         When<IEvent<GradeSeparatedJunctionGeometryWasChanged>>(async (context, e, ct) =>
         {
             var record = await context.GradeSeparatedJunctions.FindAsync([e.Data.GradeSeparatedJunctionId.ToInt32()], ct);

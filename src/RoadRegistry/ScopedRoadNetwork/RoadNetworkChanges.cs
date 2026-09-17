@@ -69,6 +69,7 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
         typeof(RemoveRoadSegmentFromNationalRoadChange),
         typeof(AddGradeSeparatedJunctionChange),
         typeof(ModifyGradeSeparatedJunctionChange),
+        typeof(MigrateGradeSeparatedJunctionChange),
         typeof(RemoveGradeSeparatedJunctionChange),
     ];
 

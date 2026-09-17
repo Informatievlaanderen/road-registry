@@ -377,6 +377,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                 {
                     GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst
                 })
+                .AppendChange(MigrateUnchangedGradeSeparatedJunction(context))
             );
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
@@ -439,7 +440,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                     RoadSegmentIdReference = new RoadSegmentIdReference(new RoadSegmentId(context.Extract.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value!.Value),
                         [new RoadSegmentTempId(context.Change.TestData.RoadSegment2DbaseRecord.WS_TEMPID.Value)]),
                     GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst
-                }));
+                })
+                .AppendChange(MigrateUnchangedGradeSeparatedJunction(context)));
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
@@ -591,7 +593,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                 .AppendChange(BuildModifyRoadSegmentChange(context.Change.TestData.RoadSegment1DbaseRecord, context.Change.TestData.RoadSegment1ShapeRecord) with
                 {
                     GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst
-                }));
+                })
+                .AppendChange(MigrateUnchangedGradeSeparatedJunction(context)));
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
@@ -765,7 +768,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                 {
                     GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst,
                     Status = RoadSegmentStatusV2.Gerealiseerd
-                }));
+                })
+                .AppendChange(MigrateUnchangedGradeSeparatedJunction(context)));
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
@@ -825,7 +829,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                         Geometry = context.Change.TestData.RoadSegment2EndNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
                         Grensknoop = context.Change.TestData.RoadSegment2EndNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
                     }
-                ));
+                )
+                .AppendChange(MigrateUnchangedGradeSeparatedJunction(context)));
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
@@ -894,6 +899,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                 {
                     GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst
                 })
+                .AppendChange(MigrateUnchangedGradeSeparatedJunction(context))
             );
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
@@ -1081,7 +1087,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                         Geometry = context.Change.TestData.RoadSegment2EndNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
                         Grensknoop = context.Change.TestData.RoadSegment2EndNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
                     }
-                ));
+                )
+                .AppendChange(MigrateUnchangedGradeSeparatedJunction(context)));
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
