@@ -58,14 +58,46 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
         junctionMigrated.LowerRoadSegmentId.Should().Be(TestData.Segment1Added.RoadSegmentId);
         junctionMigrated.UpperRoadSegmentId.Should().Be(TestData.Segment2Added.RoadSegmentId);
         junctionMigrated.Type.Should().Be(GradeSeparatedJunctionTypeV2.Brug);
+
+        // The crossing did not move, but the geometry still has to follow the migration.
+        var changes = junction.GetChanges().ToList();
+        changes.Should().HaveCount(2);
+        changes[0].Should().BeOfType<GradeSeparatedJunctionWasMigrated>();
+        changes[1].Should().BeOfType<GradeSeparatedJunctionGeometryWasChanged>()
+            .Which.Geometry.Should().Be(new Point(5, 0) { SRID = WellknownSrids.Lambert08 }.ToJunctionGeometry());
     }
 
     [Fact]
-    public void WhenV1GradeSeparatedJunctionIsModifiedWithoutRoadSegments_ThenMigratedWithItsOwnRoadSegments()
+    public void WhenV1GradeSeparatedJunctionIsModifiedAndItsCrossingMoved_ThenOneGeometryChangeFollowsMigration()
+    {
+        var roadNetwork = BuildV1RoadNetwork(GradeSeparatedJunction.CreateForMigration(JunctionId, TestData.Segment1Added.RoadSegmentId, TestData.Segment2Added.RoadSegmentId, new Point(4, 0) { SRID = WellknownSrids.Lambert08 }.ToJunctionGeometry()));
+
+        var result = roadNetwork.Migrate(MigrateRoadNodesAndRoadSegments()
+                .Add(new ModifyGradeSeparatedJunctionChange
+                {
+                    GradeSeparatedJunctionId = JunctionId,
+                    LowerRoadSegmentId = TestData.Segment1Added.RoadSegmentId,
+                    UpperRoadSegmentId = TestData.Segment2Added.RoadSegmentId,
+                    Type = GradeSeparatedJunctionTypeV2.Brug
+                }),
+            TestData.Fixture.Create<DownloadId>(),
+            new InMemoryRoadNetworkIdGenerator());
+
+        result.Problems.Should().HaveNoError();
+
+        var changes = roadNetwork.GradeSeparatedJunctions[JunctionId].GetChanges().ToList();
+        changes.Should().HaveCount(2);
+        changes[0].Should().BeOfType<GradeSeparatedJunctionWasMigrated>();
+        changes[1].Should().BeOfType<GradeSeparatedJunctionGeometryWasChanged>()
+            .Which.Geometry.Should().Be(new Point(5, 0) { SRID = WellknownSrids.Lambert08 }.ToJunctionGeometry());
+    }
+
+    [Fact]
+    public void WhenV1GradeSeparatedJunctionIsModifiedWithoutRoadSegments_ThenInvalidOperation()
     {
         var roadNetwork = BuildV1RoadNetwork();
 
-        var result = roadNetwork.Migrate(MigrateRoadNodesAndRoadSegments()
+        var act = () => roadNetwork.Migrate(MigrateRoadNodesAndRoadSegments()
                 .Add(new ModifyGradeSeparatedJunctionChange
                 {
                     GradeSeparatedJunctionId = JunctionId,
@@ -74,12 +106,8 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             TestData.Fixture.Create<DownloadId>(),
             new InMemoryRoadNetworkIdGenerator());
 
-        result.Problems.Should().HaveNoError();
-
-        var junctionMigrated = roadNetwork.GradeSeparatedJunctions[JunctionId].GetChanges().OfType<GradeSeparatedJunctionWasMigrated>().Should().ContainSingle().Which;
-        junctionMigrated.LowerRoadSegmentId.Should().Be(TestData.Segment1Added.RoadSegmentId);
-        junctionMigrated.UpperRoadSegmentId.Should().Be(TestData.Segment2Added.RoadSegmentId);
-        junctionMigrated.Type.Should().Be(GradeSeparatedJunctionTypeV2.Tunnel);
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("LowerRoadSegmentId is required*");
     }
 
     [Fact]
@@ -91,7 +119,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             LowerRoadSegmentId = TestData.Segment1Added.RoadSegmentId,
             UpperRoadSegmentId = TestData.Segment2Added.RoadSegmentId,
             Type = GradeSeparatedJunctionTypeV2.Brug,
-            Geometry = new Point(5, 0).ToJunctionGeometry(),
+            Geometry = new Point(5, 0) { SRID = WellknownSrids.Lambert08 }.ToJunctionGeometry(),
             Provenance = new(TestData.Provenance)
         }).WithoutChanges());
 
@@ -108,7 +136,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
 
         result.Problems.Should().HaveNoError();
         result.Summary.GradeSeparatedJunctions.Modified.Should().NotContain(JunctionId);
-        roadNetwork.GradeSeparatedJunctions[JunctionId].GetChanges().OfType<GradeSeparatedJunctionWasMigrated>().Should().BeEmpty();
+        roadNetwork.GradeSeparatedJunctions[JunctionId].GetChanges().Should().BeEmpty();
     }
 
     private ScopedRoadNetwork BuildV1RoadNetwork(GradeSeparatedJunction? gradeSeparatedJunction = null)
@@ -128,7 +156,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             ],
             gradeSeparatedJunctions:
             [
-                gradeSeparatedJunction ?? GradeSeparatedJunction.CreateForMigration(JunctionId, TestData.Segment1Added.RoadSegmentId, TestData.Segment2Added.RoadSegmentId, new Point(5, 0).ToJunctionGeometry())
+                gradeSeparatedJunction ?? GradeSeparatedJunction.CreateForMigration(JunctionId, TestData.Segment1Added.RoadSegmentId, TestData.Segment2Added.RoadSegmentId, new Point(5, 0) { SRID = WellknownSrids.Lambert08 }.ToJunctionGeometry())
             ]);
     }
 

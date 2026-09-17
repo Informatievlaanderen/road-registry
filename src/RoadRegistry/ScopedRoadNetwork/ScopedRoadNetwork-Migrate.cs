@@ -34,6 +34,14 @@ public partial class ScopedRoadNetwork
             problems += AfterChangesApplied(idGenerator, context);
         }
 
+        if (!problems.HasError())
+        {
+            foreach (var gradeSeparatedJunction in _gradeSeparatedJunctions.Values.Where(x => x.HasChanges()))
+            {
+                gradeSeparatedJunction.EnsureGeometryFollowsMigration(context.Provenance);
+            }
+        }
+
         if (!problems.HasError() && changes.Any())
         {
             Apply(new RoadNetworkWasChanged
@@ -365,9 +373,9 @@ public partial class ScopedRoadNetwork
         var migrateChange = new MigrateGradeSeparatedJunctionChange
         {
             GradeSeparatedJunctionId = change.GradeSeparatedJunctionId,
-            // A road segment the change does not mention is the one the junction already has
-            LowerRoadSegmentId = context.IdTranslator.TranslateToPermanentId(change.LowerRoadSegmentId ?? gradeSeparatedJunction.LowerRoadSegmentId),
-            UpperRoadSegmentId = context.IdTranslator.TranslateToPermanentId(change.UpperRoadSegmentId ?? gradeSeparatedJunction.UpperRoadSegmentId),
+            // FeatureCompare has validated the road segments and the type already; a migration without them is a bug
+            LowerRoadSegmentId = context.IdTranslator.TranslateToPermanentId(change.LowerRoadSegmentId ?? throw new InvalidOperationException($"{nameof(change.LowerRoadSegmentId)} is required to migrate grade separated junction {change.GradeSeparatedJunctionId}.")),
+            UpperRoadSegmentId = context.IdTranslator.TranslateToPermanentId(change.UpperRoadSegmentId ?? throw new InvalidOperationException($"{nameof(change.UpperRoadSegmentId)} is required to migrate grade separated junction {change.GradeSeparatedJunctionId}.")),
             Type = change.Type ?? throw new InvalidOperationException($"{nameof(change.Type)} is required to migrate grade separated junction {change.GradeSeparatedJunctionId}.")
         };
 

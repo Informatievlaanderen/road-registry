@@ -26,7 +26,8 @@ using Xunit.Abstractions;
 /// Before the fix, an inwinning left the grade separated junctions it did not change as V1 junctions: FeatureCompare saw
 /// them as identical and produced no change, so they only got GradeSeparatedJunctionGeometryWasChanged while both their
 /// road segments were migrated. This migrates those junctions after the fact, the way the inwinning now does:
-/// ScopedRoadNetwork.Migrate with a ModifyGradeSeparatedJunctionChange, which appends GradeSeparatedJunctionWasMigrated.
+/// ScopedRoadNetwork.Migrate with a ModifyGradeSeparatedJunctionChange, which appends GradeSeparatedJunctionWasMigrated
+/// followed by GradeSeparatedJunctionGeometryWasChanged with the junction's current geometry.
 ///
 /// The junctions are found as the V1 junctions of which both road segments are V2. Their type is the one the inwinning
 /// extract contained: the V1 type, translated to V2 the way the extract writer does it.
@@ -62,6 +63,7 @@ public class MigrateUntouchedGradeSeparatedJunctions
 
         var migrated = new List<GradeSeparatedJunctionId>();
         var skipped = new List<string>();
+        var withoutGeometry = new List<GradeSeparatedJunctionId>();
 
         foreach (var batch in candidateIds.Chunk(BatchSize))
         {
@@ -89,6 +91,11 @@ public class MigrateUntouchedGradeSeparatedJunctions
                 _outputHelper.WriteLine($"{junctionId}: lower {change.LowerRoadSegmentId}, upper {change.UpperRoadSegmentId}, {extractItems[junctionId].Type} -> {change.Type}");
                 changes.Add(change);
                 migrated.Add(junctionId);
+
+                if (roadNetwork.GradeSeparatedJunctions[junctionId].Geometry is null)
+                {
+                    withoutGeometry.Add(junctionId);
+                }
             }
 
             if (dryRun || !changes.Any())
@@ -108,6 +115,8 @@ public class MigrateUntouchedGradeSeparatedJunctions
 
         _outputHelper.WriteLine(string.Empty);
         _outputHelper.WriteLine($"{(dryRun ? "Would migrate" : "Migrated")}: {migrated.Count}");
+        // Without geometry there is no GeometryWasChanged to follow the migration.
+        _outputHelper.WriteLine($"Without geometry: {withoutGeometry.Count}{(withoutGeometry.Count > 0 ? $" ({string.Join(", ", withoutGeometry)})" : string.Empty)}");
         _outputHelper.WriteLine($"Skipped: {skipped.Count}");
         foreach (var line in skipped)
         {
