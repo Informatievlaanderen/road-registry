@@ -35,7 +35,6 @@ public static class SetupExtensions
 
         services
             .AddMartenRoad(options => options
-                .AddRoadNetworkTopologyProjection()
                 .AddRoadAggregatesSnapshots());
 
         services

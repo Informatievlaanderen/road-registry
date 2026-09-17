@@ -13,7 +13,6 @@ public static class FunctionMartenConfiguration
     public static void Configure(StoreOptions options)
     {
         options
-            .AddRoadNetworkTopologyProjection()
             .AddRoadAggregatesSnapshots()
             .ConfigureExtractDocuments();
 

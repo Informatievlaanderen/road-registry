@@ -232,7 +232,6 @@ public class ForDebugging
 
         services
             .AddMartenRoad(options => options
-                .AddRoadNetworkTopologyProjection()
                 .AddRoadAggregatesSnapshots()
                 .ConfigureExtractDocuments()).Services
             // Road node and junction ids have to keep counting where the real network left off, so the sequence in the

@@ -154,7 +154,6 @@ public class ForDebugging
 
         services
             .AddMartenRoad(options => options
-                .AddRoadNetworkTopologyProjection()
                 .AddRoadAggregatesSnapshots()
                 .ConfigureExtractDocuments()).Services
             .AddSingleton<IRoadNetworkIdGenerator>(new InMemoryRoadNetworkIdGenerator())
