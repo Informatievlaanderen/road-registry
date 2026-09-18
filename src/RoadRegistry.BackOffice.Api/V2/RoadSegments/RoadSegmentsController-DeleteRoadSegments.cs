@@ -38,7 +38,7 @@ public partial class RoadSegmentsController
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost(DeleteRoadSegmentsRoute, Name = nameof(DeleteRoadSegmentsV2))]
-    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.IngemetenWeg.Beheerder)]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
