@@ -1,3 +1,16 @@
+# [5.19.0](https://github.com/informatievlaanderen/road-registry/compare/v5.18.3...v5.19.0) (2026-09-18)
+
+
+### Bug Fixes
+
+* **2.0:** keep road segments retired by a merger or split in the network topology ([a67447f](https://github.com/informatievlaanderen/road-registry/commit/a67447fdb9a06eaff9101c24b1d1d08fa6f33ccd))
+* **inwinning:** migrate untouched grade separated junctions during inwinning ([e772564](https://github.com/informatievlaanderen/road-registry/commit/e7725644853e4f6fe5bc67e49defbe866debd32f))
+
+
+### Features
+
+* **pbs:** add andere (-7) and niet gekend (-8) to WegsegmentCodelijstWegbeheerder ([0c645d9](https://github.com/informatievlaanderen/road-registry/commit/0c645d9ae2e61dedb873703b5d16e036d5af9599))
+
 ## [5.18.3](https://github.com/informatievlaanderen/road-registry/compare/v5.18.2...v5.18.3) (2026-09-17)
 
 
