@@ -108,6 +108,12 @@ public sealed class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>,
         return this;
     }
 
+    public TranslatedChanges AppendChange(ModifyGradeSeparatedJunctionChange change)
+    {
+        _changes.Add(change);
+        return this;
+    }
+
     public TranslatedChanges AppendChange(RemoveGradeSeparatedJunctionChange change)
     {
         _changes.Add(change);

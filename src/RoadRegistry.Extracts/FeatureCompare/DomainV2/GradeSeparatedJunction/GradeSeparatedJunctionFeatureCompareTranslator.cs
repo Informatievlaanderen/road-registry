@@ -91,10 +91,13 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
                 continue;
             }
 
-            var hasMatchByType = matchingExtractFeatures.Any(x => x.Attributes.Type == changeFeature.Attributes.Type);
-            if (hasMatchByType)
+            var matchingExtractFeaturesByType = matchingExtractFeatures.Where(x => x.Attributes.Type == changeFeature.Attributes.Type).ToArray();
+            if (matchingExtractFeaturesByType.Any())
             {
-                processedRecords.Add(new Record(changeFeature, RecordType.Identical, lowerWegsegmentFeature.RoadSegmentId, upperWegsegmentFeature.RoadSegmentId));
+                var identicalExtractFeature = matchingExtractFeaturesByType.FirstOrDefault(x => x.Attributes.Id == changeFeature.Attributes.Id)
+                                              ?? matchingExtractFeaturesByType.First();
+
+                processedRecords.Add(new Record(identicalExtractFeature, RecordType.Identical, lowerWegsegmentFeature.RoadSegmentId, upperWegsegmentFeature.RoadSegmentId));
                 continue;
             }
 
@@ -162,6 +165,21 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
 
             switch (record.RecordType.Translation.Identifier)
             {
+                case RecordType.IdenticalIdentifier:
+                    // An inwinning takes over the grade separated junctions it leaves untouched, so they migrate along with their road segments
+                    if (context.ZipArchiveMetadata.Inwinning)
+                    {
+                        changes = changes.AppendChange(
+                            new ModifyGradeSeparatedJunctionChange
+                            {
+                                GradeSeparatedJunctionId = record.Feature.Attributes.Id,
+                                LowerRoadSegmentId = record.LowerRoadSegmentId,
+                                UpperRoadSegmentId = record.UpperRoadSegmentId,
+                                Type = record.Feature.Attributes.Type
+                            }
+                        );
+                    }
+                    break;
                 case RecordType.AddedIdentifier:
                     changes = changes.AppendChange(
                         new AddGradeSeparatedJunctionChange

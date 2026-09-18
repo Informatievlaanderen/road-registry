@@ -266,6 +266,65 @@ public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorS
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
 
+    // The junction the inwinning leaves untouched is migrated with the identifier it has in the extract, whatever
+    // identifier the upload gave it.
+    [Fact]
+    public async Task WhenOnlyIdChanges_ThenMigratedWithExtractId()
+    {
+        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                builder.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN.Value = context.Fixture.CreateWhichIsDifferentThan(new GradeSeparatedJunctionId(builder.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN.Value));
+            })
+            .BuildWithResult(context =>
+            {
+                return TranslatedChanges.Empty
+                    .AppendChange(
+                        new ModifyRoadNodeChange
+                        {
+                            RoadNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value),
+                            Geometry = context.Change.TestData.RoadSegment1StartNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
+                            Grensknoop = context.Change.TestData.RoadSegment1StartNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+                        }
+                    )
+                    .AppendChange(
+                        new ModifyRoadNodeChange
+                        {
+                            RoadNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1EndNodeDbaseRecord.WK_OIDN.Value),
+                            Geometry = context.Change.TestData.RoadSegment1EndNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
+                            Grensknoop = context.Change.TestData.RoadSegment1EndNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+                        }
+                    )
+                    .AppendChange(
+                        new ModifyRoadNodeChange
+                        {
+                            RoadNodeId = new RoadNodeId(context.Change.TestData.RoadSegment2StartNodeDbaseRecord.WK_OIDN.Value),
+                            Geometry = context.Change.TestData.RoadSegment2StartNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
+                            Grensknoop = context.Change.TestData.RoadSegment2StartNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+                        }
+                    )
+                    .AppendChange(
+                        new ModifyRoadNodeChange
+                        {
+                            RoadNodeId = new RoadNodeId(context.Change.TestData.RoadSegment2EndNodeDbaseRecord.WK_OIDN.Value),
+                            Geometry = context.Change.TestData.RoadSegment2EndNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
+                            Grensknoop = context.Change.TestData.RoadSegment2EndNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+                        }
+                    )
+                    .AppendChange(
+                        new ModifyGradeSeparatedJunctionChange
+                        {
+                            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(context.Extract.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN.Value),
+                            LowerRoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value!.Value),
+                            UpperRoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value!.Value),
+                            Type = GradeSeparatedJunctionTypeV2.ByIdentifier[context.Change.TestData.GradeSeparatedJunctionDbaseRecord.TYPE.Value]
+                        }
+                    );
+            });
+
+        await TranslateReturnsExpectedResult(zipArchive, expected);
+    }
+
     [Fact]
     public async Task RemovingDuplicateRecordsShouldReturnExpectedResult()
     {
@@ -316,6 +375,7 @@ public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorS
                             Grensknoop = context.Change.TestData.RoadSegment2EndNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
                         }
                     )
+                    .AppendChange(MigrateUnchangedGradeSeparatedJunction(context))
                     .AppendChange(
                         new RemoveGradeSeparatedJunctionChange
                         {

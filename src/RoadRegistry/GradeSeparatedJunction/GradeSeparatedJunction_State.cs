@@ -17,6 +17,8 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
     private readonly string? _lastSnapshotEventHash;
     public string LastEventHash => UncommittedEvents.Count > 0 ? UncommittedEvents[^1].GetHash() : _lastSnapshotEventHash ?? string.Empty;
 
+    public bool HasMigrated() => Type is not null;
+
     public GradeSeparatedJunction(GradeSeparatedJunctionId id, IEventOrdinalProvider ordinalProvider)
         : base(id, ordinalProvider)
     {
@@ -105,6 +107,15 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         LowerRoadSegmentId = @event.LowerRoadSegmentId ?? LowerRoadSegmentId;
         UpperRoadSegmentId = @event.UpperRoadSegmentId ?? UpperRoadSegmentId;
         Type = @event.Type ?? Type;
+    }
+
+    public void Apply(GradeSeparatedJunctionWasMigrated @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        LowerRoadSegmentId = @event.LowerRoadSegmentId;
+        UpperRoadSegmentId = @event.UpperRoadSegmentId;
+        Type = @event.Type;
     }
 
     public void Apply(GradeSeparatedJunctionWasChangedToGradeJunction @event)

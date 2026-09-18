@@ -86,7 +86,8 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
                         RoadSegmentId = new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value!.Value),
                         Number = NationalRoadNumber.Parse(context.Extract.TestData.RoadSegment1NationalRoadDbaseRecord1.NWNUMMER.Value!)
                     }
-                ));
+                )
+                .AppendChange(MigrateUnchangedGradeSeparatedJunction(context)));
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }

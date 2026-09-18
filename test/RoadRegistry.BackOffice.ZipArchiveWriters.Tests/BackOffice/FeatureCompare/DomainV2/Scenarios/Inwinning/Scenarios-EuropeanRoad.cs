@@ -86,7 +86,8 @@ public class EuropeanRoadScenarios : FeatureCompareTranslatorScenariosBase
                         RoadSegmentId = new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value!.Value),
                         Number = EuropeanRoadNumber.Parse(context.Extract.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value!)
                     }
-                ));
+                )
+                .AppendChange(MigrateUnchangedGradeSeparatedJunction(context)));
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }

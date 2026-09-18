@@ -149,6 +149,43 @@ public class GradeSeparatedJunctionWmsWfsV2ProjectionTests
         Assert.Equal(newType.Translation.Name, junction.LBLTYPE);
     }
 
+    // A V1 junction the inwinning took over as it was: it keeps its record and geometry, and gets the V2 type.
+    [Fact]
+    public async Task WhenV1GradeSeparatedJunctionWasMigrated_ThenRoadSegmentsAndTypeUpdatedAndGeometryKept()
+    {
+        var scenario = Scenario();
+        var type = _testData.Fixture.Create<GradeSeparatedJunctionTypeV2>();
+
+        await scenario.GivenAsync(new GradeSeparatedJunctionV1.GradeSeparatedJunctionAdded
+        {
+            Id = 1,
+            LowerRoadSegmentId = 1,
+            UpperRoadSegmentId = 2,
+            TemporaryId = 1,
+            Type = "Tunnel",
+            Geometry = JunctionPoint((50, 50)),
+            Provenance = Provenance
+        });
+        await scenario.GivenAsync(new GradeSeparatedJunctionWasMigrated
+        {
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
+            LowerRoadSegmentId = new RoadSegmentId(3),
+            UpperRoadSegmentId = new RoadSegmentId(4),
+            Type = type,
+            Provenance = Provenance
+        });
+
+        var junction = await scenario.Find<GradeSeparatedJunctionRecord>(1);
+        Assert.NotNull(junction);
+        Assert.Equal(3, junction!.ON_WS_OIDN);
+        Assert.Equal(4, junction.BO_WS_OIDN);
+        Assert.Equal(type.Translation.Identifier, junction.TYPE);
+        Assert.Equal(type.Translation.Name, junction.LBLTYPE);
+        Assert.NotNull(junction.GEOMETRIE);
+        Assert.Equal(50.0, junction.GEOMETRIE.Coordinate.X, 3);
+        Assert.Equal(50.0, junction.GEOMETRIE.Coordinate.Y, 3);
+    }
+
     [Fact]
     public async Task WhenGradeSeparatedJunctionGeometryWasChanged_ThenGeometryUpdated()
     {
