@@ -22,4 +22,6 @@ public class RoadSegmentRecord
     public int? RightSideStreetNameId { get; set; }
     public string StatusDutchName { get; set; }
     public bool IsRemoved { get; set; }
+    // Set once the road segment is ingewonnen (migrated to V2): the view that serves this table leaves it out from then on.
+    public bool IsV2 { get; set; }
 }

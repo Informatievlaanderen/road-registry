@@ -4,6 +4,7 @@ namespace RoadRegistry.Product.PublishHost
     using System.Data;
     using System.IO;
     using System.IO.Compression;
+    using System.Linq;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -18,6 +19,7 @@ namespace RoadRegistry.Product.PublishHost
     using RoadRegistry.BackOffice.ZipArchiveWriters.ForProduct;
     using RoadRegistry.Extracts;
     using RoadRegistry.Extracts.Infrastructure.Extensions;
+    using RoadRegistry.Extracts.Schema;
     using RoadRegistry.Extracts.ZipArchiveWriters;
     using RoadRegistry.Infrastructure;
     using RoadRegistry.Product.PublishHost.CloudStorageClients;
@@ -33,6 +35,7 @@ namespace RoadRegistry.Product.PublishHost
         private readonly AzureBlobOptions _azureBlobOptions;
         private readonly ILifetimeScope _container;
         private readonly ProductContext _context;
+        private readonly IDbContextFactory<ExtractsDbContext> _extractsDbContextFactory;
         private readonly RecyclableMemoryStreamManager _streamManager;
         private readonly FileEncoding _fileEncoding;
         private readonly ZipArchiveWriterOptions _writerOptions;
@@ -40,6 +43,7 @@ namespace RoadRegistry.Product.PublishHost
 
         public ProductPublisher(
             ProductContext context,
+            IDbContextFactory<ExtractsDbContext> extractsDbContextFactory,
             ZipArchiveWriterOptions writerOptions,
             RecyclableMemoryStreamManager streamManager,
             FileEncoding fileEncoding,
@@ -50,6 +54,7 @@ namespace RoadRegistry.Product.PublishHost
             ILoggerFactory loggerFactory)
         {
             _context = context;
+            _extractsDbContextFactory = extractsDbContextFactory;
             _writerOptions = writerOptions;
             _streamManager = streamManager;
             _fileEncoding = fileEncoding;
@@ -102,9 +107,23 @@ namespace RoadRegistry.Product.PublishHost
 
         private async Task BuildArchive(MemoryStream archiveStream, CancellationToken cancellationToken)
         {
-            var writer = new RoadNetworkForProductPublishToZipArchiveWriter(_writerOptions, _cache, _streamManager, _fileEncoding);
+            var inwinningFilter = await CreateInwinningFilter(cancellationToken);
+
+            var writer = new RoadNetworkForProductPublishToZipArchiveWriter(_writerOptions, _cache, _streamManager, _fileEncoding, inwinningFilter);
             using var archive = new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8);
             await writer.WriteAsync(archive, _context, cancellationToken);
+        }
+
+        // What is ingewonnen is no longer part of the product: the V2 registry serves it from then on.
+        private async Task<ProductInwinningFilter> CreateInwinningFilter(CancellationToken cancellationToken)
+        {
+            await using var extractsDbContext = await _extractsDbContextFactory.CreateDbContextAsync(cancellationToken);
+            var completedRoadSegmentIds = await extractsDbContext.GetCompletedInwinningRoadSegmentIds(cancellationToken);
+
+            var inwinningFilter = await ProductInwinningFilter.CreateAsync(completedRoadSegmentIds.Select(x => x.ToInt32()), _context, cancellationToken);
+            _logger.LogInformation("Leaving out {Count} road segment(s) whose inwinning is complete.", completedRoadSegmentIds.Count);
+
+            return inwinningFilter;
         }
 
         private async Task<bool> BlobExistsInS3(DateTimeOffset archiveDate, CancellationToken cancellationToken)

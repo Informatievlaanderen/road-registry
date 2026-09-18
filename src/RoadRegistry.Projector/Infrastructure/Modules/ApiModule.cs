@@ -428,6 +428,14 @@ public class ApiModule : Module
             Description = "Vult het schaduwschema roadTemp; wordt na omwisseling verwijderd.",
             FallbackDesiredState = "subscribed"
         });
+
+        _martenProjections.Add(new ProjectionDetail
+        {
+            Id = WellKnownProjectionStateNames.RoadNetworkChangesWmsWfsV1InwinningProjection,
+            Name = "V1 - WMS/WFS ingewonnen",
+            Description = "Markeert de ingewonnen wegsegmenten en wegknopen in de V1 WMS/WFS als IsV2; wordt verwijderd als er geen V1-data meer is.",
+            FallbackDesiredState = "subscribed"
+        });
     }
 
     private void RegisterProjection<TContext>(ProjectionDetail projectionDetail) where TContext : DbContext
