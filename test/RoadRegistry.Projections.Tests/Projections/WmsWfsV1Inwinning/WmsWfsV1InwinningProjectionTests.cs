@@ -77,6 +77,7 @@ public class WmsWfsV1InwinningProjectionTests
             // GradeSeparatedJunction V2
             typeof(GradeSeparatedJunctionWasAdded), typeof(GradeSeparatedJunctionWasModified), typeof(GradeSeparatedJunctionGeometryWasChanged),
             typeof(GradeSeparatedJunctionWasRemoved), typeof(GradeSeparatedJunctionWasRemovedBecauseOfMigration),
+            typeof(GradeSeparatedJunctionWasMigrated),
             typeof(GradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange), typeof(GradeSeparatedJunctionWasChangedToGradeJunction),
             // Organization V2
             typeof(OrganizationWasImported), typeof(OrganizationWasCreated),
