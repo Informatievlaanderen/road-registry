@@ -1,3 +1,10 @@
+## [5.19.3](https://github.com/informatievlaanderen/road-registry/compare/v5.19.2...v5.19.3) (2026-09-21)
+
+
+### Bug Fixes
+
+* version bump ([88029ed](https://github.com/informatievlaanderen/road-registry/commit/88029eda0afbfe1531542447b4518eda5597ed4c))
+
 ## [5.19.2](https://github.com/informatievlaanderen/road-registry/compare/v5.19.1...v5.19.2) (2026-09-21)
 
 
