@@ -9,6 +9,26 @@ server {
         try_files ${DOLLAR}uri ${DOLLAR}uri/ /index.html;
     }
 
+    # Without a Cache-Control nginx only sends Last-Modified/ETag, and a browser may then serve its own copy for a
+    # while without asking. For the two files that change with every deploy - and every container start, in env.js'
+    # case - that means a user keeps an older app: env.js carries the feature toggles (an outdated one hid the
+    # inwinning upload buttons), and index.html says which hashed bundles to load.
+    location = /index.html {
+        root   /usr/share/nginx/html;
+        add_header Cache-Control "no-store, must-revalidate";
+    }
+
+    location = /env.js {
+        root   /usr/share/nginx/html;
+        add_header Cache-Control "no-store, must-revalidate";
+    }
+
+    # The build hashes these into their file name, so a new build is a new url and the old one can be kept for good.
+    location ~* ^/(js|css|img|fonts|media)/ {
+        root   /usr/share/nginx/html;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
     location /public/v2 {
         proxy_redirect off;
         proxy_ssl_server_name on;
