@@ -72,5 +72,5 @@ This host is a scheduled task with the purpose of running long-running commands.
 ### Overview
 
 Blobs that usually end up in AWS S3 will in this environment be stored in a Minio container (an S3 compatible, docker-based blob store).
-Data that ends up or originates from AWS RDS SQL Server will in this environment be stored in a SQL Server container (multiple).
+Data that ends up or originates from AWS RDS SQL Server will in this environment be stored in a SQL Server container (multiple). 
 Logging that usually ends up in DataDog will in this environment be accessible via the Seq container (Seq is a docker-based log server).
