@@ -1,3 +1,10 @@
+## [5.19.2](https://github.com/informatievlaanderen/road-registry/compare/v5.19.1...v5.19.2) (2026-09-21)
+
+
+### Bug Fixes
+
+* **ui:** stop browsers from serving a stale index.html or env.js ([5fc8cc3](https://github.com/informatievlaanderen/road-registry/commit/5fc8cc35e9b9f0df8628611d6bb9f550f2f4c9b9))
+
 ## [5.19.1](https://github.com/informatievlaanderen/road-registry/compare/v5.19.0...v5.19.1) (2026-09-18)
 
 
