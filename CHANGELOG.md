@@ -1,3 +1,10 @@
+## [5.19.4](https://github.com/informatievlaanderen/road-registry/compare/v5.19.3...v5.19.4) (2026-09-22)
+
+
+### Bug Fixes
+
+* **2.0:** drop vertices too close to the cut when splitting a road segment ([f93a992](https://github.com/informatievlaanderen/road-registry/commit/f93a992be349987829d69668efd4205bb186a6ae))
+
 ## [5.19.3](https://github.com/informatievlaanderen/road-registry/compare/v5.19.2...v5.19.3) (2026-09-21)
 
 
