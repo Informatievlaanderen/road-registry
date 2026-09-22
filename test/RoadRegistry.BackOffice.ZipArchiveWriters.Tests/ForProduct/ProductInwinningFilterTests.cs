@@ -54,7 +54,9 @@ public class ProductInwinningFilterTests
     }
 
     [Fact]
-    public async Task OnlyRoadSegmentsOfWhichEveryInwinningIsCompletedAreCompleted()
+    // A road segment that was once part of a completed inwinning counts as completed, also when a later inwinning locks
+    // it again.
+    public async Task RoadSegmentsWithAtLeastOneCompletedInwinningAreCompleted()
     {
         await using var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
         extractsDbContext.InwinningRoadSegments.AddRange(
@@ -65,9 +67,9 @@ public class ProductInwinningFilterTests
             new InwinningRoadSegment { RoadSegmentId = 4, NisCode = null, Completed = true });
         await extractsDbContext.SaveChangesAsync();
 
-        var roadSegmentIds = await extractsDbContext.GetCompletedInwinningRoadSegmentIds(CancellationToken.None);
+        var roadSegmentIds = await extractsDbContext.GetAtLeastOnceCompletedInwinningRoadSegmentIds(CancellationToken.None);
 
-        roadSegmentIds.Select(x => x.ToInt32()).Should().BeEquivalentTo([1, 4]);
+        roadSegmentIds.Select(x => x.ToInt32()).Should().BeEquivalentTo([1, 2, 4]);
     }
 
     [Fact]

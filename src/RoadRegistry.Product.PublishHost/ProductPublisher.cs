@@ -118,10 +118,10 @@ namespace RoadRegistry.Product.PublishHost
         private async Task<ProductInwinningFilter> CreateInwinningFilter(CancellationToken cancellationToken)
         {
             await using var extractsDbContext = await _extractsDbContextFactory.CreateDbContextAsync(cancellationToken);
-            var completedRoadSegmentIds = await extractsDbContext.GetCompletedInwinningRoadSegmentIds(cancellationToken);
+            var completedRoadSegmentIds = await extractsDbContext.GetAtLeastOnceCompletedInwinningRoadSegmentIds(cancellationToken);
 
             var inwinningFilter = await ProductInwinningFilter.CreateAsync(completedRoadSegmentIds.Select(x => x.ToInt32()), _context, cancellationToken);
-            _logger.LogInformation("Leaving out {Count} road segment(s) whose inwinning is complete.", completedRoadSegmentIds.Count);
+            _logger.LogInformation("Leaving out {Count} road segment(s) that were ingewonnen at least once.", completedRoadSegmentIds.Count);
 
             return inwinningFilter;
         }

@@ -179,15 +179,16 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
                 : Inwinningsstatus.NietGestart);
     }
 
-    // Every road segment whose inwinningsstatus is 'compleet' (see GetInwinningsstatus): it takes part in at least one
-    // inwinning, and every inwinning it takes part in is done.
-    public async Task<IReadOnlyCollection<RoadSegmentId>> GetCompletedInwinningRoadSegmentIds(CancellationToken cancellationToken)
+    // Every road segment that took part in at least one completed inwinning. Once ingewonnen it stays that way: a later
+    // inwinning that locks it again does not undo it, so unlike GetInwinningsstatus this does not ask whether every
+    // inwinning it takes part in is done.
+    public async Task<IReadOnlyCollection<RoadSegmentId>> GetAtLeastOnceCompletedInwinningRoadSegmentIds(CancellationToken cancellationToken)
     {
         var roadSegmentIds = await InwinningRoadSegments
             .AsNoTracking()
-            .GroupBy(x => x.RoadSegmentId)
-            .Where(x => x.Count(inwinningRoadSegment => !inwinningRoadSegment.Completed) == 0)
-            .Select(x => x.Key)
+            .Where(x => x.Completed)
+            .Select(x => x.RoadSegmentId)
+            .Distinct()
             .ToListAsync(cancellationToken);
 
         return roadSegmentIds.Select(x => new RoadSegmentId(x)).ToList();
