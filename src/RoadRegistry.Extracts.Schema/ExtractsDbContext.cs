@@ -179,6 +179,21 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
                 : Inwinningsstatus.NietGestart);
     }
 
+    // Every road segment that took part in at least one completed inwinning. Once ingewonnen it stays that way: a later
+    // inwinning that locks it again does not undo it, so unlike GetInwinningsstatus this does not ask whether every
+    // inwinning it takes part in is done.
+    public async Task<IReadOnlyCollection<RoadSegmentId>> GetAtLeastOnceCompletedInwinningRoadSegmentIds(CancellationToken cancellationToken)
+    {
+        var roadSegmentIds = await InwinningRoadSegments
+            .AsNoTracking()
+            .Where(x => x.Completed)
+            .Select(x => x.RoadSegmentId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        return roadSegmentIds.Select(x => new RoadSegmentId(x)).ToList();
+    }
+
     public async Task<IReadOnlyCollection<RoadSegmentId>> CheckWhichOverlapWithInwinningszone(IEnumerable<(MultiLineString Geometry, RoadSegmentId TemporaryId)> roadSegments, CancellationToken cancellationToken)
     {
         var inwinningszonesGeometries = await Inwinningszones
