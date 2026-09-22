@@ -257,13 +257,19 @@ public partial class ScopedRoadNetwork
         secondCoordinates[0] = sharedNodeCoordinate;
         secondCoordinates[^1] = endCoordinate;
 
+        // The crossing can lie within 15cm of an existing vertex; that vertex is dropped so the part does not end (or
+        // start) with two vertices too close to each other, while the shared node stays on the crossing.
         var firstGeometry = new MultiLineString([lineString.Factory.CreateLineString(firstCoordinates)])
             .WithSrid(segment.Geometry.SRID)
             .RoundToCm()
+            .RemoveCoordinateSegmentsLessThanMinimumDistanceBetweenVertices()
+            .WithSrid(segment.Geometry.SRID)
             .ToRoadSegmentGeometry();
         var secondGeometry = new MultiLineString([lineString.Factory.CreateLineString(secondCoordinates)])
             .WithSrid(segment.Geometry.SRID)
             .RoundToCm()
+            .RemoveCoordinateSegmentsLessThanMinimumDistanceBetweenVertices()
+            .WithSrid(segment.Geometry.SRID)
             .ToRoadSegmentGeometry();
 
         var cutPositionMeasure = new RoadSegmentPositionV2(cutMeasure);
