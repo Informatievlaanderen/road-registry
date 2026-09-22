@@ -388,4 +388,25 @@ public class AggregateTests : AggregateTestBase
         act.Should().Throw<RoadRegistryProblemsException>()
             .Which.Problems.Should().Contain(x => x.Reason == "RoadSegmentSplitPositionTooFarFromRoadSegment");
     }
+
+    [Fact]
+    public void WhenCutPositionLiesCloseToAnExistingVertex_ThenThatVertexIsDroppedFromBothParts()
+    {
+        // Arrange: the segment runs (0,0)->(50,50)->(100,100); the cut at (50.05,50.05) lies 7cm from the vertex (50,50).
+        var roadNetwork = BuildNetworkWithRealizedSegment();
+        var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
+        var cut = new Coordinate(50.05, 50.05);
+
+        // Act
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPosition(cut.X, cut.Y), IdGenerator(), TestData.Provenance);
+
+        // Assert
+        var parts = roadNetwork.GetNonRemovedRoadSegments()
+            .Where(x => x.RoadSegmentId != originalRoadSegmentId)
+            .Select(x => x.Geometry.Value.GetSingleLineString())
+            .ToList();
+        parts.Should().HaveCount(2);
+        parts.Should().OnlyContain(x => x.StartPoint.Coordinate.Equals2D(cut) || x.EndPoint.Coordinate.Equals2D(cut));
+        parts.Should().OnlyContain(x => x.NumPoints == 2);
+    }
 }
