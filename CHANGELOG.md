@@ -1,3 +1,10 @@
+# [5.20.0](https://github.com/informatievlaanderen/road-registry/compare/v5.19.4...v5.20.0) (2026-09-22)
+
+
+### Features
+
+* stop serving what is ingewonnen in the existing raadpleegdiensten GAWR-7720 ([8cc8755](https://github.com/informatievlaanderen/road-registry/commit/8cc87550fe64b39a68b17acc4464ffa389941b3c))
+
 ## [5.19.4](https://github.com/informatievlaanderen/road-registry/compare/v5.19.3...v5.19.4) (2026-09-22)
 
 
