@@ -1,3 +1,10 @@
+## [5.20.1](https://github.com/informatievlaanderen/road-registry/compare/v5.20.0...v5.20.1) (2026-09-24)
+
+
+### Bug Fixes
+
+* keep the Link header on a 404 for a road segment that moved to v3 GAWR-7720 ([49a517d](https://github.com/informatievlaanderen/road-registry/commit/49a517d66b475c324dbbb42141a8bdc30f64495b))
+
 # [5.20.0](https://github.com/informatievlaanderen/road-registry/compare/v5.19.4...v5.20.0) (2026-09-22)
 
 
