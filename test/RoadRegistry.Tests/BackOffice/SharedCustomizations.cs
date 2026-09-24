@@ -679,7 +679,12 @@ public static class SharedCustomizations
                 {
                     var x = generator.Next(600000, 600100);
                     var y = generator.Next(600000, 600100);
-                    var width = generator.Next(50000, 100000);
+                    // The polygon doubles as the transaction zone, so it must always cover the randomly generated
+                    // nodes and segments. CustomizeNtsLineStringLambert08 reaches up to 650100, and the second
+                    // segment of a test data set is that one offset by 1000 on both axes, so the far corner sits at
+                    // 651100. The origin starts as low as 600000, so a width under 51100 occasionally leaves that
+                    // second segment outside the zone, raising ShapeRecordGeometryIsOutsideTransactionZone.
+                    var width = generator.Next(52000, 100000);
 
                     return new NetTopologySuite.Geometries.Polygon(new LinearRing([
                             new(x, y),
