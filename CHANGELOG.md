@@ -1,3 +1,15 @@
+# [5.21.0](https://github.com/informatievlaanderen/road-registry/compare/v5.20.1...v5.21.0) (2026-09-24)
+
+
+### Bug Fixes
+
+* keep slow polling a delivery Datavalidatie rejected GAWR-7760 ([3d0f0d5](https://github.com/informatievlaanderen/road-registry/commit/3d0f0d59d8f19f8ccd2d0629c32afdd7cc209bfd))
+
+
+### Features
+
+* **2.0:** promote the WmsWfsV2 shadow read model to the live one ([d6e32b6](https://github.com/informatievlaanderen/road-registry/commit/d6e32b66a1026cf0b3a78d0d2080bd08bc777169))
+
 ## [5.20.1](https://github.com/informatievlaanderen/road-registry/compare/v5.20.0...v5.20.1) (2026-09-24)
 
 
