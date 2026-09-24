@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.WmsWfsV2.Schema;
 
+using System;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,14 @@ public class WmsWfsV2Context : RunnerDbContext<WmsWfsV2Context>
     public WmsWfsV2Context(DbContextOptions<WmsWfsV2Context> options)
         : base(options)
     {
+        // A projection batch writes thousands of rows in one SaveChanges, which on a loaded server runs past EF's
+        // thirty second default. That timeout is classified as transient, so it is retried, exhausted, and ends with
+        // the shard paused over work that was only slow. Set here rather than where the options are built: every
+        // runtime registration builds its own options inline, so this is the only place that covers them all.
+        if (Database.IsRelational())
+        {
+            Database.SetCommandTimeout(TimeSpan.FromMinutes(10));
+        }
     }
 
     public override string ProjectionStateSchema => WellKnownSchemas.WmsWfsV2Schema;
