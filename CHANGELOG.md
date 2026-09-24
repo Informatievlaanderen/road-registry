@@ -1,3 +1,10 @@
+## [5.21.1](https://github.com/informatievlaanderen/road-registry/compare/v5.21.0...v5.21.1) (2026-09-24)
+
+
+### Bug Fixes
+
+* **2.0:** drop only the views that stand on [road] when promoting the shadow ([f2d24fa](https://github.com/informatievlaanderen/road-registry/commit/f2d24fac9469f814497f73a0797b2bac7cb99763))
+
 # [5.21.0](https://github.com/informatievlaanderen/road-registry/compare/v5.20.1...v5.21.0) (2026-09-24)
 
 
