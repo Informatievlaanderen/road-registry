@@ -420,15 +420,6 @@ public class ApiModule : Module
             FallbackDesiredState = "subscribed"
         });
 
-        // Listed so the rebuild it is doing can be followed - it is only done when it reaches the store position.
-        _martenProjections.Add(new ProjectionDetail
-        {
-            Id = WellKnownProjectionStateNames.RoadNetworkChangesWmsWfsV2TempProjection,
-            Name = "V2 - WMS/WFS (shadow rebuild)",
-            Description = "Vult het schaduwschema roadTemp; wordt na omwisseling verwijderd.",
-            FallbackDesiredState = "subscribed"
-        });
-
         _martenProjections.Add(new ProjectionDetail
         {
             Id = WellKnownProjectionStateNames.RoadNetworkChangesWmsWfsV1InwinningProjection,

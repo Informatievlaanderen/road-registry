@@ -179,8 +179,6 @@ public class Startup
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesWmsWfsV2Projection)}:BatchSize");
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesWmsWfsV2Projection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<WmsWfsV2Context>>(), GetCatchUpOptions(nameof(RoadNetworkChangesWmsWfsV2Projection))));
 
-                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesWmsWfsV2TempProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<TempSchemaDbContextFactory<WmsWfsV2Context>>(), GetCatchUpOptions(nameof(RoadNetworkChangesWmsWfsV2Projection))));
-
                     // What the V1 WMS/WFS leave out because it is ingewonnen; goes with the V1 data.
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesWmsWfsV1InwinningProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<WmsWfsV1InwinningContext>>(), GetCatchUpOptions(nameof(RoadNetworkChangesWmsWfsV1InwinningProjection))));
                 }
@@ -233,25 +231,18 @@ public class Startup
                     var connectionString = sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.WmsWfsV2Projections);
                     options.UseSqlServer(connectionString, o => o.EnableRetryOnFailure());
                 })
-                .AddSingleton<IDbMigratorFactory, WmsWfsV1InwinningContextMigratorFactory>()
-                .AddSingleton(sp => new TempSchemaDbContextFactory<WmsWfsV2Context>(
-                    () => new WmsWfsV2Context(BuildSqlServerOptions<WmsWfsV2Context>(sp, WellKnownConnectionNames.WmsWfsV2Projections, WellKnownSchemas.WmsWfsV2TempSchema))));
+                .AddSingleton<IDbMigratorFactory, WmsWfsV1InwinningContextMigratorFactory>();
         }
 
-        // Before the daemon: the shadow projections write through a model whose tables the migrations do not create.
-        if (projectionOptions.Pbs.Enabled || projectionOptions.WmsWfsV2.Enabled)
+        // Before the daemon: the shadow projection writes through a model whose tables the migrations do not create.
+        if (projectionOptions.Pbs.Enabled)
         {
             services.AddHostedService(sp =>
             {
-                var readModels = new List<(string Schema, Func<DbContext> CreateDbContext)>();
-                if (projectionOptions.Pbs.Enabled)
+                var readModels = new List<(string Schema, Func<DbContext> CreateDbContext)>
                 {
-                    readModels.Add((WellKnownSchemas.PbsTempSchema, () => sp.GetRequiredService<TempSchemaDbContextFactory<PbsContext>>().CreateDbContext()));
-                }
-                if (projectionOptions.WmsWfsV2.Enabled)
-                {
-                    readModels.Add((WellKnownSchemas.WmsWfsV2TempSchema, () => sp.GetRequiredService<TempSchemaDbContextFactory<WmsWfsV2Context>>().CreateDbContext()));
-                }
+                    (WellKnownSchemas.PbsTempSchema, () => sp.GetRequiredService<TempSchemaDbContextFactory<PbsContext>>().CreateDbContext())
+                };
 
                 return new TempSchemaBootstrapper(readModels, sp.GetRequiredService<ILogger<TempSchemaBootstrapper>>());
             });
