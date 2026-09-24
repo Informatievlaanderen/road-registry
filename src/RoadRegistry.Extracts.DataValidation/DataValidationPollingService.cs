@@ -46,10 +46,23 @@ public class DataValidationPollingService : IScheduledJob
 
         foreach (var queueItem in queueItems)
         {
-            _logger.LogInformation("Polling data validation ID {Id}", queueItem.DataValidationId);
             try
             {
+                // A rejected delivery is kept in the queue because Datavalidatie can reopen it, but not once the
+                // uploader has moved on: a new upload for the same extract is a delivery of its own.
+                if (queueItem.RejectedOn is not null && await UploaderStartedANewUpload(queueItem, cancellationToken))
+                {
+                    _logger.LogInformation("Stop polling data validation ID {Id}, a new upload was started for this extract", queueItem.DataValidationId);
+
+                    queueItem.Completed = true;
+                    await _extractsDbContext.SaveChangesAsync(cancellationToken);
+                    continue;
+                }
+
+                _logger.LogInformation("Polling data validation ID {Id}", queueItem.DataValidationId);
+
                 bool? uploadAccepted = null;
+                var rejectionIsFinal = false;
                 TicketError? ticketError = null;
                 string? qualityReportUrl = null;
 
@@ -74,9 +87,16 @@ public class DataValidationPollingService : IScheduledJob
                                     uploadAccepted = true;
                                     break;
                                 case ValidationResult.Rejected:
-                                case ValidationResult.AutomaticallyRejected:
+                                    // Datavalidatie can reopen a delivery it rejected by mistake and approve it after all,
+                                    // keeping the same deliveryId. The rejection is reported once and we keep polling.
                                     ticketError = new TicketError("De oplading is mislukt. Gelieve het kwaliteitsrapport te openen voor meer informatie.", "DataValidationRejected");
                                     uploadAccepted = false;
+                                    break;
+                                case ValidationResult.AutomaticallyRejected:
+                                    // An automatic rejection is not reopened, so there is nothing left to wait for.
+                                    ticketError = new TicketError("De oplading is mislukt. Gelieve het kwaliteitsrapport te openen voor meer informatie.", "DataValidationRejected");
+                                    uploadAccepted = false;
+                                    rejectionIsFinal = true;
                                     break;
                             }
                             break;
@@ -105,16 +125,36 @@ public class DataValidationPollingService : IScheduledJob
                             await _extractsDbContext.SetQualityReportUrlAsync(new UploadId(queueItem.UploadId), qualityReportUrl, cancellationToken);
                         }
 
+                        if (queueItem.RejectedOn is not null)
+                        {
+                            // The delivery was rejected before and has been reopened and approved after all. Put the upload
+                            // and its ticket back where an approval expects to find them: the portal reads the result from
+                            // the ticket, and a later refusal by the road network has to read as a processing failure
+                            // instead of a validation failure (see ExtractUploadStatusTransitions.OnRoadNetworkChangesRejected).
+                            _logger.LogInformation("Data validation delivery '{DataValidationId}' was approved after it was rejected on {RejectedOn}", queueItem.DataValidationId!, queueItem.RejectedOn);
+
+                            await _extractsDbContext.AutomaticValidationSucceededAsync(new UploadId(queueItem.UploadId), cancellationToken);
+                            await _ticketing.Pending(sqsRequest.TicketId, new TicketResult(new
+                            {
+                                Status = nameof(ExtractUploadStatus.AutomaticValidationSucceeded)
+                            }), cancellationToken);
+                        }
+
                         await _mediator.Send(sqsRequest, cancellationToken);
+
+                        queueItem.Completed = true;
+                        await _extractsDbContext.SaveChangesAsync(cancellationToken);
                     }
-                    else
+                    else if (queueItem.RejectedOn is null)
                     {
                         await _extractsDbContext.ManualValidationFailedAsync(new UploadId(queueItem.UploadId), qualityReportUrl!, cancellationToken);
                         await _ticketing.Error(sqsRequest.TicketId, ticketError!, cancellationToken);
-                    }
 
-                    queueItem.Completed = true;
-                    await _extractsDbContext.SaveChangesAsync(cancellationToken);
+                        queueItem.RejectedOn = DateTimeOffset.UtcNow;
+                        // Only an automatic rejection closes the queue item; a rejection by Datavalidatie is polled on.
+                        queueItem.Completed = rejectionIsFinal;
+                        await _extractsDbContext.SaveChangesAsync(cancellationToken);
+                    }
                 }
             }
             catch (Exception ex)
@@ -122,5 +162,20 @@ public class DataValidationPollingService : IScheduledJob
                 _logger.LogError(ex, $"Error while polling data validation [UploadId={queueItem.UploadId}, DataValidationId={queueItem.DataValidationId}]: {ex.Message}");
             }
         }
+    }
+
+    // Asking for a new upload URL already clears LatestUploadId, so from the moment the uploader starts a new upload
+    // through the portal the delivery behind the previous upload no longer interests anyone. An upload or a download we
+    // cannot find says nothing, and does not stop the polling either.
+    private Task<bool> UploaderStartedANewUpload(DataValidationQueueItem queueItem, CancellationToken cancellationToken)
+    {
+        return _extractsDbContext.ExtractUploads
+            .AsNoTracking()
+            .Where(upload => upload.UploadId == queueItem.UploadId)
+            .Join(_extractsDbContext.ExtractDownloads,
+                upload => upload.DownloadId,
+                download => download.DownloadId,
+                (_, download) => download.LatestUploadId)
+            .AnyAsync(latestUploadId => latestUploadId != queueItem.UploadId, cancellationToken);
     }
 }
