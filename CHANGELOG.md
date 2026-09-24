@@ -1,3 +1,10 @@
+## [5.21.2](https://github.com/informatievlaanderen/road-registry/compare/v5.21.1...v5.21.2) (2026-09-24)
+
+
+### Bug Fixes
+
+* **2.0:** give the Pbs and WmsWfsV2 read models a ten minute command timeout ([bb2dad4](https://github.com/informatievlaanderen/road-registry/commit/bb2dad47ab382bbc8f29bdb6047276850141d7d4))
+
 ## [5.21.1](https://github.com/informatievlaanderen/road-registry/compare/v5.21.0...v5.21.1) (2026-09-24)
 
 
