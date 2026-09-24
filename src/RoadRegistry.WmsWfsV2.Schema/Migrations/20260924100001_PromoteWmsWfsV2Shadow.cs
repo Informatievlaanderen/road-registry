@@ -22,10 +22,14 @@ namespace RoadRegistry.WmsWfsV2.Schema.Migrations
         //
         // Three things the swap has to take care of beyond the tables:
         //
-        //   - The [wms] and [wfs] views are WITH SCHEMABINDING on [road], which is what keeps them honest and what
-        //     makes it impossible to drop those tables underneath them. They are dropped first and put back after,
-        //     from the definitions in the catalog rather than from a copy pasted in here: those views have already
-        //     been rewritten by five migrations, and a copy would silently revert whatever is added after this one.
+        //   - The views on [road] are WITH SCHEMABINDING, which is what keeps them honest and what makes it
+        //     impossible to drop those tables underneath them. They are dropped first and put back after, from the
+        //     definitions in the catalog rather than from a copy pasted in here: those views have already been
+        //     rewritten by five migrations, and a copy would silently revert whatever is added after this one.
+        //     Which views those are is asked of the catalog as well - by what they depend on, not by the schema they
+        //     live in. [wms] and [wfs] are shared with other registers, whose views are none of this migration's
+        //     business: they do not stand on [road], nothing here blocks on them, and dropping them would be
+        //     rewriting someone else's object.
         //
         //   - The projection-state row travels with the tables, under the shadow projection's name. The live
         //     projection looks its position up by its own name, and a missing row means "new read model" - it would
@@ -73,22 +77,31 @@ BEGIN
 END
 ELSE
 BEGIN
-    -- The view definitions as they stand right now, to be replayed once the tables underneath them have been replaced.
-    DECLARE @views TABLE (Id int IDENTITY(1, 1) PRIMARY KEY, [Definition] nvarchar(max) NOT NULL);
+    -- The views standing on the read model that is about to be replaced, with their definitions as they stand right
+    -- now, to be replayed once the tables underneath them have been. Which ones those are is a question for the
+    -- catalog: every view that depends on something in [road], wherever it lives, and nothing that does not. That is
+    -- exactly the set the DROP TABLE below blocks on, it keeps being exactly that set when a view is added later,
+    -- and it leaves the views of the other registers sharing [wms] and [wfs] alone. The dependencies are recorded
+    -- against an object rather than a name, because everything involved is schema-bound.
+    DECLARE @views TABLE (Id int IDENTITY(1, 1) PRIMARY KEY, [Schema] sysname NOT NULL, [Name] sysname NOT NULL, [Definition] nvarchar(max) NOT NULL);
 
-    INSERT INTO @views ([Definition])
-    SELECT m.[definition]
-    FROM sys.sql_modules m
-    JOIN sys.views v ON v.object_id = m.object_id
+    INSERT INTO @views ([Schema], [Name], [Definition])
+    SELECT s.name, v.name, m.[definition]
+    FROM sys.views v
     JOIN sys.schemas s ON s.schema_id = v.schema_id
-    WHERE s.name IN (N'wms', N'wfs');
+    JOIN sys.sql_modules m ON m.object_id = v.object_id
+    WHERE EXISTS (
+        SELECT 1
+        FROM sys.sql_expression_dependencies d
+        JOIN sys.objects o ON o.object_id = d.referenced_id
+        JOIN sys.schemas rs ON rs.schema_id = o.schema_id
+        WHERE d.referencing_id = v.object_id
+          AND rs.name = N'road');
 
     -- Schema-bound, so they have to go before anything underneath them can be dropped.
     SET @sql = N'';
-    SELECT @sql = @sql + N'DROP VIEW ' + QUOTENAME(s.name) + N'.' + QUOTENAME(v.name) + N';' + CHAR(10)
-    FROM sys.views v
-    JOIN sys.schemas s ON s.schema_id = v.schema_id
-    WHERE s.name IN (N'wms', N'wfs');
+    SELECT @sql = @sql + N'DROP VIEW ' + QUOTENAME([Schema]) + N'.' + QUOTENAME([Name]) + N';' + CHAR(10)
+    FROM @views;
 
     IF @sql <> N'' EXEC sp_executesql @sql;
 
