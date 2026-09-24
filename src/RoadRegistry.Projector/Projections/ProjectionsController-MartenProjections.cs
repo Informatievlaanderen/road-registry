@@ -269,7 +269,6 @@ public partial class ProjectionsController
             WellKnownProjectionStateNames.RoadNetworkChangesWmsWfsV2Projection => TruncateWmsWfsV2ReadModel,
             WellKnownProjectionStateNames.RoadNetworkChangesWmsWfsV1InwinningProjection => TruncateWmsWfsV1InwinningReadModel,
             WellKnownProjectionStateNames.RoadNetworkChangesPbsTempProjection => TruncatePbsTempReadModel,
-            WellKnownProjectionStateNames.RoadNetworkChangesWmsWfsV2TempProjection => TruncateWmsWfsV2TempReadModel,
             _ => null
         };
     }
@@ -295,7 +294,7 @@ public partial class ProjectionsController
             clrType => typeof(IEnumBasedCodeListRecord).IsAssignableFrom(clrType), cancellationToken);
     }
 
-    // The shadow read models, truncated through a context scoped to their own schema. Same tables, same rules - a
+    // The shadow read model, truncated through a context scoped to its own schema. Same tables, same rules - a
     // rebuild of a rebuild, which is what a shadow that went wrong needs.
     private async Task TruncatePbsTempReadModel(CancellationToken cancellationToken)
     {
@@ -304,14 +303,6 @@ public partial class ProjectionsController
 
         await TruncateProjectionTables(context, nameof(RoadNetworkChangesPbsTempProjection),
             clrType => typeof(IEnumBasedCodeListRecord).IsAssignableFrom(clrType), cancellationToken);
-    }
-
-    private async Task TruncateWmsWfsV2TempReadModel(CancellationToken cancellationToken)
-    {
-        var factory = HttpContext.RequestServices.GetRequiredService<TempSchemaDbContextFactory<WmsWfsV2Context>>();
-        await using var context = factory.CreateDbContext();
-
-        await TruncateProjectionTables(context, nameof(RoadNetworkChangesWmsWfsV2TempProjection), excludeEntity: null, cancellationToken);
     }
 
     private async Task TruncateWmsWfsV2ReadModel(CancellationToken cancellationToken)

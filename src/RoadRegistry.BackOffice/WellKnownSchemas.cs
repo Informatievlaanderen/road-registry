@@ -22,11 +22,11 @@ public static class WellKnownSchemas
     public const string PbsSchema = "RoadRegistryPbs";
     public const string WmsWfsV2Schema = "road";
 
-    // The shadow copies of the two SQL Server read models: the same tables, in a schema of their own, so a
-    // projection can be rebuilt from the start of the event stream while the live one keeps serving. Once the
-    // shadow has caught up the two are swapped, and both the shadow schema and the projections that fill it go.
+    // The shadow copy of the PBS read model: the same tables, in a schema of its own, so the projection can be
+    // rebuilt from the start of the event stream while the live one keeps serving. Once the shadow has caught up
+    // the two are swapped, and both the shadow schema and the projection that fills it go - as they did for
+    // WmsWfsV2 (PromoteWmsWfsV2Shadow).
     public const string PbsTempSchema = "RoadRegistryPbsTemp";
-    public const string WmsWfsV2TempSchema = "roadTemp";
 
     // What the V1 WMS and WFS leave out because it is ingewonnen; goes when there is no V1 data left.
     public const string WmsWfsV1InwinningSchema = "RoadRegistry";

@@ -12,29 +12,19 @@ using Records;
 // Derives from RunnerDbContext for its ProjectionStates table: each inner WMS v2 projection records its processed event
 // position there, committed in the same transaction as the product writes, so it can skip re-delivered events when the
 // SQL Server write and the Marten progression commit diverge (RunnerDbContextRoadNetworkChangesProjection).
-public class WmsWfsV2Context : RunnerDbContext<WmsWfsV2Context>, ISchemaScopedDbContext
+public class WmsWfsV2Context : RunnerDbContext<WmsWfsV2Context>
 {
     public WmsWfsV2Context()
     {
     }
 
     // This needs to be DbContextOptions<T> for Autofac!
-    //
-    // The only constructor taking options, and it has to stay that way: EF's DbContextFactory builds an
-    // activator for this type and refuses one with a second constructor it could use. The schema a context
-    // is scoped to therefore travels on the options - see UseSchema - and not as a parameter of its own.
     public WmsWfsV2Context(DbContextOptions<WmsWfsV2Context> options)
         : base(options)
     {
-        Schema = options.FindSchema() ?? WellKnownSchemas.WmsWfsV2Schema;
     }
 
-    // The schema this context reads and writes: the production one, or the shadow copy a rebuild fills
-    // while the live one keeps serving. Everything else about the context is identical, which is the point -
-    // one model, one set of projections.
-    public string Schema { get; } = WellKnownSchemas.WmsWfsV2Schema;
-
-    public override string ProjectionStateSchema => Schema;
+    public override string ProjectionStateSchema => WellKnownSchemas.WmsWfsV2Schema;
 
     // Features
     public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
@@ -49,23 +39,9 @@ public class WmsWfsV2Context : RunnerDbContext<WmsWfsV2Context>, ISchemaScopedDb
     public DbSet<StreetNameCacheRecord> StreetNameCache { get; set; }
     public DbSet<OrganizationCacheRecord> OrganizationCache { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-
-        if (Schema != WellKnownSchemas.WmsWfsV2Schema)
-        {
-            modelBuilder.MapToSchema(Schema);
-        }
-    }
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
-
-        // Here rather than where the options are built, so no instance can be handed a model that was
-        // cached for another schema.
-        optionsBuilder.UseSchemaAwareModelCache();
 
         if (!optionsBuilder.IsConfigured)
         {
