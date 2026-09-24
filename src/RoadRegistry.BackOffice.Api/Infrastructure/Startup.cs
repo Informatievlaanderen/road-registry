@@ -217,6 +217,7 @@ public class Startup
                 },
                 MiddlewareHooks =
                 {
+                    ConfigureProblemDetails = RoadRegistryProblemDetails.Configure,
                     Authorization = options =>
                     {
                         var blacklistedOvoCodes =  _configuration
