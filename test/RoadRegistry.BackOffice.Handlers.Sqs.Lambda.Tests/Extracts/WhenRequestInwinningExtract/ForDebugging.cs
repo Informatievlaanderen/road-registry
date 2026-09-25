@@ -139,6 +139,7 @@ public class ForDebugging
                 sp.GetRequiredService<IDocumentStore>(),
                 new RoadNetworkRepository(sp.GetRequiredService<IDocumentStore>()),
                 sp.GetRequiredService<Func<EditorContext>>(),
+                sp.GetRequiredService<Func<ExtractsDbContext>>(),
                 new NullLoggerFactory()))
             ;
 

@@ -33,7 +33,7 @@ public class ZipArchiveDataSessionTests
         var repo = new FakeRoadNetworkRepository(
             new RoadNetworkIds([new RoadNodeId(1)], [new RoadSegmentId(100)], [], []));
 
-        var sut = new ZipArchiveDataSession(session, repo, null!);
+        var sut = new ZipArchiveDataSession(session, repo, null!, null!);
         var segments = await sut.GetRoadSegments(CreateContour(), CancellationToken.None);
 
         var ls = segments.Single().Geometry.Value.GetSingleLineString();
@@ -58,7 +58,7 @@ public class ZipArchiveDataSessionTests
         var repo = new FakeRoadNetworkRepository(
             new RoadNetworkIds([new RoadNodeId(2)], [new RoadSegmentId(100)], [], []));
 
-        var sut = new ZipArchiveDataSession(session, repo, null!);
+        var sut = new ZipArchiveDataSession(session, repo, null!, null!);
         var segments = await sut.GetRoadSegments(CreateContour(), CancellationToken.None);
 
         var ls = segments.Single().Geometry.Value.GetSingleLineString();
@@ -84,7 +84,7 @@ public class ZipArchiveDataSessionTests
         var repo = new FakeRoadNetworkRepository(
             new RoadNetworkIds([new RoadNodeId(1)], [new RoadSegmentId(100)], [], []));
 
-        var sut = new ZipArchiveDataSession(session, repo, null!);
+        var sut = new ZipArchiveDataSession(session, repo, null!, null!);
         var segments = await sut.GetRoadSegments(CreateContour(), CancellationToken.None);
 
         Assert.Equal(originalWkt, segments.Single().Geometry.Value.AsText());
@@ -103,7 +103,7 @@ public class ZipArchiveDataSessionTests
         var repo = new FakeRoadNetworkRepository(
             new RoadNetworkIds([], [new RoadSegmentId(100)], [], []));
 
-        var sut = new ZipArchiveDataSession(session, repo, null!);
+        var sut = new ZipArchiveDataSession(session, repo, null!, null!);
         var segments = await sut.GetRoadSegments(CreateContour(), CancellationToken.None);
 
         Assert.Equal(originalWkt, segments.Single().Geometry.Value.AsText());

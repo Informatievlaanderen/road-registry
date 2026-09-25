@@ -35,7 +35,11 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(zipArchiveData);
 
-        var segments = await zipArchiveData.GetRoadSegments(request.Contour, cancellationToken);
+        var everythingIsCompleet = await zipArchiveData.EverythingInContourIsCompleet(request.Contour, cancellationToken);
+
+        var segments = everythingIsCompleet
+            ? await zipArchiveData.GetRoadSegments(request.Contour, cancellationToken)
+            : [];
 
         var records = ConvertToDbaseRecords(segments, context);
 

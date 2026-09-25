@@ -31,7 +31,9 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(zipArchiveData);
 
-        var nodes = (await zipArchiveData.GetRoadNodes(request.Contour, cancellationToken)).ToList();
+        var nodes = await zipArchiveData.EverythingInContourIsCompleet(request.Contour, cancellationToken)
+            ? (await zipArchiveData.GetRoadNodes(request.Contour, cancellationToken)).ToList()
+            : [];
 
         const ExtractFileName extractFilename = ExtractFileName.Wegknoop;
         FeatureType[] featureTypes = request.IsInformative
@@ -85,7 +87,13 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
                 integrationBufferedContourGeometry,
                 cancellationToken);
 
-            integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentEqualityComparerById()).ToList();
+            // When the contour holds data the inwinning has not finished with, the basis- and werkbestanden stay empty
+            // and everything inside the contour joins the integratiedata, so it is not taken out of the buffer here.
+            var everythingIsCompleet = await zipArchiveData.EverythingInContourIsCompleet(request.Contour, cancellationToken);
+
+            integrationSegments = everythingIsCompleet
+                ? segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentEqualityComparerById()).ToList()
+                : segmentsInIntegrationBuffer.ToList();
             integrationSegments = integrationSegments
                 .Where(integrationSegment => integrationBufferedSegmentsGeometries.Any(segmentBufferedGeometry => segmentBufferedGeometry.Intersects(integrationSegment.Geometry.Value)))
                 .ToList();
@@ -102,7 +110,10 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
             integrationNodes = nodesInIntegrationBuffer
                 .Where(integrationNode => integrationNodeIds.Contains(integrationNode.RoadNodeId))
                 .ToList();
-            integrationNodes = integrationNodes.Except(nodesInContour, new RoadNodeEqualityComparerById()).ToList();
+            if (everythingIsCompleet)
+            {
+                integrationNodes = integrationNodes.Except(nodesInContour, new RoadNodeEqualityComparerById()).ToList();
+            }
         }
 
         context.IntegrationSegments = integrationSegments;

@@ -27,8 +27,9 @@ public class GradeSeparatedJunctionZipArchiveWriter : IZipArchiveWriter
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(zipArchiveData);
 
-        var junctions = await zipArchiveData.GetGradeSeparatedJunctions(
-            request.Contour, cancellationToken);
+        var junctions = await zipArchiveData.EverythingInContourIsCompleet(request.Contour, cancellationToken)
+            ? await zipArchiveData.GetGradeSeparatedJunctions(request.Contour, cancellationToken)
+            : [];
         var records = junctions
             .OrderBy(x => x.Id)
             .Select(x =>
