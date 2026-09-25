@@ -8,7 +8,7 @@ using RoadRegistry.Extracts.Infrastructure.Dbase;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
-using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
+using RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
 using Xunit.Abstractions;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.Inwinning.TranslatedChanges;
 
@@ -22,7 +22,7 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task UnknownRoadSegmentShouldGiveProblem()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 // A positive temp id greater than every segment's temp id matches no segment in the archive, so the
@@ -42,7 +42,7 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenSegmentIsKeptAndOnlyNationalNumberRemoved_ThenOnlyNationalNumberRemoved()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.DataSet.NationalRoadDbaseRecords.RemoveAt(0);

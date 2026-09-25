@@ -10,7 +10,7 @@ using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
-using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
+using RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using IZipArchiveFeatureCompareTranslator = RoadRegistry.Extracts.FeatureCompare.Inwinning.IZipArchiveFeatureCompareTranslator;
@@ -51,7 +51,7 @@ public abstract class FeatureCompareTranslatorScenariosBase
     }
 
     // An inwinning takes over the grade separated junction it leaves untouched, so it is migrated along with its road segments.
-    protected static ModifyGradeSeparatedJunctionChange MigrateUnchangedGradeSeparatedJunction(DomainV2ZipArchiveBuilder.ZipArchiveBuildContext context)
+    protected static ModifyGradeSeparatedJunctionChange MigrateUnchangedGradeSeparatedJunction(InwinningZipArchiveBuilder.ZipArchiveBuildContext context)
     {
         return new ModifyGradeSeparatedJunctionChange
         {

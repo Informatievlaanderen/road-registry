@@ -3,7 +3,7 @@ namespace RoadRegistry.Extracts.FeatureCompare.DomainV2.NationalRoad;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadSegment.Changes;
 using RoadSegment;

@@ -6,7 +6,7 @@ using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Infrastructure.Dbase;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
-using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
+using RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
 
 public partial class GradeSeparatedJunctionScenarios
 {
@@ -16,7 +16,7 @@ public partial class GradeSeparatedJunctionScenarios
     [InlineData(true, false)]
     public async Task WhenIntersectingGerealiseerdRoadSegmentsWithoutJunctionOrNodeAndCarsAreAllowed_ThenError(bool autoHeen, bool autoTerug)
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 ConfigureIntersectingGerealiseerdRoadSegmentsWithoutGradeSeparatedJunctionOrNode(builder);
@@ -37,7 +37,7 @@ public partial class GradeSeparatedJunctionScenarios
     [Fact]
     public async Task WhenIntersectingGerealiseerdRoadSegments_AcrossChangeAndIntegration_WithoutJunctionOrNodeAndTrafficIsAllowed_ThenError()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithIntegration((builder, context) =>
             {
                 builder.DataSet.Clear();
@@ -112,7 +112,7 @@ public partial class GradeSeparatedJunctionScenarios
     [InlineData(true, false)]
     public async Task WhenIntersectingGerealiseerdRoadSegmentsWithoutJunctionOrNodeAndBikesAreAllowed_ThenError(bool fietsHeen, bool fietsTerug)
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 ConfigureIntersectingGerealiseerdRoadSegmentsWithoutGradeSeparatedJunctionOrNode(builder);
@@ -132,7 +132,7 @@ public partial class GradeSeparatedJunctionScenarios
     [Fact]
     public async Task WhenIntersectingGerealiseerdRoadSegmentsWithoutJunctionOrNodeAndPedestriansAreAllowed_ThenError()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 ConfigureIntersectingGerealiseerdRoadSegmentsWithoutGradeSeparatedJunctionOrNode(builder);
@@ -151,7 +151,7 @@ public partial class GradeSeparatedJunctionScenarios
     [Fact]
     public async Task WhenIntersectingGerealiseerdRoadSegmentsWithoutJunctionOrNodeAndAllAccessAreAllowed_ThenAllAccessErrors()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 ConfigureIntersectingGerealiseerdRoadSegmentsWithoutGradeSeparatedJunctionOrNode(builder);
@@ -174,7 +174,7 @@ public partial class GradeSeparatedJunctionScenarios
     [Fact]
     public async Task WhenIntersectingGerealiseerdRoadSegmentsWithoutJunctionOrNodeAndNoneAccessAreAllowed_ThenNoProblem()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 ConfigureIntersectingGerealiseerdRoadSegmentsWithoutGradeSeparatedJunctionOrNode(builder);
@@ -220,7 +220,7 @@ public partial class GradeSeparatedJunctionScenarios
     [Fact]
     public async Task IntersectingNotGerealiseerdRoadSegmentsWithoutGradeSeparatedJunctionShouldNotGiveProblem()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 ConfigureIntersectingGerealiseerdRoadSegmentsWithoutGradeSeparatedJunctionOrNode(builder);
@@ -236,7 +236,7 @@ public partial class GradeSeparatedJunctionScenarios
     [Fact]
     public async Task IntersectingRoadSegmentsInA_TShape_WithoutGradeSeparatedJunctionShouldNotGiveProblem()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture =>
+        var zipArchive = new InwinningZipArchiveBuilder(fixture =>
             {
                 fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
             })
@@ -262,7 +262,7 @@ public partial class GradeSeparatedJunctionScenarios
     [Fact]
     public async Task WhenIntersectingGerealiseerdRoadSegmentsWithoutJunctionOrNode_AndSegmentContainsMultipleFlatSegments_AndIntersectionIsInMiddleOfFlatSegment_ThenCorrectTempIdsAreUsedInProblem()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture =>
+        var zipArchive = new InwinningZipArchiveBuilder(fixture =>
             {
                 fixture.CustomizeUniqueInteger();
             })
@@ -329,7 +329,7 @@ public partial class GradeSeparatedJunctionScenarios
     [Fact]
     public async Task WhenIntersectingGerealiseerdRoadSegmentsWithoutJunctionOrNode_AndSegmentContainsMultipleFlatSegments_AndIntersectionIsInBetween2FlatSegments_ThenCorrectTempIdsAreUsedInProblem()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture =>
+        var zipArchive = new InwinningZipArchiveBuilder(fixture =>
             {
                 fixture.CustomizeUniqueInteger();
             })

@@ -8,10 +8,10 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2
     using NetTopologySuite.Operation.Polygonize;
     using RoadRegistry.Editor.Schema.Extensions;
     using RoadRegistry.Extensions;
-    using RoadRegistry.Extracts.Schemas.Inwinning;
-    using RoadRegistry.Extracts.Schemas.Inwinning.GradeSeparatedJuntions;
-    using RoadRegistry.Extracts.Schemas.Inwinning.RoadNodes;
-    using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
+    using RoadRegistry.Extracts.Schemas.DomainV2;
+    using RoadRegistry.Extracts.Schemas.DomainV2.GradeSeparatedJuntions;
+    using RoadRegistry.Extracts.Schemas.DomainV2.RoadNodes;
+    using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
     using Point = NetTopologySuite.Geometries.Point;
 
     public class DomainV2ZipArchiveBuilder

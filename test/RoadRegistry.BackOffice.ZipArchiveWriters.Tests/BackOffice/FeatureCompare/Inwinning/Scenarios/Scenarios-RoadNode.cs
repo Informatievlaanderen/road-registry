@@ -14,7 +14,7 @@ using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.Tests.BackOffice;
-using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
+using RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
 using Xunit.Abstractions;
 using Point = NetTopologySuite.Geometries.Point;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.Inwinning.TranslatedChanges;
@@ -29,7 +29,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenEmptyDbfOrShp_ThenError()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.DataSet.RoadNodeDbaseRecords.Clear();
@@ -46,7 +46,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     public async Task WhenModifiedGeometrySlightly_ThenIdIsKept()
     {
         // Arrange
-        var (zipArchive, context) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, context) = new InwinningZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 var lengthIncrease = 0.01;
@@ -82,7 +82,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenModifiedGeometryToMoreThanClusterTolerance_ThenExtractNodeIsRemovedAndNewNodeIsAdded()
     {
-        var (zipArchive, context) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, context) = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var lengthIncrease = 0.06;
@@ -118,7 +118,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenRecordsWhichAreTooCloseToEachOther_ThenProblem()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var maxId = new RoadNodeId(builder.DataSet.RoadNodeDbaseRecords.Max(x => x.WK_OIDN.Value));
@@ -142,7 +142,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenChangingOnlyTheRoadNodeId_ThenNoChanges()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var maxId = new RoadNodeId(builder.DataSet.RoadNodeDbaseRecords.Max(x => x.WK_OIDN.Value));
@@ -190,7 +190,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenChangingTheRoadNodeId_ThenReuseTheRoadNodeIdFromExtractFeature()
     {
-        var (zipArchive, context) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, context) = new InwinningZipArchiveBuilder()
             .WithExtract((builder, _) =>
             {
                 var dbaseRecord = builder.CreateRoadNodeDbaseRecord();
@@ -226,7 +226,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenChangingTheRoadNodeIdAndGeometrySlightly_ThenReuseTheRoadNodeIdFromExtractFeature()
     {
-        var (zipArchive, context) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, context) = new InwinningZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 var dbaseRecord = builder.TestData.RoadSegment1StartNodeDbaseRecord;
@@ -262,7 +262,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task IdsShouldBeUniqueAcrossChangeAndIntegrationData()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var integrationRoadNode = context.Integration.DataSet.RoadNodeDbaseRecords.First();
@@ -279,7 +279,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task GivenActualAndTemporarySchijnknopen_WhenSegmentIsChanged_ThenOnlyActualSchijnknoopIsRemoved()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithIntegration((builder, _) =>
             {
                 builder.DataSet.Clear();
@@ -378,7 +378,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task GivenActualAndTemporarySchijnknopen_WhenBothAreRemoved_ThenOnlyActualIsRemoved()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithIntegration((builder, _) =>
             {
                 builder.DataSet.Clear();
@@ -497,7 +497,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
         // Arrange: extract with a real schijnknoop (node 2) and a temporary schijnknoop (node 1_000_000_000)
         // Change: same topology, but a new branch segment connects at the temp schijnknoop position,
         // making it a 3-way junction (structural/EchteKnoop). The real schijnknoop is consumed by unflattening.
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithIntegration((builder, _) =>
             {
                 builder.DataSet.Clear();
@@ -666,7 +666,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
     [InlineData(1_000_000_012)]
     public async Task WhenNewSchijnknoopIsAdded_ThenItIsConsumedAndNotAdded(int newSchijnknoopId)
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithIntegration((builder, _) =>
             {
                 builder.DataSet.Clear();

@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Index.Strtree;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
-using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadNode.Changes;

@@ -9,10 +9,10 @@ using Extensions;
 using Inwinning;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
-using RoadRegistry.Extracts.Schemas.Inwinning;
-using RoadRegistry.Extracts.Schemas.Inwinning.GradeSeparatedJuntions;
-using RoadRegistry.Extracts.Schemas.Inwinning.RoadNodes;
-using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
+using RoadRegistry.Extracts.Schemas.DomainV2;
+using RoadRegistry.Extracts.Schemas.DomainV2.GradeSeparatedJuntions;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadNodes;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
@@ -79,12 +79,12 @@ public class DomainV2ZipArchiveTestData : IDisposable
         fixture.CustomizeReason();
         fixture.CustomizeDownloadId();
 
-        fixture.CustomizeInwinningRoadNodeDbaseRecord();
-        fixture.CustomizeInwinningRoadSegmentDbaseRecord();
-        fixture.CustomizeInwinningRoadSegmentEuropeanRoadAttributeDbaseRecord();
-        fixture.CustomizeInwinningRoadSegmentNationalRoadAttributeDbaseRecord();
-        fixture.CustomizeInwinningGradeSeparatedJunctionDbaseRecord();
-        fixture.CustomizeInwinningTransactionZoneDbaseRecord();
+        fixture.CustomizeDomainV2RoadNodeDbaseRecord();
+        fixture.CustomizeDomainV2RoadSegmentDbaseRecord();
+        fixture.CustomizeDomainV2RoadSegmentEuropeanRoadAttributeDbaseRecord();
+        fixture.CustomizeDomainV2RoadSegmentNationalRoadAttributeDbaseRecord();
+        fixture.CustomizeDomainV2GradeSeparatedJunctionDbaseRecord();
+        fixture.CustomizeDomainV2TransactionZoneDbaseRecord();
 
         fixture.Customize<RecordNumber>(customizer =>
             customizer.FromFactory(random => new RecordNumber(random.Next(1, int.MaxValue))));

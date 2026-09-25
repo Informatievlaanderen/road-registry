@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetTopologySuite.Index.Strtree;
 using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.Schemas.Inwinning.RoadNodes;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadNodes;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadNode.Changes;

@@ -9,7 +9,7 @@ using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.Tests.BackOffice;
-using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
+using RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
 using Xunit.Abstractions;
 using Point = NetTopologySuite.Geometries.Point;
 using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.Inwinning.TranslatedChanges;
@@ -24,7 +24,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task Added()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder(customize: fixture => { fixture.Freeze(RoadSegmentStatusV2.Gepland); })
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder(customize: fixture => { fixture.Freeze(RoadSegmentStatusV2.Gepland); })
             .WithExtract((builder, _) =>
             {
                 builder.DataSet.RoadNodeDbaseRecords = new[] { builder.TestData.RoadSegment2StartNodeDbaseRecord, builder.TestData.RoadSegment2EndNodeDbaseRecord }.ToList();
@@ -109,7 +109,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task Modified()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder(customize: fixture => { fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd); })
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder(customize: fixture => { fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd); })
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
@@ -234,7 +234,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task NoChanges()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder()
             .BuildWithResult(context =>
             {
                 return TranslatedChanges.Empty
@@ -279,7 +279,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task Removed()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.DataSet.RoadNodeDbaseRecords = new[] { builder.TestData.RoadSegment2StartNodeDbaseRecord, builder.TestData.RoadSegment2EndNodeDbaseRecord }.ToList();

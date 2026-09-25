@@ -1,0 +1,275 @@
+namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers.DomainV2;
+
+using System.IO.Compression;
+using System.Text;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extensions;
+using Infrastructure.Dbase;
+using Infrastructure.ShapeFile;
+using NetTopologySuite.Geometries;
+using Projections;
+using Schemas.DomainV2.RoadSegments;
+using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
+
+public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
+{
+    // What AUTOHEEN, AUTOTERUG, FIETSHEEN, FIETSTERUG and VOETGANGER carry when the traffic type is not known. A GRB
+    // dienstverlener may deliver it too: filling traffic types in is not part of what they are asked to do.
+    private const short NietGekend = -8;
+
+    private readonly Encoding _encoding;
+
+    public RoadSegmentsZipArchiveWriter(Encoding encoding)
+    {
+        _encoding = encoding.ThrowIfNull();
+    }
+
+    public async Task WriteAsync(
+        ZipArchive archive,
+        RoadNetworkExtractAssemblyRequest request,
+        IZipArchiveDataSession zipArchiveData,
+        ZipArchiveWriteContext context,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(zipArchiveData);
+
+        var segments = await zipArchiveData.GetRoadSegments(request.Contour, cancellationToken);
+
+        var records = ConvertToDbaseRecords(segments, context);
+
+        const ExtractFileName extractFilename = ExtractFileName.Wegsegment;
+        FeatureType[] featureTypes = request.IsInformative
+            ? [FeatureType.Extract]
+            : [FeatureType.Extract, FeatureType.Change];
+
+        var writer = new Lambert08ShapeFileRecordWriter(_encoding);
+
+        await WriteIntegration(writer, archive, context, cancellationToken);
+
+        foreach (var featureType in featureTypes)
+        {
+            await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.PolyLine, RoadSegmentDbaseRecord.Schema, records, cancellationToken);
+        }
+    }
+
+    private async Task WriteIntegration(
+        ShapeFileRecordWriter writer,
+        ZipArchive archive,
+        ZipArchiveWriteContext context,
+        CancellationToken cancellationToken)
+    {
+        if (context.IntegrationSegments is null)
+        {
+            throw new InvalidOperationException($"{nameof(context.IntegrationSegments)} has not been initialized yet.");
+        }
+
+        var records = ConvertToDbaseRecords(context.IntegrationSegments, context);
+
+        await writer.WriteToArchive(archive, ExtractFileName.Wegsegment, FeatureType.Integration, ShapeType.PolyLine, RoadSegmentDbaseRecord.Schema, records, cancellationToken);
+    }
+
+    private static IReadOnlyCollection<(DbaseRecord, Geometry)> ConvertToDbaseRecords(IEnumerable<RoadSegmentExtractItem> segments, ZipArchiveWriteContext context)
+    {
+        return segments
+            .OrderBy(x => x.Id)
+            .SelectMany(roadSegment =>
+            {
+                return roadSegment.Flatten()
+                    .Select(x =>
+                    {
+                        try
+                        {
+                            var method = x.IsV2
+                                ? RoadSegmentGeometryDrawMethodV2.Parse(x.GeometryDrawMethod).Translation.Identifier
+                                : MigrateToV2(RoadSegmentGeometryDrawMethod.Parse(x.GeometryDrawMethod));
+                            var status = x.IsV2 ? RoadSegmentStatusV2.Parse(x.Status).Translation.Identifier : MigrateToV2(RoadSegmentStatus.Parse(x.Status));
+                            var morphology = x.IsV2 ? RoadSegmentMorphologyV2.Parse(x.Morphology).Translation.Identifier : MigrateToV2(RoadSegmentMorphology.Parse(x.Morphology));
+                            var accessRestriction = x.IsV2 ? RoadSegmentAccessRestrictionV2.Parse(x.AccessRestriction).Translation.Identifier : MigrateToV2(RoadSegmentAccessRestriction.Parse(x.AccessRestriction));
+                            var category = x.IsV2 ? RoadSegmentCategoryV2.Parse(x.Category).Translation.Identifier : MigrateToV2(RoadSegmentCategory.Parse(x.Category));
+                            var surfaceType = x.IsV2 ? RoadSegmentSurfaceTypeV2.Parse(x.SurfaceType).Translation.Identifier : MigrateToV2(RoadSegmentSurfaceType.Parse(x.SurfaceType));
+
+                            var dbfRecord = new RoadSegmentDbaseRecord
+                            {
+                                WS_TEMPID = { Value = context.NewTempId(x.RoadSegmentId, x.Geometry) },
+                                WS_OIDN = { Value = x.RoadSegmentId },
+                                METHODE = { Value = method },
+                                STATUS = { Value = status },
+                                MORF = { Value = morphology },
+                                WEGCAT = { Value = category },
+                                LSTRNMID = { Value = x.LeftStreetNameId },
+                                RSTRNMID = { Value = x.RightStreetNameId },
+                                LBEHEER = { Value = x.LeftMaintenanceAuthorityId },
+                                RBEHEER = { Value = x.RightMaintenanceAuthorityId },
+                                TOEGANG = { Value = accessRestriction },
+                                VERHARDING = { Value = surfaceType },
+                                AUTOHEEN = { Value = x.CarAccessForward?.ToDbaseShortValue() ?? NietGekend },
+                                AUTOTERUG = { Value = x.CarAccessBackward?.ToDbaseShortValue() ?? NietGekend },
+                                FIETSHEEN = { Value = x.BikeAccessForward?.ToDbaseShortValue() ?? NietGekend },
+                                FIETSTERUG = { Value = x.BikeAccessBackward?.ToDbaseShortValue() ?? NietGekend },
+                                VOETGANGER = { Value = x.PedestrianAccess?.ToDbaseShortValue() ?? NietGekend },
+
+                                CREATIE = { Value = x.Origin.Timestamp.ToBrusselsDateTime() },
+                                VERSIE = { Value = x.LastModified.Timestamp.ToBrusselsDateTime() }
+                            };
+
+                            return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.Value.RemoveCoordinateSegmentsLessThanMinimumDistanceBetweenVertices());
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new InvalidOperationException($"Unable to convert flat RoadSegment {roadSegment.Id} with geometry '{x.Geometry.WKT}': {ex.Message}", ex);
+                        }
+                    });
+            })
+            .ToList();
+    }
+
+    private static int MigrateToV2(RoadSegmentGeometryDrawMethod v1)
+    {
+        var mapping = new Dictionary<int, int>
+        {
+            { 1, 1 }, // ingeschetst
+            { 2, 2 }, // ingemeten
+            { 3, 2 }  // ingemeten volgens GRB-specificaties
+        };
+
+        if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
+        {
+            return v2;
+        }
+
+        throw new NotSupportedException(v1.ToString());
+    }
+
+    private static int MigrateToV2(RoadSegmentStatus v1)
+    {
+        var mapping = new Dictionary<int, int>
+        {
+            { 1, 10 },
+            { 2, 10 },
+            { 3, 10 },
+            { 4, 11 },
+            { 5, -5 },
+            { -8, -5 }
+        };
+
+        if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
+        {
+            return v2;
+        }
+
+        throw new NotSupportedException(v1.ToString());
+    }
+
+    private static int MigrateToV2(RoadSegmentMorphology v1)
+    {
+        var mapping = new Dictionary<int, int>
+        {
+            { 101, 1 },
+            { 102, 2 },
+            { 103, 3 },
+            { 104, 7 },
+            { 105, 3 },
+            { 106, 3 },
+            { 107, 5 },
+            { 108, 5 },
+            { 109, 4 },
+            { 110, 3 },
+            { 111, 6 },
+            { 112, 6 },
+            { 113, -113 },
+            { 114, -114 },
+            { 116, 11 },
+            { 120, -120 },
+            { 125, 8 },
+            { 130, 12 },
+            { -8, -8 }
+        };
+
+        if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
+        {
+            return v2;
+        }
+
+        throw new NotSupportedException(v1.ToString());
+    }
+
+    private static int MigrateToV2(RoadSegmentAccessRestriction v1)
+    {
+        var mapping = new Dictionary<int, int>
+        {
+            { 1, 10 },
+            { 2, -2 },
+            { 3, -3 },
+            { 4, 11 },
+            { 5, 10 },
+            { 6, 10 }
+        };
+
+        if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
+        {
+            return v2;
+        }
+
+        throw new NotSupportedException(v1.ToString());
+    }
+
+    private static string MigrateToV2(RoadSegmentCategory v1)
+    {
+        var mapping = new Dictionary<string, string>
+        {
+            { "EHW", "EHW" },
+            { "VHW", "VHW" },
+            { "RW", "RW" },
+            { "IW", "IW" },
+            { "OW", "OW" },
+            { "EW", "EW" },
+            { "-8", "-8" },
+            { "-9", "-9" },
+
+            //obsolete values, only a problem for tst/stg
+            { "L", "OW" },
+            { "L1", "EW" },
+            { "L2", "EW" },
+            { "L3", "EW" },
+            { "H", "EHW" },
+            { "PI", "VHW" },
+            { "PII", "VHW" },
+            { "PII-1", "VHW" },
+            { "PII-2", "VHW" },
+            { "PII-3", "VHW" },
+            { "PII-4", "VHW" },
+            { "S", "RW" },
+            { "S1", "IW" },
+            { "S2", "IW" },
+            { "S3", "IW" },
+            { "S4", "IW" }
+        };
+
+        if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
+        {
+            return v2;
+        }
+
+        throw new NotSupportedException(v1.ToString());
+    }
+
+    private static int MigrateToV2(RoadSegmentSurfaceType v1)
+    {
+        var mapping = new Dictionary<int, int>
+        {
+            { 1, 10 },
+            { 2, 11 },
+            { -9, 12 },
+            { -8, -8 },
+        };
+
+        if (mapping.TryGetValue(v1.Translation.Identifier, out var v2))
+        {
+            return v2;
+        }
+
+        throw new NotSupportedException(v1.ToString());
+    }
+}

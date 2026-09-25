@@ -10,7 +10,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Uploads;
-using Schemas.Inwinning.RoadNodes;
+using Schemas.DomainV2.RoadNodes;
 using Point = NetTopologySuite.Geometries.Point;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
@@ -20,7 +20,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
     private const ExtractFileName FileName = ExtractFileName.Wegknoop;
 
     public RoadNodeFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new InwinningFeatureReader(encoding))
+        : base(new DomainV2FeatureReader(encoding))
     {
         _encoding = encoding;
     }
@@ -74,9 +74,9 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
         }
     }
 
-    private sealed class InwinningFeatureReader : ZipArchiveShapeFeatureReader<RoadNodeDbaseRecord, Feature<RoadNodeFeatureCompareAttributes>>
+    private sealed class DomainV2FeatureReader : ZipArchiveShapeFeatureReader<RoadNodeDbaseRecord, Feature<RoadNodeFeatureCompareAttributes>>
     {
-        public InwinningFeatureReader(Encoding encoding)
+        public DomainV2FeatureReader(Encoding encoding)
             : base(encoding, RoadNodeFeatureCompareFeatureReader.FileName, RoadNodeDbaseRecord.Schema, treatHasNoRecordsAsError: true)
         {
         }

@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Index.Strtree;
 using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.Schemas.Inwinning.GradeSeparatedJuntions;
+using RoadRegistry.Extracts.Schemas.DomainV2.GradeSeparatedJuntions;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.Infrastructure;

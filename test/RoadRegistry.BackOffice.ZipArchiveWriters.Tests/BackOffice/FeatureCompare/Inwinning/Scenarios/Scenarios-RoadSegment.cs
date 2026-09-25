@@ -19,7 +19,7 @@ using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.BackOffice;
-using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
+using RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
 using Xunit.Abstractions;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
@@ -34,7 +34,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenEmptyDbfOrShp_ThenError()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, _) =>
             {
                 builder.DataSet.RoadSegmentDbaseRecords.Clear();
@@ -51,7 +51,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     public async Task WhenGeometryIsOutsideTransactionZone_ThenProblem()
     {
         // Arrange
-        var (zipArchive, _) = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var (zipArchive, _) = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, _) =>
             {
                 var transactionZoneBoundaryCoordinates = builder.TestData.TransactionZoneShapeRecord.Geometry.Boundary.Coordinates;
@@ -76,7 +76,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var organizationCache = new FakeOrganizationCache()
             .Seed(orgId, null);
 
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, _) => { builder.TestData.RoadSegment1DbaseRecord.LBEHEER.Value = orgId; })
             .Build();
 
@@ -90,7 +90,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task SegmentWithTooLongGeometryShouldGiveProblem()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, _) =>
             {
                 var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
@@ -113,7 +113,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenLeftSideStreetNameIdIsZero_ThenLeftStreetNameIdOutOfRange()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, _) => { builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = 0; })
             .Build();
 
@@ -125,7 +125,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenLeftSideStreetNameIdIsNull_ThenNotApplicableIsUsedSilently()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithExtract((builder, _) =>
             {
                 builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = 5;
@@ -143,7 +143,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenRightSideStreetNameIdIsZero_ThenRightStreetNameIdOutOfRange()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, _) => { builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = 0; })
             .Build();
 
@@ -155,7 +155,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenRightSideStreetNameIdIsNull_ThenNotApplicableIsUsedSilently()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithExtract((builder, _) =>
             {
                 builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = 5;
@@ -181,7 +181,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         Assert.True((await streetNameCache.GetAsync(removedStreetNameId, CancellationToken.None)).IsRemoved);
 
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, _) =>
             {
                 FillStreetNameCache(builder, streetNameCache);
@@ -207,7 +207,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         Assert.True((await streetNameCache.GetAsync(removedStreetNameId, CancellationToken.None)).IsRemoved);
 
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, _) =>
             {
                 FillStreetNameCache(builder, streetNameCache);
@@ -235,7 +235,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         Assert.Equal(renamedToStreetNameId, (await streetNameCache.GetRenamedIdsAsync([streetNameId], CancellationToken.None))[streetNameId]);
 
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, _) =>
             {
                 FillStreetNameCache(builder, streetNameCache);
@@ -264,7 +264,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         Assert.Equal(renamedToStreetNameId, (await streetNameCache.GetRenamedIdsAsync([streetNameId], CancellationToken.None))[streetNameId]);
 
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, _) =>
             {
                 FillStreetNameCache(builder, streetNameCache);
@@ -287,7 +287,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         var streetNameContextFactory = new RoadSegmentFeatureCompareStreetNameContextFactory(new FakeStreetNameCache());
 
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, _) => { builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = streetNameId; })
             .Build();
 
@@ -305,7 +305,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         var streetNameContextFactory = new RoadSegmentFeatureCompareStreetNameContextFactory(new FakeStreetNameCache());
 
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, _) => { builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = streetNameId; })
             .Build();
 
@@ -319,7 +319,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenModifiedGeometrySlightly_ThenRoadSegmentModified()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, _) =>
             {
                 var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
@@ -375,7 +375,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenGeometryHasAtLeast70PercentOverlap_ThenExtractIdShouldBeReusedAndJunctionUnchanged()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, context) =>
             {
                 var newSegmentTempId = context.Fixture.CreateWhichIsDifferentThan(
@@ -438,7 +438,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenModifiedGeometryToLessThan70PercentOverlap_ThenNewSegmentAdded()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithExtract((builder, _) =>
             {
                 var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.Factory.CreateLineString([
@@ -539,7 +539,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenModifiedNonCriticalAttribute_ThenModifiedSegment()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
@@ -597,7 +597,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var startPoint = new Point(602000, 602000).WithSrid(WellknownSrids.Lambert08);
         var endPoint = new Point(602100, 602000).WithSrid(WellknownSrids.Lambert08);
 
-        var (zipArchive, context) = new DomainV2ZipArchiveBuilder(fixture => { fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd); })
+        var (zipArchive, context) = new InwinningZipArchiveBuilder(fixture => { fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd); })
             .WithExtract((builder, _) =>
             {
                 var geometry = new LineString([
@@ -650,7 +650,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var startPoint = new Point(602000, 602000).WithSrid(WellknownSrids.Lambert08);
         var endPoint = new Point(602100, 602000).WithSrid(WellknownSrids.Lambert08);
 
-        var (zipArchive, context) = new DomainV2ZipArchiveBuilder(fixture => { fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd); })
+        var (zipArchive, context) = new InwinningZipArchiveBuilder(fixture => { fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd); })
             .WithExtract((builder, _) =>
             {
                 var geometry = new LineString([
@@ -710,7 +710,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenConversionToGerealiseerd_ThenSuccess()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithExtract((builder, _) =>
             {
                 builder.TestData.RoadSegment1DbaseRecord.STATUS.Value = RoadSegmentStatusV2.Gepland;
@@ -766,7 +766,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task GivenMultipleNonGerealiseerdRoadSegmentsWithIdenticalGeometries_WithNoChanges_ThenNoChanges()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithExtract((builder, _) =>
             {
                 var newSegment1 = builder.CreateRoadSegmentShapeRecord();
@@ -827,7 +827,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenMultipleNonGerealiseerdRoadSegmentsWithOverlappingGeometriesButChangedGeometries_ThenRoadSegmentModified()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithExtract((builder, _) =>
             {
                 builder.DataSet.RoadSegmentDbaseRecords.Add(builder.CreateRoadSegmentDbaseRecord(record => record.STATUS.Value = RoadSegmentStatusV2.Gepland));
@@ -897,7 +897,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task TempIdsShouldBeUniqueAcrossChangeAndIntegrationData()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, context) =>
             {
                 var integrationRoadSegment = context.Integration.DataSet.RoadSegmentDbaseRecords.First();
@@ -916,7 +916,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     {
         var roadSegment2TempId = 0;
 
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithExtract((builder, _) =>
             {
                 var newSegment1 = builder.CreateRoadSegmentShapeRecord();
@@ -955,7 +955,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     {
         var roadSegment2TempId = 0;
 
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gepland))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gepland))
             .WithExtract((builder, _) =>
             {
                 var newSegment1 = builder.CreateRoadSegmentShapeRecord();
@@ -993,7 +993,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     {
         var roadSegment1Id = 0;
 
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithExtract((builder, _) =>
             {
                 var newSegment1 = builder.CreateRoadSegmentShapeRecord();
@@ -1027,7 +1027,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenOnlyRoadSegmentIdChanges_ThenNoChanges()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithChange((builder, _) =>
             {
                 var newSegmentId = builder.DataSet.RoadSegmentDbaseRecords.Select(x => x.WS_OIDN.Value).Max() + 1;
@@ -1077,7 +1077,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var roadSegment1Id = 1;
         var roadSegment2Id = 2;
 
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithExtract((builder, _) =>
             {
                 builder.DataSet.Clear();
@@ -1131,7 +1131,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var roadSegment2Id = 2;
         var roadSegment3Id = 3;
 
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithIntegration((builder, _) =>
             {
                 builder.DataSet.Clear();
@@ -1202,7 +1202,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenIntegrationHasDuplicateFlattenedSegments_ThenOnlyOneRecordRegistered()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
+        var zipArchive = new InwinningZipArchiveBuilder(fixture => fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd))
             .WithIntegration((builder, _) =>
             {
                 var firstDbaseRecord = builder.DataSet.RoadSegmentDbaseRecords.Single();

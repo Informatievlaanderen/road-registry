@@ -10,7 +10,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadExtract;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadInwinningExtract;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extensions;
-using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
+using RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 using Polygon = NetTopologySuite.Geometries.Polygon;
@@ -60,7 +60,7 @@ public class WithInvalidRequest : WhenUploadInwinningExtractTestBase
                 ContentType.Parse("application/zip"),
                 _ =>
                 {
-                    var archiveStream = new DomainV2ZipArchiveBuilder()
+                    var archiveStream = new InwinningZipArchiveBuilder()
                         .WithChange((builder, _) =>
                         {
                             builder.TestData.TransactionZoneShapeRecord.Geometry = builder.TestData.TransactionZoneShapeRecord.Geometry.Buffer(-0.1).ToMultiPolygon();
@@ -128,7 +128,7 @@ public class WithInvalidRequest : WhenUploadInwinningExtractTestBase
                 ContentType.Parse("application/zip"),
                 _ =>
                 {
-                    var archiveStream = new DomainV2ZipArchiveBuilder()
+                    var archiveStream = new InwinningZipArchiveBuilder()
                         .WithExtract((builder, _) =>
                         {
                             builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord(x =>

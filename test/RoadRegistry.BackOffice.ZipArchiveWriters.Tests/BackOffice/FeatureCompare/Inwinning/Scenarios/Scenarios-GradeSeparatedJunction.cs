@@ -7,7 +7,7 @@ using RoadRegistry.Extracts.Infrastructure.Dbase;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
-using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
+using RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
 using Xunit.Abstractions;
 
 public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenariosBase
@@ -20,7 +20,7 @@ public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorS
     [Fact]
     public async Task RemovedRoadSegmentShouldGiveProblem()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.DataSet.RoadSegmentDbaseRecords = new[] { builder.TestData.RoadSegment1DbaseRecord }.ToList();
@@ -35,7 +35,7 @@ public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorS
     [Fact]
     public async Task WithNotUniqueIdentifier_ThenProblem()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var duplicate = builder.CreateGradeSeparatedJunctionDbaseRecord();
@@ -53,7 +53,7 @@ public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorS
     [Fact]
     public async Task WithMultipleJunctionsWithSameLowerAndUpper_ThenProblem()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var duplicate = builder.CreateGradeSeparatedJunctionDbaseRecord();
@@ -70,7 +70,7 @@ public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorS
     [Fact]
     public async Task EqualLowerAndUpperShouldGiveProblem()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) => { builder.TestData.GradeSeparatedJunctionDbaseRecord.BO_TEMPID.Value = builder.TestData.GradeSeparatedJunctionDbaseRecord.ON_TEMPID.Value; })
             .BuildWithResult(_ => TranslatedChanges.Empty);
 
@@ -81,7 +81,7 @@ public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorS
     [Fact]
     public async Task UnknownRoadSegmentShouldGiveProblem()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 // Non-positive temp ids are rejected by RoadSegmentTempId.Accepts, so the reader reports both as out of
@@ -103,7 +103,7 @@ public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorS
         const int integrationRoadSegmentId1 = 9_000_001;
         const int integrationRoadSegmentId2 = 9_000_002;
 
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithIntegration((builder, _) =>
             {
                 builder.DataSet.RoadSegmentDbaseRecords[0].WS_OIDN.Value = integrationRoadSegmentId1;
@@ -132,7 +132,7 @@ public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorS
     [Fact]
     public async Task WhenChangingSegments_ThenNewId()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
@@ -204,7 +204,7 @@ public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorS
     [Fact]
     public async Task WhenChangingType_ThenIdIsKept()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
@@ -271,7 +271,7 @@ public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorS
     [Fact]
     public async Task WhenOnlyIdChanges_ThenMigratedWithExtractId()
     {
-        var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
                 builder.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN.Value = context.Fixture.CreateWhichIsDifferentThan(new GradeSeparatedJunctionId(builder.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN.Value));
@@ -328,7 +328,7 @@ public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorS
     [Fact]
     public async Task RemovingDuplicateRecordsShouldReturnExpectedResult()
     {
-        var zipArchiveBuilder = new DomainV2ZipArchiveBuilder();
+        var zipArchiveBuilder = new InwinningZipArchiveBuilder();
 
         var duplicateGradeSeparatedJunction = zipArchiveBuilder.Records.CreateGradeSeparatedJunctionDbaseRecord();
 

@@ -6,14 +6,14 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Uploads;
-using Schemas.Inwinning.RoadSegments;
+using Schemas.DomainV2.RoadSegments;
 
 public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<NationalRoadFeatureCompareAttributes>>
 {
     private const ExtractFileName FileName = ExtractFileName.AttNationweg;
 
     public NationalRoadFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new InwinningFeatureReader(encoding))
+        : base(new DomainV2FeatureReader(encoding))
     {
     }
 
@@ -26,9 +26,9 @@ public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
         return (features, problems);
     }
 
-    private sealed class InwinningFeatureReader : ZipArchiveDbaseFeatureReader<RoadSegmentNationalRoadAttributeDbaseRecord, Feature<NationalRoadFeatureCompareAttributes>>
+    private sealed class DomainV2FeatureReader : ZipArchiveDbaseFeatureReader<RoadSegmentNationalRoadAttributeDbaseRecord, Feature<NationalRoadFeatureCompareAttributes>>
     {
-        public InwinningFeatureReader(Encoding encoding)
+        public DomainV2FeatureReader(Encoding encoding)
             : base(encoding, NationalRoadFeatureCompareFeatureReader.FileName, RoadSegmentNationalRoadAttributeDbaseRecord.Schema)
         {
         }

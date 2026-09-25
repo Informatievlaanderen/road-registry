@@ -12,7 +12,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadSegment;
-using Schemas.Inwinning.RoadSegments;
+using Schemas.DomainV2.RoadSegments;
 
 public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>
 {
@@ -20,7 +20,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
 
     public RoadSegmentFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new InwinningFeatureReader(encoding))
+        : base(new DomainV2FeatureReader(encoding))
     {
         _encoding = encoding;
     }
@@ -75,9 +75,9 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         }
     }
 
-    private sealed class InwinningFeatureReader : ZipArchiveShapeFeatureReader<RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareWithFlatAttributes>>
+    private sealed class DomainV2FeatureReader : ZipArchiveShapeFeatureReader<RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareWithFlatAttributes>>
     {
-        public InwinningFeatureReader(Encoding encoding)
+        public DomainV2FeatureReader(Encoding encoding)
             : base(encoding, RoadSegmentFeatureCompareFeatureReader.FileName, RoadSegmentDbaseRecord.Schema, treatHasNoRecordsAsError: true)
         {
         }
@@ -89,7 +89,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 Geometry = geometry,
                 WS_TEMPID = dbaseRecord.WS_TEMPID.GetValue(),
                 WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
-                METHODE = null,
+                METHODE = dbaseRecord.METHODE.GetValue(),
                 STATUS = dbaseRecord.STATUS.GetValue(),
                 LBEHEER = dbaseRecord.LBEHEER.GetValue(),
                 RBEHEER = dbaseRecord.RBEHEER.GetValue(),
@@ -503,9 +503,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 Geometry = ReadGeometry(),
                 TempId = roadSegmentId,
                 RoadSegmentId = ReadRoadSegmentId(),
-                // Still null: a delivery states its own METHODE, but the column only lands with the DomainV2 dbase
-                // schema. ReadMethod is what takes over here once it does.
-                Method = null,
+                Method = ReadMethod(),
                 Status = ReadStatus(),
                 Category = ReadCategory(),
                 AccessRestriction = ReadAccessRestriction(),

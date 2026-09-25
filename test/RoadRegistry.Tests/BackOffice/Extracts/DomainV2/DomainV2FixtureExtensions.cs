@@ -3,9 +3,9 @@ namespace RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 using System.IO.Compression;
 using System.Text;
 using AutoFixture;
-using RoadRegistry.Extracts.Schemas.Inwinning;
-using RoadRegistry.Extracts.Schemas.Inwinning.RoadNodes;
-using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
+using RoadRegistry.Extracts.Schemas.DomainV2;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadNodes;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
 
 public static class DomainV2FixtureExtensions
 {

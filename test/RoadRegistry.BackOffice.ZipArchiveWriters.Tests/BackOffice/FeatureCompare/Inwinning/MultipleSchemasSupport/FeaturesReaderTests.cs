@@ -14,7 +14,7 @@ using RoadRegistry.Extracts.Schemas.Inwinning.RoadNodes;
 using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
-using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
+using RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
 using RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
@@ -35,7 +35,7 @@ public class FeaturesReaderTests
     [Fact]
     public async Task AllFeatureReadersCanRead()
     {
-        var testData = new DomainV2ZipArchiveTestData();
+        var testData = new InwinningZipArchiveTestData();
         var fixture = testData.Fixture;
 
         var projectionFormatStream = fixture.CreateLambert08ProjectionFormatFileWithOneRecord();
@@ -206,7 +206,7 @@ public class FeaturesReaderTests
     [Fact]
     public async Task WhenRoadSegmentTempIdOutOfRange_ThenError()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.TestData.RoadSegment1DbaseRecord.WS_TEMPID.Value = 0;
@@ -224,7 +224,7 @@ public class FeaturesReaderTests
     [Fact]
     public async Task WhenRoadSegmentIdOutOfRange_ThenError()
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value = 0;
@@ -245,7 +245,7 @@ public class FeaturesReaderTests
     [InlineData(5)] // Gehistoreerd
     public async Task WhenRoadSegmentStatusIsDisallowedForInwinning_ThenError(int disallowedStatusIdentifier)
     {
-        var zipArchive = new DomainV2ZipArchiveBuilder()
+        var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.TestData.RoadSegment1DbaseRecord.STATUS.Value = disallowedStatusIdentifier;
