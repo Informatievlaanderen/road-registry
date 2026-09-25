@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadExtract;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadInwinningExtract;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extensions;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
@@ -75,10 +76,10 @@ public class WithInvalidRequest : WhenUploadInwinningExtractTestBase
                 UploadId = ObjectProvider.Create<UploadId>(),
                 ExtractRequestId = extractRequestId
             },
-            extractUploader: new ExtractUploader(
+            extractUploader: new InwinningExtractUploader(
                 ExtractsDbContext,
                 new RoadNetworkUploadsBlobClient(blobClientMock.Object),
-                new FakeZipArchiveFeatureCompareTranslator(),
+                new FakeInwinningZipArchiveFeatureCompareTranslator(),
                 new FakeExtractUploadFailedEmailClient(),
                 TicketingMock.Object
             ));
@@ -151,10 +152,10 @@ public class WithInvalidRequest : WhenUploadInwinningExtractTestBase
                 UploadId = ObjectProvider.Create<UploadId>(),
                 ExtractRequestId = extractRequestId
             },
-            extractUploader: new ExtractUploader(
+            extractUploader: new InwinningExtractUploader(
                 ExtractsDbContext,
                 new RoadNetworkUploadsBlobClient(blobClientMock.Object),
-                new FakeZipArchiveFeatureCompareTranslator(),
+                new FakeInwinningZipArchiveFeatureCompareTranslator(),
                 new FakeExtractUploadFailedEmailClient(),
                 TicketingMock.Object
             ));

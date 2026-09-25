@@ -166,19 +166,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             switch (record.RecordType.Translation.Identifier)
             {
                 case RecordType.IdenticalIdentifier:
-                    // An inwinning takes over the grade separated junctions it leaves untouched, so they migrate along with their road segments
-                    if (context.ZipArchiveMetadata.Inwinning)
-                    {
-                        changes = changes.AppendChange(
-                            new ModifyGradeSeparatedJunctionChange
-                            {
-                                GradeSeparatedJunctionId = record.Feature.Attributes.Id,
-                                LowerRoadSegmentId = record.LowerRoadSegmentId,
-                                UpperRoadSegmentId = record.UpperRoadSegmentId,
-                                Type = record.Feature.Attributes.Type
-                            }
-                        );
-                    }
+                    // A junction the delivery leaves untouched stays as it is: nothing to record.
                     break;
                 case RecordType.AddedIdentifier:
                     changes = changes.AppendChange(

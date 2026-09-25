@@ -1,20 +1,20 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios.Inwinning;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.Inwinning.Scenarios;
 
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.DutchTranslations;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning;
 using RoadRegistry.Extracts.Infrastructure.Dbase;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 using Xunit.Abstractions;
-using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.Inwinning.TranslatedChanges;
 
-public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
+public class EuropeanRoadScenarios : FeatureCompareTranslatorScenariosBase
 {
-    public NationalRoadScenarios(ITestOutputHelper testOutputHelper, ILogger<ZipArchiveFeatureCompareTranslator> logger)
+    public EuropeanRoadScenarios(ITestOutputHelper testOutputHelper, ILogger<ZipArchiveFeatureCompareTranslator> logger)
         : base(testOutputHelper, logger)
     {
     }
@@ -29,7 +29,7 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
                 // translator reports it as out of range deterministically. (CreateWhichIsDifferentThan<int> could
                 // yield a non-positive value, which the reader rejects earlier with a different problem
                 // (RoadSegmentIdOutOfRange), which made this test flaky.)
-                builder.TestData.RoadSegment1NationalRoadDbaseRecord1.WS_TEMPID.Value = Math.Max(
+                builder.TestData.RoadSegment1EuropeanRoadDbaseRecord1.WS_TEMPID.Value = Math.Max(
                     builder.TestData.RoadSegment1DbaseRecord.WS_TEMPID.Value,
                     builder.TestData.RoadSegment2DbaseRecord.WS_TEMPID.Value) + 1;
             })
@@ -40,12 +40,12 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
     }
 
     [Fact]
-    public async Task WhenSegmentIsKeptAndOnlyNationalNumberRemoved_ThenOnlyNationalNumberRemoved()
+    public async Task WhenSegmentIsKeptAndOnlyEuropeanNumberRemoved_ThenOnlyEuropeanNumberRemoved()
     {
         var (zipArchive, expected) = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
-                builder.DataSet.NationalRoadDbaseRecords.RemoveAt(0);
+                builder.DataSet.EuropeanRoadDbaseRecords.RemoveAt(0);
             })
             .BuildWithResult(context => TranslatedChanges.Empty
                 .AppendChange(
@@ -81,10 +81,10 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
                     }
                 )
                 .AppendChange(
-                    new RemoveRoadSegmentFromNationalRoadChange
+                    new RemoveRoadSegmentFromEuropeanRoadChange
                     {
                         RoadSegmentId = new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value!.Value),
-                        Number = NationalRoadNumber.Parse(context.Extract.TestData.RoadSegment1NationalRoadDbaseRecord1.NWNUMMER.Value!)
+                        Number = EuropeanRoadNumber.Parse(context.Extract.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value!)
                     }
                 )
                 .AppendChange(MigrateUnchangedGradeSeparatedJunction(context)));

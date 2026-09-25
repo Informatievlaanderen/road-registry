@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios.Inwinning;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.Inwinning.Scenarios;
 
 using System.Text;
 using FluentAssertions;
@@ -8,10 +8,10 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Editor.Schema.Extensions;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning.RoadNode;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning.RoadSegment;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning.TransactionZone;
 using RoadRegistry.Extracts.Infrastructure.Dbase;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.GradeSeparatedJunction.Changes;
@@ -591,7 +591,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenAddingNewSegmentWith70OverlapToUnchangedExtractSegment_ThenExtractSegmentKeepsId()
     {
-        var grbOgcDownloader = new FakeGrbOgcApiFeaturesDownloader();
+        var grbOgcDownloader = new FakeInwinningGrbOgcApiFeaturesDownloader();
         var translator = ZipArchiveFeatureCompareTranslatorV3Builder.Create(grbOgcApiFeaturesDownloader: grbOgcDownloader);
 
         var startPoint = new Point(602000, 602000).WithSrid(WellknownSrids.Lambert08);
@@ -644,7 +644,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task WhenAddingNewSegmentWith70OverlapToModifiedExtractSegment_ThenSegmentWithLargestOverlapKeepsExtractRoadSegmentId()
     {
-        var grbOgcDownloader = new FakeGrbOgcApiFeaturesDownloader();
+        var grbOgcDownloader = new FakeInwinningGrbOgcApiFeaturesDownloader();
         var translator = ZipArchiveFeatureCompareTranslatorV3Builder.Create(grbOgcApiFeaturesDownloader: grbOgcDownloader);
 
         var startPoint = new Point(602000, 602000).WithSrid(WellknownSrids.Lambert08);
@@ -1221,7 +1221,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             .BuildWithContext();
 
         var integrationRoadSegmentId = new RoadSegmentId(zipArchive.Item2.Integration.DataSet.RoadSegmentDbaseRecords.First().WS_OIDN.Value!.Value);
-        var context = new ZipArchiveEntryFeatureCompareTranslateContext(zipArchive.Item1, ZipArchiveMetadata.Empty.WithInwinning());
+        var context = new ZipArchiveEntryFeatureCompareTranslateContext(zipArchive.Item1, ZipArchiveMetadata.Empty);
         var changes = TranslatedChanges.Empty;
 
         var transactionZoneTranslator = new TransactionZoneFeatureCompareTranslator(new TransactionZoneFeatureCompareFeatureReader(FileEncoding.UTF8));
@@ -1236,7 +1236,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             new RoadSegmentFeatureCompareFeatureReader(FileEncoding.UTF8),
             new FakeRoadSegmentFeatureCompareStreetNameContextFactoryV3(),
             new FakeOrganizationCache(),
-            new FakeGrbOgcApiFeaturesDownloader());
+            new FakeInwinningGrbOgcApiFeaturesDownloader());
         TranslatedChanges translatedChanges;
         (translatedChanges, var roadSegmentProblems) = await roadSegmentTranslator.TranslateAsync(context, changes, CancellationToken.None);
         roadSegmentProblems.ThrowIfError();

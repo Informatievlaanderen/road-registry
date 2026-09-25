@@ -89,6 +89,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddScoped<IExtractRequests, ExtractRequests>()
             .AddScoped<ExtractRequester>()
             .AddScoped<IExtractUploader, ExtractUploader>()
+            .AddScoped<Actions.UploadInwinningExtract.IInwinningExtractUploader, Actions.UploadInwinningExtract.InwinningExtractUploader>()
             .RegisterOptions<DataValidationOptions>()
             .AddSingleton<IDataValidationTokenProvider, DataValidationTokenProvider>()
             .AddScoped<IDataValidationApiClient, DataValidationApiClient>()

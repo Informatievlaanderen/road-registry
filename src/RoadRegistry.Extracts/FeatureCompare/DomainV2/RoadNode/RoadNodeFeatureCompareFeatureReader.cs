@@ -38,10 +38,6 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
                 AddToContext(features, featureType, context);
                 break;
             case FeatureType.Extract:
-                if (context.ZipArchiveMetadata.Inwinning)
-                {
-                    problems = ZipArchiveProblems.Many(problems.GetMissingOrInvalidFileProblems());
-                }
                 break;
             case FeatureType.Integration:
                 problems = ZipArchiveProblems.Many(problems.GetMissingOrInvalidFileProblems());

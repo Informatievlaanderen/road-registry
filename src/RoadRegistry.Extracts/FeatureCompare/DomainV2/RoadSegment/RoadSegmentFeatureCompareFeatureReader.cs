@@ -38,10 +38,6 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 AddToContext(features, featureType, context);
                 break;
             case FeatureType.Extract:
-                if (context.ZipArchiveMetadata.Inwinning)
-                {
-                    problems = ZipArchiveProblems.Many(problems.GetMissingOrInvalidFileProblems());
-                }
                 break;
             case FeatureType.Integration:
                 problems = ZipArchiveProblems.Many(problems.GetMissingOrInvalidFileProblems());
@@ -338,9 +334,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
             RoadSegmentStatusV2 ReadStatus()
             {
-                var expected = context.ZipArchiveMetadata.Inwinning
-                    ? [RoadSegmentStatusV2.Gepland, RoadSegmentStatusV2.Gerealiseerd]
-                    : RoadSegmentStatusV2.All;
+                var expected = RoadSegmentStatusV2.All;
 
                 if (STATUS is null)
                 {
@@ -509,7 +503,9 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 Geometry = ReadGeometry(),
                 TempId = roadSegmentId,
                 RoadSegmentId = ReadRoadSegmentId(),
-                Method = context.ZipArchiveMetadata.Inwinning ? null : ReadMethod(),
+                // Still null: a delivery states its own METHODE, but the column only lands with the DomainV2 dbase
+                // schema. ReadMethod is what takes over here once it does.
+                Method = null,
                 Status = ReadStatus(),
                 Category = ReadCategory(),
                 AccessRestriction = ReadAccessRestriction(),

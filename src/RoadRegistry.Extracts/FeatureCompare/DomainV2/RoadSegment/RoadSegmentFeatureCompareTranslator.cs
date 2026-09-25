@@ -330,9 +330,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                             FeatureType.Change,
                             changeFeature.RecordNumber,
-                            context.ZipArchiveMetadata.Inwinning
-                                ? changeFeatureAttributes
-                                : changeFeatureAttributes.OnlyChangedAttributes(extractFeature, extractFeature.Geometry),
+                            changeFeatureAttributes.OnlyChangedAttributes(extractFeature, extractFeature.Geometry),
                             changeFeature.FlatFeatures,
                             extractFeature.RoadSegmentId,
                             RecordType.Modified)
@@ -353,9 +351,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                         FeatureType.Change,
                         changeFeature.RecordNumber,
-                        context.ZipArchiveMetadata.Inwinning
-                            ? changeFeatureAttributes
-                            : changeFeatureAttributes.OnlyChangedAttributes(extractFeature, extractFeature.Geometry),
+                        changeFeatureAttributes.OnlyChangedAttributes(extractFeature, extractFeature.Geometry),
                         changeFeature.FlatFeatures,
                         extractFeature.RoadSegmentId,
                         RecordType.Modified)
@@ -493,10 +489,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             {
                 case RecordType.IdenticalIdentifier:
                 {
-                    if (context.ZipArchiveMetadata.Inwinning)
-                    {
-                        changes = changes.AppendIdenticalRoadSegmentId(record.RoadSegmentId);
-                    }
+                    // A segment the delivery leaves untouched stays as it is: nothing to record.
                     break;
                 }
                 case RecordType.ModifiedIdentifier:
@@ -505,7 +498,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     var modifyRoadSegment = new ModifyRoadSegmentChange
                     {
                         RoadSegmentIdReference = new RoadSegmentIdReference(record.RoadSegmentId, record.FlatFeatures.Select(x => x.Attributes.TempId).ToArray()),
-                        Geometry = record.GeometryChanged || context.ZipArchiveMetadata.Inwinning ? geometry : null,
+                        Geometry = record.GeometryChanged ? geometry : null,
                         GeometryDrawMethod = record.Attributes.Method,
                         Status = record.Attributes.Status,
                         AccessRestriction = record.Attributes.AccessRestriction,
@@ -672,22 +665,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         return (changeFeatures, problems);
     }
 
-    private async Task<OgcFeaturesCache> GetOgcFeaturesCache(ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    // Empty, always: the GRB features are consulted to work out a geometry method for segments that were collected
+    // without one, which is an inwinning concern. A delivery through this flow states its own METHODE.
+    private Task<OgcFeaturesCache> GetOgcFeaturesCache(ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
-        using var _ = _logger.TimeAction();
-
-        if (!context.ZipArchiveMetadata.Inwinning)
-        {
-            return new OgcFeaturesCache([]);
-        }
-
-        var ogcFeatures = await _ogcApiFeaturesDownloader.DownloadFeaturesAsync(
-            ["KNW", "WBN"],
-            context.TransactionZone.Geometry.Value.Boundary.EnvelopeInternal,
-            context.TransactionZone.Geometry.Value.SRID,
-            cancellationToken);
-
-        return new OgcFeaturesCache(ogcFeatures);
+        return Task.FromResult(new OgcFeaturesCache([]));
     }
 
     private static ZipArchiveProblems GetProblemsForStreetNameId(IDbaseFileRecordProblemBuilder recordContext, StreetNameLocalId? id, bool leftSide, IRoadSegmentFeatureCompareStreetNameContext streetNameContext)

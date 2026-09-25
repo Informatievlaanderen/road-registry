@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios.Inwinning;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.Inwinning.Scenarios;
 
 using FluentAssertions;
 using JasperFx.Core;
@@ -8,7 +8,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Editor.Schema.Extensions;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning;
 using RoadRegistry.Extracts.Infrastructure.Dbase;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadNode.Changes;
@@ -17,7 +17,7 @@ using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 using Xunit.Abstractions;
 using Point = NetTopologySuite.Geometries.Point;
-using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.Inwinning.TranslatedChanges;
 
 public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
 {

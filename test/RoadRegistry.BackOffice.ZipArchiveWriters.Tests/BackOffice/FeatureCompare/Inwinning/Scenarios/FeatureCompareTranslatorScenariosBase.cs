@@ -1,9 +1,9 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios.Inwinning;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.Inwinning.Scenarios;
 
 using System.IO.Compression;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning;
 using RoadRegistry.Extracts.Infrastructure.Dbase;
 using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
@@ -13,8 +13,8 @@ using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using IZipArchiveFeatureCompareTranslator = RoadRegistry.Extracts.FeatureCompare.DomainV2.IZipArchiveFeatureCompareTranslator;
-using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
+using IZipArchiveFeatureCompareTranslator = RoadRegistry.Extracts.FeatureCompare.Inwinning.IZipArchiveFeatureCompareTranslator;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.Inwinning.TranslatedChanges;
 
 public abstract class FeatureCompareTranslatorScenariosBase
 {
@@ -37,7 +37,7 @@ public abstract class FeatureCompareTranslatorScenariosBase
 
             try
             {
-                return await sut.TranslateAsync(archive, ZipArchiveMetadata.Empty.WithInwinning(), CancellationToken.None);
+                return await sut.TranslateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
             }
             catch (ZipArchiveValidationException ex)
             {

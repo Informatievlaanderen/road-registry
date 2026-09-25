@@ -1,10 +1,10 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios.Inwinning;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.Inwinning.Scenarios;
 
 using Microsoft.Extensions.Logging;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning;
 using RoadRegistry.Extracts.Uploads;
 using Xunit.Abstractions;
-using IZipArchiveFeatureCompareTranslator = RoadRegistry.Extracts.FeatureCompare.DomainV2.IZipArchiveFeatureCompareTranslator;
+using IZipArchiveFeatureCompareTranslator = RoadRegistry.Extracts.FeatureCompare.Inwinning.IZipArchiveFeatureCompareTranslator;
 
 public class CommonScenarios: FeatureCompareTranslatorScenariosBase
 {

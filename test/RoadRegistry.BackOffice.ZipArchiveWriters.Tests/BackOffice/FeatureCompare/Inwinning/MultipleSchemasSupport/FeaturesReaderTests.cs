@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.MultipleSchemasSupport.Inwinning;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.Inwinning.MultipleSchemasSupport;
 
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -21,7 +21,7 @@ using RoadSegment.ValueObjects;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using Polygon = NetTopologySuite.Geometries.Polygon;
-using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.Inwinning.TranslatedChanges;
 
 public class FeaturesReaderTests
 {
@@ -179,7 +179,7 @@ public class FeaturesReaderTests
             TranslatedChanges result = null;
             try
             {
-                result = await sut.TranslateAsync(zipArchive, ZipArchiveMetadata.Empty.WithInwinning(), CancellationToken.None);
+                result = await sut.TranslateAsync(zipArchive, ZipArchiveMetadata.Empty, CancellationToken.None);
 
                 Assert.Equal(expected, result);
             }
@@ -215,7 +215,7 @@ public class FeaturesReaderTests
 
         var sut = ZipArchiveFeatureCompareTranslatorV3Builder.Create();
 
-        var act = () => sut.TranslateAsync(zipArchive, ZipArchiveMetadata.Empty.WithInwinning(), CancellationToken.None);
+        var act = () => sut.TranslateAsync(zipArchive, ZipArchiveMetadata.Empty, CancellationToken.None);
 
         var ex = (await act.Should().ThrowAsync<ZipArchiveValidationException>()).Which;
         ex.Problems.Should().Contain(x => x.File == "WEGSEGMENT.DBF" && x.Reason == "RoadSegmentTempIdOutOfRange");
@@ -233,7 +233,7 @@ public class FeaturesReaderTests
 
         var sut = ZipArchiveFeatureCompareTranslatorV3Builder.Create();
 
-        var act = () => sut.TranslateAsync(zipArchive, ZipArchiveMetadata.Empty.WithInwinning(), CancellationToken.None);
+        var act = () => sut.TranslateAsync(zipArchive, ZipArchiveMetadata.Empty, CancellationToken.None);
 
         var ex = (await act.Should().ThrowAsync<ZipArchiveValidationException>()).Which;
         ex.Problems.Should().Contain(x => x.File == "WEGSEGMENT.DBF" && x.Reason == "RoadSegmentIdOutOfRange");
@@ -254,7 +254,7 @@ public class FeaturesReaderTests
 
         var sut = ZipArchiveFeatureCompareTranslatorV3Builder.Create();
 
-        var act = () => sut.TranslateAsync(zipArchive, ZipArchiveMetadata.Empty.WithInwinning(), CancellationToken.None);
+        var act = () => sut.TranslateAsync(zipArchive, ZipArchiveMetadata.Empty, CancellationToken.None);
 
         var ex = (await act.Should().ThrowAsync<ZipArchiveValidationException>()).Which;
         var problem = ex.Problems.Should().ContainSingle(x => x.File == "WEGSEGMENT.DBF" && x.Reason == "RoadSegmentStatusV2Mismatch").Which;
