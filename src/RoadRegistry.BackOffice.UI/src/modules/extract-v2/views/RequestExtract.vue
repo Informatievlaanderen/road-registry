@@ -268,6 +268,21 @@
             </label>
           </div>
           <div class="vl-form-col--12-12">
+            <p>In welk datamodel wenst u het extract aangeleverd te krijgen?</p>
+          </div>
+          <div class="vl-form-col--12-12">
+            <label>
+              <input v-model="contourFlow.datamodel" type="radio" value="oud" />
+              Het oude datamodel
+            </label>
+          </div>
+          <div class="vl-form-col--12-12">
+            <label>
+              <input v-model="contourFlow.datamodel" type="radio" value="nieuw" />
+              Het nieuwe datamodel
+            </label>
+          </div>
+          <div class="vl-form-col--12-12">
             <label for="contour-description" class="vl-form__label __field__label">
               Geef een beschrijving op van het extract.
             </label>
@@ -317,6 +332,7 @@
                   isSubmitting ||
                   !isDescriptionValid(contourFlow.description) ||
                   !contourFlowHasIsInformative ||
+                  !contourFlowHasDatamodel ||
                   isCheckingOverlap ||
                   (contourFlow.overlapWarning && !contourFlow.overlapWarningAccepted)
                 "
@@ -395,6 +411,8 @@ export default defineComponent({
         validationErrors: [] as RoadRegistry.ValidationError[],
         hasGenericError: false,
         isInformative: null as boolean | null,
+        // Leeg tot de gebruiker kiest: bij een eigen contour valt het datamodel niet af te leiden.
+        datamodel: null as "oud" | "nieuw" | null,
         overlapWarning: false,
         overlapWarningAccepted: false,
       },
@@ -461,6 +479,9 @@ export default defineComponent({
     },
     contourFlowHasIsInformative(): boolean {
       return this.contourFlow.isInformative !== null;
+    },
+    contourFlowHasDatamodel(): boolean {
+      return this.contourFlow.datamodel !== null;
     },
     contourFlowHasValidInput(): boolean {
       switch (this.contourFlow.contourType) {
@@ -631,7 +652,14 @@ export default defineComponent({
           informatief: this.municipalityFlow.isInformative as boolean,
         };
 
-        let downloadExtractResponse = await PublicApi.Extracts.V2.requestExtractByNisCode(requestData);
+        // De inwinningsstatus van de gemeente bepaalt het datamodel: is ze ingewonnen, dan hoort het extract in het
+        // hernieuwde datamodel thuis. Zolang de inwinning niet gestart of bezig is, blijft het het oude.
+        const inwinningsstatus = await PublicApi.Inwinningsstatus.getGemeente(this.municipalityFlow.nisCode);
+
+        let downloadExtractResponse =
+          inwinningsstatus.inwinningsstatus === "compleet"
+            ? await PublicApi.Extracts.V3.requestExtractByNisCode(requestData)
+            : await PublicApi.Extracts.V2.requestExtractByNisCode(requestData);
 
         this.$router.push({ name: "extractDetailsV2", params: { downloadId: downloadExtractResponse.downloadId } });
       } catch (exception) {
@@ -658,7 +686,15 @@ export default defineComponent({
           return;
         }
 
+        if (!this.contourFlowHasDatamodel) {
+          return;
+        }
+
         let downloadExtractResponse: RoadRegistry.RequestExtractResponse;
+
+        // Bij een eigen contour valt niet af te leiden welk datamodel de gebruiker wil: de contour kan over ingewonnen
+        // en niet-ingewonnen gebied heen liggen. Daarom is het een expliciete keuze.
+        const extracts = this.contourFlow.datamodel === "nieuw" ? PublicApi.Extracts.V3 : PublicApi.Extracts.V2;
 
         switch (this.contourFlow.contourType) {
           case "shp":
@@ -668,7 +704,7 @@ export default defineComponent({
                 beschrijving: this.contourFlow.description,
                 informatief: this.contourFlow.isInformative as boolean,
               };
-              downloadExtractResponse = await PublicApi.Extracts.V2.requestExtractByFile(requestData);
+              downloadExtractResponse = await extracts.requestExtractByFile(requestData);
             }
             break;
           case "wkt":
@@ -679,7 +715,7 @@ export default defineComponent({
                 informatief: this.contourFlow.isInformative as boolean,
               };
 
-              downloadExtractResponse = await PublicApi.Extracts.V2.requestExtractByContour(requestData);
+              downloadExtractResponse = await extracts.requestExtractByContour(requestData);
             }
             break;
           default:

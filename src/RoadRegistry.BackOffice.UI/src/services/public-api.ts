@@ -236,6 +236,85 @@ export const PublicApi = {
         };
       },
     },
+    // Aanvragen in het hernieuwde datamodel. Enkel de drie downloadaanvragen verschillen; al de rest van het extract
+    // (details, download, upload, sluiten) loopt langs V2, dat niet naar het datamodel kijkt.
+    V3: {
+      requestExtractByContour: async (
+        downloadRequest: RoadRegistry.ExtractDownloadaanvraagPerContourBody
+      ): Promise<RoadRegistry.RequestExtractResponse> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V3.requestExtractByContour(downloadRequest);
+        }
+
+        const path = `${apiEndpoint}/v3/wegen/extracten/downloadaanvragen/percontour`;
+
+        try {
+          const response = await apiClient.post<RoadRegistry.ExtractDownloadaanvraagResponse>(path, downloadRequest);
+          return {
+            downloadId: response.data.downloadId,
+            ticketUrl: response.headers.location,
+          };
+        } catch (exception) {
+          throw convertError(exception);
+        }
+      },
+      requestExtractByFile: async (
+        downloadRequest: RoadRegistry.ExtractDownloadaanvraagPerBestandBody
+      ): Promise<RoadRegistry.RequestExtractResponse> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V3.requestExtractByFile(downloadRequest);
+        }
+
+        const path = `${apiEndpoint}/v3/wegen/extracten/downloadaanvragen/perbestand`;
+
+        const data = new FormData();
+        data.append("beschrijving", downloadRequest.beschrijving);
+        data.append("informatief", downloadRequest.informatief.toString());
+        downloadRequest.bestanden.forEach((file) => {
+          data.append("bestanden", file, file.name);
+        });
+
+        try {
+          const response = await apiClient.post<RoadRegistry.ExtractDownloadaanvraagResponse>(path, data);
+          return {
+            downloadId: response.data.downloadId,
+            ticketUrl: response.headers.location,
+          };
+        } catch (exception) {
+          throw convertError(exception);
+        }
+      },
+      requestExtractByNisCode: async (
+        downloadRequest: RoadRegistry.ExtractDownloadaanvraagPerNisCodeBody
+      ): Promise<RoadRegistry.RequestExtractResponse> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V3.requestExtractByNisCode(downloadRequest);
+        }
+
+        const path = `${apiEndpoint}/v3/wegen/extracten/downloadaanvragen/perniscode`;
+
+        try {
+          const response = await apiClient.post<RoadRegistry.ExtractDownloadaanvraagResponse>(path, downloadRequest);
+          return {
+            downloadId: response.data.downloadId,
+            ticketUrl: response.headers.location,
+          };
+        } catch (exception) {
+          throw convertError(exception);
+        }
+      },
+    },
+  },
+  Inwinningsstatus: {
+    getGemeente: async (nisCode: string): Promise<RoadRegistry.GemeenteInwinningsstatus> => {
+      if (useBackOfficeApi) {
+        return BackOfficeApi.Inwinningsstatus.getGemeente(nisCode);
+      }
+
+      const path = `${apiEndpoint}/v2/wegen/inwinningsstatus/gemeente/${nisCode}`;
+      const response = await apiClient.get<RoadRegistry.GemeenteInwinningsstatus>(path);
+      return response.data;
+    },
   },
   Inwinning: {
     getNisCodes: async (): Promise<string[]> => {
