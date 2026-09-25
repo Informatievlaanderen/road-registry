@@ -314,61 +314,92 @@ namespace RoadRegistry.Jobs.Processor
                 }
                 case UploadType.Inwinning:
                 {
-                    if (job.DownloadId is null)
-                    {
-                        throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired, WellKnownProblemTranslators.Default);
-                    }
-
-                    _logger.LogInformation("Malware found: {Malware}", blob.MalwareFound());
-
-                    var uploadId = new UploadId(Guid.NewGuid());
-                    var fileNames = blob.Metadata
-                        .Where(pair => pair.Key == new MetadataKey(WellKnownBlobMetadataKeys.FileName))
-                        .Select(x => x.Value)
-                        .ToArray();
-                    var fileName = fileNames.Length == 1 ? fileNames.Single() : $"{uploadId}.zip";
-                    var metadata = Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.FileName), fileName));
-
-                    var malwareScanStatus = blob.Metadata.Single(x => x.Key == new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanStatus)).Value;
-                    metadata = metadata.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanStatus) ,malwareScanStatus));
-                    var malwareScanThreat = blob.Metadata.Where(x => x.Key == new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanThreat)).Select(x => x.Value).SingleOrDefault();
-                    metadata = metadata.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanThreat), malwareScanThreat ?? string.Empty));
-
-                    RemoveUnknownFilesForDomainV2(writeableBlobStream);
-
-                    writeableBlobStream.Position = 0;
-                    await _uploadsBlobClient.CreateBlobAsync(
-                        new BlobName(uploadId.ToString()),
-                        metadata,
-                        blob.ContentType,
-                        blob.MalwareFound() ? new MemoryStream() : writeableBlobStream,
-                        cancellationToken
-                    );
-
-                    var extractDownload = await _extractsDbContext.ExtractDownloads
-                        .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
-
-                    var extractRequest = await _extractsDbContext.ExtractRequests
-                        .SingleAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId, cancellationToken);
-
-                    if (blob.MalwareFound())
-                    {
-                        _logger.LogError("Malware found in blob '{Blob}' for download id '{DownloadId}'.", blob.Name, extractDownload.DownloadId.ToString("N"));
-                    }
+                    var (uploadId, extractDownload, extractRequest) = await StashDomainV2Upload(job, blob, writeableBlobStream, cancellationToken);
 
                     return new UploadInwinningExtractSqsRequest
                     {
                         TicketId = job.TicketId,
-                        DownloadId = new DownloadId(job.DownloadId.Value),
+                        DownloadId = new DownloadId(job.DownloadId!.Value),
                         UploadId = uploadId,
                         ExtractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId),
                         DryRun = job.DryRun,
                         ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description),
                     };
                 }
+                // A bijhouding delivery is processed by the same handler as an ExtractsV2 one - it reads the archive
+                // with the DomainV2 feature compare and turns it into a change to the road network. What it does not
+                // share is the trimming below: a bijhouding archive is built by the DomainV2 writers, so whatever the
+                // bijwerker added next to those files is dropped before the delivery is looked at.
+                case UploadType.DomainV2_Bijhouding:
+                {
+                    var (uploadId, extractDownload, extractRequest) = await StashDomainV2Upload(job, blob, writeableBlobStream, cancellationToken);
+
+                    return new UploadExtractSqsRequestV2
+                    {
+                        TicketId = job.TicketId,
+                        DownloadId = new DownloadId(job.DownloadId!.Value),
+                        UploadId = uploadId,
+                        ExtractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId),
+                        SendFailedEmail = extractRequest.ExternalRequestId is not null,
+                        ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description)
+                    };
+                }
                 default:
                     throw new NotSupportedException($"{nameof(UploadType)} {job.UploadType} is not supported.");
             }
+        }
+
+        // What the two DomainV2 upload flows do before they part ways: stash the delivery under a fresh upload id,
+        // keeping the malware scan verdict alongside it, and look up the download and request it belongs to.
+        private async Task<(UploadId UploadId, ExtractDownload Download, ExtractRequest Request)> StashDomainV2Upload(
+            Job job,
+            BlobObject blob,
+            Stream writeableBlobStream,
+            CancellationToken cancellationToken)
+        {
+            if (job.DownloadId is null)
+            {
+                throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired, WellKnownProblemTranslators.Default);
+            }
+
+            _logger.LogInformation("Malware found: {Malware}", blob.MalwareFound());
+
+            var uploadId = new UploadId(Guid.NewGuid());
+            var fileNames = blob.Metadata
+                .Where(pair => pair.Key == new MetadataKey(WellKnownBlobMetadataKeys.FileName))
+                .Select(x => x.Value)
+                .ToArray();
+            var fileName = fileNames.Length == 1 ? fileNames.Single() : $"{uploadId}.zip";
+            var metadata = Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.FileName), fileName));
+
+            var malwareScanStatus = blob.Metadata.Single(x => x.Key == new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanStatus)).Value;
+            metadata = metadata.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanStatus), malwareScanStatus));
+            var malwareScanThreat = blob.Metadata.Where(x => x.Key == new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanThreat)).Select(x => x.Value).SingleOrDefault();
+            metadata = metadata.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey(WellKnownBlobMetadataKeys.MalwareScanThreat), malwareScanThreat ?? string.Empty));
+
+            RemoveUnknownFilesForDomainV2(writeableBlobStream);
+
+            writeableBlobStream.Position = 0;
+            await _uploadsBlobClient.CreateBlobAsync(
+                new BlobName(uploadId.ToString()),
+                metadata,
+                blob.ContentType,
+                blob.MalwareFound() ? new MemoryStream() : writeableBlobStream,
+                cancellationToken
+            );
+
+            var extractDownload = await _extractsDbContext.ExtractDownloads
+                .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
+
+            var extractRequest = await _extractsDbContext.ExtractRequests
+                .SingleAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId, cancellationToken);
+
+            if (blob.MalwareFound())
+            {
+                _logger.LogError("Malware found in blob '{Blob}' for download id '{DownloadId}'.", blob.Name, extractDownload.DownloadId.ToString("N"));
+            }
+
+            return (uploadId, extractDownload, extractRequest);
         }
 
         private void RemoveUnknownFilesForDomainV2(Stream stream)

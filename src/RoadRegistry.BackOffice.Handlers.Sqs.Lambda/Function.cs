@@ -81,6 +81,12 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
                         sp.GetService<RecyclableMemoryStreamManager>(),
                         sp.GetRequiredService<FileEncoding>(),
                         sp.GetRequiredService<ILoggerFactory>()
+                    ),
+                    new RoadRegistry.Extracts.ZipArchiveWriters.Writers.DomainV2.RoadNetworkExtractZipArchiveWriter(
+                        sp.GetService<ZipArchiveWriterOptions>(),
+                        sp.GetService<RecyclableMemoryStreamManager>(),
+                        sp.GetRequiredService<FileEncoding>(),
+                        sp.GetRequiredService<ILoggerFactory>()
                     )
                 ))
 

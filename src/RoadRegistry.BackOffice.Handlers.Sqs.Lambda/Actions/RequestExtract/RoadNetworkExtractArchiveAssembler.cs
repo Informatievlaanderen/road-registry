@@ -18,7 +18,9 @@ public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAsse
     {
         var logger = _serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(GetType());
 
-        if (request.ZipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2 || request.ZipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2_Inwinning)
+        if (request.ZipArchiveWriterVersion is WellKnownZipArchiveWriterVersions.DomainV2
+            or WellKnownZipArchiveWriterVersions.DomainV2_Inwinning
+            or WellKnownZipArchiveWriterVersions.DomainV2_Bijhouding)
         {
             logger.LogInformation("Using assembler for Domain V2");
             var assembler = _serviceProvider.GetRequiredService<RoadNetworkExtractArchiveAssemblerForDomainV2>();

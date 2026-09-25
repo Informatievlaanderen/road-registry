@@ -129,6 +129,12 @@ public class ForDebugging
                         new RecyclableMemoryStreamManager(),
                         FileEncoding.UTF8,
                         sp.GetRequiredService<ILoggerFactory>()
+                    ),
+                    new RoadRegistry.Extracts.ZipArchiveWriters.Writers.DomainV2.RoadNetworkExtractZipArchiveWriter(
+                        sp.GetRequiredService<ZipArchiveWriterOptions>(),
+                        new RecyclableMemoryStreamManager(),
+                        FileEncoding.UTF8,
+                        sp.GetRequiredService<ILoggerFactory>()
                     )),
                 sp.GetRequiredService<IDocumentStore>(),
                 new RoadNetworkRepository(sp.GetRequiredService<IDocumentStore>()),
