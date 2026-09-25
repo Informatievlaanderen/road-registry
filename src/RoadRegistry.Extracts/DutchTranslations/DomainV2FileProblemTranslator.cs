@@ -145,6 +145,18 @@ public sealed class DomainV2FileProblemTranslator : FileProblemTranslator
                     translation with { Message = $"De {DbaseRecordLabel()} heeft hetzelfde onder- en bovenliggende wegsegment als de dbase record met {problem.GetParameterValue("IdentifierField")} {problem.GetParameterValue("OtherJunctionId")}" }
             },
             {
+                nameof(DbaseFileProblems.SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed), () =>
+                    translation with { Message = $"De wegsegmenten met {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment1TempIds")} en {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment2TempIds")} kruisen elkaar zonder dat er een ongelijkgrondse kruising of wegknoop geplaatst werd voor deze kruising, hoewel auto's toegelaten zijn op beide wegsegmenten. Gelieve na te kijken of dit klopt." }
+            },
+            {
+                nameof(DbaseFileProblems.SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenBikesAreAllowed), () =>
+                    translation with { Message = $"De wegsegmenten met {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment1TempIds")} en {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment2TempIds")} kruisen elkaar zonder dat er een ongelijkgrondse kruising of wegknoop geplaatst werd voor deze kruising, hoewel fietsers toegelaten zijn op beide wegsegmenten. Gelieve na te kijken of dit klopt." }
+            },
+            {
+                nameof(DbaseFileProblems.SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenPedestriansAreAllowed), () =>
+                    translation with { Message = $"De wegsegmenten met {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment1TempIds")} en {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment2TempIds")} kruisen elkaar zonder dat er een ongelijkgrondse kruising of wegknoop geplaatst werd voor deze kruising, hoewel voetgangers toegelaten zijn op beide wegsegmenten. Gelieve na te kijken of dit klopt." }
+            },
+            {
                 nameof(DbaseFileProblems.GradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed), () =>
                     translation with { Message = $"De wegsegmenten met {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment1TempIds")} en {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment2TempIds")} kruisen elkaar zonder dat er een ongelijkgrondse kruising of wegknoop geplaatst werd voor deze kruising, hoewel auto's toegelaten zijn op beide wegsegmenten." }
             },

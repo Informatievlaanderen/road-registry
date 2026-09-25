@@ -292,14 +292,12 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     changeFeatureAttributes.Status == extractFeature.Status
                     && changeFeatureAttributes.AccessRestriction == extractFeature.AccessRestriction
                     && changeFeatureAttributes.Category == extractFeature.Category
-                    && changeFeatureAttributes.BikeAccessBackward == extractFeature.BikeAccessBackward
-                    && changeFeatureAttributes.BikeAccessForward == extractFeature.BikeAccessForward
-                    && changeFeatureAttributes.CarAccessBackward == extractFeature.CarAccessBackward
-                    && changeFeatureAttributes.CarAccessForward == extractFeature.CarAccessForward
+                    && changeFeatureAttributes.BikeTrafficDirection == extractFeature.BikeTrafficDirection
+                    && changeFeatureAttributes.CarTrafficDirection == extractFeature.CarTrafficDirection
                     && changeFeatureAttributes.MaintenanceAuthorityId == extractFeature.MaintenanceAuthorityId
                     && changeFeatureAttributes.Method == extractFeature.Method
                     && changeFeatureAttributes.Morphology == extractFeature.Morphology
-                    && changeFeatureAttributes.PedestrianAccess == extractFeature.PedestrianAccess
+                    && changeFeatureAttributes.PedestrianTrafficDirection == extractFeature.PedestrianTrafficDirection
                     && changeFeatureAttributes.StreetNameId == extractFeature.StreetNameId
                     && changeFeatureAttributes.SurfaceType == extractFeature.SurfaceType
                 );
@@ -507,9 +505,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         Morphology = record.Attributes.Morphology,
                         StreetNameId = record.Attributes.StreetNameId,
                         SurfaceType = record.Attributes.SurfaceType,
-                        CarTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToTrafficDirectionOrNull(record.Attributes.CarAccessForward, record.Attributes.CarAccessBackward),
-                        BikeTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToTrafficDirectionOrNull(record.Attributes.BikeAccessForward, record.Attributes.BikeAccessBackward),
-                        PedestrianTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToPedestrianTrafficDirectionOrNull(record.Attributes.PedestrianAccess)
+                        CarTrafficDirection = record.Attributes.CarTrafficDirection,
+                        BikeTrafficDirection = record.Attributes.BikeTrafficDirection,
+                        PedestrianTrafficDirection = record.Attributes.PedestrianTrafficDirection
                     };
 
                     changes = changes.AppendChange(modifyRoadSegment);
@@ -531,9 +529,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             Morphology = record.Attributes.Morphology!,
                             StreetNameId = record.Attributes.StreetNameId!,
                             SurfaceType = record.Attributes.SurfaceType!,
-                            CarTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToTrafficDirection(record.Attributes.CarAccessForward!, record.Attributes.CarAccessBackward!),
-                            BikeTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToTrafficDirection(record.Attributes.BikeAccessForward!, record.Attributes.BikeAccessBackward!),
-                            PedestrianTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToPedestrianTrafficDirection(record.Attributes.PedestrianAccess!),
+                            CarTrafficDirection = record.Attributes.CarTrafficDirection!,
+                            BikeTrafficDirection = record.Attributes.BikeTrafficDirection!,
+                            PedestrianTrafficDirection = record.Attributes.PedestrianTrafficDirection!,
                             EuropeanRoadNumbers = [],
                             NationalRoadNumbers = []
                         }

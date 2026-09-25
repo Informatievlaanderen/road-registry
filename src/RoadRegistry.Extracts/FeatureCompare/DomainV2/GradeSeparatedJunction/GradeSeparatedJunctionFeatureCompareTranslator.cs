@@ -311,17 +311,17 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
 
             if (CarAllowed(roadSegment1FlatFeatures) && CarAllowed(roadSegment2FlatFeatures))
             {
-                problems += recordContext.GradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
+                problems += recordContext.SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
             }
 
             if (BikeAllowed(roadSegment1FlatFeatures) && BikeAllowed(roadSegment2FlatFeatures))
             {
-                problems += recordContext.GradeSeparatedJunctionOrRoadNodeMissingWhenBikesAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
+                problems += recordContext.SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenBikesAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
             }
 
             if (PedestrianAllowed(roadSegment1FlatFeatures) && PedestrianAllowed(roadSegment2FlatFeatures))
             {
-                problems += recordContext.GradeSeparatedJunctionOrRoadNodeMissingWhenPedestriansAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
+                problems += recordContext.SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenPedestriansAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
             }
         }
 
@@ -336,17 +336,19 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             .ToList();
     }
 
+    // An unknown traffic type ('-8') counts as allowed here. It is the reading that surfaces the crossing rather than
+    // passing over it in silence, which is what a suspect case is for: the delivery is accepted either way.
     private static bool CarAllowed(IReadOnlyCollection<RoadSegmentFeatureCompareWithFlatAttributes> flatRoadSegments)
     {
-        return flatRoadSegments.Any(x => x.CarAccessBackward || x.CarAccessForward);
+        return flatRoadSegments.Any(x => x.CarAccessBackward is not false || x.CarAccessForward is not false);
     }
     private static bool BikeAllowed(IReadOnlyCollection<RoadSegmentFeatureCompareWithFlatAttributes> flatRoadSegments)
     {
-        return flatRoadSegments.Any(x => x.BikeAccessBackward || x.BikeAccessForward);
+        return flatRoadSegments.Any(x => x.BikeAccessBackward is not false || x.BikeAccessForward is not false);
     }
     private static bool PedestrianAllowed(IReadOnlyCollection<RoadSegmentFeatureCompareWithFlatAttributes> flatRoadSegments)
     {
-        return flatRoadSegments.Any(x => x.PedestrianAccess);
+        return flatRoadSegments.Any(x => x.PedestrianAccess is not false);
     }
 
     private sealed record RoadSegmentCombination(RoadSegmentFeatureCompareRecord RoadSegment1, RoadSegmentFeatureCompareRecord RoadSegment2)
