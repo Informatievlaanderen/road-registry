@@ -186,6 +186,7 @@ public class Startup
             .AddMartenDatabaseMigrator()
             .AddSingleton<MartenProjectionDaemonAccessor>()
             .AddSingleton<MartenProjectionStateStore>()
+            .AddSingleton<MartenShardStopper>()
             .AddHostedService<MartenProjectionsDaemonHostedService>()
             // Keeps every Marten projection resilient: if a shard pauses on an error it is periodically resumed, while
             // all other projections keep running and the host is never affected.
