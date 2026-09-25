@@ -97,5 +97,14 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
             .HasDatabaseName("wegsegmentmorfologie");
         b.HasIndex(p => p.StatusId)
             .IsClustered(false);
+
+        // The raadpleegdiensten filter wegsegmentDenorm on IsV2 and morfologie and read beheerder, geometrie2D and
+        // toegangsbeperking off it. The index carries the name SQL Server itself suggested, because that is the name it
+        // was already created under on the databases.
+        b.HasIndex(p => new { p.IsV2, p.MorphologyId })
+            .IncludeProperties(p => new { p.MaintainerId, p.Geometry2D, p.AccessRestrictionId })
+            .IsClustered(false)
+            .IsCreatedOnline()
+            .HasDatabaseName("nci_msft_1_wegsegmentDenorm_0DB1125C0F3780A74F7979055E2293D6");
     }
 }
