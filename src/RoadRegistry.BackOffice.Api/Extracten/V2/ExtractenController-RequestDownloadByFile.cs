@@ -26,6 +26,8 @@ using Version = Infrastructure.Version;
 
 public partial class ExtractenController
 {
+    private const int MaxContourUploadBytes = 10 * 1024 * 1024;
+
     /// <summary>
     ///     Vraagt een extract in het hernieuwde datamodel aan op basis van een shapefile.
     /// </summary>
@@ -33,7 +35,9 @@ public partial class ExtractenController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(ExtractDownloadaanvraagPerBestandV2))]
-    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    // A shapefile contour is a handful of small files; 10 MB is what the public api in front of this already caps an
+    // upload at, so anything above it never gets here by the normal route anyway.
+    [RequestFormLimits(MultipartBodyLengthLimit = MaxContourUploadBytes, ValueLengthLimit = MaxContourUploadBytes)]
     [MapToApiVersion(Version.V2)]
     [HttpPost("downloadaanvragen/perbestand", Name = nameof(ExtractDownloadaanvraagPerBestandV2))]
     public async Task<IActionResult> ExtractDownloadaanvraagPerBestandV2(
