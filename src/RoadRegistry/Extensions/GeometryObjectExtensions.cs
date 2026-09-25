@@ -197,4 +197,19 @@ public static class GeometryObjectExtensions
 
         throw new InvalidCastException($"Geometry SRID {geometry.SRID} is not Lambert72 or Lambert08");
     }
+
+    public static ExtractGeometry EnsureLambert72(this ExtractGeometry geometry)
+    {
+        if (geometry.Value.IsLambert72())
+        {
+            return geometry;
+        }
+
+        if (geometry.Value.IsLambert08())
+        {
+            return ExtractGeometry.Create(geometry.Value.TransformFromLambert08To72());
+        }
+
+        throw new InvalidCastException($"Geometry SRID {geometry.SRID} is not Lambert72 or Lambert08");
+    }
 }

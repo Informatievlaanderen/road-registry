@@ -12,15 +12,18 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadSegment;
-using Schemas.Inwinning.RoadSegments;
+using Schemas.DomainV2.RoadSegments;
 
 public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>
 {
+    // What AUTOHEEN, AUTOTERUG, FIETSHEEN, FIETSTERUG and VOETGANGER carry when the traffic type is not known.
+    private const int NietGekend = -8;
+
     private readonly FileEncoding _encoding;
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
 
     public RoadSegmentFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new InwinningFeatureReader(encoding))
+        : base(new DomainV2FeatureReader(encoding))
     {
         _encoding = encoding;
     }
@@ -38,10 +41,6 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 AddToContext(features, featureType, context);
                 break;
             case FeatureType.Extract:
-                if (context.ZipArchiveMetadata.Inwinning)
-                {
-                    problems = ZipArchiveProblems.Many(problems.GetMissingOrInvalidFileProblems());
-                }
                 break;
             case FeatureType.Integration:
                 problems = ZipArchiveProblems.Many(problems.GetMissingOrInvalidFileProblems());
@@ -79,9 +78,9 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         }
     }
 
-    private sealed class InwinningFeatureReader : ZipArchiveShapeFeatureReader<RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareWithFlatAttributes>>
+    private sealed class DomainV2FeatureReader : ZipArchiveShapeFeatureReader<RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareWithFlatAttributes>>
     {
-        public InwinningFeatureReader(Encoding encoding)
+        public DomainV2FeatureReader(Encoding encoding)
             : base(encoding, RoadSegmentFeatureCompareFeatureReader.FileName, RoadSegmentDbaseRecord.Schema, treatHasNoRecordsAsError: true)
         {
         }
@@ -93,7 +92,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 Geometry = geometry,
                 WS_TEMPID = dbaseRecord.WS_TEMPID.GetValue(),
                 WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
-                METHODE = null,
+                METHODE = dbaseRecord.METHODE.GetValue(),
                 STATUS = dbaseRecord.STATUS.GetValue(),
                 LBEHEER = dbaseRecord.LBEHEER.GetValue(),
                 RBEHEER = dbaseRecord.RBEHEER.GetValue(),
@@ -338,9 +337,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
             RoadSegmentStatusV2 ReadStatus()
             {
-                var expected = context.ZipArchiveMetadata.Inwinning
-                    ? [RoadSegmentStatusV2.Gepland, RoadSegmentStatusV2.Gerealiseerd]
-                    : RoadSegmentStatusV2.All;
+                var expected = RoadSegmentStatusV2.All;
 
                 if (STATUS is null)
                 {
@@ -396,112 +393,56 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return default;
             }
 
-            bool ReadCarAccessForward()
+            // 0, 1 or -8. The last one says the traffic type is not known, which a delivery is allowed to leave that
+            // way: filling traffic types in is not part of what a GRB dienstverlener is asked to do, so a newly drawn
+            // situation may arrive without them. It comes back as null, and the road segment ends up carrying
+            // 'niet gekend' for that direction.
+            bool? ReadAccess(int? value, string fieldName, Func<int, FileError> mismatch)
             {
-                if (AUTOHEEN is null)
+                if (value is null)
                 {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(AUTOHEEN));
-                }
-                else
-                {
-                    var boolValue = AUTOHEEN.ToBooleanFromDbaseValue();
-                    if (boolValue is not null)
-                    {
-                        return boolValue.Value;
-                    }
-                    else
-                    {
-                        problems += problemBuilder.RoadSegmentAutoHeenMismatch(AUTOHEEN.Value);
-                    }
+                    problems += problemBuilder.RequiredFieldIsNull(fieldName);
+                    return null;
                 }
 
-                return default;
+                if (value == NietGekend)
+                {
+                    return null;
+                }
+
+                var boolValue = value.ToBooleanFromDbaseValue();
+                if (boolValue is not null)
+                {
+                    return boolValue.Value;
+                }
+
+                problems += mismatch(value.Value);
+                return null;
             }
 
-            bool ReadCarAccessBackward()
+            bool? ReadCarAccessForward()
             {
-                if (AUTOTERUG is null)
-                {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(AUTOTERUG));
-                }
-                else
-                {
-                    var boolValue = AUTOTERUG.ToBooleanFromDbaseValue();
-                    if (boolValue is not null)
-                    {
-                        return boolValue.Value;
-                    }
-                    else
-                    {
-                        problems += problemBuilder.RoadSegmentAutoTerugMismatch(AUTOTERUG.Value);
-                    }
-                }
-
-                return default;
+                return ReadAccess(AUTOHEEN, nameof(AUTOHEEN), problemBuilder.RoadSegmentAutoHeenMismatch);
             }
 
-            bool ReadBikeAccessForward()
+            bool? ReadCarAccessBackward()
             {
-                if (FIETSHEEN is null)
-                {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(FIETSHEEN));
-                }
-                else
-                {
-                    var boolValue = FIETSHEEN.ToBooleanFromDbaseValue();
-                    if (boolValue is not null)
-                    {
-                        return boolValue.Value;
-                    }
-                    else
-                    {
-                        problems += problemBuilder.RoadSegmentFietsHeenMismatch(FIETSHEEN.Value);
-                    }
-                }
-
-                return default;
+                return ReadAccess(AUTOTERUG, nameof(AUTOTERUG), problemBuilder.RoadSegmentAutoTerugMismatch);
             }
 
-            bool ReadBikeAccessBackward()
+            bool? ReadBikeAccessForward()
             {
-                if (FIETSTERUG is null)
-                {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(FIETSTERUG));
-                }
-                else
-                {
-                    var boolValue = FIETSTERUG.ToBooleanFromDbaseValue();
-                    if (boolValue is not null)
-                    {
-                        return boolValue.Value;
-                    }
-                    else
-                    {
-                        problems += problemBuilder.RoadSegmentFietsTerugMismatch(FIETSTERUG.Value);
-                    }
-                }
-
-                return default;
+                return ReadAccess(FIETSHEEN, nameof(FIETSHEEN), problemBuilder.RoadSegmentFietsHeenMismatch);
             }
 
-            bool ReadPedestrianAccess()
+            bool? ReadBikeAccessBackward()
             {
-                if (VOETGANGER is null)
-                {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(VOETGANGER));
-                }
-                else
-                {
-                    var boolValue = VOETGANGER.ToBooleanFromDbaseValue();
-                    if (boolValue is not null)
-                    {
-                        return boolValue.Value;
-                    }
+                return ReadAccess(FIETSTERUG, nameof(FIETSTERUG), problemBuilder.RoadSegmentFietsTerugMismatch);
+            }
 
-                    problems += problemBuilder.RoadSegmentVoetgangerMismatch(VOETGANGER.Value);
-                }
-
-                return default;
+            bool? ReadPedestrianAccess()
+            {
+                return ReadAccess(VOETGANGER, nameof(VOETGANGER), problemBuilder.RoadSegmentVoetgangerMismatch);
             }
 
             var feature = Feature.New(recordNumber, new RoadSegmentFeatureCompareWithFlatAttributes
@@ -509,7 +450,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 Geometry = ReadGeometry(),
                 TempId = roadSegmentId,
                 RoadSegmentId = ReadRoadSegmentId(),
-                Method = context.ZipArchiveMetadata.Inwinning ? null : ReadMethod(),
+                Method = ReadMethod(),
                 Status = ReadStatus(),
                 Category = ReadCategory(),
                 AccessRestriction = ReadAccessRestriction(),

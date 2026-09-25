@@ -47,7 +47,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                 {
                     var archive = new ZipArchive(fileStream);
 
-                    var translatedChanges = await translator.TranslateAsync(archive, ZipArchiveMetadata.Empty.WithInwinning(), CancellationToken.None);
+                    var translatedChanges = await translator.TranslateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
                 }
             }
             catch (ZipArchiveValidationException ex)

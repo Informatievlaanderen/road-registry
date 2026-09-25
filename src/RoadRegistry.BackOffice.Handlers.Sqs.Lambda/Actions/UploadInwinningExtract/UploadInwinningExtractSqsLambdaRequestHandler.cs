@@ -15,9 +15,9 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning.RoadNode;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning.TransactionZone;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Hosts;
@@ -32,7 +32,7 @@ using UploadExtract;
 public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHandler<UploadInwinningExtractSqsLambdaRequest>
 {
     private readonly ExtractsDbContext _extractsDbContext;
-    private readonly IExtractUploader _extractUploader;
+    private readonly IInwinningExtractUploader _inwinningExtractUploader;
     private readonly TransactionZoneFeatureCompareFeatureReader _transactionZoneFeatureCompareFeatureReader;
     private readonly RoadNodeFeatureCompareFeatureReader _roadNodeFeatureCompareFeatureReader;
     private readonly IMediator _mediator;
@@ -44,7 +44,7 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         ExtractsDbContext extractsDbContext,
-        IExtractUploader extractUploader,
+        IInwinningExtractUploader inwinningExtractUploader,
         TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureCompareFeatureReader,
         RoadNodeFeatureCompareFeatureReader roadNodeFeatureCompareFeatureReader,
         IMediator mediator,
@@ -59,7 +59,7 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
             TicketingBehavior.Error)
     {
         _extractsDbContext = extractsDbContext;
-        _extractUploader = extractUploader;
+        _inwinningExtractUploader = inwinningExtractUploader;
         _transactionZoneFeatureCompareFeatureReader = transactionZoneFeatureCompareFeatureReader;
         _roadNodeFeatureCompareFeatureReader = roadNodeFeatureCompareFeatureReader;
         _mediator = mediator;
@@ -83,8 +83,8 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
             }
 
             var ticketId = new TicketId(request.TicketId);
-            var zipArchiveMetadata = ZipArchiveMetadata.Empty.WithInwinning();
-            var translatedChanges = await _extractUploader.ProcessUploadAndDetectChanges(
+            var zipArchiveMetadata = ZipArchiveMetadata.Empty;
+            var translatedChanges = await _inwinningExtractUploader.ProcessUploadAndDetectChanges(
                 request.Request.DownloadId,
                 request.Request.UploadId,
                 ticketId,

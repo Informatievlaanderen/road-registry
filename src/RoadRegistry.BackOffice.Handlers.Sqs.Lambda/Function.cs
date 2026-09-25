@@ -81,6 +81,12 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
                         sp.GetService<RecyclableMemoryStreamManager>(),
                         sp.GetRequiredService<FileEncoding>(),
                         sp.GetRequiredService<ILoggerFactory>()
+                    ),
+                    new RoadRegistry.Extracts.ZipArchiveWriters.Writers.DomainV2.RoadNetworkExtractZipArchiveWriter(
+                        sp.GetService<ZipArchiveWriterOptions>(),
+                        sp.GetService<RecyclableMemoryStreamManager>(),
+                        sp.GetRequiredService<FileEncoding>(),
+                        sp.GetRequiredService<ILoggerFactory>()
                     )
                 ))
 
@@ -89,6 +95,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddScoped<IExtractRequests, ExtractRequests>()
             .AddScoped<ExtractRequester>()
             .AddScoped<IExtractUploader, ExtractUploader>()
+            .AddScoped<Actions.UploadInwinningExtract.IInwinningExtractUploader, Actions.UploadInwinningExtract.InwinningExtractUploader>()
             .RegisterOptions<DataValidationOptions>()
             .AddSingleton<IDataValidationTokenProvider, DataValidationTokenProvider>()
             .AddScoped<IDataValidationApiClient, DataValidationApiClient>()

@@ -10,6 +10,7 @@ using RoadRegistry.Editor.Schema;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.ZipArchiveWriters;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure.MartenDb;
 using ScopedRoadNetwork;
 
@@ -20,6 +21,7 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV2
     private readonly IDocumentStore _store;
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly Func<EditorContext> _editorContextFactory;
+    private readonly Func<ExtractsDbContext> _extractsDbContextFactory;
     private readonly ILogger _logger;
 
     public RoadNetworkExtractArchiveAssemblerForDomainV2(
@@ -28,6 +30,7 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV2
         IDocumentStore store,
         IRoadNetworkRepository roadNetworkRepository,
         Func<EditorContext> editorContextFactory,
+        Func<ExtractsDbContext> extractsDbContextFactory,
         ILoggerFactory loggerFactory)
     {
         _manager = manager.ThrowIfNull();
@@ -35,6 +38,7 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV2
         _store = store.ThrowIfNull();
         _roadNetworkRepository = roadNetworkRepository.ThrowIfNull();
         _editorContextFactory = editorContextFactory.ThrowIfNull();
+        _extractsDbContextFactory = extractsDbContextFactory.ThrowIfNull();
         _logger = loggerFactory.CreateLogger(GetType());
     }
 
@@ -48,13 +52,15 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV2
 
         await using var editorContext = _editorContextFactory();
 
+        await using var extractsDbContext = _extractsDbContextFactory();
+
         var stream = _manager.GetStream();
         using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
         var writer = _writerFactory.Create(request.ZipArchiveWriterVersion);
         await writer.WriteAsync(
             archive,
             request,
-            new ZipArchiveDataSession(session, _roadNetworkRepository, editorContext),
+            new ZipArchiveDataSession(session, _roadNetworkRepository, editorContext, extractsDbContext),
             new ZipArchiveWriteContext(),
             cancellationToken);
 

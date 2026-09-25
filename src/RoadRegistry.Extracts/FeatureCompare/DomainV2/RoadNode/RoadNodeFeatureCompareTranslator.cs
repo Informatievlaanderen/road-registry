@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetTopologySuite.Index.Strtree;
 using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.Schemas.Inwinning.RoadNodes;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadNodes;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadNode.Changes;
@@ -132,9 +132,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                     processedRecords.Add(new RoadNodeFeatureCompareRecord(
                         FeatureType.Change,
                         changeFeature.RecordNumber,
-                        context.ZipArchiveMetadata.Inwinning
-                            ? changeFeature.Attributes
-                            : changeFeature.Attributes.OnlyChangedAttributes(extractFeature.Attributes, extractFeature.Attributes.Geometry),
+                        changeFeature.Attributes.OnlyChangedAttributes(extractFeature.Attributes, extractFeature.Attributes.Geometry),
                         extractFeature.Attributes.RoadNodeId,
                         RecordType.Modified)
                     {
@@ -208,17 +206,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
             switch (recordType.Translation.Identifier)
             {
                 case RecordType.IdenticalIdentifier:
-                    if (context.ZipArchiveMetadata.Inwinning)
-                    {
-                        changes = changes.AppendChange(
-                            new ModifyRoadNodeChange
-                            {
-                                RoadNodeId = record.Id,
-                                Geometry = record.Attributes.Geometry.ToRoadNodeGeometry(),
-                                Grensknoop = record.Attributes.Grensknoop
-                            }
-                        );
-                    }
+                    // A node the delivery leaves untouched stays as it is: nothing to record.
                     break;
                 case RecordType.AddedIdentifier:
                     changes = changes.AppendChange(
@@ -238,7 +226,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                         new ModifyRoadNodeChange
                         {
                             RoadNodeId = record.Id,
-                            Geometry = record.GeometryChanged || context.ZipArchiveMetadata.Inwinning
+                            Geometry = record.GeometryChanged
                                 ? record.Attributes.Geometry.ToRoadNodeGeometry()
                                 : null,
                             Grensknoop = record.Attributes.Grensknoop
