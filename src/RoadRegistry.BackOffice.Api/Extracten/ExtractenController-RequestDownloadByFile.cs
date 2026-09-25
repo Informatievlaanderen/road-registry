@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracten;
 
+using Asp.Versioning;
 using System;
 using System.IO;
 using System.Linq;
@@ -23,6 +24,7 @@ using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using Swashbuckle.AspNetCore.Annotations;
 using ValueObjects.ProblemCodes;
+using Version = Infrastructure.Version;
 
 public partial class ExtractenController
 {
@@ -43,6 +45,7 @@ public partial class ExtractenController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(ExtractDownloadaanvraagPerBestand))]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    [MapToApiVersion(Version.V1)]
     [HttpPost("downloadaanvragen/perbestand", Name = nameof(ExtractDownloadaanvraagPerBestand))]
     public async Task<IActionResult> ExtractDownloadaanvraagPerBestand(
         ExtractDownloadaanvraagPerBestandBody body,

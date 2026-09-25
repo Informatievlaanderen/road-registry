@@ -1,9 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Extracten;
 
-using Asp.Versioning;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Asp.Versioning;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -13,28 +12,21 @@ using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Abstractions.Jobs;
 using RoadRegistry.Extracts.Schema;
 using Swashbuckle.AspNetCore.Annotations;
-using TicketingService.Abstractions;
 using Version = Infrastructure.Version;
 
 public partial class ExtractenController
 {
     /// <summary>
-    ///     Vraag een pre-signed url aan voor een zip van een extract download te uploaden.
+    ///     Vraag een pre-signed url aan om een levering in het hernieuwde datamodel op te laden.
     /// </summary>
-    /// <param name="downloadId"></param>
-    /// <param name="extractsDbContext"></param>
-    /// <param name="cancellationToken"></param>
-    /// <response code="200">Als de url is aangemaakt.</response>
-    /// <response code="400">Als uw verzoek foutieve data bevat.</response>
-    /// <response code="500">Als er een interne fout is opgetreden.</response>
     [ProducesResponseType(typeof(UploadExtractResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    [SwaggerOperation(OperationId = nameof(UploadExtract))]
-    [MapToApiVersion(Version.V1)]
-    [HttpPost("{downloadId}/upload", Name = nameof(UploadExtract))]
-    public async Task<IActionResult> UploadExtract(
+    [SwaggerOperation(OperationId = nameof(UploadExtractV2))]
+    [MapToApiVersion(Version.V2)]
+    [HttpPost("{downloadId}/upload", Name = nameof(UploadExtractV2))]
+    public async Task<IActionResult> UploadExtractV2(
         [FromRoute] string downloadId,
         [FromServices] ExtractsDbContext extractsDbContext,
         CancellationToken cancellationToken = default)
@@ -78,7 +70,7 @@ public partial class ExtractenController
             }
         }
 
-        var response = await _mediator.Send(GetPresignedUploadUrlRequest.ForExtractsV2(parsedDownloadId), cancellationToken);
+        var response = await _mediator.Send(GetPresignedUploadUrlRequest.ForBijhouding(parsedDownloadId), cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
 
         extractDownload.LatestUploadId = null;
@@ -86,6 +78,4 @@ public partial class ExtractenController
 
         return Ok(new UploadExtractResponse(response.UploadUrl, response.UploadUrlFormData, response.TicketUrl));
     }
-
-    public sealed record UploadExtractResponse(string UploadUrl, Dictionary<string, string> UploadUrlFormData, string TicketUrl);
 }

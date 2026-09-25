@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracten;
 
+using Asp.Versioning;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -20,6 +21,7 @@ using RoadRegistry.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
 using Sync.MunicipalityRegistry;
 using ValueObjects.ProblemCodes;
+using Version = Infrastructure.Version;
 
 public partial class ExtractenController
 {
@@ -39,6 +41,7 @@ public partial class ExtractenController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(ExtractDownloadaanvraagPerNisCode))]
+    [MapToApiVersion(Version.V1)]
     [HttpPost("downloadaanvragen/perniscode", Name = nameof(ExtractDownloadaanvraagPerNisCode))]
     public async Task<IActionResult> ExtractDownloadaanvraagPerNisCode(
         [FromBody] ExtractDownloadaanvraagPerNisCodeBody body,
