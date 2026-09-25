@@ -53,12 +53,9 @@ public partial class ExtractenController
 
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(body.ExterneId ?? Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
-            var contour = new WKTReader().Read(body.Contour).ToMultiPolygon();
-
-            if (useDomainV2FeatureToggle.FeatureEnabled)
-            {
-                contour = contour.EnsureLambert08();
-            }
+            // Stored in Lambert 2008 whichever datamodel the extract itself is in; the v1 assembler puts it back
+            // into Lambert 72 when it goes looking for the data.
+            var contour = new WKTReader().Read(body.Contour).ToMultiPolygon().EnsureLambert08();
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {

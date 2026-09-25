@@ -53,30 +53,28 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
         sqlServerOptions.UseNetTopologySuite();
     }
 
+    // The intersection is worked out here rather than by the database, because the stored contours are not all in the
+    // same coordinate system: everything written from now on is Lambert 2008, but rows predating that are Lambert 72,
+    // and SQL Server cannot reproject. Intersecting two geometries with different SRIDs finds nothing, so both sides
+    // are brought to Lambert 2008 first. There are only ever a handful of open extracts, so loading them is cheap.
     public async Task<List<Guid>> GetOverlappingExtractDownloadIds(Geometry geometry, CancellationToken cancellationToken)
     {
         geometry = (Geometry)GeometryTranslator.Translate(GeometryTranslator.TranslateToRoadNetworkExtractGeometry((IPolygonal)geometry, -0.001));
+        var contour = ToLambert08(geometry);
 
-        var extractDownloadsQuery = ExtractDownloads
+        var openExtractDownloads = await ExtractDownloads
             .AsNoTracking()
             .Where(x => !x.IsInformative && !x.Closed)
-            ;
+            .Select(x => new { x.DownloadId, x.Contour })
+            .ToListAsync(cancellationToken);
 
-        var overlaps = await (
-            from extractDownload in extractDownloadsQuery
-            let intersection = extractDownload.Contour.Intersection(geometry)
-            where intersection != null
-            select new { overlap = extractDownload, intersection }
-        ).ToListAsync(cancellationToken);
-
-        var downloadIds = overlaps
-            .Where(x => (x.intersection is Polygon polygon && polygon.Area > 0)
-                        || (x.intersection is MultiPolygon multiPolygon && multiPolygon.Area > 0))
-            .Select(x => x.overlap.DownloadId)
+        return openExtractDownloads
+            .Select(x => new { x.DownloadId, Intersection = ToLambert08(x.Contour).Intersection(contour) })
+            .Where(x => (x.Intersection is Polygon polygon && polygon.Area > 0)
+                        || (x.Intersection is MultiPolygon multiPolygon && multiPolygon.Area > 0))
+            .Select(x => x.DownloadId)
             .Distinct()
             .ToList();
-
-        return downloadIds;
     }
 
     public async Task<bool> HasInwinningRoadSegments(IEnumerable<RoadSegmentId> roadSegmentIds, CancellationToken cancellationToken)

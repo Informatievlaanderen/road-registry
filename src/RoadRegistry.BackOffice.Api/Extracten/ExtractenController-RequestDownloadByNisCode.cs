@@ -67,12 +67,7 @@ public partial class ExtractenController
 
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
-            var contour = municipality.Geometry.ToMultiPolygon();
-
-            if (useDomainV2FeatureToggle.FeatureEnabled)
-            {
-                contour = contour.EnsureLambert08();
-            }
+            var contour = municipality.Geometry.ToMultiPolygon().EnsureLambert08();
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {

@@ -59,14 +59,9 @@ public partial class ExtractenController
             var request = new ExtractDownloadaanvraagPerBestand(BuildRequestItem(".shp"), BuildRequestItem(".prj"), body.Beschrijving, body.Informatief);
             await validator.ValidateAndThrowAsync(request, cancellationToken);
 
-            var contour = shpFileContourReader.Read(request.ShpFile.ReadStream, WellKnownGeometryFactories.Lambert72WithoutMAndZ).ToMultiPolygon();
+            var contour = shpFileContourReader.Read(request.ShpFile.ReadStream, WellKnownGeometryFactories.Lambert72WithoutMAndZ).ToMultiPolygon().EnsureLambert08();
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
-
-            if (useDomainV2FeatureToggle.FeatureEnabled)
-            {
-                contour = contour.EnsureLambert08();
-            }
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
