@@ -68,7 +68,7 @@ public static class FeatureValidationExtensions
             var recordContext = fileName
                 .AtDbaseRecord(featureType, feature.RecordNumber)
                 .WithIdentifier(nameof(GradeSeparatedJunctionDbaseRecord.OK_OIDN), feature.Attributes.Id);
-            return recordContext.GradeSeparatedJunctionNotUnique(feature.Attributes.Id, duplicateFeature.Attributes.Id, duplicateFeature.RecordNumber);
+            return recordContext.GradeSeparatedJunctionNotUnique(feature.Attributes.Id, duplicateFeature.Attributes.Id);
         });
     }
 

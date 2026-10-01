@@ -156,13 +156,12 @@ public static class DbaseFileProblems
             .Build();
     }
 
-    public static FileError GradeSeparatedJunctionNotUnique(this IDbaseFileRecordProblemBuilder builder, GradeSeparatedJunctionId? junctionId, GradeSeparatedJunctionId? otherJunctionId, RecordNumber otherRecordNumber)
+    public static FileError GradeSeparatedJunctionNotUnique(this IDbaseFileRecordProblemBuilder builder, GradeSeparatedJunctionId junctionId, GradeSeparatedJunctionId otherJunctionId)
     {
         return builder
             .Error(nameof(GradeSeparatedJunctionNotUnique))
-            .WithParameter(new ProblemParameter("JunctionId", junctionId?.ToString() ?? string.Empty))
-            .WithParameter(new ProblemParameter("OtherJunctionId", otherJunctionId?.ToString() ?? string.Empty))
-            .WithParameter(new ProblemParameter("OtherRecordNumber", otherRecordNumber.ToString()))
+            .WithParameter(new ProblemParameter("JunctionId", junctionId.ToString()))
+            .WithParameter(new ProblemParameter("OtherJunctionId", otherJunctionId.ToString()))
             .Build();
     }
 

@@ -142,7 +142,7 @@ public sealed class DomainV2FileProblemTranslator : FileProblemTranslator
             },
             {
                 nameof(DbaseFileProblems.GradeSeparatedJunctionNotUnique), () =>
-                    translation with { Message = $"De {DbaseRecordLabel()} heeft hetzelfde onder- en bovenliggende wegsegment als de {OtherDbaseRecordLabel()}" }
+                    translation with { Message = $"De {DbaseRecordLabel()} heeft hetzelfde onder- en bovenliggende wegsegment als de dbase record met {problem.GetParameterValue("IdentifierField")} {problem.GetParameterValue("OtherJunctionId")}" }
             },
             {
                 nameof(DbaseFileProblems.SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed), () =>
@@ -176,14 +176,6 @@ public sealed class DomainV2FileProblemTranslator : FileProblemTranslator
         }
 
         return DomainV1.Translate(problem);
-
-        string OtherDbaseRecordLabel()
-        {
-            var otherJunctionId = problem.GetParameterValue("OtherJunctionId");
-            return string.IsNullOrEmpty(otherJunctionId)
-                ? $"dbase record {problem.GetParameterValue("OtherRecordNumber")}"
-                : $"dbase record met {problem.GetParameterValue("IdentifierField")} {otherJunctionId}";
-        }
 
         string DbaseRecordLabel(string? identifierField = null, string? identifierValue = null)
         {
