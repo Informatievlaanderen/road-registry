@@ -110,7 +110,7 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
                     var extractRoadNodes = _roadNodeFeatureCompareFeatureReader.Read(archive, FeatureType.Extract, new ZipArchiveFeatureReaderContext(zipArchiveMetadata)).Item1;
                     var actualSchijnknoopIds = extractRoadNodes
                         .Where(x => x.Attributes.Type == RoadNodeTypeV2.Schijnknoop && x.Attributes.RoadNodeId < RoadNodeConstants.InitialTemporarySchijnknoopId)
-                        .Select(x => x.Attributes.RoadNodeId)
+                        .Select(x => x.Attributes.RoadNodeId!.Value)
                         .ToArray();
 
                     if (actualSchijnknoopIds.Length == 0)
