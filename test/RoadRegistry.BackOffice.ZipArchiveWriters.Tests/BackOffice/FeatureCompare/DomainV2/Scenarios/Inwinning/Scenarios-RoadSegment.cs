@@ -588,8 +588,10 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
 
-    [Fact]
-    public async Task WhenAddingNewSegmentWith70OverlapToUnchangedExtractSegment_ThenExtractSegmentKeepsId()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task WhenAddingNewSegmentWith70OverlapToUnchangedExtractSegment_ThenExtractSegmentKeepsId(bool useNull)
     {
         var grbOgcDownloader = new FakeGrbOgcApiFeaturesDownloader();
         var translator = ZipArchiveFeatureCompareTranslatorV3Builder.Create(grbOgcApiFeaturesDownloader: grbOgcDownloader);
@@ -620,7 +622,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                 var roadSegmentShapeRecord = builder.CreateRoadSegmentShapeRecord(lineStringCloseToOtherButLessOverlapThanExtract);
                 builder.DataSet.RoadSegmentShapeRecords.Add(roadSegmentShapeRecord);
                 builder.DataSet.RoadSegmentDbaseRecords.Add(builder.CreateRoadSegmentDbaseRecord());
-                builder.DataSet.RoadSegmentDbaseRecords.Last().WS_OIDN.Value = null;
+                ClearId(builder.DataSet.RoadSegmentDbaseRecords.Last().WS_OIDN, useNull);
 
                 builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord(lineStringCloseToOtherButLessOverlapThanExtract.StartPoint));
                 builder.DataSet.RoadNodeDbaseRecords.Add(builder.CreateRoadNodeDbaseRecord());

@@ -193,12 +193,15 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
             RoadSegmentId? ReadRoadSegmentId()
             {
+                // a new road segment in the change set does not have an id yet
+                if (featureType == FeatureType.Change && WS_OIDN is null or 0)
+                {
+                    return null;
+                }
+
                 if (WS_OIDN is null)
                 {
-                    if (featureType != FeatureType.Change)
-                    {
-                        problems += problemBuilder.RequiredFieldIsNull(nameof(WS_OIDN));
-                    }
+                    problems += problemBuilder.RequiredFieldIsNull(nameof(WS_OIDN));
                 }
                 else if (RoadSegmentId.Accepts(WS_OIDN.Value))
                 {
