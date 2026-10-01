@@ -1,3 +1,10 @@
+## [5.23.1](https://github.com/informatievlaanderen/road-registry/compare/v5.23.0...v5.23.1) (2026-10-01)
+
+
+### Bug Fixes
+
+* **inwinning:** require an id for a grade separated junction again ([e29030b](https://github.com/informatievlaanderen/road-registry/commit/e29030bd0e1c3f4d20fb329cb6c953ae724d24b4))
+
 # [5.23.0](https://github.com/informatievlaanderen/road-registry/compare/v5.22.0...v5.23.0) (2026-10-01)
 
 
