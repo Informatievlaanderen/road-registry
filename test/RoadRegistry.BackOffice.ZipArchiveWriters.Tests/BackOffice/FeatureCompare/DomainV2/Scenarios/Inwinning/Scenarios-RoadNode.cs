@@ -9,6 +9,7 @@ using RoadRegistry.Editor.Schema.Extensions;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
+using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
 using RoadRegistry.Extracts.Infrastructure.Dbase;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.RoadNode.Changes;
@@ -760,5 +761,120 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
         changes.Should().NotContain(x => x is AddRoadNodeChange && ((AddRoadNodeChange)x).TemporaryId == newSchijnknoopId);
         changes.Should().NotContain(x => x is ModifyRoadNodeChange && ((ModifyRoadNodeChange)x).RoadNodeId == newSchijnknoopId);
         changes.Should().NotContain(x => x is RemoveRoadNodeChange && ((RemoveRoadNodeChange)x).RoadNodeId == newSchijnknoopId);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task WhenNewRoadNodeHasNoId_ThenRoadNodeIsAddedWithTemporaryIdOutsideTheSchijnknoopRange(bool useNull)
+    {
+        var temporarySchijnknoopId = RoadNodeConstants.InitialTemporarySchijnknoopId;
+
+        var (zipArchive, context) = new DomainV2ZipArchiveBuilder()
+            .WithExtract((builder, _) =>
+            {
+                var schijnknoopDbaseRecord = builder.CreateRoadNodeDbaseRecord();
+                schijnknoopDbaseRecord.WK_OIDN.Value = temporarySchijnknoopId;
+
+                builder.DataSet.RoadNodeDbaseRecords.Add(schijnknoopDbaseRecord);
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord());
+            })
+            .WithChange((builder, _) =>
+            {
+                var lengthIncrease = 0.06;
+
+                var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
+                var endPointGeometry = new Point(lineString.Coordinates[1].X + lengthIncrease, lineString.Coordinates[1].Y)
+                    .WithSrid(lineString.SRID);
+                lineString = new LineString([
+                        lineString.Coordinates[0],
+                        new CoordinateM(endPointGeometry.X, endPointGeometry.Y, lineString.Coordinates[1].M + lengthIncrease)
+                    ])
+                    .WithSrid(lineString.SRID);
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
+
+                builder.TestData.RoadSegment1EndNodeShapeRecord.Geometry = endPointGeometry;
+                ClearId(builder.TestData.RoadSegment1EndNodeDbaseRecord.WK_OIDN, useNull);
+            })
+            .BuildWithContext();
+
+        // Act
+        var actualChanges = await TranslateSucceeds(zipArchive);
+
+        // Assert
+        var expectedTemporaryId = context.Integration.DataSet.RoadNodeDbaseRecords.Select(x => x.WK_OIDN)
+            .Concat(context.Extract.DataSet.RoadNodeDbaseRecords.Select(x => x.WK_OIDN))
+            .Concat(context.Change.DataSet.RoadNodeDbaseRecords.Select(x => x.WK_OIDN))
+            .Where(x => x.HasValue && x.Value < temporarySchijnknoopId)
+            .Max(x => x.Value) + 1;
+
+        actualChanges.Should().Contain(x => x is RemoveRoadNodeChange
+                                            && ((RemoveRoadNodeChange)x).RoadNodeId == context.Extract.TestData.RoadSegment1EndNodeDbaseRecord.WK_OIDN.Value);
+
+        var addRoadNodeChange = actualChanges.OfType<AddRoadNodeChange>().Should().ContainSingle().Subject;
+        addRoadNodeChange.TemporaryId.Should().Be(new RoadNodeId(expectedTemporaryId));
+        addRoadNodeChange.OriginalId.Should().BeNull();
+        addRoadNodeChange.Geometry.Should().Be(context.Change.TestData.RoadSegment1EndNodeShapeRecord.Geometry.ToRoadNodeGeometry());
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task WhenRoadNodesWithoutIdMatchExtractRoadNodes_ThenExtractIdsAreUsed(bool useNull)
+    {
+        var (zipArchive, context) = new DomainV2ZipArchiveBuilder()
+            .WithChange((builder, _) =>
+            {
+                ClearId(builder.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN, useNull);
+                ClearId(builder.TestData.RoadSegment2StartNodeDbaseRecord.WK_OIDN, useNull);
+            })
+            .BuildWithContext();
+
+        // Act
+        var actualChanges = await TranslateSucceeds(zipArchive);
+
+        // Assert
+        actualChanges.Should().ContainEquivalentOf(new ModifyRoadNodeChange
+        {
+            RoadNodeId = new RoadNodeId(context.Extract.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value),
+            Geometry = context.Change.TestData.RoadSegment1StartNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
+            Grensknoop = context.Change.TestData.RoadSegment1StartNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+        });
+        actualChanges.Should().ContainEquivalentOf(new ModifyRoadNodeChange
+        {
+            RoadNodeId = new RoadNodeId(context.Extract.TestData.RoadSegment2StartNodeDbaseRecord.WK_OIDN.Value),
+            Geometry = context.Change.TestData.RoadSegment2StartNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
+            Grensknoop = context.Change.TestData.RoadSegment2StartNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
+        });
+        actualChanges.Should().NotContain(x => x is AddRoadNodeChange || x is RemoveRoadNodeChange);
+    }
+
+    [Fact]
+    public async Task WhenRecordsWithoutIdAreTooCloseToEachOther_ThenProblemRefersToRecordNumber()
+    {
+        var zipArchive = new DomainV2ZipArchiveBuilder()
+            .WithChange((builder, _) =>
+            {
+                builder.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value = 0;
+
+                var nodeDbase = builder.CreateRoadNodeDbaseRecord();
+                nodeDbase.WK_OIDN.Value = 0;
+
+                var node1Geometry = builder.TestData.RoadSegment1StartNodeShapeRecord.Geometry;
+                var nodeShape = builder.CreateRoadNodeShapeRecord(new Point(node1Geometry.X + 0.01, node1Geometry.Y));
+
+                builder.DataSet.RoadNodeDbaseRecords.Add(nodeDbase);
+                builder.DataSet.RoadNodeShapeRecords.Add(nodeShape);
+            })
+            .BuildWithContext();
+
+        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive.Item1, TranslatedChanges.Empty));
+        var problem = Assert.Single(ex.Problems);
+        Assert.Equal(nameof(DbaseFileProblems.RoadNodeIsAlreadyProcessed), problem.Reason);
+        Assert.Equal(string.Empty, problem.GetParameterValue("Identifier"));
+        Assert.Equal(string.Empty, problem.GetParameterValue("ProcessedId"));
+
+        var startNodeRecordNumber = zipArchive.Item2.Change.DataSet.RoadNodeDbaseRecords.IndexOf(zipArchive.Item2.Change.TestData.RoadSegment1StartNodeDbaseRecord) + 1;
+        Assert.Equal(startNodeRecordNumber.ToString(), problem.GetParameterValue("ProcessedRecordNumber"));
     }
 }

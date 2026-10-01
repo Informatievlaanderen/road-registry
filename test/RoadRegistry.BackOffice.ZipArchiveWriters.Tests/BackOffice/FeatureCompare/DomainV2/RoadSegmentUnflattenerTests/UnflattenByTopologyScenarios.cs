@@ -1037,7 +1037,7 @@ POINT (60 -10)
                     featureType,
                     new RecordNumber(i + 1),
                     roadNodes[i],
-                    roadNodes[i].RoadNodeId,
+                    roadNodes[i].RoadNodeId!.Value,
                     RecordType.Identical)
             ]);
             TestOutputHelper.WriteLine($"Node {roadNodes[i].RoadNodeId}: {JsonConvert.SerializeObject(roadNodes[i], Formatting.Indented, SqsJsonSerializerSettingsProvider.CreateSerializerSettings())}");

@@ -4,7 +4,7 @@ using NetTopologySuite.Geometries;
 
 public record RoadNodeFeatureCompareAttributes
 {
-    public required RoadNodeId RoadNodeId { get; init; }
+    public required RoadNodeId? RoadNodeId { get; init; }
     public required Point Geometry { get; init; }
     public RoadNodeTypeV2? Type { get; init; }
     public bool? Grensknoop { get; init; }

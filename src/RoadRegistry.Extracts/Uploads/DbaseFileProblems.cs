@@ -156,12 +156,13 @@ public static class DbaseFileProblems
             .Build();
     }
 
-    public static FileError GradeSeparatedJunctionNotUnique(this IDbaseFileRecordProblemBuilder builder, GradeSeparatedJunctionId junctionId, GradeSeparatedJunctionId otherJunctionId)
+    public static FileError GradeSeparatedJunctionNotUnique(this IDbaseFileRecordProblemBuilder builder, GradeSeparatedJunctionId? junctionId, GradeSeparatedJunctionId? otherJunctionId, RecordNumber otherRecordNumber)
     {
         return builder
             .Error(nameof(GradeSeparatedJunctionNotUnique))
-            .WithParameter(new ProblemParameter("JunctionId", junctionId.ToString()))
-            .WithParameter(new ProblemParameter("OtherJunctionId", otherJunctionId.ToString()))
+            .WithParameter(new ProblemParameter("JunctionId", junctionId?.ToString() ?? string.Empty))
+            .WithParameter(new ProblemParameter("OtherJunctionId", otherJunctionId?.ToString() ?? string.Empty))
+            .WithParameter(new ProblemParameter("OtherRecordNumber", otherRecordNumber.ToString()))
             .Build();
     }
 
@@ -317,13 +318,19 @@ public static class DbaseFileProblems
             .Build();
     }
 
-    public static FileError RoadNodeIsAlreadyProcessed(this IDbaseFileRecordProblemBuilder builder, RoadNodeId identifier, RoadNodeId processedId)
+    public static FileError RoadNodeIsAlreadyProcessed(this IDbaseFileRecordProblemBuilder builder, RoadNodeId? identifier, RoadNodeId? processedId, RecordNumber? processedRecordNumber = null)
     {
-        return builder
+        var problemBuilder = builder
             .Error(nameof(RoadNodeIsAlreadyProcessed))
-            .WithParameter(new ProblemParameter("Identifier", identifier.ToString()))
-            .WithParameter(new ProblemParameter("ProcessedId", processedId.ToString()))
-            .Build();
+            .WithParameter(new ProblemParameter("Identifier", identifier?.ToString() ?? string.Empty))
+            .WithParameter(new ProblemParameter("ProcessedId", processedId?.ToString() ?? string.Empty));
+
+        if (processedRecordNumber is not null)
+        {
+            problemBuilder = problemBuilder.WithParameter(new ProblemParameter("ProcessedRecordNumber", processedRecordNumber.Value.ToString()));
+        }
+
+        return problemBuilder.Build();
     }
 
     // road segment
