@@ -65,6 +65,11 @@ public abstract class FeatureCompareTranslatorScenariosBase
         }
     }
 
+    protected static void ClearId(DbaseNullableInt32 field, bool useNull)
+    {
+        field.Value = useNull ? null : 0;
+    }
+
     protected static ModifyGradeSeparatedJunctionChange MigrateUnchangedGradeSeparatedJunction(InwinningZipArchiveBuilder.ZipArchiveBuildContext context)
     {
         return new ModifyGradeSeparatedJunctionChange

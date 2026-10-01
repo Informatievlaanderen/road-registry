@@ -62,6 +62,8 @@ public class RoadSegmentUnflattener
         using var _ = _logger.TimeAction();
 
         var unflattenedRecords = records
+            // a record without a usable id can't be matched against the change set, so it is left out instead of failing hard
+            .Where(x => x.Attributes.RoadSegmentId is not null)
             .GroupBy(x => x.Attributes.RoadSegmentId!.Value)
             .Select(flatSegments =>
             {

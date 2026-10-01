@@ -15,7 +15,6 @@ using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
-using RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
 using Xunit.Abstractions;
@@ -224,8 +223,28 @@ public class FeaturesReaderTests
     [Fact]
     public async Task WhenRoadSegmentIdOutOfRange_ThenError()
     {
+        // a WS_OIDN of 0 marks a new road segment, so only a negative value is out of range
         var zipArchive = new InwinningZipArchiveBuilder()
             .WithChange((builder, _) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value = -1;
+            })
+            .Build();
+
+        var sut = ZipArchiveFeatureCompareTranslatorV3Builder.Create();
+
+        var act = () => sut.TranslateAsync(zipArchive, ZipArchiveMetadata.Empty, CancellationToken.None);
+
+        var ex = (await act.Should().ThrowAsync<ZipArchiveValidationException>()).Which;
+        ex.Problems.Should().Contain(x => x.File == "WEGSEGMENT.DBF" && x.Reason == "RoadSegmentIdOutOfRange");
+    }
+
+    [Fact]
+    public async Task WhenExtractRoadSegmentIdOutOfRange_ThenValidationProblemInsteadOfHardError()
+    {
+        // record problems on the extract are ignored, except an unusable road segment id: everything downstream needs one
+        var zipArchive = new InwinningZipArchiveBuilder()
+            .WithExtract((builder, _) =>
             {
                 builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value = 0;
             })
@@ -236,7 +255,7 @@ public class FeaturesReaderTests
         var act = () => sut.TranslateAsync(zipArchive, ZipArchiveMetadata.Empty, CancellationToken.None);
 
         var ex = (await act.Should().ThrowAsync<ZipArchiveValidationException>()).Which;
-        ex.Problems.Should().Contain(x => x.File == "WEGSEGMENT.DBF" && x.Reason == "RoadSegmentIdOutOfRange");
+        ex.Problems.Should().Contain(x => x.File == "EWEGSEGMENT.DBF" && x.Reason == "RoadSegmentIdOutOfRange");
     }
 
     [Theory]

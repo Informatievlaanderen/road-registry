@@ -1,3 +1,21 @@
+# [5.22.0](https://github.com/informatievlaanderen/road-registry/compare/v5.21.2...v5.22.0) (2026-10-01)
+
+
+### Bug Fixes
+
+* **2.0:** bound how long stopping a marten projection waits on the drain ([305b747](https://github.com/informatievlaanderen/road-registry/commit/305b7475f28ca6145d0534c03da37416c9efa6bc))
+
+
+### Features
+
+* **inwinning:** allow new road nodes and grade separated junctions without id in the change set ([7c79a38](https://github.com/informatievlaanderen/road-registry/commit/7c79a385c93678199f0fa2f1951c4d6111647e46))
+* **inwinning:** verplaats bestanden uit één gemeenschappelijke submap naar de root bij inwinning-upload ([f893ba5](https://github.com/informatievlaanderen/road-registry/commit/f893ba5db6c557978626a2f6a22b8e86562ea9ff))
+
+
+### Performance Improvements
+
+* index wegsegmentDenorm on IsV2 and morfologie for the raadpleegdiensten ([b095d2f](https://github.com/informatievlaanderen/road-registry/commit/b095d2f4f45dd26df47ac6996c23b545c1d94274))
+
 ## [5.21.2](https://github.com/informatievlaanderen/road-registry/compare/v5.21.1...v5.21.2) (2026-09-24)
 
 

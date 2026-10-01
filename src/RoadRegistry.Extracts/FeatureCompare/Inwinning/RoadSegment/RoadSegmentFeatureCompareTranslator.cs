@@ -67,9 +67,13 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             .Distinct()
             .ToArray();
 
-        var maxUsedRoadSegmentId = integrationFeatures.Select(x => x.Attributes.RoadSegmentId!.Value)
-            .Concat(extractFeatures.Select(x => x.Attributes.RoadSegmentId!.Value))
-            .Concat(changeFeatures.Where(x => x.Attributes.RoadSegmentId is not null).Select(x => x.Attributes.RoadSegmentId!.Value))
+        // a feature without an id is skipped instead of dereferenced, so an invalid id never becomes a hard error here
+        var maxUsedRoadSegmentId = integrationFeatures
+            .Concat(extractFeatures)
+            .Concat(changeFeatures)
+            .Where(x => x.Attributes.RoadSegmentId is not null)
+            .Select(x => x.Attributes.RoadSegmentId!.Value)
+            .DefaultIfEmpty(new RoadSegmentId(0))
             .Max();
         var ogcFeaturesCache = await GetOgcFeaturesCache(context, cancellationToken);
         var dynamicExtractFeatures = RoadSegmentUnflattener.UnflattenByRoadSegmentId(extractFeatures,  ogcFeaturesCache, context, _logger);
@@ -113,6 +117,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         var usedExtractRoadSegmentIds = dynamicExtractFeatures.Select(x => x.Attributes.RoadSegmentId).ToHashSet();
         var consumedRoadSegmentFlatFeatures = extractFeatures
+            // a record without a usable id can't be matched against the change set, so it is left out instead of failing hard
+            .Where(x => x.Attributes.RoadSegmentId is not null)
             .Where(x => !usedExtractRoadSegmentIds.Contains(x.Attributes.RoadSegmentId!.Value))
             .ToArray();
 
