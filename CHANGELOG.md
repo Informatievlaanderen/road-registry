@@ -1,3 +1,15 @@
+# [5.23.0](https://github.com/informatievlaanderen/road-registry/compare/v5.22.0...v5.23.0) (2026-10-01)
+
+
+### Bug Fixes
+
+* **inwinning:** keep reporting a road segment id that can't be read ([92002a5](https://github.com/informatievlaanderen/road-registry/commit/92002a5bf16ba30bb876f47032fd22bcbf9d1756))
+
+
+### Features
+
+* **inwinning:** allow a road segment without id in the change set ([739844e](https://github.com/informatievlaanderen/road-registry/commit/739844e717168dd71addbfe2ab338853a96b0970))
+
 # [5.22.0](https://github.com/informatievlaanderen/road-registry/compare/v5.21.2...v5.22.0) (2026-10-01)
 
 
