@@ -36,6 +36,11 @@ public static class FeatureValidationExtensions
         foreach (var feature in features)
         {
             var identifier = getIdentifier(feature);
+            if (identifier is null)
+            {
+                // a new record without an identifier can't conflict with another one
+                continue;
+            }
 
             if (knownIdentifiers.TryGetValue(identifier, out var existingRecordNumber))
             {
@@ -63,7 +68,7 @@ public static class FeatureValidationExtensions
             var recordContext = fileName
                 .AtDbaseRecord(featureType, feature.RecordNumber)
                 .WithIdentifier(nameof(GradeSeparatedJunctionDbaseRecord.OK_OIDN), feature.Attributes.Id);
-            return recordContext.GradeSeparatedJunctionNotUnique(feature.Attributes.Id, duplicateFeature.Attributes.Id);
+            return recordContext.GradeSeparatedJunctionNotUnique(feature.Attributes.Id, duplicateFeature.Attributes.Id, duplicateFeature.RecordNumber);
         });
     }
 

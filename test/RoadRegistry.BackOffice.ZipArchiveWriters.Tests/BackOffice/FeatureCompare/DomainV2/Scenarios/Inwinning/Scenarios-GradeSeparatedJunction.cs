@@ -386,4 +386,82 @@ public partial class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorS
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task WhenNewJunctionHasNoId_ThenJunctionIsAddedWithTemporaryId(bool useNull)
+    {
+        var (zipArchive, context) = new DomainV2ZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                var fixture = context.Fixture;
+
+                var gradeSeparatedJunctionDbaseRecord2 = builder.CreateGradeSeparatedJunctionDbaseRecord();
+                gradeSeparatedJunctionDbaseRecord2.BO_TEMPID.Value = builder.TestData.GradeSeparatedJunctionDbaseRecord.BO_TEMPID.Value;
+                gradeSeparatedJunctionDbaseRecord2.ON_TEMPID.Value = builder.TestData.GradeSeparatedJunctionDbaseRecord.ON_TEMPID.Value;
+                gradeSeparatedJunctionDbaseRecord2.TYPE.Value = fixture.CreateWhichIsDifferentThan(GradeSeparatedJunctionTypeV2.ByIdentifier[builder.TestData.GradeSeparatedJunctionDbaseRecord.TYPE.Value]).Translation.Identifier;
+                ClearId(gradeSeparatedJunctionDbaseRecord2.OK_OIDN, useNull);
+                builder.DataSet.GradeSeparatedJunctionDbaseRecords = new[] { gradeSeparatedJunctionDbaseRecord2 }.ToList();
+            })
+            .BuildWithContext();
+
+        // Act
+        var translatedChanges = await TranslateSucceeds(zipArchive);
+
+        // Assert
+        var expectedTemporaryId = new GradeSeparatedJunctionId(context.Extract.DataSet.GradeSeparatedJunctionDbaseRecords.Max(x => x.OK_OIDN.Value)).Next();
+        var gradeSeparatedJunctionDbaseRecord2 = context.Change.DataSet.GradeSeparatedJunctionDbaseRecords.Single();
+
+        Assert.Contains(translatedChanges, x =>
+            x is AddGradeSeparatedJunctionChange addChange
+            && addChange.TemporaryId == expectedTemporaryId
+            && addChange.Type == GradeSeparatedJunctionTypeV2.ByIdentifier[gradeSeparatedJunctionDbaseRecord2.TYPE.Value]);
+        Assert.Contains(translatedChanges, x =>
+            x is RemoveGradeSeparatedJunctionChange removeChange
+            && removeChange.GradeSeparatedJunctionId == new GradeSeparatedJunctionId(context.Extract.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN.Value));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task WhenJunctionWithoutIdMatchesExtractJunction_ThenExtractIdIsUsed(bool useNull)
+    {
+        var (zipArchive, context) = new DomainV2ZipArchiveBuilder()
+            .WithChange((builder, _) => { ClearId(builder.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN, useNull); })
+            .BuildWithContext();
+
+        // Act
+        var translatedChanges = await TranslateSucceeds(zipArchive);
+
+        // Assert
+        Assert.Contains(MigrateUnchangedGradeSeparatedJunction(context), translatedChanges);
+        Assert.DoesNotContain(translatedChanges, x => x is AddGradeSeparatedJunctionChange || x is RemoveGradeSeparatedJunctionChange);
+    }
+
+    [Fact]
+    public async Task WithMultipleJunctionsWithoutIdWithSameLowerAndUpper_ThenProblemRefersToRecordNumber()
+    {
+        var (zipArchive, context) = new DomainV2ZipArchiveBuilder()
+            .WithChange((builder, _) =>
+            {
+                builder.TestData.GradeSeparatedJunctionDbaseRecord.OK_OIDN.Value = 0;
+
+                var duplicate = builder.CreateGradeSeparatedJunctionDbaseRecord();
+                duplicate.OK_OIDN.Value = 0;
+                duplicate.ON_TEMPID.Value = builder.TestData.GradeSeparatedJunctionDbaseRecord.ON_TEMPID.Value;
+                duplicate.BO_TEMPID.Value = builder.TestData.GradeSeparatedJunctionDbaseRecord.BO_TEMPID.Value;
+                builder.DataSet.GradeSeparatedJunctionDbaseRecords.Add(duplicate);
+            })
+            .BuildWithContext();
+
+        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateSucceeds(zipArchive));
+        Assert.DoesNotContain(ex.Problems, x => x.Reason == nameof(DbaseFileProblems.IdentifierNotUnique));
+
+        var problem = Assert.Single(ex.Problems, x => x.Reason == nameof(DbaseFileProblems.GradeSeparatedJunctionNotUnique));
+        Assert.Equal(string.Empty, problem.GetParameterValue("OtherJunctionId"));
+
+        var duplicateRecordNumber = context.Change.DataSet.GradeSeparatedJunctionDbaseRecords.Count;
+        Assert.Equal(duplicateRecordNumber.ToString(), problem.GetParameterValue("OtherRecordNumber"));
+    }
 }

@@ -48,10 +48,11 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
 
                 foreach (var feature in features)
                 {
-                    if (context.ChangedRoadNodes.TryGetValue(feature.Attributes.RoadNodeId, out var knownRoadNode))
+                    if (feature.Attributes.RoadNodeId is not null
+                        && context.ChangedRoadNodes.TryGetValue(feature.Attributes.RoadNodeId.Value, out var knownRoadNode))
                     {
                         var recordContext = FileName.AtDbaseRecord(featureType, feature.RecordNumber);
-                        problems += recordContext.RoadNodeIdentifierNotUniqueAcrossIntegrationAndChange(feature.Attributes.RoadNodeId, knownRoadNode.RecordNumber);
+                        problems += recordContext.RoadNodeIdentifierNotUniqueAcrossIntegrationAndChange(feature.Attributes.RoadNodeId.Value, knownRoadNode.RecordNumber);
                     }
                 }
                 break;
@@ -69,12 +70,13 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
 
         foreach (var feature in features)
         {
-            if (context.ChangedRoadNodes.ContainsKey(feature.Attributes.RoadNodeId))
+            if (feature.Attributes.RoadNodeId is null
+                || context.ChangedRoadNodes.ContainsKey(feature.Attributes.RoadNodeId.Value))
             {
                 continue;
             }
 
-            context.ChangedRoadNodes.Add(feature.Attributes.RoadNodeId, feature);
+            context.ChangedRoadNodes.Add(feature.Attributes.RoadNodeId.Value, feature);
         }
     }
 
@@ -126,8 +128,14 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
                 return Point.Empty;
             }
 
-            RoadNodeId ReadId()
+            RoadNodeId? ReadId()
             {
+                // a new road node in the change set does not have an id yet
+                if (featureType == FeatureType.Change && WK_OIDN is null or 0)
+                {
+                    return null;
+                }
+
                 if (WK_OIDN is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(WK_OIDN));
@@ -141,7 +149,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
                     problems += problemBuilder.RoadNodeIdOutOfRange(WK_OIDN.Value);
                 }
 
-                return default;
+                return default(RoadNodeId);
             }
 
             RoadNodeTypeV2? ReadType()
