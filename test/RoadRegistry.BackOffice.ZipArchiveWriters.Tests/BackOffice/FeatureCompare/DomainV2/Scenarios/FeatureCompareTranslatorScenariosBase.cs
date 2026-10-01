@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2.Scenarios;
 
 using System.IO.Compression;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
@@ -47,6 +48,19 @@ public abstract class FeatureCompareTranslatorScenariosBase
                 }
                 throw;
             }
+        }
+    }
+
+    // An id field without a value or with value 0 marks a new record
+    protected static void ClearId(DbaseInt32 field, bool useNull)
+    {
+        if (useNull)
+        {
+            field.Reset();
+        }
+        else
+        {
+            field.Value = 0;
         }
     }
 

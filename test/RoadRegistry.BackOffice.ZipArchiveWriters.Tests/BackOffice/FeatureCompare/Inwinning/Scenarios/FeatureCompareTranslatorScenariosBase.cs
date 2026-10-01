@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.Inwinning.Scenarios;
 
 using System.IO.Compression;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.Inwinning;
@@ -51,6 +52,19 @@ public abstract class FeatureCompareTranslatorScenariosBase
     }
 
     // An inwinning takes over the grade separated junction it leaves untouched, so it is migrated along with its road segments.
+    // An id field without a value or with value 0 marks a new record
+    protected static void ClearId(DbaseInt32 field, bool useNull)
+    {
+        if (useNull)
+        {
+            field.Reset();
+        }
+        else
+        {
+            field.Value = 0;
+        }
+    }
+
     protected static ModifyGradeSeparatedJunctionChange MigrateUnchangedGradeSeparatedJunction(InwinningZipArchiveBuilder.ZipArchiveBuildContext context)
     {
         return new ModifyGradeSeparatedJunctionChange

@@ -43,16 +43,26 @@ public partial class ProjectionsController
     /// meant to stay stopped, so neither the supervisor nor the next restart of the host brings it back. The special
     /// id "topology" is not supported here: the topology projection runs inline with the event store writes and cannot
     /// be stopped.
+    ///
+    /// Marten stops a shard by draining it - it finishes every page it had already fetched - and that drain is
+    /// unbounded, so on a projection that is behind it can take hours. The shard is therefore given drainSeconds to
+    /// stop on its own, after which the batch it is working on is cancelled. That batch was never committed, so it
+    /// replays from the projection's last committed position when the projection is started again.
     /// </remarks>
     /// <param name="id">The projection id, case-insensitive, with or without the ":All" shard suffix (e.g. "RoadNetworkChangesExtractProjection").</param>
     /// <param name="daemonAccessor"></param>
+    /// <param name="shardStopper"></param>
+    /// <param name="drainSeconds">How long the projection may take to finish the work it already has in hand before
+    /// the batch it is working on is cancelled. Zero cancels it right away.</param>
     /// <param name="cancellationToken"></param>
     [HttpGet("{id}/stop")]
     [HttpPost("{id}/stop")]
     public async Task<IActionResult> StopMartenProjection(
         [FromRoute] string id,
         [FromServices] MartenProjectionDaemonAccessor daemonAccessor,
-        CancellationToken cancellationToken)
+        [FromServices] MartenShardStopper shardStopper,
+        [FromQuery] int drainSeconds = 30,
+        CancellationToken cancellationToken = default)
     {
         var projection = FindMartenProjection(id);
         if (projection is null)
@@ -79,10 +89,17 @@ public partial class ProjectionsController
             return Ok($"{shardName} was already {DescribeStatus(status)}; its desired state is now stopped.");
         }
 
-        await daemon.StopAgentAsync(shardName, null);
-        await WaitUntilShardStopped(daemon, shardName, cancellationToken);
+        var drainGracePeriod = TimeSpan.FromSeconds(Math.Clamp(drainSeconds, 0, (int)TimeSpan.FromHours(1).TotalSeconds));
+        var outcome = await shardStopper.StopAsync(daemon, shardName, drainGracePeriod, cancellationToken);
 
-        return Ok($"{shardName} stopped.");
+        return outcome switch
+        {
+            MartenShardStopOutcome.Drained => Ok($"{shardName} stopped."),
+            MartenShardStopOutcome.BatchCancelled => Ok(
+                $"{shardName} stopped. It did not stop on its own within {drainGracePeriod.TotalSeconds}s, so the batch it was working on was cancelled; that batch was never committed and replays from the projection's last committed position when it is started again."),
+            _ => StatusCode(StatusCodes.Status504GatewayTimeout,
+                $"{shardName} is still running, even after the batch it was working on was cancelled. Its desired state is stopped, so it will not be started again; check the logs.")
+        };
     }
 
     /// <summary>
@@ -350,22 +367,6 @@ public partial class ProjectionsController
         }
 
         return tables;
-    }
-
-    private static async Task WaitUntilShardStopped(IProjectionDaemon daemon, string shardName, CancellationToken cancellationToken)
-    {
-        var timeout = TimeSpan.FromMinutes(1);
-        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-
-        while (daemon.StatusFor(shardName) == AgentStatus.Running)
-        {
-            if (stopwatch.Elapsed > timeout)
-            {
-                throw new InvalidOperationException($"Shard {shardName} was still running {timeout.TotalSeconds}s after it was told to stop; not touching the read model.");
-            }
-
-            await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken);
-        }
     }
 
     private async Task DeleteDocuments(Type[] documentTypes, CancellationToken cancellationToken)

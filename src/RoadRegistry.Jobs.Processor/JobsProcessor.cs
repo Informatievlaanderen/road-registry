@@ -408,6 +408,8 @@ namespace RoadRegistry.Jobs.Processor
             {
                 using var archive = new ZipArchive(stream, ZipArchiveMode.Update, leaveOpen: true);
 
+                MoveFilesFromSingleSubfolderToRoot(archive);
+
                 var allowedFileNames = Enumerable.Empty<string>()
                     .Concat(new[] { FeatureType.Change }
                         .SelectMany(featureType => new[]
@@ -453,6 +455,63 @@ namespace RoadRegistry.Jobs.Processor
             catch (InvalidDataException)
             {
                 // Do nothing
+            }
+        }
+
+        private static void MoveFilesFromSingleSubfolderToRoot(ZipArchive archive)
+        {
+            static string Normalize(string name) => name.Replace('\\', '/');
+            static bool IsDirectory(ZipArchiveEntry entry) => Normalize(entry.FullName).EndsWith('/');
+            // Folders starting with "__" (e.g. "__MACOSX" added by macOS) are ignored; their files are removed as unknown files afterwards
+            static bool IsInIgnoredFolder(ZipArchiveEntry entry) => Normalize(entry.FullName).Split('/').SkipLast(1).Any(folder => folder.StartsWith("__"));
+
+            var fileEntries = archive.Entries
+                .Where(entry => !IsDirectory(entry) && !IsInIgnoredFolder(entry))
+                .ToArray();
+            if (fileEntries.Length == 0)
+            {
+                return;
+            }
+
+            var relativeNames = fileEntries.Select(entry => Normalize(entry.FullName)).ToArray();
+            var prefixLength = 0;
+            while (true)
+            {
+                var firstSegments = relativeNames
+                    .Select(name => name.Substring(prefixLength))
+                    .Select(name => name.IndexOf('/') is var index and > 0 ? name.Substring(0, index + 1) : null)
+                    .Distinct()
+                    .ToArray();
+                if (firstSegments.Length != 1 || firstSegments[0] is null)
+                {
+                    break;
+                }
+
+                prefixLength += firstSegments[0].Length;
+            }
+
+            if (prefixLength == 0)
+            {
+                return;
+            }
+
+            for (var i = 0; i < fileEntries.Length; i++)
+            {
+                var entry = fileEntries[i];
+                var movedEntry = archive.CreateEntry(relativeNames[i].Substring(prefixLength));
+                movedEntry.LastWriteTime = entry.LastWriteTime;
+                using (var source = entry.Open())
+                using (var target = movedEntry.Open())
+                {
+                    source.CopyTo(target);
+                }
+
+                entry.Delete();
+            }
+
+            foreach (var directoryEntry in archive.Entries.Where(IsDirectory).ToArray())
+            {
+                directoryEntry.Delete();
             }
         }
 
