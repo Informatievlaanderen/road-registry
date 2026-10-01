@@ -54,7 +54,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
 
         return Run(scenario => scenario
             .Given(b => b)
-            .When(changes => changes
+            .WhenMigrate(changes => changes
                 .Add(TestData.AddSegment1StartNode with
                 {
                     Geometry = RoadNodeGeometry.Create(point1),
@@ -122,7 +122,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
 
         return Run(scenario => scenario
             .Given(b => b)
-            .When(changes => changes
+            .WhenMigrate(changes => changes
                 .Add(TestData.AddSegment1StartNode with
                 {
                     Geometry = RoadNodeGeometry.Create(point1),

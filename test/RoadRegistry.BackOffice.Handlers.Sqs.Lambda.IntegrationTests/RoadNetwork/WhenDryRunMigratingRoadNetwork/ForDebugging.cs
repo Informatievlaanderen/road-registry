@@ -79,7 +79,7 @@ public class ForDebugging
                 grbOgcApiFeaturesDownloader: new GrbOgcApiFeaturesDownloader(client, baseUrl));
             var archive = new ZipArchive(fileStream);
 
-            var zipArchiveMetadata = ZipArchiveMetadata.Empty.WithInwinning();
+            var zipArchiveMetadata = ZipArchiveMetadata.Empty;
             translatedChanges = await translator.TranslateAsync(archive, zipArchiveMetadata, CancellationToken.None);
 
             // var extractRoadSegments = new RoadSegmentFeatureCompareFeatureReader(FileEncoding.UTF8)

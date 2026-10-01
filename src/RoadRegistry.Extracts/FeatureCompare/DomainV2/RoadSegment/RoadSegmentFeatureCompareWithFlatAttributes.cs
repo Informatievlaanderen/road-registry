@@ -17,9 +17,9 @@ public record RoadSegmentFeatureCompareWithFlatAttributes
     public required StreetNameLocalId LeftSideStreetNameId { get; init; }
     public required StreetNameLocalId RightSideStreetNameId { get; init; }
     public required RoadSegmentSurfaceTypeV2 SurfaceType { get; init; }
-    public required bool CarAccessForward { get; init; }
-    public required bool CarAccessBackward { get; init; }
-    public required bool BikeAccessForward { get; init; }
-    public required bool BikeAccessBackward { get; init; }
-    public required bool PedestrianAccess { get; init; }
+    public required bool? CarAccessForward { get; init; }
+    public required bool? CarAccessBackward { get; init; }
+    public required bool? BikeAccessForward { get; init; }
+    public required bool? BikeAccessBackward { get; init; }
+    public required bool? PedestrianAccess { get; init; }
 }

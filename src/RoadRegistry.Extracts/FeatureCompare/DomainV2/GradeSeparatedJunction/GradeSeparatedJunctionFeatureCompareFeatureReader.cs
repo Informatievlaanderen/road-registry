@@ -6,14 +6,14 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Uploads;
-using Schemas.Inwinning.GradeSeparatedJuntions;
+using Schemas.DomainV2.GradeSeparatedJuntions;
 
 public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
 {
     private const ExtractFileName FileName = ExtractFileName.RltOgkruising;
 
     public GradeSeparatedJunctionFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new InwinningFeatureReader(encoding))
+        : base(new DomainV2FeatureReader(encoding))
     {
     }
 
@@ -33,9 +33,9 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
         return (features, problems);
     }
 
-    private sealed class InwinningFeatureReader : ZipArchiveDbaseFeatureReader<GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
+    private sealed class DomainV2FeatureReader : ZipArchiveDbaseFeatureReader<GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
     {
-        public InwinningFeatureReader(Encoding encoding)
+        public DomainV2FeatureReader(Encoding encoding)
             : base(encoding, ExtractFileName.RltOgkruising, GradeSeparatedJunctionDbaseRecord.Schema)
         {
         }

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
 
@@ -122,6 +123,25 @@ public class ExtractRequester
         }
     }
 
+    // Contours are written in Lambert 2008 from now on, but rows predating that are still in Lambert 72, so neither is
+    // assumed: the DomainV2 writers read data that is in Lambert 2008, the V1 ones go looking in Lambert 72. A contour
+    // in neither reference system is handed over as it is, the way it was before any of this converting started.
+    private static IPolygonal ContourFor(ExtractDownload extractDownload)
+    {
+        var contour = extractDownload.Contour;
+        if (contour.IsEmpty || contour.SRID is not (WellknownSrids.Lambert72 or WellknownSrids.Lambert08))
+        {
+            return (IPolygonal)contour;
+        }
+
+        var extractGeometry = contour.ToMultiPolygon().ToExtractGeometry();
+        return (IPolygonal)(extractDownload.ZipArchiveWriterVersion is WellKnownZipArchiveWriterVersions.DomainV2
+                or WellKnownZipArchiveWriterVersions.DomainV2_Inwinning
+                or WellKnownZipArchiveWriterVersions.DomainV2_Bijhouding
+            ? extractGeometry.EnsureLambert08()
+            : extractGeometry.EnsureLambert72()).Value;
+    }
+
     private async Task<MemoryStream> BuildArchive(
         ExtractRequest extractRequest,
         ExtractDownload extractDownload,
@@ -132,7 +152,7 @@ public class ExtractRequester
         var request = new RoadNetworkExtractAssemblyRequest(
             downloadId,
             new ExtractDescription(extractRequest.Description),
-            (IPolygonal)extractDownload.Contour,
+            ContourFor(extractDownload),
             extractDownload.IsInformative,
             extractDownload.ZipArchiveWriterVersion);
 

@@ -31,7 +31,7 @@ public partial class ScopedRoadNetwork
 
         if (!problems.HasError())
         {
-            problems += AfterChangesApplied(idGenerator, context);
+            problems += AfterChangesApplied(idGenerator, context, mayMergeRoadSegments: true);
         }
 
         if (!problems.HasError())
