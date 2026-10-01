@@ -285,5 +285,153 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 blobZipArchive.GetEntry(unknownFileName).Should().BeNull();
             }
         }
+
+        public static IEnumerable<object[]> InwinningArchivesWithSingleSubfolder()
+        {
+            yield return new object[] { new[] { "extract/eWegknoop.dbf", "extract/Transactiezones.dbf", "extract/aaa.txt" } };
+            yield return new object[] { new[] { "extract/", "extract/eWegknoop.dbf", "extract/Transactiezones.dbf", "extract/aaa.txt" } };
+            yield return new object[] { new[] { "a/", "a/b/", "a/b/c/", "a/b/c/eWegknoop.dbf", "a/b/c/Transactiezones.dbf", "a/b/c/aaa.txt" } };
+            yield return new object[] { new[] { @"a\b\eWegknoop.dbf", @"a\b\Transactiezones.dbf", @"a\b\aaa.txt" } };
+            yield return new object[] { new[] { "extract/", "extract/eWegknoop.dbf", "extract/Transactiezones.dbf", "__MACOSX/", "__MACOSX/extract/", "__MACOSX/extract/._aaa.txt" } };
+            yield return new object[] { new[] { "extract/eWegknoop.dbf", "extract/Transactiezones.dbf", "extract/__cache/aaa.txt" } };
+        }
+
+        [Theory]
+        [MemberData(nameof(InwinningArchivesWithSingleSubfolder))]
+        public async Task FlowTest_Inwinning_FilesInSingleSubfolderAreMovedToRoot(string[] entryNames)
+        {
+            var resultEntries = await RunInwinningJobWithArchive(entryNames);
+
+            resultEntries.Should().BeEquivalentTo(new Dictionary<string, string>
+            {
+                { "eWegknoop.dbf", entryNames.Single(x => x.EndsWith("eWegknoop.dbf")) },
+                { "Transactiezones.dbf", entryNames.Single(x => x.EndsWith("Transactiezones.dbf")) }
+            });
+        }
+
+        [Fact]
+        public async Task FlowTest_Inwinning_FilesInDifferentSubfoldersAreNotMoved()
+        {
+            var resultEntries = await RunInwinningJobWithArchive(["a/eWegknoop.dbf", "b/Transactiezones.dbf"]);
+
+            resultEntries.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task FlowTest_Inwinning_FilesInRootAndSubfolderAreNotMoved()
+        {
+            var resultEntries = await RunInwinningJobWithArchive(["Transactiezones.dbf", "a/", "a/eWegknoop.dbf"]);
+
+            resultEntries.Should().BeEquivalentTo(new Dictionary<string, string>
+            {
+                { "Transactiezones.dbf", "Transactiezones.dbf" }
+            });
+        }
+
+        /// <summary>
+        /// Runs an inwinning upload job for a zip with the given entries (each file contains its own original name)
+        /// and returns the entries of the uploaded zip as name -> content.
+        /// </summary>
+        private static async Task<Dictionary<string, string>> RunInwinningJobWithArchive(string[] entryNames)
+        {
+            var fixture = new RoadNetworkTestData().ObjectProvider;
+            var blobClient = new Mock<IBlobClient>();
+            var jobsContext = new FakeJobsContextFactory().CreateDbContext();
+
+            var downloadId = Guid.NewGuid();
+            var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.Inwinning, Guid.NewGuid())
+            {
+                DownloadId = downloadId,
+                OperatorName = fixture.Create<string>().Substring(0, 20)
+            };
+            jobsContext.Jobs.Add(job);
+            await jobsContext.SaveChangesAsync(CancellationToken.None);
+
+            var archiveBytes = CreateArchive(entryNames);
+
+            var blobName = new BlobName(job.ReceivedBlobName);
+            blobClient
+                .Setup(x => x.BlobExistsAsync(blobName, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+            blobClient
+                .Setup(x => x.GetBlobAsync(blobName, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new BlobObject(
+                    blobName,
+                    Metadata.None
+                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), "file.zip"))
+                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("guardduty-malware-scan-status"), "NO_THREATS_FOUND")),
+                    ContentType.Parse("X-multipart/abc"),
+                    _ => Task.FromResult<Stream>(new MemoryStream(archiveBytes))));
+
+            var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
+            var extractRequestId = fixture.Create<ExtractRequestId>();
+            extractsDbContext.ExtractRequests.Add(new ExtractRequest
+            {
+                ExtractRequestId = extractRequestId,
+                Description = fixture.Create<string>()
+            });
+            extractsDbContext.ExtractDownloads.Add(new ExtractDownload
+            {
+                DownloadId = downloadId,
+                Contour = Polygon.Empty,
+                ExtractRequestId = extractRequestId,
+                ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV2
+            });
+            await extractsDbContext.SaveChangesAsync();
+
+            var sut = new JobsProcessor(
+                new JobsProcessorOptions
+                {
+                    MaxJobLifeTimeInMinutes = 65
+                },
+                jobsContext,
+                Mock.Of<ITicketing>(),
+                new RoadNetworkJobsBlobClient(blobClient.Object),
+                Mock.Of<IMediator>(),
+                Mock.Of<IExtractRequestCleaner>(),
+                new RoadNetworkUploadsBlobClient(blobClient.Object),
+                extractsDbContext,
+                new NullLoggerFactory(),
+                Mock.Of<IHostApplicationLifetime>());
+
+            // Act
+            await sut.RunOnceAsync(CancellationToken.None);
+
+            // Assert
+            jobsContext.Jobs.First().Status.Should().Be(JobStatus.Completed);
+
+            var createdBlobStream = blobClient.Invocations
+                .Single(x => x.Method.Name == nameof(IBlobClient.CreateBlobAsync))
+                .Arguments.OfType<Stream>()
+                .Single();
+            await using var createdBlobStreamCopy = await createdBlobStream.CopyToNewMemoryStreamAsync(CancellationToken.None);
+            using var resultArchive = new ZipArchive(createdBlobStreamCopy);
+            return resultArchive.Entries.ToDictionary(
+                entry => entry.FullName,
+                entry =>
+                {
+                    using var reader = new StreamReader(entry.Open());
+                    return reader.ReadToEnd();
+                });
+        }
+
+        private static byte[] CreateArchive(string[] entryNames)
+        {
+            using var stream = new MemoryStream();
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+            {
+                foreach (var entryName in entryNames)
+                {
+                    var entry = archive.CreateEntry(entryName);
+                    if (!entryName.EndsWith('/'))
+                    {
+                        using var writer = new StreamWriter(entry.Open());
+                        writer.Write(entryName);
+                    }
+                }
+            }
+
+            return stream.ToArray();
+        }
     }
 }
