@@ -224,10 +224,11 @@ public class FeaturesReaderTests
     [Fact]
     public async Task WhenRoadSegmentIdOutOfRange_ThenError()
     {
+        // a WS_OIDN of 0 marks a new road segment, so only a negative value is out of range
         var zipArchive = new DomainV2ZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
-                builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value = 0;
+                builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value = -1;
             })
             .Build();
 

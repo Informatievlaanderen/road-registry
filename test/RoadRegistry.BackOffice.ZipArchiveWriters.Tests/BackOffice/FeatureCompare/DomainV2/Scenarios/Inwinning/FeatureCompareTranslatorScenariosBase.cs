@@ -64,6 +64,11 @@ public abstract class FeatureCompareTranslatorScenariosBase
         }
     }
 
+    protected static void ClearId(DbaseNullableInt32 field, bool useNull)
+    {
+        field.Value = useNull ? null : 0;
+    }
+
     // An inwinning takes over the grade separated junction it leaves untouched, so it is migrated along with its road segments.
     protected static ModifyGradeSeparatedJunctionChange MigrateUnchangedGradeSeparatedJunction(DomainV2ZipArchiveBuilder.ZipArchiveBuildContext context)
     {
