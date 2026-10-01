@@ -67,14 +67,8 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
 
             var problems = ZipArchiveProblems.None;
 
-            GradeSeparatedJunctionId? ReadId()
+            GradeSeparatedJunctionId ReadId()
             {
-                // a new grade separated junction in the change set does not have an id yet
-                if (featureType == FeatureType.Change && OK_OIDN is null or 0)
-                {
-                    return null;
-                }
-
                 if (OK_OIDN is null)
                 {
                     problems += problemBuilder.RequiredFieldIsNull(nameof(OK_OIDN));
@@ -88,7 +82,7 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
                     problems += problemBuilder.IdentifierZero();
                 }
 
-                return default(GradeSeparatedJunctionId);
+                return default;
             }
 
             RoadSegmentTempId ReadUpperRoadSegmentId()
