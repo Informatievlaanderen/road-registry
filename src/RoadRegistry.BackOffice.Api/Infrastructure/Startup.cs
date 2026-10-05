@@ -233,7 +233,7 @@ public class Startup
                     }
                 }
             })
-            .AddAcmIdmAuthorizationHandlers()
+            .AddRoadRegistryAcmIdmAuthorizationHandlers()
             .AddSingleton(_ => new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
             // Resolved lazily: evaluating FileEncoding.WindowsAnsi (code page 1252) requires the code-pages encoding
             // provider, which the host registers at startup. Deferring keeps ConfigureServices side-effect free.

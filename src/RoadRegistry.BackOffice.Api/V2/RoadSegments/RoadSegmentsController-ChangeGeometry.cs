@@ -25,6 +25,7 @@ using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Abstractions.Extensions;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
+using RoadRegistry.BackOffice.Api.Infrastructure.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
 using RoadRegistry.Read.Projections;
@@ -128,11 +129,7 @@ public partial class RoadSegmentsController
 
     private bool HasIngemetenWegScope()
     {
-        // A scope claim can arrive either as one claim per scope or as a single space separated claim value,
-        // depending on the authentication scheme, so both shapes are accounted for.
-        return User.FindAll(AcmIdmClaimTypes.Scope)
-            .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-            .Any(scope => string.Equals(scope, Scopes.DvWrIngemetenWegBeheer, StringComparison.OrdinalIgnoreCase));
+        return User.HasAcmIdmScope(Scopes.DvWrIngemetenWegBeheer);
     }
 
     private static (RoadSegmentGeometry Geometry, ChangeGeometryAttributes Attributes) TranslateAndValidateGeometryChange(
