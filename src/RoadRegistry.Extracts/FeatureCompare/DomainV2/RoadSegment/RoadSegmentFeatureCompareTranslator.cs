@@ -23,7 +23,6 @@ using TranslatedChanges = DomainV2.TranslatedChanges;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareWithFlatAttributes>
 {
-    private readonly IGrbOgcApiFeaturesDownloader _ogcApiFeaturesDownloader;
     private readonly IRoadSegmentFeatureCompareStreetNameContextFactory _streetNameContextFactory;
     private readonly IOrganizationCache _organizationCache;
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
@@ -34,13 +33,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         RoadSegmentFeatureCompareFeatureReader featureReader,
         IRoadSegmentFeatureCompareStreetNameContextFactory streetNameContextFactory,
         IOrganizationCache organizationCache,
-        IGrbOgcApiFeaturesDownloader ogcApiFeaturesDownloader,
         ILoggerFactory? loggerFactory = null)
         : base(featureReader)
     {
         _streetNameContextFactory = streetNameContextFactory;
         _organizationCache = organizationCache;
-        _ogcApiFeaturesDownloader = ogcApiFeaturesDownloader;
         _logger = loggerFactory?.CreateLogger(GetType()) ?? NullLogger.Instance;
     }
 
@@ -75,7 +72,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             .Select(x => x.Attributes.RoadSegmentId!.Value)
             .DefaultIfEmpty(new RoadSegmentId(0))
             .Max();
-        var ogcFeaturesCache = await GetOgcFeaturesCache(context, cancellationToken);
+        // Empty, always: the GRB features are consulted to work out a geometry method for segments that were
+        // collected without one, which is an inwinning concern. A delivery through this flow states its own METHODE.
+        var ogcFeaturesCache = new OgcFeaturesCache([]);
         var dynamicExtractFeatures = RoadSegmentUnflattener.UnflattenByRoadSegmentId(extractFeatures,  ogcFeaturesCache, context, _logger);
 
         var streetNameContext = await _streetNameContextFactory.Create(changeFeatures, cancellationToken);
@@ -667,13 +666,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         (changeFeatures, var maintenanceAuthorityProblems) = await ValidateMaintenanceAuthorityAndMapToInternalId(changeFeatures, cancellationToken);
         problems += maintenanceAuthorityProblems;
         return (changeFeatures, problems);
-    }
-
-    // Empty, always: the GRB features are consulted to work out a geometry method for segments that were collected
-    // without one, which is an inwinning concern. A delivery through this flow states its own METHODE.
-    private Task<OgcFeaturesCache> GetOgcFeaturesCache(ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
-    {
-        return Task.FromResult(new OgcFeaturesCache([]));
     }
 
     private static ZipArchiveProblems GetProblemsForStreetNameId(IDbaseFileRecordProblemBuilder recordContext, StreetNameLocalId? id, bool leftSide, IRoadSegmentFeatureCompareStreetNameContext streetNameContext)

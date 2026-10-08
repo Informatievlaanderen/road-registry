@@ -12,10 +12,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
     using RoadRegistry.BackOffice.FeatureCompare.V1;
     using RoadRegistry.BackOffice.FeatureCompare.V1.Readers;
     using RoadRegistry.BackOffice.Uploads;
-    using RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2;
+    using RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.Inwinning;
     using RoadRegistry.Extensions;
     using RoadRegistry.Extracts;
-    using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
+    using RoadRegistry.Extracts.FeatureCompare.Inwinning.RoadSegment;
     using RoadRegistry.Extracts.Uploads;
     using Xunit.Abstractions;
     using RoadSegmentFeatureCompareFeatureReader = RoadRegistry.BackOffice.FeatureCompare.V1.Readers.RoadSegmentFeatureCompareFeatureReader;
