@@ -1,3 +1,10 @@
+## [5.23.3](https://github.com/informatievlaanderen/road-registry/compare/v5.23.2...v5.23.3) (2026-10-08)
+
+
+### Bug Fixes
+
+* **projections:** index the road segment maintainer and order the batched paging ([9f5d0da](https://github.com/informatievlaanderen/road-registry/commit/9f5d0da3c244328b4f646f7be08015d3d6288d44))
+
 ## [5.23.2](https://github.com/informatievlaanderen/road-registry/compare/v5.23.1...v5.23.2) (2026-10-08)
 
 
