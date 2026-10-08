@@ -46,7 +46,7 @@ public static class SetupExtensions
                 options.Connection(new NpgsqlDataSourceBuilder(connectionString)
                     .UseNetTopologySuite()
                     .Build());
-                options.ConfigureRoad();
+                options.ConfigureRoad(configuration.GetValue<TimeSpan?>("Marten:StaleSequenceThreshold"));
                 options.ConfigureGeneratedCode(sp.GetService<IHostEnvironment>());
                 configure?.Invoke(options, sp);
 
@@ -104,9 +104,27 @@ public static class SetupExtensions
         return null;
     }
 
-    public static void ConfigureRoad(this StoreOptions options)
+    // How long Marten waits before it decides that a gap in mt_events.seq_id is permanent and moves the high water
+    // mark past it. The sequence is handed out by nextval at INSERT time, inside the transaction, so a write that is
+    // slow to commit leaves a gap that looks exactly like one left behind by a transaction that rolled back. Marten
+    // tells the two apart by time alone, and its default of three seconds is nowhere near what one commit takes here:
+    // the lambda appends a whole change set and runs the inline topology projection in that same transaction.
+    //
+    // Once the mark has jumped a gap, the events that commit late land below it, and the async daemon only ever reads
+    // upwards from its position - so no projection sees them, then or ever. On 2026-10-08 that cost the read, extract,
+    // pbs and wms/wfs projections 6922 events in one go, 2004 road segments among them, while the inline topology
+    // projection kept everything because it writes inside the same transaction as the events.
+    //
+    // What this buys is a stall instead of a loss: a gap that really is permanent now holds the async projections back
+    // for this long before Marten skips it. That is the right way round - a stall is visible and heals itself, a skip
+    // is silent and forever.
+    public static readonly TimeSpan DefaultStaleSequenceThreshold = TimeSpan.FromMinutes(5);
+
+    public static void ConfigureRoad(this StoreOptions options, TimeSpan? staleSequenceThreshold = null)
     {
         options.DatabaseSchemaName = WellKnownSchemas.MartenEventStore;
+
+        options.Projections.StaleSequenceThreshold = staleSequenceThreshold ?? DefaultStaleSequenceThreshold;
 
         options.AutoCreateSchemaObjects = AutoCreate.None;
 
