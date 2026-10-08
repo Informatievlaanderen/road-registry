@@ -1,3 +1,10 @@
+## [5.23.5](https://github.com/informatievlaanderen/road-registry/compare/v5.23.4...v5.23.5) (2026-10-08)
+
+
+### Bug Fixes
+
+* **projector:** keep the Slack sink when replacing the logging providers ([f580790](https://github.com/informatievlaanderen/road-registry/commit/f580790ff9fc7635c8e11a08854cd7e3a507ea86))
+
 ## [5.23.4](https://github.com/informatievlaanderen/road-registry/compare/v5.23.3...v5.23.4) (2026-10-08)
 
 
