@@ -1,3 +1,10 @@
+## [5.23.4](https://github.com/informatievlaanderen/road-registry/compare/v5.23.3...v5.23.4) (2026-10-08)
+
+
+### Performance Improvements
+
+* **wmswfs:** add correct spatial index + clustered index ([3fa0bc0](https://github.com/informatievlaanderen/road-registry/commit/3fa0bc0e2841e99cc60625e6c2764394d93620f8))
+
 ## [5.23.3](https://github.com/informatievlaanderen/road-registry/compare/v5.23.2...v5.23.3) (2026-10-08)
 
 
