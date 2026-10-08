@@ -201,6 +201,30 @@ public class SwaggerTests
         }
     }
 
+    // A read property that can legitimately come back null must not be documented as required: a generated client
+    // then types it as non-nullable and trips over the null the endpoint is entitled to return. Both the C# required
+    // modifier and a Newtonsoft Required.AllowNull / DisallowNull put a property in the schema's required list, so a
+    // nullable read property must carry neither.
+    [Fact]
+    public void GetV2_NullableReadPropertiesAreNotRequired()
+    {
+        var serviceProvider = BuildApiServiceProvider();
+        var schemaGenerator = serviceProvider.GetRequiredService<ISchemaGenerator>();
+
+        var schemaRepository = new SchemaRepository();
+        schemaGenerator.GenerateSchema(typeof(WegsegmentV2Detail), schemaRepository);
+
+        // A segment without a start or end node (an ingeschetst segment) reports them as null.
+        var wegsegment = schemaRepository.Schemas[nameof(WegsegmentV2Detail)];
+        wegsegment.Required.Should().NotContain("beginknoop");
+        wegsegment.Required.Should().NotContain("eindknoop");
+
+        // A part of a segment that has no street name linked reports straatnaam as null.
+        var straatnaam = schemaRepository.Schemas["WegsegmentStraatnaamAttribuutWaarde"];
+        straatnaam.Properties.Keys.Should().Equal("kant", "vanPositie", "totPositie", "straatnaam");
+        straatnaam.Required.Should().BeEquivalentTo(new[] { "kant", "vanPositie", "totPositie" });
+    }
+
     private static Type? FindEnumSchemaFilterBase(Type? schemaFilterType)
     {
         while (schemaFilterType is not null)
