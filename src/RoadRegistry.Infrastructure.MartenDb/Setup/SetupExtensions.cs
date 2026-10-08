@@ -111,13 +111,18 @@ public static class SetupExtensions
     // the lambda appends a whole change set and runs the inline topology projection in that same transaction.
     //
     // Once the mark has jumped a gap, the events that commit late land below it, and the async daemon only ever reads
-    // upwards from its position - so no projection sees them, then or ever. On 2026-10-08 that cost the read, extract,
-    // pbs and wms/wfs projections 6922 events in one go, 2004 road segments among them, while the inline topology
-    // projection kept everything because it writes inside the same transaction as the events.
+    // upwards from its position - so no projection would see them, then or ever.
     //
-    // What this buys is a stall instead of a loss: a gap that really is permanent now holds the async projections back
-    // for this long before Marten skips it. That is the right way round - a stall is visible and heals itself, a skip
-    // is silent and forever.
+    // This is defence in depth, not the fix for anything observed: the loss of 2026-10-08 was the unbounded tail fetch
+    // in RoadNetworkChangesProjection, and Marten cannot currently skip here at all, because the skip runs through
+    // mt_mark_progression_with_skip and neither that function nor mt_high_water_skips exists in our schema (they are
+    // created at runtime, which AutoCreate.None blocks, and Marten's model does not declare them so the migration
+    // generator never emitted them either). Should those objects ever be added, this keeps the default of three
+    // seconds - far below one inwinning commit - from turning a slow transaction into silent data loss.
+    //
+    // What it buys is a stall instead of a loss: a gap that really is permanent holds the async projections back for
+    // this long before Marten skips it. That is the right way round - a stall is visible and heals itself, a skip is
+    // silent and forever.
     public static readonly TimeSpan DefaultStaleSequenceThreshold = TimeSpan.FromMinutes(5);
 
     public static void ConfigureRoad(this StoreOptions options, TimeSpan? staleSequenceThreshold = null)
