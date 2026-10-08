@@ -102,6 +102,9 @@ public class ExtractDownloadaanvraagPerContourBodyValidatorTests
 
     [Theory]
     [InlineData("invalid")]
+    // A sliver whose ring crosses itself around (194233.64, 206922.22): the per-contour endpoint already turned this
+    // one away, the shape file endpoint did not, and the extract it produced brought down the lambda.
+    [InlineData("MULTIPOLYGON (((194477.00366637472 206971.83339355365, 194469.6805155593 206969.91542548305, 194452.85470475757 206975.14624749395, 193640.4208660975 206778.9904220851, 193345.57686541631 206711.33845741072, 193326.39718470967 206705.75891393243, 193324.3048559053 206719.18469042706, 193409.567254683 206737.66692819892, 193820.53550400632 206827.11398458539, 194105.96402506795 206891.80181678684, 194197.32904952508 206912.02766189564, 194470.37795849424 206988.65920435538, 194475.26005903777 206978.19756033356, 194477.00366637472 206971.83339355365)))")]
     public async Task WhenContourIsInvalid_ThenError(string contour)
     {
         var result = await _validator.ValidateAsync(new ExtractDownloadaanvraagPerContourBody(contour, ValidDescription, false, null));

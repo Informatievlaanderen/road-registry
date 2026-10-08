@@ -57,6 +57,21 @@ public partial class ExtractenController
             await validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var contour = shpFileContourReader.Read(request.ShpFile.ReadStream, WellKnownGeometryFactories.Lambert72WithoutMAndZ).ToMultiPolygon();
+
+            // The shape file reader only reports what it could not read at all - a shape type that is not a polygon,
+            // mixed projections - so a contour that reads fine but does not hold up as a geometry, a ring crossing
+            // itself for instance, has to be caught here. Same rule as the contour taken as WKT: an invalid one would
+            // be stored and only fail once the extract is being assembled.
+            if (!new ExtractContourValidator().IsValid(contour))
+            {
+                throw new ValidationException([new ValidationFailure
+                {
+                    PropertyName = nameof(request.ShpFile),
+                    ErrorCode = ProblemCode.Extract.ContourInvalid,
+                    ErrorMessage = "Contour is ongeldig."
+                }]);
+            }
+
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
 

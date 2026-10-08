@@ -8,10 +8,12 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Utilities;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.ValueObjects.ProblemCodes;
 
 public class ExtractRequester
 {
@@ -43,8 +45,8 @@ public class ExtractRequester
         _logger.LogInformation("Building extract for ZipArchiveWriterVersion '{ZipArchiveWriterVersion}'", zipArchiveWriterVersion);
 
         var extractRequestId = request.ExtractRequestId;
-        var contour = request.Contour;
         var downloadId = request.DownloadId;
+        var contour = EnsureValidContour(request.Contour, downloadId);
         var extractDescription = new ExtractDescription(request.Description);
         var isInformative = request.IsInformative;
 
@@ -120,6 +122,40 @@ public class ExtractRequester
         {
             await _extractsDbContext.SaveChangesAsync(cancellationToken);
         }
+    }
+
+    // Last line of defence before the contour is stored. The endpoints reject a contour the caller handed us, but one
+    // we derived ourselves - a municipality boundary, a reprojected contour - never went through that, and
+    // NetTopologySuite calling a geometry valid is no promise that SQL Server will. An invalid contour stored here
+    // fails the spatial query that assembles this extract, and keeps failing the overlap check of every extract
+    // requested after it, so it is corrected here rather than left to break both.
+    private Geometry EnsureValidContour(MultiPolygon contour, DownloadId downloadId)
+    {
+        if (contour.IsValid)
+        {
+            return contour;
+        }
+
+        var correctedContour = GeometryFixer.Fix(contour);
+        if (correctedContour.IsEmpty || correctedContour is not (Polygon or MultiPolygon))
+        {
+            throw new ValidationException([
+                new ValidationFailure
+                {
+                    PropertyName = nameof(RequestExtractData.Contour),
+                    ErrorCode = ProblemCode.Extract.ContourInvalid,
+                    ErrorMessage = "Contour is ongeldig."
+                }
+            ]);
+        }
+
+        _logger.LogWarning(
+            "Contour of download {DownloadId} was not a valid geometry and has been corrected, its area went from {OriginalArea} to {CorrectedArea}",
+            downloadId,
+            contour.Area,
+            correctedContour.Area);
+
+        return correctedContour;
     }
 
     private async Task<MemoryStream> BuildArchive(
