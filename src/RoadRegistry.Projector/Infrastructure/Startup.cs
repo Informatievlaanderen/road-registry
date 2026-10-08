@@ -123,7 +123,7 @@ public class Startup
                 }
             })
             .AddValidatorsFromAssemblyContaining<Startup>()
-            .RegisterLoggingModule(_configuration)
+            .RegisterLoggingModule()
             .AddSingleton(projectionOptions)
 
             .AddDbContext<EditorContext>(WellKnownConnectionNames.EditorProjections)
