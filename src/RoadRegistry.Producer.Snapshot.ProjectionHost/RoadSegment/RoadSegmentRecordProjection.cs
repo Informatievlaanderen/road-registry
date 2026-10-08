@@ -593,6 +593,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
         {
             await context.RoadSegments.IncludeLocalForEachBatchAsync(q =>
                     q.Where(x => x.MaintainerId == organizationId),
+                x => x.Id,
                 5000,
                 async dbRecords =>
                 {
@@ -613,6 +614,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
         {
             await context.RoadSegments.IncludeLocalForEachBatchAsync(q =>
                     q.Where(x => x.LeftSideStreetNameId == streetNameLocalId || x.RightSideStreetNameId == streetNameLocalId),
+                x => x.Id,
                 5000,
                 async dbRecords =>
                 {
