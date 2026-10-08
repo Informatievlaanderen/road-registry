@@ -202,9 +202,11 @@ public class SwaggerTests
     }
 
     // A read property that can legitimately come back null must not be documented as required: a generated client
-    // then types it as non-nullable and trips over the null the endpoint is entitled to return. Both the C# required
-    // modifier and a Newtonsoft Required.AllowNull / DisallowNull put a property in the schema's required list, so a
-    // nullable read property must carry neither.
+    // then types it as non-nullable and trips over the null the endpoint is entitled to return. The C# required
+    // modifier, a Newtonsoft Required.Always and a Required.AllowNull each put a property in the schema's required
+    // list on their own, so a nullable read property must carry none of them. Required.DisallowNull does not: it only
+    // forbids a null value, which is why vanPositie and totPositie below are required by their required modifier
+    // alone.
     [Fact]
     public void GetV2_NullableReadPropertiesAreNotRequired()
     {
