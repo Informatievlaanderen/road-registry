@@ -1,3 +1,11 @@
+## [5.23.2](https://github.com/informatievlaanderen/road-registry/compare/v5.23.1...v5.23.2) (2026-10-08)
+
+
+### Bug Fixes
+
+* **2.0:** do not document nullable read properties as required ([b9106d5](https://github.com/informatievlaanderen/road-registry/commit/b9106d5802530563e27335c708240a92a98a394e))
+* **extracten:** reject an invalid contour on a request by shape file ([bcc2d3e](https://github.com/informatievlaanderen/road-registry/commit/bcc2d3e3b24817178b29adfc29c95c63fe49da27))
+
 ## [5.23.1](https://github.com/informatievlaanderen/road-registry/compare/v5.23.0...v5.23.1) (2026-10-01)
 
 
