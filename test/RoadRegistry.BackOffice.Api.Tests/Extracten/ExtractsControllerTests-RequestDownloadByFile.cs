@@ -101,13 +101,21 @@ public partial class ExtractsControllerTests
     }
 
     [Fact]
-    public async Task WhenRequestExtractByFile_WithContourLargerThanMaximum_ThenValidationException()
+    public async Task WhenRequestExtractByFile_WithContourLargerThanTheWktMaximum_ThenAcceptedResult()
     {
+        // The 200km2 limit belongs to the contour taken as WKT. The contours GRB sends in as a shape file run well
+        // past it - a stored one measures close to 300km2 - so holding this endpoint to that limit would turn away
+        // exactly the requests it exists for. Only the geometry is checked here.
+        var locationResult = Fixture.Create<LocationResult>();
+        Mediator
+            .Setup(x => x.Send(It.IsAny<RequestExtractSqsRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(locationResult);
+
         var validator = new ExtractDownloadaanvraagPerBestandValidator(Encoding.UTF8);
         var shpFileContourReader = new Mock<IExtractShapefileContourReader>();
         shpFileContourReader
             .Setup(x => x.Read(It.IsAny<Stream>(), It.IsAny<GeometryFactory>()))
-            .Returns(new WKTReader().Read("POLYGON ((0 0, 0 20000, 20000 20000, 20000 0, 0 0))")); // 400km2, twice what is accepted
+            .Returns(new WKTReader().Read("POLYGON ((0 0, 0 20000, 20000 20000, 20000 0, 0 0))")); // 400km2, twice the WKT maximum
 
         var bestanden = new FormFileCollection
         {
@@ -115,14 +123,14 @@ public partial class ExtractsControllerTests
             await EmbeddedResourceReader.ReadFormFileAsync("polygon.prj", "application/octet-stream", CancellationToken.None)
         };
 
-        var act = () => Controller.ExtractDownloadaanvraagPerBestand(
+        var result = await Controller.ExtractDownloadaanvraagPerBestand(
             new ExtractDownloadaanvraagPerBestandBody(Fixture.Create<string>(), bestanden, true),
             validator,
             shpFileContourReader.Object,
             new UseDomainV2FeatureToggle(false));
 
-        var ex = (await act.Should().ThrowAsync<ValidationException>()).Which;
-        ex.Errors.Should().ContainSingle(e => e.ErrorCode == "ExtractContourInvalid");
+        Assert.IsType<AcceptedResult>(result);
+        Mediator.Verify(x => x.Send(It.IsAny<RequestExtractSqsRequest>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

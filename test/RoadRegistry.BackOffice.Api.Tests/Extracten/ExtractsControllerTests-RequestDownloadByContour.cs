@@ -115,6 +115,21 @@ public class ExtractDownloadaanvraagPerContourBodyValidatorTests
         error.ErrorCode.Should().Be("ExtractContourInvalid");
     }
 
+    [Fact]
+    public async Task WhenContourIsLargerThanMaximum_ThenError()
+    {
+        // 400km2, twice the maximum. This limit is deliberately not shared with the request by shape file: the
+        // contours GRB sends in that way run well past it.
+        const string contour = "MULTIPOLYGON (((0 0, 0 20000, 20000 20000, 20000 0, 0 0)))";
+
+        var result = await _validator.ValidateAsync(new ExtractDownloadaanvraagPerContourBody(contour, ValidDescription, false, null));
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Count.Should().Be(1);
+        var error = result.Errors.First();
+        error.ErrorCode.Should().Be("ExtractContourInvalid");
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]

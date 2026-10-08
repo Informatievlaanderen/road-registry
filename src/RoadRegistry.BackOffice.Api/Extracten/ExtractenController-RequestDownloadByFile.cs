@@ -60,9 +60,12 @@ public partial class ExtractenController
 
             // The shape file reader only reports what it could not read at all - a shape type that is not a polygon,
             // mixed projections - so a contour that reads fine but does not hold up as a geometry, a ring crossing
-            // itself for instance, has to be caught here. Same rule as the contour taken as WKT: an invalid one would
-            // be stored and only fail once the extract is being assembled.
-            if (!new ExtractContourValidator().IsValid(contour))
+            // itself for instance, has to be caught here. Without it the contour is stored and only fails once the
+            // extract is being assembled.
+            //
+            // Only the geometry is checked, not its size: the contours arriving here go well past the limit the WKT
+            // contour is held to, so applying it would turn away the very requests this endpoint exists for.
+            if (!new ExtractContourValidator().IsValidGeometry(contour))
             {
                 throw new ValidationException([new ValidationFailure
                 {
