@@ -67,8 +67,7 @@ public partial class ExtractenController
                 throw new ValidationException([new ValidationFailure
                 {
                     PropertyName = nameof(request.ShpFile),
-                    ErrorCode = ProblemCode.Extract.ContourInvalid,
-                    ErrorMessage = "Contour is ongeldig."
+                    ErrorCode = ProblemCode.Extract.ContourInvalid
                 }]);
             }
 

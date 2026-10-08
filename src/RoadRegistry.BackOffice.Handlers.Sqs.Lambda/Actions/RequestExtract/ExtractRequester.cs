@@ -129,22 +129,23 @@ public class ExtractRequester
     // NetTopologySuite calling a geometry valid is no promise that SQL Server will. An invalid contour stored here
     // fails the spatial query that assembles this extract, and keeps failing the overlap check of every extract
     // requested after it, so it is corrected here rather than left to break both.
-    private Geometry EnsureValidContour(MultiPolygon contour, DownloadId downloadId)
+    private MultiPolygon EnsureValidContour(MultiPolygon contour, DownloadId downloadId)
     {
         if (contour.IsValid)
         {
             return contour;
         }
 
-        var correctedContour = GeometryFixer.Fix(contour);
-        if (correctedContour.IsEmpty || correctedContour is not (Polygon or MultiPolygon))
+        // isKeepMulti the way every other contour correction in GeometryTranslator asks for it, so the result stays a
+        // MultiPolygon even where the correction leaves a single ring. A contour that corrects to nothing at all is
+        // not something we can store, and nothing downstream could make sense of it either.
+        if (GeometryFixer.Fix(contour, isKeepMulti: true) is not MultiPolygon correctedContour || correctedContour.IsEmpty)
         {
             throw new ValidationException([
                 new ValidationFailure
                 {
                     PropertyName = nameof(RequestExtractData.Contour),
-                    ErrorCode = ProblemCode.Extract.ContourInvalid,
-                    ErrorMessage = "Contour is ongeldig."
+                    ErrorCode = ProblemCode.Extract.ContourInvalid
                 }
             ]);
         }
