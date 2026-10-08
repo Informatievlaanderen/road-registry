@@ -13,7 +13,6 @@ using FeatureToggles;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
@@ -109,26 +108,5 @@ public class ExtractDownloadaanvraagPerContourBodyValidator : AbstractValidator<
                 .Must(ExternalExtractRequestId.AcceptsValue)
                 .WithProblemCode(ProblemCode.Extract.ExterneIdInvalid);
         });
-    }
-
-    private sealed class ExtractContourValidator
-    {
-        private const int SquareKmMaximum = 200; // The UI will limit on 100km2, and GRB as well. This is set higher to ensure the buffered GRB geometry will always be accepted.
-
-        public bool IsValid(string contour)
-        {
-            try
-            {
-                var reader = new WKTReader();
-                var geometry = reader.Read(contour);
-                return geometry.IsValid
-                       && (geometry is Polygon || geometry is MultiPolygon)
-                       && geometry.Area <= (SquareKmMaximum * 1000 * 1000);
-            }
-            catch
-            {
-                return false;
-            }
-        }
     }
 }

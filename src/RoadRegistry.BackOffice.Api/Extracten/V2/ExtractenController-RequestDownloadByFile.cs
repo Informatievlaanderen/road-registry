@@ -22,6 +22,7 @@ using RoadRegistry.Extracts;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using Swashbuckle.AspNetCore.Annotations;
+using ValueObjects.ProblemCodes;
 using Version = Infrastructure.Version;
 
 public partial class ExtractenController
@@ -51,7 +52,29 @@ public partial class ExtractenController
             var request = new ExtractDownloadaanvraagPerBestand(BuildRequestItem(".shp"), BuildRequestItem(".prj"), body.Beschrijving, body.Informatief);
             await validator.ValidateAndThrowAsync(request, cancellationToken);
 
-            var contour = shpFileContourReader.Read(request.ShpFile.ReadStream, WellKnownGeometryFactories.Lambert72WithoutMAndZ).ToMultiPolygon().EnsureLambert08();
+            var contour = shpFileContourReader.Read(request.ShpFile.ReadStream, WellKnownGeometryFactories.Lambert72WithoutMAndZ).ToMultiPolygon();
+
+            // The shape file reader only reports what it could not read at all - a shape type that is not a polygon,
+            // mixed projections - so a contour that reads fine but does not hold up as a geometry, a ring crossing
+            // itself for instance, has to be caught here. Without it the contour is stored and only fails once the
+            // extract is being assembled.
+            //
+            // Only the geometry is checked, not its size: the contours arriving here go well past the limit the WKT
+            // contour is held to, so applying it would turn away the very requests this endpoint exists for.
+            //
+            // Checked as it was read, before the reference system is changed, so a contour that was already broken is
+            // not reported as something the conversion did.
+            if (!new ExtractContourValidator().IsValidGeometry(contour))
+            {
+                throw new ValidationException([new ValidationFailure
+                {
+                    PropertyName = nameof(request.ShpFile),
+                    ErrorCode = ProblemCode.Extract.ContourInvalid
+                }]);
+            }
+
+            contour = contour.EnsureLambert08();
+
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
 

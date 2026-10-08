@@ -8,11 +8,13 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Utilities;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.ValueObjects.ProblemCodes;
 
 public class ExtractRequester
 {
@@ -44,8 +46,8 @@ public class ExtractRequester
         _logger.LogInformation("Building extract for ZipArchiveWriterVersion '{ZipArchiveWriterVersion}'", zipArchiveWriterVersion);
 
         var extractRequestId = request.ExtractRequestId;
-        var contour = request.Contour;
         var downloadId = request.DownloadId;
+        var contour = EnsureValidContour(request.Contour, downloadId);
         var extractDescription = new ExtractDescription(request.Description);
         var isInformative = request.IsInformative;
 
@@ -140,6 +142,41 @@ public class ExtractRequester
                 or WellKnownZipArchiveWriterVersions.DomainV2_Bijhouding
             ? extractGeometry.EnsureLambert08()
             : extractGeometry.EnsureLambert72()).Value;
+    }
+
+    // Last line of defence before the contour is stored. The endpoints reject a contour the caller handed us, but one
+    // we derived ourselves - a municipality boundary, a reprojected contour - never went through that, and
+    // NetTopologySuite calling a geometry valid is no promise that SQL Server will. An invalid contour stored here
+    // fails the spatial query that assembles this extract, and keeps failing the overlap check of every extract
+    // requested after it, so it is corrected here rather than left to break both.
+    private MultiPolygon EnsureValidContour(MultiPolygon contour, DownloadId downloadId)
+    {
+        if (contour.IsValid)
+        {
+            return contour;
+        }
+
+        // isKeepMulti the way every other contour correction in GeometryTranslator asks for it, so the result stays a
+        // MultiPolygon even where the correction leaves a single ring. A contour that corrects to nothing at all is
+        // not something we can store, and nothing downstream could make sense of it either.
+        if (GeometryFixer.Fix(contour, isKeepMulti: true) is not MultiPolygon correctedContour || correctedContour.IsEmpty)
+        {
+            throw new ValidationException([
+                new ValidationFailure
+                {
+                    PropertyName = nameof(RequestExtractData.Contour),
+                    ErrorCode = ProblemCode.Extract.ContourInvalid
+                }
+            ]);
+        }
+
+        _logger.LogWarning(
+            "Contour of download {DownloadId} was not a valid geometry and has been corrected, its area went from {OriginalArea} to {CorrectedArea}",
+            downloadId,
+            contour.Area,
+            correctedContour.Area);
+
+        return correctedContour;
     }
 
     private async Task<MemoryStream> BuildArchive(

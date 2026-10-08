@@ -286,14 +286,14 @@ public class WegsegmentV2Detail
     /// </summary>
     [DataMember(Name = "Beginknoop", Order = 4)]
     [JsonProperty]
-    public required WegknoopLink? Beginknoop { get; set; }
+    public WegknoopLink? Beginknoop { get; set; }
 
     /// <summary>
     ///     Eindknoop van het wegsegment.
     /// </summary>
     [DataMember(Name = "Eindknoop", Order = 5)]
     [JsonProperty]
-    public required WegknoopLink? Eindknoop { get; set; }
+    public WegknoopLink? Eindknoop { get; set; }
 
     /// <summary>
     ///     De straatnaam uit het Adressenregister gekoppeld aan het wegsegment.
@@ -549,8 +549,8 @@ public class WegsegmentStraatnaamAttribuutWaarde
     /// De straatnaam die van toepassing is op dit deel van het wegsegment.
     /// </summary>
     [DataMember(Name = "Straatnaam", Order = 4)]
-    [JsonProperty(Required = Required.AllowNull)]
-    public required StraatnaamLink? Straatnaam { get; set; }
+    [JsonProperty]
+    public StraatnaamLink? Straatnaam { get; set; }
 }
 
 /// <summary>

@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 
 public partial class ExtractsControllerTests
 {
@@ -66,6 +67,70 @@ public partial class ExtractsControllerTests
             new UseDomainV2FeatureToggle(false));
 
         await act.Should().ThrowAsync<ValidationException>();
+    }
+
+    [Fact]
+    public async Task WhenRequestExtractByFile_WithSelfIntersectingContour_ThenValidationException()
+    {
+        // A sliver drawn along a road whose ring crosses itself around (194233.64, 206922.22). The shape file reads
+        // fine, so nothing stopped it before: it was stored and brought down the lambda assembling the extract, with
+        // SQL Server refusing to run STIntersects on an invalid instance.
+        const string selfIntersectingContour = "MULTIPOLYGON (((194477.00366637472 206971.83339355365, 194469.6805155593 206969.91542548305, 194452.85470475757 206975.14624749395, 193640.4208660975 206778.9904220851, 193345.57686541631 206711.33845741072, 193326.39718470967 206705.75891393243, 193324.3048559053 206719.18469042706, 193409.567254683 206737.66692819892, 193820.53550400632 206827.11398458539, 194105.96402506795 206891.80181678684, 194197.32904952508 206912.02766189564, 194470.37795849424 206988.65920435538, 194475.26005903777 206978.19756033356, 194477.00366637472 206971.83339355365)))";
+
+        var validator = new ExtractDownloadaanvraagPerBestandValidator(Encoding.UTF8);
+        var shpFileContourReader = new Mock<IExtractShapefileContourReader>();
+        shpFileContourReader
+            .Setup(x => x.Read(It.IsAny<Stream>(), It.IsAny<GeometryFactory>()))
+            .Returns(new WKTReader().Read(selfIntersectingContour));
+
+        var bestanden = new FormFileCollection
+        {
+            await EmbeddedResourceReader.ReadFormFileAsync("polygon.shp", "application/octet-stream", CancellationToken.None),
+            await EmbeddedResourceReader.ReadFormFileAsync("polygon.prj", "application/octet-stream", CancellationToken.None)
+        };
+
+        var act = () => Controller.ExtractDownloadaanvraagPerBestand(
+            new ExtractDownloadaanvraagPerBestandBody(Fixture.Create<string>(), bestanden, true),
+            validator,
+            shpFileContourReader.Object,
+            new UseDomainV2FeatureToggle(false));
+
+        var ex = (await act.Should().ThrowAsync<ValidationException>()).Which;
+        ex.Errors.Should().ContainSingle(e => e.ErrorCode == "ExtractContourInvalid");
+        Mediator.Verify(x => x.Send(It.IsAny<RequestExtractSqsRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task WhenRequestExtractByFile_WithContourLargerThanTheWktMaximum_ThenAcceptedResult()
+    {
+        // The 200km2 limit belongs to the contour taken as WKT. The contours GRB sends in as a shape file run well
+        // past it - a stored one measures close to 300km2 - so holding this endpoint to that limit would turn away
+        // exactly the requests it exists for. Only the geometry is checked here.
+        var locationResult = Fixture.Create<LocationResult>();
+        Mediator
+            .Setup(x => x.Send(It.IsAny<RequestExtractSqsRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(locationResult);
+
+        var validator = new ExtractDownloadaanvraagPerBestandValidator(Encoding.UTF8);
+        var shpFileContourReader = new Mock<IExtractShapefileContourReader>();
+        shpFileContourReader
+            .Setup(x => x.Read(It.IsAny<Stream>(), It.IsAny<GeometryFactory>()))
+            .Returns(new WKTReader().Read("POLYGON ((0 0, 0 20000, 20000 20000, 20000 0, 0 0))")); // 400km2, twice the WKT maximum
+
+        var bestanden = new FormFileCollection
+        {
+            await EmbeddedResourceReader.ReadFormFileAsync("polygon.shp", "application/octet-stream", CancellationToken.None),
+            await EmbeddedResourceReader.ReadFormFileAsync("polygon.prj", "application/octet-stream", CancellationToken.None)
+        };
+
+        var result = await Controller.ExtractDownloadaanvraagPerBestand(
+            new ExtractDownloadaanvraagPerBestandBody(Fixture.Create<string>(), bestanden, true),
+            validator,
+            shpFileContourReader.Object,
+            new UseDomainV2FeatureToggle(false));
+
+        Assert.IsType<AcceptedResult>(result);
+        Mediator.Verify(x => x.Send(It.IsAny<RequestExtractSqsRequest>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
