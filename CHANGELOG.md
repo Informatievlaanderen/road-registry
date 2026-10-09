@@ -1,3 +1,10 @@
+# [5.25.0](https://github.com/informatievlaanderen/road-registry/compare/v5.24.0...v5.25.0) (2026-10-09)
+
+
+### Features
+
+* **marten:** add the high water skips table and the function that writes it ([26f43b4](https://github.com/informatievlaanderen/road-registry/commit/26f43b4bb13eb4c6bc34855684012bcc021d4c2c))
+
 # [5.24.0](https://github.com/informatievlaanderen/road-registry/compare/v5.23.7...v5.24.0) (2026-10-09)
 
 
