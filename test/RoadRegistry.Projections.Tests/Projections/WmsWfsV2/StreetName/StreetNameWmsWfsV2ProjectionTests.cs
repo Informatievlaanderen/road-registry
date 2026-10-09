@@ -165,4 +165,29 @@ public class StreetNameWmsWfsV2ProjectionTests
 
         Assert.Null(await scenario.Find<StreetNameCacheRecord>(1));
     }
+
+    // A create does not arrive once per key: a replay of the correlation re-delivers it. That used to be a primary
+    // key violation on StraatnaamCache that paused the shard.
+    [Fact]
+    public async Task WhenStreetNameWasCreatedTwice_ThenOneCacheRowHoldingTheLatest()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(new StreetNameWasCreated
+        {
+            StreetNameId = new StreetNameLocalId(1),
+            DutchName = "Kerkstraat",
+            Provenance = Provenance
+        });
+        await scenario.GivenAsync(new StreetNameWasCreated
+        {
+            StreetNameId = new StreetNameLocalId(1),
+            DutchName = "Dorpsstraat",
+            Provenance = Provenance
+        });
+
+        var record = await scenario.Find<StreetNameCacheRecord>(1);
+        Assert.NotNull(record);
+        Assert.Equal("Dorpsstraat", record!.Naam);
+    }
 }
