@@ -1,4 +1,4 @@
-namespace RoadRegistry.Pbs.Projections;
+﻿namespace RoadRegistry.Pbs.Projections;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,15 +54,30 @@ public class OrganizationPbsProjection : RunnerDbContextRoadNetworkChangesProjec
         return PbsPredefinedMaintenanceAuthorities.SyncAsync(session, cancellationToken);
     }
 
-    private static Task Insert(PbsContext context, string organisatieId, string? name, string? ovoCode, CancellationToken ct)
+    // Upsert, not insert. An event that creates a cache entry is not guaranteed to arrive once per key: a replay of
+    // the correlation re-delivers it, and the event stream itself can carry an import and a create for the same id.
+    // A bare Add turned either of those into a primary key violation that paused the shard - which is how
+    // RoadNetworkChangesWmsWfsV2Projection fell over on OrganisatieCache. FindAsync also sees what this batch has
+    // already added, so a duplicate inside one SaveChanges resolves here too.
+    private static async Task Insert(PbsContext context, string organisatieId, string? name, string? ovoCode, CancellationToken ct)
     {
-        context.OrganizationCache.Add(new OrganizationCacheRecord
+        var naam = name?.WithMaxLength(OrganizationName.MaxLength);
+
+        var cache = await context.OrganizationCache.FindAsync([organisatieId], ct);
+        if (cache is null)
         {
-            OrganisatieId = organisatieId,
-            Naam = name?.WithMaxLength(OrganizationName.MaxLength),
-            OvoCode = ovoCode
-        });
-        return Task.CompletedTask;
+            context.OrganizationCache.Add(new OrganizationCacheRecord
+            {
+                OrganisatieId = organisatieId,
+                Naam = naam,
+                OvoCode = ovoCode
+            });
+        }
+        else
+        {
+            cache.Naam = naam;
+            cache.OvoCode = ovoCode;
+        }
     }
 
     private static async Task Update(PbsContext context, string organisatieId, string? name, string? ovoCode, bool? isMaintainer, CancellationToken ct)

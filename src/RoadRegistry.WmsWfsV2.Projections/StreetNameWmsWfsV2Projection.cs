@@ -1,4 +1,4 @@
-namespace RoadRegistry.WmsWfsV2.Projections;
+﻿namespace RoadRegistry.WmsWfsV2.Projections;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -39,11 +39,24 @@ public class StreetNameWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPro
             Remove(context, e.Data.StreetNameId.ToInt32(), ct));
     }
 
-    private Task Insert(WmsWfsV2Context context, int id, string? naam, CancellationToken ct)
+    // Upsert, not insert. An event that creates a cache entry is not guaranteed to arrive once per key: a replay of
+    // the correlation re-delivers it, and the event stream itself can carry an import and a create for the same id.
+    // A bare Add turned either of those into a primary key violation that paused the shard - which is how
+    // RoadNetworkChangesWmsWfsV2Projection fell over on OrganisatieCache. FindAsync also sees what this batch has
+    // already added, so a duplicate inside one SaveChanges resolves here too.
+    private async Task Insert(WmsWfsV2Context context, int id, string? naam, CancellationToken ct)
     {
-        context.StreetNameCache.Add(new StreetNameCacheRecord { StraatnaamId = id, Naam = naam });
+        var cache = await context.StreetNameCache.FindAsync([id], ct);
+        if (cache is null)
+        {
+            context.StreetNameCache.Add(new StreetNameCacheRecord { StraatnaamId = id, Naam = naam });
+        }
+        else
+        {
+            cache.Naam = naam;
+        }
+
         _labelCache.SetStreetName(id, naam);
-        return Task.CompletedTask;
     }
 
     private async Task Update(WmsWfsV2Context context, int id, string? naam, CancellationToken ct)

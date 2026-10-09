@@ -57,17 +57,32 @@ public class OrganizationWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesP
         });
     }
 
-    private Task Insert(WmsWfsV2Context context, string organisatieId, string? name, string? ovoCode, CancellationToken ct)
+    // Upsert, not insert. An event that creates a cache entry is not guaranteed to arrive once per key: a replay of
+    // the correlation re-delivers it, and the event stream itself can carry an import and a create for the same id.
+    // A bare Add turned either of those into a primary key violation that paused the shard - which is how
+    // RoadNetworkChangesWmsWfsV2Projection fell over on OrganisatieCache. FindAsync also sees what this batch has
+    // already added, so a duplicate inside one SaveChanges resolves here too.
+    private async Task Insert(WmsWfsV2Context context, string organisatieId, string? name, string? ovoCode, CancellationToken ct)
     {
         var naam = name?.WithMaxLength(OrganizationName.MaxLength);
-        context.OrganizationCache.Add(new OrganizationCacheRecord
+
+        var cache = await context.OrganizationCache.FindAsync([organisatieId], ct);
+        if (cache is null)
         {
-            OrganisatieId = organisatieId,
-            Naam = naam,
-            OvoCode = ovoCode
-        });
+            context.OrganizationCache.Add(new OrganizationCacheRecord
+            {
+                OrganisatieId = organisatieId,
+                Naam = naam,
+                OvoCode = ovoCode
+            });
+        }
+        else
+        {
+            cache.Naam = naam;
+            cache.OvoCode = ovoCode;
+        }
+
         _labelCache.SetOrganization(organisatieId, naam);
-        return Task.CompletedTask;
     }
 
     private async Task Update(WmsWfsV2Context context, string organisatieId, string? name, string? ovoCode, bool? isMaintainer, CancellationToken ct)
