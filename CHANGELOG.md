@@ -1,3 +1,10 @@
+## [5.23.7](https://github.com/informatievlaanderen/road-registry/compare/v5.23.6...v5.23.7) (2026-10-09)
+
+
+### Bug Fixes
+
+* **projections:** bound the correlation tail fetch by the high water mark ([b33ffcf](https://github.com/informatievlaanderen/road-registry/commit/b33ffcfaa703e8afe9128f38cbeeddc1c930a397))
+
 ## [5.23.6](https://github.com/informatievlaanderen/road-registry/compare/v5.23.5...v5.23.6) (2026-10-09)
 
 
