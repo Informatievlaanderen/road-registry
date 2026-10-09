@@ -1,3 +1,10 @@
+## [5.25.2](https://github.com/informatievlaanderen/road-registry/compare/v5.25.1...v5.25.2) (2026-10-09)
+
+
+### Bug Fixes
+
+* **projections:** drop the created-event shortcuts in the node and segment projections ([4079995](https://github.com/informatievlaanderen/road-registry/commit/4079995a4c95e9a29c1bfc5feb8e78791778cd92))
+
 ## [5.25.1](https://github.com/informatievlaanderen/road-registry/compare/v5.25.0...v5.25.1) (2026-10-09)
 
 
