@@ -311,4 +311,57 @@ public class OrganizationPbsProjectionTests
         Assert.Equal("niet gekend", unknown.LBLBEHEER);
         Assert.Null(unknown.OVOCODE);
     }
+
+    // A create or import does not arrive once per key: a replay of the correlation re-delivers it, and the stream can
+    // carry an import and a create for the same organization. Both used to be a primary key violation on
+    // OrganisatieCache that paused the shard, so both are pinned here.
+    [Fact]
+    public async Task WhenOrganizationWasImportedAndThenCreated_ThenOneCacheRowHoldingTheLatest()
+    {
+        var scenario = Scenario();
+        var organizationId = OrganizationId;
+
+        await scenario.GivenAsync(new OrganizationWasImported
+        {
+            OrganizationId = organizationId,
+            Name = "Imported org",
+            Provenance = Provenance
+        });
+        await scenario.GivenAsync(new OrganizationWasCreated
+        {
+            OrganizationId = organizationId,
+            Name = "Agentschap Wegen en Verkeer",
+            OvoCode = "OVO000001",
+            KboNumber = null,
+            Provenance = Provenance
+        });
+
+        var cache = await scenario.Find<OrganizationCacheRecord>(organizationId.ToString());
+        Assert.NotNull(cache);
+        Assert.Equal("Agentschap Wegen en Verkeer", cache!.Naam);
+        Assert.Equal("OVO000001", cache.OvoCode);
+    }
+
+    [Fact]
+    public async Task WhenOrganizationWasCreatedTwice_ThenOneCacheRowHoldingTheLatest()
+    {
+        var scenario = Scenario();
+        var organizationId = OrganizationId;
+
+        for (var i = 0; i < 2; i++)
+        {
+            await scenario.GivenAsync(new OrganizationWasCreated
+            {
+                OrganizationId = organizationId,
+                Name = "Agentschap Wegen en Verkeer",
+                OvoCode = "OVO000001",
+                KboNumber = null,
+                Provenance = Provenance
+            });
+        }
+
+        var cache = await scenario.Find<OrganizationCacheRecord>(organizationId.ToString());
+        Assert.NotNull(cache);
+        Assert.Equal("Agentschap Wegen en Verkeer", cache!.Naam);
+    }
 }
