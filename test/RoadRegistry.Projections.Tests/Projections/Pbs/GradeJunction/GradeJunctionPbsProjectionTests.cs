@@ -218,4 +218,35 @@ public class GradeJunctionPbsProjectionTests
 
         Assert.Null(await scenario.Find<GradeJunctionRecord>(1));
     }
+
+    // A created event is not guaranteed to arrive once per id: a replay from before the projection-state position -
+    // a recovery, a rebuild - delivers it again. That used to be a primary key violation on the crossings table that
+    // paused the shard, which is how this projection fell over during the 2026-10-08 recovery.
+    [Fact]
+    public async Task WhenGradeJunctionWasAddedTwice_ThenOneRowHoldingTheLatest()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(new GradeJunctionWasAdded
+        {
+            GradeJunctionId = new GradeJunctionId(1),
+            RoadSegmentId1 = new RoadSegmentId(1),
+            RoadSegmentId2 = new RoadSegmentId(2),
+            Geometry = JunctionPoint((50, 50)),
+            Provenance = Provenance
+        });
+        await scenario.GivenAsync(new GradeJunctionWasAdded
+        {
+            GradeJunctionId = new GradeJunctionId(1),
+            RoadSegmentId1 = new RoadSegmentId(1),
+            RoadSegmentId2 = new RoadSegmentId(3),
+            Geometry = JunctionPoint((60, 60)),
+            Provenance = Provenance
+        });
+
+        var junction = await scenario.Find<GradeJunctionRecord>(1);
+        Assert.NotNull(junction);
+        Assert.Equal(3, junction!.WS2_OIDN);
+        Assert.Equal(60.0, junction.GEOMETRIE!.Coordinate.X, 3);
+    }
 }
