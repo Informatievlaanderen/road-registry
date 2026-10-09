@@ -1,6 +1,9 @@
-namespace RoadRegistry.Pbs.Projections;
+﻿namespace RoadRegistry.Pbs.Projections;
 
+using System;
+using System.Threading;
 using System.Threading.Tasks;
+using NetTopologySuite.Geometries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using JasperFx.Events;
@@ -14,37 +17,15 @@ public class GradeJunctionPbsProjection : RunnerDbContextRoadNetworkChangesProje
 {
     public GradeJunctionPbsProjection()
     {
-        // A created event means the entity does not exist yet, so insert directly without a lookup (re-delivery is
-        // guarded by the projection-state position in the base projection).
         When<IEvent<GradeJunctionWasAdded>>((context, e, ct) =>
-        {
-            context.GradeJunctions.Add(new GradeJunctionRecord
-            {
-                GK_OIDN = e.Data.GradeJunctionId.ToInt32(),
-                WS1_OIDN = e.Data.RoadSegmentId1.ToInt32(),
-                WS2_OIDN = e.Data.RoadSegmentId2.ToInt32(),
-                GEOMETRIE = e.Data.Geometry.Value.Force2D(),
-                CREATIE = e.Data.Provenance.ToPbsDate(),
-                VERSIE = e.Data.Provenance.ToPbsDate()
-            });
-            return Task.CompletedTask;
-        });
+            Write(context, e.Data.GradeJunctionId.ToInt32(), e.Data.RoadSegmentId1.ToInt32(), e.Data.RoadSegmentId2.ToInt32(),
+                e.Data.Geometry.Value.Force2D(), e.Data.Provenance.ToPbsDate(), ct));
 
         // Not a newly observed crossing: it is the one the named grade separated junction used to record, now recorded
         // as a grade junction. For this projection it is an insert all the same.
         When<IEvent<GradeJunctionWasAddedBecauseOfGradeSeparatedJunctionChange>>((context, e, ct) =>
-        {
-            context.GradeJunctions.Add(new GradeJunctionRecord
-            {
-                GK_OIDN = e.Data.GradeJunctionId.ToInt32(),
-                WS1_OIDN = e.Data.RoadSegmentId1.ToInt32(),
-                WS2_OIDN = e.Data.RoadSegmentId2.ToInt32(),
-                GEOMETRIE = e.Data.Geometry.Value.Force2D(),
-                CREATIE = e.Data.Provenance.ToPbsDate(),
-                VERSIE = e.Data.Provenance.ToPbsDate()
-            });
-            return Task.CompletedTask;
-        });
+            Write(context, e.Data.GradeJunctionId.ToInt32(), e.Data.RoadSegmentId1.ToInt32(), e.Data.RoadSegmentId2.ToInt32(),
+                e.Data.Geometry.Value.Force2D(), e.Data.Provenance.ToPbsDate(), ct));
 
         When<IEvent<GradeJunctionWasModified>>(async (context, e, ct) =>
         {
@@ -94,5 +75,28 @@ public class GradeJunctionPbsProjection : RunnerDbContextRoadNetworkChangesProje
                 context.GradeJunctions.Remove(record);
             }
         });
+    }
+
+    // Upsert, not insert. A created event is not guaranteed to arrive once per id: the projection-state position that
+    // used to guard that is a position, and a replay from before it - a recovery, a rebuild - delivers the event
+    // again. A bare Add then becomes a primary key violation that pauses the shard, which is how this projection fell
+    // over on GelijkgrondseKruisingen during the 2026-10-08 recovery. FindAsync also sees what the current batch has
+    // added, so a duplicate inside one SaveChanges resolves here too.
+    //
+    // CREATIE is set only when the row is new, so a re-applied event does not rewrite the moment the crossing first
+    // appeared.
+    private static async Task Write(PbsContext context, int id, int roadSegmentId1, int roadSegmentId2, Geometry? geometry, string timestamp, CancellationToken ct)
+    {
+        var record = await context.GradeJunctions.FindAsync([id], ct);
+        if (record is null)
+        {
+            record = new GradeJunctionRecord { GK_OIDN = id, CREATIE = timestamp };
+            context.GradeJunctions.Add(record);
+        }
+
+        record.WS1_OIDN = roadSegmentId1;
+        record.WS2_OIDN = roadSegmentId2;
+        record.GEOMETRIE = geometry;
+        record.VERSIE = timestamp;
     }
 }
