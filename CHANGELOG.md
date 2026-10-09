@@ -1,3 +1,10 @@
+## [5.25.1](https://github.com/informatievlaanderen/road-registry/compare/v5.25.0...v5.25.1) (2026-10-09)
+
+
+### Bug Fixes
+
+* **projections:** upsert the grade junction crossings instead of inserting blind ([cfa7f04](https://github.com/informatievlaanderen/road-registry/commit/cfa7f04bd7b64f4a31618ce55ae20fbacf8e5b0d)), closes [#2130](https://github.com/informatievlaanderen/road-registry/issues/2130)
+
 # [5.25.0](https://github.com/informatievlaanderen/road-registry/compare/v5.24.0...v5.25.0) (2026-10-09)
 
 
