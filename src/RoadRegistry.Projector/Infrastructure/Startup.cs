@@ -70,21 +70,6 @@ public class Startup
         return _configuration.GetSection(projectionName).Get<ProjectionCatchUpOptions>() ?? ProjectionCatchUpOptions.Default;
     }
 
-    // The options the live read model is registered with, built again for a context this host news up itself - which
-    // is how a second schema is served from the same context type, since AddDbContextFactory is keyed by that type.
-    private static DbContextOptions<TContext> BuildSqlServerOptions<TContext>(IServiceProvider sp, string connectionName, string schema)
-        where TContext : DbContext
-    {
-        var connectionString = sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(connectionName);
-
-        return new DbContextOptionsBuilder<TContext>()
-            .UseSqlServer(connectionString, o => o
-                .EnableRetryOnFailure()
-                .UseNetTopologySuite())
-            .UseSchema(schema)
-            .Options;
-    }
-
     public void ConfigureServices(IServiceCollection services)
     {
         var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
@@ -168,10 +153,6 @@ public class Startup
                 {
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesPbsProjection)}:BatchSize");
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesPbsProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<PbsContext>>(), GetCatchUpOptions(nameof(RoadNetworkChangesPbsProjection))));
-
-                    // The same projection filling the shadow schema, on the settings of the one it shadows: it is a
-                    // rebuild of that read model, so it is only interesting while it is behind the one it will replace.
-                    options.AddRoadNetworkChangesProjection(new RoadNetworkChangesPbsTempProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<TempSchemaDbContextFactory<PbsContext>>(), GetCatchUpOptions(nameof(RoadNetworkChangesPbsProjection))));
                 }
 
                 if (projectionOptions.WmsWfsV2.Enabled)
@@ -205,14 +186,7 @@ public class Startup
                 })
                 .AddSingleton<IDbMigratorFactory, PbsContextMigratorFactory>()
                 // One-time sync of the PBS enum-based code lists (Wegbeheerder code list is event-driven instead).
-                .AddHostedService<PbsCodeListSyncService>()
-                .AddSingleton(sp => new TempSchemaDbContextFactory<PbsContext>(
-                    () => new PbsContext(BuildSqlServerOptions<PbsContext>(sp, WellKnownConnectionNames.PbsProjections, WellKnownSchemas.PbsTempSchema))))
-                // The enum code lists carry no events, so a replay cannot restore them: the shadow schema needs the
-                // same sync as the live one, or it would be swapped in with empty code lists.
-                .AddHostedService(sp => new PbsCodeListSyncService(
-                    sp.GetRequiredService<TempSchemaDbContextFactory<PbsContext>>(),
-                    sp.GetRequiredService<ILogger<PbsCodeListSyncService>>()));
+                .AddHostedService<PbsCodeListSyncService>();
         }
 
         if (projectionOptions.WmsWfsV2.Enabled)
@@ -233,20 +207,6 @@ public class Startup
                     options.UseSqlServer(connectionString, o => o.EnableRetryOnFailure());
                 })
                 .AddSingleton<IDbMigratorFactory, WmsWfsV1InwinningContextMigratorFactory>();
-        }
-
-        // Before the daemon: the shadow projection writes through a model whose tables the migrations do not create.
-        if (projectionOptions.Pbs.Enabled)
-        {
-            services.AddHostedService(sp =>
-            {
-                var readModels = new List<(string Schema, Func<DbContext> CreateDbContext)>
-                {
-                    (WellKnownSchemas.PbsTempSchema, () => sp.GetRequiredService<TempSchemaDbContextFactory<PbsContext>>().CreateDbContext())
-                };
-
-                return new TempSchemaBootstrapper(readModels, sp.GetRequiredService<ILogger<TempSchemaBootstrapper>>());
-            });
         }
 
         // extracts projections until GRB has been migrated
