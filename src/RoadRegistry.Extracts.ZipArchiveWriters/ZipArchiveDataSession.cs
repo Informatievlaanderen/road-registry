@@ -8,6 +8,7 @@
     using RoadRegistry.Editor.Schema.Organizations;
     using RoadRegistry.Extensions;
     using RoadRegistry.Extracts.Projections;
+    using RoadRegistry.Extracts.Schema;
     using RoadRegistry.ScopedRoadNetwork;
     using RoadRegistry.ValueObjects;
 
@@ -16,16 +17,36 @@
         private readonly IDocumentSession _session;
         private readonly IRoadNetworkRepository _roadNetworkRepository;
         private readonly EditorContext _editorContext;
+        private readonly ExtractsDbContext _extractsDbContext;
 
         private readonly Dictionary<Geometry, RoadNetworkIds> _idsCache = [];
         private readonly Dictionary<IPolygonal, IReadOnlyList<RoadNodeExtractItem>> _roadNodesCache = [];
         private readonly Dictionary<IPolygonal, IReadOnlyList<RoadSegmentExtractItem>> _roadSegmentsCache = [];
+        private readonly Dictionary<IPolygonal, bool> _everythingIsCompleetCache = [];
 
-        public ZipArchiveDataSession(IDocumentSession session, IRoadNetworkRepository roadNetworkRepository, EditorContext editorContext)
+        public ZipArchiveDataSession(IDocumentSession session, IRoadNetworkRepository roadNetworkRepository, EditorContext editorContext, ExtractsDbContext extractsDbContext)
         {
             _session = session;
             _roadNetworkRepository = roadNetworkRepository;
             _editorContext = editorContext;
+            _extractsDbContext = extractsDbContext;
+        }
+
+        public async Task<bool> EverythingInContourIsCompleet(
+            IPolygonal contour,
+            CancellationToken cancellationToken)
+        {
+            if (_everythingIsCompleetCache.TryGetValue(contour, out var everythingIsCompleet))
+            {
+                return everythingIsCompleet;
+            }
+
+            var roadSegments = await GetRoadSegments(contour, cancellationToken);
+            var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus(roadSegments.Select(x => x.RoadSegmentId), cancellationToken);
+
+            everythingIsCompleet = inwinningsstatus.Values.All(x => x == Inwinningsstatus.Compleet);
+            _everythingIsCompleetCache[contour] = everythingIsCompleet;
+            return everythingIsCompleet;
         }
 
         public async Task<IReadOnlyList<RoadNodeExtractItem>> GetRoadNodes(

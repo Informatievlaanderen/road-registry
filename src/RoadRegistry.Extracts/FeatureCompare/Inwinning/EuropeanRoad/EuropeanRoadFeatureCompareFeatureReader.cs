@@ -1,0 +1,124 @@
+namespace RoadRegistry.Extracts.FeatureCompare.Inwinning.EuropeanRoad;
+
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Text;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Uploads;
+using Schemas.Inwinning.RoadSegments;
+
+public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<EuropeanRoadFeatureCompareAttributes>>
+{
+    private const ExtractFileName FileName = ExtractFileName.AttEuropweg;
+
+    public EuropeanRoadFeatureCompareFeatureReader(FileEncoding encoding)
+        : base(new InwinningFeatureReader(encoding))
+    {
+    }
+
+    public override (List<Feature<EuropeanRoadFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
+    {
+        var (features, problems) = base.Read(archive, featureType, context);
+
+        problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, nameof(RoadSegmentEuropeanRoadAttributeDbaseRecord.EU_OIDN), feature => feature.Attributes.Id);
+
+        return (features, problems);
+    }
+
+    private sealed class InwinningFeatureReader : ZipArchiveDbaseFeatureReader<RoadSegmentEuropeanRoadAttributeDbaseRecord, Feature<EuropeanRoadFeatureCompareAttributes>>
+    {
+        public InwinningFeatureReader(Encoding encoding)
+            : base(encoding, EuropeanRoadFeatureCompareFeatureReader.FileName, RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema)
+        {
+        }
+
+        protected override (Feature<EuropeanRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadSegmentEuropeanRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        {
+            return new DbaseRecordData
+            {
+                EU_OIDN = dbaseRecord.EU_OIDN.GetValue(),
+                EUNUMMER = dbaseRecord.EUNUMMER.GetValue(),
+                WS_TEMPID = dbaseRecord.WS_TEMPID.GetValue()
+            }.ToFeature(featureType, FileName, recordNumber);
+        }
+    }
+
+    private sealed record DbaseRecordData
+    {
+        public int? EU_OIDN { get; init; }
+        public int? WS_TEMPID { get; init; }
+        public string? EUNUMMER { get; init; }
+
+        public (Feature<EuropeanRoadFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
+        {
+            var problemBuilder = fileName
+                .AtDbaseRecord(featureType, recordNumber)
+                .WithIdentifier(nameof(EU_OIDN), EU_OIDN);
+
+            var problems = ZipArchiveProblems.None;
+
+            AttributeId ReadId()
+            {
+                if (EU_OIDN is null)
+                {
+                    problems += problemBuilder.RequiredFieldIsNull(nameof(EU_OIDN));
+                }
+                else if (AttributeId.Accepts(EU_OIDN.Value))
+                {
+                    return new AttributeId(EU_OIDN.Value);
+                }
+                else
+                {
+                    problems += problemBuilder.IdentifierZero();
+                }
+
+                return default;
+            }
+
+            RoadSegmentTempId ReadRoadSegmentId()
+            {
+                if (WS_TEMPID is null)
+                {
+                    problems += problemBuilder.RequiredFieldIsNull(nameof(WS_TEMPID));
+                }
+                else if (RoadSegmentTempId.Accepts(WS_TEMPID.Value))
+                {
+                    return new RoadSegmentTempId(WS_TEMPID.Value);
+                }
+                else
+                {
+                    problems += problemBuilder.RoadSegmentIdOutOfRange(WS_TEMPID.Value);
+                }
+
+                return default;
+            }
+
+            EuropeanRoadNumber ReadNumber()
+            {
+                if (EUNUMMER is null)
+                {
+                    problems += problemBuilder.RequiredFieldIsNull(nameof(EUNUMMER));
+                }
+                else if (EuropeanRoadNumber.TryParse(EUNUMMER, out var value))
+                {
+                    return value;
+                }
+                else
+                {
+                    problems += problemBuilder.NotEuropeanRoadNumber(EUNUMMER);
+                }
+
+                return default;
+            }
+
+            var feature = Feature.New(recordNumber, new EuropeanRoadFeatureCompareAttributes
+            {
+                Id = ReadId(),
+                RoadSegmentTempId = ReadRoadSegmentId(),
+                Number = ReadNumber()
+            });
+            return (feature, problems);
+        }
+    }
+}

@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Index.Strtree;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
-using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
+using RoadRegistry.Extracts.Schemas.DomainV2.RoadSegments;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadNode.Changes;
@@ -23,7 +23,6 @@ using TranslatedChanges = DomainV2.TranslatedChanges;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareWithFlatAttributes>
 {
-    private readonly IGrbOgcApiFeaturesDownloader _ogcApiFeaturesDownloader;
     private readonly IRoadSegmentFeatureCompareStreetNameContextFactory _streetNameContextFactory;
     private readonly IOrganizationCache _organizationCache;
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
@@ -34,13 +33,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         RoadSegmentFeatureCompareFeatureReader featureReader,
         IRoadSegmentFeatureCompareStreetNameContextFactory streetNameContextFactory,
         IOrganizationCache organizationCache,
-        IGrbOgcApiFeaturesDownloader ogcApiFeaturesDownloader,
         ILoggerFactory? loggerFactory = null)
         : base(featureReader)
     {
         _streetNameContextFactory = streetNameContextFactory;
         _organizationCache = organizationCache;
-        _ogcApiFeaturesDownloader = ogcApiFeaturesDownloader;
         _logger = loggerFactory?.CreateLogger(GetType()) ?? NullLogger.Instance;
     }
 
@@ -75,7 +72,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             .Select(x => x.Attributes.RoadSegmentId!.Value)
             .DefaultIfEmpty(new RoadSegmentId(0))
             .Max();
-        var ogcFeaturesCache = await GetOgcFeaturesCache(context, cancellationToken);
+        // Empty, always: the GRB features are consulted to work out a geometry method for segments that were
+        // collected without one, which is an inwinning concern. A delivery through this flow states its own METHODE.
+        var ogcFeaturesCache = new OgcFeaturesCache([]);
         var dynamicExtractFeatures = RoadSegmentUnflattener.UnflattenByRoadSegmentId(extractFeatures,  ogcFeaturesCache, context, _logger);
 
         var streetNameContext = await _streetNameContextFactory.Create(changeFeatures, cancellationToken);
@@ -298,14 +297,12 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     changeFeatureAttributes.Status == extractFeature.Status
                     && changeFeatureAttributes.AccessRestriction == extractFeature.AccessRestriction
                     && changeFeatureAttributes.Category == extractFeature.Category
-                    && changeFeatureAttributes.BikeAccessBackward == extractFeature.BikeAccessBackward
-                    && changeFeatureAttributes.BikeAccessForward == extractFeature.BikeAccessForward
-                    && changeFeatureAttributes.CarAccessBackward == extractFeature.CarAccessBackward
-                    && changeFeatureAttributes.CarAccessForward == extractFeature.CarAccessForward
+                    && changeFeatureAttributes.BikeTrafficDirection == extractFeature.BikeTrafficDirection
+                    && changeFeatureAttributes.CarTrafficDirection == extractFeature.CarTrafficDirection
                     && changeFeatureAttributes.MaintenanceAuthorityId == extractFeature.MaintenanceAuthorityId
                     && changeFeatureAttributes.Method == extractFeature.Method
                     && changeFeatureAttributes.Morphology == extractFeature.Morphology
-                    && changeFeatureAttributes.PedestrianAccess == extractFeature.PedestrianAccess
+                    && changeFeatureAttributes.PedestrianTrafficDirection == extractFeature.PedestrianTrafficDirection
                     && changeFeatureAttributes.StreetNameId == extractFeature.StreetNameId
                     && changeFeatureAttributes.SurfaceType == extractFeature.SurfaceType
                 );
@@ -336,9 +333,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                             FeatureType.Change,
                             changeFeature.RecordNumber,
-                            context.ZipArchiveMetadata.Inwinning
-                                ? changeFeatureAttributes
-                                : changeFeatureAttributes.OnlyChangedAttributes(extractFeature, extractFeature.Geometry),
+                            changeFeatureAttributes.OnlyChangedAttributes(extractFeature, extractFeature.Geometry),
                             changeFeature.FlatFeatures,
                             extractFeature.RoadSegmentId,
                             RecordType.Modified)
@@ -359,9 +354,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                         FeatureType.Change,
                         changeFeature.RecordNumber,
-                        context.ZipArchiveMetadata.Inwinning
-                            ? changeFeatureAttributes
-                            : changeFeatureAttributes.OnlyChangedAttributes(extractFeature, extractFeature.Geometry),
+                        changeFeatureAttributes.OnlyChangedAttributes(extractFeature, extractFeature.Geometry),
                         changeFeature.FlatFeatures,
                         extractFeature.RoadSegmentId,
                         RecordType.Modified)
@@ -499,10 +492,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             {
                 case RecordType.IdenticalIdentifier:
                 {
-                    if (context.ZipArchiveMetadata.Inwinning)
-                    {
-                        changes = changes.AppendIdenticalRoadSegmentId(record.RoadSegmentId);
-                    }
+                    // A segment the delivery leaves untouched stays as it is: nothing to record.
                     break;
                 }
                 case RecordType.ModifiedIdentifier:
@@ -511,7 +501,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     var modifyRoadSegment = new ModifyRoadSegmentChange
                     {
                         RoadSegmentIdReference = new RoadSegmentIdReference(record.RoadSegmentId, record.FlatFeatures.Select(x => x.Attributes.TempId).ToArray()),
-                        Geometry = record.GeometryChanged || context.ZipArchiveMetadata.Inwinning ? geometry : null,
+                        Geometry = record.GeometryChanged ? geometry : null,
                         GeometryDrawMethod = record.Attributes.Method,
                         Status = record.Attributes.Status,
                         AccessRestriction = record.Attributes.AccessRestriction,
@@ -520,9 +510,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         Morphology = record.Attributes.Morphology,
                         StreetNameId = record.Attributes.StreetNameId,
                         SurfaceType = record.Attributes.SurfaceType,
-                        CarTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToTrafficDirectionOrNull(record.Attributes.CarAccessForward, record.Attributes.CarAccessBackward),
-                        BikeTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToTrafficDirectionOrNull(record.Attributes.BikeAccessForward, record.Attributes.BikeAccessBackward),
-                        PedestrianTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToPedestrianTrafficDirectionOrNull(record.Attributes.PedestrianAccess)
+                        CarTrafficDirection = record.Attributes.CarTrafficDirection,
+                        BikeTrafficDirection = record.Attributes.BikeTrafficDirection,
+                        PedestrianTrafficDirection = record.Attributes.PedestrianTrafficDirection
                     };
 
                     changes = changes.AppendChange(modifyRoadSegment);
@@ -544,9 +534,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             Morphology = record.Attributes.Morphology!,
                             StreetNameId = record.Attributes.StreetNameId!,
                             SurfaceType = record.Attributes.SurfaceType!,
-                            CarTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToTrafficDirection(record.Attributes.CarAccessForward!, record.Attributes.CarAccessBackward!),
-                            BikeTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToTrafficDirection(record.Attributes.BikeAccessForward!, record.Attributes.BikeAccessBackward!),
-                            PedestrianTrafficDirection = RoadSegmentTrafficDirectionTranslation.ToPedestrianTrafficDirection(record.Attributes.PedestrianAccess!),
+                            CarTrafficDirection = record.Attributes.CarTrafficDirection!,
+                            BikeTrafficDirection = record.Attributes.BikeTrafficDirection!,
+                            PedestrianTrafficDirection = record.Attributes.PedestrianTrafficDirection!,
                             EuropeanRoadNumbers = [],
                             NationalRoadNumbers = []
                         }
@@ -676,24 +666,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         (changeFeatures, var maintenanceAuthorityProblems) = await ValidateMaintenanceAuthorityAndMapToInternalId(changeFeatures, cancellationToken);
         problems += maintenanceAuthorityProblems;
         return (changeFeatures, problems);
-    }
-
-    private async Task<OgcFeaturesCache> GetOgcFeaturesCache(ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
-    {
-        using var _ = _logger.TimeAction();
-
-        if (!context.ZipArchiveMetadata.Inwinning)
-        {
-            return new OgcFeaturesCache([]);
-        }
-
-        var ogcFeatures = await _ogcApiFeaturesDownloader.DownloadFeaturesAsync(
-            ["KNW", "WBN"],
-            context.TransactionZone.Geometry.Value.Boundary.EnvelopeInternal,
-            context.TransactionZone.Geometry.Value.SRID,
-            cancellationToken);
-
-        return new OgcFeaturesCache(ogcFeatures);
     }
 
     private static ZipArchiveProblems GetProblemsForStreetNameId(IDbaseFileRecordProblemBuilder recordContext, StreetNameLocalId? id, bool leftSide, IRoadSegmentFeatureCompareStreetNameContext streetNameContext)

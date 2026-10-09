@@ -21,7 +21,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestInwinningExtrac
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning.RoadSegment;
 using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.ZipArchiveWriters;
@@ -129,10 +129,17 @@ public class ForDebugging
                         new RecyclableMemoryStreamManager(),
                         FileEncoding.UTF8,
                         sp.GetRequiredService<ILoggerFactory>()
+                    ),
+                    new RoadRegistry.Extracts.ZipArchiveWriters.Writers.DomainV2.RoadNetworkExtractZipArchiveWriter(
+                        sp.GetRequiredService<ZipArchiveWriterOptions>(),
+                        new RecyclableMemoryStreamManager(),
+                        FileEncoding.UTF8,
+                        sp.GetRequiredService<ILoggerFactory>()
                     )),
                 sp.GetRequiredService<IDocumentStore>(),
                 new RoadNetworkRepository(sp.GetRequiredService<IDocumentStore>()),
                 sp.GetRequiredService<Func<EditorContext>>(),
+                sp.GetRequiredService<Func<ExtractsDbContext>>(),
                 new NullLoggerFactory()))
             ;
 

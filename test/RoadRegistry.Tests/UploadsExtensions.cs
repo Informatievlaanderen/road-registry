@@ -26,6 +26,16 @@ public static class UploadsExtensions
 
     public static string Describe(this Extracts.FeatureCompare.DomainV2.TranslatedChanges changes, Func<IRoadNetworkChange, IRoadNetworkChange> modifyChange = null)
     {
+        return Describe(changes.AsEnumerable(), modifyChange);
+    }
+
+    public static string Describe(this Extracts.FeatureCompare.Inwinning.TranslatedChanges changes, Func<IRoadNetworkChange, IRoadNetworkChange> modifyChange = null)
+    {
+        return Describe(changes.AsEnumerable(), modifyChange);
+    }
+
+    private static string Describe(IEnumerable<IRoadNetworkChange> changes, Func<IRoadNetworkChange, IRoadNetworkChange> modifyChange)
+    {
         var requestedChanges = changes
             .Select(change => modifyChange?.Invoke(change) ?? change)
             .ToList();

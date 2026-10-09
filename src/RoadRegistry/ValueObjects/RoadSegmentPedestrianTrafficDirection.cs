@@ -18,9 +18,15 @@ public sealed class RoadSegmentPedestrianTrafficDirection : IEquatable<RoadSegme
             new DutchTranslation(4, "geen", "Het attribuut is in geen enkele richting van toepassing.")
         );
 
+    public static readonly RoadSegmentPedestrianTrafficDirection NietGekend =
+        new(
+            nameof(NietGekend),
+            new DutchTranslation(-8, "niet gekend", "Het is niet geweten of het attribuut van toepassing is.")
+        );
+
     public static readonly RoadSegmentPedestrianTrafficDirection[] All =
     [
-        Both, None
+        Both, None, NietGekend
     ];
 
     public static readonly IReadOnlyDictionary<string, RoadSegmentPedestrianTrafficDirection> ByName =
@@ -29,6 +35,12 @@ public sealed class RoadSegmentPedestrianTrafficDirection : IEquatable<RoadSegme
     public static RoadSegmentPedestrianTrafficDirection FromAccess(bool access)
     {
         return access ? Both : None;
+    }
+
+    // '-8' in VOETGANGER: the delivery does not state whether pedestrians may use the segment.
+    public static RoadSegmentPedestrianTrafficDirection FromAccess(bool? access)
+    {
+        return access is null ? NietGekend : FromAccess(access.Value);
     }
 
     public bool IsAccessAllowed => Equals(Both);

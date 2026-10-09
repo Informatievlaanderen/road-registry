@@ -15,10 +15,10 @@ using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateDryRunRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
-using RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2;
+using RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.Inwinning;
 using RoadRegistry.Extracts;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning.RoadSegment;
 using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
@@ -79,7 +79,7 @@ public class ForDebugging
                 grbOgcApiFeaturesDownloader: new GrbOgcApiFeaturesDownloader(client, baseUrl));
             var archive = new ZipArchive(fileStream);
 
-            var zipArchiveMetadata = ZipArchiveMetadata.Empty.WithInwinning();
+            var zipArchiveMetadata = ZipArchiveMetadata.Empty;
             translatedChanges = await translator.TranslateAsync(archive, zipArchiveMetadata, CancellationToken.None);
 
             // var extractRoadSegments = new RoadSegmentFeatureCompareFeatureReader(FileEncoding.UTF8)
