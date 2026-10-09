@@ -93,6 +93,22 @@ public static class SessionExtensions
         return aggregates.AsReadOnly();
     }
 
+    // Runs a Marten Linq query and returns its results. Marten's own ToListAsync() casts the queryable to its
+    // internal MartenLinqQueryable<T>, so a plain Linq-to-Objects queryable - what the in-memory document store the
+    // unit tests run on hands out - cannot go through it. Routing read-model queries through here keeps the query
+    // expressions themselves testable without a database: in memory they are evaluated by Linq to Objects, against
+    // Postgres they are translated by Marten.
+    public static Task<IReadOnlyList<T>> ToReadOnlyListAsync<T>(this IQueryable<T> queryable, CancellationToken cancellationToken)
+        where T : notnull
+    {
+        if (queryable.Provider is EnumerableQuery)
+        {
+            return Task.FromResult<IReadOnlyList<T>>(queryable.ToList());
+        }
+
+        return queryable.ToListAsync(cancellationToken);
+    }
+
     public static async Task<long> GetHighWaterMark(this IDocumentOperations operations, CancellationToken cancellationToken)
     {
         return (await operations.AdvancedSql.QueryAsync<long>($"SELECT last_seq_id FROM {WellKnownSchemas.MartenEventStore}.mt_event_progression WHERE name = '{MartenConstants.HighWaterMarkName}'", cancellationToken)).SingleOrDefault();

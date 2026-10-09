@@ -70,6 +70,11 @@ public partial class RoadSegmentsController
             return new StatusCodeResult(StatusCodes.Status410Gone);
         }
 
+        // The segment document does not record its crossings; each crossing records the two segments it is between,
+        // so ask them.
+        var gradeJunctions = await session.FindGradeJunctionsForRoadSegment(roadSegment.RoadSegmentId, cancellationToken);
+        var gradeSeparatedJunctions = await session.FindGradeSeparatedJunctionsForRoadSegment(roadSegment.RoadSegmentId, cancellationToken);
+
         var method = roadSegment.IsV2
             ? RoadSegmentGeometryDrawMethodV2.Parse(roadSegment.GeometryDrawMethod)
             : MapToV2(RoadSegmentGeometryDrawMethod.Parse(roadSegment.GeometryDrawMethod));
@@ -95,10 +100,10 @@ public partial class RoadSegmentsController
                 ? RoadSegmentStatusV2.Parse(roadSegment.Status)
                 : MapToV2(RoadSegmentStatus.Parse(roadSegment.Status), method)).ToDutchString(),
             Beginknoop = roadSegment.StartNodeId is not null
-                ? new WegknoopLink(roadSegment.StartNodeId.Value, apiOptions.GetWegknoopDetailUrlFormat())
+                ? new WegknoopLink(new RoadNodeId(roadSegment.StartNodeId.Value), apiOptions.GetWegknoopDetailUrlFormat())
                 : null,
             Eindknoop = roadSegment.EndNodeId is not null
-                ? new WegknoopLink(roadSegment.EndNodeId.Value, apiOptions.GetWegknoopDetailUrlFormat())
+                ? new WegknoopLink(new RoadNodeId(roadSegment.EndNodeId.Value), apiOptions.GetWegknoopDetailUrlFormat())
                 : null,
             Straatnaam = roadSegment.StreetNameId.Values
                 .Select(x => new WegsegmentStraatnaamAttribuutWaarde
@@ -200,11 +205,11 @@ public partial class RoadSegmentsController
                     NationaalWegnummer = x.ToString()
                 })
                 .ToArray(),
-            GelijkgrondseKruisingen = roadSegment.GradeJunctionIds
-                .Select(x => new GelijkgrondseKruisingLink(x, apiOptions.GetGelijkgrondseKruisingDetailUrlFormat()))
+            GelijkgrondseKruisingen = gradeJunctions
+                .Select(x => new GelijkgrondseKruisingLink(x.GradeJunctionId, apiOptions.GetGelijkgrondseKruisingDetailUrlFormat()))
                 .ToArray(),
-            OngelijkgrondseKruisingen = roadSegment.GradeSeparatedJunctionIds
-                .Select(x => new OngelijkgrondseKruisingLink(x, apiOptions.GetOngelijkgrondseKruisingDetailUrlFormat()))
+            OngelijkgrondseKruisingen = gradeSeparatedJunctions
+                .Select(x => new OngelijkgrondseKruisingLink(x.GradeSeparatedJunctionId, apiOptions.GetOngelijkgrondseKruisingDetailUrlFormat()))
                 .ToArray()
         };
 

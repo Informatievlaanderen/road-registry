@@ -20,8 +20,6 @@ public class ReadRebuildDocumentCoverageTests
             typeof(StreetNameReadItem),
             typeof(RoadNodeReadItem),
             typeof(RoadSegmentReadItem),
-            typeof(StreetNameRoadSegmentsLink),
-            typeof(OrganizationRoadSegmentsLink),
             typeof(GradeSeparatedJunctionReadItem),
             typeof(GradeJunctionReadItem)
         ]);
