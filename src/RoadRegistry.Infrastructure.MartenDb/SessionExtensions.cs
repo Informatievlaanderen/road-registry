@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb;
 
+using System.Linq.Expressions;
 using BackOffice;
 using Marten;
 using GradeSeparatedJunction;
@@ -91,6 +92,42 @@ public static class SessionExtensions
         }
 
         return aggregates.AsReadOnly();
+    }
+
+    // Runs a Marten Linq query and returns its results. Marten's own ToListAsync() casts the queryable to its
+    // internal MartenLinqQueryable<T>, so a plain Linq-to-Objects queryable - what the in-memory document store the
+    // unit tests run on hands out - cannot go through it. Routing read-model queries through here keeps the query
+    // expressions themselves testable without a database: in memory they are evaluated by Linq to Objects, against
+    // Postgres they are translated by Marten.
+    public static Task<IReadOnlyList<T>> ToReadOnlyListAsync<T>(this IQueryable<T> queryable, CancellationToken cancellationToken)
+        where T : notnull
+    {
+        if (queryable.Provider is EnumerableQuery)
+        {
+            return Task.FromResult<IReadOnlyList<T>>(queryable.ToList());
+        }
+
+        return queryable.ToListAsync(cancellationToken);
+    }
+
+    // Runs a read-model query that has to be SQL rather than Linq - because Marten translates the Linq form onto
+    // something Postgres cannot answer from the index (see ReadModelQueries) - and takes the equivalent Linq
+    // predicate for the in-memory document store the unit tests run on, which cannot execute SQL. The two are the
+    // same filter written twice; the Linq one is never used against Postgres, and the integration tests cover the
+    // SQL one.
+    public static Task<IReadOnlyList<T>> QueryAsync<T>(
+        this IQuerySession session,
+        string whereFragment,
+        Expression<Func<T, bool>> inMemoryEquivalent,
+        CancellationToken cancellationToken,
+        params object[] parameters)
+        where T : notnull
+    {
+        var queryable = session.Query<T>();
+
+        return queryable.Provider is EnumerableQuery
+            ? queryable.Where(inMemoryEquivalent).ToReadOnlyListAsync(cancellationToken)
+            : session.QueryAsync<T>(whereFragment, cancellationToken, parameters);
     }
 
     public static async Task<long> GetHighWaterMark(this IDocumentOperations operations, CancellationToken cancellationToken)

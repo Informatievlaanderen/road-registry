@@ -1,8 +1,6 @@
 ﻿namespace RoadRegistry.Read.Projections;
 
 using System;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
 using GradeJunction.Events.V2;
@@ -18,44 +16,48 @@ public class GradeJunctionReadProjection : MartenRoadNetworkChangesProjection
         options.Schema.For<GradeJunctionReadItem>()
             .DatabaseSchemaName(WellKnownSchemas.MartenProjections)
             .DocumentAlias("read_gradejunctions")
-            .Identity(x => x.Id);
+            .Identity(x => x.Id)
+            // The two road segments this crossing is between, as indexed columns on the document's own table. That is
+            // what lets a road segment find its crossings without either document having to know about the other -
+            // see ReadModelQueries.
+            .Duplicate(x => x.RoadSegmentId1, configure: index => { index.Name = "ix_read_gradejunctions_roadsegmentid1"; }, notNull: true)
+            .Duplicate(x => x.RoadSegmentId2, configure: index => { index.Name = "ix_read_gradejunctions_roadsegmentid2"; }, notNull: true)
+            ;
     }
 
     public GradeJunctionReadProjection()
     {
         // V2
-        When<IEvent<GradeJunctionWasAdded>>(async (session, e, ct) =>
+        When<IEvent<GradeJunctionWasAdded>>((session, e, _) =>
         {
-            var junction = new GradeJunctionReadItem
+            session.Store(new GradeJunctionReadItem
             {
                 GradeJunctionId = e.Data.GradeJunctionId,
-                RoadSegmentId1 = new RoadSegmentId(e.Data.RoadSegmentId1),
-                RoadSegmentId2 = new RoadSegmentId(e.Data.RoadSegmentId2),
+                RoadSegmentId1 = e.Data.RoadSegmentId1,
+                RoadSegmentId2 = e.Data.RoadSegmentId2,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = true
-            };
-            session.Store(junction);
+            });
 
-            await UpdateRoadSegmentGradeJunctionIds(session, junction.GradeJunctionId, (null, null), (junction.RoadSegmentId1, junction.RoadSegmentId2), ct);
+            return Task.CompletedTask;
         });
 
         // Not a newly observed crossing: it is the one the named grade separated junction used to record, now recorded
         // as a grade junction. For this projection it is an insert all the same.
-        When<IEvent<GradeJunctionWasAddedBecauseOfGradeSeparatedJunctionChange>>(async (session, e, ct) =>
+        When<IEvent<GradeJunctionWasAddedBecauseOfGradeSeparatedJunctionChange>>((session, e, _) =>
         {
-            var junction = new GradeJunctionReadItem
+            session.Store(new GradeJunctionReadItem
             {
                 GradeJunctionId = e.Data.GradeJunctionId,
-                RoadSegmentId1 = new RoadSegmentId(e.Data.RoadSegmentId1),
-                RoadSegmentId2 = new RoadSegmentId(e.Data.RoadSegmentId2),
+                RoadSegmentId1 = e.Data.RoadSegmentId1,
+                RoadSegmentId2 = e.Data.RoadSegmentId2,
                 Origin = e.Data.Provenance.ToEventTimestamp(),
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = true
-            };
-            session.Store(junction);
+            });
 
-            await UpdateRoadSegmentGradeJunctionIds(session, junction.GradeJunctionId, (null, null), (junction.RoadSegmentId1, junction.RoadSegmentId2), ct);
+            return Task.CompletedTask;
         });
         When<IEvent<GradeJunctionWasModified>>(async (session, e, ct) =>
         {
@@ -65,14 +67,10 @@ public class GradeJunctionReadProjection : MartenRoadNetworkChangesProjection
                 throw new InvalidOperationException($"No grade junction found for Id {e.Data.GradeJunctionId}");
             }
 
-            var originalRoadSegmentIds = ((RoadSegmentId?)junction.RoadSegmentId1, (RoadSegmentId?)junction.RoadSegmentId2);
-
             junction.LastModified = e.Data.Provenance.ToEventTimestamp();
-            junction.RoadSegmentId1 = e.Data.RoadSegmentId1 ?? junction.RoadSegmentId1;
-            junction.RoadSegmentId2 = e.Data.RoadSegmentId2 ?? junction.RoadSegmentId2;
+            junction.RoadSegmentId1 = e.Data.RoadSegmentId1?.ToInt32() ?? junction.RoadSegmentId1;
+            junction.RoadSegmentId2 = e.Data.RoadSegmentId2?.ToInt32() ?? junction.RoadSegmentId2;
             session.Store(junction);
-
-            await UpdateRoadSegmentGradeJunctionIds(session, junction.GradeJunctionId, originalRoadSegmentIds, (junction.RoadSegmentId1, junction.RoadSegmentId2), ct);
         });
         When<IEvent<GradeJunctionWasRemoved>>(async (session, e, ct) =>
         {
@@ -84,8 +82,6 @@ public class GradeJunctionReadProjection : MartenRoadNetworkChangesProjection
 
             junction.IsRemoved = true;
             session.Store(junction);
-
-            await UpdateRoadSegmentGradeJunctionIds(session, junction.GradeJunctionId, (junction.RoadSegmentId1, junction.RoadSegmentId2), (null, null), ct);
         });
 
         // The crossing did not disappear: it is a grade separated junction from here on, which the grade separated
@@ -100,61 +96,7 @@ public class GradeJunctionReadProjection : MartenRoadNetworkChangesProjection
 
             junction.IsRemoved = true;
             session.Store(junction);
-
-            await UpdateRoadSegmentGradeJunctionIds(session, junction.GradeJunctionId, (junction.RoadSegmentId1, junction.RoadSegmentId2), (null, null), ct);
         });
-    }
-
-    private static async Task UpdateRoadSegmentGradeJunctionIds(
-        IDocumentOperations session,
-        GradeJunctionId gradeJunctionId,
-        (RoadSegmentId? First, RoadSegmentId? Second) originalRoadSegmentIds,
-        (RoadSegmentId? First, RoadSegmentId? Second) updatedRoadSegmentIds,
-        CancellationToken ct)
-    {
-        var roadSegmentIds = new[]
-            {
-                originalRoadSegmentIds.First,
-                originalRoadSegmentIds.Second,
-                updatedRoadSegmentIds.First,
-                updatedRoadSegmentIds.Second
-            }
-            .Where(x => x is not null)
-            .Select(x => x!.Value.ToInt32())
-            .Distinct()
-            .ToArray();
-
-        var roadSegments = await session.LoadManyAsync<RoadSegmentReadItem>(ct, roadSegmentIds);
-
-        if (originalRoadSegmentIds.First is not null)
-        {
-            var roadSegment = roadSegments.SingleOrDefault(x => x.RoadSegmentId == originalRoadSegmentIds.First.Value)
-                              ?? throw new InvalidOperationException($"No road segment found for Id {originalRoadSegmentIds.First.Value}");
-            roadSegment.GradeJunctionIds = roadSegment.GradeJunctionIds.Except([gradeJunctionId]).ToArray();
-            session.Store(roadSegment);
-        }
-        if (originalRoadSegmentIds.Second is not null)
-        {
-            var roadSegment = roadSegments.SingleOrDefault(x => x.RoadSegmentId == originalRoadSegmentIds.Second.Value)
-                              ?? throw new InvalidOperationException($"No road segment found for Id {originalRoadSegmentIds.Second.Value}");
-            roadSegment.GradeJunctionIds = roadSegment.GradeJunctionIds.Except([gradeJunctionId]).ToArray();
-            session.Store(roadSegment);
-        }
-
-        if (updatedRoadSegmentIds.First is not null)
-        {
-            var roadSegment = roadSegments.SingleOrDefault(x => x.RoadSegmentId == updatedRoadSegmentIds.First.Value)
-                              ?? throw new InvalidOperationException($"No road segment found for Id {updatedRoadSegmentIds.First.Value}");
-            roadSegment.GradeJunctionIds = roadSegment.GradeJunctionIds.Union([gradeJunctionId]).OrderBy(x => x).ToArray();
-            session.Store(roadSegment);
-        }
-        if (updatedRoadSegmentIds.Second is not null)
-        {
-            var roadSegment = roadSegments.SingleOrDefault(x => x.RoadSegmentId == updatedRoadSegmentIds.Second.Value)
-                              ?? throw new InvalidOperationException($"No road segment found for Id {updatedRoadSegmentIds.Second.Value}");
-            roadSegment.GradeJunctionIds = roadSegment.GradeJunctionIds.Union([gradeJunctionId]).OrderBy(x => x).ToArray();
-            session.Store(roadSegment);
-        }
     }
 }
 
@@ -169,8 +111,11 @@ public sealed class GradeJunctionReadItem
         set => Id = value;
     }
 
-    public required RoadSegmentId RoadSegmentId1 { get; set; }
-    public required RoadSegmentId RoadSegmentId2 { get; set; }
+    // Plain ints rather than RoadSegmentId: Marten writes a duplicated column straight from the .NET member and
+    // Npgsql has no mapping for the value object. The stored document is unchanged either way - RoadSegmentId
+    // serializes as a bare number.
+    public required int RoadSegmentId1 { get; set; }
+    public required int RoadSegmentId2 { get; set; }
 
     public required EventTimestamp Origin { get; init; }
     public required EventTimestamp LastModified { get; set; }
