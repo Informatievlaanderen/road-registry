@@ -1,3 +1,10 @@
+# [5.24.0](https://github.com/informatievlaanderen/road-registry/compare/v5.23.7...v5.24.0) (2026-10-09)
+
+
+### Features
+
+* **pbs:** promote the PBS shadow read model and stop a replay from breaking the caches ([6007cf2](https://github.com/informatievlaanderen/road-registry/commit/6007cf203270a80c9aa9ba1404506272817eeb10))
+
 ## [5.23.7](https://github.com/informatievlaanderen/road-registry/compare/v5.23.6...v5.23.7) (2026-10-09)
 
 
