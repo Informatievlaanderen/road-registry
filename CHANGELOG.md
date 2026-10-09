@@ -1,3 +1,10 @@
+## [5.23.6](https://github.com/informatievlaanderen/road-registry/compare/v5.23.5...v5.23.6) (2026-10-09)
+
+
+### Bug Fixes
+
+* **sync:** include the response body when the organisation registry refuses ([ba00ca3](https://github.com/informatievlaanderen/road-registry/commit/ba00ca34dbb5833ea9435cb0ad681f5d1d4d8afd))
+
 ## [5.23.5](https://github.com/informatievlaanderen/road-registry/compare/v5.23.4...v5.23.5) (2026-10-08)
 
 
