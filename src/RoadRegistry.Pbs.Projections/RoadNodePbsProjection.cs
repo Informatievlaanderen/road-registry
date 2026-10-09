@@ -1,4 +1,4 @@
-namespace RoadRegistry.Pbs.Projections;
+﻿namespace RoadRegistry.Pbs.Projections;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,13 +22,13 @@ public class RoadNodePbsProjection : RunnerDbContextRoadNetworkChangesProjection
         // V1
         // Imported/Added are created events: the node cannot exist yet, so skip the lookup and insert directly.
         When<IEvent<ImportedRoadNode>>((context, e, ct) =>
-            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, true, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, e.Data.Provenance, ct));
 
         When<IEvent<RoadNodeAdded>>((context, e, ct) =>
-            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, true, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, e.Data.Provenance, ct));
 
         When<IEvent<RoadNodeModified>>((context, e, ct) =>
-            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, false, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.RoadNodeId, e.Data.Geometry, e.Data.Type, e.Data.Provenance, ct));
 
         When<IEvent<RoadNodeRemoved>>(async (context, e, ct) =>
         {
@@ -40,21 +40,24 @@ public class RoadNodePbsProjection : RunnerDbContextRoadNetworkChangesProjection
         });
 
         // V2
-        // A created event means the entity does not exist yet, so insert directly without a lookup (re-delivery is
-        // guarded by the projection-state position in the base projection).
-        When<IEvent<RoadNodeWasAdded>>((context, e, ct) =>
+        // Upsert, not insert. A created event is not guaranteed to arrive once per id: the projection-state position
+        // that used to guard that is a position, and a replay from before it - a recovery, a rebuild - delivers the
+        // event again. A bare Add then becomes a primary key violation that pauses the shard, which is how this
+        // projection fell over on Wegknopen during the 2026-10-08 recovery. CREATIE is set only when the row is new.
+        When<IEvent<RoadNodeWasAdded>>(async (context, e, ct) =>
         {
-            context.RoadNodes.Add(new RoadNodeRecord
+            var record = await context.RoadNodes.FindAsync([e.Data.RoadNodeId.ToInt32()], ct);
+            var isNew = record is null;
+            record ??= new RoadNodeRecord { WK_OIDN = e.Data.RoadNodeId.ToInt32(), CREATIE = e.Data.Provenance.ToPbsDate() };
+            record.GRENSKNOOP = e.Data.Grensknoop.ToDbaseShortValue();
+            record.GEOMETRIE = e.Data.Geometry.EnsureLambert08().RoundToCm().Value.Force2D();
+            record.TYPE = e.Data.Type?.Translation.Identifier;
+            record.LBLTYPE = e.Data.Type?.Translation.Name;
+            record.VERSIE = e.Data.Provenance.ToPbsDate();
+            if (isNew)
             {
-                WK_OIDN = e.Data.RoadNodeId.ToInt32(),
-                GRENSKNOOP = e.Data.Grensknoop.ToDbaseShortValue(),
-                GEOMETRIE = e.Data.Geometry.EnsureLambert08().RoundToCm().Value.Force2D(),
-                TYPE = e.Data.Type?.Translation.Identifier,
-                LBLTYPE = e.Data.Type?.Translation.Name,
-                CREATIE = e.Data.Provenance.ToPbsDate(),
-                VERSIE = e.Data.Provenance.ToPbsDate()
-            });
-            return Task.CompletedTask;
+                context.RoadNodes.Add(record);
+            }
         });
 
         When<IEvent<RoadNodeTypeWasChanged>>(async (context, e, ct) =>
@@ -115,9 +118,9 @@ public class RoadNodePbsProjection : RunnerDbContextRoadNetworkChangesProjection
     }
 
     // V1 road node: upsert the geometry and the type (mapped V1 -> V2, null when unmapped). V1 nodes carry no grensknoop.
-    private static async Task WriteV1(PbsContext context, int nodeId, RoadNodeGeometry geometry, string type, bool assumeNew, ProvenanceData provenance, CancellationToken ct)
+    private static async Task WriteV1(PbsContext context, int nodeId, RoadNodeGeometry geometry, string type, ProvenanceData provenance, CancellationToken ct)
     {
-        var record = assumeNew ? null : await context.RoadNodes.FindAsync([nodeId], ct);
+        var record = await context.RoadNodes.FindAsync([nodeId], ct);
         var isNew = record is null;
         record ??= new RoadNodeRecord { WK_OIDN = nodeId, CREATIE = provenance.ToPbsDate() };
         record.GRENSKNOOP = null;
