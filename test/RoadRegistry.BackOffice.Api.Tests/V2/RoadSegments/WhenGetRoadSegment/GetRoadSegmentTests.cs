@@ -64,6 +64,66 @@ public class GetRoadSegmentTests : V2ReadEndpointTestBase
         detail.OngelijkgrondseKruisingen.Select(x => x.ObjectId).Should().Equal("21");
     }
 
+    // The names are not kept on the segment any more: the endpoint reads them from the street name and
+    // organization documents, so a rename shows up without the segment being rewritten.
+    [Fact]
+    public async Task GivenAStreetNameAndOrganization_ThenTheirCurrentNamesAreReturned()
+    {
+        var roadSegmentWasAdded = Fixture.Create<RoadSegmentWasAdded>();
+        var readItem = BuildReadItem(roadSegmentWasAdded);
+        var streetNameId = readItem.StreetNameIds.Single();
+        var organizationId = readItem.MaintenanceAuthorityId.Values.Select(x => x.Value!.OrganizationId).First();
+        Seed(readItem);
+        SeedStreetName(streetNameId, "Nieuwe straat");
+        SeedOrganization(organizationId, "Nieuwe beheerder");
+
+        var result = await _controller.GetRoadSegmentV2((int)roadSegmentWasAdded.RoadSegmentId, ApiOptions, Store);
+
+        var detail = result.Should().BeOfType<OkObjectResult>().Subject.Value.Should().BeOfType<WegsegmentV2Detail>().Subject;
+        detail.Straatnaam.Select(x => x.Straatnaam!.GeografischeNaam.Spelling).Should().AllBe("Nieuwe straat");
+        detail.Wegbeheerder.Select(x => x.Wegbeheerder.Label).Should().AllBe("Nieuwe beheerder");
+    }
+
+    // What the segment was written with is the fallback, which is where the street name API client's answer for a
+    // street name the read model does not have yet ends up.
+    [Fact]
+    public async Task GivenAStreetNameThatIsNotInTheReadModel_ThenTheNameTheSegmentWasWrittenWithIsReturned()
+    {
+        var roadSegmentWasAdded = Fixture.Create<RoadSegmentWasAdded>();
+        var readItem = BuildReadItem(roadSegmentWasAdded);
+        foreach (var value in readItem.StreetNameId.Values)
+        {
+            value.Value!.DutchName = "Straat via API";
+        }
+
+        Seed(readItem);
+
+        var result = await _controller.GetRoadSegmentV2((int)roadSegmentWasAdded.RoadSegmentId, ApiOptions, Store);
+
+        var detail = result.Should().BeOfType<OkObjectResult>().Subject.Value.Should().BeOfType<WegsegmentV2Detail>().Subject;
+        detail.Straatnaam.Select(x => x.Straatnaam!.GeografischeNaam.Spelling).Should().AllBe("Straat via API");
+    }
+
+    [Fact]
+    public async Task GivenARemovedStreetName_ThenNoNameIsReturned()
+    {
+        var roadSegmentWasAdded = Fixture.Create<RoadSegmentWasAdded>();
+        var readItem = BuildReadItem(roadSegmentWasAdded);
+        var streetNameId = readItem.StreetNameIds.Single();
+        foreach (var value in readItem.StreetNameId.Values)
+        {
+            value.Value!.DutchName = "Oude straat";
+        }
+
+        Seed(readItem);
+        SeedStreetName(streetNameId, "Oude straat", isRemoved: true);
+
+        var result = await _controller.GetRoadSegmentV2((int)roadSegmentWasAdded.RoadSegmentId, ApiOptions, Store);
+
+        var detail = result.Should().BeOfType<OkObjectResult>().Subject.Value.Should().BeOfType<WegsegmentV2Detail>().Subject;
+        detail.Straatnaam.Select(x => x.Straatnaam!.GeografischeNaam.Spelling).Should().AllBeEquivalentTo((string?)null);
+    }
+
     [Fact]
     public async Task GivenUnknownRoadSegment_ThenNotFound()
     {
@@ -84,6 +144,28 @@ public class GetRoadSegmentTests : V2ReadEndpointTestBase
 
         result.Should().BeOfType<StatusCodeResult>()
             .Which.StatusCode.Should().Be(StatusCodes.Status410Gone);
+    }
+
+    private void SeedStreetName(int streetNameId, string dutchName, bool isRemoved = false)
+    {
+        Seed(new StreetNameReadItem
+        {
+            StreetNameId = new StreetNameLocalId(streetNameId),
+            DutchName = dutchName,
+            Origin = Fixture.Create<EventTimestamp>(),
+            LastModified = Fixture.Create<EventTimestamp>(),
+            IsRemoved = isRemoved
+        });
+    }
+
+    private void SeedOrganization(OrganizationId organizationId, string name)
+    {
+        Seed(new OrganizationReadItem(organizationId)
+        {
+            Name = name,
+            Origin = Fixture.Create<EventTimestamp>(),
+            LastModified = Fixture.Create<EventTimestamp>()
+        });
     }
 
     private void SeedGradeJunction(int gradeJunctionId, int roadSegmentId1, int roadSegmentId2, bool isRemoved = false)

@@ -33,21 +33,19 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
             .DatabaseSchemaName(WellKnownSchemas.MartenProjections)
             .DocumentAlias("read_roadsegments")
             .Identity(x => x.Id)
-            // Everything this document points at, as indexed columns on its own table. A road node, a street name or
-            // an organization finds the segments that reference it by querying these columns - see ReadModelQueries -
-            // so no document has to keep a list of the documents pointing back at it.
+            // Everything this document points at, as indexed columns on its own table. A road node or a street name
+            // finds the segments that reference it by querying these columns - see ReadModelQueries - so no document
+            // has to keep a list of the documents pointing back at it.
             .Duplicate(x => x.StartNodeId, configure: index => { index.Name = "ix_read_roadsegments_startnodeid"; })
             .Duplicate(x => x.EndNodeId, configure: index => { index.Name = "ix_read_roadsegments_endnodeid"; })
+            // Nullable, unlike the others: Marten adds a duplicated column with a plain ALTER TABLE ADD COLUMN
+            // followed by an UPDATE that fills it, and Postgres rejects adding a NOT NULL column without a default
+            // to a table that already has rows. The members themselves are never null - an empty array at worst.
             .Duplicate(x => x.StreetNameIds, configure: index =>
             {
                 index.Name = "ix_read_roadsegments_streetnameids";
                 index.Method = IndexMethod.gin;
-            }, notNull: true)
-            .Duplicate(x => x.MaintenanceAuthorityIds, configure: index =>
-            {
-                index.Name = "ix_read_roadsegments_maintenanceauthorityids";
-                index.Method = IndexMethod.gin;
-            }, notNull: true)
+            })
             ;
     }
 
@@ -560,75 +558,12 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
             }, e.Data, ct);
         });
 
-        // StreetName: keep the denormalized labels on linked road segments in sync.
-        When<IEvent<StreetNameWasCreated>>((session, e, ct) => UpdateStreetNameLabels(session, e.Data.StreetNameId, e.Data.DutchName, ct));
-        When<IEvent<StreetNameWasModified>>((session, e, ct) => UpdateStreetNameLabels(session, e.Data.StreetNameId, e.Data.DutchName, ct));
-        When<IEvent<StreetNameWasRemoved>>((session, e, ct) => UpdateStreetNameLabels(session, e.Data.StreetNameId, null, ct));
-        When<IEvent<StreetNameWasRenamed>>((_, _, _) => Task.CompletedTask);
-
-        // Organization
-        When<IEvent<OrganizationWasImported>>((session, e, ct) => UpdateMaintenanceAuthorityNames(session, e.Data.OrganizationId, e.Data.Name, ct));
-        When<IEvent<OrganizationWasCreated>>((session, e, ct) => UpdateMaintenanceAuthorityNames(session, e.Data.OrganizationId, e.Data.Name, ct));
-        When<IEvent<OrganizationWasModified>>((session, e, ct) =>
-            e.Data.Name is not null
-                ? UpdateMaintenanceAuthorityNames(session, e.Data.OrganizationId, e.Data.Name, ct)
-                : Task.CompletedTask);
-        When<IEvent<OrganizationWasRemoved>>((_, _, _) => Task.CompletedTask);
-    }
-
-    private static async Task UpdateStreetNameLabels(IDocumentOperations session, StreetNameLocalId streetNameId, string? dutchName, CancellationToken ct)
-    {
-        var segments = await session.FindRoadSegmentsForStreetName(streetNameId, ct);
-        foreach (var segment in segments)
-        {
-            var changed = false;
-
-            foreach (var value in segment.StreetNameId.Values)
-            {
-                if (value.Value is not null && value.Value.StreetNameId == streetNameId && value.Value.DutchName != dutchName)
-                {
-                    value.Value.DutchName = dutchName;
-                    changed = true;
-                }
-            }
-
-            if (changed)
-            {
-                // Do not update LastModified of the segment
-                session.Store(segment);
-            }
-        }
-    }
-
-    private async Task UpdateMaintenanceAuthorityNames(IDocumentOperations session, OrganizationId organizationId, string? name, CancellationToken ct)
-    {
-        var segments = await session.FindRoadSegmentsForOrganization(organizationId, ct);
-        if (segments.Count == 0)
-        {
-            return;
-        }
-
-        _logger.LogDebug("Updating {RoadSegmentIdsCount} road segments for OrganizationId {OrganizationId}", segments.Count, organizationId);
-
-        foreach (var segment in segments)
-        {
-            var changed = false;
-
-            foreach (var value in segment.MaintenanceAuthorityId.Values)
-            {
-                if (value.Value is not null && value.Value.OrganizationId == organizationId && value.Value.Name != name)
-                {
-                    value.Value.Name = name;
-                    changed = true;
-                }
-            }
-
-            if (changed)
-            {
-                // Do not update LastModified of the segment
-                session.Store(segment);
-            }
-        }
+        // A street name's or an organization's own events are not handled here. The names this projection writes
+        // onto a segment are what they were when the segment was last written; the read endpoint resolves the
+        // current one from the street name / organization document and falls back to what is stored here. Keeping
+        // them in step from the other entity's events is what used to need the reverse lookup - and it could not be
+        // made reliable with one: a query sees the database, not what the batch it runs in has yet to commit, so a
+        // segment written earlier in the same batch was missed.
     }
 
     private static async Task<ReadRoadSegmentDynamicAttribute<RoadSegmentMaintenanceAuthorityAttributeValue>> BuildMaintenanceAuthority(IDocumentOperations session, OrganizationId organizationId, RoadSegmentGeometry geometry, CancellationToken ct)
@@ -886,15 +821,16 @@ public sealed class RoadSegmentReadItem
     public required List<EuropeanRoadNumber> EuropeanRoadNumbers { get; set; }
     public required List<NationalRoadNumber> NationalRoadNumbers { get; set; }
 
-    // The street names and organizations this segment points at, flattened out of the dynamic attributes above into
-    // what Marten can duplicate: a GIN-indexed array column each. That is how a street name or an organization finds
-    // the segments referencing it, now that no link document records it. Derived rather than stored, so they cannot
-    // drift from the attributes they come from, and [JsonIgnore]d because the ids are already in the document.
-    [JsonIgnore]
+    // The street names this segment points at, flattened out of the dynamic attribute above into what Marten can
+    // duplicate: a GIN-indexed array column. That is how a street name finds the segments referencing it, now that
+    // no link document records it (the street name sync relinks them on a rename or a municipality merger).
+    //
+    // Derived, so it cannot drift from the attribute it comes from, but deliberately NOT [JsonIgnore]d: Marten fills
+    // a duplicated column from the stored document ("update ... set street_name_ids = <from data>"), which is what
+    // it runs when it adds the column or reconciles the schema. A column mirroring a member the document does not
+    // carry would be emptied by that. Nothing reads it back - it has no setter, and the attribute above remains the
+    // source of truth.
     public int[] StreetNameIds => GetStreetNameHashSet().Select(x => x.ToInt32()).Order().ToArray();
-
-    [JsonIgnore]
-    public string[] MaintenanceAuthorityIds => GetMaintenanceAuthorityHashSet().Select(x => x.ToString()).Order().ToArray();
 
     public required EventTimestamp Origin { get; set; }
     public required EventTimestamp LastModified { get; set; }
@@ -907,14 +843,6 @@ public sealed class RoadSegmentReadItem
             .Select(x => x.Value?.StreetNameId)
             .Where(x => !StreetNameLocalId.IsEmpty(x))
             .Select(x => x!.Value)
-            .ToHashSet();
-    }
-
-    public HashSet<OrganizationId> GetMaintenanceAuthorityHashSet()
-    {
-        return MaintenanceAuthorityId.Values
-            .Where(x => x.Value is not null)
-            .Select(x => x.Value!.OrganizationId)
             .ToHashSet();
     }
 

@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb;
 
+using System.Linq.Expressions;
 using BackOffice;
 using Marten;
 using GradeSeparatedJunction;
@@ -107,6 +108,26 @@ public static class SessionExtensions
         }
 
         return queryable.ToListAsync(cancellationToken);
+    }
+
+    // Runs a read-model query that has to be SQL rather than Linq - because Marten translates the Linq form onto
+    // something Postgres cannot answer from the index (see ReadModelQueries) - and takes the equivalent Linq
+    // predicate for the in-memory document store the unit tests run on, which cannot execute SQL. The two are the
+    // same filter written twice; the Linq one is never used against Postgres, and the integration tests cover the
+    // SQL one.
+    public static Task<IReadOnlyList<T>> QueryAsync<T>(
+        this IQuerySession session,
+        string whereFragment,
+        Expression<Func<T, bool>> inMemoryEquivalent,
+        CancellationToken cancellationToken,
+        params object[] parameters)
+        where T : notnull
+    {
+        var queryable = session.Query<T>();
+
+        return queryable.Provider is EnumerableQuery
+            ? queryable.Where(inMemoryEquivalent).ToReadOnlyListAsync(cancellationToken)
+            : session.QueryAsync<T>(whereFragment, cancellationToken, parameters);
     }
 
     public static async Task<long> GetHighWaterMark(this IDocumentOperations operations, CancellationToken cancellationToken)

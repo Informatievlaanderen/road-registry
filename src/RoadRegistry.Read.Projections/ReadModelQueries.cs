@@ -49,25 +49,32 @@ public static class ReadModelQueries
             .ToReadOnlyListAsync(cancellationToken);
     }
 
+    // This last one is SQL rather than Linq, and the reason is the index. A segment's street name ids are an
+    // array, and Marten translates a Contains() over a duplicated array column to "id = ANY(street_name_ids)"
+    // (DuplicatedArrayField.ParseWhereForContains hard-codes it). Postgres cannot answer that from the GIN index on
+    // the column: measured on 50.000 segments it is a sequential scan over all of them, where the containment form
+    // "street_name_ids @> ARRAY[id]" is a bitmap index scan. Marten has no Linq form that produces containment on a
+    // duplicated array - IsSupersetOf leaves the column out of the SQL altogether - so the filter is written by
+    // hand. ReadModelQueriesTests in the integration tests covers it against Postgres, which is where that
+    // translation can be seen at all.
+    //
+    // Unqualified column names on purpose: Marten prefixes the select clause it generates with its own alias. The
+    // one parameter is wrapped in an explicit object[] because an int[] handed to the params object[] of QueryAsync
+    // would otherwise be read as the parameter list itself.
+    private const string IsNotRemoved = "(data ->> 'isRemoved' is null or cast(data ->> 'isRemoved' as boolean) = false)";
+
     // Matches on the segment's street name ids, which exclude the "unknown" and "not applicable" sentinels - a
     // segment without a street name is linked to nothing.
-    public static Task<IReadOnlyList<RoadSegmentReadItem>> FindRoadSegmentsForStreetName(this IQuerySession session, StreetNameLocalId streetNameId, CancellationToken cancellationToken)
+    public static async Task<IReadOnlyList<RoadSegmentReadItem>> FindRoadSegmentsForStreetName(this IQuerySession session, StreetNameLocalId streetNameId, CancellationToken cancellationToken)
     {
         var id = streetNameId.ToInt32();
 
-        return session.Query<RoadSegmentReadItem>()
-            .Where(x => !x.IsRemoved && x.StreetNameIds.Contains(id))
-            .OrderBy(x => x.Id)
-            .ToReadOnlyListAsync(cancellationToken);
-    }
+        var roadSegments = await session.QueryAsync<RoadSegmentReadItem>(
+            $"where street_name_ids @> ? and {IsNotRemoved}",
+            x => !x.IsRemoved && x.StreetNameIds.Contains(id),
+            cancellationToken,
+            new object[] { new[] { id } });
 
-    public static Task<IReadOnlyList<RoadSegmentReadItem>> FindRoadSegmentsForOrganization(this IQuerySession session, OrganizationId organizationId, CancellationToken cancellationToken)
-    {
-        var id = organizationId.ToString();
-
-        return session.Query<RoadSegmentReadItem>()
-            .Where(x => !x.IsRemoved && x.MaintenanceAuthorityIds.Contains(id))
-            .OrderBy(x => x.Id)
-            .ToReadOnlyListAsync(cancellationToken);
+        return roadSegments.OrderBy(x => x.Id).ToList();
     }
 }
