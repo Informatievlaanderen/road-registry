@@ -211,6 +211,24 @@ public class MartenProjectionIntegrationTestRunner
         }
     }
 
+    // The arrange half of Expect, handed to the test instead of to the daemon: same service provider, same migrations,
+    // same schema, but no Given events and nothing started in the background.
+    //
+    // Expect cannot express anything that turns on when a transaction commits relative to a batch. It commits every
+    // Given up front and then lets the daemon decide what a batch is and when it runs. A test that needs an append to
+    // still be in flight while a batch is applied has to own both sides of that, so it drives the projection itself.
+    public async Task Run(Func<IServiceProvider, IDocumentStore, Task> body)
+    {
+        await using var sp = BuildServiceProvider();
+
+        await sp.RunMartenDatabaseMigrationsAsync();
+
+        var store = sp.GetRequiredService<IDocumentStore>();
+        await store.Storage.ApplyAllConfiguredChangesToDatabaseAsync(AutoCreate.CreateOrUpdate);
+
+        await body(sp, store);
+    }
+
     public XunitException CreateFailedScenarioExceptionFor(VerificationResult result)
     {
         var title = string.Empty;
