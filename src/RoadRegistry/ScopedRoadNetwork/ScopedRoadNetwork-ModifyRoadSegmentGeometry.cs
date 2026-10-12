@@ -299,8 +299,8 @@ public partial class ScopedRoadNetwork
 
         // Only the stretch between the moved end vertex and the vertex next to it changes length, so the attributes
         // are remapped against where every vertex sits before and after rather than scaled over the whole segment.
-        var currentVertexPositions = CumulativeVertexPositions(line);
-        var newVertexPositions = CumulativeVertexPositions(geometry.Value.GetSingleLineString());
+        var currentVertexPositions = line.CumulativeVertexPositions();
+        var newVertexPositions = geometry.Value.GetSingleLineString().CumulativeVertexPositions();
         var attributes = roadSegment.Attributes!;
 
         return ModifyRoadSegment(new ModifyRoadSegmentChange
@@ -317,19 +317,5 @@ public partial class ScopedRoadNetwork
             BikeTrafficDirection = attributes.BikeTrafficDirection.RemapTo(currentVertexPositions, newVertexPositions),
             PedestrianTrafficDirection = attributes.PedestrianTrafficDirection.RemapTo(currentVertexPositions, newVertexPositions)
         }, context);
-    }
-
-    // The distance of every vertex from the start of the line, which is the axis the dynamic attribute positions
-    // are expressed on.
-    private static double[] CumulativeVertexPositions(LineString line)
-    {
-        var positions = new double[line.NumPoints];
-
-        for (var i = 1; i < positions.Length; i++)
-        {
-            positions[i] = positions[i - 1] + line.GetCoordinateN(i - 1).Distance(line.GetCoordinateN(i));
-        }
-
-        return positions;
     }
 }

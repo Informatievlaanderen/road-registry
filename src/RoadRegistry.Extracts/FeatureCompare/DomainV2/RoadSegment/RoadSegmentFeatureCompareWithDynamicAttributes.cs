@@ -62,38 +62,71 @@ public record RoadSegmentFeatureCompareWithDynamicAttributes
                 return new RoadSegmentPositionCoverage(new RoadSegmentPositionV2(fromPosition), new RoadSegmentPositionV2(toPosition));
             });
 
+        // The positions add up the lengths of the flat parts, but the segment's geometry is the merged line - with
+        // vertices within a centimetre of each other collapsed and rounded to the centimetre - which can measure a
+        // centimetre more or less. The trailing position is landed on the geometry's own length, otherwise the domain
+        // rejects the segment with a ToPositionNotEqualToLength error.
+        var roundedGeometry = geometry.RoundToCm();
+        var segmentLength = roundedGeometry.Length;
+
         return new RoadSegmentFeatureCompareWithDynamicAttributes
         {
             RoadSegmentId = roadSegmentId,
-            Geometry = geometry.RoundToCm(),
+            Geometry = roundedGeometry,
             Method = method,
             Status = status,
-            AccessRestriction = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.AccessRestriction))),
-            Category = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.Category))),
-            MaintenanceAuthorityId = CreateDynamicAttributeValues(flatAttributes.SelectMany(x => new []
+            AccessRestriction = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.AccessRestriction))),
+            Category = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.Category))),
+            MaintenanceAuthorityId = CreateDynamicAttributeValues(segmentLength, flatAttributes.SelectMany(x => new []
             {
                 (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Links, x.LeftMaintenanceAuthorityId),
                 (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Rechts, x.RightMaintenanceAuthorityId)
             })),
-            Morphology = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.Morphology))),
-            StreetNameId = CreateDynamicAttributeValues(flatAttributes.SelectMany(x => new []
+            Morphology = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.Morphology))),
+            StreetNameId = CreateDynamicAttributeValues(segmentLength, flatAttributes.SelectMany(x => new []
             {
                 (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Links, x.LeftSideStreetNameId),
                 (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Rechts, x.RightSideStreetNameId)
             })),
-            SurfaceType = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.SurfaceType))),
-            CarAccessForward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.CarAccessForward))),
-            CarAccessBackward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.CarAccessBackward))),
-            BikeAccessForward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.BikeAccessForward))),
-            BikeAccessBackward = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.BikeAccessBackward))),
-            PedestrianAccess = CreateDynamicAttributeValues(flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.PedestrianAccess)))
+            SurfaceType = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.SurfaceType))),
+            CarAccessForward = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.CarAccessForward))),
+            CarAccessBackward = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.CarAccessBackward))),
+            BikeAccessForward = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.BikeAccessForward))),
+            BikeAccessBackward = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.BikeAccessBackward))),
+            PedestrianAccess = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.PedestrianAccess)))
+        };
+    }
+
+    // Snapping the end vertices onto their road nodes moves them by up to a centimetre, which lengthens or shortens
+    // the outermost stretches of the line. The positions are remapped onto the new vertices the same way the domain
+    // does when a segment is realized onto its nodes, so the trailing position keeps matching the geometry.
+    public RoadSegmentFeatureCompareWithDynamicAttributes WithSnappedGeometry(MultiLineString snappedGeometry)
+    {
+        var currentVertexPositions = Geometry.GetSingleLineString().CumulativeVertexPositions();
+        var newVertexPositions = snappedGeometry.GetSingleLineString().CumulativeVertexPositions();
+
+        return this with
+        {
+            Geometry = snappedGeometry,
+            AccessRestriction = AccessRestriction?.RemapTo(currentVertexPositions, newVertexPositions),
+            Category = Category?.RemapTo(currentVertexPositions, newVertexPositions),
+            MaintenanceAuthorityId = MaintenanceAuthorityId?.RemapTo(currentVertexPositions, newVertexPositions),
+            Morphology = Morphology?.RemapTo(currentVertexPositions, newVertexPositions),
+            StreetNameId = StreetNameId?.RemapTo(currentVertexPositions, newVertexPositions),
+            SurfaceType = SurfaceType?.RemapTo(currentVertexPositions, newVertexPositions),
+            CarAccessForward = CarAccessForward?.RemapTo(currentVertexPositions, newVertexPositions),
+            CarAccessBackward = CarAccessBackward?.RemapTo(currentVertexPositions, newVertexPositions),
+            BikeAccessForward = BikeAccessForward?.RemapTo(currentVertexPositions, newVertexPositions),
+            BikeAccessBackward = BikeAccessBackward?.RemapTo(currentVertexPositions, newVertexPositions),
+            PedestrianAccess = PedestrianAccess?.RemapTo(currentVertexPositions, newVertexPositions)
         };
     }
 
     private static RoadSegmentDynamicAttributeValues<T> CreateDynamicAttributeValues<T>(
+        double segmentLength,
         IEnumerable<(RoadSegmentPositionCoverage Coverage, RoadSegmentAttributeSide Side, T Value)> attributeValues)
         where T : notnull
     {
-        return new RoadSegmentDynamicAttributeValues<T>(attributeValues);
+        return new RoadSegmentDynamicAttributeValues<T>(attributeValues).WithTrailingCoverageSnappedTo(segmentLength);
     }
 }

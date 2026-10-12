@@ -74,7 +74,7 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
     //
     // A trailing coverage that would collapse to zero (or invert) is left alone - snapping must not manufacture an
     // invalid range, and validation should report what is really wrong.
-    private RoadSegmentDynamicAttributeValues<T> WithTrailingCoverageSnappedTo(double segmentLength)
+    public RoadSegmentDynamicAttributeValues<T> WithTrailingCoverageSnappedTo(double segmentLength)
     {
         if (Values.Count == 0)
         {
@@ -242,7 +242,22 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
     public static bool operator !=(RoadSegmentDynamicAttributeValues<T>? left, RoadSegmentDynamicAttributeValues<T>? right) =>
         !Equals(left, right);
 
+    // Joins the attribute values of two segments into those of the segment they become, and lands the result on the
+    // length the merged geometry actually has.
+    //
+    // The positions are laid out on the two lengths rounded to the centimetre one by one, which can add up to a
+    // centimetre more or less than the merged line measures (100.004 + 100.004 lays out 200.00, the line is 200.01).
+    // Leaving that in place puts the trailing position a centimetre off the merged geometry, and the domain then
+    // rejects the segment with a ToPositionNotEqualToLength error.
     public RoadSegmentDynamicAttributeValues<T> MergeWith(RoadSegmentDynamicAttributeValues<T> otherAttributes,
+        double thisGeometryLength, double otherGeometryLength, double mergedGeometryLength,
+        bool thisSegmentHasIdealDirection, bool otherSegmentHasIdealDirection)
+    {
+        return MergeWith(otherAttributes, thisGeometryLength, otherGeometryLength, thisSegmentHasIdealDirection, otherSegmentHasIdealDirection)
+            .WithTrailingCoverageSnappedTo(mergedGeometryLength);
+    }
+
+    private RoadSegmentDynamicAttributeValues<T> MergeWith(RoadSegmentDynamicAttributeValues<T> otherAttributes,
         double thisGeometryLength, double otherGeometryLength,
         bool thisSegmentHasIdealDirection, bool otherSegmentHasIdealDirection)
     {
