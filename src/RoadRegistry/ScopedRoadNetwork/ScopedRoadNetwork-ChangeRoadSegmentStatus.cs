@@ -180,8 +180,8 @@ public partial class ScopedRoadNetwork
 
         // Snapping shortens or lengthens the stretch between the endpoint and the vertex next to it, so the attributes
         // are remapped against where every vertex sits before and after.
-        var currentVertexPositions = CumulativeVertexPositions(line);
-        var newVertexPositions = CumulativeVertexPositions(snappedLine);
+        var currentVertexPositions = line.CumulativeVertexPositions();
+        var newVertexPositions = snappedLine.CumulativeVertexPositions();
         var attributes = roadSegment.Attributes!;
 
         var realizedAttributes = attributes with

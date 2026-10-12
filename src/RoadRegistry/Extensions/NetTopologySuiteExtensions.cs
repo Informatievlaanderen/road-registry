@@ -197,6 +197,20 @@ public static class NetTopologySuiteExtensions
             .Single();
     }
 
+    // The distance of every vertex from the start of the line, which is the axis the dynamic attribute positions
+    // are expressed on.
+    public static double[] CumulativeVertexPositions(this LineString line)
+    {
+        var positions = new double[line.NumPoints];
+
+        for (var i = 1; i < positions.Length; i++)
+        {
+            positions[i] = positions[i - 1] + line.GetCoordinateN(i - 1).Distance(line.GetCoordinateN(i));
+        }
+
+        return positions;
+    }
+
     public static MultiLineString ToMultiLineString(this Geometry geometry, GeometryFactory? geometryFactory = null)
     {
         if (geometry is MultiLineString multiLineString)

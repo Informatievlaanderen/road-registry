@@ -79,6 +79,50 @@ public class UnflattenByTopologyScenarios
         dynamicRecord.Attributes.AccessRestriction!.Values[1].Side.Should().Be(RoadSegmentAttributeSide.Beide);
     }
 
+    [Theory]
+    [InlineData(-0.01)]
+    [InlineData(0.01)]
+    public void WhenEndVertexIsSnappedToRoadNodeWithinOneCm_ThenPositionsFollowTheSnappedGeometry(double startNodeX)
+    {
+        // Arrange
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadSegmentId>();
+        fixture.Freeze(RoadSegmentStatusV2.Gerealiseerd);
+
+        var flatSegment1 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
+        {
+            Geometry = BuildRoadSegmentGeometry(0, 0, 50, 0),
+            AccessRestriction = RoadSegmentAccessRestrictionV2.OpenbareWeg
+        };
+        var flatSegment2 = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
+        {
+            Geometry = BuildRoadSegmentGeometry(50, 0, 100, 0),
+            AccessRestriction = RoadSegmentAccessRestrictionV2.PrivateWeg
+        };
+
+        var nodes = new[]
+        {
+            new RoadNodeFeatureCompareAttributes { RoadNodeId = new RoadNodeId(1), Geometry = new Point(startNodeX, 0) },
+            new RoadNodeFeatureCompareAttributes { RoadNodeId = new RoadNodeId(2), Geometry = new Point(50, 0) },
+            new RoadNodeFeatureCompareAttributes { RoadNodeId = new RoadNodeId(3), Geometry = new Point(100, 0) }
+        };
+
+        // Act
+        var records = Unflatten(fixture.Create<FeatureType>(), [flatSegment1, flatSegment2], nodes).RoadSegments;
+
+        // Assert
+        var dynamicRecord = records.Single();
+        var segmentLength = dynamicRecord.Attributes.Geometry.Length.RoundToCm();
+        segmentLength.Should().Be((100 - startNodeX).RoundToCm());
+
+        var boundary = new RoadSegmentPositionV2(50 - startNodeX);
+        dynamicRecord.Attributes.AccessRestriction!.Values.Should().HaveCount(2);
+        dynamicRecord.Attributes.AccessRestriction!.Values[0].Coverage.Should().BeEquivalentTo(new RoadSegmentPositionCoverage(RoadSegmentPositionV2.Zero, boundary));
+        dynamicRecord.Attributes.AccessRestriction!.Values[1].Coverage.Should().BeEquivalentTo(new RoadSegmentPositionCoverage(boundary, new RoadSegmentPositionV2(segmentLength)));
+        dynamicRecord.Attributes.Category!.Values.Max(x => x.Coverage.To).Should().Be(new RoadSegmentPositionV2(segmentLength));
+        dynamicRecord.Attributes.MaintenanceAuthorityId!.Values.Max(x => x.Coverage.To).Should().Be(new RoadSegmentPositionV2(segmentLength));
+    }
+
     [Fact]
     public void With2FlatSegmentsInOppositeDirectionAndFlippedAttributeSidesAnd1Schijnknoop_ThenSuccessWithAttributesOnCorrectSides()
     {
