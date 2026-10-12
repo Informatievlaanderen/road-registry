@@ -60,6 +60,29 @@ public class GivenRoadSegment : BackOfficeLambdaTest
     }
 
     [Fact]
+    public async Task WhenTheRoadSegmentIsV2ButTakesPartInNoInwinning_ThenTicketCompleted()
+    {
+        // A V2 road segment that was never recorded in an inwinning - one of the parts of an earlier split, for
+        // instance - has its inwinning done all the same.
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = new FakeRoadNetworkRepository(store,
+            new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [new RoadSegmentId(1)], [], []),
+            BuildSeedNetwork);
+
+        ChangeRoadNetworkTicketResult completedResult = null;
+        TicketingMock
+            .Setup(x => x.Complete(It.IsAny<Guid>(), It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()))
+            .Callback<Guid, TicketResult, CancellationToken>((_, result, _) =>
+                completedResult = JsonConvert.DeserializeObject<ChangeRoadNetworkTicketResult>(result.ResultAsJson!));
+
+        await HandleRequest(CreateSqsRequest(CutPosition(50, 50)), store, roadNetworkRepository,
+            ExtractsDbContextWithInwinning(completed: true));
+
+        completedResult.Should().NotBeNull();
+        completedResult.Summary.RoadSegments.Added.Should().HaveCount(2);
+    }
+
+    [Fact]
     public async Task WhenSplittingRealizedRoadSegment_ThenTicketCompletedWithTwoRoadSegments()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());

@@ -104,7 +104,7 @@ public sealed class ChangeRoadSegmentGeometryDrawMethodV2SqsLambdaRequestHandler
             .Where(x => roadNetwork.RoadSegments.TryGetValue(x, out var roadSegment) && !roadSegment.IsRemoved)
             .ToList();
 
-        var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus(knownRoadSegmentIds, cancellationToken);
+        var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus(knownRoadSegmentIds, roadNetwork.SelectMigratedRoadSegmentIds(), cancellationToken);
 
         return inwinningsstatus
             .Where(x => x.Value != Inwinningsstatus.Compleet)

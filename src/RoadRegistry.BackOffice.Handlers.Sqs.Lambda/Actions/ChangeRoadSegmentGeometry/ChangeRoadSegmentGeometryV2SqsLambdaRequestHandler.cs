@@ -168,7 +168,7 @@ public sealed class ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler : MartenS
             return Problems.None;
         }
 
-        var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus([roadSegmentId], cancellationToken);
+        var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus([roadSegmentId], roadNetwork.SelectMigratedRoadSegmentIds(), cancellationToken);
 
         return inwinningsstatus
             .Where(x => x.Value != Inwinningsstatus.Compleet)

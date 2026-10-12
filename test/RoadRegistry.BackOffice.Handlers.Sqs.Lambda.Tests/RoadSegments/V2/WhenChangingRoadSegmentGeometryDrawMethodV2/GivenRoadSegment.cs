@@ -56,16 +56,17 @@ public class GivenRoadSegment : BackOfficeLambdaTest
     }
 
     [Fact]
-    public async Task WhenTheRoadSegmentIsPartOfNoInwinningAtAll_ThenTicketError()
+    public async Task WhenTheV2RoadSegmentIsPartOfNoInwinningAtAll_ThenTicketCompleted()
     {
-        // 'nietGestart' is not 'compleet' either: a segment nobody has collected yet may not be edited.
+        // A V2 road segment that was never recorded in an inwinning - one of the parts of a split, for instance - has its
+        // inwinning done all the same. One that was never collected at all is a V1 segment, which the domain refuses.
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
         var roadNetworkRepository = BuildRepository(store);
 
         await HandleRequest(CreateSqsRequest(OtherDrawMethod()), store, roadNetworkRepository,
             extractsDbContext: new FakeExtractsDbContextFactory().CreateDbContext());
 
-        VerifyThatTicketHasError("WegsegmentInwinningsstatusNietCompleet", null);
+        VerifyThatTicketHasCompletedWithAnyResult();
     }
 
     [Fact]

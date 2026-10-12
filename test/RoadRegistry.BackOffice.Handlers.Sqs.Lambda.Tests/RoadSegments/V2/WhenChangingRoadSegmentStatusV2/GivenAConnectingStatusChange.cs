@@ -121,13 +121,15 @@ public class GivenAConnectingStatusChange : BackOfficeLambdaTest
     }
 
     [Fact]
-    public async Task WhenTheRoadSegmentHasNoInwinningAtAll_ThenTicketError()
+    public async Task WhenTheV2RoadSegmentHasNoInwinningAtAll_ThenTicketCompleted()
     {
+        // A V2 road segment that was never recorded in an inwinning - one of the parts of a split, for instance - has its
+        // inwinning done all the same. One that was never collected at all is a V1 segment, which the domain refuses.
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
 
         await HandleRequest(store, ExtractsDbContextWith(registerInwinning: false));
 
-        VerifyThatTicketHasError("WegsegmentInwinningsstatusNietCompleet", null);
+        VerifyThatTicketHasCompletedWithAnyResult();
     }
 
     [Fact]
