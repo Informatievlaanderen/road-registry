@@ -1,3 +1,10 @@
+## [5.25.4](https://github.com/informatievlaanderen/road-registry/compare/v5.25.3...v5.25.4) (2026-10-12)
+
+
+### Bug Fixes
+
+* new segements get  inwinningstatus ([ba62791](https://github.com/informatievlaanderen/road-registry/commit/ba62791f20b06ebc5ead7c8c97e5c411dde51ef8))
+
 ## [5.25.3](https://github.com/informatievlaanderen/road-registry/compare/v5.25.2...v5.25.3) (2026-10-09)
 
 ## [5.25.2](https://github.com/informatievlaanderen/road-registry/compare/v5.25.1...v5.25.2) (2026-10-09)
