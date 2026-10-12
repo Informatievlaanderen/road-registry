@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
+using RoadRegistry.BackOffice.Api.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Projections;
 using RoadRegistry.Extracts.Schema;
 using Swashbuckle.AspNetCore.Annotations;
@@ -39,7 +40,7 @@ public partial class InwinningsstatusController
         CancellationToken cancellationToken = default)
     {
         var roadSegmentId = new RoadSegmentId(id);
-        var inwinningsstatus = (await extractsDbContext.GetInwinningsstatus([roadSegmentId], cancellationToken))[roadSegmentId];
+        var inwinningsstatus = (await extractsDbContext.GetInwinningsstatus([roadSegmentId], documentStore.SelectV2RoadSegmentIds(), cancellationToken))[roadSegmentId];
 
         // 'nietGestart' only means the segment takes part in no inwinning, which a segment that does not exist at all
         // also satisfies - so that is the one case where it still has to be looked up.

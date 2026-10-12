@@ -142,12 +142,21 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
     }
 
     // The inwinningsstatus of each of the given road segments: 'compleet' once every inwinning a segment takes part in
-    // is done, 'locked' while any of them is still running, and 'nietGestart' when it takes part in none - so every
-    // requested identifier comes back, whether or not it is being collected.
+    // is done, 'locked' while any of them is still running - so every requested identifier comes back, whether or not
+    // it is being collected.
+    //
+    // A segment that takes part in no inwinning is 'nietGestart', unless it is a V2 road segment. Those only exist
+    // because an inwinning was completed or because a V2 edit created them - the parts of a split, the result of a
+    // merge, a sketched segment - and an edit is only allowed on segments whose inwinning is done. Such a segment is
+    // 'compleet' without ever being recorded here. The V2 road segments live in the event store rather than in this
+    // database, so the caller says which ones they are; it is only asked about segments that have no record here.
     //
     // Not knowing an identifier here is not the same as it not existing: a caller that has to tell those apart has to
     // look the road segment up itself.
-    public async Task<IReadOnlyDictionary<RoadSegmentId, Inwinningsstatus>> GetInwinningsstatus(IEnumerable<RoadSegmentId> roadSegmentIds, CancellationToken cancellationToken)
+    public async Task<IReadOnlyDictionary<RoadSegmentId, Inwinningsstatus>> GetInwinningsstatus(
+        IEnumerable<RoadSegmentId> roadSegmentIds,
+        Func<IReadOnlyCollection<RoadSegmentId>, CancellationToken, Task<IReadOnlyCollection<RoadSegmentId>>> selectV2RoadSegmentIds,
+        CancellationToken cancellationToken)
     {
         const int batchSize = 2000; // SQL Server handles ~2100 params well
         var segmentIdsList = roadSegmentIds.Distinct().ToList();
@@ -172,11 +181,18 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
             }
         }
 
+        var notRecordedRoadSegmentIds = segmentIdsList
+            .Where(x => !completedByRoadSegmentId.ContainsKey(x.ToInt32()))
+            .ToList();
+        var v2RoadSegmentIds = notRecordedRoadSegmentIds.Count > 0
+            ? (await selectV2RoadSegmentIds(notRecordedRoadSegmentIds, cancellationToken)).ToHashSet()
+            : [];
+
         return segmentIdsList.ToDictionary(
             roadSegmentId => roadSegmentId,
             roadSegmentId => completedByRoadSegmentId.TryGetValue(roadSegmentId.ToInt32(), out var completed)
                 ? completed ? Inwinningsstatus.Compleet : Inwinningsstatus.Locked
-                : Inwinningsstatus.NietGestart);
+                : v2RoadSegmentIds.Contains(roadSegmentId) ? Inwinningsstatus.Compleet : Inwinningsstatus.NietGestart);
     }
 
     // Every road segment that took part in at least one completed inwinning. Once ingewonnen it stays that way: a later

@@ -18,6 +18,7 @@ using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
+using RoadRegistry.BackOffice.Api.Infrastructure.Extensions;
 using RoadRegistry.BackOffice.Api.Infrastructure.Options;
 using RoadRegistry.BackOffice.Api.V2;
 using RoadRegistry.BackOffice.Extensions;
@@ -50,6 +51,7 @@ public partial class RoadSegmentsController
     public async Task<IActionResult> GetRoadSegment(
         [FromRoute] int id,
         [FromServices] ExtractsDbContext extractsDbContext,
+        [FromServices] Marten.IDocumentStore documentStore,
         [FromServices] ApiOptions apiOptions,
         CancellationToken cancellationToken = default)
     {
@@ -58,7 +60,7 @@ public partial class RoadSegmentsController
         if (RoadSegmentId.Accepts(id))
         {
             var roadSegmentId = new RoadSegmentId(id);
-            var inwinningsstatus = (await extractsDbContext.GetInwinningsstatus([roadSegmentId], cancellationToken))[roadSegmentId];
+            var inwinningsstatus = (await extractsDbContext.GetInwinningsstatus([roadSegmentId], documentStore.SelectV2RoadSegmentIds(), cancellationToken))[roadSegmentId];
             if (inwinningsstatus == Inwinningsstatus.Compleet)
             {
                 Response.Headers.Link = $"<{string.Format(apiOptions.GetWegsegmentDetailUrlFormat(), id)}>; rel=\"successor-version\"";

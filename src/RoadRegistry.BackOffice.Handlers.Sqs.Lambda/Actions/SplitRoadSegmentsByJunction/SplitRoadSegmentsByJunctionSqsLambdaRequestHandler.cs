@@ -96,7 +96,7 @@ public sealed class SplitRoadSegmentsByJunctionSqsLambdaRequestHandler : MartenS
             .Where(x => roadNetwork.RoadSegments.TryGetValue(x, out var roadSegment) && !roadSegment.IsRemoved)
             .ToList();
 
-        var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus(knownRoadSegmentIds, cancellationToken);
+        var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus(knownRoadSegmentIds, roadNetwork.SelectMigratedRoadSegmentIds(), cancellationToken);
 
         inwinningsstatus
             .Where(x => x.Value != Inwinningsstatus.Compleet)
