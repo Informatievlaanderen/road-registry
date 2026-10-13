@@ -1,3 +1,10 @@
+## [5.25.5](https://github.com/informatievlaanderen/road-registry/compare/v5.25.4...v5.25.5) (2026-10-13)
+
+
+### Bug Fixes
+
+* rounding compare inwinning ([de3e193](https://github.com/informatievlaanderen/road-registry/commit/de3e193c8a6622ed49d25d8e92a342913134daf6))
+
 ## [5.25.4](https://github.com/informatievlaanderen/road-registry/compare/v5.25.3...v5.25.4) (2026-10-12)
 
 
