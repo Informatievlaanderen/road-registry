@@ -46,7 +46,7 @@ public static class SetupExtensions
                 options.Connection(new NpgsqlDataSourceBuilder(connectionString)
                     .UseNetTopologySuite()
                     .Build());
-                options.ConfigureRoad();
+                options.ConfigureRoad(configuration.GetValue<TimeSpan?>("Marten:StaleSequenceThreshold"));
                 options.ConfigureGeneratedCode(sp.GetService<IHostEnvironment>());
                 configure?.Invoke(options, sp);
 
@@ -104,9 +104,32 @@ public static class SetupExtensions
         return null;
     }
 
-    public static void ConfigureRoad(this StoreOptions options)
+    // How long Marten waits before it decides that a gap in mt_events.seq_id is permanent and moves the high water
+    // mark past it. The sequence is handed out by nextval at INSERT time, inside the transaction, so a write that is
+    // slow to commit leaves a gap that looks exactly like one left behind by a transaction that rolled back. Marten
+    // tells the two apart by time alone, and its default of three seconds is nowhere near what one commit takes here:
+    // the lambda appends a whole change set and runs the inline topology projection in that same transaction.
+    //
+    // Once the mark has jumped a gap, the events that commit late land below it, and the async daemon only ever reads
+    // upwards from its position - so no projection would see them, then or ever.
+    //
+    // This is defence in depth, not the fix for anything observed: the loss of 2026-10-08 was the unbounded tail fetch
+    // in RoadNetworkChangesProjection, and Marten cannot currently skip here at all, because the skip runs through
+    // mt_mark_progression_with_skip and neither that function nor mt_high_water_skips exists in our schema (they are
+    // created at runtime, which AutoCreate.None blocks, and Marten's model does not declare them so the migration
+    // generator never emitted them either). Should those objects ever be added, this keeps the default of three
+    // seconds - far below one inwinning commit - from turning a slow transaction into silent data loss.
+    //
+    // What it buys is a stall instead of a loss: a gap that really is permanent holds the async projections back for
+    // this long before Marten skips it. That is the right way round - a stall is visible and heals itself, a skip is
+    // silent and forever.
+    public static readonly TimeSpan DefaultStaleSequenceThreshold = TimeSpan.FromMinutes(5);
+
+    public static void ConfigureRoad(this StoreOptions options, TimeSpan? staleSequenceThreshold = null)
     {
         options.DatabaseSchemaName = WellKnownSchemas.MartenEventStore;
+
+        options.Projections.StaleSequenceThreshold = staleSequenceThreshold ?? DefaultStaleSequenceThreshold;
 
         options.AutoCreateSchemaObjects = AutoCreate.None;
 

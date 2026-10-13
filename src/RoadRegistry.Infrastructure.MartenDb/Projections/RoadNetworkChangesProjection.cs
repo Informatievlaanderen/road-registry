@@ -82,11 +82,7 @@ public abstract class RoadNetworkChangesProjection : IProjection
 
             var pageMaxSequence = events.Max(x => x.Sequence);
             cancellation.ThrowIfCancellationRequested();
-            var tailEvents = !RequiresEmissionOrder || IsCatchingUp || batchCorrelationIds.Count == 0
-                ? []
-                : await operations.Events.QueryAllRawEvents()
-                    .Where(x => batchCorrelationIds.Contains(x.CorrelationId!) && x.Sequence > pageMaxSequence)
-                    .ToListAsync(cancellation);
+            var tailEvents = await FetchTailEventsAsync(operations, batchCorrelationIds, pageMaxSequence, cancellation);
 
             var allEvents = tailEvents.Count > 0 ? events.Concat(tailEvents).ToList() : events;
 
@@ -103,6 +99,48 @@ public abstract class RoadNetworkChangesProjection : IProjection
             _logger.LogError(ex, $"Error trying to project events from {events.First().Sequence} to {events.Last().Sequence}");
             throw;
         }
+    }
+
+    // A correlation's events that sit past the page the daemon delivered, pulled in so the ordinal can order the whole
+    // correlation at once. The ceiling is what makes it safe.
+    //
+    // seq_id is handed out by nextval at INSERT time, inside the transaction, and the row stays invisible until that
+    // transaction commits. Read without a ceiling, this query therefore sees a correlation's later events while an
+    // earlier, slower transaction of the same correlation is still in flight - and ProcessEvents then records the
+    // highest sequence it saw as that correlation's watermark. The events that commit afterwards land under it and are
+    // filtered out by `Sequence > LastSequenceId`, in this batch and in every batch after it. The daemon delivers them
+    // exactly once, to a projection that has already written them off.
+    //
+    // That is not hypothetical: on 2026-10-08 two inwinning transactions overlapped, and 2004 road segment additions
+    // (806 in one correlation, 1198 in the other) were dropped this way by every projection that runs on this base,
+    // while the inline topology projection - which writes in the same transaction as the events - kept all of them.
+    //
+    // The high water mark is Marten's own answer to the same problem: the point below which the sequence is settled.
+    // Bounded by it, the watermark can only ever cover events that are actually there, and anything committing later
+    // arrives above it, in a later page, and is applied normally.
+    private async Task<IReadOnlyList<IEvent>> FetchTailEventsAsync(
+        IDocumentOperations operations,
+        IReadOnlyList<string> batchCorrelationIds,
+        long pageMaxSequence,
+        CancellationToken cancellation)
+    {
+        if (!RequiresEmissionOrder || IsCatchingUp || batchCorrelationIds.Count == 0)
+        {
+            return [];
+        }
+
+        var highWaterMark = await operations.GetHighWaterMark(cancellation);
+        if (highWaterMark <= pageMaxSequence)
+        {
+            return [];
+        }
+
+        cancellation.ThrowIfCancellationRequested();
+        return await operations.Events.QueryAllRawEvents()
+            .Where(x => batchCorrelationIds.Contains(x.CorrelationId!)
+                        && x.Sequence > pageMaxSequence
+                        && x.Sequence <= highWaterMark)
+            .ToListAsync(cancellation);
     }
 
     private async Task UpdateCatchingUpState(IDocumentOperations operations, IReadOnlyList<IEvent> events, CancellationToken cancellation)

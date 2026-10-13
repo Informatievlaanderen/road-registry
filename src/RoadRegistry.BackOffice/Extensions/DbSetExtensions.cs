@@ -47,15 +47,15 @@ public static class DbSetExtensions
                || await dbSet.AnyAsync(predicate, cancellationToken);
     }
 
-    public static async Task IncludeLocalForEachBatchAsync<T>(this DbSet<T> dbSet, Func<IQueryable<T>, IQueryable<T>> queryBuilder, int batchSize, Func<ICollection<T>, Task> action, CancellationToken cancellationToken)
+    public static async Task IncludeLocalForEachBatchAsync<T, TKey>(this DbSet<T> dbSet, Func<IQueryable<T>, IQueryable<T>> queryBuilder, Expression<Func<T, TKey>> orderBy, int batchSize, Func<ICollection<T>, Task> action, CancellationToken cancellationToken)
         where T : class
     {
         if (dbSet.Local.Any())
         {
-            await queryBuilder(dbSet.Local.AsQueryable()).ForEachBatchAsync(batchSize, action, cancellationToken);
+            await queryBuilder(dbSet.Local.AsQueryable()).ForEachBatchAsync(orderBy, batchSize, action, cancellationToken);
         }
 
-        await queryBuilder(dbSet).ForEachBatchAsync(batchSize, action, cancellationToken);
+        await queryBuilder(dbSet).ForEachBatchAsync(orderBy, batchSize, action, cancellationToken);
     }
 
     public static void Synchronize<T>(this DbSet<T> source,

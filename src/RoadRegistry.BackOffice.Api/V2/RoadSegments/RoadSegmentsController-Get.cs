@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.BackOffice.Api.V2.RoadSegments;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -70,6 +71,18 @@ public partial class RoadSegmentsController
             return new StatusCodeResult(StatusCodes.Status410Gone);
         }
 
+        // The segment document does not record its crossings; each crossing records the two segments it is between,
+        // so ask them.
+        var gradeJunctions = await session.FindGradeJunctionsForRoadSegment(roadSegment.RoadSegmentId, cancellationToken);
+        var gradeSeparatedJunctions = await session.FindGradeSeparatedJunctionsForRoadSegment(roadSegment.RoadSegmentId, cancellationToken);
+
+        // The segment carries the street name and organization ids; their names live in their own documents, which
+        // is where the current one comes from. No projection keeps those names in step on the segment any more - it
+        // would have to find the segments referencing a street name from that street name's own event, and that
+        // reverse lookup is exactly what this read model no longer has.
+        var streetNames = await LoadStreetNames(session, roadSegment, cancellationToken);
+        var organizations = await LoadOrganizations(session, roadSegment, cancellationToken);
+
         var method = roadSegment.IsV2
             ? RoadSegmentGeometryDrawMethodV2.Parse(roadSegment.GeometryDrawMethod)
             : MapToV2(RoadSegmentGeometryDrawMethod.Parse(roadSegment.GeometryDrawMethod));
@@ -95,10 +108,10 @@ public partial class RoadSegmentsController
                 ? RoadSegmentStatusV2.Parse(roadSegment.Status)
                 : MapToV2(RoadSegmentStatus.Parse(roadSegment.Status), method)).ToDutchString(),
             Beginknoop = roadSegment.StartNodeId is not null
-                ? new WegknoopLink(roadSegment.StartNodeId.Value, apiOptions.GetWegknoopDetailUrlFormat())
+                ? new WegknoopLink(new RoadNodeId(roadSegment.StartNodeId.Value), apiOptions.GetWegknoopDetailUrlFormat())
                 : null,
             Eindknoop = roadSegment.EndNodeId is not null
-                ? new WegknoopLink(roadSegment.EndNodeId.Value, apiOptions.GetWegknoopDetailUrlFormat())
+                ? new WegknoopLink(new RoadNodeId(roadSegment.EndNodeId.Value), apiOptions.GetWegknoopDetailUrlFormat())
                 : null,
             Straatnaam = roadSegment.StreetNameId.Values
                 .Select(x => new WegsegmentStraatnaamAttribuutWaarde
@@ -107,7 +120,7 @@ public partial class RoadSegmentsController
                     VanPositie = x.From,
                     TotPositie = x.To,
                     Straatnaam = x.Value!.StreetNameId > 0
-                        ? new StraatnaamLink(x.Value.StreetNameId, apiOptions.GetStraatnaamDetailUrlFormat(), x.Value.DutchName)
+                        ? new StraatnaamLink(x.Value.StreetNameId, apiOptions.GetStraatnaamDetailUrlFormat(), DutchNameOf(streetNames, x.Value))
                         : null
                 })
                 .ToArray(),
@@ -120,7 +133,7 @@ public partial class RoadSegmentsController
                     Wegbeheerder = new WegbeheerderObject
                     {
                         Code = x.Value!.OrganizationId.ToString(),
-                        Label = x.Value.Name ?? string.Empty
+                        Label = NameOf(organizations, x.Value) ?? string.Empty
                     }
                 })
                 .ToArray(),
@@ -200,15 +213,63 @@ public partial class RoadSegmentsController
                     NationaalWegnummer = x.ToString()
                 })
                 .ToArray(),
-            GelijkgrondseKruisingen = roadSegment.GradeJunctionIds
-                .Select(x => new GelijkgrondseKruisingLink(x, apiOptions.GetGelijkgrondseKruisingDetailUrlFormat()))
+            GelijkgrondseKruisingen = gradeJunctions
+                .Select(x => new GelijkgrondseKruisingLink(x.GradeJunctionId, apiOptions.GetGelijkgrondseKruisingDetailUrlFormat()))
                 .ToArray(),
-            OngelijkgrondseKruisingen = roadSegment.GradeSeparatedJunctionIds
-                .Select(x => new OngelijkgrondseKruisingLink(x, apiOptions.GetOngelijkgrondseKruisingDetailUrlFormat()))
+            OngelijkgrondseKruisingen = gradeSeparatedJunctions
+                .Select(x => new OngelijkgrondseKruisingLink(x.GradeSeparatedJunctionId, apiOptions.GetOngelijkgrondseKruisingDetailUrlFormat()))
                 .ToArray()
         };
 
         return Ok(result);
+    }
+
+    private static async Task<IReadOnlyDictionary<int, StreetNameReadItem>> LoadStreetNames(IQuerySession session, RoadSegmentReadItem roadSegment, CancellationToken cancellationToken)
+    {
+        var streetNameIds = roadSegment.StreetNameIds;
+        if (streetNameIds.Length == 0)
+        {
+            return new Dictionary<int, StreetNameReadItem>();
+        }
+
+        var streetNames = await session.LoadManyAsync<StreetNameReadItem>(cancellationToken, streetNameIds);
+        return streetNames.ToDictionary(x => x.StreetNameId.ToInt32());
+    }
+
+    private static async Task<IReadOnlyDictionary<string, OrganizationReadItem>> LoadOrganizations(IQuerySession session, RoadSegmentReadItem roadSegment, CancellationToken cancellationToken)
+    {
+        var organizationIds = roadSegment.MaintenanceAuthorityId.Values
+            .Where(x => x.Value is not null)
+            .Select(x => x.Value!.OrganizationId.ToString())
+            .Distinct()
+            .ToArray();
+        if (organizationIds.Length == 0)
+        {
+            return new Dictionary<string, OrganizationReadItem>();
+        }
+
+        var organizations = await session.LoadManyAsync<OrganizationReadItem>(cancellationToken, organizationIds);
+        return organizations.ToDictionary(x => x.OrganizationId.ToString());
+    }
+
+    // The name as the street name register has it now. A street name that is not (yet) in the read model falls back
+    // to the name the segment was written with - which is where the street name API client's answer ends up - and a
+    // removed street name has no name to show, the way the read model used to clear it.
+    private static string? DutchNameOf(IReadOnlyDictionary<int, StreetNameReadItem> streetNames, RoadSegmentStreetNameAttributeValue attribute)
+    {
+        if (!streetNames.TryGetValue(attribute.StreetNameId.ToInt32(), out var streetName))
+        {
+            return attribute.DutchName;
+        }
+
+        return streetName.IsRemoved ? null : streetName.DutchName;
+    }
+
+    private static string? NameOf(IReadOnlyDictionary<string, OrganizationReadItem> organizations, RoadSegmentMaintenanceAuthorityAttributeValue attribute)
+    {
+        return organizations.TryGetValue(attribute.OrganizationId.ToString(), out var organization)
+            ? organization.Name
+            : attribute.Name;
     }
 
     private static RoadSegmentStatusV2 MapToV2(RoadSegmentStatus status, RoadSegmentGeometryDrawMethodV2 method)

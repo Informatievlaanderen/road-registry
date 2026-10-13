@@ -158,12 +158,8 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         var v2RoadSegmentIds = new List<RoadSegmentId>();
         await using (var session = _documentStore.LightweightSession())
         {
-            var link = await session.LoadAsync<StreetNameRoadSegmentsLink>(sourceStreetNameId, cancellationToken);
-            if (link is not null && link.RoadSegmentIds.Any())
-            {
-                var readItems = await session.LoadManyAsync<RoadSegmentReadItem>(cancellationToken, link.RoadSegmentIds.Select(x => x.ToInt32()).ToArray());
-                v2RoadSegmentIds.AddRange(readItems.Where(x => x is { IsV2: true, IsRemoved: false }).Select(x => x.RoadSegmentId));
-            }
+            var readItems = await session.FindRoadSegmentsForStreetName(new StreetNameLocalId(sourceStreetNameId), cancellationToken);
+            v2RoadSegmentIds.AddRange(readItems.Where(x => x.IsV2).Select(x => x.RoadSegmentId));
         }
 
         Logger.LogInformation("Found {Count} V2 RoadSegments linked to StreetName {SourceStreetNameId}", v2RoadSegmentIds.Count, sourceStreetNameId);

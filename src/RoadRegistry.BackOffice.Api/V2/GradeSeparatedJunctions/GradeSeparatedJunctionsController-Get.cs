@@ -68,8 +68,8 @@ public partial class GradeSeparatedJunctionsController
         var result = new OngelijkgrondseKruisingV2Detail
         {
             Identificator = new OngelijkgrondseKruisingIdentificator(OsloNamespaces.OngelijkgrondseKruising, gradeSeparatedJunction.GradeSeparatedJunctionId.ToString(), gradeSeparatedJunction.LastModified.Timestamp.ToDateTimeOffset()),
-            OnderliggendWegsegment = new WegsegmentLink(gradeSeparatedJunction.LowerRoadSegmentId, apiOptions.GetWegsegmentDetailUrlFormat()),
-            BovenliggendWegsegment = new WegsegmentLink(gradeSeparatedJunction.UpperRoadSegmentId, apiOptions.GetWegsegmentDetailUrlFormat()),
+            OnderliggendWegsegment = new WegsegmentLink(new RoadSegmentId(gradeSeparatedJunction.LowerRoadSegmentId), apiOptions.GetWegsegmentDetailUrlFormat()),
+            BovenliggendWegsegment = new WegsegmentLink(new RoadSegmentId(gradeSeparatedJunction.UpperRoadSegmentId), apiOptions.GetWegsegmentDetailUrlFormat()),
             OngelijkgrondseKruisingType = GradeSeparatedJunctionTypeV2.Parse(gradeSeparatedJunction.Type!).ToDutchString()
         };
 

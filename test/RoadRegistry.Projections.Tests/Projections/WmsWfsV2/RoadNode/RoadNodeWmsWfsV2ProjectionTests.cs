@@ -206,4 +206,21 @@ public class RoadNodeWmsWfsV2ProjectionTests
         Assert.Equal(10, node.TYPE);
         Assert.NotNull(node.GEOMETRIE);
     }
+
+    // A created event is not guaranteed to arrive once per id: a replay from before the projection-state position -
+    // a recovery, a rebuild - delivers it again. That used to be a primary key violation on Wegknopen that paused the
+    // shard, which is how this projection fell over during the 2026-10-08 recovery.
+    [Fact]
+    public async Task WhenRoadNodeWasAddedTwice_ThenOneRow()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(_testData.Segment1StartNodeAdded);
+        await scenario.GivenAsync(_testData.Segment1StartNodeAdded);
+
+        var node = await scenario.Find<RoadNodeRecord>(1);
+        Assert.NotNull(node);
+        Assert.Equal(1, node!.WK_OIDN);
+        Assert.NotNull(node.GEOMETRIE);
+    }
 }

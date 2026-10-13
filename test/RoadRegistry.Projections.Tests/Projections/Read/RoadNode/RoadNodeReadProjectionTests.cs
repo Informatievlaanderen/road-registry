@@ -31,7 +31,6 @@ public class RoadNodeReadProjectionTests
         Assert.Equal(new RoadNodeId(1), node.RoadNodeId);
         Assert.True(node.IsV2);
         Assert.False(node.IsRemoved);
-        Assert.Empty(node.RoadSegmentIds);
         Assert.Null(node.Type);
     }
 

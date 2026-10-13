@@ -57,6 +57,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             builder.OwnsOne(p => p.Origin);
             builder.Property(p => p.LastChangedTimestamp);
 
+            // The projection renames an organization and relabels a street name by looking every road segment of that
+            // organization or street name up by these columns and paging through the result, so each one carries an
+            // index. Without one the paging turns into a table scan per page, which is what the other road segment
+            // projections already avoid this way.
+            builder.HasIndex(p => p.MaintainerId)
+                .IsClustered(false);
             builder.HasIndex(p => p.LeftSideStreetNameId)
                 .IsClustered(false);
             builder.HasIndex(p => p.RightSideStreetNameId)

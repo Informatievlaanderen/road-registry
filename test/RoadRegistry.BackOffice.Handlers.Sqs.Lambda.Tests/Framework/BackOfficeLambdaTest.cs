@@ -442,6 +442,11 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
         ticketing.VerifyThatTicketHasCompleted(new ETagResponse(location, eTag));
     }
 
+    protected void VerifyThatTicketHasCompletedWithAnyResult()
+    {
+        TicketingMock.Verify(x => x.Complete(It.IsAny<Guid>(), It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     protected void VerifyThatTicketHasError(string code, string message)
     {
         TicketingMock.VerifyThatTicketHasError(code, message);

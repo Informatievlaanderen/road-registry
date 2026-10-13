@@ -42,11 +42,27 @@
             }
 
             var roadSegments = await GetRoadSegments(contour, cancellationToken);
-            var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus(roadSegments.Select(x => x.RoadSegmentId), cancellationToken);
+
+            // Which of these are V2 is answered from the segments already in hand rather than by querying for them
+            // again: a V2 segment that takes part in no inwinning is compleet all the same.
+            var inwinningsstatus = await _extractsDbContext.GetInwinningsstatus(
+                roadSegments.Select(x => x.RoadSegmentId),
+                SelectV2RoadSegmentIds(roadSegments),
+                cancellationToken);
 
             everythingIsCompleet = inwinningsstatus.Values.All(x => x == Inwinningsstatus.Compleet);
             _everythingIsCompleetCache[contour] = everythingIsCompleet;
             return everythingIsCompleet;
+        }
+
+        private static Func<IReadOnlyCollection<RoadSegmentId>, CancellationToken, Task<IReadOnlyCollection<RoadSegmentId>>> SelectV2RoadSegmentIds(
+            IReadOnlyList<RoadSegmentExtractItem> roadSegments)
+        {
+            var v2RoadSegmentIds = roadSegments.Where(x => x.IsV2).Select(x => x.RoadSegmentId).ToHashSet();
+
+            return (roadSegmentIds, _) => Task.FromResult<IReadOnlyCollection<RoadSegmentId>>(roadSegmentIds
+                .Where(v2RoadSegmentIds.Contains)
+                .ToList());
         }
 
         public async Task<IReadOnlyList<RoadNodeExtractItem>> GetRoadNodes(

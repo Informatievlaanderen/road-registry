@@ -687,7 +687,7 @@ public class RoadSegmentUnflattener
 
                 return new RoadSegmentFeatureWithDynamicAttributes(
                     segment.RecordNumber,
-                    segment.Attributes with { Geometry = snappedGeometry },
+                    segment.Attributes.WithSnappedGeometry(snappedGeometry),
                     segment.FlatFeatures);
             })
             .ToList();

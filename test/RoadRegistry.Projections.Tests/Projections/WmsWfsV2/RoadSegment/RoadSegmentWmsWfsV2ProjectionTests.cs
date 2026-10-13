@@ -554,4 +554,27 @@ public class RoadSegmentWmsWfsV2ProjectionTests
         var list = numbers.Where(x => !string.IsNullOrEmpty(x)).Distinct().OrderBy(x => x, System.StringComparer.Ordinal).ToList();
         return list.Count > 0 ? string.Join(" / ", list) : null;
     }
+
+    // The created-event shortcut did more than insert: it also skipped the deletes that make a rewrite clean, so a
+    // replay would collide on the primary key and leave the previous derived rows behind. A replay from before the
+    // projection-state position - a recovery, a rebuild - is exactly when the event arrives a second time, which is
+    // what this applies. Distinct from the re-delivery test beside it: that one replays the same sequence numbers and
+    // only exercises the position guard.
+    [Fact]
+    public async Task WhenRoadSegmentWasAddedTwice_ThenOneRowAndNoDuplicatedDerivedRows()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(_testData.Segment1Added);
+        var derivedAfterFirst = await scenario.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1));
+        Assert.NotEmpty(derivedAfterFirst);
+
+        await scenario.GivenAsync(_testData.Segment1Added);
+
+        var segment = await scenario.Find<RoadSegmentRecord>(1);
+        Assert.NotNull(segment);
+
+        var derivedAfterSecond = await scenario.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1));
+        Assert.Equal(derivedAfterFirst.Count, derivedAfterSecond.Count);
+    }
 }

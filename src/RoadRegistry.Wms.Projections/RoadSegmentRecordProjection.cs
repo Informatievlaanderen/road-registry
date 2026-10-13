@@ -578,7 +578,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
     {
         await context.RoadSegments
             .IncludeLocalForEachBatchAsync(q => q
-                .Where(x => x.MaintainerId == organizationId), 5000, dbRecords =>
+                .Where(x => x.MaintainerId == organizationId), x => x.Id, 5000, dbRecords =>
             {
                 foreach (var dbRecord in dbRecords)
                 {
@@ -597,6 +597,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
     {
         await context.RoadSegments.IncludeLocalForEachBatchAsync(q =>
                 q.Where(x => x.LeftSideStreetNameId == streetNameLocalId || x.RightSideStreetNameId == streetNameLocalId),
+            x => x.Id,
             5000,
             dbRecords =>
             {

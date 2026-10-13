@@ -463,9 +463,17 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
         throw new NotImplementedException();
     }
 
+    // Linq over the documents held here, so a query written against the read model can be exercised without a
+    // database. Only the IQueryable part is real: the query is evaluated by Linq to Objects, which is what
+    // SessionExtensions.ToReadOnlyListAsync falls back to when the provider is not Marten's own.
     public IMartenQueryable<T> Query<T>() where T : notnull
     {
-        throw new NotImplementedException();
+        return new InMemoryMartenQueryable<T>(LoadAllById<T>().AsQueryable());
+    }
+
+    private IReadOnlyList<T> LoadAllById<T>() where T : notnull
+    {
+        return LoadManyById<T, object>(_storedEntities.Keys.Where(x => x.Type == typeof(T)).Select(x => x.Id).ToArray());
     }
 
     public IMartenQueryable<T> QueryForNonStaleData<T>(TimeSpan timeout) where T : notnull

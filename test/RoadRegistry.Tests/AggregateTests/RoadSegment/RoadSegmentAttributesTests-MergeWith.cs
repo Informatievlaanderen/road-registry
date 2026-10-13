@@ -22,7 +22,7 @@ public class RoadSegmentAttributesMergeWithTests
         var attributes1 = testCase.Segment1Attributes.ToRoadSegmentDynamicAttributeValues();
         var attributes2 = testCase.Segment2Attributes.ToRoadSegmentDynamicAttributeValues();
 
-        var mergedAttributes = attributes1.MergeWith(attributes2, testCase.Segment1Length, testCase.Segment2Length, testCase.Segment1HasIdealDirection, testCase.Segment2HasIdealDirection);
+        var mergedAttributes = attributes1.MergeWith(attributes2, testCase.Segment1Length, testCase.Segment2Length, testCase.Segment1Length + testCase.Segment2Length, testCase.Segment1HasIdealDirection, testCase.Segment2HasIdealDirection);
         mergedAttributes.Values.Should().HaveCount(testCase.ExpectedAttributes.Values.Count);
 
         foreach (var (expected, index) in testCase.ExpectedAttributes.Values.Select((x, i) => (x, i)))
@@ -34,6 +34,32 @@ public class RoadSegmentAttributesMergeWithTests
             actual.Value.Should().Be(expected.Value);
         }
     }
+    // Each length rounds down on its own, but together they round up: the positions lay out 200.00 while the merged
+    // line measures 200.01, and the trailing position has to follow the line.
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(false, false)]
+    public void WhenMergeWithLengthsThatRoundApart_ThenTrailingPositionIsMergedGeometryLength(bool segment1HasIdealDirection, bool segment2HasIdealDirection)
+    {
+        const double segment1Length = 100.004;
+        const double segment2Length = 100.004;
+        const double mergedGeometryLength = segment1Length + segment2Length;
+
+        var attributes1 = new RoadSegmentDynamicAttributeValues<string>([
+            (new RoadSegmentPositionCoverage(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(segment1Length)), RoadSegmentAttributeSide.Beide, "a")
+        ]);
+        var attributes2 = new RoadSegmentDynamicAttributeValues<string>([
+            (new RoadSegmentPositionCoverage(new RoadSegmentPositionV2(0), new RoadSegmentPositionV2(segment2Length)), RoadSegmentAttributeSide.Beide, "b")
+        ]);
+
+        var mergedAttributes = attributes1.MergeWith(attributes2, segment1Length, segment2Length, mergedGeometryLength, segment1HasIdealDirection, segment2HasIdealDirection);
+
+        mergedAttributes.Values.Max(x => x.Coverage.To).Should().Be(new RoadSegmentPositionV2(mergedGeometryLength));
+        mergedAttributes.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(200.01);
+    }
+
     public static IEnumerable<object[]> MergeWithTestsCases()
     {
         yield return [new MergeWithTestCase("single attribute with identical value over entire segment")

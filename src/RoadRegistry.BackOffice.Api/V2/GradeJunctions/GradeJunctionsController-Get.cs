@@ -70,7 +70,7 @@ public partial class GradeJunctionsController
             Identificator = new GelijkgrondseKruisingIdentificator(OsloNamespaces.GelijkgrondseKruising, gradeJunction.GradeJunctionId.ToString(), gradeJunction.LastModified.Timestamp.ToDateTimeOffset()),
             KruisendeWegsegmenten = new[] { gradeJunction.RoadSegmentId1, gradeJunction.RoadSegmentId2 }
                 .OrderBy(x => x)
-                .Select(x => new WegsegmentLink(x, apiOptions.GetWegsegmentDetailUrlFormat()))
+                .Select(x => new WegsegmentLink(new RoadSegmentId(x), apiOptions.GetWegsegmentDetailUrlFormat()))
                 .ToArray()
         };
 

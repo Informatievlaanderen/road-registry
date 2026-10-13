@@ -1,6 +1,7 @@
 namespace RoadRegistry.Projections.Tests.Projections.ReadProjections.RoadSegment;
 
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -25,6 +26,12 @@ public class RoadSegmentReadProjectionTests
 
     private ProvenanceData Provenance => new(_testData.Provenance);
 
+    private static async Task<RoadSegmentId[]> RoadSegmentIdsOf(ReadProjectionScenario scenario, int roadNodeId)
+    {
+        var segments = await scenario.Store.FindRoadSegmentsForRoadNode(new RoadNodeId(roadNodeId), CancellationToken.None);
+        return segments.Select(x => x.RoadSegmentId).ToArray();
+    }
+
     [Fact]
     public async Task WhenOutlinedRoadSegmentWasAdded_ThenStoredWithNoNodesAndIngeschetst()
     {
@@ -46,7 +53,7 @@ public class RoadSegmentReadProjectionTests
     }
 
     [Fact]
-    public async Task WhenRoadSegmentWasAdded_ThenStoredAndNodesReferenceTheSegment()
+    public async Task WhenRoadSegmentWasAdded_ThenStoredAndFoundForBothRoadNodes()
     {
         var scenario = Scenario();
 
@@ -58,14 +65,29 @@ public class RoadSegmentReadProjectionTests
         Assert.True(segment.IsV2);
         Assert.Equal(RoadSegmentStatusV2.Gerealiseerd.ToString(), segment.Status);
 
-        var startNode = await scenario.Load<RoadNodeReadItem>(1);
-        var endNode = await scenario.Load<RoadNodeReadItem>(2);
-        Assert.Contains(new RoadSegmentId(1), startNode!.RoadSegmentIds);
-        Assert.Contains(new RoadSegmentId(1), endNode!.RoadSegmentIds);
+        Assert.Contains(new RoadSegmentId(1), await RoadSegmentIdsOf(scenario, 1));
+        Assert.Contains(new RoadSegmentId(1), await RoadSegmentIdsOf(scenario, 2));
+    }
+
+    // A segment records the nodes it is knotted into and nothing writes back to them, so it can be projected before
+    // they exist. The old projection threw "No road node found for Id ..." here, which is exactly what forced the
+    // read projection to see a correlation's events in emission order - and what broke a catch-up whenever a node
+    // happened to land in a later page than the segment pointing at it.
+    [Fact]
+    public async Task WhenRoadSegmentIsProjectedBeforeItsRoadNodes_ThenStored()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(_testData.Segment1Added);
+
+        var segment = await scenario.Load<RoadSegmentReadItem>(1);
+        Assert.NotNull(segment);
+        Assert.Equal(1, segment!.StartNodeId);
+        Assert.Equal(2, segment.EndNodeId);
     }
 
     [Fact]
-    public async Task WhenRoadSegmentWasRemoved_ThenMarkedRemovedAndNodesNoLongerReferenceIt()
+    public async Task WhenRoadSegmentWasRemoved_ThenMarkedRemovedAndNoLongerFoundForItsRoadNodes()
     {
         var scenario = Scenario();
 
@@ -75,8 +97,8 @@ public class RoadSegmentReadProjectionTests
         var segment = await scenario.Load<RoadSegmentReadItem>(1);
         Assert.True(segment!.IsRemoved);
 
-        var startNode = await scenario.Load<RoadNodeReadItem>(1);
-        Assert.DoesNotContain(new RoadSegmentId(1), startNode!.RoadSegmentIds);
+        Assert.Empty(await RoadSegmentIdsOf(scenario, 1));
+        Assert.Empty(await RoadSegmentIdsOf(scenario, 2));
     }
 
     [Fact]
@@ -94,8 +116,8 @@ public class RoadSegmentReadProjectionTests
 
         var segment = await scenario.Load<RoadSegmentReadItem>(1);
         Assert.Equal(RoadSegmentStatusV2.Gehistoreerd.ToString(), segment!.Status);
-        Assert.Equal(new RoadNodeId(1), segment.StartNodeId);
-        Assert.Equal(new RoadNodeId(2), segment.EndNodeId);
+        Assert.Equal(1, segment.StartNodeId);
+        Assert.Equal(2, segment.EndNodeId);
     }
 
     [Fact]

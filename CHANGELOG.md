@@ -1,3 +1,83 @@
+## [5.25.4](https://github.com/informatievlaanderen/road-registry/compare/v5.25.3...v5.25.4) (2026-10-12)
+
+
+### Bug Fixes
+
+* new segements get  inwinningstatus ([ba62791](https://github.com/informatievlaanderen/road-registry/commit/ba62791f20b06ebc5ead7c8c97e5c411dde51ef8))
+
+## [5.25.3](https://github.com/informatievlaanderen/road-registry/compare/v5.25.2...v5.25.3) (2026-10-09)
+
+## [5.25.2](https://github.com/informatievlaanderen/road-registry/compare/v5.25.1...v5.25.2) (2026-10-09)
+
+
+### Bug Fixes
+
+* **projections:** drop the created-event shortcuts in the node and segment projections ([4079995](https://github.com/informatievlaanderen/road-registry/commit/4079995a4c95e9a29c1bfc5feb8e78791778cd92))
+
+## [5.25.1](https://github.com/informatievlaanderen/road-registry/compare/v5.25.0...v5.25.1) (2026-10-09)
+
+
+### Bug Fixes
+
+* **projections:** upsert the grade junction crossings instead of inserting blind ([cfa7f04](https://github.com/informatievlaanderen/road-registry/commit/cfa7f04bd7b64f4a31618ce55ae20fbacf8e5b0d)), closes [#2130](https://github.com/informatievlaanderen/road-registry/issues/2130)
+
+# [5.25.0](https://github.com/informatievlaanderen/road-registry/compare/v5.24.0...v5.25.0) (2026-10-09)
+
+
+### Features
+
+* **marten:** add the high water skips table and the function that writes it ([26f43b4](https://github.com/informatievlaanderen/road-registry/commit/26f43b4bb13eb4c6bc34855684012bcc021d4c2c))
+
+# [5.24.0](https://github.com/informatievlaanderen/road-registry/compare/v5.23.7...v5.24.0) (2026-10-09)
+
+
+### Features
+
+* **pbs:** promote the PBS shadow read model and stop a replay from breaking the caches ([6007cf2](https://github.com/informatievlaanderen/road-registry/commit/6007cf203270a80c9aa9ba1404506272817eeb10))
+
+## [5.23.7](https://github.com/informatievlaanderen/road-registry/compare/v5.23.6...v5.23.7) (2026-10-09)
+
+
+### Bug Fixes
+
+* **projections:** bound the correlation tail fetch by the high water mark ([b33ffcf](https://github.com/informatievlaanderen/road-registry/commit/b33ffcfaa703e8afe9128f38cbeeddc1c930a397))
+
+## [5.23.6](https://github.com/informatievlaanderen/road-registry/compare/v5.23.5...v5.23.6) (2026-10-09)
+
+
+### Bug Fixes
+
+* **sync:** include the response body when the organisation registry refuses ([ba00ca3](https://github.com/informatievlaanderen/road-registry/commit/ba00ca34dbb5833ea9435cb0ad681f5d1d4d8afd))
+
+## [5.23.5](https://github.com/informatievlaanderen/road-registry/compare/v5.23.4...v5.23.5) (2026-10-08)
+
+
+### Bug Fixes
+
+* **projector:** keep the Slack sink when replacing the logging providers ([f580790](https://github.com/informatievlaanderen/road-registry/commit/f580790ff9fc7635c8e11a08854cd7e3a507ea86))
+
+## [5.23.4](https://github.com/informatievlaanderen/road-registry/compare/v5.23.3...v5.23.4) (2026-10-08)
+
+
+### Performance Improvements
+
+* **wmswfs:** add correct spatial index + clustered index ([3fa0bc0](https://github.com/informatievlaanderen/road-registry/commit/3fa0bc0e2841e99cc60625e6c2764394d93620f8))
+
+## [5.23.3](https://github.com/informatievlaanderen/road-registry/compare/v5.23.2...v5.23.3) (2026-10-08)
+
+
+### Bug Fixes
+
+* **projections:** index the road segment maintainer and order the batched paging ([9f5d0da](https://github.com/informatievlaanderen/road-registry/commit/9f5d0da3c244328b4f646f7be08015d3d6288d44))
+
+## [5.23.2](https://github.com/informatievlaanderen/road-registry/compare/v5.23.1...v5.23.2) (2026-10-08)
+
+
+### Bug Fixes
+
+* **2.0:** do not document nullable read properties as required ([b9106d5](https://github.com/informatievlaanderen/road-registry/commit/b9106d5802530563e27335c708240a92a98a394e))
+* **extracten:** reject an invalid contour on a request by shape file ([bcc2d3e](https://github.com/informatievlaanderen/road-registry/commit/bcc2d3e3b24817178b29adfc29c95c63fe49da27))
+
 ## [5.23.1](https://github.com/informatievlaanderen/road-registry/compare/v5.23.0...v5.23.1) (2026-10-01)
 
 

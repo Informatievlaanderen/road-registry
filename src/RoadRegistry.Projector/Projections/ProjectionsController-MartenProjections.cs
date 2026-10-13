@@ -285,7 +285,6 @@ public partial class ProjectionsController
             WellKnownProjectionStateNames.RoadNetworkChangesPbsProjection => TruncatePbsReadModel,
             WellKnownProjectionStateNames.RoadNetworkChangesWmsWfsV2Projection => TruncateWmsWfsV2ReadModel,
             WellKnownProjectionStateNames.RoadNetworkChangesWmsWfsV1InwinningProjection => TruncateWmsWfsV1InwinningReadModel,
-            WellKnownProjectionStateNames.RoadNetworkChangesPbsTempProjection => TruncatePbsTempReadModel,
             _ => null
         };
     }
@@ -308,17 +307,6 @@ public partial class ProjectionsController
         // The enum-based code lists are synced by PbsCodeListSyncService instead of by events, so a replay cannot
         // restore them; everything else in the model is projection output and goes.
         await TruncateProjectionTables(context, nameof(RoadNetworkChangesPbsProjection),
-            clrType => typeof(IEnumBasedCodeListRecord).IsAssignableFrom(clrType), cancellationToken);
-    }
-
-    // The shadow read model, truncated through a context scoped to its own schema. Same tables, same rules - a
-    // rebuild of a rebuild, which is what a shadow that went wrong needs.
-    private async Task TruncatePbsTempReadModel(CancellationToken cancellationToken)
-    {
-        var factory = HttpContext.RequestServices.GetRequiredService<TempSchemaDbContextFactory<PbsContext>>();
-        await using var context = factory.CreateDbContext();
-
-        await TruncateProjectionTables(context, nameof(RoadNetworkChangesPbsTempProjection),
             clrType => typeof(IEnumBasedCodeListRecord).IsAssignableFrom(clrType), cancellationToken);
     }
 

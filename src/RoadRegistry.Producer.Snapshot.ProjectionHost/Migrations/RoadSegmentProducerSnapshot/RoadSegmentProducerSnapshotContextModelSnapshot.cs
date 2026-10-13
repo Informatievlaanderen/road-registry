@@ -18,7 +18,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadSegmentPr
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.4")
+                .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -93,7 +93,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadSegmentPr
                         .HasColumnType("int");
 
                     b.Property<string>("MaintainerId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("MaintainerName")
                         .HasColumnType("nvarchar(max)");
@@ -147,6 +147,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadSegmentPr
                     b.HasIndex("LeftSideStreetNameId");
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("LeftSideStreetNameId"), false);
+
+                    b.HasIndex("MaintainerId");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("MaintainerId"), false);
 
                     b.HasIndex("RightSideStreetNameId");
 

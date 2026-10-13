@@ -45,7 +45,6 @@ public class RemoveRoadNodeV2Tests : V2ReadEndpointTestBase
                 Lambert72 = roadNodeWasAdded.Geometry.EnsureLambert72(),
                 Lambert08 = roadNodeWasAdded.Geometry.EnsureLambert08()
             },
-            RoadSegmentIds = [],
             Origin = roadNodeWasAdded.Provenance.ToEventTimestamp(),
             LastModified = roadNodeWasAdded.Provenance.ToEventTimestamp(),
             IsV2 = true,

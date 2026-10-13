@@ -1,6 +1,8 @@
-namespace RoadRegistry.Pbs.Projections;
+﻿namespace RoadRegistry.Pbs.Projections;
 
+using System;
 using System.Threading;
+using NetTopologySuite.Geometries;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Microsoft.EntityFrameworkCore;
@@ -21,13 +23,13 @@ public class GradeSeparatedJunctionPbsProjection : RunnerDbContextRoadNetworkCha
         // V1
         // Imported/Added are created events: the junction cannot exist yet, so skip the lookup and insert directly.
         When<IEvent<ImportedGradeSeparatedJunction>>((context, e, ct) =>
-            WriteV1(context, e.Data.Id, e.Data.LowerRoadSegmentId, e.Data.UpperRoadSegmentId, e.Data.Type, e.Data.Geometry, true, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.Id, e.Data.LowerRoadSegmentId, e.Data.UpperRoadSegmentId, e.Data.Type, e.Data.Geometry, e.Data.Provenance, ct));
 
         When<IEvent<GradeSeparatedJunctionAdded>>((context, e, ct) =>
-            WriteV1(context, e.Data.Id, e.Data.LowerRoadSegmentId, e.Data.UpperRoadSegmentId, e.Data.Type, e.Data.Geometry, true, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.Id, e.Data.LowerRoadSegmentId, e.Data.UpperRoadSegmentId, e.Data.Type, e.Data.Geometry, e.Data.Provenance, ct));
 
         When<IEvent<GradeSeparatedJunctionModified>>((context, e, ct) =>
-            WriteV1(context, e.Data.Id, e.Data.LowerRoadSegmentId, e.Data.UpperRoadSegmentId, e.Data.Type, e.Data.Geometry, false, e.Data.Provenance, ct));
+            WriteV1(context, e.Data.Id, e.Data.LowerRoadSegmentId, e.Data.UpperRoadSegmentId, e.Data.Type, e.Data.Geometry, e.Data.Provenance, ct));
 
         // V1 (legacy) geometry change produced by the migration; the geometry is in Lambert72 and normalized to Lambert08.
         When<IEvent<GradeSeparatedJunctionGeometryModified>>(async (context, e, ct) =>
@@ -51,41 +53,17 @@ public class GradeSeparatedJunctionPbsProjection : RunnerDbContextRoadNetworkCha
         });
 
         // V2
-        // A created event means the entity does not exist yet, so insert directly without a lookup (re-delivery is
-        // guarded by the projection-state position in the base projection).
         When<IEvent<GradeSeparatedJunctionWasAdded>>((context, e, ct) =>
-        {
-            context.GradeSeparatedJunctions.Add(new GradeSeparatedJunctionRecord
-            {
-                OK_OIDN = e.Data.GradeSeparatedJunctionId.ToInt32(),
-                ON_WS_OIDN = e.Data.LowerRoadSegmentId.ToInt32(),
-                BO_WS_OIDN = e.Data.UpperRoadSegmentId.ToInt32(),
-                TYPE = e.Data.Type.Translation.Identifier,
-                LBLTYPE = e.Data.Type.Translation.Name,
-                GEOMETRIE = e.Data.Geometry.EnsureLambert08().Value.Force2D(),
-                CREATIE = e.Data.Provenance.ToPbsDate(),
-                VERSIE = e.Data.Provenance.ToPbsDate()
-            });
-            return Task.CompletedTask;
-        });
+            WriteV2(context, e.Data.GradeSeparatedJunctionId.ToInt32(), e.Data.LowerRoadSegmentId.ToInt32(),
+                e.Data.UpperRoadSegmentId.ToInt32(), e.Data.Type.Translation.Identifier, e.Data.Type.Translation.Name,
+                e.Data.Geometry.EnsureLambert08().Value.Force2D(), e.Data.Provenance.ToPbsDate(), ct));
 
         // Not a newly observed crossing: it is the one the named grade junction used to record, now recorded as a
         // grade separated junction. For this projection it is an insert all the same.
         When<IEvent<GradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange>>((context, e, ct) =>
-        {
-            context.GradeSeparatedJunctions.Add(new GradeSeparatedJunctionRecord
-            {
-                OK_OIDN = e.Data.GradeSeparatedJunctionId.ToInt32(),
-                ON_WS_OIDN = e.Data.LowerRoadSegmentId.ToInt32(),
-                BO_WS_OIDN = e.Data.UpperRoadSegmentId.ToInt32(),
-                TYPE = e.Data.Type.Translation.Identifier,
-                LBLTYPE = e.Data.Type.Translation.Name,
-                GEOMETRIE = e.Data.Geometry.EnsureLambert08().Value.Force2D(),
-                CREATIE = e.Data.Provenance.ToPbsDate(),
-                VERSIE = e.Data.Provenance.ToPbsDate()
-            });
-            return Task.CompletedTask;
-        });
+            WriteV2(context, e.Data.GradeSeparatedJunctionId.ToInt32(), e.Data.LowerRoadSegmentId.ToInt32(),
+                e.Data.UpperRoadSegmentId.ToInt32(), e.Data.Type.Translation.Identifier, e.Data.Type.Translation.Name,
+                e.Data.Geometry.EnsureLambert08().Value.Force2D(), e.Data.Provenance.ToPbsDate(), ct));
 
         When<IEvent<GradeSeparatedJunctionWasModified>>(async (context, e, ct) =>
         {
@@ -166,9 +144,11 @@ public class GradeSeparatedJunctionPbsProjection : RunnerDbContextRoadNetworkCha
         });
     }
 
-    private static async Task WriteV1(PbsContext context, int id, int lowerRoadSegmentId, int upperRoadSegmentId, string type, JunctionGeometry? geometry, bool assumeNew, ProvenanceData provenance, CancellationToken ct)
+    private static async Task WriteV1(PbsContext context, int id, int lowerRoadSegmentId, int upperRoadSegmentId, string type, JunctionGeometry? geometry, ProvenanceData provenance, CancellationToken ct)
     {
-        var record = assumeNew ? null : await context.GradeSeparatedJunctions.FindAsync([id], ct);
+        // Always a lookup. It used to be skipped for the created events on the same assumption the V2 handlers made,
+        // and it breaks the same way on a replay.
+        var record = await context.GradeSeparatedJunctions.FindAsync([id], ct);
         var isNew = record is null;
         record ??= new GradeSeparatedJunctionRecord { OK_OIDN = id, CREATIE = provenance.ToPbsDate() };
         record.ON_WS_OIDN = lowerRoadSegmentId;
@@ -182,5 +162,25 @@ public class GradeSeparatedJunctionPbsProjection : RunnerDbContextRoadNetworkCha
         {
             context.GradeSeparatedJunctions.Add(record);
         }
+    }
+
+    // Upsert, not insert; see the note on WriteV1. A created event is not guaranteed to arrive once per id - a replay
+    // from before the projection-state position delivers it again - and a bare Add then becomes a primary key
+    // violation that pauses the shard. CREATIE is set only when the row is new.
+    private static async Task WriteV2(PbsContext context, int id, int lowerRoadSegmentId, int upperRoadSegmentId, int? type, string? typeLabel, Geometry? geometry, string timestamp, CancellationToken ct)
+    {
+        var record = await context.GradeSeparatedJunctions.FindAsync([id], ct);
+        if (record is null)
+        {
+            record = new GradeSeparatedJunctionRecord { OK_OIDN = id, CREATIE = timestamp };
+            context.GradeSeparatedJunctions.Add(record);
+        }
+
+        record.ON_WS_OIDN = lowerRoadSegmentId;
+        record.BO_WS_OIDN = upperRoadSegmentId;
+        record.TYPE = type;
+        record.LBLTYPE = typeLabel;
+        record.GEOMETRIE = geometry;
+        record.VERSIE = timestamp;
     }
 }

@@ -12,7 +12,11 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using RoadRegistry.BackOffice.Api.RoadSegments.V1;
 using RoadRegistry.BackOffice.Api.Tests.Infrastructure;
+using Marten;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Infrastructure.MartenDb.Setup;
+using RoadRegistry.Read.Projections;
+using RoadRegistry.Tests;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 
 public class GetRoadSegmentTests : IAsyncLifetime
@@ -23,6 +27,7 @@ public class GetRoadSegmentTests : IAsyncLifetime
     private readonly IFixture _fixture;
     private readonly Mock<IMediator> _mediator = new();
     private ExtractsDbContext _extractsDbContext;
+    private readonly InMemoryDocumentStoreSession _store = new(BuildStoreOptions());
 
     public GetRoadSegmentTests(DbContextBuilder dbContextBuilder)
     {
@@ -72,6 +77,33 @@ public class GetRoadSegmentTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task GivenNoInwinningButV2RoadSegment_ThenNotFoundWithLinkToV3()
+    {
+        // A V2 road segment that takes part in no inwinning - one of the parts of a split, for instance - only lives in v3.
+        var roadSegmentId = _fixture.Create<RoadSegmentId>();
+        await GivenReadRoadSegment(roadSegmentId, isV2: true);
+
+        var (result, httpContext) = await GetRoadSegment(roadSegmentId);
+
+        result.Should().BeOfType<NotFoundResult>();
+        httpContext.Response.Headers.Link.ToString().Should().Be($"<{BaseUrl}/v3/wegsegmenten/{roadSegmentId}>; rel=\"successor-version\"");
+        _mediator.Verify(x => x.Send(It.IsAny<RoadSegmentDetailRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GivenNoInwinningAndV1RoadSegment_ThenLookedUp()
+    {
+        var roadSegmentId = _fixture.Create<RoadSegmentId>();
+        await GivenReadRoadSegment(roadSegmentId, isV2: false);
+
+        var (result, httpContext) = await GetRoadSegment(roadSegmentId);
+
+        result.Should().BeOfType<NotFoundResult>();
+        httpContext.Response.Headers.Link.Should().BeEmpty();
+        _mediator.Verify(x => x.Send(It.Is<RoadSegmentDetailRequest>(request => request.WegsegmentId == roadSegmentId), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task GivenNoInwinning_ThenLookedUp()
     {
         var roadSegmentId = _fixture.Create<RoadSegmentId>();
@@ -98,6 +130,23 @@ public class GetRoadSegmentTests : IAsyncLifetime
         await _extractsDbContext.SaveChangesAsync();
     }
 
+    private async Task GivenReadRoadSegment(RoadSegmentId roadSegmentId, bool isV2)
+    {
+        var readItem = _fixture.Create<RoadSegmentReadItem>();
+        readItem.RoadSegmentId = roadSegmentId;
+        readItem.IsV2 = isV2;
+
+        await using var session = _store.LightweightSession();
+        session.Store(readItem);
+    }
+
+    private static StoreOptions BuildStoreOptions()
+    {
+        var storeOptions = new StoreOptions();
+        storeOptions.ConfigureRoad();
+        return storeOptions;
+    }
+
     private async Task<(IActionResult Result, HttpContext HttpContext)> GetRoadSegment(RoadSegmentId roadSegmentId)
     {
         var httpContext = new DefaultHttpContext();
@@ -106,7 +155,7 @@ public class GetRoadSegmentTests : IAsyncLifetime
             ControllerContext = new ControllerContext { HttpContext = httpContext }
         };
 
-        var result = await controller.GetRoadSegment(roadSegmentId, _extractsDbContext, new ApiOptions { BaseUrl = BaseUrl }, CancellationToken.None);
+        var result = await controller.GetRoadSegment(roadSegmentId, _extractsDbContext, _store, new ApiOptions { BaseUrl = BaseUrl }, CancellationToken.None);
 
         return (result, httpContext);
     }

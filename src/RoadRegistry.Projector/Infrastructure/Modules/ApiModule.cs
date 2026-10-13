@@ -399,15 +399,6 @@ public class ApiModule : Module
             Description = string.Empty,
             FallbackDesiredState = "subscribed"
         });
-
-        // Listed so the rebuild it is doing can be followed - it is only done when it reaches the store position.
-        _martenProjections.Add(new ProjectionDetail
-        {
-            Id = WellKnownProjectionStateNames.RoadNetworkChangesPbsTempProjection,
-            Name = "V2 - PBS (shadow rebuild)",
-            Description = "Vult het schaduwschema RoadRegistryPbsTemp; wordt na omwisseling verwijderd.",
-            FallbackDesiredState = "subscribed"
-        });
     }
 
     private void RegisterWmsWfsV2MartenProjection()

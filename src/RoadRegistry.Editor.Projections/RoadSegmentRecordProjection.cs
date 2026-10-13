@@ -631,7 +631,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var organizationIdValue = organizationId.ToString();
 
         await context.RoadSegments
-            .IncludeLocalForEachBatchAsync(q => q.Where(x => x.MaintainerId == organizationIdValue), 5000, dbRecords =>
+            .IncludeLocalForEachBatchAsync(q => q.Where(x => x.MaintainerId == organizationIdValue), x => x.Id, 5000, dbRecords =>
             {
                 _logger.LogInformation("Processing batch {Batch}", batchIndex);
 

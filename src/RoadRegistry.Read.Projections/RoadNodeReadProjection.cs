@@ -32,7 +32,6 @@ public class RoadNodeReadProjection : MartenRoadNetworkChangesProjection
                 Geometry = ProjectGeometry(e.Data.Geometry),
                 Type = e.Data.Type,
                 Grensknoop = false,
-                RoadSegmentIds = [],
                 Origin = e.Data.Provenance.ToEventTimestamp(),
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = false
@@ -44,7 +43,6 @@ public class RoadNodeReadProjection : MartenRoadNetworkChangesProjection
                 Geometry = ProjectGeometry(e.Data.Geometry),
                 Type = e.Data.Type,
                 Grensknoop = false,
-                RoadSegmentIds = [],
                 Origin = e.Data.Provenance.ToEventTimestamp(),
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = false
@@ -83,7 +81,6 @@ public class RoadNodeReadProjection : MartenRoadNetworkChangesProjection
                 Geometry = ProjectGeometry(e.Data.Geometry),
                 Type = e.Data.Type?.ToString(),
                 Grensknoop = e.Data.Grensknoop,
-                RoadSegmentIds = [],
                 Origin = e.Data.Provenance.ToEventTimestamp(),
                 LastModified = e.Data.Provenance.ToEventTimestamp(),
                 IsV2 = true
@@ -159,8 +156,7 @@ public class RoadNodeReadProjection : MartenRoadNetworkChangesProjection
         // Apply idempotently. If the node already exists - because the add event is reprocessed, or another
         // projection already loaded it into this shared session during the batch - mutate the existing tracked
         // instance instead of Storing a new one. Storing a different instance for an already-tracked id makes Marten
-        // throw "Document ... with same Id already added to the session", and it would also drop the RoadSegmentIds
-        // owned by the road segment projection.
+        // throw "Document ... with same Id already added to the session".
         var existing = await session.LoadAsync<RoadNodeReadItem>(roadNode.RoadNodeId, ct);
         if (existing is not null)
         {
@@ -204,16 +200,14 @@ public sealed class RoadNodeReadItem
     public required string? Type { get; set; }
     public required bool Grensknoop { get; set; }
 
-    public IReadOnlyCollection<RoadSegmentId> RoadSegmentIds { get; set; } = [];
-
     public required EventTimestamp Origin { get; init; }
     public required EventTimestamp LastModified { get; set; }
     public required bool IsV2 { get; set; }
     public bool IsRemoved { get; set; }
 
-    // Overwrites the event-owned fields from another read item, deliberately leaving the identity (Id), the original
-    // Origin and the RoadSegmentIds (owned by the road segment projection) untouched. Used to apply an "add" event
-    // idempotently onto an already-existing document without losing those fields.
+    // Overwrites the event-owned fields from another read item, deliberately leaving the identity (Id) and the
+    // original Origin untouched. Used to apply an "add" event idempotently onto an already-existing document without
+    // losing those fields.
     public void CopyDataFrom(RoadNodeReadItem source)
     {
         Geometry = source.Geometry;

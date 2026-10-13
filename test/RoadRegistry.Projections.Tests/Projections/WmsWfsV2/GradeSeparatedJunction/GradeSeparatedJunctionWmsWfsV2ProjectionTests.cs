@@ -296,4 +296,38 @@ public class GradeSeparatedJunctionWmsWfsV2ProjectionTests
 
         Assert.Null(await scenario.Find<GradeSeparatedJunctionRecord>(1));
     }
+
+    // A created event is not guaranteed to arrive once per id: a replay from before the projection-state position -
+    // a recovery, a rebuild - delivers it again. That used to be a primary key violation on the crossings table that
+    // paused the shard, which is how this projection fell over during the 2026-10-08 recovery.
+    [Fact]
+    public async Task WhenGradeSeparatedJunctionWasAddedTwice_ThenOneRowHoldingTheLatest()
+    {
+        var scenario = Scenario();
+        var type = _testData.Fixture.Create<GradeSeparatedJunctionTypeV2>();
+
+        await scenario.GivenAsync(new GradeSeparatedJunctionWasAdded
+        {
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
+            LowerRoadSegmentId = new RoadSegmentId(1),
+            UpperRoadSegmentId = new RoadSegmentId(2),
+            Type = type,
+            Geometry = JunctionPoint((50, 50)),
+            Provenance = Provenance
+        });
+        await scenario.GivenAsync(new GradeSeparatedJunctionWasAdded
+        {
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
+            LowerRoadSegmentId = new RoadSegmentId(1),
+            UpperRoadSegmentId = new RoadSegmentId(3),
+            Type = type,
+            Geometry = JunctionPoint((60, 60)),
+            Provenance = Provenance
+        });
+
+        var junction = await scenario.Find<GradeSeparatedJunctionRecord>(1);
+        Assert.NotNull(junction);
+        Assert.Equal(3, junction!.BO_WS_OIDN);
+        Assert.Equal(60.0, junction.GEOMETRIE!.Coordinate.X, 3);
+    }
 }

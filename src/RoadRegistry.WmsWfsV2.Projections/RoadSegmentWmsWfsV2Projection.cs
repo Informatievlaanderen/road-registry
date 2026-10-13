@@ -159,7 +159,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         When<IEvent<RoadSegmentWasAdded>>(async (context, e, ct) =>
         {
             var m = e.Data;
-            await WriteFull(context, m.RoadSegmentId.ToInt32(), true, m.Geometry, m.Status, m.GeometryDrawMethod,
+            await WriteFull(context, m.RoadSegmentId.ToInt32(), m.Geometry, m.Status, m.GeometryDrawMethod,
                 m.StartNodeId, m.EndNodeId, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
                 m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
                 m.PedestrianTrafficDirection, m.EuropeanRoadNumbers, m.NationalRoadNumbers, m.Provenance, ct);
@@ -168,7 +168,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         When<IEvent<RoadSegmentWasMigrated>>(async (context, e, ct) =>
         {
             var m = e.Data;
-            await WriteFull(context, m.RoadSegmentId.ToInt32(), false, m.Geometry, m.Status, m.GeometryDrawMethod,
+            await WriteFull(context, m.RoadSegmentId.ToInt32(), m.Geometry, m.Status, m.GeometryDrawMethod,
                 m.StartNodeId, m.EndNodeId, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
                 m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
                 m.PedestrianTrafficDirection, m.EuropeanRoadNumbers, m.NationalRoadNumbers, m.Provenance, ct);
@@ -177,7 +177,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         When<IEvent<OutlinedRoadSegmentWasAdded>>(async (context, e, ct) =>
         {
             var m = e.Data;
-            await WriteFull(context, m.RoadSegmentId.ToInt32(), true, m.Geometry, m.Status, RoadSegmentGeometryDrawMethodV2.Ingeschetst,
+            await WriteFull(context, m.RoadSegmentId.ToInt32(), m.Geometry, m.Status, RoadSegmentGeometryDrawMethodV2.Ingeschetst,
                 null, null, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
                 m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
                 m.PedestrianTrafficDirection, [], [], m.Provenance, ct);
@@ -186,7 +186,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         When<IEvent<RoadSegmentWasMerged>>(async (context, e, ct) =>
         {
             var m = e.Data;
-            await WriteFull(context, m.RoadSegmentId.ToInt32(), false, m.Geometry, m.Status, m.GeometryDrawMethod,
+            await WriteFull(context, m.RoadSegmentId.ToInt32(), m.Geometry, m.Status, m.GeometryDrawMethod,
                 m.StartNodeId, m.EndNodeId, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
                 m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
                 m.PedestrianTrafficDirection, m.EuropeanRoadNumbers, m.NationalRoadNumbers, m.Provenance, ct);
@@ -298,7 +298,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         });
     }
 
-    private async Task WriteFull(WmsWfsV2Context context, int segId, bool assumeNew,
+    private async Task WriteFull(WmsWfsV2Context context, int segId,
         RoadSegmentGeometry geometry, RoadSegmentStatusV2 status, RoadSegmentGeometryDrawMethodV2 method,
         RoadNodeId? startNode, RoadNodeId? endNode,
         RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2> morphology,
@@ -314,11 +314,11 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         IReadOnlyCollection<NationalRoadNumber> nationalRoadNumbers,
         ProvenanceData provenance, CancellationToken ct)
     {
-        // For a created event the segment cannot exist yet, so skip the lookup and always insert (re-delivery is guarded
-        // by the projection-state position in the base projection).
-        var (normal, isNew) = assumeNew
-            ? (new RoadSegmentRecord { WS_OIDN = segId, CREATIE = provenance.Timestamp.ToDateTimeOffset() }, true)
-            : await LoadOrCreate(context, segId, provenance);
+        // Always a lookup, and always the deletes below. The shortcut that skipped both assumed a created event
+        // arrives once per id; the projection-state position it leaned on is a position, and a replay from before it -
+        // a recovery, a rebuild - delivers the event again. That turned the insert into a primary key violation and
+        // left the previous derived rows and road numbers behind.
+        var (normal, isNew) = await LoadOrCreate(context, segId, provenance);
 
         normal.GEOMETRIE = geometry.EnsureLambert08().RoundToCm().Value.Force2D();
         normal.STATUS = status?.Translation.Identifier;
@@ -345,12 +345,12 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             context.RoadSegments.Add(normal);
         }
 
-        await RebuildEuropeanRoads(context, segId, europeanRoadNumbers, provenance, assumeNew, ct);
-        await RebuildNationalRoads(context, segId, nationalRoadNumbers, provenance, assumeNew, ct);
+        await RebuildEuropeanRoads(context, segId, europeanRoadNumbers, provenance, ct);
+        await RebuildNationalRoads(context, segId, nationalRoadNumbers, provenance, ct);
 
         var euNummers = AggregateRoadNumbers(europeanRoadNumbers.Select(x => x.ToString()));
         var nwNummers = AggregateRoadNumbers(nationalRoadNumbers.Select(x => x.ToString()));
-        await RebuildDerived(context, segId, normal, euNummers, nwNummers, assumeNew, ct);
+        await RebuildDerived(context, segId, normal, euNummers, nwNummers, ct);
     }
 
     // Partial update: only the non-null arguments are applied to the segment; the rest are kept as stored. Used for
@@ -442,7 +442,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         // Road numbers are not carried by the partial events, so keep the stored aggregate from the road tables.
         var euNummers = AggregateRoadNumbers((await context.EuropeanRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct)).Select(x => x.EUNUMMER).ToList());
         var nwNummers = AggregateRoadNumbers((await context.NationalRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct)).Select(x => x.NWNUMMER).ToList());
-        await RebuildDerived(context, segId, normal, euNummers, nwNummers, false, ct);
+        await RebuildDerived(context, segId, normal, euNummers, nwNummers, ct);
     }
 
     private static async Task<(RoadSegmentRecord Normal, bool IsNew)> LoadOrCreate(WmsWfsV2Context context, int segId, ProvenanceData provenance)
@@ -453,9 +453,8 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         return (normal, isNew);
     }
 
-    private async Task RebuildDerived(WmsWfsV2Context context, int segId, RoadSegmentRecord normal, string? euNummers, string? nwNummers, bool assumeNew, CancellationToken ct)
+    private async Task RebuildDerived(WmsWfsV2Context context, int segId, RoadSegmentRecord normal, string? euNummers, string? nwNummers, CancellationToken ct)
     {
-        if (!assumeNew)
         {
             context.DerivedRoadSegments.RemoveRange(await context.DerivedRoadSegments.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct));
         }
@@ -635,9 +634,8 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
     private static List<RoadSegmentPedestrianTrafficDirectionAttributeRecord> BuildPedestrian(RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection> values)
         => values.Values.Select(v => new RoadSegmentPedestrianTrafficDirectionAttributeRecord { RICHTING = v.Value?.Translation.Identifier, VANPOS = v.Coverage.From.ToDouble(), TOTPOS = v.Coverage.To.ToDouble() }).ToList();
 
-    private static async Task RebuildEuropeanRoads(WmsWfsV2Context c, int segId, IReadOnlyCollection<EuropeanRoadNumber> numbers, ProvenanceData provenance, bool assumeNew, CancellationToken ct)
+    private static async Task RebuildEuropeanRoads(WmsWfsV2Context c, int segId, IReadOnlyCollection<EuropeanRoadNumber> numbers, ProvenanceData provenance, CancellationToken ct)
     {
-        if (!assumeNew)
         {
             c.EuropeanRoads.RemoveRange(await c.EuropeanRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct));
         }
@@ -645,9 +643,8 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             c.EuropeanRoads.Add(new EuropeanRoadRecord { WS_OIDN = segId, EUNUMMER = number.ToString(), CREATIE = provenance.Timestamp.ToDateTimeOffset(), VERSIE = provenance.Timestamp.ToDateTimeOffset() });
     }
 
-    private static async Task RebuildNationalRoads(WmsWfsV2Context c, int segId, IReadOnlyCollection<NationalRoadNumber> numbers, ProvenanceData provenance, bool assumeNew, CancellationToken ct)
+    private static async Task RebuildNationalRoads(WmsWfsV2Context c, int segId, IReadOnlyCollection<NationalRoadNumber> numbers, ProvenanceData provenance, CancellationToken ct)
     {
-        if (!assumeNew)
         {
             c.NationalRoads.RemoveRange(await c.NationalRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct));
         }
@@ -655,8 +652,8 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             c.NationalRoads.Add(new NationalRoadRecord { WS_OIDN = segId, NWNUMMER = number.ToString(), CREATIE = provenance.Timestamp.ToDateTimeOffset(), VERSIE = provenance.Timestamp.ToDateTimeOffset() });
     }
 
-    // V1 add/import: full write of the segment. Both callers (Imported/Added) are created events, so the segment cannot
-    // exist yet (assumeNew) — the lookup and all derived/road delete queries are skipped. Maps the legacy string values to
+    // V1 add/import: full write of the segment. Both callers (Imported/Added) are created events, but the lookup and
+    // the delete queries run all the same, because a replay delivers a created event again. Maps the legacy string values to
     // V2 (null when unmapped) and sets the European/national roads from the event (Imported carries them inline; Added
     // starts empty and gets separate events).
     private Task WriteV1Full(WmsWfsV2Context context, int segId, RoadSegmentGeometry geometry,
@@ -670,7 +667,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         var length = geometry.EnsureLambert08().RoundToCm().Value.Length;
         var v2Method = V1ToV2.Method(method);
         var v2Status = V1ToV2.Status(status, v2Method);
-        return WriteFull(context, segId, true, geometry, v2Status, v2Method,
+        return WriteFull(context, segId, geometry, v2Status, v2Method,
             startNode > 0 ? new RoadNodeId(startNode) : null, endNode > 0 ? new RoadNodeId(endNode) : null,
             ForEntireGeometry(V1ToV2.Morphology(morphology), length),
             ForEntireGeometry(V1ToV2.Category(category), length),

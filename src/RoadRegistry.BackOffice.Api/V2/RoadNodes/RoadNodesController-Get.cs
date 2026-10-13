@@ -70,6 +70,10 @@ public partial class RoadNodesController
             return new StatusCodeResult(StatusCodes.Status410Gone);
         }
 
+        // The node document does not record which segments are knotted into it; the segments record the node, so ask
+        // them.
+        var roadSegments = await session.FindRoadSegmentsForRoadNode(roadNode.RoadNodeId, cancellationToken);
+
         var result = new WegknoopV2Detail
         {
             Identificator = new WegknoopIdentificator(OsloNamespaces.Wegknoop, roadNode.RoadNodeId.ToString(), roadNode.LastModified.Timestamp.ToDateTimeOffset()),
@@ -89,8 +93,8 @@ public partial class RoadNodesController
             },
             WegknoopType = RoadNodeTypeV2.Parse(roadNode.Type!).ToDutchString(),
             Grensknoop = roadNode.Grensknoop,
-            AansluitendeWegsegmenten = roadNode.RoadSegmentIds
-                .Select(x => new WegsegmentLink(x, apiOptions.GetWegsegmentDetailUrlFormat()))
+            AansluitendeWegsegmenten = roadSegments
+                .Select(x => new WegsegmentLink(x.RoadSegmentId, apiOptions.GetWegsegmentDetailUrlFormat()))
                 .ToArray()
         };
 
