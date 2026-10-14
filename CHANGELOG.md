@@ -1,3 +1,10 @@
+## [5.25.6](https://github.com/informatievlaanderen/road-registry/compare/v5.25.5...v5.25.6) (2026-10-14)
+
+
+### Bug Fixes
+
+* land trailing positions on rounded geometry when changing segment geometry ([783d807](https://github.com/informatievlaanderen/road-registry/commit/783d8072dcf0f493760c54743d2b3ce743b52d09))
+
 ## [5.25.5](https://github.com/informatievlaanderen/road-registry/compare/v5.25.4...v5.25.5) (2026-10-13)
 
 
