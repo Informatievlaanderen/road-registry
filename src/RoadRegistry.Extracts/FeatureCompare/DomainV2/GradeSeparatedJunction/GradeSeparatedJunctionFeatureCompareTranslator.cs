@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Index.Strtree;
 using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.Schemas.Inwinning.GradeSeparatedJuntions;
+using RoadRegistry.Extracts.Schemas.DomainV2.GradeSeparatedJuntions;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.Infrastructure;
@@ -166,19 +166,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             switch (record.RecordType.Translation.Identifier)
             {
                 case RecordType.IdenticalIdentifier:
-                    // An inwinning takes over the grade separated junctions it leaves untouched, so they migrate along with their road segments
-                    if (context.ZipArchiveMetadata.Inwinning)
-                    {
-                        changes = changes.AppendChange(
-                            new ModifyGradeSeparatedJunctionChange
-                            {
-                                GradeSeparatedJunctionId = record.Feature.Attributes.Id,
-                                LowerRoadSegmentId = record.LowerRoadSegmentId,
-                                UpperRoadSegmentId = record.UpperRoadSegmentId,
-                                Type = record.Feature.Attributes.Type
-                            }
-                        );
-                    }
+                    // A junction the delivery leaves untouched stays as it is: nothing to record.
                     break;
                 case RecordType.AddedIdentifier:
                     changes = changes.AppendChange(
@@ -323,17 +311,17 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
 
             if (CarAllowed(roadSegment1FlatFeatures) && CarAllowed(roadSegment2FlatFeatures))
             {
-                problems += recordContext.GradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
+                problems += recordContext.SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
             }
 
             if (BikeAllowed(roadSegment1FlatFeatures) && BikeAllowed(roadSegment2FlatFeatures))
             {
-                problems += recordContext.GradeSeparatedJunctionOrRoadNodeMissingWhenBikesAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
+                problems += recordContext.SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenBikesAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
             }
 
             if (PedestrianAllowed(roadSegment1FlatFeatures) && PedestrianAllowed(roadSegment2FlatFeatures))
             {
-                problems += recordContext.GradeSeparatedJunctionOrRoadNodeMissingWhenPedestriansAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
+                problems += recordContext.SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenPedestriansAreAllowed(roadSegment1TempIds, roadSegment2TempIds);
             }
         }
 
@@ -348,17 +336,19 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             .ToList();
     }
 
+    // An unknown traffic type ('-8') counts as allowed here. It is the reading that surfaces the crossing rather than
+    // passing over it in silence, which is what a suspect case is for: the delivery is accepted either way.
     private static bool CarAllowed(IReadOnlyCollection<RoadSegmentFeatureCompareWithFlatAttributes> flatRoadSegments)
     {
-        return flatRoadSegments.Any(x => x.CarAccessBackward || x.CarAccessForward);
+        return flatRoadSegments.Any(x => x.CarAccessBackward is not false || x.CarAccessForward is not false);
     }
     private static bool BikeAllowed(IReadOnlyCollection<RoadSegmentFeatureCompareWithFlatAttributes> flatRoadSegments)
     {
-        return flatRoadSegments.Any(x => x.BikeAccessBackward || x.BikeAccessForward);
+        return flatRoadSegments.Any(x => x.BikeAccessBackward is not false || x.BikeAccessForward is not false);
     }
     private static bool PedestrianAllowed(IReadOnlyCollection<RoadSegmentFeatureCompareWithFlatAttributes> flatRoadSegments)
     {
-        return flatRoadSegments.Any(x => x.PedestrianAccess);
+        return flatRoadSegments.Any(x => x.PedestrianAccess is not false);
     }
 
     private sealed record RoadSegmentCombination(RoadSegmentFeatureCompareRecord RoadSegment1, RoadSegmentFeatureCompareRecord RoadSegment2)

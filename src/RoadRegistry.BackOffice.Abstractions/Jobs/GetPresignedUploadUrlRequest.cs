@@ -48,6 +48,15 @@ namespace RoadRegistry.BackOffice.Abstractions.Jobs
                 DryRun = dryRun
             };
         }
+
+        public static GetPresignedUploadUrlRequest ForBijhouding(DownloadId downloadId)
+        {
+            return new GetPresignedUploadUrlRequest
+            {
+                UploadType = UploadType.DomainV2_Bijhouding,
+                DownloadId = downloadId
+            };
+        }
     }
 
     public enum UploadType
@@ -55,6 +64,7 @@ namespace RoadRegistry.BackOffice.Abstractions.Jobs
         Uploads,
         Extracts,
         ExtractsV2,
-        Inwinning
+        Inwinning,
+        DomainV2_Bijhouding
     }
 }

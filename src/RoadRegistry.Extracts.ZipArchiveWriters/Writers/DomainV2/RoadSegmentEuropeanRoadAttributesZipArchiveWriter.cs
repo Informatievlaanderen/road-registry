@@ -1,0 +1,67 @@
+namespace RoadRegistry.Extracts.ZipArchiveWriters.Writers.DomainV2;
+
+using System.IO.Compression;
+using System.Text;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.Dbase;
+using Schemas.DomainV2.RoadSegments;
+
+public class RoadSegmentEuropeanRoadAttributesZipArchiveWriter : IZipArchiveWriter
+{
+    private readonly Encoding _encoding;
+
+    public RoadSegmentEuropeanRoadAttributesZipArchiveWriter(Encoding encoding)
+    {
+        _encoding = encoding.ThrowIfNull();
+    }
+
+    public async Task WriteAsync(
+        ZipArchive archive,
+        RoadNetworkExtractAssemblyRequest request,
+        IZipArchiveDataSession zipArchiveData,
+        ZipArchiveWriteContext context,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(zipArchiveData);
+
+        var roadSegments = await zipArchiveData.EverythingInContourIsCompleet(request.Contour, cancellationToken)
+            ? await zipArchiveData.GetRoadSegments(request.Contour, cancellationToken)
+            : [];
+
+        const ExtractFileName extractFilename = ExtractFileName.AttEuropweg;
+        FeatureType[] featureTypes = request.IsInformative
+            ? [FeatureType.Extract]
+            : [FeatureType.Extract, FeatureType.Change];
+
+        var attributeId = new NextAttributeIdProvider(AttributeId.Initial);
+
+        foreach (var featureType in featureTypes)
+        {
+            var records = roadSegments
+                .SelectMany(x => x.EuropeanRoadNumbers.Select(number => (RoadSegment: x, number)))
+                .OrderBy(x => x.RoadSegment.Id)
+                .ThenBy(x => x.number)
+                .SelectMany(x =>
+                    context.GetTempSegments(x.RoadSegment.RoadSegmentId)
+                        .Select(tempSegment =>
+                        {
+                            var dbfRecord = new RoadSegmentEuropeanRoadAttributeDbaseRecord
+                            {
+                                EU_OIDN = { Value = attributeId.Next() },
+                                WS_TEMPID = { Value = tempSegment.Id },
+                                EUNUMMER = { Value = x.number },
+                                CREATIE = { Value = x.RoadSegment.Origin.Timestamp.ToBrusselsDateTime() }
+                            };
+                            return dbfRecord;
+                        })
+                );
+
+            var dbaseRecordWriter = new DbaseRecordWriter(_encoding);
+            await dbaseRecordWriter.WriteToArchive(archive, extractFilename, featureType, RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema, records, cancellationToken);
+        }
+    }
+}
