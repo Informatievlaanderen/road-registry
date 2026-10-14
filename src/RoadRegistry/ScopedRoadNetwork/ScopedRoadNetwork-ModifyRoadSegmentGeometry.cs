@@ -75,6 +75,8 @@ public partial class ScopedRoadNetwork
             return Failed(problems, context);
         }
 
+        // Taken before rounding: RoundToCm rounds the coordinates of the geometry it is given in place.
+        var submittedLength = change.Geometry.Value.Length;
         var newGeometry = change.Geometry.RoundToCm();
 
         // Under the segment's context as well: these come back without an identifier, and the translation of some of
@@ -125,19 +127,24 @@ public partial class ScopedRoadNetwork
             return Failed(problems, context);
         }
 
+        // The caller laid the positions out on the geometry as submitted, but rounding its vertices to the centimetre
+        // can make the line a centimetre longer or shorter. A trailing position on the submitted length is landed on
+        // the rounded one, otherwise the domain rejects the segment with a ToPositionNotEqualToLength error.
+        var roundedLength = newGeometry.Value.Length;
+
         problems += ModifyRoadSegment(new ModifyRoadSegmentChange
         {
             RoadSegmentIdReference = new RoadSegmentIdReference(roadSegmentId),
             Geometry = newGeometry,
-            AccessRestriction = change.AccessRestriction,
-            Category = change.Category,
-            Morphology = change.Morphology,
-            StreetNameId = change.StreetNameId,
-            MaintenanceAuthorityId = change.MaintenanceAuthorityId,
-            SurfaceType = change.SurfaceType,
-            CarTrafficDirection = change.CarTrafficDirection,
-            BikeTrafficDirection = change.BikeTrafficDirection,
-            PedestrianTrafficDirection = change.PedestrianTrafficDirection
+            AccessRestriction = change.AccessRestriction?.WithTrailingCoverageMovedOntoRoundedLength(submittedLength, roundedLength),
+            Category = change.Category?.WithTrailingCoverageMovedOntoRoundedLength(submittedLength, roundedLength),
+            Morphology = change.Morphology?.WithTrailingCoverageMovedOntoRoundedLength(submittedLength, roundedLength),
+            StreetNameId = change.StreetNameId?.WithTrailingCoverageMovedOntoRoundedLength(submittedLength, roundedLength),
+            MaintenanceAuthorityId = change.MaintenanceAuthorityId?.WithTrailingCoverageMovedOntoRoundedLength(submittedLength, roundedLength),
+            SurfaceType = change.SurfaceType?.WithTrailingCoverageMovedOntoRoundedLength(submittedLength, roundedLength),
+            CarTrafficDirection = change.CarTrafficDirection?.WithTrailingCoverageMovedOntoRoundedLength(submittedLength, roundedLength),
+            BikeTrafficDirection = change.BikeTrafficDirection?.WithTrailingCoverageMovedOntoRoundedLength(submittedLength, roundedLength),
+            PedestrianTrafficDirection = change.PedestrianTrafficDirection?.WithTrailingCoverageMovedOntoRoundedLength(submittedLength, roundedLength)
         }, context);
 
         foreach (var draggedRoadSegment in draggedRoadSegments)
