@@ -304,6 +304,61 @@ public class AggregateTests : AggregateTestBase
         coverages[1].Coverage.To.ToDouble().Should().Be(newLength);
     }
 
+    // A detour whose two vertical stretches of 20.004m each round down on their own: as submitted the line measures
+    // 140.008m (140.01), once its vertices are rounded to the centimetre it measures 140.00m.
+    private RoadSegmentGeometry GeometryThatRoundsShorter()
+    {
+        return BuildGeometry((0, 0), (50, 0), (50, 20.004), (60, 20.004), (60, 0), (100, 0));
+    }
+
+    [Fact]
+    public void WhenRoundingTheGeometryChangesItsLength_ThenTheTrailingPositionsFollowTheRoundedGeometry()
+    {
+        var roadNetwork = BuildNetworkWithSingleSegment();
+        var geometry = GeometryThatRoundsShorter();
+        geometry.Value.Length.RoundToCm().Should().Be(140.01);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, geometry), true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+
+        var modified = roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)];
+        modified.Geometry.Value.Length.RoundToCm().Should().Be(140);
+
+        var attributes = modified.Attributes!;
+        attributes.AccessRestriction.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.Category.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.Morphology.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.StreetNameId.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.MaintenanceAuthorityId.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.SurfaceType.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.CarTrafficDirection.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.BikeTrafficDirection.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.PedestrianTrafficDirection.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+    }
+
+    [Fact]
+    public void WhenTheTrailingPositionIsNotOnTheSubmittedLength_ThenItIsNotSnappedAndError()
+    {
+        // 139.99 is a centimetre off the submitted length (140.01) and off the rounded one (140.00) alike: it is not
+        // the caller's "up to the end", so it is not moved onto the end either.
+        var roadNetwork = BuildNetworkWithSingleSegment();
+        var geometry = GeometryThatRoundsShorter();
+        var change = BuildChange(roadNetwork, SegmentAId, geometry);
+        change = change with
+        {
+            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>()
+                .Add(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(139.99), change.Morphology!.Values.First().Value)
+        };
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(change, true, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().ContainSingle()
+            .Which.Reason.Should().Be("RoadSegmentMorphologyToPositionNotEqualToLength");
+        roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)].GetChanges().Should().BeEmpty();
+    }
+
     [Fact]
     public void WhenTheRoadNodeWouldBeDraggedTooFar_ThenError()
     {
