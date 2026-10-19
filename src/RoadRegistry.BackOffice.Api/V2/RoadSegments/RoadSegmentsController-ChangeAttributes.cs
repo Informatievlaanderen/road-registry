@@ -591,7 +591,7 @@ public record StraatnaamParameters : VanTotParameters
     ///     Kant waarop het attribuut van toepassing is.
     /// </summary>
     [DataMember(Name = "kant", Order = 0)]
-    [JsonProperty("kant", Required = Required.Always)]
+    [JsonProperty("kant")]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
     public string Kant { get; set; }
 
@@ -612,7 +612,7 @@ public record WegbeheerderParameters : VanTotParameters
     ///     Kant waarop het attribuut van toepassing is.
     /// </summary>
     [DataMember(Name = "kant", Order = 0)]
-    [JsonProperty("kant", Required = Required.Always)]
+    [JsonProperty("kant")]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
     public string Kant { get; set; }
 
