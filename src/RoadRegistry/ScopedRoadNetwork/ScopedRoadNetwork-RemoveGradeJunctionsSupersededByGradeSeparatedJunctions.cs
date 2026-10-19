@@ -45,7 +45,7 @@ public partial class ScopedRoadNetwork
 
     // The gelijkgrondse kruisingen of this scope whose segment pair also carries an ongelijkgrondse kruising. Public so
     // a caller can report on them without having to repeat the rule.
-    public IReadOnlyCollection<GradeJunction.GradeJunction> GetGradeJunctionsSupersededByGradeSeparatedJunctions()
+    public IReadOnlyCollection<GradeJunction> GetGradeJunctionsSupersededByGradeSeparatedJunctions()
     {
         var gradeSeparatedJunctionKeys = _gradeSeparatedJunctions.Values
             .Where(x => !x.IsRemoved)
@@ -58,7 +58,7 @@ public partial class ScopedRoadNetwork
     }
 
     // The ongelijkgrondse kruising that supersedes the given gelijkgrondse one, for reporting.
-    public GradeSeparatedJunction.GradeSeparatedJunction? FindGradeSeparatedJunctionFor(GradeJunction.GradeJunction gradeJunction)
+    public GradeSeparatedJunction? FindGradeSeparatedJunctionFor(GradeJunction gradeJunction)
     {
         var key = CreateCombinationKey(gradeJunction.RoadSegmentId1, gradeJunction.RoadSegmentId2);
 
