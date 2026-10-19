@@ -12,5 +12,6 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode DownloadIdIsRequired = new("UploadDownloadIdIsRequired");
         public static readonly ProblemCode DryRunSuccessful = new("UploadDryRunSuccessful");
         public static readonly ProblemCode MalwareFound = new("UploadMalwareFound");
+        public static readonly ProblemCode InwinningRoadSegmentsMissing = new("UploadInwinningRoadSegmentsMissing");
     }
 }

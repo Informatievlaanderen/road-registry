@@ -7,6 +7,7 @@ using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.Infrastructure.Messages;
 using ValueObjects.ProblemCodes;
+using InwinningRoadSegmentsMissingFromUpload = RoadRegistry.ValueObjects.Problems.InwinningRoadSegmentsMissingFromUpload;
 using ProblemSeverity = RoadRegistry.Infrastructure.Messages.ProblemSeverity;
 
 public class ProblemTranslatorTests
@@ -459,6 +460,11 @@ public class ProblemTranslatorTests
                 ProblemCode.GradeSeparatedJunction.NotUnique, [
                     new ProblemParameter("GradeSeparatedJunctionId", "1"),
                     new ProblemParameter("OtherGradeSeparatedJunctionId", "2"),
+                ]
+            },
+            {
+                ProblemCode.Upload.InwinningRoadSegmentsMissing, [
+                    new ProblemParameter(InwinningRoadSegmentsMissingFromUpload.ParameterName.RoadSegmentIds, "1, 2")
                 ]
             },
         };

@@ -137,7 +137,16 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : MartenSqsL
         var notUploadedRoadSegmentIds = missingRoadSegmentIds.Except(settledRoadSegmentIds).ToArray();
         if (notUploadedRoadSegmentIds.Any())
         {
-            throw new InvalidOperationException($"Inwinning road segment ids are missing from the upload (most likely bug in FeatureCompare, DownloadId {command.DownloadId}): {string.Join(",", notUploadedRoadSegmentIds)}");
+            // This points at the upload losing a road segment somewhere before it got here rather than at anything
+            // the caller did, so it is logged as an error for us to act on - with the full list, which the reported
+            // problem caps - while the caller is answered the way every other validation failure is answered: the
+            // inwinning is not completed, nothing is written, and a new upload can be done.
+            Logger.LogError("Inwinning road segment ids are missing from the upload (most likely bug in FeatureCompare, DownloadId {DownloadId}): {RoadSegmentIds}", command.DownloadId, string.Join(",", notUploadedRoadSegmentIds));
+
+            await _extractsDbContext.AutomaticValidationFailedAsync(command.UploadId, cancellationToken);
+
+            throw new RoadRegistryProblemsException(
+                Problems.Single(new InwinningRoadSegmentsMissingFromUpload(notUploadedRoadSegmentIds)));
         }
     }
 

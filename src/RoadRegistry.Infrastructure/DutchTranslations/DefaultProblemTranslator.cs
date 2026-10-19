@@ -1001,6 +1001,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     "Upload is succesvol beëindigd, maar de wijzigingen zijn alleen gesimuleerd.")
             },
             {
+                ProblemCode.Upload.InwinningRoadSegmentsMissing, problem => new(problem.Severity, "InwinningWegsegmentenOntbreken",
+                    $"Volgende wegsegmenten van de inwinningszone zijn niet in deze upload verwerkt: {problem.GetParameterValue(InwinningRoadSegmentsMissingFromUpload.ParameterName.RoadSegmentIds)}. Er werden geen wijzigingen doorgevoerd. De fout werd gemeld aan de beheerders van het Wegenregister; u kan de upload opnieuw uitvoeren.")
+            },
+            {
                 ProblemCode.Width.IsRequired, problem => new(problem.Severity, "BreedteVerplicht",
                     "Breedte is verplicht.")
             },
