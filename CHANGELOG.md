@@ -1,3 +1,10 @@
+## [5.25.9](https://github.com/informatievlaanderen/road-registry/compare/v5.25.8...v5.25.9) (2026-10-19)
+
+
+### Bug Fixes
+
+* no grade junction next to a grade separated junction ([25ad25f](https://github.com/informatievlaanderen/road-registry/commit/25ad25fb5e054034a700195384f58445564b8d18))
+
 ## [5.25.8](https://github.com/informatievlaanderen/road-registry/compare/v5.25.7...v5.25.8) (2026-10-19)
 
 
