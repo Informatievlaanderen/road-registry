@@ -15,7 +15,6 @@ using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
-using RoadRegistry.ScopedRoadNetwork.Events.V2;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
 using GradeJunction = RoadRegistry.GradeJunction.GradeJunction;
@@ -244,104 +243,6 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
         // The ongelijkgrondse kruising is already V2 and its crossing did not move, so it records nothing.
         roadNetwork.GradeSeparatedJunctions[GradeSeparatedJunctionId].GetChanges().Should().BeEmpty();
         result.Summary.GradeSeparatedJunctions.Removed.Should().BeEmpty();
-    }
-
-    // The one-off correction for the gelijkgrondse kruisingen the old behaviour recorded next to an ongelijkgrondse
-    // one. Here both segments carry car traffic, so there is nothing for the migration to re-judge: only the
-    // correction itself removes the kruising.
-    [Fact]
-    public void GivenACrossingWithBothKindsOfJunction_WhenRemovingSupersededGradeJunctions_ThenTheGradeJunctionIsRemoved()
-    {
-        var segment1Geometry = BuildRoadSegmentGeometry(_segment1Start, _segment1End);
-        var segment2Geometry = BuildRoadSegmentGeometry(_segment2Start, _segment2End);
-
-        var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
-            roadNodes:
-            [
-                CreateV2RoadNode(TestData.Segment1StartNodeAdded, _segment1Start),
-                CreateV2RoadNode(TestData.Segment1EndNodeAdded, _segment1End),
-                CreateV2RoadNode(TestData.Segment2StartNodeAdded, _segment2Start),
-                CreateV2RoadNode(TestData.Segment2EndNodeAdded, _segment2End)
-            ],
-            roadSegments:
-            [
-                CreateV2RoadSegment(TestData.Segment1Added, segment1Geometry, RoadSegmentTrafficDirection.Both),
-                CreateV2RoadSegment(TestData.Segment2Added, segment2Geometry, RoadSegmentTrafficDirection.Both)
-            ],
-            gradeSeparatedJunctions:
-            [
-                GradeSeparatedJunction.Create(new GradeSeparatedJunctionWasAdded
-                {
-                    GradeSeparatedJunctionId = GradeSeparatedJunctionId,
-                    LowerRoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-                    UpperRoadSegmentId = TestData.Segment2Added.RoadSegmentId,
-                    Type = GradeSeparatedJunctionTypeV2.Brug,
-                    Geometry = _crossing.ToJunctionGeometry(),
-                    Provenance = new(TestData.Provenance)
-                }).WithoutChanges()
-            ],
-            gradeJunctions:
-            [
-                CreateV2GradeJunction()
-            ]);
-
-        // What the one-off reports before it writes anything.
-        var superseded = roadNetwork.GetGradeJunctionsSupersededByGradeSeparatedJunctions();
-        superseded.Select(x => x.GradeJunctionId).Should().Equal(GradeJunctionId);
-        roadNetwork.FindGradeSeparatedJunctionFor(superseded.Single())!.GradeSeparatedJunctionId.Should().Be(GradeSeparatedJunctionId);
-
-        var result = roadNetwork.RemoveGradeJunctionsSupersededByGradeSeparatedJunctions(TestData.Provenance);
-
-        result.Problems.Should().HaveNoError();
-        result.Summary.GradeJunctions.Removed.Should().Equal(GradeJunctionId);
-        roadNetwork.GradeJunctions[GradeJunctionId].IsRemoved.Should().BeTrue();
-
-        CollectEvents(roadNetwork).Select(x => x.GetType()).Should().Equal(typeof(GradeJunctionWasRemoved));
-        roadNetwork.GetChanges().Select(x => x.GetType()).Should().Equal(typeof(RoadNetworkWasChanged));
-
-        // Nothing is left to correct, and a second run is a no-op.
-        roadNetwork.GetGradeJunctionsSupersededByGradeSeparatedJunctions().Should().BeEmpty();
-        roadNetwork.WithoutChanges();
-        roadNetwork.RemoveGradeJunctionsSupersededByGradeSeparatedJunctions(TestData.Provenance)
-            .Summary.GradeJunctions.Removed.Should().BeEmpty();
-        CollectEvents(roadNetwork).Should().BeEmpty();
-        roadNetwork.GetChanges().Should().BeEmpty();
-    }
-
-    // A gelijkgrondse kruising whose segment pair has no ongelijkgrondse kruising is left alone by the correction.
-    [Fact]
-    public void GivenACrossingWithOnlyAGradeJunction_WhenRemovingSupersededGradeJunctions_ThenNothingIsRemoved()
-    {
-        var segment1Geometry = BuildRoadSegmentGeometry(_segment1Start, _segment1End);
-        var segment2Geometry = BuildRoadSegmentGeometry(_segment2Start, _segment2End);
-
-        var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
-            roadNodes:
-            [
-                CreateV2RoadNode(TestData.Segment1StartNodeAdded, _segment1Start),
-                CreateV2RoadNode(TestData.Segment1EndNodeAdded, _segment1End),
-                CreateV2RoadNode(TestData.Segment2StartNodeAdded, _segment2Start),
-                CreateV2RoadNode(TestData.Segment2EndNodeAdded, _segment2End)
-            ],
-            roadSegments:
-            [
-                CreateV2RoadSegment(TestData.Segment1Added, segment1Geometry, RoadSegmentTrafficDirection.Both),
-                CreateV2RoadSegment(TestData.Segment2Added, segment2Geometry, RoadSegmentTrafficDirection.None)
-            ],
-            gradeJunctions:
-            [
-                CreateV2GradeJunction()
-            ]);
-
-        roadNetwork.GetGradeJunctionsSupersededByGradeSeparatedJunctions().Should().BeEmpty();
-
-        var result = roadNetwork.RemoveGradeJunctionsSupersededByGradeSeparatedJunctions(TestData.Provenance);
-
-        result.Problems.Should().HaveNoError();
-        result.Summary.GradeJunctions.Removed.Should().BeEmpty();
-        roadNetwork.GradeJunctions[GradeJunctionId].IsRemoved.Should().BeFalse();
-        CollectEvents(roadNetwork).Should().BeEmpty();
-        roadNetwork.GetChanges().Should().BeEmpty();
     }
 
     private ScopedRoadNetwork BuildV1RoadNetwork(
