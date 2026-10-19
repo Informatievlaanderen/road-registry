@@ -1,3 +1,10 @@
+## [5.25.10](https://github.com/informatievlaanderen/road-registry/compare/v5.25.9...v5.25.10) (2026-10-19)
+
+
+### Bug Fixes
+
+* **inwinning:** do not call a removed road segment missing from the upload ([0361bba](https://github.com/informatievlaanderen/road-registry/commit/0361bbac82e3c5353fc8a75f05571cd90b9eb4ec))
+
 ## [5.25.9](https://github.com/informatievlaanderen/road-registry/compare/v5.25.8...v5.25.9) (2026-10-19)
 
 
