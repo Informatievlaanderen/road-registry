@@ -65,7 +65,9 @@ public class DeleteRoadSegmentsV2Tests : V2ReadEndpointTestBase
     {
         var act = () => Act(new DeleteRoadSegmentsV2Parameters { Wegsegmenten = wegsegmenten! });
 
-        await act.Should().ThrowAsync<ValidationException>();
+        (await act.Should().ThrowAsync<ValidationException>())
+            .Which.Errors.Should().ContainSingle()
+            .Which.ErrorMessage.Should().Be("De parameter 'wegsegmenten' is verplicht.");
     }
 
     // VAL-1: an identifier that is not one at all.

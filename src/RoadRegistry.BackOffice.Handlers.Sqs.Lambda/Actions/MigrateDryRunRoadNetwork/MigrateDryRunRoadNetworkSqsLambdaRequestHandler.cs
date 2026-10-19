@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using RoadNetwork;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure.DutchTranslations;
@@ -116,11 +117,40 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : MartenSqsL
         var missingRoadSegmentIds = inwinningRoadSegmentIds
             .Except(modifiedOrRemovedRoadSegmentIds)
             .Except(command.IdenticalRoadSegmentIds.Select(x => x.ToInt32()))
+            .Select(x => new RoadSegmentId(x))
             .ToArray();
-        if (missingRoadSegmentIds.Any())
+        if (!missingRoadSegmentIds.Any())
         {
-            throw new InvalidOperationException($"Inwinning road segment ids are missing from the upload (most likely bug in FeatureCompare, DownloadId {command.DownloadId}): {string.Join(",", missingRoadSegmentIds)}");
+            return;
         }
+
+        // A road segment the inwinning is still waiting on that is already a V2 one was collected before - by an
+        // earlier upload for this zone, or by a V2 edit. There is nothing left for this upload to carry about it, so
+        // it is not missing from it: it is locked only because this inwinning still lists it, and completing the
+        // inwinning is what unlocks it. A segment that is still V1 is the one that points at an upload losing it.
+        var alreadyCollectedRoadSegmentIds = await SelectMigratedRoadSegmentIds(command, missingRoadSegmentIds, cancellationToken);
+        if (alreadyCollectedRoadSegmentIds.Any())
+        {
+            Logger.LogInformation("Inwinning road segment ids are not in the upload but are already ingewonnen, so they are completed along with it (DownloadId {DownloadId}): {RoadSegmentIds}", command.DownloadId, string.Join(",", alreadyCollectedRoadSegmentIds));
+        }
+
+        var notUploadedRoadSegmentIds = missingRoadSegmentIds.Except(alreadyCollectedRoadSegmentIds).ToArray();
+        if (notUploadedRoadSegmentIds.Any())
+        {
+            throw new InvalidOperationException($"Inwinning road segment ids are missing from the upload (most likely bug in FeatureCompare, DownloadId {command.DownloadId}): {string.Join(",", notUploadedRoadSegmentIds)}");
+        }
+    }
+
+    // Whether a road segment is already V2 is the road network's to answer. These are loaded on their own rather
+    // than read off the network loaded for the migration: that one is scoped to what the upload touches, which is
+    // exactly what these segments are not part of.
+    private async Task<IReadOnlyCollection<RoadSegmentId>> SelectMigratedRoadSegmentIds(MigrateRoadNetworkSqsRequest command, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, CancellationToken cancellationToken)
+    {
+        await using var session = Store.LightweightSession(IsolationLevel.Snapshot);
+
+        var roadNetwork = await _roadNetworkRepository.Load(session, new RoadNetworkIds([], roadSegmentIds, [], []), new ScopedRoadNetworkId(command.DownloadId.ToGuid()));
+
+        return await roadNetwork.SelectMigratedRoadSegmentIds()(roadSegmentIds, cancellationToken);
     }
 
     private async Task<ScopedRoadNetwork> Load(RoadNetworkChanges roadNetworkChanges, ScopedRoadNetworkId roadNetworkId)
