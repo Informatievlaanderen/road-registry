@@ -90,12 +90,11 @@ public class SwaggerTests
         schemaRepository.Schemas[nameof(ChangeRoadSegmentAttributeV2Parameters)].Required
             .Should().Contain("wegsegmenten");
 
-        // A sided VanTot derivative orders kant, vanPositie, totPositie and then the attribute. The side the
-        // attribute applies to is as required as the attribute itself - leaving it out is a validation failure - so
-        // both are documented as required; vanPositie and totPositie may be left out.
+        // A sided VanTot derivative orders kant, vanPositie, totPositie and then the attribute; only the attribute
+        // itself is required (not kant / vanPositie / totPositie).
         var straatnaam = schemaRepository.Schemas[nameof(StraatnaamParameters)];
         straatnaam.Properties.Keys.Should().Equal("kant", "vanPositie", "totPositie", "identificator");
-        straatnaam.Required.Should().BeEquivalentTo(new[] { "kant", "identificator" });
+        straatnaam.Required.Should().BeEquivalentTo(new[] { "identificator" });
 
         // A non-sided VanTot derivative orders vanPositie, totPositie and then the attribute; only the attribute is required.
         var morfologie = schemaRepository.Schemas[nameof(MorfologieParameters)];
