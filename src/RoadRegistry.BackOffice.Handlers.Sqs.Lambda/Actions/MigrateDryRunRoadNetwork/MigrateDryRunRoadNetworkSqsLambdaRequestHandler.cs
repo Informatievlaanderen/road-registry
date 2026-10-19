@@ -86,6 +86,15 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : MartenSqsL
 
         var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, new InMemoryRoadNetworkIdGenerator(initialValue: 1_000_000_000), Logger);
         var problems = changeResult.Problems;
+
+        // Only worth asking once the changes themselves hold up: comparing what the upload touched against what the
+        // inwinning is waiting on says nothing about an upload that is already being rejected.
+        if (!problems.HasError())
+        {
+            problems += await ValidateAllInwinningRoadSegmentsAreUploaded(command, changeResult, cancellationToken);
+        }
+
+        // A real problem wins over the signal that the simulation ran to the end, so this comes after the two checks.
         if (!problems.HasError() && onlyDryRun)
         {
             problems += new Error(ProblemCode.Upload.DryRunSuccessful);
@@ -97,11 +106,9 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : MartenSqsL
 
             throw new RoadRegistryProblemsException(problems);
         }
-
-        await EnsureAllInwinningRoadSegmentsAreUploaded(command, changeResult, cancellationToken);
     }
 
-    private async Task EnsureAllInwinningRoadSegmentsAreUploaded(MigrateRoadNetworkSqsRequest command, RoadNetworkChangeResult changeResult, CancellationToken cancellationToken)
+    private async Task<Problems> ValidateAllInwinningRoadSegmentsAreUploaded(MigrateRoadNetworkSqsRequest command, RoadNetworkChangeResult changeResult, CancellationToken cancellationToken)
     {
         var inwinningszone = await _extractsDbContext.Inwinningszones.SingleAsync(x => x.DownloadId == command.DownloadId.ToGuid(), cancellationToken);
 
@@ -120,7 +127,7 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : MartenSqsL
             .ToArray();
         if (!missingRoadSegmentIds.Any())
         {
-            return;
+            return Problems.None;
         }
 
         // A road segment the inwinning is still waiting on that is already a V2 one was collected before - by an
@@ -139,15 +146,13 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : MartenSqsL
         {
             // This points at the upload losing a road segment somewhere before it got here rather than at anything
             // the caller did, so it is logged as an error for us to act on - with the full list, which the reported
-            // problem caps - while the caller is answered the way every other validation failure is answered: the
-            // inwinning is not completed, nothing is written, and a new upload can be done.
+            // problem caps to keep the message readable.
             Logger.LogError("Inwinning road segment ids are missing from the upload (most likely bug in FeatureCompare, DownloadId {DownloadId}): {RoadSegmentIds}", command.DownloadId, string.Join(",", notUploadedRoadSegmentIds));
 
-            await _extractsDbContext.AutomaticValidationFailedAsync(command.UploadId, cancellationToken);
-
-            throw new RoadRegistryProblemsException(
-                Problems.Single(new InwinningRoadSegmentsMissingFromUpload(notUploadedRoadSegmentIds)));
+            return Problems.Single(new InwinningRoadSegmentsMissingFromUpload(notUploadedRoadSegmentIds));
         }
+
+        return Problems.None;
     }
 
     // The road segments an inwinning has nothing left to ask of: the ones that are already V2, and the ones that
