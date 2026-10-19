@@ -1,3 +1,10 @@
+## [5.25.7](https://github.com/informatievlaanderen/road-registry/compare/v5.25.6...v5.25.7) (2026-10-19)
+
+
+### Bug Fixes
+
+* **api:** name the required parameter a request leaves out ([560a30d](https://github.com/informatievlaanderen/road-registry/commit/560a30ddcda46c441fa1fa9336de90cd49fc03ad))
+
 ## [5.25.6](https://github.com/informatievlaanderen/road-registry/compare/v5.25.5...v5.25.6) (2026-10-14)
 
 
