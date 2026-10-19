@@ -88,14 +88,15 @@ public partial class ScopedRoadNetwork
                     .WithContext(problemContext);
             }
 
-            if (!hasOverlapInTrafficTypes && !existingGradeJunctions.ContainsKey(combination.Key))
+            if (!hasOverlapInTrafficTypes && CanAddGradeJunction(combination, existingGradeJunctions, existingGradeSeparatedJunctions))
             {
                 var geometry = JunctionGeometry.Create(intersection.Factory.CreatePoint(intersection.Coordinate.RoundToCm()));
                 problems += AddGradeJunction(combination.Segment1.RoadSegmentId, combination.Segment2.RoadSegmentId, geometry, idGenerator, context);
             }
-            else if (hasOverlapInTrafficTypes && existingGradeJunctions.TryGetValue(combination.Key, out var gradeJunction))
+
+            if (hasOverlapInTrafficTypes && existingGradeJunctions.TryGetValue(combination.Key, out var supersededGradeJunction))
             {
-                problems += RemoveGradeJunction(gradeJunction.GradeJunctionId, context);
+                problems += RemoveGradeJunction(supersededGradeJunction.GradeJunctionId, context);
             }
         }
 
@@ -105,6 +106,24 @@ public partial class ScopedRoadNetwork
         }
 
         return problems;
+    }
+
+    // Whether a crossing without overlapping traffic types may be recorded as a gelijkgrondse kruising.
+    //
+    // Two things stand in the way. A segment whose inwinning has not finished carries no traffic attributes at all, so
+    // the overlap check reads it as carrying no traffic and every crossing with it looks gelijkgronds - which says
+    // nothing about the two roads, only that one of them is still V1. And a crossing that already carries an
+    // ongelijkgrondse kruising is recorded: a segment pair never holds both kinds of kruising at once, so the
+    // ongelijkgrondse one stands and nothing is added next to it.
+    private static bool CanAddGradeJunction(
+        (RoadSegment Segment1, RoadSegment Segment2, (int, int) Key, Point[] IntersectingPoints) combination,
+        Dictionary<(int, int), GradeJunction> existingGradeJunctions,
+        Dictionary<(int, int), GradeSeparatedJunction> existingGradeSeparatedJunctions)
+    {
+        return combination.Segment1.HasMigrated()
+               && combination.Segment2.HasMigrated()
+               && !existingGradeJunctions.ContainsKey(combination.Key)
+               && !existingGradeSeparatedJunctions.ContainsKey(combination.Key);
     }
 
     // The junction handling of a geometry change, which is deliberately not the one above.
