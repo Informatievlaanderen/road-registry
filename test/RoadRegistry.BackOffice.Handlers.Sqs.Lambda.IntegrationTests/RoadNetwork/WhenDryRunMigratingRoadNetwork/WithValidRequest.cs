@@ -174,8 +174,11 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             Times.Never);
     }
 
+    // An upload that does not account for every road segment its inwinningszone is waiting on points at the upload
+    // losing one rather than at anything the caller did, so it is logged for us - but answered as a validation
+    // failure: the inwinning is not completed, nothing is written, and the caller can upload again.
     [Fact]
-    public async Task GivenInwinningRoadSegments_WhenNotAllRoadSegmentIdsAreUploaded_ThenException()
+    public async Task GivenInwinningRoadSegments_WhenNotAllRoadSegmentIdsAreUploaded_ThenTicketHasError()
     {
         // Arrange
         var sp = await BuildServiceProvider();
@@ -226,14 +229,30 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             RoadSegmentId = 999,
             Completed = false
         });
+        extractsDbContext.ExtractUploads.Add(new ExtractUpload
+        {
+            UploadId = command.MigrateRoadNetworkSqsRequest.UploadId,
+            DownloadId = command.MigrateRoadNetworkSqsRequest.DownloadId,
+            Status = ExtractUploadStatus.Processing,
+            TicketId = command.TicketId,
+            UploadedOn = DateTimeOffset.UtcNow
+        });
         await extractsDbContext.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var handler = sp.GetRequiredService<MigrateDryRunRoadNetworkSqsLambdaRequestHandler>();
-        var act = () => handler.Handle(new MigrateDryRunRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
+        await handler.Handle(new MigrateDryRunRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        TicketingMock.VerifyThatTicketHasError(
+            code: "InwinningWegsegmentenOntbreken",
+            message: "Volgende wegsegmenten van de inwinningszone zijn niet in deze upload verwerkt: 999. Er werden geen wijzigingen doorgevoerd. De fout werd gemeld aan de beheerders van het Wegenregister; u kan de upload opnieuw uitvoeren.");
+
+        // The processing stops here, so there is nothing left to validate.
+        MediatorMock.Verify(x => x.Send(
+            It.IsAny<DataValidationSqsRequest>(),
+            It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     // A road segment the inwinning still lists that is already ingewonnen has nothing left for an upload to carry:
