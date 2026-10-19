@@ -8,7 +8,7 @@ namespace RoadRegistry.Pbs.Schema.Migrations
     /// <inheritdoc />
     public partial class StripZAndMFromDerivedGeometriesAgain : Migration
     {
-        // A third pass over the flattened rows. 20260731070309 cleaned them once and 20260831073234 a second time,
+        // A third pass over the flattened rows. 20260731071039 cleaned them once and 20260831073246 a second time,
         // after the geometry handed to the flattener turned out to come back out of SQL Server with a Z and an M
         // declared. Normalizing that input was not enough: the flattener cuts a sub-line per attribute range, and an
         // interpolated cut point is a CoordinateZ in NTS - so every sub-line of a segment whose attributes do not all
