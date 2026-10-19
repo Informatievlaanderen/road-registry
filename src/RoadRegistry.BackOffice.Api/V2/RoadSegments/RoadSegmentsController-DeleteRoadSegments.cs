@@ -101,11 +101,12 @@ public class DeleteRoadSegmentsV2ParametersValidator : AbstractValidator<DeleteR
 {
     public DeleteRoadSegmentsV2ParametersValidator()
     {
-        // VAL-1: the array is required and every identifier in it has to be one.
+        // VAL-1: the array is required and every identifier in it has to be one. An array that is there but empty
+        // names no road segment either, so it is reported as the missing parameter it amounts to.
         RuleFor(x => x.Wegsegmenten)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .WithProblemCode(ProblemCode.Common.JsonInvalid)
+            .WithMessage("De parameter 'wegsegmenten' is verplicht.")
             .Must(wegsegmenten => wegsegmenten.All(RoadSegmentId.Accepts))
             .WithProblemCode(ProblemCode.Common.JsonInvalid);
     }
