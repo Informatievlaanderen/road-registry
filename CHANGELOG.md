@@ -1,3 +1,10 @@
+## [5.25.12](https://github.com/informatievlaanderen/road-registry/compare/v5.25.11...v5.25.12) (2026-10-20)
+
+
+### Bug Fixes
+
+* **inwinning:** judge the uniqueness of V2 kruisingen only ([84baef5](https://github.com/informatievlaanderen/road-registry/commit/84baef57c49368a378061f51ab8de68692b60104))
+
 ## [5.25.11](https://github.com/informatievlaanderen/road-registry/compare/v5.25.10...v5.25.11) (2026-10-20)
 
 
