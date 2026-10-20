@@ -37,7 +37,7 @@ public partial class ScopedRoadNetwork
     // other nodes rather than being allowed to snap onto one.
     public RoadNetworkChangeResult ModifyRoadSegmentGeometry(
         ModifyRoadSegmentGeometryChange change,
-        bool mayModifyMeasuredRoadSegments,
+        EditableGeometryDrawMethods editableGeometryDrawMethods,
         IRoadNetworkIdGenerator idGenerator,
         Provenance provenance,
         ILogger? logger = null)
@@ -69,7 +69,7 @@ public partial class ScopedRoadNetwork
         {
             problems += roadSegmentContext + new RoadSegmentChangeGeometryStatusNotValid();
         }
-        problems += ValidateGeometryDrawMethodIsEditable(roadSegment, mayModifyMeasuredRoadSegments);
+        problems += ValidateChangeGeometryIsAllowed(roadSegment, editableGeometryDrawMethods);
         if (problems.HasError())
         {
             return Failed(problems, context);
@@ -102,10 +102,11 @@ public partial class ScopedRoadNetwork
             .Where(x => IsConnectedToAnyOf(x, movedRoadNodes.Keys))
             .ToArray();
 
-        // VAL-5: a decentral manager is blocked as soon as one segment in the whole operation is 'ingemeten'.
+        // VAL-5: the caller is blocked as soon as one segment in the whole operation has a draw method they do not
+        // hold the scope for.
         foreach (var draggedRoadSegment in draggedRoadSegments)
         {
-            problems += ValidateGeometryDrawMethodIsEditable(draggedRoadSegment, mayModifyMeasuredRoadSegments);
+            problems += ValidateChangeGeometryIsAllowed(draggedRoadSegment, editableGeometryDrawMethods);
         }
         if (problems.HasError())
         {
@@ -173,16 +174,21 @@ public partial class ScopedRoadNetwork
     }
 
     // VAL-5
-    private static Problems ValidateGeometryDrawMethodIsEditable(RoadSegment roadSegment, bool mayModifyMeasuredRoadSegments)
+    private static Problems ValidateChangeGeometryIsAllowed(RoadSegment roadSegment, EditableGeometryDrawMethods editableGeometryDrawMethods)
     {
-        if (!mayModifyMeasuredRoadSegments && roadSegment.Attributes?.GeometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingemeten)
+        var geometryDrawMethod = roadSegment.Attributes?.GeometryDrawMethod;
+        if (editableGeometryDrawMethods.Allows(geometryDrawMethod))
         {
-            // Reported under the context of the measured segment, which is not necessarily the one in the request:
-            // a connected segment dragged along by a moved road node is blocked just the same.
-            return Problems.WithContext(roadSegment.RoadSegmentId) + new RoadSegmentChangeGeometryMeasuredNotAllowed();
+            return Problems.None;
         }
 
-        return Problems.None;
+        // Reported under the context of the segment that is out of reach, which is not necessarily the one in the
+        // request: a connected segment dragged along by a moved road node is blocked just the same.
+        var roadSegmentContext = Problems.WithContext(roadSegment.RoadSegmentId);
+
+        return geometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingemeten
+            ? roadSegmentContext + new RoadSegmentChangeGeometryMeasuredNotAllowed()
+            : roadSegmentContext + new RoadSegmentChangeGeometryOutlinedNotAllowed();
     }
 
     // Works out which road nodes are dragged along by the new geometry, and where to. A segment that is not connected

@@ -296,7 +296,7 @@ public class DisconnectingAggregateTests : StatusChangeAggregateTestBase
         // VAL-5
         var roadNetwork = BuildNetworkWithASegmentOnItsOwn(drawMethod: RoadSegmentGeometryDrawMethodV2.Ingemeten);
 
-        var result = Act(roadNetwork, RoadSegmentStatusChange.RealizedToPlanned, mayModifyMeasuredRoadSegments: false);
+        var result = Act(roadNetwork, RoadSegmentStatusChange.RealizedToPlanned, OnlyIngeschetst);
 
         result.Problems.Select(x => x.Reason).Should().Contain(RoadSegmentMeasuredNotAllowed.ProblemCode.ToString());
         roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)].Status.Should().Be(RoadSegmentStatusV2.Gerealiseerd);
@@ -307,7 +307,7 @@ public class DisconnectingAggregateTests : StatusChangeAggregateTestBase
     {
         var roadNetwork = BuildNetworkWithASegmentOnItsOwn(drawMethod: RoadSegmentGeometryDrawMethodV2.Ingemeten);
 
-        var result = Act(roadNetwork, RoadSegmentStatusChange.RealizedToPlanned, mayModifyMeasuredRoadSegments: true);
+        var result = Act(roadNetwork, RoadSegmentStatusChange.RealizedToPlanned, AllGeometryDrawMethods);
 
         result.Problems.Should().BeEmpty();
         roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)].Status.Should().Be(RoadSegmentStatusV2.Gepland);

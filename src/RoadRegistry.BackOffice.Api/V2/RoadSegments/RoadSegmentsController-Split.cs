@@ -20,6 +20,7 @@ using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Abstractions.Extensions;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
+using RoadRegistry.BackOffice.Api.Infrastructure.Authorization;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Read.Projections;
@@ -46,7 +47,7 @@ public partial class RoadSegmentsController
     /// <response code="410">Als het wegsegment is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost(SplitRoute, Name = nameof(SplitRoadSegmentV2))]
-    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = AcmIdmConstants.PolicyNames.WegBeheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -100,7 +101,9 @@ public partial class RoadSegmentsController
             {
                 ProvenanceData = CreateProvenanceData(Modification.Update),
                 RoadSegmentId = new RoadSegmentId(id),
-                CutPosition = cutPosition
+                CutPosition = cutPosition,
+                // The caller's scopes decide which road segments they may touch; the domain holds the verdict.
+                EditableGeometryDrawMethods = User.GetEditableGeometryDrawMethods()
             };
             var result = await _mediator.Send(sqsRequest, cancellationToken);
 

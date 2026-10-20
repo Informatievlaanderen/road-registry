@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ValueObjects;
 
 [BlobRequest]
 public sealed class CreateRoadSegmentOutlineV2SqsRequest : SqsRequest
@@ -19,6 +20,12 @@ public sealed class CreateRoadSegmentOutlineV2SqsRequest : SqsRequest
     public required ChangeRoadSegmentCarTrafficDirectionAttributeValue[] CarTrafficDirection { get; init; }
     public required ChangeRoadSegmentBikeTrafficDirectionAttributeValue[] BikeTrafficDirection { get; init; }
     public required ChangeRoadSegmentPedestrianTrafficDirectionAttributeValue[] PedestrianTrafficDirection { get; init; }
+
+    // Which road segments the caller may modify, read off the scopes on their token at the edge - the only place they
+    // are known - and enforced by the domain, which is the only place that knows which segments a change touches.
+    // An outlined road segment is always 'ingeschetst', so this comes down to whether the caller holds the
+    // 'geschetste weg' scope.
+    public required EditableGeometryDrawMethods EditableGeometryDrawMethods { get; init; }
 }
 
 public class ChangeRoadSegmentStreetNameIdAttributeValue

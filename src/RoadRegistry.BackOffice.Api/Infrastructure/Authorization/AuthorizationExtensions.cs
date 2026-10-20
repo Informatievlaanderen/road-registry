@@ -11,9 +11,17 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Authorization
             return authorizationOptions.AddPolicy(AcmIdmConstants.PolicyNames.VoInfo, Scopes.VoInfo);
         }
 
-        private static AuthorizationOptions AddPolicy(this AuthorizationOptions options, string policyName, string scope)
+        public static AuthorizationOptions AddAcmIdmPolicyWegBeheerder(this AuthorizationOptions authorizationOptions)
         {
-            options.AddPolicy(policyName, policyBuilder => policyBuilder.AddRequirements(new AcmIdmAuthorizationRequirement(new []{ scope })));
+            return authorizationOptions.AddPolicy(AcmIdmConstants.PolicyNames.WegBeheerder,
+                Scopes.DvWrGeschetsteWegBeheer,
+                Scopes.DvWrIngemetenWegBeheer);
+        }
+
+        // Any one of the given scopes satisfies the policy.
+        private static AuthorizationOptions AddPolicy(this AuthorizationOptions options, string policyName, params string[] scopes)
+        {
+            options.AddPolicy(policyName, policyBuilder => policyBuilder.AddRequirements(new AcmIdmAuthorizationRequirement(scopes)));
 
             return options;
         }

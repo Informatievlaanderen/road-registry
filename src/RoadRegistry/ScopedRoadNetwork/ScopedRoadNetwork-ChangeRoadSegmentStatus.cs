@@ -25,7 +25,7 @@ public partial class ScopedRoadNetwork
     public RoadNetworkChangeResult ChangeRoadSegmentStatus(
         RoadSegmentStatusChange statusChange,
         RoadSegmentId roadSegmentId,
-        bool mayModifyMeasuredRoadSegments,
+        EditableGeometryDrawMethods editableGeometryDrawMethods,
         IRoadNetworkIdGenerator idGenerator,
         Provenance provenance,
         ILogger? logger = null)
@@ -55,7 +55,7 @@ public partial class ScopedRoadNetwork
             return new RoadNetworkChangeResult(Problems.None, context.Summary);
         }
 
-        var problems = ValidateRoadSegmentIsChangeable(roadSegment, statusChange, mayModifyMeasuredRoadSegments, roadSegmentContext);
+        var problems = ValidateRoadSegmentIsChangeable(roadSegment, statusChange, editableGeometryDrawMethods, roadSegmentContext);
         if (problems.HasError())
         {
             return Failed(problems, context);
@@ -63,7 +63,7 @@ public partial class ScopedRoadNetwork
 
         if (statusChange.Connects)
         {
-            return ConnectRoadSegment(statusChange, roadSegment, mayModifyMeasuredRoadSegments, idGenerator, provenance, context, roadSegmentContext, logger);
+            return ConnectRoadSegment(statusChange, roadSegment, idGenerator, provenance, context, roadSegmentContext, logger);
         }
 
         if (statusChange.Disconnects)
@@ -77,7 +77,7 @@ public partial class ScopedRoadNetwork
     private static Problems ValidateRoadSegmentIsChangeable(
         RoadSegment roadSegment,
         RoadSegmentStatusChange statusChange,
-        bool mayModifyMeasuredRoadSegments,
+        EditableGeometryDrawMethods editableGeometryDrawMethods,
         Problems roadSegmentContext)
     {
         var problems = Problems.None;
@@ -92,10 +92,14 @@ public partial class ScopedRoadNetwork
         {
             problems += roadSegmentContext + new RoadSegmentStatusNotValidForStatusChange(statusChange.StatusNotValidProblemCode, statusChange.From);
         }
-        // Only a holder of the 'ingemeten' scope may change the status of a measured road segment.
-        if (!mayModifyMeasuredRoadSegments && roadSegment.Attributes?.GeometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingemeten)
+        // The status of a road segment may only be changed by a caller holding the scope that goes with its geometry
+        // draw method.
+        var geometryDrawMethod = roadSegment.Attributes?.GeometryDrawMethod;
+        if (!editableGeometryDrawMethods.Allows(geometryDrawMethod))
         {
-            problems += roadSegmentContext + new RoadSegmentMeasuredNotAllowed();
+            problems += geometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingemeten
+                ? roadSegmentContext + new RoadSegmentMeasuredNotAllowed()
+                : roadSegmentContext + new RoadSegmentOutlinedNotAllowed();
         }
 
         return problems;
@@ -114,7 +118,6 @@ public partial class ScopedRoadNetwork
     private RoadNetworkChangeResult ConnectRoadSegment(
         RoadSegmentStatusChange statusChange,
         RoadSegment roadSegment,
-        bool mayModifyMeasuredRoadSegments,
         IRoadNetworkIdGenerator idGenerator,
         Provenance provenance,
         ScopedRoadNetworkChangeContext context,

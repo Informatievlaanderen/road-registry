@@ -8,6 +8,7 @@ using Marten;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RoadRegistry.BackOffice.Abstractions.Extensions;
+using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.RoadSegment.ValueObjects;
@@ -49,9 +50,8 @@ public partial class RoadSegmentsController
                 ProvenanceData = CreateProvenanceData(Modification.Update),
                 RoadSegmentId = new RoadSegmentId(id),
                 StatusChange = statusChange,
-                // Only a holder of the 'ingemeten' scope may change the status of a measured road segment. The
-                // entitlement travels with the request; the domain decides whether it is needed.
-                MayModifyMeasuredRoadSegments = HasIngemetenWegScope()
+                // The caller's scopes decide which road segments they may touch; the domain holds the verdict.
+                EditableGeometryDrawMethods = User.GetEditableGeometryDrawMethods()
             };
             var result = await _mediator.Send(sqsRequest, cancellationToken);
 

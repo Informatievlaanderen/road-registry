@@ -699,6 +699,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"U heeft niet de machtigingen om deze actie uit te voeren voor (aansluitende) wegsegmenten met geometriemethode 'ingemeten'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingemeten.")
             },
             {
+                ProblemCode.RoadSegment.ChangeGeometry.OutlinedNotAllowed, problem => new(problem.Severity, "WegsegmentGeometrieIngeschetstNietToegelaten",
+                    $"U heeft niet de machtigingen om deze actie uit te voeren voor (aansluitende) wegsegmenten met geometriemethode 'ingeschetst'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingeschetst.")
+            },
+            {
                 ProblemCode.RoadSegment.CorrectFromRealizedToPlanned.StatusNotValid, problem => new(problem.Severity, "WegsegmentCorrectieStatusNietCorrect",
                     $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft een status die verschilt van 'gerealiseerd'.")
             },
@@ -713,6 +717,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             {
                 ProblemCode.RoadSegment.MeasuredNotAllowed, problem => new(problem.Severity, "WegsegmentIngemetenNietToegelaten",
                     $"U heeft niet de machtigingen om deze actie uit te voeren voor wegsegmenten met geometriemethode 'ingemeten'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingemeten.")
+            },
+            {
+                ProblemCode.RoadSegment.OutlinedNotAllowed, problem => new(problem.Severity, "WegsegmentIngeschetstNietToegelaten",
+                    $"U heeft niet de machtigingen om deze actie uit te voeren voor wegsegmenten met geometriemethode 'ingeschetst'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingeschetst.")
             },
             {
                 ProblemCode.RoadSegment.Realize.NoRoadNodeInReach, problem => new(problem.Severity, "WegsegmentRealisatieGeenWegknoopGevonden",

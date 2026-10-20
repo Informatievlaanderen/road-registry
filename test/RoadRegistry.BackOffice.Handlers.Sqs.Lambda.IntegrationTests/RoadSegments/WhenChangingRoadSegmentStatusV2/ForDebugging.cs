@@ -30,6 +30,7 @@ using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
+using RoadRegistry.ValueObjects;
 
 /// <summary>
 /// Runs the status change lambda against whatever database the configuration points at, so a scenario that only shows
@@ -57,7 +58,7 @@ public class ForDebugging
         // Arrange
         var roadSegmentId = new RoadSegmentId(220324);
         // VAL-9: whether the caller holds the 'ingemeten' scope. Set it the way the caller you are reproducing has it.
-        var mayModifyMeasuredRoadSegments = true;
+        var editableGeometryDrawMethods = new EditableGeometryDrawMethods(Ingeschetst: true, Ingemeten: true);
         // Which transition to reproduce; see RoadSegmentStatusChange for the full table.
         var statusChange = RoadSegmentStatusChange.PlannedToRealized;
 
@@ -76,7 +77,7 @@ public class ForDebugging
             ProvenanceData = new RoadRegistryProvenanceData(),
             RoadSegmentId = roadSegmentId,
             StatusChange = statusChange,
-            MayModifyMeasuredRoadSegments = mayModifyMeasuredRoadSegments
+            EditableGeometryDrawMethods = editableGeometryDrawMethods
         };
 
         // A ticket error is the interesting outcome when something is wrong, so it is written out rather than only

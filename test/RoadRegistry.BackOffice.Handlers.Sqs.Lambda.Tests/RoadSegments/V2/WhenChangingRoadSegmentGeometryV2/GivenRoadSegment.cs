@@ -330,7 +330,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
             ProvenanceData = ObjectProvider.Create<ProvenanceData>(),
             RoadSegmentId = attributes.RoadSegmentId,
             Geometry = newGeometry ?? NewGeometry(),
-            MayModifyMeasuredRoadSegments = true,
+            EditableGeometryDrawMethods = new EditableGeometryDrawMethods(Ingeschetst: true, Ingemeten: true),
             Morphology = [new AttributeValue<RoadSegmentMorphologyV2>(null, null, attributes.Morphology.Values.First().Value)],
             SurfaceType = [new AttributeValue<RoadSegmentSurfaceTypeV2>(null, null, attributes.SurfaceType.Values.First().Value)],
             AccessRestriction = [new AttributeValue<RoadSegmentAccessRestrictionV2>(null, null, attributes.AccessRestriction.Values.First().Value)],

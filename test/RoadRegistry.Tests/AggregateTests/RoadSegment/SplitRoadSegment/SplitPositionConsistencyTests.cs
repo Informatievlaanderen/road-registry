@@ -43,7 +43,7 @@ public class SplitPositionConsistencyTests : AggregateTestBase
         var roadNetwork = BuildNetwork();
         var originalId = TestData.Segment1Added.RoadSegmentId;
 
-        roadNetwork.SplitRoadSegment(originalId, cutPosition, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        roadNetwork.SplitRoadSegment(originalId, cutPosition, AllGeometryDrawMethods, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
 
         return roadNetwork.GetNonRemovedRoadSegments()
             .Where(x => x.RoadSegmentId != originalId)
@@ -85,7 +85,7 @@ public class SplitPositionConsistencyTests : AggregateTestBase
         var roadNetwork = BuildNetwork();
         var originalId = TestData.Segment1Added.RoadSegmentId;
 
-        roadNetwork.SplitRoadSegment(originalId, CutAt(30.5, 30.5), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        roadNetwork.SplitRoadSegment(originalId, CutAt(30.5, 30.5), AllGeometryDrawMethods, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
 
         foreach (var segment in roadNetwork.GetNonRemovedRoadSegments().Where(x => x.RoadSegmentId != originalId))
         {

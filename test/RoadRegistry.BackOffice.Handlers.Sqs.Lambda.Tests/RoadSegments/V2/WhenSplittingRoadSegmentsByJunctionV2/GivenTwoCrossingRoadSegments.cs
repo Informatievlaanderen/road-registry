@@ -206,7 +206,10 @@ public class GivenTwoCrossingRoadSegments : BackOfficeLambdaTest
         };
     }
 
-    private SplitRoadSegmentsByJunctionSqsRequest CreateSqsRequest(RoadSegmentId roadSegmentId1, RoadSegmentId roadSegmentId2)
+    private SplitRoadSegmentsByJunctionSqsRequest CreateSqsRequest(
+        RoadSegmentId roadSegmentId1,
+        RoadSegmentId roadSegmentId2,
+        EditableGeometryDrawMethods? editableGeometryDrawMethods = null)
     {
         return new SplitRoadSegmentsByJunctionSqsRequest
         {
@@ -214,7 +217,8 @@ public class GivenTwoCrossingRoadSegments : BackOfficeLambdaTest
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>(),
             RoadSegmentId1 = roadSegmentId1,
-            RoadSegmentId2 = roadSegmentId2
+            RoadSegmentId2 = roadSegmentId2,
+            EditableGeometryDrawMethods = editableGeometryDrawMethods ?? new EditableGeometryDrawMethods(Ingeschetst: true, Ingemeten: true)
         };
     }
 

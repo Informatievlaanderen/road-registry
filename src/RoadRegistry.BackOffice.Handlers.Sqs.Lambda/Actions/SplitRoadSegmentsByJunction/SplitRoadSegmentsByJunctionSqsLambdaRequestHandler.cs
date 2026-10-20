@@ -75,6 +75,7 @@ public sealed class SplitRoadSegmentsByJunctionSqsLambdaRequestHandler : MartenS
             roadNetwork.SplitRoadSegmentsByJunction(
                 command.RoadSegmentId1,
                 command.RoadSegmentId2,
+                command.EditableGeometryDrawMethods,
                 _roadNetworkIdGenerator,
                 command.ProvenanceData.ToProvenance(),
                 Logger);

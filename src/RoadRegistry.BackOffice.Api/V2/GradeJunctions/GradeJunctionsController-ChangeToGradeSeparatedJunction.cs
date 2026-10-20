@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
+using RoadRegistry.BackOffice.Api.Infrastructure.Authorization;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using RoadRegistry.BackOffice.Handlers.Sqs.GradeJunctions.V2;
 using RoadRegistry.Extensions;
@@ -44,7 +45,7 @@ public partial class GradeJunctionsController
     /// <response code="410">Als de gelijkgrondse kruising is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost(ChangeToGradeSeparatedJunctionRoute, Name = nameof(ChangeGradeJunctionToGradeSeparatedJunctionV2))]
-    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = AcmIdmConstants.PolicyNames.WegBeheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]

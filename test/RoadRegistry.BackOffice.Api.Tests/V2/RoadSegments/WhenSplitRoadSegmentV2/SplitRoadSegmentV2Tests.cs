@@ -19,6 +19,9 @@ using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests;
 using RoadRegistry.Tests.AggregateTests;
+using System.Security.Claims;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
+using RoadRegistry.ValueObjects;
 
 public class SplitRoadSegmentV2Tests : V2ReadEndpointTestBase
 {
@@ -58,6 +61,34 @@ public class SplitRoadSegmentV2Tests : V2ReadEndpointTestBase
         var e = TestData.Segment1Added;
         Seed(BuildReadItem(e, statusOverride, isV2));
         return (int)e.RoadSegmentId;
+    }
+
+    [Theory]
+    [InlineData(Scopes.DvWrGeschetsteWegBeheer, true, false)]
+    [InlineData(Scopes.DvWrIngemetenWegBeheer, false, true)]
+    public async Task GivenACaller_ThenTheirScopesAreSentAlong(string scope, bool ingeschetst, bool ingemeten)
+    {
+        // The endpoint takes either road scope; which road segment the caller may then actually cut is decided by the
+        // domain, so the entitlement travels with the request.
+        var id = SeedRealizedRoadSegment();
+        GiveCallerScopes(scope);
+
+        SplitRoadSegmentSqsRequest captured = null;
+        _mediator
+            .Setup(x => x.Send(It.IsAny<SplitRoadSegmentSqsRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<IRequest<LocationResult>, CancellationToken>((r, _) => captured = (SplitRoadSegmentSqsRequest)r)
+            .ReturnsAsync(Fixture.Create<LocationResult>());
+
+        await Act(id, ValidCutPositionLambert08);
+
+        captured.Should().NotBeNull();
+        captured.EditableGeometryDrawMethods.Should().Be(new EditableGeometryDrawMethods(ingeschetst, ingemeten));
+    }
+
+    private void GiveCallerScopes(params string[] scopes)
+    {
+        _controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(
+            new ClaimsIdentity(scopes.Select(x => new Claim(AcmIdmClaimTypes.Scope, x)), "Test"));
     }
 
     [Fact]
