@@ -13,6 +13,7 @@ using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
+using RoadRegistry.ValueObjects.Problems;
 using GradeSeparatedJunction = RoadRegistry.GradeSeparatedJunction.GradeSeparatedJunction;
 using RoadNode = RoadRegistry.RoadNode.RoadNode;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
@@ -20,6 +21,7 @@ using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 public class ScopedRoadNetworkTests : RoadNetworkTestBase
 {
     private static readonly GradeSeparatedJunctionId JunctionId = new(1);
+    private static readonly GradeSeparatedJunctionId OtherJunctionId = new(2);
 
     private readonly Point _segment1Start = new(0, 0);
     private readonly Point _segment1End = new(10, 0);
@@ -139,7 +141,67 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
         roadNetwork.GradeSeparatedJunctions[JunctionId].GetChanges().Should().BeEmpty();
     }
 
-    private ScopedRoadNetwork BuildV1RoadNetwork(GradeSeparatedJunction? gradeSeparatedJunction = null)
+    // V1 allowed two ongelijkgrondse kruisingen on one and the same segment pair, and the migration does not correct
+    // that. Uniqueness is a V2 rule, judged over the kruisingen that have migrated - so an inwinning that takes over
+    // one of the two is not told that a V1 kruising it does not carry stands in its way.
+    [Fact]
+    public void WhenOneOfTwoV1GradeSeparatedJunctionsOnTheSameRoadSegmentsIsModified_ThenNotUniqueIsNotReported()
+    {
+        var roadNetwork = BuildV1RoadNetwork(otherGradeSeparatedJunction:
+            GradeSeparatedJunction.CreateForMigration(OtherJunctionId, TestData.Segment1Added.RoadSegmentId, TestData.Segment2Added.RoadSegmentId, new Point(5, 0) { SRID = WellknownSrids.Lambert08 }.ToJunctionGeometry()));
+
+        var result = roadNetwork.Migrate(MigrateRoadNodesAndRoadSegments()
+                .Add(new ModifyGradeSeparatedJunctionChange
+                {
+                    GradeSeparatedJunctionId = JunctionId,
+                    LowerRoadSegmentId = TestData.Segment1Added.RoadSegmentId,
+                    UpperRoadSegmentId = TestData.Segment2Added.RoadSegmentId,
+                    Type = GradeSeparatedJunctionTypeV2.Brug
+                }),
+            TestData.Fixture.Create<DownloadId>(),
+            new InMemoryRoadNetworkIdGenerator());
+
+        result.Problems.Should().HaveNoError();
+        roadNetwork.GradeSeparatedJunctions[JunctionId].HasMigrated().Should().BeTrue();
+
+        // The one the inwinning does not carry stays V1 and is left exactly as it was.
+        var otherJunction = roadNetwork.GradeSeparatedJunctions[OtherJunctionId];
+        otherJunction.HasMigrated().Should().BeFalse();
+        otherJunction.IsRemoved.Should().BeFalse();
+        otherJunction.GetChanges().Should().BeEmpty();
+    }
+
+    // Once both are V2, the rule does apply.
+    [Fact]
+    public void WhenBothV1GradeSeparatedJunctionsOnTheSameRoadSegmentsAreModified_ThenNotUniqueIsReported()
+    {
+        var roadNetwork = BuildV1RoadNetwork(otherGradeSeparatedJunction:
+            GradeSeparatedJunction.CreateForMigration(OtherJunctionId, TestData.Segment1Added.RoadSegmentId, TestData.Segment2Added.RoadSegmentId, new Point(5, 0) { SRID = WellknownSrids.Lambert08 }.ToJunctionGeometry()));
+
+        var result = roadNetwork.Migrate(MigrateRoadNodesAndRoadSegments()
+                .Add(new ModifyGradeSeparatedJunctionChange
+                {
+                    GradeSeparatedJunctionId = JunctionId,
+                    LowerRoadSegmentId = TestData.Segment1Added.RoadSegmentId,
+                    UpperRoadSegmentId = TestData.Segment2Added.RoadSegmentId,
+                    Type = GradeSeparatedJunctionTypeV2.Brug
+                })
+                .Add(new ModifyGradeSeparatedJunctionChange
+                {
+                    GradeSeparatedJunctionId = OtherJunctionId,
+                    LowerRoadSegmentId = TestData.Segment1Added.RoadSegmentId,
+                    UpperRoadSegmentId = TestData.Segment2Added.RoadSegmentId,
+                    Type = GradeSeparatedJunctionTypeV2.Tunnel
+                }),
+            TestData.Fixture.Create<DownloadId>(),
+            new InMemoryRoadNetworkIdGenerator());
+
+        result.Problems.Should().Contain(new GradeSeparatedJunctionNotUnique(JunctionId, OtherJunctionId));
+    }
+
+    private ScopedRoadNetwork BuildV1RoadNetwork(
+        GradeSeparatedJunction? gradeSeparatedJunction = null,
+        GradeSeparatedJunction? otherGradeSeparatedJunction = null)
     {
         return new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
             roadNodes:
@@ -156,7 +218,8 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             ],
             gradeSeparatedJunctions:
             [
-                gradeSeparatedJunction ?? GradeSeparatedJunction.CreateForMigration(JunctionId, TestData.Segment1Added.RoadSegmentId, TestData.Segment2Added.RoadSegmentId, new Point(5, 0) { SRID = WellknownSrids.Lambert08 }.ToJunctionGeometry())
+                gradeSeparatedJunction ?? GradeSeparatedJunction.CreateForMigration(JunctionId, TestData.Segment1Added.RoadSegmentId, TestData.Segment2Added.RoadSegmentId, new Point(5, 0) { SRID = WellknownSrids.Lambert08 }.ToJunctionGeometry()),
+                ..otherGradeSeparatedJunction is not null ? new[] { otherGradeSeparatedJunction } : []
             ]);
     }
 

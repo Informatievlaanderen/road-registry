@@ -160,6 +160,10 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
+    // Deliberately not limited to the migrated road nodes, unlike the ongelijkgrondse kruisingen below. A road node's
+    // type is not uploaded but derived from what hangs off it, and it is this verification that derives it - so it is
+    // what turns a V1 node, which carries no type, into a V2 one. Skipping the non-migrated nodes here would leave
+    // them without a type forever.
     private Problems VerifyRoadNodesTopologyAndUpdateTypeAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments)
     {
         using var _ = context.Logger.TimeAction();
@@ -192,20 +196,29 @@ public partial class ScopedRoadNetwork
                 finalResult => finalResult);
     }
 
+    // Only the V2 ongelijkgrondse kruisingen are judged here. One whose inwinning has not finished is still a V1
+    // kruising: it carries no type, it has never been through a V2 upload, and the change being verified is not about
+    // it. Both what is verified and what it is compared against are therefore limited to the migrated kruisingen -
+    // otherwise two V1 kruisingen on one segment pair, which V1 allowed, would be reported as not unique to whoever
+    // happens to change something else in the network, who cannot act on either of them.
     private Problems VerifyGradeSeparatedJunctionsAfterChange(ScopedRoadNetworkChangeContext context)
     {
         using var _ = context.Logger.TimeAction();
 
         var problems = Problems.None;
 
-        var changedJunctions = _gradeSeparatedJunctions.Values
-            .Where(x => x.HasChanges() && !x.IsRemoved)
+        var migratedJunctions = _gradeSeparatedJunctions.Values
+            .Where(x => !x.IsRemoved && x.HasMigrated())
+            .ToList();
+
+        var changedJunctions = migratedJunctions
+            .Where(x => x.HasChanges())
             .ToList();
 
         // Optimize: Use Dictionary for O(n) duplicate detection instead of O(n log n) GroupBy
         var junctionsBySegmentPair = new Dictionary<(int Min, int Max), List<GradeSeparatedJunction>>();
 
-        foreach (var junction in context.RoadNetwork.GradeSeparatedJunctions.Values.Where(x => !x.IsRemoved))
+        foreach (var junction in migratedJunctions)
         {
             var key = (
                 Math.Min(junction.LowerRoadSegmentId.ToInt32(), junction.UpperRoadSegmentId.ToInt32()),
