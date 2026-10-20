@@ -160,6 +160,10 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
+    // Deliberately not limited to the migrated road nodes, unlike the ongelijkgrondse kruisingen below. A road node's
+    // type is not uploaded but derived from what hangs off it, and it is this verification that derives it - so it is
+    // what turns a V1 node, which carries no type, into a V2 one. Skipping the non-migrated nodes here would leave
+    // them without a type forever.
     private Problems VerifyRoadNodesTopologyAndUpdateTypeAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments)
     {
         using var _ = context.Logger.TimeAction();
@@ -192,20 +196,32 @@ public partial class ScopedRoadNetwork
                 finalResult => finalResult);
     }
 
+    // Only the ongelijkgrondse kruisingen that have migrated are judged here. A kruising migrates together with the
+    // road segments it crosses, so one that is still V1 - it carries no type - sits on road segments that are still V1
+    // as well, and neither it nor they are part of the change being verified.
+    //
+    // That matters because V1 allowed two kruisingen on one and the same segment pair and the migration does not
+    // correct that: the scope loaded for a change can hold a pair of V1 kruisingen that the change neither carries nor
+    // has to carry, and reporting those as not unique asks whoever is changing something else to fix data they cannot
+    // reach. Both what is verified and what it is compared against are therefore limited to the migrated kruisingen.
     private Problems VerifyGradeSeparatedJunctionsAfterChange(ScopedRoadNetworkChangeContext context)
     {
         using var _ = context.Logger.TimeAction();
 
         var problems = Problems.None;
 
-        var changedJunctions = _gradeSeparatedJunctions.Values
-            .Where(x => x.HasChanges() && !x.IsRemoved)
+        var migratedJunctions = _gradeSeparatedJunctions.Values
+            .Where(x => !x.IsRemoved && x.HasMigrated())
+            .ToList();
+
+        var changedJunctions = migratedJunctions
+            .Where(x => x.HasChanges())
             .ToList();
 
         // Optimize: Use Dictionary for O(n) duplicate detection instead of O(n log n) GroupBy
         var junctionsBySegmentPair = new Dictionary<(int Min, int Max), List<GradeSeparatedJunction>>();
 
-        foreach (var junction in context.RoadNetwork.GradeSeparatedJunctions.Values.Where(x => !x.IsRemoved))
+        foreach (var junction in migratedJunctions)
         {
             var key = (
                 Math.Min(junction.LowerRoadSegmentId.ToInt32(), junction.UpperRoadSegmentId.ToInt32()),
