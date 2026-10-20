@@ -27,6 +27,8 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
     private readonly Point _segment1End = new(10, 0);
     private readonly Point _segment2Start = new(5, 5);
     private readonly Point _segment2End = new(5, -5);
+    private readonly Point _segment3Start = new(100, 100);
+    private readonly Point _segment3End = new(110, 100);
 
     // An inwinning that leaves a grade separated junction untouched still takes it over: it keeps its identifier and
     // becomes V2, together with the road segments it crosses.
@@ -141,42 +143,66 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
         roadNetwork.GradeSeparatedJunctions[JunctionId].GetChanges().Should().BeEmpty();
     }
 
-    // V1 allowed two ongelijkgrondse kruisingen on one and the same segment pair, and the migration does not correct
-    // that. Uniqueness is a V2 rule, judged over the kruisingen that have migrated - so an inwinning that takes over
-    // one of the two is not told that a V1 kruising it does not carry stands in its way.
+    // The inwinning that brought this to light. V1 allowed two ongelijkgrondse kruisingen on one and the same segment
+    // pair, and the migration does not correct that - so the scope loaded for an upload can hold a pair of them that
+    // the upload neither carries nor has to carry, here on two V1 road segments while the upload is about another road
+    // segment entirely. Uniqueness is a V2 rule, judged over the kruisingen that have migrated, so the two V1 ones are
+    // left alone rather than reported to whoever happens to be uploading.
     [Fact]
-    public void WhenOneOfTwoV1GradeSeparatedJunctionsOnTheSameRoadSegmentsIsModified_ThenNotUniqueIsNotReported()
+    public void WhenRoadSegmentsOutsideTheInwinningCarryTwoV1GradeSeparatedJunctions_ThenNotUniqueIsNotReported()
     {
-        var roadNetwork = BuildV1RoadNetwork(otherGradeSeparatedJunction:
-            GradeSeparatedJunction.CreateForMigration(OtherJunctionId, TestData.Segment1Added.RoadSegmentId, TestData.Segment2Added.RoadSegmentId, new Point(5, 0) { SRID = WellknownSrids.Lambert08 }.ToJunctionGeometry()));
+        var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
+            roadNodes:
+            [
+                RoadNode.CreateForMigration(TestData.Segment1StartNodeAdded.RoadNodeId, _segment1Start.ToRoadNodeGeometry()),
+                RoadNode.CreateForMigration(TestData.Segment1EndNodeAdded.RoadNodeId, _segment1End.ToRoadNodeGeometry()),
+                RoadNode.CreateForMigration(TestData.Segment2StartNodeAdded.RoadNodeId, _segment2Start.ToRoadNodeGeometry()),
+                RoadNode.CreateForMigration(TestData.Segment2EndNodeAdded.RoadNodeId, _segment2End.ToRoadNodeGeometry()),
+                RoadNode.CreateForMigration(TestData.Segment3StartNodeAdded.RoadNodeId, _segment3Start.ToRoadNodeGeometry()),
+                RoadNode.CreateForMigration(TestData.Segment3EndNodeAdded.RoadNodeId, _segment3End.ToRoadNodeGeometry())
+            ],
+            roadSegments:
+            [
+                CreateV1RoadSegment(TestData.Segment1Added.RoadSegmentId, _segment1Start, _segment1End, TestData.Segment1StartNodeAdded.RoadNodeId, TestData.Segment1EndNodeAdded.RoadNodeId),
+                CreateV1RoadSegment(TestData.Segment2Added.RoadSegmentId, _segment2Start, _segment2End, TestData.Segment2StartNodeAdded.RoadNodeId, TestData.Segment2EndNodeAdded.RoadNodeId),
+                CreateV1RoadSegment(TestData.Segment3Added.RoadSegmentId, _segment3Start, _segment3End, TestData.Segment3StartNodeAdded.RoadNodeId, TestData.Segment3EndNodeAdded.RoadNodeId)
+            ],
+            gradeSeparatedJunctions:
+            [
+                CreateV1GradeSeparatedJunction(JunctionId),
+                CreateV1GradeSeparatedJunction(OtherJunctionId)
+            ]);
 
-        var result = roadNetwork.Migrate(MigrateRoadNodesAndRoadSegments()
-                .Add(new ModifyGradeSeparatedJunctionChange
-                {
-                    GradeSeparatedJunctionId = JunctionId,
-                    LowerRoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-                    UpperRoadSegmentId = TestData.Segment2Added.RoadSegmentId,
-                    Type = GradeSeparatedJunctionTypeV2.Brug
-                }),
+        // The upload carries road segment 3 and its two road nodes, and nothing of the two crossing V1 segments.
+        var result = roadNetwork.Migrate(RoadNetworkChanges.Start()
+                .WithProvenance(new FakeProvenance())
+                .Add(MigrateRoadNode(TestData.Segment3StartNodeAdded.RoadNodeId, _segment3Start))
+                .Add(MigrateRoadNode(TestData.Segment3EndNodeAdded.RoadNodeId, _segment3End))
+                .Add(MigrateRoadSegment(TestData.AddSegment3, TestData.Segment3Added.RoadSegmentId, BuildRoadSegmentGeometry(_segment3Start, _segment3End))),
             TestData.Fixture.Create<DownloadId>(),
             new InMemoryRoadNetworkIdGenerator());
 
         result.Problems.Should().HaveNoError();
-        roadNetwork.GradeSeparatedJunctions[JunctionId].HasMigrated().Should().BeTrue();
+        roadNetwork.RoadSegments[TestData.Segment3Added.RoadSegmentId].HasMigrated().Should().BeTrue();
 
-        // The one the inwinning does not carry stays V1 and is left exactly as it was.
-        var otherJunction = roadNetwork.GradeSeparatedJunctions[OtherJunctionId];
-        otherJunction.HasMigrated().Should().BeFalse();
-        otherJunction.IsRemoved.Should().BeFalse();
-        otherJunction.GetChanges().Should().BeEmpty();
+        // The segments carrying the two kruisingen stay V1, and so do the kruisingen themselves.
+        roadNetwork.RoadSegments[TestData.Segment1Added.RoadSegmentId].HasMigrated().Should().BeFalse();
+        roadNetwork.RoadSegments[TestData.Segment2Added.RoadSegmentId].HasMigrated().Should().BeFalse();
+        foreach (var junctionId in new[] { JunctionId, OtherJunctionId })
+        {
+            var junction = roadNetwork.GradeSeparatedJunctions[junctionId];
+            junction.HasMigrated().Should().BeFalse();
+            junction.IsRemoved.Should().BeFalse();
+            junction.GetChanges().Should().BeEmpty();
+        }
     }
 
-    // Once both are V2, the rule does apply.
+    // A kruising migrates together with the road segments it crosses, so an upload that carries the two segments
+    // carries both kruisingen as well - and then the rule does apply: the pair holds two V2 kruisingen.
     [Fact]
-    public void WhenBothV1GradeSeparatedJunctionsOnTheSameRoadSegmentsAreModified_ThenNotUniqueIsReported()
+    public void WhenBothV1GradeSeparatedJunctionsOnTheSameRoadSegmentsAreMigrated_ThenNotUniqueIsReported()
     {
-        var roadNetwork = BuildV1RoadNetwork(otherGradeSeparatedJunction:
-            GradeSeparatedJunction.CreateForMigration(OtherJunctionId, TestData.Segment1Added.RoadSegmentId, TestData.Segment2Added.RoadSegmentId, new Point(5, 0) { SRID = WellknownSrids.Lambert08 }.ToJunctionGeometry()));
+        var roadNetwork = BuildV1RoadNetwork(otherGradeSeparatedJunction: CreateV1GradeSeparatedJunction(OtherJunctionId));
 
         var result = roadNetwork.Migrate(MigrateRoadNodesAndRoadSegments()
                 .Add(new ModifyGradeSeparatedJunctionChange
@@ -218,7 +244,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             ],
             gradeSeparatedJunctions:
             [
-                gradeSeparatedJunction ?? GradeSeparatedJunction.CreateForMigration(JunctionId, TestData.Segment1Added.RoadSegmentId, TestData.Segment2Added.RoadSegmentId, new Point(5, 0) { SRID = WellknownSrids.Lambert08 }.ToJunctionGeometry()),
+                gradeSeparatedJunction ?? CreateV1GradeSeparatedJunction(JunctionId),
                 ..otherGradeSeparatedJunction is not null ? new[] { otherGradeSeparatedJunction } : []
             ]);
     }
@@ -233,6 +259,25 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             .Add(MigrateRoadNode(TestData.Segment2EndNodeAdded.RoadNodeId, _segment2End))
             .Add(MigrateRoadSegment(TestData.AddSegment1, TestData.Segment1Added.RoadSegmentId, BuildRoadSegmentGeometry(_segment1Start, _segment1End)))
             .Add(MigrateRoadSegment(TestData.AddSegment2, TestData.Segment2Added.RoadSegmentId, BuildRoadSegmentGeometry(_segment2Start, _segment2End)));
+    }
+
+    private GradeSeparatedJunction CreateV1GradeSeparatedJunction(GradeSeparatedJunctionId gradeSeparatedJunctionId)
+    {
+        return GradeSeparatedJunction.CreateForMigration(
+            gradeSeparatedJunctionId,
+            TestData.Segment1Added.RoadSegmentId,
+            TestData.Segment2Added.RoadSegmentId,
+            new Point(5, 0) { SRID = WellknownSrids.Lambert08 }.ToJunctionGeometry());
+    }
+
+    private RoadSegment CreateV1RoadSegment(RoadSegmentId roadSegmentId, Point start, Point end, RoadNodeId startNodeId, RoadNodeId endNodeId)
+    {
+        return RoadSegment.CreateForMigration(
+            roadSegmentId,
+            BuildRoadSegmentGeometry(start, end),
+            RoadSegmentStatusV2.Gerealiseerd,
+            startNodeId,
+            endNodeId);
     }
 
     private static ModifyRoadNodeChange MigrateRoadNode(RoadNodeId roadNodeId, Point geometry)

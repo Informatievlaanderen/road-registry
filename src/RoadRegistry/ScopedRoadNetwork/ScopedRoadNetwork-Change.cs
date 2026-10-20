@@ -196,11 +196,14 @@ public partial class ScopedRoadNetwork
                 finalResult => finalResult);
     }
 
-    // Only the V2 ongelijkgrondse kruisingen are judged here. One whose inwinning has not finished is still a V1
-    // kruising: it carries no type, it has never been through a V2 upload, and the change being verified is not about
-    // it. Both what is verified and what it is compared against are therefore limited to the migrated kruisingen -
-    // otherwise two V1 kruisingen on one segment pair, which V1 allowed, would be reported as not unique to whoever
-    // happens to change something else in the network, who cannot act on either of them.
+    // Only the ongelijkgrondse kruisingen that have migrated are judged here. A kruising migrates together with the
+    // road segments it crosses, so one that is still V1 - it carries no type - sits on road segments that are still V1
+    // as well, and neither it nor they are part of the change being verified.
+    //
+    // That matters because V1 allowed two kruisingen on one and the same segment pair and the migration does not
+    // correct that: the scope loaded for a change can hold a pair of V1 kruisingen that the change neither carries nor
+    // has to carry, and reporting those as not unique asks whoever is changing something else to fix data they cannot
+    // reach. Both what is verified and what it is compared against are therefore limited to the migrated kruisingen.
     private Problems VerifyGradeSeparatedJunctionsAfterChange(ScopedRoadNetworkChangeContext context)
     {
         using var _ = context.Logger.TimeAction();
