@@ -59,10 +59,11 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
             var organization =
                 await context.Organizations.FindAsync(envelope.Message.Code, cancellationToken: token);
 
-            // Unlike the change event below, a rename carries nothing but the code and the new name, so there is no
-            // organization to build out of it. Reported as what it is - this read model is being told to rename an
-            // organization it does not have - rather than as a NullReferenceException that names neither the
-            // organization nor what was being done to it.
+            // An organization this read model does not hold is not something to paper over: it means the read model
+            // is missing something it was told about, and that has to surface rather than be healed away. What it
+            // must not do is surface as a bare NullReferenceException, which names neither the organization nor what
+            // was being done to it - the way it went down on stg. Reported the way the sibling latest-item
+            // projections report a row they expect and do not find.
             if (organization is null)
             {
                 throw new InvalidOperationException($"{nameof(OrganizationLatestItem)} with code {envelope.Message.Code} is not found");
@@ -72,10 +73,6 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
             organization.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         });
 
-        // The event carries the organization in full, so a row that is not there yet is built from it instead of
-        // dereferenced - the same upsert the create handler above does. Without it, a change for an organization this
-        // read model never saw created took the message pump down with a NullReferenceException, which is what
-        // happened on stg.
         When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
         {
             var organization =
@@ -83,13 +80,7 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
 
             if (organization is null)
             {
-                organization = new OrganizationLatestItem
-                {
-                    Code = envelope.Message.Code,
-                    CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
-                };
-
-                await context.Organizations.AddAsync(organization, token);
+                throw new InvalidOperationException($"{nameof(OrganizationLatestItem)} with code {envelope.Message.Code} is not found");
             }
 
             organization.Name = envelope.Message.Name;

@@ -1,5 +1,6 @@
 namespace RoadRegistry.Integration.ProjectionHost.Tests.Projections;
 
+using System;
 using System.Globalization;
 using AutoFixture;
 using BackOffice;
@@ -230,12 +231,11 @@ public class OrganizationLatestItemProjectionTests
             .Given(data.Select(d => d.ImportedOrganization))
             .Expect(data.Select(d => d.Expected));
     }
-    // What took the message pump down on stg: a change for an organization this read model never saw created - its
-    // create or import is not in the stream it projects - dereferenced a null and threw a NullReferenceException
-    // that named neither the organization nor the handler. The event carries the organization in full, so the row
-    // is built from it.
+    // What took the message pump down on stg: a change for an organization this read model does not hold. It still
+    // fails - a read model missing an organization it was told about has to surface - but the failure now says which
+    // organization, where the NullReferenceException it threw before said nothing at all.
     [Fact]
-    public Task When_organization_is_changed_without_having_been_created()
+    public async Task When_organization_is_changed_without_being_known()
     {
         var changeOrganizationAccepted = new ChangeOrganizationAccepted
         {
@@ -247,21 +247,32 @@ public class OrganizationLatestItemProjectionTests
         };
         _eventEnricher(changeOrganizationAccepted);
 
-        var expected = new OrganizationLatestItem
-        {
-            Code = changeOrganizationAccepted.Code,
-            Name = changeOrganizationAccepted.Name,
-            OvoCode = changeOrganizationAccepted.OvoCode,
-            KboNumber = changeOrganizationAccepted.KboNumber,
-            IsMaintainer = changeOrganizationAccepted.IsMaintainer,
-            IsRemoved = false,
-            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(changeOrganizationAccepted.When),
-            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(changeOrganizationAccepted.When)
-        };
+        await AssertFailsNaming(changeOrganizationAccepted.Code, changeOrganizationAccepted);
+    }
 
-        return new OrganizationLatestItemProjection()
+    [Fact]
+    public async Task When_organization_is_renamed_without_being_known()
+    {
+        var renameOrganizationAccepted = new RenameOrganizationAccepted
+        {
+            Code = _fixture.Create<OrganizationId>(),
+            Name = _fixture.Create<OrganizationName>()
+        };
+        _eventEnricher(renameOrganizationAccepted);
+
+        await AssertFailsNaming(renameOrganizationAccepted.Code, renameOrganizationAccepted);
+    }
+
+    private static async Task AssertFailsNaming(string code, object @event)
+    {
+        var act = () => new OrganizationLatestItemProjection()
             .Scenario()
-            .Given(changeOrganizationAccepted)
-            .Expect([expected]);
+            .Given(@event)
+            .Expect([]);
+
+        var exception = await Assert.ThrowsAnyAsync<Exception>(act);
+
+        Assert.DoesNotContain(nameof(NullReferenceException), exception.ToString());
+        Assert.Contains(code, exception.ToString());
     }
 }
