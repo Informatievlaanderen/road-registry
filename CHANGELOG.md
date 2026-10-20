@@ -1,3 +1,12 @@
+## [5.25.11](https://github.com/informatievlaanderen/road-registry/compare/v5.25.10...v5.25.11) (2026-10-20)
+
+
+### Bug Fixes
+
+* **2.0:** keep the cut sub-lines of the WmsWfsV2 and PBS flatteners 2D ([425d9df](https://github.com/informatievlaanderen/road-registry/commit/425d9dfe849e7b48b0c9a06a16ee2a9e34967579))
+* **api:** go back to the generic failure for a missing required parameter ([fed2442](https://github.com/informatievlaanderen/road-registry/commit/fed24420d10454abf7d2dfeef61d4343317b2e38))
+* **inwinning:** answer an incomplete upload as a validation failure ([2a55528](https://github.com/informatievlaanderen/road-registry/commit/2a555289b088dd413658e092d2a27a4b88f9d598))
+
 ## [5.25.10](https://github.com/informatievlaanderen/road-registry/compare/v5.25.9...v5.25.10) (2026-10-19)
 
 
