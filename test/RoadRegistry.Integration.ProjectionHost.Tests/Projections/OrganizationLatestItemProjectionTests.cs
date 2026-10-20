@@ -1,5 +1,6 @@
 namespace RoadRegistry.Integration.ProjectionHost.Tests.Projections;
 
+using System;
 using System.Globalization;
 using AutoFixture;
 using BackOffice;
@@ -229,5 +230,49 @@ public class OrganizationLatestItemProjectionTests
             .Scenario()
             .Given(data.Select(d => d.ImportedOrganization))
             .Expect(data.Select(d => d.Expected));
+    }
+    // What took the message pump down on stg: a change for an organization this read model does not hold. It still
+    // fails - a read model missing an organization it was told about has to surface - but the failure now says which
+    // organization, where the NullReferenceException it threw before said nothing at all.
+    [Fact]
+    public async Task When_organization_is_changed_without_being_known()
+    {
+        var changeOrganizationAccepted = new ChangeOrganizationAccepted
+        {
+            Code = _fixture.Create<OrganizationId>(),
+            Name = _fixture.Create<OrganizationName>(),
+            OvoCode = _fixture.Create<OrganizationOvoCode>(),
+            KboNumber = _fixture.Create<OrganizationKboNumber>(),
+            IsMaintainer = _fixture.Create<bool>()
+        };
+        _eventEnricher(changeOrganizationAccepted);
+
+        await AssertFailsNaming(changeOrganizationAccepted.Code, changeOrganizationAccepted);
+    }
+
+    [Fact]
+    public async Task When_organization_is_renamed_without_being_known()
+    {
+        var renameOrganizationAccepted = new RenameOrganizationAccepted
+        {
+            Code = _fixture.Create<OrganizationId>(),
+            Name = _fixture.Create<OrganizationName>()
+        };
+        _eventEnricher(renameOrganizationAccepted);
+
+        await AssertFailsNaming(renameOrganizationAccepted.Code, renameOrganizationAccepted);
+    }
+
+    private static async Task AssertFailsNaming(string code, object @event)
+    {
+        var act = () => new OrganizationLatestItemProjection()
+            .Scenario()
+            .Given(@event)
+            .Expect([]);
+
+        var exception = await Assert.ThrowsAnyAsync<Exception>(act);
+
+        Assert.DoesNotContain(nameof(NullReferenceException), exception.ToString());
+        Assert.Contains(code, exception.ToString());
     }
 }

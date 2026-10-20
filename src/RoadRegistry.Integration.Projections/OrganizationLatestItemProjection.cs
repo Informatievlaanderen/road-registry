@@ -1,5 +1,6 @@
 namespace RoadRegistry.Integration.Projections;
 
+using System;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -58,7 +59,16 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
             var organization =
                 await context.Organizations.FindAsync(envelope.Message.Code, cancellationToken: token);
 
-            organization!.Code = envelope.Message.Code;
+            // An organization this read model does not hold is not something to paper over: it means the read model
+            // is missing something it was told about, and that has to surface rather than be healed away. What it
+            // must not do is surface as a bare NullReferenceException, which names neither the organization nor what
+            // was being done to it - the way it went down on stg. Reported the way the sibling latest-item
+            // projections report a row they expect and do not find.
+            if (organization is null)
+            {
+                throw new InvalidOperationException($"{nameof(OrganizationLatestItem)} with code {envelope.Message.Code} is not found");
+            }
+
             organization.Name = envelope.Message.Name;
             organization.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         });
@@ -68,7 +78,11 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
             var organization =
                 await context.Organizations.FindAsync(envelope.Message.Code, cancellationToken: token);
 
-            organization!.Code = envelope.Message.Code;
+            if (organization is null)
+            {
+                throw new InvalidOperationException($"{nameof(OrganizationLatestItem)} with code {envelope.Message.Code} is not found");
+            }
+
             organization.Name = envelope.Message.Name;
             organization.OvoCode = envelope.Message.OvoCode;
             organization.KboNumber = envelope.Message.KboNumber;
