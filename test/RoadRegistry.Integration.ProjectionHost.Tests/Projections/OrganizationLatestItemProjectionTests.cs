@@ -230,4 +230,38 @@ public class OrganizationLatestItemProjectionTests
             .Given(data.Select(d => d.ImportedOrganization))
             .Expect(data.Select(d => d.Expected));
     }
+    // What took the message pump down on stg: a change for an organization this read model never saw created - its
+    // create or import is not in the stream it projects - dereferenced a null and threw a NullReferenceException
+    // that named neither the organization nor the handler. The event carries the organization in full, so the row
+    // is built from it.
+    [Fact]
+    public Task When_organization_is_changed_without_having_been_created()
+    {
+        var changeOrganizationAccepted = new ChangeOrganizationAccepted
+        {
+            Code = _fixture.Create<OrganizationId>(),
+            Name = _fixture.Create<OrganizationName>(),
+            OvoCode = _fixture.Create<OrganizationOvoCode>(),
+            KboNumber = _fixture.Create<OrganizationKboNumber>(),
+            IsMaintainer = _fixture.Create<bool>()
+        };
+        _eventEnricher(changeOrganizationAccepted);
+
+        var expected = new OrganizationLatestItem
+        {
+            Code = changeOrganizationAccepted.Code,
+            Name = changeOrganizationAccepted.Name,
+            OvoCode = changeOrganizationAccepted.OvoCode,
+            KboNumber = changeOrganizationAccepted.KboNumber,
+            IsMaintainer = changeOrganizationAccepted.IsMaintainer,
+            IsRemoved = false,
+            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(changeOrganizationAccepted.When),
+            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(changeOrganizationAccepted.When)
+        };
+
+        return new OrganizationLatestItemProjection()
+            .Scenario()
+            .Given(changeOrganizationAccepted)
+            .Expect([expected]);
+    }
 }
