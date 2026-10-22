@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
-using RoadRegistry.BackOffice.Api.Infrastructure.Authorization;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadNodes.V2;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.ValueObjects;
@@ -37,7 +36,7 @@ public partial class RoadNodesController
     /// <response code="410">Als de wegknoop is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost(RemoveRoadNodeRoute, Name = nameof(RemoveRoadNodeV2))]
-    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = AcmIdmConstants.PolicyNames.WegBeheerder)]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
