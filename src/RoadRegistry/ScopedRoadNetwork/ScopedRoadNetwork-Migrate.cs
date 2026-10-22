@@ -71,6 +71,10 @@ public partial class ScopedRoadNetwork
 
         var roadSegmentRoadNumberChanges = GetRoadSegmentRoadNumberChanges(changes);
 
+        // Worked out up front: what a neighbouring inwinning already merged away decides how several of the changes
+        // below are to be read, and the road nodes it concerns are handled before the road segments that run to them.
+        var neighbourMerges = ResolveNeighbourMerges(changes, context);
+
         var problems = Problems.None;
 
         // Track timing per action type
@@ -93,7 +97,7 @@ public partial class ScopedRoadNetwork
                     problems += AddRoadNode(change, idGenerator, context);
                     break;
                 case ModifyRoadNodeChange change:
-                    problems += MigrateRoadNode(change, context);
+                    problems += MigrateRoadNode(change, neighbourMerges, context);
                     break;
                 case RemoveRoadNodeChange change:
                     problems += RemoveRoadNodeBecauseOfMigration(change, context);
@@ -103,7 +107,7 @@ public partial class ScopedRoadNetwork
                     problems += AddRoadSegment(change, idGenerator, context);
                     break;
                 case ModifyRoadSegmentChange change:
-                    problems += MigrateRoadSegment(change, roadSegmentRoadNumberChanges, context);
+                    problems += MigrateRoadSegment(change, roadSegmentRoadNumberChanges, neighbourMerges, context);
                     break;
                 case RemoveRoadSegmentChange change:
                     problems += RemoveRoadSegmentBecauseOfMigration(change.RoadSegmentId, context);
@@ -194,12 +198,19 @@ public partial class ScopedRoadNetwork
             .ToLookup(x => x.RoadSegmentId, x => x.roadNetworkChange);
     }
 
-    private Problems MigrateRoadNode(ModifyRoadNodeChange change, ScopedRoadNetworkChangeContext context)
+    private Problems MigrateRoadNode(ModifyRoadNodeChange change, NeighbourMergeResolutions neighbourMerges, ScopedRoadNetworkChangeContext context)
     {
         var problems = Problems.WithContext(change.RoadNodeId);
 
         if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
         {
+            // A road node a neighbouring inwinning merged away is not this upload's mistake: it was prepared against
+            // an extract from before that merge. The roads that ran up to it are cut back to match.
+            if (neighbourMerges.RoadNodeIds.Contains(change.RoadNodeId))
+            {
+                return Problems.None;
+            }
+
             return problems + new RoadNodeNotFound();
         }
 
@@ -246,9 +257,21 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
-    private Problems MigrateRoadSegment(ModifyRoadSegmentChange change, ILookup<RoadSegmentId, IRoadNetworkChange> roadSegmentRoadNumberChanges, ScopedRoadNetworkChangeContext context)
+    private Problems MigrateRoadSegment(ModifyRoadSegmentChange change, ILookup<RoadSegmentId, IRoadNetworkChange> roadSegmentRoadNumberChanges, NeighbourMergeResolutions neighbourMerges, ScopedRoadNetworkChangeContext context)
     {
         var problems = Problems.WithContext(change.RoadSegmentIdReference);
+
+        if (neighbourMerges.RoadSegments.TryGetValue(change.RoadSegmentIdReference, out var neighbourMerge))
+        {
+            // A neighbouring inwinning already collected this road, in whole or in part. What it took is not this
+            // upload's to collect a second time.
+            if (neighbourMerge.TakenInFull)
+            {
+                return Problems.None;
+            }
+
+            change = CutBackToRemainingStretch(change, neighbourMerge);
+        }
 
         if (!_roadSegments.TryGetValue(change.RoadSegmentIdReference.RoadSegmentId, out var roadSegment))
         {
