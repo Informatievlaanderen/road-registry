@@ -116,13 +116,6 @@ public sealed class CreateRoadSegmentOutlineV2SqsLambdaRequestHandler : MartenSq
             };
             problems += new RoadSegmentAttributesValidator().Validate(roadSegmentAttributes, command.Geometry.Value.Length);
 
-            // An outlined road segment is 'ingeschetst' by definition, so creating one takes the 'geschetste weg'
-            // scope. The API accepts either scope, so a caller holding only 'ingemeten weg' is turned away here.
-            if (!command.EditableGeometryDrawMethods.Ingeschetst)
-            {
-                problems += new RoadSegmentOutlinedNotAllowed(command.RoadSegmentId);
-            }
-
             var isCompletelyWithinCompletedInwinningszone = await _extractsDbContext.IsCompletelyWithinCompletedInwinningszone(command.Geometry.Value, cancellationToken);
             if (!isCompletelyWithinCompletedInwinningszone)
             {

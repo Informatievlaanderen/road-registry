@@ -28,7 +28,6 @@ using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.StreetName;
 using RoadRegistry.Tests.Framework;
 using Xunit.Abstractions;
-using RoadRegistry.ValueObjects;
 
 [Collection("runsequential")]
 public class GivenOrganizationExists : BackOfficeLambdaTest
@@ -234,28 +233,6 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
         VerifyThatTicketHasError("RoadSegmentOutsideInwinningszone", "Het wegsegment valt niet volledig binnen een gemeente die de inwinningsstatus 'compleet' heeft.");
     }
 
-    [Fact]
-    public async Task WhenTheCallerMayOnlyEditMeasuredRoadSegments_ThenTicketError()
-    {
-        // An outlined road segment is 'ingeschetst' by definition: the API lets a holder of either road scope in, so
-        // the one holding only 'ingemeten weg' is turned away here.
-        var streetNameClientMock = new Mock<IStreetNameClient>();
-        streetNameClientMock
-            .Setup(x => x.GetAsync(StreetNameId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new StreetNameItem { Id = StreetNameId, Name = "Teststraat", Status = StreetNameStatus.Current, NisCode = "11001" });
-
-        var sqsRequest = CreateSqsRequest(
-            editableGeometryDrawMethods: new EditableGeometryDrawMethods(Ingeschetst: false, Ingemeten: true));
-        var sqsLambdaRequest = new CreateRoadSegmentOutlineV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest);
-
-        await HandleRequest(sqsLambdaRequest,
-            streetNameClient: streetNameClientMock.Object,
-            extractsDbContext: CreateExtractsDbContextWithCompletedZone());
-
-        VerifyThatTicketHasError("WegsegmentIngeschetstNietToegelaten",
-            "U heeft niet de machtigingen om deze actie uit te voeren voor wegsegmenten met geometriemethode 'ingeschetst'. Het wegsegment met id 1 is ingeschetst.");
-    }
-
     private static ExtractsDbContext CreateExtractsDbContextWithCompletedZone()
     {
         var db = new FakeExtractsDbContextFactory().CreateDbContext();
@@ -279,9 +256,7 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
         return db;
     }
 
-    private CreateRoadSegmentOutlineV2SqsRequest CreateSqsRequest(
-        ChangeRoadSegmentStreetNameIdAttributeValue[]? streetNameId = null,
-        EditableGeometryDrawMethods? editableGeometryDrawMethods = null)
+    private CreateRoadSegmentOutlineV2SqsRequest CreateSqsRequest(ChangeRoadSegmentStreetNameIdAttributeValue[]? streetNameId = null)
     {
         var line = new LineString(
             new CoordinateArraySequence([new CoordinateM(0, 0, 0), new CoordinateM(GeometryLength, 0, GeometryLength)]),
@@ -295,7 +270,6 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
             ProvenanceData = ObjectProvider.Create<ProvenanceData>(),
             RoadSegmentId = new (1),
             Geometry = geometry,
-            EditableGeometryDrawMethods = editableGeometryDrawMethods ?? new EditableGeometryDrawMethods(Ingeschetst: true, Ingemeten: true),
             Status = RoadSegmentStatusV2.Gepland,
             Morphology =
             [

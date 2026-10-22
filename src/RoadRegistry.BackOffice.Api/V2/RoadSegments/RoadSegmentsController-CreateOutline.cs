@@ -23,7 +23,6 @@ using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
-using RoadRegistry.BackOffice.Api.Infrastructure.Authorization;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using RoadRegistry.BackOffice.Handlers.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
@@ -53,7 +52,7 @@ public partial class RoadSegmentsController
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost(CreateOutlineRoute, Name = nameof(CreateOutlinedRoadSegmentV2))]
-    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = AcmIdmConstants.PolicyNames.WegBeheerder)]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -89,9 +88,6 @@ public partial class RoadSegmentsController
                 RoadSegmentId = await roadNetworkIdGenerator.NewRoadSegmentIdAsync(),
                 Geometry = parsedGeometry.ToRoadSegmentGeometry(),
                 Status = RoadSegmentStatusV2.ParseUsingDutchName(parameters.Wegsegmentstatus),
-                // An outlined road segment is 'ingeschetst' by definition, so the command host turns away a caller
-                // who only holds the 'ingemeten weg' scope.
-                EditableGeometryDrawMethods = User.GetEditableGeometryDrawMethods(),
                 Morphology = parameters.Morfologie
                     .Select(x => new ChangeRoadSegmentMorphologyAttributeValue
                     {

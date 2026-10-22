@@ -75,7 +75,7 @@
             new(HttpMethod.Get, "v1/inwinningsstatus/wegsegment/{id}"),
 
             new(HttpMethod.Get, "v2/wegknopen/{id}"),
-            new(HttpMethod.Post, "v2/wegsegmenten/acties/schetsen", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/acties/schetsen", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Get, "v2/wegsegmenten/{id}"),
             new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/knippen", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/wijzigen/geometrie", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
