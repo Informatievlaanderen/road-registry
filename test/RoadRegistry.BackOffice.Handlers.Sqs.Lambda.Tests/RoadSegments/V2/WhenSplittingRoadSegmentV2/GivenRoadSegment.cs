@@ -228,7 +228,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         return new Point(new Coordinate(x, y)) { SRID = WellknownSrids.Lambert08 };
     }
 
-    private SplitRoadSegmentSqsRequest CreateSqsRequest(Point cutPosition, EditableGeometryDrawMethods? editableGeometryDrawMethods = null)
+    private SplitRoadSegmentSqsRequest CreateSqsRequest(Point cutPosition)
     {
         return new SplitRoadSegmentSqsRequest
         {
@@ -236,8 +236,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>(),
             RoadSegmentId = new RoadSegmentId(1),
-            CutPosition = cutPosition,
-            EditableGeometryDrawMethods = editableGeometryDrawMethods ?? new EditableGeometryDrawMethods(Ingeschetst: true, Ingemeten: true)
+            CutPosition = cutPosition
         };
     }
 

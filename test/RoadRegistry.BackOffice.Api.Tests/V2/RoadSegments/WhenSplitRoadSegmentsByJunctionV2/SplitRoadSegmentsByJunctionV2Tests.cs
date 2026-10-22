@@ -16,9 +16,6 @@ using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests;
 using RoadRegistry.Tests.AggregateTests;
-using System.Security.Claims;
-using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
-using RoadRegistry.ValueObjects;
 
 public class SplitRoadSegmentsByJunctionV2Tests : V2ReadEndpointTestBase
 {
@@ -51,35 +48,6 @@ public class SplitRoadSegmentsByJunctionV2Tests : V2ReadEndpointTestBase
     }
 
     private RoadSegmentWasAdded Segment2 => TestData.Segment1Added with { RoadSegmentId = new RoadSegmentId(TestData.Segment1Added.RoadSegmentId.ToInt32() + 1) };
-
-    [Theory]
-    [InlineData(Scopes.DvWrGeschetsteWegBeheer, true, false)]
-    [InlineData(Scopes.DvWrIngemetenWegBeheer, false, true)]
-    public async Task GivenACaller_ThenTheirScopesAreSentAlong(string scope, bool ingeschetst, bool ingemeten)
-    {
-        // The endpoint takes either road scope; which road segments the caller may then actually cut is decided by
-        // the domain, so the entitlement travels with the request.
-        var id1 = SeedRealizedRoadSegment(TestData.Segment1Added);
-        var id2 = SeedRealizedRoadSegment(Segment2);
-        GiveCallerScopes(scope);
-
-        SplitRoadSegmentsByJunctionSqsRequest captured = null;
-        _mediator
-            .Setup(x => x.Send(It.IsAny<SplitRoadSegmentsByJunctionSqsRequest>(), It.IsAny<CancellationToken>()))
-            .Callback<IRequest<LocationResult>, CancellationToken>((r, _) => captured = (SplitRoadSegmentsByJunctionSqsRequest)r)
-            .ReturnsAsync(Fixture.Create<LocationResult>());
-
-        await Act(id1, id2);
-
-        captured.Should().NotBeNull();
-        captured.EditableGeometryDrawMethods.Should().Be(new EditableGeometryDrawMethods(ingeschetst, ingemeten));
-    }
-
-    private void GiveCallerScopes(params string[] scopes)
-    {
-        _controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(
-            new ClaimsIdentity(scopes.Select(x => new Claim(AcmIdmClaimTypes.Scope, x)), "Test"));
-    }
 
     [Fact]
     public async Task GivenValidRequest_ThenAcceptedAndBothIdsSent()

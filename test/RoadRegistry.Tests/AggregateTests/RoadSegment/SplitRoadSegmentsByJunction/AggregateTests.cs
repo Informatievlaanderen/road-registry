@@ -57,9 +57,7 @@ public class AggregateTests : AggregateTestBase
         RoadSegmentStatusV2? segment1Status = null,
         RoadSegmentStatusV2? segment2Status = null,
         bool withJunction = true,
-        bool segment1Migrated = true,
-        RoadSegmentGeometryDrawMethodV2? segment1DrawMethod = null,
-        RoadSegmentGeometryDrawMethodV2? segment2DrawMethod = null)
+        bool segment1Migrated = true)
     {
         // Segment2 crosses Segment1 at the crossing point, perpendicular to it (direction (1,-1)), with each half 70.71m
         // long, so its total length stays 141.42m (matching the dynamic-attribute coverage reused from Segment1).
@@ -71,11 +69,7 @@ public class AggregateTests : AggregateTestBase
         var node3 = RoadNode.Create(TestData.Segment2StartNodeAdded with { Geometry = Point(node3Coord.X, node3Coord.Y).ToRoadNodeGeometry() }).WithoutChanges();
         var node4 = RoadNode.Create(TestData.Segment2EndNodeAdded with { Geometry = Point(node4Coord.X, node4Coord.Y).ToRoadNodeGeometry() }).WithoutChanges();
 
-        var segment1Added = TestData.Segment1Added with
-        {
-            Status = segment1Status ?? TestData.Segment1Added.Status,
-            GeometryDrawMethod = segment1DrawMethod ?? TestData.Segment1Added.GeometryDrawMethod
-        };
+        var segment1Added = TestData.Segment1Added with { Status = segment1Status ?? TestData.Segment1Added.Status };
         var segment1 = segment1Migrated
             ? RoadSegment.Create(segment1Added).WithoutChanges()
             : RoadSegment.CreateForMigration(segment1Added.RoadSegmentId, segment1Added.Geometry, segment1Added.Status, segment1Added.StartNodeId, segment1Added.EndNodeId);
@@ -86,8 +80,7 @@ public class AggregateTests : AggregateTestBase
             Status = segment2Status ?? TestData.Segment1Added.Status,
             Geometry = LineThrough(node3Coord, crossing, node4Coord).ToRoadSegmentGeometry(),
             StartNodeId = TestData.Segment2StartNodeAdded.RoadNodeId,
-            EndNodeId = TestData.Segment2EndNodeAdded.RoadNodeId,
-            GeometryDrawMethod = segment2DrawMethod ?? TestData.Segment1Added.GeometryDrawMethod
+            EndNodeId = TestData.Segment2EndNodeAdded.RoadNodeId
         };
         var segment2 = RoadSegment.Create(segment2Added).WithoutChanges();
 
@@ -119,7 +112,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildCrossingNetwork(Crossing);
 
         // Act
-        roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, IdGenerator(), TestData.Provenance);
 
         // Assert: the two originals are historized (both cut halfway, so neither keeps its identifier).
         roadNetwork.RoadSegments[Segment1Id].Status.Should().Be(RoadSegmentStatusV2.Gehistoreerd);
@@ -149,7 +142,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildCrossingNetwork(new Coordinate(90.0, 90.0));
 
         // Act
-        roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, IdGenerator(), TestData.Provenance);
 
         // Assert: Segment1 keeps its identifier (modified in place, not historized).
         var segment1 = roadNetwork.RoadSegments[Segment1Id];
@@ -176,7 +169,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildCrossingNetwork(Crossing);
 
         // Act
-        roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, IdGenerator(), TestData.Provenance);
 
         // Assert: a real road node (grensknoop=false, echte knoop) exists at the crossing.
         var crossingNode = roadNetwork.GetNonRemovedRoadNodes()
@@ -199,7 +192,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildCrossingNetwork(Crossing, withJunction: false);
 
         // Act
-        var act = () => roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        var act = () => roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, IdGenerator(), TestData.Provenance);
 
         // Assert
         act.Should().Throw<RoadRegistryProblemsException>()
@@ -213,7 +206,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildCrossingNetwork(Crossing, segment2Status: RoadSegmentStatusV2.Gepland);
 
         // Act
-        var act = () => roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        var act = () => roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, IdGenerator(), TestData.Provenance);
 
         // Assert
         act.Should().Throw<RoadRegistryProblemsException>()
@@ -227,45 +220,11 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildCrossingNetwork(Crossing, segment1Migrated: false);
 
         // Act
-        var act = () => roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        var act = () => roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, IdGenerator(), TestData.Provenance);
 
         // Assert
         act.Should().Throw<RoadRegistryProblemsException>()
             .Which.Problems.Should().Contain(x => x.Reason == "RoadSegmentNotCompletedInwinning");
-    }
-
-    [Fact]
-    public void WhenOnlyTheSecondSegmentIsMeasuredAndTheCallerMayOnlyEditOutlinedOnes_ThenNotAllowedProblem()
-    {
-        // Arrange - both segments are cut, so the one that is out of reach does not have to be the first.
-        var roadNetwork = BuildCrossingNetwork(Crossing,
-            segment1DrawMethod: RoadSegmentGeometryDrawMethodV2.Ingeschetst,
-            segment2DrawMethod: RoadSegmentGeometryDrawMethodV2.Ingemeten);
-
-        // Act
-        var act = () => roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, OnlyIngeschetst, IdGenerator(), TestData.Provenance);
-
-        // Assert
-        var problem = act.Should().Throw<RoadRegistryProblemsException>()
-            .Which.Problems.Should().ContainSingle(x => x.Reason == "RoadSegmentMeasuredNotAllowed").Subject;
-        problem.Parameters.Should().ContainSingle(x => x.Name == "WegsegmentId")
-            .Which.Value.Should().Be(Segment2Id.ToInt32().ToString());
-    }
-
-    [Fact]
-    public void WhenTheSegmentsAreOutlinedAndTheCallerMayOnlyEditMeasuredOnes_ThenNotAllowedProblem()
-    {
-        // Arrange
-        var roadNetwork = BuildCrossingNetwork(Crossing,
-            segment1DrawMethod: RoadSegmentGeometryDrawMethodV2.Ingeschetst,
-            segment2DrawMethod: RoadSegmentGeometryDrawMethodV2.Ingeschetst);
-
-        // Act
-        var act = () => roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, OnlyIngemeten, IdGenerator(), TestData.Provenance);
-
-        // Assert
-        act.Should().Throw<RoadRegistryProblemsException>()
-            .Which.Problems.Should().HaveCount(2).And.OnlyContain(x => x.Reason == "RoadSegmentOutlinedNotAllowed");
     }
 
     [Fact]
@@ -275,7 +234,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildCrossingNetwork(Crossing);
 
         // Act
-        var act = () => roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, new RoadSegmentId(999999), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        var act = () => roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, new RoadSegmentId(999999), IdGenerator(), TestData.Provenance);
 
         // Assert
         act.Should().Throw<RoadRegistryProblemsException>()
@@ -290,7 +249,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildCrossingNetwork(nearStartCrossing);
 
         // Act
-        var act = () => roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        var act = () => roadNetwork.SplitRoadSegmentsByJunction(Segment1Id, Segment2Id, IdGenerator(), TestData.Provenance);
 
         // Assert
         act.Should().Throw<RoadRegistryProblemsException>()
@@ -336,7 +295,7 @@ public class AggregateTests : AggregateTestBase
             []);
 
         // Act
-        roadNetwork.SplitRoadSegmentsByJunction(segment1Id, segment2Id, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        roadNetwork.SplitRoadSegmentsByJunction(segment1Id, segment2Id, IdGenerator(), TestData.Provenance);
 
         // Assert: the vertex next to the crossing is dropped from both parts of 654324, which still meet on the crossing.
         var crossing = new Coordinate(645441.19, 695958.71);

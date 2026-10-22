@@ -58,7 +58,7 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), AllGeometryDrawMethods, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
 
         // Assert
         roadNetwork.RoadSegments[originalRoadSegmentId].Status.Should().Be(RoadSegmentStatusV2.Gehistoreerd);
@@ -102,7 +102,7 @@ public class AggregateTests : AggregateTestBase
         var cutNearStart = new Point(new Coordinate(10.0, 10.0)) { SRID = WellknownSrids.Lambert08 };
 
         // Act
-        roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearStart, AllGeometryDrawMethods, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearStart, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
 
         // Assert
         var original = roadNetwork.RoadSegments[originalRoadSegmentId];
@@ -139,7 +139,7 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), AllGeometryDrawMethods, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
 
         // Assert
         var newSegments = roadNetwork.GetNonRemovedRoadSegments()
@@ -168,7 +168,7 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), AllGeometryDrawMethods, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
 
         // Assert
         var cut = new Coordinate(50.0, 50.0);
@@ -184,7 +184,7 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), AllGeometryDrawMethods, new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), new InMemoryRoadNetworkIdGenerator(initialValue: 100), TestData.Provenance);
 
         // Assert
         var originalNodeIds = new[] { TestData.Segment1StartNodeAdded.RoadNodeId, TestData.Segment1EndNodeAdded.RoadNodeId };
@@ -206,7 +206,7 @@ public class AggregateTests : AggregateTestBase
         var cutNearEnd = CutPosition(90.0, 90.0);
 
         // Act
-        roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearEnd, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearEnd, IdGenerator(), TestData.Provenance);
 
         // Assert
         var original = roadNetwork.RoadSegments[originalRoadSegmentId];
@@ -233,7 +233,7 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), IdGenerator(), TestData.Provenance);
 
         // Assert
         roadNetwork.GetNonRemovedRoadNodes().Should().BeEmpty();
@@ -255,7 +255,7 @@ public class AggregateTests : AggregateTestBase
         var cutNearStart = CutPosition(0.5, 0.5);
 
         // Act
-        var act = () => roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearStart, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        var act = () => roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearStart, IdGenerator(), TestData.Provenance);
 
         // Assert
         act.Should().Throw<RoadRegistryProblemsException>()
@@ -271,7 +271,7 @@ public class AggregateTests : AggregateTestBase
         var cutNearEnd = CutPosition(99.5, 99.5);
 
         // Act
-        var act = () => roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearEnd, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        var act = () => roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutNearEnd, IdGenerator(), TestData.Provenance);
 
         // Assert
         act.Should().Throw<RoadRegistryProblemsException>()
@@ -285,7 +285,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildNetworkWithRealizedSegment();
 
         // Act
-        var act = () => roadNetwork.SplitRoadSegment(new RoadSegmentId(999), CutPositionAtMiddle(), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        var act = () => roadNetwork.SplitRoadSegment(new RoadSegmentId(999), CutPositionAtMiddle(), IdGenerator(), TestData.Provenance);
 
         // Assert
         act.Should().Throw<RoadRegistryProblemsException>()
@@ -306,7 +306,7 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        var act = () => roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        var act = () => roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), IdGenerator(), TestData.Provenance);
 
         // Assert
         act.Should().Throw<RoadRegistryProblemsException>()
@@ -324,33 +324,11 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        var act = () => roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        var act = () => roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), IdGenerator(), TestData.Provenance);
 
         // Assert
         act.Should().Throw<RoadRegistryProblemsException>()
             .Which.Problems.Should().Contain(x => x.Reason == "RoadSegmentSplitStatusNotValid");
-    }
-
-    [Theory]
-    [InlineData(nameof(RoadSegmentGeometryDrawMethodV2.Ingemeten), "RoadSegmentMeasuredNotAllowed")]
-    [InlineData(nameof(RoadSegmentGeometryDrawMethodV2.Ingeschetst), "RoadSegmentOutlinedNotAllowed")]
-    public void WhenSplittingSegmentTheCallerHoldsNoScopeFor_ThenNotAllowedProblem(string drawMethodName, string expectedProblem)
-    {
-        // Arrange - the caller holds the scope for the other geometry draw method only.
-        var drawMethod = RoadSegmentGeometryDrawMethodV2.Parse(drawMethodName);
-        var segment = RoadSegment
-            .Create(TestData.Segment1Added with { GeometryDrawMethod = drawMethod })
-            .WithoutChanges();
-        var roadNetwork = BuildNetworkWith(segment);
-        var entitlement = drawMethod == RoadSegmentGeometryDrawMethodV2.Ingemeten ? OnlyIngeschetst : OnlyIngemeten;
-
-        // Act
-        var act = () => roadNetwork.SplitRoadSegment(
-            TestData.Segment1Added.RoadSegmentId, CutPositionAtMiddle(), entitlement, IdGenerator(), TestData.Provenance);
-
-        // Assert
-        act.Should().Throw<RoadRegistryProblemsException>()
-            .Which.Problems.Should().Contain(x => x.Reason == expectedProblem);
     }
 
     [Fact]
@@ -364,7 +342,7 @@ public class AggregateTests : AggregateTestBase
         var originalRoadSegmentId = TestData.Segment1Added.RoadSegmentId;
 
         // Act
-        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPositionAtMiddle(), IdGenerator(), TestData.Provenance);
 
         // Assert
         var recorded = CollectRecordedEvents(roadNetwork);
@@ -404,7 +382,7 @@ public class AggregateTests : AggregateTestBase
         var cutFarAway = CutPosition(50.0, 60.0);
 
         // Act
-        var act = () => roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutFarAway, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        var act = () => roadNetwork.SplitRoadSegment(originalRoadSegmentId, cutFarAway, IdGenerator(), TestData.Provenance);
 
         // Assert
         act.Should().Throw<RoadRegistryProblemsException>()
@@ -420,7 +398,7 @@ public class AggregateTests : AggregateTestBase
         var cut = new Coordinate(50.05, 50.05);
 
         // Act
-        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPosition(cut.X, cut.Y), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+        roadNetwork.SplitRoadSegment(originalRoadSegmentId, CutPosition(cut.X, cut.Y), IdGenerator(), TestData.Provenance);
 
         // Assert
         var parts = roadNetwork.GetNonRemovedRoadSegments()

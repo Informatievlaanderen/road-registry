@@ -26,7 +26,6 @@ public partial class ScopedRoadNetwork
     public void SplitRoadSegmentsByJunction(
         RoadSegmentId roadSegmentId1,
         RoadSegmentId roadSegmentId2,
-        EditableGeometryDrawMethods editableGeometryDrawMethods,
         IRoadNetworkIdGenerator idGenerator,
         Provenance provenance,
         ILogger? logger = null)
@@ -59,12 +58,6 @@ public partial class ScopedRoadNetwork
         {
             problems += new RoadSegmentNotCompletedInwinning(roadSegmentId2);
         }
-
-        problems.ThrowIfError();
-
-        // Both road segments are cut, so the caller has to hold the scope that goes with either geometry draw method.
-        problems += ValidateGeometryDrawMethodIsEditable(segment1, editableGeometryDrawMethods);
-        problems += ValidateGeometryDrawMethodIsEditable(segment2, editableGeometryDrawMethods);
 
         problems.ThrowIfError();
 

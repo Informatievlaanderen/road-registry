@@ -30,7 +30,6 @@ public partial class ScopedRoadNetwork
     public void SplitRoadSegment(
         RoadSegmentId roadSegmentId,
         Point cutPosition,
-        EditableGeometryDrawMethods editableGeometryDrawMethods,
         IRoadNetworkIdGenerator idGenerator,
         Provenance provenance,
         ILogger? logger = null)
@@ -51,10 +50,6 @@ public partial class ScopedRoadNetwork
         {
             problems += new RoadSegmentNotCompletedInwinning(roadSegmentId);
         }
-        problems.ThrowIfError();
-
-        // A road segment may only be split by a caller holding the scope that goes with its geometry draw method.
-        problems += ValidateGeometryDrawMethodIsEditable(segment, editableGeometryDrawMethods);
         problems.ThrowIfError();
 
         if (!SplitAllowedStatuses.Contains(segment.Status))

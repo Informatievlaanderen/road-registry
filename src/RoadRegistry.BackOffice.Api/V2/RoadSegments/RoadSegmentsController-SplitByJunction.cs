@@ -16,7 +16,6 @@ using Microsoft.OpenApi;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
-using RoadRegistry.BackOffice.Api.Infrastructure.Authorization;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Read.Projections;
@@ -39,7 +38,7 @@ public partial class RoadSegmentsController
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost(SplitByJunctionRoute, Name = nameof(SplitRoadSegmentsByJunctionV2))]
-    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = AcmIdmConstants.PolicyNames.WegBeheerder)]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -78,9 +77,7 @@ public partial class RoadSegmentsController
             {
                 ProvenanceData = CreateProvenanceData(Modification.Update),
                 RoadSegmentId1 = new RoadSegmentId(parameters!.Wegsegment1!.Value),
-                RoadSegmentId2 = new RoadSegmentId(parameters.Wegsegment2!.Value),
-                // The caller's scopes decide which road segments they may touch; the domain holds the verdict.
-                EditableGeometryDrawMethods = User.GetEditableGeometryDrawMethods()
+                RoadSegmentId2 = new RoadSegmentId(parameters.Wegsegment2!.Value)
             };
             var result = await _mediator.Send(sqsRequest, cancellationToken);
 
