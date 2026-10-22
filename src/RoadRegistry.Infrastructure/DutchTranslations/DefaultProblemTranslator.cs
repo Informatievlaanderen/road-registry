@@ -1552,7 +1552,13 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
 
     protected virtual string GetRoadNodeIdLabel(Problem problem, string namePrefix = "Wegknoop")
     {
-        return $"id {problem.GetParameterValue($"{namePrefix}Id")}";
+        var label = $"id {problem.GetParameterValue($"{namePrefix}Id")}";
+
+        // Only an upload carries a second identifier: the feature compare matches road nodes on geometry, so the one
+        // the register uses need not be the one the upload carried.
+        var originalId = problem.GetOptionalParameterValue($"{namePrefix}OorspronkelijkeId");
+
+        return originalId is not null ? $"{label} (origineel {originalId})" : label;
     }
 
     protected virtual string GetGradeSeparatedJunctionIdLabel(Problem problem, string namePrefix = "OngelijkGrondseKruising")

@@ -27,6 +27,8 @@ public partial class ScopedRoadNetwork
 
         var context = new ScopedRoadNetworkChangeContext(this, changes.Provenance, logger);
 
+        RegisterOriginalRoadNodeIds(changes, context);
+
         var problems = ApplyMigrateChanges(changes, idGenerator, context);
 
         if (!problems.HasError())
@@ -54,7 +56,7 @@ public partial class ScopedRoadNetwork
             });
         }
 
-        return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), context.Summary);
+        return new RoadNetworkChangeResult(WithOriginalRoadNodeIds(Problems.None.AddRange(problems.Distinct()), context), context.Summary);
     }
 
     private Problems ApplyMigrateChanges(RoadNetworkChanges changes, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)

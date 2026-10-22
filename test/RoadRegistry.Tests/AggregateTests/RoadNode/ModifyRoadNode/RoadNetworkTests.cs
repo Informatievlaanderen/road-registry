@@ -36,6 +36,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
     public Task WhenNotFound_ThenError()
     {
         var change = Fixture.Create<ModifyRoadNodeChange>();
+        change = change with { OriginalId = change.RoadNodeId.Next() };
 
         return Run(scenario => scenario
             .Given(given => given)
@@ -44,7 +45,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             )
             .ThenProblems(new Error("RoadNodeNotFound",
                 new ProblemParameter("NodeId", change.RoadNodeId.ToString()),
-                new ProblemParameter("WegknoopId", change.RoadNodeId.ToString())
+                new ProblemParameter("WegknoopId", change.RoadNodeId.ToString()),
+                // The upload knows this road node by an identifier of its own, so the problem names that one too.
+                new ProblemParameter("WegknoopOorspronkelijkeId", change.OriginalId!.Value.ToString())
             ))
         );
     }
