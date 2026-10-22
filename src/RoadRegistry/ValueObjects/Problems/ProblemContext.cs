@@ -13,6 +13,15 @@ public class ProblemContext
             Parameters = [new ProblemContextParameter("WegknoopId", roadNodeId.ToInt32())]
         };
     }
+    // The identifier the uploader knows a road node by, alongside the one the road network uses. Added to a problem
+    // after the fact, because the identifier is only known where the upload was read, not where the problem is raised.
+    public static ProblemContext ForOriginalRoadNodeId(RoadNodeId originalRoadNodeId)
+    {
+        return new ProblemContext
+        {
+            Parameters = [new ProblemContextParameter("WegknoopOorspronkelijkeId", originalRoadNodeId.ToInt32())]
+        };
+    }
     public static ProblemContext For(RoadSegmentId roadSegmentId)
     {
         return new ProblemContext

@@ -8,6 +8,12 @@ using RoadRegistry.ValueObjects.Problems;
 public interface IIdentifierTranslator
 {
     Problems RegisterMapping(RoadNodeId temporaryId, RoadNodeId permanentId);
+
+    // The identifier the uploader knows a road node by, when it is not the one the road network uses. A road node
+    // the feature compare matched on geometry keeps the WK_OIDN it was uploaded with here.
+    void RegisterOriginalId(RoadNodeId originalId, RoadNodeId permanentId);
+
+    RoadNodeId? TranslateToOriginalId(RoadNodeId id);
     Problems RegisterMapping(RoadSegmentIdReference idReference, RoadSegmentId permanentId);
     Problems RegisterMapping(GradeSeparatedJunctionId temporaryId, GradeSeparatedJunctionId permanentId);
     RoadNodeId TranslateToTemporaryId(RoadNodeId id);
@@ -20,6 +26,7 @@ public class IdentifierTranslator : IIdentifierTranslator
 {
     private readonly Dictionary<RoadNodeId, RoadNodeId> _mapTemporaryToPermanentNodeIdentifiers = [];
     private readonly Dictionary<RoadNodeId, RoadNodeId> _mapPermanentToTemporaryNodeIdentifiers = [];
+    private readonly Dictionary<RoadNodeId, RoadNodeId> _mapPermanentToOriginalNodeIdentifiers = [];
     private readonly Dictionary<RoadSegmentIdReference, RoadSegmentId> _mapSegmentIdReferenceToPermanentId = [];
     private readonly Dictionary<RoadSegmentId, RoadSegmentId> _mapSegmentTemporaryIdToPermanentId = [];
     private readonly Dictionary<RoadSegmentId, RoadSegmentIdReference> _mapToTemporarySegmentIdentifiers = [];
@@ -37,8 +44,25 @@ public class IdentifierTranslator : IIdentifierTranslator
         }
 
         _mapPermanentToTemporaryNodeIdentifiers[permanentId] = temporaryId;
+        RegisterOriginalId(temporaryId, permanentId);
 
         return Problems.None;
+    }
+
+    public void RegisterOriginalId(RoadNodeId originalId, RoadNodeId permanentId)
+    {
+        // Nothing to tell the uploader when the road network already knows the road node by the identifier they used.
+        if (originalId == permanentId)
+        {
+            return;
+        }
+
+        _mapPermanentToOriginalNodeIdentifiers[permanentId] = originalId;
+    }
+
+    public RoadNodeId? TranslateToOriginalId(RoadNodeId id)
+    {
+        return _mapPermanentToOriginalNodeIdentifiers.TryGetValue(id, out var originalId) ? originalId : null;
     }
 
     public Problems RegisterMapping(RoadSegmentIdReference idReference, RoadSegmentId permanentId)

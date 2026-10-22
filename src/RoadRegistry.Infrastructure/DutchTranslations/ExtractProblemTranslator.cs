@@ -16,7 +16,13 @@ public sealed class ExtractProblemTranslator : DefaultProblemTranslator
 
     protected override string GetRoadNodeIdLabel(Problem problem, string namePrefix = "Wegknoop")
     {
-        return $"WK_OIDN {problem.GetParameterValue($"{namePrefix}Id")}";
+        var label = $"WK_OIDN {problem.GetParameterValue($"{namePrefix}Id")}";
+
+        // The feature compare matches road nodes on geometry, so the one the register uses need not be the one the
+        // upload carried. Both are named, or the uploader has nothing to look the road node up by.
+        var originalId = problem.GetOptionalParameterValue($"{namePrefix}OorspronkelijkeId");
+
+        return originalId is not null ? $"{label} (origineel {originalId})" : label;
     }
 
     protected override string GetGradeSeparatedJunctionIdLabel(Problem problem, string namePrefix = "OngelijkGrondseKruising")

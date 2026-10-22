@@ -32,6 +32,8 @@ public partial class ScopedRoadNetwork
 
         var context = new ScopedRoadNetworkChangeContext(this, changes.Provenance, logger);
 
+        RegisterOriginalRoadNodeIds(changes, context);
+
         var problems = ApplyChanges(changes, idGenerator, context);
 
         if (!problems.HasError())
@@ -51,7 +53,7 @@ public partial class ScopedRoadNetwork
             });
         }
 
-        return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), context.Summary);
+        return new RoadNetworkChangeResult(WithOriginalRoadNodeIds(Problems.None.AddRange(problems.Distinct()), context), context.Summary);
     }
 
     // Records a summary event on the scoped road network aggregate itself, so its document is persisted and carries the
