@@ -9,4 +9,5 @@ public sealed class SplitRoadSegmentsByJunctionSqsRequest : SqsRequest
 {
     public required RoadSegmentId RoadSegmentId1 { get; init; }
     public required RoadSegmentId RoadSegmentId2 { get; init; }
+
 }

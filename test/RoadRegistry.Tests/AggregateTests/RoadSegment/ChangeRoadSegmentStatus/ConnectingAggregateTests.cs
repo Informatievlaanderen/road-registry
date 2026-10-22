@@ -230,9 +230,22 @@ public class ConnectingAggregateTests : StatusChangeAggregateTestBase
             BuildGeometry((100, 0), (100, 80)),
             drawMethod: RoadSegmentGeometryDrawMethodV2.Ingemeten);
 
-        var result = Act(roadNetwork, RoadSegmentStatusChange.PlannedToRealized, mayModifyMeasuredRoadSegments: false);
+        var result = Act(roadNetwork, RoadSegmentStatusChange.PlannedToRealized, OnlyIngeschetst);
 
         result.Problems.Select(x => x.Reason).Should().Contain(RoadSegmentMeasuredNotAllowed.ProblemCode.ToString());
+        roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)].Status.Should().Be(RoadSegmentStatusV2.Gepland);
+    }
+
+    [Fact]
+    public void WhenTheSegmentIsOutlinedAndTheCallerMayOnlyTouchMeasuredOnes_ThenError()
+    {
+        var roadNetwork = BuildNetworkWith(
+            BuildGeometry((100, 0), (100, 80)),
+            drawMethod: RoadSegmentGeometryDrawMethodV2.Ingeschetst);
+
+        var result = Act(roadNetwork, RoadSegmentStatusChange.PlannedToRealized, OnlyIngemeten);
+
+        result.Problems.Select(x => x.Reason).Should().Contain(RoadSegmentOutlinedNotAllowed.ProblemCode.ToString());
         roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)].Status.Should().Be(RoadSegmentStatusV2.Gepland);
     }
 
@@ -243,7 +256,7 @@ public class ConnectingAggregateTests : StatusChangeAggregateTestBase
             BuildGeometry((100, 0), (100, 80)),
             drawMethod: RoadSegmentGeometryDrawMethodV2.Ingemeten);
 
-        var result = Act(roadNetwork, RoadSegmentStatusChange.PlannedToRealized, mayModifyMeasuredRoadSegments: true);
+        var result = Act(roadNetwork, RoadSegmentStatusChange.PlannedToRealized, AllGeometryDrawMethods);
 
         result.Problems.Should().BeEmpty();
         roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)].Status.Should().Be(RoadSegmentStatusV2.Gerealiseerd);

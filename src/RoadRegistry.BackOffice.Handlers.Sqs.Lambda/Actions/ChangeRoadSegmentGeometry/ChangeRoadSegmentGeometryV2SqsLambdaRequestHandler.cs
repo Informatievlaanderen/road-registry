@@ -144,7 +144,7 @@ public sealed class ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler : MartenS
 
             var result = roadNetwork.ModifyRoadSegmentGeometry(
                 change,
-                command.MayModifyMeasuredRoadSegments,
+                command.EditableGeometryDrawMethods,
                 _roadNetworkIdGenerator,
                 command.ProvenanceData.ToProvenance(),
                 Logger);

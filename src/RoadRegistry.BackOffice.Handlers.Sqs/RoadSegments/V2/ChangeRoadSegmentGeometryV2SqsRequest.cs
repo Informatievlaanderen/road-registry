@@ -19,11 +19,10 @@ public sealed class ChangeRoadSegmentGeometryV2SqsRequest : SqsRequest
     public required RoadSegmentId RoadSegmentId { get; init; }
     public required RoadSegmentGeometry Geometry { get; init; }
 
-    // VAL-5: whether the caller holds the 'ingemeten' scope, and may therefore change the geometry of a measured road
-    // segment - including any measured segment dragged along by a road node that moves. Decided at the edge, where the
-    // caller's scopes are known, and enforced by the domain, which is the only place that knows which segments are
-    // actually affected.
-    public required bool MayModifyMeasuredRoadSegments { get; init; }
+    // VAL-5: which road segments the caller may modify, read off the scopes on their token - including any segment
+    // dragged along by a road node that moves, which is why the entitlement travels with the request rather than the
+    // verdict: only the domain knows which segments are actually affected.
+    public required EditableGeometryDrawMethods EditableGeometryDrawMethods { get; init; }
 
     public IReadOnlyList<AttributeValue<RoadSegmentMorphologyV2>>? Morphology { get; init; }
     public IReadOnlyList<AttributeValue<RoadSegmentSurfaceTypeV2>>? SurfaceType { get; init; }

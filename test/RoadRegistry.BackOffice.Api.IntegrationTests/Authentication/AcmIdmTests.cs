@@ -78,17 +78,17 @@
             new(HttpMethod.Post, "v2/wegsegmenten/acties/schetsen", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Get, "v2/wegsegmenten/{id}"),
             new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/knippen", Scopes.DvWrGeschetsteWegBeheer),
-            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/wijzigen/geometrie", Scopes.DvWrGeschetsteWegBeheer),
-            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/geplandnaargerealiseerd", Scopes.DvWrGeschetsteWegBeheer),
-            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/geplandnaarnietgerealiseerd", Scopes.DvWrGeschetsteWegBeheer),
-            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/buitengebruiknaargerealiseerd", Scopes.DvWrGeschetsteWegBeheer),
-            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/gerealiseerdnaarbuitengebruik", Scopes.DvWrGeschetsteWegBeheer),
-            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/gerealiseerdnaargehistoreerd", Scopes.DvWrGeschetsteWegBeheer),
-            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/buitengebruiknaargehistoreerd", Scopes.DvWrGeschetsteWegBeheer),
-            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/corrigeren/gerealiseerdnaargepland", Scopes.DvWrGeschetsteWegBeheer),
-            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/corrigeren/nietgerealiseerdnaargepland", Scopes.DvWrGeschetsteWegBeheer),
-            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/corrigeren/gehistoreerdnaargerealiseerd", Scopes.DvWrGeschetsteWegBeheer),
-            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/corrigeren/gehistoreerdnaarbuitengebruik", Scopes.DvWrGeschetsteWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/wijzigen/geometrie", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/geplandnaargerealiseerd", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/geplandnaarnietgerealiseerd", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/buitengebruiknaargerealiseerd", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/gerealiseerdnaarbuitengebruik", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/gerealiseerdnaargehistoreerd", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/buitengebruiknaargehistoreerd", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/corrigeren/gerealiseerdnaargepland", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/corrigeren/nietgerealiseerdnaargepland", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/corrigeren/gehistoreerdnaargerealiseerd", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/{id}/acties/corrigeren/gehistoreerdnaarbuitengebruik", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Post, "v2/wegsegmenten/acties/knippenopkruising", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v2/wegsegmenten/acties/wijzigen/attributen", Scopes.DvWrAttribuutWaardenBeheer),
             new(HttpMethod.Post, "v2/wegknopen/acties/wijzigen/attributen", Scopes.DvWrAttribuutWaardenBeheer),
@@ -97,11 +97,21 @@
             new(HttpMethod.Post, "v2/gelijkgrondsekruisingen/{id}/acties/wijzigen/naarongelijkgrondsekruising", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v2/ongelijkgrondsekruisingen/{id}/acties/wijzigen/naargelijkgrondsekruising", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v2/ongelijkgrondsekruisingen/{id}/acties/wijzigen/attributen", Scopes.DvWrAttribuutWaardenBeheer),
-            new(HttpMethod.Post, "v2/wegsegmenten/acties/wijzigen/geometriemethode", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/acties/wijzigen/geometriemethode", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v2/gelijkgrondsekruisingen/{id}"),
             new(HttpMethod.Get, "v2/ongelijkgrondsekruisingen/{id}"),
         };
         public static IEnumerable<object[]> EndpointsMemberData() => Endpoints.Select(x => new object[] { x.Method, x.Uri, x.RequiredScopes });
+
+        // The road segment edit endpoints take the 'geschetste weg' scope as well as the 'ingemeten weg' scope, and
+        // either one on its own is enough to get in: which road segments the caller may then actually touch is decided
+        // by the domain, per segment, not by the authorization policy.
+        public static IEnumerable<object[]> BothRoadScopeEndpointsMemberData() =>
+            from endpoint in Endpoints
+            where endpoint.RequiredScopes.Contains(Scopes.DvWrGeschetsteWegBeheer)
+                  && endpoint.RequiredScopes.Contains(Scopes.DvWrIngemetenWegBeheer)
+            from scope in new[] { Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer }
+            select new object[] { endpoint.Method, endpoint.Uri, scope };
 
         public AcmIdmTests(IntegrationTestFixture fixture, ITestOutputHelper testOutputHelper)
         {
@@ -173,6 +183,22 @@
                 {
                     Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
                 }
+            });
+        }
+
+        [Theory]
+        [MemberData(nameof(BothRoadScopeEndpointsMemberData))]
+        public Task ReturnsSuccessWithEitherRoadScopeOnItsOwn(HttpMethod method, string endpoint, string scope)
+        {
+            return RetryMultipleTimesUntilNoXunitException(async () =>
+            {
+                var client = _fixture.TestServer.CreateClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _fixture.GetAcmIdmAccessToken(scope));
+
+                var response = await SendAsync(client, CreateRequestMessage(method, endpoint.Replace("{jobId}", $"{Guid.NewGuid():D}")));
+
+                Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+                Assert.NotEqual(HttpStatusCode.Forbidden, response.StatusCode);
             });
         }
 

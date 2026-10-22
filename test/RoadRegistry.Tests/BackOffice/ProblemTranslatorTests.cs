@@ -376,12 +376,22 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadSegment.OutlinedNotAllowed, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
                 ProblemCode.RoadSegment.Realize.NoRoadNodeInReach, [
                     new ProblemParameter("MaximumDistance", "1")
                 ]
             },
             {
                 ProblemCode.RoadSegment.ChangeGeometry.MeasuredNotAllowed, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.OutlinedNotAllowed, [
                     new ProblemParameter("WegsegmentId", "1")
                 ]
             },

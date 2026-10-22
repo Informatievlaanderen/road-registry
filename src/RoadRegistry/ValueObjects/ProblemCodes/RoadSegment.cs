@@ -23,6 +23,7 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode OutsideCompletedInwinningszone = new("RoadSegmentOutsideInwinningszone");
         public static readonly ProblemCode NotCompletedInwinning = new("RoadSegmentNotCompletedInwinning");
         public static readonly ProblemCode MeasuredNotAllowed = new("RoadSegmentMeasuredNotAllowed");
+        public static readonly ProblemCode OutlinedNotAllowed = new("RoadSegmentOutlinedNotAllowed");
 
         public static class AttributeSide
         {
@@ -354,6 +355,7 @@ public sealed partial record ProblemCode
         {
             public static readonly ProblemCode StatusNotValid = new("RoadSegmentChangeGeometryStatusNotValid");
             public static readonly ProblemCode MeasuredNotAllowed = new("RoadSegmentChangeGeometryMeasuredNotAllowed");
+            public static readonly ProblemCode OutlinedNotAllowed = new("RoadSegmentChangeGeometryOutlinedNotAllowed");
             public static readonly ProblemCode PointTooCloseToRoadNode = new("RoadSegmentChangeGeometryPointTooCloseToRoadNode");
             public static readonly ProblemCode RoadNodeMovedTooFar = new("RoadSegmentChangeGeometryRoadNodeMovedTooFar");
         }

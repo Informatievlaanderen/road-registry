@@ -32,6 +32,7 @@ using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
+using RoadRegistry.ValueObjects;
 
 /// <summary>
 /// Runs the change-geometry lambda against whatever database the configuration points at, so a scenario that only
@@ -60,7 +61,7 @@ public class ForDebugging
         // The new geometry, in Lambert 2008. Draw it so it runs into the segment you expect a junction with.
         var newGeometryWkt = "MULTILINESTRING ((217368 181577, 217400 181600, 217450 181650))";
         var operatorName = "0425258688";
-        var mayModifyMeasuredRoadSegments = true;
+        var editableGeometryDrawMethods = new EditableGeometryDrawMethods(Ingeschetst: true, Ingemeten: true);
 
         var sp = BuildServiceProvider();
         var store = sp.GetRequiredService<IDocumentStore>();
@@ -74,7 +75,7 @@ public class ForDebugging
         _outputHelper.WriteLine($"Current geometry: {roadSegment.Geometry.WKT}");
         _outputHelper.WriteLine($"New geometry:     {newGeometry.WKT}");
 
-        var sqsRequest = BuildRequest(roadSegment, newGeometry, operatorName, mayModifyMeasuredRoadSegments);
+        var sqsRequest = BuildRequest(roadSegment, newGeometry, operatorName, editableGeometryDrawMethods);
 
         var handler = new ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler(
             new FakeSqsLambdaHandlerOptions(),
@@ -120,7 +121,7 @@ public class ForDebugging
         RoadSegment roadSegment,
         RoadSegmentGeometry newGeometry,
         string operatorName,
-        bool mayModifyMeasuredRoadSegments)
+        EditableGeometryDrawMethods editableGeometryDrawMethods)
     {
         var attributes = roadSegment.Attributes
                          ?? throw new InvalidOperationException($"Road segment {roadSegment.RoadSegmentId} has not been migrated to V2.");
@@ -132,7 +133,7 @@ public class ForDebugging
             ProvenanceData = new RoadRegistryProvenanceData(operatorName: operatorName),
             RoadSegmentId = roadSegment.RoadSegmentId,
             Geometry = newGeometry,
-            MayModifyMeasuredRoadSegments = mayModifyMeasuredRoadSegments,
+            EditableGeometryDrawMethods = editableGeometryDrawMethods,
             Morphology = FullLength(attributes.Morphology),
             SurfaceType = FullLength(attributes.SurfaceType),
             AccessRestriction = FullLength(attributes.AccessRestriction),

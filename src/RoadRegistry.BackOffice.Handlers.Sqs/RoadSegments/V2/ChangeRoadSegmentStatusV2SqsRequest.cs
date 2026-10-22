@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ValueObjects;
 
 // A road segment status change - 'markeer een gepland wegsegment als gerealiseerd', 'corrigeer een gerealiseerd
 // wegsegment naar gepland', and every other transition in RoadSegmentStatusChange. Which transition it is, is the
@@ -19,7 +20,7 @@ public sealed class ChangeRoadSegmentStatusV2SqsRequest : SqsRequest
 
     public required RoadSegmentStatusChange StatusChange { get; init; }
 
-    // Whether the caller holds the 'ingemeten' scope, and may therefore change the status of a measured road segment.
-    // Decided at the edge, where the caller's scopes are known, and enforced by the domain.
-    public required bool MayModifyMeasuredRoadSegments { get; init; }
+    // Which road segments the caller may modify, read off the scopes on their token at the edge - the only place they
+    // are known - and enforced by the domain, which is the only place that knows which segments a change touches.
+    public required EditableGeometryDrawMethods EditableGeometryDrawMethods { get; init; }
 }

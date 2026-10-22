@@ -137,7 +137,7 @@ public class GivenADisconnectingStatusChange : BackOfficeLambdaTest
 
         await HandleRequest(store, ExtractsDbContextWith(inwinningCompleted: true),
             drawMethod: RoadSegmentGeometryDrawMethodV2.Ingemeten,
-            mayModifyMeasuredRoadSegments: false);
+            editableGeometryDrawMethods: new EditableGeometryDrawMethods(Ingeschetst: true, Ingemeten: false));
 
         VerifyThatTicketHasError("WegsegmentIngemetenNietToegelaten", null);
     }
@@ -173,7 +173,7 @@ public class GivenADisconnectingStatusChange : BackOfficeLambdaTest
         ExtractsDbContext extractsDbContext,
         RoadSegmentStatusV2? status = null,
         RoadSegmentGeometryDrawMethodV2? drawMethod = null,
-        bool mayModifyMeasuredRoadSegments = true,
+        EditableGeometryDrawMethods? editableGeometryDrawMethods = null,
         bool seedTheRoadSegment = true)
     {
         var (nodes, segments) = BuildNetwork(status, drawMethod, seedTheRoadSegment);
@@ -211,7 +211,7 @@ public class GivenADisconnectingStatusChange : BackOfficeLambdaTest
             ProvenanceData = ObjectProvider.Create<ProvenanceData>(),
             RoadSegmentId = new RoadSegmentId(CorrectedSegmentId),
             StatusChange = RoadSegmentStatusChange.RealizedToPlanned,
-            MayModifyMeasuredRoadSegments = mayModifyMeasuredRoadSegments
+            EditableGeometryDrawMethods = editableGeometryDrawMethods ?? new EditableGeometryDrawMethods(Ingeschetst: true, Ingemeten: true)
         };
 
         await handler.Handle(new ChangeRoadSegmentStatusV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest), CancellationToken.None);
