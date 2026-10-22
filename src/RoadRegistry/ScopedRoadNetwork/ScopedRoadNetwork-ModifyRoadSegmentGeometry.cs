@@ -173,7 +173,8 @@ public partial class ScopedRoadNetwork
         return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), context.Summary);
     }
 
-    // VAL-5
+    // VAL-5. The same judgement as ValidateGeometryDrawMethodIsEditable, but reported under this action's own problem
+    // codes: they are the ones that mention the aansluitende segments, which only a geometry change drags along.
     private static Problems ValidateChangeGeometryIsAllowed(RoadSegment roadSegment, EditableGeometryDrawMethods editableGeometryDrawMethods)
     {
         var geometryDrawMethod = roadSegment.Attributes?.GeometryDrawMethod;
