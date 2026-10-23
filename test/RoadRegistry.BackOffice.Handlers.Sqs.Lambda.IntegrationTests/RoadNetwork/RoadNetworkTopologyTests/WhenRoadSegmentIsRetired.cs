@@ -57,8 +57,11 @@ public class WhenRoadSegmentIsRetired : RoadNetworkIntegrationTest
         await Append(store, 3, TestData.Fixture.Create<RoadSegmentWasRemoved>() with { RoadSegmentId = new RoadSegmentId(3) });
         await AddRoadSegment(store, 4);
 
-        // What the projection did before: delete the retired segments.
-        await Execute(store, $"DELETE FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} WHERE id IN (1, 2);");
+        // What the projection did before: delete the retired segments, and the removed one along with them. It no
+        // longer deletes anything at all for a V2 event, so a removed segment keeps its row now - and the point of
+        // segment 3 here is that the fix does not put back a row for one that was removed, which only says anything
+        // once the row is gone. So it is deleted by hand too, leaving the database the way the old projection left it.
+        await Execute(store, $"DELETE FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} WHERE id IN (1, 2, 3);");
         var untouchedBefore = await QueryTopology(store);
 
         await Execute(store, ReadDataFixMigration());
