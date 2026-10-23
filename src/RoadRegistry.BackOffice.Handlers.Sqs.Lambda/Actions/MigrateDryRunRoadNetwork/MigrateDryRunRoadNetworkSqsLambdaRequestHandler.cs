@@ -86,6 +86,15 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : MartenSqsL
 
         var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, new InMemoryRoadNetworkIdGenerator(initialValue: 1_000_000_000), Logger);
         var problems = changeResult.Problems;
+
+        // Only worth asking once the changes themselves hold up: comparing what the upload touched against what the
+        // inwinning is waiting on says nothing about an upload that is already being rejected.
+        if (!problems.HasError())
+        {
+            problems += await ValidateAllInwinningRoadSegmentsAreUploaded(command, changeResult, cancellationToken);
+        }
+
+        // A real problem wins over the signal that the simulation ran to the end, so this comes after the two checks.
         if (!problems.HasError() && onlyDryRun)
         {
             problems += new Error(ProblemCode.Upload.DryRunSuccessful);
@@ -97,11 +106,9 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : MartenSqsL
 
             throw new RoadRegistryProblemsException(problems);
         }
-
-        await EnsureAllInwinningRoadSegmentsAreUploaded(command, changeResult, cancellationToken);
     }
 
-    private async Task EnsureAllInwinningRoadSegmentsAreUploaded(MigrateRoadNetworkSqsRequest command, RoadNetworkChangeResult changeResult, CancellationToken cancellationToken)
+    private async Task<Problems> ValidateAllInwinningRoadSegmentsAreUploaded(MigrateRoadNetworkSqsRequest command, RoadNetworkChangeResult changeResult, CancellationToken cancellationToken)
     {
         var inwinningszone = await _extractsDbContext.Inwinningszones.SingleAsync(x => x.DownloadId == command.DownloadId.ToGuid(), cancellationToken);
 
@@ -116,11 +123,52 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : MartenSqsL
         var missingRoadSegmentIds = inwinningRoadSegmentIds
             .Except(modifiedOrRemovedRoadSegmentIds)
             .Except(command.IdenticalRoadSegmentIds.Select(x => x.ToInt32()))
+            .Select(x => new RoadSegmentId(x))
             .ToArray();
-        if (missingRoadSegmentIds.Any())
+        if (!missingRoadSegmentIds.Any())
         {
-            throw new InvalidOperationException($"Inwinning road segment ids are missing from the upload (most likely bug in FeatureCompare, DownloadId {command.DownloadId}): {string.Join(",", missingRoadSegmentIds)}");
+            return Problems.None;
         }
+
+        // A road segment the inwinning is still waiting on that is already a V2 one was collected before - by an
+        // earlier upload for this zone, or by a V2 edit - and one that has since been removed has nothing left to
+        // collect at all. Neither is missing from this upload: they are locked only because this inwinning still
+        // lists them, and completing the inwinning is what unlocks them. A segment that is still V1 and still there
+        // is the one that points at an upload losing it.
+        var settledRoadSegmentIds = await SelectSettledRoadSegmentIds(command, missingRoadSegmentIds);
+        if (settledRoadSegmentIds.Any())
+        {
+            Logger.LogInformation("Inwinning road segment ids are not in the upload but are already ingewonnen or removed, so they are completed along with it (DownloadId {DownloadId}): {RoadSegmentIds}", command.DownloadId, string.Join(",", settledRoadSegmentIds));
+        }
+
+        var notUploadedRoadSegmentIds = missingRoadSegmentIds.Except(settledRoadSegmentIds).ToArray();
+        if (notUploadedRoadSegmentIds.Any())
+        {
+            // This points at the upload losing a road segment somewhere before it got here rather than at anything
+            // the caller did, so it is logged as an error for us to act on - with the full list, which the reported
+            // problem caps to keep the message readable.
+            Logger.LogError("Inwinning road segment ids are missing from the upload (most likely bug in FeatureCompare, DownloadId {DownloadId}): {RoadSegmentIds}", command.DownloadId, string.Join(",", notUploadedRoadSegmentIds));
+
+            return Problems.Single(new InwinningRoadSegmentsMissingFromUpload(notUploadedRoadSegmentIds));
+        }
+
+        return Problems.None;
+    }
+
+    // The road segments an inwinning has nothing left to ask of: the ones that are already V2, and the ones that
+    // are gone. Both are the road network's to answer, so they are loaded from it - on their own rather than read
+    // off the network loaded for the migration, which is scoped to what the upload touches, exactly what these
+    // segments are not part of. An identifier the road network does not know at all is left out of this: nothing
+    // can be said about it, so it stays reported.
+    private async Task<IReadOnlyCollection<RoadSegmentId>> SelectSettledRoadSegmentIds(MigrateRoadNetworkSqsRequest command, IReadOnlyCollection<RoadSegmentId> roadSegmentIds)
+    {
+        await using var session = Store.LightweightSession(IsolationLevel.Snapshot);
+
+        var roadNetwork = await _roadNetworkRepository.Load(session, new RoadNetworkIds([], roadSegmentIds, [], []), new ScopedRoadNetworkId(command.DownloadId.ToGuid()));
+
+        return roadSegmentIds
+            .Where(x => roadNetwork.RoadSegments.TryGetValue(x, out var roadSegment) && (roadSegment.HasMigrated() || roadSegment.IsRemoved))
+            .ToList();
     }
 
     private async Task<ScopedRoadNetwork> Load(RoadNetworkChanges roadNetworkChanges, ScopedRoadNetworkId roadNetworkId)

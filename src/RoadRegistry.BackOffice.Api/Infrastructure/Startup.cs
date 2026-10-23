@@ -229,6 +229,7 @@ public class Startup
                         options
                             .AddRoadPolicies(blacklistedOvoCodes)
                             .AddAcmIdmPolicyVoInfo()
+                            .AddAcmIdmPolicyWegBeheerder()
                             ;
                     }
                 }

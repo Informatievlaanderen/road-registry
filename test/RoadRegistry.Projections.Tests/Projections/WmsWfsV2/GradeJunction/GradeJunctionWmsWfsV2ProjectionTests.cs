@@ -198,4 +198,32 @@ public class GradeJunctionWmsWfsV2ProjectionTests
         Assert.Equal(3, junction!.WS2_OIDN);
         Assert.Equal(60.0, junction.GEOMETRIE!.Coordinate.X, 3);
     }
+    // The junction geometry travels straight from the event into the column, so the only thing between the two is
+    // the normalization - which has no test of its own on this table. A V2 geometry is plain 2D, but a Z or an M can
+    // still arrive from a V1 geometry or a GRB import, and the target column must hold neither.
+    [Fact]
+    public async Task WhenGradeJunctionIsWritten_ThenTheGeometryIsStored2D()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(new GradeJunctionWasAdded
+        {
+            GradeJunctionId = new GradeJunctionId(1),
+            RoadSegmentId1 = new RoadSegmentId(1),
+            RoadSegmentId2 = new RoadSegmentId(2),
+            Geometry = JunctionPoint((50, 50)),
+            Provenance = Provenance
+        });
+
+        SqlServerGeometry.AssertIs2D((await scenario.Find<GradeJunctionRecord>(1))!.GEOMETRIE!);
+
+        await scenario.GivenAsync(new GradeJunctionGeometryWasChanged
+        {
+            GradeJunctionId = new GradeJunctionId(1),
+            Geometry = JunctionPoint((25, 25)),
+            Provenance = Provenance
+        });
+
+        SqlServerGeometry.AssertIs2D((await scenario.Find<GradeJunctionRecord>(1))!.GEOMETRIE!);
+    }
 }

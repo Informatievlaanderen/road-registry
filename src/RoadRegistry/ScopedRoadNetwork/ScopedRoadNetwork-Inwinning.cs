@@ -19,7 +19,8 @@ public partial class ScopedRoadNetwork
 
         foreach (var roadSegmentId in roadSegmentIds.Distinct())
         {
-            if (_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) && !roadSegment.HasMigrated())
+            // A removed road segment has no inwinning left to finish, so there is nothing to hold against it.
+            if (_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) && !roadSegment.IsRemoved && !roadSegment.HasMigrated())
             {
                 problems += new RoadSegmentNotCompletedInwinning(roadSegmentId);
             }
@@ -38,7 +39,8 @@ public partial class ScopedRoadNetwork
 
         foreach (var roadNodeId in roadNodeIds.Distinct())
         {
-            if (_roadNodes.TryGetValue(roadNodeId, out var roadNode) && !roadNode.HasMigrated())
+            // The same for a removed road node.
+            if (_roadNodes.TryGetValue(roadNodeId, out var roadNode) && !roadNode.IsRemoved && !roadNode.HasMigrated())
             {
                 problems += new RoadNodeNotCompletedInwinning(roadNodeId);
             }

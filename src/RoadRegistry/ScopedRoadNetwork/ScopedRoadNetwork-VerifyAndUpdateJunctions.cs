@@ -23,12 +23,12 @@ public partial class ScopedRoadNetwork
         var problems = Problems.None;
 
         // Get existing junctions
-        var existingGradeSeparatedJunctions = _gradeSeparatedJunctions.Values
-            .Where(x => !x.IsRemoved)
-            .ToDictionary(x => CreateCombinationKey(x.LowerRoadSegmentId, x.UpperRoadSegmentId), x => x);
-        var existingGradeJunctions = _gradeJunctions.Values
-            .Where(x => !x.IsRemoved)
-            .ToDictionary(x => CreateCombinationKey(x.RoadSegmentId1, x.RoadSegmentId2), x => x);
+        var existingGradeSeparatedJunctions = IndexBySegmentPair(
+            _gradeSeparatedJunctions.Values.Where(x => !x.IsRemoved),
+            x => CreateCombinationKey(x.LowerRoadSegmentId, x.UpperRoadSegmentId));
+        var existingGradeJunctions = IndexBySegmentPair(
+            _gradeJunctions.Values.Where(x => !x.IsRemoved),
+            x => CreateCombinationKey(x.RoadSegmentId1, x.RoadSegmentId2));
 
         // Find all unique combinations of changed segments with all gerealiseerde segments
         var segmentCombinationsOfChangedSegments = GetSegmentCombinationsOfChangedSegments(
@@ -88,14 +88,15 @@ public partial class ScopedRoadNetwork
                     .WithContext(problemContext);
             }
 
-            if (!hasOverlapInTrafficTypes && !existingGradeJunctions.ContainsKey(combination.Key))
+            if (!hasOverlapInTrafficTypes && CanAddGradeJunction(combination, existingGradeJunctions, existingGradeSeparatedJunctions))
             {
                 var geometry = JunctionGeometry.Create(intersection.Factory.CreatePoint(intersection.Coordinate.RoundToCm()));
                 problems += AddGradeJunction(combination.Segment1.RoadSegmentId, combination.Segment2.RoadSegmentId, geometry, idGenerator, context);
             }
-            else if (hasOverlapInTrafficTypes && existingGradeJunctions.TryGetValue(combination.Key, out var gradeJunction))
+
+            if (hasOverlapInTrafficTypes && existingGradeJunctions.TryGetValue(combination.Key, out var supersededGradeJunction))
             {
-                problems += RemoveGradeJunction(gradeJunction.GradeJunctionId, context);
+                problems += RemoveGradeJunction(supersededGradeJunction.GradeJunctionId, context);
             }
         }
 
@@ -105,6 +106,24 @@ public partial class ScopedRoadNetwork
         }
 
         return problems;
+    }
+
+    // Whether a crossing without overlapping traffic types may be recorded as a gelijkgrondse kruising.
+    //
+    // Two things stand in the way. A segment whose inwinning has not finished carries no traffic attributes at all, so
+    // the overlap check reads it as carrying no traffic and every crossing with it looks gelijkgronds - which says
+    // nothing about the two roads, only that one of them is still V1. And a crossing that already carries an
+    // ongelijkgrondse kruising is recorded: a segment pair never holds both kinds of kruising at once, so the
+    // ongelijkgrondse one stands and nothing is added next to it.
+    private static bool CanAddGradeJunction(
+        (RoadSegment Segment1, RoadSegment Segment2, (int, int) Key, Point[] IntersectingPoints) combination,
+        Dictionary<(int, int), GradeJunction> existingGradeJunctions,
+        Dictionary<(int, int), GradeSeparatedJunction> existingGradeSeparatedJunctions)
+    {
+        return combination.Segment1.HasMigrated()
+               && combination.Segment2.HasMigrated()
+               && !existingGradeJunctions.ContainsKey(combination.Key)
+               && !existingGradeSeparatedJunctions.ContainsKey(combination.Key);
     }
 
     // The junction handling of a geometry change, which is deliberately not the one above.
@@ -119,12 +138,12 @@ public partial class ScopedRoadNetwork
 
         var problems = Problems.None;
 
-        var existingGradeSeparatedJunctions = _gradeSeparatedJunctions.Values
-            .Where(x => !x.IsRemoved)
-            .ToDictionary(x => CreateCombinationKey(x.LowerRoadSegmentId, x.UpperRoadSegmentId), x => x);
-        var existingGradeJunctions = _gradeJunctions.Values
-            .Where(x => !x.IsRemoved)
-            .ToDictionary(x => CreateCombinationKey(x.RoadSegmentId1, x.RoadSegmentId2), x => x);
+        var existingGradeSeparatedJunctions = IndexBySegmentPair(
+            _gradeSeparatedJunctions.Values.Where(x => !x.IsRemoved),
+            x => CreateCombinationKey(x.LowerRoadSegmentId, x.UpperRoadSegmentId));
+        var existingGradeJunctions = IndexBySegmentPair(
+            _gradeJunctions.Values.Where(x => !x.IsRemoved),
+            x => CreateCombinationKey(x.RoadSegmentId1, x.RoadSegmentId2));
 
         var combinations = GetSegmentCombinationsOfChangedSegments(
             existingGradeJunctions.Values.Select(x => (x.RoadSegmentId1, x.RoadSegmentId2))
@@ -343,6 +362,24 @@ public partial class ScopedRoadNetwork
                 return true;
             })
             .ToArray();
+    }
+
+    // The kruisingen of the network, looked up by the segment pair they sit on.
+    //
+    // A pair is expected to carry at most one kruising of each kind, and for the V2 ones that is verified before this
+    // runs. V1 did not enforce it and the migration does not invent a correction for it, so a pair can still carry two
+    // V1 ongelijkgrondse kruisingen - which is why the first of them stands in for the pair here rather than the second
+    // one making this throw.
+    private static Dictionary<(int, int), T> IndexBySegmentPair<T>(IEnumerable<T> junctions, Func<T, (int, int)> getSegmentPair)
+    {
+        var junctionsBySegmentPair = new Dictionary<(int, int), T>();
+
+        foreach (var junction in junctions)
+        {
+            junctionsBySegmentPair.TryAdd(getSegmentPair(junction), junction);
+        }
+
+        return junctionsBySegmentPair;
     }
 
     private static (int, int) CreateCombinationKey(RoadSegmentId id1, RoadSegmentId id2)

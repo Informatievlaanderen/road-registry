@@ -53,7 +53,7 @@ public class NodeTopologyMergeTests : RemoveRoadSegmentsTestBase
         var result = roadNetwork.ChangeRoadSegmentStatus(
             RoadSegmentStatusChange.RealizedToHistorized,
             new RoadSegmentId(LeavingSegmentId),
-            mayModifyMeasuredRoadSegments: true,
+            AllGeometryDrawMethods,
             IdGenerator(),
             TestData.Provenance);
 

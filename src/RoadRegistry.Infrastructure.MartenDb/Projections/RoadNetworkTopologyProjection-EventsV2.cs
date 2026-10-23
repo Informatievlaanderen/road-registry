@@ -43,20 +43,18 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
+    // Nothing is deleted from the topology for a V2 event. The projection only decides which identifiers a road
+    // network is loaded by, and a removed entity has to come along: the domain is the one that knows it is removed,
+    // and every action has to say so for itself rather than be handed a road network where it silently never existed.
+    //
+    // That also settles what happens when this projection is eventually dropped and the identifiers are read straight
+    // off the road network - removed entities will be there just the same.
     public void Project(IEvent<RoadNodeWasRemoved> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadnode(?, ?);",
-            e.Data.RoadNodeId.ToInt32(),
-            e.Timestamp
-        );
     }
 
     public void Project(IEvent<RoadNodeWasRemovedBecauseOfMigration> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadnode(?, ?);",
-            e.Data.RoadNodeId.ToInt32(),
-            e.Timestamp
-        );
     }
 
     public void Project(IEvent<RoadSegmentWasAdded> e, IDocumentOperations ops)
@@ -188,18 +186,10 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadSegmentWasRemoved> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",
-            e.Data.RoadSegmentId.ToInt32(),
-            e.Timestamp
-        );
     }
 
     public void Project(IEvent<RoadSegmentWasRemovedBecauseOfMigration> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",
-            e.Data.RoadSegmentId.ToInt32(),
-            e.Timestamp
-        );
     }
 
     // A segment retired by a merger or a split is historized, not removed: the aggregate keeps it - status gehistoreerd,
@@ -262,18 +252,10 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<GradeSeparatedJunctionWasRemoved> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradeseparatedjunction(?, ?);",
-            e.Data.GradeSeparatedJunctionId.ToInt32(),
-            e.Timestamp
-        );
     }
 
     public void Project(IEvent<GradeSeparatedJunctionWasRemovedBecauseOfMigration> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradeseparatedjunction(?, ?);",
-            e.Data.GradeSeparatedJunctionId.ToInt32(),
-            e.Timestamp
-        );
     }
 
     public void Project(IEvent<GradeJunctionWasAdded> e, IDocumentOperations ops)
@@ -303,20 +285,12 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<GradeJunctionWasRemoved> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradejunction(?, ?);",
-            e.Data.GradeJunctionId.ToInt32(),
-            e.Timestamp
-        );
     }
 
-    // The crossing did not disappear, it is recorded as a grade separated junction from here on - but for the
-    // topology the grade junction is gone all the same.
+    // The crossing did not disappear, it is recorded as a grade separated junction from here on. The grade junction
+    // it was is marked removed on the aggregate, and like every other removed entity it stays in the topology.
     public void Project(IEvent<GradeJunctionWasChangedToGradeSeparatedJunction> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradejunction(?, ?);",
-            e.Data.GradeJunctionId.ToInt32(),
-            e.Timestamp
-        );
     }
 
     public void Project(IEvent<GradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange> e, IDocumentOperations ops)
@@ -331,10 +305,6 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<GradeSeparatedJunctionWasChangedToGradeJunction> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradeseparatedjunction(?, ?);",
-            e.Data.GradeSeparatedJunctionId.ToInt32(),
-            e.Timestamp
-        );
     }
 
     public void Project(IEvent<GradeJunctionWasAddedBecauseOfGradeSeparatedJunctionChange> e, IDocumentOperations ops)

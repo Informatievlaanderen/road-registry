@@ -151,7 +151,7 @@ public class UnconnectedAggregateTests : StatusChangeAggregateTestBase
     {
         var roadNetwork = BuildNetworkWith(RoadSegmentStatusV2.BuitenGebruik, RoadSegmentGeometryDrawMethodV2.Ingemeten);
 
-        var result = Act(roadNetwork, RoadSegmentStatusChange.OutOfUseToHistorized, mayModifyMeasuredRoadSegments: false);
+        var result = Act(roadNetwork, RoadSegmentStatusChange.OutOfUseToHistorized, OnlyIngeschetst);
 
         result.Problems.Select(x => x.Reason).Should().Contain(RoadSegmentMeasuredNotAllowed.ProblemCode.ToString());
         roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)].Status.Should().Be(RoadSegmentStatusV2.BuitenGebruik);
@@ -162,7 +162,7 @@ public class UnconnectedAggregateTests : StatusChangeAggregateTestBase
     {
         var roadNetwork = BuildNetworkWith(RoadSegmentStatusV2.BuitenGebruik, RoadSegmentGeometryDrawMethodV2.Ingemeten);
 
-        var result = Act(roadNetwork, RoadSegmentStatusChange.OutOfUseToHistorized, mayModifyMeasuredRoadSegments: true);
+        var result = Act(roadNetwork, RoadSegmentStatusChange.OutOfUseToHistorized, AllGeometryDrawMethods);
 
         result.Problems.Should().BeEmpty();
         roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)].Status.Should().Be(RoadSegmentStatusV2.Gehistoreerd);

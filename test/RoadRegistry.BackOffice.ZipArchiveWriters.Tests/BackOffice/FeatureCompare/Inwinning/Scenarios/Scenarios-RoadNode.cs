@@ -43,6 +43,84 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
         ex.Problems.Should().Contain(x => x.File == "WEGKNOOP.SHP" && x.Reason == nameof(ShapeFileProblems.HasNoShapeRecords));
     }
 
+    // Road nodes are matched on geometry, so the upload can name one by a WK_OIDN the register does not use. The
+    // identifier the upload carried is kept as the original, because a problem about this road node has to name the
+    // one its uploader can look it up by.
+    //
+    // Both of the record types that can tell the two apart are covered: a road node the upload left untouched but
+    // renumbered, and one it moved and renumbered.
+
+    [Fact]
+    public async Task WhenOnlyTheRoadNodeIdDiffers_ThenTheUploadedIdIsKeptAsTheOriginalId()
+    {
+        // Arrange - a V2 road segment carries no road node identifiers of its own, so renumbering the road node is
+        // all it takes: the geometry is what ties the two together.
+        var (zipArchive, context) = new InwinningZipArchiveBuilder()
+            .WithChange((builder, _) =>
+            {
+                builder.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value += 1000;
+            })
+            .BuildWithContext();
+
+        // Act
+        var actualChanges = await TranslateSucceeds(zipArchive);
+
+        // Assert
+        var change = actualChanges.OfType<ModifyRoadNodeChange>()
+            .Should().ContainSingle(x => x.RoadNodeId == context.Extract.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value)
+            .Subject;
+        change.OriginalId.Should().Be(new RoadNodeId(context.Change.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value));
+    }
+
+    [Fact]
+    public async Task WhenTheRoadNodeMovedAndItsIdDiffers_ThenTheUploadedIdIsKeptAsTheOriginalId()
+    {
+        // Arrange - the same, but with the road node moved as well, so the feature compare matches it as modified
+        // rather than as identical.
+        var (zipArchive, context) = new InwinningZipArchiveBuilder()
+            .WithChange((builder, _) =>
+            {
+                var lengthIncrease = 0.01;
+
+                var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
+                var endPointGeometry = new Point(lineString.Coordinates[1].X + lengthIncrease, lineString.Coordinates[1].Y)
+                    .WithSrid(lineString.SRID);
+                lineString = new LineString([
+                        lineString.Coordinates[0],
+                        new CoordinateM(endPointGeometry.X, endPointGeometry.Y, lineString.Coordinates[1].M + lengthIncrease)
+                    ])
+                    .WithSrid(lineString.SRID);
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
+
+                builder.TestData.RoadSegment1EndNodeShapeRecord.Geometry = endPointGeometry;
+                builder.TestData.RoadSegment1EndNodeDbaseRecord.WK_OIDN.Value += 1000;
+            })
+            .BuildWithContext();
+
+        // Act
+        var actualChanges = await TranslateSucceeds(zipArchive);
+
+        // Assert
+        var change = actualChanges.OfType<ModifyRoadNodeChange>()
+            .Should().ContainSingle(x => x.RoadNodeId == context.Extract.TestData.RoadSegment1EndNodeDbaseRecord.WK_OIDN.Value)
+            .Subject;
+        change.OriginalId.Should().Be(new RoadNodeId(context.Change.TestData.RoadSegment1EndNodeDbaseRecord.WK_OIDN.Value));
+    }
+
+    [Fact]
+    public async Task WhenTheRoadNodeIdIsOurs_ThenThereIsNoOriginalIdToKeep()
+    {
+        // Arrange - nothing renumbered, so there is no second identifier to report.
+        var (zipArchive, _) = new InwinningZipArchiveBuilder().BuildWithContext();
+
+        // Act
+        var actualChanges = await TranslateSucceeds(zipArchive);
+
+        // Assert
+        actualChanges.OfType<ModifyRoadNodeChange>().Should().NotBeEmpty();
+        actualChanges.OfType<ModifyRoadNodeChange>().Should().OnlyContain(x => x.OriginalId == null);
+    }
+
     [Fact]
     public async Task WhenModifiedGeometrySlightly_ThenIdIsKept()
     {
@@ -155,6 +233,9 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                     new ModifyRoadNodeChange
                     {
                         RoadNodeId = new RoadNodeId(context.Extract.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value),
+                        // Matched on geometry, so this road node keeps the identifier the register uses - and the one
+                        // the upload used, which is the only one its uploader can look it up by.
+                        OriginalId = new RoadNodeId(context.Change.TestData.RoadSegment1StartNodeDbaseRecord.WK_OIDN.Value),
                         Geometry = context.Change.TestData.RoadSegment1StartNodeShapeRecord.Geometry.ToRoadNodeGeometry(),
                         Grensknoop = context.Change.TestData.RoadSegment1StartNodeDbaseRecord.GRENSKNOOP.Value.ToBooleanFromDbaseValue()
                     }

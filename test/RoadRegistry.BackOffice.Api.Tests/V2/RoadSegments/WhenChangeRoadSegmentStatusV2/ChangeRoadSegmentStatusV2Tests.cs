@@ -22,6 +22,7 @@ using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests;
 using RoadRegistry.Tests.AggregateTests;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.ValueObjects;
 
 // Every status change endpoint does the same thing and differs in nothing but the transition it names, so they are
 // tested as one: each endpoint is exercised through the controller action it is actually reached by.
@@ -164,7 +165,7 @@ public class ChangeRoadSegmentStatusV2Tests : V2ReadEndpointTestBase
     }
 
     [Fact]
-    public async Task GivenCallerWithIngemetenScope_ThenMeasuredRoadSegmentsMayBeModified()
+    public async Task GivenCallerWithOnlyIngemetenWegScope_ThenOnlyMeasuredRoadSegmentsMayBeModified()
     {
         var id = SeedRoadSegment();
         GiveCallerScopes(Scopes.DvWrIngemetenWegBeheer);
@@ -172,11 +173,11 @@ public class ChangeRoadSegmentStatusV2Tests : V2ReadEndpointTestBase
 
         await Act(RoadSegmentStatusChange.PlannedToRealized, id);
 
-        _capturedSqsRequest.MayModifyMeasuredRoadSegments.Should().BeTrue();
+        _capturedSqsRequest.EditableGeometryDrawMethods.Should().Be(new EditableGeometryDrawMethods(Ingeschetst: false, Ingemeten: true));
     }
 
     [Fact]
-    public async Task GivenCallerWithOnlyGeschetsteWegScope_ThenMeasuredRoadSegmentsMayNotBeModified()
+    public async Task GivenCallerWithOnlyGeschetsteWegScope_ThenOnlyOutlinedRoadSegmentsMayBeModified()
     {
         var id = SeedRoadSegment();
         GiveCallerScopes(Scopes.DvWrGeschetsteWegBeheer);
@@ -184,11 +185,11 @@ public class ChangeRoadSegmentStatusV2Tests : V2ReadEndpointTestBase
 
         await Act(RoadSegmentStatusChange.PlannedToRealized, id);
 
-        _capturedSqsRequest.MayModifyMeasuredRoadSegments.Should().BeFalse();
+        _capturedSqsRequest.EditableGeometryDrawMethods.Should().Be(new EditableGeometryDrawMethods(Ingeschetst: true, Ingemeten: false));
     }
 
     [Fact]
-    public async Task GivenScopesInASingleSpaceSeparatedClaim_ThenTheIngemetenScopeIsStillRecognised()
+    public async Task GivenScopesInASingleSpaceSeparatedClaim_ThenBothScopesAreStillRecognised()
     {
         // Depending on the authentication scheme the scopes arrive as one claim per scope or as a single claim
         // holding all of them.
@@ -198,7 +199,7 @@ public class ChangeRoadSegmentStatusV2Tests : V2ReadEndpointTestBase
 
         await Act(RoadSegmentStatusChange.PlannedToRealized, id);
 
-        _capturedSqsRequest.MayModifyMeasuredRoadSegments.Should().BeTrue();
+        _capturedSqsRequest.EditableGeometryDrawMethods.Should().Be(new EditableGeometryDrawMethods(Ingeschetst: true, Ingemeten: true));
     }
 
     private static RoadSegmentReadItem BuildReadItem(RoadSegmentWasAdded e)

@@ -108,13 +108,13 @@ public abstract class StatusChangeAggregateTestBase : AggregateTestBase
     protected RoadNetworkChangeResult Act(
         ScopedRoadNetwork roadNetwork,
         RoadSegmentStatusChange statusChange,
-        bool mayModifyMeasuredRoadSegments = true,
+        EditableGeometryDrawMethods? editableGeometryDrawMethods = null,
         int roadSegmentId = ChangedSegmentId)
     {
         return roadNetwork.ChangeRoadSegmentStatus(
             statusChange,
             new RoadSegmentId(roadSegmentId),
-            mayModifyMeasuredRoadSegments,
+            editableGeometryDrawMethods ?? AllGeometryDrawMethods,
             IdGenerator(),
             TestData.Provenance);
     }

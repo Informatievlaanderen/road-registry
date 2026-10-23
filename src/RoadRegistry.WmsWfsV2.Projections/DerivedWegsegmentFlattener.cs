@@ -66,10 +66,16 @@ internal static class DerivedWegsegmentFlattener
             var from = range.From;
             var to = range.To;
 
+            // Forced to 2D again, now on the way out. A cut whose end does not land on a vertex is interpolated, and
+            // NTS builds that point as a CoordinateZ - so the sub-line declares a Z ordinate even though the line it
+            // was cut from does not, and SqlServerBytesWriter then stores the row as 3D. Normalizing the geometry on
+            // the way in is not enough: only a sub-range spanning the whole segment comes out of the cut untouched,
+            // which is why a segment whose attributes all run end to end stayed 2D and every split one did not.
+            //
             // Rounding the cut sub-line to centimetres can collapse an interpolated cut point onto the vertex next to
             // it; the repeated coordinate would make the geometry invalid for SQL Server. A sub-range whose geometry
             // has no length left at all is not worth a row.
-            var geometrie = ((LineString)lengthIndexedLine.ExtractLine(from, range.ToActual)).RoundToCm().WithoutRepeatedCoordinates();
+            var geometrie = ((LineString)lengthIndexedLine.ExtractLine(from, range.ToActual).Force2D()).RoundToCm().WithoutRepeatedCoordinates();
             if (geometrie is null)
             {
                 continue;

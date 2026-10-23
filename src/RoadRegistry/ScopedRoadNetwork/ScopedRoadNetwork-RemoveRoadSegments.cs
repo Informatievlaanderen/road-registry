@@ -132,7 +132,7 @@ public partial class ScopedRoadNetwork
         // removes a node other than the one it is looking at. A node named by the segment that the network does not
         // have, or one that is already gone, is therefore not something the caller did: the aggregate is wrong. Saying
         // nothing would leave a node behind carrying a type that no longer matches what hangs off it.
-        if (!_roadNodes.TryGetValue(roadNodeId, out var roadNode))
+        if (!_roadNodes.TryGetValue(roadNodeId, out var roadNode) || roadNode.IsRemoved)
         {
             throw new InvalidOperationException($"Road node {roadNodeId} is connected to road segments but is not part of the road network. This should not happen.");
         }

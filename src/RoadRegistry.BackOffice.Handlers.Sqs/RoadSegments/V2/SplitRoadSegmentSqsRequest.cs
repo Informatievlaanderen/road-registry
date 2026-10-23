@@ -10,4 +10,5 @@ public sealed class SplitRoadSegmentSqsRequest : SqsRequest
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
     public required Point CutPosition { get; init; }
+
 }

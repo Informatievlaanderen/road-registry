@@ -99,6 +99,22 @@ public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmen
             Value: x.Value!)));
     }
 
+    // Moves the trailing coverage(s) from the length of the geometry as it was submitted onto the length it has once
+    // its vertices are rounded to the centimetre - which can measure a centimetre more or less.
+    //
+    // Only a trailing position that sits exactly on the submitted length (to the centimetre) is moved: that is the one
+    // the caller meant as "up to the end". Any other trailing position is wrong for the submitted geometry as well, and
+    // is left for validation to report rather than being dragged onto the end.
+    public RoadSegmentDynamicAttributeValues<T> WithTrailingCoverageMovedOntoRoundedLength(double submittedLength, double roundedLength)
+    {
+        if (Values.Count == 0 || Values.Max(x => x.Coverage.To) != new RoadSegmentPositionV2(submittedLength))
+        {
+            return this;
+        }
+
+        return WithTrailingCoverageSnappedTo(roundedLength);
+    }
+
     // Moves every position onto the geometry a road segment has after one or both of its end vertices were dragged
     // along with a road node.
     //

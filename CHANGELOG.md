@@ -1,3 +1,73 @@
+# [5.26.0](https://github.com/informatievlaanderen/road-registry/compare/v5.25.12...v5.26.0) (2026-10-23)
+
+
+### Bug Fixes
+
+* **integration:** say which organization is missing instead of a bare NullReferenceException ([6ebbf7a](https://github.com/informatievlaanderen/road-registry/commit/6ebbf7a83c98414645108790d1391f7bf7fff049))
+
+
+### Features
+
+* **2.0:** let either road scope into the edit endpoints ([46cc3a8](https://github.com/informatievlaanderen/road-registry/commit/46cc3a85efdd771c9a4205265f9b0b4367d38532))
+
+## [5.25.12](https://github.com/informatievlaanderen/road-registry/compare/v5.25.11...v5.25.12) (2026-10-20)
+
+
+### Bug Fixes
+
+* **inwinning:** judge the uniqueness of V2 kruisingen only ([84baef5](https://github.com/informatievlaanderen/road-registry/commit/84baef57c49368a378061f51ab8de68692b60104))
+
+## [5.25.11](https://github.com/informatievlaanderen/road-registry/compare/v5.25.10...v5.25.11) (2026-10-20)
+
+
+### Bug Fixes
+
+* **2.0:** keep the cut sub-lines of the WmsWfsV2 and PBS flatteners 2D ([425d9df](https://github.com/informatievlaanderen/road-registry/commit/425d9dfe849e7b48b0c9a06a16ee2a9e34967579))
+* **api:** go back to the generic failure for a missing required parameter ([fed2442](https://github.com/informatievlaanderen/road-registry/commit/fed24420d10454abf7d2dfeef61d4343317b2e38))
+* **inwinning:** answer an incomplete upload as a validation failure ([2a55528](https://github.com/informatievlaanderen/road-registry/commit/2a555289b088dd413658e092d2a27a4b88f9d598))
+
+## [5.25.10](https://github.com/informatievlaanderen/road-registry/compare/v5.25.9...v5.25.10) (2026-10-19)
+
+
+### Bug Fixes
+
+* **inwinning:** do not call a removed road segment missing from the upload ([0361bba](https://github.com/informatievlaanderen/road-registry/commit/0361bbac82e3c5353fc8a75f05571cd90b9eb4ec))
+
+## [5.25.9](https://github.com/informatievlaanderen/road-registry/compare/v5.25.8...v5.25.9) (2026-10-19)
+
+
+### Bug Fixes
+
+* no grade junction next to a grade separated junction ([25ad25f](https://github.com/informatievlaanderen/road-registry/commit/25ad25fb5e054034a700195384f58445564b8d18))
+
+## [5.25.8](https://github.com/informatievlaanderen/road-registry/compare/v5.25.7...v5.25.8) (2026-10-19)
+
+
+### Bug Fixes
+
+* **inwinning:** do not call an already ingewonnen road segment missing from the upload ([5ce4e3c](https://github.com/informatievlaanderen/road-registry/commit/5ce4e3cd6b40dcc004adefe55605d1a23560b685))
+
+## [5.25.7](https://github.com/informatievlaanderen/road-registry/compare/v5.25.6...v5.25.7) (2026-10-19)
+
+
+### Bug Fixes
+
+* **api:** name the required parameter a request leaves out ([560a30d](https://github.com/informatievlaanderen/road-registry/commit/560a30ddcda46c441fa1fa9336de90cd49fc03ad))
+
+## [5.25.6](https://github.com/informatievlaanderen/road-registry/compare/v5.25.5...v5.25.6) (2026-10-14)
+
+
+### Bug Fixes
+
+* land trailing positions on rounded geometry when changing segment geometry ([783d807](https://github.com/informatievlaanderen/road-registry/commit/783d8072dcf0f493760c54743d2b3ce743b52d09))
+
+## [5.25.5](https://github.com/informatievlaanderen/road-registry/compare/v5.25.4...v5.25.5) (2026-10-13)
+
+
+### Bug Fixes
+
+* rounding compare inwinning ([de3e193](https://github.com/informatievlaanderen/road-registry/commit/de3e193c8a6622ed49d25d8e92a342913134daf6))
+
 ## [5.25.4](https://github.com/informatievlaanderen/road-registry/compare/v5.25.3...v5.25.4) (2026-10-12)
 
 

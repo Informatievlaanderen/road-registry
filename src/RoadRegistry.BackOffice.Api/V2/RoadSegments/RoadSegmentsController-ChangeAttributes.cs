@@ -336,7 +336,7 @@ public partial class RoadSegmentsController
             var elementPath = $"{path}[{i}]";
             var from = ParsePosition(element.VanPositie, $"{elementPath}.vanPositie", "vanPositie", failures);
             var to = ParsePosition(element.TotPositie, $"{elementPath}.totPositie", "totPositie", failures);
-            var side = ParseSide(element.Kant, elementPath, failures);
+            var side = ParseSide(element.Kant, elementPath, path, failures);
 
             if (string.IsNullOrEmpty(element.Identificator))
             {
@@ -368,7 +368,7 @@ public partial class RoadSegmentsController
             var elementPath = $"{path}[{i}]";
             var from = ParsePosition(element.VanPositie, $"{elementPath}.vanPositie", "vanPositie", failures);
             var to = ParsePosition(element.TotPositie, $"{elementPath}.totPositie", "totPositie", failures);
-            var side = ParseSide(element.Kant, elementPath, failures);
+            var side = ParseSide(element.Kant, elementPath, path, failures);
 
             if (string.IsNullOrEmpty(element.Wegbeheerder))
             {
@@ -392,16 +392,16 @@ public partial class RoadSegmentsController
         return result;
     }
 
-    private static RoadSegmentAttributeSide? ParseSide(string? kant, string path, List<ValidationFailure> failures)
+    private static RoadSegmentAttributeSide? ParseSide(string? kant, string elementPath, string path, List<ValidationFailure> failures)
     {
         if (string.IsNullOrEmpty(kant))
         {
-            failures.Add(new ValidationFailure(path, $"'kant' is verplicht binnen elk object in de array '{path}'."));
+            failures.Add(new ValidationFailure(elementPath, $"'kant' is verplicht binnen elk object in de array '{path}'."));
             return null;
         }
         if (!RoadSegmentAttributeSide.CanParseUsingDutchName(kant))
         {
-            failures.Add(new ValidationFailure(path, "De parameter 'kant' heeft een ongeldige waarde."));
+            failures.Add(new ValidationFailure(elementPath, "De parameter 'kant' heeft een ongeldige waarde."));
             return null;
         }
         return RoadSegmentAttributeSide.ParseUsingDutchName(kant);

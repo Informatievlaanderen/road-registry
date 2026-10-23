@@ -168,7 +168,7 @@ public class AggregateTests : AggregateTestBase
         var geometry = BuildGeometry((0, 0), (50, 10), (100, 0));
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, geometry), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, geometry), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
         result.Summary.RoadSegments.Modified.Should().ContainSingle().Which.Should().Be(new RoadSegmentId(SegmentAId));
@@ -185,7 +185,7 @@ public class AggregateTests : AggregateTestBase
         var geometry = BuildGeometry((0, 0), (110, 0));
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, geometry), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, geometry), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
 
@@ -228,7 +228,7 @@ public class AggregateTests : AggregateTestBase
 
         // Stretch A eastward by 10m: the shared node moves to (110,0) and B becomes sqrt(10^2+100^2) = 100.50m long.
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
         result.Summary.RoadSegments.Modified.Should().BeEquivalentTo([new RoadSegmentId(SegmentAId), new RoadSegmentId(SegmentBId)]);
@@ -280,7 +280,7 @@ public class AggregateTests : AggregateTestBase
             [BuildSegment(SegmentAId, startNodeA, sharedNode, BuildGeometry((0, 0), (100, 0))), segmentB]);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
 
@@ -304,6 +304,61 @@ public class AggregateTests : AggregateTestBase
         coverages[1].Coverage.To.ToDouble().Should().Be(newLength);
     }
 
+    // A detour whose two vertical stretches of 20.004m each round down on their own: as submitted the line measures
+    // 140.008m (140.01), once its vertices are rounded to the centimetre it measures 140.00m.
+    private RoadSegmentGeometry GeometryThatRoundsShorter()
+    {
+        return BuildGeometry((0, 0), (50, 0), (50, 20.004), (60, 20.004), (60, 0), (100, 0));
+    }
+
+    [Fact]
+    public void WhenRoundingTheGeometryChangesItsLength_ThenTheTrailingPositionsFollowTheRoundedGeometry()
+    {
+        var roadNetwork = BuildNetworkWithSingleSegment();
+        var geometry = GeometryThatRoundsShorter();
+        geometry.Value.Length.RoundToCm().Should().Be(140.01);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, geometry), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().BeEmpty();
+
+        var modified = roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)];
+        modified.Geometry.Value.Length.RoundToCm().Should().Be(140);
+
+        var attributes = modified.Attributes!;
+        attributes.AccessRestriction.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.Category.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.Morphology.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.StreetNameId.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.MaintenanceAuthorityId.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.SurfaceType.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.CarTrafficDirection.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.BikeTrafficDirection.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+        attributes.PedestrianTrafficDirection.Values.Max(x => x.Coverage.To).ToDouble().Should().Be(140);
+    }
+
+    [Fact]
+    public void WhenTheTrailingPositionIsNotOnTheSubmittedLength_ThenItIsNotSnappedAndError()
+    {
+        // 139.99 is a centimetre off the submitted length (140.01) and off the rounded one (140.00) alike: it is not
+        // the caller's "up to the end", so it is not moved onto the end either.
+        var roadNetwork = BuildNetworkWithSingleSegment();
+        var geometry = GeometryThatRoundsShorter();
+        var change = BuildChange(roadNetwork, SegmentAId, geometry);
+        change = change with
+        {
+            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>()
+                .Add(RoadSegmentPositionV2.Zero, new RoadSegmentPositionV2(139.99), change.Morphology!.Values.First().Value)
+        };
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(change, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().ContainSingle()
+            .Which.Reason.Should().Be("RoadSegmentMorphologyToPositionNotEqualToLength");
+        roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)].GetChanges().Should().BeEmpty();
+    }
+
     [Fact]
     public void WhenTheRoadNodeWouldBeDraggedTooFar_ThenError()
     {
@@ -315,7 +370,7 @@ public class AggregateTests : AggregateTestBase
             [BuildSegment(SegmentAId, startNode, endNode, BuildGeometry((0, 0), (100, 0)))]);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (130, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (130, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().ContainSingle()
             .Which.Reason.Should().Be("RoadSegmentChangeGeometryRoadNodeMovedTooFar");
@@ -330,7 +385,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildNetworkWithSingleSegment();
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (130, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (130, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
         result.Summary.RoadNodes.Modified.Should().ContainSingle().Which.Should().Be(new RoadNodeId(2));
@@ -353,7 +408,7 @@ public class AggregateTests : AggregateTestBase
             ]);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (109.5, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (109.5, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().ContainSingle()
             .Which.Reason.Should().Be("RoadSegmentChangeGeometryPointTooCloseToRoadNode");
@@ -372,7 +427,7 @@ public class AggregateTests : AggregateTestBase
             [BuildSegment(SegmentAId, startNode, endNode, BuildGeometry((0, 0), (10, 0)))]);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((9.5, 0), (30, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((9.5, 0), (30, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
         result.Summary.RoadNodes.Modified.Should().BeEquivalentTo([new RoadNodeId(1), new RoadNodeId(2)]);
@@ -390,7 +445,7 @@ public class AggregateTests : AggregateTestBase
         // A hairpin: 4.5m of geometry, but the two ends finish 0.5m apart.
         var result = roadNetwork.ModifyRoadSegmentGeometry(
             BuildChange(roadNetwork, SegmentAId, BuildGeometry((10, 0), (10, 2), (10.5, 2), (10.5, 0))),
-            true, IdGenerator(), TestData.Provenance);
+            AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().ContainSingle()
             .Which.Reason.Should().Be("RoadSegmentChangeGeometryPointTooCloseToRoadNode");
@@ -427,7 +482,7 @@ public class AggregateTests : AggregateTestBase
 
         // The shared node drops 10m, so B's first stretch grows from 40m to 50m and B becomes 110m long.
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (100, -10))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (100, -10))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
 
@@ -473,7 +528,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildNetworkWithASeparateSegmentNearby();
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().ContainSingle()
             .Which.Reason.Should().Be("RoadSegmentChangeGeometryPointTooCloseToRoadNode");
@@ -488,7 +543,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildNetworkWithASeparateSegmentNearby();
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (109, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (109, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
         roadNetwork.RoadNodes[new RoadNodeId(2)].Geometry.Value.Coordinate.X.Should().Be(109);
@@ -505,7 +560,7 @@ public class AggregateTests : AggregateTestBase
             [BuildSegment(SegmentAId, startNode, endNode, BuildGeometry((0, 0), (100, 0)))]);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (120, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (120, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
         roadNetwork.RoadNodes[new RoadNodeId(2)].Geometry.Value.Coordinate.X.Should().Be(120);
@@ -522,7 +577,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildNetwork([], [segment]);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
         result.Summary.RoadNodes.Modified.Should().BeEmpty();
@@ -569,7 +624,7 @@ public class AggregateTests : AggregateTestBase
             RoadSegmentTrafficDirection.Forward, RoadSegmentTrafficDirection.None, RoadSegmentPedestrianTrafficDirection.None);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, GeometryCrossingSegmentC()), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, GeometryCrossingSegmentC()), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
         result.Summary.GradeJunctions.Added.Should().ContainSingle();
@@ -589,7 +644,7 @@ public class AggregateTests : AggregateTestBase
             RoadSegmentTrafficDirection.None, RoadSegmentTrafficDirection.Both, RoadSegmentPedestrianTrafficDirection.None);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, GeometryCrossingSegmentC()), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, GeometryCrossingSegmentC()), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
         result.Summary.GradeJunctions.Added.Should().ContainSingle();
@@ -615,7 +670,7 @@ public class AggregateTests : AggregateTestBase
             gradeSeparatedJunctions: [gradeSeparatedJunction]);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, GeometryCrossingSegmentC()), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, GeometryCrossingSegmentC()), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
         result.Summary.GradeJunctions.Added.Should().BeEmpty();
@@ -640,7 +695,7 @@ public class AggregateTests : AggregateTestBase
             gradeJunctions: [gradeJunction]);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (100, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (100, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
         result.Summary.GradeJunctions.Removed.Should().ContainSingle()
@@ -668,7 +723,7 @@ public class AggregateTests : AggregateTestBase
             gradeSeparatedJunctions: [gradeSeparatedJunction]);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (100, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (100, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
         result.Summary.GradeSeparatedJunctions.Removed.Should().ContainSingle()
@@ -686,7 +741,7 @@ public class AggregateTests : AggregateTestBase
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
             BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (50, -40), (50, -10), (100, 0))),
-            true, IdGenerator(), TestData.Provenance);
+            AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().ContainSingle()
             .Which.Reason.Should().Be("RoadSegmentPartiallyOverlapsWithAnotherRoadSegment");
@@ -701,7 +756,7 @@ public class AggregateTests : AggregateTestBase
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
             BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (100, 40), (0, 40), (100, 0))),
-            true, IdGenerator(), TestData.Provenance);
+            AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().Contain(x => x.Reason == "RoadSegmentGeometrySelfIntersects");
         roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)].GetChanges().Should().BeEmpty();
@@ -715,7 +770,7 @@ public class AggregateTests : AggregateTestBase
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
             BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (50, 50), (100, 0), (0, 0))),
-            true, IdGenerator(), TestData.Provenance);
+            AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().Contain(x => x.Reason == "RoadSegmentGeometryStartEqualsEnd");
         roadNetwork.RoadNodes.Values.Should().OnlyContain(x => !x.GetChanges().Any());
@@ -740,7 +795,7 @@ public class AggregateTests : AggregateTestBase
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
             BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (40, -40), (60, -40), (100, 0))),
-            true, IdGenerator(), TestData.Provenance);
+            AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().Contain(x => x.Reason == "RoadSegmentDuplicateIntersections");
         result.Summary.GradeJunctions.Added.Should().BeEmpty();
@@ -764,7 +819,7 @@ public class AggregateTests : AggregateTestBase
 
         // Pulling the shared node back to (85,0) swings B's first edge across its own last edge.
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (85, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (85, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().Contain(x => x.Reason == "RoadSegmentGeometrySelfIntersects");
         result.Summary.RoadSegments.Modified.Should().NotContain(new RoadSegmentId(SegmentBId));
@@ -790,7 +845,7 @@ public class AggregateTests : AggregateTestBase
             ]);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (85, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (85, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().Contain(x => x.Reason == "RoadSegmentDuplicateIntersections");
         result.Summary.GradeJunctions.Added.Should().BeEmpty();
@@ -815,7 +870,7 @@ public class AggregateTests : AggregateTestBase
             ]);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (90, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (90, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().ContainSingle()
             .Which.Reason.Should().Be("RoadSegmentChangeGeometryPointTooCloseToRoadNode");
@@ -828,10 +883,23 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildNetworkWithSingleSegment(RoadSegmentGeometryDrawMethodV2.Ingemeten);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), false, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), OnlyIngeschetst, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().ContainSingle()
             .Which.Reason.Should().Be("RoadSegmentChangeGeometryMeasuredNotAllowed");
+        roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)].GetChanges().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void WhenTheSegmentIsOutlinedAndTheCallerMayOnlyEditMeasuredSegments_ThenError()
+    {
+        var roadNetwork = BuildNetworkWithSingleSegment(RoadSegmentGeometryDrawMethodV2.Ingeschetst);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), OnlyIngemeten, IdGenerator(), TestData.Provenance);
+
+        result.Problems.Should().ContainSingle()
+            .Which.Reason.Should().Be("RoadSegmentChangeGeometryOutlinedNotAllowed");
         roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)].GetChanges().Should().BeEmpty();
     }
 
@@ -852,7 +920,7 @@ public class AggregateTests : AggregateTestBase
             ]);
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), false, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), OnlyIngeschetst, IdGenerator(), TestData.Provenance);
 
         var problem = result.Problems.Should().ContainSingle().Subject;
         problem.Reason.Should().Be("RoadSegmentChangeGeometryMeasuredNotAllowed");
@@ -875,7 +943,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildNetworkWithSingleSegment(status: RoadSegmentStatusV2.Parse(statusName));
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().ContainSingle()
             .Which.Reason.Should().Be("RoadSegmentChangeGeometryStatusNotValid");
@@ -892,7 +960,7 @@ public class AggregateTests : AggregateTestBase
             {
                 RoadSegmentId = new RoadSegmentId(999),
                 Geometry = BuildGeometry((0, 0), (110, 0))
-            }, true, IdGenerator(), TestData.Provenance);
+            }, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         var problem = result.Problems.Should().ContainSingle().Subject;
         problem.Reason.Should().Be("RoadSegmentNotFound");
@@ -909,7 +977,7 @@ public class AggregateTests : AggregateTestBase
         var roadNetwork = BuildNetworkWithSingleSegment();
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (0.5, 0))), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (0.5, 0))), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().NotBeEmpty();
         roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)].GetChanges().Should().BeEmpty();
@@ -923,7 +991,7 @@ public class AggregateTests : AggregateTestBase
         var geometry = roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)].Geometry;
 
         var result = roadNetwork.ModifyRoadSegmentGeometry(
-            BuildChange(roadNetwork, SegmentAId, geometry), true, IdGenerator(), TestData.Provenance);
+            BuildChange(roadNetwork, SegmentAId, geometry), AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
 
         result.Problems.Should().BeEmpty();
         result.Summary.HasChanges().Should().BeFalse();

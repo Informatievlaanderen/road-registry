@@ -243,6 +243,14 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     : $"De wegknoop {problem.Parameters[0].Value} is met geen enkel gerealiseerd wegsegment verbonden.")
             },
             {
+                ProblemCode.RoadNode.IsRemoved, problem => new(problem.Severity, problem.Reason,
+                    $"De wegknoop met {GetRoadNodeIdLabel(problem)} is verwijderd.")
+            },
+            {
+                ProblemCode.RoadSegment.IsRemoved, problem => new(problem.Severity, problem.Reason,
+                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} is verwijderd.")
+            },
+            {
                 ProblemCode.RoadNode.NotFound, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegknoopId")
                 ? $"De wegknoop {GetRoadNodeIdLabel(problem)} is niet langer onderdeel van het wegen netwerk."
                 : problem.HasParameter("NodeId")
@@ -699,6 +707,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     $"U heeft niet de machtigingen om deze actie uit te voeren voor (aansluitende) wegsegmenten met geometriemethode 'ingemeten'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingemeten.")
             },
             {
+                ProblemCode.RoadSegment.ChangeGeometry.OutlinedNotAllowed, problem => new(problem.Severity, "WegsegmentGeometrieIngeschetstNietToegelaten",
+                    $"U heeft niet de machtigingen om deze actie uit te voeren voor (aansluitende) wegsegmenten met geometriemethode 'ingeschetst'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingeschetst.")
+            },
+            {
                 ProblemCode.RoadSegment.CorrectFromRealizedToPlanned.StatusNotValid, problem => new(problem.Severity, "WegsegmentCorrectieStatusNietCorrect",
                     $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} heeft een status die verschilt van 'gerealiseerd'.")
             },
@@ -713,6 +725,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             {
                 ProblemCode.RoadSegment.MeasuredNotAllowed, problem => new(problem.Severity, "WegsegmentIngemetenNietToegelaten",
                     $"U heeft niet de machtigingen om deze actie uit te voeren voor wegsegmenten met geometriemethode 'ingemeten'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingemeten.")
+            },
+            {
+                ProblemCode.RoadSegment.OutlinedNotAllowed, problem => new(problem.Severity, "WegsegmentIngeschetstNietToegelaten",
+                    $"U heeft niet de machtigingen om deze actie uit te voeren voor wegsegmenten met geometriemethode 'ingeschetst'. Het wegsegment met {GetRoadSegmentIdLabel(problem)} is ingeschetst.")
             },
             {
                 ProblemCode.RoadSegment.Realize.NoRoadNodeInReach, problem => new(problem.Severity, "WegsegmentRealisatieGeenWegknoopGevonden",
@@ -999,6 +1015,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
             {
                 ProblemCode.Upload.DryRunSuccessful, problem => new(problem.Severity, "UploadDryRunSuccessful",
                     "Upload is succesvol beëindigd, maar de wijzigingen zijn alleen gesimuleerd.")
+            },
+            {
+                ProblemCode.Upload.InwinningRoadSegmentsMissing, problem => new(problem.Severity, "InwinningWegsegmentenOntbreken",
+                    $"Volgende wegsegmenten van de inwinningszone zijn niet in deze upload verwerkt: {problem.GetParameterValue(InwinningRoadSegmentsMissingFromUpload.ParameterName.RoadSegmentIds)}. Er werden geen wijzigingen doorgevoerd. De fout werd gemeld aan de beheerders van het Wegenregister; u kan de upload opnieuw uitvoeren.")
             },
             {
                 ProblemCode.Width.IsRequired, problem => new(problem.Severity, "BreedteVerplicht",
@@ -1540,7 +1560,13 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
 
     protected virtual string GetRoadNodeIdLabel(Problem problem, string namePrefix = "Wegknoop")
     {
-        return $"id {problem.GetParameterValue($"{namePrefix}Id")}";
+        var label = $"id {problem.GetParameterValue($"{namePrefix}Id")}";
+
+        // Only an upload carries a second identifier: the feature compare matches road nodes on geometry, so the one
+        // the register uses need not be the one the upload carried.
+        var originalId = problem.GetOptionalParameterValue($"{namePrefix}OorspronkelijkeId");
+
+        return originalId is not null ? $"{label} (origineel {originalId})" : label;
     }
 
     protected virtual string GetGradeSeparatedJunctionIdLabel(Problem problem, string namePrefix = "OngelijkGrondseKruising")

@@ -32,6 +32,8 @@ public partial class ScopedRoadNetwork
 
         var context = new ScopedRoadNetworkChangeContext(this, changes.Provenance, logger);
 
+        RegisterOriginalRoadNodeIds(changes, context);
+
         var problems = ApplyChanges(changes, idGenerator, context);
 
         if (!problems.HasError())
@@ -51,7 +53,7 @@ public partial class ScopedRoadNetwork
             });
         }
 
-        return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), context.Summary);
+        return new RoadNetworkChangeResult(WithOriginalRoadNodeIds(Problems.None.AddRange(problems.Distinct()), context), context.Summary);
     }
 
     // Records a summary event on the scoped road network aggregate itself, so its document is persisted and carries the
@@ -165,6 +167,10 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
+    // Deliberately not limited to the migrated road nodes, unlike the ongelijkgrondse kruisingen below. A road node's
+    // type is not uploaded but derived from what hangs off it, and it is this verification that derives it - so it is
+    // what turns a V1 node, which carries no type, into a V2 one. Skipping the non-migrated nodes here would leave
+    // them without a type forever.
     private Problems VerifyRoadNodesTopologyAndUpdateTypeAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments)
     {
         using var _ = context.Logger.TimeAction();
@@ -197,20 +203,32 @@ public partial class ScopedRoadNetwork
                 finalResult => finalResult);
     }
 
+    // Only the ongelijkgrondse kruisingen that have migrated are judged here. A kruising migrates together with the
+    // road segments it crosses, so one that is still V1 - it carries no type - sits on road segments that are still V1
+    // as well, and neither it nor they are part of the change being verified.
+    //
+    // That matters because V1 allowed two kruisingen on one and the same segment pair and the migration does not
+    // correct that: the scope loaded for a change can hold a pair of V1 kruisingen that the change neither carries nor
+    // has to carry, and reporting those as not unique asks whoever is changing something else to fix data they cannot
+    // reach. Both what is verified and what it is compared against are therefore limited to the migrated kruisingen.
     private Problems VerifyGradeSeparatedJunctionsAfterChange(ScopedRoadNetworkChangeContext context)
     {
         using var _ = context.Logger.TimeAction();
 
         var problems = Problems.None;
 
-        var changedJunctions = _gradeSeparatedJunctions.Values
-            .Where(x => x.HasChanges() && !x.IsRemoved)
+        var migratedJunctions = _gradeSeparatedJunctions.Values
+            .Where(x => !x.IsRemoved && x.HasMigrated())
+            .ToList();
+
+        var changedJunctions = migratedJunctions
+            .Where(x => x.HasChanges())
             .ToList();
 
         // Optimize: Use Dictionary for O(n) duplicate detection instead of O(n log n) GroupBy
         var junctionsBySegmentPair = new Dictionary<(int Min, int Max), List<GradeSeparatedJunction>>();
 
-        foreach (var junction in context.RoadNetwork.GradeSeparatedJunctions.Values.Where(x => !x.IsRemoved))
+        foreach (var junction in migratedJunctions)
         {
             var key = (
                 Math.Min(junction.LowerRoadSegmentId.ToInt32(), junction.UpperRoadSegmentId.ToInt32()),
@@ -276,9 +294,11 @@ public partial class ScopedRoadNetwork
 
     private Problems ModifyRoadNode(ModifyRoadNodeChange change, ScopedRoadNetworkChangeContext context)
     {
-        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
+        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode) || roadNode.IsRemoved)
         {
-            return Problems.Single(new RoadNodeNotFound(change.RoadNodeId));
+            return Problems.Single(roadNode is null
+                ? new RoadNodeNotFound(change.RoadNodeId)
+                : (Error)new RoadNodeIsRemoved(change.RoadNodeId));
         }
 
         var oldEnvelope = roadNode.Geometry.Value.EnvelopeInternal;
@@ -340,9 +360,9 @@ public partial class ScopedRoadNetwork
     {
         var problems = Problems.WithContext(change.RoadSegmentIdReference);
 
-        if (!_roadSegments.TryGetValue(change.RoadSegmentIdReference.RoadSegmentId, out var roadSegment))
+        if (!_roadSegments.TryGetValue(change.RoadSegmentIdReference.RoadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
-            return problems + new RoadSegmentNotFound();
+            return problems + (roadSegment is null ? new RoadSegmentNotFound() : (Error)new RoadSegmentIsRemoved());
         }
 
         problems += context.IdTranslator.RegisterMapping(change.RoadSegmentIdReference, roadSegment.RoadSegmentId);
@@ -370,9 +390,9 @@ public partial class ScopedRoadNetwork
     {
         var problems = Problems.WithContext(roadSegmentId);
 
-        if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
+        if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
-            return problems + new RoadSegmentNotFound();
+            return problems + (roadSegment is null ? new RoadSegmentNotFound() : (Error)new RoadSegmentIsRemoved());
         }
 
         var oldEnvelope = roadSegment.Geometry.Value.EnvelopeInternal;
@@ -389,7 +409,7 @@ public partial class ScopedRoadNetwork
 
     private Problems RemoveRoadSegment(RoadSegmentId roadSegmentId, ScopedRoadNetworkChangeContext context)
     {
-        if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
+        if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
             return Problems.None;
         }
@@ -516,9 +536,11 @@ public partial class ScopedRoadNetwork
     {
         var problems = Problems.WithContext(change.GradeSeparatedJunctionId);
 
-        if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var junction))
+        if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var junction) || junction.IsRemoved)
         {
-            return problems + new GradeSeparatedJunctionNotFound();
+            return problems + (junction is null
+                ? new GradeSeparatedJunctionNotFound()
+                : (Error)new GradeSeparatedJunctionIsRemoved(change.GradeSeparatedJunctionId));
         }
 
         change = change with
@@ -543,7 +565,7 @@ public partial class ScopedRoadNetwork
 
     private Problems RemoveGradeSeparatedJunction(GradeSeparatedJunctionId gradeSeparatedJunctionId, ScopedRoadNetworkChangeContext context)
     {
-        if (!_gradeSeparatedJunctions.TryGetValue(gradeSeparatedJunctionId, out var gradeSeparatedJunction))
+        if (!_gradeSeparatedJunctions.TryGetValue(gradeSeparatedJunctionId, out var gradeSeparatedJunction) || gradeSeparatedJunction.IsRemoved)
         {
             return Problems.None;
         }
@@ -575,7 +597,7 @@ public partial class ScopedRoadNetwork
 
     private Problems RemoveGradeJunction(GradeJunctionId gradeJunctionId, ScopedRoadNetworkChangeContext context)
     {
-        if (!_gradeJunctions.TryGetValue(gradeJunctionId, out var gradeJunction))
+        if (!_gradeJunctions.TryGetValue(gradeJunctionId, out var gradeJunction) || gradeJunction.IsRemoved)
         {
             return Problems.None;
         }

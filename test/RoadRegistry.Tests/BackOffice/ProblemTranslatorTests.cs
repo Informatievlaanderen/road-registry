@@ -7,6 +7,7 @@ using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.Infrastructure.Messages;
 using ValueObjects.ProblemCodes;
+using InwinningRoadSegmentsMissingFromUpload = RoadRegistry.ValueObjects.Problems.InwinningRoadSegmentsMissingFromUpload;
 using ProblemSeverity = RoadRegistry.Infrastructure.Messages.ProblemSeverity;
 
 public class ProblemTranslatorTests
@@ -375,12 +376,32 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadSegment.IsRemoved, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadNode.IsRemoved, [
+                    new ProblemParameter("WegknoopId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.OutlinedNotAllowed, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
                 ProblemCode.RoadSegment.Realize.NoRoadNodeInReach, [
                     new ProblemParameter("MaximumDistance", "1")
                 ]
             },
             {
                 ProblemCode.RoadSegment.ChangeGeometry.MeasuredNotAllowed, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.ChangeGeometry.OutlinedNotAllowed, [
                     new ProblemParameter("WegsegmentId", "1")
                 ]
             },
@@ -459,6 +480,11 @@ public class ProblemTranslatorTests
                 ProblemCode.GradeSeparatedJunction.NotUnique, [
                     new ProblemParameter("GradeSeparatedJunctionId", "1"),
                     new ProblemParameter("OtherGradeSeparatedJunctionId", "2"),
+                ]
+            },
+            {
+                ProblemCode.Upload.InwinningRoadSegmentsMissing, [
+                    new ProblemParameter(InwinningRoadSegmentsMissingFromUpload.ParameterName.RoadSegmentIds, "1, 2")
                 ]
             },
         };

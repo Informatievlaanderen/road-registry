@@ -386,4 +386,32 @@ public class GradeSeparatedJunctionPbsProjectionTests
         Assert.Equal(3, junction!.BO_WS_OIDN);
         Assert.Equal(60.0, junction.GEOMETRIE!.Coordinate.X, 3);
     }
+    // Same as for the grade junction: the geometry travels straight from the event into the column, and the target
+    // column must hold neither a Z nor an M, whatever the incoming geometry declares.
+    [Fact]
+    public async Task WhenGradeSeparatedJunctionIsWritten_ThenTheGeometryIsStored2D()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(new GradeSeparatedJunctionWasAdded
+        {
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
+            LowerRoadSegmentId = new RoadSegmentId(1),
+            UpperRoadSegmentId = new RoadSegmentId(2),
+            Type = _testData.Fixture.Create<GradeSeparatedJunctionTypeV2>(),
+            Geometry = JunctionPoint((50, 50)),
+            Provenance = Provenance
+        });
+
+        SqlServerGeometry.AssertIs2D((await scenario.Find<GradeSeparatedJunctionRecord>(1))!.GEOMETRIE!);
+
+        await scenario.GivenAsync(new GradeSeparatedJunctionGeometryWasChanged
+        {
+            GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
+            Geometry = JunctionPoint((25, 25)),
+            Provenance = Provenance
+        });
+
+        SqlServerGeometry.AssertIs2D((await scenario.Find<GradeSeparatedJunctionRecord>(1))!.GEOMETRIE!);
+    }
 }

@@ -11,6 +11,8 @@ using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
+using RoadRegistry.RoadSegment;
+using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.Tests.BackOffice;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
@@ -172,8 +174,11 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             Times.Never);
     }
 
+    // An upload that does not account for every road segment its inwinningszone is waiting on points at the upload
+    // losing one rather than at anything the caller did, so it is logged for us - but answered as a validation
+    // failure: the inwinning is not completed, nothing is written, and the caller can upload again.
     [Fact]
-    public async Task GivenInwinningRoadSegments_WhenNotAllRoadSegmentIdsAreUploaded_ThenException()
+    public async Task GivenInwinningRoadSegments_WhenNotAllRoadSegmentIdsAreUploaded_ThenTicketHasError()
     {
         // Arrange
         var sp = await BuildServiceProvider();
@@ -224,6 +229,103 @@ public class WithValidRequest : RoadNetworkIntegrationTest
             RoadSegmentId = 999,
             Completed = false
         });
+        extractsDbContext.ExtractUploads.Add(new ExtractUpload
+        {
+            UploadId = command.MigrateRoadNetworkSqsRequest.UploadId,
+            DownloadId = command.MigrateRoadNetworkSqsRequest.DownloadId,
+            Status = ExtractUploadStatus.Processing,
+            TicketId = command.TicketId,
+            UploadedOn = DateTimeOffset.UtcNow
+        });
+        await extractsDbContext.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var handler = sp.GetRequiredService<MigrateDryRunRoadNetworkSqsLambdaRequestHandler>();
+        await handler.Handle(new MigrateDryRunRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
+
+        // Assert
+        TicketingMock.VerifyThatTicketHasError(
+            code: "InwinningWegsegmentenOntbreken",
+            message: "Volgende wegsegmenten van de inwinningszone zijn niet in deze upload verwerkt: 999. Er werden geen wijzigingen doorgevoerd. De fout werd gemeld aan de beheerders van het Wegenregister; u kan de upload opnieuw uitvoeren.");
+
+        // The processing stops here, so there is nothing left to validate.
+        MediatorMock.Verify(x => x.Send(
+            It.IsAny<DataValidationSqsRequest>(),
+            It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    // A road segment the inwinning still lists that is already ingewonnen has nothing left for an upload to carry:
+    // it is not missing from it, and completing the inwinning is what takes it from locked to compleet.
+    [Fact]
+    public async Task GivenInwinningRoadSegments_WhenAMissingRoadSegmentIsAlreadyIngewonnen_ThenNoException()
+    {
+        // Arrange
+        var sp = await BuildServiceProvider();
+
+        var provenanceData = new RoadRegistryProvenanceData();
+        var ticketId = TestData.Fixture.Create<TicketId>();
+        var command = new MigrateDryRunRoadNetworkSqsRequest
+        {
+            MigrateRoadNetworkSqsRequest = new MigrateRoadNetworkSqsRequest
+            {
+                UploadId = TestData.Fixture.Create<UploadId>(),
+                DownloadId = TestData.Fixture.Create<DownloadId>(),
+                Changes =
+                [
+                    new ChangeRoadNetworkItem
+                    {
+                        AddRoadNode = TestData.AddSegment1StartNode
+                    },
+                    new ChangeRoadNetworkItem
+                    {
+                        AddRoadNode = TestData.AddSegment1EndNode
+                    },
+                    new ChangeRoadNetworkItem
+                    {
+                        AddRoadSegment = TestData.AddSegment1
+                    }
+                ],
+                TicketId = ticketId,
+                ProvenanceData = provenanceData
+            },
+            TicketId = ticketId,
+            ProvenanceData = provenanceData
+        };
+
+        // A V2 road segment, so its inwinning is done whatever the inwinning this upload belongs to still says. It
+        // sits far away from what the upload changes, so it is the inwinning that brings it into the picture and
+        // not the scope of the migration.
+        var alreadyIngewonnenRoadSegmentId = new RoadSegmentId(999);
+        var store = sp.GetRequiredService<IDocumentStore>();
+        await using (var session = store.LightweightSession())
+        {
+            var roadSegmentWasAdded = TestData.Fixture.Create<RoadSegmentWasAdded>() with
+            {
+                RoadSegmentId = alreadyIngewonnenRoadSegmentId,
+                Geometry = BuildRoadSegmentGeometry(10000, 10000, 10010, 10000)
+            };
+
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), alreadyIngewonnenRoadSegmentId), roadSegmentWasAdded);
+            await session.SaveChangesAsync();
+        }
+
+        var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        var nisCode = "12345";
+        extractsDbContext.Inwinningszones.Add(new Inwinningszone
+        {
+            DownloadId = command.MigrateRoadNetworkSqsRequest.DownloadId,
+            NisCode = nisCode,
+            Contour = new WKTReader().Read(GeometryTranslatorTestCases.ValidPolygon),
+            Operator = provenanceData.Operator,
+            Completed = false
+        });
+        extractsDbContext.InwinningRoadSegments.Add(new InwinningRoadSegment
+        {
+            NisCode = nisCode,
+            RoadSegmentId = alreadyIngewonnenRoadSegmentId,
+            Completed = false
+        });
         await extractsDbContext.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -231,7 +333,118 @@ public class WithValidRequest : RoadNetworkIntegrationTest
         var act = () => handler.Handle(new MigrateDryRunRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().NotThrowAsync();
+
+        MediatorMock.Verify(x => x.Send(
+            It.Is<DataValidationSqsRequest>(r => r.MigrateRoadNetworkSqsRequest == command.MigrateRoadNetworkSqsRequest && r.TicketId == command.TicketId),
+            It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    // A road segment the inwinning still lists that has since been removed cannot be in any upload. Like one that is
+    // already ingewonnen, it is not missing: completing the inwinning is what takes it from locked to compleet.
+    [Fact]
+    public async Task GivenInwinningRoadSegments_WhenAMissingRoadSegmentWasRemoved_ThenNoException()
+    {
+        // Arrange
+        var sp = await BuildServiceProvider();
+
+        var provenanceData = new RoadRegistryProvenanceData();
+        var ticketId = TestData.Fixture.Create<TicketId>();
+        var command = new MigrateDryRunRoadNetworkSqsRequest
+        {
+            MigrateRoadNetworkSqsRequest = new MigrateRoadNetworkSqsRequest
+            {
+                UploadId = TestData.Fixture.Create<UploadId>(),
+                DownloadId = TestData.Fixture.Create<DownloadId>(),
+                Changes =
+                [
+                    new ChangeRoadNetworkItem
+                    {
+                        AddRoadNode = TestData.AddSegment1StartNode
+                    },
+                    new ChangeRoadNetworkItem
+                    {
+                        AddRoadNode = TestData.AddSegment1EndNode
+                    },
+                    new ChangeRoadNetworkItem
+                    {
+                        AddRoadSegment = TestData.AddSegment1
+                    }
+                ],
+                TicketId = ticketId,
+                ProvenanceData = provenanceData
+            },
+            TicketId = ticketId,
+            ProvenanceData = provenanceData
+        };
+
+        // A V1 road segment - the aggregate carries no attributes, so it is not ingewonnen - that an earlier upload
+        // for this zone removed. It is the removal and not the inwinning that settles it, which is what sets this
+        // apart from the test above. It sits far away from what the upload changes, so it is the inwinning that
+        // brings it into the picture and not the scope of the migration.
+        var removedRoadSegmentId = new RoadSegmentId(999);
+        var removedRoadSegmentGeometry = BuildRoadSegmentGeometry(10000, 10000, 10010, 10000);
+        var store = sp.GetRequiredService<IDocumentStore>();
+        await using (var session = store.LightweightSession())
+        {
+            var importedRoadSegment = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V1.ImportedRoadSegment>();
+            importedRoadSegment.RoadSegmentId = removedRoadSegmentId;
+            importedRoadSegment.Geometry = removedRoadSegmentGeometry;
+
+            // What the marten migration does for a V1 road segment: the legacy event on the stream, and the
+            // aggregate stored alongside it.
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), removedRoadSegmentId), importedRoadSegment);
+            session.Store(RoadSegment.CreateForMigration(removedRoadSegmentId, removedRoadSegmentGeometry, RoadSegmentStatusV2.Gerealiseerd, null, null));
+
+            await session.SaveChangesAsync();
+        }
+
+        // In a transaction of its own: the topology projection only lets a removal through when it is later than
+        // what it has on record for the segment.
+        await using (var session = store.LightweightSession())
+        {
+            session.Events.Append(StreamKeyFactory.Create(typeof(RoadSegment), removedRoadSegmentId), new RoadSegmentWasRemovedBecauseOfMigration
+            {
+                RoadSegmentId = removedRoadSegmentId,
+                Geometry = removedRoadSegmentGeometry,
+                StartNodeId = null,
+                EndNodeId = null,
+                Provenance = provenanceData
+            });
+
+            await session.SaveChangesAsync();
+        }
+
+        var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        var nisCode = "12345";
+        extractsDbContext.Inwinningszones.Add(new Inwinningszone
+        {
+            DownloadId = command.MigrateRoadNetworkSqsRequest.DownloadId,
+            NisCode = nisCode,
+            Contour = new WKTReader().Read(GeometryTranslatorTestCases.ValidPolygon),
+            Operator = provenanceData.Operator,
+            Completed = false
+        });
+        extractsDbContext.InwinningRoadSegments.Add(new InwinningRoadSegment
+        {
+            NisCode = nisCode,
+            RoadSegmentId = removedRoadSegmentId,
+            Completed = false
+        });
+        await extractsDbContext.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var handler = sp.GetRequiredService<MigrateDryRunRoadNetworkSqsLambdaRequestHandler>();
+        var act = () => handler.Handle(new MigrateDryRunRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
+
+        // Assert
+        await act.Should().NotThrowAsync();
+
+        MediatorMock.Verify(x => x.Send(
+            It.Is<DataValidationSqsRequest>(r => r.MigrateRoadNetworkSqsRequest == command.MigrateRoadNetworkSqsRequest && r.TicketId == command.TicketId),
+            It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     protected override void ConfigureServices(IServiceCollection services)

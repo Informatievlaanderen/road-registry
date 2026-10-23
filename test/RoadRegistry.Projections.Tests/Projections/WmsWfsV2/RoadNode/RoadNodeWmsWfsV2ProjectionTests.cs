@@ -223,4 +223,23 @@ public class RoadNodeWmsWfsV2ProjectionTests
         Assert.Equal(1, node!.WK_OIDN);
         Assert.NotNull(node.GEOMETRIE);
     }
+    // The node geometry travels straight from the event into the column, on both the V1 and the V2 path. The target
+    // column must hold neither a Z nor an M: a V1 geometry carries an M, and the WMS/WFS and PBS products are 2D.
+    [Fact]
+    public async Task WhenRoadNodeIsWritten_ThenTheGeometryIsStored2D()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(_testData.Segment1StartNodeAdded);
+        SqlServerGeometry.AssertIs2D((await scenario.Find<RoadNodeRecord>(1))!.GEOMETRIE!);
+
+        await scenario.GivenAsync(new RoadNodeV1.RoadNodeAdded
+        {
+            RoadNodeId = 7,
+            Geometry = _testData.Segment1StartNodeAdded.Geometry,
+            Type = nameof(RoadNodeType.RealNode),
+            Provenance = Provenance
+        });
+        SqlServerGeometry.AssertIs2D((await scenario.Find<RoadNodeRecord>(7))!.GEOMETRIE!);
+    }
 }

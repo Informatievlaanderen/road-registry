@@ -25,6 +25,7 @@ using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Abstractions.Extensions;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
+using RoadRegistry.BackOffice.Api.Infrastructure.Authorization;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
 using RoadRegistry.Extensions;
 using RoadRegistry.Read.Projections;
@@ -53,7 +54,7 @@ public partial class RoadSegmentsController
     /// <response code="410">Als het wegsegment is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost(ChangeGeometryRoute, Name = nameof(ChangeRoadSegmentGeometryV2))]
-    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = AcmIdmConstants.PolicyNames.WegBeheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -102,10 +103,10 @@ public partial class RoadSegmentsController
                 ProvenanceData = CreateProvenanceData(Modification.Update),
                 RoadSegmentId = new RoadSegmentId(id),
                 Geometry = geometry,
-                // VAL-5: only a holder of the 'ingemeten' scope may touch measured geometries. Which segments are
-                // actually measured is decided by the domain - a road node dragging a measured segment along counts
-                // too - so the entitlement travels with the request rather than the verdict.
-                MayModifyMeasuredRoadSegments = HasIngemetenWegScope(),
+                // VAL-5: the caller's scopes decide which road segments they may touch. Which segments a geometry
+                // change actually affects is decided by the domain - a road node dragging a connected segment along
+                // counts too - so the entitlement travels with the request rather than the verdict.
+                EditableGeometryDrawMethods = User.GetEditableGeometryDrawMethods(),
                 Morphology = attributes.Morphology,
                 SurfaceType = attributes.SurfaceType,
                 AccessRestriction = attributes.AccessRestriction,
@@ -124,15 +125,6 @@ public partial class RoadSegmentsController
         {
             return Accepted();
         }
-    }
-
-    private bool HasIngemetenWegScope()
-    {
-        // A scope claim can arrive either as one claim per scope or as a single space separated claim value,
-        // depending on the authentication scheme, so both shapes are accounted for.
-        return User.FindAll(AcmIdmClaimTypes.Scope)
-            .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-            .Any(scope => string.Equals(scope, Scopes.DvWrIngemetenWegBeheer, StringComparison.OrdinalIgnoreCase));
     }
 
     private static (RoadSegmentGeometry Geometry, ChangeGeometryAttributes Attributes) TranslateAndValidateGeometryChange(

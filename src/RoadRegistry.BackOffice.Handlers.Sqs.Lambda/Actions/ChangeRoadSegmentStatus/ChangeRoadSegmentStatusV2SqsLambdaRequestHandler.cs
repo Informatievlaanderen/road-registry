@@ -80,7 +80,7 @@ public sealed class ChangeRoadSegmentStatusV2SqsLambdaRequestHandler : MartenSqs
             var result = roadNetwork.ChangeRoadSegmentStatus(
                 command.StatusChange,
                 command.RoadSegmentId,
-                command.MayModifyMeasuredRoadSegments,
+                command.EditableGeometryDrawMethods,
                 _roadNetworkIdGenerator,
                 command.ProvenanceData.ToProvenance(),
                 Logger);

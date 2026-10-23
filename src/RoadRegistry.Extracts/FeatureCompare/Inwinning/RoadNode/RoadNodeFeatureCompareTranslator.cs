@@ -247,6 +247,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                         new ModifyRoadNodeChange
                         {
                             RoadNodeId = record.Id,
+                            OriginalId = GetOriginalId(record),
                             Geometry = record.Attributes.Geometry.ToRoadNodeGeometry(),
                             Grensknoop = record.Attributes.Grensknoop
                         }
@@ -257,9 +258,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                         new AddRoadNodeChange
                         {
                             TemporaryId = record.Id,
-                            OriginalId = record.Id != record.Attributes.RoadNodeId
-                                ? record.Attributes.RoadNodeId
-                                : null,
+                            OriginalId = GetOriginalId(record),
                             Geometry = record.Attributes.Geometry.ToRoadNodeGeometry(),
                             Grensknoop = record.Attributes.Grensknoop!.Value
                         }
@@ -270,6 +269,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                         new ModifyRoadNodeChange
                         {
                             RoadNodeId = record.Id,
+                            OriginalId = GetOriginalId(record),
                             Geometry = record.Attributes.Geometry.ToRoadNodeGeometry(),
                             Grensknoop = record.Attributes.Grensknoop
                         }
@@ -287,6 +287,16 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
         }
 
         return changes;
+    }
+
+    // The WK_OIDN the upload carried, when it is not the identifier this road node is matched to. Road nodes are
+    // matched on geometry, so the two need not agree, and a problem about this road node has to name both - the
+    // uploader has nothing to look it up by otherwise.
+    private static RoadNodeId? GetOriginalId(RoadNodeFeatureCompareRecord record)
+    {
+        return record.Attributes.RoadNodeId != record.Id
+            ? record.Attributes.RoadNodeId
+            : null;
     }
 
     private ZipArchiveProblems AddProcessedRecordsToContext(ICollection<RoadNodeFeatureCompareRecord> processedRecords, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)

@@ -13,6 +13,11 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode TypeV2Mismatch = new("RoadNodeTypeV2Mismatch");
         public static readonly ProblemCode IsNotAllowed = new("RoadNodeIsNotAllowed");
 
+        // The road network still holds the road node, but it was removed. Told apart from 'not found' on purpose:
+        // an action that cannot find a road node at all says something different from one that is handed a road node
+        // somebody else has already done away with.
+        public static readonly ProblemCode IsRemoved = new("RoadNodeIsRemoved");
+
         public static class Remove
         {
             public static readonly ProblemCode DoesNotExist = new("RoadNodeRemoveDoesNotExist");

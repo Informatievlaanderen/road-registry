@@ -221,7 +221,7 @@ public class ChangeRoadSegmentAttributesV2Tests : V2ReadEndpointTestBase
         var failure = await ActAndExpectSingleFailure(() => Act(parameters));
 
         failure.PropertyName.Should().Be("[0].straatnaam[0]");
-        failure.ErrorMessage.Should().Be("'kant' is verplicht binnen elk object in de array '[0].straatnaam[0]'.");
+        failure.ErrorMessage.Should().Be("'kant' is verplicht binnen elk object in de array '[0].straatnaam'.");
         VerifyNothingWasQueued();
     }
 
