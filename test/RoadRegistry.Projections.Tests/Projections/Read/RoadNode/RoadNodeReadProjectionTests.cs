@@ -116,6 +116,29 @@ public class RoadNodeReadProjectionTests
         Assert.True(node!.IsRemoved);
     }
 
+    // This projection only flags a removal, so the road node is still here to be unflagged.
+    [Fact]
+    public async Task WhenRoadNodeRemovalWasCorrectedBecauseOfMigration_ThenNoLongerMarkedRemoved()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(_testData.Segment1StartNodeAdded);
+        await scenario.GivenAsync(new RoadNodeWasRemovedBecauseOfMigration
+        {
+            RoadNodeId = new RoadNodeId(1),
+            Geometry = _testData.Segment1StartNodeAdded.Geometry,
+            Provenance = Provenance
+        });
+        await scenario.GivenAsync(new RoadNodeRemovalWasCorrectedBecauseOfMigration
+        {
+            RoadNodeId = new RoadNodeId(1),
+            Provenance = Provenance
+        });
+
+        var node = await scenario.Load<RoadNodeReadItem>(1);
+        Assert.False(node!.IsRemoved);
+    }
+
     [Fact]
     public async Task WhenRemovingUnknownRoadNode_ThenThrows()
     {

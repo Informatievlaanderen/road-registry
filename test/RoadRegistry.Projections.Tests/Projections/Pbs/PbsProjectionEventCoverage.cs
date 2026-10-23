@@ -34,7 +34,7 @@ internal static class PbsProjectionEventCoverage
         typeof(ImportedRoadNode), typeof(RoadNodeAdded), typeof(RoadNodeModified), typeof(RoadNodeRemoved),
         // RoadNode V2
         typeof(RoadNodeWasAdded), typeof(RoadNodeTypeWasChanged), typeof(RoadNodeWasModified), typeof(RoadNodeWasMigrated),
-        typeof(RoadNodeWasRemoved), typeof(RoadNodeWasRemovedBecauseOfMigration),
+        typeof(RoadNodeWasRemoved), typeof(RoadNodeWasRemovedBecauseOfMigration), typeof(RoadNodeRemovalWasCorrectedBecauseOfMigration),
         // RoadSegment V1
         typeof(ImportedRoadSegment), typeof(OutlinedRoadSegmentRemoved), typeof(RoadSegmentAdded),
         typeof(RoadSegmentAddedToEuropeanRoad), typeof(RoadSegmentAddedToNationalRoad), typeof(RoadSegmentAddedToNumberedRoad),

@@ -123,7 +123,22 @@ public class RoadNodeExtractProjection : MartenRoadNetworkChangesProjection
             var node = await session.LoadAsync<RoadNodeExtractItem>(e.Data.RoadNodeId);
             if (node is null)
             {
-                throw new InvalidOperationException($"No road node found for Id {e.Data.RoadNodeId}");
+                // A road node whose removal was corrected is collected again, and this is where its row comes back:
+                // the correction itself carries nothing to build one from, this event carries the geometry and the
+                // grensknoop, and the RoadNodeTypeWasChanged that follows carries the type.
+                node = new RoadNodeExtractItem
+                {
+                    RoadNodeId = e.Data.RoadNodeId,
+                    Geometry = e.Data.Geometry,
+                    Type = null!,
+                    Grensknoop = e.Data.Grensknoop,
+                    Origin = e.Data.Provenance.ToEventTimestamp(),
+                    LastModified = e.Data.Provenance.ToEventTimestamp(),
+                    IsV2 = true
+                };
+
+                session.Store(node);
+                return;
             }
 
             node.LastModified = e.Data.Provenance.ToEventTimestamp();
@@ -152,6 +167,13 @@ public class RoadNodeExtractProjection : MartenRoadNetworkChangesProjection
             }
 
             session.Delete(node);
+        });
+        When<IEvent<RoadNode.Events.V2.RoadNodeRemovalWasCorrectedBecauseOfMigration>>((_, _, _) =>
+        {
+            // Nothing here: the row was deleted when the road node was removed, and the correction says no more than
+            // that the removal is undone. The road node is collected again right after it, and the RoadNodeWasMigrated
+            // above builds the row back with the real geometry rather than a placeholder invented here.
+            return Task.CompletedTask;
         });
     }
 }
