@@ -217,20 +217,28 @@ WHERE ST_Intersects(rs.geometry, ST_SetSRID(ST_GeomFromText(@wkt), @srid))
         }
 
         var sql = @$"
-WITH ids AS (
-	SELECT rs1.id as id1, rs2.id as id2
-	FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs1
-	JOIN {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs2 ON
-		rs1.start_node_id = rs2.start_node_id
-        OR rs1.start_node_id = rs2.end_node_id
-		OR rs1.end_node_id = rs2.start_node_id
-        OR rs1.end_node_id = rs2.end_node_id
-	WHERE rs1.is_v2 AND rs2.is_v2 AND rs1.id IN ({string.Join(",", roadSegmentIds.Select(x => x.ToInt32()))})
+WITH requested AS (
+    SELECT rs.id, rs.start_node_id, rs.end_node_id
+    FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
+    WHERE rs.is_v2 AND rs.id IN ({string.Join(",", roadSegmentIds.Select(x => x.ToInt32()))})
 ),
 flat_ids AS (
-    SELECT id1 AS id FROM ids
+    -- The road segments the caller named, knotted into the road network or not. An ingeschetst road segment has no
+    -- road nodes, and the join below compares them, so it answers for no road segment without them - not even with
+    -- itself, NULL being equal to nothing in SQL. Asked for on its own it used to load an empty road network, and
+    -- the action then had nothing to work on and said nothing about it.
+    SELECT id FROM requested
     UNION
-    SELECT id2 AS id FROM ids
+    -- And every road segment meeting one of them at a road node: what an action does to the one is a statement
+    -- about the other.
+    SELECT other.id
+    FROM requested
+    JOIN {RoadNetworkTopologyProjection.RoadSegmentsTableName} other ON other.is_v2 AND (
+        requested.start_node_id = other.start_node_id
+        OR requested.start_node_id = other.end_node_id
+        OR requested.end_node_id = other.start_node_id
+        OR requested.end_node_id = other.end_node_id
+    )
 )
 SELECT rs.id as RoadSegmentId, rs.start_node_id as StartNodeId, rs.end_node_id as EndNodeId, gsj.id as GradeSeparatedJunctionId, gj.id as GradeJunctionId
 FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs

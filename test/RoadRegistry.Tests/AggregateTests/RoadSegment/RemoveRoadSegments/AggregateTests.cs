@@ -1,4 +1,4 @@
-namespace RoadRegistry.Tests.AggregateTests.RoadSegment.RemoveRoadSegments;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.RemoveRoadSegments;
 
 using System;
 using System.Linq;
@@ -131,10 +131,10 @@ public class AggregateTests : RemoveRoadSegmentsTestBase
         roadNetwork.RoadSegments.Values.SelectMany(x => x.GetChanges()).OfType<RoadSegmentWasMerged>().Should().BeEmpty();
     }
 
-    // Removing what is not there is what the caller asked for, so it is not an error - and with nothing changed there
-    // is nothing to report either.
+    // A road segment the road network never had is the caller naming the wrong thing. Saying nothing would let a
+    // wrong identifier pass for a removal that happened, and the ticket would report a success for it.
     [Fact]
-    public void WhenTheSegmentsAreNotFound_ThenNothingHappens()
+    public void WhenTheSegmentWasNeverThere_ThenItIsReported()
     {
         var roadNetwork = BuildNetwork([], []);
 
@@ -143,8 +143,41 @@ public class AggregateTests : RemoveRoadSegmentsTestBase
             IdGenerator(),
             TestData.Provenance);
 
-        act.Should().NotThrow();
+        act.Should().Throw<RoadRegistryProblemsException>()
+            .Which.Problems.Should().HaveCount(2)
+            .And.OnlyContain(x => x.Reason == "RoadSegmentNotFound");
         roadNetwork.GetChanges().Should().BeEmpty();
+    }
+
+    // One that is already gone is a different story: the caller asked for it to be removed and it is, so a request
+    // sent twice does not fail the second time. The topology keeps removed road segments, so the road network can
+    // still say this one was there - which is what tells it apart from the road segment that never was.
+    [Fact]
+    public void WhenTheSegmentIsAlreadyRemoved_ThenNothingHappens()
+    {
+        var roadNetwork = BuildNetworkWith(Array.Empty<RoadNodeWasAdded>(), AlreadyRemovedSegment());
+
+        var act = () => roadNetwork.RemoveRoadSegments([new RoadSegmentId(RemovedSegmentId)], IdGenerator(), TestData.Provenance);
+
+        act.Should().NotThrow();
+        roadNetwork.RoadSegments[new RoadSegmentId(RemovedSegmentId)].GetChanges().Should().BeEmpty();
+    }
+
+    // An ingeschetst road segment is not knotted into the road network and has no road nodes at all. It is removed
+    // like any other, and there is nothing left behind at nodes to put right afterwards.
+    [Fact]
+    public void WhenTheSegmentHasNoRoadNodes_ThenItIsStillRemoved()
+    {
+        var roadNetwork = BuildNetwork(
+            [],
+            [BuildSegment(RemovedSegmentId, null, null, BuildGeometry((100, 0), (100, 80)), status: RoadSegmentStatusV2.Gepland)]);
+
+        roadNetwork.RemoveRoadSegments([new RoadSegmentId(RemovedSegmentId)], IdGenerator(), TestData.Provenance);
+
+        roadNetwork.RoadSegments[new RoadSegmentId(RemovedSegmentId)].IsRemoved.Should().BeTrue();
+
+        var summary = roadNetwork.GetChanges().OfType<RoadNetworkWasChanged>().Should().ContainSingle().Which.Summary;
+        summary.RoadSegments.Removed.Should().BeEquivalentTo([RemovedSegmentId]);
     }
 
     // The same segment reached twice within one request: the second time it is already gone, which is not an error and
@@ -279,14 +312,26 @@ public class AggregateTests : RemoveRoadSegmentsTestBase
     }
 
     // Nothing changed, so there is nothing to summarise: an event saying so would have the projections apply a summary
-    // with nothing in it and the ticket report a change that never happened.
+    // with nothing in it and the ticket report a change that never happened. Asked with a road segment that is already
+    // gone, which is the request that legitimately removes nothing - one that was never there is refused instead.
     [Fact]
     public void WhenNothingIsRemoved_ThenNoSummaryEventIsRaised()
     {
-        var roadNetwork = BuildNetwork([], []);
+        var roadNetwork = BuildNetworkWith(Array.Empty<RoadNodeWasAdded>(), AlreadyRemovedSegment());
 
         roadNetwork.RemoveRoadSegments([new RoadSegmentId(RemovedSegmentId)], IdGenerator(), TestData.Provenance);
 
         roadNetwork.GetChanges().OfType<RoadNetworkWasChanged>().Should().BeEmpty();
+    }
+
+    // A road segment the road network still knows but that is already removed.
+    private RoadSegment AlreadyRemovedSegment()
+    {
+        var southNode = BuildNode(10, 100, 0, RoadNodeTypeV2.Eindknoop);
+        var northNode = BuildNode(11, 100, 80, RoadNodeTypeV2.Eindknoop);
+        var segment = ExistingSegment(BuildSegment(RemovedSegmentId, southNode, northNode, BuildGeometry((100, 0), (100, 80))));
+        segment.Remove(TestData.Provenance);
+
+        return segment.WithoutChanges();
     }
 }
