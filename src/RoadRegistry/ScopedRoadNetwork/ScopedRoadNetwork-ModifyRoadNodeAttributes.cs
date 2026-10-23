@@ -57,9 +57,11 @@ public partial class ScopedRoadNetwork
         foreach (var change in changes)
         {
             // VAL-4
-            if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
+            if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode) || roadNode.IsRemoved)
             {
-                problems += new RoadNodeChangeAttributesNotFound(change.RoadNodeId);
+                problems += roadNode is null
+                    ? new RoadNodeChangeAttributesNotFound(change.RoadNodeId)
+                    : (Error)new RoadNodeChangeAttributesIsRemoved(change.RoadNodeId);
                 continue;
             }
 

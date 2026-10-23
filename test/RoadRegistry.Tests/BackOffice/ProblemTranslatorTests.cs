@@ -376,6 +376,16 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadSegment.IsRemoved, [
+                    new ProblemParameter("WegsegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadNode.IsRemoved, [
+                    new ProblemParameter("WegknoopId", "1")
+                ]
+            },
+            {
                 ProblemCode.RoadSegment.OutlinedNotAllowed, [
                     new ProblemParameter("WegsegmentId", "1")
                 ]

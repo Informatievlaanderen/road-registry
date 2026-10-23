@@ -314,7 +314,7 @@ public partial class ScopedRoadNetwork
 
     private RoadSegmentId PickIntersectingPart(RoadSegmentId otherRoadSegmentId, RoadSegmentId firstPartRoadSegmentId, RoadSegmentId secondPartRoadSegmentId)
     {
-        if (_roadSegments.TryGetValue(otherRoadSegmentId, out var otherSegment))
+        if (_roadSegments.TryGetValue(otherRoadSegmentId, out var otherSegment) && !otherSegment.IsRemoved)
         {
             var otherGeometry = otherSegment.Geometry.Value;
             if (!_roadSegments[firstPartRoadSegmentId].Geometry.Value.Intersects(otherGeometry)

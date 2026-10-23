@@ -42,7 +42,9 @@ public partial class ScopedRoadNetwork
         // VAL-2, VAL-3
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
-            return Failed(roadSegmentContext + new RoadSegmentNotFound(), context);
+            return Failed(roadSegmentContext + (roadSegment is null
+                ? new RoadSegmentNotFound()
+                : (Error)new RoadSegmentIsRemoved()), context);
         }
 
         // A segment that already has the status being changed to has nothing to change: the action is done. It is
@@ -377,7 +379,7 @@ public partial class ScopedRoadNetwork
             // The segment hung off this node and the network is loaded with the nodes its segments name, so a node
             // that is missing or already gone is a corrupt aggregate rather than something the caller did. Saying
             // nothing would leave it behind carrying a type that no longer matches what hangs off it.
-            if (!_roadNodes.TryGetValue(roadNodeId, out var roadNode))
+            if (!_roadNodes.TryGetValue(roadNodeId, out var roadNode) || roadNode.IsRemoved)
             {
                 throw new InvalidOperationException($"Road node {roadNodeId} is connected to road segments but is not part of the road network. This should not happen.");
             }

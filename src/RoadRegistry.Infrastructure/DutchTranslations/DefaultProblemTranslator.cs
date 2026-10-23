@@ -243,6 +243,14 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     : $"De wegknoop {problem.Parameters[0].Value} is met geen enkel gerealiseerd wegsegment verbonden.")
             },
             {
+                ProblemCode.RoadNode.IsRemoved, problem => new(problem.Severity, problem.Reason,
+                    $"De wegknoop met {GetRoadNodeIdLabel(problem)} is verwijderd.")
+            },
+            {
+                ProblemCode.RoadSegment.IsRemoved, problem => new(problem.Severity, problem.Reason,
+                    $"Het wegsegment met {GetRoadSegmentIdLabel(problem)} is verwijderd.")
+            },
+            {
                 ProblemCode.RoadNode.NotFound, problem => new(problem.Severity, problem.Reason, problem.HasParameter("WegknoopId")
                 ? $"De wegknoop {GetRoadNodeIdLabel(problem)} is niet langer onderdeel van het wegen netwerk."
                 : problem.HasParameter("NodeId")

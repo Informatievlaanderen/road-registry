@@ -204,7 +204,7 @@ public partial class ScopedRoadNetwork
     {
         var problems = Problems.WithContext(change.RoadNodeId);
 
-        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
+        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode) || roadNode.IsRemoved)
         {
             // A road node a neighbouring inwinning merged away is not this upload's mistake: it was prepared against
             // an extract from before that merge. The roads that ran up to it are cut back to match.
@@ -213,7 +213,9 @@ public partial class ScopedRoadNetwork
                 return Problems.None;
             }
 
-            return problems + new RoadNodeNotFound();
+            // A road node that was removed is loaded along with the rest of the road network, so it is still here to
+            // be named - which is a different thing to say than that it was never found.
+            return problems + (roadNode is null ? new RoadNodeNotFound() : (Error)new RoadNodeIsRemoved());
         }
 
         if (roadNode.HasMigrated())
@@ -243,7 +245,7 @@ public partial class ScopedRoadNetwork
 
     private Problems RemoveRoadNodeBecauseOfMigration(RemoveRoadNodeChange change, ScopedRoadNetworkChangeContext context)
     {
-        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
+        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode) || roadNode.IsRemoved)
         {
             return Problems.None;
         }
@@ -275,9 +277,9 @@ public partial class ScopedRoadNetwork
             change = CutBackToRemainingStretch(change, neighbourMerge);
         }
 
-        if (!_roadSegments.TryGetValue(change.RoadSegmentIdReference.RoadSegmentId, out var roadSegment))
+        if (!_roadSegments.TryGetValue(change.RoadSegmentIdReference.RoadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
-            return problems + new RoadSegmentNotFound();
+            return problems + (roadSegment is null ? new RoadSegmentNotFound() : (Error)new RoadSegmentIsRemoved());
         }
 
         if (roadSegment.HasMigrated())
@@ -364,7 +366,7 @@ public partial class ScopedRoadNetwork
 
     private Problems RemoveRoadSegmentBecauseOfMigration(RoadSegmentId roadSegmentId, ScopedRoadNetworkChangeContext context)
     {
-        if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
+        if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
             return Problems.None;
         }
@@ -385,9 +387,11 @@ public partial class ScopedRoadNetwork
     {
         var problems = Problems.WithContext(change.GradeSeparatedJunctionId);
 
-        if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var gradeSeparatedJunction))
+        if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var gradeSeparatedJunction) || gradeSeparatedJunction.IsRemoved)
         {
-            return problems + new GradeSeparatedJunctionNotFound();
+            return problems + (gradeSeparatedJunction is null
+                ? new GradeSeparatedJunctionNotFound()
+                : (Error)new GradeSeparatedJunctionIsRemoved(change.GradeSeparatedJunctionId));
         }
 
         if (gradeSeparatedJunction.HasMigrated())
@@ -416,7 +420,7 @@ public partial class ScopedRoadNetwork
 
     private Problems RemoveGradeSeparatedJunctionBecauseOfMigration(RemoveGradeSeparatedJunctionChange change, ScopedRoadNetworkChangeContext context)
     {
-        if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var gradeSeparatedJunction))
+        if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var gradeSeparatedJunction) || gradeSeparatedJunction.IsRemoved)
         {
             return Problems.None;
         }

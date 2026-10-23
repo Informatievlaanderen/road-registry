@@ -57,7 +57,12 @@ public partial class ScopedRoadNetwork
     {
         var removedRoadNodes = changes
             .OfType<ModifyRoadNodeChange>()
-            .Where(change => change.Geometry is not null && !_roadNodes.ContainsKey(change.RoadNodeId))
+            // It has to have been there. The topology keeps removed entities, so a road node an earlier inwinning
+            // merged away is loaded along with the rest and arrives here as removed - a road node the road network
+            // never knew is not a merge to account for, and stays the caller's to report as not found.
+            .Where(change => change.Geometry is not null
+                             && _roadNodes.TryGetValue(change.RoadNodeId, out var roadNode)
+                             && roadNode.IsRemoved)
             .ToArray();
 
         if (removedRoadNodes.Length == 0)
