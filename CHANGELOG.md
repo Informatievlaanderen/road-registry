@@ -1,3 +1,12 @@
+## [5.26.1](https://github.com/informatievlaanderen/road-registry/compare/v5.26.0...v5.26.1) (2026-10-23)
+
+
+### Bug Fixes
+
+* **2.0:** keep removed entities in the topology for V2 events ([ded5831](https://github.com/informatievlaanderen/road-registry/commit/ded58315172f127a29ea5411527ac0b255bd11af))
+* **inwinning:** let an upload through that a neighbour already merged ([d74f3a5](https://github.com/informatievlaanderen/road-registry/commit/d74f3a59169298efde9c4706b0f3afa42c620135))
+* **inwinning:** report the WK_OIDN the upload used, not only ours ([2a18301](https://github.com/informatievlaanderen/road-registry/commit/2a1830102beb8ef34bff44df6ab9984ffed04057))
+
 # [5.26.0](https://github.com/informatievlaanderen/road-registry/compare/v5.25.12...v5.26.0) (2026-10-23)
 
 
