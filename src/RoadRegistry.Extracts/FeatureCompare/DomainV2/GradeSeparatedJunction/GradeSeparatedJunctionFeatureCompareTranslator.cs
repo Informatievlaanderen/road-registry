@@ -114,7 +114,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
 
         problems.ThrowIfError();
 
-        changes = TranslateProcessedRecords(changes, processedRecords, context, cancellationToken);
+        changes = TranslateProcessedRecords(changes, processedRecords, cancellationToken);
 
         return (changes, problems);
 
@@ -157,7 +157,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
         }
     }
 
-    private TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private static TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records, CancellationToken cancellationToken)
     {
         foreach (var record in records)
         {
