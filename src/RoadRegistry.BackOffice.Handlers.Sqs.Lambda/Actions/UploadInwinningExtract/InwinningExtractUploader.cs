@@ -1,0 +1,210 @@
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadInwinningExtract;
+
+using System.IO.Compression;
+using Be.Vlaanderen.Basisregisters.BlobStore;
+using Microsoft.EntityFrameworkCore;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
+using RoadRegistry.BackOffice.Exceptions;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts.DutchTranslations;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Extracts.Uploads;
+using TicketingService.Abstractions;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.Inwinning.TranslatedChanges;
+
+public interface IInwinningExtractUploader
+{
+    Task<TranslatedChanges> ProcessUploadAndDetectChanges(
+        DownloadId downloadId,
+        UploadId uploadId,
+        TicketId ticketId,
+        ZipArchiveMetadata zipArchiveMetadata,
+        bool sendFailedEmail,
+        Func<ZipArchive, Task>? beforeFeatureCompare = null,
+        Func<ZipArchive, TranslatedChanges, Task>? afterFeatureCompare = null,
+        CancellationToken cancellationToken = default);
+}
+
+public sealed class InwinningExtractUploader : IInwinningExtractUploader
+{
+    private static readonly ContentType[] SupportedContentTypes =
+    {
+        ContentType.Parse("binary/octet-stream"),
+        ContentType.Parse("application/zip"),
+        ContentType.Parse("application/x-zip-compressed")
+    };
+
+    private readonly RoadNetworkUploadsBlobClient _uploadsBlobClient;
+    private readonly ExtractsDbContext _extractsDbContext;
+    private readonly IZipArchiveFeatureCompareTranslator _featureCompareTranslator;
+    private readonly IExtractUploadFailedEmailClient _extractUploadFailedEmailClient;
+    private readonly ITicketing _ticketing;
+
+    public InwinningExtractUploader(
+        ExtractsDbContext extractsDbContext,
+        RoadNetworkUploadsBlobClient uploadsBlobClient,
+        IZipArchiveFeatureCompareTranslator featureCompareTranslator,
+        IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
+        ITicketing ticketing)
+    {
+        _extractsDbContext = extractsDbContext;
+        _uploadsBlobClient = uploadsBlobClient;
+        _featureCompareTranslator = featureCompareTranslator;
+        _extractUploadFailedEmailClient = extractUploadFailedEmailClient;
+        _ticketing = ticketing;
+    }
+
+    public async Task<TranslatedChanges> ProcessUploadAndDetectChanges(
+        DownloadId downloadId,
+        UploadId uploadId,
+        TicketId ticketId,
+        ZipArchiveMetadata zipArchiveMetadata,
+        bool sendFailedEmail,
+        Func<ZipArchive, Task>? beforeFeatureCompare = null,
+        Func<ZipArchive, TranslatedChanges, Task>? afterFeatureCompare = null,
+        CancellationToken cancellationToken = default)
+    {
+        var extractUpload = await EnsureExtractUploadExists(uploadId, downloadId, ticketId, cancellationToken);
+        await _ticketing.Pending(ticketId, new TicketResult(new { Status = extractUpload.Status.ToString() }), cancellationToken);
+
+        var blobName = new BlobName(uploadId);
+
+        var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
+        if (extractDownload is null)
+        {
+            throw new ExtractDownloadNotFoundException(downloadId);
+        }
+
+        if (extractDownload.IsInformative)
+        {
+            throw new ExtractRequestMarkedInformativeException(downloadId);
+        }
+
+        if (extractDownload.Closed)
+        {
+            throw new ExtractRequestClosedException(downloadId);
+        }
+
+        if (extractDownload.DownloadedOn is null)
+        {
+            throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException();
+        }
+
+        var extractRequest = await _extractsDbContext.ExtractRequests.SingleOrDefaultAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId && x.CurrentDownloadId == downloadId.ToGuid(), cancellationToken);
+        if (extractRequest is null)
+        {
+            throw new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException();
+        }
+
+        var archiveBlob = await _uploadsBlobClient.GetBlobAsync(blobName, cancellationToken);
+        if (archiveBlob is null)
+        {
+            throw new BlobNotFoundException(blobName);
+        }
+
+        archiveBlob.ThrowIfMalwareFound();
+
+        if (!ContentType.TryParse(archiveBlob.ContentType, out var parsed) || !SupportedContentTypes.Contains(parsed))
+        {
+            throw new UnsupportedMediaTypeException(archiveBlob.ContentType);
+        }
+
+        try
+        {
+            extractDownload.LatestUploadId = uploadId;
+            await _extractsDbContext.SaveChangesAsync(cancellationToken);
+
+            await using var archiveBlobStream = await archiveBlob.OpenAsync(cancellationToken);
+            using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, true);
+
+            if (beforeFeatureCompare is not null)
+            {
+                await beforeFeatureCompare(archive);
+            }
+
+            var translatedChanges = await _featureCompareTranslator.TranslateAsync(archive, zipArchiveMetadata.WithDownloadId(downloadId), cancellationToken);
+
+            if (afterFeatureCompare is not null)
+            {
+                await afterFeatureCompare(archive, translatedChanges);
+            }
+
+            return translatedChanges;
+        }
+        catch (InvalidDataException)
+        {
+            throw new CorruptArchiveException();
+        }
+        catch (ZipArchiveValidationException ex)
+        {
+            await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
+            if (sendFailedEmail)
+            {
+                await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
+            }
+
+            throw ex.ToDutchValidationException(FileProblemTranslator.DomainV2);
+        }
+        catch
+        {
+            await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
+            if (sendFailedEmail)
+            {
+                await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
+            }
+
+            throw;
+        }
+    }
+
+    private async Task<ExtractUpload> EnsureExtractUploadExists(UploadId uploadId, DownloadId downloadId, TicketId ticketId, CancellationToken cancellationToken)
+    {
+        var extractUpload = await _extractsDbContext.ExtractUploads.SingleOrDefaultAsync(x => x.UploadId == uploadId.ToGuid(), cancellationToken);
+        if (extractUpload is null)
+        {
+            extractUpload = new ExtractUpload
+            {
+                UploadId = uploadId,
+                DownloadId = downloadId,
+                UploadedOn = DateTimeOffset.UtcNow,
+                Status = ExtractUploadStatus.Processing,
+                TicketId = ticketId
+            };
+            _extractsDbContext.ExtractUploads.Add(extractUpload);
+
+            _extractsDbContext.ExtractUploadStatusHistory.Add(new ExtractUploadStatusHistory
+            {
+                UploadId = uploadId,
+                Status = ExtractUploadStatus.Processing,
+                Timestamp = extractUpload.UploadedOn
+            });
+        }
+        else if (extractUpload.Status != ExtractUploadStatus.Processing)
+        {
+            extractUpload.Status = ExtractUploadStatus.Processing;
+            extractUpload.TicketId = ticketId;
+
+            _extractsDbContext.ExtractUploadStatusHistory.Add(new ExtractUploadStatusHistory
+            {
+                UploadId = uploadId,
+                Status = extractUpload.Status,
+                Timestamp = DateTimeOffset.UtcNow
+            });
+        }
+
+        await _extractsDbContext.SaveChangesAsync(cancellationToken);
+
+        return extractUpload;
+    }
+
+    private async Task HandleSendingFailedEmail(ExtractRequest extractRequest, DownloadId downloadId, CancellationToken cancellationToken)
+    {
+        if (extractRequest.ExternalRequestId is not null)
+        {
+            await _extractUploadFailedEmailClient.SendAsync(new(downloadId, extractRequest.Description), cancellationToken);
+        }
+    }
+}

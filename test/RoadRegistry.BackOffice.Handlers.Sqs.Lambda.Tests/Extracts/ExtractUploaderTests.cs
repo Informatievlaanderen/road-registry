@@ -110,7 +110,7 @@ public class ExtractUploaderTests
         // Act
         await ProcessUpload(downloadId, uploadId: uploadId,
             blobClient: blobClientMock.Object,
-            zipArchiveMetadata: ZipArchiveMetadata.Empty.WithInwinning());
+            zipArchiveMetadata: ZipArchiveMetadata.Empty);
 
         // Assert
         var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
