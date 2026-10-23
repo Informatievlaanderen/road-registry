@@ -1,3 +1,15 @@
+# [5.26.0](https://github.com/informatievlaanderen/road-registry/compare/v5.25.12...v5.26.0) (2026-10-23)
+
+
+### Bug Fixes
+
+* **integration:** say which organization is missing instead of a bare NullReferenceException ([6ebbf7a](https://github.com/informatievlaanderen/road-registry/commit/6ebbf7a83c98414645108790d1391f7bf7fff049))
+
+
+### Features
+
+* **2.0:** let either road scope into the edit endpoints ([46cc3a8](https://github.com/informatievlaanderen/road-registry/commit/46cc3a85efdd771c9a4205265f9b0b4367d38532))
+
 ## [5.25.12](https://github.com/informatievlaanderen/road-registry/compare/v5.25.11...v5.25.12) (2026-10-20)
 
 
