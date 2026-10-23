@@ -34,9 +34,11 @@ public partial class ScopedRoadNetwork
         var context = new ScopedRoadNetworkChangeContext(this, provenance, logger);
 
         // VAL-2
-        if (!_roadNodes.TryGetValue(roadNodeId, out var roadNode))
+        if (!_roadNodes.TryGetValue(roadNodeId, out var roadNode) || roadNode.IsRemoved)
         {
-            return Failed(new RoadNodeRemoveDoesNotExist(roadNodeId), context);
+            return Failed(roadNode is null
+                ? new RoadNodeRemoveDoesNotExist(roadNodeId)
+                : (Error)new RoadNodeRemoveIsRemoved(roadNodeId), context);
         }
 
         // VAL-3

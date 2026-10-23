@@ -55,7 +55,7 @@ public class NeighbourMergeTests : RoadNetworkTestBase
     //   in the network            the upload                result
     //   o north                                             o north
     //   | 100                                               | 100
-    //   |                         x middle                  |
+    //   x middle                  x middle                  x middle
     //   |                         : taken over              |
     //   o border                  o border                  o border
     //   | 200                     | 200                     | 200
@@ -69,7 +69,8 @@ public class NeighbourMergeTests : RoadNetworkTestBase
             [
                 (NeighbourSegmentId, North, Border, NorthNodeId, BorderNodeId),
                 (UploadedSegmentId, Border, South, BorderNodeId, SouthNodeId)
-            ]);
+            ],
+            removedRoadNodes: [(MiddleNodeId, Middle)]);
 
         var result = roadNetwork.Migrate(Upload(Middle, South, (BorderNodeId, Border), (SouthNodeId, South)), null, IdGenerator());
 
@@ -88,7 +89,7 @@ public class NeighbourMergeTests : RoadNetworkTestBase
     // what is left.
     //
     //   the upload                result
-    //   x middle
+    //   x middle                  x middle
     //   : taken over
     //   o border                  o border
     //   | 200                     | 200
@@ -104,7 +105,8 @@ public class NeighbourMergeTests : RoadNetworkTestBase
             [
                 (NeighbourSegmentId, North, Border, NorthNodeId, BorderNodeId),
                 (UploadedSegmentId, Border, South, BorderNodeId, SouthNodeId)
-            ]);
+            ],
+            removedRoadNodes: [(MiddleNodeId, Middle)]);
 
         roadNetwork.Migrate(Upload(Middle, South, (BorderNodeId, Border), (SouthNodeId, South)), null, IdGenerator())
             .Problems.Should().BeEmpty();
@@ -120,7 +122,7 @@ public class NeighbourMergeTests : RoadNetworkTestBase
     //   in the network            the upload                result
     //   o north                                             o north
     //   | 100                                               | 100
-    //   |                         x middle                  |
+    //   x middle                  x middle                  x middle
     //   |                         : taken over              |
     //   o border                  o border                  o border
     //
@@ -130,7 +132,8 @@ public class NeighbourMergeTests : RoadNetworkTestBase
     {
         var roadNetwork = BuildNetwork(
             roadNodes: [(NorthNodeId, North), (BorderNodeId, Border)],
-            roadSegments: [(NeighbourSegmentId, North, Border, NorthNodeId, BorderNodeId)]);
+            roadSegments: [(NeighbourSegmentId, North, Border, NorthNodeId, BorderNodeId)],
+            removedRoadNodes: [(MiddleNodeId, Middle)]);
 
         var result = roadNetwork.Migrate(Upload(Middle, Border, (BorderNodeId, Border)), null, IdGenerator());
 
@@ -140,11 +143,11 @@ public class NeighbourMergeTests : RoadNetworkTestBase
         roadNetwork.RoadSegments.Should().NotContainKey(UploadedSegmentId);
     }
 
-    // Nothing lies where the uploaded road leaves the missing road node, so there is no earlier merge to account for
-    // it. That is a road node this upload genuinely cannot explain, and it is reported as before.
+    // The road node was removed all right, but nothing lies where the uploaded road leaves it, so there is no earlier
+    // merge to account for it. It is reported as removed, which is as much as this upload can be told.
     //
     //   in the network            the upload                result
-    //                             x middle
+    //   x middle                  x middle                  x middle
     //                             | 200
     //   o border                  o border                  o border
     //   | 200                     | 200                     | 200
@@ -154,7 +157,36 @@ public class NeighbourMergeTests : RoadNetworkTestBase
     {
         var roadNetwork = BuildNetwork(
             roadNodes: [(BorderNodeId, Border), (SouthNodeId, South)],
-            roadSegments: [(UploadedSegmentId, Border, South, BorderNodeId, SouthNodeId)]);
+            roadSegments: [(UploadedSegmentId, Border, South, BorderNodeId, SouthNodeId)],
+            removedRoadNodes: [(MiddleNodeId, Middle)]);
+
+        var result = roadNetwork.Migrate(Upload(Middle, South, (BorderNodeId, Border), (SouthNodeId, South)), null, IdGenerator());
+
+        result.Problems.Select(x => x.Reason).Should().Contain("RoadNodeIsRemoved");
+    }
+
+    // A road node the road network never knew is not an earlier merge to account for, whatever lies where the upload
+    // leaves it. Telling the two apart is the whole point of looking at the road node that is removed rather than at
+    // the one that cannot be found.
+    //
+    //   in the network            the upload                result
+    //                             x middle
+    //                             : would fit
+    //   o border                  o border                  o border
+    //   | 200                     | 200                     | 200
+    //   o south                   o south                   o south
+    [Fact]
+    public void WhenTheRoadNodeWasNeverThere_ThenItIsReportedAsNotFound()
+    {
+        // Segment 100 lies exactly where the uploaded road leaves Middle, so a merge would have been accounted for -
+        // but the road node was never part of this road network to begin with.
+        var roadNetwork = BuildNetwork(
+            roadNodes: [(NorthNodeId, North), (BorderNodeId, Border), (SouthNodeId, South)],
+            roadSegments:
+            [
+                (NeighbourSegmentId, North, Border, NorthNodeId, BorderNodeId),
+                (UploadedSegmentId, Border, South, BorderNodeId, SouthNodeId)
+            ]);
 
         var result = roadNetwork.Migrate(Upload(Middle, South, (BorderNodeId, Border), (SouthNodeId, South)), null, IdGenerator());
 
@@ -226,11 +258,13 @@ public class NeighbourMergeTests : RoadNetworkTestBase
 
     private ScopedRoadNetwork BuildNetwork(
         (RoadNodeId Id, Coordinate Coordinate)[] roadNodes,
-        (RoadSegmentId Id, Coordinate From, Coordinate To, RoadNodeId StartNodeId, RoadNodeId EndNodeId)[] roadSegments)
+        (RoadSegmentId Id, Coordinate From, Coordinate To, RoadNodeId StartNodeId, RoadNodeId EndNodeId)[] roadSegments,
+        (RoadNodeId Id, Coordinate Coordinate)[]? removedRoadNodes = null)
     {
         return new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
             roadNodes: roadNodes
                 .Select(x => RoadNode.CreateForMigration(x.Id, Node(x.Coordinate)))
+                .Concat((removedRoadNodes ?? []).Select(BuildRemovedRoadNode))
                 .ToArray(),
             roadSegments: roadSegments
                 .Select(x => RoadSegment.CreateForMigration(
@@ -240,6 +274,16 @@ public class NeighbourMergeTests : RoadNetworkTestBase
                     x.StartNodeId,
                     x.EndNodeId))
                 .ToArray());
+    }
+
+    // The road network is loaded with the road nodes that were removed from it still in place, so that is how a road
+    // node an earlier inwinning merged away arrives here.
+    private static RoadNode BuildRemovedRoadNode((RoadNodeId Id, Coordinate Coordinate) roadNode)
+    {
+        var removed = RoadNode.CreateForMigration(roadNode.Id, Node(roadNode.Coordinate));
+        removed.Remove(new FakeProvenance());
+
+        return removed.WithoutChanges();
     }
 
     private RoadSegmentDynamicAttributeValues<T> Attribute<T>(MultiLineString geometry)

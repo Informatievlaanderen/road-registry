@@ -289,9 +289,11 @@ public partial class ScopedRoadNetwork
 
     private Problems ModifyRoadNode(ModifyRoadNodeChange change, ScopedRoadNetworkChangeContext context)
     {
-        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
+        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode) || roadNode.IsRemoved)
         {
-            return Problems.Single(new RoadNodeNotFound(change.RoadNodeId));
+            return Problems.Single(roadNode is null
+                ? new RoadNodeNotFound(change.RoadNodeId)
+                : (Error)new RoadNodeIsRemoved(change.RoadNodeId));
         }
 
         var oldEnvelope = roadNode.Geometry.Value.EnvelopeInternal;
@@ -353,9 +355,9 @@ public partial class ScopedRoadNetwork
     {
         var problems = Problems.WithContext(change.RoadSegmentIdReference);
 
-        if (!_roadSegments.TryGetValue(change.RoadSegmentIdReference.RoadSegmentId, out var roadSegment))
+        if (!_roadSegments.TryGetValue(change.RoadSegmentIdReference.RoadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
-            return problems + new RoadSegmentNotFound();
+            return problems + (roadSegment is null ? new RoadSegmentNotFound() : (Error)new RoadSegmentIsRemoved());
         }
 
         problems += context.IdTranslator.RegisterMapping(change.RoadSegmentIdReference, roadSegment.RoadSegmentId);
@@ -383,9 +385,9 @@ public partial class ScopedRoadNetwork
     {
         var problems = Problems.WithContext(roadSegmentId);
 
-        if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
+        if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
-            return problems + new RoadSegmentNotFound();
+            return problems + (roadSegment is null ? new RoadSegmentNotFound() : (Error)new RoadSegmentIsRemoved());
         }
 
         var oldEnvelope = roadSegment.Geometry.Value.EnvelopeInternal;
@@ -402,7 +404,7 @@ public partial class ScopedRoadNetwork
 
     private Problems RemoveRoadSegment(RoadSegmentId roadSegmentId, ScopedRoadNetworkChangeContext context)
     {
-        if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
+        if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
             return Problems.None;
         }
@@ -529,9 +531,11 @@ public partial class ScopedRoadNetwork
     {
         var problems = Problems.WithContext(change.GradeSeparatedJunctionId);
 
-        if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var junction))
+        if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var junction) || junction.IsRemoved)
         {
-            return problems + new GradeSeparatedJunctionNotFound();
+            return problems + (junction is null
+                ? new GradeSeparatedJunctionNotFound()
+                : (Error)new GradeSeparatedJunctionIsRemoved(change.GradeSeparatedJunctionId));
         }
 
         change = change with
@@ -556,7 +560,7 @@ public partial class ScopedRoadNetwork
 
     private Problems RemoveGradeSeparatedJunction(GradeSeparatedJunctionId gradeSeparatedJunctionId, ScopedRoadNetworkChangeContext context)
     {
-        if (!_gradeSeparatedJunctions.TryGetValue(gradeSeparatedJunctionId, out var gradeSeparatedJunction))
+        if (!_gradeSeparatedJunctions.TryGetValue(gradeSeparatedJunctionId, out var gradeSeparatedJunction) || gradeSeparatedJunction.IsRemoved)
         {
             return Problems.None;
         }
@@ -588,7 +592,7 @@ public partial class ScopedRoadNetwork
 
     private Problems RemoveGradeJunction(GradeJunctionId gradeJunctionId, ScopedRoadNetworkChangeContext context)
     {
-        if (!_gradeJunctions.TryGetValue(gradeJunctionId, out var gradeJunction))
+        if (!_gradeJunctions.TryGetValue(gradeJunctionId, out var gradeJunction) || gradeJunction.IsRemoved)
         {
             return Problems.None;
         }
