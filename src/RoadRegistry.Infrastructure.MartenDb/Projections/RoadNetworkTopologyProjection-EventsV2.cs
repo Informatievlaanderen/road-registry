@@ -57,6 +57,12 @@ public partial class RoadNetworkTopologyProjection
     {
     }
 
+    // And nothing to undo either: the row was never deleted, so the road node is already in the topology. The
+    // RoadNodeWasMigrated that follows this, when the road node is collected again, updates it as usual.
+    public void Project(IEvent<RoadNodeRemovalWasCorrectedBecauseOfMigration> e, IDocumentOperations ops)
+    {
+    }
+
     public void Project(IEvent<RoadSegmentWasAdded> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_insert_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",

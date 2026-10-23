@@ -85,6 +85,9 @@ public class WmsWfsV1InwinningProjectionTests
             // StreetName V2
             typeof(StreetNameWasCreated), typeof(StreetNameWasModified),
             typeof(StreetNameWasRemoved), typeof(StreetNameWasRenamed),
+            // A road node whose removal was corrected stays collected: it was marked so when it was removed, and the
+            // RoadNodeWasMigrated that follows marks it again. There is nothing for this projection to undo.
+            typeof(RoadNodeRemovalWasCorrectedBecauseOfMigration),
             // ScopedRoadNetwork
             typeof(RoadNetworkChangesAccepted),
             typeof(RoadNetworkWasChanged)
