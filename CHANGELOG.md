@@ -1,3 +1,10 @@
+## [5.26.2](https://github.com/informatievlaanderen/road-registry/compare/v5.26.1...v5.26.2) (2026-10-23)
+
+
+### Bug Fixes
+
+* **roadsegment:** remove an ingeschetst road segment, and report one that was never there ([21e247a](https://github.com/informatievlaanderen/road-registry/commit/21e247ae112577f69348c4e8ee384411be8a785c))
+
 ## [5.26.1](https://github.com/informatievlaanderen/road-registry/compare/v5.26.0...v5.26.1) (2026-10-23)
 
 
