@@ -103,6 +103,36 @@ public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationT
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
+    // An ingeschetst road segment is not knotted into the road network: the topology holds it without road nodes. The
+    // lookup compares road nodes to find what a road segment meets, and NULL is equal to nothing in SQL - not even to
+    // itself - so asking for one used to come back with nothing at all, and the action then had no road segment to
+    // work on and said nothing about it.
+    [Fact]
+    public async Task GivenAnOutlinedRoadSegmentWithoutRoadNodes_ThenItIsStillReturned()
+    {
+        // Arrange
+        var sp = await BuildServiceProvider();
+
+        var store = sp.GetRequiredService<IDocumentStore>();
+        await using (var session = store.LightweightSession())
+        {
+            var outlinedRoadSegment = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.OutlinedRoadSegmentWasAdded>() with
+            {
+                RoadSegmentId = new RoadSegmentId(1)
+            };
+
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), outlinedRoadSegment.RoadSegmentId), outlinedRoadSegment);
+
+            await session.SaveChangesAsync();
+        }
+
+        // Act
+        var ids = await GetUnderlyingIdsWithConnectedSegments(sp, [new(1)]);
+
+        // Assert
+        ids.Should().BeEquivalentTo(new RoadNetworkIds([], [new(1)], [], []));
+    }
+
     [Fact]
     public async Task GivenTwoConnectionLevels_ThenReturnUpToFirstLevelConnection()
     {

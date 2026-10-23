@@ -68,10 +68,17 @@ public partial class ScopedRoadNetwork
     {
         var problems = Problems.WithContext(roadSegmentId);
 
-        // A segment the network does not have, or one that is already gone, is what the caller asked for: there is
-        // nothing left to remove and nothing to report. Naming it changes nothing, and a request sent twice does not
-        // fail the second time.
-        if (!_roadSegments.TryGetValue(roadSegmentId, out var segment) || segment.IsRemoved)
+        // A road segment the road network never had is the caller's mistake, and saying nothing about it would let a
+        // wrong identifier pass for a removal that happened.
+        if (!_roadSegments.TryGetValue(roadSegmentId, out var segment))
+        {
+            return problems + new RoadSegmentNotFound();
+        }
+
+        // One that is already gone is what the caller asked for: there is nothing left to remove and nothing to
+        // report, and a request sent twice does not fail the second time. The topology keeps removed road segments,
+        // so this is a thing the road network can still say - which is what tells it apart from the one above.
+        if (segment.IsRemoved)
         {
             return Problems.None;
         }
