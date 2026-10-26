@@ -1,4 +1,4 @@
-namespace RoadRegistry.ScopedRoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System;
 using System.Collections.Generic;
@@ -302,16 +302,21 @@ public partial class ScopedRoadNetwork
     {
         var problems = Problems.WithContext(change.RoadSegmentIdReference);
 
-        if (neighbourMerges.RoadSegments.TryGetValue(change.RoadSegmentIdReference, out var neighbourMerge))
+        if (neighbourMerges.RoadSegments.TryGetValue(change.RoadSegmentIdReference, out var neighbourMergeCuts))
         {
             // A neighbouring inwinning already collected this road, in whole or in part. What it took is not this
-            // upload's to collect a second time.
-            if (neighbourMerge.TakenInFull)
+            // upload's to collect a second time. There can be more than one such stretch - a road running up to a
+            // road node the neighbour merged away at either end is cut at both - and each cut was measured against
+            // what the one before it left, so they are made in that same order.
+            foreach (var neighbourMerge in neighbourMergeCuts)
             {
-                return Problems.None;
-            }
+                if (neighbourMerge.TakenInFull)
+                {
+                    return Problems.None;
+                }
 
-            change = CutBackToRemainingStretch(change, neighbourMerge);
+                change = CutBackToRemainingStretch(change, neighbourMerge);
+            }
         }
 
         if (!_roadSegments.TryGetValue(change.RoadSegmentIdReference.RoadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
