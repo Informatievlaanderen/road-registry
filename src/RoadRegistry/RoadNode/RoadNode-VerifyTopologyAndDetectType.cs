@@ -107,7 +107,13 @@ public partial class RoadNode
             return true;
         }
 
+        // Only the roads that are actually there. A gehistoreerd road segment is out of the road network but not
+        // removed from it, so it is still in the spatial index with the geometry it had - and a merge leaves one
+        // behind lying exactly along the road it was merged into. Counted as a road to be crossed, it says the two
+        // roads would run into each other over their whole length and no road node would ever be merged away a
+        // second time. Crossings are a statement about gerealiseerde roads, the same as in VerifyAndUpdateJunctions.
         var candidateSegments = roadSegmentGridSpatialIndex.Query(mergedGeometry.EnvelopeInternal)
+            .Where(x => x.Status == RoadSegmentStatusV2.Gerealiseerd)
             .Where(x => x.RoadSegmentId != segment1.RoadSegmentId && x.RoadSegmentId != segment2.RoadSegmentId)
             .ToArray();
         foreach (var otherSegment in candidateSegments)
