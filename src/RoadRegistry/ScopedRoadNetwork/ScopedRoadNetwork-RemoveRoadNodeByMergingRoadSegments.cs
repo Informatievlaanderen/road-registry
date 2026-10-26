@@ -176,7 +176,7 @@ public partial class ScopedRoadNetwork
         var otherSegments = _roadSegmentsSpatialIndex.Query(mergedGeometry.EnvelopeInternal)
             // A gehistoreerd road segment is out of the road network but still in the index with the geometry it
             // had, a merge being one of the things that leaves one behind. It is not a road this one could run into.
-            .Where(x => x.Status == RoadSegmentStatusV2.Gerealiseerd)
+            .Where(x => !x.IsRemoved && x.Status == RoadSegmentStatusV2.Gerealiseerd)
             .Where(x => x.RoadSegmentId != segment1.RoadSegmentId && x.RoadSegmentId != segment2.RoadSegmentId)
             .Where(x => x.StartNodeId != commonNodeId && x.EndNodeId != commonNodeId);
 

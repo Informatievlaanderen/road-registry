@@ -112,8 +112,12 @@ public partial class RoadNode
         // behind lying exactly along the road it was merged into. Counted as a road to be crossed, it says the two
         // roads would run into each other over their whole length and no road node would ever be merged away a
         // second time. Crossings are a statement about gerealiseerde roads, the same as in VerifyAndUpdateJunctions.
+        //
+        // Removed road segments are kept out of the index already, and the status says nothing about those - a
+        // removed road segment keeps the status it had. Asked for here all the same, so this says for itself which
+        // roads it means rather than leaning on how the index two files away happens to be filled.
         var candidateSegments = roadSegmentGridSpatialIndex.Query(mergedGeometry.EnvelopeInternal)
-            .Where(x => x.Status == RoadSegmentStatusV2.Gerealiseerd)
+            .Where(x => !x.IsRemoved && x.Status == RoadSegmentStatusV2.Gerealiseerd)
             .Where(x => x.RoadSegmentId != segment1.RoadSegmentId && x.RoadSegmentId != segment2.RoadSegmentId)
             .ToArray();
         foreach (var otherSegment in candidateSegments)
