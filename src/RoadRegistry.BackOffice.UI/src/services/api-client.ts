@@ -33,6 +33,17 @@ export class AxiosHttpApiClientOptions {
   public noRedirectOnUnauthorized = false;
 }
 
+// A 429 is the API asking us to slow down, not a call that went wrong, so it is sent again after a wait rather than
+// handed to the caller as an error - and again, for as long as the answer stays 429. Nothing of this shows: as far as
+// the rest of the application is concerned the request is simply still pending.
+const tooManyRequestsStatusCode = 429;
+const tooManyRequestsRetryDelayInMs = 1000;
+
+// Set on the request that is being made again, so it is not counted as a second pending request.
+type RetriedRequestConfig = { isRetryAfterTooManyRequests?: boolean };
+
+const delay = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
 const createAxiosInstance = (options?: AxiosHttpApiClientOptions) => {
   const http = axios.create();
 
@@ -54,7 +65,11 @@ const createAxiosInstance = (options?: AxiosHttpApiClientOptions) => {
 
   http.interceptors.request.use(
     (config) => {
-      apiStats.pendingRequests++;
+      // A call being made again after a 429 was counted when it was first made. It is one request that has not come
+      // back yet, not a second one.
+      if (!(config as RetriedRequestConfig).isRetryAfterTooManyRequests) {
+        apiStats.pendingRequests++;
+      }
       return config;
     },
     (error) => {
@@ -67,7 +82,17 @@ const createAxiosInstance = (options?: AxiosHttpApiClientOptions) => {
       apiStats.pendingRequests--;
       return response;
     },
-    (error) => {
+    async (error) => {
+      if (error.response?.status === tooManyRequestsStatusCode && error.config) {
+        // Deliberately not taken out of the pending count, neither now nor for the wait that follows: from the
+        // outside this is one request that has not come back yet, and a counter that dropped to zero for a second
+        // would take whatever hangs off it - a spinner, a disabled button - down with it.
+        (error.config as RetriedRequestConfig).isRetryAfterTooManyRequests = true;
+
+        await delay(tooManyRequestsRetryDelayInMs);
+        return http.request(error.config);
+      }
+
       if (options?.noRedirectOnUnauthorized !== true) {
         if (error.response?.status == 403 || error.response?.status == 401) {
           const currentRoute = router.currentRoute.value;
