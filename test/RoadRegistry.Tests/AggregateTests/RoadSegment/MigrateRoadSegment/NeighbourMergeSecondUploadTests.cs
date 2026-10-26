@@ -1,4 +1,4 @@
-namespace RoadRegistry.Tests.AggregateTests.RoadSegment.MigrateRoadSegment;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.MigrateRoadSegment;
 
 using AutoFixture;
 using FluentAssertions;
@@ -97,10 +97,6 @@ public class NeighbourMergeSecondUploadTests : RoadNetworkTestBase
 
         // The road node the neighbour removed is not brought back by this, and the one both uploads shared is no
         // longer needed once the two roads are one.
-        roadNetwork.RoadNodes[MiddleNodeId].IsRemoved.Should().BeTrue();
-        roadNetwork.RoadNodes[BorderNodeId].IsRemoved.Should().BeTrue();
-
-        // The road node the neighbour removed is not brought back by this.
         roadNetwork.RoadNodes[MiddleNodeId].IsRemoved.Should().BeTrue();
         roadNetwork.RoadNodes[BorderNodeId].IsRemoved.Should().BeTrue();
     }
