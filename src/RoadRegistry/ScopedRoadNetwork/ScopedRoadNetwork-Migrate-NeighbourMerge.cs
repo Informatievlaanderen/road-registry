@@ -42,12 +42,15 @@ public partial class ScopedRoadNetwork
         public bool TakenInFull => RemainingGeometry is null;
     }
 
+    // Per uploaded road segment the cuts to make, in the order they were worked out. A road that runs up to a road
+    // node the neighbour merged away at each of its ends - the top of a loop whose bottom the neighbour collected -
+    // is cut at both, and each cut is measured against what the one before it left (GAWR-7826).
     private sealed record NeighbourMergeResolutions(
         IReadOnlyCollection<RoadNodeId> RoadNodeIds,
-        IReadOnlyDictionary<RoadSegmentIdReference, NeighbourMergeResolution> RoadSegments)
+        IReadOnlyDictionary<RoadSegmentIdReference, IReadOnlyList<NeighbourMergeResolution>> RoadSegments)
     {
         public static readonly NeighbourMergeResolutions None =
-            new([], new Dictionary<RoadSegmentIdReference, NeighbourMergeResolution>());
+            new([], new Dictionary<RoadSegmentIdReference, IReadOnlyList<NeighbourMergeResolution>>());
     }
 
     // Works out, before a single change is applied, which of them are about road segments a neighbouring inwinning
@@ -71,7 +74,7 @@ public partial class ScopedRoadNetwork
         }
 
         var resolvedRoadNodeIds = new List<RoadNodeId>();
-        var resolvedRoadSegments = new Dictionary<RoadSegmentIdReference, NeighbourMergeResolution>();
+        var resolvedRoadSegments = new Dictionary<RoadSegmentIdReference, List<NeighbourMergeResolution>>();
 
         var roadSegmentChanges = changes
             .OfType<ModifyRoadSegmentChange>()
@@ -85,14 +88,24 @@ public partial class ScopedRoadNetwork
             var accountedFor = false;
 
             // Only the road segments this upload runs up to that road node can have been merged away along with it.
-            foreach (var roadSegmentChange in roadSegmentChanges.Where(x => TouchesCoordinate(x.Geometry!.Value, roadNodeCoordinate)))
+            foreach (var roadSegmentChange in roadSegmentChanges)
             {
-                if (resolvedRoadSegments.ContainsKey(roadSegmentChange.RoadSegmentIdReference))
+                var cuts = resolvedRoadSegments.GetValueOrDefault(roadSegmentChange.RoadSegmentIdReference);
+                if (cuts is not null && cuts[^1].TakenInFull)
+                {
+                    // Taken over whole at the other end already: there is nothing left of it to cut.
+                    continue;
+                }
+
+                // What is left of the upload at this point, which is what the road node has to be read against: a
+                // road already cut back at its other end no longer reaches as far as it was uploaded.
+                var remainingSoFar = cuts is not null ? cuts[^1].RemainingGeometry! : roadSegmentChange.Geometry!;
+                if (!TouchesCoordinate(remainingSoFar.Value, roadNodeCoordinate))
                 {
                     continue;
                 }
 
-                var uploadedGeometry = roadSegmentChange.Geometry!.Value.GetSingleLineString();
+                var uploadedGeometry = remainingSoFar.Value.GetSingleLineString();
 
                 var takenOverBy = FindRoadSegmentLeavingRoadNode(
                     uploadedGeometry, roadNodeCoordinate, roadSegmentChange.RoadSegmentIdReference.RoadSegmentId);
@@ -107,7 +120,13 @@ public partial class ScopedRoadNetwork
                     continue;
                 }
 
-                resolvedRoadSegments.Add(roadSegmentChange.RoadSegmentIdReference, resolution);
+                if (cuts is null)
+                {
+                    cuts = [];
+                    resolvedRoadSegments.Add(roadSegmentChange.RoadSegmentIdReference, cuts);
+                }
+
+                cuts.Add(resolution);
                 accountedFor = true;
 
                 context.Logger.LogInformation(
@@ -126,7 +145,9 @@ public partial class ScopedRoadNetwork
             }
         }
 
-        return new NeighbourMergeResolutions(resolvedRoadNodeIds, resolvedRoadSegments);
+        return new NeighbourMergeResolutions(
+            resolvedRoadNodeIds,
+            resolvedRoadSegments.ToDictionary(x => x.Key, x => (IReadOnlyList<NeighbourMergeResolution>)x.Value));
     }
 
     private static bool TouchesCoordinate(MultiLineString geometry, Coordinate coordinate)
