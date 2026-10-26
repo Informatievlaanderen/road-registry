@@ -1,4 +1,4 @@
-namespace RoadRegistry.ScopedRoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System;
 using System.Collections.Generic;
@@ -169,6 +169,7 @@ public partial class ScopedRoadNetwork
         var takenOverLine = takenOverBy.Geometry.Value.GetSingleLineString();
 
         double? cutIndex = null;
+        Coordinate? cutCoordinate = null;
         foreach (var endPoint in new[] { takenOverLine.StartPoint.Coordinate, takenOverLine.EndPoint.Coordinate })
         {
             var index = indexedUpload.Project(endPoint);
@@ -180,6 +181,7 @@ public partial class ScopedRoadNetwork
             if (cutIndex is null || index > cutIndex)
             {
                 cutIndex = index;
+                cutCoordinate = endPoint;
             }
         }
 
@@ -199,6 +201,14 @@ public partial class ScopedRoadNetwork
 
         var remaining = (LineString)indexedUpload.ExtractLine(cutIndex.Value, awayFromRoadNode.Length);
 
+        // Put on the road node the two roads meet at, rather than left on the point the projection landed on. The
+        // two are not the same: this works to a tolerance and takes the road the neighbour collected as lining up
+        // when its end lies within NeighbourMergeProbeDistance of the uploaded road, which is as far as the
+        // uploaded road may have been redrawn. The road network has no such tolerance when it looks a road node up -
+        // it matches an exact coordinate - so a road cut to a hair's breadth off the road node is a road with no end
+        // node at all, and the upload was refused for it.
+        remaining = WithFirstCoordinateAt(remaining, cutCoordinate!);
+
         // Handed back the way it was uploaded, so that what follows does not have to care which end was cut.
         if (!takenFromStart)
         {
@@ -209,6 +219,14 @@ public partial class ScopedRoadNetwork
         {
             SRID = uploadedGeometry.SRID
         }.ToRoadSegmentGeometry(), takenFromStart);
+    }
+
+    private static LineString WithFirstCoordinateAt(LineString line, Coordinate coordinate)
+    {
+        var coordinates = line.Coordinates;
+        coordinates[0] = new Coordinate(coordinate.X, coordinate.Y);
+
+        return new LineString(coordinates) { SRID = line.SRID };
     }
 
     // The uploaded change, cut back to the stretch this upload still has to collect. The dynamically segmented
