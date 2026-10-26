@@ -39,6 +39,9 @@ export class AxiosHttpApiClientOptions {
 const tooManyRequestsStatusCode = 429;
 const tooManyRequestsRetryDelayInMs = 1000;
 
+// Set on the request that is being made again, so it is not counted as a second pending request.
+type RetriedRequestConfig = { isRetryAfterTooManyRequests?: boolean };
+
 const delay = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 const createAxiosInstance = (options?: AxiosHttpApiClientOptions) => {
@@ -62,7 +65,11 @@ const createAxiosInstance = (options?: AxiosHttpApiClientOptions) => {
 
   http.interceptors.request.use(
     (config) => {
-      apiStats.pendingRequests++;
+      // A call being made again after a 429 was counted when it was first made. It is one request that has not come
+      // back yet, not a second one.
+      if (!(config as RetriedRequestConfig).isRetryAfterTooManyRequests) {
+        apiStats.pendingRequests++;
+      }
       return config;
     },
     (error) => {
@@ -77,9 +84,10 @@ const createAxiosInstance = (options?: AxiosHttpApiClientOptions) => {
     },
     async (error) => {
       if (error.response?.status === tooManyRequestsStatusCode && error.config) {
-        // This attempt is over; the one that takes its place is counted again on its way through the request
-        // interceptor, so the pending count stays what it was from the outside.
-        apiStats.pendingRequests--;
+        // Deliberately not taken out of the pending count, neither now nor for the wait that follows: from the
+        // outside this is one request that has not come back yet, and a counter that dropped to zero for a second
+        // would take whatever hangs off it - a spinner, a disabled button - down with it.
+        (error.config as RetriedRequestConfig).isRetryAfterTooManyRequests = true;
 
         await delay(tooManyRequestsRetryDelayInMs);
         return http.request(error.config);
