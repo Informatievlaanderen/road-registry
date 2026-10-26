@@ -1,3 +1,12 @@
+## [5.26.3](https://github.com/informatievlaanderen/road-registry/compare/v5.26.2...v5.26.3) (2026-10-26)
+
+
+### Bug Fixes
+
+* **inwinning:** bring back a road node the neighbour removed ([b24ab58](https://github.com/informatievlaanderen/road-registry/commit/b24ab58b6444f03e24cc9b2eb3038bf760004f0b))
+* **roadnode:** let the merge see the roads it would cross twice ([e4fbe05](https://github.com/informatievlaanderen/road-registry/commit/e4fbe057d0b7dfb59b6081d0715f4cd2766c202c))
+* **ui:** send a call again after a delay when the API asks us to slow down ([6edcf14](https://github.com/informatievlaanderen/road-registry/commit/6edcf142d36e65442bc9ed79d7ea22cf66c43224))
+
 ## [5.26.2](https://github.com/informatievlaanderen/road-registry/compare/v5.26.1...v5.26.2) (2026-10-23)
 
 
