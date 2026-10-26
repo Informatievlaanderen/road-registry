@@ -33,6 +33,14 @@ export class AxiosHttpApiClientOptions {
   public noRedirectOnUnauthorized = false;
 }
 
+// A 429 is the API asking us to slow down, not a call that went wrong, so it is sent again after a wait rather than
+// handed to the caller as an error - and again, for as long as the answer stays 429. Nothing of this shows: as far as
+// the rest of the application is concerned the request is simply still pending.
+const tooManyRequestsStatusCode = 429;
+const tooManyRequestsRetryDelayInMs = 1000;
+
+const delay = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
 const createAxiosInstance = (options?: AxiosHttpApiClientOptions) => {
   const http = axios.create();
 
@@ -67,7 +75,16 @@ const createAxiosInstance = (options?: AxiosHttpApiClientOptions) => {
       apiStats.pendingRequests--;
       return response;
     },
-    (error) => {
+    async (error) => {
+      if (error.response?.status === tooManyRequestsStatusCode && error.config) {
+        // This attempt is over; the one that takes its place is counted again on its way through the request
+        // interceptor, so the pending count stays what it was from the outside.
+        apiStats.pendingRequests--;
+
+        await delay(tooManyRequestsRetryDelayInMs);
+        return http.request(error.config);
+      }
+
       if (options?.noRedirectOnUnauthorized !== true) {
         if (error.response?.status == 403 || error.response?.status == 401) {
           const currentRoute = router.currentRoute.value;
