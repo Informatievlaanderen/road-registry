@@ -1,4 +1,4 @@
-namespace RoadRegistry.Infrastructure.MartenDb.Projections;
+﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
 using GradeSeparatedJunction.Events.V1;
 using JasperFx.Events;
@@ -88,8 +88,9 @@ public partial class RoadNetworkTopologyProjection
     {
         var geometry = e.Data.Geometry.EnsureLambert08();
 
-        // V1 uses 0 for "no road node" (outlined segments); NULL is the real no-node value in this table.
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, FALSE);",
+        // V1 uses 0 for "no road node" (outlined segments); NULL is the real no-node value in this table. A V1
+        // road segment has no V2 status, so the empty status leaves the column as it is.
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, FALSE, '', null);",
             e.Data.RoadSegmentId,
             e.Timestamp,
             geometry.WKT,
@@ -104,7 +105,7 @@ public partial class RoadNetworkTopologyProjection
         var geometry = e.Data.Geometry.EnsureLambert08();
 
         // The event carries no node ids; -1 leaves them unchanged.
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, -1, -1, FALSE);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, -1, -1, FALSE, '', null);",
             e.Data.RoadSegmentId,
             e.Timestamp,
             geometry.WKT,

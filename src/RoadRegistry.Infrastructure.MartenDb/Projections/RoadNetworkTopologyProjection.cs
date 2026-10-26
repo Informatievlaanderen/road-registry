@@ -123,6 +123,13 @@ $$ LANGUAGE plpgsql;"));
         table.AddColumn<int>("end_node_id");
         table.AddColumn<DateTimeOffset>("timestamp");
         table.AddColumn<bool>("is_v2").DefaultValueByExpression(false.ToString());
+        // The status a road segment is in, and whether it was removed. The topology keeps every road segment,
+        // removed ones included (see RoadNetworkTopologyProjection-EventsV2), so a caller that does want a subset
+        // has to be able to say so: GetUnderlyingIdsForExtract asks for the road segments an extract is made of.
+        // The status is the V2 status name and is NULL for a V1 road segment, which has no V2 status; a V1 removal
+        // still deletes the row.
+        table.AddColumn<string>("status");
+        table.AddColumn<bool>("is_removed").DefaultValueByExpression(false.ToString());
 
         var geometryIndex = new IndexDefinition("idx_roadsegments_geometry").AgainstColumns("geometry");
         geometryIndex.CustomMethod = "gist";
@@ -136,7 +143,7 @@ $$ LANGUAGE plpgsql;"));
         Options.DeleteDataInTableOnTeardown(table.Identifier.QualifiedName);
 
         SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_insert_roadsegment"), @$"
-CREATE OR REPLACE FUNCTION projections.networktopology_insert_roadsegment(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer, p_start_node_id integer, p_end_node_id integer, p_is_v2 boolean) RETURNS int AS
+CREATE OR REPLACE FUNCTION projections.networktopology_insert_roadsegment(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer, p_start_node_id integer, p_end_node_id integer, p_is_v2 boolean, p_status character varying) RETURNS int AS
 $$
 DECLARE
     existing_timestamp timestamptz;
@@ -153,8 +160,8 @@ BEGIN
             USING ERRCODE = '23505';
     END IF;
 
-    INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp, is_v2)
-    VALUES (p_id, ST_GeomFromText(p_wkt, p_srid), p_start_node_id, p_end_node_id, p_timestamp, p_is_v2);
+    INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp, is_v2, status)
+    VALUES (p_id, ST_GeomFromText(p_wkt, p_srid), p_start_node_id, p_end_node_id, p_timestamp, p_is_v2, NULLIF(p_status, ''));
 
     RETURN 1;
 
@@ -186,8 +193,11 @@ $$ LANGUAGE plpgsql;"));
 
         // A node id of -1 means "leave unchanged"; NULL is a real value meaning "the segment has no node
         // there" and is saved as-is, so segments without nodes never join each other on a shared sentinel.
+        // An empty status means "leave unchanged", the same as an empty wkt: an event that does not move the status
+        // passes it, and so does every V1 event, which has no V2 status to record. A NULL p_is_removed likewise
+        // leaves the mark as it is; the events that un-remove a road segment on the aggregate pass FALSE.
         SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_update_roadsegment"), @$"
-CREATE OR REPLACE FUNCTION projections.networktopology_update_roadsegment(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer, p_start_node_id integer, p_end_node_id integer, p_is_v2 boolean) RETURNS int AS
+CREATE OR REPLACE FUNCTION projections.networktopology_update_roadsegment(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer, p_start_node_id integer, p_end_node_id integer, p_is_v2 boolean, p_status character varying, p_is_removed boolean) RETURNS int AS
 $$
 DECLARE
     updated int;
@@ -198,6 +208,36 @@ BEGIN
         start_node_id = (CASE WHEN p_start_node_id IS NOT DISTINCT FROM -1 THEN start_node_id ELSE p_start_node_id END),
         end_node_id = (CASE WHEN p_end_node_id IS NOT DISTINCT FROM -1 THEN end_node_id ELSE p_end_node_id END),
         is_v2 = p_is_v2,
+        status = (CASE WHEN p_status <> '' THEN p_status ELSE status END),
+        is_removed = coalesce(p_is_removed, is_removed),
+        timestamp = p_timestamp
+    WHERE id = p_id
+      AND timestamp <= p_timestamp;
+
+    GET DIAGNOSTICS updated = ROW_COUNT;
+
+    IF updated = 0 THEN
+        RAISE EXCEPTION 'Concurrency conflict on road segment %', p_id
+            USING ERRCODE = '40001';
+    END IF;
+
+    RETURN updated;
+
+END;
+$$ LANGUAGE plpgsql;"));
+
+        // A V2 removal marks the road segment instead of deleting it: the row stays, so an action that is handed the
+        // road network still sees the road segment and can say for itself that it is removed, while a caller that
+        // only wants what is really there - an extract - can leave it out.
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_remove_roadsegment"), @$"
+CREATE OR REPLACE FUNCTION projections.networktopology_remove_roadsegment(p_id integer, p_timestamp timestamptz) RETURNS int AS
+$$
+DECLARE
+    updated int;
+BEGIN
+
+    UPDATE {RoadSegmentsTableName}
+    SET is_removed = TRUE,
         timestamp = p_timestamp
     WHERE id = p_id
       AND timestamp <= p_timestamp;

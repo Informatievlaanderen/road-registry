@@ -10,6 +10,19 @@ using ScopedRoadNetwork.ValueObjects;
 
 public class RoadNetworkRepository : IRoadNetworkRepository
 {
+    // Which road segments an extract is made of. An extract is the road network as it is on the ground and as it
+    // can be handed back: gepland and gerealiseerd are the only two statuses an inwinning archive is read back in
+    // (RoadSegmentFeatureCompareFeatureReader.ReadStatus), so anything else - gehistoreerd above all, which says
+    // the road was opgeheven, samengevoegd or gesplitst - is left out, and so is everything removed.
+    //
+    // A V1 road segment has no V2 status and is taken whatever state it is in; V1 removals delete the topology row,
+    // so a removed one is not there to begin with.
+    private static readonly string[] ExtractRoadSegmentStatuses =
+    [
+        RoadSegmentStatusV2.Gepland.ToString(),
+        RoadSegmentStatusV2.Gerealiseerd.ToString()
+    ];
+
     protected IDocumentStore Store { get; }
 
     public RoadNetworkRepository(IDocumentStore store)
@@ -178,12 +191,15 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} grade
 LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
   ON gradejunction.road_segment_id_1 = rs.id OR gradejunction.road_segment_id_2 = rs.id
 WHERE ST_Intersects(rs.geometry, ST_SetSRID(ST_GeomFromText(@wkt), @srid))
+  AND NOT rs.is_removed
+  AND (NOT rs.is_v2 OR rs.status = ANY(@statuses))
 ";
         var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql,
             new
             {
                 wkt = geometry.AsText(),
-                srid = geometry.SRID
+                srid = geometry.SRID,
+                statuses = ExtractRoadSegmentStatuses
             })).ToList();
 
         return new RoadNetworkIds(
