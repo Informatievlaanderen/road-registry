@@ -26,7 +26,7 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadNodeWasModified> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, TRUE);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, TRUE, null);",
             e.Data.RoadNodeId.ToInt32(),
             e.Timestamp,
             e.Data.Geometry?.WKT ?? string.Empty,
@@ -36,7 +36,7 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadNodeWasMigrated> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, TRUE);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, TRUE, null);",
             e.Data.RoadNodeId.ToInt32(),
             e.Timestamp,
             e.Data.Geometry.WKT,
@@ -50,18 +50,29 @@ public partial class RoadNetworkTopologyProjection
     //
     // That also settles what happens when this projection is eventually dropped and the identifiers are read straight
     // off the road network - removed entities will be there just the same.
-    public void Project(IEvent<RoadNodeWasRemoved> e, IDocumentOperations ops)
+    //
+    // The row is marked instead, because a caller that only wants what is really there - an extract - has to be able
+    // to tell. Removing marks through networktopology_remove_<entity>; the one thing that un-removes anything, the
+    // road node removal correction below, rides on the update.
+    public void Project(IEvent<RoadNodeWasRemoved> e, IDocumentOperations ops) => ProjectRoadNodeRemoved(e.Data.RoadNodeId, e.Timestamp, ops);
+    public void Project(IEvent<RoadNodeWasRemovedBecauseOfMigration> e, IDocumentOperations ops) => ProjectRoadNodeRemoved(e.Data.RoadNodeId, e.Timestamp, ops);
+
+    private static void ProjectRoadNodeRemoved(RoadNodeId roadNodeId, DateTimeOffset timestamp, IDocumentOperations ops)
     {
+        ops.QueueSqlCommand("SELECT projections.networktopology_remove_roadnode(?, ?);",
+            roadNodeId.ToInt32(),
+            timestamp
+        );
     }
 
-    public void Project(IEvent<RoadNodeWasRemovedBecauseOfMigration> e, IDocumentOperations ops)
-    {
-    }
-
-    // And nothing to undo either: the row was never deleted, so the road node is already in the topology. The
+    // The removal is undone, so the mark goes with it. The row itself was never deleted and keeps its geometry; the
     // RoadNodeWasMigrated that follows this, when the road node is collected again, updates it as usual.
     public void Project(IEvent<RoadNodeRemovalWasCorrectedBecauseOfMigration> e, IDocumentOperations ops)
     {
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, '', 0, TRUE, FALSE);",
+            e.Data.RoadNodeId.ToInt32(),
+            e.Timestamp
+        );
     }
 
     public void Project(IEvent<RoadSegmentWasAdded> e, IDocumentOperations ops)
@@ -281,12 +292,15 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<GradeSeparatedJunctionWasRemoved> e, IDocumentOperations ops)
-    {
-    }
+    public void Project(IEvent<GradeSeparatedJunctionWasRemoved> e, IDocumentOperations ops) => ProjectGradeSeparatedJunctionRemoved(e.Data.GradeSeparatedJunctionId, e.Timestamp, ops);
+    public void Project(IEvent<GradeSeparatedJunctionWasRemovedBecauseOfMigration> e, IDocumentOperations ops) => ProjectGradeSeparatedJunctionRemoved(e.Data.GradeSeparatedJunctionId, e.Timestamp, ops);
 
-    public void Project(IEvent<GradeSeparatedJunctionWasRemovedBecauseOfMigration> e, IDocumentOperations ops)
+    private static void ProjectGradeSeparatedJunctionRemoved(GradeSeparatedJunctionId gradeSeparatedJunctionId, DateTimeOffset timestamp, IDocumentOperations ops)
     {
+        ops.QueueSqlCommand("SELECT projections.networktopology_remove_gradeseparatedjunction(?, ?);",
+            gradeSeparatedJunctionId.ToInt32(),
+            timestamp
+        );
     }
 
     public void Project(IEvent<GradeJunctionWasAdded> e, IDocumentOperations ops)
@@ -314,14 +328,18 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<GradeJunctionWasRemoved> e, IDocumentOperations ops)
-    {
-    }
+    public void Project(IEvent<GradeJunctionWasRemoved> e, IDocumentOperations ops) => ProjectGradeJunctionRemoved(e.Data.GradeJunctionId, e.Timestamp, ops);
 
     // The crossing did not disappear, it is recorded as a grade separated junction from here on. The grade junction
-    // it was is marked removed on the aggregate, and like every other removed entity it stays in the topology.
-    public void Project(IEvent<GradeJunctionWasChangedToGradeSeparatedJunction> e, IDocumentOperations ops)
+    // it was is marked removed on the aggregate, and the topology keeps the row and marks it the same way.
+    public void Project(IEvent<GradeJunctionWasChangedToGradeSeparatedJunction> e, IDocumentOperations ops) => ProjectGradeJunctionRemoved(e.Data.GradeJunctionId, e.Timestamp, ops);
+
+    private static void ProjectGradeJunctionRemoved(GradeJunctionId gradeJunctionId, DateTimeOffset timestamp, IDocumentOperations ops)
     {
+        ops.QueueSqlCommand("SELECT projections.networktopology_remove_gradejunction(?, ?);",
+            gradeJunctionId.ToInt32(),
+            timestamp
+        );
     }
 
     public void Project(IEvent<GradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange> e, IDocumentOperations ops)

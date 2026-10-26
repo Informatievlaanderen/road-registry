@@ -17,6 +17,9 @@ public class RoadNetworkRepository : IRoadNetworkRepository
     //
     // A V1 road segment has no V2 status and is taken whatever state it is in; V1 removals delete the topology row,
     // so a removed one is not there to begin with.
+    //
+    // The road nodes and the crossings come along per road segment, and each is left out when it is marked removed
+    // itself: a crossing a merger or a split did away with still hangs off a road segment that is very much there.
     private static readonly string[] ExtractRoadSegmentStatuses =
     [
         RoadSegmentStatusV2.Gepland.ToString(),
@@ -181,15 +184,21 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
         var sql = $@"
 SELECT
   rs.id                     AS RoadSegmentId,
-  rs.start_node_id          AS StartNodeId,
-  rs.end_node_id            AS EndNodeId,
+  startnode.id              AS StartNodeId,
+  endnode.id                AS EndNodeId,
   gradeseparatedjunction.id AS GradeSeparatedJunctionId,
   gradejunction.id          AS GradeJunctionId
 FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
+LEFT JOIN {RoadNetworkTopologyProjection.RoadNodesTableName} startnode
+  ON startnode.id = rs.start_node_id AND NOT startnode.is_removed
+LEFT JOIN {RoadNetworkTopologyProjection.RoadNodesTableName} endnode
+  ON endnode.id = rs.end_node_id AND NOT endnode.is_removed
 LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} gradeseparatedjunction
-  ON gradeseparatedjunction.lower_road_segment_id = rs.id OR gradeseparatedjunction.upper_road_segment_id = rs.id
+  ON (gradeseparatedjunction.lower_road_segment_id = rs.id OR gradeseparatedjunction.upper_road_segment_id = rs.id)
+  AND NOT gradeseparatedjunction.is_removed
 LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
-  ON gradejunction.road_segment_id_1 = rs.id OR gradejunction.road_segment_id_2 = rs.id
+  ON (gradejunction.road_segment_id_1 = rs.id OR gradejunction.road_segment_id_2 = rs.id)
+  AND NOT gradejunction.is_removed
 WHERE ST_Intersects(rs.geometry, ST_SetSRID(ST_GeomFromText(@wkt), @srid))
   AND NOT rs.is_removed
   AND (NOT rs.is_v2 OR rs.status = ANY(@statuses))

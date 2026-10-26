@@ -28,6 +28,10 @@ public partial class RoadNetworkTopologyProjection : EventProjection
         table.AddColumn("geometry", "geometry");
         table.AddColumn<DateTimeOffset>("timestamp");
         table.AddColumn<bool>("is_v2").DefaultValueByExpression(false.ToString());
+        // A V2 removal marks the entity instead of deleting it: the row stays, so an action that is handed the
+        // road network still sees it and can say for itself that it is removed, while a caller that only wants what
+        // is really there - an extract - can leave it out. A V1 removal still deletes the row.
+        table.AddColumn<bool>("is_removed").DefaultValueByExpression(false.ToString());
 
         var geometryIndex = new IndexDefinition("idx_roadnodes_geometry").AgainstColumns("geometry");
         geometryIndex.CustomMethod = "gist";
@@ -88,7 +92,7 @@ END;
 $$ LANGUAGE plpgsql;"));
 
         SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_update_roadnode"), @$"
-CREATE OR REPLACE FUNCTION projections.networktopology_update_roadnode(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer, p_is_v2 boolean) RETURNS int AS
+CREATE OR REPLACE FUNCTION projections.networktopology_update_roadnode(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer, p_is_v2 boolean, p_is_removed boolean) RETURNS int AS
 $$
 DECLARE
     updated int;
@@ -97,6 +101,32 @@ BEGIN
     UPDATE {RoadNodesTableName}
     SET geometry = (CASE WHEN p_wkt <> '' THEN ST_GeomFromText(p_wkt, p_srid) ELSE geometry END),
         is_v2 = p_is_v2,
+        is_removed = coalesce(p_is_removed, is_removed),
+        timestamp = p_timestamp
+    WHERE id = p_id
+      AND timestamp <= p_timestamp;
+
+    GET DIAGNOSTICS updated = ROW_COUNT;
+
+    IF updated = 0 THEN
+        RAISE EXCEPTION 'Concurrency conflict on road node %', p_id
+            USING ERRCODE = '40001';
+    END IF;
+
+    RETURN updated;
+
+END;
+$$ LANGUAGE plpgsql;"));
+
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_remove_roadnode"), @$"
+CREATE OR REPLACE FUNCTION projections.networktopology_remove_roadnode(p_id integer, p_timestamp timestamptz) RETURNS int AS
+$$
+DECLARE
+    updated int;
+BEGIN
+
+    UPDATE {RoadNodesTableName}
+    SET is_removed = TRUE,
         timestamp = p_timestamp
     WHERE id = p_id
       AND timestamp <= p_timestamp;
@@ -123,12 +153,12 @@ $$ LANGUAGE plpgsql;"));
         table.AddColumn<int>("end_node_id");
         table.AddColumn<DateTimeOffset>("timestamp");
         table.AddColumn<bool>("is_v2").DefaultValueByExpression(false.ToString());
-        // The status a road segment is in, and whether it was removed. The topology keeps every road segment,
-        // removed ones included (see RoadNetworkTopologyProjection-EventsV2), so a caller that does want a subset
-        // has to be able to say so: GetUnderlyingIdsForExtract asks for the road segments an extract is made of.
-        // The status is the V2 status name and is NULL for a V1 road segment, which has no V2 status; a V1 removal
-        // still deletes the row.
+        // The status a road segment is in: the V2 status name, NULL for a V1 road segment, which has no V2
+        // status. GetUnderlyingIdsForExtract reads it to ask for the road segments an extract is made of.
         table.AddColumn<string>("status");
+        // A V2 removal marks the entity instead of deleting it: the row stays, so an action that is handed the
+        // road network still sees it and can say for itself that it is removed, while a caller that only wants what
+        // is really there - an extract - can leave it out. A V1 removal still deletes the row.
         table.AddColumn<bool>("is_removed").DefaultValueByExpression(false.ToString());
 
         var geometryIndex = new IndexDefinition("idx_roadsegments_geometry").AgainstColumns("geometry");
@@ -226,9 +256,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;"));
 
-        // A V2 removal marks the road segment instead of deleting it: the row stays, so an action that is handed the
-        // road network still sees the road segment and can say for itself that it is removed, while a caller that
-        // only wants what is really there - an extract - can leave it out.
         SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_remove_roadsegment"), @$"
 CREATE OR REPLACE FUNCTION projections.networktopology_remove_roadsegment(p_id integer, p_timestamp timestamptz) RETURNS int AS
 $$
@@ -263,6 +290,10 @@ $$ LANGUAGE plpgsql;"));
         table.AddColumn<int>("upper_road_segment_id");
         table.AddColumn<DateTimeOffset>("timestamp");
         table.AddColumn<bool>("is_v2").DefaultValueByExpression(false.ToString());
+        // A V2 removal marks the entity instead of deleting it: the row stays, so an action that is handed the
+        // road network still sees it and can say for itself that it is removed, while a caller that only wants what
+        // is really there - an extract - can leave it out. A V1 removal still deletes the row.
+        table.AddColumn<bool>("is_removed").DefaultValueByExpression(false.ToString());
 
         table.Indexes.Add(new IndexDefinition("idx_gradeseparatedjunctions_lower_road_segment_id").AgainstColumns("lower_road_segment_id"));
         table.Indexes.Add(new IndexDefinition("idx_gradeseparatedjunctions_upper_road_segment_id").AgainstColumns("upper_road_segment_id"));
@@ -345,6 +376,31 @@ BEGIN
 
 END;
 $$ LANGUAGE plpgsql;"));
+
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_remove_gradeseparatedjunction"), @$"
+CREATE OR REPLACE FUNCTION projections.networktopology_remove_gradeseparatedjunction(p_id integer, p_timestamp timestamptz) RETURNS int AS
+$$
+DECLARE
+    updated int;
+BEGIN
+
+    UPDATE {GradeSeparatedJunctionsTableName}
+    SET is_removed = TRUE,
+        timestamp = p_timestamp
+    WHERE id = p_id
+      AND timestamp <= p_timestamp;
+
+    GET DIAGNOSTICS updated = ROW_COUNT;
+
+    IF updated = 0 THEN
+        RAISE EXCEPTION 'Concurrency conflict on grade separated junction %', p_id
+            USING ERRCODE = '40001';
+    END IF;
+
+    RETURN updated;
+
+END;
+$$ LANGUAGE plpgsql;"));
     }
 
     private void ConfigureGradeJunction()
@@ -355,6 +411,10 @@ $$ LANGUAGE plpgsql;"));
         table.AddColumn<int>("road_segment_id_2");
         table.AddColumn<DateTimeOffset>("timestamp");
         table.AddColumn<bool>("is_v2").DefaultValueByExpression(true.ToString());
+        // A V2 removal marks the entity instead of deleting it: the row stays, so an action that is handed the
+        // road network still sees it and can say for itself that it is removed, while a caller that only wants what
+        // is really there - an extract - can leave it out. A V1 removal still deletes the row.
+        table.AddColumn<bool>("is_removed").DefaultValueByExpression(false.ToString());
 
         table.Indexes.Add(new IndexDefinition("idx_gradejunctions_road_segment_id_1").AgainstColumns("road_segment_id_1"));
         table.Indexes.Add(new IndexDefinition("idx_gradejunctions_road_segment_id_2").AgainstColumns("road_segment_id_2"));
@@ -399,6 +459,31 @@ BEGIN
     DELETE FROM {GradeJunctionsTableName}
     WHERE id = p_id
       AND timestamp < p_timestamp;
+
+    GET DIAGNOSTICS updated = ROW_COUNT;
+
+    IF updated = 0 THEN
+        RAISE EXCEPTION 'Concurrency conflict on grade junction %', p_id
+            USING ERRCODE = '40001';
+    END IF;
+
+    RETURN updated;
+
+END;
+$$ LANGUAGE plpgsql;"));
+
+        SchemaObjects.Add(new Function(new PostgresqlObjectName(WellKnownSchemas.MartenProjections, "networktopology_remove_gradejunction"), @$"
+CREATE OR REPLACE FUNCTION projections.networktopology_remove_gradejunction(p_id integer, p_timestamp timestamptz) RETURNS int AS
+$$
+DECLARE
+    updated int;
+BEGIN
+
+    UPDATE {GradeJunctionsTableName}
+    SET is_removed = TRUE,
+        timestamp = p_timestamp
+    WHERE id = p_id
+      AND timestamp <= p_timestamp;
 
     GET DIAGNOSTICS updated = ROW_COUNT;
 

@@ -38,7 +38,7 @@ public partial class RoadNetworkTopologyProjection
     {
         var geometry = e.Data.Geometry.EnsureLambert08();
 
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, FALSE);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, FALSE, null);",
             e.Data.RoadNodeId,
             e.Timestamp,
             geometry.WKT,
