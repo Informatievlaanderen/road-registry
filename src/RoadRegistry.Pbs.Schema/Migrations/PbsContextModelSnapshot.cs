@@ -349,7 +349,7 @@ namespace RoadRegistry.Pbs.Schema.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("WK_OIDN"));
 
-                    b.ToTable("Wegknopen", "RoadRegistryPbs");
+                    b.ToTable("WegknopenData", "RoadRegistryPbs");
                 });
 
             modelBuilder.Entity("RoadRegistry.Pbs.Schema.Records.RoadNodeTypeCodeListRecord", b =>
