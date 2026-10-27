@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting.Internal;
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateDryRunRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
@@ -165,7 +165,7 @@ public class ForDebuggingGavere
             new RoadNetworkRepository(sp.GetRequiredService<IDocumentStore>()),
             extractsDbContext,
             Mock.Of<IMediator>(),
-            new NullLoggerFactory()
+            new LoggerFactory([new TestOutputLoggerProvider(_outputHelper)])
         );
 
         // Act
@@ -272,6 +272,58 @@ public class ForDebuggingGavere
         }
     }
 
+    // Everything the domain logs, in the test output. ResolveNeighbourMerges and ResolveRemovalCorrections each
+    // log the road node they took on, which is what decides what happens to the road segment running up to it.
+    private sealed class TestOutputLoggerProvider : ILoggerProvider
+    {
+        private readonly ITestOutputHelper _outputHelper;
+
+        public TestOutputLoggerProvider(ITestOutputHelper outputHelper) => _outputHelper = outputHelper;
+
+        public ILogger CreateLogger(string categoryName) => new TestOutputLogger(_outputHelper, categoryName);
+
+        public void Dispose()
+        {
+        }
+
+        private sealed class TestOutputLogger : ILogger
+        {
+            private readonly ITestOutputHelper _outputHelper;
+            private readonly string _categoryName;
+
+            public TestOutputLogger(ITestOutputHelper outputHelper, string categoryName)
+            {
+                _outputHelper = outputHelper;
+                _categoryName = categoryName;
+            }
+
+            public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+
+            public bool IsEnabled(LogLevel logLevel) => logLevel >= LogLevel.Information;
+
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+            {
+                if (!IsEnabled(logLevel))
+                {
+                    return;
+                }
+
+                try
+                {
+                    _outputHelper.WriteLine($"[{logLevel}] {_categoryName}: {formatter(state, exception)}");
+                    if (exception is not null)
+                    {
+                        _outputHelper.WriteLine($"  {exception}");
+                    }
+                }
+                catch
+                {
+                    // the test is already done writing
+                }
+            }
+        }
+    }
+
     private IServiceProvider BuildServiceProvider()
     {
         var services = new ServiceCollection();
@@ -281,7 +333,9 @@ public class ForDebuggingGavere
             .Build();
         services
             .AddSingleton<IConfiguration>(configuration)
-            .AddLogging()
+            .AddLogging(builder => builder
+                .SetMinimumLevel(LogLevel.Information)
+                .AddProvider(new TestOutputLoggerProvider(_outputHelper)))
             .AddHttpClient()
             .AddSingleton<SqsLambdaHandlerOptions>(new FakeSqsLambdaHandlerOptions())
             .AddSingleton<ICustomRetryPolicy>(new FakeRetryPolicy())
