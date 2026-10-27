@@ -106,7 +106,7 @@ public partial class ScopedRoadNetwork
                     problems += MigrateRoadNode(change, neighbourMerges, removalCorrections, context);
                     break;
                 case RemoveRoadNodeChange change:
-                    problems += RemoveRoadNodeBecauseOfMigration(change, context);
+                    problems += RemoveRoadNodeBecauseOfMigration(change, neighbourMerges, context);
                     break;
 
                 case AddRoadSegmentChange change:
@@ -280,9 +280,17 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
-    private Problems RemoveRoadNodeBecauseOfMigration(RemoveRoadNodeChange change, ScopedRoadNetworkChangeContext context)
+    private Problems RemoveRoadNodeBecauseOfMigration(RemoveRoadNodeChange change, NeighbourMergeResolutions neighbourMerges, ScopedRoadNetworkChangeContext context)
     {
         if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode) || roadNode.IsRemoved)
+        {
+            return Problems.None;
+        }
+
+        // This upload no longer needed the road node because it was merging the two roads that met there, but a
+        // neighbouring inwinning had already collected one of them and the merge was cut back to what it left. What
+        // is left runs up to this road node, so it stays.
+        if (neighbourMerges.RoadNodeIdsToKeep.Contains(change.RoadNodeId))
         {
             return Problems.None;
         }
