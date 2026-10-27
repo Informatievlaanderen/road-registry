@@ -110,13 +110,13 @@ public partial class ScopedRoadNetwork
                     break;
 
                 case AddRoadSegmentChange change:
-                    problems += AddRoadSegment(change, idGenerator, context);
+                    problems += MigrateAddedRoadSegment(change, neighbourMerges, idGenerator, context);
                     break;
                 case ModifyRoadSegmentChange change:
                     problems += MigrateRoadSegment(change, roadSegmentRoadNumberChanges, neighbourMerges, context);
                     break;
                 case RemoveRoadSegmentChange change:
-                    problems += RemoveRoadSegmentBecauseOfMigration(change.RoadSegmentId, context);
+                    problems += RemoveRoadSegmentBecauseOfMigration(change.RoadSegmentId, neighbourMerges, context);
                     break;
 
                 case AddRoadSegmentToEuropeanRoadChange:
@@ -414,9 +414,39 @@ public partial class ScopedRoadNetwork
         return list.Distinct().ToImmutableList();
     }
 
-    private Problems RemoveRoadSegmentBecauseOfMigration(RoadSegmentId roadSegmentId, ScopedRoadNetworkChangeContext context)
+    // A road the uploader collected as one out of several the road network has arrives as a road drawn anew, with
+    // the ones it replaces removed. Such a road runs up to a road node a neighbouring inwinning merged away just as
+    // much as one this upload modifies, and is cut back to what the neighbour left in the same way (GAWR-7826).
+    private Problems MigrateAddedRoadSegment(AddRoadSegmentChange change, NeighbourMergeResolutions neighbourMerges, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
+    {
+        if (neighbourMerges.RoadSegments.TryGetValue(change.RoadSegmentIdReference, out var neighbourMergeCuts))
+        {
+            foreach (var neighbourMerge in neighbourMergeCuts)
+            {
+                if (neighbourMerge.TakenInFull)
+                {
+                    // Collected by the neighbour from end to end: there is nothing here for this upload to draw.
+                    return Problems.None;
+                }
+
+                change = CutBackToRemainingStretch(change, neighbourMerge);
+            }
+        }
+
+        return AddRoadSegment(change, idGenerator, context);
+    }
+
+    private Problems RemoveRoadSegmentBecauseOfMigration(RoadSegmentId roadSegmentId, NeighbourMergeResolutions neighbourMerges, ScopedRoadNetworkChangeContext context)
     {
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
+        {
+            return Problems.None;
+        }
+
+        // This upload is replacing the road segment with a road of its own, but a neighbouring inwinning had
+        // already collected it and the replacement was cut back to what the neighbour left. What is on record is
+        // the neighbour's work over a stretch this upload no longer covers, so there is nothing here to remove.
+        if (neighbourMerges.RoadSegmentIdsToKeep.Contains(roadSegmentId))
         {
             return Problems.None;
         }
