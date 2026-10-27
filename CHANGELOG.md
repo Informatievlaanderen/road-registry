@@ -1,3 +1,15 @@
+# [5.27.0](https://github.com/informatievlaanderen/road-registry/compare/v5.26.5...v5.27.0) (2026-10-27)
+
+
+### Bug Fixes
+
+* **inwinning:** cut back a road the upload draws anew as well GAWR-7826 ([7846564](https://github.com/informatievlaanderen/road-registry/commit/78465647e2a1cda16825ba3938aa0b26b1b06e65))
+
+
+### Features
+
+* **pbs:** serve the wegknopen downloads from two views GAWR-7836 ([57e8c31](https://github.com/informatievlaanderen/road-registry/commit/57e8c31d82d4561137e77046179de73e6c1e8c42))
+
 ## [5.26.5](https://github.com/informatievlaanderen/road-registry/compare/v5.26.4...v5.26.5) (2026-10-27)
 
 
