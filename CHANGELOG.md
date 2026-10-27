@@ -1,3 +1,13 @@
+## [5.26.4](https://github.com/informatievlaanderen/road-registry/compare/v5.26.3...v5.26.4) (2026-10-27)
+
+
+### Bug Fixes
+
+* **inwinning:** cut a road back at both of the ends a neighbour took ([a84687d](https://github.com/informatievlaanderen/road-registry/commit/a84687d905cf1fa5bc04816512b67b87c054ce74))
+* **inwinning:** cut the road back onto the road node, not beside it ([13efc3e](https://github.com/informatievlaanderen/road-registry/commit/13efc3e5c93a865521d7012700c26b182e4178b9))
+* **inwinning:** let a road a merge left behind stop blocking the next merge ([2ba0d8f](https://github.com/informatievlaanderen/road-registry/commit/2ba0d8f96038daee4b075529f879247fc3215427))
+* **inwinning:** take only gepland and gerealiseerd road segments into an extract ([1237794](https://github.com/informatievlaanderen/road-registry/commit/123779430cf5c50de2639631152b3826da0218a6)), closes [#2151](https://github.com/informatievlaanderen/road-registry/issues/2151)
+
 ## [5.26.3](https://github.com/informatievlaanderen/road-registry/compare/v5.26.2...v5.26.3) (2026-10-26)
 
 
