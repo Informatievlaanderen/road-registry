@@ -262,26 +262,13 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         _roadSegmentsSpatialIndex.Rebuild();
     }
 
-    // An inwinning is read in on the centimetre - RoundToCm, all through the DomainV2 feature compare - while a road
-    // node the register has not migrated yet still sits where V1 put it, down to the last double. Within a
-    // municipality that never shows: the inwinning collects its own road nodes, so the same upload rewrites them on
-    // the centimetre. Across a border it does: the road node there belongs to the neighbour, is not collected, and
-    // comparing a rounded coordinate with an unrounded one finds nothing - leaving the road segment that runs up to
-    // it reported as missing a road node that is plainly there (GAWR-7827).
-    //
-    // So both sides go onto the centimetre grid before they are compared. Rounding, not a distance tolerance: two
-    // coordinates are then equal or they are not. A tolerance is not transitive - a road node within a centimetre of
-    // two others that are two centimetres apart - and the answer would come to depend on which candidate the spatial
-    // index handed over first.
     private RoadNode? FindRoadNode(Coordinate coordinate)
     {
-        // Wide enough to reach the road node as it is stored, which rounding can move by up to half a centimetre in
-        // each direction.
         var envelope = new Envelope(coordinate);
-        envelope.ExpandBy(0.01);
 
-        return _roadNodesSpatialIndex
-            .Query(envelope)
-            .FirstOrDefault(x => x.Geometry.Value.Coordinate.EqualsOnTheCentimetre(coordinate));
+        var candidates = _roadNodesSpatialIndex.Query(envelope);
+        var point = new Point(coordinate.X, coordinate.Y);
+
+        return candidates.FirstOrDefault(x => x.Geometry.Value.EqualsExact(point));
     }
 }
