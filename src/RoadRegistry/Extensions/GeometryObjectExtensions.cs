@@ -96,6 +96,17 @@ public static class GeometryObjectExtensions
         return new Coordinate(coordinate.X.RoundToCm(), coordinate.Y.RoundToCm());
     }
 
+    // Whether two coordinates are the same point as far as the register is concerned, which works to the centimetre.
+    // Rounding, not a distance tolerance: two coordinates are then the same or they are not, where a tolerance is not
+    // transitive and would let the answer depend on the order candidates are offered in.
+    //
+    // On the coordinates rather than on the geometries: RoundToCm on a Geometry rewrites its coordinates in place,
+    // which is not something a comparison may do to a road node the road network is holding.
+    public static bool EqualsOnTheCentimetre(this Coordinate left, Coordinate right)
+    {
+        return left.RoundToCm().Equals2D(right.RoundToCm());
+    }
+
     public static RoadNodeGeometry EnsureLambert08(this RoadNodeGeometry geometry)
     {
         if (geometry.Value.IsLambert08())

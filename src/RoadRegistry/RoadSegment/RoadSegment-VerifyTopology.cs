@@ -23,13 +23,15 @@ public partial class RoadSegment
             }
             else
             {
-                if (!line.StartPoint.EqualsExact(startNode.Geometry.Value))
+                if (!line.StartPoint.Coordinate.EqualsOnTheCentimetre(startNode.Geometry.Value.Coordinate))
                 {
                     problems += new RoadSegmentStartPointDoesNotMatchNodeGeometry();
                 }
             }
         }
 
+        // On the centimetre, for the same reason FindRoadNode is: an inwinning arrives rounded while a road node
+        // the register has not migrated yet does not, and the two describe the same point.
         if (EndNodeId is not null)
         {
             if (!context.RoadNetwork.RoadNodes.TryGetValue(EndNodeId.Value, out var endNode) || endNode.IsRemoved)
@@ -38,7 +40,7 @@ public partial class RoadSegment
             }
             else
             {
-                if (!line.EndPoint.EqualsExact(endNode.Geometry.Value))
+                if (!line.EndPoint.Coordinate.EqualsOnTheCentimetre(endNode.Geometry.Value.Coordinate))
                 {
                     problems += new RoadSegmentEndPointDoesNotMatchNodeGeometry();
                 }
