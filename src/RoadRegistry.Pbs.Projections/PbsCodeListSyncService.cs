@@ -14,9 +14,13 @@ using Schema.Records;
 
 // One-time sync of the enum-based code lists (the "xxxCodelijstxxx" tables) from the V2 domain into SQL Server.
 // These carry no events, so we diff the known code values against the table and apply smart CRUD (insert new,
-// update changed labels/definitions, delete removed) rather than truncate-and-reload. The Wegbeheerder code list is
-// event-driven (see OrganizationPbsProjection); its predefined "andere" and "niet gekend" rows are synced
-// here as well, for a read model that was projected before they existed (see PbsPredefinedMaintenanceAuthorities).
+// update changed labels/definitions, delete removed) rather than truncate-and-reload. The lists it syncs are its own:
+// nothing else writes them, which is what makes a one-time sync enough.
+//
+// The Wegbeheerder code list is not one of them. It is event-driven and belongs to OrganizationPbsProjection, its
+// predefined "andere" and "niet gekend" rows included - this service used to seed those two as well, beside a
+// projection daemon that had already started, and the two of them inserting the same keys from their own transaction
+// cost whichever committed second a primary key violation (see PbsPredefinedMaintenanceAuthorities).
 public sealed class PbsCodeListSyncService : IHostedService
 {
     private const int MaxAttempts = 20;
@@ -95,8 +99,6 @@ public sealed class PbsCodeListSyncService : IHostedService
         SyncList(context.RoadSegmentSideCodeList,
             RoadSegmentAttributeSide.All.Select(x => new RoadSegmentSideCodeListRecord { KANT = x.Translation.Identifier, LBLKANT = x.Translation.Name, DEFKANT = x.Translation.Description }).ToList(),
             r => r.KANT, (a, b) => a.LBLKANT == b.LBLKANT, (src, dst) => { dst.LBLKANT = src.LBLKANT; });
-
-        await PbsPredefinedMaintenanceAuthorities.SyncAsync(context, ct);
 
         await context.SaveChangesAsync(ct);
     }
