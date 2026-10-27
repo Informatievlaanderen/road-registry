@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenDryRunMigratingRoadNetwork;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenDryRunMigratingRoadNetwork;
 
 using System.IO.Compression;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
@@ -25,6 +25,8 @@ using RoadRegistry.Hosts.Infrastructure.Extensions;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.Infrastructure.MartenDb.Store;
 using RoadRegistry.RoadNetwork.Schema;
+using RoadRegistry.Extensions;
+using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
@@ -97,6 +99,7 @@ public class ForDebuggingGavere
         }
 
         DumpChangesOfInterest(translatedChanges);
+        await DumpWhatTheRegisterHolds(sp);
 
         var sqsRequest = new MigrateDryRunRoadNetworkSqsRequest
         {
@@ -128,7 +131,14 @@ public class ForDebuggingGavere
         );
 
         // Act
-        await sqsLambdaRequestHandler.Handle(new MigrateDryRunRoadNetworkSqsLambdaRequest("debug", sqsRequest), CancellationToken.None);
+        try
+        {
+            await sqsLambdaRequestHandler.Handle(new MigrateDryRunRoadNetworkSqsLambdaRequest("debug", sqsRequest), CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _outputHelper.WriteLine($"=== Handle threw: {ex}");
+        }
 
         // Assert
         DumpTicketOutcome();
@@ -162,6 +172,43 @@ public class ForDebuggingGavere
             if (text is not null)
             {
                 _outputHelper.WriteLine($"  [{index}] {text}");
+            }
+        }
+    }
+
+    // The coordinates the domain will compare the upload against. An upload is read in on the centimetre; a road
+    // node the register has not migrated yet is not, and FindStartEndNodes matches exactly.
+    private async Task DumpWhatTheRegisterHolds(IServiceProvider sp)
+    {
+        var store = sp.GetRequiredService<IDocumentStore>();
+        await using var session = store.LightweightSession();
+
+        _outputHelper.WriteLine("=== What the register holds:");
+
+        var roadNodes = await session.LoadManyAsync(RoadNodesOfInterest.Select(x => new RoadNodeId(x)));
+        foreach (var roadNode in roadNodes)
+        {
+            _outputHelper.WriteLine(
+                $"  road node {roadNode.RoadNodeId}: {roadNode.Geometry?.WKT}"
+                + $" removed={roadNode.IsRemoved} migrated={roadNode.HasMigrated()}");
+        }
+
+        var missingRoadNodes = RoadNodesOfInterest.Except(roadNodes.Select(x => x.RoadNodeId.ToInt32())).ToArray();
+        if (missingRoadNodes.Any())
+        {
+            _outputHelper.WriteLine($"  road nodes with no document at all: {string.Join(", ", missingRoadNodes)}");
+        }
+
+        var roadSegments = await session.LoadManyAsync(RoadSegmentsOfInterest.Select(x => new RoadSegmentId(x)));
+        foreach (var roadSegment in roadSegments)
+        {
+            var line = roadSegment.Geometry?.Value.GetSingleLineString();
+            _outputHelper.WriteLine(
+                $"  road segment {roadSegment.RoadSegmentId}: start node {roadSegment.StartNodeId} end node {roadSegment.EndNodeId}"
+                + $" status={roadSegment.Status} removed={roadSegment.IsRemoved} migrated={roadSegment.HasMigrated()}");
+            if (line is not null)
+            {
+                _outputHelper.WriteLine($"    from {line.StartPoint.Coordinate} to {line.EndPoint.Coordinate}");
             }
         }
     }
