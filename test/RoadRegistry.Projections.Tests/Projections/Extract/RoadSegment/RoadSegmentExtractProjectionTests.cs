@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.ExtractRoadSegment;
+﻿namespace RoadRegistry.Projections.Tests.Projections.ExtractRoadSegment;
 
 using AutoFixture;
 using Extensions;
@@ -514,17 +514,54 @@ public class RoadSegmentExtractProjectionTests
     }
 
     [Fact]
-    public async Task WhenRoadSegmentWasRetiredBecauseOfMerger_ThenNone()
+    public Task WhenRoadSegmentWasRetiredBecauseOfMerger_ThenHistorized()
     {
         var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadSegmentId>();
 
-        var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
-        var roadSegment1Removed = fixture.Create<RoadSegmentWasRetiredBecauseOfMerger>();
+        var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegmentRetired = fixture.Create<RoadSegmentWasRetiredBecauseOfMerger>();
+
+        return BuildProjection()
+            .Scenario()
+            .Given(roadSegmentAdded, roadSegmentRetired)
+            .Expect(BuildHistorizedRoadSegment(roadSegmentAdded, roadSegmentRetired.Provenance));
+    }
+
+    [Fact]
+    public Task WhenRoadSegmentWasRetiredBecauseOfSplit_ThenHistorized()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadSegmentId>();
+
+        var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegmentRetired = fixture.Create<RoadSegmentWasRetiredBecauseOfSplit>();
+
+        return BuildProjection()
+            .Scenario()
+            .Given(roadSegmentAdded, roadSegmentRetired)
+            .Expect(BuildHistorizedRoadSegment(roadSegmentAdded, roadSegmentRetired.Provenance));
+    }
+
+    // The sequence that got stuck on staging: a road segment that was realized, then historized by a merger, and
+    // only then removed. Retiring used to delete the document, which left the removal with nothing to load.
+    [Fact]
+    public async Task WhenRoadSegmentWasRetiredBecauseOfMergerAndThenRemoved_ThenNone()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadSegmentId>();
+
+        var roadSegmentAdded = fixture.Create<OutlinedRoadSegmentWasAdded>() with
+        {
+            Status = RoadSegmentStatusV2.Gepland
+        };
+        var roadSegmentRealized = fixture.Create<RoadSegmentWasRealizedFromPlanned>();
+        var roadSegmentRetired = fixture.Create<RoadSegmentWasRetiredBecauseOfMerger>();
+        var roadSegmentRemoved = fixture.Create<RoadSegmentWasRemoved>();
 
         await BuildProjection()
             .Scenario()
-            .Given(roadSegment1Added, roadSegment1Removed)
+            .Given(roadSegmentAdded, roadSegmentRealized, roadSegmentRetired, roadSegmentRemoved)
             .ExpectNone();
     }
 
@@ -716,6 +753,39 @@ public class RoadSegmentExtractProjectionTests
             .Scenario()
             .Given(roadSegmentAdded, roadSegmentModified)
             .Expect(expectedRoadSegment);
+    }
+
+    // A road segment as it stands once it is historized: gehistoreerd, no road nodes, everything else as it was.
+    private static RoadSegmentExtractItem BuildHistorizedRoadSegment(RoadSegmentWasAdded roadSegmentAdded, Be.Vlaanderen.Basisregisters.GrAr.Provenance.ProvenanceData provenance)
+    {
+        return new RoadSegmentExtractItem
+        {
+            RoadSegmentId = roadSegmentAdded.RoadSegmentId,
+            Geometry = roadSegmentAdded.Geometry,
+            StartNodeId = null,
+            EndNodeId = null,
+            GeometryDrawMethod = roadSegmentAdded.GeometryDrawMethod,
+            Status = RoadSegmentStatusV2.Gehistoreerd.ToString(),
+            AccessRestriction = ForEntireLength(roadSegmentAdded.AccessRestriction.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            Category = ForEntireLength(roadSegmentAdded.Category.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            Morphology = ForEntireLength(roadSegmentAdded.Morphology.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegmentAdded.StreetNameId),
+            MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegmentAdded.MaintenanceAuthorityId),
+            SurfaceType = ForEntireLength(roadSegmentAdded.SurfaceType.Values.Single().Value.ToString(), roadSegmentAdded.Geometry),
+            CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(roadSegmentAdded.CarTrafficDirection)),
+            CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(roadSegmentAdded.CarTrafficDirection)),
+            BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(roadSegmentAdded.BikeTrafficDirection)),
+            BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(roadSegmentAdded.BikeTrafficDirection)),
+            PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToPedestrianAccess(roadSegmentAdded.PedestrianTrafficDirection)),
+            CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(roadSegmentAdded.CarTrafficDirection),
+            BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(roadSegmentAdded.BikeTrafficDirection),
+            PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(roadSegmentAdded.PedestrianTrafficDirection),
+            EuropeanRoadNumbers = roadSegmentAdded.EuropeanRoadNumbers.ToList(),
+            NationalRoadNumbers = roadSegmentAdded.NationalRoadNumbers.ToList(),
+            Origin = roadSegmentAdded.Provenance.ToEventTimestamp(),
+            LastModified = provenance.ToEventTimestamp(),
+            IsV2 = true
+        };
     }
 
     private static ExtractRoadSegmentDynamicAttribute<T> ForEntireLength<T>(T value, RoadSegmentGeometry geometry)

@@ -9,6 +9,7 @@ using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.StreetName.Events.V2;
 using RoadSegment.Events.V2;
+using RoadSegment.ValueObjects;
 using ScopedRoadNetwork.Events.V2;
 
 public partial class RoadNetworkTopologyProjection
@@ -25,7 +26,7 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadNodeWasModified> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, TRUE);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, TRUE, null);",
             e.Data.RoadNodeId.ToInt32(),
             e.Timestamp,
             e.Data.Geometry?.WKT ?? string.Empty,
@@ -35,7 +36,7 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadNodeWasMigrated> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, TRUE);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, TRUE, null);",
             e.Data.RoadNodeId.ToInt32(),
             e.Timestamp,
             e.Data.Geometry.WKT,
@@ -49,58 +50,74 @@ public partial class RoadNetworkTopologyProjection
     //
     // That also settles what happens when this projection is eventually dropped and the identifiers are read straight
     // off the road network - removed entities will be there just the same.
-    public void Project(IEvent<RoadNodeWasRemoved> e, IDocumentOperations ops)
+    //
+    // The row is marked instead, because a caller that only wants what is really there - an extract - has to be able
+    // to tell. Removing marks through networktopology_remove_<entity>; the one thing that un-removes anything, the
+    // road node removal correction below, rides on the update.
+    public void Project(IEvent<RoadNodeWasRemoved> e, IDocumentOperations ops) => ProjectRoadNodeRemoved(e.Data.RoadNodeId, e.Timestamp, ops);
+    public void Project(IEvent<RoadNodeWasRemovedBecauseOfMigration> e, IDocumentOperations ops) => ProjectRoadNodeRemoved(e.Data.RoadNodeId, e.Timestamp, ops);
+
+    private static void ProjectRoadNodeRemoved(RoadNodeId roadNodeId, DateTimeOffset timestamp, IDocumentOperations ops)
     {
+        ops.QueueSqlCommand("SELECT projections.networktopology_remove_roadnode(?, ?);",
+            roadNodeId.ToInt32(),
+            timestamp
+        );
     }
 
-    public void Project(IEvent<RoadNodeWasRemovedBecauseOfMigration> e, IDocumentOperations ops)
-    {
-    }
-
-    // And nothing to undo either: the row was never deleted, so the road node is already in the topology. The
+    // The removal is undone, so the mark goes with it. The row itself was never deleted and keeps its geometry; the
     // RoadNodeWasMigrated that follows this, when the road node is collected again, updates it as usual.
     public void Project(IEvent<RoadNodeRemovalWasCorrectedBecauseOfMigration> e, IDocumentOperations ops)
     {
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, '', 0, TRUE, FALSE);",
+            e.Data.RoadNodeId.ToInt32(),
+            e.Timestamp
+        );
     }
 
     public void Project(IEvent<RoadSegmentWasAdded> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_insert_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_insert_roadsegment(?, ?, ?, ?, ?, ?, TRUE, ?);",
             e.Data.RoadSegmentId.ToInt32(),
             e.Timestamp,
             e.Data.Geometry.WKT,
             e.Data.Geometry.SRID,
             (object?)e.Data.StartNodeId?.ToInt32() ?? DBNull.Value,
-            (object?)e.Data.EndNodeId?.ToInt32() ?? DBNull.Value
+            (object?)e.Data.EndNodeId?.ToInt32() ?? DBNull.Value,
+            e.Data.Status.ToString()
         );
     }
 
     public void Project(IEvent<OutlinedRoadSegmentWasAdded> e, IDocumentOperations ops)
     {
         // An outlined segment is not knotted into the network; it has no road nodes.
-        ops.QueueSqlCommand("SELECT projections.networktopology_insert_roadsegment(?, ?, ?, ?, null, null, TRUE);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_insert_roadsegment(?, ?, ?, ?, null, null, TRUE, ?);",
             e.Data.RoadSegmentId.ToInt32(),
             e.Timestamp,
             e.Data.Geometry.WKT,
-            e.Data.Geometry.SRID
+            e.Data.Geometry.SRID,
+            e.Data.Status.ToString()
         );
     }
 
     public void Project(IEvent<RoadSegmentWasMerged> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+        // A merge takes a road segment back into the network, removed or not, the same as the aggregate does.
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE, ?, FALSE);",
             e.Data.RoadSegmentId.ToInt32(),
             e.Timestamp,
             e.Data.Geometry.WKT,
             e.Data.Geometry.SRID,
             (object?)e.Data.StartNodeId?.ToInt32() ?? DBNull.Value,
-            (object?)e.Data.EndNodeId?.ToInt32() ?? DBNull.Value
+            (object?)e.Data.EndNodeId?.ToInt32() ?? DBNull.Value,
+            e.Data.Status.ToString()
         );
     }
 
     public void Project(IEvent<RoadSegmentGeometryWasModified> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+        // The geometry moves, the status does not.
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE, '', null);",
             e.Data.RoadSegmentId.ToInt32(),
             e.Timestamp,
             e.Data.Geometry.WKT,
@@ -112,26 +129,29 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadSegmentWasModified> e, IDocumentOperations ops)
     {
-        if (e.Data.Geometry is null && e.Data.NodeIds is null)
+        if (e.Data.Geometry is null && e.Data.NodeIds is null && e.Data.Status is null)
         {
             return;
         }
 
         // Absent NodeIds means the nodes did not change (-1); present NodeIds carries the full new node
-        // state, where an absent id becomes NULL because the segment has no node there.
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+        // state, where an absent id becomes NULL because the segment has no node there. An absent status likewise
+        // means the status did not move.
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE, ?, null);",
             e.Data.RoadSegmentId.ToInt32(),
             e.Timestamp,
             e.Data.Geometry?.WKT ?? string.Empty,
             e.Data.Geometry?.SRID ?? 0,
             e.Data.NodeIds is null ? -1 : (object?)e.Data.NodeIds.Start?.ToInt32() ?? DBNull.Value,
-            e.Data.NodeIds is null ? -1 : (object?)e.Data.NodeIds.End?.ToInt32() ?? DBNull.Value
+            e.Data.NodeIds is null ? -1 : (object?)e.Data.NodeIds.End?.ToInt32() ?? DBNull.Value,
+            e.Data.Status?.ToString() ?? string.Empty
         );
     }
 
     // The status changes. Each transition raises an event of its own, but what the topology has to do with one
     // follows entirely from the kind of change it is: a segment is hooked onto road nodes, comes loose from them, or -
-    // outside the network before and after - is not part of the topology either way and needs no entry at all.
+    // outside the network before and after - keeps the road nodes it has, which is none. All three record the status
+    // itself; RoadSegmentStatusChange.ForEvent supplies it.
 
     public void Project(IEvent<RoadSegmentWasRealizedFromPlanned> e, IDocumentOperations ops) => ProjectConnected(e.Data, e.Timestamp, ops);
     public void Project(IEvent<RoadSegmentWasRealizedFromOutOfUse> e, IDocumentOperations ops) => ProjectConnected(e.Data, e.Timestamp, ops);
@@ -141,77 +161,93 @@ public partial class RoadNetworkTopologyProjection
     public void Project(IEvent<RoadSegmentWasTakenOutOfUseFromRealized> e, IDocumentOperations ops) => ProjectDisconnected(e.Data, e.Timestamp, ops);
     public void Project(IEvent<RoadSegmentWasHistorizedFromRealized> e, IDocumentOperations ops) => ProjectDisconnected(e.Data, e.Timestamp, ops);
 
-    public void Project(IEvent<RoadSegmentWasHistorizedFromOutOfUse> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange();
-    public void Project(IEvent<RoadSegmentWasCorrectedFromNotRealizedToPlanned> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange();
-    public void Project(IEvent<RoadSegmentWasCorrectedFromHistorizedToOutOfUse> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange();
-    public void Project(IEvent<RoadSegmentWasNotRealizedFromPlanned> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange();
+    public void Project(IEvent<RoadSegmentWasHistorizedFromOutOfUse> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange(e.Data, e.Timestamp, ops);
+    public void Project(IEvent<RoadSegmentWasCorrectedFromNotRealizedToPlanned> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange(e.Data, e.Timestamp, ops);
+    public void Project(IEvent<RoadSegmentWasCorrectedFromHistorizedToOutOfUse> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange(e.Data, e.Timestamp, ops);
+    public void Project(IEvent<RoadSegmentWasNotRealizedFromPlanned> e, IDocumentOperations ops) => ProjectUnconnectedStatusChange(e.Data, e.Timestamp, ops);
 
     private static void ProjectConnected(IRoadSegmentWasConnectedEvent m, DateTimeOffset timestamp, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE, ?, null);",
             m.RoadSegmentId.ToInt32(),
             timestamp,
             m.Geometry.WKT,
             m.Geometry.SRID,
             m.StartNodeId.ToInt32(),
-            m.EndNodeId.ToInt32()
+            m.EndNodeId.ToInt32(),
+            RoadSegmentStatusChange.ForEvent(m).To.ToString()
         );
     }
 
     private static void ProjectDisconnected(IRoadSegmentWasDisconnectedEvent m, DateTimeOffset timestamp, IDocumentOperations ops)
     {
-        ProjectDisconnected(m.RoadSegmentId, timestamp, ops);
+        ProjectDisconnected(m.RoadSegmentId, RoadSegmentStatusChange.ForEvent(m).To, timestamp, ops);
     }
 
-    private static void ProjectDisconnected(RoadSegmentId roadSegmentId, DateTimeOffset timestamp, IDocumentOperations ops)
+    private static void ProjectDisconnected(RoadSegmentId roadSegmentId, RoadSegmentStatusV2 status, DateTimeOffset timestamp, IDocumentOperations ops)
     {
         // The segment came loose from its road nodes: NULL clears them, the empty wkt keeps the geometry.
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, '', 0, null, null, TRUE);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, '', 0, null, null, TRUE, ?, null);",
             roadSegmentId.ToInt32(),
-            timestamp
+            timestamp,
+            status.ToString()
         );
     }
 
     // The segment was outside the network before and stays outside it: it carries no road nodes either way, so the
-    // topology has nothing to record.
-    private static void ProjectUnconnectedStatusChange()
+    // status is the only thing that moves.
+    private static void ProjectUnconnectedStatusChange(IRoadSegmentUnconnectedStatusChangeEvent m, DateTimeOffset timestamp, IDocumentOperations ops)
     {
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, '', 0, -1, -1, TRUE, ?, null);",
+            m.RoadSegmentId.ToInt32(),
+            timestamp,
+            RoadSegmentStatusChange.ForEvent(m).To.ToString()
+        );
     }
 
     public void Project(IEvent<RoadSegmentWasMigrated> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+        // A road segment that was removed and is collected again arrives here, so this un-removes it, the same as
+        // the aggregate does.
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE, ?, FALSE);",
             e.Data.RoadSegmentId.ToInt32(),
             e.Timestamp,
             e.Data.Geometry.WKT ,
             e.Data.Geometry.SRID,
             (object?)e.Data.StartNodeId?.ToInt32() ?? DBNull.Value,
-            (object?)e.Data.EndNodeId?.ToInt32() ?? DBNull.Value
+            (object?)e.Data.EndNodeId?.ToInt32() ?? DBNull.Value,
+            e.Data.Status.ToString()
         );
     }
 
-    public void Project(IEvent<RoadSegmentWasRemoved> e, IDocumentOperations ops)
-    {
-    }
+    // The row stays - see the note above RoadNodeWasRemoved - but it is marked removed, so a caller that only
+    // wants the road segments that are really there can leave it out.
+    public void Project(IEvent<RoadSegmentWasRemoved> e, IDocumentOperations ops) => ProjectRemoved(e.Data.RoadSegmentId, e.Timestamp, ops);
+    public void Project(IEvent<RoadSegmentWasRemovedBecauseOfMigration> e, IDocumentOperations ops) => ProjectRemoved(e.Data.RoadSegmentId, e.Timestamp, ops);
 
-    public void Project(IEvent<RoadSegmentWasRemovedBecauseOfMigration> e, IDocumentOperations ops)
+    private static void ProjectRemoved(RoadSegmentId roadSegmentId, DateTimeOffset timestamp, IDocumentOperations ops)
     {
+        ops.QueueSqlCommand("SELECT projections.networktopology_remove_roadsegment(?, ?);",
+            roadSegmentId.ToInt32(),
+            timestamp
+        );
     }
 
     // A segment retired by a merger or a split is historized, not removed: the aggregate keeps it - status gehistoreerd,
     // no road nodes - so the topology keeps it as well, the same as a segment historized from realized.
-    public void Project(IEvent<RoadSegmentWasRetiredBecauseOfMerger> e, IDocumentOperations ops) => ProjectDisconnected(e.Data.RoadSegmentId, e.Timestamp, ops);
-    public void Project(IEvent<RoadSegmentWasRetiredBecauseOfSplit> e, IDocumentOperations ops) => ProjectDisconnected(e.Data.RoadSegmentId, e.Timestamp, ops);
+    public void Project(IEvent<RoadSegmentWasRetiredBecauseOfMerger> e, IDocumentOperations ops) => ProjectDisconnected(e.Data.RoadSegmentId, RoadSegmentStatusV2.Gehistoreerd, e.Timestamp, ops);
+    public void Project(IEvent<RoadSegmentWasRetiredBecauseOfSplit> e, IDocumentOperations ops) => ProjectDisconnected(e.Data.RoadSegmentId, RoadSegmentStatusV2.Gehistoreerd, e.Timestamp, ops);
 
     public void Project(IEvent<RoadSegmentWasSplit> e, IDocumentOperations ops)
     {
-        // Only the segment that keeps its identifier (largest part) carries modifications; update its geometry/nodes.
+        // Only the segment that keeps its identifier (largest part) carries modifications; update its geometry and
+        // road nodes. A split does not move its status.
         if (e.Data.Modifications is null)
         {
             return;
         }
 
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE, '', null);",
             e.Data.RoadSegmentId.ToInt32(),
             e.Timestamp,
             e.Data.Modifications.Geometry.WKT,
@@ -256,12 +292,15 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<GradeSeparatedJunctionWasRemoved> e, IDocumentOperations ops)
-    {
-    }
+    public void Project(IEvent<GradeSeparatedJunctionWasRemoved> e, IDocumentOperations ops) => ProjectGradeSeparatedJunctionRemoved(e.Data.GradeSeparatedJunctionId, e.Timestamp, ops);
+    public void Project(IEvent<GradeSeparatedJunctionWasRemovedBecauseOfMigration> e, IDocumentOperations ops) => ProjectGradeSeparatedJunctionRemoved(e.Data.GradeSeparatedJunctionId, e.Timestamp, ops);
 
-    public void Project(IEvent<GradeSeparatedJunctionWasRemovedBecauseOfMigration> e, IDocumentOperations ops)
+    private static void ProjectGradeSeparatedJunctionRemoved(GradeSeparatedJunctionId gradeSeparatedJunctionId, DateTimeOffset timestamp, IDocumentOperations ops)
     {
+        ops.QueueSqlCommand("SELECT projections.networktopology_remove_gradeseparatedjunction(?, ?);",
+            gradeSeparatedJunctionId.ToInt32(),
+            timestamp
+        );
     }
 
     public void Project(IEvent<GradeJunctionWasAdded> e, IDocumentOperations ops)
@@ -289,14 +328,18 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<GradeJunctionWasRemoved> e, IDocumentOperations ops)
-    {
-    }
+    public void Project(IEvent<GradeJunctionWasRemoved> e, IDocumentOperations ops) => ProjectGradeJunctionRemoved(e.Data.GradeJunctionId, e.Timestamp, ops);
 
     // The crossing did not disappear, it is recorded as a grade separated junction from here on. The grade junction
-    // it was is marked removed on the aggregate, and like every other removed entity it stays in the topology.
-    public void Project(IEvent<GradeJunctionWasChangedToGradeSeparatedJunction> e, IDocumentOperations ops)
+    // it was is marked removed on the aggregate, and the topology keeps the row and marks it the same way.
+    public void Project(IEvent<GradeJunctionWasChangedToGradeSeparatedJunction> e, IDocumentOperations ops) => ProjectGradeJunctionRemoved(e.Data.GradeJunctionId, e.Timestamp, ops);
+
+    private static void ProjectGradeJunctionRemoved(GradeJunctionId gradeJunctionId, DateTimeOffset timestamp, IDocumentOperations ops)
     {
+        ops.QueueSqlCommand("SELECT projections.networktopology_remove_gradejunction(?, ?);",
+            gradeJunctionId.ToInt32(),
+            timestamp
+        );
     }
 
     public void Project(IEvent<GradeSeparatedJunctionWasAddedBecauseOfGradeJunctionChange> e, IDocumentOperations ops)

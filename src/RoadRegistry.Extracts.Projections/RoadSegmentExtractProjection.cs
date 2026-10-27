@@ -496,26 +496,14 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
 
             session.Delete(roadSegment);
         });
-        When<IEvent<RoadSegmentWasRetiredBecauseOfMerger>>(async (session, e, _) =>
-        {
-            var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
-            if (roadSegment is null)
-            {
-                throw new InvalidOperationException($"No road segment found for Id {e.Data.RoadSegmentId}");
-            }
-
-            session.Delete(roadSegment);
-        });
-        When<IEvent<RoadSegmentWasRetiredBecauseOfSplit>>(async (session, e, _) =>
-        {
-            var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
-            if (roadSegment is null)
-            {
-                throw new InvalidOperationException($"No road segment found for Id {e.Data.RoadSegmentId}");
-            }
-
-            session.Delete(roadSegment);
-        });
+        // A road segment retired by a merger or a split is historized, not removed: the aggregate keeps it - status
+        // gehistoreerd, no road nodes - so this projection keeps it as well, the same as a road segment historized
+        // from realized. Deleting on a status change was what made a later event on the same road segment explode:
+        // the status it leaves behind can be corrected back, and there would be nothing left to correct. Whether a
+        // gehistoreerd road segment belongs in an extract is not this projection's call: the topology records the
+        // status, and GetUnderlyingIdsForExtract asks it for the road segments an extract is made of.
+        When<IEvent<RoadSegmentWasRetiredBecauseOfMerger>>((session, e, ct) => Historize(session, e.Data.RoadSegmentId, e.Data, ct));
+        When<IEvent<RoadSegmentWasRetiredBecauseOfSplit>>((session, e, ct) => Historize(session, e.Data.RoadSegmentId, e.Data, ct));
         When<IEvent<RoadSegmentWasSplit>>((session, e, ct) =>
         {
             // Only the segment that keeps its identifier (largest part) carries modifications.
@@ -582,6 +570,19 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
         return ModifyRoadSegment(session, e.RoadSegmentId, segment =>
         {
             segment.Status = RoadSegmentStatusChange.ForEvent(e).To;
+            segment.StartNodeId = null;
+            segment.EndNodeId = null;
+        }, e, ct);
+    }
+
+    // Retired by a merger or a split: the road segment is historized, which is the same move as ProjectDisconnected
+    // makes, except the event carries no status of its own to read it off.
+    private Task Historize<TEvent>(IDocumentOperations session, RoadSegmentId roadSegmentId, TEvent e, CancellationToken ct)
+        where TEvent : IMartenEvent
+    {
+        return ModifyRoadSegment(session, roadSegmentId, segment =>
+        {
+            segment.Status = RoadSegmentStatusV2.Gehistoreerd.ToString();
             segment.StartNodeId = null;
             segment.EndNodeId = null;
         }, e, ct);
