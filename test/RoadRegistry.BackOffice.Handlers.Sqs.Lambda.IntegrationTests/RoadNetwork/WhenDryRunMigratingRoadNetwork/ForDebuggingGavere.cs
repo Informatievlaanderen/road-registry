@@ -17,6 +17,7 @@ using RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
+using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
@@ -58,6 +59,10 @@ public class ForDebuggingGavere
     private const string ZipPath = @"C:\Users\RikDePeuter\Downloads\cae0af28d9da4391919f27092f8b55a7_stg_Gavere TEST\cae0af28d9da4391919f27092f8b55a7_stg_Gavere TEST.zip";
     private const string DownloadIdValue = "68bbe07a400c4cf6bd0c31c2dd1be98f";
 
+    // What the first run reported for this download, so the extracts side can be seeded in memory.
+    private const string NisCode = "44020";
+    private const string Operator = "OVO002949";
+
     // The road segments and road nodes the failure is about, so the dump below stays readable.
     private static readonly int[] RoadSegmentsOfInterest = [930088, 833083];
     private static readonly int[] RoadNodesOfInterest = [1860175, 1860176, 1666166];
@@ -78,11 +83,28 @@ public class ForDebuggingGavere
 
         var sp = BuildServiceProvider();
 
-        await using var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
-        var inwinningsZone = extractsDbContext.Inwinningszones.Single(x => x.DownloadId == downloadId);
-        var provenanceData = new RoadRegistryProvenanceData(operatorName: inwinningsZone.Operator);
+        // In memory, so the run touches nothing on the extracts side. Marten still points at the real road network,
+        // which is what we are here to read, and a dry run does not write to it.
+        var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
+        var uploadId = new UploadId(Guid.NewGuid());
+        extractsDbContext.Inwinningszones.Add(new Inwinningszone
+        {
+            DownloadId = downloadId,
+            NisCode = NisCode,
+            Operator = Operator,
+            Contour = Polygon.Empty,
+            Completed = false
+        });
+        extractsDbContext.ExtractUploads.Add(new ExtractUpload
+        {
+            UploadId = uploadId.ToGuid(),
+            DownloadId = downloadId,
+            UploadedOn = DateTimeOffset.UtcNow,
+            Status = ExtractUploadStatus.Processing,
+            TicketId = Guid.NewGuid()
+        });
 
-        _outputHelper.WriteLine($"Inwinningszone {inwinningsZone.NisCode}, operator {inwinningsZone.Operator}");
+        var provenanceData = new RoadRegistryProvenanceData(operatorName: Operator);
 
         TranslatedChanges translatedChanges;
         using (var fileStream = File.OpenRead(ZipPath))
@@ -95,8 +117,24 @@ public class ForDebuggingGavere
                 grbOgcApiFeaturesDownloader: new GrbOgcApiFeaturesDownloader(client, baseUrl));
             var archive = new ZipArchive(fileStream);
 
-            translatedChanges = await translator.TranslateAsync(archive, ZipArchiveMetadata.Empty.WithInwinning(), CancellationToken.None);
+            var zipArchiveMetadata = ZipArchiveMetadata.Empty.WithInwinning();
+            translatedChanges = await translator.TranslateAsync(archive, zipArchiveMetadata, CancellationToken.None);
+
+            // Which road segments this inwinning is about, the way the real run knows them.
+            var extractRoadSegments = new RoadSegmentFeatureCompareFeatureReader(FileEncoding.UTF8)
+                .Read(archive, FeatureType.Extract, new ZipArchiveFeatureReaderContext(zipArchiveMetadata)).Item1;
+            extractsDbContext.InwinningRoadSegments.AddRange(extractRoadSegments
+                .Select(x => x.Attributes.RoadSegmentId!.Value)
+                .Distinct()
+                .Select(x => new InwinningRoadSegment
+                {
+                    RoadSegmentId = x,
+                    NisCode = NisCode,
+                    Completed = false
+                }));
         }
+
+        await extractsDbContext.SaveChangesAsync();
 
         DumpChangesOfInterest(translatedChanges);
         await DumpWhatTheRegisterHolds(sp);
@@ -105,7 +143,7 @@ public class ForDebuggingGavere
         {
             MigrateRoadNetworkSqsRequest = new MigrateRoadNetworkSqsRequest
             {
-                UploadId = new UploadId(Guid.NewGuid()),
+                UploadId = uploadId,
                 DownloadId = downloadId,
                 Changes = translatedChanges.Select(ChangeRoadNetworkItem.Create).ToList(),
                 IdenticalRoadSegmentIds = translatedChanges.GetIdenticalRoadSegmentIds(),
@@ -190,7 +228,8 @@ public class ForDebuggingGavere
         {
             _outputHelper.WriteLine(
                 $"  road node {roadNode.RoadNodeId}: {roadNode.Geometry?.WKT}"
-                + $" removed={roadNode.IsRemoved} migrated={roadNode.HasMigrated()}");
+                + $" removed={roadNode.IsRemoved} removedBecauseOfMigration={roadNode.IsRemovedBecauseOfMigration}"
+                + $" migrated={roadNode.HasMigrated()}");
         }
 
         var missingRoadNodes = RoadNodesOfInterest.Except(roadNodes.Select(x => x.RoadNodeId.ToInt32())).ToArray();
