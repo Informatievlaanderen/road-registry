@@ -156,7 +156,7 @@ import { featureToggles } from "@/environment";
 
 // How often the page asks again while it waits for the extract to be ready or for the ticket to finish. Both
 // take long enough that asking every second only adds calls without telling anyone anything sooner.
-const PollingIntervalInMilliseconds = 10000;
+const PollingIntervalInMilliseconds = 5000;
 
 const camelizeKeys: any = (obj: any) => {
   if (Array.isArray(obj)) {
