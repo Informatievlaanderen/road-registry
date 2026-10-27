@@ -1,3 +1,13 @@
+## [5.26.5](https://github.com/informatievlaanderen/road-registry/compare/v5.26.4...v5.26.5) (2026-10-27)
+
+
+### Bug Fixes
+
+* **inwinning:** keep the road node a neighbour's merge gives a road back to ([1f9dc5b](https://github.com/informatievlaanderen/road-registry/commit/1f9dc5b3fff1176c5ddea87f6b23ea741fbebfbc))
+* **inwinning:** let the slow polling report what the fast polling missed ([7a4f918](https://github.com/informatievlaanderen/road-registry/commit/7a4f918a793d0d09c8cb5e9e2756334320857205))
+* **lambda:** send slack log events before the invocation ends ([b84c7c5](https://github.com/informatievlaanderen/road-registry/commit/b84c7c5d1b7eaf81360d4395f822be13752daef9))
+* **test:** look up a ticket error by the Guid the mock recorded ([87cdbc7](https://github.com/informatievlaanderen/road-registry/commit/87cdbc7f5b071aac97a2e68c9768ba4442d9bcaa))
+
 ## [5.26.4](https://github.com/informatievlaanderen/road-registry/compare/v5.26.3...v5.26.4) (2026-10-27)
 
 
