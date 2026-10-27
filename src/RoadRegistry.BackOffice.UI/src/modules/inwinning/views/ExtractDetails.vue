@@ -154,6 +154,10 @@ import RoadRegistryExceptions from "@/types/road-registry-exceptions";
 import ValidationUtils from "@/core/utils/validation-utils";
 import { featureToggles } from "@/environment";
 
+// How often the page asks again while it waits for the extract to be ready or for the ticket to finish. Both
+// take long enough that asking every second only adds calls without telling anyone anything sooner.
+const PollingIntervalInMilliseconds = 5000;
+
 const camelizeKeys: any = (obj: any) => {
   if (Array.isArray(obj)) {
     return obj.map((v) => camelizeKeys(v));
@@ -373,7 +377,7 @@ export default defineComponent({
           break;
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, PollingIntervalInMilliseconds));
       }
     },
     formatDate(dateString: undefined | string): string {
@@ -449,7 +453,7 @@ export default defineComponent({
             return;
           }
 
-          await new Promise((resolve) => setTimeout(resolve, 3000));
+          await new Promise((resolve) => setTimeout(resolve, PollingIntervalInMilliseconds));
         }
       } catch (err: any) {
         if (!this.handle400Or404Error(err)) {

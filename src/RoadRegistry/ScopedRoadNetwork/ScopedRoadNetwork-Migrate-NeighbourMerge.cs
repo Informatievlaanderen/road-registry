@@ -47,10 +47,11 @@ public partial class ScopedRoadNetwork
     // is cut at both, and each cut is measured against what the one before it left (GAWR-7826).
     private sealed record NeighbourMergeResolutions(
         IReadOnlyCollection<RoadNodeId> RoadNodeIds,
-        IReadOnlyDictionary<RoadSegmentIdReference, IReadOnlyList<NeighbourMergeResolution>> RoadSegments)
+        IReadOnlyDictionary<RoadSegmentIdReference, IReadOnlyList<NeighbourMergeResolution>> RoadSegments,
+        IReadOnlyCollection<RoadNodeId> RoadNodeIdsToKeep)
     {
         public static readonly NeighbourMergeResolutions None =
-            new([], new Dictionary<RoadSegmentIdReference, IReadOnlyList<NeighbourMergeResolution>>());
+            new([], new Dictionary<RoadSegmentIdReference, IReadOnlyList<NeighbourMergeResolution>>(), []);
     }
 
     // Works out, before a single change is applied, which of them are about road segments a neighbouring inwinning
@@ -145,9 +146,62 @@ public partial class ScopedRoadNetwork
             }
         }
 
+        var resolvedCuts = resolvedRoadSegments.ToDictionary(x => x.Key, x => (IReadOnlyList<NeighbourMergeResolution>)x.Value);
+
         return new NeighbourMergeResolutions(
             resolvedRoadNodeIds,
-            resolvedRoadSegments.ToDictionary(x => x.Key, x => (IReadOnlyList<NeighbourMergeResolution>)x.Value));
+            resolvedCuts,
+            ResolveRoadNodesToKeep(resolvedCuts, context));
+    }
+
+    // A road the cut gave back runs up to a road node again, and this upload may have been on its way to removing
+    // that road node: it was merging the two roads that met there into one, so it no longer needed it. The merge is
+    // cut back to what the neighbour left, the road ends on that road node after all, and removing it would leave
+    // the road without one - "de eind wegknoop van het wegsegment ontbreekt" (GAWR-7827).
+    //
+    // Only the ends the cuts themselves put there, not whatever the road already ran up to at its far end: that end
+    // is no business of the neighbour's and the upload remains free to remove the road node sitting on it.
+    private IReadOnlyCollection<RoadNodeId> ResolveRoadNodesToKeep(
+        IReadOnlyDictionary<RoadSegmentIdReference, IReadOnlyList<NeighbourMergeResolution>> cuts,
+        ScopedRoadNetworkChangeContext context)
+    {
+        var roadNodeIds = new List<RoadNodeId>();
+
+        foreach (var (roadSegmentIdReference, resolutions) in cuts)
+        {
+            var remaining = resolutions[^1].RemainingGeometry;
+            if (remaining is null)
+            {
+                // Taken over whole: nothing is left to run up to a road node.
+                continue;
+            }
+
+            var line = remaining.Value.GetSingleLineString();
+
+            // A cut shortens the road at the end it was made and leaves the other where it was, so each cut is
+            // answered for by the end of what is left that sits on its side.
+            foreach (var resolution in resolutions)
+            {
+                var coordinate = resolution.TakenFromStart
+                    ? line.StartPoint.Coordinate
+                    : line.EndPoint.Coordinate;
+
+                var roadNode = FindRoadNode(coordinate);
+                if (roadNode is null || roadNodeIds.Contains(roadNode.RoadNodeId))
+                {
+                    continue;
+                }
+
+                roadNodeIds.Add(roadNode.RoadNodeId);
+
+                context.Logger.LogInformation(
+                    "Road node {RoadNodeId} is kept: what is left of road segment {RoadSegmentId} after the cut runs up to it",
+                    roadNode.RoadNodeId.ToInt32(),
+                    roadSegmentIdReference.RoadSegmentId.ToInt32());
+            }
+        }
+
+        return roadNodeIds;
     }
 
     private static bool TouchesCoordinate(MultiLineString geometry, Coordinate coordinate)

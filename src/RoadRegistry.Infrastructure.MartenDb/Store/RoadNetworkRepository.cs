@@ -151,11 +151,24 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
                 gradejunctionids = ids?.GradeJunctionIds.Count > 0 ? ids.GradeJunctionIds.Select(x => x.ToInt32()).ToArray() : null
             })).ToList();
 
+        // A road node is reached through the road segments that point at it, which leaves out the one case where a
+        // caller names a road node that nothing points at any more: an inwinning that merges a road across a
+        // municipality border removes the road node the two met at, and leaves the road segment it took over
+        // retired and without road nodes. The second municipality's upload still names that road node, and the
+        // migration has to be handed it - as removed, so it can cut the upload back against what the neighbour
+        // already collected, rather than refuse the upload over a road node it cannot find.
+        //
+        // The row is still there: a V2 removal only marks it. A V1 removal deletes it, so a V1 road node that is
+        // really gone stays out, as it should.
+        var namedRoadNodeIds = await GetExistingRoadNodeIds(session, ids);
+
         return new RoadNetworkIds(
             segments.SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })
                 .Where(x => x.HasValue)
+                .Select(x => x!.Value)
+                .Concat(namedRoadNodeIds)
                 .Distinct()
-                .Select(x => new RoadNodeId(x!.Value))
+                .Select(x => new RoadNodeId(x))
                 .ToArray(),
             segments.Select(x => x.RoadSegmentId)
                 .Distinct()
@@ -172,6 +185,25 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
                 .Select(x => new GradeJunctionId(x))
                 .ToArray()
         );
+    }
+
+    private static async Task<int[]> GetExistingRoadNodeIds(IDocumentSession session, RoadNetworkIds? ids)
+    {
+        if (!(ids?.RoadNodeIds.Count > 0))
+        {
+            return [];
+        }
+
+        var sql = $@"
+SELECT rn.id
+FROM {RoadNetworkTopologyProjection.RoadNodesTableName} rn
+WHERE rn.id = ANY(@roadnodeids)
+";
+        return (await session.Connection.QueryAsync<int>(sql,
+            new
+            {
+                roadnodeids = ids.RoadNodeIds.Select(x => x.ToInt32()).ToArray()
+            })).ToArray();
     }
 
     public async Task<RoadNetworkIds> GetUnderlyingIdsForExtract(IDocumentSession session, Geometry geometry)
