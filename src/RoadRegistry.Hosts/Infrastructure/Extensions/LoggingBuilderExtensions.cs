@@ -33,7 +33,7 @@ public static class EventSourceLoggerFactoryExtensions
         return builder;
     }
 
-    public static ILoggingBuilder AddSerilog<T>(this ILoggingBuilder builder, IConfiguration configuration)
+    public static ILoggingBuilder AddSerilog<T>(this ILoggingBuilder builder, IConfiguration configuration, bool synchronousSlackSink = false)
     {
         SelfLog.Enable(Console.WriteLine);
 
@@ -45,7 +45,7 @@ public static class EventSourceLoggerFactoryExtensions
             .Enrich.WithThreadId()
             .Enrich.WithEnvironmentUserName()
             .Destructure.JsonNetTypes()
-            .AddSlackSink<T>(configuration)
+            .AddSlackSink<T>(configuration, synchronousSlackSink)
             .ExcludeCommonErrors()
             ;
 

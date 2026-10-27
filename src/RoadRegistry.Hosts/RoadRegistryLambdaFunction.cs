@@ -118,7 +118,7 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
             .AddLogging(builder =>
             {
                 builder.AddRoadRegistryLambdaLogger();
-                builder.AddSerilog<TMessageHandler>(hostContext.Configuration);
+                builder.AddSerilog<TMessageHandler>(hostContext.Configuration, synchronousSlackSink: true);
             })
             .AddSqsLambdaHandlerOptions()
             .AddRoadRegistrySnapshot()
