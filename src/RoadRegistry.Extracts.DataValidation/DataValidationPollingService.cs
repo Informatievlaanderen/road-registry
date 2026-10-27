@@ -72,8 +72,15 @@ public class DataValidationPollingService : IScheduledJob
                     switch (pollResult.Status)
                     {
                         case ValidationJobStatus.Received:
+                            _logger.LogInformation("Data validation delivery '{DataValidationId}' has been received, awaiting to be processed", queueItem.DataValidationId!);
+                            break;
                         case ValidationJobStatus.Processing:
-                            // keep on waiting
+                            _logger.LogInformation("Data validation delivery '{DataValidationId}' is being processed", queueItem.DataValidationId!);
+
+                            if (DataValidationConstants.ManualStages.Contains(pollResult.Stage))
+                            {
+                                await ReportAutomaticValidationSucceededIfTheFastPollingDidNot(queueItem, cancellationToken);
+                            }
                             break;
                         case ValidationJobStatus.Processed:
                             // Always keep the quality report, both on approval and rejection, so the UI shows at least one.
@@ -162,6 +169,33 @@ public class DataValidationPollingService : IScheduledJob
                 _logger.LogError(ex, $"Error while polling data validation [UploadId={queueItem.UploadId}, DataValidationId={queueItem.DataValidationId}]: {ex.Message}");
             }
         }
+    }
+
+    // The fast polling reports that the automatic checks are through the moment the delivery reaches a manual stage,
+    // but it gives up after ten minutes and a hiccup at Datavalidatie can have it give up, or fail, before it ever
+    // gets there. Nobody else reports it afterwards, which leaves the upload and its ticket stuck on Processing while
+    // Datavalidatie is already doing the manual checks, so we report whatever the fast polling did not pick up.
+    private async Task ReportAutomaticValidationSucceededIfTheFastPollingDidNot(DataValidationQueueItem queueItem, CancellationToken cancellationToken)
+    {
+        var uploadId = new UploadId(queueItem.UploadId);
+
+        // Only an upload still sitting on Processing was missed. Anything further along was either reported by the
+        // fast polling already or has moved past the automatic checks another way - a rejected delivery that
+        // Datavalidatie reopened, for one, which is approved through the Processed path and not here.
+        if (!await _extractsDbContext.HasUploadStatusAsync(uploadId, ExtractUploadStatus.Processing, cancellationToken))
+        {
+            return;
+        }
+
+        _logger.LogInformation("Data validation delivery '{DataValidationId}' automatic checks have completed, reporting what the fast polling did not pick up", queueItem.DataValidationId!);
+
+        var sqsRequest = (MigrateRoadNetworkSqsRequest)_sqsJsonMessageSerializer.Deserialize(queueItem.SqsRequestJson)!;
+
+        await _extractsDbContext.AutomaticValidationSucceededAsync(uploadId, cancellationToken);
+        await _ticketing.Pending(sqsRequest.TicketId, new TicketResult(new
+        {
+            Status = nameof(ExtractUploadStatus.AutomaticValidationSucceeded)
+        }), cancellationToken);
     }
 
     // Asking for a new upload URL already clears LatestUploadId, so from the moment the uploader starts a new upload
