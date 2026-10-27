@@ -125,12 +125,20 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
     {
     }
 
-    protected void PrintTicketErrorsIfAvailable(Guid ticketId)
+    // The ticket id the mock recorded is a Guid. A TicketId is not equal to one - it only converts to one - so the
+    // lookup goes through this Guid parameter rather than being written out at every call site, where passing a
+    // TicketId would quietly match nothing.
+    protected TicketError? GetTicketError(Guid ticketId)
     {
-        var ticketError = TicketingMock.Invocations
+        return TicketingMock.Invocations
             .Where(x => x.Method.Name == nameof(ITicketing.Error) && x.Arguments[0].Equals(ticketId))
             .Select(x => (TicketError)x.Arguments[1])
             .SingleOrDefault();
+    }
+
+    protected void PrintTicketErrorsIfAvailable(Guid ticketId)
+    {
+        var ticketError = GetTicketError(ticketId);
         if (ticketError is not null)
         {
             TestOutputHelper.WriteLine("Ticket errors:");

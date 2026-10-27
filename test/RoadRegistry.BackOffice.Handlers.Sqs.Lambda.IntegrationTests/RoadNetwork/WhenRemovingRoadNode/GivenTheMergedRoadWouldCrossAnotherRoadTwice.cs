@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenRemovingRoadNode;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenRemovingRoadNode;
 
 using Actions.RemoveRoadNode;
 using AutoFixture;
@@ -53,10 +53,7 @@ public class GivenTheMergedRoadWouldCrossAnotherRoadTwice : RoadNetworkIntegrati
 
         PrintTicketErrorsIfAvailable(ticketId);
 
-        var ticketError = TicketingMock.Invocations
-            .Where(x => x.Method.Name == nameof(ITicketing.Error) && x.Arguments[0].Equals(ticketId))
-            .Select(x => (TicketError)x.Arguments[1])
-            .SingleOrDefault();
+        var ticketError = GetTicketError(ticketId);
 
         ticketError.Should().NotBeNull();
         ticketError!.Errors.Should().Contain(x => x.ErrorCode == "RoadSegmentsMergeMultipleIntersections");
