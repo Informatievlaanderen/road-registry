@@ -100,8 +100,11 @@ public partial class ScopedRoadNetwork
         }
 
         // Four roads merged pairwise leaves two roads crossing where the node used to be, and that crossing is now a
-        // gelijkgrondse kruising: the same verification the change upload uses records it.
-        problems += VerifyAndUpdateJunctions(idGenerator, context);
+        // gelijkgrondse kruising. Recorded the way a geometry change records it, not the way the change upload does:
+        // the upload refuses a crossing of two roads sharing a traffic type unless it is declared ongelijkgronds, and
+        // removing a node is not a statement about how the two roads relate - they met at that node, so they cross at
+        // grade, whatever traffic they carry (GAWR-7802).
+        problems += VerifyAndUpdateJunctionsAfterGeometryChange(idGenerator, context);
         if (problems.HasError())
         {
             return new RoadNetworkChangeResult(problems, context.Summary);
