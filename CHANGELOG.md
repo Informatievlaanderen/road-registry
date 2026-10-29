@@ -1,3 +1,10 @@
+## [5.28.2](https://github.com/informatievlaanderen/road-registry/compare/v5.28.1...v5.28.2) (2026-10-29)
+
+
+### Bug Fixes
+
+* IncorrectObjectId for invalid id in v2 endpoints GAWR-7798 ([a8aa659](https://github.com/informatievlaanderen/road-registry/commit/a8aa659fe3f38c31cd5ed124abbbcb2e6c0ab57b))
+
 ## [5.28.1](https://github.com/informatievlaanderen/road-registry/compare/v5.28.0...v5.28.1) (2026-10-29)
 
 
