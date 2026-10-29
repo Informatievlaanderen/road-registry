@@ -69,7 +69,7 @@ FROM [road].[GelijkgrondseKruisingen]");
             migrationBuilder.Sql(@"
 CREATE VIEW [wfs].[OngelijkgrondseKruisingen] WITH SCHEMABINDING AS
 SELECT
-     [OK_OIDN] as [OngelijkgrondsekruisingId]
+     [OK_OIDN] as [OngelijkgrondseKruisingId]
     ,CONCAT('https://data.vlaanderen.be/id/ongelijkgrondsekruising/', [OK_OIDN]) as [Id]
     ,[GEOMETRIE] as [Puntgeometrie]
     ,[CREATIE] as [Creatie]
