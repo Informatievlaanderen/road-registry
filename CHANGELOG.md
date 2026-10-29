@@ -1,3 +1,10 @@
+## [5.28.3](https://github.com/informatievlaanderen/road-registry/compare/v5.28.2...v5.28.3) (2026-10-29)
+
+
+### Bug Fixes
+
+* **roadsegment:** refuse to merge two roads that were not drawn the same way GAWR-7829 ([335611b](https://github.com/informatievlaanderen/road-registry/commit/335611b99ab2ac6de3bbf183570e00fe8737bf42))
+
 ## [5.28.2](https://github.com/informatievlaanderen/road-registry/compare/v5.28.1...v5.28.2) (2026-10-29)
 
 
