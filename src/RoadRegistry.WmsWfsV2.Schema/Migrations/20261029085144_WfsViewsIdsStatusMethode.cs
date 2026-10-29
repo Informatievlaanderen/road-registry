@@ -8,7 +8,8 @@ namespace RoadRegistry.WmsWfsV2.Schema.Migrations
     public partial class WfsViewsIdsStatusMethode : Migration
     {
         // The [wfs] views name their identifier after the entity (WegsegmentId, WegknoopId, ...) instead of a generic
-        // ObjectId, and [wfs].[Wegsegmenten] also exposes the segment status and geometry method, by their label.
+        // ObjectId, and [wfs].[Wegsegmenten] also exposes the segment status and geometry method, by code and by label
+        // (as [wms].[Wegsegmenten] does).
         //
         // A view cannot have a column renamed, so each view is dropped and created again. [wfs].[Wegsegmenten] and
         // [wfs].[Wegknopen] are indexed views: dropping the view drops its unique clustered index with it, so that index
@@ -36,8 +37,10 @@ CREATE VIEW [wfs].[Wegsegmenten] WITH SCHEMABINDING AS
 SELECT
      [WS_OIDN] as [WegsegmentId]
     ,CONCAT('https://data.vlaanderen.be/id/wegsegment/', [WS_OIDN]) as [Id]
-    ,[LBLSTATUS] as [Wegsegmentstatus]
+    ,[METHODE] as [GeometriemethodeId]
     ,[LBLMETHODE] as [Geometriemethode]
+    ,[STATUS] as [WegsegmentstatusId]
+    ,[LBLSTATUS] as [Wegsegmentstatus]
     ,[GEOMETRIE] as [Lijngeometrie]
     ,[CREATIE] as [Creatie]
     ,[VERSIE] as [Versie]
