@@ -1,3 +1,15 @@
+# [5.28.0](https://github.com/informatievlaanderen/road-registry/compare/v5.27.0...v5.28.0) (2026-10-29)
+
+
+### Bug Fixes
+
+* **pbs:** give the predefined wegbeheerder rows a single seeder ([991bc1b](https://github.com/informatievlaanderen/road-registry/commit/991bc1b0c6a5f423c8e14434ab4b6d48ac5e9e15))
+
+
+### Features
+
+* **wfs:** name the view ids after their entity, add segment status and method ([6ba64d8](https://github.com/informatievlaanderen/road-registry/commit/6ba64d842790f174ee2428e0568d6ac35557777d))
+
 # [5.27.0](https://github.com/informatievlaanderen/road-registry/compare/v5.26.5...v5.27.0) (2026-10-27)
 
 
