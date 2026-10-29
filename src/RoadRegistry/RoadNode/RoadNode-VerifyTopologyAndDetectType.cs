@@ -12,12 +12,12 @@ using ScopedRoadNetwork.ValueObjects;
 
 public partial class RoadNode
 {
-    // mayMergeRoadSegments: whether a node that turns out to be unnecessary may take the two segments hanging off it
-    // with it, merging them into one. That belongs to the inwinning/change upload, which reshapes the network as a
-    // whole, and to removing a segment, where the story asks for it. An editing action that names one segment and has
-    // to leave the others as they are turns it off. It has no default: which of the two an action is, is the caller's
-    // to state.
-    public Problems VerifyTopologyAndUpdateType(LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments)
+    // merging: whether a node that turns out to be unnecessary may take the two segments hanging off it with it,
+    // merging them into one, and under which rules. That belongs to the inwinning/change upload, which reshapes the
+    // network as a whole, and to removing a segment, where the story asks for it. An editing action that names one
+    // segment and has to leave the others as they are turns it off. It has no default: which of the three an action
+    // is, is the caller's to state.
+    public Problems VerifyTopologyAndUpdateType(LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, RoadSegmentMerging merging)
     {
         var problems = Problems.WithContext(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
 
@@ -34,12 +34,12 @@ public partial class RoadNode
             problems += new RoadNodeGeometryTaken(context.IdTranslator.TranslateToTemporaryId(byOtherNode.RoadNodeId));
         }
 
-        problems += ValidateTypeAndChangeIfNeeded(segments, roadSegmentsSpatialIndex, idGenerator, context, mayMergeRoadSegments);
+        problems += ValidateTypeAndChangeIfNeeded(segments, roadSegmentsSpatialIndex, idGenerator, context, merging);
 
         return problems;
     }
 
-    private Problems ValidateTypeAndChangeIfNeeded(List<RoadSegment> segments, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments)
+    private Problems ValidateTypeAndChangeIfNeeded(List<RoadSegment> segments, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, RoadSegmentMerging merging)
     {
         var problems = Problems.None;
 
@@ -53,7 +53,7 @@ public partial class RoadNode
         }
         else if (segments.Count == 2)
         {
-            if (Grensknoop || !mayMergeRoadSegments)
+            if (Grensknoop || merging == RoadSegmentMerging.NotAllowed)
             {
                 ChangeTypeTo(RoadNodeTypeV2.Validatieknoop, context.Provenance);
             }
@@ -62,7 +62,7 @@ public partial class RoadNode
                 var segment1 = segments[0];
                 var segment2 = segments[1];
 
-                problems += MergeRoadSegmentsIfNodeIsNotNeeded(segment1, segment2, roadSegmentsSpatialIndex, idGenerator, context);
+                problems += MergeRoadSegmentsIfNodeIsNotNeeded(segment1, segment2, roadSegmentsSpatialIndex, idGenerator, context, merging);
             }
         }
         else
@@ -73,7 +73,7 @@ public partial class RoadNode
         return problems;
     }
 
-    private Problems MergeRoadSegmentsIfNodeIsNotNeeded(RoadSegment segment1, RoadSegment segment2, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
+    private Problems MergeRoadSegmentsIfNodeIsNotNeeded(RoadSegment segment1, RoadSegment segment2, LazyQuadtree<RoadSegment> roadSegmentsSpatialIndex, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, RoadSegmentMerging merging)
     {
         var roadNodeIsNeeded = segment1.Attributes is null
                                || segment2.Attributes is null
@@ -82,6 +82,15 @@ public partial class RoadNode
         {
             ChangeTypeTo(RoadNodeTypeV2.Validatieknoop, context.Provenance);
             return Problems.None;
+        }
+
+        // VAL-5, the same rule the 'verwijder wegknoop' action states for itself: one road that is partly ingeschetst
+        // and partly ingemeten is only something the inwinning may arrive at, which hands over the roads as they were
+        // drawn. An editing action reports it instead of deciding it on the caller's behalf (GAWR-7829).
+        if (merging == RoadSegmentMerging.AsEditAction
+            && segment1.Attributes!.GeometryDrawMethod != segment2.Attributes!.GeometryDrawMethod)
+        {
+            return Problems.None + new RoadSegmentsMergeGeometryDrawMethodNotEqual(segment1.RoadSegmentId, segment2.RoadSegmentId);
         }
 
         var problems = context.RoadNetwork.MergeRoadSegments(segment1, segment2, idGenerator, context);

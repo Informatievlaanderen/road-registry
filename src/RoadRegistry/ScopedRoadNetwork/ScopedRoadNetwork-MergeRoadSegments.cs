@@ -113,7 +113,14 @@ public partial class ScopedRoadNetwork
         var oldEnvelope = roadSegment.Geometry.Value.EnvelopeInternal;
         problems += roadSegment.Merge(mergeSegmentChange, context);
         _roadSegmentsSpatialIndex.Update(oldEnvelope, roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
-        context.Summary.RoadSegments.Modified.Add(roadSegment.RoadSegmentId);
+
+        // The road the two became is one or the other: the longest one kept its identifier and is modified, or it was
+        // given one of its own and is added. Saying both of a road that was just added would have the ticket report
+        // the same identifier twice as two different things (GAWR-7829).
+        if (modifyLongestSegment)
+        {
+            context.Summary.RoadSegments.Modified.Add(roadSegment.RoadSegmentId);
+        }
 
         problems += RemoveRoadNode(commonNodeId, context);
 
