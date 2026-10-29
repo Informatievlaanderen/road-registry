@@ -7,7 +7,6 @@ using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using FluentValidation;
-using FluentValidation.Results;
 using Marten;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -50,6 +49,7 @@ public partial class RoadNodesController
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerOperation(OperationId = nameof(RemoveRoadNodeV2), Description = "Verwijder een wegknoop. De aansluitende wegsegmenten worden hierbij samengevoegd: twee bij een validatieknoop, paarsgewijs bij een echte knoop met precies vier aansluitende wegsegmenten.")]
     public async Task<IActionResult> RemoveRoadNodeV2(
+        [FromServices] RoadNodeIdValidator idValidator,
         [FromRoute] int id,
         [FromServices] IDocumentStore store,
         CancellationToken cancellationToken = default)
@@ -57,10 +57,7 @@ public partial class RoadNodesController
         try
         {
             // VAL-1
-            if (!RoadNodeId.Accepts(id))
-            {
-                throw new ValidationException([new ValidationFailure("id", $"De waarde {id} is ongeldig.")]);
-            }
+            await idValidator.ValidateAndThrowAsync(id, cancellationToken);
 
             await using var session = store.LightweightSession();
 
