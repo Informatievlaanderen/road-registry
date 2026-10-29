@@ -11,7 +11,6 @@ using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using FluentValidation;
-using FluentValidation.Results;
 using Marten;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -59,6 +58,7 @@ public partial class GradeJunctionsController
     [SwaggerRequestExample(typeof(ChangeToGradeSeparatedJunctionV2Parameters), typeof(ChangeToGradeSeparatedJunctionV2ParametersExamples))]
     [SwaggerOperation(OperationId = nameof(ChangeGradeJunctionToGradeSeparatedJunctionV2), Description = "Wijzig een gelijkgrondse kruising naar een ongelijkgrondse kruising.")]
     public async Task<IActionResult> ChangeGradeJunctionToGradeSeparatedJunctionV2(
+        [FromServices] GradeJunctionIdValidator idValidator,
         [FromRoute] int id,
         [FromBody] ChangeToGradeSeparatedJunctionV2Parameters parameters,
         [FromServices] IDocumentStore store,
@@ -67,10 +67,7 @@ public partial class GradeJunctionsController
         try
         {
             // VAL-1
-            if (!GradeJunctionId.Accepts(id))
-            {
-                throw new ValidationException([new ValidationFailure("id", $"De waarde {id} is ongeldig.")]);
-            }
+            await idValidator.ValidateAndThrowAsync(id, cancellationToken);
 
             await using var session = store.LightweightSession();
 

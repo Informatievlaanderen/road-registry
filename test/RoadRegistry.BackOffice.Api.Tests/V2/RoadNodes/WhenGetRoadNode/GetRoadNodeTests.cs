@@ -30,7 +30,7 @@ public class GetRoadNodeTests : V2ReadEndpointTestBase
         var roadNodeWasAdded = Fixture.Create<RoadNodeWasAdded>();
         Seed(BuildReadItem(roadNodeWasAdded));
 
-        var result = await _controller.GetRoadNodeV2((int)roadNodeWasAdded.RoadNodeId, ApiOptions, Store);
+        var result = await _controller.GetRoadNodeV2(new RoadNodeIdValidator(), (int)roadNodeWasAdded.RoadNodeId, ApiOptions, Store);
 
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
         var detail = okResult.Value.Should().BeOfType<WegknoopV2Detail>().Subject;
@@ -52,7 +52,7 @@ public class GetRoadNodeTests : V2ReadEndpointTestBase
         SeedRoadSegment(3, startNodeId: roadNodeId + 1000, endNodeId: roadNodeId + 1001);
         SeedRoadSegment(4, startNodeId: roadNodeId, endNodeId: null, isRemoved: true);
 
-        var result = await _controller.GetRoadNodeV2(roadNodeId, ApiOptions, Store);
+        var result = await _controller.GetRoadNodeV2(new RoadNodeIdValidator(), roadNodeId, ApiOptions, Store);
 
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
         var detail = okResult.Value.Should().BeOfType<WegknoopV2Detail>().Subject;
@@ -62,7 +62,7 @@ public class GetRoadNodeTests : V2ReadEndpointTestBase
     [Fact]
     public async Task GivenUnknownRoadNode_ThenNotFound()
     {
-        var result = await _controller.GetRoadNodeV2(Fixture.Create<int>(), ApiOptions, Store);
+        var result = await _controller.GetRoadNodeV2(new RoadNodeIdValidator(), Fixture.Create<int>(), ApiOptions, Store);
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -75,7 +75,7 @@ public class GetRoadNodeTests : V2ReadEndpointTestBase
         readItem.IsRemoved = true;
         Seed(readItem);
 
-        var result = await _controller.GetRoadNodeV2((int)roadNodeWasAdded.RoadNodeId, ApiOptions, Store);
+        var result = await _controller.GetRoadNodeV2(new RoadNodeIdValidator(), (int)roadNodeWasAdded.RoadNodeId, ApiOptions, Store);
 
         result.Should().BeOfType<StatusCodeResult>()
             .Which.StatusCode.Should().Be(StatusCodes.Status410Gone);
@@ -107,5 +107,13 @@ public class GetRoadNodeTests : V2ReadEndpointTestBase
             LastModified = e.Provenance.ToEventTimestamp(),
             IsV2 = true
         };
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task GivenInvalidRoadNodeId_ThenIncorrectObjectId(int id)
+    {
+        await ActAndExpectIncorrectObjectId(() => _controller.GetRoadNodeV2(new RoadNodeIdValidator(), id, ApiOptions, Store), id);
     }
 }

@@ -28,7 +28,7 @@ public class GetGradeSeparatedJunctionTests : V2ReadEndpointTestBase
         var gradeSeparatedJunctionWasAdded = Fixture.Create<GradeSeparatedJunctionWasAdded>();
         Seed(BuildReadItem(gradeSeparatedJunctionWasAdded));
 
-        var result = await _controller.GetGradeSeparatedJunctionV2((int)gradeSeparatedJunctionWasAdded.GradeSeparatedJunctionId, ApiOptions, Store);
+        var result = await _controller.GetGradeSeparatedJunctionV2(new GradeSeparatedJunctionIdValidator(), (int)gradeSeparatedJunctionWasAdded.GradeSeparatedJunctionId, ApiOptions, Store);
 
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
         var detail = okResult.Value.Should().BeOfType<OngelijkgrondseKruisingV2Detail>().Subject;
@@ -39,7 +39,7 @@ public class GetGradeSeparatedJunctionTests : V2ReadEndpointTestBase
     [Fact]
     public async Task GivenUnknownGradeSeparatedJunction_ThenNotFound()
     {
-        var result = await _controller.GetGradeSeparatedJunctionV2(Fixture.Create<int>(), ApiOptions, Store);
+        var result = await _controller.GetGradeSeparatedJunctionV2(new GradeSeparatedJunctionIdValidator(), Fixture.Create<int>(), ApiOptions, Store);
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -52,7 +52,7 @@ public class GetGradeSeparatedJunctionTests : V2ReadEndpointTestBase
         readItem.IsRemoved = true;
         Seed(readItem);
 
-        var result = await _controller.GetGradeSeparatedJunctionV2((int)gradeSeparatedJunctionWasAdded.GradeSeparatedJunctionId, ApiOptions, Store);
+        var result = await _controller.GetGradeSeparatedJunctionV2(new GradeSeparatedJunctionIdValidator(), (int)gradeSeparatedJunctionWasAdded.GradeSeparatedJunctionId, ApiOptions, Store);
 
         result.Should().BeOfType<StatusCodeResult>()
             .Which.StatusCode.Should().Be(StatusCodes.Status410Gone);
@@ -70,5 +70,13 @@ public class GetGradeSeparatedJunctionTests : V2ReadEndpointTestBase
             LastModified = e.Provenance.ToEventTimestamp(),
             IsV2 = true
         };
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task GivenInvalidGradeSeparatedJunctionId_ThenIncorrectObjectId(int id)
+    {
+        await ActAndExpectIncorrectObjectId(() => _controller.GetGradeSeparatedJunctionV2(new GradeSeparatedJunctionIdValidator(), id, ApiOptions, Store), id);
     }
 }

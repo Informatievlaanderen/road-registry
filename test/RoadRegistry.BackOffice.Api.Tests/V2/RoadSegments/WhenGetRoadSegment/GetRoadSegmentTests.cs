@@ -30,7 +30,7 @@ public class GetRoadSegmentTests : V2ReadEndpointTestBase
         var roadSegmentWasAdded = Fixture.Create<RoadSegmentWasAdded>();
         Seed(BuildReadItem(roadSegmentWasAdded));
 
-        var result = await _controller.GetRoadSegmentV2((int)roadSegmentWasAdded.RoadSegmentId, ApiOptions, Store);
+        var result = await _controller.GetRoadSegmentV2(new RoadSegmentIdValidator(), (int)roadSegmentWasAdded.RoadSegmentId, ApiOptions, Store);
 
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
         var detail = okResult.Value.Should().BeOfType<WegsegmentV2Detail>().Subject;
@@ -56,7 +56,7 @@ public class GetRoadSegmentTests : V2ReadEndpointTestBase
         SeedGradeSeparatedJunction(22, roadSegmentId + 1000, roadSegmentId + 1001);
         SeedGradeSeparatedJunction(23, roadSegmentId + 1000, roadSegmentId, isRemoved: true);
 
-        var result = await _controller.GetRoadSegmentV2(roadSegmentId, ApiOptions, Store);
+        var result = await _controller.GetRoadSegmentV2(new RoadSegmentIdValidator(), roadSegmentId, ApiOptions, Store);
 
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
         var detail = okResult.Value.Should().BeOfType<WegsegmentV2Detail>().Subject;
@@ -77,7 +77,7 @@ public class GetRoadSegmentTests : V2ReadEndpointTestBase
         SeedStreetName(streetNameId, "Nieuwe straat");
         SeedOrganization(organizationId, "Nieuwe beheerder");
 
-        var result = await _controller.GetRoadSegmentV2((int)roadSegmentWasAdded.RoadSegmentId, ApiOptions, Store);
+        var result = await _controller.GetRoadSegmentV2(new RoadSegmentIdValidator(), (int)roadSegmentWasAdded.RoadSegmentId, ApiOptions, Store);
 
         var detail = result.Should().BeOfType<OkObjectResult>().Subject.Value.Should().BeOfType<WegsegmentV2Detail>().Subject;
         detail.Straatnaam.Select(x => x.Straatnaam!.GeografischeNaam.Spelling).Should().AllBe("Nieuwe straat");
@@ -98,7 +98,7 @@ public class GetRoadSegmentTests : V2ReadEndpointTestBase
 
         Seed(readItem);
 
-        var result = await _controller.GetRoadSegmentV2((int)roadSegmentWasAdded.RoadSegmentId, ApiOptions, Store);
+        var result = await _controller.GetRoadSegmentV2(new RoadSegmentIdValidator(), (int)roadSegmentWasAdded.RoadSegmentId, ApiOptions, Store);
 
         var detail = result.Should().BeOfType<OkObjectResult>().Subject.Value.Should().BeOfType<WegsegmentV2Detail>().Subject;
         detail.Straatnaam.Select(x => x.Straatnaam!.GeografischeNaam.Spelling).Should().AllBe("Straat via API");
@@ -118,7 +118,7 @@ public class GetRoadSegmentTests : V2ReadEndpointTestBase
         Seed(readItem);
         SeedStreetName(streetNameId, "Oude straat", isRemoved: true);
 
-        var result = await _controller.GetRoadSegmentV2((int)roadSegmentWasAdded.RoadSegmentId, ApiOptions, Store);
+        var result = await _controller.GetRoadSegmentV2(new RoadSegmentIdValidator(), (int)roadSegmentWasAdded.RoadSegmentId, ApiOptions, Store);
 
         var detail = result.Should().BeOfType<OkObjectResult>().Subject.Value.Should().BeOfType<WegsegmentV2Detail>().Subject;
         detail.Straatnaam.Select(x => x.Straatnaam!.GeografischeNaam.Spelling).Should().AllBeEquivalentTo((string?)null);
@@ -127,7 +127,7 @@ public class GetRoadSegmentTests : V2ReadEndpointTestBase
     [Fact]
     public async Task GivenUnknownRoadSegment_ThenNotFound()
     {
-        var result = await _controller.GetRoadSegmentV2(Fixture.Create<int>(), ApiOptions, Store);
+        var result = await _controller.GetRoadSegmentV2(new RoadSegmentIdValidator(), Fixture.Create<int>(), ApiOptions, Store);
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -140,7 +140,7 @@ public class GetRoadSegmentTests : V2ReadEndpointTestBase
         readItem.IsRemoved = true;
         Seed(readItem);
 
-        var result = await _controller.GetRoadSegmentV2((int)roadSegmentWasAdded.RoadSegmentId, ApiOptions, Store);
+        var result = await _controller.GetRoadSegmentV2(new RoadSegmentIdValidator(), (int)roadSegmentWasAdded.RoadSegmentId, ApiOptions, Store);
 
         result.Should().BeOfType<StatusCodeResult>()
             .Which.StatusCode.Should().Be(StatusCodes.Status410Gone);
@@ -244,5 +244,13 @@ public class GetRoadSegmentTests : V2ReadEndpointTestBase
     {
         return new ReadRoadSegmentDynamicAttribute<string>(attribute.Values
             .Select(x => (x.Coverage.From, x.Coverage.To, x.Side, (string?)x.Value!.ToString())));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task GivenInvalidRoadSegmentId_ThenIncorrectObjectId(int id)
+    {
+        await ActAndExpectIncorrectObjectId(() => _controller.GetRoadSegmentV2(new RoadSegmentIdValidator(), id, ApiOptions, Store), id);
     }
 }

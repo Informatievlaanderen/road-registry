@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
 using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
+using FluentValidation;
 using Marten;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -32,26 +33,32 @@ public partial class GradeJunctionsController
     /// <param name="store"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als de gelijkgrondse kruising gevonden is.</response>
+    /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="404">Als de gelijkgrondse kruising niet gevonden kan worden.</response>
     /// <response code="410">Als de gelijkgrondse kruising is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpGet(GetGradeJunctionRoute, Name = nameof(GetGradeJunctionV2))]
     [AllowAnonymous]
     [ProducesResponseType(typeof(GelijkgrondseKruisingV2Detail), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(GelijkgrondseKruisingV2DetailResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(GradeJunctionNotFoundResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status410Gone, typeof(GradeJunctionGoneResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerOperation(OperationId = nameof(GetGradeJunctionV2), Description = "Vraag een gelijkgrondse kruising op.")]
     public async Task<IActionResult> GetGradeJunctionV2(
+        [FromServices] GradeJunctionIdValidator idValidator,
         [FromRoute] int id,
         [FromServices] ApiOptions apiOptions,
         [FromServices] IDocumentStore store,
         CancellationToken cancellationToken = default)
     {
+        await idValidator.ValidateAndThrowAsync(id, cancellationToken);
+
         await using var session = store.LightweightSession();
 
         var gradeJunction = await session.LoadAsync<GradeJunctionReadItem>(id, cancellationToken);

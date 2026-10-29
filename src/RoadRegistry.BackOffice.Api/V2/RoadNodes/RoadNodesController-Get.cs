@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Common.NetTopology;
 using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
 using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
+using FluentValidation;
 using Marten;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -37,26 +38,32 @@ public partial class RoadNodesController
     /// <param name="store"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als het wegknoop gevonden is.</response>
+    /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="404">Als het wegknoop niet gevonden kan worden.</response>
     /// <response code="410">Als het wegknoop is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpGet(GetRoadNodeRoute, Name = nameof(GetRoadNodeV2))]
     [AllowAnonymous]
     [ProducesResponseType(typeof(WegknoopV2Detail), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(WegknoopV2DetailResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadNodeNotFoundResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status410Gone, typeof(RoadNodeGoneResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerOperation(OperationId = nameof(GetRoadNodeV2), Description = "Vraag een wegknoop op.")]
     public async Task<IActionResult> GetRoadNodeV2(
+        [FromServices] RoadNodeIdValidator idValidator,
         [FromRoute] int id,
         [FromServices] ApiOptions apiOptions,
         [FromServices] IDocumentStore store,
         CancellationToken cancellationToken = default)
     {
+        await idValidator.ValidateAndThrowAsync(id, cancellationToken);
+
         await using var session = store.LightweightSession();
 
         var roadNode = await session.LoadAsync<RoadNodeReadItem>(id, cancellationToken);

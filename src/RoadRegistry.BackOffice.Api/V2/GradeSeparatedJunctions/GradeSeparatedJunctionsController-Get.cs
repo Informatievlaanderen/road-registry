@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
 using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
+using FluentValidation;
 using Marten;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -32,26 +33,32 @@ public partial class GradeSeparatedJunctionsController
     /// <param name="store"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als de ongelijkgrondse kruising gevonden is.</response>
+    /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="404">Als de ongelijkgrondse kruising niet gevonden kan worden.</response>
     /// <response code="410">Als de ongelijkgrondse kruising is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpGet(GetGradeSeparatedJunctionRoute, Name = nameof(GetGradeSeparatedJunctionV2))]
     [AllowAnonymous]
     [ProducesResponseType(typeof(OngelijkgrondseKruisingV2Detail), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(OngelijkgrondseKruisingV2DetailResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(GradeSeparatedJunctionNotFoundResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status410Gone, typeof(GradeSeparatedJunctionGoneResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerOperation(OperationId = nameof(GetGradeSeparatedJunctionV2), Description = "Vraag een ongelijkgrondse kruising op.")]
     public async Task<IActionResult> GetGradeSeparatedJunctionV2(
+        [FromServices] GradeSeparatedJunctionIdValidator idValidator,
         [FromRoute] int id,
         [FromServices] ApiOptions apiOptions,
         [FromServices] IDocumentStore store,
         CancellationToken cancellationToken = default)
     {
+        await idValidator.ValidateAndThrowAsync(id, cancellationToken);
+
         await using var session = store.LightweightSession();
 
         var gradeSeparatedJunction = await session.LoadAsync<GradeSeparatedJunctionReadItem>(id, cancellationToken);
