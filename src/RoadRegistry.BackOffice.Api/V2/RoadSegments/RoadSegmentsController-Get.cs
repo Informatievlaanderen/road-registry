@@ -10,6 +10,7 @@ using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Common.NetTopology;
 using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Oslo;
+using FluentValidation;
 using Marten;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -38,26 +39,32 @@ public partial class RoadSegmentsController
     /// <param name="store"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als het wegsegment gevonden is.</response>
+    /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
     /// <response code="410">Als het wegsegment is verwijderd.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpGet(GetRoadSegmentRoute, Name = nameof(GetRoadSegmentV2))]
     [AllowAnonymous]
     [ProducesResponseType(typeof(WegsegmentV2Detail), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(WegsegmentV2DetailResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadSegmentNotFoundResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status410Gone, typeof(RoadSegmentGoneResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerOperation(OperationId = nameof(GetRoadSegmentV2), Description = "Vraag een wegsegment op.")]
     public async Task<IActionResult> GetRoadSegmentV2(
+        [FromServices] RoadSegmentIdValidator idValidator,
         [FromRoute] int id,
         [FromServices] ApiOptions apiOptions,
         [FromServices] IDocumentStore store,
         CancellationToken cancellationToken = default)
     {
+        await idValidator.ValidateAndThrowAsync(id, cancellationToken);
+
         await using var session = store.LightweightSession();
 
         var roadSegment = await session.LoadAsync<RoadSegmentReadItem>(id, cancellationToken);

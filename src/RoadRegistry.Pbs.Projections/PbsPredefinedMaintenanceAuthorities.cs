@@ -8,10 +8,17 @@ using Schema;
 using Schema.Records;
 
 // "andere" (-7) and "niet gekend" (-8) are maintenance authorities a road segment can carry without an organization
-// behind them, so no organization event ever puts them in the Wegbeheerder code list. They are seeded instead: when the
-// organization projection is initialized - a new read model, or one a rebuild emptied - and by PbsCodeListSyncService at
-// startup, for a read model that was projected before these rows existed. Otherwise the organization projection leaves
-// these two rows alone.
+// behind them, so no organization event ever puts them in the Wegbeheerder code list. They are seeded instead, by the
+// organization projection when it is initialized - a new read model, or one a rebuild emptied - which writes them in
+// the same transaction as the projection-state row of its first batch. Otherwise that projection leaves these two rows
+// alone.
+//
+// That initialization is the only thing that seeds them, and it has to stay the only thing. PbsCodeListSyncService did
+// it too, for a read model projected before these rows existed, and the two ran at the same moment: the code list sync
+// and the projection daemon are started together, so both read an empty code list, both inserted (-7) and (-8) from
+// their own transaction, and whichever committed second got a primary key violation. On a new database that was the
+// projection's first batch, which paused the shard over two constant rows. A read model that is missing them now needs
+// a rebuild, which empties it and initializes the projection again.
 public static class PbsPredefinedMaintenanceAuthorities
 {
     public static bool Contains(string? organisatieId)

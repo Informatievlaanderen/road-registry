@@ -28,7 +28,7 @@ public class GetGradeJunctionTests : V2ReadEndpointTestBase
         var gradeJunctionWasAdded = Fixture.Create<GradeJunctionWasAdded>();
         Seed(BuildReadItem(gradeJunctionWasAdded));
 
-        var result = await _controller.GetGradeJunctionV2((int)gradeJunctionWasAdded.GradeJunctionId, ApiOptions, Store);
+        var result = await _controller.GetGradeJunctionV2(new GradeJunctionIdValidator(), (int)gradeJunctionWasAdded.GradeJunctionId, ApiOptions, Store);
 
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
         var detail = okResult.Value.Should().BeOfType<GelijkgrondseKruisingV2Detail>().Subject;
@@ -39,7 +39,7 @@ public class GetGradeJunctionTests : V2ReadEndpointTestBase
     [Fact]
     public async Task GivenUnknownGradeJunction_ThenNotFound()
     {
-        var result = await _controller.GetGradeJunctionV2(Fixture.Create<int>(), ApiOptions, Store);
+        var result = await _controller.GetGradeJunctionV2(new GradeJunctionIdValidator(), Fixture.Create<int>(), ApiOptions, Store);
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -52,7 +52,7 @@ public class GetGradeJunctionTests : V2ReadEndpointTestBase
         readItem.IsRemoved = true;
         Seed(readItem);
 
-        var result = await _controller.GetGradeJunctionV2((int)gradeJunctionWasAdded.GradeJunctionId, ApiOptions, Store);
+        var result = await _controller.GetGradeJunctionV2(new GradeJunctionIdValidator(), (int)gradeJunctionWasAdded.GradeJunctionId, ApiOptions, Store);
 
         result.Should().BeOfType<StatusCodeResult>()
             .Which.StatusCode.Should().Be(StatusCodes.Status410Gone);
@@ -69,5 +69,13 @@ public class GetGradeJunctionTests : V2ReadEndpointTestBase
             LastModified = e.Provenance.ToEventTimestamp(),
             IsV2 = true
         };
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task GivenInvalidGradeJunctionId_ThenIncorrectObjectId(int id)
+    {
+        await ActAndExpectIncorrectObjectId(() => _controller.GetGradeJunctionV2(new GradeJunctionIdValidator(), id, ApiOptions, Store), id);
     }
 }

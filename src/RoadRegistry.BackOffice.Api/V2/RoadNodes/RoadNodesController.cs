@@ -82,9 +82,10 @@ public class RoadNodeIdValidator : AbstractValidator<int>
 {
     public RoadNodeIdValidator()
     {
+        // RoadNodeId.Accepts lets 0 through because the domain uses it for "no road node"; no road node is ever handed that id.
         RuleFor(x => x)
             .Cascade(CascadeMode.Stop)
-            .Must(RoadNodeId.Accepts)
+            .GreaterThan(0)
             .WithName("objectId")
             .WithProblemCode(ProblemCode.Common.IncorrectObjectId);
     }

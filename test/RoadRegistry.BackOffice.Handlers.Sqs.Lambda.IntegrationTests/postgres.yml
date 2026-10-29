@@ -3,6 +3,10 @@ version: '3.8'
 services:
   postgres:
     image: postgis/postgis:14-3.5-alpine
+    # Every test gets a database of its own, and with it a connection pool of its own. The image allows 100
+    # connections, which the suite now runs into: the tests that happen to come last fail with "sorry, too many
+    # clients already" and the failure says nothing about what they were testing.
+    command: postgres -c max_connections=300
     ports:
       - "15432:5432"
     volumes:

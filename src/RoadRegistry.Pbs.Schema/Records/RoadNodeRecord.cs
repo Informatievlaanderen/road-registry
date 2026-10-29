@@ -5,7 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NetTopologySuite.Geometries;
 
-// Wegknoop (road node).
+// Wegknoop (road node). The projection writes one row per road node into [WegknopenData]; the two download products
+// read it through the [Wegknopen] (basisproduct) and [AfgeleideWegknopen] (afgeleid product) views, which today
+// select the same rows and the same columns but are about to diverge: the basisproduct keeps only the v1 schijnknopen,
+// the afgeleid product carries the v2 ones the dynamic-attribute split adds as well (GAWR-7836).
 public class RoadNodeRecord
 {
     public int WK_OIDN { get; set; }
@@ -19,7 +22,7 @@ public class RoadNodeRecord
 
 public class RoadNodeRecordConfiguration : IEntityTypeConfiguration<RoadNodeRecord>
 {
-    public const string TableName = "Wegknopen";
+    public const string TableName = "WegknopenData";
 
     public void Configure(EntityTypeBuilder<RoadNodeRecord> b)
     {

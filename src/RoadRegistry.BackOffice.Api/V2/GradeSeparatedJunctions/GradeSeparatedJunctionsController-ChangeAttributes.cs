@@ -8,7 +8,6 @@ using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using FluentValidation;
-using FluentValidation.Results;
 using Marten;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -56,6 +55,7 @@ public partial class GradeSeparatedJunctionsController
     [SwaggerRequestExample(typeof(ChangeGradeSeparatedJunctionAttributesV2Parameters), typeof(ChangeGradeSeparatedJunctionAttributesV2ParametersExamples))]
     [SwaggerOperation(OperationId = nameof(ChangeGradeSeparatedJunctionAttributesV2), Description = "Wijzig attribuutwaarde(n) voor een ongelijkgrondse kruising: het onder- en bovenliggende wegsegment omwisselen, of het type aanpassen.")]
     public async Task<IActionResult> ChangeGradeSeparatedJunctionAttributesV2(
+        [FromServices] GradeSeparatedJunctionIdValidator idValidator,
         [FromRoute] int id,
         [FromBody] ChangeGradeSeparatedJunctionAttributesV2Parameters parameters,
         [FromServices] IDocumentStore store,
@@ -64,10 +64,7 @@ public partial class GradeSeparatedJunctionsController
         try
         {
             // VAL-1
-            if (!GradeSeparatedJunctionId.Accepts(id))
-            {
-                throw new ValidationException([new ValidationFailure("id", $"De waarde {id} is ongeldig.")]);
-            }
+            await idValidator.ValidateAndThrowAsync(id, cancellationToken);
 
             await using var session = store.LightweightSession();
 

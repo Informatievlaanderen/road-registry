@@ -82,9 +82,10 @@ public class GradeJunctionIdValidator : AbstractValidator<int>
 {
     public GradeJunctionIdValidator()
     {
+        // GradeJunctionId.Accepts lets 0 through, but no grade junction is ever handed that id.
         RuleFor(x => x)
             .Cascade(CascadeMode.Stop)
-            .Must(GradeJunctionId.Accepts)
+            .GreaterThan(0)
             .WithName("objectId")
             .WithProblemCode(ProblemCode.Common.IncorrectObjectId);
     }

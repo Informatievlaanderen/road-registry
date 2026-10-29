@@ -268,6 +268,15 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
         return status == ExtractUploadStatus.Accepted;
     }
 
+    // An upload we cannot find has no status, so it does not have this one either: Any says that, where reading the
+    // status and comparing it would read a missing record as Processing, the status that happens to be the default.
+    public async Task<bool> HasUploadStatusAsync(UploadId uploadId, ExtractUploadStatus status, CancellationToken cancellationToken)
+    {
+        return await ExtractUploads
+            .AsNoTracking()
+            .AnyAsync(x => x.UploadId == uploadId.ToGuid() && x.Status == status, cancellationToken);
+    }
+
     public async Task UploadAcceptedAsync(UploadId uploadId, CancellationToken cancellationToken)
     {
         await UpdateExtractUpload(uploadId, async record =>

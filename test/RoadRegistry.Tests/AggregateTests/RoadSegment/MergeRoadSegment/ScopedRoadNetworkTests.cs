@@ -92,6 +92,11 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 result.Summary.RoadSegments.Modified.Should().Contain([new RoadSegmentId(1), new RoadSegmentId(2)]);
                 result.Summary.RoadSegments.Removed.Should().BeEmpty();
 
+                // The road the two became is named once: it is a road of its own, so it is added and not modified on
+                // top of that (GAWR-7829).
+                result.Summary.RoadSegments.Added.Should().Contain(new RoadSegmentId(3));
+                result.Summary.RoadSegments.Modified.Should().NotContain(new RoadSegmentId(3));
+
                 events.OfType<RoadSegmentWasRetiredBecauseOfMerger>().Should().HaveCount(2);
                 var roadSegment1WasRetiredBecauseOfMerger = events
                     .OfType<RoadSegmentWasRetiredBecauseOfMerger>()
@@ -108,6 +113,61 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     .OfType<RoadSegmentWasMerged>()
                     .SingleOrDefault(x => x.RoadSegmentId == new RoadSegmentId(3));
                 roadSegmentWasMerged.Should().NotBeNull();
+            })
+        );
+    }
+
+    // The inwinning is handed the roads as they were drawn, so two that were not drawn the same way still become one:
+    // the geometriemethode of the road they became is derived from the two it is made of, the same as its other
+    // attributes. Half of this one is ingemeten, which is short of the three quarters that would make it ingemeten
+    // as a whole. The editing actions refuse this instead - see the remove tests (GAWR-7829).
+    //
+    // Through the migrate flow, like the other merges here: a bijhouding upload takes the same changes through the
+    // change flow but merges nothing (GAWR-7199).
+    [Fact]
+    public Task WhenTheTwoRoadSegmentsAreNotDrawnTheSameWay_ThenTheyAreStillMerged()
+    {
+        var point1 = new Point(600000, 600000).WithSrid(WellknownSrids.Lambert08);
+        var point2 = new Point(600050, 600000).WithSrid(WellknownSrids.Lambert08);
+        var point3 = new Point(600100, 600000).WithSrid(WellknownSrids.Lambert08);
+
+        return Run(scenario => scenario
+            .Given(b => b)
+            .WhenMigrate(changes => changes
+                .Add(TestData.AddSegment1StartNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point1),
+                    Grensknoop = false
+                })
+                .Add(TestData.AddSegment1EndNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point2),
+                    Grensknoop = false
+                })
+                .Add((TestData.AddSegment1 with
+                {
+                    Geometry = BuildRoadSegmentGeometry(point1, point2),
+                    GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
+                .Add(TestData.AddSegment2EndNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point3),
+                    Grensknoop = false
+                })
+                .Add((TestData.AddSegment2 with
+                {
+                    Geometry = BuildRoadSegmentGeometry(point2, point3),
+                    GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst,
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
+            )
+            .Then((result, events) =>
+            {
+                result.Problems.Should().HaveNoError();
+
+                var roadSegmentWasMerged = events.OfType<RoadSegmentWasMerged>().Should().ContainSingle().Subject;
+                roadSegmentWasMerged.GeometryDrawMethod.Should().Be(RoadSegmentGeometryDrawMethodV2.Ingeschetst);
             })
         );
     }

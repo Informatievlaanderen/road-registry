@@ -1,4 +1,4 @@
-namespace RoadRegistry.ScopedRoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System;
 using System.Collections.Generic;
@@ -42,12 +42,33 @@ public partial class ScopedRoadNetwork
         public bool TakenInFull => RemainingGeometry is null;
     }
 
+    // Per uploaded road segment the cuts to make, in the order they were worked out. A road that runs up to a road
+    // node the neighbour merged away at each of its ends - the top of a loop whose bottom the neighbour collected -
+    // is cut at both, and each cut is measured against what the one before it left (GAWR-7826).
     private sealed record NeighbourMergeResolutions(
         IReadOnlyCollection<RoadNodeId> RoadNodeIds,
-        IReadOnlyDictionary<RoadSegmentIdReference, NeighbourMergeResolution> RoadSegments)
+        IReadOnlyDictionary<RoadSegmentIdReference, IReadOnlyList<NeighbourMergeResolution>> RoadSegments,
+        IReadOnlyCollection<RoadNodeId> RoadNodeIdsToKeep,
+        IReadOnlyCollection<RoadSegmentId> RoadSegmentIdsToKeep)
     {
         public static readonly NeighbourMergeResolutions None =
-            new([], new Dictionary<RoadSegmentIdReference, NeighbourMergeResolution>());
+            new([], new Dictionary<RoadSegmentIdReference, IReadOnlyList<NeighbourMergeResolution>>(), [], []);
+    }
+
+    // A road this upload brings, whether it modifies one the road network already has or draws one anew. The
+    // feature compare turns a run of road segments the uploader collected as a single road into one new road with
+    // the old ones removed, and such a road runs up to a road node the neighbour merged away just the same.
+    private sealed record UploadedRoad(RoadSegmentIdReference IdReference, RoadSegmentGeometry Geometry)
+    {
+        public static UploadedRoad? From(IRoadNetworkChange change)
+        {
+            return change switch
+            {
+                ModifyRoadSegmentChange c when c.Geometry is not null => new UploadedRoad(c.RoadSegmentIdReference, c.Geometry),
+                AddRoadSegmentChange c => new UploadedRoad(c.RoadSegmentIdReference, c.Geometry),
+                _ => null
+            };
+        }
     }
 
     // Works out, before a single change is applied, which of them are about road segments a neighbouring inwinning
@@ -71,12 +92,17 @@ public partial class ScopedRoadNetwork
         }
 
         var resolvedRoadNodeIds = new List<RoadNodeId>();
-        var resolvedRoadSegments = new Dictionary<RoadSegmentIdReference, NeighbourMergeResolution>();
+        var resolvedRoadSegments = new Dictionary<RoadSegmentIdReference, List<NeighbourMergeResolution>>();
 
         var roadSegmentChanges = changes
-            .OfType<ModifyRoadSegmentChange>()
-            .Where(change => change.Geometry is not null)
+            .Select(UploadedRoad.From)
+            .Where(uploadedRoad => uploadedRoad is not null)
+            .Select(uploadedRoad => uploadedRoad!)
             .ToArray();
+
+        // The roads that took a stretch of this upload over. They are the neighbour's, collected before this
+        // upload was even prepared, so whatever this upload says about them does not apply to them.
+        var takenOverByRoadSegmentIds = new List<RoadSegmentId>();
 
         foreach (var removedRoadNode in removedRoadNodes)
         {
@@ -85,17 +111,27 @@ public partial class ScopedRoadNetwork
             var accountedFor = false;
 
             // Only the road segments this upload runs up to that road node can have been merged away along with it.
-            foreach (var roadSegmentChange in roadSegmentChanges.Where(x => TouchesCoordinate(x.Geometry!.Value, roadNodeCoordinate)))
+            foreach (var roadSegmentChange in roadSegmentChanges)
             {
-                if (resolvedRoadSegments.ContainsKey(roadSegmentChange.RoadSegmentIdReference))
+                var cuts = resolvedRoadSegments.GetValueOrDefault(roadSegmentChange.IdReference);
+                if (cuts is not null && cuts[^1].TakenInFull)
+                {
+                    // Taken over whole at the other end already: there is nothing left of it to cut.
+                    continue;
+                }
+
+                // What is left of the upload at this point, which is what the road node has to be read against: a
+                // road already cut back at its other end no longer reaches as far as it was uploaded.
+                var remainingSoFar = cuts is not null ? cuts[^1].RemainingGeometry! : roadSegmentChange.Geometry;
+                if (!TouchesCoordinate(remainingSoFar.Value, roadNodeCoordinate))
                 {
                     continue;
                 }
 
-                var uploadedGeometry = roadSegmentChange.Geometry!.Value.GetSingleLineString();
+                var uploadedGeometry = remainingSoFar.Value.GetSingleLineString();
 
                 var takenOverBy = FindRoadSegmentLeavingRoadNode(
-                    uploadedGeometry, roadNodeCoordinate, roadSegmentChange.RoadSegmentIdReference.RoadSegmentId);
+                    uploadedGeometry, roadNodeCoordinate, roadSegmentChange.IdReference.RoadSegmentId);
                 if (takenOverBy is null)
                 {
                     continue;
@@ -107,13 +143,24 @@ public partial class ScopedRoadNetwork
                     continue;
                 }
 
-                resolvedRoadSegments.Add(roadSegmentChange.RoadSegmentIdReference, resolution);
+                if (cuts is null)
+                {
+                    cuts = [];
+                    resolvedRoadSegments.Add(roadSegmentChange.IdReference, cuts);
+                }
+
+                cuts.Add(resolution);
                 accountedFor = true;
+
+                if (!takenOverByRoadSegmentIds.Contains(takenOverBy.RoadSegmentId))
+                {
+                    takenOverByRoadSegmentIds.Add(takenOverBy.RoadSegmentId);
+                }
 
                 context.Logger.LogInformation(
                     "Road node {RoadNodeId} was merged away by another inwinning: road segment {RoadSegmentId} was taken over by road segment {TakenOverBy} and keeps {Remaining}",
                     removedRoadNode.RoadNodeId.ToInt32(),
-                    roadSegmentChange.RoadSegmentIdReference.RoadSegmentId.ToInt32(),
+                    roadSegmentChange.IdReference.RoadSegmentId.ToInt32(),
                     takenOverBy.RoadSegmentId.ToInt32(),
                     resolution.TakenInFull ? "nothing of itself" : "what is left of itself");
             }
@@ -126,7 +173,63 @@ public partial class ScopedRoadNetwork
             }
         }
 
-        return new NeighbourMergeResolutions(resolvedRoadNodeIds, resolvedRoadSegments);
+        var resolvedCuts = resolvedRoadSegments.ToDictionary(x => x.Key, x => (IReadOnlyList<NeighbourMergeResolution>)x.Value);
+
+        return new NeighbourMergeResolutions(
+            resolvedRoadNodeIds,
+            resolvedCuts,
+            ResolveRoadNodesToKeep(resolvedCuts, context),
+            takenOverByRoadSegmentIds);
+    }
+
+    // A road the cut gave back runs up to a road node again, and this upload may have been on its way to removing
+    // that road node: it was merging the two roads that met there into one, so it no longer needed it. The merge is
+    // cut back to what the neighbour left, the road ends on that road node after all, and removing it would leave
+    // the road without one - "de eind wegknoop van het wegsegment ontbreekt" (GAWR-7827).
+    //
+    // Only the ends the cuts themselves put there, not whatever the road already ran up to at its far end: that end
+    // is no business of the neighbour's and the upload remains free to remove the road node sitting on it.
+    private IReadOnlyCollection<RoadNodeId> ResolveRoadNodesToKeep(
+        IReadOnlyDictionary<RoadSegmentIdReference, IReadOnlyList<NeighbourMergeResolution>> cuts,
+        ScopedRoadNetworkChangeContext context)
+    {
+        var roadNodeIds = new List<RoadNodeId>();
+
+        foreach (var (roadSegmentIdReference, resolutions) in cuts)
+        {
+            var remaining = resolutions[^1].RemainingGeometry;
+            if (remaining is null)
+            {
+                // Taken over whole: nothing is left to run up to a road node.
+                continue;
+            }
+
+            var line = remaining.Value.GetSingleLineString();
+
+            // A cut shortens the road at the end it was made and leaves the other where it was, so each cut is
+            // answered for by the end of what is left that sits on its side.
+            foreach (var resolution in resolutions)
+            {
+                var coordinate = resolution.TakenFromStart
+                    ? line.StartPoint.Coordinate
+                    : line.EndPoint.Coordinate;
+
+                var roadNode = FindRoadNode(coordinate);
+                if (roadNode is null || roadNodeIds.Contains(roadNode.RoadNodeId))
+                {
+                    continue;
+                }
+
+                roadNodeIds.Add(roadNode.RoadNodeId);
+
+                context.Logger.LogInformation(
+                    "Road node {RoadNodeId} is kept: what is left of road segment {RoadSegmentId} after the cut runs up to it",
+                    roadNode.RoadNodeId.ToInt32(),
+                    roadSegmentIdReference.RoadSegmentId.ToInt32());
+            }
+        }
+
+        return roadNodeIds;
     }
 
     private static bool TouchesCoordinate(MultiLineString geometry, Coordinate coordinate)
@@ -169,6 +272,7 @@ public partial class ScopedRoadNetwork
         var takenOverLine = takenOverBy.Geometry.Value.GetSingleLineString();
 
         double? cutIndex = null;
+        Coordinate? cutCoordinate = null;
         foreach (var endPoint in new[] { takenOverLine.StartPoint.Coordinate, takenOverLine.EndPoint.Coordinate })
         {
             var index = indexedUpload.Project(endPoint);
@@ -180,6 +284,7 @@ public partial class ScopedRoadNetwork
             if (cutIndex is null || index > cutIndex)
             {
                 cutIndex = index;
+                cutCoordinate = endPoint;
             }
         }
 
@@ -199,6 +304,14 @@ public partial class ScopedRoadNetwork
 
         var remaining = (LineString)indexedUpload.ExtractLine(cutIndex.Value, awayFromRoadNode.Length);
 
+        // Put on the road node the two roads meet at, rather than left on the point the projection landed on. The
+        // two are not the same: this works to a tolerance and takes the road the neighbour collected as lining up
+        // when its end lies within NeighbourMergeProbeDistance of the uploaded road, which is as far as the
+        // uploaded road may have been redrawn. The road network has no such tolerance when it looks a road node up -
+        // it matches an exact coordinate - so a road cut to a hair's breadth off the road node is a road with no end
+        // node at all, and the upload was refused for it.
+        remaining = WithFirstCoordinateAt(remaining, cutCoordinate!);
+
         // Handed back the way it was uploaded, so that what follows does not have to care which end was cut.
         if (!takenFromStart)
         {
@@ -211,43 +324,87 @@ public partial class ScopedRoadNetwork
         }.ToRoadSegmentGeometry(), takenFromStart);
     }
 
-    // The uploaded change, cut back to the stretch this upload still has to collect. The dynamically segmented
-    // attributes are cut along with the geometry: they are positioned along the road, so a road that lost a stretch
-    // at one end has attribute positions that no longer line up with it.
-    private static ModifyRoadSegmentChange CutBackToRemainingStretch(ModifyRoadSegmentChange change, NeighbourMergeResolution resolution)
+    private static LineString WithFirstCoordinateAt(LineString line, Coordinate coordinate)
     {
-        var totalLength = change.Geometry!.Value.Length;
-        var remainingLength = resolution.RemainingGeometry!.Value.Length;
-        var takenLength = totalLength - remainingLength;
+        var coordinates = line.Coordinates;
+        coordinates[0] = new Coordinate(coordinate.X, coordinate.Y);
 
-        var cutPosition = new RoadSegmentPositionV2(resolution.TakenFromStart ? takenLength : remainingLength);
-        var firstLength = resolution.TakenFromStart ? takenLength : remainingLength;
-        var secondLength = resolution.TakenFromStart ? remainingLength : takenLength;
+        return new LineString(coordinates) { SRID = line.SRID };
+    }
 
-        RoadSegmentDynamicAttributeValues<T>? CutBack<T>(RoadSegmentDynamicAttributeValues<T>? attributes)
+    // Cuts one dynamically segmented attribute back along with the geometry: the attributes are positioned along
+    // the road, so a road that lost a stretch at one end has attribute positions that no longer line up with it.
+    private readonly struct NeighbourMergeCutBack
+    {
+        private readonly RoadSegmentPositionV2 _cutPosition;
+        private readonly double _totalLength;
+        private readonly double _firstLength;
+        private readonly double _secondLength;
+        private readonly bool _takenFromStart;
+
+        public NeighbourMergeCutBack(double totalLength, NeighbourMergeResolution resolution)
+        {
+            var remainingLength = resolution.RemainingGeometry!.Value.Length;
+            var takenLength = totalLength - remainingLength;
+
+            _cutPosition = new RoadSegmentPositionV2(resolution.TakenFromStart ? takenLength : remainingLength);
+            _totalLength = totalLength;
+            _firstLength = resolution.TakenFromStart ? takenLength : remainingLength;
+            _secondLength = resolution.TakenFromStart ? remainingLength : takenLength;
+            _takenFromStart = resolution.TakenFromStart;
+        }
+
+        public RoadSegmentDynamicAttributeValues<T>? Of<T>(RoadSegmentDynamicAttributeValues<T>? attributes)
         {
             if (attributes is null)
             {
                 return null;
             }
 
-            var (first, second) = attributes.SplitAt(cutPosition, totalLength, firstLength, secondLength);
+            var (first, second) = attributes.SplitAt(_cutPosition, _totalLength, _firstLength, _secondLength);
 
-            return resolution.TakenFromStart ? second : first;
+            return _takenFromStart ? second : first;
         }
+    }
+
+    // The uploaded change, cut back to the stretch this upload still has to collect.
+    private static ModifyRoadSegmentChange CutBackToRemainingStretch(ModifyRoadSegmentChange change, NeighbourMergeResolution resolution)
+    {
+        var cut = new NeighbourMergeCutBack(change.Geometry!.Value.Length, resolution);
 
         return change with
         {
             Geometry = resolution.RemainingGeometry,
-            AccessRestriction = CutBack(change.AccessRestriction),
-            Category = CutBack(change.Category),
-            Morphology = CutBack(change.Morphology),
-            StreetNameId = CutBack(change.StreetNameId),
-            MaintenanceAuthorityId = CutBack(change.MaintenanceAuthorityId),
-            SurfaceType = CutBack(change.SurfaceType),
-            CarTrafficDirection = CutBack(change.CarTrafficDirection),
-            BikeTrafficDirection = CutBack(change.BikeTrafficDirection),
-            PedestrianTrafficDirection = CutBack(change.PedestrianTrafficDirection)
+            AccessRestriction = cut.Of(change.AccessRestriction),
+            Category = cut.Of(change.Category),
+            Morphology = cut.Of(change.Morphology),
+            StreetNameId = cut.Of(change.StreetNameId),
+            MaintenanceAuthorityId = cut.Of(change.MaintenanceAuthorityId),
+            SurfaceType = cut.Of(change.SurfaceType),
+            CarTrafficDirection = cut.Of(change.CarTrafficDirection),
+            BikeTrafficDirection = cut.Of(change.BikeTrafficDirection),
+            PedestrianTrafficDirection = cut.Of(change.PedestrianTrafficDirection)
+        };
+    }
+
+    // The same for a road this upload draws anew, which is how the feature compare hands over a run of road
+    // segments the uploader collected as one road. Its attributes are always there, so they always come back.
+    private static AddRoadSegmentChange CutBackToRemainingStretch(AddRoadSegmentChange change, NeighbourMergeResolution resolution)
+    {
+        var cut = new NeighbourMergeCutBack(change.Geometry.Value.Length, resolution);
+
+        return change with
+        {
+            Geometry = resolution.RemainingGeometry!,
+            AccessRestriction = cut.Of(change.AccessRestriction)!,
+            Category = cut.Of(change.Category)!,
+            Morphology = cut.Of(change.Morphology)!,
+            StreetNameId = cut.Of(change.StreetNameId)!,
+            MaintenanceAuthorityId = cut.Of(change.MaintenanceAuthorityId)!,
+            SurfaceType = cut.Of(change.SurfaceType)!,
+            CarTrafficDirection = cut.Of(change.CarTrafficDirection)!,
+            BikeTrafficDirection = cut.Of(change.BikeTrafficDirection)!,
+            PedestrianTrafficDirection = cut.Of(change.PedestrianTrafficDirection)!
         };
     }
 

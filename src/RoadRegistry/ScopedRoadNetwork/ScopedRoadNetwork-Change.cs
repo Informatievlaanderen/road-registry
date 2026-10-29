@@ -38,7 +38,7 @@ public partial class ScopedRoadNetwork
 
         if (!problems.HasError())
         {
-            problems += AfterChangesApplied(idGenerator, context, mayMergeRoadSegments: false);
+            problems += AfterChangesApplied(idGenerator, context, RoadSegmentMerging.NotAllowed);
         }
 
         if (!problems.HasError() && changes.Any())
@@ -146,14 +146,14 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
-    // mayMergeRoadSegments: see RoadNode.VerifyTopologyAndUpdateType. An inwinning reshapes a municipality as a whole
+    // merging: see RoadNode.VerifyTopologyAndUpdateType. An inwinning reshapes a municipality as a whole
     // and may take an unnecessary node out by merging the two segments hanging off it. A delivery through the
     // bijhouding does not: cutting a road segment in LARA leaves a validatieknoop behind, and an extract taken right
     // after that carries it. The bijwerker who downloads such an extract cannot be expected to clean it up, so the
     // node stays where it is.
-    private Problems AfterChangesApplied(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments)
+    private Problems AfterChangesApplied(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, RoadSegmentMerging merging)
     {
-        var problems = VerifyRoadNodesTopologyAndUpdateTypeAfterChange(idGenerator, context, mayMergeRoadSegments);
+        var problems = VerifyRoadNodesTopologyAndUpdateTypeAfterChange(idGenerator, context, merging);
 
         problems = problems
                    + VerifyRoadSegmentsTopologyAfterChange(context)
@@ -171,7 +171,7 @@ public partial class ScopedRoadNetwork
     // type is not uploaded but derived from what hangs off it, and it is this verification that derives it - so it is
     // what turns a V1 node, which carries no type, into a V2 one. Skipping the non-migrated nodes here would leave
     // them without a type forever.
-    private Problems VerifyRoadNodesTopologyAndUpdateTypeAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments)
+    private Problems VerifyRoadNodesTopologyAndUpdateTypeAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, RoadSegmentMerging merging)
     {
         using var _ = context.Logger.TimeAction();
 
@@ -185,7 +185,7 @@ public partial class ScopedRoadNetwork
             .ToArray();
 
         return roadNodes
-            .Aggregate(problems, (p, x) => p + x.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context, mayMergeRoadSegments));
+            .Aggregate(problems, (p, x) => p + x.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context, merging));
     }
 
     private Problems VerifyRoadSegmentsTopologyAfterChange(ScopedRoadNetworkChangeContext context)

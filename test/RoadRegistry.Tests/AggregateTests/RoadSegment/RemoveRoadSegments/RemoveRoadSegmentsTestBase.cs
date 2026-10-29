@@ -53,7 +53,8 @@ public abstract class RemoveRoadSegmentsTestBase : AggregateTestBase
         RoadNodeWasAdded? endNode,
         RoadSegmentGeometry geometry,
         RoadSegmentStatusV2? status = null,
-        RoadSegmentCategoryV2? category = null)
+        RoadSegmentCategoryV2? category = null,
+        RoadSegmentGeometryDrawMethodV2? geometryDrawMethod = null)
     {
         var template = TestData.Segment1Added;
 
@@ -63,7 +64,7 @@ public abstract class RemoveRoadSegmentsTestBase : AggregateTestBase
             StartNodeId = startNode?.RoadNodeId,
             EndNodeId = endNode?.RoadNodeId,
             Geometry = geometry,
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
+            GeometryDrawMethod = geometryDrawMethod ?? RoadSegmentGeometryDrawMethodV2.Ingemeten,
             Status = status ?? RoadSegmentStatusV2.Gerealiseerd,
             AccessRestriction = Spanning(template.AccessRestriction, geometry),
             Category = category is not null

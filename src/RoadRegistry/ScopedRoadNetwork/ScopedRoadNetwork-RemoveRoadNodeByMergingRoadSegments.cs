@@ -100,8 +100,11 @@ public partial class ScopedRoadNetwork
         }
 
         // Four roads merged pairwise leaves two roads crossing where the node used to be, and that crossing is now a
-        // gelijkgrondse kruising: the same verification the change upload uses records it.
-        problems += VerifyAndUpdateJunctions(idGenerator, context);
+        // gelijkgrondse kruising. Recorded the way a geometry change records it, not the way the change upload does:
+        // the upload refuses a crossing of two roads sharing a traffic type unless it is declared ongelijkgronds, and
+        // removing a node is not a statement about how the two roads relate - they met at that node, so they cross at
+        // grade, whatever traffic they carry (GAWR-7802).
+        problems += VerifyAndUpdateJunctionsAfterGeometryChange(idGenerator, context);
         if (problems.HasError())
         {
             return new RoadNetworkChangeResult(problems, context.Summary);
@@ -174,6 +177,9 @@ public partial class ScopedRoadNetwork
         // VAL-8. The roads that are becoming one are not other roads to themselves, and neither is the road on the
         // other side of an echte knoop it is about to be merged with - it is checked as its own pair.
         var otherSegments = _roadSegmentsSpatialIndex.Query(mergedGeometry.EnvelopeInternal)
+            // A gehistoreerd road segment is out of the road network but still in the index with the geometry it
+            // had, a merge being one of the things that leaves one behind. It is not a road this one could run into.
+            .Where(x => !x.IsRemoved && x.Status == RoadSegmentStatusV2.Gerealiseerd)
             .Where(x => x.RoadSegmentId != segment1.RoadSegmentId && x.RoadSegmentId != segment2.RoadSegmentId)
             .Where(x => x.StartNodeId != commonNodeId && x.EndNodeId != commonNodeId);
 

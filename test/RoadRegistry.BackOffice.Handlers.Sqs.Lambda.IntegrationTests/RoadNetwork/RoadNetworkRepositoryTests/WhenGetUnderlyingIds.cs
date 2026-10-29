@@ -175,6 +175,108 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
+    // Two neighbouring municipalities are collected independently. The upload that lands first merges a road that
+    // runs across their border, which retires the road segment it took over and removes the road node the two met
+    // at. The second upload was prepared against the extract from before that: it still names that road node, and
+    // the migration has to see it - as removed, so ResolveNeighbourMerges can cut the upload back, and not as
+    // missing, which refuses the upload with "de eind wegknoop van het wegsegment ontbreekt" (GAWR-7827).
+    //
+    // Seeing it means loading it, and that is where this comes apart. A road node is reached through the road
+    // segments that point at it, and after the merge nothing does: the merged road segment runs to the border road
+    // node instead, and the retired one gave up its road nodes. The road node still has a row of its own - a V2
+    // removal only marks it - so naming it is enough to ask for it.
+    //
+    //   north  (0,200)  o            the far end of what the neighbour collected
+    //                   |  ws-100    merged, and now running all the way to the border
+    //   middle (0,100)  x            the road node the neighbour's merge removed
+    //                   |  ws-200    retired by that merge, road nodes given up
+    //   border (0,50)   o
+    [Fact]
+    public async Task WithARoadNodeIdANeighboursMergeRemoved_ThenTheRoadNodeIsStillLoaded()
+    {
+        // Arrange
+        var sp = await BuildServiceProvider();
+
+        var store = sp.GetRequiredService<IDocumentStore>();
+
+        const int northNodeId = 1;
+        const int middleNodeId = 2;
+        const int borderNodeId = 3;
+        const int neighbourSegmentId = 100;
+        const int takenOverSegmentId = 200;
+
+        await using (var session = store.LightweightSession())
+        {
+            foreach (var (roadNodeId, y) in new[] { (northNodeId, 200), (middleNodeId, 100), (borderNodeId, 50) })
+            {
+                var roadNodeWasAdded = TestData.Fixture.Create<RoadRegistry.RoadNode.Events.V2.RoadNodeWasAdded>() with
+                {
+                    RoadNodeId = new RoadNodeId(roadNodeId),
+                    Geometry = RoadNodeGeometry.Create(new Point(0, y) { SRID = WellknownSrids.Lambert72 })
+                };
+                session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadNode), roadNodeWasAdded.RoadNodeId), roadNodeWasAdded);
+            }
+
+            var neighbourSegment = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
+            {
+                RoadSegmentId = new RoadSegmentId(neighbourSegmentId),
+                Geometry = BuildRoadSegmentGeometry(0, 200, 0, 100),
+                StartNodeId = new RoadNodeId(northNodeId),
+                EndNodeId = new RoadNodeId(middleNodeId)
+            };
+            var takenOverSegment = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
+            {
+                RoadSegmentId = new RoadSegmentId(takenOverSegmentId),
+                Geometry = BuildRoadSegmentGeometry(0, 100, 0, 50),
+                StartNodeId = new RoadNodeId(middleNodeId),
+                EndNodeId = new RoadNodeId(borderNodeId)
+            };
+
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), neighbourSegment.RoadSegmentId), neighbourSegment);
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), takenOverSegment.RoadSegmentId), takenOverSegment);
+
+            await session.SaveChangesAsync();
+        }
+
+        // What the neighbour's upload left behind.
+        await using (var session = store.LightweightSession())
+        {
+            var merged = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasMerged>() with
+            {
+                RoadSegmentId = new RoadSegmentId(neighbourSegmentId),
+                OtherRoadSegmentId = new RoadSegmentId(takenOverSegmentId),
+                Geometry = BuildRoadSegmentGeometry(0, 200, 0, 50),
+                StartNodeId = new RoadNodeId(northNodeId),
+                EndNodeId = new RoadNodeId(borderNodeId)
+            };
+            var retired = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRetiredBecauseOfMerger>() with
+            {
+                RoadSegmentId = new RoadSegmentId(takenOverSegmentId),
+                MergedRoadSegmentId = new RoadSegmentId(neighbourSegmentId)
+            };
+            var roadNodeWasRemoved = TestData.Fixture.Create<RoadRegistry.RoadNode.Events.V2.RoadNodeWasRemoved>() with
+            {
+                RoadNodeId = new RoadNodeId(middleNodeId)
+            };
+
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), merged.RoadSegmentId), merged);
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), retired.RoadSegmentId), retired);
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadNode), roadNodeWasRemoved.RoadNodeId), roadNodeWasRemoved);
+
+            await session.SaveChangesAsync();
+        }
+
+        // What the second upload names: the road node its neighbour merged away.
+        var requestIds = new RoadNetworkIds([new(middleNodeId)], [], [], []);
+
+        // Act
+        var ids = await GetUnderlyingIds(sp, ids: requestIds);
+
+        // Assert
+        ids.RoadNodeIds.Should().Contain(new RoadNodeId(middleNodeId),
+            "a road node named by the upload has to be loaded so the migration can tell it was removed rather than report it missing");
+    }
+
     [Fact]
     public async Task WithRoadNodeIds_ThenResult()
     {

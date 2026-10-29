@@ -106,6 +106,11 @@ public class RoadNodeWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProje
 
         When<IEvent<RoadNodeWasRemoved>>((context, e, ct) => Remove(context, e.Data.RoadNodeId, ct));
         When<IEvent<RoadNodeWasRemovedBecauseOfMigration>>((context, e, ct) => Remove(context, e.Data.RoadNodeId, ct));
+
+        // Nothing to do: the record was deleted when the road node was removed, and the correction says no more than
+        // that the removal is undone. The road node is collected again right after it, and the RoadNodeWasMigrated
+        // handler above adds the record back - it upserts for exactly this reason.
+        When<IEvent<RoadNodeRemovalWasCorrectedBecauseOfMigration>>((_, _, _) => Task.CompletedTask);
     }
 
     private static async Task Remove(WmsWfsV2Context context, RoadNodeId roadNodeId, CancellationToken ct)

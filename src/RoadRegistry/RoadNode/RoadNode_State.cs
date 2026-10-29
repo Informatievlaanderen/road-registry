@@ -13,6 +13,11 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
 
     public bool IsRemoved { get; private set; }
 
+    // Which of the two removals put it there. Only an inwinning's removal of a road node can be corrected again
+    // (see RoadNodeRemovalWasCorrectedBecauseOfMigration), and a road node merged away by an editing action or by
+    // the merge of the two road segments meeting at it is removed for good - that one raises RoadNodeWasRemoved.
+    public bool IsRemovedBecauseOfMigration { get; private set; }
+
     private readonly string? _lastSnapshotEventHash;
     public string LastEventHash => UncommittedEvents.Count > 0 ? UncommittedEvents[^1].GetHash() : _lastSnapshotEventHash ?? string.Empty;
 
@@ -31,6 +36,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         string? type,
         bool grensknoop,
         bool isRemoved,
+        bool isRemovedBecauseOfMigration,
         string? lastEventHash)
         : this(new RoadNodeId(roadNodeId), EventOrdinalProvider.None)
     {
@@ -38,6 +44,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         Type = type is not null ? RoadNodeTypeV2.Parse(type) : null;
         Grensknoop = grensknoop;
         IsRemoved = isRemoved;
+        IsRemovedBecauseOfMigration = isRemovedBecauseOfMigration;
         _lastSnapshotEventHash = lastEventHash;
     }
 
@@ -45,7 +52,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         RoadNodeId roadNodeId,
         RoadNodeGeometry geometry)
     {
-        return new RoadNode(roadNodeId, geometry, null, false, false, null);
+        return new RoadNode(roadNodeId, geometry, null, false, false, false, null);
     }
 
     public static RoadNode Create(RoadNodeWasAdded @event)
@@ -100,6 +107,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = true;
+        IsRemovedBecauseOfMigration = false;
     }
 
     public void Apply(RoadNodeWasRemovedBecauseOfMigration @event)
@@ -107,5 +115,21 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = true;
+        IsRemovedBecauseOfMigration = true;
+    }
+
+    public void Apply(RoadNodeRemovalWasCorrectedBecauseOfMigration @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        IsRemoved = false;
+        IsRemovedBecauseOfMigration = false;
+
+        // The road node is collected again right after this, and dropping the type is what makes that happen: the
+        // migration asks HasMigrated() whether the road node still has collecting to do. So a RoadNodeWasMigrated
+        // follows with the geometry and the grensknoop, and the topology verification - which only raises the event
+        // when the type differs from what it already was - adds the type back. Between them the projections that had
+        // to delete their row have everything to build it again.
+        Type = null;
     }
 }

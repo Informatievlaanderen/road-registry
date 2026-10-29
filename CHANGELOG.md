@@ -1,3 +1,86 @@
+## [5.28.2](https://github.com/informatievlaanderen/road-registry/compare/v5.28.1...v5.28.2) (2026-10-29)
+
+
+### Bug Fixes
+
+* IncorrectObjectId for invalid id in v2 endpoints GAWR-7798 ([a8aa659](https://github.com/informatievlaanderen/road-registry/commit/a8aa659fe3f38c31cd5ed124abbbcb2e6c0ab57b))
+
+## [5.28.1](https://github.com/informatievlaanderen/road-registry/compare/v5.28.0...v5.28.1) (2026-10-29)
+
+
+### Bug Fixes
+
+* **wegknoop:** record the crossing left by removing a road node at grade whatever traffic it carries GAWR-7802 ([50b9e2b](https://github.com/informatievlaanderen/road-registry/commit/50b9e2be0c7b7d9d3e04a1d45837ead30be62de4))
+
+# [5.28.0](https://github.com/informatievlaanderen/road-registry/compare/v5.27.0...v5.28.0) (2026-10-29)
+
+
+### Bug Fixes
+
+* **pbs:** give the predefined wegbeheerder rows a single seeder ([991bc1b](https://github.com/informatievlaanderen/road-registry/commit/991bc1b0c6a5f423c8e14434ab4b6d48ac5e9e15))
+
+
+### Features
+
+* **wfs:** name the view ids after their entity, add segment status and method ([6ba64d8](https://github.com/informatievlaanderen/road-registry/commit/6ba64d842790f174ee2428e0568d6ac35557777d))
+
+# [5.27.0](https://github.com/informatievlaanderen/road-registry/compare/v5.26.5...v5.27.0) (2026-10-27)
+
+
+### Bug Fixes
+
+* **inwinning:** cut back a road the upload draws anew as well GAWR-7826 ([7846564](https://github.com/informatievlaanderen/road-registry/commit/78465647e2a1cda16825ba3938aa0b26b1b06e65))
+
+
+### Features
+
+* **pbs:** serve the wegknopen downloads from two views GAWR-7836 ([57e8c31](https://github.com/informatievlaanderen/road-registry/commit/57e8c31d82d4561137e77046179de73e6c1e8c42))
+
+## [5.26.5](https://github.com/informatievlaanderen/road-registry/compare/v5.26.4...v5.26.5) (2026-10-27)
+
+
+### Bug Fixes
+
+* **inwinning:** keep the road node a neighbour's merge gives a road back to ([1f9dc5b](https://github.com/informatievlaanderen/road-registry/commit/1f9dc5b3fff1176c5ddea87f6b23ea741fbebfbc))
+* **inwinning:** let the slow polling report what the fast polling missed ([7a4f918](https://github.com/informatievlaanderen/road-registry/commit/7a4f918a793d0d09c8cb5e9e2756334320857205))
+* **lambda:** send slack log events before the invocation ends ([b84c7c5](https://github.com/informatievlaanderen/road-registry/commit/b84c7c5d1b7eaf81360d4395f822be13752daef9))
+* **test:** look up a ticket error by the Guid the mock recorded ([87cdbc7](https://github.com/informatievlaanderen/road-registry/commit/87cdbc7f5b071aac97a2e68c9768ba4442d9bcaa))
+
+## [5.26.4](https://github.com/informatievlaanderen/road-registry/compare/v5.26.3...v5.26.4) (2026-10-27)
+
+
+### Bug Fixes
+
+* **inwinning:** cut a road back at both of the ends a neighbour took ([a84687d](https://github.com/informatievlaanderen/road-registry/commit/a84687d905cf1fa5bc04816512b67b87c054ce74))
+* **inwinning:** cut the road back onto the road node, not beside it ([13efc3e](https://github.com/informatievlaanderen/road-registry/commit/13efc3e5c93a865521d7012700c26b182e4178b9))
+* **inwinning:** let a road a merge left behind stop blocking the next merge ([2ba0d8f](https://github.com/informatievlaanderen/road-registry/commit/2ba0d8f96038daee4b075529f879247fc3215427))
+* **inwinning:** take only gepland and gerealiseerd road segments into an extract ([1237794](https://github.com/informatievlaanderen/road-registry/commit/123779430cf5c50de2639631152b3826da0218a6)), closes [#2151](https://github.com/informatievlaanderen/road-registry/issues/2151)
+
+## [5.26.3](https://github.com/informatievlaanderen/road-registry/compare/v5.26.2...v5.26.3) (2026-10-26)
+
+
+### Bug Fixes
+
+* **inwinning:** bring back a road node the neighbour removed ([b24ab58](https://github.com/informatievlaanderen/road-registry/commit/b24ab58b6444f03e24cc9b2eb3038bf760004f0b))
+* **roadnode:** let the merge see the roads it would cross twice ([e4fbe05](https://github.com/informatievlaanderen/road-registry/commit/e4fbe057d0b7dfb59b6081d0715f4cd2766c202c))
+* **ui:** send a call again after a delay when the API asks us to slow down ([6edcf14](https://github.com/informatievlaanderen/road-registry/commit/6edcf142d36e65442bc9ed79d7ea22cf66c43224))
+
+## [5.26.2](https://github.com/informatievlaanderen/road-registry/compare/v5.26.1...v5.26.2) (2026-10-23)
+
+
+### Bug Fixes
+
+* **roadsegment:** remove an ingeschetst road segment, and report one that was never there ([21e247a](https://github.com/informatievlaanderen/road-registry/commit/21e247ae112577f69348c4e8ee384411be8a785c))
+
+## [5.26.1](https://github.com/informatievlaanderen/road-registry/compare/v5.26.0...v5.26.1) (2026-10-23)
+
+
+### Bug Fixes
+
+* **2.0:** keep removed entities in the topology for V2 events ([ded5831](https://github.com/informatievlaanderen/road-registry/commit/ded58315172f127a29ea5411527ac0b255bd11af))
+* **inwinning:** let an upload through that a neighbour already merged ([d74f3a5](https://github.com/informatievlaanderen/road-registry/commit/d74f3a59169298efde9c4706b0f3afa42c620135))
+* **inwinning:** report the WK_OIDN the upload used, not only ours ([2a18301](https://github.com/informatievlaanderen/road-registry/commit/2a1830102beb8ef34bff44df6ab9984ffed04057))
+
 # [5.26.0](https://github.com/informatievlaanderen/road-registry/compare/v5.25.12...v5.26.0) (2026-10-23)
 
 

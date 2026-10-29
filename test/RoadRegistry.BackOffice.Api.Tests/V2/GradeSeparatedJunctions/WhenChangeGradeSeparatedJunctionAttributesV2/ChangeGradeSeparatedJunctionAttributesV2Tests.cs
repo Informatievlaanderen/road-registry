@@ -67,7 +67,7 @@ public class ChangeGradeSeparatedJunctionAttributesV2Tests : V2ReadEndpointTestB
 
     private Task<IActionResult> Act(int id, ChangeGradeSeparatedJunctionAttributesV2Parameters parameters)
     {
-        return _controller.ChangeGradeSeparatedJunctionAttributesV2(id, parameters, Store, CancellationToken.None);
+        return _controller.ChangeGradeSeparatedJunctionAttributesV2(new GradeSeparatedJunctionIdValidator(), id, parameters, Store, CancellationToken.None);
     }
 
     private static async Task<ValidationFailure> ActAndExpectSingleFailure(Func<Task<IActionResult>> act)
@@ -156,6 +156,16 @@ public class ChangeGradeSeparatedJunctionAttributesV2Tests : V2ReadEndpointTestB
         var failure = await ActAndExpectSingleFailure(() => Act(gradeSeparatedJunction.GradeSeparatedJunctionId.ToInt32(), Parameters(lower: "abc")));
 
         failure.ErrorMessage.Should().Be("De parameter 'onderliggendWegsegment' heeft een ongeldige waarde.");
+        VerifyNothingWasQueued();
+    }
+
+    // VAL-1
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task WhenTheGradeSeparatedJunctionIdIsInvalid_ThenIncorrectObjectId(int id)
+    {
+        await ActAndExpectIncorrectObjectId(() => Act(id, Parameters()), id);
         VerifyNothingWasQueued();
     }
 }

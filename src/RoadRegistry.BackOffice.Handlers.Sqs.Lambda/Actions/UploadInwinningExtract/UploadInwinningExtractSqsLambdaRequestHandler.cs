@@ -55,7 +55,7 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
             ticketing,
             idempotentCommandHandler,
             roadRegistryContext,
-            loggerFactory.CreateLogger<UploadExtractSqsLambdaRequestV2Handler>(),
+            loggerFactory.CreateLogger<UploadInwinningExtractSqsLambdaRequestHandler>(),
             TicketingBehavior.Error)
     {
         _extractsDbContext = extractsDbContext;

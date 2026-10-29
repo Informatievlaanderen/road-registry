@@ -51,7 +51,7 @@ public class ChangeToGradeJunctionV2Tests : V2ReadEndpointTestBase
 
     private Task<IActionResult> Act(int id)
     {
-        return _controller.ChangeGradeSeparatedJunctionToGradeJunctionV2(id, Store, CancellationToken.None);
+        return _controller.ChangeGradeSeparatedJunctionToGradeJunctionV2(new GradeSeparatedJunctionIdValidator(), id, Store, CancellationToken.None);
     }
 
     private void VerifyNothingWasQueued()
@@ -90,6 +90,16 @@ public class ChangeToGradeJunctionV2Tests : V2ReadEndpointTestBase
         var result = await Act(gradeSeparatedJunction.GradeSeparatedJunctionId.ToInt32());
 
         result.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(StatusCodes.Status410Gone);
+        VerifyNothingWasQueued();
+    }
+
+    // VAL-1
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task WhenTheGradeSeparatedJunctionIdIsInvalid_ThenIncorrectObjectId(int id)
+    {
+        await ActAndExpectIncorrectObjectId(() => Act(id), id);
         VerifyNothingWasQueued();
     }
 }

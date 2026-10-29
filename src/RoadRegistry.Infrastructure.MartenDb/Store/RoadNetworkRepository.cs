@@ -10,6 +10,22 @@ using ScopedRoadNetwork.ValueObjects;
 
 public class RoadNetworkRepository : IRoadNetworkRepository
 {
+    // Which road segments an extract is made of. An extract is the road network as it is on the ground and as it
+    // can be handed back: gepland and gerealiseerd are the only two statuses an inwinning archive is read back in
+    // (RoadSegmentFeatureCompareFeatureReader.ReadStatus), so anything else - gehistoreerd above all, which says
+    // the road was opgeheven, samengevoegd or gesplitst - is left out, and so is everything removed.
+    //
+    // A V1 road segment has no V2 status and is taken whatever state it is in; V1 removals delete the topology row,
+    // so a removed one is not there to begin with.
+    //
+    // The road nodes and the crossings come along per road segment, and each is left out when it is marked removed
+    // itself: a crossing a merger or a split did away with still hangs off a road segment that is very much there.
+    private static readonly string[] ExtractRoadSegmentStatuses =
+    [
+        RoadSegmentStatusV2.Gepland.ToString(),
+        RoadSegmentStatusV2.Gerealiseerd.ToString()
+    ];
+
     protected IDocumentStore Store { get; }
 
     public RoadNetworkRepository(IDocumentStore store)
@@ -135,11 +151,24 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
                 gradejunctionids = ids?.GradeJunctionIds.Count > 0 ? ids.GradeJunctionIds.Select(x => x.ToInt32()).ToArray() : null
             })).ToList();
 
+        // A road node is reached through the road segments that point at it, which leaves out the one case where a
+        // caller names a road node that nothing points at any more: an inwinning that merges a road across a
+        // municipality border removes the road node the two met at, and leaves the road segment it took over
+        // retired and without road nodes. The second municipality's upload still names that road node, and the
+        // migration has to be handed it - as removed, so it can cut the upload back against what the neighbour
+        // already collected, rather than refuse the upload over a road node it cannot find.
+        //
+        // The row is still there: a V2 removal only marks it. A V1 removal deletes it, so a V1 road node that is
+        // really gone stays out, as it should.
+        var namedRoadNodeIds = await GetExistingRoadNodeIds(session, ids);
+
         return new RoadNetworkIds(
             segments.SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })
                 .Where(x => x.HasValue)
+                .Select(x => x!.Value)
+                .Concat(namedRoadNodeIds)
                 .Distinct()
-                .Select(x => new RoadNodeId(x!.Value))
+                .Select(x => new RoadNodeId(x))
                 .ToArray(),
             segments.Select(x => x.RoadSegmentId)
                 .Distinct()
@@ -158,6 +187,25 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
         );
     }
 
+    private static async Task<int[]> GetExistingRoadNodeIds(IDocumentSession session, RoadNetworkIds? ids)
+    {
+        if (!(ids?.RoadNodeIds.Count > 0))
+        {
+            return [];
+        }
+
+        var sql = $@"
+SELECT rn.id
+FROM {RoadNetworkTopologyProjection.RoadNodesTableName} rn
+WHERE rn.id = ANY(@roadnodeids)
+";
+        return (await session.Connection.QueryAsync<int>(sql,
+            new
+            {
+                roadnodeids = ids.RoadNodeIds.Select(x => x.ToInt32()).ToArray()
+            })).ToArray();
+    }
+
     public async Task<RoadNetworkIds> GetUnderlyingIdsForExtract(IDocumentSession session, Geometry geometry)
     {
         if (geometry is null || geometry.IsEmpty)
@@ -168,22 +216,31 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
         var sql = $@"
 SELECT
   rs.id                     AS RoadSegmentId,
-  rs.start_node_id          AS StartNodeId,
-  rs.end_node_id            AS EndNodeId,
+  startnode.id              AS StartNodeId,
+  endnode.id                AS EndNodeId,
   gradeseparatedjunction.id AS GradeSeparatedJunctionId,
   gradejunction.id          AS GradeJunctionId
 FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
+LEFT JOIN {RoadNetworkTopologyProjection.RoadNodesTableName} startnode
+  ON startnode.id = rs.start_node_id AND NOT startnode.is_removed
+LEFT JOIN {RoadNetworkTopologyProjection.RoadNodesTableName} endnode
+  ON endnode.id = rs.end_node_id AND NOT endnode.is_removed
 LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} gradeseparatedjunction
-  ON gradeseparatedjunction.lower_road_segment_id = rs.id OR gradeseparatedjunction.upper_road_segment_id = rs.id
+  ON (gradeseparatedjunction.lower_road_segment_id = rs.id OR gradeseparatedjunction.upper_road_segment_id = rs.id)
+  AND NOT gradeseparatedjunction.is_removed
 LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
-  ON gradejunction.road_segment_id_1 = rs.id OR gradejunction.road_segment_id_2 = rs.id
+  ON (gradejunction.road_segment_id_1 = rs.id OR gradejunction.road_segment_id_2 = rs.id)
+  AND NOT gradejunction.is_removed
 WHERE ST_Intersects(rs.geometry, ST_SetSRID(ST_GeomFromText(@wkt), @srid))
+  AND NOT rs.is_removed
+  AND (NOT rs.is_v2 OR rs.status = ANY(@statuses))
 ";
         var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql,
             new
             {
                 wkt = geometry.AsText(),
-                srid = geometry.SRID
+                srid = geometry.SRID,
+                statuses = ExtractRoadSegmentStatuses
             })).ToList();
 
         return new RoadNetworkIds(
@@ -217,20 +274,28 @@ WHERE ST_Intersects(rs.geometry, ST_SetSRID(ST_GeomFromText(@wkt), @srid))
         }
 
         var sql = @$"
-WITH ids AS (
-	SELECT rs1.id as id1, rs2.id as id2
-	FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs1
-	JOIN {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs2 ON
-		rs1.start_node_id = rs2.start_node_id
-        OR rs1.start_node_id = rs2.end_node_id
-		OR rs1.end_node_id = rs2.start_node_id
-        OR rs1.end_node_id = rs2.end_node_id
-	WHERE rs1.is_v2 AND rs2.is_v2 AND rs1.id IN ({string.Join(",", roadSegmentIds.Select(x => x.ToInt32()))})
+WITH requested AS (
+    SELECT rs.id, rs.start_node_id, rs.end_node_id
+    FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
+    WHERE rs.is_v2 AND rs.id IN ({string.Join(",", roadSegmentIds.Select(x => x.ToInt32()))})
 ),
 flat_ids AS (
-    SELECT id1 AS id FROM ids
+    -- The road segments the caller named, knotted into the road network or not. An ingeschetst road segment has no
+    -- road nodes, and the join below compares them, so it answers for no road segment without them - not even with
+    -- itself, NULL being equal to nothing in SQL. Asked for on its own it used to load an empty road network, and
+    -- the action then had nothing to work on and said nothing about it.
+    SELECT id FROM requested
     UNION
-    SELECT id2 AS id FROM ids
+    -- And every road segment meeting one of them at a road node: what an action does to the one is a statement
+    -- about the other.
+    SELECT other.id
+    FROM requested
+    JOIN {RoadNetworkTopologyProjection.RoadSegmentsTableName} other ON other.is_v2 AND (
+        requested.start_node_id = other.start_node_id
+        OR requested.start_node_id = other.end_node_id
+        OR requested.end_node_id = other.start_node_id
+        OR requested.end_node_id = other.end_node_id
+    )
 )
 SELECT rs.id as RoadSegmentId, rs.start_node_id as StartNodeId, rs.end_node_id as EndNodeId, gsj.id as GradeSeparatedJunctionId, gj.id as GradeJunctionId
 FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs

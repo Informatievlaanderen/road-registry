@@ -154,6 +154,109 @@ public class DataValidationPollingServiceTests : WhenDataValidationTestBase
         _mediatorMock.Verify(x => x.Send(It.IsAny<MigrateRoadNetworkSqsRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
+    [Theory]
+    [InlineData("gischecks")]
+    [InlineData("topochecks")]
+    [InlineData("semiautomaticchecks")]
+    public async Task WhenAManualStageWasNotPickedUpByTheFastPolling_ThenAutomaticValidationSucceededIsReported(string manualStage)
+    {
+        // Arrange: the fast polling gave up - it ran into its ten minute limit, or Datavalidatie was having trouble and
+        // it failed - before the delivery reached its first manual stage, so the upload is still sitting on Processing.
+        var migrateRoadNetworkSqsRequest = await AddDelivery(uploadStatus: ExtractUploadStatus.Processing);
+        PollDeliveryIsInProgress(ValidationJobStatus.Processing, manualStage);
+
+        // Act
+        await RunAsync();
+
+        // Assert: the automatic checks are through, so the upload and its ticket are moved on here instead. There is no
+        // outcome yet, so we keep polling and the migrate request is not sent.
+        var upload = ExtractsDbContext.ExtractUploads.Single(x => x.UploadId == migrateRoadNetworkSqsRequest.UploadId.ToGuid());
+        upload.Status.Should().Be(ExtractUploadStatus.AutomaticValidationSucceeded);
+
+        var queueItem = ExtractsDbContext.DataValidationQueue.Single(x => x.UploadId == migrateRoadNetworkSqsRequest.UploadId.ToGuid());
+        queueItem.Completed.Should().BeFalse();
+
+        TicketingMock.Verify(x => x.Pending(migrateRoadNetworkSqsRequest.TicketId, It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mediatorMock.Verify(x => x.Send(It.IsAny<MigrateRoadNetworkSqsRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task WhenAManualStageWasAlreadyPickedUpByTheFastPolling_ThenItIsNotReportedAgain()
+    {
+        // Arrange: the fast polling got there first and already moved the upload on.
+        var migrateRoadNetworkSqsRequest = await AddDelivery(uploadStatus: ExtractUploadStatus.AutomaticValidationSucceeded);
+        PollDeliveryIsInProgress(ValidationJobStatus.Processing, "gischecks");
+
+        // Act: and the hourly job keeps running while Datavalidatie does the manual checks.
+        await RunAsync();
+        await RunAsync();
+
+        // Assert: the uploader is not told the same thing over and over.
+        var upload = ExtractsDbContext.ExtractUploads.Single(x => x.UploadId == migrateRoadNetworkSqsRequest.UploadId.ToGuid());
+        upload.Status.Should().Be(ExtractUploadStatus.AutomaticValidationSucceeded);
+
+        TicketingMock.Verify(x => x.Pending(It.IsAny<Guid>(), It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task WhenAManualStageIsPolledAgain_ThenItIsOnlyReportedOnce()
+    {
+        // Arrange
+        var migrateRoadNetworkSqsRequest = await AddDelivery(uploadStatus: ExtractUploadStatus.Processing);
+        PollDeliveryIsInProgress(ValidationJobStatus.Processing, "gischecks");
+
+        // Act
+        await RunAsync();
+        await RunAsync();
+
+        // Assert: the second run finds the upload moved on and leaves it alone.
+        TicketingMock.Verify(x => x.Pending(migrateRoadNetworkSqsRequest.TicketId, It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Theory]
+    [InlineData(ValidationJobStatus.Received, null)]
+    [InlineData(ValidationJobStatus.Processing, null)]
+    [InlineData(ValidationJobStatus.Processing, "automaticchecks")]
+    public async Task WhenTheAutomaticChecksAreNotThroughYet_ThenNothingIsReported(string status, string? stage)
+    {
+        // Arrange
+        var migrateRoadNetworkSqsRequest = await AddDelivery(uploadStatus: ExtractUploadStatus.Processing);
+        PollDeliveryIsInProgress(status, stage);
+
+        // Act
+        await RunAsync();
+
+        // Assert: there is nothing to report before the delivery reaches a manual stage, so we keep waiting.
+        var upload = ExtractsDbContext.ExtractUploads.Single(x => x.UploadId == migrateRoadNetworkSqsRequest.UploadId.ToGuid());
+        upload.Status.Should().Be(ExtractUploadStatus.Processing);
+
+        var queueItem = ExtractsDbContext.DataValidationQueue.Single(x => x.UploadId == migrateRoadNetworkSqsRequest.UploadId.ToGuid());
+        queueItem.Completed.Should().BeFalse();
+
+        TicketingMock.Verify(x => x.Pending(It.IsAny<Guid>(), It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mediatorMock.Verify(x => x.Send(It.IsAny<MigrateRoadNetworkSqsRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task WhenARejectedDeliveryIsBeingProcessedAgain_ThenTheRejectionStands()
+    {
+        // Arrange: Datavalidatie reopened a delivery it rejected, so it is back in a manual stage.
+        var migrateRoadNetworkSqsRequest = await AddDelivery(
+            uploadStatus: ExtractUploadStatus.ManualValidationFailed,
+            rejectedOn: DateTimeOffset.UtcNow.AddHours(-1));
+        PollDeliveryIsInProgress(ValidationJobStatus.Processing, "gischecks");
+
+        // Act
+        await RunAsync();
+
+        // Assert: a reopened delivery is put back on its feet when it is approved after all, not while it is being
+        // looked at again, so the rejection the uploader was told about stands for now.
+        var upload = ExtractsDbContext.ExtractUploads.Single(x => x.UploadId == migrateRoadNetworkSqsRequest.UploadId.ToGuid());
+        upload.Status.Should().Be(ExtractUploadStatus.ManualValidationFailed);
+
+        TicketingMock.Verify(x => x.Pending(It.IsAny<Guid>(), It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     private async Task<MigrateRoadNetworkSqsRequest> AddDelivery(
         ExtractUploadStatus uploadStatus = ExtractUploadStatus.AutomaticValidationSucceeded,
         DateTimeOffset? rejectedOn = null)
@@ -194,6 +297,13 @@ public class DataValidationPollingServiceTests : WhenDataValidationTestBase
         var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == migrateRoadNetworkSqsRequest.DownloadId.ToGuid());
         extractDownload.LatestUploadId = latestUploadId;
         await ExtractsDbContext.SaveChangesAsync();
+    }
+
+    private void PollDeliveryIsInProgress(string status, string? stage)
+    {
+        DataValidationApiClientMock
+            .Setup(x => x.PollDeliveryAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PollDeliveryResponse(status, string.Empty, stage, ValidationResult.NotYetAvailable, null));
     }
 
     private void PollDeliveryReturns(string validationResult)

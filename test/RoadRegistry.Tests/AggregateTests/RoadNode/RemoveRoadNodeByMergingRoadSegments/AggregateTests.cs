@@ -134,11 +134,15 @@ public class AggregateTests : AggregateTestBase
     }
 
     // Two roads crossing at an echte knoop that a GRB service placed by mistake: the one carries cars and the other
-    // bicycles, so no traffic passes between them and the node holds nothing together.
+    // bicycles, so no traffic passes between them and the node holds nothing together - unless both are made to carry
+    // cars.
     private ScopedRoadNetwork BuildEchteKnoopNetwork(
         bool withWestSegment = true,
-        RoadSegmentGeometryDrawMethodV2? westDrawMethod = null)
+        RoadSegmentGeometryDrawMethodV2? westDrawMethod = null,
+        bool eastWestCarriesCars = false)
     {
+        var eastWestCarTrafficDirection = eastWestCarriesCars ? RoadSegmentTrafficDirection.Both : RoadSegmentTrafficDirection.None;
+
         var southNode = BuildNode(SouthNodeId, 100, 0, RoadNodeTypeV2.Eindknoop);
         var middleNode = BuildNode(MiddleNodeId, 100, 80, RoadNodeTypeV2.EchteKnoop);
         var northNode = BuildNode(NorthNodeId, 100, 160, RoadNodeTypeV2.Eindknoop);
@@ -150,9 +154,9 @@ public class AggregateTests : AggregateTestBase
             [
                 BuildSegment(SouthSegmentId, southNode, middleNode, BuildGeometry((100, 0), (100, 80)), carTrafficDirection: RoadSegmentTrafficDirection.Both, bikeTrafficDirection: RoadSegmentTrafficDirection.None),
                 BuildSegment(NorthSegmentId, middleNode, northNode, BuildGeometry((100, 80), (100, 160)), carTrafficDirection: RoadSegmentTrafficDirection.Both, bikeTrafficDirection: RoadSegmentTrafficDirection.None),
-                BuildSegment(EastSegmentId, middleNode, eastNode, BuildGeometry((100, 80), (200, 80)), carTrafficDirection: RoadSegmentTrafficDirection.None, bikeTrafficDirection: RoadSegmentTrafficDirection.Both),
+                BuildSegment(EastSegmentId, middleNode, eastNode, BuildGeometry((100, 80), (200, 80)), carTrafficDirection: eastWestCarTrafficDirection, bikeTrafficDirection: RoadSegmentTrafficDirection.Both),
                 .. withWestSegment
-                    ? new[] { BuildSegment(WestSegmentId, westNode, middleNode, BuildGeometry((0, 80), (100, 80)), westDrawMethod, carTrafficDirection: RoadSegmentTrafficDirection.None, bikeTrafficDirection: RoadSegmentTrafficDirection.Both) }
+                    ? new[] { BuildSegment(WestSegmentId, westNode, middleNode, BuildGeometry((0, 80), (100, 80)), westDrawMethod, carTrafficDirection: eastWestCarTrafficDirection, bikeTrafficDirection: RoadSegmentTrafficDirection.Both) }
                     : []
             ]);
     }
@@ -211,6 +215,22 @@ public class AggregateTests : AggregateTestBase
 
         // The two roads that were kept apart by the node now simply cross, which is a gelijkgrondse kruising.
         roadNetwork.GradeJunctions.Values.Where(x => !x.IsRemoved).Should().ContainSingle();
+    }
+
+    // Removing the node is not a statement about the two roads: they met at the node, so where it was they now cross at
+    // grade, also when both carry cars - an upload would want that crossing declared ongelijkgronds (GAWR-7802).
+    [Fact]
+    public void WhenBothMergedRoadsCarryTheSameTraffic_ThenTheyStillCrossAtGrade()
+    {
+        var roadNetwork = BuildEchteKnoopNetwork(eastWestCarriesCars: true);
+
+        var result = Act(roadNetwork);
+
+        result.Problems.Should().HaveNoError();
+
+        roadNetwork.RoadSegments.Values.SelectMany(x => x.GetChanges()).OfType<RoadSegmentWasMerged>().Should().HaveCount(2);
+        roadNetwork.GradeJunctions.Values.Where(x => !x.IsRemoved).Should().ContainSingle();
+        roadNetwork.GradeSeparatedJunctions.Values.Where(x => !x.IsRemoved).Should().BeEmpty();
     }
 
     // The node is removed once, not once per merged pair.

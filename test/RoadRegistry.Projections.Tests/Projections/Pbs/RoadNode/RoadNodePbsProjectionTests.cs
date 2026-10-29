@@ -172,6 +172,42 @@ public class RoadNodePbsProjectionTests
         Assert.Null(await scenario.Find<RoadNodeRecord>(1));
     }
 
+    // The record was deleted when the road node was removed. The correction has nothing to build one from; it comes
+    // back from the RoadNodeWasMigrated that follows, when the road node is collected again.
+    [Fact]
+    public async Task WhenRoadNodeRemovalWasCorrectedBecauseOfMigration_ThenTheRecordIsBuiltAgain()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(_testData.Segment1StartNodeAdded);
+        await scenario.GivenAsync(new RoadNodeWasRemovedBecauseOfMigration
+        {
+            RoadNodeId = new RoadNodeId(1),
+            Geometry = _testData.Segment1StartNodeAdded.Geometry,
+            Provenance = Provenance
+        });
+        await scenario.GivenAsync(new RoadNodeRemovalWasCorrectedBecauseOfMigration
+        {
+            RoadNodeId = new RoadNodeId(1),
+            Provenance = Provenance
+        });
+
+        Assert.Null(await scenario.Find<RoadNodeRecord>(1));
+
+        await scenario.GivenAsync(new RoadNodeWasMigrated
+        {
+            RoadNodeId = new RoadNodeId(1),
+            Geometry = _testData.Segment1StartNodeAdded.Geometry,
+            Grensknoop = true,
+            Provenance = Provenance
+        });
+
+        var node = await scenario.Find<RoadNodeRecord>(1);
+        Assert.NotNull(node);
+        Assert.Equal(1, node!.GRENSKNOOP);
+        Assert.NotNull(node.GEOMETRIE);
+    }
+
     [Fact]
     public async Task WhenRemovingUnknownRoadNode_ThenNoOp()
     {

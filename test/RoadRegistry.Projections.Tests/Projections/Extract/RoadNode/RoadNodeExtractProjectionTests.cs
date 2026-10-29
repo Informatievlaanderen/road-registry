@@ -258,6 +258,54 @@ public class RoadNodeExtractProjectionTests
             .ExpectNone();
     }
 
+    // The row was deleted when the road node was removed, and the correction itself carries nothing to build one
+    // from. It comes back from the RoadNodeWasMigrated that follows, when the road node is collected again - which is
+    // also where its origin is now, the row being new.
+    [Fact]
+    public Task WhenRoadNodeRemovalWasCorrectedBecauseOfMigration_ThenTheRowIsBuiltAgain()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadNodeId>();
+
+        var roadNodeAdded = fixture.Create<RoadNodeWasAdded>();
+        var roadNodeRemoved = fixture.Create<RoadNodeWasRemovedBecauseOfMigration>();
+        var removalCorrected = fixture.Create<RoadNodeRemovalWasCorrectedBecauseOfMigration>();
+        var roadNodeMigrated = fixture.Create<RoadNodeWasMigrated>();
+
+        var expectedRoadNode = new RoadNodeExtractItem
+        {
+            RoadNodeId = roadNodeAdded.RoadNodeId,
+            Geometry = roadNodeMigrated.Geometry,
+            Type = null,
+            Grensknoop = roadNodeMigrated.Grensknoop,
+            IsV2 = true,
+            Origin = roadNodeMigrated.Provenance.ToEventTimestamp(),
+            LastModified = roadNodeMigrated.Provenance.ToEventTimestamp()
+        };
+
+        return BuildProjection()
+            .Scenario()
+            .Given(roadNodeAdded, roadNodeRemoved, removalCorrected, roadNodeMigrated)
+            .Expect(expectedRoadNode);
+    }
+
+    // On its own the correction leaves nothing behind: the road node is only back once it has been collected again.
+    [Fact]
+    public async Task WhenOnlyTheRemovalWasCorrected_ThenStillNone()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadNodeId>();
+
+        var roadNodeAdded = fixture.Create<RoadNodeWasAdded>();
+        var roadNodeRemoved = fixture.Create<RoadNodeWasRemovedBecauseOfMigration>();
+        var removalCorrected = fixture.Create<RoadNodeRemovalWasCorrectedBecauseOfMigration>();
+
+        await BuildProjection()
+            .Scenario()
+            .Given(roadNodeAdded, roadNodeRemoved, removalCorrected)
+            .ExpectNone();
+    }
+
     private RoadNodeExtractProjection BuildProjection()
     {
         return new RoadNodeExtractProjection();

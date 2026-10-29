@@ -56,7 +56,7 @@ public class RemoveRoadNodeV2Tests : V2ReadEndpointTestBase
 
     private Task<IActionResult> Act(int id)
     {
-        return _controller.RemoveRoadNodeV2(id, Store, CancellationToken.None);
+        return _controller.RemoveRoadNodeV2(new RoadNodeIdValidator(), id, Store, CancellationToken.None);
     }
 
     private void VerifyNothingWasQueued()
@@ -95,6 +95,16 @@ public class RemoveRoadNodeV2Tests : V2ReadEndpointTestBase
         var result = await Act(roadNode.RoadNodeId.ToInt32());
 
         result.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(StatusCodes.Status410Gone);
+        VerifyNothingWasQueued();
+    }
+
+    // VAL-1
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task WhenTheRoadNodeIdIsInvalid_ThenIncorrectObjectId(int id)
+    {
+        await ActAndExpectIncorrectObjectId(() => Act(id), id);
         VerifyNothingWasQueued();
     }
 }

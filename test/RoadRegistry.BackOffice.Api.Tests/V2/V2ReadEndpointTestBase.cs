@@ -1,15 +1,20 @@
 namespace RoadRegistry.BackOffice.Api.Tests.V2;
 
 using AutoFixture;
+using FluentAssertions;
+using FluentValidation;
 using Marten;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 using RoadRegistry.BackOffice.Api.Infrastructure.Options;
+using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.Read.Projections.Setup;
 using RoadRegistry.Tests;
 using RoadRegistry.Tests.AggregateTests;
+using Xunit;
 
 /// <summary>
 /// Base for the V2 read-endpoint controller tests. Provides an in-memory Marten document store
@@ -53,5 +58,16 @@ public abstract class V2ReadEndpointTestBase
         {
             HttpContext = new DefaultHttpContext()
         };
+    }
+
+    // An id in the route that can never identify an object is refused before anything is looked up, with the failure
+    // as the validation filter hands it to the caller.
+    protected static async Task ActAndExpectIncorrectObjectId(Func<Task<IActionResult>> act, int id)
+    {
+        var ex = await Assert.ThrowsAsync<ValidationException>(act);
+        var failure = ex.TranslateToDutch(WellKnownProblemTranslators.Default).Errors.Should().ContainSingle().Which;
+        failure.PropertyName.Should().Be("objectId");
+        failure.ErrorCode.Should().Be("IncorrectObjectId");
+        failure.ErrorMessage.Should().Be($"De waarde '{id}' is ongeldig.");
     }
 }

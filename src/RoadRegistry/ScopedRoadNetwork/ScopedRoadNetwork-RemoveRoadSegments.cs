@@ -68,10 +68,17 @@ public partial class ScopedRoadNetwork
     {
         var problems = Problems.WithContext(roadSegmentId);
 
-        // A segment the network does not have, or one that is already gone, is what the caller asked for: there is
-        // nothing left to remove and nothing to report. Naming it changes nothing, and a request sent twice does not
-        // fail the second time.
-        if (!_roadSegments.TryGetValue(roadSegmentId, out var segment) || segment.IsRemoved)
+        // A road segment the road network never had is the caller's mistake, and saying nothing about it would let a
+        // wrong identifier pass for a removal that happened.
+        if (!_roadSegments.TryGetValue(roadSegmentId, out var segment))
+        {
+            return problems + new RoadSegmentNotFound();
+        }
+
+        // One that is already gone is what the caller asked for: there is nothing left to remove and nothing to
+        // report, and a request sent twice does not fail the second time. The topology keeps removed road segments,
+        // so this is a thing the road network can still say - which is what tells it apart from the one above.
+        if (segment.IsRemoved)
         {
             return Problems.None;
         }
@@ -150,8 +157,9 @@ public partial class ScopedRoadNetwork
         }
 
         // Merging is on: two segments left at a node that is no longer needed become one, which is the
-        // 'samenvoegen' step the story asks for.
-        var problems = roadNode.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context, mayMergeRoadSegments: true);
+        // 'samenvoegen' step the story asks for - under the rules of an editing action, so two roads that were not
+        // drawn the same way are reported rather than joined.
+        var problems = roadNode.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context, RoadSegmentMerging.AsEditAction);
 
         // A node that was re-typed is a change of its own and the ticket has to say so. Not when it was merged away:
         // it changed too, but RemoveRoadNode already reported that, and it is removed rather than modified.

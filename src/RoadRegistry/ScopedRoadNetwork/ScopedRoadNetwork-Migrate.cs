@@ -1,4 +1,4 @@
-namespace RoadRegistry.ScopedRoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System;
 using System.Collections.Generic;
@@ -33,7 +33,7 @@ public partial class ScopedRoadNetwork
 
         if (!problems.HasError())
         {
-            problems += AfterChangesApplied(idGenerator, context, mayMergeRoadSegments: true);
+            problems += AfterChangesApplied(idGenerator, context, RoadSegmentMerging.AsInwinning);
         }
 
         if (!problems.HasError())
@@ -77,6 +77,10 @@ public partial class ScopedRoadNetwork
         // below are to be read, and the road nodes it concerns are handled before the road segments that run to them.
         var neighbourMerges = ResolveNeighbourMerges(changes, context);
 
+        // And which road nodes a neighbouring inwinning removed outright rather than merged away, so they can be
+        // collected again. Asked after the merges and given their answer: a road node those account for is not this.
+        var removalCorrections = ResolveRemovalCorrections(changes, neighbourMerges, context);
+
         var problems = Problems.None;
 
         // Track timing per action type
@@ -99,20 +103,20 @@ public partial class ScopedRoadNetwork
                     problems += AddRoadNode(change, idGenerator, context);
                     break;
                 case ModifyRoadNodeChange change:
-                    problems += MigrateRoadNode(change, neighbourMerges, context);
+                    problems += MigrateRoadNode(change, neighbourMerges, removalCorrections, context);
                     break;
                 case RemoveRoadNodeChange change:
-                    problems += RemoveRoadNodeBecauseOfMigration(change, context);
+                    problems += RemoveRoadNodeBecauseOfMigration(change, neighbourMerges, context);
                     break;
 
                 case AddRoadSegmentChange change:
-                    problems += AddRoadSegment(change, idGenerator, context);
+                    problems += MigrateAddedRoadSegment(change, neighbourMerges, idGenerator, context);
                     break;
                 case ModifyRoadSegmentChange change:
                     problems += MigrateRoadSegment(change, roadSegmentRoadNumberChanges, neighbourMerges, context);
                     break;
                 case RemoveRoadSegmentChange change:
-                    problems += RemoveRoadSegmentBecauseOfMigration(change.RoadSegmentId, context);
+                    problems += RemoveRoadSegmentBecauseOfMigration(change.RoadSegmentId, neighbourMerges, context);
                     break;
 
                 case AddRoadSegmentToEuropeanRoadChange:
@@ -200,11 +204,18 @@ public partial class ScopedRoadNetwork
             .ToLookup(x => x.RoadSegmentId, x => x.roadNetworkChange);
     }
 
-    private Problems MigrateRoadNode(ModifyRoadNodeChange change, NeighbourMergeResolutions neighbourMerges, ScopedRoadNetworkChangeContext context)
+    private Problems MigrateRoadNode(ModifyRoadNodeChange change, NeighbourMergeResolutions neighbourMerges, IReadOnlyCollection<RoadNodeId> removalCorrections, ScopedRoadNetworkChangeContext context)
     {
         var problems = Problems.WithContext(change.RoadNodeId);
 
-        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode) || roadNode.IsRemoved)
+        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
+        {
+            return problems + new RoadNodeNotFound();
+        }
+
+        // A road node that was removed is loaded along with the rest of the road network, so it is still here to be
+        // named - which is a different thing to say than that it was never found.
+        if (roadNode.IsRemoved)
         {
             // A road node a neighbouring inwinning merged away is not this upload's mistake: it was prepared against
             // an extract from before that merge. The roads that ran up to it are cut back to match.
@@ -213,9 +224,18 @@ public partial class ScopedRoadNetwork
                 return Problems.None;
             }
 
-            // A road node that was removed is loaded along with the rest of the road network, so it is still here to
-            // be named - which is a different thing to say than that it was never found.
-            return problems + (roadNode is null ? new RoadNodeNotFound() : (Error)new RoadNodeIsRemoved());
+            if (!removalCorrections.Contains(change.RoadNodeId))
+            {
+                return problems + new RoadNodeIsRemoved();
+            }
+
+            // A road node a neighbouring inwinning removed outright, and that this upload brings back together with a
+            // road of its own that runs to it. It keeps its identifier and is collected from scratch below.
+            problems += CorrectRoadNodeRemovalBecauseOfMigration(roadNode, context);
+            if (problems.HasError())
+            {
+                return problems;
+            }
         }
 
         if (roadNode.HasMigrated())
@@ -243,9 +263,34 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
-    private Problems RemoveRoadNodeBecauseOfMigration(RemoveRoadNodeChange change, ScopedRoadNetworkChangeContext context)
+    private Problems CorrectRoadNodeRemovalBecauseOfMigration(RoadNode.RoadNode roadNode, ScopedRoadNetworkChangeContext context)
+    {
+        var problems = roadNode.CorrectRemovalBecauseOfMigration(context.Provenance);
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
+        // Back into the spatial index by hand. The indexes are built from what is not removed, so a road node that
+        // was is simply not in there, and the Update that follows its collection would not put it there either - it
+        // does nothing at all when the geometry is unchanged, which for a road node brought back as it was is the
+        // normal case. Without this the roads running to it would not find their start and end node.
+        _roadNodesSpatialIndex.Insert(roadNode.Geometry.Value.EnvelopeInternal, roadNode);
+
+        return problems;
+    }
+
+    private Problems RemoveRoadNodeBecauseOfMigration(RemoveRoadNodeChange change, NeighbourMergeResolutions neighbourMerges, ScopedRoadNetworkChangeContext context)
     {
         if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode) || roadNode.IsRemoved)
+        {
+            return Problems.None;
+        }
+
+        // This upload no longer needed the road node because it was merging the two roads that met there, but a
+        // neighbouring inwinning had already collected one of them and the merge was cut back to what it left. What
+        // is left runs up to this road node, so it stays.
+        if (neighbourMerges.RoadNodeIdsToKeep.Contains(change.RoadNodeId))
         {
             return Problems.None;
         }
@@ -265,16 +310,21 @@ public partial class ScopedRoadNetwork
     {
         var problems = Problems.WithContext(change.RoadSegmentIdReference);
 
-        if (neighbourMerges.RoadSegments.TryGetValue(change.RoadSegmentIdReference, out var neighbourMerge))
+        if (neighbourMerges.RoadSegments.TryGetValue(change.RoadSegmentIdReference, out var neighbourMergeCuts))
         {
             // A neighbouring inwinning already collected this road, in whole or in part. What it took is not this
-            // upload's to collect a second time.
-            if (neighbourMerge.TakenInFull)
+            // upload's to collect a second time. There can be more than one such stretch - a road running up to a
+            // road node the neighbour merged away at either end is cut at both - and each cut was measured against
+            // what the one before it left, so they are made in that same order.
+            foreach (var neighbourMerge in neighbourMergeCuts)
             {
-                return Problems.None;
-            }
+                if (neighbourMerge.TakenInFull)
+                {
+                    return Problems.None;
+                }
 
-            change = CutBackToRemainingStretch(change, neighbourMerge);
+                change = CutBackToRemainingStretch(change, neighbourMerge);
+            }
         }
 
         if (!_roadSegments.TryGetValue(change.RoadSegmentIdReference.RoadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
@@ -364,9 +414,39 @@ public partial class ScopedRoadNetwork
         return list.Distinct().ToImmutableList();
     }
 
-    private Problems RemoveRoadSegmentBecauseOfMigration(RoadSegmentId roadSegmentId, ScopedRoadNetworkChangeContext context)
+    // A road the uploader collected as one out of several the road network has arrives as a road drawn anew, with
+    // the ones it replaces removed. Such a road runs up to a road node a neighbouring inwinning merged away just as
+    // much as one this upload modifies, and is cut back to what the neighbour left in the same way (GAWR-7826).
+    private Problems MigrateAddedRoadSegment(AddRoadSegmentChange change, NeighbourMergeResolutions neighbourMerges, IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
+    {
+        if (neighbourMerges.RoadSegments.TryGetValue(change.RoadSegmentIdReference, out var neighbourMergeCuts))
+        {
+            foreach (var neighbourMerge in neighbourMergeCuts)
+            {
+                if (neighbourMerge.TakenInFull)
+                {
+                    // Collected by the neighbour from end to end: there is nothing here for this upload to draw.
+                    return Problems.None;
+                }
+
+                change = CutBackToRemainingStretch(change, neighbourMerge);
+            }
+        }
+
+        return AddRoadSegment(change, idGenerator, context);
+    }
+
+    private Problems RemoveRoadSegmentBecauseOfMigration(RoadSegmentId roadSegmentId, NeighbourMergeResolutions neighbourMerges, ScopedRoadNetworkChangeContext context)
     {
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
+        {
+            return Problems.None;
+        }
+
+        // This upload is replacing the road segment with a road of its own, but a neighbouring inwinning had
+        // already collected it and the replacement was cut back to what the neighbour left. What is on record is
+        // the neighbour's work over a stretch this upload no longer covers, so there is nothing here to remove.
+        if (neighbourMerges.RoadSegmentIdsToKeep.Contains(roadSegmentId))
         {
             return Problems.None;
         }

@@ -149,6 +149,19 @@ public class RoadNodeReadProjection : MartenRoadNetworkChangesProjection
             node.IsRemoved = true;
             session.Store(node);
         });
+        When<IEvent<RoadNode.Events.V2.RoadNodeRemovalWasCorrectedBecauseOfMigration>>(async (session, e, _) =>
+        {
+            var node = await session.LoadAsync<RoadNodeReadItem>(e.Data.RoadNodeId);
+            if (node is null)
+            {
+                throw new InvalidOperationException($"No road node found for Id {e.Data.RoadNodeId}");
+            }
+
+            // This projection only flags a removal, so the road node is still here to be unflagged. The rest of it
+            // comes from the RoadNodeWasMigrated that follows: the road node is collected again right after.
+            node.IsRemoved = false;
+            session.Store(node);
+        });
     }
 
     private static async Task AddOrUpdateRoadNode(IDocumentOperations session, RoadNodeReadItem roadNode, CancellationToken ct)

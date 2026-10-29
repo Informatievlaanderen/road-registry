@@ -160,7 +160,7 @@ public class ChangeRoadSegmentStatusV2Tests : V2ReadEndpointTestBase
     public async Task GivenInvalidRoadSegmentId_ThenValidationException(int id)
     {
         // VAL-1 is checked before anything is looked up, so an unusable id never reaches the store.
-        await Assert.ThrowsAsync<ValidationException>(() => Act(RoadSegmentStatusChange.PlannedToRealized, id));
+        await ActAndExpectIncorrectObjectId(() => Act(RoadSegmentStatusChange.PlannedToRealized, id), id);
         VerifyNothingWasQueued();
     }
 
