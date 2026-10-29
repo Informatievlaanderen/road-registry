@@ -157,8 +157,9 @@ public partial class ScopedRoadNetwork
         }
 
         // Merging is on: two segments left at a node that is no longer needed become one, which is the
-        // 'samenvoegen' step the story asks for.
-        var problems = roadNode.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context, mayMergeRoadSegments: true);
+        // 'samenvoegen' step the story asks for - under the rules of an editing action, so two roads that were not
+        // drawn the same way are reported rather than joined.
+        var problems = roadNode.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context, RoadSegmentMerging.AsEditAction);
 
         // A node that was re-typed is a change of its own and the ticket has to say so. Not when it was merged away:
         // it changed too, but RemoveRoadNode already reported that, and it is removed rather than modified.

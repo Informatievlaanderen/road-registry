@@ -2,6 +2,7 @@ namespace RoadRegistry.Tests.AggregateTests.RoadSegment.RemoveRoadSegments;
 
 using System.Linq;
 using FluentAssertions;
+using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
@@ -16,7 +17,7 @@ public class NodeTopologyMergeTests : RemoveRoadSegmentsTestBase
 
     // A three-way node: once the eastern arm leaves, the two that are left run straight through and differ in nothing
     // that is not a dynamic attribute, so nothing about them stands in the way of merging.
-    private ScopedRoadNetwork.ScopedRoadNetwork BuildThreeWayNode()
+    private ScopedRoadNetwork.ScopedRoadNetwork BuildThreeWayNode(RoadSegmentGeometryDrawMethodV2? northernGeometryDrawMethod = null)
     {
         var southNode = BuildNode(10, 100, 0, RoadNodeTypeV2.Eindknoop);
         var middleNode = BuildNode(11, 100, 80, RoadNodeTypeV2.EchteKnoop);
@@ -28,7 +29,7 @@ public class NodeTopologyMergeTests : RemoveRoadSegmentsTestBase
             [
                 BuildSegment(LeavingSegmentId, middleNode, eastNode, BuildGeometry((100, 80), (200, 80))),
                 BuildSegment(2, southNode, middleNode, BuildGeometry((100, 0), (100, 80))),
-                BuildSegment(3, middleNode, northNode, BuildGeometry((100, 80), (100, 160)))
+                BuildSegment(3, middleNode, northNode, BuildGeometry((100, 80), (100, 160)), geometryDrawMethod: northernGeometryDrawMethod)
             ]);
     }
 
@@ -61,5 +62,22 @@ public class NodeTopologyMergeTests : RemoveRoadSegmentsTestBase
         roadNetwork.RoadSegments.Values.SelectMany(x => x.GetChanges()).OfType<RoadSegmentWasMerged>().Should().BeEmpty();
         roadNetwork.RoadNodes[new RoadNodeId(11)].IsRemoved.Should().BeFalse();
         roadNetwork.RoadNodes[new RoadNodeId(11)].Type.Should().Be(RoadNodeTypeV2.Validatieknoop);
+    }
+
+    // The same shape with one of the two roads ingeschetst and the other ingemeten. One road that is partly the one
+    // and partly the other is only something the inwinning may arrive at - an editing action says so instead of
+    // deciding it on the caller's behalf, which is VAL-5 (GAWR-7829).
+    [Fact]
+    public void WhenTheTwoLeftAtTheNodeAreNotDrawnTheSameWay_ThenTheyAreNotMerged()
+    {
+        var roadNetwork = BuildThreeWayNode(northernGeometryDrawMethod: RoadSegmentGeometryDrawMethodV2.Ingeschetst);
+
+        var act = () => roadNetwork.RemoveRoadSegments([new RoadSegmentId(LeavingSegmentId)], IdGenerator(), TestData.Provenance);
+
+        act.Should().Throw<RoadRegistryProblemsException>()
+            .Which.Problems.Should().ContainSingle()
+            .Which.Reason.Should().Be("RoadSegmentsMergeGeometryDrawMethodNotEqual");
+        roadNetwork.RoadSegments.Values.SelectMany(x => x.GetChanges()).OfType<RoadSegmentWasMerged>().Should().BeEmpty();
+        roadNetwork.RoadNodes[new RoadNodeId(11)].IsRemoved.Should().BeFalse();
     }
 }

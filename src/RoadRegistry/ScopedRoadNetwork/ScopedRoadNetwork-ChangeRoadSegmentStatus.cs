@@ -221,7 +221,7 @@ public partial class ScopedRoadNetwork
         // Merging is off: snapping onto the 'eindknoop' of an existing road leaves that node with two segments, and
         // the network-wide rules would take that as licence to merge the two into one. Realizing a segment is an edit
         // of the one segment it names - the road it hooks onto keeps its own identity.
-        problems += VerifyRoadNodesTopologyAndUpdateTypeAfterChange(idGenerator, context, mayMergeRoadSegments: false);
+        problems += VerifyRoadNodesTopologyAndUpdateTypeAfterChange(idGenerator, context, RoadSegmentMerging.NotAllowed);
 
         // VAL-6, and VAL-7/VAL-8 once more now that the segment counts as realized.
         problems += VerifyRoadSegmentsTopologyAfterChange(context);
@@ -399,7 +399,7 @@ public partial class ScopedRoadNetwork
 
             // Merging is off for the same reason as when connecting: this action names one segment, and the roads that
             // happened to meet it keep their own identity.
-            problems += roadNode.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context, mayMergeRoadSegments: false);
+            problems += roadNode.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context, RoadSegmentMerging.NotAllowed);
             if (roadNode.HasChanges())
             {
                 context.Summary.RoadNodes.Modified.Add(roadNodeId);

@@ -251,6 +251,61 @@ public class AggregateTests : RemoveRoadSegmentsTestBase
         summary.RoadNodes.Removed.Should().BeEquivalentTo([12, 13]);
     }
 
+    // The road that two merged roads became is one thing, so the ticket names it once. Here the two halves are the
+    // same length, so neither is enough of the whole to keep its identifier and the road they became is a new one:
+    // added, and not modified on top of that (GAWR-7829).
+    [Fact]
+    public void WhenTheMergedSegmentIsGivenANewIdentifier_ThenItIsOnlySummarisedAsAdded()
+    {
+        var southNode = BuildNode(10, 100, 0, RoadNodeTypeV2.Eindknoop);
+        var middleNode = BuildNode(11, 100, 80, RoadNodeTypeV2.EchteKnoop);
+        var northNode = BuildNode(12, 100, 160, RoadNodeTypeV2.Eindknoop);
+        var eastNode = BuildNode(13, 200, 80, RoadNodeTypeV2.Eindknoop);
+
+        var roadNetwork = BuildNetwork(
+            [southNode, middleNode, northNode, eastNode],
+            [
+                BuildSegment(RemovedSegmentId, middleNode, eastNode, BuildGeometry((100, 80), (200, 80))),
+                BuildSegment(NeighbourSegmentId, southNode, middleNode, BuildGeometry((100, 0), (100, 80))),
+                BuildSegment(3, middleNode, northNode, BuildGeometry((100, 80), (100, 160)))
+            ]);
+
+        roadNetwork.RemoveRoadSegments([new RoadSegmentId(RemovedSegmentId)], IdGenerator(), TestData.Provenance);
+
+        var summary = roadNetwork.GetChanges().OfType<RoadNetworkWasChanged>().Should().ContainSingle().Which.Summary;
+        var mergedSegmentId = summary.RoadSegments.Added.Should().ContainSingle().Subject;
+        // The two roads it is made of are retired, which is a status change, so those two are the modified ones.
+        summary.RoadSegments.Modified.Should().BeEquivalentTo([NeighbourSegmentId, 3]);
+        summary.RoadSegments.Modified.Should().NotContain(mergedSegmentId);
+        summary.RoadSegments.Removed.Should().BeEquivalentTo([RemovedSegmentId]);
+    }
+
+    // The same, with the southern road long enough to be most of what the two became: it keeps its identifier, so
+    // that identifier is modified and nothing is added.
+    [Fact]
+    public void WhenTheMergedSegmentKeepsItsIdentifier_ThenItIsOnlySummarisedAsModified()
+    {
+        var southNode = BuildNode(10, 100, 0, RoadNodeTypeV2.Eindknoop);
+        var middleNode = BuildNode(11, 100, 80, RoadNodeTypeV2.EchteKnoop);
+        var northNode = BuildNode(12, 100, 100, RoadNodeTypeV2.Eindknoop);
+        var eastNode = BuildNode(13, 200, 80, RoadNodeTypeV2.Eindknoop);
+
+        var roadNetwork = BuildNetwork(
+            [southNode, middleNode, northNode, eastNode],
+            [
+                BuildSegment(RemovedSegmentId, middleNode, eastNode, BuildGeometry((100, 80), (200, 80))),
+                BuildSegment(NeighbourSegmentId, southNode, middleNode, BuildGeometry((100, 0), (100, 80))),
+                BuildSegment(3, middleNode, northNode, BuildGeometry((100, 80), (100, 100)))
+            ]);
+
+        roadNetwork.RemoveRoadSegments([new RoadSegmentId(RemovedSegmentId)], IdGenerator(), TestData.Provenance);
+
+        var summary = roadNetwork.GetChanges().OfType<RoadNetworkWasChanged>().Should().ContainSingle().Which.Summary;
+        summary.RoadSegments.Added.Should().BeEmpty();
+        summary.RoadSegments.Modified.Should().BeEquivalentTo([NeighbourSegmentId, 3]);
+        summary.RoadSegments.Removed.Should().BeEquivalentTo([RemovedSegmentId]);
+    }
+
     // A segment whose inwinning is not finished is not a V2 segment yet and carries no attributes, so what is left at
     // its nodes cannot be derived. Every other editing action refuses it and so does this one.
     [Fact]

@@ -148,7 +148,7 @@ public partial class ScopedRoadNetwork
 
     private Problems AfterChangesApplied(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
     {
-        var problems = VerifyRoadNodesTopologyAndUpdateTypeAfterChange(idGenerator, context, mayMergeRoadSegments: true);
+        var problems = VerifyRoadNodesTopologyAndUpdateTypeAfterChange(idGenerator, context, RoadSegmentMerging.AsInwinning);
 
         problems = problems
                    + VerifyRoadSegmentsTopologyAfterChange(context)
@@ -166,7 +166,7 @@ public partial class ScopedRoadNetwork
     // type is not uploaded but derived from what hangs off it, and it is this verification that derives it - so it is
     // what turns a V1 node, which carries no type, into a V2 one. Skipping the non-migrated nodes here would leave
     // them without a type forever.
-    private Problems VerifyRoadNodesTopologyAndUpdateTypeAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, bool mayMergeRoadSegments)
+    private Problems VerifyRoadNodesTopologyAndUpdateTypeAfterChange(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, RoadSegmentMerging merging)
     {
         using var _ = context.Logger.TimeAction();
 
@@ -180,7 +180,7 @@ public partial class ScopedRoadNetwork
             .ToArray();
 
         return roadNodes
-            .Aggregate(problems, (p, x) => p + x.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context, mayMergeRoadSegments));
+            .Aggregate(problems, (p, x) => p + x.VerifyTopologyAndUpdateType(_roadSegmentsSpatialIndex, idGenerator, context, merging));
     }
 
     private Problems VerifyRoadSegmentsTopologyAfterChange(ScopedRoadNetworkChangeContext context)
