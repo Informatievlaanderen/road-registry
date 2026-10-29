@@ -60,6 +60,9 @@ public sealed class PbsProjectionScenario
     /// </summary>
     public Task RedeliverLastBatchAsync() => ApplyBatch(_lastBatch);
 
+    // For what runs against the read model outside the projection, like a backfill.
+    public IDbContextFactory<PbsContext> DbContextFactory => _dbContextFactory;
+
     // Mirrors DbContextBackedRoadNetworkChangesProjection: one context, a single projection-state position guard shared
     // by all sub-projections, and a single save.
     private async Task ApplyBatch(IReadOnlyList<IEvent> events)

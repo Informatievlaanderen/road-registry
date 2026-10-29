@@ -39,6 +39,7 @@ public class PbsContext : RunnerDbContext<PbsContext>
     public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
     public DbSet<DerivedRoadSegmentRecord> DerivedRoadSegments { get; set; }
     public DbSet<RoadNodeRecord> RoadNodes { get; set; }
+    public DbSet<DerivedSchijnknoopRecord> DerivedSchijnknopen { get; set; }
     public DbSet<GradeJunctionRecord> GradeJunctions { get; set; }
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
     public DbSet<EuropeanRoadRecord> EuropeanRoads { get; set; }
@@ -71,6 +72,15 @@ public class PbsContext : RunnerDbContext<PbsContext>
     // Internal caches (id -> label), fed by the streetname/organization events, used to resolve label columns
     public DbSet<StreetNameCacheRecord> StreetNameCache { get; set; }
     public DbSet<OrganizationCacheRecord> OrganizationCache { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // Hands out the ids of the afgeleide schijnknopen; see DerivedSchijnknoopRecord.
+        modelBuilder.HasSequence<int>(DerivedSchijnknoopRecord.IdSequenceName, WellKnownSchemas.PbsSchema)
+            .StartsAt(DerivedSchijnknoopRecord.InitialId);
+    }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using JasperFx.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
 using RoadRegistry.RoadSegment.Events.V1;
 using RoadRegistry.RoadSegment.Events.V2;
@@ -596,16 +597,85 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
         {
             context.DerivedRoadSegments.RemoveRange(await RowsFor(context, context.DerivedRoadSegments, segId, ct));
         }
-        if (normal.GEOMETRIE is null)
-        {
-            return;
-        }
 
-        var flatRows = DerivedWegsegmentFlattener.Flatten(segId, normal.GEOMETRIE,
-            normal.STATUS, normal.LBLSTATUS, normal.METHODE, normal.LBLMETHODE, normal.B_WK_OIDN, normal.E_WK_OIDN,
-            morphology, category, access, surface, streetName, maintainer, car, bike, pedestrian,
-            normal.CREATIE, normal.VERSIE);
+        var flatRows = FlattenDerived(normal, morphology, category, access, surface, streetName, maintainer, car, bike, pedestrian);
+
+        // A schijnknoop removed earlier in this batch still comes back from the database query, as the tracked entity
+        // it now is; it is gone, so it is not handed out again.
+        var schijnknopen = (await context.DerivedSchijnknopen.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct))
+            .Where(x => context.Entry(x).State != EntityState.Deleted)
+            .OrderBy(x => x.VOLGNR)
+            .ToList();
+        var newIds = await DerivedSchijnknoopIds.AllocateAsync(context, SchijnknopenNeeded(flatRows) - schijnknopen.Count, ct);
+
+        LinkSchijnknopen(context, normal, flatRows, schijnknopen, newIds);
         context.DerivedRoadSegments.AddRange(flatRows);
+    }
+
+    internal static List<DerivedRoadSegmentRecord> FlattenDerived(RoadSegmentRecord normal,
+        IReadOnlyList<RoadSegmentMorphologyAttributeRecord> morphology,
+        IReadOnlyList<RoadSegmentCategoryAttributeRecord> category,
+        IReadOnlyList<RoadSegmentAccessRestrictionAttributeRecord> access,
+        IReadOnlyList<RoadSegmentSurfaceTypeAttributeRecord> surface,
+        IReadOnlyList<RoadSegmentStreetNameAttributeRecord> streetName,
+        IReadOnlyList<RoadSegmentMaintenanceAuthorityAttributeRecord> maintainer,
+        IReadOnlyList<RoadSegmentCarTrafficDirectionAttributeRecord> car,
+        IReadOnlyList<RoadSegmentBikeTrafficDirectionAttributeRecord> bike,
+        IReadOnlyList<RoadSegmentPedestrianTrafficDirectionAttributeRecord> pedestrian)
+    {
+        return normal.GEOMETRIE is null
+            ? []
+            : DerivedWegsegmentFlattener.Flatten(normal.WS_OIDN, normal.GEOMETRIE,
+                normal.STATUS, normal.LBLSTATUS, normal.METHODE, normal.LBLMETHODE, normal.B_WK_OIDN, normal.E_WK_OIDN,
+                morphology, category, access, surface, streetName, maintainer, car, bike, pedestrian,
+                normal.CREATIE, normal.VERSIE);
+    }
+
+    internal static int SchijnknopenNeeded(IReadOnlyCollection<DerivedRoadSegmentRecord> flatRows) => Math.Max(flatRows.Count - 1, 0);
+
+    // Puts an afgeleide schijnknoop between every two consecutive AfgeleideWegsegmenten of the segment, at the point
+    // where the one ends and the next begins, and makes it the end node of the one and the begin node of the next. The
+    // first row keeps the begin node of the segment and the last row its end node, as the flattener left them.
+    //
+    // The schijnknopen the segment already has (existing, in VOLGNR order) are handed out again in order along the
+    // segment, so a rebuild that splits the segment the same way - an attribute changed without moving a split - keeps
+    // the ids it had. Only splits beyond that take one of newIds, and schijnknopen left over are removed. The
+    // schijnknoop is versioned with its segment, always.
+    internal static void LinkSchijnknopen(PbsContext context, RoadSegmentRecord normal,
+        IReadOnlyList<DerivedRoadSegmentRecord> flatRows,
+        IReadOnlyList<DerivedSchijnknoopRecord> existing,
+        IReadOnlyList<int> newIds)
+    {
+        var needed = SchijnknopenNeeded(flatRows);
+
+        context.DerivedSchijnknopen.RemoveRange(existing.Skip(needed));
+
+        for (var i = 0; i < needed; i++)
+        {
+            DerivedSchijnknoopRecord schijnknoop;
+            if (i < existing.Count)
+            {
+                schijnknoop = existing[i];
+            }
+            else
+            {
+                schijnknoop = new DerivedSchijnknoopRecord { WK_OIDN = newIds[i - existing.Count], WS_OIDN = normal.WS_OIDN, CREATIE = normal.VERSIE };
+                context.DerivedSchijnknopen.Add(schijnknoop);
+            }
+
+            var next = flatRows[i + 1];
+            var start = next.GEOMETRIE!.Coordinate;
+
+            schijnknoop.VOLGNR = i + 1;
+            schijnknoop.TYPE = ValueObjects.RoadNodeTypeV2.Schijnknoop.Translation.Identifier;
+            schijnknoop.LBLTYPE = ValueObjects.RoadNodeTypeV2.Schijnknoop.Translation.Name;
+            schijnknoop.GRENSKNOOP = 0;
+            schijnknoop.GEOMETRIE = next.GEOMETRIE.Factory.CreatePoint(new Coordinate(start.X, start.Y)).Force2D();
+            schijnknoop.VERSIE = normal.VERSIE;
+
+            flatRows[i].E_WK_OIDN = schijnknoop.WK_OIDN;
+            next.B_WK_OIDN = schijnknoop.WK_OIDN;
+        }
     }
 
     private async Task Remove(PbsContext context, int segId, CancellationToken ct)
@@ -616,6 +686,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
             context.RoadSegments.Remove(normal);
         }
         context.DerivedRoadSegments.RemoveRange(await RowsFor(context, context.DerivedRoadSegments, segId, ct));
+        context.DerivedSchijnknopen.RemoveRange(await context.DerivedSchijnknopen.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct));
 
         context.RoadSegmentMorphologyAttributes.RemoveRange(await RowsFor(context, context.RoadSegmentMorphologyAttributes, segId, ct));
         context.RoadSegmentStreetNameAttributes.RemoveRange(await RowsFor(context, context.RoadSegmentStreetNameAttributes, segId, ct));
