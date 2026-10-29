@@ -1,3 +1,10 @@
+## [5.28.1](https://github.com/informatievlaanderen/road-registry/compare/v5.28.0...v5.28.1) (2026-10-29)
+
+
+### Bug Fixes
+
+* **wegknoop:** record the crossing left by removing a road node at grade whatever traffic it carries GAWR-7802 ([50b9e2b](https://github.com/informatievlaanderen/road-registry/commit/50b9e2be0c7b7d9d3e04a1d45837ead30be62de4))
+
 # [5.28.0](https://github.com/informatievlaanderen/road-registry/compare/v5.27.0...v5.28.0) (2026-10-29)
 
 
