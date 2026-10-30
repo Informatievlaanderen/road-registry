@@ -1,3 +1,15 @@
+## [5.28.5](https://github.com/informatievlaanderen/road-registry/compare/v5.28.4...v5.28.5) (2026-10-30)
+
+
+### Bug Fixes
+
+* **2.0:** refuse van/totpositie more precise than a centimetre on v2 endpoints GAWR-7835 ([c5cb81d](https://github.com/informatievlaanderen/road-registry/commit/c5cb81d187726875beba2c2e40a273bf331b75d3))
+
+
+### Performance Improvements
+
+* **projections:** keep the PBS read model's indexes and prefetch per batch ([841f0dd](https://github.com/informatievlaanderen/road-registry/commit/841f0dd63830ea712196348372f6907cbbf6ea63))
+
 ## [5.28.4](https://github.com/informatievlaanderen/road-registry/compare/v5.28.3...v5.28.4) (2026-10-30)
 
 
