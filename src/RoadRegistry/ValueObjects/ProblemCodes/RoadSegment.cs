@@ -23,6 +23,7 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode OutsideCompletedInwinningszone = new("RoadSegmentOutsideInwinningszone");
         public static readonly ProblemCode NotCompletedInwinning = new("RoadSegmentNotCompletedInwinning");
         public static readonly ProblemCode MeasuredNotAllowed = new("RoadSegmentMeasuredNotAllowed");
+        public static readonly ProblemCode PositionMorePreciseThanCm = new("RoadSegmentPositionMorePreciseThanCm");
 
         // The road network still holds the road segment, but it was removed. Told apart from 'not found' on purpose:
         // an action that cannot find a road segment at all says something different from one that is handed a road

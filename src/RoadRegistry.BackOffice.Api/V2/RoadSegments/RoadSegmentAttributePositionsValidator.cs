@@ -22,6 +22,42 @@ internal static class RoadSegmentAttributePositionsValidator
         double? geometryLength,
         ProblemCode.RoadSegment.DynamicAttributeProblemCodes problemCodes)
     {
+        var list = positions.ToList();
+
+        var failures = ValidatePrecision(list, propertyName);
+        return failures.Count > 0
+            ? failures
+            : ValidateCoverage(list, propertyName, geometryLength, problemCodes);
+    }
+
+    // Everything stored is rounded to the centimetre, so a position carrying more than that would silently get stored
+    // as another position. A position like that also says nothing reliable about coverage, so it is reported on its own.
+    private static List<ValidationFailure> ValidatePrecision(
+        IEnumerable<(double? VanPositie, double? TotPositie)> positions,
+        string propertyName)
+    {
+        var failures = new List<ValidationFailure>();
+
+        // Negative positions are already reported by the endpoints themselves.
+        foreach (var position in positions
+                     .SelectMany(x => new[] { x.VanPositie, x.TotPositie })
+                     .OfType<double>()
+                     .Where(x => x >= 0 && x.IsMorePreciseThanCm())
+                     .Distinct())
+        {
+            AddFailure(failures, propertyName, ProblemCode.RoadSegment.PositionMorePreciseThanCm,
+                new ProblemParameter("Position", position.ToInvariantString()));
+        }
+
+        return failures;
+    }
+
+    private static List<ValidationFailure> ValidateCoverage(
+        IEnumerable<(double? VanPositie, double? TotPositie)> positions,
+        string propertyName,
+        double? geometryLength,
+        ProblemCode.RoadSegment.DynamicAttributeProblemCodes problemCodes)
+    {
         var failures = new List<ValidationFailure>();
 
         var ordered = positions
@@ -107,6 +143,12 @@ internal static class RoadSegmentAttributePositionsValidator
 
         var list = items.ToList();
 
+        failures.AddRange(ValidatePrecision(list.Select(x => (x.VanPositie, x.TotPositie)), propertyName));
+        if (failures.Count > 0)
+        {
+            return failures;
+        }
+
         // A record whose kant is missing or unknown is already reported and cannot be placed on a side; checking
         // coverage around the hole it leaves would only add misleading failures.
         var sided = list
@@ -131,7 +173,7 @@ internal static class RoadSegmentAttributePositionsValidator
             : new[] { RoadSegmentAttributeSide.Links, RoadSegmentAttributeSide.Rechts };
         foreach (var side in sides)
         {
-            failures.AddRange(Validate(
+            failures.AddRange(ValidateCoverage(
                 sided
                     .Where(x => x.Side == side || x.Side == RoadSegmentAttributeSide.Beide)
                     .Select(x => (x.VanPositie, x.TotPositie)),
