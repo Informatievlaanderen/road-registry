@@ -2,7 +2,11 @@ namespace RoadRegistry.BackOffice;
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Xml;
+using System.Xml.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Messages;
 using NetTopologySuite;
@@ -59,7 +63,7 @@ public static class GeometryTranslator
 
     public static MultiLineString ParseGmlLineString(string gml)
     {
-        var geometry = ParseGml(gml.ThrowIfNull());
+        var geometry = ParseGml(gml.ThrowIfNull(), "LineString", "posList", "coordinates");
         if (geometry == null)
         {
             throw new InvalidOperationException("The GML is invalid");
@@ -90,7 +94,7 @@ public static class GeometryTranslator
 
     public static Point ParseGmlPoint(string gml)
     {
-        var geometry = ParseGml(gml.ThrowIfNull());
+        var geometry = ParseGml(gml.ThrowIfNull(), "Point", "pos", "coordinates");
         if (geometry == null)
         {
             throw new InvalidOperationException("The GML is invalid");
@@ -104,10 +108,49 @@ public static class GeometryTranslator
         return point;
     }
 
-    private static Geometry ParseGml(string gml)
+    private static Geometry ParseGml(string gml, string geometryElementName, params string[] coordinatesElementNames)
     {
+        EnsureGmlContainsSingleGeometry(gml, geometryElementName, coordinatesElementNames);
+
         var gmlReader = new GMLReader(WellKnownGeometryFactories.WithoutSrid);
         return gmlReader.Read(gml);
+    }
+
+    // GMLReader stops reading as soon as it has its first geometry, so anything after it would go unnoticed.
+    private static void EnsureGmlContainsSingleGeometry(string gml, string geometryElementName, string[] coordinatesElementNames)
+    {
+        var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
+        using var stringReader = new StringReader(gml);
+        using var xmlReader = XmlReader.Create(stringReader, settings);
+        var geometryElement = XDocument.Load(xmlReader).Root!;
+
+        if (geometryElement.Name.LocalName != geometryElementName)
+        {
+            throw new InvalidOperationException($"The GML is not a {geometryElementName}");
+        }
+
+        if (geometryElement.Nodes().OfType<XText>().Any(text => !string.IsNullOrWhiteSpace(text.Value)))
+        {
+            throw new InvalidOperationException($"The {geometryElementName} GML contains unexpected text");
+        }
+
+        var childElements = geometryElement.Elements().ToArray();
+        if (childElements.Length != 1 || !coordinatesElementNames.Contains(childElements[0].Name.LocalName))
+        {
+            throw new InvalidOperationException($"The {geometryElementName} GML must contain exactly one of: {string.Join(", ", coordinatesElementNames)}");
+        }
+
+        if (childElements[0].HasElements || string.IsNullOrWhiteSpace(childElements[0].Value))
+        {
+            throw new InvalidOperationException($"The {geometryElementName} GML has no coordinates");
+        }
+
+        // GMLReader silently drops what it cannot read as a number.
+        var ordinates = childElements[0].Value.Split([' ', '\t', '\r', '\n', ','], StringSplitOptions.RemoveEmptyEntries);
+        if (!ordinates.All(ordinate => double.TryParse(ordinate, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) && double.IsFinite(value)))
+        {
+            throw new InvalidOperationException($"The {geometryElementName} GML has coordinates that are not numeric");
+        }
     }
 
     public static MultiLineString ToMultiLineStringLambert72(PolyLineM polyLineM)

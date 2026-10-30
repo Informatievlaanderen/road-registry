@@ -1,5 +1,6 @@
 namespace RoadRegistry.Tests.BackOffice;
 
+using Be.Vlaanderen.Basisregisters.GrAr.Common.NetTopology;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
@@ -196,6 +197,87 @@ public class GeometryTranslatorTests
         var wktWithoutDuplicateCoordinates = geometry.WithoutDuplicateCoordinates().AsText();
 
         Assert.Equal(wkt, wktWithoutDuplicateCoordinates);
+    }
+
+    private const string GmlAttributes = @"srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""";
+
+    [Theory]
+    [InlineData("posList", $"<gml:LineString {GmlAttributes}><gml:posList>1 2 3 4</gml:posList></gml:LineString>")]
+    [InlineData("coordinates", $"<gml:LineString {GmlAttributes}><gml:coordinates>1,2 3,4</gml:coordinates></gml:LineString>")]
+    [InlineData("whitespace", $"\r\n<gml:LineString {GmlAttributes}>\r\n  <gml:posList>1 2 3 4</gml:posList>\r\n</gml:LineString>\r\n")]
+    [InlineData("xml declaration", $"<?xml version=\"1.0\" encoding=\"utf-8\"?><gml:LineString {GmlAttributes}><gml:posList>1 2 3 4</gml:posList></gml:LineString>")]
+    public void GmlIsValidLineStringAcceptsSingleLineString(string _, string gml)
+    {
+        Assert.True(GeometryTranslator.GmlIsValidLineString(gml));
+        Assert.Equal(new[] { new Coordinate(1, 2), new Coordinate(3, 4) }, GeometryTranslator.ParseGmlLineString(gml).Coordinates.Select(x => new Coordinate(x.X, x.Y)));
+    }
+
+    [Fact]
+    public void GmlIsValidLineStringAcceptsGmlOfOwnApi()
+    {
+        var lineString = new LineString([new Coordinate(217368.75, 181577.01), new Coordinate(217400.11, 181499.51)]) { SRID = WellknownSrids.Lambert08 };
+
+        var gml = lineString.ConvertToGml(useHttpsSchema: false, coordinatePrecision: Precisions.GeometryPrecisionV2);
+
+        Assert.True(GeometryTranslator.GmlIsValidLineString(gml));
+    }
+
+    [Theory]
+    [InlineData("empty string", "")]
+    [InlineData("not xml", "LINESTRING (1 2, 3 4)")]
+    [InlineData("no closing geometry tag", $"<gml:LineString {GmlAttributes}><gml:posList>1 2 3 4</gml:posList>")]
+    [InlineData("no closing coordinates tag", $"<gml:LineString {GmlAttributes}><gml:posList>1 2 3 4")]
+    [InlineData("truncated closing tag", $"<gml:LineString {GmlAttributes}><gml:posList>1 2 3 4</gml:posList></gml:LineString")]
+    [InlineData("truncated after geometry", $"<gml:LineString {GmlAttributes}><gml:posList>1 2 3 4</gml:posList></gml:LineString><gml:")]
+    [InlineData("text after geometry", $"<gml:LineString {GmlAttributes}><gml:posList>1 2 3 4</gml:posList></gml:LineString>garbage")]
+    [InlineData("two line strings", $"<gml:LineString {GmlAttributes}><gml:posList>1 2 3 4</gml:posList></gml:LineString><gml:LineString {GmlAttributes}><gml:posList>5 6 7 8</gml:posList></gml:LineString>")]
+    [InlineData("two posLists", $"<gml:LineString {GmlAttributes}><gml:posList>1 2 3 4</gml:posList><gml:posList>5 6 7 8</gml:posList></gml:LineString>")]
+    [InlineData("two coordinates", $"<gml:LineString {GmlAttributes}><gml:coordinates>1,2 3,4</gml:coordinates><gml:coordinates>5,6 7,8</gml:coordinates></gml:LineString>")]
+    [InlineData("coordinates and posList", $"<gml:LineString {GmlAttributes}><gml:coordinates>1,2 3,4</gml:coordinates><gml:posList>5 6 7 8</gml:posList></gml:LineString>")]
+    [InlineData("unknown child", $"<gml:LineString {GmlAttributes}><gml:foo>x</gml:foo><gml:posList>1 2 3 4</gml:posList></gml:LineString>")]
+    [InlineData("nested element", $"<gml:LineString {GmlAttributes}><gml:posList><gml:foo>1 2 3 4</gml:foo></gml:posList></gml:LineString>")]
+    [InlineData("text next to coordinates", $"<gml:LineString {GmlAttributes}>garbage<gml:posList>1 2 3 4</gml:posList></gml:LineString>")]
+    [InlineData("no coordinates element", $"<gml:LineString {GmlAttributes}></gml:LineString>")]
+    [InlineData("empty posList", $"<gml:LineString {GmlAttributes}><gml:posList></gml:posList></gml:LineString>")]
+    [InlineData("blank posList", $"<gml:LineString {GmlAttributes}><gml:posList>   </gml:posList></gml:LineString>")]
+    [InlineData("single point", $"<gml:LineString {GmlAttributes}><gml:posList>1 2</gml:posList></gml:LineString>")]
+    [InlineData("odd number of ordinates", $"<gml:LineString {GmlAttributes}><gml:posList>1 2 3</gml:posList></gml:LineString>")]
+    [InlineData("non numeric ordinates", $"<gml:LineString {GmlAttributes}><gml:posList>1 2 3 4 a b</gml:posList></gml:LineString>")]
+    [InlineData("non numeric coordinates", $"<gml:LineString {GmlAttributes}><gml:coordinates>1,2 3,4 a,b</gml:coordinates></gml:LineString>")]
+    [InlineData("infinite ordinate", $"<gml:LineString {GmlAttributes}><gml:posList>1 2 3 Infinity</gml:posList></gml:LineString>")]
+    [InlineData("incomplete coordinate pair", $"<gml:LineString {GmlAttributes}><gml:coordinates>1,2 3,4 5</gml:coordinates></gml:LineString>")]
+    [InlineData("dtd", $"<!DOCTYPE foo [<!ENTITY x \"1 2 3 4\">]><gml:LineString {GmlAttributes}><gml:posList>&x;</gml:posList></gml:LineString>")]
+    [InlineData("point", $"<gml:Point {GmlAttributes}><gml:pos>1 2</gml:pos></gml:Point>")]
+    [InlineData("multi line string", $"<gml:MultiLineString {GmlAttributes}><gml:lineStringMember><gml:LineString><gml:posList>1 2 3 4</gml:posList></gml:LineString></gml:lineStringMember></gml:MultiLineString>")]
+    public void GmlIsValidLineStringRejectsIncompleteOrAmbiguousGml(string _, string gml)
+    {
+        Assert.False(GeometryTranslator.GmlIsValidLineString(gml));
+    }
+
+    [Theory]
+    [InlineData("pos", $"<gml:Point {GmlAttributes}><gml:pos>1 2</gml:pos></gml:Point>")]
+    [InlineData("coordinates", $"<gml:Point {GmlAttributes}><gml:coordinates>1,2</gml:coordinates></gml:Point>")]
+    public void GmlIsValidPointAcceptsSinglePoint(string _, string gml)
+    {
+        Assert.True(GeometryTranslator.GmlIsValidPoint(gml));
+        Assert.Equal(new Coordinate(1, 2), GeometryTranslator.ParseGmlPoint(gml).Coordinate);
+    }
+
+    [Theory]
+    [InlineData("empty string", "")]
+    [InlineData("no closing geometry tag", $"<gml:Point {GmlAttributes}><gml:pos>1 2</gml:pos>")]
+    [InlineData("no closing coordinates tag", $"<gml:Point {GmlAttributes}><gml:pos>1 2")]
+    [InlineData("text after geometry", $"<gml:Point {GmlAttributes}><gml:pos>1 2</gml:pos></gml:Point>garbage")]
+    [InlineData("two points", $"<gml:Point {GmlAttributes}><gml:pos>1 2</gml:pos></gml:Point><gml:Point {GmlAttributes}><gml:pos>3 4</gml:pos></gml:Point>")]
+    [InlineData("two pos", $"<gml:Point {GmlAttributes}><gml:pos>1 2</gml:pos><gml:pos>3 4</gml:pos></gml:Point>")]
+    [InlineData("unknown child", $"<gml:Point {GmlAttributes}><gml:foo>x</gml:foo><gml:pos>1 2</gml:pos></gml:Point>")]
+    [InlineData("empty pos", $"<gml:Point {GmlAttributes}><gml:pos></gml:pos></gml:Point>")]
+    [InlineData("non numeric pos", $"<gml:Point {GmlAttributes}><gml:pos>1 2 a</gml:pos></gml:Point>")]
+    [InlineData("too many ordinates", $"<gml:Point {GmlAttributes}><gml:pos>1 2 3 4</gml:pos></gml:Point>")]
+    [InlineData("line string", $"<gml:LineString {GmlAttributes}><gml:posList>1 2 3 4</gml:posList></gml:LineString>")]
+    public void GmlIsValidPointRejectsIncompleteOrAmbiguousGml(string _, string gml)
+    {
+        Assert.False(GeometryTranslator.GmlIsValidPoint(gml));
     }
 
     //[Fact]
