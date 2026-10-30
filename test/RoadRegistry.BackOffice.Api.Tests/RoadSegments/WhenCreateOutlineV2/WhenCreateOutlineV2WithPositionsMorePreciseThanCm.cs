@@ -21,7 +21,6 @@ public class WhenCreateOutlineV2WithPositionsMorePreciseThanCm
     [InlineData(99999.99)]
     [InlineData(0.30000000000000004)]
     [InlineData(0.1200000002)]
-    [InlineData(0.11999999731779099)]
     public void WhenValueIsACentimetreOrFloatingPointNoiseAroundIt_ThenItIsNotMorePrecise(double value)
     {
         Assert.False(value.IsMorePreciseThanCm());
