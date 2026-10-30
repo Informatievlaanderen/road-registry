@@ -189,6 +189,23 @@ public class ChangeRoadSegmentGeometryV2Tests : V2ReadEndpointTestBase
     }
 
     [Theory]
+    [InlineData(@"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:posList>217368.75 181577.02 217378.75 181577.02</gml:posList>")]
+    [InlineData(@"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:posList>217368.75 181577.02 217378.75 181577.02</gml:posList><gml:posList>217378.75 181577.02 217388.75 181577.02</gml:posList></gml:LineString>")]
+    [InlineData(@"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:posList>217368.75 181577.02 217378.75 181577.02</gml:posList></gml:LineString><gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:posList>217378.75 181577.02 217388.75 181577.02</gml:posList></gml:LineString>")]
+    public async Task GivenAnIncompleteOrAmbiguousGeometry_ThenValidationException(string gml)
+    {
+        var id = SeedRoadSegment();
+        var parameters = ValidParameters();
+        parameters.WegsegmentGeometrie = gml;
+
+        var ex = await Assert.ThrowsAsync<ValidationException>(() => Act(id, parameters));
+
+        ex.Errors.Should().ContainSingle()
+            .Which.ErrorMessage.Should().Be("De opgegeven geometrie is geen geldige LineString in gml 3.2.");
+        VerifyNothingWasQueued();
+    }
+
+    [Theory]
     // Anything that is not Lambert 2008, and a geometry that does not say what it is in - which parses as Lambert 72,
     // the reader's default, so it is refused for the same reason rather than passing unnoticed.
     [InlineData(nameof(GeometryTranslatorTestCases.ValidGmlLineStringLambert72))]

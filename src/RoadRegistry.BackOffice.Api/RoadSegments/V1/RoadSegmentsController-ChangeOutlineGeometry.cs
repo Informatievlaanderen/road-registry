@@ -97,7 +97,7 @@ public partial class RoadSegmentsController
                 ProvenanceData = CreateProvenanceData(Modification.Update),
                 Request = new ChangeRoadSegmentOutlineGeometryRequest(
                     new RoadSegmentId(id),
-                    GeometryTranslator.Translate(GeometryTranslator.ParseGmlLineString(parameters.MiddellijnGeometrie))
+                    GeometryTranslator.Translate(V1GmlLineString.Parse(parameters.MiddellijnGeometrie))
                 )
             };
             var result = await _mediator.Send(sqsRequest, cancellationToken);
@@ -132,13 +132,13 @@ public class PostChangeOutlineGeometryParametersValidator : AbstractValidator<Po
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.Geometry.IsRequired)
-            .Must(GeometryTranslator.GmlIsValidLineString)
+            .Must(V1GmlLineString.IsValid)
             .WithProblemCode(ProblemCode.RoadSegment.Geometry.NotValid)
-            .Must(gml => GeometryTranslator.ParseGmlLineString(gml).SRID == SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32())
+            .Must(gml => V1GmlLineString.Parse(gml).SRID == SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32())
             .WithProblemCode(ProblemCode.RoadSegment.Geometry.SridNotValid)
-            .Must(gml => GeometryTranslator.ParseGmlLineString(gml).Length >= Distances.TooClose)
+            .Must(gml => V1GmlLineString.Parse(gml).Length >= Distances.TooClose)
             .WithProblemCode(RoadSegmentGeometryLengthIsLessThanMinimum.ProblemCode, _ => new RoadSegmentGeometryLengthIsLessThanMinimum(Distances.TooClose))
-            .Must(gml => GeometryTranslator.ParseGmlLineString(gml).Length < Distances.TooLongSegmentLength)
+            .Must(gml => V1GmlLineString.Parse(gml).Length < Distances.TooLongSegmentLength)
             .WithProblemCode(RoadSegmentGeometryLengthIsTooLong.ProblemCode, _ => new RoadSegmentGeometryLengthIsTooLong(Distances.TooLongSegmentLength));
     }
 }

@@ -63,7 +63,7 @@ public partial class RoadSegmentsController
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
                 Request = new CreateRoadSegmentOutlineRequest(
-                    GeometryTranslator.Translate(GeometryTranslator.ParseGmlLineString(parameters.MiddellijnGeometrie)),
+                    GeometryTranslator.Translate(V1GmlLineString.Parse(parameters.MiddellijnGeometrie)),
                     RoadSegmentStatus.ParseUsingDutchName(parameters.Wegsegmentstatus),
                     RoadSegmentMorphology.ParseUsingDutchName(parameters.MorfologischeWegklasse),
                     RoadSegmentAccessRestriction.ParseUsingDutchName(parameters.Toegangsbeperking),
@@ -189,13 +189,13 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.Geometry.IsRequired)
-            .Must(GeometryTranslator.GmlIsValidLineString)
+            .Must(V1GmlLineString.IsValid)
             .WithProblemCode(ProblemCode.RoadSegment.Geometry.NotValid)
-            .Must(gml => GeometryTranslator.ParseGmlLineString(gml).SRID == SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32())
+            .Must(gml => V1GmlLineString.Parse(gml).SRID == SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32())
             .WithProblemCode(ProblemCode.RoadSegment.Geometry.SridNotValid)
-            .Must(gml => GeometryTranslator.ParseGmlLineString(gml).Length >= Distances.TooClose)
+            .Must(gml => V1GmlLineString.Parse(gml).Length >= Distances.TooClose)
             .WithProblemCode(RoadSegmentGeometryLengthIsLessThanMinimum.ProblemCode, _ => new RoadSegmentGeometryLengthIsLessThanMinimum(Distances.TooClose))
-            .Must(gml => GeometryTranslator.ParseGmlLineString(gml).Length < Distances.TooLongSegmentLength)
+            .Must(gml => V1GmlLineString.Parse(gml).Length < Distances.TooLongSegmentLength)
             .WithProblemCode(RoadSegmentGeometryLengthIsTooLong.ProblemCode, _ => new RoadSegmentGeometryLengthIsTooLong(Distances.TooLongSegmentLength));
 
         RuleFor(x => x.Wegsegmentstatus)
