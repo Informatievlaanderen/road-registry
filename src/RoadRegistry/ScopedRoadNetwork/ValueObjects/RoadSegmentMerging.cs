@@ -8,9 +8,12 @@ public enum RoadSegmentMerging
     // node it leaves holding two roads becomes the validatieknoop between them and nothing else moves.
     NotAllowed,
 
-    // The inwinning and the change upload, which reshape the road network as a whole. The roads are handed over as
-    // they were drawn, so two that were not drawn the same way still become one and the merged road's
-    // geometriemethode is derived from the two it is made of, the same as its other attributes.
+    // The inwinning, which reshapes a municipality as a whole. The roads are handed over as they were drawn, so two
+    // that were not drawn the same way still become one and the merged road's geometriemethode is derived from the
+    // two it is made of, the same as its other attributes.
+    //
+    // Not the bijhouding upload, which goes through the same change flow but merges nothing: see
+    // ScopedRoadNetwork.AfterChangesApplied.
     AsInwinning,
 
     // An editing action in which the merge is a consequence rather than the request: removing a road segment can

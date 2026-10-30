@@ -56,6 +56,11 @@ public class CreateExtractArchive
         private readonly List<RoadNodeExtractItem> _roadNodes = [];
         private readonly List<GradeSeparatedJunctionExtractItem> _gradeSeparatedJunctions = [];
 
+        public Task<bool> EverythingInContourIsCompleet(IPolygonal contour, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(true);
+        }
+
         public FakeZipArchiveDataSession(Geometry transactionZoneGeometry, int createSegmentsCount)
         {
             var x = transactionZoneGeometry.EnvelopeInternal.MinX;

@@ -25,6 +25,44 @@ public class RoadSegmentTrafficDirectionTranslationTests
         Assert.Equal(expected, RoadSegmentPedestrianTrafficDirection.FromAccess(access).ToString());
     }
 
+    // A delivery states -8 for an attribute it does not know, which the reader turns into a null. Knowing one
+    // direction but not the other is not expressible in the exchange format, so either one unknown makes the whole
+    // attribute unknown.
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData(null, true)]
+    [InlineData(null, false)]
+    [InlineData(true, null)]
+    [InlineData(false, null)]
+    public void FromAccess_MapsAnUnknownDirectionToNietGekend(bool? forward, bool? backward)
+    {
+        Assert.Equal(RoadSegmentTrafficDirection.NietGekend, RoadSegmentTrafficDirection.FromAccess(forward, backward));
+    }
+
+    [Theory]
+    [InlineData(true, true, "Both")]
+    [InlineData(true, false, "Forward")]
+    [InlineData(false, true, "Backward")]
+    [InlineData(false, false, "None")]
+    public void FromAccess_WithBothDirectionsKnown_MapsThemAsTheNonNullableOverloadDoes(bool? forward, bool? backward, string expected)
+    {
+        Assert.Equal(expected, RoadSegmentTrafficDirection.FromAccess(forward, backward).ToString());
+    }
+
+    [Fact]
+    public void PedestrianFromAccess_MapsAnUnknownAccessToNietGekend()
+    {
+        Assert.Equal(RoadSegmentPedestrianTrafficDirection.NietGekend, RoadSegmentPedestrianTrafficDirection.FromAccess(null));
+    }
+
+    // The identifier the exchange format carries for an unknown attribute.
+    [Fact]
+    public void NietGekend_IsIdentifiedByMinusEight()
+    {
+        Assert.Equal(-8, RoadSegmentTrafficDirection.NietGekend.Translation.Identifier);
+        Assert.Equal(-8, RoadSegmentPedestrianTrafficDirection.NietGekend.Translation.Identifier);
+    }
+
     [Fact]
     public void ToTrafficDirection_WholeSegment_ProducesSingleValue()
     {

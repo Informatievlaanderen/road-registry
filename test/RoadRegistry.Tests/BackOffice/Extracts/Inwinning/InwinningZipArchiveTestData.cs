@@ -1,0 +1,359 @@
+namespace RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
+
+using System.IO.Compression;
+using System.Text;
+using AutoFixture;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Extensions;
+using Inwinning;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Implementation;
+using RoadRegistry.Extracts.Schemas.Inwinning;
+using RoadRegistry.Extracts.Schemas.Inwinning.GradeSeparatedJuntions;
+using RoadRegistry.Extracts.Schemas.Inwinning.RoadNodes;
+using RoadRegistry.Extracts.Schemas.Inwinning.RoadSegments;
+using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
+using LineString = NetTopologySuite.Geometries.LineString;
+using Point = NetTopologySuite.Geometries.Point;
+using Polygon = NetTopologySuite.Geometries.Polygon;
+
+public class InwinningZipArchiveTestData : IDisposable
+{
+    public InwinningZipArchiveTestData()
+    {
+        Fixture = CreateFixture();
+
+        EmptyZipArchive = CreateEmptyZipArchive();
+        ZipArchiveWithEmptyFiles = CreateZipArchiveWithEmptyFiles();
+        ZipArchive = CreateZipArchiveWithEachFileAtLeastOneRecord();
+    }
+
+    public ZipArchive EmptyZipArchive { get; }
+    public ZipArchive ZipArchiveWithEmptyFiles { get; }
+    public ZipArchive ZipArchive { get; }
+    public Fixture Fixture { get; }
+
+    public void Dispose()
+    {
+        ZipArchive?.Dispose();
+    }
+
+    private ZipArchive CreateEmptyZipArchive()
+    {
+        var stream = new MemoryStream();
+        using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+        {
+            archive.CreateEntry(Guid.NewGuid().ToString("N"));
+        }
+
+        stream.Position = 0;
+
+        return new ZipArchive(stream, ZipArchiveMode.Read, false);
+    }
+
+    private static Fixture CreateFixture()
+    {
+        var fixture = FixtureFactory.Create();
+
+        fixture.CustomizeRecordType();
+        fixture.CustomizeAttributeId();
+        fixture.CustomizeRoadSegmentId();
+        fixture.CustomizeRoadSegmentTempId();
+        fixture.CustomizeEuropeanRoadNumber();
+        fixture.CustomizeNationalRoadNumber();
+        fixture.CustomizeGradeSeparatedJunctionId();
+        fixture.CustomizeGradeSeparatedJunctionTypeV2();
+        fixture.CustomizeRoadNodeId();
+        fixture.CustomizeRoadNodeTypeV2();
+        fixture.CustomizeRoadSegmentGeometryDrawMethodV2();
+        fixture.CustomizeOrganizationId();
+        fixture.CustomizeRoadSegmentMorphologyV2();
+        fixture.CustomizeInwinningRoadSegmentStatusV2();
+        fixture.CustomizeRoadSegmentCategoryV2();
+        fixture.CustomizeRoadSegmentAccessRestrictionV2();
+        fixture.CustomizeRoadSegmentPosition();
+        fixture.CustomizeRoadSegmentSurfaceTypeV2();
+        fixture.CustomizeStreetNameLocalId();
+        fixture.CustomizeOperatorName();
+        fixture.CustomizeReason();
+        fixture.CustomizeDownloadId();
+
+        fixture.CustomizeInwinningRoadNodeDbaseRecord();
+        fixture.CustomizeInwinningRoadSegmentDbaseRecord();
+        fixture.CustomizeInwinningRoadSegmentEuropeanRoadAttributeDbaseRecord();
+        fixture.CustomizeInwinningRoadSegmentNationalRoadAttributeDbaseRecord();
+        fixture.CustomizeInwinningGradeSeparatedJunctionDbaseRecord();
+        fixture.CustomizeInwinningTransactionZoneDbaseRecord();
+
+        fixture.Customize<RecordNumber>(customizer =>
+            customizer.FromFactory(random => new RecordNumber(random.Next(1, int.MaxValue))));
+
+        fixture.CustomizeNtsPointLambert08();
+        fixture.Customize<PointShapeContent>(customization =>
+            customization
+                .FromFactory(_ => new PointShapeContent(
+                    GeometryTranslator.FromGeometryPoint(fixture.Create<Point>())))
+                .OmitAutoProperties()
+        );
+
+        fixture.CustomizeNtsLineStringLambert08();
+        fixture.CustomizeExtractGeometry();
+
+        fixture.Customize<MultiLineString>(customization =>
+            customization.FromFactory(_ =>
+                new MultiLineString([fixture.Create<LineString>()])
+            ).OmitAutoProperties()
+        );
+        fixture.Customize<PolyLineMShapeContent>(customization =>
+            customization
+                .FromFactory(_ => fixture.Create<LineString>().ToShapeContent())
+                .OmitAutoProperties()
+        );
+        fixture.Customize<PolygonShapeContent>(customization =>
+            customization
+                .FromFactory(_ => fixture.Create<Polygon>().ToShapeContent())
+                .OmitAutoProperties()
+        );
+        return fixture;
+    }
+
+    private ZipArchive CreateZipArchive(
+        MemoryStream roadSegmentShapeChangeStream,
+        MemoryStream roadSegmentProjectionFormatStream,
+        MemoryStream roadSegmentDbaseChangeStream,
+        MemoryStream roadSegmentShapeIntegrationStream,
+        MemoryStream roadSegmentDbaseIntegrationStream,
+        MemoryStream roadNodeShapeChangeStream,
+        MemoryStream roadNodeProjectionFormatStream,
+        MemoryStream roadNodeDbaseChangeStream,
+        MemoryStream roadNodeShapeIntegrationStream,
+        MemoryStream roadNodeDbaseIntegrationStream,
+        MemoryStream europeanRoadChangeStream,
+        MemoryStream nationalRoadChangeStream,
+        MemoryStream gradeSeparatedJunctionChangeStream,
+        MemoryStream transactionZoneShapeStream,
+        MemoryStream transactionZoneProjectionFormatStream,
+        MemoryStream transactionZoneDbaseStream
+    )
+    {
+        var requiredFiles = new[]
+        {
+            "TRANSACTIEZONES.SHP",
+            "TRANSACTIEZONES.PRJ",
+            "TRANSACTIEZONES.DBF",
+            "IWEGKNOOP.DBF",
+            "EWEGKNOOP.DBF",
+            "WEGKNOOP.DBF",
+            "IWEGKNOOP.SHP",
+            "EWEGKNOOP.SHP",
+            "WEGKNOOP.SHP",
+            "IWEGKNOOP.PRJ",
+            "EWEGKNOOP.PRJ",
+            "WEGKNOOP.PRJ",
+            "IWEGSEGMENT.DBF",
+            "EWEGSEGMENT.DBF",
+            "WEGSEGMENT.DBF",
+            "IWEGSEGMENT.SHP",
+            "EWEGSEGMENT.SHP",
+            "WEGSEGMENT.SHP",
+            "IWEGSEGMENT.PRJ",
+            "EWEGSEGMENT.PRJ",
+            "WEGSEGMENT.PRJ",
+            "EATTWEGVERHARDING.DBF",
+            "ATTWEGVERHARDING.DBF",
+            "EATTEUROPWEG.DBF",
+            "ATTEUROPWEG.DBF",
+            "EATTNATIONWEG.DBF",
+            "ATTNATIONWEG.DBF",
+            "ERLTOGKRUISING.DBF",
+            "RLTOGKRUISING.DBF"
+        };
+
+        var archiveStream = new MemoryStream();
+        using (var createArchive = new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))
+        {
+            void CreateEntry(string file, MemoryStream fileStream)
+            {
+                using (var entryStream = createArchive.CreateEntry(file).Open())
+                {
+                    fileStream.Position = 0;
+                    fileStream.CopyTo(entryStream);
+                }
+            }
+
+            foreach (var requiredFile in requiredFiles)
+            {
+                switch (requiredFile)
+                {
+                    case "EWEGSEGMENT.SHP":
+                    case "WEGSEGMENT.SHP":
+                        CreateEntry(requiredFile, roadSegmentShapeChangeStream);
+                        break;
+                    case "IWEGSEGMENT.SHP":
+                        CreateEntry(requiredFile, roadSegmentShapeIntegrationStream);
+                        break;
+                    case "IWEGSEGMENT.PRJ":
+                    case "EWEGSEGMENT.PRJ":
+                    case "WEGSEGMENT.PRJ":
+                        CreateEntry(requiredFile, roadSegmentProjectionFormatStream);
+                        break;
+                    case "EWEGSEGMENT.DBF":
+                    case "WEGSEGMENT.DBF":
+                        CreateEntry(requiredFile, roadSegmentDbaseChangeStream);
+                        break;
+                    case "IWEGSEGMENT.DBF":
+                        CreateEntry(requiredFile, roadSegmentDbaseIntegrationStream);
+                        break;
+                    case "EWEGKNOOP.SHP":
+                    case "WEGKNOOP.SHP":
+                        CreateEntry(requiredFile, roadNodeShapeChangeStream);
+                        break;
+                    case "IWEGKNOOP.SHP":
+                        CreateEntry(requiredFile, roadNodeShapeIntegrationStream);
+                        break;
+                    case "IWEGKNOOP.PRJ":
+                    case "EWEGKNOOP.PRJ":
+                    case "WEGKNOOP.PRJ":
+                        CreateEntry(requiredFile, roadNodeProjectionFormatStream);
+                        break;
+                    case "EWEGKNOOP.DBF":
+                    case "WEGKNOOP.DBF":
+                        CreateEntry(requiredFile, roadNodeDbaseChangeStream);
+                        break;
+                    case "IWEGKNOOP.DBF":
+                        CreateEntry(requiredFile, roadNodeDbaseIntegrationStream);
+                        break;
+                    case "EATTEUROPWEG.DBF":
+                    case "ATTEUROPWEG.DBF":
+                        CreateEntry(requiredFile, europeanRoadChangeStream);
+                        break;
+                    case "EATTNATIONWEG.DBF":
+                    case "ATTNATIONWEG.DBF":
+                        CreateEntry(requiredFile, nationalRoadChangeStream);
+                        break;
+                    case "ERLTOGKRUISING.DBF":
+                    case "RLTOGKRUISING.DBF":
+                        CreateEntry(requiredFile, gradeSeparatedJunctionChangeStream);
+                        break;
+                    case "TRANSACTIEZONES.SHP":
+                        CreateEntry(requiredFile, transactionZoneShapeStream);
+                        break;
+                    case "TRANSACTIEZONES.PRJ":
+                        CreateEntry(requiredFile, transactionZoneProjectionFormatStream);
+                        break;
+                    case "TRANSACTIEZONES.DBF":
+                        CreateEntry(requiredFile, transactionZoneDbaseStream);
+                        break;
+                }
+            }
+        }
+
+        archiveStream.Position = 0;
+
+        return new ZipArchive(archiveStream, ZipArchiveMode.Read, false, Encoding.UTF8);
+    }
+
+    private ZipArchive CreateZipArchiveWithEmptyFiles()
+    {
+        var roadSegmentShapeChangeStream = Fixture.CreateEmptyRoadSegmentShapeFile();
+        var roadSegmentProjectionFormatStream = Fixture.CreateEmptyProjectionFormatFile();
+        var roadSegmentDbaseChangeStream = Fixture.CreateEmptyDbfFile<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema);
+
+        var europeanRoadChangeStream = Fixture.CreateEmptyDbfFile<RoadSegmentEuropeanRoadAttributeDbaseRecord>(RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
+        var nationalRoadChangeStream = Fixture.CreateEmptyDbfFile<RoadSegmentNationalRoadAttributeDbaseRecord>(RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
+
+        var roadNodeShapeChangeStream = Fixture.CreateEmptyRoadNodeShapeFile();
+        var roadNodeProjectionFormatStream = Fixture.CreateEmptyProjectionFormatFile();
+        var roadNodeDbaseChangeStream = Fixture.CreateEmptyDbfFile<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema);
+
+        var gradeSeparatedJunctionChangeStream = Fixture.CreateEmptyDbfFile<GradeSeparatedJunctionDbaseRecord>(GradeSeparatedJunctionDbaseRecord.Schema);
+
+        var transactionZoneShapeStream = Fixture.CreateEmptyRoadSegmentShapeFile();
+        var transactionZoneProjectionFormatStream = Fixture.CreateEmptyProjectionFormatFile();
+        var transactionZoneDbaseStream = Fixture.CreateEmptyDbfFile<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
+
+        return CreateZipArchive(
+            roadSegmentShapeChangeStream,
+            roadSegmentProjectionFormatStream,
+            roadSegmentDbaseChangeStream,
+            roadSegmentShapeChangeStream,
+            roadSegmentDbaseChangeStream,
+            roadNodeShapeChangeStream,
+            roadNodeProjectionFormatStream,
+            roadNodeDbaseChangeStream,
+            roadNodeShapeChangeStream,
+            roadNodeDbaseChangeStream,
+            europeanRoadChangeStream,
+            nationalRoadChangeStream,
+            gradeSeparatedJunctionChangeStream,
+            transactionZoneShapeStream,
+            transactionZoneProjectionFormatStream,
+            transactionZoneDbaseStream
+        );
+    }
+
+    private ZipArchive CreateZipArchiveWithEachFileAtLeastOneRecord()
+    {
+        var roadNodeProjectionFormatStream = Fixture.CreateLambert08ProjectionFormatFileWithOneRecord();
+        var roadNodeShapeChangeStream = Fixture.CreateRoadNodeShapeFile([
+            Fixture.Create<PointShapeContent>(),
+            Fixture.Create<PointShapeContent>()
+        ]);
+        var roadNodeShapeIntegrationStream = Fixture.CreateRoadNodeShapeFile([
+            Fixture.Create<PointShapeContent>(),
+            Fixture.Create<PointShapeContent>()
+        ]);
+        var roadNodeDbaseChange1 = Fixture.Create<RoadNodeDbaseRecord>();
+        var roadNodeDbaseChange2 = Fixture.Create<RoadNodeDbaseRecord>();
+        var roadNodeDbaseChangeStream = Fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, [roadNodeDbaseChange1, roadNodeDbaseChange2]);
+
+        var roadNodeDbaseIntegration1 = Fixture.CreateWhichIsDifferentThan<RoadNodeDbaseRecord>((x1, x2) => x1.WK_OIDN.Value == x2.WK_OIDN.Value);
+        var roadNodeDbaseIntegration2 = Fixture.CreateWhichIsDifferentThan<RoadNodeDbaseRecord>((x1, x2) => x1.WK_OIDN.Value == x2.WK_OIDN.Value);
+        var roadNodeDbaseIntegrationStream = Fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, [roadNodeDbaseIntegration1, roadNodeDbaseIntegration2]);
+
+        var roadSegmentPolyLineMShapeContent = Fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeChangeStream = Fixture.CreateRoadSegmentShapeFileWithOneRecord(roadSegmentPolyLineMShapeContent);
+        var roadSegmentShapeIntegrationStream = Fixture.CreateRoadSegmentShapeFileWithOneRecord(roadSegmentPolyLineMShapeContent);
+        var roadSegmentProjectionFormatStream = Fixture.CreateLambert08ProjectionFormatFileWithOneRecord();
+        var roadSegmentChangeDbaseRecord = Fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseChangeStream = Fixture.CreateDbfFileWithOneRecord(RoadSegmentDbaseRecord.Schema, roadSegmentChangeDbaseRecord);
+        var roadSegmentIntegrationDbaseRecord = Fixture.CreateWhichIsDifferentThan<RoadSegmentDbaseRecord>((x1, x2) => x1.WS_OIDN.Value == x2.WS_OIDN.Value);
+        var roadSegmentDbaseIntegrationStream = Fixture.CreateDbfFileWithOneRecord(RoadSegmentDbaseRecord.Schema, roadSegmentIntegrationDbaseRecord);
+
+        var europeanRoadChangeStream = Fixture.CreateDbfFileWithOneRecord<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
+            RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
+        var nationalRoadChangeStream = Fixture.CreateDbfFileWithOneRecord<RoadSegmentNationalRoadAttributeDbaseRecord>(
+            RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
+
+        var gradeSeparatedJunctionDbaseRecord = Fixture.Create<GradeSeparatedJunctionDbaseRecord>();
+        gradeSeparatedJunctionDbaseRecord.BO_TEMPID.Value = roadSegmentChangeDbaseRecord.WS_TEMPID.Value;
+        gradeSeparatedJunctionDbaseRecord.ON_TEMPID.Value = roadSegmentChangeDbaseRecord.WS_TEMPID.Value;
+        var gradeSeparatedJunctionChangeStream = Fixture.CreateDbfFileWithOneRecord(GradeSeparatedJunctionDbaseRecord.Schema, gradeSeparatedJunctionDbaseRecord);
+
+        var transactionZoneProjectionFormatStream = Fixture.CreateLambert08ProjectionFormatFileWithOneRecord();
+        var transactionZoneShapeStream = Fixture.CreateTransactionZoneShapeFile([
+            Fixture.Create<PolygonShapeContent>()
+        ]);
+        var transactionZoneDbaseStream = Fixture.CreateDbfFileWithOneRecord<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
+
+        return CreateZipArchive(
+            roadSegmentShapeChangeStream,
+            roadSegmentProjectionFormatStream,
+            roadSegmentDbaseChangeStream,
+            roadSegmentShapeIntegrationStream,
+            roadSegmentDbaseIntegrationStream,
+            roadNodeShapeChangeStream,
+            roadNodeProjectionFormatStream,
+            roadNodeDbaseChangeStream,
+            roadNodeShapeIntegrationStream,
+            roadNodeDbaseIntegrationStream,
+            europeanRoadChangeStream,
+            nationalRoadChangeStream,
+            gradeSeparatedJunctionChangeStream,
+            transactionZoneShapeStream,
+            transactionZoneProjectionFormatStream,
+            transactionZoneDbaseStream
+        );
+    }
+}

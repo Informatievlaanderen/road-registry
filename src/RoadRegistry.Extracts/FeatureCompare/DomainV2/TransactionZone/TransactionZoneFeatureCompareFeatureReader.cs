@@ -9,7 +9,7 @@ using Infrastructure.ShapeFile;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Uploads;
-using Schemas.Inwinning;
+using Schemas.DomainV2;
 
 public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<TransactionZoneFeatureCompareAttributes>>
 {
@@ -17,7 +17,7 @@ public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFea
     private const ExtractFileName FileName = ExtractFileName.Transactiezones;
 
     public TransactionZoneFeatureCompareFeatureReader(FileEncoding encoding)
-        : base(new InwinningFeatureReader(encoding))
+        : base(new DomainV2FeatureReader(encoding))
     {
         _encoding = encoding;
     }
@@ -31,9 +31,9 @@ public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFea
         return (features, problems);
     }
 
-    private sealed class InwinningFeatureReader : ZipArchiveShapeFeatureReader<TransactionZoneDbaseRecord, Feature<TransactionZoneFeatureCompareAttributes>>
+    private sealed class DomainV2FeatureReader : ZipArchiveShapeFeatureReader<TransactionZoneDbaseRecord, Feature<TransactionZoneFeatureCompareAttributes>>
     {
-        public InwinningFeatureReader(Encoding encoding)
+        public DomainV2FeatureReader(Encoding encoding)
             : base(encoding, TransactionZoneFeatureCompareFeatureReader.FileName, TransactionZoneDbaseRecord.Schema, treatHasNoRecordsAsError: true)
         {
         }

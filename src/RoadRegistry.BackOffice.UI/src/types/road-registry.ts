@@ -141,6 +141,12 @@ export namespace RoadRegistry {
     informatief: boolean;
   }
 
+  export type Inwinningsstatus = "nietGestart" | "locked" | "compleet";
+
+  export interface GemeenteInwinningsstatus {
+    inwinningsstatus: Inwinningsstatus;
+  }
+
   export interface DownloadExtractByFileRequest {
     files: File[];
     description: string;
