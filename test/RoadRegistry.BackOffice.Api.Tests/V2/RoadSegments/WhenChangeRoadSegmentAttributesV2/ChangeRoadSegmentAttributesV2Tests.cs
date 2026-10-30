@@ -416,6 +416,42 @@ public class ChangeRoadSegmentAttributesV2Tests : V2ReadEndpointTestBase
     }
 
     [Fact]
+    public async Task GivenAPositionMorePreciseThanCm_ThenValidationException()
+    {
+        var parameters = new ChangeRoadSegmentAttributesV2Parameters
+        {
+            new()
+            {
+                Wegsegmenten = [1],
+                Wegverharding = [new WegverhardingParameters { VanPositie = 0, TotPositie = 9.125, Wegverharding = RoadSegmentSurfaceTypeV2.Verhard.ToDutchString() }]
+            }
+        };
+
+        var failure = await ActAndExpectSingleFailure(() => Act(parameters));
+
+        failure.PropertyName.Should().Be("[0].wegverharding");
+        failure.ErrorCode.Should().Be(ProblemCode.RoadSegment.PositionMorePreciseThanCm.ToString());
+        VerifyNothingWasQueued();
+    }
+
+    [Fact]
+    public async Task GivenAPositionWithFloatingPointNoise_ThenAccepted()
+    {
+        var parameters = new ChangeRoadSegmentAttributesV2Parameters
+        {
+            new()
+            {
+                Wegsegmenten = [1],
+                Wegverharding = [new WegverhardingParameters { VanPositie = 0, TotPositie = 9.1200000002, Wegverharding = RoadSegmentSurfaceTypeV2.Verhard.ToDutchString() }]
+            }
+        };
+
+        var result = await Act(parameters);
+
+        result.Should().BeOfType<AcceptedResult>();
+    }
+
+    [Fact]
     public async Task GivenAnAttributeWhoseFirstRecordDoesNotStartAtZero_ThenValidationException()
     {
         var parameters = new ChangeRoadSegmentAttributesV2Parameters

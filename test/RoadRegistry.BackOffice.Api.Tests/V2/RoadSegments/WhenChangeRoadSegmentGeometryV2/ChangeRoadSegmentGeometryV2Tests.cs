@@ -144,6 +144,37 @@ public class ChangeRoadSegmentGeometryV2Tests : V2ReadEndpointTestBase
     }
 
     [Fact]
+    public async Task GivenAPositionMorePreciseThanCm_ThenValidationException()
+    {
+        var id = SeedRoadSegment();
+        var parameters = ValidParameters();
+        parameters.Morfologie =
+        [
+            new MorfologieParameters { VanPositie = 0, TotPositie = 9.995, Morfologie = RoadSegmentMorphologyV2.Parallelweg.ToDutchString() }
+        ];
+
+        var ex = await Assert.ThrowsAsync<ValidationException>(() => Act(id, parameters));
+
+        ex.Errors.Select(x => x.ErrorCode).Should().Contain(ProblemCode.RoadSegment.PositionMorePreciseThanCm.ToString());
+        VerifyNothingWasQueued();
+    }
+
+    [Fact]
+    public async Task GivenAPositionWithFloatingPointNoise_ThenAccepted()
+    {
+        var id = SeedRoadSegment();
+        var parameters = ValidParameters();
+        parameters.Morfologie =
+        [
+            new MorfologieParameters { VanPositie = 0, TotPositie = 10.0000000002, Morfologie = RoadSegmentMorphologyV2.Parallelweg.ToDutchString() }
+        ];
+
+        var result = await Act(id, parameters);
+
+        result.Should().BeOfType<AcceptedResult>();
+    }
+
+    [Fact]
     public async Task GivenNonExistingRoadSegment_ThenNotFound()
     {
         SeedRoadSegment();
