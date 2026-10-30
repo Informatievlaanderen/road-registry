@@ -75,6 +75,13 @@ internal static class SqlServerIndexMaintenance
         return indexes.Count;
     }
 
+    // The names of the indexes currently disabled, for a caller that wants to report the state rather than change it.
+    public static async Task<IReadOnlyList<string>> FindDisabledAsync(DbContext context, CancellationToken cancellationToken)
+    {
+        var indexes = await FindAsync(context, disabled: true, cancellationToken).ConfigureAwait(false);
+        return indexes.Select(x => x.IndexName).ToList();
+    }
+
     private static async Task<IReadOnlyList<IndexReference>> FindAsync(DbContext context, bool disabled, CancellationToken cancellationToken)
     {
         var schemas = context.Model

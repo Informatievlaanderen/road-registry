@@ -55,7 +55,7 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         _projections = projections;
         _options = catchUpOptions ?? ProjectionCatchUpOptions.Default;
         _bulkInsertEnabled = _options.BulkInsertThreshold > 0;
-        _metrics = new ProjectionThroughputMetrics(Logger, ProjectionName, _options.MetricsLogIntervalInBatches);
+        _metrics = new ProjectionThroughputMetrics(Logger, ProjectionName, _options.MetricsLogIntervalInBatches, _options.MetricsLogIntervalInMinutes);
     }
 
     protected override async Task DispatchAsync(IDocumentOperations operations, IReadOnlyList<CorrelationWorkItem> correlationWork, long pageMaxSequence, CancellationToken cancellationToken)
@@ -219,8 +219,17 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
             projection => projection.OnCatchUpStartedAsync(cancellationToken),
             cancellationToken).ConfigureAwait(false);
 
+        // Say what state the read model's indexes are already in, before this run decides what to do with them. A
+        // disabled index is indistinguishable from a missing one in a query plan, and it outlives the run that
+        // disabled it: a host killed mid-catch-up leaves them off, and the next run - including one configured to
+        // leave them alone - then spends its life scanning with nothing in the log to say why.
+        await ReportIndexStateAsync(cancellationToken).ConfigureAwait(false);
+
         if (!_options.DisableIndexesWhileCatchingUp)
         {
+            Logger.LogInformation(
+                "{Projection} is catching up on about {Backlog} event(s) with index disabling switched off; the indexes stay as they are.",
+                ProjectionName, estimatedBacklog);
             return;
         }
 
@@ -265,6 +274,35 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
             // Worth shouting about: unlike the disable side, leaving indexes disabled degrades the served read model
             // until someone rebuilds them.
             Logger.LogError(ex, "Could not rebuild the disabled indexes for {Projection}. They must be rebuilt before the read model is served from.", ProjectionName);
+        }
+    }
+
+    // Reporting only - it never changes anything, and a failure to read the catalog must not keep a projection from
+    // starting, so it is logged and shrugged off like the maintenance below it.
+    private async Task ReportIndexStateAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+            if (!context.Database.IsRelational())
+            {
+                return;
+            }
+
+            var disabled = await SqlServerIndexMaintenance.FindDisabledAsync(context, cancellationToken).ConfigureAwait(false);
+            if (disabled.Count == 0)
+            {
+                Logger.LogInformation("{Projection} starts with every non-clustered index on its read model in place.", ProjectionName);
+                return;
+            }
+
+            Logger.LogWarning(
+                "{Projection} starts with {Count} non-clustered index(es) on its read model disabled, so every lookup that needs one is a scan: {Indexes}",
+                ProjectionName, disabled.Count, string.Join(", ", disabled));
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            Logger.LogWarning(ex, "Could not read the index state for {Projection}.", ProjectionName);
         }
     }
 

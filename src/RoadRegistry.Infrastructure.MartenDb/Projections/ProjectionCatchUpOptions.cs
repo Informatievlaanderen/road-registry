@@ -25,5 +25,12 @@ public sealed class ProjectionCatchUpOptions
     // Emit a throughput line every N batches, so a rebuild can be measured rather than guessed at.
     public int MetricsLogIntervalInBatches { get; init; } = 25;
 
+    // ...and at least this often, however few batches have gone by. How long N batches take is a property of the
+    // rebuild being measured, not of the measurement: a projection that reads nothing per event gets through them in
+    // minutes, one that scans its own tables takes hours - and that second case is exactly the one this line exists
+    // to diagnose, so it is the one where it must not stay silent. Counting minutes as well puts a ceiling on how
+    // late the first reading can arrive.
+    public int MetricsLogIntervalInMinutes { get; init; } = 5;
+
     public static ProjectionCatchUpOptions Default { get; } = new();
 }
