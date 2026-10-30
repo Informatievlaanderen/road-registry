@@ -383,9 +383,16 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
             return set.Local.Where(record => record.WS_OIDN == segId).ToList();
         }
 
-        return await set.IncludeLocalToListAsync(
-            q => q.Where(record => EF.Property<int>(record, nameof(IRoadSegmentScopedRecord.WS_OIDN)) == segId),
-            cancellationToken);
+        // What IncludeLocalToListAsync does, spelled out, because it cannot be used here: it runs one predicate over
+        // both the tracked entities and the table, and the two need different ones. Reading WS_OIDN off the interface
+        // is fine in memory but is not what the model maps a column to, and EF.Property is the other way round - it
+        // only exists inside a query. So each side gets the form it can take, and the union stays as it was.
+        var tracked = set.Local.Where(record => record.WS_OIDN == segId).ToList();
+        var stored = await set
+            .Where(record => EF.Property<int>(record, nameof(IRoadSegmentScopedRecord.WS_OIDN)) == segId)
+            .ToListAsync(cancellationToken);
+
+        return stored.Union(tracked).ToList();
     }
 
     // The road segment an event is about, read by property name rather than declared per event type. A table mapping

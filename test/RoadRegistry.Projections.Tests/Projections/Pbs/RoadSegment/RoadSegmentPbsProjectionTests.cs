@@ -28,8 +28,8 @@ public class RoadSegmentPbsProjectionTests
 {
     private readonly RoadNetworkTestDataV2 _testData = new();
 
-    private PbsProjectionScenario Scenario() =>
-        new(new RoadSegmentPbsProjection());
+    private PbsProjectionScenario Scenario(bool prefetchBatches = true) =>
+        new(new RoadSegmentPbsProjection()) { PrefetchBatches = prefetchBatches };
 
     private ProvenanceData Provenance => new(_testData.Provenance);
 
@@ -386,10 +386,15 @@ public class RoadSegmentPbsProjectionTests
     // earlier in the batch is still only in the change tracker. A lookup that queries the database will not see it.
     // Every test above splits its events over separate batches, which is why that never showed.
 
-    [Fact]
-    public async Task WhenRoadSegmentIsAddedAndRemovedInTheSameBatch_ThenTheDerivedRowsAreDeletedToo()
+    // The tests below are run down both paths: with the batch prefetched, where a handler reads its segment out of the
+    // change tracker, and without, where it queries per event. Those are the cases where the two could tell each other
+    // apart - several events touching one segment inside a single batch - so they are the ones that have to agree.
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task WhenRoadSegmentIsAddedAndRemovedInTheSameBatch_ThenTheDerivedRowsAreDeletedToo(bool prefetchBatches)
     {
-        var scenario = Scenario();
+        var scenario = Scenario(prefetchBatches);
 
         await scenario.GivenAsync(
             _testData.Segment1Added,
@@ -407,10 +412,12 @@ public class RoadSegmentPbsProjectionTests
         Assert.Empty(await scenario.Query<NationalRoadRecord>(q => q.Where(x => x.WS_OIDN == 1)));
     }
 
-    [Fact]
-    public async Task WhenRoadSegmentIsAddedAndModifiedInTheSameBatch_ThenTheDerivedRowsKeepTheAttributesTheEventDoesNotCarry()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task WhenRoadSegmentIsAddedAndModifiedInTheSameBatch_ThenTheDerivedRowsKeepTheAttributesTheEventDoesNotCarry(bool prefetchBatches)
     {
-        var scenario = Scenario();
+        var scenario = Scenario(prefetchBatches);
 
         // The modify event carries only the status, so every other attribute has to be kept as stored - including the
         // ones written by the add event earlier in this same batch.
@@ -434,15 +441,17 @@ public class RoadSegmentPbsProjectionTests
         });
     }
 
-    [Fact]
-    public async Task WhenRoadSegmentIsAddedAndModifiedInTheSameBatch_ThenTheDerivedRowsAreReplacedRatherThanAppended()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task WhenRoadSegmentIsAddedAndModifiedInTheSameBatch_ThenTheDerivedRowsAreReplacedRatherThanAppended(bool prefetchBatches)
     {
-        var scenario = Scenario();
+        var scenario = Scenario(prefetchBatches);
 
         await scenario.GivenAsync(_testData.Segment1Added);
         var afterAdd = await scenario.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1));
 
-        var other = Scenario();
+        var other = Scenario(prefetchBatches);
         await other.GivenAsync(
             _testData.Segment1Added,
             new RoadSegmentWasModified
@@ -485,10 +494,12 @@ public class RoadSegmentPbsProjectionTests
         Assert.Empty(await scenario.Query<EuropeanRoadRecord>(q => q.Where(x => x.WS_OIDN == 5)));
     }
 
-    [Fact]
-    public async Task WhenAddingSameEuropeanRoadTwice_ThenNotDuplicated()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task WhenAddingSameEuropeanRoadTwice_ThenNotDuplicated(bool prefetchBatches)
     {
-        var scenario = Scenario();
+        var scenario = Scenario(prefetchBatches);
         var number = _testData.Fixture.Create<EuropeanRoadNumber>();
 
         await scenario.GivenAsync(new RoadSegmentWasAddedToEuropeanRoad
@@ -512,10 +523,12 @@ public class RoadSegmentPbsProjectionTests
     // projection-state position - a recovery, a rebuild - is exactly when the event arrives a second time, which is
     // what this applies. Distinct from the re-delivery test beside it: that one replays the same sequence numbers and
     // only exercises the position guard.
-    [Fact]
-    public async Task WhenRoadSegmentWasAddedTwice_ThenOneRowAndNoDuplicatedDerivedRows()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task WhenRoadSegmentWasAddedTwice_ThenOneRowAndNoDuplicatedDerivedRows(bool prefetchBatches)
     {
-        var scenario = Scenario();
+        var scenario = Scenario(prefetchBatches);
 
         await scenario.GivenAsync(_testData.Segment1Added);
         var derivedAfterFirst = await scenario.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1));

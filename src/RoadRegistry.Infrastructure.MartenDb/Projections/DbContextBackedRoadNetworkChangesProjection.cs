@@ -102,10 +102,12 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         // that will actually be applied: the ones at or below the position are skipped below, and reading rows for
         // those would be work for nothing. The time this takes is charged to the handlers, because that is where it
         // used to be spent - it is the same reads, done once instead of once per event.
-        var eventsToProcess = correlationWork
-            .SelectMany(work => work.ToProcess)
-            .Where(evt => evt.Sequence > position)
-            .ToList();
+        var eventsToProcess = _options.PrefetchBatches
+            ? correlationWork
+                .SelectMany(work => work.ToProcess)
+                .Where(evt => evt.Sequence > position)
+                .ToList()
+            : [];
         if (eventsToProcess.Count > 0)
         {
             foreach (var projection in _projections.OfType<IBatchPrefetchingRoadNetworkChangesProjection<TDbContext>>())

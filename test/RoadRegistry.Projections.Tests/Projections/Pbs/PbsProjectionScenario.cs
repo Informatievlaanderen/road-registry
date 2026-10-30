@@ -36,6 +36,13 @@ public sealed class PbsProjectionScenario
     }
 
     /// <summary>
+    /// Mirrors ProjectionCatchUpOptions.PrefetchBatches. Off, the handlers query per event the way they did before the
+    /// prefetch existed - which is both what production falls back to when the option is switched off and the only way
+    /// to run the same events down both paths and compare what they leave behind.
+    /// </summary>
+    public bool PrefetchBatches { get; init; } = true;
+
+    /// <summary>
     /// Projects the given messages (one batch) through every projection in order.
     /// Call multiple times to simulate separate daemon batches.
     /// </summary>
@@ -77,7 +84,9 @@ public sealed class PbsProjectionScenario
 
         // Mirrors the driver here too: the prefetch runs over the batch before any handler sees it, so the tests
         // exercise the path the projection actually takes in production rather than only its per-event fallback.
-        var eventsToProcess = events.Where(@event => @event.Sequence > position).ToList();
+        var eventsToProcess = PrefetchBatches
+            ? events.Where(@event => @event.Sequence > position).ToList()
+            : [];
         if (eventsToProcess.Count > 0)
         {
             foreach (var projection in _projections.OfType<IBatchPrefetchingRoadNetworkChangesProjection<PbsContext>>())

@@ -32,5 +32,14 @@ public sealed class ProjectionCatchUpOptions
     // late the first reading can arrive.
     public int MetricsLogIntervalInMinutes { get; init; } = 5;
 
+    // Let a sub-projection read the whole batch before the handlers run, so rows the handlers would each fetch for
+    // themselves are fetched once. Projections that do not offer to do this ignore it.
+    //
+    // Switchable because it changes where a projection reads from, not just how fast: a prefetched segment is served
+    // out of the change tracker rather than queried per event. That is meant to be invisible, and the tests say it
+    // is, but "meant to be invisible" is exactly the kind of claim worth being able to withdraw without a rollback -
+    // and turning it off is also how the same range of events can be replayed both ways and the results compared.
+    public bool PrefetchBatches { get; init; } = true;
+
     public static ProjectionCatchUpOptions Default { get; } = new();
 }
