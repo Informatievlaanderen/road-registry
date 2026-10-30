@@ -73,15 +73,6 @@ public class PbsContext : RunnerDbContext<PbsContext>
     public DbSet<StreetNameCacheRecord> StreetNameCache { get; set; }
     public DbSet<OrganizationCacheRecord> OrganizationCache { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-
-        // Hands out the ids of the afgeleide schijnknopen; see DerivedSchijnknoopRecord.
-        modelBuilder.HasSequence<int>(DerivedSchijnknoopRecord.IdSequenceName, WellKnownSchemas.PbsSchema)
-            .StartsAt(DerivedSchijnknoopRecord.InitialId);
-    }
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);

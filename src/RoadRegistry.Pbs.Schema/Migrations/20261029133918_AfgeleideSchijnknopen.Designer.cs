@@ -26,9 +26,6 @@ namespace RoadRegistry.Pbs.Schema.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.HasSequence<int>("AfgeleideSchijnknoopId", "RoadRegistryPbs")
-                .StartsAt(1000000000L);
-
             modelBuilder.Entity("Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates.ProjectionStateItem", b =>
                 {
                     b.Property<string>("Name")

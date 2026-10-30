@@ -15,7 +15,7 @@ namespace RoadRegistry.Pbs.Schema.Migrations
         //
         // [Wegknopen] (basisproduct) keeps reading [WegknopenData] alone and does not change. [AfgeleideWegknopen]
         // (afgeleid product) becomes the road nodes plus the afgeleide schijnknopen. The two sets cannot share an id:
-        // the afgeleide ones come from [AfgeleideSchijnknoopId], which starts at 1.000.000.000.
+        // the afgeleide ids start at 1.000.000.000.
         //
         // The table starts empty. The segments already projected get their schijnknopen from the one-time backfill
         // behind projections/roadnetworkchangespbsprojection/backfill-afgeleide-schijnknopen, which derives every
@@ -57,11 +57,6 @@ FROM [RoadRegistryPbs].[WegknopenData]";
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateSequence<int>(
-                name: "AfgeleideSchijnknoopId",
-                schema: "RoadRegistryPbs",
-                startValue: 1000000000L);
-
             migrationBuilder.CreateTable(
                 name: "AfgeleideSchijnknopen",
                 schema: "RoadRegistryPbs",
@@ -100,10 +95,6 @@ FROM [RoadRegistryPbs].[WegknopenData]";
 
             migrationBuilder.DropTable(
                 name: "AfgeleideSchijnknopen",
-                schema: "RoadRegistryPbs");
-
-            migrationBuilder.DropSequence(
-                name: "AfgeleideSchijnknoopId",
                 schema: "RoadRegistryPbs");
         }
     }
