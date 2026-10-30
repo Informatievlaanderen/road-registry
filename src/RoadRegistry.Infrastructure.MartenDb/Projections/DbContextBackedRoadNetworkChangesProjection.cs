@@ -225,11 +225,18 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         // leave them alone - then spends its life scanning with nothing in the log to say why.
         await ReportIndexStateAsync(cancellationToken).ConfigureAwait(false);
 
+        // Switched off, so this run not only leaves the indexes alone but puts back any an earlier run turned off.
+        // Without that, the option cannot be used to recover: the indexes are disabled by one run and nothing in the
+        // next one re-enables them, since the rebuild below only happens once a catch-up finishes - which, with every
+        // lookup reduced to a scan, is exactly what will not happen within any useful time. Turning the option off
+        // has to be enough on its own, because the operator who needs it may have no way to run DDL by hand.
         if (!_options.DisableIndexesWhileCatchingUp)
         {
             Logger.LogInformation(
-                "{Projection} is catching up on about {Backlog} event(s) with index disabling switched off; the indexes stay as they are.",
+                "{Projection} is catching up on about {Backlog} event(s) with index disabling switched off.",
                 ProjectionName, estimatedBacklog);
+
+            await RebuildDisabledIndexesAsync("because index disabling is switched off for this projection", cancellationToken).ConfigureAwait(false);
             return;
         }
 
@@ -264,10 +271,15 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
 
         // Unconditional on the option: a host that ran with it enabled, was killed, and came back with it disabled
         // must still put the indexes back. Costs one catalog query when there is nothing disabled.
+        await RebuildDisabledIndexesAsync("now that the projection is caught up", cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task RebuildDisabledIndexesAsync(string reason, CancellationToken cancellationToken)
+    {
         try
         {
             await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
-            await SqlServerIndexMaintenance.RebuildDisabledAsync(context, Logger, cancellationToken).ConfigureAwait(false);
+            await SqlServerIndexMaintenance.RebuildDisabledAsync(context, Logger, reason, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

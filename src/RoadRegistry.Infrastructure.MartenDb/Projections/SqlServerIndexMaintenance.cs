@@ -55,7 +55,10 @@ internal static class SqlServerIndexMaintenance
     // Rebuilding only the disabled indexes keeps this cheap to call unconditionally: on a host that never disabled
     // anything it is a single catalog query. That is what repairs a host which crashed mid-catch-up and left its
     // indexes disabled - the next start finds them and rebuilds.
-    public static async Task<int> RebuildDisabledAsync(DbContext context, ILogger logger, CancellationToken cancellationToken)
+    //
+    // The reason is logged rather than inferred because the two callers are opposites: one has finished with the
+    // indexes off, the other is refusing to turn them off at all and is undoing an earlier run's decision.
+    public static async Task<int> RebuildDisabledAsync(DbContext context, ILogger logger, string reason, CancellationToken cancellationToken)
     {
         var indexes = await FindAsync(context, disabled: true, cancellationToken).ConfigureAwait(false);
         if (indexes.Count == 0)
@@ -63,8 +66,8 @@ internal static class SqlServerIndexMaintenance
             return 0;
         }
 
-        logger.LogInformation("Rebuilding {Count} disabled index(es) now that the projection is caught up: {Indexes}",
-            indexes.Count, string.Join(", ", indexes.Select(x => x.IndexName)));
+        logger.LogInformation("Rebuilding {Count} disabled index(es) {Reason}: {Indexes}",
+            indexes.Count, reason, string.Join(", ", indexes.Select(x => x.IndexName)));
 
         foreach (var index in indexes)
         {
