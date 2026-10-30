@@ -61,7 +61,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
         When<IEvent<RoadSegmentAttributesModified>>(async (context, e, ct) =>
         {
             var m = e.Data;
-            var record = await context.RoadSegments.FindAsync([m.RoadSegmentId], ct);
+            var record = await FindSegment(context, m.RoadSegmentId, ct);
             if (record?.GEOMETRIE is null)
             {
                 return;
@@ -107,7 +107,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
             {
                 return;
             }
-            var record = await context.RoadSegments.FindAsync([e.Data.RoadSegmentId], ct);
+            var record = await FindSegment(context, e.Data.RoadSegmentId, ct);
             if (record?.GEOMETRIE is null)
             {
                 return;
@@ -349,6 +349,26 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
             .LoadAsync(cancellationToken);
     }
 
+    // The segment itself, from the change tracker when this batch prefetched it. FindAsync looks there first too, but
+    // on a miss it falls back to the database - and for a segment the prefetch did not bring back, that question has
+    // already been asked and answered for the whole batch. Asking it again is a round trip per event for nothing, and
+    // on a replay largely made of removals of segments that are already gone, that is most of the events.
+    //
+    // Entries rather than Local, because Find resolves a tracked entity whatever its state and Local leaves out the
+    // deleted ones: a segment an earlier event in this batch removed has to stay found here, exactly as before.
+    private async Task<RoadSegmentRecord?> FindSegment(PbsContext context, int segId, CancellationToken cancellationToken)
+    {
+        if (ReferenceEquals(context, _prefetchedContext) && _prefetchedSegmentIds.Contains(segId))
+        {
+            return context.ChangeTracker
+                .Entries<RoadSegmentRecord>()
+                .Select(entry => entry.Entity)
+                .FirstOrDefault(record => record.WS_OIDN == segId);
+        }
+
+        return await context.RoadSegments.FindAsync([segId], cancellationToken);
+    }
+
     // The rows of one segment, from the change tracker when this batch loaded that segment and from the database
     // otherwise. Both halves of the guard are load-bearing: the ids say whose rows were loaded, and the context says
     // into which tracker, since nothing stops a driver from skipping the prefetch or clearing the tracker in between.
@@ -429,7 +449,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
         // arrives once per id; the projection-state position it leaned on is a position, and a replay from before it -
         // a recovery, a rebuild - delivers the event again. That turned the insert into a primary key violation and
         // left the previous derived rows and attribute rows behind.
-        var (normal, isNew) = await LoadOrCreate(context, segId, provenance);
+        var (normal, isNew) = await LoadOrCreate(context, segId, provenance, ct);
 
         normal.GEOMETRIE = geometry.EnsureLambert08().RoundToCm().Value.Force2D();
         normal.STATUS = status?.Translation.Identifier;
@@ -502,7 +522,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
         RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>? pedestrian,
         ProvenanceData provenance, CancellationToken ct)
     {
-        var (normal, isNew) = await LoadOrCreate(context, segId, provenance);
+        var (normal, isNew) = await LoadOrCreate(context, segId, provenance, ct);
 
         if (geometry is not null)
         {
@@ -546,9 +566,9 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
         await RebuildDerived(context, segId, normal, morphologyRows, categoryRows, accessRows, surfaceRows, streetNameRows, maintainerRows, carRows, bikeRows, pedestrianRows, ct);
     }
 
-    private static async Task<(RoadSegmentRecord Normal, bool IsNew)> LoadOrCreate(PbsContext context, int segId, ProvenanceData provenance)
+    private async Task<(RoadSegmentRecord Normal, bool IsNew)> LoadOrCreate(PbsContext context, int segId, ProvenanceData provenance, CancellationToken cancellationToken)
     {
-        var normal = await context.RoadSegments.FindAsync(segId);
+        var normal = await FindSegment(context, segId, cancellationToken);
         var isNew = normal is null;
         normal ??= new RoadSegmentRecord { WS_OIDN = segId, CREATIE = provenance.ToPbsDate() };
         return (normal, isNew);
@@ -583,7 +603,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
 
     private async Task Remove(PbsContext context, int segId, CancellationToken ct)
     {
-        var normal = await context.RoadSegments.FindAsync([segId], ct);
+        var normal = await FindSegment(context, segId, ct);
         if (normal is not null)
         {
             context.RoadSegments.Remove(normal);
