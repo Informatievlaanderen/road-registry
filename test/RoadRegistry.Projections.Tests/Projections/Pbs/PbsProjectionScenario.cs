@@ -75,6 +75,17 @@ public sealed class PbsProjectionScenario
         var position = projectionState.Position;
         var newPosition = position;
 
+        // Mirrors the driver here too: the prefetch runs over the batch before any handler sees it, so the tests
+        // exercise the path the projection actually takes in production rather than only its per-event fallback.
+        var eventsToProcess = events.Where(@event => @event.Sequence > position).ToList();
+        if (eventsToProcess.Count > 0)
+        {
+            foreach (var projection in _projections.OfType<IBatchPrefetchingRoadNetworkChangesProjection<PbsContext>>())
+            {
+                await projection.PrefetchBatchAsync(context, eventsToProcess, CancellationToken.None);
+            }
+        }
+
         foreach (var @event in events)
         {
             if (@event.Sequence <= position)

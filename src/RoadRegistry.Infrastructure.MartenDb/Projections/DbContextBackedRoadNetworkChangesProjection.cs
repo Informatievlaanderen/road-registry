@@ -97,6 +97,24 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         var eventsProcessed = 0;
 
         var handlerDuration = Stopwatch.StartNew();
+
+        // Offer the batch to the sub-projections that can read ahead on it, before any handler runs. Only the events
+        // that will actually be applied: the ones at or below the position are skipped below, and reading rows for
+        // those would be work for nothing. The time this takes is charged to the handlers, because that is where it
+        // used to be spent - it is the same reads, done once instead of once per event.
+        var eventsToProcess = correlationWork
+            .SelectMany(work => work.ToProcess)
+            .Where(evt => evt.Sequence > position)
+            .ToList();
+        if (eventsToProcess.Count > 0)
+        {
+            foreach (var projection in _projections.OfType<IBatchPrefetchingRoadNetworkChangesProjection<TDbContext>>())
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await projection.PrefetchBatchAsync(context, eventsToProcess, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
         foreach (var work in correlationWork)
         {
             foreach (var evt in work.ToProcess)

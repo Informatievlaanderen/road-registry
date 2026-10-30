@@ -3,6 +3,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
+using FluentAssertions;
+using JasperFx.Events;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Microsoft.EntityFrameworkCore;
 using RoadRegistry.GradeJunction.Events.V2;
@@ -30,6 +32,31 @@ public class RoadSegmentPbsProjectionTests
         new(new RoadSegmentPbsProjection());
 
     private ProvenanceData Provenance => new(_testData.Provenance);
+
+    // The per-batch prefetch reads the road segment id off each event by property name. Nothing fails when it cannot:
+    // the handlers fall back to querying per event, which is correct but costs a round trip per table per event - the
+    // very thing the prefetch exists to remove. So the contract is asserted here instead of discovered in a log.
+    [Fact]
+    public void EveryHandledEventExposesItsRoadSegmentIdToThePrefetch()
+    {
+        var projection = new RoadSegmentPbsProjection();
+
+        var eventTypes = projection.Handlers
+            .Select(handler => typeof(IEvent).IsAssignableFrom(handler.Message)
+                ? handler.Message.GetGenericArguments().Single()
+                : handler.Message)
+            .ToArray();
+
+        eventTypes.Should().NotBeEmpty();
+
+        var unreadable = eventTypes
+            .Where(eventType => RoadSegmentPbsProjection.BuildSegmentIdAccessor(eventType) is null)
+            .Select(eventType => eventType.FullName)
+            .OrderBy(name => name)
+            .ToArray();
+
+        unreadable.Should().BeEmpty("every event this projection handles must expose a RoadSegmentId the prefetch can read");
+    }
 
     [Fact]
     public void EnsureAllEventsAreHandledExactlyOnce()
