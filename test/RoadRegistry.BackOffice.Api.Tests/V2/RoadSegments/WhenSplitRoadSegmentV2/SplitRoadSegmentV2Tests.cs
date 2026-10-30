@@ -149,6 +149,17 @@ public class SplitRoadSegmentV2Tests : V2ReadEndpointTestBase
         await Assert.ThrowsAsync<ValidationException>(() => Act(id, null));
     }
 
+    [Theory]
+    [InlineData(@"<gml:Point srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:pos>50 50</gml:pos>")]
+    [InlineData(@"<gml:Point srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:pos>50 50</gml:pos><gml:pos>60 60</gml:pos></gml:Point>")]
+    [InlineData(@"<gml:Point srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:pos>50 50</gml:pos></gml:Point>garbage")]
+    public async Task GivenAnIncompleteOrAmbiguousKnippositie_ThenValidationException(string gml)
+    {
+        var id = SeedRealizedRoadSegment();
+
+        await Assert.ThrowsAsync<ValidationException>(() => Act(id, gml));
+    }
+
     [Fact]
     public async Task GivenKnippositieNotLambert08_ThenValidationException()
     {
