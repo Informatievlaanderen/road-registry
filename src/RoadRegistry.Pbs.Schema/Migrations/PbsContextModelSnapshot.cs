@@ -147,6 +147,48 @@ namespace RoadRegistry.Pbs.Schema.Migrations
                     b.ToTable("AfgeleideWegsegmenten", "RoadRegistryPbs");
                 });
 
+            modelBuilder.Entity("RoadRegistry.Pbs.Schema.Records.DerivedSchijnknoopRecord", b =>
+                {
+                    b.Property<int>("WK_OIDN")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CREATIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
+
+                    b.Property<Geometry>("GEOMETRIE")
+                        .HasColumnType("Geometry");
+
+                    b.Property<int?>("GRENSKNOOP")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LBLTYPE")
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<int?>("TYPE")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VERSIE")
+                        .IsRequired()
+                        .HasColumnType("varchar(15)");
+
+                    b.Property<int>("VOLGNR")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WS_OIDN")
+                        .HasColumnType("int");
+
+                    b.HasKey("WK_OIDN");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("WK_OIDN"));
+
+                    b.HasIndex("WS_OIDN");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("WS_OIDN"), false);
+
+                    b.ToTable("AfgeleideSchijnknopen", "RoadRegistryPbs");
+                });
+
             modelBuilder.Entity("RoadRegistry.Pbs.Schema.Records.EuropeanRoadRecord", b =>
                 {
                     b.Property<int>("EU_OIDN")

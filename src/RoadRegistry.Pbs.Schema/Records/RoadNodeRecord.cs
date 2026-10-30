@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NetTopologySuite.Geometries;
 
 // Wegknoop (road node). The projection writes one row per road node into [WegknopenData]; the two download products
-// read it through the [Wegknopen] (basisproduct) and [AfgeleideWegknopen] (afgeleid product) views, which today
-// select the same rows and the same columns but are about to diverge: the basisproduct keeps only the v1 schijnknopen,
-// the afgeleid product carries the v2 ones the dynamic-attribute split adds as well (GAWR-7836).
+// read it through the [Wegknopen] (basisproduct) and [AfgeleideWegknopen] (afgeleid product) views. The basisproduct
+// is these rows alone, schijnknopen of the registry included; the afgeleid product adds the afgeleide schijnknopen the
+// dynamic-attribute split needs, which are kept in their own table (DerivedSchijnknoopRecord).
 public class RoadNodeRecord
 {
     public int WK_OIDN { get; set; }

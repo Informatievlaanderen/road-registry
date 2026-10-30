@@ -39,6 +39,7 @@ public class PbsContext : RunnerDbContext<PbsContext>
     public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
     public DbSet<DerivedRoadSegmentRecord> DerivedRoadSegments { get; set; }
     public DbSet<RoadNodeRecord> RoadNodes { get; set; }
+    public DbSet<DerivedSchijnknoopRecord> DerivedSchijnknopen { get; set; }
     public DbSet<GradeJunctionRecord> GradeJunctions { get; set; }
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
     public DbSet<EuropeanRoadRecord> EuropeanRoads { get; set; }

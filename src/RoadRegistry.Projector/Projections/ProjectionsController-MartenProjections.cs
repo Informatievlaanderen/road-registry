@@ -133,6 +133,13 @@ public partial class ProjectionsController
 
         var shardName = projection.Id;
 
+        // The backfill only notices a started projection between two chunks; one started under it would race the
+        // chunk it is writing.
+        if (shardName == WellKnownProjectionStateNames.RoadNetworkChangesPbsProjection && Volatile.Read(ref _pbsBackfillRunning) != 0)
+        {
+            return Conflict($"{shardName} cannot be started while the backfill of the afgeleide schijnknopen is running; wait until the log says it completed.");
+        }
+
         // Before starting, so that a start which then fails still leaves the supervisor with a mandate to retry.
         await _projectionStateStore.SetDesiredStateAsync(shardName, ProjectionDesiredStates.Subscribed, cancellationToken);
 
@@ -203,6 +210,11 @@ public partial class ProjectionsController
         // own teardown, so this never stops it on the caller's behalf.
         var shardName = projection.Id;
         var projectionName = shardName[..shardName.IndexOf(':')];
+
+        if (shardName == WellKnownProjectionStateNames.RoadNetworkChangesPbsProjection && Volatile.Read(ref _pbsBackfillRunning) != 0)
+        {
+            return Conflict($"{shardName} cannot be rebuilt while the backfill of the afgeleide schijnknopen is running; wait until the log says it completed.");
+        }
 
         if (daemon.StatusFor(shardName) == AgentStatus.Running)
         {
