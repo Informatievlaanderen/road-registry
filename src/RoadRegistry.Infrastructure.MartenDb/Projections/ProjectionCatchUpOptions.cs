@@ -25,5 +25,21 @@ public sealed class ProjectionCatchUpOptions
     // Emit a throughput line every N batches, so a rebuild can be measured rather than guessed at.
     public int MetricsLogIntervalInBatches { get; init; } = 25;
 
+    // ...and at least this often, however few batches have gone by. How long N batches take is a property of the
+    // rebuild being measured, not of the measurement: a projection that reads nothing per event gets through them in
+    // minutes, one that scans its own tables takes hours - and that second case is exactly the one this line exists
+    // to diagnose, so it is the one where it must not stay silent. Counting minutes as well puts a ceiling on how
+    // late the first reading can arrive.
+    public int MetricsLogIntervalInMinutes { get; init; } = 5;
+
+    // Let a sub-projection read the whole batch before the handlers run, so rows the handlers would each fetch for
+    // themselves are fetched once. Projections that do not offer to do this ignore it.
+    //
+    // Switchable because it changes where a projection reads from, not just how fast: a prefetched segment is served
+    // out of the change tracker rather than queried per event. That is meant to be invisible, and the tests say it
+    // is, but "meant to be invisible" is exactly the kind of claim worth being able to withdraw without a rollback -
+    // and turning it off is also how the same range of events can be replayed both ways and the results compared.
+    public bool PrefetchBatches { get; init; } = true;
+
     public static ProjectionCatchUpOptions Default { get; } = new();
 }

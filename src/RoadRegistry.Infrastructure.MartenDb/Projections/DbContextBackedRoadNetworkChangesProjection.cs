@@ -55,7 +55,7 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         _projections = projections;
         _options = catchUpOptions ?? ProjectionCatchUpOptions.Default;
         _bulkInsertEnabled = _options.BulkInsertThreshold > 0;
-        _metrics = new ProjectionThroughputMetrics(Logger, ProjectionName, _options.MetricsLogIntervalInBatches);
+        _metrics = new ProjectionThroughputMetrics(Logger, ProjectionName, _options.MetricsLogIntervalInBatches, _options.MetricsLogIntervalInMinutes);
     }
 
     protected override async Task DispatchAsync(IDocumentOperations operations, IReadOnlyList<CorrelationWorkItem> correlationWork, long pageMaxSequence, CancellationToken cancellationToken)
@@ -97,6 +97,26 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         var eventsProcessed = 0;
 
         var handlerDuration = Stopwatch.StartNew();
+
+        // Offer the batch to the sub-projections that can read ahead on it, before any handler runs. Only the events
+        // that will actually be applied: the ones at or below the position are skipped below, and reading rows for
+        // those would be work for nothing. The time this takes is charged to the handlers, because that is where it
+        // used to be spent - it is the same reads, done once instead of once per event.
+        var eventsToProcess = _options.PrefetchBatches
+            ? correlationWork
+                .SelectMany(work => work.ToProcess)
+                .Where(evt => evt.Sequence > position)
+                .ToList()
+            : [];
+        if (eventsToProcess.Count > 0)
+        {
+            foreach (var projection in _projections.OfType<IBatchPrefetchingRoadNetworkChangesProjection<TDbContext>>())
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await projection.PrefetchBatchAsync(context, eventsToProcess, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
         foreach (var work in correlationWork)
         {
             foreach (var evt in work.ToProcess)
@@ -219,8 +239,24 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
             projection => projection.OnCatchUpStartedAsync(cancellationToken),
             cancellationToken).ConfigureAwait(false);
 
+        // Say what state the read model's indexes are already in, before this run decides what to do with them. A
+        // disabled index is indistinguishable from a missing one in a query plan, and it outlives the run that
+        // disabled it: a host killed mid-catch-up leaves them off, and the next run - including one configured to
+        // leave them alone - then spends its life scanning with nothing in the log to say why.
+        await ReportIndexStateAsync(cancellationToken).ConfigureAwait(false);
+
+        // Switched off, so this run not only leaves the indexes alone but puts back any an earlier run turned off.
+        // Without that, the option cannot be used to recover: the indexes are disabled by one run and nothing in the
+        // next one re-enables them, since the rebuild below only happens once a catch-up finishes - which, with every
+        // lookup reduced to a scan, is exactly what will not happen within any useful time. Turning the option off
+        // has to be enough on its own, because the operator who needs it may have no way to run DDL by hand.
         if (!_options.DisableIndexesWhileCatchingUp)
         {
+            Logger.LogInformation(
+                "{Projection} is catching up on about {Backlog} event(s) with index disabling switched off.",
+                ProjectionName, estimatedBacklog);
+
+            await RebuildDisabledIndexesAsync("because index disabling is switched off for this projection", cancellationToken).ConfigureAwait(false);
             return;
         }
 
@@ -255,16 +291,50 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
 
         // Unconditional on the option: a host that ran with it enabled, was killed, and came back with it disabled
         // must still put the indexes back. Costs one catalog query when there is nothing disabled.
+        await RebuildDisabledIndexesAsync("now that the projection is caught up", cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task RebuildDisabledIndexesAsync(string reason, CancellationToken cancellationToken)
+    {
         try
         {
             await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
-            await SqlServerIndexMaintenance.RebuildDisabledAsync(context, Logger, cancellationToken).ConfigureAwait(false);
+            await SqlServerIndexMaintenance.RebuildDisabledAsync(context, Logger, reason, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             // Worth shouting about: unlike the disable side, leaving indexes disabled degrades the served read model
             // until someone rebuilds them.
             Logger.LogError(ex, "Could not rebuild the disabled indexes for {Projection}. They must be rebuilt before the read model is served from.", ProjectionName);
+        }
+    }
+
+    // Reporting only - it never changes anything, and a failure to read the catalog must not keep a projection from
+    // starting, so it is logged and shrugged off like the maintenance below it.
+    private async Task ReportIndexStateAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+            if (!context.Database.IsRelational())
+            {
+                return;
+            }
+
+            var disabled = await SqlServerIndexMaintenance.FindDisabledAsync(context, cancellationToken).ConfigureAwait(false);
+            if (disabled.Count == 0)
+            {
+                Logger.LogInformation("{Projection} starts with every non-clustered index on its read model in place.", ProjectionName);
+                return;
+            }
+
+            Logger.LogWarning(
+                "{Projection} starts with {Count} non-clustered index(es) on its read model disabled, so every lookup that needs one is a scan: {Indexes}",
+                ProjectionName, disabled.Count, string.Join(", ", disabled));
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            Logger.LogWarning(ex, "Could not read the index state for {Projection}.", ProjectionName);
         }
     }
 

@@ -4,7 +4,7 @@ using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class RoadSegmentMorphologyAttributeRecord
+public class RoadSegmentMorphologyAttributeRecord : IRoadSegmentScopedRecord
 {
     public int MO_OIDN { get; set; }
     public int WS_OIDN { get; set; }
@@ -27,7 +27,7 @@ public class RoadSegmentMorphologyAttributeRecordConfiguration : IEntityTypeConf
     }
 }
 
-public class RoadSegmentStreetNameAttributeRecord
+public class RoadSegmentStreetNameAttributeRecord : IRoadSegmentScopedRecord
 {
     public int SN_OIDN { get; set; }
     public int WS_OIDN { get; set; }
@@ -51,7 +51,7 @@ public class RoadSegmentStreetNameAttributeRecordConfiguration : IEntityTypeConf
     }
 }
 
-public class RoadSegmentAccessRestrictionAttributeRecord
+public class RoadSegmentAccessRestrictionAttributeRecord : IRoadSegmentScopedRecord
 {
     public int TO_OIDN { get; set; }
     public int WS_OIDN { get; set; }
@@ -74,7 +74,7 @@ public class RoadSegmentAccessRestrictionAttributeRecordConfiguration : IEntityT
     }
 }
 
-public class RoadSegmentCarTrafficDirectionAttributeRecord
+public class RoadSegmentCarTrafficDirectionAttributeRecord : IRoadSegmentScopedRecord
 {
     public int AU_OIDN { get; set; }
     public int WS_OIDN { get; set; }
@@ -97,7 +97,7 @@ public class RoadSegmentCarTrafficDirectionAttributeRecordConfiguration : IEntit
     }
 }
 
-public class RoadSegmentBikeTrafficDirectionAttributeRecord
+public class RoadSegmentBikeTrafficDirectionAttributeRecord : IRoadSegmentScopedRecord
 {
     public int FI_OIDN { get; set; }
     public int WS_OIDN { get; set; }
@@ -120,7 +120,7 @@ public class RoadSegmentBikeTrafficDirectionAttributeRecordConfiguration : IEnti
     }
 }
 
-public class RoadSegmentPedestrianTrafficDirectionAttributeRecord
+public class RoadSegmentPedestrianTrafficDirectionAttributeRecord : IRoadSegmentScopedRecord
 {
     public int VO_OIDN { get; set; }
     public int WS_OIDN { get; set; }
@@ -143,7 +143,7 @@ public class RoadSegmentPedestrianTrafficDirectionAttributeRecordConfiguration :
     }
 }
 
-public class RoadSegmentMaintenanceAuthorityAttributeRecord
+public class RoadSegmentMaintenanceAuthorityAttributeRecord : IRoadSegmentScopedRecord
 {
     public int WB_OIDN { get; set; }
     public int WS_OIDN { get; set; }
@@ -168,7 +168,7 @@ public class RoadSegmentMaintenanceAuthorityAttributeRecordConfiguration : IEnti
     }
 }
 
-public class RoadSegmentCategoryAttributeRecord
+public class RoadSegmentCategoryAttributeRecord : IRoadSegmentScopedRecord
 {
     public int WC_OIDN { get; set; }
     public int WS_OIDN { get; set; }
@@ -192,7 +192,7 @@ public class RoadSegmentCategoryAttributeRecordConfiguration : IEntityTypeConfig
     }
 }
 
-public class RoadSegmentSurfaceTypeAttributeRecord
+public class RoadSegmentSurfaceTypeAttributeRecord : IRoadSegmentScopedRecord
 {
     public int WV_OIDN { get; set; }
     public int WS_OIDN { get; set; }

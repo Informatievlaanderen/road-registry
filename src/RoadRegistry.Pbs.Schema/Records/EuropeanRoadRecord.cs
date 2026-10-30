@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 // Europese weg (relation table, no geometry).
-public class EuropeanRoadRecord
+public class EuropeanRoadRecord : IRoadSegmentScopedRecord
 {
     public int EU_OIDN { get; set; }
     public int WS_OIDN { get; set; }
