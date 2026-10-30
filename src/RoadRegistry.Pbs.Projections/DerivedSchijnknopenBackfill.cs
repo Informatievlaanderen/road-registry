@@ -106,7 +106,7 @@ public static class DerivedSchijnknopenBackfill
 
         // The new ids of the whole chunk in one range.
         var newIds = new Queue<int>(await DerivedSchijnknoopIds.AllocateAsync(context,
-            derived.Sum(x => Math.Max(RoadSegmentPbsProjection.SchijnknopenNeeded(x.Rows) - x.Existing.Count, 0)), ct));
+            derived.Sum(x => Math.Max(RoadSegmentPbsProjection.SchijnknopenNeeded(x.Rows) - x.Existing.Count, 0)), highestStored: null, ct));
 
         foreach (var (normal, rows, existing) in derived)
         {

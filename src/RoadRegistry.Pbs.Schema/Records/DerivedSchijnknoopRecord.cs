@@ -12,7 +12,7 @@ using NetTopologySuite.Geometries;
 // WS_OIDN is the road segment the split belongs to and VOLGNR its place along that segment (1 is the split nearest
 // the begin node), which is how a rebuild of the segment hands the same ids back out. WK_OIDN follows the
 // highest one in use and starts at 1.000.000.000, so it stays clear of the road node ids (DerivedSchijnknoopIds).
-public class DerivedSchijnknoopRecord
+public class DerivedSchijnknoopRecord : IRoadSegmentScopedRecord
 {
     public const int InitialId = 1_000_000_000;
 

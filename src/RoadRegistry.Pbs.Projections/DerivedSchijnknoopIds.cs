@@ -15,18 +15,25 @@ using Schema.Records;
 // kept between batches, so a batch that is rolled back and retried gets the same ids again, and a rebuild, which empties
 // the table, starts over at the first id. This relies on there being one writer: the projection runs as a single
 // instance, and the backfill refuses to run alongside it.
+//
+// A caller that already read the highest stored id for this context passes it in, which saves the round trip.
 internal static class DerivedSchijnknoopIds
 {
-    public static async Task<int[]> AllocateAsync(PbsContext context, int count, CancellationToken ct)
+    public static async Task<int> HighestStoredAsync(PbsContext context, CancellationToken ct)
+    {
+        return await context.DerivedSchijnknopen.Select(x => (int?)x.WK_OIDN).MaxAsync(ct) ?? 0;
+    }
+
+    public static async Task<int[]> AllocateAsync(PbsContext context, int count, int? highestStored, CancellationToken ct)
     {
         if (count <= 0)
         {
             return [];
         }
 
-        var highestStored = await context.DerivedSchijnknopen.Select(x => (int?)x.WK_OIDN).MaxAsync(ct);
-        var highestLocal = context.DerivedSchijnknopen.Local.Select(x => (int?)x.WK_OIDN).Max();
-        var first = Math.Max(Math.Max(highestStored ?? 0, highestLocal ?? 0) + 1, DerivedSchijnknoopRecord.InitialId);
+        var stored = highestStored ?? await HighestStoredAsync(context, ct);
+        var local = context.DerivedSchijnknopen.Local.Select(x => (int?)x.WK_OIDN).Max() ?? 0;
+        var first = Math.Max(Math.Max(stored, local) + 1, DerivedSchijnknoopRecord.InitialId);
 
         return Enumerable.Range(first, count).ToArray();
     }

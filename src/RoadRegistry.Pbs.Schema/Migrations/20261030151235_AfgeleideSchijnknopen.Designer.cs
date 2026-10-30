@@ -13,7 +13,7 @@ using RoadRegistry.Pbs.Schema;
 namespace RoadRegistry.Pbs.Schema.Migrations
 {
     [DbContext(typeof(PbsContext))]
-    [Migration("20261029133918_AfgeleideSchijnknopen")]
+    [Migration("20261030151235_AfgeleideSchijnknopen")]
     partial class AfgeleideSchijnknopen
     {
         /// <inheritdoc />
