@@ -560,6 +560,10 @@ public class DefaultProblemTranslator : ProblemTranslatorBase
                     "De opgegeven geometrie bevat coördinaten met een hogere nauwkeurigheid dan centimeter (meer dan 2 decimalen).")
             },
             {
+                ProblemCode.RoadSegment.PositionMorePreciseThanCm, problem => new(problem.Severity, "PositieNauwkeurigerDanCentimeter",
+                    $"De opgegeven positie {problem.Parameters[0].Value} heeft een hogere nauwkeurigheid dan centimeter (meer dan 2 decimalen).")
+            },
+            {
                 ProblemCode.RoadSegment.GeometryDrawMethod.NotOutlined, problem => new(problem.Severity, "GeometriemethodeNietIngeschetst",
                     "De geometriemethode van dit wegsegment komt niet overeen met 'ingeschetst'.")
             },

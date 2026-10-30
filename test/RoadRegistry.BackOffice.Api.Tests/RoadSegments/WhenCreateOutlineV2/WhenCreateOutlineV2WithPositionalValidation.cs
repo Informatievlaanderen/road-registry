@@ -93,7 +93,7 @@ public class WhenCreateOutlineV2WithPositionalValidation
 
     [Theory]
     [InlineData(0.0, 0.5)]
-    [InlineData(0.0, 0.999)]
+    [InlineData(0.0, 0.99)]
     public async Task WhenTotPositieMinusVanPositieIsLessThanOne_ThenHasLengthOfZeroError(double van, double tot)
     {
         var parameters = new CreateOutlinedRoadSegmentV2Parameters

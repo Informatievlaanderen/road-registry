@@ -663,8 +663,9 @@ public class CreateOutlinedRoadSegmentV2ParametersValidator : AbstractValidator<
     }
 
     // A missing totPositie means "up to the end of the geometry", and so does a totPositie of 0 - the only way to say
-    // so before null was accepted.
-    private static double? ToPositie(double? totPositie) => totPositie?.RoundToCm().Equals(0.0) == true ? null : totPositie;
+    // so before null was accepted. A value that only rounds to 0, like 0.004, is not that 0: it is left for the
+    // validation to refuse rather than being stretched to the whole segment.
+    private static double? ToPositie(double? totPositie) => totPositie is { } value && !value.IsMorePreciseThanCm() && value.RoundToCm().Equals(0.0) ? null : totPositie;
 
     private static void AddFailures(
         ValidationContext<CreateOutlinedRoadSegmentV2Parameters> ctx,

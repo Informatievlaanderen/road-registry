@@ -144,6 +144,37 @@ public class ChangeRoadSegmentGeometryV2Tests : V2ReadEndpointTestBase
     }
 
     [Fact]
+    public async Task GivenAPositionMorePreciseThanCm_ThenValidationException()
+    {
+        var id = SeedRoadSegment();
+        var parameters = ValidParameters();
+        parameters.Morfologie =
+        [
+            new MorfologieParameters { VanPositie = 0, TotPositie = 9.995, Morfologie = RoadSegmentMorphologyV2.Parallelweg.ToDutchString() }
+        ];
+
+        var ex = await Assert.ThrowsAsync<ValidationException>(() => Act(id, parameters));
+
+        ex.Errors.Select(x => x.ErrorCode).Should().Contain(ProblemCode.RoadSegment.PositionMorePreciseThanCm.ToString());
+        VerifyNothingWasQueued();
+    }
+
+    [Fact]
+    public async Task GivenAPositionWithFloatingPointNoise_ThenAccepted()
+    {
+        var id = SeedRoadSegment();
+        var parameters = ValidParameters();
+        parameters.Morfologie =
+        [
+            new MorfologieParameters { VanPositie = 0, TotPositie = 10.0000000002, Morfologie = RoadSegmentMorphologyV2.Parallelweg.ToDutchString() }
+        ];
+
+        var result = await Act(id, parameters);
+
+        result.Should().BeOfType<AcceptedResult>();
+    }
+
+    [Fact]
     public async Task GivenNonExistingRoadSegment_ThenNotFound()
     {
         SeedRoadSegment();
@@ -185,6 +216,23 @@ public class ChangeRoadSegmentGeometryV2Tests : V2ReadEndpointTestBase
         parameters.WegsegmentGeometrie = null;
 
         await Assert.ThrowsAsync<ValidationException>(() => Act(999, parameters));
+        VerifyNothingWasQueued();
+    }
+
+    [Theory]
+    [InlineData(@"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:posList>217368.75 181577.02 217378.75 181577.02</gml:posList>")]
+    [InlineData(@"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:posList>217368.75 181577.02 217378.75 181577.02</gml:posList><gml:posList>217378.75 181577.02 217388.75 181577.02</gml:posList></gml:LineString>")]
+    [InlineData(@"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:posList>217368.75 181577.02 217378.75 181577.02</gml:posList></gml:LineString><gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2""><gml:posList>217378.75 181577.02 217388.75 181577.02</gml:posList></gml:LineString>")]
+    public async Task GivenAnIncompleteOrAmbiguousGeometry_ThenValidationException(string gml)
+    {
+        var id = SeedRoadSegment();
+        var parameters = ValidParameters();
+        parameters.WegsegmentGeometrie = gml;
+
+        var ex = await Assert.ThrowsAsync<ValidationException>(() => Act(id, parameters));
+
+        ex.Errors.Should().ContainSingle()
+            .Which.ErrorMessage.Should().Be("De opgegeven geometrie is geen geldige LineString in gml 3.2.");
         VerifyNothingWasQueued();
     }
 

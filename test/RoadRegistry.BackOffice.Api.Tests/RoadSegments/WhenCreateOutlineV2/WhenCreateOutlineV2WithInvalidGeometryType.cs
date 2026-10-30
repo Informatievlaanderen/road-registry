@@ -18,12 +18,30 @@ public class WhenCreateOutlineV2WithInvalidGeometryType
 <gml:exterior><gml:LinearRing><gml:posList>0 0 10 0 10 10 0 10 0 0</gml:posList></gml:LinearRing></gml:exterior>
 </gml:Polygon>";
 
+    private const string GmlWithoutClosingTag = @"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
+<gml:posList>217368.75 181577.01 217400.11 181499.51</gml:posList>";
+
+    private const string GmlWithTwoLineStrings = @"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
+<gml:posList>217368.75 181577.01 217400.11 181499.51</gml:posList>
+</gml:LineString>
+<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
+<gml:posList>217400.11 181499.51 217500.11 181599.51</gml:posList>
+</gml:LineString>";
+
+    private const string GmlWithTwoPosLists = @"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/3812"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
+<gml:posList>217368.75 181577.01 217400.11 181499.51</gml:posList>
+<gml:posList>217400.11 181499.51 217500.11 181599.51</gml:posList>
+</gml:LineString>";
+
     private readonly CreateOutlinedRoadSegmentV2ParametersValidator _validator = new(new FakeOrganizationCache());
 
     [Theory]
     [InlineData(GmlPoint)]
     [InlineData(GmlMultiLineString)]
     [InlineData(GmlPolygon)]
+    [InlineData(GmlWithoutClosingTag)]
+    [InlineData(GmlWithTwoLineStrings)]
+    [InlineData(GmlWithTwoPosLists)]
     public async Task WhenGeometryIsNotALineString_ThenGeometryNotValidError(string gml)
     {
         var parameters = new CreateOutlinedRoadSegmentV2Parameters { WegsegmentGeometrie = gml };

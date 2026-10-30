@@ -1,3 +1,11 @@
+## [5.28.4](https://github.com/informatievlaanderen/road-registry/compare/v5.28.3...v5.28.4) (2026-10-30)
+
+
+### Bug Fixes
+
+* **2.0:** reject incomplete or ambiguous gml geometries on v2 endpoints GAWR-7833 ([653d39e](https://github.com/informatievlaanderen/road-registry/commit/653d39e7f890d6e3e20c827c9e563b9f6eca7659))
+* **wmswfsv2:** add missing spatial index on road.Wegsegmenten ([aab9120](https://github.com/informatievlaanderen/road-registry/commit/aab9120a59010e1755b986f630855de31c7c3419))
+
 ## [5.28.3](https://github.com/informatievlaanderen/road-registry/compare/v5.28.2...v5.28.3) (2026-10-29)
 
 
