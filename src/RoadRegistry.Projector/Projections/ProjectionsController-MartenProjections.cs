@@ -395,30 +395,33 @@ public partial class ProjectionsController
         // refuses a transaction it did not open itself: an attempt has to replay the whole unit rather than resume
         // inside it. That is also exactly what is wanted here - a transient failure rolls the transaction back, views
         // and all, and the next attempt captures them again from scratch.
+        // The token goes to the strategy as well as into the work, so a cancelled request also ends the wait between
+        // two attempts. Without it the retry loop backs off on CancellationToken.None and then starts another attempt
+        // on a request that is already gone.
         var strategy = context.Database.CreateExecutionStrategy();
-        await strategy.ExecuteAsync(async () =>
+        await strategy.ExecuteAsync(async token =>
         {
-            await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            await using var transaction = await context.Database.BeginTransactionAsync(token);
 
             // A view WITH SCHEMABINDING blocks TRUNCATE on everything it is bound to, so the serving views come off
             // first and go back on at the end - recreated from the definition the server itself just handed us, never
             // from a copy in this repository that could have gone stale. See SqlServerViewMaintenance.
-            var views = await SqlServerViewMaintenance.CaptureAsync(context, tables, cancellationToken);
-            await SqlServerViewMaintenance.DropAsync(context, views, _logger, cancellationToken);
+            var views = await SqlServerViewMaintenance.CaptureAsync(context, tables, token);
+            await SqlServerViewMaintenance.DropAsync(context, views, _logger, token);
 
             foreach (var qualifiedName in tables)
             {
                 _logger.LogInformation("Rebuilding {ProjectionName}: truncating table {Table}.", projectionName, qualifiedName);
-                await context.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE {qualifiedName};", cancellationToken);
+                await context.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE {qualifiedName};", token);
             }
 
-            await SqlServerViewMaintenance.RecreateAsync(context, views, _logger, cancellationToken);
+            await SqlServerViewMaintenance.RecreateAsync(context, views, _logger, token);
 
             await context.ProjectionStates
                 .Where(x => x.Name == projectionName)
-                .ExecuteDeleteAsync(cancellationToken);
+                .ExecuteDeleteAsync(token);
 
-            await transaction.CommitAsync(cancellationToken);
-        });
+            await transaction.CommitAsync(token);
+        }, cancellationToken);
     }
 }
