@@ -114,7 +114,11 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         });
 
         When<IEvent<RoadSegmentRemoved>>((context, e, ct) => Remove(context, e.Data.RoadSegmentId, ct));
-        When<IEvent<OutlinedRoadSegmentRemoved>>((context, e, ct) => Remove(context, e.Data.RoadSegmentId, ct));
+        // OutlinedRoadSegmentRemoved removes nothing here. In the old system it moved a road segment to another
+        // SqlStreamStore stream when its geometry stopped being outlined; the outlined variant was removed while the
+        // road segment itself was measured and stayed. Marten has no such streams, so there is nothing to do - the
+        // read and extract projections and the network topology all ignore it for the same reason.
+        When<IEvent<OutlinedRoadSegmentRemoved>>((_, _, _) => Task.CompletedTask);
 
         When<IEvent<RoadSegmentAddedToEuropeanRoad>>(async (context, e, ct) =>
         {
