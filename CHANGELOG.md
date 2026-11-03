@@ -1,3 +1,10 @@
+## [5.29.1](https://github.com/informatievlaanderen/road-registry/compare/v5.29.0...v5.29.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* version bump ([3c9c823](https://github.com/informatievlaanderen/road-registry/commit/3c9c823ec1b40b45d1fc97ee2bf15efe78a7a5aa))
+
 # [5.29.0](https://github.com/informatievlaanderen/road-registry/compare/v5.28.5...v5.29.0) (2026-11-03)
 
 
