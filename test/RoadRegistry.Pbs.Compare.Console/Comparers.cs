@@ -25,11 +25,22 @@ internal static class Comparers
     private const string PbsSchema = WellKnownSchemas.PbsSchema;
     private static readonly string EventStoreSchema = WellKnownSchemas.MartenEventStore;
 
-    internal sealed record SegmentRow(bool Removed, int? StartNode, int? EndNode, int? Status, int Points, double Length);
+    internal sealed record SegmentRow(bool Removed, bool IsV2, int? StartNode, int? EndNode, int? Status, string? StatusText, int Points, double Length);
 
-    internal sealed record NodeRow(bool Removed, double X, double Y);
+    internal sealed record NodeRow(bool Removed, bool IsV2, double X, double Y);
 
-    internal sealed record JunctionRow(bool Removed, int? SegmentA, int? SegmentB);
+    internal sealed record JunctionRow(bool Removed, bool IsV2, int? SegmentA, int? SegmentB);
+
+    // Why a row is in the state it is in, counted over every finding. This is what turns "33.234 ontbreken" into a
+    // diagnosis: a V1-only row (the topology projection writes no status for those) is a different story from one
+    // that a merge or split retired.
+    private static string Category(SegmentRow row) => $"{Version(row.IsV2)}, status={row.StatusText ?? "-"}";
+
+    private static string Category(NodeRow row) => Version(row.IsV2);
+
+    private static string Category(JunctionRow row) => Version(row.IsV2);
+
+    private static string Version(bool isV2) => isV2 ? "v2" : "v1";
 
     public static async Task ComparePositionsAsync(DbConnection marten, DbConnection pbs, Report report, CancellationToken ct)
     {
@@ -74,16 +85,17 @@ internal static class Comparers
 
         var martenRows = ReadAsync(marten, $"""
             select id, is_removed, status, start_node_id, end_node_id,
-                   coalesce(st_npoints(geometry), 0), coalesce(st_length(geometry), 0)
+                   coalesce(st_npoints(geometry), 0), coalesce(st_length(geometry), 0), is_v2
             from {RoadNetworkTopologyProjection.RoadSegmentsTableName}
             order by id
             """,
             reader =>
             {
                 int? status = null;
-                if (!reader.IsDBNull(2))
+                var statusText = reader.IsDBNull(2) ? null : reader.GetString(2);
+                if (statusText is not null)
                 {
-                    status = ResolveStatus(reader.GetString(2));
+                    status = ResolveStatus(statusText);
                     if (status is null)
                     {
                         unparseableStatus++;
@@ -92,9 +104,11 @@ internal static class Comparers
 
                 return new SegmentRow(
                     reader.GetBoolean(1),
+                    reader.GetBoolean(7),
                     reader.IsDBNull(3) ? null : reader.GetInt32(3),
                     reader.IsDBNull(4) ? null : reader.GetInt32(4),
                     status,
+                    statusText,
                     reader.GetInt32(5),
                     reader.GetDouble(6));
             }, ct);
@@ -107,9 +121,11 @@ internal static class Comparers
             """,
             reader => new SegmentRow(
                 false,
+                false,
                 reader.IsDBNull(1) ? null : reader.GetInt32(1),
                 reader.IsDBNull(2) ? null : reader.GetInt32(2),
                 reader.IsDBNull(3) ? null : reader.GetInt32(3),
+                null,
                 reader.GetInt32(4),
                 reader.GetDouble(5)), ct);
 
@@ -128,10 +144,11 @@ internal static class Comparers
             switch (left, right)
             {
                 case ({ Removed: false }, null):
-                    report.Add(entity, Finding.MissingInPbs, id, $"marten status={Show(left!.Status)} knopen={Show(left.StartNode)}->{Show(left.EndNode)}");
+                    report.Add(entity, Finding.MissingInPbs, id,
+                        $"marten {Category(left!)} knopen={Show(left.StartNode)}->{Show(left.EndNode)}", Category(left));
                     break;
                 case ({ Removed: true }, not null):
-                    report.Add(entity, Finding.StillInPbsAfterRemoval, id);
+                    report.Add(entity, Finding.StillInPbsAfterRemoval, id, string.Empty, Category(left!));
                     break;
                 case (null, not null):
                     report.Add(entity, Finding.OnlyInPbs, id, $"pbs status={Show(right!.Status)}");
@@ -141,7 +158,7 @@ internal static class Comparers
                     var differences = DescribeSegmentDifferences(left!, right!, options.LengthTolerance);
                     if (differences is not null)
                     {
-                        report.Add(entity, Finding.StaleInPbs, id, differences);
+                        report.Add(entity, Finding.StaleInPbs, id, differences, Category(left!));
                     }
 
                     break;
@@ -161,18 +178,18 @@ internal static class Comparers
         long martenCount = 0, pbsCount = 0, compared = 0;
 
         var martenRows = ReadAsync(marten, $"""
-            select id, is_removed, coalesce(st_x(geometry), 0), coalesce(st_y(geometry), 0)
+            select id, is_removed, coalesce(st_x(geometry), 0), coalesce(st_y(geometry), 0), is_v2
             from {RoadNetworkTopologyProjection.RoadNodesTableName}
             order by id
             """,
-            reader => new NodeRow(reader.GetBoolean(1), reader.GetDouble(2), reader.GetDouble(3)), ct);
+            reader => new NodeRow(reader.GetBoolean(1), reader.GetBoolean(4), reader.GetDouble(2), reader.GetDouble(3)), ct);
 
         var pbsRows = ReadAsync(pbs, $"""
             select [WK_OIDN], coalesce([GEOMETRIE].STX, 0), coalesce([GEOMETRIE].STY, 0)
             from [{PbsSchema}].[WegknopenData]
             order by [WK_OIDN]
             """,
-            reader => new NodeRow(false, reader.GetDouble(1), reader.GetDouble(2)), ct);
+            reader => new NodeRow(false, false, reader.GetDouble(1), reader.GetDouble(2)), ct);
 
         await foreach (var (id, left, right) in MergeJoin(martenRows, pbsRows, ct))
         {
@@ -189,10 +206,10 @@ internal static class Comparers
             switch (left, right)
             {
                 case ({ Removed: false }, null):
-                    report.Add(entity, Finding.MissingInPbs, id);
+                    report.Add(entity, Finding.MissingInPbs, id, $"marten {Category(left!)}", Category(left));
                     break;
                 case ({ Removed: true }, not null):
-                    report.Add(entity, Finding.StillInPbsAfterRemoval, id);
+                    report.Add(entity, Finding.StillInPbsAfterRemoval, id, string.Empty, Category(left!));
                     break;
                 case (null, not null):
                     report.Add(entity, Finding.OnlyInPbs, id);
@@ -204,7 +221,7 @@ internal static class Comparers
                     if (Math.Abs(left!.X - right!.X) > 0.01 || Math.Abs(left.Y - right.Y) > 0.01)
                     {
                         report.Add(entity, Finding.StaleInPbs, id,
-                            $"marten=({Show(left.X)} {Show(left.Y)}) pbs=({Show(right.X)} {Show(right.Y)})");
+                            $"marten=({Show(left.X)} {Show(left.Y)}) pbs=({Show(right.X)} {Show(right.Y)})", Category(left));
                     }
 
                     break;
@@ -220,7 +237,7 @@ internal static class Comparers
             entity: "ongelijkgrondse kruising",
             // BO = bovenliggend = upper, ON = onderliggend = lower.
             martenSql: $"""
-                select id, is_removed, upper_road_segment_id, lower_road_segment_id
+                select id, is_removed, upper_road_segment_id, lower_road_segment_id, is_v2
                 from {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName}
                 order by id
                 """,
@@ -236,7 +253,7 @@ internal static class Comparers
             marten, pbs, report, ct,
             entity: "gelijkgrondse kruising",
             martenSql: $"""
-                select id, is_removed, road_segment_id_1, road_segment_id_2
+                select id, is_removed, road_segment_id_1, road_segment_id_2, is_v2
                 from {RoadNetworkTopologyProjection.GradeJunctionsTableName}
                 order by id
                 """,
@@ -256,11 +273,13 @@ internal static class Comparers
         var martenRows = ReadAsync(marten, martenSql,
             reader => new JunctionRow(
                 reader.GetBoolean(1),
+                reader.GetBoolean(4),
                 reader.IsDBNull(2) ? null : reader.GetInt32(2),
                 reader.IsDBNull(3) ? null : reader.GetInt32(3)), ct);
 
         var pbsRows = ReadAsync(pbs, pbsSql,
             reader => new JunctionRow(
+                false,
                 false,
                 reader.IsDBNull(1) ? null : reader.GetInt32(1),
                 reader.IsDBNull(2) ? null : reader.GetInt32(2)), ct);
@@ -280,10 +299,11 @@ internal static class Comparers
             switch (left, right)
             {
                 case ({ Removed: false }, null):
-                    report.Add(entity, Finding.MissingInPbs, id, $"marten {labelA}={Show(left!.SegmentA)} {labelB}={Show(left.SegmentB)}");
+                    report.Add(entity, Finding.MissingInPbs, id,
+                        $"marten {Category(left!)} {labelA}={Show(left.SegmentA)} {labelB}={Show(left.SegmentB)}", Category(left));
                     break;
                 case ({ Removed: true }, not null):
-                    report.Add(entity, Finding.StillInPbsAfterRemoval, id);
+                    report.Add(entity, Finding.StillInPbsAfterRemoval, id, string.Empty, Category(left!));
                     break;
                 case (null, not null):
                     report.Add(entity, Finding.OnlyInPbs, id, $"pbs {labelA}={Show(right!.SegmentA)} {labelB}={Show(right.SegmentB)}");
@@ -294,7 +314,7 @@ internal static class Comparers
                     {
                         report.Add(entity, Finding.StaleInPbs, id,
                             $"marten {labelA}/{labelB}={Show(left.SegmentA)}/{Show(left.SegmentB)} "
-                            + $"pbs {labelA}/{labelB}={Show(right.SegmentA)}/{Show(right.SegmentB)}");
+                            + $"pbs {labelA}/{labelB}={Show(right.SegmentA)}/{Show(right.SegmentB)}", Category(left));
                     }
 
                     break;

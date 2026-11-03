@@ -29,6 +29,9 @@ internal sealed class Report
     private readonly int _maxFindingsPerCheck;
     private readonly List<(string Entity, Finding Finding, int Id, string Detail)> _details = [];
     private readonly Dictionary<(string Entity, Finding Finding), int> _counts = [];
+    // Counted over every finding, not only the ones that fit in the detail cap, so the breakdown stays honest
+    // about the whole population while the csv keeps a sample.
+    private readonly Dictionary<(string Entity, Finding Finding, string Category), int> _categories = [];
     private readonly Dictionary<string, (long Marten, long Pbs, long Compared)> _scanned = [];
     private readonly List<string> _notes = [];
 
@@ -39,13 +42,19 @@ internal sealed class Report
 
     public bool HasFindings => _counts.Values.Any(count => count > 0);
 
-    public void Add(string entity, Finding finding, int id, string detail = "")
+    public void Add(string entity, Finding finding, int id, string detail = "", string category = "")
     {
         var key = (entity, finding);
         _counts[key] = _counts.GetValueOrDefault(key) + 1;
         if (_counts[key] <= _maxFindingsPerCheck)
         {
             _details.Add((entity, finding, id, detail));
+        }
+
+        if (category.Length > 0)
+        {
+            var categoryKey = (entity, finding, category);
+            _categories[categoryKey] = _categories.GetValueOrDefault(categoryKey) + 1;
         }
     }
 
@@ -75,6 +84,14 @@ internal sealed class Report
             foreach (var ((entity, finding), count) in _counts.Where(x => x.Value > 0).OrderBy(x => x.Key.Entity).ThenBy(x => x.Key.Finding))
             {
                 writer.WriteLine($"  {entity,-28} {Describe(finding),-34} {count,12:N0}");
+
+                var breakdown = _categories
+                    .Where(x => x.Key.Entity == entity && x.Key.Finding == finding)
+                    .OrderByDescending(x => x.Value);
+                foreach (var (key, categoryCount) in breakdown)
+                {
+                    writer.WriteLine($"  {string.Empty,-28} {"- " + key.Category,-34} {categoryCount,12:N0}");
+                }
             }
         }
 
