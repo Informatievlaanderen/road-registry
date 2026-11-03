@@ -1,3 +1,10 @@
+## [5.29.2](https://github.com/informatievlaanderen/road-registry/compare/v5.29.1...v5.29.2) (2026-11-03)
+
+
+### Bug Fixes
+
+* **projections:** do nothing on OutlinedRoadSegmentRemoved in PBS and WmsWfsV2 ([682fae5](https://github.com/informatievlaanderen/road-registry/commit/682fae5e8b4016c441d67071320d5ea082bb96a7))
+
 ## [5.29.1](https://github.com/informatievlaanderen/road-registry/compare/v5.29.0...v5.29.1) (2026-11-03)
 
 
