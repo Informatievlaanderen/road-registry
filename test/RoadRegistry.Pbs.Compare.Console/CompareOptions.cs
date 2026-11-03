@@ -1,4 +1,4 @@
-namespace RoadRegistry.Pbs.Compare.Console;
+﻿namespace RoadRegistry.Pbs.Compare.Console;
 
 using System;
 using System.Collections.Generic;
@@ -56,6 +56,9 @@ internal sealed record CompareOptions
           {MaxFindingsSwitch} <n>         maximum aantal detailrijen per check (standaard 1000;
                                            de aantallen in de samenvatting blijven volledig)
           --help                           print dit
+
+        Read-only diagnose, print en stopt: --eventtypes (alle eventtypes met hun aantal), --diagnose (events
+        zonder correlation id), --stream RoadSegment-123 (de events op een stream), --topology 123 (de topology-rij).
         """;
 
     public static readonly IReadOnlyDictionary<string, string> SwitchMappings = new Dictionary<string, string>
@@ -82,7 +85,7 @@ internal sealed record CompareOptions
         var unknown = args
             .Where(argument => argument.StartsWith("--", StringComparison.Ordinal))
             .Select(argument => argument.Split('=')[0])
-            .FirstOrDefault(argument => !SwitchMappings.ContainsKey(argument) && argument is not "--help" and not "--diagnose" and not "--stream" and not "--topology");
+            .FirstOrDefault(argument => !SwitchMappings.ContainsKey(argument) && argument is not "--help" and not "--diagnose" and not "--stream" and not "--topology" and not "--eventtypes" and not "--doc" and not "--editor");
         if (unknown is not null)
         {
             error = $"Unknown option '{unknown}'.";

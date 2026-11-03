@@ -1,4 +1,4 @@
-namespace RoadRegistry.Pbs.Compare.Console;
+﻿namespace RoadRegistry.Pbs.Compare.Console;
 
 using System;
 using System.Collections.Generic;
@@ -73,9 +73,29 @@ internal static class Program
             await isolation.ExecuteNonQueryAsync(token);
         }
 
+        if (args.Contains("--eventtypes"))
+        {
+            await Comparers.DumpEventTypesAsync(marten, token);
+            return 0;
+        }
+
         if (args.Contains("--diagnose"))
         {
             await Comparers.DiagnoseAsync(marten, token);
+            return 0;
+        }
+
+        var editorIndex = Array.IndexOf(args, "--editor");
+        if (editorIndex >= 0 && editorIndex + 1 < args.Length)
+        {
+            await Comparers.DumpEditorAsync(pbs, args[editorIndex + 1].Split(','), token);
+            return 0;
+        }
+
+        var documentIndex = Array.IndexOf(args, "--doc");
+        if (documentIndex >= 0 && documentIndex + 1 < args.Length)
+        {
+            await Comparers.DumpDocumentsAsync(marten, args[documentIndex + 1].Split(','), token);
             return 0;
         }
 
@@ -96,10 +116,15 @@ internal static class Program
         try
         {
             await Comparers.ComparePositionsAsync(marten, pbs, report, token);
-            await Comparers.CompareSegmentsAsync(marten, pbs, options, report, token);
-            await Comparers.CompareNodesAsync(marten, pbs, report, token);
-            await Comparers.CompareGradeSeparatedJunctionsAsync(marten, pbs, report, token);
-            await Comparers.CompareGradeJunctionsAsync(marten, pbs, report, token);
+
+            // Which entities should still exist is read from the event streams first: the topology projection's own
+            // is_removed mark was backfilled for V2 rows only and is stale for everything the migration removed.
+            var removed = await Comparers.ReadRemovedIdsAsync(marten, report, token);
+
+            await Comparers.CompareSegmentsAsync(marten, pbs, options, removed[Comparers.SegmentKind], report, token);
+            await Comparers.CompareNodesAsync(marten, pbs, removed[Comparers.NodeKind], report, token);
+            await Comparers.CompareGradeSeparatedJunctionsAsync(marten, pbs, removed[Comparers.GradeSeparatedJunctionKind], report, token);
+            await Comparers.CompareGradeJunctionsAsync(marten, pbs, removed[Comparers.GradeJunctionKind], report, token);
         }
         catch (OperationCanceledException)
         {

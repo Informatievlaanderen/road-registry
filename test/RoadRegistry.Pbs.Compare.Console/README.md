@@ -10,13 +10,33 @@ Niet door waarde-per-waarde te auditen, maar door per entiteit drie dingen te co
 2. **is de state de laatste** — de velden die bij vrijwel elke wijziging veranderen, liggen gelijk;
 3. **is weg wat weg moet** — wat in Marten verwijderd is, staat niet meer in PBS.
 
-## Waarom de topology-projectie als referentie
+## Waar de referentie uit komt
 
-De Marten-kant wordt gelezen uit `projections.networktopology_*`, niet uit de snapshot-documenten. Die projectie is
-**inline**: ze wordt geschreven in dezelfde transactie die de events wegschrijft en kan dus per definitie niet
-achterlopen op de event store. Precies wat je als referentiepunt wil. Ze bewaart bovendien alles wat hier vergeleken
-wordt in gewone kolommen (`id`, `is_removed`, `status`, de knoop-ids, de geometrie), dus er hangt niets af van een
-json-propertynaam die morgen anders heet.
+Twee verschillende bronnen, elk voor waar ze gezag over heeft.
+
+**Moet de entiteit bestaan — uit de events.** Per stream geldt het laatste event dat de entiteit aanmaakt of
+verwijdert; alles daartussen is een wijziging en verschuift het bestaan niet. `Comparers.Existences` houdt die twee
+lijsten per entiteitssoort bij, in Martens snake_case-aliassen. Met `--eventtypes` print je wat de store écht aan
+types bevat; dat is de manier om die lijsten na een nieuw event te controleren.
+
+Een event dat in geen van beide lijsten staat, verschuift niets - en een stream zonder enig bestaansevent geldt als
+bestaand. Dat is waarom `road_segment_was_merged` en `road_segment_was_split` in geen van beide lijsten staan: ze
+worden aan de stream van het weggesplitste of samengevoegde segment gehangen, direct achter zijn
+`..._was_retired_because_of_...`, en zouden die verwijdering dus ongedaan maken. Op de stream van een segment dat
+eruit voortkomt zijn ze het eerste event, en daar is "bestaat" ook het juiste antwoord.
+
+Niet uit `is_removed` van de topology-projectie dus, en dat is een bewuste keuze. Die kolom is er later bij gekomen
+(`20261026120000_networktopology_status_and_is_removed`) en is gebackfild uit de aggregaten **enkel voor v2-rijen**,
+op de aanname dat "a V1 removal still deletes the row, so nothing V1 is ever marked". Die aanname gaat niet op voor
+een v2-migratieverwijdering van een v1-rij: die rijen staan nog in de topologie en zijn nooit gemarkeerd. Wie op
+`is_removed` vergelijkt, krijgt daarom tienduizenden valse positieven. De samenvatting rapporteert dat verschil
+apart, als notitie — het zijn geen bevindingen over PBS, maar ze zeggen hoe ver de topologie zelf is afgeweken.
+
+**Hoe de entiteit er uitziet — uit de topology-projectie.** De state wordt gelezen uit
+`projections.networktopology_*`, niet uit de snapshot-documenten. Die projectie is **inline**: ze wordt geschreven in
+dezelfde transactie die de events wegschrijft en kan dus per definitie niet achterlopen op de event store. Ze bewaart
+bovendien alles wat hier vergeleken wordt in gewone kolommen (`id`, `status`, de knoop-ids, de geometrie), dus er
+hangt niets af van een json-propertynaam die morgen anders heet.
 
 ## Wat er vergeleken wordt
 
@@ -88,6 +108,22 @@ Opties:
 | `--out <pad>` | `pbs-compare-findings.csv` | waar de details landen |
 | `--tolerance <meter>` | `0.05` | vlakke tolerantie op de geometrielengte; er komt 0,5 cm per vertex bij, want PBS rondt elke coördinaat af op cm |
 | `--max-findings <n>` | `1000` | maximum aantal detailrijen per check; de aantallen in de samenvatting blijven volledig |
+
+Daarnaast zes read-only diagnosestanden, die elk één vraag beantwoorden en daarna stoppen:
+
+| optie | wat het print |
+|---|---|
+| `--eventtypes` | elk eventtype in de store met zijn aantal — waarmee je de lijsten in `Existences` controleert |
+| `--diagnose` | events zonder correlation id per type (die worden door `RoadNetworkChangesProjection` genegeerd) |
+| `--stream <key,key>` | de eventgeschiedenis van een stream, bv. `RoadSegment-74369` |
+| `--topology <id,id>` | de topology-rij achter een wegsegment-id |
+| `--doc <id,id>` | `isRemoved` en status uit `mt_doc_roadsegment` - het aggregaat zelf, dus het oordeel van het domein |
+| `--editor <id,id>` | of de EditorContext het segment nog heeft, met zijn methode en status |
+
+Eén waarschuwing bij `--editor`: op tst bevat `[RoadRegistryEditor].[RoadSegment]` ongeveer 1.095.000 rijen tegen
+ongeveer 853.000 in PBS, wat neerkomt op elk segment dat er ooit was. Die tabel onderscheidt daar dus niet tussen
+bestaand en verwijderd, en is op die omgeving geen bruikbare getuige over bestaan. Controleer het totaal dat de optie
+print vóór je er een conclusie op bouwt.
 
 De tool leest alleen. Aan de SQL Server-kant staat de sessie op `read uncommitted`, zodat ze de projectiehosts die ze
 controleert niet in de weg loopt. Ctrl+C breekt netjes af en print alsnog de samenvatting, met een notitie dat de
