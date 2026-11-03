@@ -24,7 +24,7 @@ public class PbsRebuildTableCoverageTests
     private static readonly Type[] TruncatedOnRebuild =
     [
         // Features
-        typeof(RoadSegmentRecord), typeof(DerivedRoadSegmentRecord), typeof(RoadNodeRecord),
+        typeof(RoadSegmentRecord), typeof(DerivedRoadSegmentRecord), typeof(RoadNodeRecord), typeof(DerivedSchijnknoopRecord),
         typeof(GradeJunctionRecord), typeof(GradeSeparatedJunctionRecord),
         typeof(EuropeanRoadRecord), typeof(NationalRoadRecord),
         // Dynamic attributes of a road segment
