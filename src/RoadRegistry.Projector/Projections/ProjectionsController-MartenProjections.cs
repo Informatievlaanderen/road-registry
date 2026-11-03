@@ -390,26 +390,35 @@ public partial class ProjectionsController
         // dies between dropping a view and recreating it leaves the read model exactly as it was - views included -
         // rather than without the views that serve it. The views are the read model's only copy of their own
         // definition once dropped, which is what makes that worth insisting on.
-        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
-
-        // A view WITH SCHEMABINDING blocks TRUNCATE on everything it is bound to, so the serving views come off
-        // first and go back on at the end - recreated from the definition the server itself just handed us, never
-        // from a copy in this repository that could have gone stale. See SqlServerViewMaintenance.
-        var views = await SqlServerViewMaintenance.CaptureAsync(context, tables, cancellationToken);
-        await SqlServerViewMaintenance.DropAsync(context, views, _logger, cancellationToken);
-
-        foreach (var qualifiedName in tables)
+        //
+        // Through the execution strategy, because the connection is configured to retry and a retrying strategy
+        // refuses a transaction it did not open itself: an attempt has to replay the whole unit rather than resume
+        // inside it. That is also exactly what is wanted here - a transient failure rolls the transaction back, views
+        // and all, and the next attempt captures them again from scratch.
+        var strategy = context.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
         {
-            _logger.LogInformation("Rebuilding {ProjectionName}: truncating table {Table}.", projectionName, qualifiedName);
-            await context.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE {qualifiedName};", cancellationToken);
-        }
+            await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
-        await SqlServerViewMaintenance.RecreateAsync(context, views, _logger, cancellationToken);
+            // A view WITH SCHEMABINDING blocks TRUNCATE on everything it is bound to, so the serving views come off
+            // first and go back on at the end - recreated from the definition the server itself just handed us, never
+            // from a copy in this repository that could have gone stale. See SqlServerViewMaintenance.
+            var views = await SqlServerViewMaintenance.CaptureAsync(context, tables, cancellationToken);
+            await SqlServerViewMaintenance.DropAsync(context, views, _logger, cancellationToken);
 
-        await context.ProjectionStates
-            .Where(x => x.Name == projectionName)
-            .ExecuteDeleteAsync(cancellationToken);
+            foreach (var qualifiedName in tables)
+            {
+                _logger.LogInformation("Rebuilding {ProjectionName}: truncating table {Table}.", projectionName, qualifiedName);
+                await context.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE {qualifiedName};", cancellationToken);
+            }
 
-        await transaction.CommitAsync(cancellationToken);
+            await SqlServerViewMaintenance.RecreateAsync(context, views, _logger, cancellationToken);
+
+            await context.ProjectionStates
+                .Where(x => x.Name == projectionName)
+                .ExecuteDeleteAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+        });
     }
 }
