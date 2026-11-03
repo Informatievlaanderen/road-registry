@@ -141,6 +141,12 @@ internal static class Comparers
                 pbsCount++;
             }
 
+            // Only what Marten says should exist: of every category, how much of it reached PBS.
+            if (left is { Removed: false })
+            {
+                report.Population(entity, Category(left), right is not null);
+            }
+
             switch (left, right)
             {
                 case ({ Removed: false }, null):
@@ -201,6 +207,12 @@ internal static class Comparers
             if (right is not null)
             {
                 pbsCount++;
+            }
+
+            // Only what Marten says should exist: of every category, how much of it reached PBS.
+            if (left is { Removed: false })
+            {
+                report.Population(entity, Category(left), right is not null);
             }
 
             switch (left, right)
@@ -294,6 +306,12 @@ internal static class Comparers
             if (right is not null)
             {
                 pbsCount++;
+            }
+
+            // Only what Marten says should exist: of every category, how much of it reached PBS.
+            if (left is { Removed: false })
+            {
+                report.Population(entity, Category(left), right is not null);
             }
 
             switch (left, right)

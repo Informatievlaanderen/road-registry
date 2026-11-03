@@ -33,6 +33,9 @@ internal sealed class Report
     // about the whole population while the csv keeps a sample.
     private readonly Dictionary<(string Entity, Finding Finding, string Category), int> _categories = [];
     private readonly Dictionary<string, (long Marten, long Pbs, long Compared)> _scanned = [];
+    // The whole Marten population per category, and how much of it PBS actually has. Together with the findings
+    // breakdown this says whether a category is partly or entirely absent from PBS - a different diagnosis.
+    private readonly Dictionary<(string Entity, string Category), (long Marten, long InPbs)> _population = [];
     private readonly List<string> _notes = [];
 
     public Report(int maxFindingsPerCheck)
@@ -60,6 +63,14 @@ internal sealed class Report
 
     public void Scanned(string entity, long marten, long pbs, long compared) => _scanned[entity] = (marten, pbs, compared);
 
+    /// <summary>One Marten row of this category, and whether PBS has it.</summary>
+    public void Population(string entity, string category, bool inPbs)
+    {
+        var key = (entity, category);
+        var current = _population.GetValueOrDefault(key);
+        _population[key] = (current.Marten + 1, current.InPbs + (inPbs ? 1 : 0));
+    }
+
     /// <summary>Anything the run could not check, so the summary never reads cleaner than the run actually was.</summary>
     public void Note(string note) => _notes.Add(note);
 
@@ -71,6 +82,15 @@ internal sealed class Report
         foreach (var (entity, counts) in _scanned)
         {
             writer.WriteLine($"  {entity,-28} {counts.Marten,12:N0} {counts.Pbs,12:N0} {counts.Compared,12:N0}");
+
+            var breakdown = _population
+                .Where(x => x.Key.Entity == entity)
+                .OrderByDescending(x => x.Value.Marten);
+            foreach (var (key, value) in breakdown)
+            {
+                var share = value.Marten == 0 ? 0 : 100.0 * value.InPbs / value.Marten;
+                writer.WriteLine($"  {string.Empty,-28} {"- " + key.Category,-22} {value.Marten,12:N0} {value.InPbs,12:N0} in pbs ({share,5:F1}%)");
+            }
         }
 
         writer.WriteLine();
