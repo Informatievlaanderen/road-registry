@@ -302,7 +302,10 @@ internal static class Comparers
             ],
             [
                 "road_segment_removed",
-                "outlined_road_segment_removed",
+                // outlined_road_segment_removed is NOT a removal. In the old system it moved a road segment to
+                // another SqlStreamStore stream once its geometry stopped being outlined: the outlined variant went,
+                // the measured road segment stayed. The read and extract projections and the network topology all
+                // ignore it; PBS and WmsWfsV2 removed the row on it, which is what this tool turned up.
                 "road_segment_was_removed",
                 "road_segment_was_removed_because_of_migration",
                 // The inputs of a merge or a split: the topology keeps them as gehistoreerd, PBS removes them.
