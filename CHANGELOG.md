@@ -1,3 +1,10 @@
+# [5.29.0](https://github.com/informatievlaanderen/road-registry/compare/v5.28.5...v5.29.0) (2026-11-03)
+
+
+### Features
+
+* **pbs:** add afgeleide schijnknopen to the afgeleid product GAWR-7836 ([d5b1fd3](https://github.com/informatievlaanderen/road-registry/commit/d5b1fd3db7fc54a2c884ebedabb0deab6c2a5a86))
+
 ## [5.28.5](https://github.com/informatievlaanderen/road-registry/compare/v5.28.4...v5.28.5) (2026-10-30)
 
 
