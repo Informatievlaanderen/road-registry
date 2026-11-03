@@ -383,6 +383,24 @@ public class RoadSegmentPbsProjectionTests
         Assert.Empty(await scenario.Query<NationalRoadRecord>(q => q.Where(x => x.WS_OIDN == 1)));
     }
 
+    // OutlinedRoadSegmentRemoved says nothing about this road segment. In the old system it moved the segment to
+    // another SqlStreamStore stream once its geometry stopped being outlined: the outlined variant went, the measured
+    // road segment stayed. Removing the row on it deleted road segments that are still there.
+    [Fact]
+    public async Task WhenOutlinedRoadSegmentRemoved_ThenTheSegmentIsKept()
+    {
+        var scenario = Scenario();
+
+        await scenario.GivenAsync(_testData.Segment1Added);
+        await scenario.GivenAsync(new RoadSegmentV1.OutlinedRoadSegmentRemoved
+        {
+            RoadSegmentId = 1,
+            Provenance = Provenance
+        });
+
+        Assert.NotNull(await scenario.Find<RoadSegmentRecord>(1));
+    }
+
     // The projection applies a whole batch of events to one DbContext and saves once at the end, so anything written
     // earlier in the batch is still only in the change tracker. A lookup that queries the database will not see it.
     // Every test above splits its events over separate batches, which is why that never showed.
