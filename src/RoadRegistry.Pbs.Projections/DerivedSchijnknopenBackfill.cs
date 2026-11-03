@@ -41,7 +41,9 @@ public static class DerivedSchijnknopenBackfill
             ct.ThrowIfCancellationRequested();
             if (!canContinue())
             {
-                logger.LogWarning("Backfill of the afgeleide schijnknopen stopped after WS_OIDN {LastSegmentId} ({Count} segment(s)): RoadNetworkChangesPbsProjection is running again. Stop it and resume from WS_OIDN {Next}.",
+                // Error rather than Warning, here and at the end: errors are what reach Slack, and both are the moment
+                // someone has to act - resume the backfill, or start the projection again.
+                logger.LogError("Backfill of the afgeleide schijnknopen stopped after WS_OIDN {LastSegmentId} ({Count} segment(s)): RoadNetworkChangesPbsProjection is running again. Stop it and resume from WS_OIDN {Next}.",
                     lastSegmentId, segmentsDone, lastSegmentId + 1);
                 return segmentsDone;
             }
@@ -57,7 +59,7 @@ public static class DerivedSchijnknopenBackfill
             logger.LogInformation("Backfill of the afgeleide schijnknopen reached WS_OIDN {LastSegmentId} ({Count} segment(s) so far).", lastSegmentId, segmentsDone);
         }
 
-        logger.LogInformation("Backfill of the afgeleide schijnknopen completed: {Count} segment(s) derived again.", segmentsDone);
+        logger.LogError("Backfill of the afgeleide schijnknopen completed: {Count} segment(s) derived again.", segmentsDone);
         return segmentsDone;
     }
 
