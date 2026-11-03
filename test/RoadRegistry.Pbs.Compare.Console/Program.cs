@@ -1,24 +1,31 @@
 namespace RoadRegistry.Pbs.Compare.Console;
 
 using System;
+using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using Npgsql;
 
 internal static class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        if (!CompareOptions.TryParse(args, out var options, out var error))
+        if (args.Contains("--help") || args.Contains("-h"))
         {
-            if (error is not null)
-            {
-                Console.Error.WriteLine(error);
-                Console.Error.WriteLine();
-            }
+            Console.WriteLine(CompareOptions.Usage);
+            return 0;
+        }
 
+        var configuration = BuildConfiguration(args);
+        if (!CompareOptions.TryCreate(configuration, args, out var options, out var error))
+        {
+            Console.Error.WriteLine(error);
+            Console.Error.WriteLine();
             Console.WriteLine(CompareOptions.Usage);
             return 1;
         }
@@ -36,8 +43,28 @@ internal static class Program
 
         await using var marten = new NpgsqlConnection(options.MartenConnectionString);
         await using var pbs = new SqlConnection(options.PbsConnectionString);
-        await marten.OpenAsync(token);
-        await pbs.OpenAsync(token);
+
+        // Not reachable is the normal failure here - the tst databases usually need bastion or vpn - so say that in
+        // one line instead of unwinding a stack trace over it.
+        try
+        {
+            await marten.OpenAsync(token);
+        }
+        catch (Exception exception) when (exception is DbException or TimeoutException)
+        {
+            Console.Error.WriteLine($"Kan niet verbinden met de Marten-databank: {exception.Message}");
+            return 1;
+        }
+
+        try
+        {
+            await pbs.OpenAsync(token);
+        }
+        catch (Exception exception) when (exception is DbException or TimeoutException)
+        {
+            Console.Error.WriteLine($"Kan niet verbinden met de PBS-databank: {exception.Message}");
+            return 1;
+        }
 
         // This process only ever reads, and it must not block the projection hosts it is checking up on.
         await using (var isolation = pbs.CreateCommand())
@@ -73,5 +100,23 @@ internal static class Program
 
         // 0 = niets gevonden, 2 = bevindingen, zodat dit in een pipeline kan.
         return report.HasFindings ? 2 : 0;
+    }
+
+    // Read from next to the binary rather than from the current directory, so the debugger and `dotnet run` (which
+    // start in different places) both end up with the same files. The json files are copied to the output on build.
+    private static IConfigurationRoot BuildConfiguration(string[] args)
+    {
+        var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
+                          ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                          ?? "development";
+
+        return new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: true)
+            .AddJsonFile($"appsettings.{environment}.json", optional: true)
+            .AddJsonFile("appsettings.local.json", optional: true)
+            .AddEnvironmentVariables()
+            .AddCommandLine(args, new Dictionary<string, string>(CompareOptions.SwitchMappings))
+            .Build();
     }
 }

@@ -47,15 +47,39 @@ instrument (PBS tegenover de EditorContext, mét V1→V2-mapping).
 
 ## Draaien
 
-```bash
-dotnet run --project test/RoadRegistry.Pbs.Compare.Console -- \
-  --pbs "Data Source=...;Initial Catalog=road-registry;..." \
-  --marten "Host=...;Database=...;Username=...;Password=..."
+Maak eenmalig `appsettings.local.json` naast `appsettings.json`. Dat bestand is gitignored (`appsettings.*.json`),
+dus daar mogen echte credentials in. De namen zijn dezelfde als in de hosts, dus je kan de waarden daar letterlijk
+overnemen:
+
+```json
+{
+  "ConnectionStrings": {
+    "PbsProjections": "Data Source=...;Initial Catalog=road-registry;...",
+    "Marten": "Host=...;Database=...;Username=...;Password=..."
+  }
+}
 ```
 
-Connectiestrings kunnen ook uit `PBS_CONNECTION` en `MARTEN_CONNECTION` komen, zodat ze niet in je shell-history
-belanden. Je hebt netwerktoegang nodig tot beide databanken van de omgeving die je controleert — op tst doorgaans
-enkel via bastion/VPN.
+Daarna draait F5 uit de debugger zonder argumenten. Van de commandolijn:
+
+```bash
+dotnet run --project test/RoadRegistry.Pbs.Compare.Console
+```
+
+De configuratie wordt in deze volgorde gelezen, waarbij de laatste wint:
+
+1. `appsettings.json` — staat in git, laat de connectiestrings daar leeg;
+2. `appsettings.{environment}.json` — optioneel (`DOTNET_ENVIRONMENT`, standaard `development`);
+3. `appsettings.local.json` — gitignored, jouw credentials;
+4. omgevingsvariabelen — `ConnectionStrings__PbsProjections` / `ConnectionStrings__Marten`, of de kortere
+   `PBS_CONNECTION` / `MARTEN_CONNECTION`;
+5. commandolijnargumenten — `--pbs` en `--marten`.
+
+De json-bestanden worden bij het bouwen naar de outputmap gekopieerd en daar ook gelezen, zodat de debugger en
+`dotnet run` — die in verschillende mappen starten — hetzelfde zien.
+
+Je hebt netwerktoegang nodig tot beide databanken van de omgeving die je controleert — op tst doorgaans enkel via
+bastion/VPN.
 
 Opties:
 
