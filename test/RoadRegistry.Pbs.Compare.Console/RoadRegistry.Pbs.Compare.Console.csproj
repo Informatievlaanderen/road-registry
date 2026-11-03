@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.App.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- RoadRegistry for the V2 status value object, Infrastructure.MartenDb for the topology projection's table
+         names (and, through it, Npgsql); Pbs.Schema for the PBS schema name and the SQL Server client. -->
+    <ProjectReference Include="..\..\src\RoadRegistry\RoadRegistry.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Infrastructure.MartenDb\RoadRegistry.Infrastructure.MartenDb.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Pbs.Schema\RoadRegistry.Pbs.Schema.csproj" />
+  </ItemGroup>
+</Project>
