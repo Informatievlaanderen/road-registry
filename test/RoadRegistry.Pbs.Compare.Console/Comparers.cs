@@ -25,11 +25,11 @@ internal static class Comparers
     private const string PbsSchema = WellKnownSchemas.PbsSchema;
     private static readonly string EventStoreSchema = WellKnownSchemas.MartenEventStore;
 
-    internal sealed record SegmentRow(bool Removed, bool IsV2, int? StartNode, int? EndNode, int? Status, string? StatusText, int Points, double Length);
+    internal sealed record SegmentRow(bool Removed, bool IsV2, int? StartNode, int? EndNode, int? Status, string? StatusText, int Points, double Length, DateTimeOffset Timestamp);
 
-    internal sealed record NodeRow(bool Removed, bool IsV2, double X, double Y);
+    internal sealed record NodeRow(bool Removed, bool IsV2, double X, double Y, DateTimeOffset Timestamp);
 
-    internal sealed record JunctionRow(bool Removed, bool IsV2, int? SegmentA, int? SegmentB);
+    internal sealed record JunctionRow(bool Removed, bool IsV2, int? SegmentA, int? SegmentB, DateTimeOffset Timestamp);
 
     // Why a row is in the state it is in, counted over every finding. This is what turns "33.234 ontbreken" into a
     // diagnosis: a V1-only row (the topology projection writes no status for those) is a different story from one
@@ -41,6 +41,11 @@ internal static class Comparers
     private static string Category(JunctionRow row) => Version(row.IsV2);
 
     private static string Version(bool isV2) => isV2 ? "v2" : "v1";
+
+    // The topology row's event timestamp, by month: a gap that clusters in one window is an incident, a gap that
+    // is spread evenly is something systematic.
+    private static string Month(DateTimeOffset timestamp)
+        => timestamp == default ? "-" : timestamp.ToString("yyyy-MM", CultureInfo.InvariantCulture);
 
     public static async Task ComparePositionsAsync(DbConnection marten, DbConnection pbs, Report report, CancellationToken ct)
     {
@@ -85,7 +90,7 @@ internal static class Comparers
 
         var martenRows = ReadAsync(marten, $"""
             select id, is_removed, status, start_node_id, end_node_id,
-                   coalesce(st_npoints(geometry), 0), coalesce(st_length(geometry), 0), is_v2
+                   coalesce(st_npoints(geometry), 0), coalesce(st_length(geometry), 0), is_v2, timestamp
             from {RoadNetworkTopologyProjection.RoadSegmentsTableName}
             order by id
             """,
@@ -110,7 +115,8 @@ internal static class Comparers
                     status,
                     statusText,
                     reader.GetInt32(5),
-                    reader.GetDouble(6));
+                    reader.GetDouble(6),
+                    reader.GetFieldValue<DateTimeOffset>(8));
             }, ct);
 
         var pbsRows = ReadAsync(pbs, $"""
@@ -127,7 +133,8 @@ internal static class Comparers
                 reader.IsDBNull(3) ? null : reader.GetInt32(3),
                 null,
                 reader.GetInt32(4),
-                reader.GetDouble(5)), ct);
+                reader.GetDouble(5),
+                default), ct);
 
         await foreach (var (id, left, right) in MergeJoin(martenRows, pbsRows, ct))
         {
@@ -144,7 +151,7 @@ internal static class Comparers
             // Only what Marten says should exist: of every category, how much of it reached PBS.
             if (left is { Removed: false })
             {
-                report.Population(entity, Category(left), right is not null);
+                report.Population(entity, Category(left), Month(left.Timestamp), right is not null);
             }
 
             switch (left, right)
@@ -184,18 +191,19 @@ internal static class Comparers
         long martenCount = 0, pbsCount = 0, compared = 0;
 
         var martenRows = ReadAsync(marten, $"""
-            select id, is_removed, coalesce(st_x(geometry), 0), coalesce(st_y(geometry), 0), is_v2
+            select id, is_removed, coalesce(st_x(geometry), 0), coalesce(st_y(geometry), 0), is_v2, timestamp
             from {RoadNetworkTopologyProjection.RoadNodesTableName}
             order by id
             """,
-            reader => new NodeRow(reader.GetBoolean(1), reader.GetBoolean(4), reader.GetDouble(2), reader.GetDouble(3)), ct);
+            reader => new NodeRow(reader.GetBoolean(1), reader.GetBoolean(4), reader.GetDouble(2), reader.GetDouble(3),
+                reader.GetFieldValue<DateTimeOffset>(5)), ct);
 
         var pbsRows = ReadAsync(pbs, $"""
             select [WK_OIDN], coalesce([GEOMETRIE].STX, 0), coalesce([GEOMETRIE].STY, 0)
             from [{PbsSchema}].[WegknopenData]
             order by [WK_OIDN]
             """,
-            reader => new NodeRow(false, false, reader.GetDouble(1), reader.GetDouble(2)), ct);
+            reader => new NodeRow(false, false, reader.GetDouble(1), reader.GetDouble(2), default), ct);
 
         await foreach (var (id, left, right) in MergeJoin(martenRows, pbsRows, ct))
         {
@@ -212,7 +220,7 @@ internal static class Comparers
             // Only what Marten says should exist: of every category, how much of it reached PBS.
             if (left is { Removed: false })
             {
-                report.Population(entity, Category(left), right is not null);
+                report.Population(entity, Category(left), Month(left.Timestamp), right is not null);
             }
 
             switch (left, right)
@@ -249,7 +257,7 @@ internal static class Comparers
             entity: "ongelijkgrondse kruising",
             // BO = bovenliggend = upper, ON = onderliggend = lower.
             martenSql: $"""
-                select id, is_removed, upper_road_segment_id, lower_road_segment_id, is_v2
+                select id, is_removed, upper_road_segment_id, lower_road_segment_id, is_v2, timestamp
                 from {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName}
                 order by id
                 """,
@@ -265,7 +273,7 @@ internal static class Comparers
             marten, pbs, report, ct,
             entity: "gelijkgrondse kruising",
             martenSql: $"""
-                select id, is_removed, road_segment_id_1, road_segment_id_2, is_v2
+                select id, is_removed, road_segment_id_1, road_segment_id_2, is_v2, timestamp
                 from {RoadNetworkTopologyProjection.GradeJunctionsTableName}
                 order by id
                 """,
@@ -287,14 +295,16 @@ internal static class Comparers
                 reader.GetBoolean(1),
                 reader.GetBoolean(4),
                 reader.IsDBNull(2) ? null : reader.GetInt32(2),
-                reader.IsDBNull(3) ? null : reader.GetInt32(3)), ct);
+                reader.IsDBNull(3) ? null : reader.GetInt32(3),
+                reader.GetFieldValue<DateTimeOffset>(5)), ct);
 
         var pbsRows = ReadAsync(pbs, pbsSql,
             reader => new JunctionRow(
                 false,
                 false,
                 reader.IsDBNull(1) ? null : reader.GetInt32(1),
-                reader.IsDBNull(2) ? null : reader.GetInt32(2)), ct);
+                reader.IsDBNull(2) ? null : reader.GetInt32(2),
+                default), ct);
 
         await foreach (var (id, left, right) in MergeJoin(martenRows, pbsRows, ct))
         {
@@ -311,7 +321,7 @@ internal static class Comparers
             // Only what Marten says should exist: of every category, how much of it reached PBS.
             if (left is { Removed: false })
             {
-                report.Population(entity, Category(left), right is not null);
+                report.Population(entity, Category(left), Month(left.Timestamp), right is not null);
             }
 
             switch (left, right)

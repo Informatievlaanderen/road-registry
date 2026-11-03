@@ -35,7 +35,7 @@ internal sealed class Report
     private readonly Dictionary<string, (long Marten, long Pbs, long Compared)> _scanned = [];
     // The whole Marten population per category, and how much of it PBS actually has. Together with the findings
     // breakdown this says whether a category is partly or entirely absent from PBS - a different diagnosis.
-    private readonly Dictionary<(string Entity, string Category), (long Marten, long InPbs)> _population = [];
+    private readonly Dictionary<(string Entity, string Category, string Month), (long Marten, long InPbs)> _population = [];
     private readonly List<string> _notes = [];
 
     public Report(int maxFindingsPerCheck)
@@ -64,9 +64,9 @@ internal sealed class Report
     public void Scanned(string entity, long marten, long pbs, long compared) => _scanned[entity] = (marten, pbs, compared);
 
     /// <summary>One Marten row of this category, and whether PBS has it.</summary>
-    public void Population(string entity, string category, bool inPbs)
+    public void Population(string entity, string category, string month, bool inPbs)
     {
-        var key = (entity, category);
+        var key = (entity, category, month);
         var current = _population.GetValueOrDefault(key);
         _population[key] = (current.Marten + 1, current.InPbs + (inPbs ? 1 : 0));
     }
@@ -83,13 +83,29 @@ internal sealed class Report
         {
             writer.WriteLine($"  {entity,-28} {counts.Marten,12:N0} {counts.Pbs,12:N0} {counts.Compared,12:N0}");
 
-            var breakdown = _population
+            var byCategory = _population
                 .Where(x => x.Key.Entity == entity)
-                .OrderByDescending(x => x.Value.Marten);
-            foreach (var (key, value) in breakdown)
+                .GroupBy(x => x.Key.Category)
+                .Select(group => (
+                    Category: group.Key,
+                    Marten: group.Sum(x => x.Value.Marten),
+                    InPbs: group.Sum(x => x.Value.InPbs)))
+                .OrderByDescending(x => x.Marten);
+            foreach (var (category, martenCount, inPbs) in byCategory)
             {
-                var share = value.Marten == 0 ? 0 : 100.0 * value.InPbs / value.Marten;
-                writer.WriteLine($"  {string.Empty,-28} {"- " + key.Category,-22} {value.Marten,12:N0} {value.InPbs,12:N0} in pbs ({share,5:F1}%)");
+                writer.WriteLine($"  {string.Empty,-28} {"- " + category,-22} {martenCount,12:N0} {inPbs,12:N0} in pbs ({Share(inPbs, martenCount),5:F1}%)");
+            }
+
+            // Only the months that are actually missing something, worst first: that is where an incident shows up.
+            var byMonth = _population
+                .Where(x => x.Key.Entity == entity && x.Value.InPbs < x.Value.Marten)
+                .OrderByDescending(x => x.Value.Marten - x.Value.InPbs)
+                .Take(15)
+                .ToList();
+            foreach (var (key, value) in byMonth)
+            {
+                var missing = value.Marten - value.InPbs;
+                writer.WriteLine($"  {string.Empty,-28} {"  " + key.Month + " " + key.Category,-22} {value.Marten,12:N0} {missing,12:N0} ontbreekt ({Share(missing, value.Marten),5:F1}%)");
             }
         }
 
@@ -141,6 +157,8 @@ internal sealed class Report
     }
 
     public int DetailCount => _details.Count;
+
+    private static double Share(long part, long whole) => whole == 0 ? 0 : 100.0 * part / whole;
 
     private static string Describe(Finding finding) => finding switch
     {
