@@ -508,7 +508,9 @@ jobs:
         env:
           SEMVER: ${{  needs.release.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          # A secret that is not set resolves to an empty string, which is falsy, so this falls back to
+          # NUGET_API_KEY wherever ROAD_NUGET_API_KEY has not been added.
+          NUGET_API_KEY: ${{ secrets.ROAD_NUGET_API_KEY || secrets.NUGET_API_KEY }}
 
   publish_to_atlassian:
     needs: [release]
