@@ -29,8 +29,8 @@ public sealed class ProjectionCatchUpOptions
     // indexes were on its read path, so there was nothing left to spare.
     //
     // Named by leading key column rather than by index name, because the name is the migration's business and the
-    // column is the projection's. Which indexes were spared and which disabled is logged, so a column that no index
-    // leads on - a rename, a typo - shows up as a shorter list rather than as a slow rebuild.
+    // column is the projection's. Which indexes were spared and which disabled is logged, and a column that spares
+    // nothing - a rename, a typo - is warned about by name rather than left to be read out of a shorter list.
     public string[] KeepIndexesLeadingOn { get; init; } = [];
 
     // Emit a throughput line every N batches, so a rebuild can be measured rather than guessed at.

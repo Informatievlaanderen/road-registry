@@ -25,7 +25,11 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
     // whose rows are in the change tracker, and the context says which tracker, because a driver that never calls the
     // prefetch - or one that cleared the tracker since - must not be told the rows are already there. Getting that
     // wrong does not read stale data, it reads nothing, and a missing attribute row is a silently wrong read model.
-    private PbsContext? _prefetchedContext;
+    // Weak, because this projection outlives the batch and the driver disposes the context at the end of
+    // one. Only its identity is wanted - "are these the rows of the context I am being handed?" - and a
+    // strong field would keep a disposed context and its whole change tracker alive until the next batch
+    // overwrote it, which on a projection that has caught up is indefinitely.
+    private readonly WeakReference<PbsContext> _prefetchedContext = new(null!);
     private HashSet<int> _prefetchedSegmentIds = [];
     private int? _prefetchedHighestSchijnknoopId;
 
@@ -310,7 +314,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
     public async Task PrefetchBatchAsync(PbsContext context, IReadOnlyList<IEvent> events, CancellationToken cancellationToken)
     {
         // Dropped first: a prefetch that fails halfway must not leave behind a claim that the rows are loaded.
-        _prefetchedContext = null;
+        _prefetchedContext.SetTarget(null!);
         _prefetchedSegmentIds = [];
         _prefetchedHighestSchijnknoopId = null;
 
@@ -345,7 +349,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
         // it can see in the change tracker. Read again on every attempt, since a retry comes back through here.
         var highestSchijnknoopId = await DerivedSchijnknoopIds.HighestStoredAsync(context, cancellationToken);
 
-        _prefetchedContext = context;
+        _prefetchedContext.SetTarget(context);
         _prefetchedSegmentIds = new HashSet<int>(segmentIds);
         _prefetchedHighestSchijnknoopId = highestSchijnknoopId;
     }
@@ -367,9 +371,12 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
     //
     // Entries rather than Local, because Find resolves a tracked entity whatever its state and Local leaves out the
     // deleted ones: a segment an earlier event in this batch removed has to stay found here, exactly as before.
+    private bool IsPrefetched(PbsContext context)
+        => _prefetchedContext.TryGetTarget(out var prefetched) && ReferenceEquals(context, prefetched);
+
     private async Task<RoadSegmentRecord?> FindSegment(PbsContext context, int segId, CancellationToken cancellationToken)
     {
-        if (ReferenceEquals(context, _prefetchedContext) && _prefetchedSegmentIds.Contains(segId))
+        if (IsPrefetched(context) && _prefetchedSegmentIds.Contains(segId))
         {
             return context.ChangeTracker
                 .Entries<RoadSegmentRecord>()
@@ -386,7 +393,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
     private async Task<List<T>> RowsFor<T>(PbsContext context, DbSet<T> set, int segId, CancellationToken cancellationToken)
         where T : class, IRoadSegmentScopedRecord
     {
-        if (ReferenceEquals(context, _prefetchedContext) && _prefetchedSegmentIds.Contains(segId))
+        if (IsPrefetched(context) && _prefetchedSegmentIds.Contains(segId))
         {
             // Local leaves out what this batch removed, which is what the caller means: a row a previous event in the
             // batch deleted is gone. The query below cannot say that - the delete is not saved yet, so it reads the
@@ -575,7 +582,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
             .Where(x => context.Entry(x).State != EntityState.Deleted)
             .OrderBy(x => x.VOLGNR)
             .ToList();
-        var highestStored = ReferenceEquals(context, _prefetchedContext) ? _prefetchedHighestSchijnknoopId : null;
+        var highestStored = IsPrefetched(context) ? _prefetchedHighestSchijnknoopId : null;
         var newIds = await DerivedSchijnknoopIds.AllocateAsync(context, SchijnknopenNeeded(flatRows) - schijnknopen.Count, highestStored, ct);
 
         LinkSchijnknopen(context, normal, flatRows, schijnknopen, newIds);

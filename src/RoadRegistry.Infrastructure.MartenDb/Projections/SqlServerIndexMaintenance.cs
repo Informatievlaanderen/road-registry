@@ -43,11 +43,35 @@ internal static class SqlServerIndexMaintenance
 
         var spared = keepLeadingOn.Count == 0
             ? []
-            : found.Where(x => x.LeadingColumnName is not null && keepLeadingOn.Contains(x.LeadingColumnName, StringComparer.OrdinalIgnoreCase)).ToList();
+            : found.Where(x => LeadsOn(x, keepLeadingOn)).ToList();
         if (spared.Count > 0)
         {
             logger.LogInformation("Keeping {Count} index(es) in place, leading on a column this projection reads by: {Indexes}",
                 spared.Count, string.Join(", ", spared.Select(x => x.IndexName)));
+        }
+
+        // A column that spares nothing is the failure this option can have: a rename or a typo leaves the projection's
+        // own read path to be disabled with everything else, and the only symptom is a rebuild that crawls. It has to
+        // be said out loud, because the alternative is reading it out of the absence of a line.
+        if (keepLeadingOn.Count > 0)
+        {
+            var unmatched = keepLeadingOn.Where(column => !found.Any(x => LeadsOn(x, [column]))).ToList();
+            if (unmatched.Count > 0)
+            {
+                // An index an earlier run disabled is not in `found`, so ask the catalog for those too before calling
+                // a column unknown - otherwise a resumed rebuild warns about every index it already turned off.
+                var alreadyDisabled = await FindAsync(context, disabled: true, cancellationToken).ConfigureAwait(false);
+                unmatched = unmatched.Where(column => !alreadyDisabled.Any(x => LeadsOn(x, [column]))).ToList();
+            }
+
+            if (unmatched.Count > 0)
+            {
+                logger.LogWarning(
+                    "No index on this read model leads on {Columns}, so nothing was spared for them. Check the "
+                    + "KeepIndexesLeadingOn setting against the column names in the model: a lookup whose index is "
+                    + "disabled becomes a table scan for the whole catch-up.",
+                    string.Join(", ", unmatched));
+            }
         }
 
         var indexes = found.Except(spared).ToList();
@@ -100,6 +124,9 @@ internal static class SqlServerIndexMaintenance
         var indexes = await FindAsync(context, disabled: true, cancellationToken).ConfigureAwait(false);
         return indexes.Select(x => x.IndexName).ToList();
     }
+
+    private static bool LeadsOn(IndexReference index, IReadOnlyCollection<string> columns)
+        => index.LeadingColumnName is not null && columns.Contains(index.LeadingColumnName, StringComparer.OrdinalIgnoreCase);
 
     private static async Task<IReadOnlyList<IndexReference>> FindAsync(DbContext context, bool disabled, CancellationToken cancellationToken)
     {
