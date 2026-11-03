@@ -1,4 +1,4 @@
-namespace RoadRegistry.WmsWfsV2.Schema.Records;
+﻿namespace RoadRegistry.WmsWfsV2.Schema.Records;
 
 using System;
 
@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 // Nationale weg (relation table, no geometry).
-public class NationalRoadRecord
+public class NationalRoadRecord : IRoadSegmentScopedRecord
 {
     public int NW_OIDN { get; set; }
     public int WS_OIDN { get; set; }

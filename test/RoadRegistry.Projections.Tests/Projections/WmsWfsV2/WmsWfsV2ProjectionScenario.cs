@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.WmsWfsV2;
+﻿namespace RoadRegistry.Projections.Tests.Projections.WmsWfsV2;
 
 using System;
 using System.Collections.Generic;
@@ -36,6 +36,13 @@ public sealed class WmsWfsV2ProjectionScenario
     }
 
     /// <summary>
+    /// Mirrors ProjectionCatchUpOptions.PrefetchBatches. Off, the handlers query per event the way they did before the
+    /// prefetch existed - which is both what production falls back to when the option is switched off and the only way
+    /// to run the same events down both paths and compare what they leave behind.
+    /// </summary>
+    public bool PrefetchBatches { get; init; } = true;
+
+    /// <summary>
     /// Projects the given messages (one batch) through every projection in order.
     /// Call multiple times to simulate separate daemon batches.
     /// </summary>
@@ -69,6 +76,19 @@ public sealed class WmsWfsV2ProjectionScenario
 
         var position = projectionState.Position;
         var newPosition = position;
+
+        // Mirrors the driver here too: the prefetch runs over the batch before any handler sees it, so the tests
+        // exercise the path the projection actually takes in production rather than only its per-event fallback.
+        var eventsToProcess = PrefetchBatches
+            ? events.Where(@event => @event.Sequence > position).ToList()
+            : [];
+        if (eventsToProcess.Count > 0)
+        {
+            foreach (var projection in _projections.OfType<IBatchPrefetchingRoadNetworkChangesProjection<WmsWfsV2Context>>())
+            {
+                await projection.PrefetchBatchAsync(context, eventsToProcess, CancellationToken.None);
+            }
+        }
 
         foreach (var @event in events)
         {

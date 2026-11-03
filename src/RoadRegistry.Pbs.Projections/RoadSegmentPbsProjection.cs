@@ -1,10 +1,8 @@
 ﻿namespace RoadRegistry.Pbs.Projections;
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -27,7 +25,11 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
     // whose rows are in the change tracker, and the context says which tracker, because a driver that never calls the
     // prefetch - or one that cleared the tracker since - must not be told the rows are already there. Getting that
     // wrong does not read stale data, it reads nothing, and a missing attribute row is a silently wrong read model.
-    private PbsContext? _prefetchedContext;
+    // Weak, because this projection outlives the batch and the driver disposes the context at the end of
+    // one. Only its identity is wanted - "are these the rows of the context I am being handed?" - and a
+    // strong field would keep a disposed context and its whole change tracker alive until the next batch
+    // overwrote it, which on a projection that has caught up is indefinitely.
+    private readonly WeakReference<PbsContext> _prefetchedContext = new(null!);
     private HashSet<int> _prefetchedSegmentIds = [];
     private int? _prefetchedHighestSchijnknoopId;
 
@@ -312,12 +314,12 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
     public async Task PrefetchBatchAsync(PbsContext context, IReadOnlyList<IEvent> events, CancellationToken cancellationToken)
     {
         // Dropped first: a prefetch that fails halfway must not leave behind a claim that the rows are loaded.
-        _prefetchedContext = null;
+        _prefetchedContext.SetTarget(null!);
         _prefetchedSegmentIds = [];
         _prefetchedHighestSchijnknoopId = null;
 
         var segmentIds = events
-            .Select(SegmentIdOf)
+            .Select(RoadSegmentEventId.Of)
             .Where(segmentId => segmentId is not null)
             .Select(segmentId => segmentId!.Value)
             .Distinct()
@@ -347,7 +349,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
         // it can see in the change tracker. Read again on every attempt, since a retry comes back through here.
         var highestSchijnknoopId = await DerivedSchijnknoopIds.HighestStoredAsync(context, cancellationToken);
 
-        _prefetchedContext = context;
+        _prefetchedContext.SetTarget(context);
         _prefetchedSegmentIds = new HashSet<int>(segmentIds);
         _prefetchedHighestSchijnknoopId = highestSchijnknoopId;
     }
@@ -369,9 +371,12 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
     //
     // Entries rather than Local, because Find resolves a tracked entity whatever its state and Local leaves out the
     // deleted ones: a segment an earlier event in this batch removed has to stay found here, exactly as before.
+    private bool IsPrefetched(PbsContext context)
+        => _prefetchedContext.TryGetTarget(out var prefetched) && ReferenceEquals(context, prefetched);
+
     private async Task<RoadSegmentRecord?> FindSegment(PbsContext context, int segId, CancellationToken cancellationToken)
     {
-        if (ReferenceEquals(context, _prefetchedContext) && _prefetchedSegmentIds.Contains(segId))
+        if (IsPrefetched(context) && _prefetchedSegmentIds.Contains(segId))
         {
             return context.ChangeTracker
                 .Entries<RoadSegmentRecord>()
@@ -388,7 +393,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
     private async Task<List<T>> RowsFor<T>(PbsContext context, DbSet<T> set, int segId, CancellationToken cancellationToken)
         where T : class, IRoadSegmentScopedRecord
     {
-        if (ReferenceEquals(context, _prefetchedContext) && _prefetchedSegmentIds.Contains(segId))
+        if (IsPrefetched(context) && _prefetchedSegmentIds.Contains(segId))
         {
             // Local leaves out what this batch removed, which is what the caller means: a row a previous event in the
             // batch deleted is gone. The query below cannot say that - the delete is not saved yet, so it reads the
@@ -406,47 +411,6 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
             .ToListAsync(cancellationToken);
 
         return stored.Union(tracked).ToList();
-    }
-
-    // The road segment an event is about, read by property name rather than declared per event type. A table mapping
-    // every handled event to its id would be a second list to remember when an event is added, and forgetting it would
-    // cost throughput while saying nothing - so the name is the contract, and PbsProjectionEventCoverage holds it.
-    // Not finding one is not an error: that segment is left out of the prefetch and read per event as before.
-    private static readonly ConcurrentDictionary<Type, Func<object, int?>?> SegmentIdAccessors = new();
-
-    private static int? SegmentIdOf(IEvent @event)
-    {
-        var data = @event.Data;
-        return data is null ? null : SegmentIdAccessors.GetOrAdd(data.GetType(), BuildSegmentIdAccessor)?.Invoke(data);
-    }
-
-    // Internal so the coverage test can ask, of every event this projection handles, whether its id can be read -
-    // which is the only thing standing between a new event and a silent return to one round trip per lookup.
-    internal static Func<object, int?>? BuildSegmentIdAccessor(Type eventType)
-    {
-        var property = eventType.GetProperty("RoadSegmentId", BindingFlags.Public | BindingFlags.Instance);
-        if (property is null)
-        {
-            return null;
-        }
-
-        // V1 carries the id as a plain int, V2 as a value object.
-        if (property.PropertyType == typeof(int))
-        {
-            return data => (int?)property.GetValue(data);
-        }
-
-        var toInt32 = property.PropertyType.GetMethod("ToInt32", Type.EmptyTypes);
-        if (toInt32 is null || toInt32.ReturnType != typeof(int))
-        {
-            return null;
-        }
-
-        return data =>
-        {
-            var value = property.GetValue(data);
-            return value is null ? null : (int?)toInt32.Invoke(value, null);
-        };
     }
 
     private async Task WriteFull(PbsContext context, int segId,
@@ -618,7 +582,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
             .Where(x => context.Entry(x).State != EntityState.Deleted)
             .OrderBy(x => x.VOLGNR)
             .ToList();
-        var highestStored = ReferenceEquals(context, _prefetchedContext) ? _prefetchedHighestSchijnknoopId : null;
+        var highestStored = IsPrefetched(context) ? _prefetchedHighestSchijnknoopId : null;
         var newIds = await DerivedSchijnknoopIds.AllocateAsync(context, SchijnknopenNeeded(flatRows) - schijnknopen.Count, highestStored, ct);
 
         LinkSchijnknopen(context, normal, flatRows, schijnknopen, newIds);
