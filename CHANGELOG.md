@@ -1,3 +1,10 @@
+## [5.29.5](https://github.com/informatievlaanderen/road-registry/compare/v5.29.4...v5.29.5) (2026-11-03)
+
+
+### Bug Fixes
+
+* **projector:** run the rebuild's transaction through the execution strategy ([a9923a5](https://github.com/informatievlaanderen/road-registry/commit/a9923a5dec4791e7129da2512c6de5c781a201f0))
+
 ## [5.29.4](https://github.com/informatievlaanderen/road-registry/compare/v5.29.3...v5.29.4) (2026-11-03)
 
 
