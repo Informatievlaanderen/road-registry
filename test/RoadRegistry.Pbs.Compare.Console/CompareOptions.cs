@@ -82,7 +82,7 @@ internal sealed record CompareOptions
         var unknown = args
             .Where(argument => argument.StartsWith("--", StringComparison.Ordinal))
             .Select(argument => argument.Split('=')[0])
-            .FirstOrDefault(argument => !SwitchMappings.ContainsKey(argument) && argument != "--help");
+            .FirstOrDefault(argument => !SwitchMappings.ContainsKey(argument) && argument is not "--help" and not "--diagnose" and not "--stream" and not "--topology");
         if (unknown is not null)
         {
             error = $"Unknown option '{unknown}'.";

@@ -73,6 +73,26 @@ internal static class Program
             await isolation.ExecuteNonQueryAsync(token);
         }
 
+        if (args.Contains("--diagnose"))
+        {
+            await Comparers.DiagnoseAsync(marten, token);
+            return 0;
+        }
+
+        var topologyIndex = Array.IndexOf(args, "--topology");
+        if (topologyIndex >= 0 && topologyIndex + 1 < args.Length)
+        {
+            await Comparers.DumpTopologyAsync(marten, args[topologyIndex + 1].Split(','), token);
+            return 0;
+        }
+
+        var streamIndex = Array.IndexOf(args, "--stream");
+        if (streamIndex >= 0 && streamIndex + 1 < args.Length)
+        {
+            await Comparers.DumpStreamsAsync(marten, args[streamIndex + 1].Split(','), token);
+            return 0;
+        }
+
         try
         {
             await Comparers.ComparePositionsAsync(marten, pbs, report, token);

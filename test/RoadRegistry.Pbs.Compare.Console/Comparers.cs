@@ -47,6 +47,112 @@ internal static class Comparers
     private static string Month(DateTimeOffset timestamp)
         => timestamp == default ? "-" : timestamp.ToString("yyyy-MM", CultureInfo.InvariantCulture);
 
+    // Read-only diagnosis of the one way this driver loses work: RoadNetworkChangesProjection.IsProjectable drops
+    // every event without a correlation id, while the projection-state position still advances past it
+    // ("it is never applied and never will be, since the progression moves on regardless"). If such events exist for
+    // road network types, they are exactly the entities that never reached the read model.
+    public static async Task DiagnoseAsync(DbConnection marten, CancellationToken ct)
+    {
+        await using (var totals = marten.CreateCommand())
+        {
+            totals.CommandText = $"""
+                select count(*) filter (where correlation_id is null) as zonder,
+                       count(*) as totaal
+                from {EventStoreSchema}.mt_events
+                """;
+            totals.CommandTimeout = 0;
+            await using var reader = await totals.ExecuteReaderAsync(ct);
+            if (await reader.ReadAsync(ct))
+            {
+                Console.WriteLine($"Events zonder correlation id: {reader.GetInt64(0):N0} van {reader.GetInt64(1):N0}.");
+            }
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Per eventtype (interne mt_-streams uitgesloten, die horen er geen te hebben):");
+        await using var byType = marten.CreateCommand();
+        byType.CommandText = $"""
+            select type, count(*) as aantal, min(timestamp)::date as van, max(timestamp)::date as tot
+            from {EventStoreSchema}.mt_events
+            where correlation_id is null and stream_id not like 'mt\_%'
+            group by type
+            order by count(*) desc
+            limit 30
+            """;
+        byType.CommandTimeout = 0;
+        await using var rows = await byType.ExecuteReaderAsync(ct);
+        var any = false;
+        while (await rows.ReadAsync(ct))
+        {
+            any = true;
+            Console.WriteLine($"  {rows.GetString(0),-50} {rows.GetInt64(1),12:N0}   {rows.GetFieldValue<DateTime>(2):yyyy-MM-dd} .. {rows.GetFieldValue<DateTime>(3):yyyy-MM-dd}");
+        }
+
+        if (!any)
+        {
+            Console.WriteLine("  geen - elk event buiten de interne streams heeft een correlation id");
+        }
+    }
+
+    // Dumps the event types on the given streams, in order. Used to hold a missing entity's history next to a
+    // present one's: if they differ by event type, the gap is about which events this projection ever sees.
+    public static async Task DumpStreamsAsync(DbConnection marten, IReadOnlyList<string> streamKeys, CancellationToken ct)
+    {
+        foreach (var streamKey in streamKeys)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"{streamKey}:");
+            await using var command = marten.CreateCommand();
+            command.CommandText = $"""
+                select seq_id, type, timestamp::date, correlation_id is null as zonder_correlatie
+                from {EventStoreSchema}.mt_events
+                where stream_id = @stream
+                order by seq_id
+                """;
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = "stream";
+            parameter.Value = streamKey;
+            command.Parameters.Add(parameter);
+
+            await using var reader = await command.ExecuteReaderAsync(ct);
+            var any = false;
+            while (await reader.ReadAsync(ct))
+            {
+                any = true;
+                var zonder = reader.GetBoolean(3) ? "  GEEN CORRELATION ID" : string.Empty;
+                Console.WriteLine($"  {reader.GetInt64(0),12}  {reader.GetString(1),-45} {reader.GetFieldValue<DateTime>(2):yyyy-MM-dd}{zonder}");
+            }
+
+            if (!any)
+            {
+                Console.WriteLine("  geen events op deze stream");
+            }
+        }
+    }
+
+    // Prints the topology row behind a road segment id, to hold against that stream's events.
+    public static async Task DumpTopologyAsync(DbConnection marten, IReadOnlyList<string> ids, CancellationToken ct)
+    {
+        await using var command = marten.CreateCommand();
+        command.CommandText = $"""
+            select id, is_v2, is_removed, coalesce(status, '-') as status, timestamp
+            from {RoadNetworkTopologyProjection.RoadSegmentsTableName}
+            where id = any(string_to_array(@ids, ',')::int[])
+            order by id
+            """;
+        var parameter = command.CreateParameter();
+        parameter.ParameterName = "ids";
+        parameter.Value = string.Join(",", ids);
+        command.Parameters.Add(parameter);
+
+        Console.WriteLine($"{"id",12} {"is_v2",6} {"is_removed",11} {"status",-16} timestamp");
+        await using var reader = await command.ExecuteReaderAsync(ct);
+        while (await reader.ReadAsync(ct))
+        {
+            Console.WriteLine($"{reader.GetInt32(0),12} {reader.GetBoolean(1),6} {reader.GetBoolean(2),11} {reader.GetString(3),-16} {reader.GetFieldValue<DateTimeOffset>(4):yyyy-MM-dd HH:mm}");
+        }
+    }
+
     public static async Task ComparePositionsAsync(DbConnection marten, DbConnection pbs, Report report, CancellationToken ct)
     {
         var head = Convert.ToInt64(
