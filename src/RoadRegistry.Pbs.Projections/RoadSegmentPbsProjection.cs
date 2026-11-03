@@ -1,10 +1,8 @@
 ﻿namespace RoadRegistry.Pbs.Projections;
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -313,7 +311,7 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
         _prefetchedHighestSchijnknoopId = null;
 
         var segmentIds = events
-            .Select(SegmentIdOf)
+            .Select(RoadSegmentEventId.Of)
             .Where(segmentId => segmentId is not null)
             .Select(segmentId => segmentId!.Value)
             .Distinct()
@@ -402,47 +400,6 @@ public class RoadSegmentPbsProjection : RunnerDbContextRoadNetworkChangesProject
             .ToListAsync(cancellationToken);
 
         return stored.Union(tracked).ToList();
-    }
-
-    // The road segment an event is about, read by property name rather than declared per event type. A table mapping
-    // every handled event to its id would be a second list to remember when an event is added, and forgetting it would
-    // cost throughput while saying nothing - so the name is the contract, and PbsProjectionEventCoverage holds it.
-    // Not finding one is not an error: that segment is left out of the prefetch and read per event as before.
-    private static readonly ConcurrentDictionary<Type, Func<object, int?>?> SegmentIdAccessors = new();
-
-    private static int? SegmentIdOf(IEvent @event)
-    {
-        var data = @event.Data;
-        return data is null ? null : SegmentIdAccessors.GetOrAdd(data.GetType(), BuildSegmentIdAccessor)?.Invoke(data);
-    }
-
-    // Internal so the coverage test can ask, of every event this projection handles, whether its id can be read -
-    // which is the only thing standing between a new event and a silent return to one round trip per lookup.
-    internal static Func<object, int?>? BuildSegmentIdAccessor(Type eventType)
-    {
-        var property = eventType.GetProperty("RoadSegmentId", BindingFlags.Public | BindingFlags.Instance);
-        if (property is null)
-        {
-            return null;
-        }
-
-        // V1 carries the id as a plain int, V2 as a value object.
-        if (property.PropertyType == typeof(int))
-        {
-            return data => (int?)property.GetValue(data);
-        }
-
-        var toInt32 = property.PropertyType.GetMethod("ToInt32", Type.EmptyTypes);
-        if (toInt32 is null || toInt32.ReturnType != typeof(int))
-        {
-            return null;
-        }
-
-        return data =>
-        {
-            var value = property.GetValue(data);
-            return value is null ? null : (int?)toInt32.Invoke(value, null);
-        };
     }
 
     private async Task WriteFull(PbsContext context, int segId,

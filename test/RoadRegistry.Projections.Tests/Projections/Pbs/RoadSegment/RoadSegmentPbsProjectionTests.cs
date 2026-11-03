@@ -11,6 +11,7 @@ using RoadRegistry.GradeJunction.Events.V2;
 using RoadRegistry.GradeSeparatedJunction.Events.V1;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.Organization.Events.V2;
+using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Pbs.Projections;
 using RoadRegistry.Pbs.Schema.Records;
 using RoadRegistry.Projections.Tests.Projections;
@@ -50,7 +51,7 @@ public class RoadSegmentPbsProjectionTests
         eventTypes.Should().NotBeEmpty();
 
         var unreadable = eventTypes
-            .Where(eventType => RoadSegmentPbsProjection.BuildSegmentIdAccessor(eventType) is null)
+            .Where(eventType => RoadSegmentEventId.BuildAccessor(eventType) is null)
             .Select(eventType => eventType.FullName)
             .OrderBy(name => name)
             .ToArray();

@@ -1,4 +1,4 @@
-namespace RoadRegistry.WmsWfsV2.Schema.Records;
+﻿namespace RoadRegistry.WmsWfsV2.Schema.Records;
 
 using System;
 
@@ -10,7 +10,7 @@ using NetTopologySuite.Geometries;
 // AfgeleideWegsegment (afgeleid product: the flattened road segment). A road segment is split at every position where
 // any dynamic attribute changes, producing potentially multiple rows per WS_OIDN, each with a sub-geometry and the
 // attributes resolved to plain (non-dynamic) values. WS_TEMPID is a synthetic identity primary key.
-public class DerivedRoadSegmentRecord
+public class DerivedRoadSegmentRecord : IRoadSegmentScopedRecord
 {
     public int WS_TEMPID { get; set; }
     public Geometry? GEOMETRIE { get; set; }

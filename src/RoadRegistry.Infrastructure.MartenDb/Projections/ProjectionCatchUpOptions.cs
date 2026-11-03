@@ -1,4 +1,4 @@
-namespace RoadRegistry.Infrastructure.MartenDb.Projections;
+﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
 // Tuning for the DbContext-backed projections while they are catching up (a rebuild, or a long replay after downtime).
 // None of this changes what the projections write - only how those writes reach SQL Server, and only while the read
@@ -21,6 +21,17 @@ public sealed class ProjectionCatchUpOptions
     // after a deploy would spend far longer tearing its indexes down and putting them back than it saves. Only a
     // backlog on the scale of a real rebuild is worth it.
     public long MinimumBacklogForIndexDisabling { get; init; } = 100_000;
+
+    // ...except the indexes leading on one of these columns, which are left in place. An index is only a net cost
+    // while catching up if nothing reads it, and a projection reaches its own rows by key: disable the index it does
+    // that with and every lookup becomes a table scan, which costs far more than the writes it saves. That is what
+    // took the PBS read model to 385ms per event before its disabling was switched off altogether - there all sixteen
+    // indexes were on its read path, so there was nothing left to spare.
+    //
+    // Named by leading key column rather than by index name, because the name is the migration's business and the
+    // column is the projection's. Which indexes were spared and which disabled is logged, so a column that no index
+    // leads on - a rename, a typo - shows up as a shorter list rather than as a slow rebuild.
+    public string[] KeepIndexesLeadingOn { get; init; } = [];
 
     // Emit a throughput line every N batches, so a rebuild can be measured rather than guessed at.
     public int MetricsLogIntervalInBatches { get; init; } = 25;

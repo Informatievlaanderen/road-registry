@@ -16,9 +16,16 @@ using Schema;
 using Schema.Records;
 using RoadRegistry.BackOffice.Extensions;
 
-public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context>, IProjectionCatchUpAware
+public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProjection<WmsWfsV2Context>,
+    IProjectionCatchUpAware, IBatchPrefetchingRoadNetworkChangesProjection<WmsWfsV2Context>
 {
     private readonly DerivedLabelCache _labelCache;
+
+    // Which context the rows below were loaded into, and whose. Both halves are load-bearing: the ids say which
+    // segments were loaded, the context into which change tracker, since nothing stops the driver from skipping
+    // the prefetch or handing out a different context in between.
+    private WmsWfsV2Context? _prefetchedContext;
+    private HashSet<int> _prefetchedSegmentIds = [];
 
     // The cache is shared with the sibling sub-projections that write the label tables. Constructed on its own
     // - as the tests do - it gets a private one, which is never loaded and so always resolves against the database.
@@ -56,7 +63,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         When<IEvent<RoadSegmentAttributesModified>>(async (context, e, ct) =>
         {
             var m = e.Data;
-            var record = await context.RoadSegments.FindAsync([m.RoadSegmentId], ct);
+            var record = await FindSegment(context, m.RoadSegmentId, ct);
             if (record?.GEOMETRIE is null)
             {
                 return;
@@ -102,7 +109,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             {
                 return;
             }
-            var record = await context.RoadSegments.FindAsync([e.Data.RoadSegmentId], ct);
+            var record = await FindSegment(context, e.Data.RoadSegmentId, ct);
             if (record?.GEOMETRIE is null)
             {
                 return;
@@ -318,7 +325,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         // arrives once per id; the projection-state position it leaned on is a position, and a replay from before it -
         // a recovery, a rebuild - delivers the event again. That turned the insert into a primary key violation and
         // left the previous derived rows and road numbers behind.
-        var (normal, isNew) = await LoadOrCreate(context, segId, provenance);
+        var (normal, isNew) = await LoadOrCreate(context, segId, provenance, ct);
 
         normal.GEOMETRIE = geometry.EnsureLambert08().RoundToCm().Value.Force2D();
         normal.STATUS = status?.Translation.Identifier;
@@ -396,7 +403,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>? pedestrian,
         ProvenanceData provenance, CancellationToken ct)
     {
-        var (normal, isNew) = await LoadOrCreate(context, segId, provenance);
+        var (normal, isNew) = await LoadOrCreate(context, segId, provenance, ct);
 
         if (geometry is not null)
         {
@@ -440,14 +447,14 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         }
 
         // Road numbers are not carried by the partial events, so keep the stored aggregate from the road tables.
-        var euNummers = AggregateRoadNumbers((await context.EuropeanRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct)).Select(x => x.EUNUMMER).ToList());
-        var nwNummers = AggregateRoadNumbers((await context.NationalRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct)).Select(x => x.NWNUMMER).ToList());
+        var euNummers = AggregateRoadNumbers((await RowsFor(context, context.EuropeanRoads, segId, ct)).Select(x => x.EUNUMMER).ToList());
+        var nwNummers = AggregateRoadNumbers((await RowsFor(context, context.NationalRoads, segId, ct)).Select(x => x.NWNUMMER).ToList());
         await RebuildDerived(context, segId, normal, euNummers, nwNummers, ct);
     }
 
-    private static async Task<(RoadSegmentRecord Normal, bool IsNew)> LoadOrCreate(WmsWfsV2Context context, int segId, ProvenanceData provenance)
+    private async Task<(RoadSegmentRecord Normal, bool IsNew)> LoadOrCreate(WmsWfsV2Context context, int segId, ProvenanceData provenance, CancellationToken ct)
     {
-        var normal = await context.RoadSegments.FindAsync(segId);
+        var normal = await FindSegment(context, segId, ct);
         var isNew = normal is null;
         normal ??= new RoadSegmentRecord { WS_OIDN = segId, CREATIE = provenance.Timestamp.ToDateTimeOffset() };
         return (normal, isNew);
@@ -456,7 +463,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
     private async Task RebuildDerived(WmsWfsV2Context context, int segId, RoadSegmentRecord normal, string? euNummers, string? nwNummers, CancellationToken ct)
     {
         {
-            context.DerivedRoadSegments.RemoveRange(await context.DerivedRoadSegments.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct));
+            context.DerivedRoadSegments.RemoveRange(await RowsFor(context, context.DerivedRoadSegments, segId, ct));
         }
         if (normal.GEOMETRIE is null)
         {
@@ -593,16 +600,96 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         await SetDerivedNwNummer(c, segId, AggregateRoadNumbers(numbers), ct);
     }
 
-    private static async Task Remove(WmsWfsV2Context context, int segId, CancellationToken ct)
+    private async Task Remove(WmsWfsV2Context context, int segId, CancellationToken ct)
     {
-        var normal = await context.RoadSegments.FindAsync([segId], ct);
+        var normal = await FindSegment(context, segId, ct);
         if (normal is not null)
         {
             context.RoadSegments.Remove(normal);
         }
-        context.DerivedRoadSegments.RemoveRange(await context.DerivedRoadSegments.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct));
-        context.EuropeanRoads.RemoveRange(await context.EuropeanRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct));
-        context.NationalRoads.RemoveRange(await context.NationalRoads.IncludeLocalToListAsync(q => q.Where(x => x.WS_OIDN == segId), ct));
+        context.DerivedRoadSegments.RemoveRange(await RowsFor(context, context.DerivedRoadSegments, segId, ct));
+        context.EuropeanRoads.RemoveRange(await RowsFor(context, context.EuropeanRoads, segId, ct));
+        context.NationalRoads.RemoveRange(await RowsFor(context, context.NationalRoads, segId, ct));
+    }
+
+    // One query per table for the whole batch instead of one per event. The three tables under the road segment are
+    // read by WS_OIDN and give back a handful of rows, so against a database a network away the cost of those reads is
+    // almost entirely the round trip: a hundred events cost a hundred round trips per table to fetch a few hundred
+    // bytes each.
+    //
+    // What makes this sound rather than a cache is that it loads whole segments. Once every row of a segment is in the
+    // change tracker, "the rows of this segment" can be answered from it - including the ones earlier events in the
+    // same batch added or removed, which is more than the per-event query could say. A segment whose id cannot be read
+    // from its event is left out and its handlers query for it as before.
+    public async Task PrefetchBatchAsync(WmsWfsV2Context context, IReadOnlyList<IEvent> events, CancellationToken cancellationToken)
+    {
+        // Dropped first: a prefetch that fails halfway must not leave behind a claim that the rows are loaded.
+        _prefetchedContext = null;
+        _prefetchedSegmentIds = [];
+
+        var segmentIds = events
+            .Select(RoadSegmentEventId.Of)
+            .Where(segmentId => segmentId is not null)
+            .Select(segmentId => segmentId!.Value)
+            .Distinct()
+            .ToArray();
+        if (segmentIds.Length == 0)
+        {
+            return;
+        }
+
+        await context.RoadSegments.Where(record => segmentIds.Contains(record.WS_OIDN)).LoadAsync(cancellationToken);
+        await context.DerivedRoadSegments.Where(record => segmentIds.Contains(record.WS_OIDN)).LoadAsync(cancellationToken);
+        await context.EuropeanRoads.Where(record => segmentIds.Contains(record.WS_OIDN)).LoadAsync(cancellationToken);
+        await context.NationalRoads.Where(record => segmentIds.Contains(record.WS_OIDN)).LoadAsync(cancellationToken);
+
+        _prefetchedContext = context;
+        _prefetchedSegmentIds = new HashSet<int>(segmentIds);
+    }
+
+    // The segment itself, from the change tracker when this batch prefetched it. FindAsync looks there first too, but
+    // on a miss it falls back to the database - and for a segment the prefetch did not bring back, that question has
+    // already been asked and answered for the whole batch. Asking it again is a round trip per event for nothing, and
+    // on a replay largely made of removals of segments that are already gone, that is most of the events.
+    //
+    // Entries rather than Local, because Find resolves a tracked entity whatever its state and Local leaves out the
+    // deleted ones: a segment an earlier event in this batch removed has to stay found here, exactly as before.
+    private async Task<RoadSegmentRecord?> FindSegment(WmsWfsV2Context context, int segId, CancellationToken cancellationToken)
+    {
+        if (ReferenceEquals(context, _prefetchedContext) && _prefetchedSegmentIds.Contains(segId))
+        {
+            return context.ChangeTracker
+                .Entries<RoadSegmentRecord>()
+                .Select(entry => entry.Entity)
+                .FirstOrDefault(record => record.WS_OIDN == segId);
+        }
+
+        return await context.RoadSegments.FindAsync([segId], cancellationToken);
+    }
+
+    // The rows of one segment, from the change tracker when this batch loaded that segment and from the database
+    // otherwise.
+    private async Task<List<T>> RowsFor<T>(WmsWfsV2Context context, DbSet<T> set, int segId, CancellationToken cancellationToken)
+        where T : class, IRoadSegmentScopedRecord
+    {
+        if (ReferenceEquals(context, _prefetchedContext) && _prefetchedSegmentIds.Contains(segId))
+        {
+            // Local leaves out what this batch removed, which is what the caller means: a row a previous event in the
+            // batch deleted is gone. The query below cannot say that - the delete is not saved yet, so it reads the
+            // row straight back out of the table and unions it back in.
+            return set.Local.Where(record => record.WS_OIDN == segId).ToList();
+        }
+
+        // What IncludeLocalToListAsync does, spelled out, because it cannot be used here: it runs one predicate over
+        // both the tracked entities and the table, and the two need different ones. Reading WS_OIDN off the interface
+        // is fine in memory but is not what the model maps a column to, and EF.Property is the other way round - it
+        // only exists inside a query. So each side gets the form it can take, and the union stays as it was.
+        var tracked = set.Local.Where(record => record.WS_OIDN == segId).ToList();
+        var stored = await set
+            .Where(record => EF.Property<int>(record, nameof(IRoadSegmentScopedRecord.WS_OIDN)) == segId)
+            .ToListAsync(cancellationToken);
+
+        return stored.Union(tracked).ToList();
     }
 
     // The dynamic-attribute builders are pure: they turn the event's per-position values into the staging lists that go

@@ -275,7 +275,7 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
         try
         {
             await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
-            await SqlServerIndexMaintenance.DisableAsync(context, Logger, cancellationToken).ConfigureAwait(false);
+            await SqlServerIndexMaintenance.DisableAsync(context, Logger, _options.KeepIndexesLeadingOn, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

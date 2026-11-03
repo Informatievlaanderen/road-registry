@@ -1,4 +1,4 @@
-namespace RoadRegistry.Infrastructure.MartenDb.Projections;
+﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -13,16 +13,21 @@ using Microsoft.Extensions.Logging;
 //
 // The scope is deliberately narrow: only tables in the schemas this DbContext maps, only non-clustered indexes, and
 // never a unique index or one backing a constraint (disabling those would take the constraint with it). The clustered
-// index is left alone - disabling it would make the table itself unreadable.
+// index is left alone - disabling it would make the table itself unreadable. A caller may narrow it further by naming
+// the leading key columns whose indexes are the projection's own read path and have to survive the catch-up.
 internal static class SqlServerIndexMaintenance
 {
     private const int NoTimeout = 0;
 
     private const string SelectIndexesSql = """
-        SELECT s.name AS SchemaName, t.name AS TableName, i.name AS IndexName
+        SELECT s.name AS SchemaName, t.name AS TableName, i.name AS IndexName, c.name AS LeadingColumnName
         FROM sys.indexes i
         INNER JOIN sys.tables t ON t.object_id = i.object_id
         INNER JOIN sys.schemas s ON s.schema_id = t.schema_id
+        -- Left, not inner: an index without a key column at ordinal 1 (a columnstore, say) has no leading column to
+        -- spare it, and must still come back so it is disabled rather than silently kept.
+        LEFT JOIN sys.index_columns ic ON ic.object_id = i.object_id AND ic.index_id = i.index_id AND ic.key_ordinal = 1
+        LEFT JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id
         WHERE s.name IN ({0})
           AND i.name IS NOT NULL
           AND i.type_desc <> 'CLUSTERED'
@@ -32,9 +37,20 @@ internal static class SqlServerIndexMaintenance
           AND i.is_disabled = {1}
         """;
 
-    public static async Task<int> DisableAsync(DbContext context, ILogger logger, CancellationToken cancellationToken)
+    public static async Task<int> DisableAsync(DbContext context, ILogger logger, IReadOnlyCollection<string> keepLeadingOn, CancellationToken cancellationToken)
     {
-        var indexes = await FindAsync(context, disabled: false, cancellationToken).ConfigureAwait(false);
+        var found = await FindAsync(context, disabled: false, cancellationToken).ConfigureAwait(false);
+
+        var spared = keepLeadingOn.Count == 0
+            ? []
+            : found.Where(x => x.LeadingColumnName is not null && keepLeadingOn.Contains(x.LeadingColumnName, StringComparer.OrdinalIgnoreCase)).ToList();
+        if (spared.Count > 0)
+        {
+            logger.LogInformation("Keeping {Count} index(es) in place, leading on a column this projection reads by: {Indexes}",
+                spared.Count, string.Join(", ", spared.Select(x => x.IndexName)));
+        }
+
+        var indexes = found.Except(spared).ToList();
         if (indexes.Count == 0)
         {
             return 0;
@@ -124,7 +140,8 @@ internal static class SqlServerIndexMaintenance
             await using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
             while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
             {
-                results.Add(new IndexReference(reader.GetString(0), reader.GetString(1), reader.GetString(2)));
+                results.Add(new IndexReference(reader.GetString(0), reader.GetString(1), reader.GetString(2),
+                    reader.IsDBNull(3) ? null : reader.GetString(3)));
             }
 
             return results;
@@ -152,5 +169,5 @@ internal static class SqlServerIndexMaintenance
         }
     }
 
-    private sealed record IndexReference(string SchemaName, string TableName, string IndexName);
+    private sealed record IndexReference(string SchemaName, string TableName, string IndexName, string? LeadingColumnName);
 }
