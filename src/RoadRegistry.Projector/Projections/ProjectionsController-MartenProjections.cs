@@ -384,14 +384,32 @@ public partial class ProjectionsController
         CancellationToken cancellationToken)
         where TContext : Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.RunnerDbContext<TContext>
     {
-        foreach (var qualifiedName in GetTablesToTruncate(context, excludeEntity))
+        var tables = GetTablesToTruncate(context, excludeEntity);
+
+        // All of it in one transaction. TRUNCATE and view DDL are both transactional in SQL Server, so a process that
+        // dies between dropping a view and recreating it leaves the read model exactly as it was - views included -
+        // rather than without the views that serve it. The views are the read model's only copy of their own
+        // definition once dropped, which is what makes that worth insisting on.
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+
+        // A view WITH SCHEMABINDING blocks TRUNCATE on everything it is bound to, so the serving views come off
+        // first and go back on at the end - recreated from the definition the server itself just handed us, never
+        // from a copy in this repository that could have gone stale. See SqlServerViewMaintenance.
+        var views = await SqlServerViewMaintenance.CaptureAsync(context, tables, cancellationToken);
+        await SqlServerViewMaintenance.DropAsync(context, views, _logger, cancellationToken);
+
+        foreach (var qualifiedName in tables)
         {
             _logger.LogInformation("Rebuilding {ProjectionName}: truncating table {Table}.", projectionName, qualifiedName);
             await context.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE {qualifiedName};", cancellationToken);
         }
 
+        await SqlServerViewMaintenance.RecreateAsync(context, views, _logger, cancellationToken);
+
         await context.ProjectionStates
             .Where(x => x.Name == projectionName)
             .ExecuteDeleteAsync(cancellationToken);
+
+        await transaction.CommitAsync(cancellationToken);
     }
 }
