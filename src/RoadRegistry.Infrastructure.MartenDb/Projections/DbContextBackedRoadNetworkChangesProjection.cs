@@ -66,12 +66,16 @@ public abstract class DbContextBackedRoadNetworkChangesProjection<TDbContext> : 
 
         // The connection is configured to retry, which means this delegate can run more than once. Clearing the change
         // tracker at the top of each attempt is what makes a retry start from the same place the first attempt did.
+        //
+        // The token goes to the strategy as well as into the batch. Without it the retry loop backs off on
+        // CancellationToken.None, so a host that is shutting down first waits out the delay and then runs another
+        // attempt anyway - and the batch it hands to that attempt is cancelled, which is not a failure worth retrying.
         var strategy = context.Database.CreateExecutionStrategy();
-        await strategy.ExecuteAsync(async () =>
+        await strategy.ExecuteAsync(async token =>
         {
             context.ChangeTracker.Clear();
-            await ApplyBatchAsync(context, correlationWork, pageMaxSequence, cancellationToken).ConfigureAwait(false);
-        }).ConfigureAwait(false);
+            await ApplyBatchAsync(context, correlationWork, pageMaxSequence, token).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task ApplyBatchAsync(TDbContext context, IReadOnlyList<CorrelationWorkItem> correlationWork, long pageMaxSequence, CancellationToken cancellationToken)
