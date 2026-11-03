@@ -167,11 +167,13 @@ internal static class Comparers
 
         await using var command = marten.CreateCommand();
         command.CommandText = $"""
-            select (doc.data ->> 'roadSegmentId')::int as id,
+            select doc.id as stream_key,
+                   (doc.data ->> 'roadSegmentId')::int as id,
                    coalesce(doc.data ->> 'isRemoved', '-') as is_removed,
                    coalesce(doc.data ->> 'status', '-') as status,
                    coalesce(doc.data ->> 'geometryDrawMethod', '-') as draw_method,
                    doc.mt_last_modified
+                   -- draw_method blijft in de select staan zodat de kolomindexen hierboven kloppen
             from {EventStoreSchema}.mt_doc_roadsegment doc
             where (doc.data ->> 'roadSegmentId')::int = any(string_to_array(@ids, ',')::int[])
             order by id
@@ -181,13 +183,13 @@ internal static class Comparers
         parameter.Value = string.Join(",", ids);
         command.Parameters.Add(parameter);
 
-        Console.WriteLine($"{"id",12} {"isRemoved",10} {"status",-16} {"methode",-14} laatst gewijzigd");
+        Console.WriteLine($"{"streamkey",28} {"id",12} {"isRemoved",10} {"status",-16} laatst gewijzigd");
         await using var reader = await command.ExecuteReaderAsync(ct);
         var found = 0;
         while (await reader.ReadAsync(ct))
         {
             found++;
-            Console.WriteLine($"{reader.GetInt32(0),12} {reader.GetString(1),10} {reader.GetString(2),-16} {reader.GetString(3),-14} {reader.GetFieldValue<DateTimeOffset>(4):yyyy-MM-dd HH:mm}");
+            Console.WriteLine($"{reader.GetString(0),28} {reader.GetInt32(1),12} {reader.GetString(2),10} {reader.GetString(3),-16} {reader.GetFieldValue<DateTimeOffset>(5):yyyy-MM-dd HH:mm}");
         }
 
         Console.WriteLine($"({found} van {ids.Count} gevraagde id's hebben een document)");
