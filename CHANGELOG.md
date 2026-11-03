@@ -1,3 +1,10 @@
+## [5.29.4](https://github.com/informatievlaanderen/road-registry/compare/v5.29.3...v5.29.4) (2026-11-03)
+
+
+### Bug Fixes
+
+* **projector:** let a rebuild drop and recreate the views that serve the read model ([e93adf3](https://github.com/informatievlaanderen/road-registry/commit/e93adf363675e5299188d1bb3eddf2d1feef5104))
+
 ## [5.29.3](https://github.com/informatievlaanderen/road-registry/compare/v5.29.2...v5.29.3) (2026-11-03)
 
 
