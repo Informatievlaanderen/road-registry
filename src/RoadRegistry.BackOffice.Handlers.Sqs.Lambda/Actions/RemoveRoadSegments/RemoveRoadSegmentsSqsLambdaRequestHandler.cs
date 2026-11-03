@@ -70,11 +70,6 @@ public sealed class RemoveRoadSegmentsSqsLambdaRequestHandler : MartenSqsLambdaH
 
     private async Task<ScopedRoadNetwork> Load(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
     {
-        var ids = await _roadNetworkRepository.GetUnderlyingIdsWithConnectedSegments(session, roadSegmentIds);
-        return await _roadNetworkRepository.Load(
-            session,
-            ids,
-            roadNetworkId
-        );
+        return await _roadNetworkRepository.LoadWithConnectedSegments(session, roadSegmentIds, roadNetworkId);
     }
 }

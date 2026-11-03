@@ -79,7 +79,6 @@ public sealed class ChangeGradeSeparatedJunctionToGradeJunctionSqsLambdaRequestH
     // Seeded from the grade separated junction, which brings in the two road segments it is about.
     private async Task<ScopedRoadNetwork> Load(IDocumentSession session, GradeSeparatedJunctionId gradeSeparatedJunctionId, ScopedRoadNetworkId roadNetworkId)
     {
-        var ids = await _roadNetworkRepository.GetUnderlyingIds(session, ids: new RoadNetworkIds([], [], [gradeSeparatedJunctionId], []));
-        return await _roadNetworkRepository.Load(session, ids, roadNetworkId);
+        return await _roadNetworkRepository.LoadUnderlying(session, roadNetworkId, ids: new RoadNetworkIds([], [], [gradeSeparatedJunctionId], []));
     }
 }

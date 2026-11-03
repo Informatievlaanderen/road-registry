@@ -12,12 +12,13 @@ using RoadRegistry.GradeJunction;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadSegment;
 using ScopedRoadNetwork;
+using ScopedRoadNetwork.ValueObjects;
 using Xunit.Abstractions;
 
 [Collection(nameof(DockerFixtureCollection))]
-public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
+public class WhenLoadUnderlying : RoadNetworkIntegrationTest
 {
-    public WhenGetUnderlyingIds(DatabaseFixture databaseFixture, ITestOutputHelper testOutputHelper)
+    public WhenLoadUnderlying(DatabaseFixture databaseFixture, ITestOutputHelper testOutputHelper)
         : base(databaseFixture, testOutputHelper)
     {
     }
@@ -29,7 +30,7 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var sp = await BuildServiceProvider();
 
         // Act
-        var act = () => GetUnderlyingIds(sp);
+        var act = () => LoadUnderlyingIds(sp);
 
         // Assert
         await act.Should().ThrowAsync<ArgumentException>();
@@ -73,13 +74,15 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), gradeSeparatedJunctionIntersecting.GradeSeparatedJunctionId), gradeSeparatedJunctionIntersecting);
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeJunction), gradeJunctionIntersecting.GradeJunctionId), gradeJunctionIntersecting);
 
+            AppendRoadNodes(session, 1, 2);
+
             await session.SaveChangesAsync();
         }
 
         var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).Value;
 
         // Act
-        var ids = await GetUnderlyingIds(sp, requestGeometry);
+        var ids = await LoadUnderlyingIds(sp, requestGeometry);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
@@ -158,13 +161,15 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeJunction), gradeJunctionPartiallyInside.GradeJunctionId), gradeJunctionPartiallyInside);
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeJunction), gradeJunctionCompleteOutside.GradeJunctionId), gradeJunctionCompleteOutside);
 
+            AppendRoadNodes(session, 1, 2);
+
             await session.SaveChangesAsync();
         }
 
         var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).Value;
 
         // Act
-        var ids = await GetUnderlyingIds(sp, requestGeometry);
+        var ids = await LoadUnderlyingIds(sp, requestGeometry);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
@@ -270,7 +275,7 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var requestIds = new RoadNetworkIds([new(middleNodeId)], [], [], []);
 
         // Act
-        var ids = await GetUnderlyingIds(sp, ids: requestIds);
+        var ids = await LoadUnderlyingIds(sp, ids: requestIds);
 
         // Assert
         ids.RoadNodeIds.Should().Contain(new RoadNodeId(middleNodeId),
@@ -315,6 +320,8 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), gradeSeparatedJunction.GradeSeparatedJunctionId), gradeSeparatedJunction);
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeJunction), gradeJunction.GradeJunctionId), gradeJunction);
 
+            AppendRoadNodes(session, 1, 2);
+
             await session.SaveChangesAsync();
         }
 
@@ -325,7 +332,7 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             ,[]);
 
         // Act
-        var ids = await GetUnderlyingIds(sp, ids: requestIds);
+        var ids = await LoadUnderlyingIds(sp, ids: requestIds);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
@@ -374,6 +381,8 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), gradeSeparatedJunction.GradeSeparatedJunctionId), gradeSeparatedJunction);
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeJunction), gradeJunction.GradeJunctionId), gradeJunction);
 
+            AppendRoadNodes(session, 1, 2);
+
             await session.SaveChangesAsync();
         }
 
@@ -384,7 +393,7 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             ,[]);
 
         // Act
-        var ids = await GetUnderlyingIds(sp, ids: requestIds);
+        var ids = await LoadUnderlyingIds(sp, ids: requestIds);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
@@ -433,6 +442,8 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), gradeSeparatedJunction.GradeSeparatedJunctionId), gradeSeparatedJunction);
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeJunction), gradeJunction.GradeJunctionId), gradeJunction);
 
+            AppendRoadNodes(session, 1, 2);
+
             await session.SaveChangesAsync();
         }
 
@@ -443,7 +454,7 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             ,[]);
 
         // Act
-        var ids = await GetUnderlyingIds(sp, ids: requestIds);
+        var ids = await LoadUnderlyingIds(sp, ids: requestIds);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
@@ -492,6 +503,8 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), gradeSeparatedJunction.GradeSeparatedJunctionId), gradeSeparatedJunction);
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeJunction), gradeJunction.GradeJunctionId), gradeJunction);
 
+            AppendRoadNodes(session, 1, 2);
+
             await session.SaveChangesAsync();
         }
 
@@ -502,7 +515,7 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             [new(1)]);
 
         // Act
-        var ids = await GetUnderlyingIds(sp, ids: requestIds);
+        var ids = await LoadUnderlyingIds(sp, ids: requestIds);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
@@ -553,6 +566,8 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), gradeSeparatedJunctionIntersecting.GradeSeparatedJunctionId), gradeSeparatedJunctionIntersecting);
         session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeJunction), gradeJunctionIntersecting.GradeJunctionId), gradeJunctionIntersecting);
 
+        AppendRoadNodes(session, 1, 2, 3, 4);
+
         await session.SaveChangesAsync();
 
         var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).Value;
@@ -563,7 +578,7 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             []);
 
         // Act
-        var ids = await GetUnderlyingIds(sp, requestGeometry, requestIds);
+        var ids = await LoadUnderlyingIds(sp, requestGeometry, requestIds);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
@@ -617,6 +632,8 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), removedRoadSegment.RoadSegmentId), removedRoadSegment);
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), removedGradeSeparatedJunction.GradeSeparatedJunctionId), removedGradeSeparatedJunction);
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeJunction), removedGradeJunction.GradeJunctionId), removedGradeJunction);
+            AppendRoadNodes(session, 1, 2, 3, 4);
+
             await session.SaveChangesAsync();
         }
 
@@ -645,7 +662,7 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
             [removedGradeJunction.GradeJunctionId]);
 
         // Act
-        var ids = await GetUnderlyingIds(sp, requestGeometry, requestIds);
+        var ids = await LoadUnderlyingIds(sp, requestGeometry, requestIds);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
@@ -701,7 +718,7 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).Value;
 
         // Act
-        var ids = await GetUnderlyingIds(sp, requestGeometry);
+        var ids = await LoadUnderlyingIds(sp, requestGeometry);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
@@ -712,12 +729,13 @@ public class WhenGetUnderlyingIds : RoadNetworkIntegrationTest
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
-    private async Task<RoadNetworkIds> GetUnderlyingIds(IServiceProvider sp, Geometry? geometry = null, RoadNetworkIds? ids = null)
+    // What the load takes, by id.
+    private async Task<RoadNetworkIds> LoadUnderlyingIds(IServiceProvider sp, Geometry? geometry = null, RoadNetworkIds? ids = null)
     {
         var store = sp.GetRequiredService<IDocumentStore>();
         var repo = sp.GetRequiredService<IRoadNetworkRepository>();
 
         await using var session = store.LightweightSession();
-        return await repo.GetUnderlyingIds(session, geometry, ids);
+        return IdsOf(await repo.LoadUnderlying(session, new ScopedRoadNetworkId(Guid.NewGuid()), geometry, ids));
     }
 }

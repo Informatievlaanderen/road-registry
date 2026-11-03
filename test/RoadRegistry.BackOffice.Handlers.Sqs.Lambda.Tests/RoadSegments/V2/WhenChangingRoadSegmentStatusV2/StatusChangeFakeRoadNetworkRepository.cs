@@ -26,17 +26,17 @@ internal sealed class StatusChangeFakeRoadNetworkRepository : IRoadNetworkReposi
         _segments = segments;
     }
 
-    public Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry? geometry = null, RoadNetworkIds? ids = null)
+    public Task<ScopedRoadNetwork> LoadUnderlying(IDocumentSession session, ScopedRoadNetworkId roadNetworkId, Geometry? geometry = null, RoadNetworkIds? ids = null)
     {
         var scoped = _segments
             .Where(x => ids is not null && ids.RoadSegmentIds.Contains(x.RoadSegmentId)
                         || geometry is not null && x.Geometry.Value.Intersects(geometry))
             .ToList();
 
-        return Task.FromResult(ToIds(scoped));
+        return Load(session, ToIds(scoped), roadNetworkId);
     }
 
-    public Task<RoadNetworkIds> GetUnderlyingIdsWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds)
+    public Task<ScopedRoadNetwork> LoadWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
     {
         var nodeIds = _segments
             .Where(x => roadSegmentIds.Contains(x.RoadSegmentId))
@@ -47,7 +47,7 @@ internal sealed class StatusChangeFakeRoadNetworkRepository : IRoadNetworkReposi
             .Where(x => roadSegmentIds.Contains(x.RoadSegmentId) || NodeIdsOf(x).Any(nodeIds.Contains))
             .ToList();
 
-        return Task.FromResult(ToIds(connected));
+        return Load(session, ToIds(connected), roadNetworkId);
     }
 
     public Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, ScopedRoadNetworkId roadNetworkId)
@@ -78,7 +78,10 @@ internal sealed class StatusChangeFakeRoadNetworkRepository : IRoadNetworkReposi
     public void Save(IDocumentSession session, ScopedRoadNetwork roadNetwork, string commandName)
         => _real.Save(session, roadNetwork, commandName);
 
-    public Task<RoadNetworkIds> GetUnderlyingIdsForExtract(IDocumentSession session, Geometry geometry)
+    public Task<RoadNetworkExtractDocuments<TRoadNode, TRoadSegment, TGradeSeparatedJunction>> LoadForExtract<TRoadNode, TRoadSegment, TGradeSeparatedJunction>(IDocumentSession session, Geometry geometry)
+        where TRoadNode : class
+        where TRoadSegment : class
+        where TGradeSeparatedJunction : class
         => throw new NotImplementedException();
 
     public Task Save(ScopedRoadNetwork roadNetwork, string commandName, CancellationToken cancellationToken)

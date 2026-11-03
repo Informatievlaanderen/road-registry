@@ -103,8 +103,7 @@ public class ForDebugging
         await using var session = store.LightweightSession();
         var repository = new RoadNetworkRepository(store);
 
-        var ids = await repository.GetUnderlyingIds(session, ids: new RoadNetworkIds([], [roadSegmentId], [], []));
-        var roadNetwork = await repository.Load(session, ids, new ScopedRoadNetworkId(Guid.NewGuid()));
+        var roadNetwork = await repository.LoadUnderlying(session, new ScopedRoadNetworkId(Guid.NewGuid()), ids: new RoadNetworkIds([], [roadSegmentId], [], []));
 
         if (!roadNetwork.RoadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {

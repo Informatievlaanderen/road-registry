@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using FluentAssertions;
 using Hosts;
+using Marten;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +19,7 @@ using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.DataValidation;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.RoadNetwork.Schema;
 using ScopedRoadNetwork;
@@ -103,6 +105,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
             .AddMartenRoad(options =>
             {
                 options.AddRoadAggregatesSnapshots();
+                ConfigureMarten(options);
             }).Services
             .AddMartenDatabaseMigrator()
             .AddSingleton<IRoadNetworkIdGenerator>(new InMemoryRoadNetworkIdGenerator())
@@ -123,6 +126,37 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
 
     protected virtual void ConfigureServices(IServiceCollection services)
     {
+    }
+
+    protected virtual void ConfigureMarten(StoreOptions options)
+    {
+    }
+
+    // A road node document for each id, the way the road segments in a test expect them to be there.
+    protected static void AppendRoadNodes(IDocumentSession session, params int[] roadNodeIds)
+    {
+        foreach (var roadNodeId in roadNodeIds)
+        {
+            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadRegistry.RoadNode.RoadNode), new RoadNodeId(roadNodeId)),
+                new RoadRegistry.RoadNode.Events.V2.RoadNodeWasAdded
+                {
+                    RoadNodeId = new RoadNodeId(roadNodeId),
+                    Geometry = RoadNodeGeometry.Create(new Point(roadNodeId, 0) { SRID = WellknownSrids.Lambert72 }),
+                    Type = RoadNodeTypeV2.EchteKnoop,
+                    Grensknoop = false,
+                    Provenance = new RoadRegistryProvenanceData()
+                });
+        }
+    }
+
+    // The ids of what a road network was loaded with, to compare what a load takes against what is expected.
+    protected static RoadNetworkIds IdsOf(ScopedRoadNetwork roadNetwork)
+    {
+        return new RoadNetworkIds(
+            roadNetwork.RoadNodes.Keys.ToArray(),
+            roadNetwork.RoadSegments.Keys.ToArray(),
+            roadNetwork.GradeSeparatedJunctions.Keys.ToArray(),
+            roadNetwork.GradeJunctions.Keys.ToArray());
     }
 
     // The ticket id the mock recorded is a Guid. A TicketId is not equal to one - it only converts to one - so the

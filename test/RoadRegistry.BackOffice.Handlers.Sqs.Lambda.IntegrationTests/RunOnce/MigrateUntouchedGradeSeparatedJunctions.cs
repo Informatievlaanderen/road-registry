@@ -68,8 +68,7 @@ public class MigrateUntouchedGradeSeparatedJunctions
         {
             await using var session = store.LightweightSession();
 
-            var ids = await repository.GetUnderlyingIds(session, ids: new RoadNetworkIds([], [], batch, []));
-            var roadNetwork = await repository.Load(session, ids, new ScopedRoadNetworkId(Guid.NewGuid()));
+            var roadNetwork = await repository.LoadUnderlying(session, new ScopedRoadNetworkId(Guid.NewGuid()), ids: new RoadNetworkIds([], [], batch, []));
             var extractItems = (await session.LoadManyAsync<GradeSeparatedJunctionExtractItem>(batch.Select(x => x.ToInt32())))
                 .ToDictionary(x => x.GradeSeparatedJunctionId);
 

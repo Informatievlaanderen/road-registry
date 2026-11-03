@@ -176,13 +176,20 @@ public class ZipArchiveDataSessionTests
 
         public FakeRoadNetworkRepository(RoadNetworkIds ids) => _ids = ids;
 
-        public Task<RoadNetworkIds> GetUnderlyingIdsForExtract(Marten.IDocumentSession session, Geometry geometry)
-            => Task.FromResult(_ids);
+        // The documents with the ids the fake was given, as the real repository takes the extract documents by id.
+        public async Task<RoadNetworkExtractDocuments<TRoadNode, TRoadSegment, TGradeSeparatedJunction>> LoadForExtract<TRoadNode, TRoadSegment, TGradeSeparatedJunction>(Marten.IDocumentSession session, Geometry geometry)
+            where TRoadNode : class
+            where TRoadSegment : class
+            where TGradeSeparatedJunction : class
+            => new(
+                await session.LoadManyAsync<TRoadNode>(CancellationToken.None, _ids.RoadNodeIds.Select(x => x.ToInt32()).ToArray()),
+                await session.LoadManyAsync<TRoadSegment>(CancellationToken.None, _ids.RoadSegmentIds.Select(x => x.ToInt32()).ToArray()),
+                await session.LoadManyAsync<TGradeSeparatedJunction>(CancellationToken.None, _ids.GradeSeparatedJunctionIds.Select(x => x.ToInt32()).ToArray()));
 
-        public Task<RoadNetworkIds> GetUnderlyingIds(Marten.IDocumentSession session, Geometry? geometry = null, RoadNetworkIds? ids = null)
+        public Task<ScopedRoadNetwork> LoadUnderlying(Marten.IDocumentSession session, ScopedRoadNetworkId roadNetworkId, Geometry? geometry = null, RoadNetworkIds? ids = null)
             => throw new NotImplementedException();
 
-        public Task<RoadNetworkIds> GetUnderlyingIdsWithConnectedSegments(Marten.IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds)
+        public Task<ScopedRoadNetwork> LoadWithConnectedSegments(Marten.IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
             => throw new NotImplementedException();
 
         public Task<ScopedRoadNetwork> Load(Marten.IDocumentSession session, RoadNetworkIds ids, ScopedRoadNetworkId roadNetworkId)

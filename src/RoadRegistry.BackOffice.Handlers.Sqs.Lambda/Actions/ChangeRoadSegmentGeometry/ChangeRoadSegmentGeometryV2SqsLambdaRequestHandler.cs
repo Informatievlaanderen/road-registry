@@ -103,8 +103,7 @@ public sealed class ChangeRoadSegmentGeometryV2SqsLambdaRequestHandler : MartenS
             var geometry = roadSegment.Geometry.Value.Buffer(lineStringBuffer)
                 .Union(command.Geometry.Value.Buffer(lineStringBuffer))
                 .WithSrid(roadSegment.Geometry.SRID);
-            var ids = await _roadNetworkRepository.GetUnderlyingIds(session, geometry);
-            var roadNetwork = await _roadNetworkRepository.Load(session, ids, scopedRoadNetworkId);
+            var roadNetwork = await _roadNetworkRepository.LoadUnderlying(session, scopedRoadNetworkId, geometry);
 
             // The street name and the maintenance authority live outside the road network, so they are validated here
             // before the domain is called: the street name against the street name registry and the maintenance

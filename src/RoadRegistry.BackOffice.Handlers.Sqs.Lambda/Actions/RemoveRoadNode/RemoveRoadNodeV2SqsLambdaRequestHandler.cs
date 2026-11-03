@@ -16,6 +16,7 @@ using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.Events.V2;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects;
+using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 using TicketingService.Abstractions;
 
 public sealed class RemoveRoadNodeV2SqsLambdaRequestHandler : MartenSqsLambdaHandler<RemoveRoadNodeV2SqsLambdaRequest>
@@ -88,15 +89,21 @@ public sealed class RemoveRoadNodeV2SqsLambdaRequestHandler : MartenSqsLambdaHan
     // look and is only known once they are loaded, which is what the first pass is for - a handful of road segments.
     private async Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNodeId roadNodeId, ScopedRoadNetworkId roadNetworkId)
     {
-        var connectedIds = await _roadNetworkRepository.GetUnderlyingIds(session, ids: new RoadNetworkIds([roadNodeId], [], [], []));
+        var connected = await _roadNetworkRepository.LoadUnderlying(session, roadNetworkId, ids: new RoadNetworkIds([roadNodeId], [], [], []));
 
-        var alongTheMergedRoad = await GetAreaAroundRoadSegments(session, connectedIds.RoadSegmentIds);
+        var alongTheMergedRoad = GetAreaAroundRoadSegments(connected.RoadSegments.Values);
+        if (alongTheMergedRoad is null)
+        {
+            return connected;
+        }
 
-        var ids = alongTheMergedRoad is not null
-            ? await _roadNetworkRepository.GetUnderlyingIds(session, alongTheMergedRoad, ids: connectedIds)
-            : connectedIds;
+        var connectedIds = new RoadNetworkIds(
+            connected.RoadNodes.Keys.ToArray(),
+            connected.RoadSegments.Keys.ToArray(),
+            connected.GradeSeparatedJunctions.Keys.ToArray(),
+            connected.GradeJunctions.Keys.ToArray());
 
-        return await _roadNetworkRepository.Load(session, ids, roadNetworkId);
+        return await _roadNetworkRepository.LoadUnderlying(session, roadNetworkId, alongTheMergedRoad, connectedIds);
     }
 
     // How far around the roads that are becoming one to look. Slack rather than a threshold: the checks that follow
@@ -107,14 +114,9 @@ public sealed class RemoveRoadNodeV2SqsLambdaRequestHandler : MartenSqsLambdaHan
     // The ground the road segments hanging off the road node cover, as one area to look around in. Null when there
     // are none to speak of: a road node without roads is not one this action can do anything with, and the domain
     // says so for itself.
-    private static async Task<Geometry?> GetAreaAroundRoadSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds)
+    private static Geometry? GetAreaAroundRoadSegments(IEnumerable<RoadSegment> roadSegments)
     {
-        if (roadSegmentIds.Count == 0)
-        {
-            return null;
-        }
-
-        var geometries = (await session.LoadManyAsync(roadSegmentIds))
+        var geometries = roadSegments
             .Where(x => !x.IsRemoved)
             .Select(x => x.Geometry)
             .ToArray();

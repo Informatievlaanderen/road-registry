@@ -71,8 +71,7 @@ public sealed class ChangeRoadSegmentStatusV2SqsLambdaRequestHandler : MartenSqs
 
         await Store.IdempotentSession(command, async session =>
         {
-            var ids = await GetUnderlyingIds(session, command, cancellationToken);
-            var roadNetwork = await _roadNetworkRepository.Load(session, ids, scopedRoadNetworkId);
+            var roadNetwork = await Load(session, command, scopedRoadNetworkId, cancellationToken);
 
             var problems = await ValidateInwinningIsCompleted(roadNetwork, command.RoadSegmentId, cancellationToken);
             problems.ThrowIfError();
@@ -94,7 +93,7 @@ public sealed class ChangeRoadSegmentStatusV2SqsLambdaRequestHandler : MartenSqs
 
     // How far around the segment the domain has to be able to see depends on what the status change does to the
     // topology.
-    private async Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, ChangeRoadSegmentStatusV2SqsRequest command, CancellationToken cancellationToken)
+    private async Task<ScopedRoadNetwork> Load(IDocumentSession session, ChangeRoadSegmentStatusV2SqsRequest command, ScopedRoadNetworkId roadNetworkId, CancellationToken cancellationToken)
     {
         if (command.StatusChange.Connects)
         {
@@ -109,7 +108,7 @@ public sealed class ChangeRoadSegmentStatusV2SqsLambdaRequestHandler : MartenSqs
             }
 
             var geometry = roadSegment.Geometry.Value.Buffer(Distances.RoadSegmentRealizeMaximumDistanceToRoadNode + 0.5 /*buffer to get connected segments*/);
-            return await _roadNetworkRepository.GetUnderlyingIds(session, geometry);
+            return await _roadNetworkRepository.LoadUnderlying(session, roadNetworkId, geometry);
         }
 
         if (command.StatusChange.Disconnects)
@@ -117,11 +116,11 @@ public sealed class ChangeRoadSegmentStatusV2SqsLambdaRequestHandler : MartenSqs
             // A realized segment is knotted into the network, so everything this action touches is reachable through
             // its road nodes: the segment itself, the nodes at either end, the segments hanging off them - which is
             // what decides whether a node survives - and the junctions it takes part in.
-            return await _roadNetworkRepository.GetUnderlyingIdsWithConnectedSegments(session, [command.RoadSegmentId]);
+            return await _roadNetworkRepository.LoadWithConnectedSegments(session, [command.RoadSegmentId], roadNetworkId);
         }
 
         // The segment is outside the network before and after, so nothing around it is touched or consulted.
-        return await _roadNetworkRepository.GetUnderlyingIds(session, ids: new RoadNetworkIds([], [command.RoadSegmentId], [], []));
+        return await _roadNetworkRepository.LoadUnderlying(session, roadNetworkId, ids: new RoadNetworkIds([], [command.RoadSegmentId], [], []));
     }
 
     // A road segment may only be edited once its inwinning is done: one that is still being collected, or that is not

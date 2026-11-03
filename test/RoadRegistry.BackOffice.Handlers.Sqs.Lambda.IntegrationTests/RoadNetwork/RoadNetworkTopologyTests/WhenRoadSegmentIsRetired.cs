@@ -8,6 +8,7 @@ using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadSegment;
 using ScopedRoadNetwork;
+using ScopedRoadNetwork.ValueObjects;
 using Xunit.Abstractions;
 
 // A road segment retired by a merger or a split is historized, not removed. The topology projection used to delete it,
@@ -32,7 +33,7 @@ public class WhenRoadSegmentIsRetired : RoadNetworkIntegrationTest
         await AddRoadSegment(store, 1);
         await Append(store, 1, Retired(retiredEvent, 1));
 
-        var ids = await GetUnderlyingIds(sp);
+        var ids = await LoadUnderlyingIds(sp);
 
         ids.RoadSegmentIds.Should().BeEquivalentTo([new RoadSegmentId(1)]);
         ids.RoadNodeIds.Should().BeEmpty();
@@ -74,12 +75,12 @@ public class WhenRoadSegmentIsRetired : RoadNetworkIntegrationTest
         await session.SaveChangesAsync();
     }
 
-    private static async Task<RoadNetworkIds> GetUnderlyingIds(IServiceProvider sp)
+    private static async Task<RoadNetworkIds> LoadUnderlyingIds(IServiceProvider sp)
     {
         var store = sp.GetRequiredService<IDocumentStore>();
         var repository = sp.GetRequiredService<IRoadNetworkRepository>();
 
         await using var session = store.LightweightSession();
-        return await repository.GetUnderlyingIds(session, BuildRoadSegmentGeometry(5, -5, 5, 5).Value);
+        return IdsOf(await repository.LoadUnderlying(session, new ScopedRoadNetworkId(Guid.NewGuid()), BuildRoadSegmentGeometry(5, -5, 5, 5).Value));
     }
 }

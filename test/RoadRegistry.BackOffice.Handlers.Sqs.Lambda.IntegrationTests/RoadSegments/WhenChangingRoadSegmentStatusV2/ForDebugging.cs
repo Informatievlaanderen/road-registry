@@ -26,6 +26,7 @@ using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.Infrastructure.MartenDb.Store;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
+using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using TicketingService.Abstractions;
@@ -124,13 +125,13 @@ public class ForDebugging
         _outputHelper.WriteLine($"  Geometry:   {roadSegment.Geometry.WKT}");
 
         var geometry = roadSegment.Geometry.Value.Buffer(Distances.RoadSegmentRealizeMaximumDistanceToRoadNode + 0.5);
-        var ids = await new RoadNetworkRepository(store).GetUnderlyingIds(session, geometry);
+        var scope = await new RoadNetworkRepository(store).LoadUnderlying(session, new ScopedRoadNetworkId(Guid.NewGuid()), geometry);
 
         _outputHelper.WriteLine("Scope:");
-        _outputHelper.WriteLine($"  RoadNodes:               {string.Join(", ", ids.RoadNodeIds)}");
-        _outputHelper.WriteLine($"  RoadSegments:            {string.Join(", ", ids.RoadSegmentIds)}");
-        _outputHelper.WriteLine($"  GradeSeparatedJunctions: {string.Join(", ", ids.GradeSeparatedJunctionIds)}");
-        _outputHelper.WriteLine($"  GradeJunctions:          {string.Join(", ", ids.GradeJunctionIds)}");
+        _outputHelper.WriteLine($"  RoadNodes:               {string.Join(", ", scope.RoadNodes.Keys)}");
+        _outputHelper.WriteLine($"  RoadSegments:            {string.Join(", ", scope.RoadSegments.Keys)}");
+        _outputHelper.WriteLine($"  GradeSeparatedJunctions: {string.Join(", ", scope.GradeSeparatedJunctions.Keys)}");
+        _outputHelper.WriteLine($"  GradeJunctions:          {string.Join(", ", scope.GradeJunctions.Keys)}");
     }
 
     private void CaptureTicketOutcome()

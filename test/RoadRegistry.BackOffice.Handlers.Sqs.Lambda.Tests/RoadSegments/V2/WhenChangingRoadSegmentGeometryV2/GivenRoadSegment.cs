@@ -463,18 +463,18 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         public IReadOnlyList<RoadSegment> Segments => _segments;
 
         // Whatever was already in scope, plus everything the geometry runs into.
-        public Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry? geometry = null, RoadNetworkIds? ids = null)
+        public Task<ScopedRoadNetwork> LoadUnderlying(IDocumentSession session, ScopedRoadNetworkId roadNetworkId, Geometry? geometry = null, RoadNetworkIds? ids = null)
         {
             var scoped = _segments
                 .Where(x => ids is not null && ids.RoadSegmentIds.Contains(x.RoadSegmentId)
                             || geometry is not null && x.Geometry.Value.Intersects(geometry))
                 .ToList();
 
-            return Task.FromResult(ToIds(scoped));
+            return Load(session, ToIds(scoped), roadNetworkId);
         }
 
         // The segments reachable through the start and end node of the ones asked for.
-        public Task<RoadNetworkIds> GetUnderlyingIdsWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds)
+        public Task<ScopedRoadNetwork> LoadWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
         {
             var nodeIds = _segments
                 .Where(x => roadSegmentIds.Contains(x.RoadSegmentId))
@@ -485,7 +485,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
                 .Where(x => NodeIdsOf(x).Any(nodeIds.Contains))
                 .ToList();
 
-            return Task.FromResult(ToIds(connected));
+            return Load(session, ToIds(connected), roadNetworkId);
         }
 
         public Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, ScopedRoadNetworkId roadNetworkId)
@@ -504,7 +504,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
                 .Select(x => x!.Value);
         }
 
-        // A junction rides along with the segments it is on, the way the real query pulls it in with a left join.
+        // A junction rides along with the segments it is on, the way the real load takes the junctions lying on the segments in scope.
         private RoadNetworkIds ToIds(IReadOnlyCollection<RoadSegment> segments)
         {
             var segmentIds = segments.Select(x => x.RoadSegmentId).Distinct().ToArray();
@@ -522,7 +522,10 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         public void Save(IDocumentSession session, ScopedRoadNetwork roadNetwork, string commandName)
             => _real.Save(session, roadNetwork, commandName);
 
-        public Task<RoadNetworkIds> GetUnderlyingIdsForExtract(IDocumentSession session, Geometry geometry)
+        public Task<RoadNetworkExtractDocuments<TRoadNode, TRoadSegment, TGradeSeparatedJunction>> LoadForExtract<TRoadNode, TRoadSegment, TGradeSeparatedJunction>(IDocumentSession session, Geometry geometry)
+            where TRoadNode : class
+            where TRoadSegment : class
+            where TGradeSeparatedJunction : class
             => throw new NotImplementedException();
 
         public Task Save(ScopedRoadNetwork roadNetwork, string commandName, CancellationToken cancellationToken)
