@@ -1,3 +1,10 @@
+## [5.29.3](https://github.com/informatievlaanderen/road-registry/compare/v5.29.2...v5.29.3) (2026-11-03)
+
+
+### Performance Improvements
+
+* **projections:** give the WmsWfsV2 read model the batch prefetch and keep its id indexes ([3b9d886](https://github.com/informatievlaanderen/road-registry/commit/3b9d886719f799f8308eb783a46362413cc982a2))
+
 ## [5.29.2](https://github.com/informatievlaanderen/road-registry/compare/v5.29.1...v5.29.2) (2026-11-03)
 
 
