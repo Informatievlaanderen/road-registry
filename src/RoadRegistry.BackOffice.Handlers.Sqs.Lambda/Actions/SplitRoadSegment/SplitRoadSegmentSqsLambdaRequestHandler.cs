@@ -106,7 +106,6 @@ public sealed class SplitRoadSegmentSqsLambdaRequestHandler : MartenSqsLambdaHan
 
     private async Task<ScopedRoadNetwork> Load(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
     {
-        var ids = await _roadNetworkRepository.GetUnderlyingIds(session, ids: new RoadNetworkIds([], roadSegmentIds, [], []));
-        return await _roadNetworkRepository.Load(session, ids, roadNetworkId);
+        return await _roadNetworkRepository.LoadUnderlying(session, roadNetworkId, ids: new RoadNetworkIds([], roadSegmentIds, [], []));
     }
 }

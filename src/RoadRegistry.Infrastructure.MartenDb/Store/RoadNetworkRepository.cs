@@ -1,10 +1,13 @@
 namespace RoadRegistry.Infrastructure.MartenDb.Store;
 
-using Dapper;
+using GradeJunction;
+using GradeSeparatedJunction;
 using JasperFx.Events;
 using Marten;
+using Marten.Linq.MatchesSql;
 using NetTopologySuite.Geometries;
-using Projections;
+using RoadNode;
+using RoadSegment;
 using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
 
@@ -15,8 +18,8 @@ public class RoadNetworkRepository : IRoadNetworkRepository
     // (RoadSegmentFeatureCompareFeatureReader.ReadStatus), so anything else - gehistoreerd above all, which says
     // the road was opgeheven, samengevoegd or gesplitst - is left out, and so is everything removed.
     //
-    // A V1 road segment has no V2 status and is taken whatever state it is in; V1 removals delete the topology row,
-    // so a removed one is not there to begin with.
+    // A road segment that is not migrated yet is taken whatever its status: the one the aggregate carries was only
+    // derived from its geometry draw method when it was carried over from the legacy road network.
     //
     // The road nodes and the crossings come along per road segment, and each is left out when it is marked removed
     // itself: a crossing a merger or a split did away with still hangs off a road segment that is very much there.
@@ -33,123 +36,17 @@ public class RoadNetworkRepository : IRoadNetworkRepository
         Store = store;
     }
 
-    public async Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry? geometry = null, RoadNetworkIds? ids = null)
+    // A road network is loaded in one round trip: one batch, with a query per kind of document. Each query takes the
+    // documents that belong to the road segments in scope, and works out for itself which road segments those are -
+    // a subquery on the columns the 20261103120000_add_topology_columns_to_aggregate_documents migration generates on
+    // the aggregate documents. The scope is found among the documents themselves, so every entity in it has a
+    // document to load.
+    public async Task<ScopedRoadNetwork> LoadUnderlying(IDocumentSession session, ScopedRoadNetworkId roadNetworkId, Geometry? geometry = null, RoadNetworkIds? ids = null)
     {
         if ((geometry is null || geometry.IsEmpty) && (ids is null || ids.IsEmpty))
         {
             throw new ArgumentException("At least a geometry or ids must be specified.");
         }
-
-        var sql = $@"
-WITH
-input AS (
-  SELECT
-    -- Optional inputs (pass NULL or empty array when not used)
-    ST_SetSRID(ST_GeomFromText(@wkt), @srid)       AS boundary_geom,               -- may be NULL
-    @roadsegmentids::bigint[]                      AS roadsegmentids,              -- may be NULL/empty
-    @roadnodeids::bigint[]                         AS roadnodeids,                 -- may be NULL/empty
-    @gradeseparatedjunctionids::bigint[]           AS gradeseparatedjunctionids,   -- may be NULL/empty
-    @gradejunctionids::bigint[]                    AS gradejunctionids             -- may be NULL/empty
-),
-
-/* Seed segments = UNION of:
-   - spatial hits
-   - explicit roadsegmentids
-   - segments touched by roadnodeids (start/end)
-   - segments referenced by explicit gradeseparatedjunctionids (upper/lower)
-   - segments referenced by explicit gradejunctionids (1/2)
-*/
-seed_segments AS (
-  -- spatial
-  SELECT rs.id
-  FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
-  CROSS JOIN input i
-  WHERE i.boundary_geom IS NOT NULL
-    AND ST_Intersects(rs.geometry, i.boundary_geom)
-
-  UNION
-
-  -- roadsegmentids
-  SELECT rs.id
-  FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
-  CROSS JOIN input i
-  WHERE i.roadsegmentids IS NOT NULL
-    AND cardinality(i.roadsegmentids) > 0
-    AND rs.id = ANY(i.roadsegmentids)
-
-  UNION
-
-  -- roadnodeids
-  SELECT rs.id
-  FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
-  CROSS JOIN input i
-  WHERE i.roadnodeids IS NOT NULL
-    AND cardinality(i.roadnodeids) > 0
-    AND (rs.start_node_id = ANY(i.roadnodeids) OR rs.end_node_id = ANY(i.roadnodeids))
-
-  UNION
-
-  -- segments implied by gradeseparatedjunctionids
-  SELECT j.upper_road_segment_id
-  FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j
-  CROSS JOIN input i
-  WHERE i.gradeseparatedjunctionids IS NOT NULL
-    AND cardinality(i.gradeseparatedjunctionids) > 0
-    AND j.id = ANY(i.gradeseparatedjunctionids)
-
-  UNION
-
-  SELECT j.lower_road_segment_id
-  FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j
-  CROSS JOIN input i
-  WHERE i.gradeseparatedjunctionids IS NOT NULL
-    AND cardinality(i.gradeseparatedjunctionids) > 0
-    AND j.id = ANY(i.gradeseparatedjunctionids)
-
-  UNION
-
-  -- segments implied by gradejunctionids
-  SELECT j.road_segment_id_1
-  FROM {RoadNetworkTopologyProjection.GradeJunctionsTableName} j
-  CROSS JOIN input i
-  WHERE i.gradejunctionids IS NOT NULL
-    AND cardinality(i.gradejunctionids) > 0
-    AND j.id = ANY(i.gradejunctionids)
-
-  UNION
-
-  SELECT j.road_segment_id_2
-  FROM {RoadNetworkTopologyProjection.GradeJunctionsTableName} j
-  CROSS JOIN input i
-  WHERE i.gradejunctionids IS NOT NULL
-    AND cardinality(i.gradejunctionids) > 0
-    AND j.id = ANY(i.gradejunctionids)
-)
-
-SELECT
-  rs.id                     AS RoadSegmentId,
-  rs.start_node_id          AS StartNodeId,
-  rs.end_node_id            AS EndNodeId,
-  gradeseparatedjunction.id AS GradeSeparatedJunctionId,
-  gradejunction.id          AS GradeJunctionId
-FROM seed_segments es
-JOIN {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
-  ON rs.id = es.id
-LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} gradeseparatedjunction
-  ON gradeseparatedjunction.lower_road_segment_id = rs.id OR gradeseparatedjunction.upper_road_segment_id = rs.id
-LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
-  ON gradejunction.road_segment_id_1 = rs.id OR gradejunction.road_segment_id_2 = rs.id
-";
-        var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql,
-            new
-            {
-                wkt = geometry?.AsText(),
-                srid = geometry?.SRID,
-                roadsegmentids = ids?.RoadSegmentIds.Count > 0 ? ids.RoadSegmentIds.Select(x => x.ToInt32()).ToArray() : null,
-                roadnodeids = ids?.RoadNodeIds.Count > 0 ? ids.RoadNodeIds.Select(x => x.ToInt32()).ToArray() : null,
-                gradeseparatedjunctionids = ids?.GradeSeparatedJunctionIds.Count > 0 ? ids.GradeSeparatedJunctionIds.Select(x => x.ToInt32()).ToArray() : null,
-                gradejunctionids = ids?.GradeJunctionIds.Count > 0 ? ids.GradeJunctionIds.Select(x => x.ToInt32()).ToArray() : null
-            })).ToList();
 
         // A road node is reached through the road segments that point at it, which leaves out the one case where a
         // caller names a road node that nothing points at any more: an inwinning that merges a road across a
@@ -158,175 +55,195 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
         // migration has to be handed it - as removed, so it can cut the upload back against what the neighbour
         // already collected, rather than refuse the upload over a road node it cannot find.
         //
-        // The row is still there: a V2 removal only marks it. A V1 removal deletes it, so a V1 road node that is
-        // really gone stays out, as it should.
-        var namedRoadNodeIds = await GetExistingRoadNodeIds(session, ids);
+        // The document is still there: a removal only marks it.
+        var namedRoadNodeIds = ids?.RoadNodeIds.Select(x => x.ToInt32()).ToArray() ?? [];
 
-        return new RoadNetworkIds(
-            segments.SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })
-                .Where(x => x.HasValue)
-                .Select(x => x!.Value)
-                .Concat(namedRoadNodeIds)
-                .Distinct()
-                .Select(x => new RoadNodeId(x))
-                .ToArray(),
-            segments.Select(x => x.RoadSegmentId)
-                .Distinct()
-                .Select(x => new RoadSegmentId(x))
-                .ToArray(),
-            segments.Where(x => x.GradeSeparatedJunctionId is not null)
-                .Select(x => x.GradeSeparatedJunctionId!.Value)
-                .Distinct()
-                .Select(x => new GradeSeparatedJunctionId(x))
-                .ToArray(),
-            segments.Where(x => x.GradeJunctionId is not null)
-                .Select(x => x.GradeJunctionId!.Value)
-                .Distinct()
-                .Select(x => new GradeJunctionId(x))
-                .ToArray()
-        );
+        return await Load(session, roadNetworkId, RoadSegmentsInScope(geometry, ids), namedRoadNodeIds, migratedGradeSeparatedJunctionsOnly: false);
     }
 
-    private static async Task<int[]> GetExistingRoadNodeIds(IDocumentSession session, RoadNetworkIds? ids)
+    // The road segments a geometry and ids put in scope, as a subquery selecting their id. It is the UNION of:
+    // - the road segments intersecting the geometry
+    // - the road segments named
+    // - the road segments starting or ending at a road node named
+    // - the road segments a grade separated junction named lies on (upper and lower)
+    // - the road segments a grade junction named lies on
+    // Only the parts that were asked for are written out, so no parameter is ever NULL.
+    private static RoadSegmentScope RoadSegmentsInScope(Geometry? geometry, RoadNetworkIds? ids)
     {
-        if (!(ids?.RoadNodeIds.Count > 0))
+        var seeds = new List<string>();
+        var parameters = new List<object>();
+
+        if (geometry is not null && !geometry.IsEmpty)
         {
-            return [];
+            seeds.Add($"SELECT s.road_segment_id FROM {RoadNetworkTopologyTables.RoadSegments} s WHERE ST_Intersects(s.geometry, ST_SetSRID(ST_GeomFromText(?), ?))");
+            parameters.Add(geometry.AsText());
+            parameters.Add(geometry.SRID);
         }
 
-        var sql = $@"
-SELECT rn.id
-FROM {RoadNetworkTopologyProjection.RoadNodesTableName} rn
-WHERE rn.id = ANY(@roadnodeids)
-";
-        return (await session.Connection.QueryAsync<int>(sql,
-            new
-            {
-                roadnodeids = ids.RoadNodeIds.Select(x => x.ToInt32()).ToArray()
-            })).ToArray();
+        if (ids?.RoadSegmentIds.Count > 0)
+        {
+            seeds.Add($"SELECT s.road_segment_id FROM {RoadNetworkTopologyTables.RoadSegments} s WHERE s.road_segment_id = ANY(?)");
+            parameters.Add(ids.RoadSegmentIds.Select(x => x.ToInt32()).ToArray());
+        }
+
+        if (ids?.RoadNodeIds.Count > 0)
+        {
+            var roadNodeIds = ids.RoadNodeIds.Select(x => x.ToInt32()).ToArray();
+            seeds.Add($"SELECT s.road_segment_id FROM {RoadNetworkTopologyTables.RoadSegments} s WHERE s.start_node_id = ANY(?) OR s.end_node_id = ANY(?)");
+            parameters.Add(roadNodeIds);
+            parameters.Add(roadNodeIds);
+        }
+
+        if (ids?.GradeSeparatedJunctionIds.Count > 0)
+        {
+            var gradeSeparatedJunctionIds = ids.GradeSeparatedJunctionIds.Select(x => x.ToInt32()).ToArray();
+            seeds.Add($"SELECT j.lower_road_segment_id FROM {RoadNetworkTopologyTables.GradeSeparatedJunctions} j WHERE j.grade_separated_junction_id = ANY(?)");
+            seeds.Add($"SELECT j.upper_road_segment_id FROM {RoadNetworkTopologyTables.GradeSeparatedJunctions} j WHERE j.grade_separated_junction_id = ANY(?)");
+            parameters.Add(gradeSeparatedJunctionIds);
+            parameters.Add(gradeSeparatedJunctionIds);
+        }
+
+        if (ids?.GradeJunctionIds.Count > 0)
+        {
+            var gradeJunctionIds = ids.GradeJunctionIds.Select(x => x.ToInt32()).ToArray();
+            seeds.Add($"SELECT j.road_segment_id_1 FROM {RoadNetworkTopologyTables.GradeJunctions} j WHERE j.grade_junction_id = ANY(?)");
+            seeds.Add($"SELECT j.road_segment_id_2 FROM {RoadNetworkTopologyTables.GradeJunctions} j WHERE j.grade_junction_id = ANY(?)");
+            parameters.Add(gradeJunctionIds);
+            parameters.Add(gradeJunctionIds);
+        }
+
+        // Taken from the road segments themselves, so a junction pointing at a road segment that has no document
+        // brings nothing into scope.
+        return new RoadSegmentScope($@"
+SELECT rs.road_segment_id AS id
+FROM {RoadNetworkTopologyTables.RoadSegments} rs
+WHERE rs.road_segment_id IN ({string.Join(" UNION ", seeds)})", parameters.ToArray());
     }
 
-    public async Task<RoadNetworkIds> GetUnderlyingIdsForExtract(IDocumentSession session, Geometry geometry)
+    public async Task<ScopedRoadNetwork> LoadWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
+    {
+        if (roadSegmentIds.Count == 0)
+        {
+            return new ScopedRoadNetwork(roadNetworkId);
+        }
+
+        var scope = new RoadSegmentScope($@"
+WITH requested AS (
+    SELECT rs.road_segment_id, rs.start_node_id, rs.end_node_id
+    FROM {RoadNetworkTopologyTables.RoadSegments} rs
+    WHERE rs.has_migrated AND rs.road_segment_id = ANY(?)
+)
+-- The road segments the caller named, knotted into the road network or not. An ingeschetst road segment has no
+-- road nodes, and the join below compares them, so it answers for no road segment without them - not even with
+-- itself, NULL being equal to nothing in SQL. Asked for on its own it used to load an empty road network, and
+-- the action then had nothing to work on and said nothing about it.
+SELECT requested.road_segment_id AS id FROM requested
+UNION
+-- And every road segment meeting one of them at a road node: what an action does to the one is a statement
+-- about the other.
+SELECT other.road_segment_id AS id
+FROM requested
+JOIN {RoadNetworkTopologyTables.RoadSegments} other ON other.has_migrated AND (
+    requested.start_node_id = other.start_node_id
+    OR requested.start_node_id = other.end_node_id
+    OR requested.end_node_id = other.start_node_id
+    OR requested.end_node_id = other.end_node_id
+)", [roadSegmentIds.Select(x => x.ToInt32()).ToArray()]);
+
+        return await Load(session, roadNetworkId, scope, namedRoadNodeIds: [], migratedGradeSeparatedJunctionsOnly: true);
+    }
+
+    // One batch: the road segments in scope, the road nodes they start and end at plus the ones named, and the
+    // junctions lying on them. Each query works out the scope for itself; Postgres answers it from the indexes on the
+    // generated columns.
+    private static async Task<ScopedRoadNetwork> Load(IDocumentSession session, ScopedRoadNetworkId roadNetworkId, RoadSegmentScope scope, int[] namedRoadNodeIds, bool migratedGradeSeparatedJunctionsOnly)
+    {
+        var roadNodesSql = $@"
+road_node_id IN (
+  WITH scope AS ({scope.Sql})
+  SELECT rs.start_node_id FROM {RoadNetworkTopologyTables.RoadSegments} rs JOIN scope ON scope.id = rs.road_segment_id
+  UNION
+  SELECT rs.end_node_id FROM {RoadNetworkTopologyTables.RoadSegments} rs JOIN scope ON scope.id = rs.road_segment_id
+)
+OR road_node_id = ANY(?)";
+        object[] roadNodesParameters = [..scope.Parameters, namedRoadNodeIds];
+        var roadSegmentsSql = $"road_segment_id IN ({scope.Sql})";
+        var gradeSeparatedJunctionsSql = $@"
+grade_separated_junction_id IN (
+  WITH scope AS ({scope.Sql})
+  SELECT j.grade_separated_junction_id
+  FROM {RoadNetworkTopologyTables.GradeSeparatedJunctions} j
+  JOIN scope ON scope.id = j.lower_road_segment_id OR scope.id = j.upper_road_segment_id
+  {(migratedGradeSeparatedJunctionsOnly ? "WHERE j.has_migrated" : string.Empty)}
+)";
+        var gradeJunctionsSql = $@"
+grade_junction_id IN (
+  WITH scope AS ({scope.Sql})
+  SELECT j.grade_junction_id
+  FROM {RoadNetworkTopologyTables.GradeJunctions} j
+  JOIN scope ON scope.id = j.road_segment_id_1 OR scope.id = j.road_segment_id_2
+)";
+        var scopeParameters = scope.Parameters;
+
+        var batch = session.CreateBatchQuery();
+        var roadNodes = batch.Query<RoadNode>().Where(x => x.MatchesSql(roadNodesSql, roadNodesParameters)).ToList();
+        var roadSegments = batch.Query<RoadSegment>().Where(x => x.MatchesSql(roadSegmentsSql, scopeParameters)).ToList();
+        var gradeSeparatedJunctions = batch.Query<GradeSeparatedJunction>().Where(x => x.MatchesSql(gradeSeparatedJunctionsSql, scopeParameters)).ToList();
+        var gradeJunctions = batch.Query<GradeJunction>().Where(x => x.MatchesSql(gradeJunctionsSql, scopeParameters)).ToList();
+
+        await batch.Execute();
+
+        return new ScopedRoadNetwork(roadNetworkId, await roadNodes, await roadSegments, await gradeSeparatedJunctions, await gradeJunctions);
+    }
+
+    // The extract documents are kept apart from the aggregates, by a projection of their own, but under the same id
+    // as the entity they are about - so the scope is worked out on the aggregate documents and the extract documents
+    // are taken by their id, all in one batch.
+    public async Task<RoadNetworkExtractDocuments<TRoadNode, TRoadSegment, TGradeSeparatedJunction>> LoadForExtract<TRoadNode, TRoadSegment, TGradeSeparatedJunction>(IDocumentSession session, Geometry geometry)
+        where TRoadNode : class
+        where TRoadSegment : class
+        where TGradeSeparatedJunction : class
     {
         if (geometry is null || geometry.IsEmpty)
         {
             throw new ArgumentException("Geometry must be specified.");
         }
 
-        var sql = $@"
-SELECT
-  rs.id                     AS RoadSegmentId,
-  startnode.id              AS StartNodeId,
-  endnode.id                AS EndNodeId,
-  gradeseparatedjunction.id AS GradeSeparatedJunctionId,
-  gradejunction.id          AS GradeJunctionId
-FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
-LEFT JOIN {RoadNetworkTopologyProjection.RoadNodesTableName} startnode
-  ON startnode.id = rs.start_node_id AND NOT startnode.is_removed
-LEFT JOIN {RoadNetworkTopologyProjection.RoadNodesTableName} endnode
-  ON endnode.id = rs.end_node_id AND NOT endnode.is_removed
-LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} gradeseparatedjunction
-  ON (gradeseparatedjunction.lower_road_segment_id = rs.id OR gradeseparatedjunction.upper_road_segment_id = rs.id)
-  AND NOT gradeseparatedjunction.is_removed
-LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gradejunction
-  ON (gradejunction.road_segment_id_1 = rs.id OR gradejunction.road_segment_id_2 = rs.id)
-  AND NOT gradejunction.is_removed
-WHERE ST_Intersects(rs.geometry, ST_SetSRID(ST_GeomFromText(@wkt), @srid))
+        var scope = new RoadSegmentScope($@"
+SELECT rs.road_segment_id AS id
+FROM {RoadNetworkTopologyTables.RoadSegments} rs
+WHERE ST_Intersects(rs.geometry, ST_SetSRID(ST_GeomFromText(?), ?))
   AND NOT rs.is_removed
-  AND (NOT rs.is_v2 OR rs.status = ANY(@statuses))
-";
-        var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql,
-            new
-            {
-                wkt = geometry.AsText(),
-                srid = geometry.SRID,
-                statuses = ExtractRoadSegmentStatuses
-            })).ToList();
+  AND (NOT rs.has_migrated OR rs.status = ANY(?))", [geometry.AsText(), geometry.SRID, ExtractRoadSegmentStatuses]);
 
-        return new RoadNetworkIds(
-            segments.SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })
-                .Where(x => x.HasValue)
-                .Distinct()
-                .Select(x => new RoadNodeId(x!.Value))
-                .ToArray(),
-            segments.Select(x => x.RoadSegmentId)
-                .Distinct()
-                .Select(x => new RoadSegmentId(x))
-                .ToArray(),
-            segments.Where(x => x.GradeSeparatedJunctionId is not null)
-                .Select(x => x.GradeSeparatedJunctionId!.Value)
-                .Distinct()
-                .Select(x => new GradeSeparatedJunctionId(x))
-                .ToArray(),
-            segments.Where(x => x.GradeJunctionId is not null)
-                .Select(x => x.GradeJunctionId!.Value)
-                .Distinct()
-                .Select(x => new GradeJunctionId(x))
-                .ToArray()
-        );
-    }
+        var roadNodesSql = $@"
+id IN (
+  WITH scope AS ({scope.Sql})
+  SELECT n.road_node_id
+  FROM {RoadNetworkTopologyTables.RoadSegments} rs
+  JOIN scope ON scope.id = rs.road_segment_id
+  JOIN {RoadNetworkTopologyTables.RoadNodes} n ON n.road_node_id = rs.start_node_id OR n.road_node_id = rs.end_node_id
+  WHERE NOT n.is_removed
+)";
+        var roadSegmentsSql = $"id IN ({scope.Sql})";
+        var gradeSeparatedJunctionsSql = $@"
+id IN (
+  WITH scope AS ({scope.Sql})
+  SELECT j.grade_separated_junction_id
+  FROM {RoadNetworkTopologyTables.GradeSeparatedJunctions} j
+  JOIN scope ON scope.id = j.lower_road_segment_id OR scope.id = j.upper_road_segment_id
+  WHERE NOT j.is_removed
+)";
+        var scopeParameters = scope.Parameters;
 
-    public async Task<RoadNetworkIds> GetUnderlyingIdsWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds)
-    {
-        if (roadSegmentIds.Count == 0)
-        {
-            return new RoadNetworkIds([], [], [], []);
-        }
+        var batch = session.CreateBatchQuery();
+        var roadNodes = batch.Query<TRoadNode>().Where(x => x.MatchesSql(roadNodesSql, scopeParameters)).ToList();
+        var roadSegments = batch.Query<TRoadSegment>().Where(x => x.MatchesSql(roadSegmentsSql, scopeParameters)).ToList();
+        var gradeSeparatedJunctions = batch.Query<TGradeSeparatedJunction>().Where(x => x.MatchesSql(gradeSeparatedJunctionsSql, scopeParameters)).ToList();
 
-        var sql = @$"
-WITH requested AS (
-    SELECT rs.id, rs.start_node_id, rs.end_node_id
-    FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
-    WHERE rs.is_v2 AND rs.id IN ({string.Join(",", roadSegmentIds.Select(x => x.ToInt32()))})
-),
-flat_ids AS (
-    -- The road segments the caller named, knotted into the road network or not. An ingeschetst road segment has no
-    -- road nodes, and the join below compares them, so it answers for no road segment without them - not even with
-    -- itself, NULL being equal to nothing in SQL. Asked for on its own it used to load an empty road network, and
-    -- the action then had nothing to work on and said nothing about it.
-    SELECT id FROM requested
-    UNION
-    -- And every road segment meeting one of them at a road node: what an action does to the one is a statement
-    -- about the other.
-    SELECT other.id
-    FROM requested
-    JOIN {RoadNetworkTopologyProjection.RoadSegmentsTableName} other ON other.is_v2 AND (
-        requested.start_node_id = other.start_node_id
-        OR requested.start_node_id = other.end_node_id
-        OR requested.end_node_id = other.start_node_id
-        OR requested.end_node_id = other.end_node_id
-    )
-)
-SELECT rs.id as RoadSegmentId, rs.start_node_id as StartNodeId, rs.end_node_id as EndNodeId, gsj.id as GradeSeparatedJunctionId, gj.id as GradeJunctionId
-FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} rs
-JOIN flat_ids f ON rs.id = f.id
-LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} gsj ON gsj.is_v2 AND (rs.id = gsj.upper_road_segment_id OR rs.id = gsj.lower_road_segment_id)
-LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2 AND (rs.id = gj.road_segment_id_1 OR rs.id = gj.road_segment_id_2)
-";
+        await batch.Execute();
 
-        var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql)).ToList();
-
-        return new RoadNetworkIds(
-            segments.SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })
-                .Where(x => x.HasValue)
-                .Distinct()
-                .Select(x => new RoadNodeId(x!.Value))
-                .ToArray(),
-            segments.Select(x => x.RoadSegmentId)
-                .Distinct()
-                .Select(x => new RoadSegmentId(x))
-                .ToArray(),
-            segments.Where(x => x.GradeSeparatedJunctionId is not null)
-                .Select(x => x.GradeSeparatedJunctionId!.Value)
-                .Distinct()
-                .Select(x => new GradeSeparatedJunctionId(x))
-                .ToArray(),
-            segments.Where(x => x.GradeJunctionId is not null)
-                .Select(x => x.GradeJunctionId!.Value)
-                .Distinct()
-                .Select(x => new GradeJunctionId(x))
-                .ToArray()
-        );
+        return new RoadNetworkExtractDocuments<TRoadNode, TRoadSegment, TGradeSeparatedJunction>(await roadNodes, await roadSegments, await gradeSeparatedJunctions);
     }
 
     public async Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, ScopedRoadNetworkId roadNetworkId)
@@ -418,7 +335,8 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeJunctionsTableName} gj ON gj.is_v2
         }
     }
 
-    private sealed record RoadNetworkTopologySegment(int RoadSegmentId, int? StartNodeId, int? EndNodeId, int? GradeSeparatedJunctionId, int? GradeJunctionId);
+    // A subquery selecting the ids of the road segments in scope as "id", and the parameters its placeholders take.
+    private sealed record RoadSegmentScope(string Sql, object[] Parameters);
 }
 
 

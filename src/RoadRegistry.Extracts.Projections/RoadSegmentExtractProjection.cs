@@ -500,8 +500,8 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
         // gehistoreerd, no road nodes - so this projection keeps it as well, the same as a road segment historized
         // from realized. Deleting on a status change was what made a later event on the same road segment explode:
         // the status it leaves behind can be corrected back, and there would be nothing left to correct. Whether a
-        // gehistoreerd road segment belongs in an extract is not this projection's call: the topology records the
-        // status, and GetUnderlyingIdsForExtract asks it for the road segments an extract is made of.
+        // gehistoreerd road segment belongs in an extract is not this projection's call: the aggregate records the
+        // status, and RoadNetworkRepository.LoadForExtract asks it for the road segments an extract is made of.
         When<IEvent<RoadSegmentWasRetiredBecauseOfMerger>>((session, e, ct) => Historize(session, e.Data.RoadSegmentId, e.Data, ct));
         When<IEvent<RoadSegmentWasRetiredBecauseOfSplit>>((session, e, ct) => Historize(session, e.Data.RoadSegmentId, e.Data, ct));
         When<IEvent<RoadSegmentWasSplit>>((session, e, ct) =>

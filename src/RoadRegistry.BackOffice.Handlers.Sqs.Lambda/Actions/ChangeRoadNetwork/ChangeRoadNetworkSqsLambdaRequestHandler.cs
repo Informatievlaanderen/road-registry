@@ -122,11 +122,6 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : MartenSqsLambdaHa
             return new ScopedRoadNetwork(roadNetworkId);
         }
 
-        var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry(), ids: roadNetworkChanges.Ids);
-        return await _roadNetworkRepository.Load(
-            session,
-            ids,
-            roadNetworkId
-        );
+        return await _roadNetworkRepository.LoadUnderlying(session, roadNetworkId, roadNetworkChanges.BuildScopeGeometry(), roadNetworkChanges.Ids);
     }
 }

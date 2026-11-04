@@ -70,8 +70,7 @@ public sealed class ChangeRoadSegmentGeometryDrawMethodV2SqsLambdaRequestHandler
             // The draw method never moves the geometry, so the topology stays what it is: only the named segments are
             // loaded - no connected segments, no search by geometry.
             var roadSegmentIds = command.Groups.SelectMany(x => x.RoadSegmentIds).Distinct().ToList();
-            var ids = await _roadNetworkRepository.GetUnderlyingIds(session, ids: new RoadNetworkIds([], roadSegmentIds, [], []));
-            var roadNetwork = await _roadNetworkRepository.Load(session, ids, scopedRoadNetworkId);
+            var roadNetwork = await _roadNetworkRepository.LoadUnderlying(session, scopedRoadNetworkId, ids: new RoadNetworkIds([], roadSegmentIds, [], []));
 
             var problems = await ValidateInwinningIsCompleted(roadNetwork, roadSegmentIds, cancellationToken);
             problems.ThrowIfError();

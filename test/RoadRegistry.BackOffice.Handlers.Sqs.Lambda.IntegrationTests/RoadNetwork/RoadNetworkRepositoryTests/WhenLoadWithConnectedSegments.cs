@@ -12,12 +12,13 @@ using RoadRegistry.GradeJunction;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadSegment;
 using ScopedRoadNetwork;
+using ScopedRoadNetwork.ValueObjects;
 using Xunit.Abstractions;
 
 [Collection(nameof(DockerFixtureCollection))]
-public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationTest
+public class WhenLoadWithConnectedSegments : RoadNetworkIntegrationTest
 {
-    public WhenGetUnderlyingIdsWithConnectedSegments(DatabaseFixture databaseFixture, ITestOutputHelper testOutputHelper)
+    public WhenLoadWithConnectedSegments(DatabaseFixture databaseFixture, ITestOutputHelper testOutputHelper)
         : base(databaseFixture, testOutputHelper)
     {
     }
@@ -29,7 +30,7 @@ public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationT
         var sp = await BuildServiceProvider();
 
         // Act
-        var ids = await GetUnderlyingIdsWithConnectedSegments(sp, []);
+        var ids = await LoadWithConnectedSegmentsIds(sp, []);
 
         // Assert
         ids.IsEmpty.Should().BeTrue();
@@ -62,6 +63,20 @@ public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationT
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadSegment), v1RoadSegment.RoadSegmentId), v1RoadSegment);
             session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), v1Junction.Id), v1Junction);
 
+            // As the migration of the legacy road network does: next to the legacy events it stores the aggregates they
+            // describe, which have not migrated yet.
+            session.Store(RoadSegment.CreateForMigration(
+                new RoadSegmentId(v1RoadSegment.RoadSegmentId),
+                BuildRoadSegmentGeometry(0, 0, 10, 0),
+                RoadSegmentStatusV2.Gerealiseerd,
+                new RoadNodeId(v1RoadNode1.RoadNodeId),
+                new RoadNodeId(v1RoadNode2.RoadNodeId)));
+            session.Store(GradeSeparatedJunction.CreateForMigration(
+                new GradeSeparatedJunctionId(v1Junction.Id),
+                new RoadSegmentId(v1Junction.LowerRoadSegmentId),
+                new RoadSegmentId(v1Junction.UpperRoadSegmentId),
+                null));
+
             var v2RoadNode1 = TestData.Fixture.Create<RoadRegistry.RoadNode.Events.V2.RoadNodeWasAdded>() with
             {
                 RoadNodeId = new RoadNodeId(11)
@@ -92,7 +107,7 @@ public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationT
         }
 
         // Act
-        var ids = await GetUnderlyingIdsWithConnectedSegments(sp, [new(1), new(11)]);
+        var ids = await LoadWithConnectedSegmentsIds(sp, [new(1), new(11)]);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
@@ -127,7 +142,7 @@ public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationT
         }
 
         // Act
-        var ids = await GetUnderlyingIdsWithConnectedSegments(sp, [new(1)]);
+        var ids = await LoadWithConnectedSegmentsIds(sp, [new(1)]);
 
         // Assert
         ids.Should().BeEquivalentTo(new RoadNetworkIds([], [new(1)], [], []));
@@ -231,7 +246,7 @@ public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationT
 
         // Act
         var requestIds = new[] { roadSegment1.RoadSegmentId };
-        var ids = await GetUnderlyingIdsWithConnectedSegments(sp, requestIds);
+        var ids = await LoadWithConnectedSegmentsIds(sp, requestIds);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
@@ -243,12 +258,13 @@ public class WhenGetUnderlyingIdsWithConnectedSegments : RoadNetworkIntegrationT
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
-    private async Task<RoadNetworkIds> GetUnderlyingIdsWithConnectedSegments(IServiceProvider sp, IReadOnlyCollection<RoadSegmentId> roadSegmentIds)
+    // What the load takes, by id.
+    private async Task<RoadNetworkIds> LoadWithConnectedSegmentsIds(IServiceProvider sp, IReadOnlyCollection<RoadSegmentId> roadSegmentIds)
     {
         var store = sp.GetRequiredService<IDocumentStore>();
         var repo = sp.GetRequiredService<IRoadNetworkRepository>();
 
         await using var session = store.LightweightSession();
-        return await repo.GetUnderlyingIdsWithConnectedSegments(session, roadSegmentIds);
+        return IdsOf(await repo.LoadWithConnectedSegments(session, roadSegmentIds, new ScopedRoadNetworkId(Guid.NewGuid())));
     }
 }

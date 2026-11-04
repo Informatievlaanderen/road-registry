@@ -186,19 +186,9 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : MartenSqsL
             geometry = roadNetworkChanges.BuildScopeGeometry();
         }
 
-        RoadNetworkIds ids;
-        using (var _ = Logger.TimeAction(action: "RoadNetworkRepository.GetUnderlyingIds"))
+        using (var _ = Logger.TimeAction(action: "RoadNetworkRepository.LoadUnderlying"))
         {
-            ids = await _roadNetworkRepository.GetUnderlyingIds(session, geometry, ids: roadNetworkChanges.Ids);
-        }
-
-        using (var _ = Logger.TimeAction(action: "RoadNetworkRepository.Load"))
-        {
-            return await _roadNetworkRepository.Load(
-                session,
-                ids,
-                roadNetworkId
-            );
+            return await _roadNetworkRepository.LoadUnderlying(session, roadNetworkId, geometry, roadNetworkChanges.Ids);
         }
     }
 }

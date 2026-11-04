@@ -295,11 +295,11 @@ public class GivenTwoCrossingRoadSegments : BackOfficeLambdaTest
             _loadFactory = loadFactory;
         }
 
-        public Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry? geometry = null, RoadNetworkIds? ids = null)
-            => Task.FromResult(ids ?? new RoadNetworkIds([], [], [], []));
+        public Task<ScopedRoadNetwork> LoadUnderlying(IDocumentSession session, ScopedRoadNetworkId roadNetworkId, Geometry? geometry = null, RoadNetworkIds? ids = null)
+            => Load(session, ids ?? new RoadNetworkIds([], [], [], []), roadNetworkId);
 
-        public Task<RoadNetworkIds> GetUnderlyingIdsWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds)
-            => Task.FromResult(new RoadNetworkIds([], roadSegmentIds, [], []));
+        public Task<ScopedRoadNetwork> LoadWithConnectedSegments(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
+            => Load(session, new RoadNetworkIds([], roadSegmentIds, [], []), roadNetworkId);
 
         public Task<ScopedRoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, ScopedRoadNetworkId roadNetworkId)
             => Task.FromResult(_loadFactory(roadNetworkId));
@@ -307,7 +307,10 @@ public class GivenTwoCrossingRoadSegments : BackOfficeLambdaTest
         public void Save(IDocumentSession session, ScopedRoadNetwork roadNetwork, string commandName)
             => _real.Save(session, roadNetwork, commandName);
 
-        public Task<RoadNetworkIds> GetUnderlyingIdsForExtract(IDocumentSession session, Geometry geometry)
+        public Task<RoadNetworkExtractDocuments<TRoadNode, TRoadSegment, TGradeSeparatedJunction>> LoadForExtract<TRoadNode, TRoadSegment, TGradeSeparatedJunction>(IDocumentSession session, Geometry geometry)
+            where TRoadNode : class
+            where TRoadSegment : class
+            where TGradeSeparatedJunction : class
             => throw new NotImplementedException();
 
         public Task Save(ScopedRoadNetwork roadNetwork, string commandName, CancellationToken cancellationToken)

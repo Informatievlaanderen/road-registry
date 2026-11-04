@@ -83,7 +83,6 @@ public sealed class ChangeGradeJunctionToGradeSeparatedJunctionSqsLambdaRequestH
     // action needs to say whether the named segments are its own.
     private async Task<ScopedRoadNetwork> Load(IDocumentSession session, GradeJunctionId gradeJunctionId, ScopedRoadNetworkId roadNetworkId)
     {
-        var ids = await _roadNetworkRepository.GetUnderlyingIds(session, ids: new RoadNetworkIds([], [], [], [gradeJunctionId]));
-        return await _roadNetworkRepository.Load(session, ids, roadNetworkId);
+        return await _roadNetworkRepository.LoadUnderlying(session, roadNetworkId, ids: new RoadNetworkIds([], [], [], [gradeJunctionId]));
     }
 }

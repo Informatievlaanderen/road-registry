@@ -20,6 +20,7 @@ using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using Dapper;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
+using RoadRegistry.Infrastructure.MartenDb.Store;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
@@ -987,7 +988,7 @@ RoadNetworkExtractGotRequestedV2
         CancellationToken token)
     {
         var junctionIds = (await session.Connection.QueryAsync<int>(new CommandDefinition(
-            $"SELECT id FROM {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} WHERE lower_road_segment_id = @segId OR upper_road_segment_id = @segId",
+            $"SELECT grade_separated_junction_id FROM {RoadNetworkTopologyTables.GradeSeparatedJunctions} WHERE NOT is_removed AND (lower_road_segment_id = @segId OR upper_road_segment_id = @segId)",
             new { segId = changedSegment.RoadSegmentId.ToInt32() },
             cancellationToken: token))).ToArray();
 

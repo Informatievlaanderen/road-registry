@@ -17,7 +17,7 @@
         private readonly IRoadNetworkRepository _roadNetworkRepository;
         private readonly EditorContext _editorContext;
 
-        private readonly Dictionary<Geometry, RoadNetworkIds> _idsCache = [];
+        private readonly Dictionary<Geometry, RoadNetworkExtractDocuments<RoadNodeExtractItem, RoadSegmentExtractItem, GradeSeparatedJunctionExtractItem>> _documentsCache = [];
         private readonly Dictionary<IPolygonal, IReadOnlyList<RoadNodeExtractItem>> _roadNodesCache = [];
         private readonly Dictionary<IPolygonal, IReadOnlyList<RoadSegmentExtractItem>> _roadSegmentsCache = [];
 
@@ -37,9 +37,7 @@
                 return roadNodes.ToList();
             }
 
-            var ids = await GetUnderlyingRoadNetworkIds((Geometry)contour);
-
-            var result = await _session.LoadManyAsync<RoadNodeExtractItem>(cancellationToken, ids.RoadNodeIds.Select(x => x.ToInt32()).ToArray());
+            var result = (await GetExtractDocuments((Geometry)contour)).RoadNodes;
             _roadNodesCache[contour] = result;
             return result;
         }
@@ -53,9 +51,7 @@
                 return roadSegments.ToList();
             }
 
-            var ids = await GetUnderlyingRoadNetworkIds((Geometry)contour);
-
-            var result = await _session.LoadManyAsync<RoadSegmentExtractItem>(cancellationToken, ids.RoadSegmentIds.Select(x => x.ToInt32()).ToArray());
+            var result = (await GetExtractDocuments((Geometry)contour)).RoadSegments;
             await SnapToRoadNodeGeometries(result, contour, cancellationToken);
 
             _roadSegmentsCache[contour] = result;
@@ -110,9 +106,7 @@
             IPolygonal contour,
             CancellationToken cancellationToken)
         {
-            var ids = await GetUnderlyingRoadNetworkIds((Geometry)contour);
-
-            return await _session.LoadManyAsync<GradeSeparatedJunctionExtractItem>(cancellationToken, ids.GradeSeparatedJunctionIds.Select(x => x.ToInt32()).ToArray());
+            return (await GetExtractDocuments((Geometry)contour)).GradeSeparatedJunctions;
         }
 
         public async Task<IReadOnlyList<OrganizationRecordV2>> GetOrganizations(CancellationToken cancellationToken)
@@ -122,16 +116,18 @@
                     .OrderBy(x => x.Code), cancellationToken);
         }
 
-        private async Task<RoadNetworkIds> GetUnderlyingRoadNetworkIds(Geometry geometry)
+        // The road nodes, road segments and grade separated junctions of the contour, loaded together the first time
+        // any of them is asked for.
+        private async Task<RoadNetworkExtractDocuments<RoadNodeExtractItem, RoadSegmentExtractItem, GradeSeparatedJunctionExtractItem>> GetExtractDocuments(Geometry geometry)
         {
-            if (_idsCache.TryGetValue(geometry, out var roadNetworkIds))
+            if (_documentsCache.TryGetValue(geometry, out var documents))
             {
-                return roadNetworkIds;
+                return documents;
             }
 
-            var ids = await _roadNetworkRepository.GetUnderlyingIdsForExtract(_session, geometry);
-            _idsCache[geometry] = ids;
-            return ids;
+            documents = await _roadNetworkRepository.LoadForExtract<RoadNodeExtractItem, RoadSegmentExtractItem, GradeSeparatedJunctionExtractItem>(_session, geometry);
+            _documentsCache[geometry] = documents;
+            return documents;
         }
     }
 }

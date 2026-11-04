@@ -1,26 +1,22 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.RoadNetworkTopologyTests;
 
 using AutoFixture;
-using Dapper;
 using FluentAssertions;
 using Marten;
 using Microsoft.Extensions.DependencyInjection;
 using RoadRegistry.Infrastructure.MartenDb;
-using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadSegment;
 using ScopedRoadNetwork;
+using ScopedRoadNetwork.ValueObjects;
 using Xunit.Abstractions;
 
-// A road segment retired by a merger or a split is historized, not removed. The topology used to delete it, so it went
-// missing from every topology lookup; it now keeps the segment with its geometry and without road nodes, like a segment
-// historized from realized. 20260917120000_networktopology_restore_retired_roadsegments.sql puts back the rows the
-// projection deleted before.
+// A road segment retired by a merger or a split is historized, not removed. The topology projection used to delete it,
+// so it went missing from every topology lookup; the aggregate keeps it with its geometry and without road nodes, like
+// a segment historized from realized, and the lookups now read the aggregate.
 [Collection(nameof(DockerFixtureCollection))]
 public class WhenRoadSegmentIsRetired : RoadNetworkIntegrationTest
 {
-    private const string DataFixMigration = "20260917120000_networktopology_restore_retired_roadsegments.sql";
-
     public WhenRoadSegmentIsRetired(DatabaseFixture databaseFixture, ITestOutputHelper testOutputHelper)
         : base(databaseFixture, testOutputHelper)
     {
@@ -37,57 +33,10 @@ public class WhenRoadSegmentIsRetired : RoadNetworkIntegrationTest
         await AddRoadSegment(store, 1);
         await Append(store, 1, Retired(retiredEvent, 1));
 
-        var ids = await GetUnderlyingIds(sp);
+        var ids = await LoadUnderlyingIds(sp);
 
         ids.RoadSegmentIds.Should().BeEquivalentTo([new RoadSegmentId(1)]);
         ids.RoadNodeIds.Should().BeEmpty();
-    }
-
-    [Fact]
-    public async Task GivenTheProjectionDeletedTheRow_WhenTheDataFixRuns_ThenTheRowIsRestoredFromTheAggregate()
-    {
-        var sp = await BuildServiceProvider();
-        var store = sp.GetRequiredService<IDocumentStore>();
-
-        await AddRoadSegment(store, 1);
-        await Append(store, 1, Retired(nameof(RoadSegmentWasRetiredBecauseOfMerger), 1));
-        await AddRoadSegment(store, 2);
-        await Append(store, 2, Retired(nameof(RoadSegmentWasRetiredBecauseOfSplit), 2));
-        await AddRoadSegment(store, 3);
-        await Append(store, 3, TestData.Fixture.Create<RoadSegmentWasRemoved>() with { RoadSegmentId = new RoadSegmentId(3) });
-        await AddRoadSegment(store, 4);
-
-        // What the projection did before: delete the retired segments, and the removed one along with them. It no
-        // longer deletes anything at all for a V2 event, so a removed segment keeps its row now - and the point of
-        // segment 3 here is that the fix does not put back a row for one that was removed, which only says anything
-        // once the row is gone. So it is deleted by hand too, leaving the database the way the old projection left it.
-        await Execute(store, $"DELETE FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName} WHERE id IN (1, 2, 3);");
-        var untouchedBefore = await QueryTopology(store);
-
-        await Execute(store, ReadDataFixMigration());
-        await Execute(store, ReadDataFixMigration());
-
-        var topology = await QueryTopology(store);
-        topology.Select(x => x.Id).Should().BeEquivalentTo([1, 2, 4], "a removed segment stays out, and running the fix twice adds nothing");
-
-        foreach (var restored in topology.Where(x => x.Id is 1 or 2))
-        {
-            restored.StartNodeId.Should().BeNull();
-            restored.EndNodeId.Should().BeNull();
-            restored.IsV2.Should().BeTrue();
-            restored.Wkt.Should().Be(untouchedBefore.Single(x => x.Id == 4).Wkt, "the geometry comes from the aggregate");
-        }
-
-        topology.Single(x => x.Id == 4).Should().BeEquivalentTo(untouchedBefore.Single(x => x.Id == 4));
-
-        // The restored row takes further events as usual.
-        await Append(store, 1, TestData.Fixture.Create<RoadSegmentGeometryWasModified>() with
-        {
-            RoadSegmentId = new RoadSegmentId(1),
-            Geometry = BuildRoadSegmentGeometry(0, 0, 20, 0),
-            StartNodeId = null,
-            EndNodeId = null
-        });
     }
 
     private object Retired(string retiredEvent, int roadSegmentId)
@@ -126,40 +75,12 @@ public class WhenRoadSegmentIsRetired : RoadNetworkIntegrationTest
         await session.SaveChangesAsync();
     }
 
-    // On a connection of its own: a session's connection runs in the session's transaction, which is never committed here.
-    private static async Task Execute(IDocumentStore store, string sql)
-    {
-        await using var connection = store.Storage.Database.CreateConnection();
-        await connection.OpenAsync();
-        await connection.ExecuteAsync(sql);
-    }
-
-    private static async Task<IReadOnlyList<TopologyRoadSegment>> QueryTopology(IDocumentStore store)
-    {
-        await using var session = store.QuerySession();
-        return (await session.Connection!.QueryAsync<TopologyRoadSegment>(
-                $"SELECT id AS Id, ST_AsText(geometry) AS Wkt, start_node_id AS StartNodeId, end_node_id AS EndNodeId, is_v2 AS IsV2 FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName}"))
-            .ToList();
-    }
-
-    private static string ReadDataFixMigration()
-    {
-        var assembly = typeof(RoadNetworkTopologyProjection).Assembly;
-        var resourceName = assembly.GetManifestResourceNames().Single(x => x.EndsWith(DataFixMigration));
-
-        using var stream = assembly.GetManifestResourceStream(resourceName)!;
-        using var reader = new StreamReader(stream);
-        return reader.ReadToEnd();
-    }
-
-    private static async Task<RoadNetworkIds> GetUnderlyingIds(IServiceProvider sp)
+    private static async Task<RoadNetworkIds> LoadUnderlyingIds(IServiceProvider sp)
     {
         var store = sp.GetRequiredService<IDocumentStore>();
         var repository = sp.GetRequiredService<IRoadNetworkRepository>();
 
         await using var session = store.LightweightSession();
-        return await repository.GetUnderlyingIds(session, BuildRoadSegmentGeometry(5, -5, 5, 5).Value);
+        return IdsOf(await repository.LoadUnderlying(session, new ScopedRoadNetworkId(Guid.NewGuid()), BuildRoadSegmentGeometry(5, -5, 5, 5).Value));
     }
-
-    private sealed record TopologyRoadSegment(int Id, string Wkt, int? StartNodeId, int? EndNodeId, bool IsV2);
 }

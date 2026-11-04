@@ -224,8 +224,7 @@ public sealed class ChangeRoadSegmentAttributesV2SqsLambdaRequestHandler : Marte
 
     private async Task<ScopedRoadNetwork> Load(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds, ScopedRoadNetworkId roadNetworkId)
     {
-        var ids = await _roadNetworkRepository.GetUnderlyingIds(session, ids: new RoadNetworkIds([], roadSegmentIds, [], []));
-        return await _roadNetworkRepository.Load(session, ids, roadNetworkId);
+        return await _roadNetworkRepository.LoadUnderlying(session, roadNetworkId, ids: new RoadNetworkIds([], roadSegmentIds, [], []));
     }
 
     private static RoadSegmentDynamicAttributeValues<T>? BuildValues<T>(IReadOnlyList<AttributeValue<T>>? source, double segmentLength)

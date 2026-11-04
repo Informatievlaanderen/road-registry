@@ -87,7 +87,6 @@ public sealed class ChangeRoadNodeAttributesV2SqsLambdaRequestHandler : MartenSq
 
     private async Task<ScopedRoadNetwork> Load(IDocumentSession session, IReadOnlyCollection<RoadNodeId> roadNodeIds, ScopedRoadNetworkId roadNetworkId)
     {
-        var ids = await _roadNetworkRepository.GetUnderlyingIds(session, ids: new RoadNetworkIds(roadNodeIds, [], [], []));
-        return await _roadNetworkRepository.Load(session, ids, roadNetworkId);
+        return await _roadNetworkRepository.LoadUnderlying(session, roadNetworkId, ids: new RoadNetworkIds(roadNodeIds, [], [], []));
     }
 }

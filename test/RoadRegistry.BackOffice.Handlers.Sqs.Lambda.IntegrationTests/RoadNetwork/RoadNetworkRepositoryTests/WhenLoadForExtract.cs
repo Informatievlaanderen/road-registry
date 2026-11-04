@@ -6,7 +6,10 @@ using GradeSeparatedJunction;
 using Marten;
 using Microsoft.Extensions.DependencyInjection;
 using NetTopologySuite.Geometries;
+using Npgsql;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Projections;
+using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.GradeJunction;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadSegment;
@@ -14,9 +17,9 @@ using ScopedRoadNetwork;
 using Xunit.Abstractions;
 
 [Collection(nameof(DockerFixtureCollection))]
-public class WhenGetUnderlyingIdsForExtract : RoadNetworkIntegrationTest
+public class WhenLoadForExtract : RoadNetworkIntegrationTest
 {
-    public WhenGetUnderlyingIdsForExtract(DatabaseFixture databaseFixture, ITestOutputHelper testOutputHelper)
+    public WhenLoadForExtract(DatabaseFixture databaseFixture, ITestOutputHelper testOutputHelper)
         : base(databaseFixture, testOutputHelper)
     {
     }
@@ -28,7 +31,7 @@ public class WhenGetUnderlyingIdsForExtract : RoadNetworkIntegrationTest
         var sp = await BuildServiceProvider();
 
         // Act
-        var act = () => GetUnderlyingIds(sp, null);
+        var act = () => LoadForExtractIds(sp, null);
 
         // Assert
         await act.Should().ThrowAsync<ArgumentException>();
@@ -83,14 +86,14 @@ public class WhenGetUnderlyingIdsForExtract : RoadNetworkIntegrationTest
         var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).Value.Buffer(1).Envelope;
 
         // Act
-        var ids = await GetUnderlyingIds(sp, requestGeometry);
+        var ids = await LoadForExtractIds(sp, requestGeometry);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
             [new(1), new(2)],
             [new(1)],
             [new(1)],
-            [new(1)]);
+            []);
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
@@ -173,19 +176,19 @@ public class WhenGetUnderlyingIdsForExtract : RoadNetworkIntegrationTest
         var requestGeometry = BuildRoadSegmentGeometry(5, -5, 5, 5).Value;
 
         // Act
-        var ids = await GetUnderlyingIds(sp, requestGeometry);
+        var ids = await LoadForExtractIds(sp, requestGeometry);
 
         // Assert
         var expectedIds = new RoadNetworkIds(
             [new(1), new(2)],
             [new(1)],
             [new(1), new(2)],
-            [new(1), new (2)]);
+            []);
         ids.Should().BeEquivalentTo(expectedIds);
     }
 
-    // What an extract is made of. The topology keeps every road segment whatever its status, removed ones included,
-    // because an action that is handed a road network has to see them; an extract is the road network as it is on
+    // What an extract is made of. A road network loaded for an action takes every road segment whatever its status,
+    // removed ones included, because the action has to see them; an extract is the road network as it is on
     // the ground and as it can be handed back, so it takes the gepland and gerealiseerd road segments only.
     //
     // The last two are the sequence that got the extract projection stuck: a road segment retired by a merger, and
@@ -237,14 +240,14 @@ public class WhenGetUnderlyingIdsForExtract : RoadNetworkIntegrationTest
         });
 
         // Act
-        var ids = await GetUnderlyingIds(sp, RequestGeometry());
+        var ids = await LoadForExtractIds(sp, RequestGeometry());
 
         // Assert
         ids.RoadSegmentIds.Should().BeEquivalentTo([new RoadSegmentId(1), new RoadSegmentId(2)]);
     }
 
-    // Nothing that is marked removed lands in an extract, whatever kind of entity it is. The topology keeps the rows
-    // - see RoadNetworkTopologyProjection-EventsV2 - so every kind is filtered on its own mark.
+    // Nothing that is marked removed lands in an extract, whatever kind of entity it is. A removal only marks the
+    // aggregate document, so every kind is filtered on its own mark.
     [Fact]
     public async Task GivenRemovedEntities_ThenNoneOfThemInTheExtract()
     {
@@ -283,17 +286,16 @@ public class WhenGetUnderlyingIdsForExtract : RoadNetworkIntegrationTest
         });
 
         // Act
-        var ids = await GetUnderlyingIds(sp, RequestGeometry());
+        var ids = await LoadForExtractIds(sp, RequestGeometry());
 
         // Assert
         ids.RoadSegmentIds.Should().BeEquivalentTo([new RoadSegmentId(1)]);
         ids.RoadNodeIds.Should().BeEquivalentTo([new RoadNodeId(11)]);
         ids.GradeSeparatedJunctionIds.Should().BeEquivalentTo([new GradeSeparatedJunctionId(1)]);
-        ids.GradeJunctionIds.Should().BeEquivalentTo([new GradeJunctionId(1)]);
     }
 
-    // A V1 road segment has no V2 status and is taken into an extract whatever state it is in; a V1 removal deletes
-    // the topology row, so a removed one is not there to begin with.
+    // A road segment that is not migrated yet is taken into an extract whatever its status: the one its aggregate carries
+    // was only derived from the geometry draw method when it was carried over from the legacy road network.
     [Fact]
     public async Task GivenAV1RoadSegment_ThenInTheExtractWhateverItsStatus()
     {
@@ -303,21 +305,22 @@ public class WhenGetUnderlyingIdsForExtract : RoadNetworkIntegrationTest
 
         var geometry = BuildRoadSegmentGeometry(0, 0, 10, 0);
 
-        var v1RoadSegment = TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V1.ImportedRoadSegment>();
-        v1RoadSegment.RoadSegmentId = 1;
-        v1RoadSegment.StartNodeId = 11;
-        v1RoadSegment.EndNodeId = 12;
-        v1RoadSegment.Geometry = geometry;
-        v1RoadSegment.Status = RoadSegmentStatus.OutOfUse;
+        // Stored the way MartenMigrationProjection carries a V1 road segment over: a document without attributes.
+        await using (var session = store.LightweightSession())
+        {
+            session.Store(RoadSegment.CreateForMigration(
+                new RoadSegmentId(1),
+                geometry,
+                RoadSegmentStatusV2.BuitenGebruik,
+                new RoadNodeId(11),
+                new RoadNodeId(12)));
+            await session.SaveChangesAsync();
+        }
 
-        await Append(store, 1, v1RoadSegment);
-
-        // A V1 road segment is stored in Lambert08 - the projection converts it - while the rest of this file works
-        // in the Lambert72 the test data is built in, so the contour has to be asked for in the same coordinates.
-        var contour = geometry.EnsureLambert08().Value.Buffer(1).Envelope;
+        var contour = geometry.Value.Buffer(1).Envelope;
 
         // Act
-        var ids = await GetUnderlyingIds(sp, contour);
+        var ids = await LoadForExtractIds(sp, contour);
 
         // Assert
         ids.RoadSegmentIds.Should().BeEquivalentTo([new RoadSegmentId(1)]);
@@ -351,22 +354,6 @@ public class WhenGetUnderlyingIdsForExtract : RoadNetworkIntegrationTest
         });
     }
 
-    private static void AppendRoadNodes(IDocumentSession session, params int[] roadNodeIds)
-    {
-        foreach (var roadNodeId in roadNodeIds)
-        {
-            session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadRegistry.RoadNode.RoadNode), new RoadNodeId(roadNodeId)),
-                new RoadRegistry.RoadNode.Events.V2.RoadNodeWasAdded
-                {
-                    RoadNodeId = new RoadNodeId(roadNodeId),
-                    Geometry = RoadNodeGeometry.Create(new Point(roadNodeId, 0) { SRID = WellknownSrids.Lambert72 }),
-                    Type = RoadNodeTypeV2.EchteKnoop,
-                    Grensknoop = false,
-                    Provenance = new RoadRegistryProvenanceData()
-                });
-        }
-    }
-
     private Task AddRoadSegment(IDocumentStore store, int roadSegmentId, RoadSegmentStatusV2 status)
     {
         return Append(store, roadSegmentId, TestData.Fixture.Create<RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded>() with
@@ -397,12 +384,43 @@ public class WhenGetUnderlyingIdsForExtract : RoadNetworkIntegrationTest
         return BuildRoadSegmentGeometry(5, -5, 5, 5).Value.Buffer(1).Envelope;
     }
 
-    private async Task<RoadNetworkIds> GetUnderlyingIds(IServiceProvider sp, Geometry? geometry)
+    protected override void ConfigureMarten(StoreOptions options)
+    {
+        options.ConfigureExtractDocuments();
+    }
+
+    // What the load takes, by id. The extract documents are written by a projection of their own, which these tests do
+    // not run, so every aggregate document is given an extract document first that carries no more than its id - the
+    // load takes the extract documents by id, and that is all it needs to show which ones it took. An extract has no
+    // grade junctions, so there are none to show.
+    private async Task<RoadNetworkIds> LoadForExtractIds(IServiceProvider sp, Geometry? geometry)
     {
         var store = sp.GetRequiredService<IDocumentStore>();
         var repo = sp.GetRequiredService<IRoadNetworkRepository>();
 
+        await using (var connection = store.Storage.Database.CreateConnection())
+        {
+            await connection.OpenAsync();
+            await using var command = new NpgsqlCommand(@"
+INSERT INTO projections.mt_doc_extract_roadnodes (id, data)
+SELECT road_node_id, jsonb_build_object('roadNodeId', road_node_id) FROM eventstore.mt_doc_roadnode
+ON CONFLICT DO NOTHING;
+INSERT INTO projections.mt_doc_extract_roadsegments (id, data)
+SELECT road_segment_id, jsonb_build_object('roadSegmentId', road_segment_id) FROM eventstore.mt_doc_roadsegment
+ON CONFLICT DO NOTHING;
+INSERT INTO projections.mt_doc_extract_gradeseparatedjunctions (id, data)
+SELECT grade_separated_junction_id, jsonb_build_object('gradeSeparatedJunctionId', grade_separated_junction_id) FROM eventstore.mt_doc_gradeseparatedjunction
+ON CONFLICT DO NOTHING;", connection);
+            await command.ExecuteNonQueryAsync();
+        }
+
         await using var session = store.LightweightSession();
-        return await repo.GetUnderlyingIdsForExtract(session, geometry);
+        var documents = await repo.LoadForExtract<RoadNodeExtractItem, RoadSegmentExtractItem, GradeSeparatedJunctionExtractItem>(session, geometry!);
+
+        return new RoadNetworkIds(
+            documents.RoadNodes.Select(x => x.RoadNodeId).ToArray(),
+            documents.RoadSegments.Select(x => x.RoadSegmentId).ToArray(),
+            documents.GradeSeparatedJunctions.Select(x => x.GradeSeparatedJunctionId).ToArray(),
+            []);
     }
 }
