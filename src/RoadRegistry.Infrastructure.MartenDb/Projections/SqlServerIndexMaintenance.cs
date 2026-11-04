@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 // never a unique index or one backing a constraint (disabling those would take the constraint with it). The clustered
 // index is left alone - disabling it would make the table itself unreadable. A caller may narrow it further by naming
 // the leading key columns whose indexes are the projection's own read path and have to survive the catch-up.
-internal static class SqlServerIndexMaintenance
+public static class SqlServerIndexMaintenance
 {
     private const int NoTimeout = 0;
 

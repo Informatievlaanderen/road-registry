@@ -109,11 +109,21 @@ public class ApiModule : Module
         if (projectionOptions.Pbs.Enabled)
         {
             RegisterPbsMartenProjection();
+
+            if (projectionOptions.Pbs.Shadow.Enabled)
+            {
+                RegisterPbsShadowMartenProjection();
+            }
         }
 
         if (projectionOptions.WmsWfsV2.Enabled)
         {
             RegisterWmsWfsV2MartenProjection();
+
+            if (projectionOptions.WmsWfsV2.Shadow.Enabled)
+            {
+                RegisterWmsWfsV2ShadowMartenProjection();
+            }
         }
     }
 
@@ -397,6 +407,29 @@ public class ApiModule : Module
             Id = WellKnownProjectionStateNames.RoadNetworkChangesPbsProjection,
             Name = "V2 - PBS",
             Description = string.Empty,
+            FallbackDesiredState = "subscribed"
+        });
+    }
+
+    // Listed so the rebuild it is doing can be followed: it is only worth promoting once it has caught up.
+    private void RegisterPbsShadowMartenProjection()
+    {
+        _martenProjections.Add(new ProjectionDetail
+        {
+            Id = WellKnownProjectionStateNames.RoadNetworkChangesPbsTempProjection,
+            Name = "V2 - PBS (shadow rebuild)",
+            Description = "Vult het schaduwschema RoadRegistryPbsTemp; wordt actief via Projections:Pbs:Shadow:Promote.",
+            FallbackDesiredState = "subscribed"
+        });
+    }
+
+    private void RegisterWmsWfsV2ShadowMartenProjection()
+    {
+        _martenProjections.Add(new ProjectionDetail
+        {
+            Id = WellKnownProjectionStateNames.RoadNetworkChangesWmsWfsV2TempProjection,
+            Name = "V2 - WMS/WFS (shadow rebuild)",
+            Description = "Vult het schaduwschema roadTemp; wordt actief via Projections:WmsWfsV2:Shadow:Promote.",
             FallbackDesiredState = "subscribed"
         });
     }
