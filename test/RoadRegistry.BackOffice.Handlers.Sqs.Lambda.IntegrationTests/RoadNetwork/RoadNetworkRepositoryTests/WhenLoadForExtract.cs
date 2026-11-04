@@ -310,16 +310,14 @@ public class WhenLoadForExtract : RoadNetworkIntegrationTest
         {
             session.Store(RoadSegment.CreateForMigration(
                 new RoadSegmentId(1),
-                geometry.EnsureLambert08(),
+                geometry,
                 RoadSegmentStatusV2.BuitenGebruik,
                 new RoadNodeId(11),
                 new RoadNodeId(12)));
             await session.SaveChangesAsync();
         }
 
-        // A V1 road segment is stored in Lambert08 - the migration converts it - while the rest of this file works
-        // in the Lambert72 the test data is built in, so the contour has to be asked for in the same coordinates.
-        var contour = geometry.EnsureLambert08().Value.Buffer(1).Envelope;
+        var contour = geometry.Value.Buffer(1).Envelope;
 
         // Act
         var ids = await LoadForExtractIds(sp, contour);

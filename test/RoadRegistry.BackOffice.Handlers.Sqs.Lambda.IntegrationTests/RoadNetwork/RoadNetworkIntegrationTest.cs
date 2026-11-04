@@ -141,7 +141,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
                 new RoadRegistry.RoadNode.Events.V2.RoadNodeWasAdded
                 {
                     RoadNodeId = new RoadNodeId(roadNodeId),
-                    Geometry = RoadNodeGeometry.Create(new Point(roadNodeId, 0) { SRID = WellknownSrids.Lambert72 }),
+                    Geometry = RoadNodeGeometry.Create(new Point(roadNodeId, 0) { SRID = WellknownSrids.Lambert08 }),
                     Type = RoadNodeTypeV2.EchteKnoop,
                     Grensknoop = false,
                     Provenance = new RoadRegistryProvenanceData()
@@ -191,6 +191,7 @@ public abstract class RoadNetworkIntegrationTest : IClassFixture<DatabaseFixture
     protected static RoadSegmentGeometry BuildRoadSegmentGeometry(Point start, Point end)
     {
         return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
+            .WithSrid(WellknownSrids.Lambert08)
             .WithMeasureOrdinates()
             .ToRoadSegmentGeometry();
     }

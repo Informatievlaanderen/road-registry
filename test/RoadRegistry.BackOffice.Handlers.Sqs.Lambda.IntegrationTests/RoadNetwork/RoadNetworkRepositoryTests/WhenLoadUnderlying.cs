@@ -217,7 +217,7 @@ public class WhenLoadUnderlying : RoadNetworkIntegrationTest
                 var roadNodeWasAdded = TestData.Fixture.Create<RoadRegistry.RoadNode.Events.V2.RoadNodeWasAdded>() with
                 {
                     RoadNodeId = new RoadNodeId(roadNodeId),
-                    Geometry = RoadNodeGeometry.Create(new Point(0, y) { SRID = WellknownSrids.Lambert72 })
+                    Geometry = RoadNodeGeometry.Create(new Point(0, y) { SRID = WellknownSrids.Lambert08 })
                 };
                 session.Events.AppendOrStartStream(StreamKeyFactory.Create(typeof(RoadNode), roadNodeWasAdded.RoadNodeId), roadNodeWasAdded);
             }
