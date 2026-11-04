@@ -28,10 +28,10 @@ public class RoadSegmentLaneAttributesZipArchiveWriter : IZipArchiveWriter
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
-        var hasInwinningRoadSegments = await zipArchiveDataProvider.HasInwinningRoadSegment(request.Contour, cancellationToken);
-        var attributes = hasInwinningRoadSegments
-            ? []
-            : await zipArchiveDataProvider.GetRoadSegmentLaneAttributes(request.Contour, cancellationToken);
+        var editableRoadSegmentIds = await zipArchiveDataProvider.GetEditableRoadSegmentIds(request.Contour, cancellationToken);
+        var attributes = (await zipArchiveDataProvider.GetRoadSegmentLaneAttributes(request.Contour, cancellationToken))
+            .Where(x => editableRoadSegmentIds.Contains(x.RoadSegmentId))
+            .ToList();
 
         const ExtractFileName extractFilename = ExtractFileName.AttRijstroken;
         FeatureType[] featureTypes = request.IsInformative

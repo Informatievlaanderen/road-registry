@@ -38,6 +38,9 @@
                 .Setup(x => x.GetOrganizations(It.IsAny<CancellationToken>()))
                 .ReturnsAsync([]);
             _zipArchiveDataProvider
+                .Setup(x => x.GetEditableRoadSegmentIds(It.IsAny<IPolygonal>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new HashSet<int>());
+            _zipArchiveDataProvider
                 .Setup(x => x.GetRoadNodes(It.IsAny<IPolygonal>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync([]);
             _zipArchiveDataProvider
