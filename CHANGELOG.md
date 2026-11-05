@@ -1,3 +1,15 @@
+# [5.30.0](https://github.com/informatievlaanderen/road-registry/compare/v5.29.5...v5.30.0) (2026-11-05)
+
+
+### Bug Fixes
+
+* **projections:** give the projection driver's execution strategy its cancellation token ([0cd239e](https://github.com/informatievlaanderen/road-registry/commit/0cd239eebff38c37e13df3d0932ef2f80ddbb9bf)), closes [#2182](https://github.com/informatievlaanderen/road-registry/issues/2182)
+
+
+### Features
+
+* **projections:** rebuild PBS and WmsWfsV2 into a shadow schema, driven by config ([68c98b2](https://github.com/informatievlaanderen/road-registry/commit/68c98b2126c0c680311cda5636dd9484b19b524e))
+
 ## [5.29.5](https://github.com/informatievlaanderen/road-registry/compare/v5.29.4...v5.29.5) (2026-11-03)
 
 
