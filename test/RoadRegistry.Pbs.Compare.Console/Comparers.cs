@@ -502,11 +502,12 @@ internal static class Comparers
                 var id = reader.GetInt32(0);
                 var events = existence.GetValueOrDefault(id);
                 int? status = null;
+                var hasMigrated = reader.GetBoolean(7);
                 var statusText = reader.IsDBNull(2) ? null : reader.GetString(2);
                 if (statusText is not null)
                 {
                     status = ResolveStatus(statusText);
-                    if (status is null)
+                    if (status is null && hasMigrated)
                     {
                         unparseableStatus++;
                     }
@@ -515,7 +516,7 @@ internal static class Comparers
                 return new SegmentRow(
                     events.Removed,
                     reader.GetBoolean(1),
-                    reader.GetBoolean(7),
+                    hasMigrated,
                     reader.IsDBNull(3) ? null : reader.GetInt32(3),
                     reader.IsDBNull(4) ? null : reader.GetInt32(4),
                     status,
@@ -855,8 +856,14 @@ internal static class Comparers
             differences.Add($"knopen marten={Show(marten.StartNode)}->{Show(marten.EndNode)} pbs={Show(pbs.StartNode)}->{Show(pbs.EndNode)}");
         }
 
-        // Only when both sides have a status: a null on either side means "not comparable", not "different".
-        if (marten.Status is not null && pbs.Status is not null && marten.Status != pbs.Status)
+        // Status, but only for a segment that has migrated. The document of one that has not carries no real V2
+        // status: MartenMigrationProjection derives a placeholder from the draw method - ingeschetst becomes
+        // Gepland, everything else Gerealiseerd - and leaves the actual status in the legacy event it appends.
+        // PBS projects that actual status, so holding the two against each other says nothing about PBS. It flagged
+        // 97% of every ingeschetst segment before this was skipped.
+        //
+        // And only when both sides have one: a null on either side means "not comparable", not "different".
+        if (marten.HasMigrated && marten.Status is not null && pbs.Status is not null && marten.Status != pbs.Status)
         {
             differences.Add($"status marten={marten.Status} pbs={pbs.Status}");
         }

@@ -44,11 +44,17 @@ geprojecteerd. Draait de tool tegen een omgeving waar die migratie nog niet gepa
 De maand waarin een bevinding gebucket wordt, komt óók uit de event-stream: een document draagt geen eigen
 event-timestamp, en `mt_last_modified` zegt wanneer de snapshot geschreven is, niet wanneer de wijziging gebeurde.
 
+**Status wordt enkel vergeleken voor een gemigreerd wegsegment.** Het document van een segment dat nog uit het
+legacy-wegenregister komt draagt geen echte V2-status: `MartenMigrationProjection` zet daar een placeholder uit de
+tekenmethode (ingeschetst → `Gepland`, al de rest → `Gerealiseerd`) en laat de werkelijke status in het legacy-event
+dat ze wegschrijft. PBS projecteert die werkelijke status. Die twee naast elkaar leggen zegt dus niets over PBS — het
+markeerde 97% van alle ingeschetste segmenten voor dit overgeslagen werd.
+
 ## Wat er vergeleken wordt
 
 | entiteit | PBS-tabel | naast bestaan/verwijderd ook |
 |---|---|---|
-| wegsegment | `Wegsegmenten` | begin- en eindknoop, status, aantal punten, lengte |
+| wegsegment | `Wegsegmenten` | begin- en eindknoop, status (enkel gemigreerd, zie hieronder), aantal punten, lengte |
 | wegknoop | `WegknopenData` | x/y van het punt |
 | ongelijkgrondse kruising | `OngelijkgrondseKruisingen` | boven- en onderliggend wegsegment |
 | gelijkgrondse kruising | `GelijkgrondseKruisingen` | de twee wegsegmenten |
