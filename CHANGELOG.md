@@ -1,3 +1,10 @@
+# [5.32.0](https://github.com/informatievlaanderen/road-registry/compare/v5.31.0...v5.32.0) (2026-11-05)
+
+
+### Features
+
+* add feature toggle for editable extract data near inwinning GAWR-7796 ([d7ae3b5](https://github.com/informatievlaanderen/road-registry/commit/d7ae3b5042effe68a8609fe796d02776d076d919))
+
 # [5.31.0](https://github.com/informatievlaanderen/road-registry/compare/v5.30.0...v5.31.0) (2026-11-05)
 
 
