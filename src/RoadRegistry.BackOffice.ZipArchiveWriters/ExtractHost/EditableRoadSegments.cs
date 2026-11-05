@@ -31,4 +31,28 @@ public static class EditableRoadSegments
             .Select(x => x.Id)
             .ToHashSet();
     }
+
+    // The behaviour before GAWR-7796: as soon as one road segment in the contour takes part in an inwinning, none of
+    // the road segments in the contour are editable.
+    public static IReadOnlySet<int> DetermineAllOrNothing(
+        IEnumerable<RoadSegmentTopology> segmentsInContour,
+        bool overlapsWithInwinning)
+    {
+        return overlapsWithInwinning
+            ? new HashSet<int>()
+            : segmentsInContour.Select(x => x.Id).ToHashSet();
+    }
+
+    // A grade separated junction is only editable when both its road segments are. Before GAWR-7796 one road segment
+    // in the contour was enough.
+    public static bool IsGradeSeparatedJunctionEditable(
+        IReadOnlySet<int> editableRoadSegmentIds,
+        int upperRoadSegmentId,
+        int lowerRoadSegmentId,
+        bool useEditableExtractDataNearInwinning)
+    {
+        return useEditableExtractDataNearInwinning
+            ? editableRoadSegmentIds.Contains(upperRoadSegmentId) && editableRoadSegmentIds.Contains(lowerRoadSegmentId)
+            : editableRoadSegmentIds.Contains(upperRoadSegmentId) || editableRoadSegmentIds.Contains(lowerRoadSegmentId);
+    }
 }
