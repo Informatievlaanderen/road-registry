@@ -117,14 +117,14 @@ internal static class Program
         {
             await Comparers.ComparePositionsAsync(marten, pbs, report, token);
 
-            // Which entities should still exist is read from the event streams first: the topology projection's own
-            // is_removed mark was backfilled for V2 rows only and is stale for everything the migration removed.
-            var removed = await Comparers.ReadRemovedIdsAsync(marten, report, token);
+            // Which entities should still exist is read from the event streams first - the aggregate document's own
+            // isRemoved is held against that rather than trusted - and so is the month every finding is bucketed by.
+            var existence = await Comparers.ReadExistenceAsync(marten, report, token);
 
-            await Comparers.CompareSegmentsAsync(marten, pbs, options, removed[Comparers.SegmentKind], report, token);
-            await Comparers.CompareNodesAsync(marten, pbs, removed[Comparers.NodeKind], report, token);
-            await Comparers.CompareGradeSeparatedJunctionsAsync(marten, pbs, removed[Comparers.GradeSeparatedJunctionKind], report, token);
-            await Comparers.CompareGradeJunctionsAsync(marten, pbs, removed[Comparers.GradeJunctionKind], report, token);
+            await Comparers.CompareSegmentsAsync(marten, pbs, options, existence[Comparers.SegmentKind], report, token);
+            await Comparers.CompareNodesAsync(marten, pbs, existence[Comparers.NodeKind], report, token);
+            await Comparers.CompareGradeSeparatedJunctionsAsync(marten, pbs, existence[Comparers.GradeSeparatedJunctionKind], report, token);
+            await Comparers.CompareGradeJunctionsAsync(marten, pbs, existence[Comparers.GradeJunctionKind], report, token);
         }
         catch (OperationCanceledException)
         {

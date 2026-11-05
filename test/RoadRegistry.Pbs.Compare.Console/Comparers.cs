@@ -16,13 +16,17 @@ using RoadRegistry.ValueObjects;
 // Two sources, each for what it has authority over.
 //
 // WHETHER an entity should exist comes from the event streams: per stream the last event that creates or removes it
-// wins (see Existences). Not from the topology projection's is_removed column, which was added later and backfilled
-// for V2 rows only, and is therefore still unmarked for everything a V2 migration removal took off a V1 row.
+// wins (see Existences). The document's own isRemoved is the second opinion, never the verdict: the two are held
+// against each other and whatever drift is left over is reported as a note.
 //
-// WHAT it should look like is read from the network topology projection rather than from the snapshot documents: it
-// is an INLINE projection, so it is written in the same transaction that appends the events and is therefore never
-// behind the event store. It also stores what we compare as plain columns (id, status, the node ids, the geometry),
-// so nothing here depends on a json property name.
+// WHAT it should look like is read from the aggregate documents in {EventStoreSchema}.mt_doc_*. The snapshot is
+// written inline, in the same transaction that appends the events, so it is never behind the event store. What we
+// compare on - the id, the status, the node ids, the geometry - sits in columns generated from the document json by
+// 20261103120000_add_topology_columns_to_aggregate_documents, which Postgres keeps in step with every upsert Marten
+// does. The networktopology_* tables this tool used to read are no longer projected into (1a813da62).
+//
+// The month a row is bucketed by comes from the event stream too: a document carries no event timestamp of its own,
+// and mt_last_modified says when the snapshot was written, not when the change happened.
 //
 // What each side is asked for is deliberately shallow: does the row exist, is it gone when it should be gone, and do
 // the few fields that change on almost every edit still line up. This finds events PBS never applied; it is not a
@@ -32,27 +36,36 @@ internal static class Comparers
     private const string PbsSchema = WellKnownSchemas.PbsSchema;
     private static readonly string EventStoreSchema = WellKnownSchemas.MartenEventStore;
 
-    internal sealed record SegmentRow(bool Removed, bool TopologyRemoved, bool IsV2, int? StartNode, int? EndNode, int? Status, string? StatusText, int Points, double Length, DateTimeOffset Timestamp);
+    // What the event streams say about one entity: whether it still exists, and the month of the event that decided
+    // that. Kept as yyyyMM rather than a DateTimeOffset because one of these is held per id of the whole network.
+    internal readonly record struct EntityExistence(bool Removed, int YearMonth);
 
-    internal sealed record NodeRow(bool Removed, bool TopologyRemoved, bool IsV2, double X, double Y, DateTimeOffset Timestamp);
+    internal sealed record SegmentRow(bool Removed, bool DocumentRemoved, bool HasMigrated, int? StartNode, int? EndNode, int? Status, string? StatusText, int Points, double Length, int YearMonth);
 
-    internal sealed record JunctionRow(bool Removed, bool TopologyRemoved, bool IsV2, int? SegmentA, int? SegmentB, DateTimeOffset Timestamp);
+    internal sealed record NodeRow(bool Removed, bool DocumentRemoved, bool HasMigrated, double X, double Y, int YearMonth);
+
+    internal sealed record JunctionRow(bool Removed, bool DocumentRemoved, bool HasMigrated, int? SegmentA, int? SegmentB, int YearMonth);
 
     // Why a row is in the state it is in, counted over every finding. This is what turns "33.234 ontbreken" into a
-    // diagnosis: a V1-only row (the topology projection writes no status for those) is a different story from one
-    // that a merge or split retired.
-    private static string Category(SegmentRow row) => $"{Version(row.IsV2)}, status={row.StatusText ?? "-"}";
+    // diagnosis: a row still carried over from the legacy road network - no attributes on the document yet, so
+    // nothing has migrated it - is a different story from one that a merge or split retired.
+    private static string Category(SegmentRow row) => $"{Migrated(row.HasMigrated)}, status={row.StatusText ?? "-"}";
 
-    private static string Category(NodeRow row) => Version(row.IsV2);
+    private static string Category(NodeRow row) => Migrated(row.HasMigrated);
 
-    private static string Category(JunctionRow row) => Version(row.IsV2);
+    private static string Category(JunctionRow row) => Migrated(row.HasMigrated);
 
-    private static string Version(bool isV2) => isV2 ? "v2" : "v1";
+    private static string Migrated(bool hasMigrated) => hasMigrated ? "gemigreerd" : "niet-gemigreerd";
 
-    // The topology row's event timestamp, by month: a gap that clusters in one window is an incident, a gap that
-    // is spread evenly is something systematic.
-    private static string Month(DateTimeOffset timestamp)
-        => timestamp == default ? "-" : timestamp.ToString("yyyy-MM", CultureInfo.InvariantCulture);
+    // The month of the last event that decided whether the entity exists: a gap that clusters in one window is an
+    // incident, a gap that is spread evenly is something systematic.
+    private static string Month(int yearMonth)
+        => yearMonth == 0
+            ? "-"
+            : string.Create(CultureInfo.InvariantCulture, $"{yearMonth / 100:D4}-{yearMonth % 100:D2}");
+
+    private static int YearMonth(DateTimeOffset timestamp)
+        => timestamp == default ? 0 : timestamp.Year * 100 + timestamp.Month;
 
     // Read-only diagnosis of the one way this driver loses work: RoadNetworkChangesProjection.IsProjectable drops
     // every event without a correlation id, while the projection-state position still advances past it
@@ -244,34 +257,33 @@ internal static class Comparers
         Console.WriteLine($"{inEditor} van {total} id's staan nog in de editor-projectie.");
     }
 
-    // Prints the topology row behind a road segment id, to hold against that stream's events.
+    // Prints the generated topology columns of a road segment's document, to hold against that stream's events.
     public static async Task DumpTopologyAsync(DbConnection marten, IReadOnlyList<string> ids, CancellationToken ct)
     {
         await using var command = marten.CreateCommand();
         command.CommandText = $"""
-            select id, is_v2, is_removed, coalesce(status, '-') as status, timestamp
+            select road_segment_id, coalesce(has_migrated, false), is_removed,
+                   coalesce(status, '-') as status, mt_last_modified
             from {RoadNetworkTopologyTables.RoadSegments}
-            where id = any(string_to_array(@ids, ',')::int[])
-            order by id
+            where road_segment_id = any(string_to_array(@ids, ',')::int[])
+            order by road_segment_id
             """;
         var parameter = command.CreateParameter();
         parameter.ParameterName = "ids";
         parameter.Value = string.Join(",", ids);
         command.Parameters.Add(parameter);
 
-        Console.WriteLine($"{"id",12} {"is_v2",6} {"is_removed",11} {"status",-16} timestamp");
+        Console.WriteLine($"{"id",12} {"gemigr.",8} {"is_removed",11} {"status",-16} laatst gewijzigd");
         await using var reader = await command.ExecuteReaderAsync(ct);
         while (await reader.ReadAsync(ct))
         {
-            Console.WriteLine($"{reader.GetInt32(0),12} {reader.GetBoolean(1),6} {reader.GetBoolean(2),11} {reader.GetString(3),-16} {reader.GetFieldValue<DateTimeOffset>(4):yyyy-MM-dd HH:mm}");
+            Console.WriteLine($"{reader.GetInt32(0),12} {reader.GetBoolean(1),8} {reader.GetBoolean(2),11} {reader.GetString(3),-16} {reader.GetFieldValue<DateTimeOffset>(4):yyyy-MM-dd HH:mm}");
         }
     }
 
-    // Whether an entity should still exist is decided by its event stream, not by the topology projection's
-    // is_removed column. That column was added by 20261026120000_networktopology_status_and_is_removed and
-    // backfilled from the aggregates for V2 rows only, on the assumption that "a V1 removal still deletes the row,
-    // so nothing V1 is ever marked" - which does not hold for a V2 migration removal of a V1 row. Those rows are
-    // still in the topology, unmarked, long after the domain removed them.
+    // Whether an entity should exist is decided by its event stream, not by the isRemoved on its document. The two
+    // normally agree - the snapshot is written inline, after every event of the stream - but the stream is the one
+    // that cannot have been skipped, and any disagreement between them is itself worth reporting.
     //
     // So per stream the last event that creates or removes the entity wins, and everything between them is a
     // modification that does not move existence. The aliases are Marten's snake_case convention; --eventtypes
@@ -354,44 +366,54 @@ internal static class Comparers
     ];
 
     /// <summary>
-    /// The ids whose stream ends - as far as existence goes - on a removal, per entity kind. One pass over the
-    /// event store for all four kinds together: the type names do not overlap between them, so the stream key says
-    /// which kind a row belongs to.
+    /// Per entity kind, what the event streams say about every id: whether the last event that moves existence
+    /// removes it, and the month that event carries. One pass over the event store for all four kinds together:
+    /// the type names do not overlap between them, so the stream key says which kind a row belongs to.
     /// </summary>
-    public static async Task<IReadOnlyDictionary<string, HashSet<int>>> ReadRemovedIdsAsync(
+    /// <remarks>
+    /// Every id is kept, not only the removed ones, because the month a finding is bucketed by comes from here as
+    /// well - the document has no event timestamp of its own.
+    /// </remarks>
+    public static async Task<IReadOnlyDictionary<string, IReadOnlyDictionary<int, EntityExistence>>> ReadExistenceAsync(
         DbConnection marten, Report report, CancellationToken ct)
     {
-        var removed = Existences.ToDictionary(existence => existence.Kind, _ => new HashSet<int>());
+        var existence = Existences.ToDictionary(e => e.Kind, _ => new Dictionary<int, EntityExistence>());
+        var removals = Existences.SelectMany(e => e.Removes).ToHashSet(StringComparer.Ordinal);
         var perType = new Dictionary<string, int>();
 
         await using var command = marten.CreateCommand();
         command.CommandText = $"""
             select split_part(last.stream_id, '-', 1) as kind,
                    split_part(last.stream_id, '-', 2)::int as id,
-                   last.type
+                   last.type,
+                   last.timestamp
             from (
-                select distinct on (e.stream_id) e.stream_id, e.type
+                select distinct on (e.stream_id) e.stream_id, e.type, e.timestamp
                 from {EventStoreSchema}.mt_events e
                 where e.type = any(@types)
                 order by e.stream_id, e.seq_id desc
             ) last
-            where last.type = any(@removals)
             """;
         command.CommandTimeout = 0;
-        AddArray(command, "types", Existences.SelectMany(existence => existence.All).ToArray());
-        AddArray(command, "removals", Existences.SelectMany(existence => existence.Removes).ToArray());
+        AddArray(command, "types", Existences.SelectMany(e => e.All).ToArray());
 
         await using var reader = await command.ExecuteReaderAsync(ct);
         while (await reader.ReadAsync(ct))
         {
             var kind = reader.GetString(0);
-            if (removed.TryGetValue(kind, out var ids))
+            if (!existence.TryGetValue(kind, out var rows))
             {
-                ids.Add(reader.GetInt32(1));
+                continue;
             }
 
             var type = reader.GetString(2);
-            perType[type] = perType.GetValueOrDefault(type) + 1;
+            var removed = removals.Contains(type);
+            rows[reader.GetInt32(1)] = new EntityExistence(removed, YearMonth(reader.GetFieldValue<DateTimeOffset>(3)));
+
+            if (removed)
+            {
+                perType[type] = perType.GetValueOrDefault(type) + 1;
+            }
         }
 
         Console.WriteLine();
@@ -401,18 +423,21 @@ internal static class Comparers
             Console.WriteLine($"  {type,-54} {count,12:N0}");
         }
 
-        foreach (var kind in removed.Keys)
+        foreach (var kind in existence.Keys)
         {
-            Console.WriteLine($"  {kind,-54} {removed[kind].Count,12:N0} id's");
+            var rows = existence[kind];
+            Console.WriteLine($"  {kind,-54} {rows.Values.Count(row => row.Removed),12:N0} id's van {rows.Count:N0}");
         }
 
-        if (removed.Values.All(ids => ids.Count == 0))
+        if (perType.Count == 0)
         {
             report.Note("geen enkel verwijderevent gevonden - de eventtypes in deze tool kloppen niet meer met de store, "
                         + "voer --eventtypes uit en vergelijk");
         }
 
-        return removed;
+        return existence.ToDictionary(
+            pair => pair.Key,
+            pair => (IReadOnlyDictionary<int, EntityExistence>)pair.Value);
     }
 
     private static void AddArray(DbCommand command, string name, string[] values)
@@ -459,21 +484,23 @@ internal static class Comparers
     }
 
     public static async Task CompareSegmentsAsync(DbConnection marten, DbConnection pbs, CompareOptions options,
-        HashSet<int> removedByEvents, Report report, CancellationToken ct)
+        IReadOnlyDictionary<int, EntityExistence> existence, Report report, CancellationToken ct)
     {
         const string entity = "wegsegment";
         var unparseableStatus = 0;
         long martenCount = 0, pbsCount = 0, compared = 0, unmarkedRemovals = 0, unexpectedMarks = 0;
 
         var martenRows = ReadAsync(marten, $"""
-            select id, is_removed, status, start_node_id, end_node_id,
-                   coalesce(st_npoints(geometry), 0), coalesce(st_length(geometry), 0), is_v2, timestamp
+            select road_segment_id, is_removed, status, start_node_id, end_node_id,
+                   coalesce(st_npoints(geometry), 0), coalesce(st_length(geometry), 0),
+                   coalesce(has_migrated, false)
             from {RoadNetworkTopologyTables.RoadSegments}
-            order by id
+            order by road_segment_id
             """,
             reader =>
             {
                 var id = reader.GetInt32(0);
+                var events = existence.GetValueOrDefault(id);
                 int? status = null;
                 var statusText = reader.IsDBNull(2) ? null : reader.GetString(2);
                 if (statusText is not null)
@@ -486,7 +513,7 @@ internal static class Comparers
                 }
 
                 return new SegmentRow(
-                    removedByEvents.Contains(id),
+                    events.Removed,
                     reader.GetBoolean(1),
                     reader.GetBoolean(7),
                     reader.IsDBNull(3) ? null : reader.GetInt32(3),
@@ -495,7 +522,7 @@ internal static class Comparers
                     statusText,
                     reader.GetInt32(5),
                     reader.GetDouble(6),
-                    reader.GetFieldValue<DateTimeOffset>(8));
+                    events.YearMonth);
             }, ct);
 
         var pbsRows = ReadAsync(pbs, $"""
@@ -514,7 +541,7 @@ internal static class Comparers
                 null,
                 reader.GetInt32(4),
                 reader.GetDouble(5),
-                default), ct);
+                0), ct);
 
         await foreach (var (id, left, right) in MergeJoin(martenRows, pbsRows, ct))
         {
@@ -528,7 +555,7 @@ internal static class Comparers
                 pbsCount++;
             }
 
-            if (left is not null && left.Removed != left.TopologyRemoved)
+            if (left is not null && left.Removed != left.DocumentRemoved)
             {
                 if (left.Removed)
                 {
@@ -543,7 +570,7 @@ internal static class Comparers
             // Only what Marten says should exist: of every category, how much of it reached PBS.
             if (left is { Removed: false })
             {
-                report.Population(entity, Category(left), Month(left.Timestamp), right is not null);
+                report.Population(entity, Category(left), Month(left.YearMonth), right is not null);
             }
 
             switch (left, right)
@@ -571,7 +598,7 @@ internal static class Comparers
         }
 
         report.Scanned(entity, martenCount, pbsCount, compared);
-        NoteTopologyDrift(report, entity, unmarkedRemovals, unexpectedMarks);
+        NoteDocumentDrift(report, entity, unmarkedRemovals, unexpectedMarks);
         if (unparseableStatus > 0)
         {
             report.Note($"{unparseableStatus:N0} wegsegmenten hadden een status die deze tool niet kon lezen; status is voor die rijen niet vergeleken.");
@@ -579,25 +606,44 @@ internal static class Comparers
     }
 
     public static async Task CompareNodesAsync(DbConnection marten, DbConnection pbs,
-        HashSet<int> removedByEvents, Report report, CancellationToken ct)
+        IReadOnlyDictionary<int, EntityExistence> existence, Report report, CancellationToken ct)
     {
         const string entity = "wegknoop";
         long martenCount = 0, pbsCount = 0, compared = 0, unmarkedRemovals = 0, unexpectedMarks = 0;
 
+        // 20261103120000 gave the road node document no geometry column - no lookup needed one - so the point is
+        // read straight from the json here, in the same shape that migration builds the road segment's from.
+        //
+        // has_migrated is "jsonb_typeof(data -> ...) = ...", which is NULL rather than false when the document has
+        // no such key at all - and that is precisely the row that has not migrated yet, so every read of it here
+        // coalesces. (The same holds for the generated columns on the other three documents.)
         var martenRows = ReadAsync(marten, $"""
-            select id, is_removed, coalesce(st_x(geometry), 0), coalesce(st_y(geometry), 0), is_v2, timestamp
-            from {RoadNetworkTopologyTables.RoadNodes}
-            order by id
+            with node as (
+                select road_node_id,
+                       is_removed,
+                       coalesce(jsonb_typeof(data -> 'type') = 'string', false) as has_migrated,
+                       public.st_geomfromtext(
+                           nullif(data -> 'geometry' ->> 'wkt', ''),
+                           (data -> 'geometry' ->> 'srid')::int) as geometry
+                from {RoadNetworkTopologyTables.RoadNodes}
+            )
+            select road_node_id, is_removed, coalesce(st_x(geometry), 0), coalesce(st_y(geometry), 0), has_migrated
+            from node
+            order by road_node_id
             """,
-            reader => new NodeRow(removedByEvents.Contains(reader.GetInt32(0)), reader.GetBoolean(1), reader.GetBoolean(4),
-                reader.GetDouble(2), reader.GetDouble(3), reader.GetFieldValue<DateTimeOffset>(5)), ct);
+            reader =>
+            {
+                var events = existence.GetValueOrDefault(reader.GetInt32(0));
+                return new NodeRow(events.Removed, reader.GetBoolean(1), reader.GetBoolean(4),
+                    reader.GetDouble(2), reader.GetDouble(3), events.YearMonth);
+            }, ct);
 
         var pbsRows = ReadAsync(pbs, $"""
             select [WK_OIDN], coalesce([GEOMETRIE].STX, 0), coalesce([GEOMETRIE].STY, 0)
             from [{PbsSchema}].[WegknopenData]
             order by [WK_OIDN]
             """,
-            reader => new NodeRow(false, false, false, reader.GetDouble(1), reader.GetDouble(2), default), ct);
+            reader => new NodeRow(false, false, false, reader.GetDouble(1), reader.GetDouble(2), 0), ct);
 
         await foreach (var (id, left, right) in MergeJoin(martenRows, pbsRows, ct))
         {
@@ -611,7 +657,7 @@ internal static class Comparers
                 pbsCount++;
             }
 
-            if (left is not null && left.Removed != left.TopologyRemoved)
+            if (left is not null && left.Removed != left.DocumentRemoved)
             {
                 if (left.Removed)
                 {
@@ -626,7 +672,7 @@ internal static class Comparers
             // Only what Marten says should exist: of every category, how much of it reached PBS.
             if (left is { Removed: false })
             {
-                report.Population(entity, Category(left), Month(left.Timestamp), right is not null);
+                report.Population(entity, Category(left), Month(left.YearMonth), right is not null);
             }
 
             switch (left, right)
@@ -655,19 +701,20 @@ internal static class Comparers
         }
 
         report.Scanned(entity, martenCount, pbsCount, compared);
-        NoteTopologyDrift(report, entity, unmarkedRemovals, unexpectedMarks);
+        NoteDocumentDrift(report, entity, unmarkedRemovals, unexpectedMarks);
     }
 
     public static Task CompareGradeSeparatedJunctionsAsync(DbConnection marten, DbConnection pbs,
-        HashSet<int> removedByEvents, Report report, CancellationToken ct)
+        IReadOnlyDictionary<int, EntityExistence> existence, Report report, CancellationToken ct)
         => CompareJunctionsAsync(
-            marten, pbs, removedByEvents, report, ct,
+            marten, pbs, existence, report, ct,
             entity: "ongelijkgrondse kruising",
             // BO = bovenliggend = upper, ON = onderliggend = lower.
             martenSql: $"""
-                select id, is_removed, upper_road_segment_id, lower_road_segment_id, is_v2, timestamp
+                select grade_separated_junction_id, is_removed, upper_road_segment_id, lower_road_segment_id,
+                       coalesce(has_migrated, false) as has_migrated
                 from {RoadNetworkTopologyTables.GradeSeparatedJunctions}
-                order by id
+                order by grade_separated_junction_id
                 """,
             pbsSql: $"""
                 select [OK_OIDN], [BO_WS_OIDN], [ON_WS_OIDN]
@@ -677,14 +724,15 @@ internal static class Comparers
             labelA: "boven", labelB: "onder");
 
     public static Task CompareGradeJunctionsAsync(DbConnection marten, DbConnection pbs,
-        HashSet<int> removedByEvents, Report report, CancellationToken ct)
+        IReadOnlyDictionary<int, EntityExistence> existence, Report report, CancellationToken ct)
         => CompareJunctionsAsync(
-            marten, pbs, removedByEvents, report, ct,
+            marten, pbs, existence, report, ct,
             entity: "gelijkgrondse kruising",
+            // Grade junctions only exist in the V2 road network, so there is nothing to migrate and no column for it.
             martenSql: $"""
-                select id, is_removed, road_segment_id_1, road_segment_id_2, is_v2, timestamp
+                select grade_junction_id, is_removed, road_segment_id_1, road_segment_id_2, true as has_migrated
                 from {RoadNetworkTopologyTables.GradeJunctions}
-                order by id
+                order by grade_junction_id
                 """,
             pbsSql: $"""
                 select [GK_OIDN], [WS1_OIDN], [WS2_OIDN]
@@ -694,19 +742,24 @@ internal static class Comparers
             labelA: "ws1", labelB: "ws2");
 
     private static async Task CompareJunctionsAsync(
-        DbConnection marten, DbConnection pbs, HashSet<int> removedByEvents, Report report, CancellationToken ct,
+        DbConnection marten, DbConnection pbs, IReadOnlyDictionary<int, EntityExistence> existence,
+        Report report, CancellationToken ct,
         string entity, string martenSql, string pbsSql, string labelA, string labelB)
     {
         long martenCount = 0, pbsCount = 0, compared = 0, unmarkedRemovals = 0, unexpectedMarks = 0;
 
         var martenRows = ReadAsync(marten, martenSql,
-            reader => new JunctionRow(
-                removedByEvents.Contains(reader.GetInt32(0)),
-                reader.GetBoolean(1),
-                reader.GetBoolean(4),
-                reader.IsDBNull(2) ? null : reader.GetInt32(2),
-                reader.IsDBNull(3) ? null : reader.GetInt32(3),
-                reader.GetFieldValue<DateTimeOffset>(5)), ct);
+            reader =>
+            {
+                var events = existence.GetValueOrDefault(reader.GetInt32(0));
+                return new JunctionRow(
+                    events.Removed,
+                    reader.GetBoolean(1),
+                    reader.GetBoolean(4),
+                    reader.IsDBNull(2) ? null : reader.GetInt32(2),
+                    reader.IsDBNull(3) ? null : reader.GetInt32(3),
+                    events.YearMonth);
+            }, ct);
 
         var pbsRows = ReadAsync(pbs, pbsSql,
             reader => new JunctionRow(
@@ -715,7 +768,7 @@ internal static class Comparers
                 false,
                 reader.IsDBNull(1) ? null : reader.GetInt32(1),
                 reader.IsDBNull(2) ? null : reader.GetInt32(2),
-                default), ct);
+                0), ct);
 
         await foreach (var (id, left, right) in MergeJoin(martenRows, pbsRows, ct))
         {
@@ -729,7 +782,7 @@ internal static class Comparers
                 pbsCount++;
             }
 
-            if (left is not null && left.Removed != left.TopologyRemoved)
+            if (left is not null && left.Removed != left.DocumentRemoved)
             {
                 if (left.Removed)
                 {
@@ -744,7 +797,7 @@ internal static class Comparers
             // Only what Marten says should exist: of every category, how much of it reached PBS.
             if (left is { Removed: false })
             {
-                report.Population(entity, Category(left), Month(left.Timestamp), right is not null);
+                report.Population(entity, Category(left), Month(left.YearMonth), right is not null);
             }
 
             switch (left, right)
@@ -773,23 +826,23 @@ internal static class Comparers
         }
 
         report.Scanned(entity, martenCount, pbsCount, compared);
-        NoteTopologyDrift(report, entity, unmarkedRemovals, unexpectedMarks);
+        NoteDocumentDrift(report, entity, unmarkedRemovals, unexpectedMarks);
     }
 
     // The two answers to "should this exist" held against each other. These are not findings about PBS - the
-    // events are what PBS is judged by - but they say how far the topology's own mark has drifted from them.
-    private static void NoteTopologyDrift(Report report, string entity, long unmarkedRemovals, long unexpectedMarks)
+    // events are what PBS is judged by - but they say how far the aggregate's own isRemoved has drifted from them.
+    private static void NoteDocumentDrift(Report report, string entity, long unmarkedRemovals, long unexpectedMarks)
     {
         if (unmarkedRemovals > 0)
         {
-            report.Note($"{entity}: {unmarkedRemovals:N0} rijen zijn volgens de events verwijderd maar staan in de "
-                        + "topologie als niet-verwijderd (de backfill van 20261026120000 raakte enkel v2-rijen)");
+            report.Note($"{entity}: {unmarkedRemovals:N0} rijen zijn volgens de events verwijderd maar hun "
+                        + "aggregate-document staat niet op isRemoved");
         }
 
         if (unexpectedMarks > 0)
         {
-            report.Note($"{entity}: {unexpectedMarks:N0} rijen staan in de topologie als verwijderd terwijl het laatste "
-                        + "bestaansevent op hun stream er een is die ze aanmaakt");
+            report.Note($"{entity}: {unexpectedMarks:N0} rijen staan in hun aggregate-document op isRemoved terwijl "
+                        + "het laatste bestaansevent op hun stream er een is die ze aanmaakt");
         }
     }
 
@@ -878,8 +931,8 @@ internal static class Comparers
         return await command.ExecuteScalarAsync(ct);
     }
 
-    // The topology projection stores the status as text. Whether that is the V2 name or its Dutch translation is an
-    // implementation detail of that projection, so accept either rather than depend on one.
+    // The document's status column is the bare V2 name Marten serializes. Whether that is that name or its Dutch
+    // translation is a serialization detail, so accept either rather than depend on one.
     private static int? ResolveStatus(string value)
     {
         var trimmed = value.Trim();

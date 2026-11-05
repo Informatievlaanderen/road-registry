@@ -1,4 +1,4 @@
-# PBS compare
+﻿# PBS compare
 
 Vergelijkt het PBS-read model (SQL Server) met de Marten-store (PostgreSQL) om één vraag te beantwoorden:
 
@@ -25,18 +25,24 @@ worden aan de stream van het weggesplitste of samengevoegde segment gehangen, di
 `..._was_retired_because_of_...`, en zouden die verwijdering dus ongedaan maken. Op de stream van een segment dat
 eruit voortkomt zijn ze het eerste event, en daar is "bestaat" ook het juiste antwoord.
 
-Niet uit `is_removed` van de topology-projectie dus, en dat is een bewuste keuze. Die kolom is er later bij gekomen
-(`20261026120000_networktopology_status_and_is_removed`) en is gebackfild uit de aggregaten **enkel voor v2-rijen**,
-op de aanname dat "a V1 removal still deletes the row, so nothing V1 is ever marked". Die aanname gaat niet op voor
-een v2-migratieverwijdering van een v1-rij: die rijen staan nog in de topologie en zijn nooit gemarkeerd. Wie op
-`is_removed` vergelijkt, krijgt daarom tienduizenden valse positieven. De samenvatting rapporteert dat verschil
-apart, als notitie — het zijn geen bevindingen over PBS, maar ze zeggen hoe ver de topologie zelf is afgeweken.
+Niet uit `isRemoved` van het aggregate-document dus. Normaal zeggen die twee hetzelfde — de snapshot wordt inline
+geschreven, na elk event van de stream — maar het is de stream die niet overgeslagen kán zijn, en elk verschil
+tussen de twee is op zich al het melden waard. De samenvatting rapporteert dat verschil apart, als notitie: het zijn
+geen bevindingen over PBS, maar ze zeggen hoe ver het document zelf is afgeweken van zijn eigen events.
 
-**Hoe de entiteit er uitziet — uit de topology-projectie.** De state wordt gelezen uit
-`projections.networktopology_*`, niet uit de snapshot-documenten. Die projectie is **inline**: ze wordt geschreven in
-dezelfde transactie die de events wegschrijft en kan dus per definitie niet achterlopen op de event store. Ze bewaart
-bovendien alles wat hier vergeleken wordt in gewone kolommen (`id`, `status`, de knoop-ids, de geometrie), dus er
-hangt niets af van een json-propertynaam die morgen anders heet.
+**Hoe de entiteit er uitziet — uit de aggregate-documenten.** De state wordt gelezen uit
+`eventstore.mt_doc_roadsegment`, `_roadnode`, `_gradeseparatedjunction` en `_gradejunction`. De snapshot wordt
+**inline** geschreven, in dezelfde transactie die de events wegschrijft, en kan dus per definitie niet achterlopen op
+de event store. Alles wat hier vergeleken wordt (`road_segment_id`, `status`, de knoop-ids, de geometrie) staat in
+kolommen die Postgres uit de document-json genereert — toegevoegd door
+`20261103120000_add_topology_columns_to_aggregate_documents` en bij elke upsert van Marten meteen mee bijgewerkt.
+
+De `projections.networktopology_*`-tabellen waar deze tool dit vroeger uit las, worden sinds `1a813da62` niet meer
+geprojecteerd. Draait de tool tegen een omgeving waar die migratie nog niet gepasseerd is, dan faalt hij met
+`column "is_removed" does not exist` — dat is geen bug in de tool maar een databank die nog bijgewerkt moet worden.
+
+De maand waarin een bevinding gebucket wordt, komt óók uit de event-stream: een document draagt geen eigen
+event-timestamp, en `mt_last_modified` zegt wanneer de snapshot geschreven is, niet wanneer de wijziging gebeurde.
 
 ## Wat er vergeleken wordt
 
@@ -116,7 +122,7 @@ Daarnaast zes read-only diagnosestanden, die elk één vraag beantwoorden en daa
 | `--eventtypes` | elk eventtype in de store met zijn aantal — waarmee je de lijsten in `Existences` controleert |
 | `--diagnose` | events zonder correlation id per type (die worden door `RoadNetworkChangesProjection` genegeerd) |
 | `--stream <key,key>` | de eventgeschiedenis van een stream, bv. `RoadSegment-74369` |
-| `--topology <id,id>` | de topology-rij achter een wegsegment-id |
+| `--topology <id,id>` | de gegenereerde topologie-kolommen van het document achter een wegsegment-id |
 | `--doc <id,id>` | `isRemoved` en status uit `mt_doc_roadsegment` - het aggregaat zelf, dus het oordeel van het domein |
 | `--editor <id,id>` | of de EditorContext het segment nog heeft, met zijn methode en status |
 
