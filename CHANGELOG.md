@@ -1,3 +1,10 @@
+## [5.32.1](https://github.com/informatievlaanderen/road-registry/compare/v5.32.0...v5.32.1) (2026-11-05)
+
+
+### Bug Fixes
+
+* **2.0:** store the road node the migration projection just changed ([be53725](https://github.com/informatievlaanderen/road-registry/commit/be5372504de90018895159e19f269f587db25dbb))
+
 # [5.32.0](https://github.com/informatievlaanderen/road-registry/compare/v5.31.0...v5.32.0) (2026-11-05)
 
 
