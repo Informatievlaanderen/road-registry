@@ -45,6 +45,14 @@ public class RepairRoadNodeSnapshots
 {
     private const int BatchSize = 500;
 
+    // The register is kept to the centimetre, so that is what "the document sits on another point" has to mean here.
+    // Both points come from the same source coordinate but by different routes - the document's went through the
+    // projection and a WKT round trip, this one is transformed here and now - and the Lambert 2008 datum transform
+    // turns that into a disagreement in the seventh decimal. A tenth of a micrometre is not a move, and comparing
+    // the WKT verbatim called every one of those a stale geometry. Same tolerance as RoadRegistry.Pbs.Compare.Console
+    // applies to the very same points, which is why that tool only ever reported the handful that really did drift.
+    private const double ToleranceInMeters = 0.01;
+
     // Marten's snake_case aliases, kept with the Existences list in RoadRegistry.Pbs.Compare.Console - whose
     // --eventtypes prints what the store actually holds, which is how both lists are checked against reality.
     private const string RemovedV1 = "road_node_removed";
@@ -84,7 +92,8 @@ public class RepairRoadNodeSnapshots
         _outputHelper = outputHelper;
     }
 
-    [Fact(Skip = "Run once, against an environment")]
+    //[Fact(Skip = "Run once, against an environment")]
+    [Fact]
     public async Task Run()
     {
         // Only reports what it would rewrite; set to false to write.
@@ -197,12 +206,18 @@ public class RepairRoadNodeSnapshots
                 // runner: the document holds the point DotSpatial transformed to Lambert 2008, and ST_Transform does
                 // not reproduce that to the centimetre these differences are measured in.
                 var geometry = lastModified.Geometry.EnsureLambert08();
-                if (roadNode.Geometry.WKT == geometry.WKT && roadNode.Geometry.SRID == geometry.SRID)
+
+                var documentPoint = roadNode.Geometry.Value;
+                var streamPoint = geometry.Value;
+                var dx = Math.Abs(documentPoint.X - streamPoint.X);
+                var dy = Math.Abs(documentPoint.Y - streamPoint.Y);
+
+                if (roadNode.Geometry.SRID == geometry.SRID && dx <= ToleranceInMeters && dy <= ToleranceInMeters)
                 {
                     continue;
                 }
 
-                _outputHelper.WriteLine($"{roadNodeId}: {roadNode.Geometry.WKT} -> {geometry.WKT}");
+                _outputHelper.WriteLine($"{roadNodeId}: {roadNode.Geometry.WKT} -> {geometry.WKT} (dx {dx:0.###} dy {dy:0.###})");
 
                 roadNode.Apply(new RoadRegistry.RoadNode.Events.V2.RoadNodeWasModified
                 {
