@@ -1,12 +1,12 @@
 namespace RoadRegistry.Extracts.DutchTranslations;
 
 using System.Text;
-using RoadRegistry.Extracts.Schemas.Inwinning.GradeSeparatedJuntions;
+using RoadRegistry.Extracts.Schemas.DomainV2.GradeSeparatedJuntions;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using RoadRegistry.Infrastructure.Messages;
 using RoadRegistry.ValueObjects.ProblemCodes;
-using Schemas.Inwinning.RoadNodes;
-using Schemas.Inwinning.RoadSegments;
+using Schemas.DomainV2.RoadNodes;
+using Schemas.DomainV2.RoadSegments;
 using Uploads;
 using FileProblem = Messages.FileProblem;
 
@@ -83,10 +83,10 @@ public sealed class DomainV2FileProblemTranslator : FileProblemTranslator
                 nameof(DbaseFileProblems.RoadSegmentTempIdOutOfRange), () =>
                     translation with { Message = $"De {DbaseRecordLabel(nameof(RoadSegmentDbaseRecord.WS_TEMPID), problem.GetParameterValue("Actual"))} heeft een ongeldige wegsegment identificator." }
             },
-            // {
-            //     nameof(DbaseFileProblems.RoadSegmentGeometryDrawMethodV2Mismatch))!, () =>
-            //         translation with { Message = $"De {DbaseRecordLabel()} bevat een ongeldige methode in veld {nameof(RoadSegmentDbaseRecord.Schema.METHODE)} ({problem.GetParameterValue("Actual")}). Verwachte 1 van volgende waarden: {problem.GetParameterValue("ExpectedOneOf")}." } //TODO-pr uncomment voor recurrente bijhouding
-            // },
+            {
+                nameof(DbaseFileProblems.RoadSegmentGeometryDrawMethodV2Mismatch), () =>
+                    translation with { Message = $"De {DbaseRecordLabel()} bevat een ongeldige methode in veld {nameof(RoadSegmentDbaseRecord.Schema.METHODE)} ({problem.GetParameterValue("Actual")}). Verwachte 1 van volgende waarden: {problem.GetParameterValue("ExpectedOneOf")}." }
+            },
             {
                 nameof(DbaseFileProblems.RoadSegmentAccessRestrictionV2Mismatch), () =>
                     translation with { Message = $"De {DbaseRecordLabel()} bevat een ongeldige toegangsbeperking in veld {nameof(RoadSegmentDbaseRecord.Schema.TOEGANG)} ({problem.GetParameterValue("Actual")}). Verwachte 1 van volgende waarden: {problem.GetParameterValue("ExpectedOneOf")}." }
@@ -143,6 +143,18 @@ public sealed class DomainV2FileProblemTranslator : FileProblemTranslator
             {
                 nameof(DbaseFileProblems.GradeSeparatedJunctionNotUnique), () =>
                     translation with { Message = $"De {DbaseRecordLabel()} heeft hetzelfde onder- en bovenliggende wegsegment als de dbase record met {problem.GetParameterValue("IdentifierField")} {problem.GetParameterValue("OtherJunctionId")}" }
+            },
+            {
+                nameof(DbaseFileProblems.SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed), () =>
+                    translation with { Message = $"De wegsegmenten met {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment1TempIds")} en {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment2TempIds")} kruisen elkaar zonder dat er een ongelijkgrondse kruising of wegknoop geplaatst werd voor deze kruising, hoewel auto's toegelaten zijn op beide wegsegmenten. Gelieve na te kijken of dit klopt." }
+            },
+            {
+                nameof(DbaseFileProblems.SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenBikesAreAllowed), () =>
+                    translation with { Message = $"De wegsegmenten met {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment1TempIds")} en {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment2TempIds")} kruisen elkaar zonder dat er een ongelijkgrondse kruising of wegknoop geplaatst werd voor deze kruising, hoewel fietsers toegelaten zijn op beide wegsegmenten. Gelieve na te kijken of dit klopt." }
+            },
+            {
+                nameof(DbaseFileProblems.SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenPedestriansAreAllowed), () =>
+                    translation with { Message = $"De wegsegmenten met {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment1TempIds")} en {nameof(RoadSegmentDbaseRecord.WS_TEMPID)} {problem.GetParameterValue("Wegsegment2TempIds")} kruisen elkaar zonder dat er een ongelijkgrondse kruising of wegknoop geplaatst werd voor deze kruising, hoewel voetgangers toegelaten zijn op beide wegsegmenten. Gelieve na te kijken of dit klopt." }
             },
             {
                 nameof(DbaseFileProblems.GradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed), () =>

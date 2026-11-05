@@ -10,7 +10,7 @@ using NationalRoad;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2.GradeSeparatedJunction;
 using RoadRegistry.Extracts.Infrastructure.Extensions;
-using RoadRegistry.Extracts.Schemas.Inwinning.GradeSeparatedJuntions;
+using RoadRegistry.Extracts.Schemas.DomainV2.GradeSeparatedJuntions;
 using RoadRegistry.Extracts.Uploads;
 using RoadSegment;
 

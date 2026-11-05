@@ -20,7 +20,6 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
         public static IZipArchiveFeatureCompareTranslator Create(
             IOrganizationCache organizationCache = null,
             IRoadSegmentFeatureCompareStreetNameContextFactory streetNameContextFactory = null,
-            IGrbOgcApiFeaturesDownloader grbOgcApiFeaturesDownloader = null,
             ILoggerFactory loggerFactory = null)
         {
             return new ZipArchiveFeatureCompareTranslator(
@@ -30,7 +29,6 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                     new RoadSegmentFeatureCompareFeatureReader(Encoding),
                     streetNameContextFactory ?? new FakeRoadSegmentFeatureCompareStreetNameContextFactoryV3(),
                     organizationCache ?? new FakeOrganizationCache(),
-                    grbOgcApiFeaturesDownloader ?? new FakeGrbOgcApiFeaturesDownloader(),
                     loggerFactory
                 ),
                 new EuropeanRoadFeatureCompareTranslator(new EuropeanRoadFeatureCompareFeatureReader(Encoding)),
