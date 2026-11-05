@@ -54,7 +54,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
 
         return Run(scenario => scenario
             .Given(b => b)
-            .When(changes => changes
+            .WhenMigrate(changes => changes
                 .Add(TestData.AddSegment1StartNode with
                 {
                     Geometry = RoadNodeGeometry.Create(point1),
@@ -121,6 +121,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
     // the geometriemethode of the road they became is derived from the two it is made of, the same as its other
     // attributes. Half of this one is ingemeten, which is short of the three quarters that would make it ingemeten
     // as a whole. The editing actions refuse this instead - see the remove tests (GAWR-7829).
+    //
+    // Through the migrate flow, like the other merges here: a bijhouding upload takes the same changes through the
+    // change flow but merges nothing (GAWR-7199).
     [Fact]
     public Task WhenTheTwoRoadSegmentsAreNotDrawnTheSameWay_ThenTheyAreStillMerged()
     {
@@ -130,7 +133,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
 
         return Run(scenario => scenario
             .Given(b => b)
-            .When(changes => changes
+            .WhenMigrate(changes => changes
                 .Add(TestData.AddSegment1StartNode with
                 {
                     Geometry = RoadNodeGeometry.Create(point1),
@@ -179,7 +182,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
 
         return Run(scenario => scenario
             .Given(b => b)
-            .When(changes => changes
+            .WhenMigrate(changes => changes
                 .Add(TestData.AddSegment1StartNode with
                 {
                     Geometry = RoadNodeGeometry.Create(point1),

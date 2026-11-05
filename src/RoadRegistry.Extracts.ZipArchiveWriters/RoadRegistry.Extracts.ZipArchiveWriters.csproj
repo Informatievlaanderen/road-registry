@@ -11,6 +11,7 @@
     <ProjectReference Include="..\RoadRegistry.Infrastructure\RoadRegistry.Infrastructure.csproj"/>
     <ProjectReference Include="..\RoadRegistry.Extracts\RoadRegistry.Extracts.csproj"/>
     <ProjectReference Include="..\RoadRegistry.Extracts.Projections\RoadRegistry.Extracts.Projections.csproj"/>
+    <ProjectReference Include="..\RoadRegistry.Extracts.Schema\RoadRegistry.Extracts.Schema.csproj"/>
     <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj"/>
   </ItemGroup>
   <ItemGroup>

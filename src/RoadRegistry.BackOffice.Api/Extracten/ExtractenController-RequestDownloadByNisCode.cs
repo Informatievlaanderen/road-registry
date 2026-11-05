@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracten;
 
+using Asp.Versioning;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -20,6 +21,7 @@ using RoadRegistry.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
 using Sync.MunicipalityRegistry;
 using ValueObjects.ProblemCodes;
+using Version = Infrastructure.Version;
 
 public partial class ExtractenController
 {
@@ -39,6 +41,7 @@ public partial class ExtractenController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(ExtractDownloadaanvraagPerNisCode))]
+    [MapToApiVersion(Version.V1)]
     [HttpPost("downloadaanvragen/perniscode", Name = nameof(ExtractDownloadaanvraagPerNisCode))]
     public async Task<IActionResult> ExtractDownloadaanvraagPerNisCode(
         [FromBody] ExtractDownloadaanvraagPerNisCodeBody body,
@@ -64,12 +67,7 @@ public partial class ExtractenController
 
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
-            var contour = municipality.Geometry.ToMultiPolygon();
-
-            if (useDomainV2FeatureToggle.FeatureEnabled)
-            {
-                contour = contour.EnsureLambert08();
-            }
+            var contour = municipality.Geometry.ToMultiPolygon().EnsureLambert08();
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {

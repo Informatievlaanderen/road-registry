@@ -10,8 +10,8 @@ using Framework;
 using MediatR;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadNode;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning.RoadNode;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning.TransactionZone;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.AggregateTests;
@@ -19,7 +19,7 @@ using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Sqs.Extracts;
 using Xunit.Abstractions;
-using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.DomainV2.TranslatedChanges;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.Inwinning.TranslatedChanges;
 
 public abstract class WhenUploadInwinningExtractTestBase : BackOfficeLambdaTest
 {
@@ -37,7 +37,7 @@ public abstract class WhenUploadInwinningExtractTestBase : BackOfficeLambdaTest
 
     protected async Task<UploadInwinningExtractSqsRequest> HandleRequest(
         UploadInwinningExtractSqsRequest sqsRequest,
-        IExtractUploader? extractUploader = null)
+        IInwinningExtractUploader? extractUploader = null)
     {
         sqsRequest.TicketId = Guid.NewGuid();
         sqsRequest.Metadata = new Dictionary<string, object?>();
@@ -52,7 +52,7 @@ public abstract class WhenUploadInwinningExtractTestBase : BackOfficeLambdaTest
             Mock.Of<IIdempotentCommandHandler>(),
             RoadRegistryContext,
             ExtractsDbContext,
-            extractUploader ?? new FakeExtractUploader(),
+            extractUploader ?? new FakeInwinningExtractUploader(),
             new TransactionZoneFeatureCompareFeatureReader(FileEncoding),
             new RoadNodeFeatureCompareFeatureReader(FileEncoding),
             MediatorMock.Object,
@@ -64,7 +64,7 @@ public abstract class WhenUploadInwinningExtractTestBase : BackOfficeLambdaTest
         return sqsRequest;
     }
 
-    private sealed class FakeExtractUploader : IExtractUploader
+    private sealed class FakeInwinningExtractUploader : IInwinningExtractUploader
     {
         public Task<TranslatedChanges> ProcessUploadAndDetectChanges(DownloadId downloadId, UploadId uploadId, TicketId ticketId, ZipArchiveMetadata zipArchiveMetadata, bool sendFailedEmail, Func<ZipArchive, Task>? beforeFeatureCompare = null, Func<ZipArchive, TranslatedChanges, Task>? afterFeatureCompare = null, CancellationToken cancellationToken = default)
         {

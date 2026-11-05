@@ -56,6 +56,11 @@ public class CreateExtractArchive
         private readonly List<RoadNodeExtractItem> _roadNodes = [];
         private readonly List<GradeSeparatedJunctionExtractItem> _gradeSeparatedJunctions = [];
 
+        public Task<IReadOnlySet<RoadSegmentId>> GetEditableRoadSegmentIds(IPolygonal contour, CancellationToken cancellationToken)
+        {
+            return Task.FromResult<IReadOnlySet<RoadSegmentId>>(_roadSegments.Select(x => x.RoadSegmentId).ToHashSet());
+        }
+
         public FakeZipArchiveDataSession(Geometry transactionZoneGeometry, int createSegmentsCount)
         {
             var x = transactionZoneGeometry.EnvelopeInternal.MinX;

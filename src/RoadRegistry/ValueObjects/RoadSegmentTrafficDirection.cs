@@ -27,10 +27,15 @@ public sealed class RoadSegmentTrafficDirection : IEquatable<RoadSegmentTrafficD
             nameof(None),
             new DutchTranslation(4, "geen", "Het attribuut is in geen enkele richting van toepassing.")
         );
+    public static readonly RoadSegmentTrafficDirection NietGekend =
+        new(
+            nameof(NietGekend),
+            new DutchTranslation(-8, "niet gekend", "Het is niet geweten in welke richtingen het attribuut van toepassing is.")
+        );
 
     public static readonly RoadSegmentTrafficDirection[] All =
     [
-        Forward, Backward, Both, None
+        Forward, Backward, Both, None, NietGekend
     ];
 
     public static readonly IReadOnlyDictionary<string, RoadSegmentTrafficDirection> ByName =
@@ -41,6 +46,16 @@ public sealed class RoadSegmentTrafficDirection : IEquatable<RoadSegmentTrafficD
         return forward
             ? backward ? Both : Forward
             : backward ? Backward : None;
+    }
+
+    // A delivery may leave both directions unknown, which is what '-8' in AUTOHEEN/AUTOTERUG (and their bike
+    // counterparts) means. Knowing one direction but not the other is not a thing the exchange format can express, so
+    // an unknown on either side makes the whole attribute unknown.
+    public static RoadSegmentTrafficDirection FromAccess(bool? forward, bool? backward)
+    {
+        return forward is null || backward is null
+            ? NietGekend
+            : FromAccess(forward.Value, backward.Value);
     }
 
     public bool IsForwardAccessAllowed => Equals(Forward) || Equals(Both);

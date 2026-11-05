@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracten;
 
+using Asp.Versioning;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using RoadRegistry.BackOffice.Abstractions.Jobs;
 using RoadRegistry.Extracts.Schema;
 using Swashbuckle.AspNetCore.Annotations;
 using TicketingService.Abstractions;
+using Version = Infrastructure.Version;
 
 public partial class ExtractenController
 {
@@ -30,6 +32,7 @@ public partial class ExtractenController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(UploadExtract))]
+    [MapToApiVersion(Version.V1)]
     [HttpPost("{downloadId}/upload", Name = nameof(UploadExtract))]
     public async Task<IActionResult> UploadExtract(
         [FromRoute] string downloadId,
