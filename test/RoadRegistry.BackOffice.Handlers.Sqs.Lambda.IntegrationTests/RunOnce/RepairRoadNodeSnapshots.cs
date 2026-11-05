@@ -114,11 +114,18 @@ public class RepairRoadNodeSnapshots
         {
             await using var session = store.LightweightSession();
 
+            // One round trip per batch rather than per road node: there are a few hundred thousand of these.
+            var roadNodes = (await session.LoadManyAsync<RoadRegistry.RoadNode.RoadNode>(
+                    batch.Select(x => StreamKeyFactory.Create(typeof(RoadRegistry.RoadNode.RoadNode), new RoadNodeId(x.RoadNodeId)))))
+                .ToDictionary(x => x.RoadNodeId);
+
             foreach (var removal in batch)
             {
                 var roadNodeId = new RoadNodeId(removal.RoadNodeId);
-                var roadNode = await session.LoadAsync(roadNodeId)
-                               ?? throw new InvalidOperationException($"Road node {roadNodeId} has no document");
+                if (!roadNodes.TryGetValue(roadNodeId, out var roadNode))
+                {
+                    throw new InvalidOperationException($"Road node {roadNodeId} has no document");
+                }
 
                 // Judged again on the aggregate: SQL read the generated column, this reads what it was generated from.
                 if (roadNode.IsRemoved)
