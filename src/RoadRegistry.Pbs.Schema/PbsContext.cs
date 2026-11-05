@@ -13,16 +13,22 @@ using Records;
 // Derives from RunnerDbContext for its ProjectionStates table: each inner PBS projection records its processed event
 // position there, committed in the same transaction as the product writes, so it can skip re-delivered events when the
 // SQL Server write and the Marten progression commit diverge (RunnerDbContextRoadNetworkChangesProjection).
-public class PbsContext : RunnerDbContext<PbsContext>
+public class PbsContext : RunnerDbContext<PbsContext>, ISchemaScopedDbContext
 {
     public PbsContext()
     {
     }
 
     // This needs to be DbContextOptions<T> for Autofac!
+    //
+    // The only constructor taking options, and it has to stay that way: EF's DbContextFactory builds an
+    // activator for this type and refuses one with a second constructor it could use. The schema a context
+    // is scoped to therefore travels on the options - see UseSchema - and not as a parameter of its own.
     public PbsContext(DbContextOptions<PbsContext> options)
         : base(options)
     {
+        Schema = options.FindSchema() ?? WellKnownSchemas.PbsSchema;
+
         // A projection batch writes thousands of rows in one SaveChanges, which on a loaded server runs past EF's
         // thirty second default. That timeout is classified as transient, so it is retried, exhausted, and ends with
         // the shard paused over work that was only slow. Set here rather than where the options are built: every
@@ -33,7 +39,12 @@ public class PbsContext : RunnerDbContext<PbsContext>
         }
     }
 
-    public override string ProjectionStateSchema => WellKnownSchemas.PbsSchema;
+    // The schema this context reads and writes: the production one, or the shadow copy a rebuild fills while the
+    // live one keeps serving. Everything else about the context is identical, which is the point - one model, one
+    // set of projections.
+    public string Schema { get; } = WellKnownSchemas.PbsSchema;
+
+    public override string ProjectionStateSchema => Schema;
 
     // Features
     public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
@@ -73,9 +84,23 @@ public class PbsContext : RunnerDbContext<PbsContext>
     public DbSet<StreetNameCacheRecord> StreetNameCache { get; set; }
     public DbSet<OrganizationCacheRecord> OrganizationCache { get; set; }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        if (Schema != WellKnownSchemas.PbsSchema)
+        {
+            modelBuilder.MapToSchema(Schema);
+        }
+    }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
+
+        // Here rather than where the options are built, so no instance can be handed a model that was cached for
+        // another schema.
+        optionsBuilder.UseSchemaAwareModelCache();
 
         if (!optionsBuilder.IsConfigured)
         {

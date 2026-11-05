@@ -70,6 +70,21 @@ public class Startup
         return _configuration.GetSection(projectionName).Get<ProjectionCatchUpOptions>() ?? ProjectionCatchUpOptions.Default;
     }
 
+    // The options the live read model is registered with, built again for a context this host news up itself - which
+    // is how a second schema is served from the same context type, since AddDbContextFactory is keyed by that type.
+    private static DbContextOptions<TContext> BuildSqlServerOptions<TContext>(IServiceProvider sp, string connectionName, string schema)
+        where TContext : DbContext
+    {
+        var connectionString = sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(connectionName);
+
+        return new DbContextOptionsBuilder<TContext>()
+            .UseSqlServer(connectionString, o => o
+                .EnableRetryOnFailure()
+                .UseNetTopologySuite())
+            .UseSchema(schema)
+            .Options;
+    }
+
     public void ConfigureServices(IServiceCollection services)
     {
         var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
@@ -153,12 +168,24 @@ public class Startup
                 {
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesPbsProjection)}:BatchSize");
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesPbsProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<PbsContext>>(), GetCatchUpOptions(nameof(RoadNetworkChangesPbsProjection))));
+
+                    // The same projection filling the shadow schema, on the settings of the one it shadows: it is a
+                    // rebuild of that read model, so it is only interesting while it is behind the one it will replace.
+                    if (projectionOptions.Pbs.Shadow.Enabled)
+                    {
+                        options.AddRoadNetworkChangesProjection(new RoadNetworkChangesPbsTempProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<TempSchemaDbContextFactory<PbsContext>>(), GetCatchUpOptions(nameof(RoadNetworkChangesPbsProjection))));
+                    }
                 }
 
                 if (projectionOptions.WmsWfsV2.Enabled)
                 {
                     var batchSize = _configuration.GetRequiredValue<int>($"{nameof(RoadNetworkChangesWmsWfsV2Projection)}:BatchSize");
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesWmsWfsV2Projection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<WmsWfsV2Context>>(), GetCatchUpOptions(nameof(RoadNetworkChangesWmsWfsV2Projection))));
+
+                    if (projectionOptions.WmsWfsV2.Shadow.Enabled)
+                    {
+                        options.AddRoadNetworkChangesProjection(new RoadNetworkChangesWmsWfsV2TempProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<TempSchemaDbContextFactory<WmsWfsV2Context>>(), GetCatchUpOptions(nameof(RoadNetworkChangesWmsWfsV2Projection))));
+                    }
 
                     // What the V1 WMS/WFS leave out because it is ingewonnen; goes with the V1 data.
                     options.AddRoadNetworkChangesProjection(new RoadNetworkChangesWmsWfsV1InwinningProjection(batchSize, sp.GetRequiredService<ILoggerFactory>(), sp.GetRequiredService<IDbContextFactory<WmsWfsV1InwinningContext>>(), GetCatchUpOptions(nameof(RoadNetworkChangesWmsWfsV1InwinningProjection))));
@@ -186,7 +213,20 @@ public class Startup
                 })
                 .AddSingleton<IDbMigratorFactory, PbsContextMigratorFactory>()
                 // One-time sync of the PBS enum-based code lists (Wegbeheerder code list is event-driven instead).
-                .AddHostedService<PbsCodeListSyncService>();
+                .AddHostedService<PbsCodeListSyncService>()
+                // Whatever the shadow switches say: the projections page truncates the shadow through it, and the
+                // promotion rebuilds its indexes through it.
+                .AddSingleton(sp => new TempSchemaDbContextFactory<PbsContext>(
+                    () => new PbsContext(BuildSqlServerOptions<PbsContext>(sp, WellKnownConnectionNames.PbsProjections, WellKnownSchemas.PbsTempSchema))));
+
+            if (projectionOptions.Pbs.Shadow.Enabled)
+            {
+                // The enum code lists carry no events, so a replay cannot restore them: the shadow schema needs the
+                // same sync as the live one, or it would be promoted with empty code lists.
+                services.AddHostedService(sp => new PbsCodeListSyncService(
+                    sp.GetRequiredService<TempSchemaDbContextFactory<PbsContext>>(),
+                    sp.GetRequiredService<ILogger<PbsCodeListSyncService>>()));
+            }
         }
 
         if (projectionOptions.WmsWfsV2.Enabled)
@@ -206,7 +246,9 @@ public class Startup
                     var connectionString = sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.WmsWfsV2Projections);
                     options.UseSqlServer(connectionString, o => o.EnableRetryOnFailure());
                 })
-                .AddSingleton<IDbMigratorFactory, WmsWfsV1InwinningContextMigratorFactory>();
+                .AddSingleton<IDbMigratorFactory, WmsWfsV1InwinningContextMigratorFactory>()
+                .AddSingleton(sp => new TempSchemaDbContextFactory<WmsWfsV2Context>(
+                    () => new WmsWfsV2Context(BuildSqlServerOptions<WmsWfsV2Context>(sp, WellKnownConnectionNames.WmsWfsV2Projections, WellKnownSchemas.WmsWfsV2TempSchema))));
         }
 
         // extracts projections until GRB has been migrated
@@ -227,6 +269,71 @@ public class Startup
 	                new ExtractDownloadProjection(),
 	            ])
 	            .AddHostedService<ExtractsEventProcessor>();
+        }
+
+        AddShadowReadModels(services, projectionOptions);
+    }
+
+    // The shadow read models: created before the daemon starts when their projection runs, and promoted when asked to.
+    // Registered last, because Program runs the migrators in registration order: the promotion has to come after the
+    // migrations of the schema it promotes into.
+    private static void AddShadowReadModels(IServiceCollection services, ProjectionOptions projectionOptions)
+    {
+        var bootstrapped = new List<(string Schema, Func<IServiceProvider, DbContext> CreateDbContext)>();
+
+        if (projectionOptions.Pbs.Enabled)
+        {
+            Func<IServiceProvider, DbContext> createShadowContext = sp => sp.GetRequiredService<TempSchemaDbContextFactory<PbsContext>>().CreateDbContext();
+            if (projectionOptions.Pbs.Shadow.Enabled)
+            {
+                bootstrapped.Add((WellKnownSchemas.PbsTempSchema, createShadowContext));
+            }
+
+            if (projectionOptions.Pbs.Shadow.Promote)
+            {
+                services.AddSingleton<IDbMigratorFactory>(sp => new ShadowReadModelPromoterFactory(
+                    new ShadowReadModel(
+                        "PBS",
+                        WellKnownConnectionNames.PbsProjections,
+                        WellKnownSchemas.PbsSchema,
+                        WellKnownSchemas.PbsTempSchema,
+                        nameof(RoadNetworkChangesPbsProjection),
+                        nameof(RoadNetworkChangesPbsTempProjection),
+                        MigrationTables.Pbs),
+                    projectionOptions.Pbs.Shadow.Enabled,
+                    () => createShadowContext(sp)));
+            }
+        }
+
+        if (projectionOptions.WmsWfsV2.Enabled)
+        {
+            Func<IServiceProvider, DbContext> createShadowContext = sp => sp.GetRequiredService<TempSchemaDbContextFactory<WmsWfsV2Context>>().CreateDbContext();
+            if (projectionOptions.WmsWfsV2.Shadow.Enabled)
+            {
+                bootstrapped.Add((WellKnownSchemas.WmsWfsV2TempSchema, createShadowContext));
+            }
+
+            if (projectionOptions.WmsWfsV2.Shadow.Promote)
+            {
+                services.AddSingleton<IDbMigratorFactory>(sp => new ShadowReadModelPromoterFactory(
+                    new ShadowReadModel(
+                        "WmsWfsV2",
+                        WellKnownConnectionNames.WmsWfsV2Projections,
+                        WellKnownSchemas.WmsWfsV2Schema,
+                        WellKnownSchemas.WmsWfsV2TempSchema,
+                        nameof(RoadNetworkChangesWmsWfsV2Projection),
+                        nameof(RoadNetworkChangesWmsWfsV2TempProjection),
+                        MigrationTables.WmsWfsV2),
+                    projectionOptions.WmsWfsV2.Shadow.Enabled,
+                    () => createShadowContext(sp)));
+            }
+        }
+
+        // Before the daemon: the shadow projections write through a model whose tables the migrations do not create.
+        if (bootstrapped.Count > 0)
+        {
+            services.AddSingleton<IDbMigratorFactory>(sp => new TempSchemaBootstrapperFactory(
+                bootstrapped.Select(x => (x.Schema, (Func<DbContext>)(() => x.CreateDbContext(sp)))).ToList()));
         }
     }
 
