@@ -1,3 +1,10 @@
+# [5.31.0](https://github.com/informatievlaanderen/road-registry/compare/v5.30.0...v5.31.0) (2026-11-05)
+
+
+### Features
+
+* keep road segments not adjacent to inwinning editable in extracts GAWR-7796 ([0f8d7ae](https://github.com/informatievlaanderen/road-registry/commit/0f8d7ae9ab1eefb6a0f1c9171587df8ac6a97265))
+
 # [5.30.0](https://github.com/informatievlaanderen/road-registry/compare/v5.29.5...v5.30.0) (2026-11-05)
 
 
