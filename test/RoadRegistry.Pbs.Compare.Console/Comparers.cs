@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using RoadRegistry.BackOffice;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
+using RoadRegistry.Infrastructure.MartenDb.Store;
 using RoadRegistry.ValueObjects;
 
 // Two sources, each for what it has authority over.
@@ -249,7 +250,7 @@ internal static class Comparers
         await using var command = marten.CreateCommand();
         command.CommandText = $"""
             select id, is_v2, is_removed, coalesce(status, '-') as status, timestamp
-            from {RoadNetworkTopologyProjection.RoadSegmentsTableName}
+            from {RoadNetworkTopologyTables.RoadSegments}
             where id = any(string_to_array(@ids, ',')::int[])
             order by id
             """;
@@ -467,7 +468,7 @@ internal static class Comparers
         var martenRows = ReadAsync(marten, $"""
             select id, is_removed, status, start_node_id, end_node_id,
                    coalesce(st_npoints(geometry), 0), coalesce(st_length(geometry), 0), is_v2, timestamp
-            from {RoadNetworkTopologyProjection.RoadSegmentsTableName}
+            from {RoadNetworkTopologyTables.RoadSegments}
             order by id
             """,
             reader =>
@@ -585,7 +586,7 @@ internal static class Comparers
 
         var martenRows = ReadAsync(marten, $"""
             select id, is_removed, coalesce(st_x(geometry), 0), coalesce(st_y(geometry), 0), is_v2, timestamp
-            from {RoadNetworkTopologyProjection.RoadNodesTableName}
+            from {RoadNetworkTopologyTables.RoadNodes}
             order by id
             """,
             reader => new NodeRow(removedByEvents.Contains(reader.GetInt32(0)), reader.GetBoolean(1), reader.GetBoolean(4),
@@ -665,7 +666,7 @@ internal static class Comparers
             // BO = bovenliggend = upper, ON = onderliggend = lower.
             martenSql: $"""
                 select id, is_removed, upper_road_segment_id, lower_road_segment_id, is_v2, timestamp
-                from {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName}
+                from {RoadNetworkTopologyTables.GradeSeparatedJunctions}
                 order by id
                 """,
             pbsSql: $"""
@@ -682,7 +683,7 @@ internal static class Comparers
             entity: "gelijkgrondse kruising",
             martenSql: $"""
                 select id, is_removed, road_segment_id_1, road_segment_id_2, is_v2, timestamp
-                from {RoadNetworkTopologyProjection.GradeJunctionsTableName}
+                from {RoadNetworkTopologyTables.GradeJunctions}
                 order by id
                 """,
             pbsSql: $"""
