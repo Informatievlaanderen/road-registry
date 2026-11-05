@@ -31,10 +31,14 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
-        var hasInwinningRoadSegments = await zipArchiveDataProvider.HasInwinningRoadSegment(request.Contour, cancellationToken);
-        var nodes = hasInwinningRoadSegments
-            ? []
-            : await zipArchiveDataProvider.GetRoadNodes(request.Contour, cancellationToken);
+        var editableRoadSegmentIds = await zipArchiveDataProvider.GetEditableRoadSegmentIds(request.Contour, cancellationToken);
+        var editableRoadNodeIds = (await zipArchiveDataProvider.GetRoadSegments(request.Contour, cancellationToken))
+            .Where(x => editableRoadSegmentIds.Contains(x.Id))
+            .SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })
+            .ToHashSet();
+        var nodes = (await zipArchiveDataProvider.GetRoadNodes(request.Contour, cancellationToken))
+            .Where(x => editableRoadNodeIds.Contains(x.Id))
+            .ToList();
 
         const ExtractFileName extractFilename = ExtractFileName.Wegknoop;
         FeatureType[] featureTypes = request.IsInformative

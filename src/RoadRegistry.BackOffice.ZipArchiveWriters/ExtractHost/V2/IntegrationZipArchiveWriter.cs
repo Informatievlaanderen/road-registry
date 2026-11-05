@@ -45,7 +45,6 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
         const FeatureType featureType = FeatureType.Integration;
 
         var segmentsInContour = await zipArchiveDataProvider.GetRoadSegments(request.Contour, cancellationToken);
-        var nodesInContour = await zipArchiveDataProvider.GetRoadNodes(request.Contour, cancellationToken);
 
         // segments integration
         var integrationBufferedSegmentsGeometries = segmentsInContour.Select(x => x.Geometry.Buffer(IntegrationBufferInMeters)).ToList();
@@ -53,12 +52,10 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
         var integrationSegments = new List<RoadSegmentRecord>();
         var integrationNodes = new List<RoadNodeRecord>();
 
-        var hasInwinningRoadSegments = await zipArchiveDataProvider.HasInwinningRoadSegment(request.Contour, cancellationToken);
-        if (hasInwinningRoadSegments)
-        {
-            segmentsInContour = [];
-            nodesInContour = [];
-        }
+        // the road segments in the contour that are not editable, and their road nodes, are handed out as integration
+        var editableRoadSegmentIds = await zipArchiveDataProvider.GetEditableRoadSegmentIds(request.Contour, cancellationToken);
+        var extractSegments = segmentsInContour.Where(x => editableRoadSegmentIds.Contains(x.Id)).ToList();
+        var extractNodeIds = extractSegments.SelectMany(segment => new[] { segment.StartNodeId, segment.EndNodeId }).ToHashSet();
 
         if (integrationBufferedSegmentsGeometries.Any())
         {
@@ -70,7 +67,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                 integrationBufferedContourGeometry,
                 cancellationToken);
 
-            integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentRecordEqualityComparerById()).ToList();
+            integrationSegments = segmentsInIntegrationBuffer.Except(extractSegments, new RoadSegmentRecordEqualityComparerById()).ToList();
             integrationSegments = integrationSegments.Where(integrationSegment => { return integrationBufferedSegmentsGeometries.Any(segmentBufferedGeometry => segmentBufferedGeometry.Intersects(integrationSegment.Geometry)); })
                 .ToList();
 
@@ -80,9 +77,8 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                 cancellationToken);
 
             var integrationNodeIds = integrationSegments.SelectMany(segment => new[] { segment.StartNodeId, segment.EndNodeId }).Distinct().ToList();
-            integrationNodes = nodesInIntegrationBuffer.Where(integrationNode => integrationNodeIds.Contains(integrationNode.Id))
+            integrationNodes = nodesInIntegrationBuffer.Where(integrationNode => integrationNodeIds.Contains(integrationNode.Id) && !extractNodeIds.Contains(integrationNode.Id))
                 .ToList();
-            integrationNodes = integrationNodes.Except(nodesInContour, new RoadNodeRecordEqualityComparerById()).ToList();
         }
 
         await WriteRoadSegments();

@@ -14,7 +14,7 @@
 
     public interface IZipArchiveDataProvider
     {
-        Task<bool> HasInwinningRoadSegment(IPolygonal contour, CancellationToken cancellationToken);
+        Task<IReadOnlySet<int>> GetEditableRoadSegmentIds(IPolygonal contour, CancellationToken cancellationToken);
 
         Task<IReadOnlyList<RoadNodeRecord>> GetRoadNodes(
             IPolygonal contour,
@@ -60,7 +60,7 @@
     {
         private readonly EditorContext _editorContext;
         private readonly ExtractsDbContext _extractsDbContext;
-        private readonly Dictionary<IPolygonal, bool> _hasInwinningRoadSegmentCache = new();
+        private readonly Dictionary<IPolygonal, IReadOnlySet<int>> _editableRoadSegmentIdsCache = new();
         private readonly Dictionary<IPolygonal, IReadOnlyList<RoadSegmentRecord>> _getRoadSegmentCache = new();
 
         public ZipArchiveDataProvider(EditorContext editorContext, ExtractsDbContext extractsDbContext)
@@ -69,20 +69,60 @@
             _extractsDbContext = extractsDbContext.ThrowIfNull();
         }
 
-        public async Task<bool> HasInwinningRoadSegment(IPolygonal contour, CancellationToken cancellationToken)
+        public async Task<IReadOnlySet<int>> GetEditableRoadSegmentIds(IPolygonal contour, CancellationToken cancellationToken)
         {
-            if (_hasInwinningRoadSegmentCache.TryGetValue(contour, out var hasInwinning))
+            if (_editableRoadSegmentIdsCache.TryGetValue(contour, out var editableRoadSegmentIds))
             {
-                return hasInwinning;
+                return editableRoadSegmentIds;
             }
 
-            var segments = await GetRoadSegments(
-                contour, cancellationToken);
+            var segmentsInContour = (await GetRoadSegments(contour, cancellationToken))
+                .Select(x => new RoadSegmentTopology(x.Id, x.StartNodeId, x.EndNodeId))
+                .ToList();
 
-            hasInwinning = await _extractsDbContext.HasInwinningRoadSegments(segments.Select(x => new RoadSegmentId(x.Id)), cancellationToken);
-            _hasInwinningRoadSegmentCache[contour] = hasInwinning;
+            var roadNodeIds = segmentsInContour
+                .SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })
+                .Distinct()
+                .ToList();
+            var adjacentSegments = await GetRoadSegmentTopologiesConnectedTo(roadNodeIds, cancellationToken);
 
-            return hasInwinning;
+            var candidateSegments = segmentsInContour
+                .Concat(adjacentSegments)
+                .DistinctBy(x => x.Id)
+                .ToList();
+            var inwinningRoadSegmentIds = (await _extractsDbContext.GetInwinningRoadSegmentIds(
+                    candidateSegments.Select(x => new RoadSegmentId(x.Id)), cancellationToken))
+                .Select(x => x.ToInt32())
+                .ToHashSet();
+
+            editableRoadSegmentIds = EditableRoadSegments.Determine(
+                segmentsInContour,
+                candidateSegments.Where(x => inwinningRoadSegmentIds.Contains(x.Id)));
+            _editableRoadSegmentIdsCache[contour] = editableRoadSegmentIds;
+
+            return editableRoadSegmentIds;
+        }
+
+        private async Task<IReadOnlyList<RoadSegmentTopology>> GetRoadSegmentTopologiesConnectedTo(
+            IReadOnlyList<int> roadNodeIds,
+            CancellationToken cancellationToken)
+        {
+            const int batchSize = 1000; // used twice per query, SQL Server handles ~2100 params well
+
+            var segments = new List<RoadSegmentTopology>();
+
+            for (var i = 0; i < roadNodeIds.Count; i += batchSize)
+            {
+                var batch = roadNodeIds.Skip(i).Take(batchSize).ToList();
+                var batchSegments = await _editorContext.RoadSegments
+                    .AsNoTracking()
+                    .Where(x => batch.Contains(x.StartNodeId) || batch.Contains(x.EndNodeId))
+                    .Select(x => new RoadSegmentTopology(x.Id, x.StartNodeId, x.EndNodeId))
+                    .ToListAsync(cancellationToken);
+                segments.AddRange(batchSegments);
+            }
+
+            return segments;
         }
 
         public async Task<IReadOnlyList<RoadNodeRecord>> GetRoadNodes(
