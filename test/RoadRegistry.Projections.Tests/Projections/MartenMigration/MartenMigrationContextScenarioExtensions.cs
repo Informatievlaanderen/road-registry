@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.MartenMigration;
+﻿namespace RoadRegistry.Projections.Tests.Projections.MartenMigration;
 
 using System.Text;
 using BackOffice.Core;
@@ -119,6 +119,46 @@ public static class MartenMigrationContextScenarioExtensions
                 throw specification.CreateFailedScenarioExceptionFor(result);
             }
         }
+    }
+
+    /// <summary>
+    /// Runs the scenario and hands the documents the projection stored to <paramref name="assert" />.
+    /// </summary>
+    /// <remarks>
+    /// Expect asserts on the events a projection appends. What it leaves behind on the aggregate snapshots is a
+    /// separate thing, and it has been wrong while every appended event was right: a handler that applies to the
+    /// aggregate but never calls session.Store appends exactly what is expected of it and stores nothing.
+    /// </remarks>
+    public static async Task ExpectRecords(
+        this (ConnectedProjectionScenario<MartenMigrationContext>, InMemoryDocumentStoreSession) scenarioAndStore,
+        Action<object[]> assert)
+    {
+        var (scenario, store) = scenarioAndStore;
+        var database = Guid.NewGuid().ToString("N");
+        var specification = scenario.Verify(_ => Task.FromResult(VerificationResult.Pass()));
+
+        await using (var context = CreateContextFor(database))
+        {
+            var projector = new ConnectedProjector<MartenMigrationContext>(specification.Resolver);
+            var position = 0L;
+            foreach (var message in specification.Messages)
+            {
+                var envelope = (message as Envelope
+                               ?? new Envelope(message, new Dictionary<string, object>
+                               {
+                                   { Envelope.PositionMetadataKey, position },
+                                   { Envelope.StreamIdMetadataKey, RoadNetworkStreamNameProvider.Default.ToString() },
+                                   { Envelope.CreatedUtcMetadataKey, Moment.EnvelopeCreatedUtc.ToUniversalTime() },
+                                   { Envelope.EventNameMetadataKey, message.GetType().Name },
+                               })).ToGenericEnvelope();
+                await projector.ProjectAsync(context, envelope);
+                position++;
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        assert(store.AllRecords());
     }
 
     public static Task ExpectInAnyOrder(

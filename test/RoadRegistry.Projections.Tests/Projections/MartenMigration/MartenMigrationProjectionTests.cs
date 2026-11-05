@@ -64,6 +64,30 @@ public class MartenMigrationProjectionTests
             );
     }
 
+    // RemoveRoadNode applied RoadNodeWasRemoved to the aggregate and never handed it back to the session, so the
+    // snapshot went on saying isRemoved: false while the stream said otherwise. Its road segment counterpart does
+    // call session.Store, which is why only road nodes drifted - 206.552 of them on tst. Nothing was wrong with the
+    // event it appended, so no assertion on appended events could have caught it.
+    [Fact]
+    public Task WhenRoadNodeIsRemoved_ThenTheSnapshotSaysSoToo()
+    {
+        var added = _fixture.Create<RoadNodeAdded>();
+        added.OriginalId = 1;
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(added, new RoadNodeRemoved { Id = added.Id });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(message)
+            .ExpectRecords(records =>
+            {
+                var roadNode = Assert.Single(records.OfType<RoadRegistry.RoadNode.RoadNode>());
+                Assert.True(roadNode.IsRemoved, "the road node snapshot should say it is removed");
+            });
+    }
+
     private (MartenMigrationProjection, InMemoryDocumentStoreSession) BuildProjection()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());

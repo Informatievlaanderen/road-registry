@@ -731,6 +731,7 @@ RoadNetworkExtractGotRequestedV2
                     Geometry = point.EnsureLambert08(),
                     Provenance = new ProvenanceData(provenance)
                 });
+                session.Store(roadNode);
             },
             token);
     }
@@ -767,6 +768,7 @@ RoadNetworkExtractGotRequestedV2
                 RoadNodeId = roadNodeId,
                 Provenance = new ProvenanceData(provenance)
             });
+            session.Store(roadNode);
         }, token);
     }
 
