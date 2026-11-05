@@ -15,6 +15,7 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestExtract;
 using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
@@ -137,6 +138,7 @@ public class ForDebugging
                     )
                 ))
 
+            .AddSingleton(new UseEditableExtractDataNearInwinningFeatureToggle(true))
             .AddScoped<RoadNetworkExtractArchiveAssemblerForDomainV1>()
             ;
 

@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Extensions;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Extensions;
@@ -25,6 +26,7 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV1
     private readonly IZipArchiveWriterFactory _writerFactory;
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly IStreamStore _streamStore;
+    private readonly UseEditableExtractDataNearInwinningFeatureToggle _useEditableExtractDataNearInwinningFeatureToggle;
     private readonly ILogger _logger;
 
     public RoadNetworkExtractArchiveAssemblerForDomainV1(
@@ -33,8 +35,10 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV1
         ExtractsDbContext extractsDbContext,
         IZipArchiveWriterFactory writerFactory,
         IStreamStore streamStore,
+        UseEditableExtractDataNearInwinningFeatureToggle useEditableExtractDataNearInwinningFeatureToggle,
         ILoggerFactory loggerFactory)
     {
+        _useEditableExtractDataNearInwinningFeatureToggle = useEditableExtractDataNearInwinningFeatureToggle.ThrowIfNull();
         _manager = manager.ThrowIfNull();
         _contextFactory = contextFactory.ThrowIfNull();
         _writerFactory = writerFactory.ThrowIfNull();
@@ -61,7 +65,7 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV1
         using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
         var writer = _writerFactory.Create(request.ZipArchiveWriterVersion);
 
-        await writer.WriteAsync(archive, request, new ZipArchiveDataProvider(context, _extractsDbContext), cancellationToken);
+        await writer.WriteAsync(archive, request, new ZipArchiveDataProvider(context, _extractsDbContext, _useEditableExtractDataNearInwinningFeatureToggle.FeatureEnabled), cancellationToken);
 
         return stream;
     }

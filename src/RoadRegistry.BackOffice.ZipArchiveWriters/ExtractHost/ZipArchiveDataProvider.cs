@@ -14,6 +14,9 @@
 
     public interface IZipArchiveDataProvider
     {
+        // false: all or nothing, as soon as the contour overlaps with an inwinning road segment nothing is editable
+        bool UseEditableExtractDataNearInwinning { get; }
+
         Task<IReadOnlySet<int>> GetEditableRoadSegmentIds(IPolygonal contour, CancellationToken cancellationToken);
 
         Task<IReadOnlyList<RoadNodeRecord>> GetRoadNodes(
@@ -63,11 +66,14 @@
         private readonly Dictionary<IPolygonal, IReadOnlySet<int>> _editableRoadSegmentIdsCache = new();
         private readonly Dictionary<IPolygonal, IReadOnlyList<RoadSegmentRecord>> _getRoadSegmentCache = new();
 
-        public ZipArchiveDataProvider(EditorContext editorContext, ExtractsDbContext extractsDbContext)
+        public ZipArchiveDataProvider(EditorContext editorContext, ExtractsDbContext extractsDbContext, bool useEditableExtractDataNearInwinning)
         {
             _editorContext = editorContext.ThrowIfNull();
             _extractsDbContext = extractsDbContext.ThrowIfNull();
+            UseEditableExtractDataNearInwinning = useEditableExtractDataNearInwinning;
         }
+
+        public bool UseEditableExtractDataNearInwinning { get; }
 
         public async Task<IReadOnlySet<int>> GetEditableRoadSegmentIds(IPolygonal contour, CancellationToken cancellationToken)
         {
@@ -79,6 +85,17 @@
             var segmentsInContour = (await GetRoadSegments(contour, cancellationToken))
                 .Select(x => new RoadSegmentTopology(x.Id, x.StartNodeId, x.EndNodeId))
                 .ToList();
+
+            if (!UseEditableExtractDataNearInwinning)
+            {
+                var overlapsWithInwinning = await _extractsDbContext.HasInwinningRoadSegments(
+                    segmentsInContour.Select(x => new RoadSegmentId(x.Id)), cancellationToken);
+
+                editableRoadSegmentIds = EditableRoadSegments.DetermineAllOrNothing(segmentsInContour, overlapsWithInwinning);
+                _editableRoadSegmentIdsCache[contour] = editableRoadSegmentIds;
+
+                return editableRoadSegmentIds;
+            }
 
             var roadNodeIds = segmentsInContour
                 .SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })

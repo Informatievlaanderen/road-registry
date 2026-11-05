@@ -67,4 +67,39 @@ public class EditableRoadSegmentsTests
 
         editable.Should().BeEmpty();
     }
+
+    [Fact]
+    public void AllOrNothing_WhenContourOverlapsWithInwinning_ThenNoneAreEditable()
+    {
+        var editable = EditableRoadSegments.DetermineAllOrNothing(
+            Segments(3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+            overlapsWithInwinning: true);
+
+        editable.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AllOrNothing_WhenNoInwinning_ThenAllRoadSegmentsInContourAreEditable()
+    {
+        var editable = EditableRoadSegments.DetermineAllOrNothing(
+            Segments(3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+            overlapsWithInwinning: false);
+
+        editable.Should().BeEquivalentTo([3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    }
+
+    [Theory]
+    [InlineData(6, 7, true, true)]
+    [InlineData(6, 7, false, true)]
+    [InlineData(5, 7, true, false)]
+    [InlineData(5, 7, false, true)]
+    [InlineData(4, 5, true, false)]
+    [InlineData(4, 5, false, false)]
+    public void GradeSeparatedJunctionIsEditable(int upperRoadSegmentId, int lowerRoadSegmentId, bool useEditableExtractDataNearInwinning, bool expected)
+    {
+        var editableRoadSegmentIds = new HashSet<int> { 6, 7, 8, 9, 10, 11, 12 };
+
+        EditableRoadSegments.IsGradeSeparatedJunctionEditable(editableRoadSegmentIds, upperRoadSegmentId, lowerRoadSegmentId, useEditableExtractDataNearInwinning)
+            .Should().Be(expected);
+    }
 }
