@@ -124,7 +124,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 FIETSHEEN = dbaseRecord.FIETSHEEN.GetValue(),
                 FIETSTERUG = dbaseRecord.FIETSTERUG.GetValue(),
                 VOETGANGER = dbaseRecord.VOETGANGER.GetValue()
-            }.ToFeature(featureType, FileName, recordNumber, context);
+            }.ToFeature(featureType, FileName, recordNumber);
         }
     }
 
@@ -149,7 +149,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         public required int? FIETSTERUG { get; init; }
         public required int? VOETGANGER { get; init; }
 
-        public (Feature<RoadSegmentFeatureCompareWithFlatAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, ZipArchiveFeatureReaderContext context)
+        public (Feature<RoadSegmentFeatureCompareWithFlatAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
         {
             var problemBuilder = fileName
                 .AtDbaseRecord(featureType, recordNumber)
