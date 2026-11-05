@@ -8,11 +8,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using RoadRegistry.BackOffice;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
+using RoadRegistry.Projector.Projections;
 
 // A SQL Server read model that can be rebuilt beside itself: the live schema and projection, and the shadow ones that
 // a second copy of the same projection fills from the start of the event stream (see the *TempProjection classes).
@@ -72,9 +74,11 @@ public sealed class ShadowReadModelPromoterFactory : IDbMigratorFactory
 //   - Indexes the migrations put on the live tables in raw SQL - the spatial indexes above all - are not in the EF
 //     model the shadow tables were created from. They are built on the shadow tables first, outside the transaction:
 //     that is the expensive part, and doing it first means the live schema is never served without them.
-//   - Views standing on the live tables (the schema-bound [wms]/[wfs] ones on [road] among them) block a DROP TABLE.
-//     They are dropped and put back from their own definitions, together with the indexes on them - the indexed views
-//     lose those with the drop - and the permissions granted on them.
+//   - Schema-bound views standing on the live tables (the [wms]/[wfs] ones on [road]) block a DROP TABLE. They are
+//     taken out of the way and put back by SqlServerViewMaintenance, the same code a rebuild uses for the same
+//     problem: from their own definitions, with the indexes on them, under the session options an indexed view
+//     needs. The permissions granted on them are granted again. A view that is not schema-bound is in nobody's way:
+//     it stays, and resolves to the promoted tables by name.
 //   - Permissions granted on the live tables go with the tables that are dropped, and are granted again on the ones
 //     that take their place.
 //
@@ -199,8 +203,8 @@ public sealed class ShadowReadModelPromoter : IDbMigrator
 
     private async Task CopyMissingIndexesToShadowAsync(SqlConnection sql, CancellationToken cancellationToken)
     {
-        var liveIndexes = await ReadIndexesAsync(sql, _readModel.LiveSchema, objectType: "U", cancellationToken);
-        var shadowIndexes = await ReadIndexesAsync(sql, _readModel.ShadowSchema, objectType: "U", cancellationToken);
+        var liveIndexes = await ReadIndexesAsync(sql, _readModel.LiveSchema, cancellationToken);
+        var shadowIndexes = await ReadIndexesAsync(sql, _readModel.ShadowSchema, cancellationToken);
 
         var shadowTables = shadowIndexes.Select(x => x.ObjectName).ToHashSet(StringComparer.OrdinalIgnoreCase);
         shadowTables.UnionWith(await ReadTablesAsync(sql, _readModel.ShadowSchema, cancellationToken));
@@ -234,68 +238,68 @@ public sealed class ShadowReadModelPromoter : IDbMigrator
 
     private async Task SwapAsync(SqlConnection sql, CancellationToken cancellationToken)
     {
-        // Read before anything is dropped: these are what the drops take with them.
-        var views = await ReadDependentViewsAsync(sql, cancellationToken);
-        var viewIndexes = (await ReadIndexesAsync(sql, schema: null, objectType: "V", cancellationToken))
-            .Where(index => views.Any(view => view.Schema == index.SchemaName && view.Name == index.ObjectName))
-            .ToList();
-        var permissions = await ReadPermissionsAsync(sql, views, cancellationToken);
         var liveTables = (await ReadTablesAsync(sql, _readModel.LiveSchema, cancellationToken))
             .Where(table => !string.Equals(table, _readModel.MigrationsHistoryTable, StringComparison.OrdinalIgnoreCase))
             .ToList();
         var shadowTables = await ReadTablesAsync(sql, _readModel.ShadowSchema, cancellationToken);
 
-        await using var transaction = (SqlTransaction)await sql.BeginTransactionAsync(cancellationToken);
-
-        foreach (var view in views)
+        // Through a context, because that is what SqlServerViewMaintenance works with; it is on the same database, and
+        // only its connection is used. Through the execution strategy as well, because the connection is configured to
+        // retry and a retrying strategy refuses a transaction it did not open itself: an attempt replays the whole swap,
+        // capturing the views again from scratch.
+        await using var context = _createShadowContext();
+        var strategy = context.Database.CreateExecutionStrategy();
+        var (viewCount, viewIndexCount, permissionCount) = await strategy.ExecuteAsync(async token =>
         {
-            await ExecuteAsync(sql, transaction, $"DROP VIEW {Quote(view.Schema)}.{Quote(view.Name)};", SwapCommandTimeoutInSeconds, cancellationToken);
-        }
+            await using var transaction = await context.Database.BeginTransactionAsync(token);
+            var connection = (SqlConnection)context.Database.GetDbConnection();
+            var sqlTransaction = (SqlTransaction)transaction.GetDbTransaction();
 
-        foreach (var table in liveTables)
-        {
-            await ExecuteAsync(sql, transaction, $"DROP TABLE {Quote(_readModel.LiveSchema)}.{Quote(table)};", SwapCommandTimeoutInSeconds, cancellationToken);
-        }
+            // Read before anything is dropped: these are what the drops take with them.
+            var views = await SqlServerViewMaintenance.CaptureAsync(
+                context, liveTables.Select(table => $"{Quote(_readModel.LiveSchema)}.{Quote(table)}").ToList(), token);
+            var permissions = await ReadPermissionsAsync(connection, sqlTransaction, views, token);
 
-        foreach (var table in shadowTables)
-        {
-            await ExecuteAsync(sql, transaction, $"ALTER SCHEMA {Quote(_readModel.LiveSchema)} TRANSFER {Quote(_readModel.ShadowSchema)}.{Quote(table)};", SwapCommandTimeoutInSeconds, cancellationToken);
-        }
+            await SqlServerViewMaintenance.DropAsync(context, views, _logger, token);
 
-        // Leaves the schema empty; anything still in it fails the swap here rather than being left behind unnoticed.
-        await ExecuteAsync(sql, transaction, $"DROP SCHEMA {Quote(_readModel.ShadowSchema)};", SwapCommandTimeoutInSeconds, cancellationToken);
+            foreach (var table in liveTables)
+            {
+                await ExecuteAsync(connection, sqlTransaction, $"DROP TABLE {Quote(_readModel.LiveSchema)}.{Quote(table)};", SwapCommandTimeoutInSeconds, token);
+            }
 
-        // The position the live projection continues from: the shadow's, copied to the live projection's name. The
-        // shadow's own row stays, as the marker that the Marten half is still to do.
-        await ExecuteAsync(sql, transaction, $@"
+            foreach (var table in shadowTables)
+            {
+                await ExecuteAsync(connection, sqlTransaction, $"ALTER SCHEMA {Quote(_readModel.LiveSchema)} TRANSFER {Quote(_readModel.ShadowSchema)}.{Quote(table)};", SwapCommandTimeoutInSeconds, token);
+            }
+
+            // Leaves the schema empty; anything still in it fails the swap here rather than being left behind unnoticed.
+            await ExecuteAsync(connection, sqlTransaction, $"DROP SCHEMA {Quote(_readModel.ShadowSchema)};", SwapCommandTimeoutInSeconds, token);
+
+            // The position the live projection continues from: the shadow's, copied to the live projection's name. The
+            // shadow's own row stays, as the marker that the Marten half is still to do.
+            await ExecuteAsync(connection, sqlTransaction, $@"
 DELETE FROM {Quote(_readModel.LiveSchema)}.[ProjectionStates] WHERE [Name] = @live;
 SELECT * INTO #promoted FROM {Quote(_readModel.LiveSchema)}.[ProjectionStates] WHERE [Name] = @shadow;
 UPDATE #promoted SET [Name] = @live;
 INSERT INTO {Quote(_readModel.LiveSchema)}.[ProjectionStates] SELECT * FROM #promoted;
-DROP TABLE #promoted;", SwapCommandTimeoutInSeconds, cancellationToken,
-            ("@live", _readModel.LiveProjectionName), ("@shadow", _readModel.ShadowProjectionName));
+DROP TABLE #promoted;", SwapCommandTimeoutInSeconds, token,
+                ("@live", _readModel.LiveProjectionName), ("@shadow", _readModel.ShadowProjectionName));
 
-        foreach (var view in views)
-        {
-            await ExecuteAsync(sql, transaction, view.Definition, SwapCommandTimeoutInSeconds, cancellationToken);
-        }
+            await SqlServerViewMaintenance.RecreateAsync(context, views, _logger, token);
 
-        // The clustered index first: an indexed view's other indexes need it.
-        foreach (var index in viewIndexes.OrderByDescending(x => x.IsClustered))
-        {
-            await ExecuteAsync(sql, transaction, index.Script(index.SchemaName), SwapCommandTimeoutInSeconds, cancellationToken);
-        }
+            foreach (var permission in permissions)
+            {
+                await ExecuteAsync(connection, sqlTransaction, permission.Script(), SwapCommandTimeoutInSeconds, token);
+            }
 
-        foreach (var permission in permissions)
-        {
-            await ExecuteAsync(sql, transaction, permission.Script(), SwapCommandTimeoutInSeconds, cancellationToken);
-        }
+            await transaction.CommitAsync(token);
 
-        await transaction.CommitAsync(cancellationToken);
+            return (views.Count, views.Sum(view => view.Indexes.Count), permissions.Count);
+        }, cancellationToken);
 
         _logger.LogWarning(
             "Swapped {Tables} table(s) of [{ShadowSchema}] into [{LiveSchema}], replacing {Replaced}; put back {Views} view(s), {ViewIndexes} view index(es) and {Permissions} permission(s).",
-            shadowTables.Count, _readModel.ShadowSchema, _readModel.LiveSchema, liveTables.Count, views.Count, viewIndexes.Count, permissions.Count);
+            shadowTables.Count, _readModel.ShadowSchema, _readModel.LiveSchema, liveTables.Count, viewCount, viewIndexCount, permissionCount);
     }
 
     // The live shard is pointed at the position the shadow reached - in both directions: the rows now in the live schema
@@ -410,38 +414,13 @@ ORDER BY t.name;", sql);
         return tables;
     }
 
-    // Every view that depends on something in the live schema, wherever it lives itself. Asked of the catalog by what
-    // the view depends on, not by the schema it is in: [wms] and [wfs] are shared with other registers, whose views are
-    // none of this swap's business.
-    private async Task<IReadOnlyList<ViewDefinition>> ReadDependentViewsAsync(SqlConnection sql, CancellationToken cancellationToken)
-    {
-        await using var command = new SqlCommand(@"
-SELECT s.name, v.name, m.[definition]
-FROM sys.views v
-JOIN sys.schemas s ON s.schema_id = v.schema_id
-JOIN sys.sql_modules m ON m.object_id = v.object_id
-WHERE EXISTS (
-    SELECT 1
-    FROM sys.sql_expression_dependencies d
-    JOIN sys.objects o ON o.object_id = d.referenced_id
-    JOIN sys.schemas rs ON rs.schema_id = o.schema_id
-    WHERE d.referencing_id = v.object_id
-      AND rs.name = @schema)
-ORDER BY s.name, v.name;", sql);
-        command.Parameters.AddWithValue("@schema", _readModel.LiveSchema);
-
-        var views = new List<ViewDefinition>();
-        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
-        while (await reader.ReadAsync(cancellationToken))
-        {
-            views.Add(new ViewDefinition(reader.GetString(0), reader.GetString(1), reader.GetString(2)));
-        }
-
-        return views;
-    }
-
     // Object-level permissions on the live tables and on the views standing on them, including column-level ones.
-    private async Task<IReadOnlyList<PermissionDefinition>> ReadPermissionsAsync(SqlConnection sql, IReadOnlyList<ViewDefinition> views, CancellationToken cancellationToken)
+    // A REVOKE is not something to put back - revoking removes the row it would have been - so only grants and denies.
+    private async Task<IReadOnlyList<PermissionDefinition>> ReadPermissionsAsync(
+        SqlConnection sql,
+        SqlTransaction transaction,
+        IReadOnlyList<SqlServerViewMaintenance.ServingView> views,
+        CancellationToken cancellationToken)
     {
         await using var command = new SqlCommand(@"
 SELECT p.state_desc, p.permission_name, s.name, o.name, c.name, pr.name, o.type
@@ -451,7 +430,8 @@ JOIN sys.schemas s ON s.schema_id = o.schema_id
 JOIN sys.database_principals pr ON pr.principal_id = p.grantee_principal_id
 LEFT JOIN sys.columns c ON c.object_id = p.major_id AND c.column_id = p.minor_id AND p.minor_id <> 0
 WHERE p.class = 1
-  AND (o.type = 'U' AND s.name = @schema OR o.type = 'V');", sql);
+  AND p.state IN ('G', 'W', 'D')
+  AND (o.type = 'U' AND s.name = @schema OR o.type = 'V');", sql, transaction);
         command.Parameters.AddWithValue("@schema", _readModel.LiveSchema);
 
         var permissions = new List<PermissionDefinition>();
@@ -483,9 +463,9 @@ WHERE p.class = 1
         return permissions;
     }
 
-    // The rowstore and spatial indexes on the tables or views of a schema, except the ones that back a constraint:
+    // The rowstore and spatial indexes on the tables of a schema, except the ones that back a constraint:
     // those come with the table definition. Columnstore and XML indexes are not used by these read models.
-    private static async Task<IReadOnlyList<IndexDefinition>> ReadIndexesAsync(SqlConnection sql, string? schema, string objectType, CancellationToken cancellationToken)
+    private static async Task<IReadOnlyList<IndexDefinition>> ReadIndexesAsync(SqlConnection sql, string schema, CancellationToken cancellationToken)
     {
         await using var command = new SqlCommand(@"
 SELECT
@@ -501,15 +481,14 @@ JOIN sys.schemas s ON s.schema_id = o.schema_id
 JOIN sys.index_columns ic ON ic.object_id = i.object_id AND ic.index_id = i.index_id
 JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id
 LEFT JOIN sys.spatial_index_tessellations t ON t.object_id = i.object_id AND t.index_id = i.index_id
-WHERE o.type = @type
-  AND (@schema IS NULL OR s.name = @schema)
+WHERE o.type = 'U'
+  AND s.name = @schema
   AND i.type IN (1, 2, 4)
   AND i.is_primary_key = 0
   AND i.is_unique_constraint = 0
   AND i.is_hypothetical = 0
 ORDER BY s.name, o.name, i.name, ic.is_included_column, ic.key_ordinal, ic.index_column_id;", sql);
-        command.Parameters.AddWithValue("@type", objectType);
-        command.Parameters.AddWithValue("@schema", (object?)schema ?? DBNull.Value);
+        command.Parameters.AddWithValue("@schema", schema);
 
         var indexes = new List<IndexDefinition>();
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
@@ -588,18 +567,11 @@ ORDER BY s.name, o.name, i.name, ic.is_included_column, ic.key_ordinal, ic.index
         public static PromotionDecision Skip(LogLevel level, string reason) => new(false, level, reason);
     }
 
-    private sealed record ViewDefinition(string Schema, string Name, string Definition);
-
     internal sealed record PermissionDefinition(string State, string Permission, string Schema, string ObjectName, string? Column, string Grantee)
     {
         public string Script()
         {
-            var verb = State switch
-            {
-                "DENY" => "DENY",
-                "REVOKE" => "REVOKE",
-                _ => "GRANT"
-            };
+            var verb = State == "DENY" ? "DENY" : "GRANT";
             var column = Column is null ? string.Empty : $" ({Quote(Column)})";
             var withGrantOption = State == "GRANT_WITH_GRANT_OPTION" ? " WITH GRANT OPTION" : string.Empty;
 
