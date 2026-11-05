@@ -31,7 +31,7 @@ public class GradeSeparatedJunctionZipArchiveWriter : IZipArchiveWriter
 
         var editableRoadSegmentIds = await zipArchiveDataProvider.GetEditableRoadSegmentIds(request.Contour, cancellationToken);
         var junctions = (await zipArchiveDataProvider.GetGradeSeparatedJunctions(request.Contour, cancellationToken))
-            .Where(x => editableRoadSegmentIds.Contains(x.UpperRoadSegmentId) || editableRoadSegmentIds.Contains(x.LowerRoadSegmentId))
+            .Where(x => editableRoadSegmentIds.Contains(x.UpperRoadSegmentId) && editableRoadSegmentIds.Contains(x.LowerRoadSegmentId))
             .ToList();
 
         const ExtractFileName extractFilename = ExtractFileName.RltOgkruising;
