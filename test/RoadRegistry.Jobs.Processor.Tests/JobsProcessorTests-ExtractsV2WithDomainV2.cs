@@ -119,6 +119,8 @@ namespace RoadRegistry.Jobs.Processor.Tests
             executedRequest.ProvenanceData!.Operator.Should().Be(job.OperatorName);
             createBlobInvocation.Arguments.OfType<BlobName>().Single().ToString().Should().Be(executedRequest.UploadId.ToString());
 
+            AssertUploadIsRegistered(extractsDbContext, downloadId, executedRequest.UploadId, ticketId);
+
             mockIHostApplicationLifeTime.Verify(x => x.StopApplication(), Times.Once);
         }
 

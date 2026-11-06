@@ -122,7 +122,103 @@ namespace RoadRegistry.Jobs.Processor.Tests
             executedRequest.ProvenanceData!.Operator.Should().Be(job.OperatorName);
             createBlobInvocation.Arguments.OfType<BlobName>().Single().ToString().Should().Be(executedRequest.UploadId.ToString());
 
+            AssertUploadIsRegistered(extractsDbContext, downloadId, executedRequest.UploadId, ticketId);
+
             mockIHostApplicationLifeTime.Verify(x => x.StopApplication(), Times.Once);
+        }
+
+        [Fact]
+        public async Task FlowTest_Inwinning_WhenHandingOverFails_ThenTheRegisteredUploadFails()
+        {
+            var fixture = new RoadNetworkTestData().ObjectProvider;
+            var mockTicketing = new Mock<ITicketing>();
+            var blobClient = new Mock<IBlobClient>();
+            var mockMediator = new Mock<IMediator>();
+            var jobsContext = new FakeJobsContextFactory().CreateDbContext();
+
+            var ticketId = Guid.NewGuid();
+            var downloadId = Guid.NewGuid();
+
+            var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.Inwinning, ticketId)
+            {
+                DownloadId = downloadId,
+                OperatorName = fixture.Create<string>().Substring(0, 20)
+            };
+            jobsContext.Jobs.Add(job);
+            await jobsContext.SaveChangesAsync(CancellationToken.None);
+
+            var blobName = new BlobName(job.ReceivedBlobName);
+            blobClient
+                .Setup(x => x.BlobExistsAsync(blobName, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+            blobClient
+                .Setup(x => x.GetBlobAsync(blobName, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new BlobObject(
+                    blobName,
+                    Metadata.None
+                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), "file.zip"))
+                        .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("guardduty-malware-scan-status"), "NO_THREATS_FOUND")),
+                    ContentType.Parse("X-multipart/abc"),
+                    _ => Task.FromResult<Stream>(EmbeddedResourceReader.Read("valid.zip"))));
+
+            mockMediator
+                .Setup(x => x.Send(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new InvalidOperationException("SQS unavailable"));
+
+            var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
+            var extractRequestId = fixture.Create<ExtractRequestId>();
+            extractsDbContext.ExtractRequests.Add(new ExtractRequest
+            {
+                ExtractRequestId = extractRequestId,
+                Description = fixture.Create<string>()
+            });
+            extractsDbContext.ExtractDownloads.Add(new ExtractDownload
+            {
+                DownloadId = downloadId,
+                Contour = Polygon.Empty,
+                ExtractRequestId = extractRequestId,
+                ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV2
+            });
+            await extractsDbContext.SaveChangesAsync();
+
+            var sut = new JobsProcessor(
+                new JobsProcessorOptions
+                {
+                    MaxJobLifeTimeInMinutes = 65
+                },
+                jobsContext,
+                mockTicketing.Object,
+                new RoadNetworkJobsBlobClient(blobClient.Object),
+                mockMediator.Object,
+                Mock.Of<IExtractRequestCleaner>(),
+                new RoadNetworkUploadsBlobClient(blobClient.Object),
+                extractsDbContext,
+                new NullLoggerFactory(),
+                Mock.Of<IHostApplicationLifetime>());
+
+            // Act
+            await sut.RunOnceAsync(CancellationToken.None);
+
+            // Assert
+            jobsContext.Jobs.First().Status.Should().Be(JobStatus.Error);
+
+            var extractUpload = extractsDbContext.ExtractUploads.Single(x => x.DownloadId == downloadId);
+            extractUpload.Status.Should().Be(ExtractUploadStatus.AutomaticValidationFailed);
+        }
+
+        private static void AssertUploadIsRegistered(ExtractsDbContext extractsDbContext, Guid downloadId, UploadId uploadId, Guid ticketId)
+        {
+            var extractUpload = extractsDbContext.ExtractUploads.Single(x => x.UploadId == uploadId.ToGuid());
+            extractUpload.DownloadId.Should().Be(downloadId);
+            extractUpload.TicketId.Should().Be(ticketId);
+            extractUpload.Status.Should().Be(ExtractUploadStatus.Processing);
+
+            extractsDbContext.ExtractUploadStatusHistory
+                .Where(x => x.UploadId == uploadId.ToGuid())
+                .Select(x => x.Status)
+                .Should().Equal(ExtractUploadStatus.Processing);
+
+            extractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId).LatestUploadId.Should().Be(uploadId.ToGuid());
         }
 
         [Fact]

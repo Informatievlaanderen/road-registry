@@ -74,11 +74,13 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
             var inwinningszone = await _extractsDbContext.Inwinningszones.SingleOrDefaultAsync(x => x.DownloadId == request.Request.DownloadId.ToGuid(), cancellationToken);
             if (inwinningszone is null)
             {
+                await FailUploadIfStillProcessing(request.Request.UploadId, cancellationToken);
                 throw new InvalidOperationException($"No Inwinningszone found for {request.Request.DownloadId}");
             }
 
             if (inwinningszone.Completed)
             {
+                await FailUploadIfStillProcessing(request.Request.UploadId, cancellationToken);
                 throw new InwinningszoneCompletedException(request.Request.DownloadId);
             }
 
@@ -163,6 +165,16 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
         {
             Logger.LogError(ex, $"Error while processing upload inwinning extract with download id {request.Request.DownloadId}");
             throw;
+        }
+    }
+
+    // The jobs processor registers the upload as Processing before handing it over. An upload that is refused before
+    // it is processed has to say it failed, or it blocks every next upload for its extract.
+    private async Task FailUploadIfStillProcessing(UploadId uploadId, CancellationToken cancellationToken)
+    {
+        if (await _extractsDbContext.HasUploadStatusAsync(uploadId, ExtractUploadStatus.Processing, cancellationToken))
+        {
+            await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
         }
     }
 

@@ -179,6 +179,7 @@ public class ExtractUploaderTests
 
         // Assert
         await act.Should().ThrowAsync<ExtractRequestClosedException>();
+        ExtractsDbContext.ExtractUploads.Single().Status.Should().Be(ExtractUploadStatus.AutomaticValidationFailed);
     }
 
     [Fact]
@@ -265,6 +266,7 @@ public class ExtractUploaderTests
 
         // Assert
         await act.Should().ThrowAsync<BlobNotFoundException>();
+        ExtractsDbContext.ExtractUploads.Single().Status.Should().Be(ExtractUploadStatus.AutomaticValidationFailed);
     }
 
     [Fact]
