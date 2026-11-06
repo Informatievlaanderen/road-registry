@@ -1,3 +1,12 @@
+## [5.32.3](https://github.com/informatievlaanderen/road-registry/compare/v5.32.2...v5.32.3) (2026-11-06)
+
+
+### Bug Fixes
+
+* **2.0:** commit the road segment repair instead of rolling it back ([16d2e29](https://github.com/informatievlaanderen/road-registry/commit/16d2e297f30a0af82d5b4f5f2455bc879cc79a5b))
+* **2.0:** read the repair runners off the document JSON ([917833f](https://github.com/informatievlaanderen/road-registry/commit/917833f43c3dec44820928bd0f31621ee47cda29))
+* **extracts:** refuse an upload while another one for the same extract is underway GAWR-7846 ([12baa41](https://github.com/informatievlaanderen/road-registry/commit/12baa419a0a82f80c12e809a640774c2b4270c7a))
+
 ## [5.32.2](https://github.com/informatievlaanderen/road-registry/compare/v5.32.1...v5.32.2) (2026-11-06)
 
 
