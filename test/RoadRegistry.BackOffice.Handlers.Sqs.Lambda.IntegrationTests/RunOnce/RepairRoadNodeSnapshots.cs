@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RunOnce;
 
+using System.Diagnostics;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Dapper;
 using Marten;
@@ -45,6 +46,7 @@ public class RepairRoadNodeSnapshots
 {
     private const int BatchSize = 500;
 
+    // The register is kept to the centimetre, so that is what "the document sits on another point" has to mean here.
     // Marten's snake_case aliases, kept with the Existences list in RoadRegistry.Pbs.Compare.Console - whose
     // --eventtypes prints what the store actually holds, which is how both lists are checked against reality.
     private const string RemovedV1 = "road_node_removed";
@@ -109,6 +111,7 @@ public class RepairRoadNodeSnapshots
     private async Task<int> RepairRemovals(IDocumentStore store, IReadOnlyList<UnmarkedRemoval> removals, bool dryRun)
     {
         var repaired = 0;
+        var progress = new Progress(_outputHelper, "Removals", removals.Count);
 
         foreach (var batch in removals.Chunk(BatchSize))
         {
@@ -162,14 +165,18 @@ public class RepairRoadNodeSnapshots
             {
                 await session.SaveChangesAsync();
             }
+
+            progress.Advance(batch.Length);
         }
 
+        progress.Finish();
         return repaired;
     }
 
     private async Task<int> RepairGeometries(IDocumentStore store, IReadOnlyList<int> candidates, bool dryRun)
     {
         var repaired = 0;
+        var progress = new Progress(_outputHelper, "Geometries", candidates.Count);
 
         foreach (var batch in candidates.Chunk(BatchSize))
         {
@@ -177,6 +184,8 @@ public class RepairRoadNodeSnapshots
 
             foreach (var id in batch)
             {
+                progress.Advance();
+
                 var roadNodeId = new RoadNodeId(id);
                 var streamKey = StreamKeyFactory.Create(typeof(RoadRegistry.RoadNode.RoadNode), roadNodeId);
 
@@ -197,12 +206,31 @@ public class RepairRoadNodeSnapshots
                 // runner: the document holds the point DotSpatial transformed to Lambert 2008, and ST_Transform does
                 // not reproduce that to the centimetre these differences are measured in.
                 var geometry = lastModified.Geometry.EnsureLambert08();
-                if (roadNode.Geometry.WKT == geometry.WKT && roadNode.Geometry.SRID == geometry.SRID)
+
+                // Judged on the centimetre, the precision the register works in, rather than on how far the two
+                // points lie apart. Both are the same source coordinate by different routes - the document's went
+                // through the projection and a WKT round trip, this one is transformed here and now - and the datum
+                // transform turns that into a disagreement in the seventh decimal, which rounds away.
+                //
+                // A tolerance on the distance does not do the same job. It cannot tell a tenth of a micrometre of
+                // noise from a modify the projection genuinely never stored, and a small one of those still matters:
+                // road node 2164582 sat 5,5 mm behind its own stream, which was enough to put it on another
+                // centimetre than PBS once both were rounded. If it still differs at centimetre precision, it is a
+                // difference, however little of it there is.
+
+                var documentPoint = roadNode.Geometry.Value;
+                var streamPoint = geometry.Value;
+                var dx = Math.Abs(documentPoint.X - streamPoint.X);
+                var dy = Math.Abs(documentPoint.Y - streamPoint.Y);
+
+                if (roadNode.Geometry.SRID == geometry.SRID
+                    && documentPoint.X.RoundToCm() == streamPoint.X.RoundToCm()
+                    && documentPoint.Y.RoundToCm() == streamPoint.Y.RoundToCm())
                 {
                     continue;
                 }
 
-                _outputHelper.WriteLine($"{roadNodeId}: {roadNode.Geometry.WKT} -> {geometry.WKT}");
+                _outputHelper.WriteLine($"{roadNodeId}: {roadNode.Geometry.WKT} -> {geometry.WKT} (dx {dx:0.###} dy {dy:0.###})");
 
                 roadNode.Apply(new RoadRegistry.RoadNode.Events.V2.RoadNodeWasModified
                 {
@@ -221,7 +249,85 @@ public class RepairRoadNodeSnapshots
             }
         }
 
+        progress.Finish();
         return repaired;
+    }
+
+    /// <summary>
+    /// Says how far along one of the two repairs is, at every 5% and once at the end, with what it has spent and
+    /// what that rate says is left. The geometry repair fetches a stream per road node, so it runs for long enough
+    /// that a run with nothing to show for itself is indistinguishable from a hung one.
+    /// </summary>
+    /// <remarks>
+    /// Written to the console as well as to the test output. xUnit hands ITestOutputHelper's lines to the runner,
+    /// and whether they appear while the test is still running or only once it ends is the runner's business -
+    /// which would defeat the point of reporting progress at all.
+    /// </remarks>
+    private sealed class Progress
+    {
+        private const int StepPercentage = 5;
+
+        private readonly ITestOutputHelper _outputHelper;
+        private readonly string _what;
+        private readonly int _total;
+        private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+
+        private int _done;
+        private int _reportedPercentage;
+
+        public Progress(ITestOutputHelper outputHelper, string what, int total)
+        {
+            _outputHelper = outputHelper;
+            _what = what;
+            _total = total;
+        }
+
+        public void Advance(int count = 1)
+        {
+            _done += count;
+
+            if (_total == 0)
+            {
+                return;
+            }
+
+            var percentage = (int)(100L * _done / _total);
+            if (percentage < _reportedPercentage + StepPercentage)
+            {
+                return;
+            }
+
+            // Down to the step it actually reached, so a batch that jumps several steps at once reports the one it
+            // is at rather than silently rebasing the next report off an uneven number.
+            _reportedPercentage = percentage - percentage % StepPercentage;
+            Report(_reportedPercentage);
+        }
+
+        public void Finish()
+        {
+            if (_total > 0 && _reportedPercentage < 100)
+            {
+                Report(100);
+            }
+        }
+
+        private void Report(int percentage)
+        {
+            var elapsed = _stopwatch.Elapsed;
+            var remaining = _done > 0
+                ? TimeSpan.FromTicks(elapsed.Ticks / _done * (_total - _done))
+                : TimeSpan.Zero;
+
+            var line = $"  {_what} {percentage,3}% ({_done:N0}/{_total:N0}) - {Format(elapsed)} spent, ~{Format(remaining)} left";
+
+            _outputHelper.WriteLine(line);
+            Console.WriteLine(line);
+        }
+
+        private static string Format(TimeSpan value)
+        {
+            return value.ToString(value.TotalHours >= 1 ? @"h\:mm\:ss" : @"m\:ss");
+        }
     }
 
     private static Provenance Provenance()
