@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Abstractions.Jobs;
+using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.Extracts.Schema;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -65,14 +66,7 @@ public partial class InwinningController
             var extractUpload = await extractsDbContext.ExtractUploads.SingleAsync(x => x.UploadId == extractDownload.LatestUploadId.Value, cancellationToken);
             if (extractUpload.Status is ExtractUploadStatus.Processing or ExtractUploadStatus.AutomaticValidationSucceeded)
             {
-                throw new ValidationException([
-                    new ValidationFailure
-                    {
-                        PropertyName = string.Empty,
-                        ErrorCode = "UploadNietAfgerond",
-                        ErrorMessage = "Er is nog een upload bezig voor dit extract.",
-                    }
-                ]);
+                throw UploadNotFinished.Exception();
             }
         }
 

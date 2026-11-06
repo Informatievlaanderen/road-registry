@@ -1,16 +1,20 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Handlers
 {
     using System.Collections.Generic;
+    using System.Linq;
     using Abstractions.Jobs;
     using Api.Handlers;
     using Api.Infrastructure;
+    using Api.Infrastructure.Options;
     using AutoFixture;
     using FluentAssertions;
     using Hosts.Infrastructure.Modules;
     using Jobs;
     using Microsoft.AspNetCore.Http;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Options;
     using Moq;
+    using FluentValidation;
     using TicketingService.Abstractions;
 
     public class GivenUploadPreSignedUrlRequest
@@ -42,7 +46,8 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
                 new FakeTicketingOptions(),
                 _ticketingUrl.Object,
                 _uploadUrlPresigner.Object,
-                _httpContextAccessor.Object
+                _httpContextAccessor.Object,
+                Options.Create(new JobsBucketOptions { PendingUploadTimeoutInMinutes = 5 })
             );
         }
 
@@ -155,6 +160,75 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
 
             var transaction = (FakeDbContextTransaction)jobsContext.Database.CurrentTransaction;
             transaction!.Status.Should().Be(FakeDbContextTransaction.TransactionStatus.Committed);
+        }
+
+        [Theory]
+        [InlineData(JobStatus.Created, 0)]
+        [InlineData(JobStatus.Created, 4)]
+        [InlineData(JobStatus.Processing, 0)]
+        [InlineData(JobStatus.Processing, 30)]
+        public async Task GivenAnUploadIsPendingForTheDownload_ThenNoJobIsCreated(JobStatus status, int minutesAgo)
+        {
+            var downloadId = Guid.NewGuid();
+
+            var jobsContext = new FakeJobsContextFactory().CreateDbContext();
+            jobsContext.Jobs.Add(new Job(DateTimeOffset.UtcNow.AddMinutes(-minutesAgo), status, UploadType.Inwinning, Guid.NewGuid())
+            {
+                DownloadId = downloadId
+            });
+            await jobsContext.SaveChangesAsync();
+
+            var handler = CreatePreSignedUrlRequestHandler(jobsContext);
+            var act = () => handler.Handle(GetPresignedUploadUrlRequest.ForInwinning(new DownloadId(downloadId)), CancellationToken.None);
+
+            var ex = await act.Should().ThrowAsync<ValidationException>();
+            ex.Which.Errors.Single().ErrorCode.Should().Be(UploadNotFinished.ErrorCode);
+
+            jobsContext.Jobs.Should().ContainSingle();
+            _ticketing.Verify(x => x.CreateTicket(It.IsAny<IDictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            var transaction = (FakeDbContextTransaction)jobsContext.Database.CurrentTransaction;
+            transaction!.Status.Should().Be(FakeDbContextTransaction.TransactionStatus.Rolledback);
+        }
+
+        [Theory]
+        [InlineData(JobStatus.Created, 6)]
+        [InlineData(JobStatus.Completed, 0)]
+        [InlineData(JobStatus.Cancelled, 0)]
+        [InlineData(JobStatus.Error, 0)]
+        public async Task GivenNoUploadIsPendingForTheDownload_ThenAJobIsCreated(JobStatus status, int minutesAgo)
+        {
+            var ticketId = Guid.NewGuid();
+            var downloadId = Guid.NewGuid();
+
+            _ticketing
+                .Setup(x => x.CreateTicket(It.IsAny<IDictionary<string, string>>(), CancellationToken.None))
+                .ReturnsAsync(ticketId);
+            _ticketingUrl
+                .Setup(x => x.For(ticketId))
+                .Returns(new Uri($"https://api.ticketing.vlaanderen.be/{ticketId}"));
+            _uploadUrlPresigner
+                .Setup(x => x.CreatePresignedUploadUrl(It.IsAny<Job>()))
+                .Returns(new CreatePresignedPostResponse(new Uri("https://signedUrl"), _fixture.Create<Dictionary<string, string>>()));
+
+            var jobsContext = new FakeJobsContextFactory().CreateDbContext();
+            jobsContext.Jobs.Add(new Job(DateTimeOffset.UtcNow.AddMinutes(-minutesAgo), status, UploadType.Inwinning, Guid.NewGuid())
+            {
+                DownloadId = downloadId
+            });
+            jobsContext.Jobs.Add(new Job(DateTimeOffset.UtcNow, JobStatus.Processing, UploadType.Inwinning, Guid.NewGuid())
+            {
+                DownloadId = Guid.NewGuid()
+            });
+            await jobsContext.SaveChangesAsync();
+
+            var handler = CreatePreSignedUrlRequestHandler(jobsContext);
+            var response = await handler.Handle(GetPresignedUploadUrlRequest.ForInwinning(new DownloadId(downloadId)), CancellationToken.None);
+
+            var job = await jobsContext.Jobs.SingleAsync(x => x.Id == response.JobId);
+            job.DownloadId.Should().Be(downloadId);
+            job.TicketId.Should().Be(ticketId);
+            job.Status.Should().Be(JobStatus.Created);
         }
 
         [Fact]

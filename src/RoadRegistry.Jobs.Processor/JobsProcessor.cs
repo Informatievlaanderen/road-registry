@@ -193,6 +193,7 @@ namespace RoadRegistry.Jobs.Processor
                 catch (ValidationException ex)
                 {
                     await _ticketing.Error(job.TicketId, new TicketError(ex.Errors.Select(x => new TicketError(x.ErrorMessage, $"{x.PropertyName}_{x.ErrorCode}".Trim().Trim('_'))).ToArray()), stoppingToken);
+                    await FailRegisteredUpload(job, stoppingToken);
                     await UpdateJobStatus(job, JobStatus.Error, stoppingToken);
                 }
             }
@@ -224,6 +225,57 @@ namespace RoadRegistry.Jobs.Processor
             await UpdateJobStatus(job, JobStatus.Cancelled, stoppingToken);
 
             _logger.LogWarning("Cancelled expired job '{jobId}'.", job.Id);
+        }
+
+        // The job is completed once the upload has been handed to the lambda, and the lambda only registers the upload
+        // some time later. Registering it here, before handing it over, leaves no moment in which neither the job nor
+        // the upload tells the API that an upload is on its way for this extract. The lambda picks up the registered
+        // upload as it finds it.
+        private async Task RegisterUpload(ExtractDownload extractDownload, UploadId uploadId, Guid ticketId, CancellationToken cancellationToken)
+        {
+            var uploadedOn = DateTimeOffset.UtcNow;
+
+            _extractsDbContext.ExtractUploads.Add(new ExtractUpload
+            {
+                UploadId = uploadId,
+                DownloadId = extractDownload.DownloadId,
+                UploadedOn = uploadedOn,
+                Status = ExtractUploadStatus.Processing,
+                TicketId = ticketId
+            });
+            _extractsDbContext.ExtractUploadStatusHistory.Add(new ExtractUploadStatusHistory
+            {
+                UploadId = uploadId,
+                Status = ExtractUploadStatus.Processing,
+                Timestamp = uploadedOn
+            });
+            extractDownload.LatestUploadId = uploadId;
+
+            try
+            {
+                await _extractsDbContext.SaveChangesAsync(cancellationToken);
+            }
+            catch
+            {
+                // The context lives on for the next jobs, which must not try to save this registration all over again.
+                _extractsDbContext.ChangeTracker.Clear();
+                throw;
+            }
+        }
+
+        // An upload registered for a job that then failed to be handed over would otherwise stay Processing for good,
+        // and with it block every next upload for its extract.
+        private async Task FailRegisteredUpload(Job job, CancellationToken cancellationToken)
+        {
+            var uploadIds = await _extractsDbContext.ExtractUploads
+                .Where(x => x.TicketId == job.TicketId && x.Status == ExtractUploadStatus.Processing)
+                .Select(x => x.UploadId)
+                .ToListAsync(cancellationToken);
+
+            foreach (var uploadId in uploadIds)
+            {
+                await _extractsDbContext.AutomaticValidationFailedAsync(new UploadId(uploadId), cancellationToken);
+            }
         }
 
         private async Task<object> BuildRequest(Job job, BlobObject blob, CancellationToken cancellationToken)
@@ -292,6 +344,8 @@ namespace RoadRegistry.Jobs.Processor
                         var extractRequest = await _extractsDbContext.ExtractRequests
                             .SingleAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId, cancellationToken);
 
+                        await RegisterUpload(extractDownload, uploadId, job.TicketId, cancellationToken);
+
                         return new UploadExtractSqsRequestV2
                         {
                             TicketId = job.TicketId,
@@ -355,6 +409,8 @@ namespace RoadRegistry.Jobs.Processor
                     {
                         _logger.LogError("Malware found in blob '{Blob}' for download id '{DownloadId}'.", blob.Name, extractDownload.DownloadId.ToString("N"));
                     }
+
+                    await RegisterUpload(extractDownload, uploadId, job.TicketId, cancellationToken);
 
                     return new UploadInwinningExtractSqsRequest
                     {

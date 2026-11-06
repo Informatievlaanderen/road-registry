@@ -72,44 +72,19 @@ public sealed class ExtractUploader : IExtractUploader
 
         var blobName = new BlobName(uploadId);
 
-        var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
-        if (extractDownload is null)
+        // The upload is registered as Processing before it reaches this point, so whatever keeps it from being
+        // processed has to say it failed: an upload left on Processing blocks every next upload for its extract.
+        ExtractDownload extractDownload;
+        ExtractRequest extractRequest;
+        BlobObject archiveBlob;
+        try
         {
-            throw new ExtractDownloadNotFoundException(downloadId);
+            (extractDownload, extractRequest, archiveBlob) = await LoadUploadToProcess(downloadId, blobName, cancellationToken);
         }
-
-        if (extractDownload.IsInformative)
+        catch
         {
-            throw new ExtractRequestMarkedInformativeException(downloadId);
-        }
-
-        if (extractDownload.Closed)
-        {
-            throw new ExtractRequestClosedException(downloadId);
-        }
-
-        if (extractDownload.DownloadedOn is null)
-        {
-            throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException();
-        }
-
-        var extractRequest = await _extractsDbContext.ExtractRequests.SingleOrDefaultAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId && x.CurrentDownloadId == downloadId.ToGuid(), cancellationToken);
-        if (extractRequest is null)
-        {
-            throw new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException();
-        }
-
-        var archiveBlob = await _uploadsBlobClient.GetBlobAsync(blobName, cancellationToken);
-        if (archiveBlob is null)
-        {
-            throw new BlobNotFoundException(blobName);
-        }
-
-        archiveBlob.ThrowIfMalwareFound();
-
-        if (!ContentType.TryParse(archiveBlob.ContentType, out var parsed) || !SupportedContentTypes.Contains(parsed))
-        {
-            throw new UnsupportedMediaTypeException(archiveBlob.ContentType);
+            await _extractsDbContext.AutomaticValidationFailedAsync(uploadId, cancellationToken);
+            throw;
         }
 
         try
@@ -158,6 +133,51 @@ public sealed class ExtractUploader : IExtractUploader
 
             throw;
         }
+    }
+
+    private async Task<(ExtractDownload ExtractDownload, ExtractRequest ExtractRequest, BlobObject ArchiveBlob)> LoadUploadToProcess(DownloadId downloadId, BlobName blobName, CancellationToken cancellationToken)
+    {
+        var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
+        if (extractDownload is null)
+        {
+            throw new ExtractDownloadNotFoundException(downloadId);
+        }
+
+        if (extractDownload.IsInformative)
+        {
+            throw new ExtractRequestMarkedInformativeException(downloadId);
+        }
+
+        if (extractDownload.Closed)
+        {
+            throw new ExtractRequestClosedException(downloadId);
+        }
+
+        if (extractDownload.DownloadedOn is null)
+        {
+            throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException();
+        }
+
+        var extractRequest = await _extractsDbContext.ExtractRequests.SingleOrDefaultAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId && x.CurrentDownloadId == downloadId.ToGuid(), cancellationToken);
+        if (extractRequest is null)
+        {
+            throw new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException();
+        }
+
+        var archiveBlob = await _uploadsBlobClient.GetBlobAsync(blobName, cancellationToken);
+        if (archiveBlob is null)
+        {
+            throw new BlobNotFoundException(blobName);
+        }
+
+        archiveBlob.ThrowIfMalwareFound();
+
+        if (!ContentType.TryParse(archiveBlob.ContentType, out var parsed) || !SupportedContentTypes.Contains(parsed))
+        {
+            throw new UnsupportedMediaTypeException(archiveBlob.ContentType);
+        }
+
+        return (extractDownload, extractRequest, archiveBlob);
     }
 
     private async Task<ExtractUpload> EnsureExtractUploadExists(UploadId uploadId, DownloadId downloadId, TicketId ticketId, CancellationToken cancellationToken)
