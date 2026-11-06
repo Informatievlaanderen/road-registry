@@ -88,6 +88,57 @@ public class MartenMigrationProjectionTests
             });
     }
 
+    // A genuine removal of an outlined road segment: nothing in the stream says it ever stopped being outlined, so
+    // the road segment really is gone and the snapshot has to say so.
+    [Fact]
+    public Task WhenAnOutlinedRoadSegmentIsRemoved_ThenTheSnapshotSaysSoToo()
+    {
+        var added = _fixture.Create<RoadSegmentAdded>();
+        added.GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined;
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(added, new OutlinedRoadSegmentRemoved { Id = added.Id });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(message)
+            .ExpectRecords(records =>
+            {
+                var roadSegment = Assert.Single(records.OfType<RoadRegistry.RoadSegment.RoadSegment>());
+                Assert.True(roadSegment.IsRemoved, "the road segment snapshot should say it is removed");
+            });
+    }
+
+    // The other reading of the same event. In the old system a road segment whose geometry stopped being outlined moved
+    // from the outlined SqlStreamStore stream to the measured one: the outlined variant was removed while the road
+    // segment carried on as measured, under the same id. RemoveOutlinedRoadSegment removed the aggregate either way,
+    // which is how a road segment that is alive and measured in production ended up with isRemoved: true.
+    //
+    // The conversion itself is a RoadSegmentModified carrying the measured draw method, but driving one through this
+    // projection needs a real database connection - ModifyRoadSegment recalculates the grade separated junctions over
+    // session.Connection, which the in-memory store does not have. The road segment is therefore added as measured
+    // here: what is under test is the decision, and the decision reads the same last draw method either way.
+    [Fact]
+    public Task WhenARoadSegmentThatIsNoLongerOutlinedIsRemoved_ThenTheSnapshotIsLeftAlone()
+    {
+        var added = _fixture.Create<RoadSegmentAdded>();
+        added.GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured;
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(added, new OutlinedRoadSegmentRemoved { Id = added.Id });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(message)
+            .ExpectRecords(records =>
+            {
+                var roadSegment = Assert.Single(records.OfType<RoadRegistry.RoadSegment.RoadSegment>());
+                Assert.False(roadSegment.IsRemoved, "the road segment is measured, so its outlined variant going away removes nothing");
+            });
+    }
+
     private (MartenMigrationProjection, InMemoryDocumentStoreSession) BuildProjection()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());

@@ -53,6 +53,9 @@ public static class RoadNetworkChangeAcceptedExtensions
                 case RoadSegmentRemoved roadSegmentRemoved:
                     acceptedChange.RoadSegmentRemoved = roadSegmentRemoved;
                     break;
+                case OutlinedRoadSegmentRemoved outlinedRoadSegmentRemoved:
+                    acceptedChange.OutlinedRoadSegmentRemoved = outlinedRoadSegmentRemoved;
+                    break;
                 case RoadSegmentAddedToEuropeanRoad roadSegmentAddedToEuropeanRoad:
                     acceptedChange.RoadSegmentAddedToEuropeanRoad = roadSegmentAddedToEuropeanRoad;
                     break;
