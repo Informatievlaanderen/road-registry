@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracten;
 
+using Asp.Versioning;
 using System;
 using System.IO;
 using System.Linq;
@@ -23,6 +24,7 @@ using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using Swashbuckle.AspNetCore.Annotations;
 using ValueObjects.ProblemCodes;
+using Version = Infrastructure.Version;
 
 public partial class ExtractenController
 {
@@ -43,6 +45,7 @@ public partial class ExtractenController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(ExtractDownloadaanvraagPerBestand))]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    [MapToApiVersion(Version.V1)]
     [HttpPost("downloadaanvragen/perbestand", Name = nameof(ExtractDownloadaanvraagPerBestand))]
     public async Task<IActionResult> ExtractDownloadaanvraagPerBestand(
         ExtractDownloadaanvraagPerBestandBody body,
@@ -65,6 +68,9 @@ public partial class ExtractenController
             //
             // Only the geometry is checked, not its size: the contours arriving here go well past the limit the WKT
             // contour is held to, so applying it would turn away the very requests this endpoint exists for.
+            //
+            // Checked as it was read, before the reference system is changed, so a contour that was already broken is
+            // not reported as something the conversion did.
             if (!new ExtractContourValidator().IsValidGeometry(contour))
             {
                 throw new ValidationException([new ValidationFailure
@@ -74,13 +80,10 @@ public partial class ExtractenController
                 }]);
             }
 
+            contour = contour.EnsureLambert08();
+
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
-
-            if (useDomainV2FeatureToggle.FeatureEnabled)
-            {
-                contour = contour.EnsureLambert08();
-            }
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {

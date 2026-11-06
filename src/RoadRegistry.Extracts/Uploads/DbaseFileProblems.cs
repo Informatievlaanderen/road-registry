@@ -176,6 +176,42 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    // The bijhouding counterparts of the three GradeSeparatedJunctionOrRoadNodeMissingWhen... errors below. A GRB
+    // dienstverlener is not asked to fill in traffic types and may deliver '-8' for them, so a crossing that looks like
+    // it needs an ongelijkgrondse kruising is reported as a suspect case rather than refused.
+    public static FileWarning SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed(this IDbaseFileRecordProblemBuilder builder,
+        IReadOnlyCollection<RoadSegmentTempId> roadSegment1TempIds,
+        IReadOnlyCollection<RoadSegmentTempId> roadSegment2TempIds)
+    {
+        return builder
+            .Warning(nameof(SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed))
+            .WithParameter(new ProblemParameter("Wegsegment1TempIds", string.Join(",", roadSegment1TempIds.Select(x => x.ToInvariantString()))))
+            .WithParameter(new ProblemParameter("Wegsegment2TempIds", string.Join(",", roadSegment2TempIds.Select(x => x.ToInvariantString()))))
+            .Build();
+    }
+
+    public static FileWarning SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenBikesAreAllowed(this IDbaseFileRecordProblemBuilder builder,
+        IReadOnlyCollection<RoadSegmentTempId> roadSegment1TempIds,
+        IReadOnlyCollection<RoadSegmentTempId> roadSegment2TempIds)
+    {
+        return builder
+            .Warning(nameof(SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenBikesAreAllowed))
+            .WithParameter(new ProblemParameter("Wegsegment1TempIds", string.Join(",", roadSegment1TempIds.Select(x => x.ToInvariantString()))))
+            .WithParameter(new ProblemParameter("Wegsegment2TempIds", string.Join(",", roadSegment2TempIds.Select(x => x.ToInvariantString()))))
+            .Build();
+    }
+
+    public static FileWarning SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenPedestriansAreAllowed(this IDbaseFileRecordProblemBuilder builder,
+        IReadOnlyCollection<RoadSegmentTempId> roadSegment1TempIds,
+        IReadOnlyCollection<RoadSegmentTempId> roadSegment2TempIds)
+    {
+        return builder
+            .Warning(nameof(SuspectGradeSeparatedJunctionOrRoadNodeMissingWhenPedestriansAreAllowed))
+            .WithParameter(new ProblemParameter("Wegsegment1TempIds", string.Join(",", roadSegment1TempIds.Select(x => x.ToInvariantString()))))
+            .WithParameter(new ProblemParameter("Wegsegment2TempIds", string.Join(",", roadSegment2TempIds.Select(x => x.ToInvariantString()))))
+            .Build();
+    }
+
     public static FileError GradeSeparatedJunctionOrRoadNodeMissingWhenCarsAreAllowed(this IDbaseFileRecordProblemBuilder builder,
         IReadOnlyCollection<RoadSegmentTempId> roadSegment1TempIds,
         IReadOnlyCollection<RoadSegmentTempId> roadSegment2TempIds)
