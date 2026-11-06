@@ -230,16 +230,21 @@ public class RepairRoadNodeSnapshots
             reason: "Repair road node snapshots the marten migration left behind").ToProvenance();
 
     /// <summary>
-    /// Road nodes whose stream ends on a removal while their document does not say so. The generated is_removed
-    /// column is as current as the document it is generated from, so it is what the document's own answer is read
-    /// from here.
+    /// Road nodes whose stream ends on a removal while their document does not say so.
     /// </summary>
+    /// <remarks>
+    /// Read from the document JSON rather than from the road_node_id and is_removed columns generated off it. Those
+    /// columns arrive with the 20261103120000_add_topology_columns_to_aggregate_documents migration, which an
+    /// environment still on the previous release does not have - and an environment in exactly that state is where
+    /// this is most needed, because a command handler loading the aggregate reads isRemoved straight out of this
+    /// JSON and turns it into "road segment does not exist", migration or no migration.
+    /// </remarks>
     private static async Task<IReadOnlyList<UnmarkedRemoval>> FindUnmarkedRemovals(IDocumentStore store)
     {
         await using var session = store.QuerySession();
 
         var rows = await session.Connection!.QueryAsync<UnmarkedRemoval>($@"
-SELECT doc.road_node_id AS {nameof(UnmarkedRemoval.RoadNodeId)}, last_existence.type AS {nameof(UnmarkedRemoval.Type)}
+SELECT (doc.data ->> 'roadNodeId')::int AS {nameof(UnmarkedRemoval.RoadNodeId)}, last_existence.type AS {nameof(UnmarkedRemoval.Type)}
 FROM {RoadNetworkTopologyTables.RoadNodes} doc
 JOIN (
     SELECT DISTINCT ON (e.stream_id) e.stream_id, e.type
@@ -248,8 +253,8 @@ JOIN (
     ORDER BY e.stream_id, e.version DESC
 ) last_existence ON last_existence.stream_id = doc.id
 WHERE last_existence.type = ANY(@removals)
-  AND NOT doc.is_removed
-ORDER BY doc.road_node_id",
+  AND NOT coalesce((doc.data ->> 'isRemoved')::boolean, false)
+ORDER BY 1",
             new { existenceEvents = ExistenceEvents, removals = Removals });
 
         return rows.AsList();
@@ -271,7 +276,7 @@ ORDER BY doc.road_node_id",
         await using var session = store.QuerySession();
 
         var ids = await session.Connection!.QueryAsync<int>($@"
-SELECT doc.road_node_id
+SELECT (doc.data ->> 'roadNodeId')::int
 FROM {RoadNetworkTopologyTables.RoadNodes} doc
 JOIN (
     SELECT DISTINCT ON (e.stream_id) e.stream_id, e.type
@@ -287,7 +292,7 @@ JOIN (
 ) last_existence ON last_existence.stream_id = doc.id
 WHERE last_geometry.type = @modifiedV1
   AND NOT last_existence.type = ANY(@removals)
-ORDER BY doc.road_node_id",
+ORDER BY 1",
             new
             {
                 geometryEvents = GeometryEvents,

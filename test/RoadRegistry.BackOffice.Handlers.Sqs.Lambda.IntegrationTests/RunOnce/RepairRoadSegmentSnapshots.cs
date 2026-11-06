@@ -48,7 +48,6 @@ using Xunit.Abstractions;
 public class RepairRoadSegmentSnapshots
 {
     private const int BatchSize = 500;
-    private const int MaxDetailLines = 25;
 
     // Marten's snake_case aliases, kept with the lists in RoadRegistry.Pbs.Compare.Console - whose --eventtypes
     // prints what the store actually holds, which is how these are checked against reality.
@@ -85,7 +84,7 @@ public class RepairRoadSegmentSnapshots
 
         ReportDrawMethods(candidates);
 
-        var repaired = await ClearRemovalFlag(store, candidates.Select(x => x.RoadSegmentId).ToList(), dryRun);
+        var repaired = await ClearRemovalFlag(store, candidates.Select(x => x.StreamKey).ToList(), dryRun);
 
         _outputHelper.WriteLine(string.Empty);
         _outputHelper.WriteLine($"{(dryRun ? "Would repair" : "Repaired")}: {repaired} road segments");
@@ -102,42 +101,37 @@ public class RepairRoadSegmentSnapshots
         {
             _outputHelper.WriteLine($"Draw method going into the removal - {group.Key}: {group.Count()}");
 
-            foreach (var candidate in group.Take(MaxDetailLines))
-            {
-                _outputHelper.WriteLine($"  {candidate.RoadSegmentId}");
-            }
-
-            if (group.Count() > MaxDetailLines)
-            {
-                _outputHelper.WriteLine($"  ... and {group.Count() - MaxDetailLines} more");
-            }
+            // Every id, not a sample: a dry run is only worth running if it says exactly which documents the real
+            // run would rewrite.
+            _outputHelper.WriteLine($"  {string.Join(", ", group.Select(x => x.RoadSegmentId))}");
         }
     }
 
     /// <summary>
     /// Clears isRemoved on the document. Straight at the JSON, because the aggregate has no event that undoes a
-    /// removal; the generated is_removed column follows the document, so it needs no touching of its own. The WHERE
-    /// repeats that condition, so a document that stopped being removed between the two statements is left alone.
+    /// removal; where the generated is_removed column exists it follows the document, so it needs no touching of its
+    /// own. Keyed on the document id - the stream key, and the primary key of the table. The WHERE repeats the
+    /// removed condition, so a document that stopped being removed between the two statements is left alone.
     /// </summary>
-    private async Task<int> ClearRemovalFlag(IDocumentStore store, IReadOnlyList<int> roadSegmentIds, bool dryRun)
+    private async Task<int> ClearRemovalFlag(IDocumentStore store, IReadOnlyList<string> streamKeys, bool dryRun)
     {
-        if (dryRun || roadSegmentIds.Count == 0)
+        if (dryRun || streamKeys.Count == 0)
         {
-            return roadSegmentIds.Count;
+            return streamKeys.Count;
         }
 
         var repaired = 0;
 
-        foreach (var batch in roadSegmentIds.Chunk(BatchSize))
+        foreach (var batch in streamKeys.Chunk(BatchSize))
         {
             await using var session = store.LightweightSession();
 
             repaired += await session.Connection!.ExecuteAsync($@"
 UPDATE {RoadNetworkTopologyTables.RoadSegments}
 SET data = jsonb_set(data, '{{isRemoved}}', 'false'::jsonb)
-WHERE road_segment_id = ANY(@roadSegmentIds)
-  AND is_removed",
-                new { roadSegmentIds = batch });
+WHERE id = ANY(@streamKeys)
+  AND coalesce((data ->> 'isRemoved')::boolean, false)",
+                new { streamKeys = batch });
         }
 
         return repaired;
@@ -148,6 +142,13 @@ WHERE road_segment_id = ANY(@roadSegmentIds)
     /// nothing but the defect put them there. A road segment removed for real after its conversion has a later
     /// RoadSegmentRemoved (or a V2 removal), and is left out by that comparison.
     /// </summary>
+    /// <remarks>
+    /// Read from the document JSON rather than from the road_segment_id and is_removed columns generated off it.
+    /// Those columns arrive with the 20261103120000_add_topology_columns_to_aggregate_documents migration, which an
+    /// environment still on the previous release does not have - and an environment in exactly that state is where
+    /// this is most needed, because a command handler loading the aggregate reads isRemoved straight out of this
+    /// JSON and turns it into "road segment does not exist", migration or no migration.
+    /// </remarks>
     private static async Task<IReadOnlyList<WronglyRemoved>> FindWronglyRemoved(IDocumentStore store)
     {
         await using var session = store.QuerySession();
@@ -166,7 +167,8 @@ other AS (
       AND e.stream_id IN (SELECT stream_id FROM outlined)
     GROUP BY e.stream_id
 )
-SELECT doc.road_segment_id AS {nameof(WronglyRemoved.RoadSegmentId)},
+SELECT doc.id AS {nameof(WronglyRemoved.StreamKey)},
+       (doc.data ->> 'roadSegmentId')::int AS {nameof(WronglyRemoved.RoadSegmentId)},
        coalesce(preceding.data ->> 'geometryDrawMethod', '<none>') AS {nameof(WronglyRemoved.GeometryDrawMethod)}
 FROM outlined
 JOIN {RoadNetworkTopologyTables.RoadSegments} doc ON doc.id = outlined.stream_id
@@ -180,9 +182,9 @@ LEFT JOIN LATERAL (
     ORDER BY m.version DESC
     LIMIT 1
 ) preceding ON true
-WHERE doc.is_removed
+WHERE coalesce((doc.data ->> 'isRemoved')::boolean, false)
   AND (other.version IS NULL OR other.version < outlined.version)
-ORDER BY doc.road_segment_id",
+ORDER BY 2",
             new
             {
                 outlinedRemoved = OutlinedRemovedV1,
@@ -195,6 +197,7 @@ ORDER BY doc.road_segment_id",
 
     private sealed class WronglyRemoved
     {
+        public string StreamKey { get; init; } = string.Empty;
         public int RoadSegmentId { get; init; }
         public string GeometryDrawMethod { get; init; } = string.Empty;
     }
