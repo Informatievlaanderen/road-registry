@@ -86,11 +86,11 @@ public class RepairRoadNodeSnapshots
         _outputHelper = outputHelper;
     }
 
-    [Fact]
+    [Fact(Skip = "Run once, against an environment")]
     public async Task Run()
     {
         // Only reports what it would rewrite; set to false to write.
-        var dryRun = false;
+        var dryRun = true;
 
         var sp = BuildServiceProvider();
         var store = sp.GetRequiredService<IDocumentStore>();
