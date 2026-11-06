@@ -1401,14 +1401,19 @@ RoadNetworkExtractGotRequestedV2
             };
             AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
-            var roadSegment = await session.LoadAsync(roadSegmentId, cancellationToken: token)
-                              ?? throw new InvalidOperationException($"Road segment {change.Id} not found");
-            roadSegment.Apply(new RoadSegmentWasRemoved
-            {
-                RoadSegmentId = roadSegmentId,
-                Provenance = new ProvenanceData(provenance)
-            });
-            session.Store(roadSegment);
+            // The road segment itself is not removed by this. The old system kept outlined and measured road segments
+            // in two SqlStreamStore streams, and a road segment whose geometry stopped being outlined moved from the
+            // one to the other: its outlined variant was removed while the road segment itself carried on as measured,
+            // under the same id. Marten has a single stream per road segment, so that move arrives here as a removal
+            // of a road segment that is still very much there. A real removal comes in as RoadSegmentRemoved, which
+            // carries the draw method and is handled above.
+            //
+            // All 891 of these events in production are that move - every one of them preceded by a RoadSegmentModified
+            // carrying convertedFromOutlined and the measured draw method - and the only producer of the change behind
+            // it, the feature compare translator, emits it under `if (record.ConvertedFromOutlined)` and nowhere else.
+            // The read, extract, WMS/WFS and PBS projections all ignore this event outright for the same reason, so
+            // the aggregate ignoring it too is what keeps it in step with them: were this event ever to mean a genuine
+            // removal, acting on it here alone would not make the system right, only make the aggregate disagree.
         }, token);
     }
 

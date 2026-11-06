@@ -88,6 +88,36 @@ public class MartenMigrationProjectionTests
             });
     }
 
+    // RemoveOutlinedRoadSegment marked the aggregate removed on every OutlinedRoadSegmentRemoved. In the old system
+    // that event was how a road segment whose geometry stopped being outlined moved from the outlined SqlStreamStore
+    // stream to the measured one: the outlined variant was removed while the road segment carried on as measured,
+    // under the same id. Marten has a single stream per road segment, so it ended up with isRemoved: true while being
+    // alive and measured in production.
+    //
+    // Both draw methods are run through it, because the point is that neither of them removes anything: the read,
+    // extract, WMS/WFS and PBS projections all ignore this event outright, and the aggregate now does the same.
+    [Theory]
+    [InlineData(nameof(RoadSegmentGeometryDrawMethod.Outlined))]
+    [InlineData(nameof(RoadSegmentGeometryDrawMethod.Measured))]
+    public Task WhenAnOutlinedRoadSegmentIsRemoved_ThenTheSnapshotIsLeftAlone(string geometryDrawMethod)
+    {
+        var added = _fixture.Create<RoadSegmentAdded>();
+        added.GeometryDrawMethod = geometryDrawMethod;
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(added, new OutlinedRoadSegmentRemoved { Id = added.Id });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(message)
+            .ExpectRecords(records =>
+            {
+                var roadSegment = Assert.Single(records.OfType<RoadRegistry.RoadSegment.RoadSegment>());
+                Assert.False(roadSegment.IsRemoved, "an outlined variant going away removes no road segment");
+            });
+    }
+
     private (MartenMigrationProjection, InMemoryDocumentStoreSession) BuildProjection()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
