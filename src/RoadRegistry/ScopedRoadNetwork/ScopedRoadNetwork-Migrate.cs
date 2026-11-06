@@ -100,7 +100,7 @@ public partial class ScopedRoadNetwork
             switch (roadNetworkChange)
             {
                 case AddRoadNodeChange change:
-                    problems += AddRoadNode(change, idGenerator, context);
+                    problems += AddRoadNodeFromInwinning(change, neighbourMerges, removalCorrections, idGenerator, context);
                     break;
                 case ModifyRoadNodeChange change:
                     problems += MigrateRoadNode(change, neighbourMerges, removalCorrections, context);

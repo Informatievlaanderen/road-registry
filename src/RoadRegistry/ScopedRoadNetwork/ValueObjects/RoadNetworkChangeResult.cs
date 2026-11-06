@@ -50,6 +50,8 @@ public sealed class UniqueList<T> : IReadOnlyCollection<T>
         }
     }
 
+    public bool Contains(T item) => _set.Contains(item);
+
     public int Count => _list.Count;
     public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
