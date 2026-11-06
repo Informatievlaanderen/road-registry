@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using RoadRegistry.BackOffice;
+using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Infrastructure.MartenDb.Store;
 using RoadRegistry.ValueObjects;
@@ -689,9 +690,12 @@ internal static class Comparers
                     break;
                 case ({ Removed: false }, not null):
                     compared++;
-                    // Both sides hold the same centimetre-rounded coordinate, so anything above a centimetre is a
-                    // geometry PBS never updated.
-                    if (Math.Abs(left!.X - right!.X) > 0.01 || Math.Abs(left.Y - right.Y) > 0.01)
+                    // PBS holds the centimetre-rounded coordinate; the aggregate document holds the unrounded one
+                    // the migration stored, so rounding both is what makes this a comparison at the precision the
+                    // register actually works in. Taking them as they are lets up to half a centimetre of rounding
+                    // pass for a difference: road node 2164582 sat 5,5 mm behind its own stream and was reported as
+                    // a centimetre apart, because the rounding boundary happened to fall between the two.
+                    if (left!.X.RoundToCm() != right!.X.RoundToCm() || left.Y.RoundToCm() != right.Y.RoundToCm())
                     {
                         report.Add(entity, Finding.StaleInPbs, id,
                             $"marten=({Show(left.X)} {Show(left.Y)}) pbs=({Show(right.X)} {Show(right.Y)})", Category(left));
