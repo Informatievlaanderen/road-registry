@@ -84,10 +84,20 @@ public class RepairRoadSegmentSnapshots
 
         ReportDrawMethods(candidates);
 
-        var repaired = await ClearRemovalFlag(store, candidates.Select(x => x.StreamKey).ToList(), dryRun);
+        var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.Marten)!;
+        var repaired = await ClearRemovalFlag(connectionString, candidates.Select(x => x.StreamKey).ToList(), dryRun);
 
         _outputHelper.WriteLine(string.Empty);
         _outputHelper.WriteLine($"{(dryRun ? "Would repair" : "Repaired")}: {repaired} road segments");
+
+        // The repair selects on the very condition it removes, so asking again is the whole verification. Anything
+        // left here means the write did not land - which is exactly what an earlier version of this runner did,
+        // reporting the rows it had changed while Marten rolled the transaction back underneath it.
+        if (!dryRun)
+        {
+            var remaining = await FindWronglyRemoved(store);
+            _outputHelper.WriteLine($"Still wrongly removed after the repair: {remaining.Count}");
+        }
     }
 
     /// <summary>
@@ -113,7 +123,7 @@ public class RepairRoadSegmentSnapshots
     /// own. Keyed on the document id - the stream key, and the primary key of the table. The WHERE repeats the
     /// removed condition, so a document that stopped being removed between the two statements is left alone.
     /// </summary>
-    private async Task<int> ClearRemovalFlag(IDocumentStore store, IReadOnlyList<string> streamKeys, bool dryRun)
+    private async Task<int> ClearRemovalFlag(string connectionString, IReadOnlyList<string> streamKeys, bool dryRun)
     {
         if (dryRun || streamKeys.Count == 0)
         {
@@ -124,9 +134,14 @@ public class RepairRoadSegmentSnapshots
 
         foreach (var batch in streamKeys.Chunk(BatchSize))
         {
-            await using var session = store.LightweightSession();
+            // A connection of its own rather than a Marten session's. A session hands out its connection with a
+            // transaction already open on it and commits that in SaveChangesAsync; raw SQL run on it and never saved
+            // is rolled back on dispose, which reports every row as changed and changes nothing. Here each statement
+            // stands on its own and commits itself.
+            await using var connection = new NpgsqlConnection(connectionString);
+            await connection.OpenAsync();
 
-            repaired += await session.Connection!.ExecuteAsync($@"
+            repaired += await connection.ExecuteAsync($@"
 UPDATE {RoadNetworkTopologyTables.RoadSegments}
 SET data = jsonb_set(data, '{{isRemoved}}', 'false'::jsonb)
 WHERE id = ANY(@streamKeys)
