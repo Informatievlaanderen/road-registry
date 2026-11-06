@@ -92,8 +92,7 @@ public class RepairRoadNodeSnapshots
         _outputHelper = outputHelper;
     }
 
-    //[Fact(Skip = "Run once, against an environment")]
-    [Fact]
+    [Fact(Skip = "Run once, against an environment")]
     public async Task Run()
     {
         // Only reports what it would rewrite; set to false to write.
