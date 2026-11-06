@@ -1,3 +1,16 @@
+# [5.33.0](https://github.com/informatievlaanderen/road-registry/compare/v5.32.3...v5.33.0) (2026-11-06)
+
+
+### Bug Fixes
+
+* **2.0:** repair a road node point that differs at centimetre precision ([9b2f998](https://github.com/informatievlaanderen/road-registry/commit/9b2f99853da21dfb9cea57a93961862e45015a4e))
+* **inwinning:** hergebruik een wegknoop die al op die geometrie staat ([ba775c9](https://github.com/informatievlaanderen/road-registry/commit/ba775c9ac5abd35e7dc7f9d2321f4905cd1a9c8b))
+
+
+### Features
+
+* **marten:** add a geometry column to the road node document ([7474dc0](https://github.com/informatievlaanderen/road-registry/commit/7474dc077bd8721d542fbee4c64d001985b107d3))
+
 ## [5.32.3](https://github.com/informatievlaanderen/road-registry/compare/v5.32.2...v5.32.3) (2026-11-06)
 
 
