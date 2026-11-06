@@ -258,17 +258,7 @@ public class InMemoryEventStoreOperations : IEventStoreOperations
 
     public Task<IReadOnlyList<IEvent>> FetchStreamAsync(string streamKey, long version = 0, DateTimeOffset? timestamp = null, long fromVersion = 0, CancellationToken token = new CancellationToken())
     {
-        return Task.FromResult<IReadOnlyList<IEvent>>(EventsFor(streamKey).ToList());
-    }
-
-    // The events of one stream, in the order they were appended: the already-committed stream actions first, then this
-    // operation's own pending ones, which is the order a session that has not saved yet would read them back in.
-    private IEnumerable<IEvent> EventsFor(string streamKey)
-    {
-        return (_committedStreamActions?.Invoke() ?? [])
-            .Concat(_streamActions)
-            .Where(x => x.Key == streamKey)
-            .SelectMany(x => x.Events);
+        throw new NotImplementedException();
     }
 
     public Task<T?> AggregateStreamAsync<T>(Guid streamId, long version = 0, DateTimeOffset? timestamp = null, T? state = default(T?), long fromVersion = 0, CancellationToken token = new CancellationToken()) where T : class
@@ -281,7 +271,10 @@ public class InMemoryEventStoreOperations : IEventStoreOperations
         // Live-aggregate a single stream by replaying its events through the aggregate's Marten conventions: a static
         // Create(TEvent) for the first (creation) event, and instance Apply(TEvent) for the rest. Events are taken from
         // the union of already-committed stream actions and this operation's own pending ones, matched on stream key.
-        var events = EventsFor(streamKey)
+        var events = (_committedStreamActions?.Invoke() ?? [])
+            .Concat(_streamActions)
+            .Where(x => x.Key == streamKey)
+            .SelectMany(x => x.Events)
             .Select(x => x.Data)
             .ToList();
 

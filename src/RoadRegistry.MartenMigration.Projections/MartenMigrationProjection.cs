@@ -1394,11 +1394,6 @@ RoadNetworkExtractGotRequestedV2
             var provenance = BuildProvenance(envelope, Modification.Delete);
 
             var streamKey = StreamKeyFactory.Create(typeof(RoadSegment), roadSegmentId);
-
-            // Read before the append below, so the answer is about the road segment as it stands going into this
-            // removal.
-            var isOutlined = await IsOutlined(session, streamKey, token);
-
             var legacyEvent = new RoadRegistry.RoadSegment.Events.V1.OutlinedRoadSegmentRemoved
             {
                 RoadSegmentId = change.Id,
@@ -1406,55 +1401,20 @@ RoadNetworkExtractGotRequestedV2
             };
             AppendWithChangeOrdinal(session, streamKey, legacyEvent, changeIndex);
 
-            // Only an outlined road segment is actually gone. The old system kept outlined and measured road segments
+            // The road segment itself is not removed by this. The old system kept outlined and measured road segments
             // in two SqlStreamStore streams, and a road segment whose geometry stopped being outlined moved from the
             // one to the other: its outlined variant was removed while the road segment itself carried on as measured,
-            // under the same id. Marten has a single stream per road segment, so that move shows up here as a removal
-            // of a road segment that is still very much there - which is why the read, extract, WMS/WFS and PBS
-            // projections all ignore this event outright. The aggregate cannot ignore it altogether, because a genuine
-            // removal of an outlined road segment arrives on this same event.
-            if (isOutlined)
-            {
-                var roadSegment = await session.LoadAsync(roadSegmentId, cancellationToken: token)
-                                  ?? throw new InvalidOperationException($"Road segment {change.Id} not found");
-                roadSegment.Apply(new RoadSegmentWasRemoved
-                {
-                    RoadSegmentId = roadSegmentId,
-                    Provenance = new ProvenanceData(provenance)
-                });
-                session.Store(roadSegment);
-            }
+            // under the same id. Marten has a single stream per road segment, so that move arrives here as a removal
+            // of a road segment that is still very much there. A real removal comes in as RoadSegmentRemoved, which
+            // carries the draw method and is handled above.
+            //
+            // All 891 of these events in production are that move - every one of them preceded by a RoadSegmentModified
+            // carrying convertedFromOutlined and the measured draw method - and the only producer of the change behind
+            // it, the feature compare translator, emits it under `if (record.ConvertedFromOutlined)` and nowhere else.
+            // The read, extract, WMS/WFS and PBS projections all ignore this event outright for the same reason, so
+            // the aggregate ignoring it too is what keeps it in step with them: were this event ever to mean a genuine
+            // removal, acting on it here alone would not make the system right, only make the aggregate disagree.
         }, token);
-    }
-
-    /// <summary>
-    /// Whether the road segment's geometry is drawn outlined, as of the events the stream holds now.
-    /// </summary>
-    /// <remarks>
-    /// The aggregate does not carry the geometry draw method: it lives on RoadSegment.Attributes, which a road segment
-    /// taken over from the legacy road network does not have until it is migrated. The V1 events do carry it, and the
-    /// last one that does says what the road segment is now - a conversion to measured is a RoadSegmentModified with
-    /// the new draw method on it. A stream with no such event at all is read as outlined, which is what this handler
-    /// assumed before: better to keep removing in the one case we cannot judge than to start keeping road segments
-    /// the old system threw away.
-    /// </remarks>
-    private static async Task<bool> IsOutlined(IDocumentSession session, string streamKey, CancellationToken token)
-    {
-        var events = await session.Events.FetchStreamAsync(streamKey, token: token);
-
-        var geometryDrawMethod = events
-            .Select(x => x.Data)
-            .Select(x => x switch
-            {
-                RoadRegistry.RoadSegment.Events.V1.ImportedRoadSegment e => e.GeometryDrawMethod,
-                RoadRegistry.RoadSegment.Events.V1.RoadSegmentAdded e => e.GeometryDrawMethod,
-                RoadRegistry.RoadSegment.Events.V1.RoadSegmentModified e => e.GeometryDrawMethod,
-                _ => null
-            })
-            .LastOrDefault(x => x is not null);
-
-        return geometryDrawMethod is null
-               || RoadSegmentGeometryDrawMethod.Parse(geometryDrawMethod) == RoadSegmentGeometryDrawMethod.Outlined;
     }
 
     // Loads the two linked road segments (already migrated earlier in the stream) and computes the junction point.

@@ -10,43 +10,40 @@ using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Hosts;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
 using RoadRegistry.Infrastructure;
-using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.Infrastructure.MartenDb.Store;
-using RoadRegistry.ValueObjects;
 using Xunit.Abstractions;
 
 /// <summary>
 /// MartenMigrationProjection.RemoveOutlinedRoadSegment marked the aggregate removed on every V1
-/// OutlinedRoadSegmentRemoved. That event has two readings, and only one of them means the road segment is gone.
+/// OutlinedRoadSegmentRemoved, and that event does not mean the road segment is gone.
 ///
 /// The old system kept outlined and measured road segments in two SqlStreamStore streams. A road segment whose
 /// geometry stopped being outlined moved from the one to the other: its outlined variant was removed while the road
 /// segment itself carried on as measured, under the same id. Marten has a single stream per road segment, so that
-/// move arrives here as a removal of a road segment that is still very much there - which is why the read, extract,
-/// WMS/WFS and PBS projections all ignore this event outright. The aggregate cannot ignore it altogether, because a
-/// genuine removal of an outlined road segment arrives on the same event.
+/// move arrived as a removal of a road segment that is still very much there. A real removal comes in as
+/// RoadSegmentRemoved. All 891 of these events in production are that move - every one preceded by a
+/// RoadSegmentModified carrying convertedFromOutlined and the measured draw method - and the read, extract, WMS/WFS
+/// and PBS projections all ignore the event outright, which is what the aggregate now does too.
 ///
-/// WHICH READING IT IS. The aggregate does not carry the geometry draw method - it lives on RoadSegment.Attributes,
-/// which a road segment taken over from the legacy road network does not have until it is migrated - so the stream is
-/// what says it. The last V1 event before the removal that carries a draw method (ImportedRoadSegment,
-/// RoadSegmentAdded, RoadSegmentModified) says what the road segment was at that moment; a conversion to measured is
-/// a RoadSegmentModified with the new draw method, and with convertedFromOutlined on it.
+/// WHICH ROAD SEGMENTS. Not "has an outlined removal somewhere in its stream": a road segment converted to measured
+/// can be removed for real afterwards, and then its document is right to say so. What this looks for is a document
+/// that says isRemoved while the last removal of any kind in its stream is the outlined one - that removed state
+/// rests on nothing but the defect.
 ///
-/// This REPAIRS the one direction that is a known defect: a document that says isRemoved while the road segment had
-/// already stopped being outlined. The other direction - still outlined, removal legitimate, yet the document does
-/// not say removed - is only REPORTED. Removing a road segment is not something to do on an inference, and with the
-/// old always-remove behaviour that set should be empty; if it is not, that is a finding of its own and wants
-/// looking at before anything is written.
+/// It also prints the draw method each road segment carried going into its outlined removal. That is a check on the
+/// story rather than a decision: every one of them should read as measured, and a road segment that was still
+/// outlined is worth looking at before writing anything, even though the repaired behaviour would not have removed
+/// it either.
 ///
-/// Clearing the flag is a direct update of the document JSON rather than an event applied to the aggregate, because
-/// the road segment aggregate has no event that undoes a removal (its road node counterpart does:
-/// RoadNodeRemovalWasCorrectedBecauseOfMigration). Nothing is appended to any stream here either - the streams were
-/// always right, only the snapshots were not - so no projection sees anything and this can run without a deploy.
+/// This WRITES when <c>dryRun</c> is false, and it writes the document JSON directly rather than applying an event:
+/// the road segment aggregate has no event that undoes a removal, where its road node counterpart does
+/// (RoadNodeRemovalWasCorrectedBecauseOfMigration). Nothing is appended to any stream - the streams were always
+/// right, only the snapshots were not - so no projection sees anything and this can run without a deploy of its own.
 /// It is idempotent: a second run finds nothing, because it selects on the difference it removes.
 ///
-/// Run it on STG before PRD. Deploy the RemoveOutlinedRoadSegment fix first, or the migration will keep producing
-/// what this cleans up.
+/// Run it on STG before PRD, and only after the RemoveOutlinedRoadSegment fix is deployed, or the migration will keep
+/// producing what this cleans up.
 /// </summary>
 public class RepairRoadSegmentSnapshots
 {
@@ -61,6 +58,10 @@ public class RepairRoadSegmentSnapshots
     private const string RemovedBecauseOfMigration = "road_segment_was_removed_because_of_migration";
 
     private static readonly string[] OtherRemovals = [RemovedV1, RemovedV2, RemovedBecauseOfMigration];
+
+    // The V1 events that carry a geometry draw method. RoadSegmentAttributesModified and RoadSegmentGeometryModified
+    // do not, so a road segment's draw method is whatever the last one of these said.
+    private static readonly string[] DrawMethodEvents = ["imported_road_segment", "road_segment_added", "road_segment_modified"];
 
     private readonly ITestOutputHelper _outputHelper;
 
@@ -78,100 +79,45 @@ public class RepairRoadSegmentSnapshots
         var sp = BuildServiceProvider();
         var store = sp.GetRequiredService<IDocumentStore>();
 
-        var candidates = await FindCandidates(store);
-        _outputHelper.WriteLine($"Road segments whose state rests on an outlined removal: {candidates.Count}");
+        var candidates = await FindWronglyRemoved(store);
+        _outputHelper.WriteLine($"Removed documents whose removal rests on an outlined removal: {candidates.Count}");
         _outputHelper.WriteLine(string.Empty);
 
-        var verdicts = await Judge(store, candidates);
+        ReportDrawMethods(candidates);
 
-        Report("Wrongly removed - already measured when its outlined variant went away", verdicts, Verdict.WronglyRemoved);
-        Report("Rightly removed - still outlined", verdicts, Verdict.RightlyRemoved);
-        Report("Undecidable - no draw method anywhere in the stream before the removal", verdicts, Verdict.Undecidable);
-        Report("Still outlined and not removed - NOT repaired here, look at these", verdicts, Verdict.NotRemovedWhileOutlined);
-        Report("Already right", verdicts, Verdict.AlreadyRight);
-
-        var repaired = await ClearRemovalFlag(store, verdicts.Where(x => x.Outcome == Verdict.WronglyRemoved).Select(x => x.RoadSegmentId).ToList(), dryRun);
+        var repaired = await ClearRemovalFlag(store, candidates.Select(x => x.RoadSegmentId).ToList(), dryRun);
 
         _outputHelper.WriteLine(string.Empty);
         _outputHelper.WriteLine($"{(dryRun ? "Would repair" : "Repaired")}: {repaired} road segments");
     }
 
-    private void Report(string title, IReadOnlyList<Judgement> verdicts, Verdict outcome)
-    {
-        var matching = verdicts.Where(x => x.Outcome == outcome).ToList();
-        _outputHelper.WriteLine($"{title}: {matching.Count}");
-
-        foreach (var judgement in matching.Take(MaxDetailLines))
-        {
-            _outputHelper.WriteLine($"  {judgement.RoadSegmentId}: {judgement.GeometryDrawMethod ?? "<geen>"}");
-        }
-
-        if (matching.Count > MaxDetailLines)
-        {
-            _outputHelper.WriteLine($"  ... and {matching.Count - MaxDetailLines} more");
-        }
-    }
-
     /// <summary>
-    /// Judges every candidate against its own stream: what the SQL preselected on is the shape of the stream, what
-    /// this decides on is the road segment's draw method at the moment of the removal.
+    /// The draw method each road segment carried going into its outlined removal, grouped. A sanity check on the
+    /// story this runner rests on, not a decision it makes: anything other than a measured draw method here wants
+    /// looking at before writing.
     /// </summary>
-    private static async Task<IReadOnlyList<Judgement>> Judge(IDocumentStore store, IReadOnlyList<Candidate> candidates)
+    private void ReportDrawMethods(IReadOnlyList<WronglyRemoved> candidates)
     {
-        var judgements = new List<Judgement>();
-
-        await using var session = store.QuerySession();
-
-        foreach (var candidate in candidates)
+        foreach (var group in candidates.GroupBy(x => x.GeometryDrawMethod).OrderByDescending(x => x.Count()))
         {
-            var roadSegmentId = new RoadSegmentId(candidate.RoadSegmentId);
-            var streamKey = StreamKeyFactory.Create(typeof(RoadRegistry.RoadSegment.RoadSegment), roadSegmentId);
+            _outputHelper.WriteLine($"Draw method going into the removal - {group.Key}: {group.Count()}");
 
-            var events = (await session.Events.FetchStreamAsync(streamKey))
-                .Select(x => x.Data)
-                .ToList();
-
-            // Everything up to and including the last outlined removal: what came after it cannot have decided what
-            // the road segment was when it arrived.
-            var lastOutlinedRemoval = events.FindLastIndex(x => x is RoadRegistry.RoadSegment.Events.V1.OutlinedRoadSegmentRemoved);
-            if (lastOutlinedRemoval < 0)
+            foreach (var candidate in group.Take(MaxDetailLines))
             {
-                // The SQL selected on this event being there, so the stream has changed under us.
-                continue;
+                _outputHelper.WriteLine($"  {candidate.RoadSegmentId}");
             }
 
-            var geometryDrawMethod = events
-                .Take(lastOutlinedRemoval)
-                .Select(x => x switch
-                {
-                    RoadRegistry.RoadSegment.Events.V1.ImportedRoadSegment e => e.GeometryDrawMethod,
-                    RoadRegistry.RoadSegment.Events.V1.RoadSegmentAdded e => e.GeometryDrawMethod,
-                    RoadRegistry.RoadSegment.Events.V1.RoadSegmentModified e => e.GeometryDrawMethod,
-                    _ => null
-                })
-                .LastOrDefault(x => x is not null);
-
-            var wasOutlined = geometryDrawMethod is not null
-                              && RoadSegmentGeometryDrawMethod.Parse(geometryDrawMethod) == RoadSegmentGeometryDrawMethod.Outlined;
-
-            var outcome = (candidate.IsRemoved, wasOutlined, geometryDrawMethod) switch
+            if (group.Count() > MaxDetailLines)
             {
-                (true, false, not null) => Verdict.WronglyRemoved,
-                (true, false, null) => Verdict.Undecidable,
-                (true, true, _) => Verdict.RightlyRemoved,
-                (false, true, _) => Verdict.NotRemovedWhileOutlined,
-                (false, false, _) => Verdict.AlreadyRight
-            };
-
-            judgements.Add(new Judgement(candidate.RoadSegmentId, geometryDrawMethod, outcome));
+                _outputHelper.WriteLine($"  ... and {group.Count() - MaxDetailLines} more");
+            }
         }
-
-        return judgements;
     }
 
     /// <summary>
     /// Clears isRemoved on the document. Straight at the JSON, because the aggregate has no event that undoes a
-    /// removal; the generated is_removed column follows the document, so it needs no touching of its own.
+    /// removal; the generated is_removed column follows the document, so it needs no touching of its own. The WHERE
+    /// repeats that condition, so a document that stopped being removed between the two statements is left alone.
     /// </summary>
     private async Task<int> ClearRemovalFlag(IDocumentStore store, IReadOnlyList<int> roadSegmentIds, bool dryRun)
     {
@@ -198,15 +144,15 @@ WHERE road_segment_id = ANY(@roadSegmentIds)
     }
 
     /// <summary>
-    /// Road segments whose current removed state, if they have one, rests on an outlined removal: the stream holds
-    /// one, and no removal of another kind comes after it. Only a preselection - whether that removal was the right
-    /// reading is decided against the events themselves.
+    /// Road segments whose document says isRemoved while the last removal in their stream is the outlined one, so
+    /// nothing but the defect put them there. A road segment removed for real after its conversion has a later
+    /// RoadSegmentRemoved (or a V2 removal), and is left out by that comparison.
     /// </summary>
-    private static async Task<IReadOnlyList<Candidate>> FindCandidates(IDocumentStore store)
+    private static async Task<IReadOnlyList<WronglyRemoved>> FindWronglyRemoved(IDocumentStore store)
     {
         await using var session = store.QuerySession();
 
-        var rows = await session.Connection!.QueryAsync<Candidate>($@"
+        var rows = await session.Connection!.QueryAsync<WronglyRemoved>($@"
 WITH outlined AS (
     SELECT e.stream_id, max(e.version) AS version
     FROM eventstore.mt_events e
@@ -220,32 +166,37 @@ other AS (
       AND e.stream_id IN (SELECT stream_id FROM outlined)
     GROUP BY e.stream_id
 )
-SELECT doc.road_segment_id AS {nameof(Candidate.RoadSegmentId)}, doc.is_removed AS {nameof(Candidate.IsRemoved)}
+SELECT doc.road_segment_id AS {nameof(WronglyRemoved.RoadSegmentId)},
+       coalesce(preceding.data ->> 'geometryDrawMethod', '<none>') AS {nameof(WronglyRemoved.GeometryDrawMethod)}
 FROM outlined
 JOIN {RoadNetworkTopologyTables.RoadSegments} doc ON doc.id = outlined.stream_id
 LEFT JOIN other ON other.stream_id = outlined.stream_id
-WHERE other.version IS NULL OR other.version < outlined.version
+LEFT JOIN LATERAL (
+    SELECT m.data
+    FROM eventstore.mt_events m
+    WHERE m.stream_id = outlined.stream_id
+      AND m.type = ANY(@drawMethodEvents)
+      AND m.version < outlined.version
+    ORDER BY m.version DESC
+    LIMIT 1
+) preceding ON true
+WHERE doc.is_removed
+  AND (other.version IS NULL OR other.version < outlined.version)
 ORDER BY doc.road_segment_id",
-            new { outlinedRemoved = OutlinedRemovedV1, otherRemovals = OtherRemovals });
+            new
+            {
+                outlinedRemoved = OutlinedRemovedV1,
+                otherRemovals = OtherRemovals,
+                drawMethodEvents = DrawMethodEvents
+            });
 
         return rows.AsList();
     }
 
-    private enum Verdict
-    {
-        WronglyRemoved,
-        RightlyRemoved,
-        Undecidable,
-        NotRemovedWhileOutlined,
-        AlreadyRight
-    }
-
-    private sealed record Judgement(int RoadSegmentId, string? GeometryDrawMethod, Verdict Outcome);
-
-    private sealed class Candidate
+    private sealed class WronglyRemoved
     {
         public int RoadSegmentId { get; init; }
-        public bool IsRemoved { get; init; }
+        public string GeometryDrawMethod { get; init; } = string.Empty;
     }
 
     private static IConfiguration BuildConfiguration()
