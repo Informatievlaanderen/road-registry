@@ -1,3 +1,10 @@
+## [5.32.2](https://github.com/informatievlaanderen/road-registry/compare/v5.32.1...v5.32.2) (2026-11-06)
+
+
+### Bug Fixes
+
+* **2.0:** an outlined removal removes no road segment ([1339699](https://github.com/informatievlaanderen/road-registry/commit/1339699e953491f0d4317607b560a9b44b7aa7ee))
+
 ## [5.32.1](https://github.com/informatievlaanderen/road-registry/compare/v5.32.0...v5.32.1) (2026-11-05)
 
 
