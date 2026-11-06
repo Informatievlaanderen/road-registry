@@ -81,7 +81,7 @@ public partial class ScopedRoadNetwork
             switch (roadNetworkChange)
             {
                 case AddRoadNodeChange change:
-                    problems += AddRoadNode(change, idGenerator, context);
+                    problems += AddRoadNodeFromUpload(change, idGenerator, context);
                     break;
                 case ModifyRoadNodeChange change:
                     problems += ModifyRoadNode(change, context);
