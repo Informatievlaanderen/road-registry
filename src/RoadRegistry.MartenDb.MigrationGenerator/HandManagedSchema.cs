@@ -26,12 +26,16 @@ public static partial class HandManagedSchema
         "eventstore.ix_mt_doc_gradeseparatedjunction_upper_road_segment_id",
         "eventstore.ix_mt_doc_gradejunction_grade_junction_id",
         "eventstore.ix_mt_doc_gradejunction_road_segment_id_1",
-        "eventstore.ix_mt_doc_gradejunction_road_segment_id_2"
+        "eventstore.ix_mt_doc_gradejunction_road_segment_id_2",
+
+        // 20261106120000_add_geometry_column_to_roadnode_document
+        "eventstore.ix_mt_doc_roadnode_geometry"
     };
 
-    // 20261103120000_add_topology_columns_to_aggregate_documents: generated from the document JSON.
+    // Columns generated from the document JSON.
     private static readonly HashSet<(string Table, string Column)> Columns = new(
     [
+        // 20261103120000_add_topology_columns_to_aggregate_documents
         ("eventstore.mt_doc_roadnode", "road_node_id"),
         ("eventstore.mt_doc_roadnode", "is_removed"),
         ("eventstore.mt_doc_roadsegment", "road_segment_id"),
@@ -49,7 +53,10 @@ public static partial class HandManagedSchema
         ("eventstore.mt_doc_gradejunction", "grade_junction_id"),
         ("eventstore.mt_doc_gradejunction", "road_segment_id_1"),
         ("eventstore.mt_doc_gradejunction", "road_segment_id_2"),
-        ("eventstore.mt_doc_gradejunction", "is_removed")
+        ("eventstore.mt_doc_gradejunction", "is_removed"),
+
+        // 20261106120000_add_geometry_column_to_roadnode_document
+        ("eventstore.mt_doc_roadnode", "geometry")
     ]);
 
     public static string RemoveDrops(string delta)
