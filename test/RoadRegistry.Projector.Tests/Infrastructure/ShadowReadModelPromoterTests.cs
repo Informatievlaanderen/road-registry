@@ -30,6 +30,7 @@ public class ShadowReadModelPromoterTests
         var decision = ShadowReadModelPromoter.Decide(shadowEnabled: false, shadowTableCount: 10, shadowPosition, shadowSequence: 100);
 
         Assert.False(decision.Promote);
+        Assert.Contains("has not projected anything", decision.Reason);
     }
 
     [Fact]
@@ -38,6 +39,7 @@ public class ShadowReadModelPromoterTests
         var decision = ShadowReadModelPromoter.Decide(shadowEnabled: false, shadowTableCount: 10, shadowPosition: 100, shadowSequence: null);
 
         Assert.False(decision.Promote);
+        Assert.Contains("no Marten progression", decision.Reason);
     }
 
     // How far it got is up to the caller: the live projection catches up on the rest after the swap, even when the

@@ -351,9 +351,11 @@ public class Startup
                 sp.GetRequiredService<ILogger<ShadowReadModelPromoter>>());
         }
 
+        // The recovery uses the very promoter the controller gets, not a second one built the same way.
         services
             .AddSingleton(CreatePromoter)
-            .AddSingleton<IDbMigratorFactory>(sp => new ShadowReadModelPromotionRecoveryFactory(CreatePromoter(sp)));
+            .AddSingleton<IDbMigratorFactory>(sp => new ShadowReadModelPromotionRecoveryFactory(
+                sp.GetServices<ShadowReadModelPromoter>().Single(promoter => promoter.ReadModel == readModel)));
     }
 
     public void Configure(
