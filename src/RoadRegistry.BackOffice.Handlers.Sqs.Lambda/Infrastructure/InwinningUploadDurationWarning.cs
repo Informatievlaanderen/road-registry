@@ -4,9 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Extracts.Schema;
 
-// Logs a warning when processing an inwinning upload is still running after 8, 9 and 10 minutes, so long uploads can be
-// spotted before they run into the lambda's timeout. Nothing is logged once it is disposed, so an upload that finishes
-// in time leaves no trace.
+// Warns when processing an inwinning upload is still running after 8, 9 and 10 minutes, so long uploads can be spotted
+// before they run into the lambda's timeout. The warning is logged as an error so it reaches Slack through the Slack
+// sink, and says in its text that it is a warning. Nothing is logged once it is disposed, so an upload that finishes in
+// time leaves no trace.
 public sealed class InwinningUploadDurationWarning : IDisposable
 {
     public static readonly IReadOnlyCollection<TimeSpan> Thresholds =
@@ -27,8 +28,8 @@ public sealed class InwinningUploadDurationWarning : IDisposable
 
         _timers = Thresholds
             .Select(threshold => timeProvider.CreateTimer(
-                _ => logger.LogWarning(
-                    "{Action} is na {Minutes} minuten nog bezig: DownloadId {DownloadId}, UploadId {UploadId}, NisCode {NisCode}, Beschrijving {Beschrijving}",
+                _ => logger.LogError(
+                    "Warning: {Action} is na {Minutes} minuten nog bezig: DownloadId {DownloadId}, UploadId {UploadId}, NisCode {NisCode}, Beschrijving {Beschrijving}",
                     action,
                     (int)threshold.TotalMinutes,
                     upload.DownloadId,

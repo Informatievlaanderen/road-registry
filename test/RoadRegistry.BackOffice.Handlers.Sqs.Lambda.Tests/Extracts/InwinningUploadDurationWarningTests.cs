@@ -13,7 +13,7 @@ public class InwinningUploadDurationWarningTests
         "Inwinning Gent");
 
     [Fact]
-    public void WhenStillRunning_ThenAWarningIsLoggedAt8And9And10Minutes()
+    public void WhenStillRunning_ThenAWarningIsLoggedAsErrorAt8And9And10Minutes()
     {
         var timeProvider = new ManualTimeProvider();
         var logger = new CapturingLogger();
@@ -29,11 +29,11 @@ public class InwinningUploadDurationWarningTests
         timeProvider.Advance(TimeSpan.FromMinutes(5));
 
         logger.Entries.Should().HaveCount(3);
-        logger.Entries.Should().OnlyContain(x => x.Level == LogLevel.Warning);
+        logger.Entries.Should().OnlyContain(x => x.Level == LogLevel.Error);
         logger.Entries.Select(x => x.Message).Should().Equal(
-            "UploadInwinningExtract is na 8 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021, Beschrijving Inwinning Gent",
-            "UploadInwinningExtract is na 9 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021, Beschrijving Inwinning Gent",
-            "UploadInwinningExtract is na 10 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021, Beschrijving Inwinning Gent");
+            "Warning: UploadInwinningExtract is na 8 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021, Beschrijving Inwinning Gent",
+            "Warning: UploadInwinningExtract is na 9 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021, Beschrijving Inwinning Gent",
+            "Warning: UploadInwinningExtract is na 10 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021, Beschrijving Inwinning Gent");
     }
 
     [Fact]
