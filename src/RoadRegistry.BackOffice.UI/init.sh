@@ -15,6 +15,7 @@ echo "window.featureToggles.useOverlapCheck = \"${FeatureToggles__UseOverlapChec
 echo "window.featureToggles.inwinningAllowRequestExtractWhenUploaded = \"${FeatureToggles__InwinningAllowRequestExtractWhenUploaded}\"" >> /usr/share/nginx/html/env.js
 echo "window.featureToggles.inwinningUploadDryRun = \"${FeatureToggles__InwinningUploadDryRun}\"" >> /usr/share/nginx/html/env.js
 echo "window.featureToggles.inwinningUpload = \"${FeatureToggles__InwinningUpload}\"" >> /usr/share/nginx/html/env.js
+echo "window.featureToggles.extractNieuwDatamodel = \"${FeatureToggles__ExtractNieuwDatamodel}\"" >> /usr/share/nginx/html/env.js
 
 export DOLLAR=$
 envsubst < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf

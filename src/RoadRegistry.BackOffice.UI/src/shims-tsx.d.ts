@@ -16,6 +16,7 @@ declare global {
     inwinningAllowRequestExtractWhenUploaded: boolean;
     inwinningUploadDryRun: boolean;
     inwinningUpload: boolean;
+    extractNieuwDatamodel: boolean;
   }
 
   interface Window {
