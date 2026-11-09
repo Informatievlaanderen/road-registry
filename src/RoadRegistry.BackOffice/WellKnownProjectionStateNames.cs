@@ -14,7 +14,7 @@
         public const string RoadNetworkChangesWmsWfsV1InwinningProjection = "RoadNetworkChangesWmsWfsV1InwinningProjection:All";
 
         // The shadow projections: the same two read models rebuilt into a schema of their own while the live ones
-        // keep serving, switched on and promoted through Projections:{Pbs|WmsWfsV2}:Shadow.
+        // keep serving, switched on through Projections:{Pbs|WmsWfsV2}:Shadow:Enabled and promoted through POST projections/{id}/promote.
         public const string RoadNetworkChangesPbsTempProjection = "RoadNetworkChangesPbsTempProjection:All";
         public const string RoadNetworkChangesWmsWfsV2TempProjection = "RoadNetworkChangesWmsWfsV2TempProjection:All";
     }

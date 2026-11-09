@@ -274,9 +274,9 @@ public class Startup
         AddShadowReadModels(services, projectionOptions);
     }
 
-    // The shadow read models: created before the daemon starts when their projection runs, and promoted when asked to.
-    // Registered last, because Program runs the migrators in registration order: the promotion has to come after the
-    // migrations of the schema it promotes into.
+    // The shadow read models: created before the daemon starts when their projection runs, and promoted through
+    // POST projections/{id}/promote. Registered last, because Program runs the migrators in registration order: finishing
+    // an interrupted promotion has to come after the migrations of the schema it promotes into.
     private static void AddShadowReadModels(IServiceCollection services, ProjectionOptions projectionOptions)
     {
         var bootstrapped = new List<(string Schema, Func<IServiceProvider, DbContext> CreateDbContext)>();
@@ -289,20 +289,17 @@ public class Startup
                 bootstrapped.Add((WellKnownSchemas.PbsTempSchema, createShadowContext));
             }
 
-            if (projectionOptions.Pbs.Shadow.Promote)
-            {
-                services.AddSingleton<IDbMigratorFactory>(sp => new ShadowReadModelPromoterFactory(
-                    new ShadowReadModel(
-                        "PBS",
-                        WellKnownConnectionNames.PbsProjections,
-                        WellKnownSchemas.PbsSchema,
-                        WellKnownSchemas.PbsTempSchema,
-                        nameof(RoadNetworkChangesPbsProjection),
-                        nameof(RoadNetworkChangesPbsTempProjection),
-                        MigrationTables.Pbs),
-                    projectionOptions.Pbs.Shadow.Enabled,
-                    () => createShadowContext(sp)));
-            }
+            AddShadowReadModelPromoter(services,
+                new ShadowReadModel(
+                    "PBS",
+                    WellKnownConnectionNames.PbsProjections,
+                    WellKnownSchemas.PbsSchema,
+                    WellKnownSchemas.PbsTempSchema,
+                    nameof(RoadNetworkChangesPbsProjection),
+                    nameof(RoadNetworkChangesPbsTempProjection),
+                    MigrationTables.Pbs),
+                projectionOptions.Pbs.Shadow.Enabled,
+                createShadowContext);
         }
 
         if (projectionOptions.WmsWfsV2.Enabled)
@@ -313,20 +310,17 @@ public class Startup
                 bootstrapped.Add((WellKnownSchemas.WmsWfsV2TempSchema, createShadowContext));
             }
 
-            if (projectionOptions.WmsWfsV2.Shadow.Promote)
-            {
-                services.AddSingleton<IDbMigratorFactory>(sp => new ShadowReadModelPromoterFactory(
-                    new ShadowReadModel(
-                        "WmsWfsV2",
-                        WellKnownConnectionNames.WmsWfsV2Projections,
-                        WellKnownSchemas.WmsWfsV2Schema,
-                        WellKnownSchemas.WmsWfsV2TempSchema,
-                        nameof(RoadNetworkChangesWmsWfsV2Projection),
-                        nameof(RoadNetworkChangesWmsWfsV2TempProjection),
-                        MigrationTables.WmsWfsV2),
-                    projectionOptions.WmsWfsV2.Shadow.Enabled,
-                    () => createShadowContext(sp)));
-            }
+            AddShadowReadModelPromoter(services,
+                new ShadowReadModel(
+                    "WmsWfsV2",
+                    WellKnownConnectionNames.WmsWfsV2Projections,
+                    WellKnownSchemas.WmsWfsV2Schema,
+                    WellKnownSchemas.WmsWfsV2TempSchema,
+                    nameof(RoadNetworkChangesWmsWfsV2Projection),
+                    nameof(RoadNetworkChangesWmsWfsV2TempProjection),
+                    MigrationTables.WmsWfsV2),
+                projectionOptions.WmsWfsV2.Shadow.Enabled,
+                createShadowContext);
         }
 
         // Before the daemon: the shadow projections write through a model whose tables the migrations do not create.
@@ -335,6 +329,33 @@ public class Startup
             services.AddSingleton<IDbMigratorFactory>(sp => new TempSchemaBootstrapperFactory(
                 bootstrapped.Select(x => (x.Schema, (Func<DbContext>)(() => x.CreateDbContext(sp)))).ToList()));
         }
+    }
+
+    // One promoter per read model, for the projections controller, and the migrator that finishes a promotion the host
+    // was stopped in the middle of. Whatever the shadow switch says: the promotion is asked for once it is off.
+    private static void AddShadowReadModelPromoter(
+        IServiceCollection services,
+        ShadowReadModel readModel,
+        bool shadowEnabled,
+        Func<IServiceProvider, DbContext> createShadowContext)
+    {
+        ShadowReadModelPromoter CreatePromoter(IServiceProvider sp)
+        {
+            var configuration = sp.GetRequiredService<IConfiguration>();
+            return new ShadowReadModelPromoter(
+                readModel,
+                shadowEnabled,
+                configuration.GetRequiredConnectionString(readModel.SqlConnectionName),
+                configuration.GetRequiredConnectionString(WellKnownConnectionNames.Marten),
+                () => createShadowContext(sp),
+                sp.GetRequiredService<ILogger<ShadowReadModelPromoter>>());
+        }
+
+        // The recovery uses the very promoter the controller gets, not a second one built the same way.
+        services
+            .AddSingleton(CreatePromoter)
+            .AddSingleton<IDbMigratorFactory>(sp => new ShadowReadModelPromotionRecoveryFactory(
+                sp.GetServices<ShadowReadModelPromoter>().Single(promoter => promoter.ReadModel == readModel)));
     }
 
     public void Configure(

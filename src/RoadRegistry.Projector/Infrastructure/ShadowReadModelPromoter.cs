@@ -31,39 +31,46 @@ public sealed record ShadowReadModel(
     public string ShadowShardName => $"{ShadowProjectionName}:All";
 }
 
-// Runs the promotion as one of the projector's migrations: after the EF and Marten migrations, before the daemon
-// starts, under the projector's distributed lock. A failure stops the host, so the daemon never starts on half a swap.
-public sealed class ShadowReadModelPromoterFactory : IDbMigratorFactory
+// Runs on every start of the projector, after the EF and Marten migrations and before the daemon, under the projector's
+// distributed lock. It never promotes anything: it only finishes a promotion whose SQL Server half was committed but
+// whose Marten half was not, so the daemon never starts the live projection on half a swap.
+public sealed class ShadowReadModelPromotionRecoveryFactory : IDbMigratorFactory
 {
-    private readonly ShadowReadModel _readModel;
-    private readonly bool _shadowEnabled;
-    private readonly Func<DbContext> _createShadowContext;
+    private readonly ShadowReadModelPromoter _promoter;
 
-    public ShadowReadModelPromoterFactory(ShadowReadModel readModel, bool shadowEnabled, Func<DbContext> createShadowContext)
+    public ShadowReadModelPromotionRecoveryFactory(ShadowReadModelPromoter promoter)
     {
-        _readModel = readModel;
-        _shadowEnabled = shadowEnabled;
-        _createShadowContext = createShadowContext;
+        _promoter = promoter;
     }
 
     public IDbMigrator CreateMigrator(IConfiguration configuration, ILoggerFactory loggerFactory)
     {
-        return new ShadowReadModelPromoter(
-            _readModel,
-            _shadowEnabled,
-            configuration.GetRequiredConnectionString(_readModel.SqlConnectionName),
-            configuration.GetRequiredConnectionString(WellKnownConnectionNames.Marten),
-            _createShadowContext,
-            loggerFactory.CreateLogger<ShadowReadModelPromoter>());
+        return new ShadowReadModelPromotionRecovery(_promoter);
+    }
+
+    private sealed class ShadowReadModelPromotionRecovery : IDbMigrator
+    {
+        private readonly ShadowReadModelPromoter _promoter;
+
+        public ShadowReadModelPromotionRecovery(ShadowReadModelPromoter promoter)
+        {
+            _promoter = promoter;
+        }
+
+        public async Task MigrateAsync(CancellationToken cancellationToken)
+        {
+            await _promoter.FinishPendingPromotionAsync(cancellationToken);
+        }
     }
 }
 
-// Makes the shadow read model the live one (Projections:{Pbs|WmsWfsV2}:Shadow:Promote).
+// Makes the shadow read model the live one, when asked to through POST projections/{id}/promote.
 //
-// Safe to leave switched on: it only promotes when there is something worth promoting, and does nothing otherwise.
-// Worth promoting means the shadow projection is switched off - a shadow still being written to cannot be swapped -
-// its tables are there with a position past zero, and its Marten progression is not behind the live one's. It does
-// not have to be at the store position: whatever it is short of, the live projection catches up on after the swap.
+// Whether the shadow got far enough is for whoever calls it to judge; it does not have to be at the store position,
+// nor level with the live projection: whatever it is short of, the live projection catches up on after the swap. What
+// is checked is only what makes a swap possible at all: the shadow projection is switched off - a shadow still being
+// written to cannot be swapped - and its tables are there, with a SQL Server position and a Marten progression to
+// hand to the live projection. The live projection is stopped by the caller for the duration of the swap.
 //
 // The tables are moved, not copied: ALTER SCHEMA ... TRANSFER renames the schema an existing table belongs to, so the
 // shadow's tables - their rows, their indexes, their statistics - simply become the live ones and the ones they
@@ -86,8 +93,9 @@ public sealed class ShadowReadModelPromoterFactory : IDbMigratorFactory
 // projection's name, and is copied to the live projection's name. Marten's lives in the other database and is keyed by
 // projection name - the shard's progression and the per-correlation progressions - so it cannot travel: the live ones
 // are replaced by the shadow's afterwards. The shadow's row is left in the live ProjectionStates until that is done,
-// as the marker that it still has to be: a host that stops in between finishes the Marten half on its next start.
-public sealed class ShadowReadModelPromoter : IDbMigrator
+// as the marker that it still has to be: a promotion that fails or a host that stops in between finishes the Marten
+// half on the next call or on the next start (ShadowReadModelPromotionRecoveryFactory).
+public sealed class ShadowReadModelPromoter
 {
     private const int SwapCommandTimeoutInSeconds = 600;
 
@@ -114,83 +122,114 @@ public sealed class ShadowReadModelPromoter : IDbMigrator
         _logger = logger;
     }
 
-    public async Task MigrateAsync(CancellationToken cancellationToken)
+    public ShadowReadModel ReadModel => _readModel;
+
+    // A promotion whose SQL Server half was committed and whose Marten half was not. A shadow schema that is still
+    // there means no swap happened since; the marker can only be left by one.
+    public async Task<bool> IsPromotionPendingAsync(CancellationToken cancellationToken)
     {
-        await using var sql = new SqlConnection(_sqlConnectionString);
-        await sql.OpenAsync(cancellationToken);
+        await using var sql = await OpenSqlAsync(cancellationToken);
 
-        if (await IsMartenHalfPendingAsync(sql, cancellationToken))
+        if ((await ReadTablesAsync(sql, _readModel.ShadowSchema, cancellationToken)).Count > 0)
         {
-            _logger.LogWarning("The {ReadModel} shadow read model was promoted, but its Marten progressions were not moved yet; finishing that now.", _readModel.Name);
-            await PromoteMartenProgressionsAsync(cancellationToken);
-            await RemoveMarkerAsync(sql, cancellationToken);
-            return;
+            return false;
         }
 
-        var decision = await DecideAsync(sql, cancellationToken);
-        if (!decision.Promote)
+        return await ReadPositionAsync(sql, _readModel.LiveSchema, _readModel.ShadowProjectionName, cancellationToken) is not null;
+    }
+
+    // Finishes the Marten half of a promotion that was interrupted after its SQL Server half; does nothing otherwise.
+    public async Task<bool> FinishPendingPromotionAsync(CancellationToken cancellationToken)
+    {
+        if (!await IsPromotionPendingAsync(cancellationToken))
         {
-            _logger.Log(decision.Level, "Not promoting the {ReadModel} shadow read model: {Reason}", _readModel.Name, decision.Reason);
-            return;
+            return false;
         }
 
-        _logger.LogWarning("Promoting the {ReadModel} shadow read model in [{ShadowSchema}] to [{LiveSchema}]: {Reason}",
-            _readModel.Name, _readModel.ShadowSchema, _readModel.LiveSchema, decision.Reason);
+        _logger.LogWarning("The {ReadModel} shadow read model was promoted, but its Marten progressions were not moved yet; finishing that now.", _readModel.Name);
 
-        await RebuildDisabledShadowIndexesAsync(cancellationToken);
-        await CopyMissingIndexesToShadowAsync(sql, cancellationToken);
-        await SwapAsync(sql, cancellationToken);
+        await using var sql = await OpenSqlAsync(cancellationToken);
         await PromoteMartenProgressionsAsync(cancellationToken);
         await RemoveMarkerAsync(sql, cancellationToken);
 
         _logger.LogWarning("The {ReadModel} shadow read model is now the live one.", _readModel.Name);
+        return true;
     }
 
-    private async Task<PromotionDecision> DecideAsync(SqlConnection sql, CancellationToken cancellationToken)
+    public async Task<PromotionDecision> DecideAsync(CancellationToken cancellationToken)
     {
-        var shadowPosition = await ReadPositionAsync(sql, _readModel.ShadowSchema, _readModel.ShadowProjectionName, cancellationToken);
+        await using var sql = await OpenSqlAsync(cancellationToken);
 
-        if (_shadowEnabled)
-        {
-            // Not something to shrug off as "nothing to do": both switches on is a configuration that asks for two
-            // contradicting things, and promoting a shadow that is still being written to would lose its writes.
-            return PromotionDecision.Skip(LogLevel.Error,
-                "the shadow projection is still switched on (Shadow:Enabled); switch it off to promote it.");
-        }
+        var shadowTables = await ReadTablesAsync(sql, _readModel.ShadowSchema, cancellationToken);
+        var shadowPosition = shadowTables.Count > 0
+            ? await ReadPositionAsync(sql, _readModel.ShadowSchema, _readModel.ShadowProjectionName, cancellationToken)
+            : null;
+        var shadowSequence = await ReadShardProgressionAsync(_readModel.ShadowShardName, cancellationToken);
 
-        if (shadowPosition is null or <= 0)
-        {
-            return PromotionDecision.Skip(LogLevel.Information,
-                $"there is no shadow read model in [{_readModel.ShadowSchema}] that has projected anything.");
-        }
-
-        var progressions = await ReadShardProgressionsAsync(cancellationToken);
-        progressions.TryGetValue(_readModel.ShadowShardName, out var shadowSequence);
-        progressions.TryGetValue(_readModel.LiveShardName, out var liveSequence);
-
-        return Decide(shadowPosition, shadowSequence, liveSequence);
+        return Decide(_shadowEnabled, shadowTables.Count, shadowPosition, shadowSequence);
     }
 
-    // Separate from the reads, so the rule itself can be pinned down without a database.
-    public static PromotionDecision Decide(long? shadowPosition, long? shadowSequence, long? liveSequence)
+    // Separate from the reads, so the rule itself can be pinned down without a database. How far the shadow got is
+    // deliberately not part of it: that is for the caller to judge.
+    public static PromotionDecision Decide(bool shadowEnabled, int shadowTableCount, long? shadowPosition, long? shadowSequence)
     {
+        if (shadowEnabled)
+        {
+            // Promoting a shadow that is still being written to would lose its writes.
+            return PromotionDecision.Refuse("the shadow projection is still switched on (Shadow:Enabled); switch it off and deploy before promoting it.");
+        }
+
+        if (shadowTableCount == 0)
+        {
+            return PromotionDecision.Refuse("the shadow schema has no tables; there is nothing to promote.");
+        }
+
+        // Without these two there is no position to hand to the live projection: it would continue from where the
+        // tables it is about to lose left off.
         if (shadowPosition is null or <= 0)
         {
-            return PromotionDecision.Skip(LogLevel.Information, "the shadow read model has not projected anything.");
+            return PromotionDecision.Refuse("the shadow read model has not projected anything.");
         }
 
         if (shadowSequence is null)
         {
-            return PromotionDecision.Skip(LogLevel.Warning, "the shadow projection has no Marten progression.");
+            return PromotionDecision.Refuse("the shadow projection has no Marten progression.");
         }
 
-        if (liveSequence is not null && shadowSequence < liveSequence)
+        return PromotionDecision.Go($"the shadow projection is at {shadowSequence}.");
+    }
+
+    // The promotion itself. The caller decided first (DecideAsync) and keeps the live projection stopped throughout.
+    public async Task<PromotionResult> PromoteAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogWarning("Promoting the {ReadModel} shadow read model in [{ShadowSchema}] to [{LiveSchema}].",
+            _readModel.Name, _readModel.ShadowSchema, _readModel.LiveSchema);
+
+        await using var sql = await OpenSqlAsync(cancellationToken);
+
+        await RebuildDisabledShadowIndexesAsync(cancellationToken);
+        await CopyMissingIndexesToShadowAsync(sql, cancellationToken);
+        var result = await SwapAsync(sql, cancellationToken);
+        await PromoteMartenProgressionsAsync(cancellationToken);
+        await RemoveMarkerAsync(sql, cancellationToken);
+
+        _logger.LogWarning("The {ReadModel} shadow read model is now the live one.", _readModel.Name);
+        return result;
+    }
+
+    private async Task<SqlConnection> OpenSqlAsync(CancellationToken cancellationToken)
+    {
+        var sql = new SqlConnection(_sqlConnectionString);
+        try
         {
-            return PromotionDecision.Skip(LogLevel.Warning,
-                $"the shadow projection is at {shadowSequence}, behind the live one at {liveSequence}; let it catch up first.");
+            await sql.OpenAsync(cancellationToken);
+            return sql;
         }
-
-        return PromotionDecision.Go($"the shadow projection is at {shadowSequence}, the live one at {liveSequence?.ToString() ?? "nothing"}.");
+        catch
+        {
+            await sql.DisposeAsync();
+            throw;
+        }
     }
 
     // The shadow projection disables its indexes while it catches up on a large backlog and rebuilds them once it is
@@ -236,7 +275,7 @@ public sealed class ShadowReadModelPromoter : IDbMigrator
         }
     }
 
-    private async Task SwapAsync(SqlConnection sql, CancellationToken cancellationToken)
+    private async Task<PromotionResult> SwapAsync(SqlConnection sql, CancellationToken cancellationToken)
     {
         var liveTables = (await ReadTablesAsync(sql, _readModel.LiveSchema, cancellationToken))
             .Where(table => !string.Equals(table, _readModel.MigrationsHistoryTable, StringComparison.OrdinalIgnoreCase))
@@ -300,6 +339,8 @@ DROP TABLE #promoted;", SwapCommandTimeoutInSeconds, token,
         _logger.LogWarning(
             "Swapped {Tables} table(s) of [{ShadowSchema}] into [{LiveSchema}], replacing {Replaced}; put back {Views} view(s), {ViewIndexes} view index(es) and {Permissions} permission(s).",
             shadowTables.Count, _readModel.ShadowSchema, _readModel.LiveSchema, liveTables.Count, viewCount, viewIndexCount, permissionCount);
+
+        return new PromotionResult(shadowTables.Count, liveTables.Count, viewCount, viewIndexCount, permissionCount);
     }
 
     // The live shard is pointed at the position the shadow reached - in both directions: the rows now in the live schema
@@ -344,41 +385,23 @@ WHERE projection_name = @shadow;", marten, transaction);
         await transaction.CommitAsync(cancellationToken);
     }
 
-    private async Task<bool> IsMartenHalfPendingAsync(SqlConnection sql, CancellationToken cancellationToken)
-    {
-        // A shadow schema that is still there means no swap happened since; the marker can only be left by one.
-        if ((await ReadTablesAsync(sql, _readModel.ShadowSchema, cancellationToken)).Count > 0)
-        {
-            return false;
-        }
-
-        return await ReadPositionAsync(sql, _readModel.LiveSchema, _readModel.ShadowProjectionName, cancellationToken) is not null;
-    }
-
     private async Task RemoveMarkerAsync(SqlConnection sql, CancellationToken cancellationToken)
     {
         await ExecuteAsync(sql, null, $"DELETE FROM {Quote(_readModel.LiveSchema)}.[ProjectionStates] WHERE [Name] = @shadow;",
             SwapCommandTimeoutInSeconds, cancellationToken, ("@shadow", _readModel.ShadowProjectionName));
     }
 
-    private async Task<Dictionary<string, long>> ReadShardProgressionsAsync(CancellationToken cancellationToken)
+    private async Task<long?> ReadShardProgressionAsync(string shardName, CancellationToken cancellationToken)
     {
         await using var marten = new NpgsqlConnection(_martenConnectionString);
         await marten.OpenAsync(cancellationToken);
 
         await using var command = new NpgsqlCommand(
-            $"SELECT name, last_seq_id FROM {WellKnownSchemas.MartenEventStore}.mt_event_progression WHERE name = @live OR name = @shadow", marten);
-        command.Parameters.AddWithValue("live", _readModel.LiveShardName);
-        command.Parameters.AddWithValue("shadow", _readModel.ShadowShardName);
+            $"SELECT last_seq_id FROM {WellKnownSchemas.MartenEventStore}.mt_event_progression WHERE name = @name", marten);
+        command.Parameters.AddWithValue("name", shardName);
 
-        var progressions = new Dictionary<string, long>();
-        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
-        while (await reader.ReadAsync(cancellationToken))
-        {
-            progressions[reader.GetString(0)] = reader.GetInt64(1);
-        }
-
-        return progressions;
+        var sequence = await command.ExecuteScalarAsync(cancellationToken);
+        return sequence is null or DBNull ? null : Convert.ToInt64(sequence);
     }
 
     private static async Task<long?> ReadPositionAsync(SqlConnection sql, string schema, string projectionName, CancellationToken cancellationToken)
@@ -561,11 +584,13 @@ ORDER BY s.name, o.name, i.name, ic.is_included_column, ic.key_ordinal, ic.index
         return $"[{identifier.Replace("]", "]]")}]";
     }
 
-    public sealed record PromotionDecision(bool Promote, LogLevel Level, string Reason)
+    public sealed record PromotionDecision(bool Promote, string Reason)
     {
-        public static PromotionDecision Go(string reason) => new(true, LogLevel.Warning, reason);
-        public static PromotionDecision Skip(LogLevel level, string reason) => new(false, level, reason);
+        public static PromotionDecision Go(string reason) => new(true, reason);
+        public static PromotionDecision Refuse(string reason) => new(false, reason);
     }
+
+    public sealed record PromotionResult(int Tables, int ReplacedTables, int Views, int ViewIndexes, int Permissions);
 
     internal sealed record PermissionDefinition(string State, string Permission, string Schema, string ObjectName, string? Column, string Grantee)
     {

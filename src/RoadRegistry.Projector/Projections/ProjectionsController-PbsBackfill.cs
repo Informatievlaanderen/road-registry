@@ -63,6 +63,11 @@ public partial class ProjectionsController
             return Conflict($"{shardName} is still running; stop it via projections/{shardName[..shardName.IndexOf(':')]}/stop before backfilling.");
         }
 
+        if (IsBeingPromoted(shardName))
+        {
+            return Conflict($"{shardName} cannot be backfilled while its shadow read model is being promoted.");
+        }
+
         if (Interlocked.CompareExchange(ref _pbsBackfillRunning, 1, 0) != 0)
         {
             return Conflict("The backfill of the afgeleide schijnknopen is already running.");

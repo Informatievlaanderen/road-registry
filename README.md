@@ -62,6 +62,37 @@ This host projects the entire event stream to the Integration database.
 
 This host is a scheduled task with the purpose of running long-running commands.
 
+### Projector
+
+This host runs the Marten projections and exposes their status and management endpoints under `projections`.
+
+#### Shadow rebuild and promote
+
+The PBS (`RoadRegistryPbs`) and WMS/WFS V2 (`road`) read models can be rebuilt without taking them down. A shadow copy of the projection replays the event stream from the start into a schema of its own (`RoadRegistryPbsTemp` / `roadTemp`), while the live projection keeps serving. When it is done, the shadow read model is promoted and becomes the live one.
+
+| Read model | Shadow switch | Live projection | Shadow projection |
+|---|---|---|---|
+| PBS | `Projections:Pbs:Shadow:Enabled` | `RoadNetworkChangesPbsProjection` | `RoadNetworkChangesPbsTempProjection` |
+| WMS/WFS V2 | `Projections:WmsWfsV2:Shadow:Enabled` | `RoadNetworkChangesWmsWfsV2Projection` | `RoadNetworkChangesWmsWfsV2TempProjection` |
+
+1. **Start the rebuild.** Set the shadow switch to `true` and deploy. On startup the projector creates the tables in the shadow schema, and the shadow projection starts replaying from the beginning of the event stream.
+2. **Follow it.** `GET projections` lists the shadow projection with its position next to the store position. If a shadow rebuild went wrong, it can be started over with `POST projections/{shadow projection}/rebuild`.
+3. **Stop the rebuild.** When you judge that the shadow got far enough, set the shadow switch back to `false` and deploy. It does not have to be fully caught up: whatever it is short of, the live projection catches up on after the promotion.
+4. **Promote.** Call `POST projections/{id}/promote` with the live or the shadow projection id, for example `POST projections/RoadNetworkChangesPbsProjection/promote`. The call answers when the promotion is done:
+   - `400` when the shadow projection is still switched on, or when the shadow schema has no tables, no position or no Marten progression.
+   - `404` when the read model is not enabled on this host, `409` when another promotion or the PBS backfill is running.
+   - `200` once the shadow read model is the live one.
+
+What a promotion does:
+
+- It stops the live projection, using the same drain as `projections/{id}/stop` (`drainSeconds`, 30 by default).
+- It rebuilds any disabled shadow indexes, and copies the indexes the migrations added to the live tables in raw SQL (the spatial indexes, among others) to the shadow tables.
+- In one transaction, it drops the live tables, moves the shadow tables into the live schema (`ALTER SCHEMA ... TRANSFER`), drops the shadow schema, and puts back the schema-bound views and the permissions.
+- It hands the shadow's positions to the live projection: the SQL Server position, the Marten shard progression and the per-correlation progressions.
+- It starts the live projection again, unless it was meant to be stopped. The live projection catches up from the position the shadow reached.
+
+If a promotion fails before the swap, the live read model is unchanged and the live projection goes back to what it was doing. If it fails after the swap but before the Marten progressions are moved, the live projection stays stopped. Calling the promote again, or restarting the host, finishes the promotion.
+
 ## Docker based local setup
 
 ### What do I need to install?
