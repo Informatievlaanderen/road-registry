@@ -665,8 +665,8 @@ export default defineComponent({
           (await PublicApi.Inwinningsstatus.getGemeente(this.municipalityFlow.nisCode)).inwinningsstatus === "compleet";
 
         let downloadExtractResponse = useNieuwDatamodel
-            ? await PublicApi.Extracts.V3.requestExtractByNisCode(requestData)
-            : await PublicApi.Extracts.V2.requestExtractByNisCode(requestData);
+          ? await PublicApi.Extracts.V3.requestExtractByNisCode(requestData)
+          : await PublicApi.Extracts.V2.requestExtractByNisCode(requestData);
 
         this.$router.push({ name: "extractDetailsV2", params: { downloadId: downloadExtractResponse.downloadId } });
       } catch (exception) {
