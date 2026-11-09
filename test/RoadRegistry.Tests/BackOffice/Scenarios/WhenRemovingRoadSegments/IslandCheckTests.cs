@@ -49,6 +49,11 @@
                             {
                                 Name = "EndNodeId",
                                 Value = "3"
+                            },
+                            new()
+                            {
+                                Name = "WegsegmentId",
+                                Value = "2"
                             }
                         ]
                     },
@@ -67,6 +72,11 @@
                             {
                                 Name = "EndNodeId",
                                 Value = "6"
+                            },
+                            new()
+                            {
+                                Name = "WegsegmentId",
+                                Value = "5"
                             }
                         ]
                     }

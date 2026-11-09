@@ -22,20 +22,21 @@ public static class RoadNetworkValidation
             }
         ]);
 
-        var nodesWithRequiredConnections = context.GetPossibleConnectionsForRemovedSegments(removedRoadSegmentIds);
+        var nodesWithRequiredConnections = context.GetRequiredConnectionsForRemovedSegments(removedRoadSegmentIds)
+            .GroupBy(x => x.Source);
         var graph = BuildGraph(view);
 
         foreach (var nodeWithRequiredConnections in nodesWithRequiredConnections)
         {
             var start = nodeWithRequiredConnections.Key;
-            var ends = nodeWithRequiredConnections.Value;
 
             var tryGetPaths = graph.ShortestPathsDijkstra(_ => 1, start);
-            foreach (var end in ends)
+            foreach (var connection in nodeWithRequiredConnections)
             {
-                if (!tryGetPaths(end, out _))
+                if (!tryGetPaths(connection.Destination, out _))
                 {
-                    problems += new RoadNetworkDisconnected(start, end);
+                    problems += new RoadNetworkDisconnected(start, connection.Destination)
+                        .WithContext(ProblemContext.For(connection.RemovedRoadSegmentId));
                 }
             }
         }
@@ -74,19 +75,28 @@ public static class RoadNetworkValidation
 
     public static Dictionary<RoadNodeId, IEnumerable<RoadNodeId>> GetPossibleConnectionsForRemovedSegments(this AfterVerificationContext context, IReadOnlyCollection<RoadSegmentId> removedRoadSegmentIds)
     {
+        return context.GetRequiredConnectionsForRemovedSegments(removedRoadSegmentIds)
+            .GroupBy(x => x.Source)
+            .ToDictionary(x => x.Key, g => g.Select(nodeConnection => nodeConnection.Destination));
+    }
+
+    public static IReadOnlyCollection<RequiredRoadNodeConnection> GetRequiredConnectionsForRemovedSegments(this AfterVerificationContext context, IReadOnlyCollection<RoadSegmentId> removedRoadSegmentIds)
+    {
         var existingNodesAfterRemoval = removedRoadSegmentIds
             .SelectMany(id => context.BeforeView.View.Segments[id].Nodes)
             .Distinct()
             .Where(x => context.AfterView.Nodes.ContainsKey(x));
 
         return existingNodesAfterRemoval
-            .SelectMany(startNodeId => { return FindNodesToConnectTo(startNodeId, removedRoadSegmentIds, context).Select(endNodeId => new NodeConnection(startNodeId, endNodeId)); })
+            .SelectMany(startNodeId => FindNodesToConnectTo(startNodeId, removedRoadSegmentIds, context)
+                .Select(x => RequiredRoadNodeConnection.Create(startNodeId, x.EndNodeId, x.RemovedRoadSegmentId)))
             .DistinctBy(x => new { x.Source, x.Destination })
-            .GroupBy(x => x.Source)
-            .ToDictionary(x => x.Key, g => g.Select(nodeConnection => nodeConnection.Destination));
+            .ToList();
     }
 
-    private static IEnumerable<RoadNodeId> FindNodesToConnectTo(RoadNodeId startNodeId, IReadOnlyCollection<RoadSegmentId> removedRoadSegmentIds, AfterVerificationContext context)
+    // Each node to connect to is paired with the removed segment the search left the start node through, so a
+    // disconnection can be traced back to the segment whose removal causes it.
+    private static IEnumerable<(RoadNodeId EndNodeId, RoadSegmentId RemovedRoadSegmentId)> FindNodesToConnectTo(RoadNodeId startNodeId, IReadOnlyCollection<RoadSegmentId> removedRoadSegmentIds, AfterVerificationContext context)
     {
         var startNode = context.RootView.Nodes[startNodeId];
 
@@ -96,8 +106,9 @@ public static class RoadNetworkValidation
         return startNode.Segments
             .Where(removedRoadSegmentIds.Contains)
             .Select(id => context.RootView.Segments[id])
-            .SelectMany(segment => GetConnectedOffspringNodes(startNodeId, segment, processedNodeIds, processedSegmentIds, context))
-            .Distinct()
+            .SelectMany(segment => GetConnectedOffspringNodes(startNodeId, segment, processedNodeIds, processedSegmentIds, context)
+                .Select(endNodeId => (EndNodeId: endNodeId, RemovedRoadSegmentId: segment.Id)))
+            .DistinctBy(x => x.EndNodeId)
             .ToList();
     }
 
@@ -138,16 +149,12 @@ public static class RoadNetworkValidation
             yield return endNodeId;
         }
     }
+}
 
-    private sealed class NodeConnection
+public sealed record RequiredRoadNodeConnection(RoadNodeId Source, RoadNodeId Destination, RoadSegmentId RemovedRoadSegmentId)
+{
+    public static RequiredRoadNodeConnection Create(RoadNodeId start, RoadNodeId end, RoadSegmentId removedRoadSegmentId)
     {
-        public RoadNodeId Source { get; set; }
-        public RoadNodeId Destination { get; set; }
-
-        public NodeConnection(RoadNodeId start, RoadNodeId end)
-        {
-            Source = RoadNodeId.Min(start, end);
-            Destination = RoadNodeId.Max(start, end);
-        }
+        return new RequiredRoadNodeConnection(RoadNodeId.Min(start, end), RoadNodeId.Max(start, end), removedRoadSegmentId);
     }
 }
