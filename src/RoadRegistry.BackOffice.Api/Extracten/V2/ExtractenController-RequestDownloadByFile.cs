@@ -9,7 +9,6 @@ using Asp.Versioning;
 using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
-using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using FluentValidation;
@@ -43,16 +42,16 @@ public partial class ExtractenController
     [HttpPost("downloadaanvragen/perbestand", Name = nameof(ExtractDownloadaanvraagPerBestandV2))]
     public async Task<IActionResult> ExtractDownloadaanvraagPerBestandV2(
         ExtractDownloadaanvraagPerBestandBody body,
-        [FromServices] IValidator<ExtractDownloadaanvraagPerBestand> validator,
+        [FromServices] FileEncoding fileEncoding,
         [FromServices] IExtractShapefileContourReader shpFileContourReader,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var request = new ExtractDownloadaanvraagPerBestand(BuildRequestItem(".shp"), BuildRequestItem(".prj"), body.Beschrijving, body.Informatief);
-            await validator.ValidateAndThrowAsync(request, cancellationToken);
+            await ExtractDownloadaanvraagPerBestandValidator.ForLambert08(fileEncoding.Encoding).ValidateAndThrowAsync(request, cancellationToken);
 
-            var contour = shpFileContourReader.Read(request.ShpFile.ReadStream, WellKnownGeometryFactories.Lambert72WithoutMAndZ).ToMultiPolygon();
+            var contour = shpFileContourReader.Read(request.ShpFile.ReadStream, WellKnownGeometryFactories.Lambert08).ToMultiPolygon();
 
             // The shape file reader only reports what it could not read at all - a shape type that is not a polygon,
             // mixed projections - so a contour that reads fine but does not hold up as a geometry, a ring crossing
@@ -61,9 +60,6 @@ public partial class ExtractenController
             //
             // Only the geometry is checked, not its size: the contours arriving here go well past the limit the WKT
             // contour is held to, so applying it would turn away the very requests this endpoint exists for.
-            //
-            // Checked as it was read, before the reference system is changed, so a contour that was already broken is
-            // not reported as something the conversion did.
             if (!new ExtractContourValidator().IsValidGeometry(contour))
             {
                 throw new ValidationException([new ValidationFailure
@@ -72,8 +68,6 @@ public partial class ExtractenController
                     ErrorCode = ProblemCode.Extract.ContourInvalid
                 }]);
             }
-
-            contour = contour.EnsureLambert08();
 
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());

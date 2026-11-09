@@ -131,6 +131,7 @@ public sealed record ExtractDownloadaanvraagPerBestandItem(string FileName, Stre
 public sealed class ExtractDownloadaanvraagPerBestandValidator : AbstractValidator<ExtractDownloadaanvraagPerBestand>
 {
     private readonly Encoding _encoding;
+    private readonly Func<ProjectionFormat, bool> _isExpectedProjection;
 
     public ExtractDownloadaanvraagPerBestandValidator(FileEncoding fileEncoding)
         : this(fileEncoding.Encoding)
@@ -138,8 +139,21 @@ public sealed class ExtractDownloadaanvraagPerBestandValidator : AbstractValidat
     }
 
     public ExtractDownloadaanvraagPerBestandValidator(Encoding encoding)
+        : this(encoding, projectionFormat => projectionFormat.IsBelgeLambert1972())
+    {
+    }
+
+    // The v2 endpoint serves the renewed data model, which works in Lambert 2008 only: a contour in Lambert 72 is
+    // turned away there, just as the v1 endpoint turns away one in Lambert 2008.
+    public static ExtractDownloadaanvraagPerBestandValidator ForLambert08(Encoding encoding)
+    {
+        return new ExtractDownloadaanvraagPerBestandValidator(encoding, projectionFormat => projectionFormat.IsBelgeLambert2008());
+    }
+
+    private ExtractDownloadaanvraagPerBestandValidator(Encoding encoding, Func<ProjectionFormat, bool> isExpectedProjection)
     {
         _encoding = encoding;
+        _isExpectedProjection = isExpectedProjection;
 
         RuleFor(c => c.ShpFile)
             .SetValidator(new ExtractDownloadaanvraagPerBestandItemValidator());
@@ -147,7 +161,7 @@ public sealed class ExtractDownloadaanvraagPerBestandValidator : AbstractValidat
             .SetValidator(new ExtractDownloadaanvraagPerBestandItemValidator());
 
         RuleFor(c => c.PrjFile)
-            .Must(BeLambert1972ProjectionFormat)
+            .Must(BeExpectedProjectionFormat)
             .WithProblemCode(ProblemCode.Extract.ProjectionInvalid);
 
         RuleFor(c => c.Beschrijving)
@@ -158,12 +172,12 @@ public sealed class ExtractDownloadaanvraagPerBestandValidator : AbstractValidat
             .WithProblemCode(ProblemCode.Extract.BeschrijvingTooLong);
     }
 
-    private bool BeLambert1972ProjectionFormat(ExtractDownloadaanvraagPerBestandItem item)
+    private bool BeExpectedProjectionFormat(ExtractDownloadaanvraagPerBestandItem item)
     {
         using var reader = new StreamReader(item.ReadStream, _encoding);
         var projectionFormat = ProjectionFormat.Read(reader);
 
-        return projectionFormat.IsBelgeLambert1972();
+        return _isExpectedProjection(projectionFormat);
     }
 }
 

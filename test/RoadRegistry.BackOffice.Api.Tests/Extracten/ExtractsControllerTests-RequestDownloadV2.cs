@@ -23,6 +23,7 @@ using RoadRegistry.Extracts;
 public partial class ExtractsControllerTests
 {
     private const string ContourInLambert72 = "MULTIPOLYGON (((155000 210000, 155000 211000, 156000 211000, 156000 210000, 155000 210000)))";
+    private const string ContourInLambert08 = "MULTIPOLYGON (((655000 710000, 655000 711000, 656000 711000, 656000 710000, 655000 710000)))";
 
     [Fact]
     public async Task WhenRequestExtractByContourV2_ThenTheBijhoudingArchiveIsRequestedInLambert08()
@@ -53,30 +54,63 @@ public partial class ExtractsControllerTests
     {
         var sentRequest = CaptureRequestExtract();
 
+        var reader = ShapefileContourReaderReading(ContourInLambert08);
+
         var result = await Controller.ExtractDownloadaanvraagPerBestandV2(
-            new ExtractDownloadaanvraagPerBestandBody(Fixture.Create<string>(), await ContourFiles(), true),
-            new ExtractDownloadaanvraagPerBestandValidator(Encoding.UTF8),
-            ShapefileContourReaderReturning(ContourInLambert72));
+            new ExtractDownloadaanvraagPerBestandBody(Fixture.Create<string>(), await ContourFilesInLambert08(), true),
+            FileEncoding.UTF8,
+            reader.Object);
 
         Assert.IsType<AcceptedResult>(result);
         sentRequest.Value!.ZipArchiveWriterVersion.Should().Be(WellKnownZipArchiveWriterVersions.DomainV2_Bijhouding);
-        sentRequest.Value.Contour.SRID.Should().Be(WellknownSrids.Lambert08);
+        reader.Verify(x => x.Read(It.IsAny<Stream>(), It.Is<GeometryFactory>(factory => factory.SRID == WellknownSrids.Lambert08)));
+    }
+
+    // The shape file is in Lambert 2008 already, so the contour is stored as it came in: converting it as if it were
+    // Lambert 72 would move it some hundreds of kilometres.
+    [Fact]
+    public async Task WhenRequestExtractByFileV2_ThenTheContourIsStoredAsItWasRead()
+    {
+        var sentRequest = CaptureRequestExtract();
+
+        await Controller.ExtractDownloadaanvraagPerBestandV2(
+            new ExtractDownloadaanvraagPerBestandBody(Fixture.Create<string>(), await ContourFilesInLambert08(), true),
+            FileEncoding.UTF8,
+            ShapefileContourReaderReading(ContourInLambert08).Object);
+
+        var contour = sentRequest.Value!.Contour;
+        contour.SRID.Should().Be(WellknownSrids.Lambert08);
+        contour.Value.EqualsExact(new WKTReader().Read(ContourInLambert08)).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task WhenRequestExtractByFileV2_WithProjectionInLambert72_ThenValidationException()
+    {
+        var bestandenInLambert72 = await ContourFiles();
+
+        var act = () => Controller.ExtractDownloadaanvraagPerBestandV2(
+            new ExtractDownloadaanvraagPerBestandBody(Fixture.Create<string>(), bestandenInLambert72, true),
+            FileEncoding.UTF8,
+            ShapefileContourReaderReading(ContourInLambert08).Object);
+
+        var ex = (await act.Should().ThrowAsync<ValidationException>()).Which;
+        ex.Errors.Should().ContainSingle(e => e.ErrorCode == "ExtractProjectionInvalid");
+        Mediator.Verify(x => x.Send(It.IsAny<RequestExtractSqsRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     // The same check the v1 endpoint got: a contour that reads fine but does not hold up as a geometry must not be
-    // stored, and it is checked before the reference system is changed so a contour that was already broken is not
-    // reported as something the conversion did.
+    // stored.
     [Fact]
     public async Task WhenRequestExtractByFileV2_WithSelfIntersectingContour_ThenValidationException()
     {
         const string selfIntersectingContour = "MULTIPOLYGON (((194477.00366637472 206971.83339355365, 194469.6805155593 206969.91542548305, 194452.85470475757 206975.14624749395, 193640.4208660975 206778.9904220851, 193345.57686541631 206711.33845741072, 193326.39718470967 206705.75891393243, 193324.3048559053 206719.18469042706, 193409.567254683 206737.66692819892, 193820.53550400632 206827.11398458539, 194105.96402506795 206891.80181678684, 194197.32904952508 206912.02766189564, 194470.37795849424 206988.65920435538, 194475.26005903777 206978.19756033356, 194477.00366637472 206971.83339355365)))";
 
-        var bestanden = await ContourFiles();
+        var bestanden = await ContourFilesInLambert08();
 
         var act = () => Controller.ExtractDownloadaanvraagPerBestandV2(
             new ExtractDownloadaanvraagPerBestandBody(Fixture.Create<string>(), bestanden, true),
-            new ExtractDownloadaanvraagPerBestandValidator(Encoding.UTF8),
-            ShapefileContourReaderReturning(selfIntersectingContour));
+            FileEncoding.UTF8,
+            ShapefileContourReaderReading(selfIntersectingContour).Object);
 
         var ex = (await act.Should().ThrowAsync<ValidationException>()).Which;
         ex.Errors.Should().ContainSingle(e => e.ErrorCode == "ExtractContourInvalid");
@@ -94,14 +128,20 @@ public partial class ExtractsControllerTests
         return sentRequest;
     }
 
-    private static IExtractShapefileContourReader ShapefileContourReaderReturning(string contour)
+    // Hands back the contour in the reference system of the factory it is asked to read with, as the real reader does.
+    private static Mock<IExtractShapefileContourReader> ShapefileContourReaderReading(string contour)
     {
         var reader = new Mock<IExtractShapefileContourReader>();
         reader
             .Setup(x => x.Read(It.IsAny<Stream>(), It.IsAny<GeometryFactory>()))
-            .Returns(new WKTReader().Read(contour));
+            .Returns((Stream _, GeometryFactory factory) =>
+            {
+                var geometry = new WKTReader().Read(contour);
+                geometry.SRID = factory.SRID;
+                return geometry;
+            });
 
-        return reader.Object;
+        return reader;
     }
 
     private static async Task<FormFileCollection> ContourFiles()
@@ -110,6 +150,17 @@ public partial class ExtractsControllerTests
         [
             await EmbeddedResourceReader.ReadFormFileAsync("polygon.shp", "application/octet-stream", CancellationToken.None),
             await EmbeddedResourceReader.ReadFormFileAsync("polygon.prj", "application/octet-stream", CancellationToken.None)
+        ];
+    }
+
+    private static async Task<FormFileCollection> ContourFilesInLambert08()
+    {
+        var prj = new MemoryStream(Encoding.UTF8.GetBytes(ProjectionFormat.BelgeLambert2008.Content));
+
+        return
+        [
+            await EmbeddedResourceReader.ReadFormFileAsync("polygon.shp", "application/octet-stream", CancellationToken.None),
+            EmbeddedResourceReader.ReadFormFile(prj, "polygon.prj", "application/octet-stream")
         ];
     }
 }
