@@ -1,3 +1,10 @@
+# [5.34.0](https://github.com/informatievlaanderen/road-registry/compare/v5.33.0...v5.34.0) (2026-11-09)
+
+
+### Features
+
+* **projector:** promote shadow read models via POST projections/{id}/promote ([7ea50be](https://github.com/informatievlaanderen/road-registry/commit/7ea50be23b63740e6c7af3f7d5cf6d882ccaa226))
+
 # [5.33.0](https://github.com/informatievlaanderen/road-registry/compare/v5.32.3...v5.33.0) (2026-11-06)
 
 
