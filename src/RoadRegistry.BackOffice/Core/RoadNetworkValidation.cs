@@ -87,9 +87,18 @@ public static class RoadNetworkValidation
             .Distinct()
             .Where(x => context.AfterView.Nodes.ContainsKey(x));
 
+        // A pair of nodes is found from both of its ends, each with the removed segment at that end. The pair is reported
+        // with its lowest node as start node, so the one found from that node is kept: its segment is the one at the
+        // start node, whichever order the nodes were searched in.
         return existingNodesAfterRemoval
             .SelectMany(startNodeId => FindNodesToConnectTo(startNodeId, removedRoadSegmentIds, context)
-                .Select(x => RequiredRoadNodeConnection.Create(startNodeId, x.EndNodeId, x.RemovedRoadSegmentId)))
+                .Select(x => new
+                {
+                    SearchedFrom = startNodeId,
+                    Connection = RequiredRoadNodeConnection.Create(startNodeId, x.EndNodeId, x.RemovedRoadSegmentId)
+                }))
+            .OrderBy(x => x.SearchedFrom == x.Connection.Source ? 0 : 1)
+            .Select(x => x.Connection)
             .DistinctBy(x => new { x.Source, x.Destination })
             .ToList();
     }

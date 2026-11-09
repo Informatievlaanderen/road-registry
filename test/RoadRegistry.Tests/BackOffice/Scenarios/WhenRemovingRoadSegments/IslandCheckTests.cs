@@ -193,6 +193,33 @@
             connections.Should().BeEquivalentTo(expectedConnections);
         }
 
+        [Fact]
+        public async Task WhenAConnectionIsFoundFromBothEnds_ThenTheRemovedSegmentAtTheStartNodeIsKept()
+        {
+            K5.Geometry.Point.X = -1;
+            K5.Geometry.Point.Y = 0;
+
+            W9.MaintenanceAuthority.Code = W10.MaintenanceAuthority.Code;
+
+            // W7 first, so K3 is searched before K2: the pair K2-K3 is found from K3 (through W7) before it is found
+            // from K2 (through W6), while it is reported with K2 as its start node.
+            var removeRoadSegments = new RemoveRoadSegments
+            {
+                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
+                Ids = [W7.Id, W6.Id]
+            };
+
+            var rootView = ImmutableRoadNetworkView.Empty.RestoreFromEvent(InitialRoadNetwork);
+
+            var afterVerificationContext = await BuildAfterVerificationContext(rootView, removeRoadSegments);
+
+            var connections = afterVerificationContext.GetRequiredConnectionsForRemovedSegments(removeRoadSegments.Ids.Select(x => new RoadSegmentId(x)).ToArray());
+
+            connections.Should().ContainSingle(x => x.Source == new RoadNodeId(K2.Id) && x.Destination == new RoadNodeId(K3.Id))
+                .Which.RemovedRoadSegmentId.Should().Be(new RoadSegmentId(W6.Id));
+            connections.Should().OnlyContain(x => rootView.Segments[x.RemovedRoadSegmentId].Nodes.Contains(x.Source));
+        }
+
         private async Task<AfterVerificationContext> BuildAfterVerificationContext(IRoadNetworkView rootView, RemoveRoadSegments removeRoadSegments)
         {
             var command = new ChangeRoadNetworkBuilder(TestData)
