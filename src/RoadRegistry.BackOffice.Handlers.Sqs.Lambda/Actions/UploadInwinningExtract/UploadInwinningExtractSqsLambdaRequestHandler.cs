@@ -68,6 +68,7 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
     protected override async Task<object> InnerHandle(UploadInwinningExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         using var _ = Logger.TimeAction(GetType().Name);
+        using var durationWarning = await InwinningUploadDurationWarning.Start(Logger, GetType().Name, _extractsDbContext, request.Request.DownloadId, request.Request.UploadId, cancellationToken);
 
         try
         {
