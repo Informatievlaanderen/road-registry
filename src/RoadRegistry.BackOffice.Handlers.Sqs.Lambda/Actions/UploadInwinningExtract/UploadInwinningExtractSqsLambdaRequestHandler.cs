@@ -72,6 +72,7 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
         try
         {
             var inwinningszone = await _extractsDbContext.Inwinningszones.SingleOrDefaultAsync(x => x.DownloadId == request.Request.DownloadId.ToGuid(), cancellationToken);
+            using var durationWarning = new InwinningUploadDurationWarning(Logger, GetType().Name, request.Request.DownloadId, request.Request.UploadId, inwinningszone?.NisCode);
             if (inwinningszone is null)
             {
                 await FailUploadIfStillProcessing(request.Request.UploadId, cancellationToken);

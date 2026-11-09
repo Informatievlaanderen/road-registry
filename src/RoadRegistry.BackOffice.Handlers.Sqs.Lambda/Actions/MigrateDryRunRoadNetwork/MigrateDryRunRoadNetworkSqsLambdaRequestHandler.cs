@@ -57,6 +57,7 @@ public sealed class MigrateDryRunRoadNetworkSqsLambdaRequestHandler : MartenSqsL
     protected override async Task<object> InnerHandle(MigrateDryRunRoadNetworkSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
         using var _ = Logger.TimeAction(GetType().Name);
+        using var durationWarning = new InwinningUploadDurationWarning(Logger, GetType().Name, sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.DownloadId, sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId);
 
         try
         {
