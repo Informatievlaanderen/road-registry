@@ -4,13 +4,32 @@ using System.Collections.Generic;
 
 public class ProblemContext
 {
+    public const string RoadNodeIdParameterName = "WegknoopId";
+    public const string OriginalRoadNodeIdParameterName = "WegknoopOorspronkelijkeId";
+    public const string RoadSegmentIdParameterName = "WegsegmentId";
+    public const string RoadSegmentTempIdsParameterName = "WegsegmentTempIds";
+    public const string GradeSeparatedJunctionIdParameterName = "OngelijkGrondseKruisingId";
+    public const string GradeJunctionIdParameterName = "GelijkGrondseKruisingId";
+
+    // The names a context parameter can have. Once a problem is flattened into a message, its context parameters are
+    // indistinguishable from its other parameters, so these names are how they are recognised again.
+    public static readonly IReadOnlyCollection<string> ParameterNames =
+    [
+        RoadNodeIdParameterName,
+        OriginalRoadNodeIdParameterName,
+        RoadSegmentIdParameterName,
+        RoadSegmentTempIdsParameterName,
+        GradeSeparatedJunctionIdParameterName,
+        GradeJunctionIdParameterName
+    ];
+
     public required IReadOnlyCollection<ProblemContextParameter> Parameters { get; init; }
 
     public static ProblemContext For(RoadNodeId roadNodeId)
     {
         return new ProblemContext
         {
-            Parameters = [new ProblemContextParameter("WegknoopId", roadNodeId.ToInt32())]
+            Parameters = [new ProblemContextParameter(RoadNodeIdParameterName, roadNodeId.ToInt32())]
         };
     }
     // The identifier the uploader knows a road node by, alongside the one the road network uses. Added to a problem
@@ -19,14 +38,14 @@ public class ProblemContext
     {
         return new ProblemContext
         {
-            Parameters = [new ProblemContextParameter("WegknoopOorspronkelijkeId", originalRoadNodeId.ToInt32())]
+            Parameters = [new ProblemContextParameter(OriginalRoadNodeIdParameterName, originalRoadNodeId.ToInt32())]
         };
     }
     public static ProblemContext For(RoadSegmentId roadSegmentId)
     {
         return new ProblemContext
         {
-            Parameters = [new ProblemContextParameter("WegsegmentId", roadSegmentId.ToInt32())]
+            Parameters = [new ProblemContextParameter(RoadSegmentIdParameterName, roadSegmentId.ToInt32())]
         };
     }
     public static ProblemContext For(RoadSegmentIdReference roadSegmentIdReference)
@@ -36,29 +55,29 @@ public class ProblemContext
             return new ProblemContext
             {
                 Parameters = [
-                    new ProblemContextParameter("WegsegmentId", roadSegmentIdReference.RoadSegmentId.ToInt32()),
-                    new ProblemContextParameter("WegsegmentTempIds", roadSegmentIdReference.GetTempIdsAsString()),
+                    new ProblemContextParameter(RoadSegmentIdParameterName, roadSegmentIdReference.RoadSegmentId.ToInt32()),
+                    new ProblemContextParameter(RoadSegmentTempIdsParameterName, roadSegmentIdReference.GetTempIdsAsString()),
                 ]
             };
         }
 
         return new ProblemContext
         {
-            Parameters = [new ProblemContextParameter("WegsegmentId", roadSegmentIdReference.RoadSegmentId.ToInt32())]
+            Parameters = [new ProblemContextParameter(RoadSegmentIdParameterName, roadSegmentIdReference.RoadSegmentId.ToInt32())]
         };
     }
     public static ProblemContext For(GradeSeparatedJunctionId gradeSeparatedJunctionId)
     {
         return new ProblemContext
         {
-            Parameters = [new ProblemContextParameter("OngelijkGrondseKruisingId", gradeSeparatedJunctionId.ToInt32())]
+            Parameters = [new ProblemContextParameter(GradeSeparatedJunctionIdParameterName, gradeSeparatedJunctionId.ToInt32())]
         };
     }
     public static ProblemContext For(GradeJunctionId gradeJunctionId)
     {
         return new ProblemContext
         {
-            Parameters = [new ProblemContextParameter("GelijkGrondseKruisingId", gradeJunctionId.ToInt32())]
+            Parameters = [new ProblemContextParameter(GradeJunctionIdParameterName, gradeJunctionId.ToInt32())]
         };
     }
 }
