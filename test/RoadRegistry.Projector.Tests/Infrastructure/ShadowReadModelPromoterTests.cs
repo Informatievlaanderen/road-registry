@@ -1,53 +1,53 @@
 namespace RoadRegistry.Projector.Tests.Infrastructure;
 
-using Microsoft.Extensions.Logging;
 using RoadRegistry.Projector.Infrastructure;
 
 public class ShadowReadModelPromoterTests
 {
+    [Fact]
+    public void A_shadow_that_is_still_switched_on_is_not_promoted()
+    {
+        var decision = ShadowReadModelPromoter.Decide(shadowEnabled: true, shadowTableCount: 10, shadowPosition: 100, shadowSequence: 100);
+
+        Assert.False(decision.Promote);
+        Assert.Contains("Shadow:Enabled", decision.Reason);
+    }
+
+    [Fact]
+    public void A_shadow_without_tables_is_not_promoted()
+    {
+        var decision = ShadowReadModelPromoter.Decide(shadowEnabled: false, shadowTableCount: 0, shadowPosition: null, shadowSequence: 100);
+
+        Assert.False(decision.Promote);
+        Assert.Contains("no tables", decision.Reason);
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData(0L)]
     public void A_shadow_that_has_not_projected_anything_is_not_promoted(long? shadowPosition)
     {
-        var decision = ShadowReadModelPromoter.Decide(shadowPosition, shadowSequence: 100, liveSequence: 50);
+        var decision = ShadowReadModelPromoter.Decide(shadowEnabled: false, shadowTableCount: 10, shadowPosition, shadowSequence: 100);
 
         Assert.False(decision.Promote);
-        Assert.Equal(LogLevel.Information, decision.Level);
     }
 
     [Fact]
     public void A_shadow_without_a_marten_progression_is_not_promoted()
     {
-        var decision = ShadowReadModelPromoter.Decide(shadowPosition: 100, shadowSequence: null, liveSequence: 50);
+        var decision = ShadowReadModelPromoter.Decide(shadowEnabled: false, shadowTableCount: 10, shadowPosition: 100, shadowSequence: null);
 
         Assert.False(decision.Promote);
     }
 
-    [Fact]
-    public void A_shadow_behind_the_live_projection_is_not_promoted()
-    {
-        var decision = ShadowReadModelPromoter.Decide(shadowPosition: 100, shadowSequence: 99, liveSequence: 100);
-
-        Assert.False(decision.Promote);
-        Assert.Equal(LogLevel.Warning, decision.Level);
-    }
-
-    // Not at the store position is fine: the live projection catches up on the rest after the swap.
+    // How far it got is up to the caller: the live projection catches up on the rest after the swap, even when the
+    // shadow is behind it.
     [Theory]
+    [InlineData(1L)]
     [InlineData(100L)]
-    [InlineData(150L)]
-    public void A_shadow_level_with_or_ahead_of_the_live_projection_is_promoted(long shadowSequence)
+    public void A_switched_off_shadow_with_tables_and_a_position_is_promoted(long shadowSequence)
     {
-        var decision = ShadowReadModelPromoter.Decide(shadowPosition: 100, shadowSequence, liveSequence: 100);
-
-        Assert.True(decision.Promote);
-    }
-
-    [Fact]
-    public void A_shadow_is_promoted_where_the_live_projection_never_ran()
-    {
-        var decision = ShadowReadModelPromoter.Decide(shadowPosition: 100, shadowSequence: 100, liveSequence: null);
+        var decision = ShadowReadModelPromoter.Decide(shadowEnabled: false, shadowTableCount: 10, shadowPosition: 100, shadowSequence);
 
         Assert.True(decision.Promote);
     }

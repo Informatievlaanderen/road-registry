@@ -23,7 +23,8 @@ public class ProjectionOptions
     }
 
     // A read model that can be rebuilt beside itself: a shadow copy of the projection fills a schema of its own from
-    // the start of the event stream while the live one keeps serving, and is swapped in once it has caught up.
+    // the start of the event stream while the live one keeps serving, and is swapped in through
+    // POST projections/{id}/promote once it is switched off again.
     public class ShadowedOption : Option
     {
         public ShadowOption Shadow { get; set; } = new();
@@ -31,12 +32,7 @@ public class ProjectionOptions
 
     public class ShadowOption
     {
-        // Runs the shadow projection next to the live one.
+        // Runs the shadow projection next to the live one. Has to be off again before it can be promoted.
         public bool Enabled { get; set; }
-
-        // Makes the shadow read model the live one, before the projections start. Only done while the shadow
-        // projection is switched off and its tables are there with a position no further behind than the live one;
-        // otherwise it does nothing, so it can be left on after the swap.
-        public bool Promote { get; set; }
     }
 }

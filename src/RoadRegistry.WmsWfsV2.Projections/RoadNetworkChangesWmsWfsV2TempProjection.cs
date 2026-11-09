@@ -14,7 +14,7 @@ using Schema;
 // event stream without touching anything the live projection owns.
 //
 // It exists to rebuild a read model without taking it down, and stays in the code for the next time that is needed:
-// Projections:WmsWfsV2:Shadow:Enabled runs it, Projections:WmsWfsV2:Shadow:Promote swaps it in (ShadowReadModelPromoter).
+// Projections:WmsWfsV2:Shadow:Enabled runs it, POST projections/{id}/promote swaps it in once it is switched off again (ShadowReadModelPromoter).
 public sealed class RoadNetworkChangesWmsWfsV2TempProjection : RoadNetworkChangesWmsWfsV2Projection
 {
     public RoadNetworkChangesWmsWfsV2TempProjection(

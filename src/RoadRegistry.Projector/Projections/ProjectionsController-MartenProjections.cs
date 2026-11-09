@@ -132,6 +132,11 @@ public partial class ProjectionsController
             return Conflict($"{shardName} cannot be started while the backfill of the afgeleide schijnknopen is running; wait until the log says it completed.");
         }
 
+        if (IsBeingPromoted(shardName))
+        {
+            return Conflict($"{shardName} cannot be started while its shadow read model is being promoted; the promotion starts it again when it is done.");
+        }
+
         // Before starting, so that a start which then fails still leaves the supervisor with a mandate to retry.
         await _projectionStateStore.SetDesiredStateAsync(shardName, ProjectionDesiredStates.Subscribed, cancellationToken);
 
@@ -193,6 +198,11 @@ public partial class ProjectionsController
         if (shardName == WellKnownProjectionStateNames.RoadNetworkChangesPbsProjection && Volatile.Read(ref _pbsBackfillRunning) != 0)
         {
             return Conflict($"{shardName} cannot be rebuilt while the backfill of the afgeleide schijnknopen is running; wait until the log says it completed.");
+        }
+
+        if (IsBeingPromoted(shardName))
+        {
+            return Conflict($"{shardName} cannot be rebuilt while its shadow read model is being promoted.");
         }
 
         if (daemon.StatusFor(shardName) == AgentStatus.Running)
