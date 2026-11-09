@@ -6,11 +6,8 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 
 public class InwinningUploadDurationWarningTests
 {
-    private static readonly InwinningUploadDescription Upload = new(
-        new DownloadId(Guid.Parse("8b6a5f4e-0c1d-4c4f-9d43-0a1b2c3d4e5f")),
-        new UploadId(Guid.Parse("1f2e3d4c-5b6a-4978-8a9b-0c1d2e3f4a5b")),
-        "44021",
-        "Inwinning Gent");
+    private static readonly DownloadId DownloadId = new(Guid.Parse("8b6a5f4e-0c1d-4c4f-9d43-0a1b2c3d4e5f"));
+    private static readonly UploadId UploadId = new(Guid.Parse("1f2e3d4c-5b6a-4978-8a9b-0c1d2e3f4a5b"));
 
     [Fact]
     public void WhenStillRunning_ThenAWarningIsLoggedAsErrorAt8And9And10Minutes()
@@ -18,7 +15,7 @@ public class InwinningUploadDurationWarningTests
         var timeProvider = new ManualTimeProvider();
         var logger = new CapturingLogger();
 
-        using var warning = new InwinningUploadDurationWarning(logger, "UploadInwinningExtract", Upload, timeProvider);
+        using var warning = new InwinningUploadDurationWarning(logger, "UploadInwinningExtract", DownloadId, UploadId, "44021", timeProvider);
 
         timeProvider.Advance(TimeSpan.FromMinutes(7) + TimeSpan.FromSeconds(59));
         logger.Entries.Should().BeEmpty();
@@ -31,9 +28,9 @@ public class InwinningUploadDurationWarningTests
         logger.Entries.Should().HaveCount(3);
         logger.Entries.Should().OnlyContain(x => x.Level == LogLevel.Error);
         logger.Entries.Select(x => x.Message).Should().Equal(
-            "Warning: UploadInwinningExtract is na 8 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021, Beschrijving Inwinning Gent",
-            "Warning: UploadInwinningExtract is na 9 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021, Beschrijving Inwinning Gent",
-            "Warning: UploadInwinningExtract is na 10 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021, Beschrijving Inwinning Gent");
+            "Warning: UploadInwinningExtract is na 8 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021",
+            "Warning: UploadInwinningExtract is na 9 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021",
+            "Warning: UploadInwinningExtract is na 10 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021");
     }
 
     [Fact]
@@ -42,7 +39,7 @@ public class InwinningUploadDurationWarningTests
         var timeProvider = new ManualTimeProvider();
         var logger = new CapturingLogger();
 
-        var warning = new InwinningUploadDurationWarning(logger, "UploadInwinningExtract", Upload, timeProvider);
+        var warning = new InwinningUploadDurationWarning(logger, "UploadInwinningExtract", DownloadId, UploadId, "44021", timeProvider);
         timeProvider.Advance(TimeSpan.FromMinutes(7));
         warning.Dispose();
 
@@ -57,13 +54,26 @@ public class InwinningUploadDurationWarningTests
         var timeProvider = new ManualTimeProvider();
         var logger = new CapturingLogger();
 
-        var warning = new InwinningUploadDurationWarning(logger, "UploadInwinningExtract", Upload, timeProvider);
+        var warning = new InwinningUploadDurationWarning(logger, "UploadInwinningExtract", DownloadId, UploadId, "44021", timeProvider);
         timeProvider.Advance(TimeSpan.FromMinutes(8.5));
         warning.Dispose();
 
         timeProvider.Advance(TimeSpan.FromMinutes(10));
 
         logger.Entries.Should().ContainSingle().Which.Message.Should().Contain("na 8 minuten");
+    }
+
+    [Fact]
+    public void WhenThereIsNoNisCode_ThenTheDownloadIdIdentifiesTheExtract()
+    {
+        var timeProvider = new ManualTimeProvider();
+        var logger = new CapturingLogger();
+
+        using var warning = new InwinningUploadDurationWarning(logger, "MigrateDryRunRoadNetwork", DownloadId, UploadId, timeProvider: timeProvider);
+        timeProvider.Advance(TimeSpan.FromMinutes(8));
+
+        logger.Entries.Should().ContainSingle().Which.Message.Should().Be(
+            "Warning: MigrateDryRunRoadNetwork is na 8 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b");
     }
 
     private sealed class CapturingLogger : ILogger
