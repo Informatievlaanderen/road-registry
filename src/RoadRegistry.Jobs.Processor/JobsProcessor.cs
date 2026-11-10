@@ -339,24 +339,6 @@ namespace RoadRegistry.Jobs.Processor
                         _logger.LogError("Malware found in blob '{Blob}' for download id '{DownloadId}'.", blob.Name, extractDownload.DownloadId.ToString("N"));
                     }
 
-                    if (extractDownload.ZipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2)
-                    {
-                        var extractRequest = await _extractsDbContext.ExtractRequests
-                            .SingleAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId, cancellationToken);
-
-                        await RegisterUpload(extractDownload, uploadId, job.TicketId, cancellationToken);
-
-                        return new UploadExtractSqsRequestV2
-                        {
-                            TicketId = job.TicketId,
-                            DownloadId = new DownloadId(job.DownloadId.Value),
-                            UploadId = uploadId,
-                            ExtractRequestId = extractRequestId,
-                            SendFailedEmail = extractRequest.ExternalRequestId is not null,
-                            ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description)
-                        };
-                    }
-
                     return new UploadExtractSqsRequest
                     {
                         TicketId = job.TicketId,
@@ -382,11 +364,10 @@ namespace RoadRegistry.Jobs.Processor
                         ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description),
                     };
                 }
-                // A bijhouding delivery is processed by the same handler as an ExtractsV2 one - it reads the archive
-                // with the DomainV2 feature compare and turns it into a change to the road network. What it does not
-                // share is the trimming below: a bijhouding archive is built by the DomainV2 writers, so whatever the
-                // bijwerker added next to those files is dropped before the delivery is looked at.
-                case UploadType.DomainV2_Bijhouding:
+                // A delivery for an extract in the hernieuwde datamodel: read with the DomainV2 feature compare and
+                // turned into a change to the road network. The archive is built by the DomainV2 writers, so whatever
+                // the bijwerker added next to those files is dropped before the delivery is looked at.
+                case UploadType.DomainV2:
                 {
                     var (uploadId, extractDownload, extractRequest) = await StashDomainV2Upload(job, blob, writeableBlobStream, cancellationToken);
 

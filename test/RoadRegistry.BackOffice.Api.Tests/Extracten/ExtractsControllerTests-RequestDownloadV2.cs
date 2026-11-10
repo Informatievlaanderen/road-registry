@@ -35,7 +35,7 @@ public partial class ExtractsControllerTests
             new ExtractDownloadaanvraagPerContourBodyValidator());
 
         Assert.IsType<AcceptedResult>(result);
-        sentRequest.Value!.ZipArchiveWriterVersion.Should().Be(WellKnownZipArchiveWriterVersions.DomainV2_Bijhouding);
+        sentRequest.Value!.ZipArchiveWriterVersion.Should().Be(WellKnownZipArchiveWriterVersions.DomainV2);
         sentRequest.Value.Contour.SRID.Should().Be(WellknownSrids.Lambert08);
     }
 
@@ -62,7 +62,7 @@ public partial class ExtractsControllerTests
             reader.Object);
 
         Assert.IsType<AcceptedResult>(result);
-        sentRequest.Value!.ZipArchiveWriterVersion.Should().Be(WellKnownZipArchiveWriterVersions.DomainV2_Bijhouding);
+        sentRequest.Value!.ZipArchiveWriterVersion.Should().Be(WellKnownZipArchiveWriterVersions.DomainV2);
         reader.Verify(x => x.Read(It.IsAny<Stream>(), It.Is<GeometryFactory>(factory => factory.SRID == WellknownSrids.Lambert08)));
     }
 

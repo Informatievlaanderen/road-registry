@@ -53,7 +53,7 @@ namespace RoadRegistry.BackOffice.Abstractions.Jobs
         {
             return new GetPresignedUploadUrlRequest
             {
-                UploadType = UploadType.DomainV2_Bijhouding,
+                UploadType = UploadType.DomainV2,
                 DownloadId = downloadId
             };
         }
@@ -65,6 +65,6 @@ namespace RoadRegistry.BackOffice.Abstractions.Jobs
         Extracts,
         ExtractsV2,
         Inwinning,
-        DomainV2_Bijhouding
+        DomainV2
     }
 }

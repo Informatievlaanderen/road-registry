@@ -129,7 +129,7 @@ public class EditableRoadSegmentsTests
             new ExtractDescription("GAWR-7796"),
             contour,
             isInformative: false,
-            zipArchiveWriterVersion: WellKnownZipArchiveWriterVersions.DomainV2_Bijhouding);
+            zipArchiveWriterVersion: WellKnownZipArchiveWriterVersions.DomainV2);
         var context = new ZipArchiveWriteContext();
 
         using var stream = new MemoryStream();

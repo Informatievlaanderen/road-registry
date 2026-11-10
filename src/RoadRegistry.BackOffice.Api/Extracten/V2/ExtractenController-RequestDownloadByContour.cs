@@ -52,7 +52,7 @@ public partial class ExtractenController
                 Description = body.Beschrijving,
                 IsInformative = body.Informatief,
                 ExternalRequestId = body.ExterneId,
-                ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV2_Bijhouding
+                ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV2
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));

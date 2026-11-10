@@ -22,7 +22,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
     public partial class JobsProcessorTests
     {
         [Fact]
-        public async Task FlowTest_ExtractsV2WithDomainV2()
+        public async Task FlowTest_DomainV2()
         {
             var fixture = new RoadNetworkTestData().ObjectProvider;
             var mockTicketing = new Mock<ITicketing>();
@@ -34,7 +34,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
             var ticketId = Guid.NewGuid();
             var downloadId = Guid.NewGuid();
 
-            var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.ExtractsV2, ticketId)
+            var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.DomainV2, ticketId)
             {
                 DownloadId = downloadId,
                 OperatorName = fixture.Create<string>().Substring(0, 20)
@@ -119,13 +119,11 @@ namespace RoadRegistry.Jobs.Processor.Tests
             executedRequest.ProvenanceData!.Operator.Should().Be(job.OperatorName);
             createBlobInvocation.Arguments.OfType<BlobName>().Single().ToString().Should().Be(executedRequest.UploadId.ToString());
 
-            AssertUploadIsRegistered(extractsDbContext, downloadId, executedRequest.UploadId, ticketId);
-
             mockIHostApplicationLifeTime.Verify(x => x.StopApplication(), Times.Once);
         }
 
         [Fact]
-        public async Task FlowTest_ExtractsV2WithDomainV2_MissingDownloadId()
+        public async Task FlowTest_DomainV2_MissingDownloadId()
         {
             var mockTicketing = new Mock<ITicketing>();
             var blobClient = new Mock<IBlobClient>();
@@ -135,7 +133,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
 
             var ticketId = Guid.NewGuid();
 
-            var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.ExtractsV2, ticketId)
+            var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.DomainV2, ticketId)
             {
                 DownloadId = null
             };

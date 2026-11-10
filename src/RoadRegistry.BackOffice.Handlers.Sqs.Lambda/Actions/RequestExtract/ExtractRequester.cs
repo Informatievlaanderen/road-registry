@@ -139,7 +139,6 @@ public class ExtractRequester
         var extractGeometry = contour.ToMultiPolygon().ToExtractGeometry();
         return (IPolygonal)(extractDownload.ZipArchiveWriterVersion is WellKnownZipArchiveWriterVersions.DomainV2
                 or WellKnownZipArchiveWriterVersions.DomainV2_Inwinning
-                or WellKnownZipArchiveWriterVersions.DomainV2_Bijhouding
             ? extractGeometry.EnsureLambert08()
             : extractGeometry.EnsureLambert72()).Value;
     }

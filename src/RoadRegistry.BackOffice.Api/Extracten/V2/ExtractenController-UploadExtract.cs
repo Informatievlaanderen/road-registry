@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Abstractions.Jobs;
 using RoadRegistry.BackOffice.Api.Infrastructure;
+using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
 using Swashbuckle.AspNetCore.Annotations;
 using Version = Infrastructure.Version;
@@ -51,6 +52,20 @@ public partial class ExtractenController
                     PropertyName = string.Empty,
                     ErrorCode = "ExtractGesloten",
                     ErrorMessage = "Het extract is gesloten.",
+                }
+            ]);
+        }
+
+        // Only an extract this version handed out can come back through it: anything else would be read with the
+        // feature compare of the hernieuwde datamodel without having been written in it.
+        if (extractDownload.ZipArchiveWriterVersion != WellKnownZipArchiveWriterVersions.DomainV2)
+        {
+            throw new ValidationException([
+                new ValidationFailure
+                {
+                    PropertyName = string.Empty,
+                    ErrorCode = "ExtractDatamodelOngeldig",
+                    ErrorMessage = "Dit extract werd niet via deze versie aangemaakt en kan er dus ook niet via opgeladen worden.",
                 }
             ]);
         }

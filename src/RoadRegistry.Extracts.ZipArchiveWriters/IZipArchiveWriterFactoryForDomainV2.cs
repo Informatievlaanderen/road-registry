@@ -27,12 +27,7 @@ public class ZipArchiveWriterFactoryForDomainV2 : IZipArchiveWriterFactoryForDom
             return _inwinning ?? throw new NotSupportedException();
         }
 
-        // DomainV2 is what the v1 downloadaanvragen ask for while the UseDomainV2 feature toggle is on, and what
-        // extract downloads requested that way carry in the database. It means the same thing as DomainV2_Bijhouding -
-        // an extract in the hernieuwde datamodel - and there is no other writer that builds one, so it lands here too
-        // rather than on the NotSupportedException it used to get.
-        if (zipArchiveWriterVersion is WellKnownZipArchiveWriterVersions.DomainV2
-            or WellKnownZipArchiveWriterVersions.DomainV2_Bijhouding)
+        if (zipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2)
         {
             return _bijhouding ?? throw new NotSupportedException();
         }
