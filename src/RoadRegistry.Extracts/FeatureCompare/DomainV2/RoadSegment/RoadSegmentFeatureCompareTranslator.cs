@@ -333,7 +333,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             changeFeatureAttributes.OnlyChangedAttributes(extractFeature, extractFeature.Geometry),
                             changeFeature.FlatFeatures,
                             extractFeature.RoadSegmentId,
-                            RecordType.Modified)
+                            RecordType.Modified,
+                            deliveredAttributes: changeFeatureAttributes)
                         {
                             GeometryChanged = true
                         });
@@ -354,7 +355,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         changeFeatureAttributes.OnlyChangedAttributes(extractFeature, extractFeature.Geometry),
                         changeFeature.FlatFeatures,
                         extractFeature.RoadSegmentId,
-                        RecordType.Modified)
+                        RecordType.Modified,
+                        deliveredAttributes: changeFeatureAttributes)
                     {
                         GeometryChanged = !identicalGeometries.Any()
                     });
@@ -589,9 +591,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
                 foreach (var matchedFeature in matchingFeaturesSortedByOverlapPercentage.Skip(1))
                 {
-                    matchedFeature.RoadSegmentId = roadSegmentIdProvider.NewId();
-                    matchedFeature.RecordType = RecordType.Added;
-                    matchedFeature.GeometryChanged = false;
+                    matchedFeature.BecomeAdded(roadSegmentIdProvider.NewId());
                 }
             }
         }
