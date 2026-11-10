@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using FluentValidation;
@@ -64,6 +65,9 @@ public partial class ExtractenController
             //
             // Only the geometry is checked, not its size: the contours arriving here go well past the limit the WKT
             // contour is held to, so applying it would turn away the very requests this endpoint exists for.
+            //
+            // Checked as it was read, before the reference system is changed, so a contour that was already broken is
+            // not reported as something the conversion did.
             if (!new ExtractContourValidator().IsValidGeometry(contour))
             {
                 throw new ValidationException([new ValidationFailure
@@ -72,6 +76,8 @@ public partial class ExtractenController
                     ErrorCode = ProblemCode.Extract.ContourInvalid
                 }]);
             }
+
+            contour = contour.EnsureLambert08();
 
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());

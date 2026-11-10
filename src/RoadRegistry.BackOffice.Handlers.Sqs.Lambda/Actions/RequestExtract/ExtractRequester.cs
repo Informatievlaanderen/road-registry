@@ -125,9 +125,9 @@ public class ExtractRequester
         }
     }
 
-    // A v1 extract keeps its contour in Lambert 72, one in the hernieuwde datamodel in Lambert 2008, so neither is
+    // Contours are written in Lambert 2008 from now on, but rows predating that are still in Lambert 72, so neither is
     // assumed: the DomainV2 writers read data that is in Lambert 2008, the V1 ones go looking in Lambert 72. A contour
-    // in neither reference system is handed over as it is.
+    // in neither reference system is handed over as it is, the way it was before any of this converting started.
     private static IPolygonal ContourFor(ExtractDownload extractDownload)
     {
         var contour = extractDownload.Contour;

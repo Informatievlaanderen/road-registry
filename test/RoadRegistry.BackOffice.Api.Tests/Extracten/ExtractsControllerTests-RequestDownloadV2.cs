@@ -18,7 +18,8 @@ using NetTopologySuite.IO;
 using RoadRegistry.Extracts;
 
 // The endpoints serving the renewed data model. What sets them apart from their v1 counterparts is the archive they
-// ask for and the reference system the contour is stored in: Lambert 2008 here, Lambert 72 for v1.
+// ask for and the reference system the contour is stored in: contours become Lambert 2008 from here on, and the v1
+// endpoints convert back to Lambert 72 when they go looking for their data.
 public partial class ExtractsControllerTests
 {
     private const string ContourInLambert72 = "MULTIPOLYGON (((155000 210000, 155000 211000, 156000 211000, 156000 210000, 155000 210000)))";
