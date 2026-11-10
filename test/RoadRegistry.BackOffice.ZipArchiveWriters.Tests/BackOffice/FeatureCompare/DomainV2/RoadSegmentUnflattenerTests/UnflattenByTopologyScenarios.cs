@@ -1080,7 +1080,6 @@ POINT (60 -10)
             flatRecords,
             overrideStructuralNodeLocations ?? [],
             roadSegmentIdProvider,
-            new OgcFeaturesCache([]),
             translateContext,
             CancellationToken.None);
 

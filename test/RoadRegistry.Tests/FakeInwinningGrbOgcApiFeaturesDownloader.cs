@@ -3,7 +3,7 @@
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.FeatureCompare.Inwinning.RoadSegment;
 
-// The inwinning counterpart of FakeGrbOgcApiFeaturesDownloader. It goes away with the inwinning feature compare suite.
+// Stands in for the GRB OGC API the inwinning consults. It goes away with the inwinning feature compare suite.
 public class FakeInwinningGrbOgcApiFeaturesDownloader : IGrbOgcApiFeaturesDownloader
 {
     private readonly List<Geometry> _geometries;

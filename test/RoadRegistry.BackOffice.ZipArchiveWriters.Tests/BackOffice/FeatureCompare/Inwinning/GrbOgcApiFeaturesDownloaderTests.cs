@@ -1,9 +1,9 @@
-﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2;
+﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.Inwinning;
 
 using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using FluentAssertions;
 using NetTopologySuite.IO;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning.RoadSegment;
 using RoadRegistry.Infrastructure;
 
 public class GrbOgcApiFeaturesDownloaderTests

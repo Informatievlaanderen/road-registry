@@ -1,11 +1,11 @@
-﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.DomainV2;
+﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.Inwinning;
 
 using AutoFixture;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.Extensions;
-using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
+using RoadRegistry.Extracts.FeatureCompare.Inwinning.RoadSegment;
 
 public class OgcFeaturesCacheTests
 {

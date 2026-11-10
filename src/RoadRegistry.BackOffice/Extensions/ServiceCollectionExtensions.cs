@@ -280,18 +280,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddFeatureCompareDomainV2(this IServiceCollection services)
     {
-        services
-            .AddHttpClient(nameof(GrbOgcApiFeaturesDownloader));
-
         return services
-            .AddSingleton<IGrbOgcApiFeaturesDownloader>(sp =>
-            {
-                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-                var client = httpClientFactory.CreateClient(nameof(GrbOgcApiFeaturesDownloader));
-                var baseUrl = $"{sp.GetRequiredService<IConfiguration>().GetValue<string>("GrbOgcApiUrl")?.TrimEnd('/')}/features/v1";
-                return new GrbOgcApiFeaturesDownloader(client, baseUrl);
-            })
-
             .AddSingleton<TransactionZoneFeatureCompareFeatureReader>()
             .AddSingleton<RoadNodeFeatureCompareFeatureReader>()
             .AddSingleton<RoadSegmentFeatureCompareFeatureReader>()
@@ -316,11 +305,14 @@ public static class ServiceCollectionExtensions
     // with it. Until then it keeps its own copy of the suite so the recurrent bijhouding flow can evolve freely.
     private static IServiceCollection AddFeatureCompareInwinning(this IServiceCollection services)
     {
+        services
+            .AddHttpClient(nameof(InwinningFeatureCompare.RoadSegment.GrbOgcApiFeaturesDownloader));
+
         return services
             .AddSingleton<InwinningFeatureCompare.RoadSegment.IGrbOgcApiFeaturesDownloader>(sp =>
             {
                 var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-                var client = httpClientFactory.CreateClient(nameof(GrbOgcApiFeaturesDownloader));
+                var client = httpClientFactory.CreateClient(nameof(InwinningFeatureCompare.RoadSegment.GrbOgcApiFeaturesDownloader));
                 var baseUrl = $"{sp.GetRequiredService<IConfiguration>().GetValue<string>("GrbOgcApiUrl")?.TrimEnd('/')}/features/v1";
                 return new InwinningFeatureCompare.RoadSegment.GrbOgcApiFeaturesDownloader(client, baseUrl);
             })

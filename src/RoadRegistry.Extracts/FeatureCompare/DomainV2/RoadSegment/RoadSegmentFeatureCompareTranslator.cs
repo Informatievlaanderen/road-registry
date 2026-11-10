@@ -46,7 +46,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         var (extractFeatures, changeFeatures, integrationFeatures, problems) = ReadExtractAndChangeAndIntegrationFeatures(context.Archive, context);
         problems.ThrowIfError();
 
-        var dynamicIntegrationFeatures = RoadSegmentUnflattener.UnflattenByRoadSegmentId(integrationFeatures, new OgcFeaturesCache([]), context, _logger);
+        var dynamicIntegrationFeatures = RoadSegmentUnflattener.UnflattenByRoadSegmentId(integrationFeatures, context, _logger);
         context.AddRoadSegmentRecords(dynamicIntegrationFeatures
             .Select(feature =>
                 new RoadSegmentFeatureCompareRecord(
@@ -72,17 +72,14 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             .Select(x => x.Attributes.RoadSegmentId!.Value)
             .DefaultIfEmpty(new RoadSegmentId(0))
             .Max();
-        // Empty, always: the GRB features are consulted to work out a geometry method for segments that were
-        // collected without one, which is an inwinning concern. A delivery through this flow states its own METHODE.
-        var ogcFeaturesCache = new OgcFeaturesCache([]);
-        var dynamicExtractFeatures = RoadSegmentUnflattener.UnflattenByRoadSegmentId(extractFeatures,  ogcFeaturesCache, context, _logger);
+        var dynamicExtractFeatures = RoadSegmentUnflattener.UnflattenByRoadSegmentId(extractFeatures, context, _logger);
 
         var streetNameContext = await _streetNameContextFactory.Create(changeFeatures, cancellationToken);
         (changeFeatures, var validateProblems) = await ValidateStreetNameAndFixMaintenanceAuthority(changeFeatures, streetNameContext, context, cancellationToken);
         problems += validateProblems;
 
         var roadSegmentIdProvider = new NextRoadSegmentIdProvider(maxUsedRoadSegmentId);
-        var dynamicChangeFeatures = RoadSegmentUnflattener.UnflattenByTopology(FeatureType.Change, changeFeatures, integrationNodeLocations, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken, _logger);
+        var dynamicChangeFeatures = RoadSegmentUnflattener.UnflattenByTopology(FeatureType.Change, changeFeatures, integrationNodeLocations, roadSegmentIdProvider, context, cancellationToken, _logger);
         problems += dynamicChangeFeatures.Problems;
         problems += ValidateChangeFeaturesAreWithinTransactionZone(dynamicChangeFeatures.RoadSegments, context);
         problems.ThrowIfError();

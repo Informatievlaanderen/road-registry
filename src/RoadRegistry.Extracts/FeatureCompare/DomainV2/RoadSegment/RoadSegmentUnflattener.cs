@@ -32,12 +32,11 @@ public class RoadSegmentUnflattener
 
     public static List<RoadSegmentFeatureWithDynamicAttributes> UnflattenByRoadSegmentId(
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
-        OgcFeaturesCache ogcFeaturesCache,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         ILogger? logger = null)
     {
         return new RoadSegmentUnflattener(logger ?? NullLogger.Instance)
-            .UnflattenRoadSegmentsByRoadSegmentId(records, ogcFeaturesCache, context);
+            .UnflattenRoadSegmentsByRoadSegmentId(records, context);
     }
 
     public static UnflattenRoadSegmentsResult UnflattenByTopology(
@@ -45,18 +44,16 @@ public class RoadSegmentUnflattener
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
         IReadOnlyCollection<Point> overrideStructuralNodeLocations,
         IRoadSegmentIdProvider roadSegmentIdProvider,
-        OgcFeaturesCache ogcFeaturesCache,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken,
         ILogger? logger = null)
     {
         return new RoadSegmentUnflattener(logger ?? NullLogger.Instance)
-            .UnflattenRoadSegmentsByTopology(featureType, records, overrideStructuralNodeLocations, roadSegmentIdProvider, ogcFeaturesCache, context, cancellationToken);
+            .UnflattenRoadSegmentsByTopology(featureType, records, overrideStructuralNodeLocations, roadSegmentIdProvider, context, cancellationToken);
     }
 
     private List<RoadSegmentFeatureWithDynamicAttributes> UnflattenRoadSegmentsByRoadSegmentId(
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
-        OgcFeaturesCache ogcFeaturesCache,
         ZipArchiveEntryFeatureCompareTranslateContext context)
     {
         using var _ = _logger.TimeAction();
@@ -69,7 +66,7 @@ public class RoadSegmentUnflattener
             {
                 var segments = flatSegments.OrderBy(x => x.Attributes.TempId.ToInt32()).ToList();
 
-                return BuildFeatureWithDynamicAttributes(segments, null, ogcFeaturesCache, context.Tolerances);
+                return BuildFeatureWithDynamicAttributes(segments, null, context.Tolerances);
             })
             .ToList();
 
@@ -80,7 +77,6 @@ public class RoadSegmentUnflattener
         IReadOnlyCollection<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> records,
         IReadOnlyCollection<Point> overrideStructuralNodeLocations,
         IRoadSegmentIdProvider roadSegmentIdProvider,
-        OgcFeaturesCache ogcFeaturesCache,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
@@ -95,7 +91,7 @@ public class RoadSegmentUnflattener
         var structuralNodes = ClassifyStructuralNodes(featureType, segmentsByNode, overrideStructuralNodeLocations, context, cancellationToken);
 
         // Step 3: Merge ALL segments connected by nodes that aren't Eindknoop/EchteKnoop/Grensknoop
-        var mergedResult = MergeSegmentsAtNonStructuralNodes(featureType, records, roadSegmentIdProvider, segmentsByNode, structuralNodes, context.Tolerances, ogcFeaturesCache, cancellationToken);
+        var mergedResult = MergeSegmentsAtNonStructuralNodes(featureType, records, roadSegmentIdProvider, segmentsByNode, structuralNodes, context.Tolerances, cancellationToken);
         problems += mergedResult.Problems;
 
         // Step 4: Detect invalid geometry conditions and insert Validatieknopen where needed
@@ -305,7 +301,6 @@ public class RoadSegmentUnflattener
         Dictionary<(RoadNodeId, Point), List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>>> segmentsByNode,
         Dictionary<RoadNodeId, RoadNodeTypeV2> structuralNodes,
         VerificationContextTolerances tolerances,
-        OgcFeaturesCache ogcFeaturesCache,
         CancellationToken cancellationToken)
     {
         using var _ = _logger.TimeAction();
@@ -356,7 +351,7 @@ public class RoadSegmentUnflattener
                         var segmentChain = BuildSegmentChain(featureType, record, segmentsByNode, segmentEndpoints, structuralNodes, componentProcessedSegments, componentConsumedNodes, tolerances);
                         componentProblems += segmentChain.Problems;
 
-                        var dynamicRecord = BuildFeatureWithDynamicAttributes(segmentChain.FlatRoadSegments, roadSegmentIdProvider, ogcFeaturesCache, tolerances);
+                        var dynamicRecord = BuildFeatureWithDynamicAttributes(segmentChain.FlatRoadSegments, roadSegmentIdProvider, tolerances);
                         componentResult.Add(dynamicRecord);
                     }
                     catch (ZipArchiveValidationException ex)
@@ -611,7 +606,6 @@ public class RoadSegmentUnflattener
     private RoadSegmentFeatureWithDynamicAttributes BuildFeatureWithDynamicAttributes(
         List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> segments,
         IRoadSegmentIdProvider? roadSegmentIdProvider,
-        OgcFeaturesCache ogcFeaturesCache,
         VerificationContextTolerances tolerances)
     {
         var longestSegment = segments.MaxBy(x => x.Attributes.Geometry.Length)!;
@@ -624,8 +618,10 @@ public class RoadSegmentUnflattener
             : segments.Single().Attributes.Geometry;
 
         var status = segments.Select(x => x.Attributes.Status).Distinct().Single();
-        var methodFromSegments = RoadSegmentGeometryHelper.DetermineMethod(segments.Select(x => (x.Attributes.Geometry, x.Attributes.Method)).ToArray(), mergedGeometry);
-        var method = DetermineMethodFromOgcOverlap(methodFromSegments, status, mergedGeometry, ogcFeaturesCache);
+        // Every road segment in a bijhouding delivery states its METHODE - the reader refuses one that does not - so the
+        // merged road always has one to derive. Unlike the inwinning, nothing here falls back on the GRB to guess it.
+        var method = RoadSegmentGeometryHelper.DetermineMethod(segments.Select(x => (x.Attributes.Geometry, x.Attributes.Method)).ToArray(), mergedGeometry)
+                     ?? throw new InvalidOperationException("A road segment in a bijhouding delivery reached the unflattener without a METHODE.");
         var dynamicAttributes = RoadSegmentFeatureCompareWithDynamicAttributes.Build(
             longestSegment.Attributes.RoadSegmentId ?? (roadSegmentIdProvider ?? throw new ArgumentNullException(nameof(roadSegmentIdProvider))).NewId(),
             mergedGeometry,
@@ -727,22 +723,6 @@ public class RoadSegmentUnflattener
         }
 
         return ls.Factory.CreateLineString(coords).ToMultiLineString();
-    }
-
-    private RoadSegmentGeometryDrawMethodV2 DetermineMethodFromOgcOverlap(RoadSegmentGeometryDrawMethodV2? method, RoadSegmentStatusV2 status, MultiLineString geometry, OgcFeaturesCache ogcFeaturesCache)
-    {
-        if (method is not null)
-        {
-            return method;
-        }
-
-        if (status == RoadSegmentStatusV2.Gepland
-            || !ogcFeaturesCache.HasOverlapWithFeatures(geometry, RoadSegmentConstants.MinimumPercentageForIngemeten))
-        {
-            return RoadSegmentGeometryDrawMethodV2.Ingeschetst;
-        }
-
-        return RoadSegmentGeometryDrawMethodV2.Ingemeten;
     }
 
     private List<RoadSegmentFeatureWithDynamicAttributes> DetectAndFixInvalidGeometries(

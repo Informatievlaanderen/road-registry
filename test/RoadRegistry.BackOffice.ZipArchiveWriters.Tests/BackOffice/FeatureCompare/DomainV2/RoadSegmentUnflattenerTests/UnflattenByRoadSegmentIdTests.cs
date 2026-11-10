@@ -81,7 +81,6 @@ public class UnflattenByRoadSegmentIdTests
 
         var unflattenedRecords = RoadSegmentUnflattener.UnflattenByRoadSegmentId(
             flatRecords,
-            new OgcFeaturesCache([]),
             translateContext);
 
         TestOutputHelper.WriteLine(string.Empty);
