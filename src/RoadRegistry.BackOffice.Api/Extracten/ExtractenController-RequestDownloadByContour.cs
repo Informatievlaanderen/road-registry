@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
-using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using FluentValidation;
@@ -49,9 +48,7 @@ public partial class ExtractenController
 
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(body.ExterneId ?? Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
-            // Stored in Lambert 2008 whichever datamodel the extract itself is in; the v1 assembler puts it back
-            // into Lambert 72 when it goes looking for the data.
-            var contour = new WKTReader().Read(body.Contour).ToMultiPolygon().EnsureLambert08();
+            var contour = new WKTReader().Read(body.Contour).ToMultiPolygon();
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {

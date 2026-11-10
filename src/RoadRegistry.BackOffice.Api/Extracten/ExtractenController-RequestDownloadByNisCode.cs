@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
-using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using FluentValidation;
@@ -64,7 +63,7 @@ public partial class ExtractenController
 
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
-            var contour = municipality.Geometry.ToMultiPolygon().EnsureLambert08();
+            var contour = municipality.Geometry.ToMultiPolygon();
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {

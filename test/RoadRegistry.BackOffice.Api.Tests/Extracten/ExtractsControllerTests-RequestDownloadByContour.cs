@@ -49,6 +49,22 @@ public partial class ExtractsControllerTests
 
         await act.Should().ThrowAsync<ValidationException>();
     }
+
+    // A v1 extract keeps its contour in Lambert 72, the reference system the v1 endpoints work in: it is stored as it
+    // came in, not converted to Lambert 2008 the way the v2 endpoints store theirs.
+    [Fact]
+    public async Task WhenRequestExtractByContour_ThenTheContourIsStoredAsItCameIn()
+    {
+        var sentRequest = CaptureRequestExtract();
+
+        await Controller.ExtractDownloadaanvraagPerContour(
+            new ExtractDownloadaanvraagPerContourBody(ContourInLambert72, Fixture.Create<string>(), true, null),
+            new ExtractDownloadaanvraagPerContourBodyValidator());
+
+        sentRequest.Value!.ZipArchiveWriterVersion.Should().Be(RoadRegistry.Extracts.WellKnownZipArchiveWriterVersions.DomainV1_2);
+        sentRequest.Value.Contour.SRID.Should().NotBe(WellknownSrids.Lambert08);
+        sentRequest.Value.Contour.Value.EqualsExact(new NetTopologySuite.IO.WKTReader().Read(ContourInLambert72)).Should().BeTrue();
+    }
 }
 
 public class ExtractDownloadaanvraagPerContourBodyValidatorTests
