@@ -76,6 +76,91 @@ public class WhenGetDownloadUploadPresignedUrlRequest
     }
 
     [Fact]
+    public async Task WithValidRequest_ThenFileNameContainsDownloadIdAndUploadDateInBrusselsTime()
+    {
+        var downloadId = _fixture.Create<DownloadId>();
+        var uploadId = Guid.NewGuid();
+        var request = new GetDownloadUploadPresignedUrlRequest(downloadId);
+
+        var extractsDbContext = _dbContextBuilder.CreateExtractsDbContext();
+        extractsDbContext.ExtractDownloads.Add(new ExtractDownload
+        {
+            DownloadId = downloadId,
+            Contour = Polygon.Empty,
+            ExtractRequestId = _fixture.Create<ExtractRequestId>(),
+            Status = ExtractDownloadStatus.Available,
+            LatestUploadId = uploadId
+        });
+        extractsDbContext.ExtractUploads.Add(new ExtractUpload
+        {
+            UploadId = uploadId,
+            DownloadId = downloadId,
+            // 14:05 in Brussels (summer time), in the afternoon to make sure the hour is written in 24-hour notation
+            UploadedOn = new DateTimeOffset(2026, 7, 15, 12, 5, 0, TimeSpan.Zero),
+            Status = ExtractUploadStatus.Processing,
+            TicketId = Guid.NewGuid()
+        });
+        await extractsDbContext.SaveChangesAsync();
+
+        var downloadFileUrlPresigner = BuildPresignerReturningGivenFileName();
+
+        var handler = BuildHandler(extractsDbContext, BuildExistingBlobClient(), downloadFileUrlPresigner);
+
+        // Act
+        var response = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        response.FileName.Should().Be($"{downloadId.ToGuid():N}_upload_202607151405.zip");
+    }
+
+    [Fact]
+    public async Task GivenNoExtractUploadForLatestUploadId_ThenFileNameWithoutUploadDate()
+    {
+        var downloadId = _fixture.Create<DownloadId>();
+        var request = new GetDownloadUploadPresignedUrlRequest(downloadId);
+
+        var extractsDbContext = _dbContextBuilder.CreateExtractsDbContext();
+        extractsDbContext.ExtractDownloads.Add(new ExtractDownload
+        {
+            DownloadId = downloadId,
+            Contour = Polygon.Empty,
+            ExtractRequestId = _fixture.Create<ExtractRequestId>(),
+            Status = ExtractDownloadStatus.Available,
+            LatestUploadId = Guid.NewGuid()
+        });
+        await extractsDbContext.SaveChangesAsync();
+
+        var downloadFileUrlPresigner = BuildPresignerReturningGivenFileName();
+
+        var handler = BuildHandler(extractsDbContext, BuildExistingBlobClient(), downloadFileUrlPresigner);
+
+        // Act
+        var response = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        response.FileName.Should().Be($"{downloadId.ToGuid():N}_upload.zip");
+    }
+
+    private static IBlobClient BuildExistingBlobClient()
+    {
+        var blobClient = new Mock<IBlobClient>();
+        blobClient
+            .Setup(x => x.BlobExistsAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        return blobClient.Object;
+    }
+
+    private IDownloadFileUrlPresigner BuildPresignerReturningGivenFileName()
+    {
+        var presignedUrl = _fixture.Create<Uri>();
+        var downloadFileUrlPresigner = new Mock<IDownloadFileUrlPresigner>();
+        downloadFileUrlPresigner
+            .Setup(x => x.CreatePresignedDownloadUrl(It.IsAny<string>(), It.IsAny<BlobName>(), It.IsAny<string>()))
+            .ReturnsAsync((string _, BlobName _, string fileName) => new CreatePresignedGetResponse(presignedUrl, fileName));
+        return downloadFileUrlPresigner.Object;
+    }
+
+    [Fact]
     public async Task GivenExtractNotFound_ThenException()
     {
         var downloadId = _fixture.Create<DownloadId>();

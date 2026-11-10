@@ -1,17 +1,19 @@
 namespace RoadRegistry.BackOffice.Api.Handlers.Extracts;
 
-using System.Linq;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NodaTime;
 using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
 
 public class GetDownloadUploadPresignedUrlRequestHandler : EndpointRequestHandler<GetDownloadUploadPresignedUrlRequest, GetDownloadUploadPresignedUrlResponse>
@@ -55,13 +57,14 @@ public class GetDownloadUploadPresignedUrlRequestHandler : EndpointRequestHandle
             throw new BlobNotFoundException(blobName);
         }
 
-        var blob = await _client.GetBlobAsync(blobName, cancellationToken);
-
-        var fileName = blob.Metadata
-            .Where(pair => pair.Key == new MetadataKey(WellKnownBlobMetadataKeys.FileName))
-            .Select(x => x.Value)
-            .SingleOrDefault()
-            ?? $"{uploadId}.zip";
+        // The file name the uploader gave is not kept reliably: often it is just a guid, without the .zip extension.
+        // The name is therefore built from the download and the moment of the upload, in the time zone of the portal.
+        var upload = await _extractsDbContext.ExtractUploads
+            .SingleOrDefaultAsync(x => x.UploadId == uploadId.ToGuid(), cancellationToken);
+        var downloadIdWithoutDashes = request.DownloadId.ToGuid().ToString("N");
+        var fileName = upload is not null
+            ? $"{downloadIdWithoutDashes}_upload_{Instant.FromDateTimeOffset(upload.UploadedOn).ToBrusselsDateTime().ToString("yyyyMMddHHmm", CultureInfo.InvariantCulture)}.zip"
+            : $"{downloadIdWithoutDashes}_upload.zip";
 
         var presignedUrl = await _downloadFileUrlPresigner.CreatePresignedDownloadUrl(WellKnownBuckets.UploadsBucket, blobName, fileName);
 
