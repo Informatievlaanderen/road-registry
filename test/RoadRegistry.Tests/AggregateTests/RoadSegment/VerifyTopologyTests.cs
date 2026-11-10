@@ -11,6 +11,7 @@ using RoadRegistry.Extensions;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ScopedRoadNetwork;
 using ValueObjects.Problems;
 
 public class VerifyTopologyTests : RoadNetworkTestBase
@@ -137,68 +138,90 @@ public class VerifyTopologyTests : RoadNetworkTestBase
         );
     }
 
+    // The inwinning holds a crossing to being a road node or an ongelijkgrondse kruising.
     [Fact]
-    public Task WhenGeometryIntersectsWithOtherGeometryWithoutGradeSeparatedJunction_ThenError()
+    public Task WhenGeometryIntersectsWithOtherGeometryWithoutGradeSeparatedJunction_ThroughMigrate_ThenError()
     {
-        var segment1Start = new Point(0, 0);
-        var segment1End = new Point(10, 0);
-        var segment2Start = new Point(5, 5);
-        var segment2End = new Point(10, -5);
-
-        var segment1Geometry = BuildRoadSegmentGeometry(segment1Start, segment1End);
-        var segment2Geometry = BuildRoadSegmentGeometry(segment2Start, segment2End);
-
-        // Pin overlapping traffic directions so both segments are car-accessible at the intersection.
-        // Otherwise the randomly generated directions sometimes don't overlap, in which case a grade
-        // separated junction is added automatically instead of raising the expected error (flaky test).
-        var carTrafficDirection1 = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>().Add(RoadSegmentTrafficDirection.Both, segment1Geometry);
-        var carTrafficDirection2 = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>().Add(RoadSegmentTrafficDirection.Both, segment2Geometry);
-
         return Run(scenario => scenario
-            .Given(given => given
-                .Add(TestData.AddSegment1StartNode with
-                {
-                    Geometry = segment1Start.ToRoadNodeGeometry()
-                })
-                .Add(TestData.AddSegment1EndNode with
-                {
-                    Geometry = segment1End.ToRoadNodeGeometry()
-                })
-                .Add((TestData.AddSegment1 with
-                {
-                    Geometry = segment1Geometry,
-                    CarTrafficDirection = carTrafficDirection1,
-                    RoadSegmentIdReference = TestData.AddSegment1.RoadSegmentIdReference with
-                    {
-                        TempIds = null
-                    }
-                }).WithDynamicAttributePositionsOnEntireGeometryLength())
-            )
-            .When(changes => changes
-                .Add(TestData.AddSegment2StartNode with
-                {
-                    Geometry = segment2Start.ToRoadNodeGeometry()
-                })
-                .Add(TestData.AddSegment2EndNode with
-                {
-                    Geometry = segment2End.ToRoadNodeGeometry()
-                })
-                .Add((TestData.AddSegment2 with
-                {
-                    Geometry = segment2Geometry,
-                    CarTrafficDirection = carTrafficDirection2,
-                    RoadSegmentIdReference = TestData.AddSegment2.RoadSegmentIdReference with
-                    {
-                        TempIds = [new RoadSegmentTempId(3)]
-                    }
-                }).WithDynamicAttributePositionsOnEntireGeometryLength())
-            )
+            .Given(GivenSegment1CrossedBySegment2)
+            .WhenMigrate(AddSegment2CrossingSegment1)
             .ThenContainsProblems(new Error("IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction",
                 new ProblemParameter("IntersectingWegsegmentId", TestData.Segment1Added.RoadSegmentId.ToString()),
                 new ProblemParameter("WegsegmentId", TestData.AddSegment2.RoadSegmentIdReference.RoadSegmentId.ToString()),
                 new ProblemParameter("WegsegmentTempIds", "3")
             ))
         );
+    }
+
+    // The bijhouding does not: the delivery is neither refused nor flagged for it.
+    [Fact]
+    public Task WhenGeometryIntersectsWithOtherGeometryWithoutGradeSeparatedJunction_ThroughChange_ThenNoProblem()
+    {
+        return Run(scenario => scenario
+            .Given(GivenSegment1CrossedBySegment2)
+            .When(AddSegment2CrossingSegment1)
+            .Then((result, _) =>
+            {
+                result.Problems.Should().NotContain(problem => problem.Reason == "IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction");
+                result.Problems.HasError().Should().BeFalse();
+            })
+        );
+    }
+
+    private static readonly Point CrossingSegment1Start = new(0, 0);
+    private static readonly Point CrossingSegment1End = new(10, 0);
+    private static readonly Point CrossingSegment2Start = new(5, 5);
+    private static readonly Point CrossingSegment2End = new(10, -5);
+
+    // Overlapping traffic directions are pinned so both segments are car-accessible at the intersection. Otherwise
+    // the randomly generated directions sometimes don't overlap, in which case a gelijkgrondse kruising is added
+    // instead of the crossing being checked for an ongelijkgrondse one (flaky test).
+    private RoadNetworkChanges GivenSegment1CrossedBySegment2(RoadNetworkChanges given)
+    {
+        var segment1Geometry = BuildRoadSegmentGeometry(CrossingSegment1Start, CrossingSegment1End);
+
+        return given
+            .Add(TestData.AddSegment1StartNode with
+            {
+                Geometry = CrossingSegment1Start.ToRoadNodeGeometry()
+            })
+            .Add(TestData.AddSegment1EndNode with
+            {
+                Geometry = CrossingSegment1End.ToRoadNodeGeometry()
+            })
+            .Add((TestData.AddSegment1 with
+            {
+                Geometry = segment1Geometry,
+                CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>().Add(RoadSegmentTrafficDirection.Both, segment1Geometry),
+                RoadSegmentIdReference = TestData.AddSegment1.RoadSegmentIdReference with
+                {
+                    TempIds = null
+                }
+            }).WithDynamicAttributePositionsOnEntireGeometryLength());
+    }
+
+    private RoadNetworkChanges AddSegment2CrossingSegment1(RoadNetworkChanges changes)
+    {
+        var segment2Geometry = BuildRoadSegmentGeometry(CrossingSegment2Start, CrossingSegment2End);
+
+        return changes
+            .Add(TestData.AddSegment2StartNode with
+            {
+                Geometry = CrossingSegment2Start.ToRoadNodeGeometry()
+            })
+            .Add(TestData.AddSegment2EndNode with
+            {
+                Geometry = CrossingSegment2End.ToRoadNodeGeometry()
+            })
+            .Add((TestData.AddSegment2 with
+            {
+                Geometry = segment2Geometry,
+                CarTrafficDirection = new RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>().Add(RoadSegmentTrafficDirection.Both, segment2Geometry),
+                RoadSegmentIdReference = TestData.AddSegment2.RoadSegmentIdReference with
+                {
+                    TempIds = [new RoadSegmentTempId(3)]
+                }
+            }).WithDynamicAttributePositionsOnEntireGeometryLength());
     }
 
     [Fact]

@@ -345,8 +345,6 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             .ToList();
     }
 
-    // An unknown traffic type ('-8') counts as allowed here. It is the reading that surfaces the crossing rather than
-    // passing over it in silence, which is what a suspect case is for: the delivery is accepted either way.
     private static bool CarAllowed(IReadOnlyCollection<RoadSegmentFeatureCompareWithFlatAttributes> flatRoadSegments)
     {
         return flatRoadSegments.Any(x => x.CarAccessBackward || x.CarAccessForward);

@@ -33,7 +33,7 @@ public partial class ScopedRoadNetwork
 
         if (!problems.HasError())
         {
-            problems += AfterChangesApplied(idGenerator, context, RoadSegmentMerging.AsInwinning);
+            problems += AfterChangesApplied(idGenerator, context, RoadSegmentMerging.AsInwinning, MissingGradeSeparatedJunction.Error);
         }
 
         if (!problems.HasError())

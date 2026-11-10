@@ -127,7 +127,7 @@ public partial class ScopedRoadNetwork
         ReassignGradeJunctions(roadSegmentId1, result1.FirstPartRoadSegmentId, result1.SecondPartRoadSegmentId, context);
         ReassignGradeJunctions(roadSegmentId2, result2.FirstPartRoadSegmentId, result2.SecondPartRoadSegmentId, context);
 
-        problems += VerifyAndUpdateJunctions(idGenerator, context);
+        problems += VerifyAndUpdateJunctions(idGenerator, context, MissingGradeSeparatedJunction.Error);
         problems.ThrowIfError();
 
         ApplyChangeSummary(context, provenance);
