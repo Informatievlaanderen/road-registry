@@ -102,11 +102,11 @@ public class RoadNetworkTestDataV2
         Fixture.CustomizeExtractGeometry();
 
         Fixture.CustomizeRoadNodeWasAdded();
-        Fixture.CustomizeRoadNodeWasModified();
+        Fixture.CustomizeRoadNodeWasChanged();
         Fixture.CustomizeRoadSegmentAttributes();
         Fixture.CustomizeRoadSegmentWasAdded();
         Fixture.CustomizeOutlinedRoadSegmentWasAdded();
-        Fixture.CustomizeRoadSegmentWasModified();
+        Fixture.CustomizeRoadSegmentWasChanged();
         Fixture.CustomizeRoadSegmentWasMerged();
         Fixture.CustomizeRoadSegmentWasMigrated();
 

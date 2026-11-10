@@ -72,22 +72,22 @@ public class RoadSegmentPbsProjectionTests
             // RoadNode V1
             typeof(ImportedRoadNode), typeof(RoadNodeAdded), typeof(RoadNodeModified), typeof(RoadNodeRemoved),
             // RoadNode V2
-            typeof(RoadNodeWasAdded), typeof(RoadNodeTypeWasChanged), typeof(RoadNodeWasModified),
+            typeof(RoadNodeWasAdded), typeof(RoadNodeTypeWasChanged), typeof(RoadNodeWasChanged),
             typeof(RoadNodeWasMigrated), typeof(RoadNodeWasRemoved), typeof(RoadNodeWasRemovedBecauseOfMigration), typeof(RoadNodeRemovalWasCorrectedBecauseOfMigration),
             // GradeJunction V2
-            typeof(GradeJunctionWasAdded), typeof(GradeJunctionWasModified), typeof(GradeJunctionGeometryWasChanged), typeof(GradeJunctionWasRemoved),
+            typeof(GradeJunctionWasAdded), typeof(GradeJunctionWasChanged), typeof(GradeJunctionGeometryWasChanged), typeof(GradeJunctionWasRemoved),
             // GradeSeparatedJunction V1
             typeof(ImportedGradeSeparatedJunction), typeof(GradeSeparatedJunctionAdded),
             typeof(GradeSeparatedJunctionModified), typeof(GradeSeparatedJunctionRemoved),
             typeof(GradeSeparatedJunctionGeometryModified),
             // GradeSeparatedJunction V2
-            typeof(GradeSeparatedJunctionWasAdded), typeof(GradeSeparatedJunctionWasModified), typeof(GradeSeparatedJunctionWasMigrated), typeof(GradeSeparatedJunctionGeometryWasChanged),
+            typeof(GradeSeparatedJunctionWasAdded), typeof(GradeSeparatedJunctionWasChanged), typeof(GradeSeparatedJunctionWasMigrated), typeof(GradeSeparatedJunctionGeometryWasChanged),
             typeof(GradeSeparatedJunctionWasRemoved), typeof(GradeSeparatedJunctionWasRemovedBecauseOfMigration),
             // Organization V2
             typeof(OrganizationWasImported), typeof(OrganizationWasCreated),
-            typeof(OrganizationWasModified), typeof(OrganizationWasRemoved),
+            typeof(OrganizationWasChanged), typeof(OrganizationWasRemoved),
             // StreetName V2
-            typeof(StreetNameWasCreated), typeof(StreetNameWasModified),
+            typeof(StreetNameWasCreated), typeof(StreetNameWasChanged),
             typeof(StreetNameWasRemoved), typeof(StreetNameWasRenamed),
             // ScopedRoadNetwork
             typeof(RoadNetworkChangesAccepted),
@@ -173,10 +173,9 @@ public class RoadSegmentPbsProjectionTests
             context.Entry(stored).Property(x => x.GEOMETRIE).IsModified = true;
         });
 
-        await scenario.GivenAsync(new RoadSegmentWasModified
+        await scenario.GivenAsync(new RoadSegmentWasChanged
         {
             RoadSegmentId = new RoadSegmentId(1),
-            Status = RoadSegmentStatusV2.BuitenGebruik,
             Provenance = Provenance
         });
 
@@ -227,20 +226,19 @@ public class RoadSegmentPbsProjectionTests
     }
 
     [Fact]
-    public async Task WhenRoadSegmentWasModified_ThenStatusUpdatedAndGeometryKept()
+    public async Task WhenRoadSegmentWasChanged_ThenStatusAndGeometryKept()
     {
         var scenario = Scenario();
 
         await scenario.GivenAsync(_testData.Segment1Added);
-        await scenario.GivenAsync(new RoadSegmentWasModified
+        await scenario.GivenAsync(new RoadSegmentWasChanged
         {
             RoadSegmentId = new RoadSegmentId(1),
-            Status = RoadSegmentStatusV2.BuitenGebruik,
             Provenance = Provenance
         });
 
         var segment = await scenario.Find<RoadSegmentRecord>(1);
-        Assert.Equal(RoadSegmentStatusV2.BuitenGebruik.Translation.Identifier, segment!.STATUS);
+        Assert.Equal(_testData.Segment1Added.Status.Translation.Identifier, segment!.STATUS); // the status never travels on this event
         Assert.NotNull(segment.GEOMETRIE); // geometry not carried on this event, so it is kept
     }
 
@@ -438,14 +436,13 @@ public class RoadSegmentPbsProjectionTests
     {
         var scenario = Scenario(prefetchBatches);
 
-        // The modify event carries only the status, so every other attribute has to be kept as stored - including the
+        // The change event carries nothing but the segment, so every attribute has to be kept as stored - including the
         // ones written by the add event earlier in this same batch.
         await scenario.GivenAsync(
             _testData.Segment1Added,
-            new RoadSegmentWasModified
+            new RoadSegmentWasChanged
             {
                 RoadSegmentId = new RoadSegmentId(1),
-                Status = RoadSegmentStatusV2.BuitenGebruik,
                 Provenance = Provenance
             });
 
@@ -473,10 +470,9 @@ public class RoadSegmentPbsProjectionTests
         var other = Scenario(prefetchBatches);
         await other.GivenAsync(
             _testData.Segment1Added,
-            new RoadSegmentWasModified
+            new RoadSegmentWasChanged
             {
                 RoadSegmentId = new RoadSegmentId(1),
-                Status = RoadSegmentStatusV2.BuitenGebruik,
                 Provenance = Provenance
             });
 

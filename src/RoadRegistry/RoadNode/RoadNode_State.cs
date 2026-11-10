@@ -89,7 +89,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         Type = @event.Type;
     }
 
-    public void Apply(RoadNodeWasModified @event)
+    public void Apply(RoadNodeWasChanged @event)
     {
         UncommittedEvents.Add(@event);
 

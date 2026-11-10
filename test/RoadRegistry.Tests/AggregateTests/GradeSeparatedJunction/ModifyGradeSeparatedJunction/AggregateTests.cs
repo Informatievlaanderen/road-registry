@@ -27,7 +27,7 @@ public class AggregateTests : AggregateTestBase
         problems.Should().HaveNoError();
         node.GetChanges().Should().HaveCount(1);
 
-        var nodeModified = (GradeSeparatedJunctionWasModified)node.GetChanges().Single();
+        var nodeModified = (GradeSeparatedJunctionWasChanged)node.GetChanges().Single();
         nodeModified.GradeSeparatedJunctionId.Should().Be(node.GradeSeparatedJunctionId);
         nodeModified.LowerRoadSegmentId.Should().Be(change.LowerRoadSegmentId);
         nodeModified.UpperRoadSegmentId.Should().Be(change.UpperRoadSegmentId);
@@ -78,7 +78,7 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         problems.Should().HaveNoError();
-        var modified = (GradeSeparatedJunctionWasModified)node.GetChanges().Single();
+        var modified = (GradeSeparatedJunctionWasChanged)node.GetChanges().Single();
         modified.Type.Should().Be(GradeSeparatedJunctionTypeV2.Tunnel);
         modified.LowerRoadSegmentId.Should().BeNull();
         modified.UpperRoadSegmentId.Should().BeNull();
@@ -92,7 +92,7 @@ public class AggregateTests : AggregateTestBase
 
         var nodeAdded = Fixture.Create<GradeSeparatedJunctionWasAdded>();
         var node = GradeSeparatedJunction.Create(nodeAdded);
-        var evt = Fixture.Create<GradeSeparatedJunctionWasModified>();
+        var evt = Fixture.Create<GradeSeparatedJunctionWasChanged>();
 
         // Act
         node.Apply(evt);

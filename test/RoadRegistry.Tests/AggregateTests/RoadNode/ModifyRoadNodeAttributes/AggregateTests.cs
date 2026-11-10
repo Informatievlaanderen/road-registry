@@ -80,7 +80,7 @@ public class AggregateTests : AggregateTestBase
 
         var roadNode = roadNetwork.RoadNodes[new RoadNodeId(RoadNodeId1)];
         roadNode.Grensknoop.Should().BeTrue();
-        roadNode.GetChanges().OfType<RoadNodeWasModified>().Should().ContainSingle()
+        roadNode.GetChanges().OfType<RoadNodeWasChanged>().Should().ContainSingle()
             .Which.Grensknoop.Should().BeTrue();
 
         var summary = roadNetwork.GetChanges().OfType<RoadNetworkWasChanged>().Should().ContainSingle().Which.Summary;

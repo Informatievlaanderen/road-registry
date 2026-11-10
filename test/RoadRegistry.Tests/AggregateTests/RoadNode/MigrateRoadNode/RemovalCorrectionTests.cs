@@ -110,7 +110,7 @@ public class RemovalCorrectionTests : RoadNetworkTestBase
 
     // The road node that was collected before it was removed is collected again from scratch rather than modified: the
     // correction drops its type for exactly that reason, so the projections that deleted their row get the geometry
-    // and the grensknoop from a RoadNodeWasMigrated instead of the partial state a RoadNodeWasModified carries.
+    // and the grensknoop from a RoadNodeWasMigrated instead of the partial state a RoadNodeWasChanged carries.
     [Fact]
     public void WhenTheRoadNodeHadAlreadyBeenCollected_ThenItIsCollectedAgainFromScratch()
     {
@@ -120,7 +120,7 @@ public class RemovalCorrectionTests : RoadNetworkTestBase
 
         result.Problems.Should().BeEmpty();
         roadNetwork.RoadNodes[BorderNodeId].GetChanges().Should().Contain(x => x is RoadNodeWasMigrated);
-        roadNetwork.RoadNodes[BorderNodeId].GetChanges().Should().NotContain(x => x is RoadNodeWasModified);
+        roadNetwork.RoadNodes[BorderNodeId].GetChanges().Should().NotContain(x => x is RoadNodeWasChanged);
     }
 
     // Which way round the uploaded road is drawn says nothing about which road nodes it runs to.

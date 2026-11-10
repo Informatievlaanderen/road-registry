@@ -75,7 +75,7 @@ public class UnconnectedAggregateTests : StatusChangeAggregateTestBase
         result.Problems.Should().BeEmpty();
 
         var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
-        roadSegment.GetChanges().OfType<RoadSegmentWasModified>().Should().BeEmpty();
+        roadSegment.GetChanges().OfType<RoadSegmentWasChanged>().Should().BeEmpty();
 
         var @event = roadSegment.GetChanges().OfType<IRoadSegmentUnconnectedStatusChangeEvent>().Should().ContainSingle().Which;
         @event.Should().BeOfType(statusChange.EventType);

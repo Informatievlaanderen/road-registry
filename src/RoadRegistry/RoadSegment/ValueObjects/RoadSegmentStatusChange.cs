@@ -176,12 +176,57 @@ public sealed class RoadSegmentStatusChange : IEquatable<RoadSegmentStatusChange
                 Provenance = data.Provenance
             });
 
-    public static readonly RoadSegmentStatusChange[] All =
+    // The three below have no action of their own. They exist so that a change of status in an upload never has to pass
+    // through 'gerealiseerd' - which would knot the segment into the network - on its way between two statuses that are
+    // both outside it. See RoadSegmentStatusPaths.
+
+    public static readonly RoadSegmentStatusChange PlannedToHistorized =
+        Unconnected<RoadSegmentWasHistorizedFromPlanned>(
+            "ChangeRoadSegmentFromPlannedToHistorized",
+            RoadSegmentStatusV2.Gepland,
+            RoadSegmentStatusV2.Gehistoreerd,
+            data => new RoadSegmentWasHistorizedFromPlanned
+            {
+                RoadSegmentId = data.RoadSegmentId,
+                Provenance = data.Provenance
+            });
+
+    public static readonly RoadSegmentStatusChange NotRealizedToHistorized =
+        Unconnected<RoadSegmentWasHistorizedFromNotRealized>(
+            "ChangeRoadSegmentFromNotRealizedToHistorized",
+            RoadSegmentStatusV2.NietGerealiseerd,
+            RoadSegmentStatusV2.Gehistoreerd,
+            data => new RoadSegmentWasHistorizedFromNotRealized
+            {
+                RoadSegmentId = data.RoadSegmentId,
+                Provenance = data.Provenance
+            });
+
+    public static readonly RoadSegmentStatusChange HistorizedToPlanned =
+        Unconnected<RoadSegmentWasCorrectedFromHistorizedToPlanned>(
+            "CorrectRoadSegmentFromHistorizedToPlanned",
+            RoadSegmentStatusV2.Gehistoreerd,
+            RoadSegmentStatusV2.Gepland,
+            data => new RoadSegmentWasCorrectedFromHistorizedToPlanned
+            {
+                RoadSegmentId = data.RoadSegmentId,
+                Provenance = data.Provenance
+            });
+
+    // The status changes that are an action of their own, each with an endpoint.
+    public static readonly RoadSegmentStatusChange[] Actions =
     [
         PlannedToRealized, OutOfUseToRealized, HistorizedToRealized,
         RealizedToPlanned, RealizedToOutOfUse, RealizedToHistorized,
         OutOfUseToHistorized, NotRealizedToPlanned, HistorizedToOutOfUse,
         PlannedToNotRealized
+    ];
+
+    // Every status change the domain knows, including the ones that only serve as a step in RoadSegmentStatusPaths.
+    public static readonly RoadSegmentStatusChange[] All =
+    [
+        ..Actions,
+        PlannedToHistorized, NotRealizedToHistorized, HistorizedToPlanned
     ];
 
     private static readonly IReadOnlyDictionary<string, RoadSegmentStatusChange> ByName =

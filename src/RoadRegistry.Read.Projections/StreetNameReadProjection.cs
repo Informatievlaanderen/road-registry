@@ -33,7 +33,7 @@ public class StreetNameReadProjection : MartenRoadNetworkChangesProjection
 
             return Task.CompletedTask;
         });
-        When<IEvent<StreetNameWasModified>>(async (session, e, ct) =>
+        When<IEvent<StreetNameWasChanged>>(async (session, e, ct) =>
         {
             var streetName = await session.LoadAsync<StreetNameReadItem>(e.Data.StreetNameId, ct)
                              ?? new StreetNameReadItem

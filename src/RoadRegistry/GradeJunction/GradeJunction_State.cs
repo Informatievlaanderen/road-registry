@@ -76,7 +76,7 @@ public partial class GradeJunction : MartenAggregateRootEntity<GradeJunctionId>
         return junction;
     }
 
-    public void Apply(GradeJunctionWasModified @event)
+    public void Apply(GradeJunctionWasChanged @event)
     {
         UncommittedEvents.Add(@event);
 

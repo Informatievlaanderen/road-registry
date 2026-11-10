@@ -102,20 +102,19 @@ public class RoadSegmentReadProjectionTests
     }
 
     [Fact]
-    public async Task WhenRoadSegmentWasModified_StatusOnly_ThenOtherFieldsKept()
+    public async Task WhenRoadSegmentWasChanged_WithNothingSet_ThenEveryFieldIsKept()
     {
         var scenario = Scenario();
 
         await scenario.GivenAsync(_testData.Segment1StartNodeAdded, _testData.Segment1EndNodeAdded, _testData.Segment1Added);
-        await scenario.GivenAsync(new RoadSegmentWasModified
+        await scenario.GivenAsync(new RoadSegmentWasChanged
         {
             RoadSegmentId = new RoadSegmentId(1),
-            Status = RoadSegmentStatusV2.Gehistoreerd,
             Provenance = Provenance
         });
 
         var segment = await scenario.Load<RoadSegmentReadItem>(1);
-        Assert.Equal(RoadSegmentStatusV2.Gehistoreerd.ToString(), segment!.Status);
+        Assert.Equal(_testData.Segment1Added.Status.ToString(), segment!.Status);
         Assert.Equal(1, segment.StartNodeId);
         Assert.Equal(2, segment.EndNodeId);
     }

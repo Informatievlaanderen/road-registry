@@ -53,7 +53,7 @@ public class RoadNodeExtractProjectionTests
             typeof(OutlinedRoadSegmentWasAdded),
             typeof(RoadSegmentWasAddedToEuropeanRoad),
             typeof(RoadSegmentWasAddedToNationalRoad),
-            typeof(RoadSegmentWasModified),
+            typeof(RoadSegmentWasChanged),
             typeof(RoadSegmentWasRealizedFromPlanned),
             typeof(RoadSegmentWasRealizedFromOutOfUse),
             typeof(RoadSegmentWasCorrectedFromHistorizedToRealized),
@@ -63,9 +63,8 @@ public class RoadNodeExtractProjectionTests
             typeof(RoadSegmentWasHistorizedFromOutOfUse),
             typeof(RoadSegmentWasCorrectedFromNotRealizedToPlanned),
             typeof(RoadSegmentWasCorrectedFromHistorizedToOutOfUse),
-            typeof(RoadSegmentWasNotRealizedFromPlanned),
-            typeof(RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentGeometryDrawMethodWasChanged),
-            typeof(RoadSegmentGeometryWasModified),
+            typeof(RoadSegmentWasNotRealizedFromPlanned), typeof(RoadSegmentWasHistorizedFromPlanned), typeof(RoadSegmentWasHistorizedFromNotRealized), typeof(RoadSegmentWasCorrectedFromHistorizedToPlanned),
+            typeof(RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentWasMeasured), typeof(RoadSegmentWasCorrectedToOutlined),
             typeof(RoadSegmentWasMerged),
             typeof(RoadSegmentWasMigrated),
             typeof(RoadSegmentWasRetiredBecauseOfMerger),
@@ -76,23 +75,23 @@ public class RoadNodeExtractProjectionTests
             typeof(RoadSegmentWasRemovedFromEuropeanRoad),
             typeof(RoadSegmentWasRemovedFromNationalRoad),
             typeof(GradeSeparatedJunctionWasAdded),
-            typeof(GradeSeparatedJunctionWasModified),
+            typeof(GradeSeparatedJunctionWasChanged),
             typeof(GradeSeparatedJunctionWasMigrated),
             typeof(GradeSeparatedJunctionGeometryWasChanged),
             typeof(GradeSeparatedJunctionWasRemoved),
             typeof(GradeSeparatedJunctionWasRemovedBecauseOfMigration),
             typeof(GradeJunctionWasAdded),
             typeof(GradeJunctionGeometryWasChanged),
-            typeof(GradeJunctionWasModified),
+            typeof(GradeJunctionWasChanged),
             typeof(GradeJunctionWasRemoved),
 
             typeof(StreetNameWasCreated),
-            typeof(StreetNameWasModified),
+            typeof(StreetNameWasChanged),
             typeof(StreetNameWasRemoved),
             typeof(StreetNameWasRenamed),
             typeof(OrganizationWasImported),
             typeof(OrganizationWasCreated),
-            typeof(OrganizationWasModified),
+            typeof(OrganizationWasChanged),
             typeof(OrganizationWasRemoved),
         };
 
@@ -177,13 +176,13 @@ public class RoadNodeExtractProjectionTests
     }
 
     [Fact]
-    public Task WhenRoadNodeWasModified_ThenSucceeded()
+    public Task WhenRoadNodeWasChanged_ThenSucceeded()
     {
         var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadNodeId>();
 
         var roadNodeAdded = fixture.Create<RoadNodeWasAdded>();
-        var roadNodeModified = fixture.Create<RoadNodeWasModified>();
+        var roadNodeModified = fixture.Create<RoadNodeWasChanged>();
 
         var expectedRoadNode = new RoadNodeExtractItem
         {

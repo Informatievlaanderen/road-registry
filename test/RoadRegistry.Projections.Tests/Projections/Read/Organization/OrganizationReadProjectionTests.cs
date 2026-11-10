@@ -59,7 +59,7 @@ public class OrganizationReadProjectionTests
     }
 
     [Fact]
-    public async Task WhenOrganizationWasModified_ThenUpdated()
+    public async Task WhenOrganizationWasChanged_ThenUpdated()
     {
         var scenario = Scenario();
         var organizationId = new OrganizationId("TestOrg");
@@ -71,7 +71,7 @@ public class OrganizationReadProjectionTests
             Provenance = Provenance
         });
 
-        await scenario.GivenAsync(new OrganizationWasModified
+        await scenario.GivenAsync(new OrganizationWasChanged
         {
             OrganizationId = organizationId,
             Name = "Updated Name",
@@ -85,7 +85,7 @@ public class OrganizationReadProjectionTests
     }
 
     [Fact]
-    public async Task WhenOrganizationWasModified_WithNullFields_ThenKeepsExistingValues()
+    public async Task WhenOrganizationWasChanged_WithNullFields_ThenKeepsExistingValues()
     {
         var scenario = Scenario();
         var organizationId = new OrganizationId("TestOrg");
@@ -97,7 +97,7 @@ public class OrganizationReadProjectionTests
             Provenance = Provenance
         });
 
-        await scenario.GivenAsync(new OrganizationWasModified
+        await scenario.GivenAsync(new OrganizationWasChanged
         {
             OrganizationId = organizationId,
             Name = null,

@@ -62,7 +62,7 @@ public class ChangeRoadSegmentStatusV2Tests : V2ReadEndpointTestBase
     public static TheoryData<string> AllChanges()
     {
         var data = new TheoryData<string>();
-        foreach (var statusChange in RoadSegmentStatusChange.All)
+        foreach (var statusChange in RoadSegmentStatusChange.Actions)
         {
             data.Add(statusChange.Name);
         }
@@ -107,7 +107,7 @@ public class ChangeRoadSegmentStatusV2Tests : V2ReadEndpointTestBase
     [Fact]
     public void EveryStatusChangeHasAnEndpointOfItsOwn()
     {
-        Endpoints.Keys.Should().BeEquivalentTo(RoadSegmentStatusChange.All);
+        Endpoints.Keys.Should().BeEquivalentTo(RoadSegmentStatusChange.Actions);
     }
 
     [Theory]

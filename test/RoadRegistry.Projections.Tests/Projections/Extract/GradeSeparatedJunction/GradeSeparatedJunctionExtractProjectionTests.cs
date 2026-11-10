@@ -50,7 +50,7 @@ public class GradeSeparatedJunctionExtractProjectionTests
             typeof(RoadNetworkWasChanged),
             typeof(RoadNodeWasAdded),
             typeof(RoadNodeTypeWasChanged),
-            typeof(RoadNodeWasModified),
+            typeof(RoadNodeWasChanged),
             typeof(RoadNodeWasMigrated),
             typeof(RoadNodeWasRemoved),
             typeof(RoadNodeWasRemovedBecauseOfMigration), typeof(RoadNodeRemovalWasCorrectedBecauseOfMigration),
@@ -58,8 +58,7 @@ public class GradeSeparatedJunctionExtractProjectionTests
             typeof(OutlinedRoadSegmentWasAdded),
             typeof(RoadSegmentWasAddedToEuropeanRoad),
             typeof(RoadSegmentWasAddedToNationalRoad),
-            typeof(RoadSegmentGeometryWasModified),
-            typeof(RoadSegmentWasModified),
+            typeof(RoadSegmentWasChanged),
             typeof(RoadSegmentWasRealizedFromPlanned),
             typeof(RoadSegmentWasRealizedFromOutOfUse),
             typeof(RoadSegmentWasCorrectedFromHistorizedToRealized),
@@ -69,8 +68,8 @@ public class GradeSeparatedJunctionExtractProjectionTests
             typeof(RoadSegmentWasHistorizedFromOutOfUse),
             typeof(RoadSegmentWasCorrectedFromNotRealizedToPlanned),
             typeof(RoadSegmentWasCorrectedFromHistorizedToOutOfUse),
-            typeof(RoadSegmentWasNotRealizedFromPlanned),
-            typeof(RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentGeometryDrawMethodWasChanged),
+            typeof(RoadSegmentWasNotRealizedFromPlanned), typeof(RoadSegmentWasHistorizedFromPlanned), typeof(RoadSegmentWasHistorizedFromNotRealized), typeof(RoadSegmentWasCorrectedFromHistorizedToPlanned),
+            typeof(RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentWasMeasured), typeof(RoadSegmentWasCorrectedToOutlined),
             typeof(RoadSegmentWasMerged),
             typeof(RoadSegmentWasMigrated),
             typeof(RoadSegmentWasRetiredBecauseOfMerger),
@@ -82,18 +81,18 @@ public class GradeSeparatedJunctionExtractProjectionTests
             typeof(RoadSegmentWasRemovedFromNationalRoad),
             typeof(GradeJunctionWasAdded),
             typeof(GradeJunctionGeometryWasChanged),
-            typeof(GradeJunctionWasModified),
+            typeof(GradeJunctionWasChanged),
             typeof(GradeJunctionWasRemoved),
             typeof(GradeSeparatedJunctionGeometryWasChanged),
             typeof(GradeSeparatedJunctionGeometryModified),
 
             typeof(StreetNameWasCreated),
-            typeof(StreetNameWasModified),
+            typeof(StreetNameWasChanged),
             typeof(StreetNameWasRemoved),
             typeof(StreetNameWasRenamed),
             typeof(OrganizationWasImported),
             typeof(OrganizationWasCreated),
-            typeof(OrganizationWasModified),
+            typeof(OrganizationWasChanged),
             typeof(OrganizationWasRemoved),
         };
         var allEventTypes = typeof(IMartenEvent).Assembly
@@ -151,13 +150,13 @@ public class GradeSeparatedJunctionExtractProjectionTests
     }
 
     [Fact]
-    public Task WhenGradeSeparatedJunctionWasModified_ThenSucceeded()
+    public Task WhenGradeSeparatedJunctionWasChanged_ThenSucceeded()
     {
         var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<GradeSeparatedJunctionId>();
 
         var junctionAdded = fixture.Create<GradeSeparatedJunctionWasAdded>();
-        var junctionModified = fixture.Create<GradeSeparatedJunctionWasModified>();
+        var junctionModified = fixture.Create<GradeSeparatedJunctionWasChanged>();
 
         var expectedRoadNode = new GradeSeparatedJunctionExtractItem
         {

@@ -89,7 +89,7 @@ public class DisconnectingAggregateTests : StatusChangeAggregateTestBase
         result.Problems.Should().BeEmpty();
 
         var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
-        roadSegment.GetChanges().OfType<RoadSegmentWasModified>().Should().BeEmpty();
+        roadSegment.GetChanges().OfType<RoadSegmentWasChanged>().Should().BeEmpty();
 
         // The nodes it came loose from are named, so a reader can tell what it was hooked onto.
         var @event = roadSegment.GetChanges().OfType<IRoadSegmentWasDisconnectedEvent>().Should().ContainSingle().Which;

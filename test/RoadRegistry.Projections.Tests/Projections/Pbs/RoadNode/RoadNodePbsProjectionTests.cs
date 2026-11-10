@@ -45,9 +45,9 @@ public class RoadNodePbsProjectionTests
             typeof(RoadSegmentRemoved), typeof(RoadSegmentRemovedFromEuropeanRoad), typeof(RoadSegmentRemovedFromNationalRoad),
             typeof(RoadSegmentRemovedFromNumberedRoad), typeof(RoadSegmentStreetNamesChanged),
             // RoadSegment V2
-            typeof(OutlinedRoadSegmentWasAdded), typeof(RoadSegmentGeometryWasModified), typeof(RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentGeometryDrawMethodWasChanged),
+            typeof(OutlinedRoadSegmentWasAdded), typeof(RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentWasMeasured), typeof(RoadSegmentWasCorrectedToOutlined),
             typeof(RoadSegmentWasAdded), typeof(RoadSegmentWasAddedToEuropeanRoad), typeof(RoadSegmentWasAddedToNationalRoad),
-            typeof(RoadSegmentWasMerged), typeof(RoadSegmentWasMigrated), typeof(RoadSegmentWasModified),
+            typeof(RoadSegmentWasMerged), typeof(RoadSegmentWasMigrated), typeof(RoadSegmentWasChanged),
             typeof(RoadSegmentWasRealizedFromPlanned),
             typeof(RoadSegmentWasRealizedFromOutOfUse),
             typeof(RoadSegmentWasCorrectedFromHistorizedToRealized),
@@ -57,24 +57,24 @@ public class RoadNodePbsProjectionTests
             typeof(RoadSegmentWasHistorizedFromOutOfUse),
             typeof(RoadSegmentWasCorrectedFromNotRealizedToPlanned),
             typeof(RoadSegmentWasCorrectedFromHistorizedToOutOfUse),
-            typeof(RoadSegmentWasNotRealizedFromPlanned),
+            typeof(RoadSegmentWasNotRealizedFromPlanned), typeof(RoadSegmentWasHistorizedFromPlanned), typeof(RoadSegmentWasHistorizedFromNotRealized), typeof(RoadSegmentWasCorrectedFromHistorizedToPlanned),
             typeof(RoadSegmentWasRemoved), typeof(RoadSegmentWasRemovedBecauseOfMigration), typeof(RoadSegmentWasRemovedFromEuropeanRoad),
             typeof(RoadSegmentWasRemovedFromNationalRoad), typeof(RoadSegmentWasRetiredBecauseOfMerger),
             typeof(RoadSegmentWasRetiredBecauseOfSplit), typeof(RoadSegmentWasSplit),
             // GradeJunction V2
-            typeof(GradeJunctionWasAdded), typeof(GradeJunctionWasModified), typeof(GradeJunctionGeometryWasChanged), typeof(GradeJunctionWasRemoved),
+            typeof(GradeJunctionWasAdded), typeof(GradeJunctionWasChanged), typeof(GradeJunctionGeometryWasChanged), typeof(GradeJunctionWasRemoved),
             // GradeSeparatedJunction V1
             typeof(ImportedGradeSeparatedJunction), typeof(GradeSeparatedJunctionAdded),
             typeof(GradeSeparatedJunctionModified), typeof(GradeSeparatedJunctionRemoved),
             typeof(GradeSeparatedJunctionGeometryModified),
             // GradeSeparatedJunction V2
-            typeof(GradeSeparatedJunctionWasAdded), typeof(GradeSeparatedJunctionWasModified), typeof(GradeSeparatedJunctionWasMigrated), typeof(GradeSeparatedJunctionGeometryWasChanged),
+            typeof(GradeSeparatedJunctionWasAdded), typeof(GradeSeparatedJunctionWasChanged), typeof(GradeSeparatedJunctionWasMigrated), typeof(GradeSeparatedJunctionGeometryWasChanged),
             typeof(GradeSeparatedJunctionWasRemoved), typeof(GradeSeparatedJunctionWasRemovedBecauseOfMigration),
             // Organization V2
             typeof(OrganizationWasImported), typeof(OrganizationWasCreated),
-            typeof(OrganizationWasModified), typeof(OrganizationWasRemoved),
+            typeof(OrganizationWasChanged), typeof(OrganizationWasRemoved),
             // StreetName V2
-            typeof(StreetNameWasCreated), typeof(StreetNameWasModified),
+            typeof(StreetNameWasCreated), typeof(StreetNameWasChanged),
             typeof(StreetNameWasRemoved), typeof(StreetNameWasRenamed),
             // ScopedRoadNetwork
             typeof(RoadNetworkChangesAccepted),
@@ -121,12 +121,12 @@ public class RoadNodePbsProjectionTests
     }
 
     [Fact]
-    public async Task WhenRoadNodeWasModified_ThenGrensknoopUpdated()
+    public async Task WhenRoadNodeWasChanged_ThenGrensknoopUpdated()
     {
         var scenario = Scenario();
 
         await scenario.GivenAsync(_testData.Segment1StartNodeAdded);
-        await scenario.GivenAsync(new RoadNodeWasModified
+        await scenario.GivenAsync(new RoadNodeWasChanged
         {
             RoadNodeId = new RoadNodeId(1),
             Geometry = null,

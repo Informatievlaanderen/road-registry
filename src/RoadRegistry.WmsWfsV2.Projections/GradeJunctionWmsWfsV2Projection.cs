@@ -27,7 +27,7 @@ public class GradeJunctionWmsWfsV2Projection : RunnerDbContextRoadNetworkChanges
             Write(context, e.Data.GradeJunctionId.ToInt32(), e.Data.RoadSegmentId1.ToInt32(), e.Data.RoadSegmentId2.ToInt32(),
                 e.Data.Geometry.Value.Force2D(), e.Data.Provenance.Timestamp.ToDateTimeOffset(), ct));
 
-        When<IEvent<GradeJunctionWasModified>>(async (context, e, ct) =>
+        When<IEvent<GradeJunctionWasChanged>>(async (context, e, ct) =>
         {
             var record = await context.GradeJunctions.FindAsync([e.Data.GradeJunctionId.ToInt32()], ct);
             if (record is null)

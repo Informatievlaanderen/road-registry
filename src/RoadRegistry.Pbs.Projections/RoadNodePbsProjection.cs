@@ -72,7 +72,7 @@ public class RoadNodePbsProjection : RunnerDbContextRoadNetworkChangesProjection
             record.VERSIE = e.Data.Provenance.ToPbsDate();
         });
 
-        When<IEvent<RoadNodeWasModified>>(async (context, e, ct) =>
+        When<IEvent<RoadNodeWasChanged>>(async (context, e, ct) =>
         {
             var record = await context.RoadNodes.FindAsync([e.Data.RoadNodeId.ToInt32()], ct);
             if (record is null)

@@ -97,7 +97,7 @@ public partial class ScopedRoadNetwork
                     problems += ModifyRoadSegment(change, context);
                     break;
                 case RemoveRoadSegmentChange change:
-                    problems += RemoveRoadSegment(change.RoadSegmentId, context);
+                    problems += HistorizeRoadSegment(change.RoadSegmentId, context);
                     break;
                 case AddRoadSegmentToEuropeanRoadChange change:
                     problems += ModifyRoadSegmentRoads(change.RoadSegmentId, segment =>
@@ -182,6 +182,7 @@ public partial class ScopedRoadNetwork
 
         var roadNodes = _roadNodes.Values.Where(x => x.HasChanges()).Select(x => x.RoadNodeId)
             .Concat(_roadSegments.Values.Where(x => x.HasChanges()).SelectMany(x => x.GetNodeIds()))
+            .Concat(context.UnhookedRoadNodeIds)
             .Distinct()
             .Select(x => _roadNodes[x])
             .Where(x => !x.IsRemoved)
@@ -410,23 +411,31 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
-    private Problems RemoveRoadSegment(RoadSegmentId roadSegmentId, ScopedRoadNetworkChangeContext context)
+    // An upload never removes a road segment it leaves out: the road it was is kept on record, historized along the
+    // status path that leads there (see RoadSegmentStatusPaths). Coming loose from the network takes its crossings
+    // with it - a crossing is a statement about two realized roads - and the road nodes it hung off are verified
+    // afterwards like any other road node the change touched.
+    private Problems HistorizeRoadSegment(RoadSegmentId roadSegmentId, ScopedRoadNetworkChangeContext context)
     {
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
             return Problems.None;
         }
 
-        var problems = roadSegment.Remove(context.Provenance);
-        if (problems.HasError())
+        var recordedChanges = roadSegment.GetRecordedChanges().Count;
+        var previousRoadNodeIds = roadSegment.GetNodeIds().ToArray();
+
+        var problems = roadSegment.Historize(context);
+        if (problems.HasError() || roadSegment.GetRecordedChanges().Count == recordedChanges)
         {
             return problems;
         }
 
-        _roadSegmentsSpatialIndex.Remove(roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
-        context.Summary.RoadSegments.Removed.Add(roadSegment.RoadSegmentId);
+        context.UnhookedRoadNodeIds.UnionWith(previousRoadNodeIds.Where(x => !roadSegment.GetNodeIds().Contains(x)));
+        context.Summary.RoadSegments.Modified.Add(roadSegment.RoadSegmentId);
 
         problems += TryToRemoveLinkedGradeJunctions(roadSegmentId, context);
+        problems += TryToRemoveLinkedGradeSeparatedJunctions(roadSegmentId, context);
 
         return problems;
     }
@@ -478,11 +487,11 @@ public partial class ScopedRoadNetwork
             UpperRoadSegmentId = context.IdTranslator.TranslateToPermanentId(change.UpperRoadSegmentId)
         };
 
-        if (!RoadSegments.TryGetValue(change.LowerRoadSegmentId, out var lowerSegment) || lowerSegment.IsRemoved)
+        if (!RoadSegments.TryGetValue(change.LowerRoadSegmentId, out var lowerSegment) || lowerSegment.IsRemovedOrHistorized())
         {
             lowerSegment = null;
         }
-        if (!RoadSegments.TryGetValue(change.UpperRoadSegmentId, out var upperSegment) || upperSegment.IsRemoved)
+        if (!RoadSegments.TryGetValue(change.UpperRoadSegmentId, out var upperSegment) || upperSegment.IsRemovedOrHistorized())
         {
             upperSegment = null;
         }

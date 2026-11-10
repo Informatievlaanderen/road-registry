@@ -40,10 +40,9 @@ public class WegsegmentLabelTests
             context.StreetNameCache.Add(new StreetNameCacheRecord { StraatnaamId = streetNameId, Naam = "Dorpsstraat" });
             return Task.CompletedTask;
         });
-        await scenario.GivenAsync(new RoadSegmentWasModified
+        await scenario.GivenAsync(new RoadSegmentWasChanged
         {
             RoadSegmentId = new RoadSegmentId(1),
-            Status = RoadSegmentStatusV2.Gerealiseerd,
             Provenance = Provenance
         });
 
@@ -53,7 +52,7 @@ public class WegsegmentLabelTests
     }
 
     [Fact]
-    public async Task WhenStreetNameWasModified_ThenDerivedStreetNameLabelsAreRefreshed()
+    public async Task WhenStreetNameWasChanged_ThenDerivedStreetNameLabelsAreRefreshed()
     {
         var scenario = new WmsWfsV2ProjectionScenario(new StreetNameWmsWfsV2Projection());
 
@@ -72,7 +71,7 @@ public class WegsegmentLabelTests
             return Task.CompletedTask;
         });
 
-        await scenario.GivenAsync(new StreetNameWasModified
+        await scenario.GivenAsync(new StreetNameWasChanged
         {
             StreetNameId = new StreetNameLocalId(100),
             DutchName = "Nieuwstraat",
@@ -143,7 +142,7 @@ public class WegsegmentLabelTests
             return Task.CompletedTask;
         });
 
-        await scenario.GivenAsync(new OrganizationWasModified
+        await scenario.GivenAsync(new OrganizationWasChanged
         {
             OrganizationId = organizationId,
             Name = "Gemeente Test",

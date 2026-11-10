@@ -25,7 +25,7 @@ public class StreetNameWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPro
         When<IEvent<StreetNameWasCreated>>((context, e, ct) =>
             Insert(context, e.Data.StreetNameId.ToInt32(), e.Data.DutchName, ct));
 
-        When<IEvent<StreetNameWasModified>>(async (context, e, ct) =>
+        When<IEvent<StreetNameWasChanged>>(async (context, e, ct) =>
         {
             var id = e.Data.StreetNameId.ToInt32();
             await Update(context, id, e.Data.DutchName, ct);

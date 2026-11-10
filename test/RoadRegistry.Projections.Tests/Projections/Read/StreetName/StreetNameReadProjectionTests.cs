@@ -35,7 +35,7 @@ public class StreetNameReadProjectionTests
     }
 
     [Fact]
-    public async Task WhenStreetNameWasModified_ThenUpdated()
+    public async Task WhenStreetNameWasChanged_ThenUpdated()
     {
         var scenario = Scenario();
         var streetNameId = new StreetNameLocalId(1);
@@ -47,7 +47,7 @@ public class StreetNameReadProjectionTests
             Provenance = Provenance
         });
 
-        await scenario.GivenAsync(new StreetNameWasModified
+        await scenario.GivenAsync(new StreetNameWasChanged
         {
             StreetNameId = streetNameId,
             DutchName = "Gewijzigde Teststraat",
@@ -63,12 +63,12 @@ public class StreetNameReadProjectionTests
     }
 
     [Fact]
-    public async Task WhenStreetNameWasModified_WithoutExistingRecord_ThenCreated()
+    public async Task WhenStreetNameWasChanged_WithoutExistingRecord_ThenCreated()
     {
         var scenario = Scenario();
         var streetNameId = new StreetNameLocalId(1);
 
-        await scenario.GivenAsync(new StreetNameWasModified
+        await scenario.GivenAsync(new StreetNameWasChanged
         {
             StreetNameId = streetNameId,
             DutchName = "Teststraat",

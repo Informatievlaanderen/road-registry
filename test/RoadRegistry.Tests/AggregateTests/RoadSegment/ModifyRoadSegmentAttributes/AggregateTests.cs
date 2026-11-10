@@ -62,7 +62,7 @@ public class AggregateTests : AggregateTestBase
         result.Problems.Should().BeEmpty();
         result.Summary.RoadSegments.Modified.Should().ContainSingle();
         roadNetwork.RoadSegments[TestData.Segment1Added.RoadSegmentId].GetChanges()
-            .OfType<RoadSegmentWasModified>().Should().ContainSingle();
+            .OfType<RoadSegmentWasChanged>().Should().ContainSingle();
     }
 
     [Theory]

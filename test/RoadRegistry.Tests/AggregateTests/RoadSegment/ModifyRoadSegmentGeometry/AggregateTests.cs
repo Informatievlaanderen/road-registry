@@ -196,7 +196,7 @@ public class AggregateTests : AggregateTestBase
 
         // Identifier preserved: the node is modified, never replaced.
         var endNode = roadNetwork.RoadNodes[endNodeId];
-        endNode.GetChanges().OfType<RoadNodeWasModified>().Should().ContainSingle()
+        endNode.GetChanges().OfType<RoadNodeWasChanged>().Should().ContainSingle()
             .Which.RoadNodeId.Should().Be(endNodeId);
         endNode.Geometry.Value.Coordinate.X.Should().Be(110);
         endNode.Geometry.Value.Coordinate.Y.Should().Be(0);
@@ -251,7 +251,7 @@ public class AggregateTests : AggregateTestBase
         coverages[1].Coverage.From.ToDouble().Should().Be(20.1);
         coverages[1].Coverage.To.ToDouble().Should().Be(newLength);
 
-        modifiedB.GetChanges().OfType<RoadSegmentWasModified>().Should().ContainSingle();
+        modifiedB.GetChanges().OfType<RoadSegmentWasChanged>().Should().ContainSingle();
     }
 
     [Fact]

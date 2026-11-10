@@ -232,7 +232,7 @@ public class RepairRoadNodeSnapshots
 
                 _outputHelper.WriteLine($"{roadNodeId}: {roadNode.Geometry.WKT} -> {geometry.WKT} (dx {dx:0.###} dy {dy:0.###})");
 
-                roadNode.Apply(new RoadRegistry.RoadNode.Events.V2.RoadNodeWasModified
+                roadNode.Apply(new RoadRegistry.RoadNode.Events.V2.RoadNodeWasChanged
                 {
                     RoadNodeId = roadNodeId,
                     Geometry = geometry,

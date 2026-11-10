@@ -6,19 +6,21 @@ using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using RoadRegistry.BackOffice;
 
-public record RoadSegmentWasModified : IMartenEvent
+// A road segment's geometry, road nodes and/or dynamically segmented attributes changed. Only what changed is
+// carried; a null property means "unchanged". The status and the geometry draw method never travel on this event:
+// a change of status is recorded by the status change events (see RoadSegmentStatusChange and RoadSegmentStatusPaths)
+// and a change of draw method by RoadSegmentWasMeasured or RoadSegmentWasCorrectedToOutlined.
+public record RoadSegmentWasChanged : IMartenEvent
 {
-    public const string EventName = "RoadSegmentWasModified"; // BE CAREFUL CHANGING THIS!!
+    public const string EventName = "RoadSegmentWasChanged"; // BE CAREFUL CHANGING THIS!!
 
     public required RoadSegmentId RoadSegmentId { get; init; }
     public RoadSegmentIdReference OriginalRoadSegmentIdReference { get; init; }
     public RoadSegmentGeometry? Geometry { get; init; }
-    public RoadSegmentStatusV2? Status { get; init; }
 
     // Null means "the nodes did not change"; a value carries the full new node state, so a
     // RoadSegmentNodeIds with both ids null detaches the segment from its road nodes.
     public RoadSegmentNodeIds? NodeIds { get; init; }
-    public RoadSegmentGeometryDrawMethodV2? GeometryDrawMethod { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>? AccessRestriction { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>? Category { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>? Morphology { get; init; }

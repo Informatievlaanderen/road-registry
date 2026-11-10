@@ -21,7 +21,7 @@ public class OrganizationPbsProjection : RunnerDbContextRoadNetworkChangesProjec
             Insert(context, e.Data.OrganizationId.ToString(), e.Data.Name, e.Data.OvoCode, ct));
 
         // Modify: update the existing organization; nothing to insert.
-        When<IEvent<OrganizationWasModified>>((context, e, ct) =>
+        When<IEvent<OrganizationWasChanged>>((context, e, ct) =>
             Update(context, e.Data.OrganizationId.ToString(), e.Data.Name, e.Data.OvoCode, e.Data.IsMaintainer, ct));
 
         When<IEvent<OrganizationWasRemoved>>(async (context, e, ct) =>

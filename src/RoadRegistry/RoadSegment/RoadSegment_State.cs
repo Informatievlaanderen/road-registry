@@ -28,6 +28,10 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
     public bool HasMigrated() => Attributes is not null;
 
+    // A road segment that is no longer part of the road network at all: removed, or historized - which is what an upload
+    // does to a road segment it leaves out. A crossing cannot be recorded on it.
+    public bool IsRemovedOrHistorized() => IsRemoved || Status == RoadSegmentStatusV2.Gehistoreerd;
+
     public RoadSegment(RoadSegmentId id, IEventOrdinalProvider ordinalProvider)
         : base(id, ordinalProvider)
     {
@@ -205,20 +209,26 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         };
     }
 
-    public void Apply(RoadSegmentWasModified @event)
+    public void Apply(RoadSegmentWasChanged @event)
     {
         UncommittedEvents.Add(@event);
 
         Geometry = @event.Geometry ?? Geometry;
-        Status = @event.Status ?? Status;
         if (@event.NodeIds is not null)
         {
             StartNodeId = @event.NodeIds.Start;
             EndNodeId = @event.NodeIds.End;
         }
-        Attributes = Attributes! with
+
+        // A road segment that has not completed its inwinning carries no attributes yet: the V1 migration only ever
+        // changes its geometry and road nodes this way.
+        if (Attributes is null)
         {
-            GeometryDrawMethod = @event.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,
+            return;
+        }
+
+        Attributes = Attributes with
+        {
             AccessRestriction = @event.AccessRestriction ?? Attributes.AccessRestriction,
             Category = @event.Category ?? Attributes.Category,
             Morphology = @event.Morphology ?? Attributes.Morphology,
@@ -247,6 +257,9 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     public void Apply(RoadSegmentWasCorrectedFromNotRealizedToPlanned @event) => ApplyStatusChangeWhileUnconnected(@event);
     public void Apply(RoadSegmentWasCorrectedFromHistorizedToOutOfUse @event) => ApplyStatusChangeWhileUnconnected(@event);
     public void Apply(RoadSegmentWasNotRealizedFromPlanned @event) => ApplyStatusChangeWhileUnconnected(@event);
+    public void Apply(RoadSegmentWasHistorizedFromPlanned @event) => ApplyStatusChangeWhileUnconnected(@event);
+    public void Apply(RoadSegmentWasHistorizedFromNotRealized @event) => ApplyStatusChangeWhileUnconnected(@event);
+    public void Apply(RoadSegmentWasCorrectedFromHistorizedToPlanned @event) => ApplyStatusChangeWhileUnconnected(@event);
 
     // Knotted into the network: the event records the realized state in full, so nothing is left at what it was.
     private void ApplyStatusChangeToConnected(IRoadSegmentWasConnectedEvent @event)
@@ -290,15 +303,6 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         Status = RoadSegmentStatusChange.ForEvent(@event).To;
-    }
-
-    public void Apply(RoadSegmentGeometryWasModified @event)
-    {
-        UncommittedEvents.Add(@event);
-
-        Geometry = @event.Geometry;
-        StartNodeId = @event.StartNodeId;
-        EndNodeId = @event.EndNodeId;
     }
 
     public void Apply(RoadSegmentWasRemoved @event)

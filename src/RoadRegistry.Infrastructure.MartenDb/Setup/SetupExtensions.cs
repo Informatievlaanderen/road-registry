@@ -143,7 +143,7 @@ public static class SetupExtensions
         // An event that cannot be deserialized must stop the projection, not be skipped. Marten's default is to
         // dead-letter it, log a warning and carry on - which advances the progression past an event that was never
         // applied, so the read models silently miss a change and no rebuild is triggered. A change to road segment
-        // 818746 was lost exactly this way: RoadSegmentWasModified carries a null status for an attribute-only edit,
+        // 818746 was lost exactly this way: RoadSegmentWasModified (now RoadSegmentWasChanged) carried a null status for an attribute-only edit,
         // the status converter threw on it, and all four projections reported themselves fully caught up.
         options.Projections.Errors.SkipSerializationErrors = false;
         options.Projections.RebuildErrors.SkipSerializationErrors = false;

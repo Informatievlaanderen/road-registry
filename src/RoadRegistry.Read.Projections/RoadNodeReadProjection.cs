@@ -113,7 +113,7 @@ public class RoadNodeReadProjection : MartenRoadNetworkChangesProjection
 
             session.Store(node);
         });
-        When<IEvent<RoadNode.Events.V2.RoadNodeWasModified>>(async (session, e, _) =>
+        When<IEvent<RoadNode.Events.V2.RoadNodeWasChanged>>(async (session, e, _) =>
         {
             var node = await session.LoadAsync<RoadNodeReadItem>(e.Data.RoadNodeId);
             if (node is null)

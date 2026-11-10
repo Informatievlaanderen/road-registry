@@ -208,10 +208,10 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
                 m.PedestrianTrafficDirection, m.EuropeanRoadNumbers, m.NationalRoadNumbers, m.Provenance, ct);
         });
 
-        When<IEvent<RoadSegmentWasModified>>(async (context, e, ct) =>
+        When<IEvent<RoadSegmentWasChanged>>(async (context, e, ct) =>
         {
             var m = e.Data;
-            await WritePartial(context, m.RoadSegmentId.ToInt32(), m.Geometry, m.Status, m.GeometryDrawMethod,
+            await WritePartial(context, m.RoadSegmentId.ToInt32(), m.Geometry, null, null,
                 m.NodeIds, m.Morphology, m.Category, m.AccessRestriction, m.SurfaceType,
                 m.StreetNameId, m.MaintenanceAuthorityId, m.CarTrafficDirection, m.BikeTrafficDirection,
                 m.PedestrianTrafficDirection, m.Provenance, ct);
@@ -232,13 +232,20 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         When<IEvent<RoadSegmentWasCorrectedFromNotRealizedToPlanned>>((context, e, ct) => ProjectUnconnectedStatusChange(context, e.Data, ct));
         When<IEvent<RoadSegmentWasCorrectedFromHistorizedToOutOfUse>>((context, e, ct) => ProjectUnconnectedStatusChange(context, e.Data, ct));
         When<IEvent<RoadSegmentWasNotRealizedFromPlanned>>((context, e, ct) => ProjectUnconnectedStatusChange(context, e.Data, ct));
-
-        When<IEvent<RoadSegmentGeometryWasModified>>(async (context, e, ct) =>
+        When<IEvent<RoadSegmentWasHistorizedFromPlanned>>((context, e, ct) => ProjectUnconnectedStatusChange(context, e.Data, ct));
+        When<IEvent<RoadSegmentWasHistorizedFromNotRealized>>((context, e, ct) => ProjectUnconnectedStatusChange(context, e.Data, ct));
+        When<IEvent<RoadSegmentWasCorrectedFromHistorizedToPlanned>>((context, e, ct) => ProjectUnconnectedStatusChange(context, e.Data, ct));
+        When<IEvent<RoadSegmentWasMeasured>>(async (context, e, ct) =>
         {
             var m = e.Data;
-            await WritePartial(context, m.RoadSegmentId.ToInt32(), m.Geometry, null, null,
-                new RoadSegmentNodeIds { Start = m.StartNodeId, End = m.EndNodeId },
-                null, null, null, null, null, null, null, null, null, m.Provenance, ct);
+            await WritePartial(context, m.RoadSegmentId.ToInt32(), null, null, RoadSegmentGeometryDrawMethodV2.Ingemeten, null, null, null,
+                null, null, null, null, null, null, null, m.Provenance, ct);
+        });
+        When<IEvent<RoadSegmentWasCorrectedToOutlined>>(async (context, e, ct) =>
+        {
+            var m = e.Data;
+            await WritePartial(context, m.RoadSegmentId.ToInt32(), null, null, RoadSegmentGeometryDrawMethodV2.Ingeschetst, null, null, null,
+                null, null, null, null, null, null, null, m.Provenance, ct);
         });
 
         When<IEvent<RoadSegmentStreetNameIdWasChanged>>(async (context, e, ct) =>
@@ -246,13 +253,6 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             var m = e.Data;
             await WritePartial(context, m.RoadSegmentId.ToInt32(), null, null, null, null, null, null, null, null,
                 m.StreetNameId, null, null, null, null, m.Provenance, ct);
-        });
-
-        When<IEvent<RoadSegmentGeometryDrawMethodWasChanged>>(async (context, e, ct) =>
-        {
-            var m = e.Data;
-            await WritePartial(context, m.RoadSegmentId.ToInt32(), null, null, m.GeometryDrawMethod, null, null, null,
-                null, null, null, null, null, null, null, m.Provenance, ct);
         });
 
         When<IEvent<RoadSegmentWasSplit>>(async (context, e, ct) =>
