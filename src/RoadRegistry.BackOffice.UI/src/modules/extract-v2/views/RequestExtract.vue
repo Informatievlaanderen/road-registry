@@ -153,6 +153,24 @@
       <div v-show="currentStep == steps.Step2_Contour">
         <h3>Stap 2: Details van de contour</h3>
         <div class="vl-form-grid vl-form-grid--is-stacked">
+          <!-- Eerst het datamodel: het bepaalt in welk coördinatensysteem de contour hieronder opgegeven wordt. -->
+          <template v-if="canChooseNieuwDatamodel">
+            <div class="vl-form-col--12-12">
+              <p>Wenst u een extract op te halen met data in het oude of in het nieuwe datamodel?</p>
+            </div>
+            <div class="vl-form-col--12-12">
+              <label>
+                <input v-model="contourFlow.datamodel" type="radio" value="oud" />
+                Maak een extract aan met data in het oude datamodel (vóór de data-inwinning)
+              </label>
+            </div>
+            <div class="vl-form-col--12-12">
+              <label>
+                <input v-model="contourFlow.datamodel" type="radio" value="nieuw" />
+                Maak een extract aan met data in het nieuwe datamodel (na de data-inwinning)
+              </label>
+            </div>
+          </template>
           <div class="vl-form-col--12-12">
             <p>Geef een contour op waarvoor u het extract wenst op te halen. Dit kan op één van twee manieren:</p>
           </div>
@@ -172,7 +190,7 @@
             <div class="vl-form-col--12-12">
               <p>
                 <br />
-                Laad een shapefile op voor een (multi)polygoon in coördinatensysteem Lambert 1972.
+                Laad een shapefile op voor een (multi)polygoon in coördinatensysteem {{ contourFlowCoordinateSystem }}.
               </p>
               <vl-upload
                 ref="vlUpload"
@@ -198,8 +216,8 @@
             <div class="vl-form-col--12-12">
               <p>
                 <br />
-                Geef een contour op (in WKT formaat, coördinatensysteem Lambert 1972) waarvoor u het extract wenst op te
-                halen.
+                Geef een contour op (in WKT formaat, coördinatensysteem {{ contourFlowCoordinateSystem }}) waarvoor u
+                het extract wenst op te halen.
               </p>
               <textarea
                 class="vl-textarea"
@@ -218,8 +236,8 @@
               <vl-button @click="currentStep = steps.Step1">Vorige</vl-button>
               <vl-button
                 @click="approveStep2()"
-                :class="{ 'vl-button--disabled': !contourFlowHasValidInput }"
-                :disabled="!contourFlowHasValidInput"
+                :class="{ 'vl-button--disabled': !contourFlowHasValidInput || !contourFlowHasDatamodel }"
+                :disabled="!contourFlowHasValidInput || !contourFlowHasDatamodel"
               >
                 Volgende
               </vl-button>
@@ -267,23 +285,6 @@
               Nee, ik vraag een informatief extract aan
             </label>
           </div>
-          <template v-if="canChooseNieuwDatamodel">
-            <div class="vl-form-col--12-12">
-              <p>In welk datamodel wenst u het extract aangeleverd te krijgen?</p>
-            </div>
-            <div class="vl-form-col--12-12">
-              <label>
-                <input v-model="contourFlow.datamodel" type="radio" value="oud" />
-                Het oude datamodel
-              </label>
-            </div>
-            <div class="vl-form-col--12-12">
-              <label>
-                <input v-model="contourFlow.datamodel" type="radio" value="nieuw" />
-                Het nieuwe datamodel
-              </label>
-            </div>
-          </template>
           <div class="vl-form-col--12-12">
             <label for="contour-description" class="vl-form__label __field__label">
               Geef een beschrijving op van het extract.
@@ -488,6 +489,10 @@ export default defineComponent({
     },
     contourFlowHasDatamodel(): boolean {
       return !this.canChooseNieuwDatamodel || this.contourFlow.datamodel !== null;
+    },
+    // Het oude datamodel werkt in Lambert 1972, het nieuwe uitsluitend in Lambert 2008.
+    contourFlowCoordinateSystem(): string {
+      return this.canChooseNieuwDatamodel && this.contourFlow.datamodel === "nieuw" ? "Lambert 2008" : "Lambert 1972";
     },
     contourFlowHasValidInput(): boolean {
       switch (this.contourFlow.contourType) {
