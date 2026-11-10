@@ -15,7 +15,6 @@ using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 using RoadRegistry.BackOffice.Api.RoadSegments;
 using RoadRegistry.BackOffice.Api.RoadSegments.V1;
-using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.CommandHandling;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.DutchTranslations;
@@ -34,8 +33,8 @@ public abstract class RemoveRoadSegmentsTestBase
 
         Mediator = new Mock<IMediator>();
         Mediator
-            .Setup(x => x.Send(It.IsAny<RemoveRoadSegmentsSqsRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Fixture.Create<LocationResult>());
+            .Setup(x => x.Send(It.IsAny<DeleteRoadSegmentsRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DeleteRoadSegmentsResponse(new Uri("https://tickets.example/ticket")));
     }
 
     protected async Task ItShouldHaveExpectedError(
@@ -87,7 +86,6 @@ public abstract class RemoveRoadSegmentsTestBase
         return await controller.DeleteRoadSegments(
             parameters,
             new DeleteRoadSegmentsParametersValidator(),
-            new UseDomainV2FeatureToggle(true),
             CancellationToken.None
         );
     }

@@ -9,7 +9,6 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using FeatureToggles;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +27,6 @@ public partial class ExtractenController
     /// </summary>
     /// <param name="body"></param>
     /// <param name="validator"></param>
-    /// <param name="useDomainV2FeatureToggle"></param>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
     ///     of cancellation.
@@ -43,7 +41,6 @@ public partial class ExtractenController
     public async Task<IActionResult> ExtractDownloadaanvraagPerContour(
         [FromBody] ExtractDownloadaanvraagPerContourBody body,
         [FromServices] IValidator<ExtractDownloadaanvraagPerContourBody> validator,
-        [FromServices] UseDomainV2FeatureToggle useDomainV2FeatureToggle,
         CancellationToken cancellationToken = default)
     {
         try
@@ -65,9 +62,7 @@ public partial class ExtractenController
                 Description = body.Beschrijving,
                 IsInformative = body.Informatief,
                 ExternalRequestId = body.ExterneId,
-                ZipArchiveWriterVersion = useDomainV2FeatureToggle.FeatureEnabled
-                    ? WellKnownZipArchiveWriterVersions.DomainV2
-                    : WellKnownZipArchiveWriterVersions.DomainV1_2
+                ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV1_2
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));

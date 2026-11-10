@@ -29,8 +29,7 @@ public partial class ExtractsControllerTests
         // Act
         var result = await Controller.ExtractDownloadaanvraagPerContour(
             new ExtractDownloadaanvraagPerContourBody(Polygon.Empty.AsText(), Fixture.Create<string>(), true, Fixture.Create<string>()),
-            validator,
-            new UseDomainV2FeatureToggle(false));
+            validator);
 
         // Assert
         var acceptedResult = Assert.IsType<AcceptedResult>(result);
@@ -46,8 +45,7 @@ public partial class ExtractsControllerTests
 
         var act = () => Controller.ExtractDownloadaanvraagPerContour(
             new ExtractDownloadaanvraagPerContourBody(default, default, default, default),
-            validator,
-            new UseDomainV2FeatureToggle(false));
+            validator);
 
         await act.Should().ThrowAsync<ValidationException>();
     }

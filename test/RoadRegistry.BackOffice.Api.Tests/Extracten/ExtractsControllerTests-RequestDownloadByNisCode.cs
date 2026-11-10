@@ -42,8 +42,7 @@ public partial class ExtractsControllerTests
         var result = await Controller.ExtractDownloadaanvraagPerNisCode(
             new ExtractDownloadaanvraagPerNisCodeBody("12345", Fixture.Create<string>(), true),
             validator,
-            municipalityContext,
-            new UseDomainV2FeatureToggle(false));
+            municipalityContext);
 
         // Assert
         var acceptedResult = Assert.IsType<AcceptedResult>(result);
@@ -61,8 +60,7 @@ public partial class ExtractsControllerTests
         var act = () => Controller.ExtractDownloadaanvraagPerNisCode(
             new ExtractDownloadaanvraagPerNisCodeBody(default, default, default),
             validator,
-            municipalityContext,
-            new UseDomainV2FeatureToggle(false));
+            municipalityContext);
 
         await act.Should().ThrowAsync<ValidationException>();
     }
