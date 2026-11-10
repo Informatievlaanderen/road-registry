@@ -11,7 +11,7 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
-using RoadRegistry.Tests.BackOffice.Extracts.DomainV2;
+using RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
 using Xunit.Abstractions;
 
 public class WithValidRequest : WhenRequestInwinningExtractTestBase
@@ -40,7 +40,7 @@ public class WithValidRequest : WhenRequestInwinningExtractTestBase
         var archiveAssemblerMock = new Mock<IRoadNetworkExtractArchiveAssembler>();
         archiveAssemblerMock
             .Setup(x => x.AssembleArchive(It.IsAny<RoadNetworkExtractAssemblyRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => new DomainV2ZipArchiveBuilder().BuildArchiveStream());
+            .ReturnsAsync(() => new InwinningZipArchiveBuilder().BuildArchiveStream());
 
         // Act
         var sqsRequest = await HandleRequest(request, nisCode: nisCode, blobClient: blobClientMock.Object, archiveAssembler: archiveAssemblerMock.Object);

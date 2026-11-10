@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Asp.Versioning;
 using GeoJSON.Net.Geometry;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,8 @@ using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Api.Infrastructure.Extensions;
 using Swashbuckle.AspNetCore.Annotations;
+using RoadRegistry.Extensions;
+using Version = Infrastructure.Version;
 
 public partial class ExtractenController
 {
@@ -26,9 +29,20 @@ public partial class ExtractenController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation]
+    [MapToApiVersion(Version.V1)]
     [HttpGet("{downloadId}", Name = nameof(GetExtractDetails))]
-    public async Task<ActionResult> GetExtractDetails(
+    public Task<ActionResult> GetExtractDetails(
         [FromRoute] string downloadId,
+        CancellationToken cancellationToken)
+    {
+        // The v1 endpoints work in Lambert 72. Contours are stored in Lambert 2008, so the one handed back is put back
+        // into Lambert 72 and the contract stays what it was.
+        return GetExtractDetails(downloadId, contour => contour.EnsureLambert72(), cancellationToken);
+    }
+
+    private async Task<ActionResult> GetExtractDetails(
+        string downloadId,
+        Func<ExtractGeometry, ExtractGeometry> inReferenceSystem,
         CancellationToken cancellationToken)
     {
         try
@@ -51,7 +65,7 @@ public partial class ExtractenController
                 DownloadId = response.DownloadId,
                 Beschrijving = response.Description,
                 ExterneId = response.ExternalExtractRequestId,
-                Contour = response.Contour.ToGeoJson(),
+                Contour = ContourIn(response.Contour, inReferenceSystem).ToGeoJson(),
                 AangevraagdOp = response.RequestedOn,
                 Informatief = response.IsInformative,
                 DownloadStatus = response.DownloadStatus,
@@ -68,6 +82,18 @@ public partial class ExtractenController
         {
             return NotFound();
         }
+    }
+
+    // A contour in neither Lambert 72 nor Lambert 2008, or an empty one, is handed back as it is, the way it was
+    // before any converting started.
+    private static NetTopologySuite.Geometries.MultiPolygon ContourIn(NetTopologySuite.Geometries.MultiPolygon contour, Func<ExtractGeometry, ExtractGeometry> inReferenceSystem)
+    {
+        if (contour.IsEmpty || contour.SRID is not (WellknownSrids.Lambert72 or WellknownSrids.Lambert08))
+        {
+            return contour;
+        }
+
+        return inReferenceSystem(contour.ToExtractGeometry()).Value;
     }
 }
 

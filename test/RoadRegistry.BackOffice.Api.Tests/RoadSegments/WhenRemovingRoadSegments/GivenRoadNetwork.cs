@@ -4,6 +4,7 @@ using BackOffice.Handlers.Sqs.RoadNetwork;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using RoadRegistry.BackOffice.Abstractions.Exceptions;
+using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Api.RoadSegments;
 using RoadRegistry.BackOffice.Api.RoadSegments.V1;
 
@@ -23,6 +24,8 @@ public class GivenRoadNetwork : RemoveRoadSegmentsTestBase
 
         // Assert
         Assert.IsType<AcceptedResult>(result);
+        Mediator.Verify(x => x.Send(It.IsAny<DeleteRoadSegmentsRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+        Mediator.Verify(x => x.Send(It.IsAny<RemoveRoadSegmentsSqsRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Theory]
@@ -58,7 +61,7 @@ public class GivenRoadNetwork : RemoveRoadSegmentsTestBase
     public async Task WithNonExistingWegsegmenten_ThenBadRequest()
     {
         Mediator
-            .Setup(x => x.Send(It.IsAny<RemoveRoadSegmentsSqsRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.Send(It.IsAny<DeleteRoadSegmentsRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new RoadSegmentsNotFoundException([new RoadSegmentId(1)]));
 
         await ItShouldHaveExpectedError(new DeleteRoadSegmentsParameters

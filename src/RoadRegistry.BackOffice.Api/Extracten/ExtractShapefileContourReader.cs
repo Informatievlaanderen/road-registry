@@ -31,7 +31,7 @@ public class ExtractShapefileContourReader : IExtractShapefileContourReader
         var (polygons, problems) = TryTranslateV2(shpStream, geometryFactory);
         if (problems.Any())
         {
-            var (v1Polygons, v1Problems) = TryTranslateV1(shpStream);
+            var (v1Polygons, v1Problems) = TryTranslateV1(shpStream, geometryFactory);
             if (!v1Problems.Any())
             {
                 polygons = v1Polygons;
@@ -56,7 +56,7 @@ public class ExtractShapefileContourReader : IExtractShapefileContourReader
         return new MultiPolygon(polygons.ToArray()) { SRID = srid };
     }
 
-    private (List<Polygon>, List<Problem>) TryTranslateV1(Stream shpStream)
+    private (List<Polygon>, List<Problem>) TryTranslateV1(Stream shpStream, GeometryFactory geometryFactory)
     {
         var problems = new List<Problem>();
 
@@ -64,7 +64,7 @@ public class ExtractShapefileContourReader : IExtractShapefileContourReader
         Geometry geometry = null;
         try
         {
-            (header, geometry) = new ExtractGeometryShapeFileReaderV1().Read(shpStream);
+            (header, geometry) = new ExtractGeometryShapeFileReaderV1().Read(shpStream, geometryFactory);
         }
         catch (Exception ex)
         {

@@ -153,6 +153,24 @@
       <div v-show="currentStep == steps.Step2_Contour">
         <h3>Stap 2: Details van de contour</h3>
         <div class="vl-form-grid vl-form-grid--is-stacked">
+          <!-- Eerst het datamodel: het bepaalt in welk coördinatensysteem de contour hieronder opgegeven wordt. -->
+          <template v-if="canChooseNieuwDatamodel">
+            <div class="vl-form-col--12-12">
+              <p>Wenst u een extract op te halen met data in het oude of in het nieuwe datamodel?</p>
+            </div>
+            <div class="vl-form-col--12-12">
+              <label>
+                <input v-model="contourFlow.datamodel" type="radio" value="oud" />
+                Maak een extract aan met data in het oude datamodel (vóór de data-inwinning)
+              </label>
+            </div>
+            <div class="vl-form-col--12-12">
+              <label>
+                <input v-model="contourFlow.datamodel" type="radio" value="nieuw" />
+                Maak een extract aan met data in het nieuwe datamodel (na de data-inwinning)
+              </label>
+            </div>
+          </template>
           <div class="vl-form-col--12-12">
             <p>Geef een contour op waarvoor u het extract wenst op te halen. Dit kan op één van twee manieren:</p>
           </div>
@@ -172,7 +190,7 @@
             <div class="vl-form-col--12-12">
               <p>
                 <br />
-                Laad een shapefile op voor een (multi)polygoon in coördinatensysteem Lambert 1972.
+                Laad een shapefile op voor een (multi)polygoon in coördinatensysteem {{ contourFlowCoordinateSystem }}.
               </p>
               <vl-upload
                 ref="vlUpload"
@@ -198,8 +216,8 @@
             <div class="vl-form-col--12-12">
               <p>
                 <br />
-                Geef een contour op (in WKT formaat, coördinatensysteem Lambert 1972) waarvoor u het extract wenst op te
-                halen.
+                Geef een contour op (in WKT formaat, coördinatensysteem {{ contourFlowCoordinateSystem }}) waarvoor u
+                het extract wenst op te halen.
               </p>
               <textarea
                 class="vl-textarea"
@@ -218,8 +236,8 @@
               <vl-button @click="currentStep = steps.Step1">Vorige</vl-button>
               <vl-button
                 @click="approveStep2()"
-                :class="{ 'vl-button--disabled': !contourFlowHasValidInput }"
-                :disabled="!contourFlowHasValidInput"
+                :class="{ 'vl-button--disabled': !contourFlowHasValidInput || !contourFlowHasDatamodel }"
+                :disabled="!contourFlowHasValidInput || !contourFlowHasDatamodel"
               >
                 Volgende
               </vl-button>
@@ -317,6 +335,7 @@
                   isSubmitting ||
                   !isDescriptionValid(contourFlow.description) ||
                   !contourFlowHasIsInformative ||
+                  !contourFlowHasDatamodel ||
                   isCheckingOverlap ||
                   (contourFlow.overlapWarning && !contourFlow.overlapWarningAccepted)
                 "
@@ -395,6 +414,8 @@ export default defineComponent({
         validationErrors: [] as RoadRegistry.ValidationError[],
         hasGenericError: false,
         isInformative: null as boolean | null,
+        // Leeg tot de gebruiker kiest: bij een eigen contour valt het datamodel niet af te leiden.
+        datamodel: null as "oud" | "nieuw" | null,
         overlapWarning: false,
         overlapWarningAccepted: false,
       },
@@ -461,6 +482,17 @@ export default defineComponent({
     },
     contourFlowHasIsInformative(): boolean {
       return this.contourFlow.isInformative !== null;
+    },
+    // Staat de toggle uit, dan krijgt elk extract het oude datamodel en valt er niets te kiezen.
+    canChooseNieuwDatamodel(): boolean {
+      return featureToggles.useDomainV2BijhoudingExtract;
+    },
+    contourFlowHasDatamodel(): boolean {
+      return !this.canChooseNieuwDatamodel || this.contourFlow.datamodel !== null;
+    },
+    // Het oude datamodel werkt in Lambert 1972, het nieuwe uitsluitend in Lambert 2008.
+    contourFlowCoordinateSystem(): string {
+      return this.canChooseNieuwDatamodel && this.contourFlow.datamodel === "nieuw" ? "Lambert 2008" : "Lambert 1972";
     },
     contourFlowHasValidInput(): boolean {
       switch (this.contourFlow.contourType) {
@@ -631,7 +663,15 @@ export default defineComponent({
           informatief: this.municipalityFlow.isInformative as boolean,
         };
 
-        let downloadExtractResponse = await PublicApi.Extracts.V2.requestExtractByNisCode(requestData);
+        // De inwinningsstatus van de gemeente bepaalt het datamodel: is ze ingewonnen, dan hoort het extract in het
+        // hernieuwde datamodel thuis. Zolang de inwinning niet gestart of bezig is, blijft het het oude.
+        const useNieuwDatamodel =
+          this.canChooseNieuwDatamodel &&
+          (await PublicApi.Inwinningsstatus.getGemeente(this.municipalityFlow.nisCode)).inwinningsstatus === "compleet";
+
+        let downloadExtractResponse = useNieuwDatamodel
+          ? await PublicApi.Extracts.V3.requestExtractByNisCode(requestData)
+          : await PublicApi.Extracts.V2.requestExtractByNisCode(requestData);
 
         this.$router.push({ name: "extractDetailsV2", params: { downloadId: downloadExtractResponse.downloadId } });
       } catch (exception) {
@@ -658,7 +698,18 @@ export default defineComponent({
           return;
         }
 
+        if (!this.contourFlowHasDatamodel) {
+          return;
+        }
+
         let downloadExtractResponse: RoadRegistry.RequestExtractResponse;
+
+        // Bij een eigen contour valt niet af te leiden welk datamodel de gebruiker wil: de contour kan over ingewonnen
+        // en niet-ingewonnen gebied heen liggen. Daarom is het een expliciete keuze.
+        const extracts =
+          this.canChooseNieuwDatamodel && this.contourFlow.datamodel === "nieuw"
+            ? PublicApi.Extracts.V3
+            : PublicApi.Extracts.V2;
 
         switch (this.contourFlow.contourType) {
           case "shp":
@@ -668,7 +719,7 @@ export default defineComponent({
                 beschrijving: this.contourFlow.description,
                 informatief: this.contourFlow.isInformative as boolean,
               };
-              downloadExtractResponse = await PublicApi.Extracts.V2.requestExtractByFile(requestData);
+              downloadExtractResponse = await extracts.requestExtractByFile(requestData);
             }
             break;
           case "wkt":
@@ -679,7 +730,7 @@ export default defineComponent({
                 informatief: this.contourFlow.isInformative as boolean,
               };
 
-              downloadExtractResponse = await PublicApi.Extracts.V2.requestExtractByContour(requestData);
+              downloadExtractResponse = await extracts.requestExtractByContour(requestData);
             }
             break;
           default:

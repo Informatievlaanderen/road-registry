@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracten;
 
+using Asp.Versioning;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +9,6 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using FeatureToggles;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +18,7 @@ using RoadRegistry.Extracts;
 using RoadRegistry.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
 using ValueObjects.ProblemCodes;
+using Version = Infrastructure.Version;
 
 public partial class ExtractenController
 {
@@ -26,7 +27,6 @@ public partial class ExtractenController
     /// </summary>
     /// <param name="body"></param>
     /// <param name="validator"></param>
-    /// <param name="useDomainV2FeatureToggle"></param>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
     ///     of cancellation.
@@ -36,11 +36,11 @@ public partial class ExtractenController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(ExtractDownloadaanvraagPerContour))]
+    [MapToApiVersion(Version.V1)]
     [HttpPost("downloadaanvragen/percontour", Name = nameof(ExtractDownloadaanvraagPerContour))]
     public async Task<IActionResult> ExtractDownloadaanvraagPerContour(
         [FromBody] ExtractDownloadaanvraagPerContourBody body,
         [FromServices] IValidator<ExtractDownloadaanvraagPerContourBody> validator,
-        [FromServices] UseDomainV2FeatureToggle useDomainV2FeatureToggle,
         CancellationToken cancellationToken = default)
     {
         try
@@ -49,12 +49,9 @@ public partial class ExtractenController
 
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(body.ExterneId ?? Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
-            var contour = new WKTReader().Read(body.Contour).ToMultiPolygon();
-
-            if (useDomainV2FeatureToggle.FeatureEnabled)
-            {
-                contour = contour.EnsureLambert08();
-            }
+            // Stored in Lambert 2008 whichever datamodel the extract itself is in; the v1 assembler puts it back
+            // into Lambert 72 when it goes looking for the data.
+            var contour = new WKTReader().Read(body.Contour).ToMultiPolygon().EnsureLambert08();
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
@@ -65,9 +62,7 @@ public partial class ExtractenController
                 Description = body.Beschrijving,
                 IsInformative = body.Informatief,
                 ExternalRequestId = body.ExterneId,
-                ZipArchiveWriterVersion = useDomainV2FeatureToggle.FeatureEnabled
-                    ? WellKnownZipArchiveWriterVersions.DomainV2
-                    : WellKnownZipArchiveWriterVersions.DomainV1_2
+                ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV1_2
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));

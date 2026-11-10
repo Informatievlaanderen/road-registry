@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracten;
 
+using Asp.Versioning;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -9,7 +10,6 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using FeatureToggles;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -20,6 +20,7 @@ using RoadRegistry.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
 using Sync.MunicipalityRegistry;
 using ValueObjects.ProblemCodes;
+using Version = Infrastructure.Version;
 
 public partial class ExtractenController
 {
@@ -29,7 +30,6 @@ public partial class ExtractenController
     /// <param name="body">The body.</param>
     /// <param name="validator"></param>
     /// <param name="municipalityContext"></param>
-    /// <param name="useDomainV2FeatureToggle"></param>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
     ///     of cancellation.
@@ -39,12 +39,12 @@ public partial class ExtractenController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(ExtractDownloadaanvraagPerNisCode))]
+    [MapToApiVersion(Version.V1)]
     [HttpPost("downloadaanvragen/perniscode", Name = nameof(ExtractDownloadaanvraagPerNisCode))]
     public async Task<IActionResult> ExtractDownloadaanvraagPerNisCode(
         [FromBody] ExtractDownloadaanvraagPerNisCodeBody body,
         [FromServices] IValidator<ExtractDownloadaanvraagPerNisCodeBody> validator,
         [FromServices] MunicipalityEventConsumerContext municipalityContext,
-        [FromServices] UseDomainV2FeatureToggle useDomainV2FeatureToggle,
         CancellationToken cancellationToken = default)
     {
         try
@@ -64,12 +64,7 @@ public partial class ExtractenController
 
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
-            var contour = municipality.Geometry.ToMultiPolygon();
-
-            if (useDomainV2FeatureToggle.FeatureEnabled)
-            {
-                contour = contour.EnsureLambert08();
-            }
+            var contour = municipality.Geometry.ToMultiPolygon().EnsureLambert08();
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
@@ -80,9 +75,7 @@ public partial class ExtractenController
                 Description = body.Beschrijving,
                 IsInformative = body.Informatief,
                 ExternalRequestId = null,
-                ZipArchiveWriterVersion = useDomainV2FeatureToggle.FeatureEnabled
-                    ? WellKnownZipArchiveWriterVersions.DomainV2
-                    : WellKnownZipArchiveWriterVersions.DomainV1_2
+                ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV1_2
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));

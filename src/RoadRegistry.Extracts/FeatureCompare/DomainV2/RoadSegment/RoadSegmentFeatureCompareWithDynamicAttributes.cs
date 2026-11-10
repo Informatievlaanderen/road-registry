@@ -16,11 +16,11 @@ public record RoadSegmentFeatureCompareWithDynamicAttributes
     public RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>? Morphology { get; init; }
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId>? StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceTypeV2>? SurfaceType { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool>? CarAccessForward { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool>? CarAccessBackward { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool>? BikeAccessForward { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool>? BikeAccessBackward { get; init; }
-    public RoadSegmentDynamicAttributeValues<bool>? PedestrianAccess { get; init; }
+    // Traffic types, the way the road network itself records them. A delivery states them per direction as a pair of
+    // booleans, either of which may be unknown ('-8'), and 'niet gekend' is where such a pair lands.
+    public RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>? CarTrafficDirection { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentTrafficDirection>? BikeTrafficDirection { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentPedestrianTrafficDirection>? PedestrianTrafficDirection { get; init; }
 
     public RoadSegmentFeatureCompareWithDynamicAttributes OnlyChangedAttributes(RoadSegmentFeatureCompareWithDynamicAttributes other, MultiLineString extractGeometry)
     {
@@ -36,11 +36,9 @@ public record RoadSegmentFeatureCompareWithDynamicAttributes
             Morphology = Morphology == other.Morphology ? null : Morphology,
             StreetNameId = StreetNameId == other.StreetNameId ? null : StreetNameId,
             SurfaceType = SurfaceType == other.SurfaceType ? null : SurfaceType,
-            CarAccessForward = CarAccessForward == other.CarAccessForward && CarAccessBackward == other.CarAccessBackward ? null : CarAccessForward,
-            CarAccessBackward = CarAccessForward == other.CarAccessForward && CarAccessBackward == other.CarAccessBackward ? null : CarAccessBackward,
-            BikeAccessForward = BikeAccessForward == other.BikeAccessForward && BikeAccessBackward == other.BikeAccessBackward ? null : BikeAccessForward,
-            BikeAccessBackward = BikeAccessForward == other.BikeAccessForward && BikeAccessBackward == other.BikeAccessBackward ? null : BikeAccessBackward,
-            PedestrianAccess = PedestrianAccess == other.PedestrianAccess ? null : PedestrianAccess
+            CarTrafficDirection = CarTrafficDirection == other.CarTrafficDirection ? null : CarTrafficDirection,
+            BikeTrafficDirection = BikeTrafficDirection == other.BikeTrafficDirection ? null : BikeTrafficDirection,
+            PedestrianTrafficDirection = PedestrianTrafficDirection == other.PedestrianTrafficDirection ? null : PedestrianTrafficDirection
         };
     }
 
@@ -89,11 +87,9 @@ public record RoadSegmentFeatureCompareWithDynamicAttributes
                 (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Rechts, x.RightSideStreetNameId)
             })),
             SurfaceType = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.SurfaceType))),
-            CarAccessForward = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.CarAccessForward))),
-            CarAccessBackward = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.CarAccessBackward))),
-            BikeAccessForward = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.BikeAccessForward))),
-            BikeAccessBackward = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.BikeAccessBackward))),
-            PedestrianAccess = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, x.PedestrianAccess)))
+            CarTrafficDirection = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, RoadSegmentTrafficDirection.FromAccess(x.CarAccessForward, x.CarAccessBackward)))),
+            BikeTrafficDirection = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, RoadSegmentTrafficDirection.FromAccess(x.BikeAccessForward, x.BikeAccessBackward)))),
+            PedestrianTrafficDirection = CreateDynamicAttributeValues(segmentLength, flatAttributes.Select(x => (coveragePerGeometry[x.Geometry], RoadSegmentAttributeSide.Beide, RoadSegmentPedestrianTrafficDirection.FromAccess(x.PedestrianAccess))))
         };
     }
 
@@ -114,11 +110,9 @@ public record RoadSegmentFeatureCompareWithDynamicAttributes
             Morphology = Morphology?.RemapTo(currentVertexPositions, newVertexPositions),
             StreetNameId = StreetNameId?.RemapTo(currentVertexPositions, newVertexPositions),
             SurfaceType = SurfaceType?.RemapTo(currentVertexPositions, newVertexPositions),
-            CarAccessForward = CarAccessForward?.RemapTo(currentVertexPositions, newVertexPositions),
-            CarAccessBackward = CarAccessBackward?.RemapTo(currentVertexPositions, newVertexPositions),
-            BikeAccessForward = BikeAccessForward?.RemapTo(currentVertexPositions, newVertexPositions),
-            BikeAccessBackward = BikeAccessBackward?.RemapTo(currentVertexPositions, newVertexPositions),
-            PedestrianAccess = PedestrianAccess?.RemapTo(currentVertexPositions, newVertexPositions)
+            CarTrafficDirection = CarTrafficDirection?.RemapTo(currentVertexPositions, newVertexPositions),
+            BikeTrafficDirection = BikeTrafficDirection?.RemapTo(currentVertexPositions, newVertexPositions),
+            PedestrianTrafficDirection = PedestrianTrafficDirection?.RemapTo(currentVertexPositions, newVertexPositions)
         };
     }
 

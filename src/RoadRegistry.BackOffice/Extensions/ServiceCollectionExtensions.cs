@@ -26,6 +26,7 @@ using RoadRegistry.Extracts.FeatureCompare.DomainV2.RoadSegment;
 using RoadRegistry.Extracts.FeatureCompare.DomainV2.TransactionZone;
 using Uploads;
 using IZipArchiveFeatureCompareTranslator = RoadRegistry.Extracts.FeatureCompare.DomainV2.IZipArchiveFeatureCompareTranslator;
+using InwinningFeatureCompare = RoadRegistry.Extracts.FeatureCompare.Inwinning;
 
 public static class ServiceCollectionExtensions
 {
@@ -186,6 +187,7 @@ public static class ServiceCollectionExtensions
             .AddFeatureCompareV1()
             .AddFeatureCompareV2()
             .AddFeatureCompareDomainV2()
+            .AddFeatureCompareInwinning()
             .AddSingleton<ITransactionZoneZipArchiveReader, TransactionZoneZipArchiveReader>()
             .AddSingleton<IZipArchiveBeforeFeatureCompareValidatorFactory, ZipArchiveBeforeFeatureCompareValidatorFactory>()
             .AddSingleton<IZipArchiveFeatureCompareTranslatorFactory, ZipArchiveFeatureCompareTranslatorFactory>()
@@ -278,18 +280,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddFeatureCompareDomainV2(this IServiceCollection services)
     {
-        services
-            .AddHttpClient(nameof(GrbOgcApiFeaturesDownloader));
-
         return services
-            .AddSingleton<IGrbOgcApiFeaturesDownloader>(sp =>
-            {
-                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-                var client = httpClientFactory.CreateClient(nameof(GrbOgcApiFeaturesDownloader));
-                var baseUrl = $"{sp.GetRequiredService<IConfiguration>().GetValue<string>("GrbOgcApiUrl")?.TrimEnd('/')}/features/v1";
-                return new GrbOgcApiFeaturesDownloader(client, baseUrl);
-            })
-
             .AddSingleton<TransactionZoneFeatureCompareFeatureReader>()
             .AddSingleton<RoadNodeFeatureCompareFeatureReader>()
             .AddSingleton<RoadSegmentFeatureCompareFeatureReader>()
@@ -306,6 +297,42 @@ public static class ServiceCollectionExtensions
             .AddSingleton<GradeSeparatedJunctionFeatureCompareTranslator>()
 
             .AddSingleton<IZipArchiveFeatureCompareTranslator, ZipArchiveFeatureCompareTranslator>()
+            ;
+    }
+
+    // The inwinning counterpart of AddFeatureCompareDomainV2. Inwinning is a one-off: once every municipality has been
+    // collected it goes away, and this registration and the RoadRegistry.Extracts.FeatureCompare.Inwinning namespace go
+    // with it. Until then it keeps its own copy of the suite so the recurrent bijhouding flow can evolve freely.
+    private static IServiceCollection AddFeatureCompareInwinning(this IServiceCollection services)
+    {
+        services
+            .AddHttpClient(nameof(InwinningFeatureCompare.RoadSegment.GrbOgcApiFeaturesDownloader));
+
+        return services
+            .AddSingleton<InwinningFeatureCompare.RoadSegment.IGrbOgcApiFeaturesDownloader>(sp =>
+            {
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                var client = httpClientFactory.CreateClient(nameof(InwinningFeatureCompare.RoadSegment.GrbOgcApiFeaturesDownloader));
+                var baseUrl = $"{sp.GetRequiredService<IConfiguration>().GetValue<string>("GrbOgcApiUrl")?.TrimEnd('/')}/features/v1";
+                return new InwinningFeatureCompare.RoadSegment.GrbOgcApiFeaturesDownloader(client, baseUrl);
+            })
+
+            .AddSingleton<InwinningFeatureCompare.TransactionZone.TransactionZoneFeatureCompareFeatureReader>()
+            .AddSingleton<InwinningFeatureCompare.RoadNode.RoadNodeFeatureCompareFeatureReader>()
+            .AddSingleton<InwinningFeatureCompare.RoadSegment.RoadSegmentFeatureCompareFeatureReader>()
+            .AddSingleton<InwinningFeatureCompare.EuropeanRoad.EuropeanRoadFeatureCompareFeatureReader>()
+            .AddSingleton<InwinningFeatureCompare.NationalRoad.NationalRoadFeatureCompareFeatureReader>()
+            .AddSingleton<InwinningFeatureCompare.GradeSeparatedJunction.GradeSeparatedJunctionFeatureCompareFeatureReader>()
+
+            .AddSingleton<InwinningFeatureCompare.TransactionZone.TransactionZoneFeatureCompareTranslator>()
+            .AddSingleton<InwinningFeatureCompare.RoadNode.RoadNodeFeatureCompareTranslator>()
+            .AddSingleton<InwinningFeatureCompare.RoadSegment.IRoadSegmentFeatureCompareStreetNameContextFactory, InwinningFeatureCompare.RoadSegment.RoadSegmentFeatureCompareStreetNameContextFactory>()
+            .AddSingleton<InwinningFeatureCompare.RoadSegment.RoadSegmentFeatureCompareTranslator>()
+            .AddSingleton<InwinningFeatureCompare.EuropeanRoad.EuropeanRoadFeatureCompareTranslator>()
+            .AddSingleton<InwinningFeatureCompare.NationalRoad.NationalRoadFeatureCompareTranslator>()
+            .AddSingleton<InwinningFeatureCompare.GradeSeparatedJunction.GradeSeparatedJunctionFeatureCompareTranslator>()
+
+            .AddSingleton<InwinningFeatureCompare.IZipArchiveFeatureCompareTranslator, InwinningFeatureCompare.ZipArchiveFeatureCompareTranslator>()
             ;
     }
 }

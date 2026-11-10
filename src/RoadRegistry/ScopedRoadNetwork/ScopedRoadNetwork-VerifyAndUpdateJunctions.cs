@@ -16,7 +16,7 @@ using RoadRegistry.ValueObjects.Problems;
 
 public partial class ScopedRoadNetwork
 {
-    private Problems VerifyAndUpdateJunctions(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
+    private Problems VerifyAndUpdateJunctions(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, MissingGradeSeparatedJunction missingGradeSeparatedJunction)
     {
         using var _ = context.Logger.TimeAction();
 
@@ -81,7 +81,9 @@ public partial class ScopedRoadNetwork
 
             var hasOverlapInTrafficTypes = combination.Segment1.HasTrafficOverlap(combination.Segment2, intersection, context);
 
-            if (hasOverlapInTrafficTypes && !existingGradeSeparatedJunctions.ContainsKey(combination.Key))
+            if (hasOverlapInTrafficTypes
+                && missingGradeSeparatedJunction == MissingGradeSeparatedJunction.Error
+                && !existingGradeSeparatedJunctions.ContainsKey(combination.Key))
             {
                 var problemContext = ProblemContext.For(context.IdTranslator.TranslateToTemporaryId(combination.Segment1.RoadSegmentId));
                 problems += new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(context.IdTranslator.TranslateToTemporaryId(combination.Segment2.RoadSegmentId))

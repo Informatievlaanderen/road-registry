@@ -38,7 +38,6 @@ public class DetermineMethodTests
             [new(new RecordNumber(1), flatSegment)],
             [],
             fixture.Create<NextRoadSegmentIdProvider>(),
-            new OgcFeaturesCache([]),
             new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
             CancellationToken.None).RoadSegments;
 
@@ -49,106 +48,29 @@ public class DetermineMethodTests
         dynamicRecord.Attributes.Method!.Should().Be(flatSegment.Method);
     }
 
+    // The reader refuses a bijhouding record without a METHODE, so one reaching the unflattener is a programming
+    // error. Unlike the inwinning, there is no GRB to fall back on to guess it.
     [Fact]
-    public void WithMethodNullAndStatusGepland_ThenIngeschetst()
+    public void WithMethodNull_ThenInvalidOperationException()
     {
         // Arrange
         var fixture = new RoadNetworkTestDataV2().Fixture;
 
         var flatSegment = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
         {
-            Method = null,
-            Status = RoadSegmentStatusV2.Gepland
+            Method = null
         };
 
         // Act
-        var records = RoadSegmentUnflattener.UnflattenByTopology(
+        var act = () => RoadSegmentUnflattener.UnflattenByTopology(
             fixture.Create<FeatureType>(),
             [new(new RecordNumber(1), flatSegment)],
             [],
             fixture.Create<NextRoadSegmentIdProvider>(),
-            new OgcFeaturesCache([]),
             new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
-            CancellationToken.None).RoadSegments;
+            CancellationToken.None);
 
         // Assert
-        records.Should().HaveCount(1);
-        var dynamicRecord = records.Single();
-
-        dynamicRecord.Attributes.Method!.Should().Be(RoadSegmentGeometryDrawMethodV2.Ingeschetst);
-    }
-
-    [Fact]
-    public void WithMethodNullAndStatusNotGeplandAndNoOgcOverlap_ThenIngeschetst()
-    {
-        // Arrange
-        var fixture = new RoadNetworkTestDataV2().Fixture;
-
-        var flatSegment = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
-        {
-            Geometry = BuildRoadSegmentGeometry(0, 0, 50, 0),
-            Method = null,
-            Status = fixture.CreateWhichIsDifferentThan(RoadSegmentStatusV2.Gepland)
-        };
-
-        var ogcFeaturesCache = new OgcFeaturesCache([]);
-
-        // Act
-        var records = RoadSegmentUnflattener.UnflattenByTopology(
-            fixture.Create<FeatureType>(),
-            [new(new RecordNumber(1), flatSegment)],
-            [],
-            fixture.Create<NextRoadSegmentIdProvider>(),
-            ogcFeaturesCache,
-            new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
-            CancellationToken.None).RoadSegments;
-
-        // Assert
-        records.Should().HaveCount(1);
-        var dynamicRecord = records.Single();
-
-        dynamicRecord.Attributes.Method!.Should().Be(RoadSegmentGeometryDrawMethodV2.Ingeschetst);
-    }
-
-    [Fact]
-    public void WithMethodNullAndStatusNotGeplandAndOgcOverlap_ThenIngemeten()
-    {
-        // Arrange
-        var fixture = new RoadNetworkTestDataV2().Fixture;
-
-        var flatSegment = fixture.Create<RoadSegmentFeatureCompareWithFlatAttributes>() with
-        {
-            Geometry = BuildRoadSegmentGeometry(0, 0, 50, 0),
-            Method = null,
-            Status = fixture.CreateWhichIsDifferentThan(RoadSegmentStatusV2.Gepland)
-        };
-
-        var ogcFeaturesCache = new OgcFeaturesCache([new OgcFeature(fixture.Create<string>(), null, flatSegment.Geometry.Buffer(100), null)]);
-
-        // Act
-        var records = RoadSegmentUnflattener.UnflattenByTopology(
-            fixture.Create<FeatureType>(),
-            [new(new RecordNumber(1), flatSegment)],
-            [],
-            fixture.Create<NextRoadSegmentIdProvider>(),
-            ogcFeaturesCache,
-            new ZipArchiveEntryFeatureCompareTranslateContext(null, ZipArchiveMetadata.Empty),
-            CancellationToken.None).RoadSegments;
-
-        // Assert
-        records.Should().HaveCount(1);
-        var dynamicRecord = records.Single();
-
-        dynamicRecord.Attributes.Method!.Should().Be(RoadSegmentGeometryDrawMethodV2.Ingemeten);
-    }
-
-    private static MultiLineString BuildRoadSegmentGeometry(int x1, int y1, int x2, int y2)
-    {
-        return BuildRoadSegmentGeometry(new Point(x1, y1), new Point(x2, y2));
-    }
-
-    private static MultiLineString BuildRoadSegmentGeometry(Point start, Point end)
-    {
-        return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])]);
+        act.Should().Throw<InvalidOperationException>();
     }
 }

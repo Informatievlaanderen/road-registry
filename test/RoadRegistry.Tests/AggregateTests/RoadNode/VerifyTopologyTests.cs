@@ -101,7 +101,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
 
         return Run(scenario => scenario
             .Given(b => b)
-            .When(changes => changes
+            .WhenMigrate(changes => changes
                 .Add(TestData.AddSegment1StartNode with
                 {
                     Geometry = RoadNodeGeometry.Create(point1),
@@ -146,6 +146,64 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                     .OfType<RoadSegmentWasMerged>()
                     .SingleOrDefault(x => x.OtherRoadSegmentId == new RoadSegmentId(2));
                 roadSegmentWasMerged.Should().NotBeNull();
+            })
+        );
+    }
+
+    // The same two segments as above, delivered through a change rather than an inwinning. Cutting a road segment in
+    // LARA leaves a node behind that nothing strictly needs, and an extract taken right after that carries it; the
+    // bijwerker who delivers it back cannot be expected to have cleaned it up, so the node is kept.
+    [Fact]
+    public Task WhenDetectType_WithTwoDifferentSegmentsConnectedInAChangeAndNodeIsNotGrensknoop_ThenTypeIsValidatieknoop()
+    {
+        var point1 = new Point(600000, 600000).WithSrid(WellknownSrids.Lambert08);
+        var point2 = new Point(600011, 600000).WithSrid(WellknownSrids.Lambert08);
+        var point3 = new Point(600020, 600000).WithSrid(WellknownSrids.Lambert08);
+
+        return Run(scenario => scenario
+            .Given(b => b)
+            .When(changes => changes
+                .Add(TestData.AddSegment1StartNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point1),
+                    Grensknoop = false
+                })
+                .Add(TestData.AddSegment1EndNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point2),
+                    Grensknoop = false
+                })
+                .Add((TestData.AddSegment1 with
+                {
+                    Geometry = BuildRoadSegmentGeometry(point1, point2),
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                    GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
+                .Add(TestData.AddSegment2EndNode with
+                {
+                    Geometry = RoadNodeGeometry.Create(point3),
+                    Grensknoop = false
+                })
+                .Add((TestData.AddSegment2 with
+                {
+                    Geometry = BuildRoadSegmentGeometry(point2, point3),
+                    Status = RoadSegmentStatusV2.Gerealiseerd,
+                    GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst
+                }).WithDynamicAttributePositionsOnEntireGeometryLength())
+            )
+            .Then((_, events) =>
+            {
+                events.OfType<RoadNodeWasRemoved>()
+                    .SingleOrDefault(x => x.RoadNodeId == 2)
+                    .Should().BeNull();
+
+                events.OfType<RoadSegmentWasMerged>()
+                    .Should().BeEmpty();
+
+                var wasChanged = events
+                    .OfType<RoadNodeTypeWasChanged>()
+                    .SingleOrDefault(x => x.RoadNodeId == 2 && x.Type == RoadNodeTypeV2.Validatieknoop);
+                wasChanged.Should().NotBeNull();
             })
         );
     }
@@ -267,7 +325,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
 
         return Run(scenario => scenario
             .Given(b => b)
-            .When(changes => changes
+            .WhenMigrate(changes => changes
                 .Add(TestData.AddSegment1StartNode with
                 {
                     Geometry = RoadNodeGeometry.Create(point1),

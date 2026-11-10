@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracten;
 
+using Asp.Versioning;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore;
 using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Abstractions.Jobs;
 using RoadRegistry.BackOffice.Api.Infrastructure;
+using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
 using Swashbuckle.AspNetCore.Annotations;
 using TicketingService.Abstractions;
+using Version = Infrastructure.Version;
 
 public partial class ExtractenController
 {
@@ -31,6 +34,7 @@ public partial class ExtractenController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(UploadExtract))]
+    [MapToApiVersion(Version.V1)]
     [HttpPost("{downloadId}/upload", Name = nameof(UploadExtract))]
     public async Task<IActionResult> UploadExtract(
         [FromRoute] string downloadId,
@@ -56,6 +60,21 @@ public partial class ExtractenController
                     PropertyName = string.Empty,
                     ErrorCode = "ExtractGesloten",
                     ErrorMessage = "Het extract is gesloten.",
+                }
+            ]);
+        }
+
+        // An extract in the hernieuwde datamodel is read back with its own feature compare, which only the v2
+        // endpoint (or, for the data-inwinning, the inwinning endpoint) hands it to.
+        if (extractDownload.ZipArchiveWriterVersion is WellKnownZipArchiveWriterVersions.DomainV2
+            or WellKnownZipArchiveWriterVersions.DomainV2_Inwinning)
+        {
+            throw new ValidationException([
+                new ValidationFailure
+                {
+                    PropertyName = string.Empty,
+                    ErrorCode = "ExtractDatamodelOngeldig",
+                    ErrorMessage = "Dit extract werd aangemaakt in het hernieuwde datamodel en kan niet via deze versie opgeladen worden.",
                 }
             ]);
         }

@@ -38,7 +38,7 @@ public partial class ScopedRoadNetwork
 
         if (!problems.HasError())
         {
-            problems += AfterChangesApplied(idGenerator, context);
+            problems += AfterChangesApplied(idGenerator, context, RoadSegmentMerging.NotAllowed, MissingGradeSeparatedJunction.Allowed);
         }
 
         if (!problems.HasError() && changes.Any())
@@ -146,9 +146,17 @@ public partial class ScopedRoadNetwork
         return problems;
     }
 
-    private Problems AfterChangesApplied(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context)
+    // merging: see RoadNode.VerifyTopologyAndUpdateType. An inwinning reshapes a municipality as a whole
+    // and may take an unnecessary node out by merging the two segments hanging off it. A delivery through the
+    // bijhouding does not: cutting a road segment in LARA leaves a validatieknoop behind, and an extract taken right
+    // after that carries it. The bijwerker who downloads such an extract cannot be expected to clean it up, so the
+    // node stays where it is.
+    //
+    // missingGradeSeparatedJunction: see MissingGradeSeparatedJunction. The bijhouding lets a crossing without an
+    // ongelijkgrondse kruising through, the inwinning refuses it.
+    private Problems AfterChangesApplied(IRoadNetworkIdGenerator idGenerator, ScopedRoadNetworkChangeContext context, RoadSegmentMerging merging, MissingGradeSeparatedJunction missingGradeSeparatedJunction)
     {
-        var problems = VerifyRoadNodesTopologyAndUpdateTypeAfterChange(idGenerator, context, RoadSegmentMerging.AsInwinning);
+        var problems = VerifyRoadNodesTopologyAndUpdateTypeAfterChange(idGenerator, context, merging);
 
         problems = problems
                    + VerifyRoadSegmentsTopologyAfterChange(context)
@@ -156,7 +164,7 @@ public partial class ScopedRoadNetwork
 
         if (!problems.HasError())
         {
-            problems += VerifyAndUpdateJunctions(idGenerator, context);
+            problems += VerifyAndUpdateJunctions(idGenerator, context, missingGradeSeparatedJunction);
         }
 
         return problems;

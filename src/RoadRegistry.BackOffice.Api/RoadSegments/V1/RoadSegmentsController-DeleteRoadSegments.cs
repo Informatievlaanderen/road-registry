@@ -17,8 +17,6 @@ using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
-using RoadRegistry.BackOffice.FeatureToggles;
-using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.Messages;
 using RoadRegistry.ValueObjects.ProblemCodes;
@@ -34,7 +32,6 @@ public partial class RoadSegmentsController
     /// </summary>
     /// <param name="parameters"></param>
     /// <param name="validator"></param>
-    /// <param name="useDomainV2FeatureToggle"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als de wegsegmenten gevonden zijn.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
@@ -50,30 +47,16 @@ public partial class RoadSegmentsController
     public async Task<IActionResult> DeleteRoadSegments(
         [FromBody] DeleteRoadSegmentsParameters parameters,
         [FromServices] DeleteRoadSegmentsParametersValidator validator,
-        [FromServices] UseDomainV2FeatureToggle useDomainV2FeatureToggle,
         CancellationToken cancellationToken)
     {
         try
         {
             await validator.ValidateAndThrowAsync(parameters, cancellationToken);
 
-            if (useDomainV2FeatureToggle.FeatureEnabled)
-            {
-                var sqsRequest = new RemoveRoadSegmentsSqsRequest
-                {
-                    RoadSegmentIds = parameters.Wegsegmenten.Select(x => new RoadSegmentId(x)).ToList()
-                };
-                var response = await _mediator.Send(sqsRequest, cancellationToken);
+            var request = new DeleteRoadSegmentsRequest(parameters.Wegsegmenten.Select(x => new RoadSegmentId(x)).ToArray());
+            var response = await _mediator.Send(request, cancellationToken);
 
-                return Accepted(response);
-            }
-            else
-            {
-                var request = new DeleteRoadSegmentsRequest(parameters.Wegsegmenten.Select(x => new RoadSegmentId(x)).ToArray());
-                var response = await _mediator.Send(request, cancellationToken);
-
-                return Accepted(new LocationResult(response.TicketUrl));
-            }
+            return Accepted(new LocationResult(response.TicketUrl));
         }
         catch (RoadSegmentsNotFoundException ex)
         {

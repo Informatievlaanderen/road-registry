@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracten;
 
+using Asp.Versioning;
 using System;
 using System.IO;
 using System.Linq;
@@ -12,7 +13,6 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.CrsTransform;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using FeatureToggles;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +23,7 @@ using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.DutchTranslations;
 using Swashbuckle.AspNetCore.Annotations;
 using ValueObjects.ProblemCodes;
+using Version = Infrastructure.Version;
 
 public partial class ExtractenController
 {
@@ -32,7 +33,6 @@ public partial class ExtractenController
     /// <param name="body"></param>
     /// <param name="validator"></param>
     /// <param name="shpFileContourReader"></param>
-    /// <param name="useDomainV2FeatureToggle"></param>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
     ///     of cancellation.
@@ -43,12 +43,12 @@ public partial class ExtractenController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(ExtractDownloadaanvraagPerBestand))]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    [MapToApiVersion(Version.V1)]
     [HttpPost("downloadaanvragen/perbestand", Name = nameof(ExtractDownloadaanvraagPerBestand))]
     public async Task<IActionResult> ExtractDownloadaanvraagPerBestand(
         ExtractDownloadaanvraagPerBestandBody body,
         [FromServices] IValidator<ExtractDownloadaanvraagPerBestand> validator,
         [FromServices] IExtractShapefileContourReader shpFileContourReader,
-        [FromServices] UseDomainV2FeatureToggle useDomainV2FeatureToggle,
         CancellationToken cancellationToken = default)
     {
         try
@@ -65,6 +65,9 @@ public partial class ExtractenController
             //
             // Only the geometry is checked, not its size: the contours arriving here go well past the limit the WKT
             // contour is held to, so applying it would turn away the very requests this endpoint exists for.
+            //
+            // Checked as it was read, before the reference system is changed, so a contour that was already broken is
+            // not reported as something the conversion did.
             if (!new ExtractContourValidator().IsValidGeometry(contour))
             {
                 throw new ValidationException([new ValidationFailure
@@ -74,13 +77,10 @@ public partial class ExtractenController
                 }]);
             }
 
+            contour = contour.EnsureLambert08();
+
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
-
-            if (useDomainV2FeatureToggle.FeatureEnabled)
-            {
-                contour = contour.EnsureLambert08();
-            }
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
@@ -91,9 +91,7 @@ public partial class ExtractenController
                 Description = body.Beschrijving,
                 IsInformative = body.Informatief,
                 ExternalRequestId = null,
-                ZipArchiveWriterVersion = useDomainV2FeatureToggle.FeatureEnabled
-                    ? WellKnownZipArchiveWriterVersions.DomainV2
-                    : WellKnownZipArchiveWriterVersions.DomainV1_2
+                ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV1_2
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));
@@ -128,6 +126,7 @@ public sealed record ExtractDownloadaanvraagPerBestandItem(string FileName, Stre
 public sealed class ExtractDownloadaanvraagPerBestandValidator : AbstractValidator<ExtractDownloadaanvraagPerBestand>
 {
     private readonly Encoding _encoding;
+    private readonly Func<ProjectionFormat, bool> _isExpectedProjection;
 
     public ExtractDownloadaanvraagPerBestandValidator(FileEncoding fileEncoding)
         : this(fileEncoding.Encoding)
@@ -135,8 +134,21 @@ public sealed class ExtractDownloadaanvraagPerBestandValidator : AbstractValidat
     }
 
     public ExtractDownloadaanvraagPerBestandValidator(Encoding encoding)
+        : this(encoding, projectionFormat => projectionFormat.IsBelgeLambert1972())
+    {
+    }
+
+    // The v2 endpoint serves the renewed data model, which works in Lambert 2008 only: a contour in Lambert 72 is
+    // turned away there, just as the v1 endpoint turns away one in Lambert 2008.
+    public static ExtractDownloadaanvraagPerBestandValidator ForLambert08(Encoding encoding)
+    {
+        return new ExtractDownloadaanvraagPerBestandValidator(encoding, projectionFormat => projectionFormat.IsBelgeLambert2008());
+    }
+
+    private ExtractDownloadaanvraagPerBestandValidator(Encoding encoding, Func<ProjectionFormat, bool> isExpectedProjection)
     {
         _encoding = encoding;
+        _isExpectedProjection = isExpectedProjection;
 
         RuleFor(c => c.ShpFile)
             .SetValidator(new ExtractDownloadaanvraagPerBestandItemValidator());
@@ -144,7 +156,7 @@ public sealed class ExtractDownloadaanvraagPerBestandValidator : AbstractValidat
             .SetValidator(new ExtractDownloadaanvraagPerBestandItemValidator());
 
         RuleFor(c => c.PrjFile)
-            .Must(BeLambert1972ProjectionFormat)
+            .Must(BeExpectedProjectionFormat)
             .WithProblemCode(ProblemCode.Extract.ProjectionInvalid);
 
         RuleFor(c => c.Beschrijving)
@@ -155,12 +167,12 @@ public sealed class ExtractDownloadaanvraagPerBestandValidator : AbstractValidat
             .WithProblemCode(ProblemCode.Extract.BeschrijvingTooLong);
     }
 
-    private bool BeLambert1972ProjectionFormat(ExtractDownloadaanvraagPerBestandItem item)
+    private bool BeExpectedProjectionFormat(ExtractDownloadaanvraagPerBestandItem item)
     {
         using var reader = new StreamReader(item.ReadStream, _encoding);
         var projectionFormat = ProjectionFormat.Read(reader);
 
-        return projectionFormat.IsBelgeLambert1972();
+        return _isExpectedProjection(projectionFormat);
     }
 }
 
