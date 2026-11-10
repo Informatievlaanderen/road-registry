@@ -7,8 +7,9 @@ using BackOffice;
 // the 20261103120000_add_topology_columns_to_aggregate_documents migration. Marten neither writes nor knows about them.
 public static class RoadNetworkTopologyTables
 {
-    // road_node_id, is_removed - and geometry, which no lookup uses: it is there to visualize the wegknopen
-    // (20261106120000_add_geometry_column_to_roadnode_document).
+    // road_node_id, is_removed - and geometry and has_migrated, which no lookup uses: they are there to visualize
+    // and debug the wegknopen (20261106120000_add_geometry_column_to_roadnode_document,
+    // 20261109120000_add_has_migrated_column_to_roadnode_document).
     public const string RoadNodes = $"{WellKnownSchemas.MartenEventStore}.mt_doc_roadnode";
 
     // road_segment_id, geometry, start_node_id, end_node_id, status, is_removed, has_migrated

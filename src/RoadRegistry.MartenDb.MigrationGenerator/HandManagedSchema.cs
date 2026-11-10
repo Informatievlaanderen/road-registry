@@ -56,7 +56,10 @@ public static partial class HandManagedSchema
         ("eventstore.mt_doc_gradejunction", "is_removed"),
 
         // 20261106120000_add_geometry_column_to_roadnode_document
-        ("eventstore.mt_doc_roadnode", "geometry")
+        ("eventstore.mt_doc_roadnode", "geometry"),
+
+        // 20261109120000_add_has_migrated_column_to_roadnode_document
+        ("eventstore.mt_doc_roadnode", "has_migrated")
     ]);
 
     public static string RemoveDrops(string delta)
