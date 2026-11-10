@@ -19,7 +19,7 @@ export const featureToggles = {
     "true",
   inwinningUpload:
     `${window.featureToggles?.inwinningUpload ?? process.env.VUE_APP_FEATURETOGGLES_INWINNINGUPLOAD}` === "true",
-  extractNieuwDatamodel:
-    `${window.featureToggles?.extractNieuwDatamodel ?? process.env.VUE_APP_FEATURETOGGLES_EXTRACTNIEUWDATAMODEL}` ===
+  useDomainV2BijhoudingExtract:
+    `${window.featureToggles?.useDomainV2BijhoudingExtract ?? process.env.VUE_APP_FEATURETOGGLES_USEDOMAINV2BIJHOUDINGEXTRACT}` ===
     "true",
 };

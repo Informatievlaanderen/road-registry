@@ -484,7 +484,7 @@ export default defineComponent({
     },
     // Staat de toggle uit, dan krijgt elk extract het oude datamodel en valt er niets te kiezen.
     canChooseNieuwDatamodel(): boolean {
-      return featureToggles.extractNieuwDatamodel;
+      return featureToggles.useDomainV2BijhoudingExtract;
     },
     contourFlowHasDatamodel(): boolean {
       return !this.canChooseNieuwDatamodel || this.contourFlow.datamodel !== null;
