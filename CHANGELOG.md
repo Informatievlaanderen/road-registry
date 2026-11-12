@@ -1,3 +1,19 @@
+# [5.35.0](https://github.com/informatievlaanderen/road-registry/compare/v5.34.0...v5.35.0) (2026-11-12)
+
+
+### Bug Fixes
+
+* **backoffice:** report the removed road segment as error context when the road network gets disconnected ([681bf90](https://github.com/informatievlaanderen/road-registry/commit/681bf901591bd3ebc37f4e4477f12927abcbb6da))
+* **extracten:** bestandsnaam bij het terug downloaden van een upload eindigt op .zip ([a0c1ea2](https://github.com/informatievlaanderen/road-registry/commit/a0c1ea2b69aa2e19f511d39f4d08c4dcc2f03f46))
+
+
+### Features
+
+* **events:** split road segment changes into dedicated v2 events and historize left-out road segments GAWR-7199 ([2dcea32](https://github.com/informatievlaanderen/road-registry/commit/2dcea325193136290a3b32fcbd42cfa39697ebc3))
+* **extracten:** request and upload extracts in the hernieuwde datamodel GAWR-7199 GAWR-7796 ([5e4c48a](https://github.com/informatievlaanderen/road-registry/commit/5e4c48a4e46373b2ec1ac4823f286541fa03ec96))
+* **inwinning:** log when processing an upload runs for 8, 9 or 10 minutes ([79c75ad](https://github.com/informatievlaanderen/road-registry/commit/79c75ad7166f301b155907db9883e0f9947b8f4f))
+* **marten:** add has_migrated to the road node document and drop the networktopology tables ([1e2ba2f](https://github.com/informatievlaanderen/road-registry/commit/1e2ba2f867f877b94c0f24ae4fa769a1de82be3a))
+
 # [5.34.0](https://github.com/informatievlaanderen/road-registry/compare/v5.33.0...v5.34.0) (2026-11-09)
 
 
