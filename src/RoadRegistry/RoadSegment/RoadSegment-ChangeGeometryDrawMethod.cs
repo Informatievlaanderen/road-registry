@@ -1,5 +1,6 @@
 namespace RoadRegistry.RoadSegment;
 
+using System;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Events.V2;
 using RoadRegistry.ValueObjects;
@@ -29,13 +30,17 @@ public partial class RoadSegment
                 Provenance = new ProvenanceData(provenance)
             });
         }
-        else
+        else if (geometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingeschetst)
         {
             Apply(new RoadSegmentWasCorrectedToOutlined
             {
                 RoadSegmentId = RoadSegmentId,
                 Provenance = new ProvenanceData(provenance)
             });
+        }
+        else
+        {
+            throw new InvalidOperationException($"No event records a change of the geometry draw method to '{geometryDrawMethod}'.");
         }
     }
 
