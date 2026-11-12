@@ -1,8 +1,10 @@
 namespace RoadRegistry.Tests.ValueObjectTests;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ValueObjects;
 using Xunit;
@@ -102,6 +104,44 @@ public class RoadSegmentStatusPathsTests
         {
             RoadSegmentStatusPaths.Get(status, status).Should().BeEmpty();
         }
+    }
+
+    // The status change events the paths above were chosen from. A new one is a new way to get from one status to
+    // another, and could be a shorter or better hop than the one a path takes today - so adding one fails this test
+    // until the paths have been looked at again and the event has been added here.
+    private static readonly Type[] StatusChangeEventsThePathsWereChosenFrom =
+    [
+        typeof(RoadSegmentWasRealizedFromPlanned),
+        typeof(RoadSegmentWasNotRealizedFromPlanned),
+        typeof(RoadSegmentWasHistorizedFromPlanned),
+        typeof(RoadSegmentWasCorrectedFromRealizedToPlanned),
+        typeof(RoadSegmentWasTakenOutOfUseFromRealized),
+        typeof(RoadSegmentWasHistorizedFromRealized),
+        typeof(RoadSegmentWasCorrectedFromNotRealizedToPlanned),
+        typeof(RoadSegmentWasHistorizedFromNotRealized),
+        typeof(RoadSegmentWasRealizedFromOutOfUse),
+        typeof(RoadSegmentWasHistorizedFromOutOfUse),
+        typeof(RoadSegmentWasCorrectedFromHistorizedToPlanned),
+        typeof(RoadSegmentWasCorrectedFromHistorizedToRealized),
+        typeof(RoadSegmentWasCorrectedFromHistorizedToOutOfUse)
+    ];
+
+    [Fact]
+    public void ThePathsWereChosenFromEveryStatusChangeEventThereIs()
+    {
+        var statusChangeEvents = typeof(IRoadSegmentStatusChangeEvent).Assembly.GetTypes()
+            .Where(x => x is { IsClass: true, IsAbstract: false } && typeof(IRoadSegmentStatusChangeEvent).IsAssignableFrom(x))
+            .ToArray();
+
+        statusChangeEvents.Should().BeEquivalentTo(StatusChangeEventsThePathsWereChosenFrom,
+            $"a status change event was added or removed: check whether the paths in {nameof(RoadSegmentStatusPaths)} should use it, then update this list");
+    }
+
+    [Fact]
+    public void EveryStatusChangeEventIsAStatusChangeAPathCanTake()
+    {
+        RoadSegmentStatusChange.All.Select(x => x.EventType).Should().BeEquivalentTo(StatusChangeEventsThePathsWereChosenFrom,
+            $"a path in {nameof(RoadSegmentStatusPaths)} is made of {nameof(RoadSegmentStatusChange)}s, so every status change event needs one");
     }
 
     [Fact]
