@@ -41,6 +41,8 @@ jobs:
     name: Deploy services + tasks
     uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.1.yml@main
     strategy:
+      # A failing leg must not cancel the others: every leg shows its own result and only the failed one needs a re-run.
+      fail-fast: false
       matrix:
         services:
           [
@@ -75,6 +77,8 @@ jobs:
     name: Deploy lambdas
     uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.1.yml@main
     strategy:
+      # A failing leg must not cancel the others: every leg shows its own result and only the failed one needs a re-run.
+      fail-fast: false
       matrix:
         functions:
           ["lambda-sqsbackofficefunction", "lambda-sqssnapshotfunction"]
