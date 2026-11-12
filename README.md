@@ -93,6 +93,21 @@ What a promotion does:
 
 If a promotion fails before the swap, the live read model is unchanged and the live projection goes back to what it was doing. If it fails after the swap but before the Marten progressions are moved, the live projection stays stopped. Calling the promote again, or restarting the host, finishes the promotion.
 
+## Releasing a hotfix
+
+When production runs an older version than `main` and needs a fix without the rest of `main`, release a patch on a maintenance branch. semantic-release treats branches named like `5.34.x` as maintenance branches (see `release.branches` in `package.json`), and the release workflow skips the deploy to test for them.
+
+1. **Create the branch** from the tag that runs in production, and push your fix onto it as a `fix:` commit:
+   ```
+   git switch -c 5.34.x v5.34.0
+   # commit the fix
+   git push -u origin 5.34.x
+   ```
+2. **Release.** Run `2. Release` on that branch (`gh workflow run release.yml --ref 5.34.x`). `Decide next version` should report `5.34.1`.
+   - The first release on a new maintenance branch fails in `Semantic Release` on `npm dist-tag add road-registry@5.34.0 release-5.34.x` (`E404`, the package is not on npm). The channel has already been added to the previous tag by then, so re-running the failed jobs succeeds.
+3. **Deploy.** Wait until every `Push images` job is done (the last ones finish after `Semantic Release`), then run `3. Deploy` with the new version (`gh workflow run deploy.yml --ref main -f environment=prd -f version=5.34.1`).
+4. **Bring the fix to `main`** through a regular PR, so the next release from `main` contains it as well.
+
 ## Docker based local setup
 
 ### What do I need to install?
