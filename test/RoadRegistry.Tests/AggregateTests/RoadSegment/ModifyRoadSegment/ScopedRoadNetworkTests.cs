@@ -7,6 +7,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadNode.Changes;
+using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
@@ -86,6 +87,40 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             {
                 result.Problems.Should().HaveNoError();
                 result.Summary.RoadSegments.Modified.Should().ContainSingle();
+            })
+        );
+    }
+
+    [Fact]
+    public Task WhenNoLongerGerealiseerd_AndAnotherRoadSegmentStillHangsOffARoadNodeItLeavesBehind_ThenThatRoadNodeStays()
+    {
+        // Segment 2 starts where segment 1 ends, so that road node keeps a road segment after segment 1 comes loose.
+        var sharedNode = TestData.EndPoint1;
+
+        return Run(scenario => scenario
+            .Given(given => given
+                .Add(TestData.AddSegment1StartNode)
+                .Add(TestData.AddSegment1EndNode)
+                .Add(TestData.AddSegment1 with { Status = RoadSegmentStatusV2.Gerealiseerd })
+                .Add(TestData.AddSegment2EndNode)
+                .Add((TestData.AddSegment2 with
+                {
+                    Geometry = BuildRoadSegmentGeometry(sharedNode, TestData.EndPoint2),
+                    Status = RoadSegmentStatusV2.Gerealiseerd
+                }).WithDynamicAttributePositionsOnEntireGeometryLength()))
+            .When(changes => changes
+                .Add(new ModifyRoadSegmentChange
+                {
+                    RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment1Added.RoadSegmentId),
+                    Status = RoadSegmentStatusV2.Gepland
+                })
+                .Add(new RemoveRoadNodeChange { RoadNodeId = TestData.Segment1StartNodeAdded.RoadNodeId })
+            )
+            .Then((result, events) =>
+            {
+                result.Problems.Should().HaveNoError();
+                events.OfType<RoadNodeWasRemoved>().Should().ContainSingle()
+                    .Which.RoadNodeId.Should().Be(TestData.Segment1StartNodeAdded.RoadNodeId);
             })
         );
     }
