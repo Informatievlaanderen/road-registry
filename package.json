@@ -139,6 +139,13 @@
         ]
       }
     ],
+    "addChannel": [
+      {
+        "path": "@semantic-release/npm",
+        "npmPublish": false
+      },
+      "@semantic-release/github"
+    ],
     "success": [
       "@semantic-release/github"
     ],

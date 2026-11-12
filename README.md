@@ -104,7 +104,6 @@ When production runs an older version than `main` and needs a fix without the re
    git push -u origin 5.34.x
    ```
 2. **Release.** Run `2. Release` on that branch (`gh workflow run release.yml --ref 5.34.x`). `Decide next version` should report `5.34.1`.
-   - The first release on a new maintenance branch fails in `Semantic Release` on `npm dist-tag add road-registry@5.34.0 release-5.34.x` (`E404`, the package is not on npm). The channel has already been added to the previous tag by then, so re-running the failed jobs succeeds.
 3. **Deploy.** Wait until every `Push images` job is done (the last ones finish after `Semantic Release`), then run `3. Deploy` with the new version (`gh workflow run deploy.yml --ref main -f environment=prd -f version=5.34.1`).
 4. **Bring the fix to `main`** through a regular PR, so the next release from `main` contains it as well.
 
