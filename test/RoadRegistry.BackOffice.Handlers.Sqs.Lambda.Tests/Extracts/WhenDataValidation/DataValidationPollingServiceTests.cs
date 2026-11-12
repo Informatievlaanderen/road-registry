@@ -257,6 +257,54 @@ public class DataValidationPollingServiceTests : WhenDataValidationTestBase
         TicketingMock.Verify(x => x.Pending(It.IsAny<Guid>(), It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
+    [Theory]
+    [InlineData(ValidationResult.Approved)]
+    [InlineData(ValidationResult.Rejected)]
+    [InlineData(ValidationResult.AutomaticallyRejected)]
+    public async Task WhenProcessedWithoutQualityReport_ThenNothingIsReportedAndPollingContinues(string validationResult)
+    {
+        // Arrange: Datavalidatie processed the delivery but did not hand over its quality report.
+        var migrateRoadNetworkSqsRequest = await AddDelivery();
+        PollDeliveryReturns(validationResult, withQualityReport: false);
+
+        // Act
+        await RunAsync();
+
+        // Assert: the outcome is not acted upon without its quality report, so the delivery stays in the queue to be polled again.
+        var upload = ExtractsDbContext.ExtractUploads.Single(x => x.UploadId == migrateRoadNetworkSqsRequest.UploadId.ToGuid());
+        upload.Status.Should().Be(ExtractUploadStatus.AutomaticValidationSucceeded);
+        upload.QualityReportUrl.Should().BeNull();
+
+        var queueItem = ExtractsDbContext.DataValidationQueue.Single(x => x.UploadId == migrateRoadNetworkSqsRequest.UploadId.ToGuid());
+        queueItem.Completed.Should().BeFalse();
+        queueItem.RejectedOn.Should().BeNull();
+
+        TicketingMock.Verify(x => x.Error(It.IsAny<Guid>(), It.IsAny<TicketError>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mediatorMock.Verify(x => x.Send(It.IsAny<MigrateRoadNetworkSqsRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task WhenTheQualityReportArrivesLater_ThenTheNextRunPicksTheDeliveryUp()
+    {
+        // Arrange
+        var migrateRoadNetworkSqsRequest = await AddDelivery();
+        PollDeliveryReturns(ValidationResult.Approved, withQualityReport: false);
+        await RunAsync();
+
+        // Act: the next run finds the quality report.
+        PollDeliveryReturns(ValidationResult.Approved);
+        await RunAsync();
+
+        // Assert
+        var upload = ExtractsDbContext.ExtractUploads.Single(x => x.UploadId == migrateRoadNetworkSqsRequest.UploadId.ToGuid());
+        upload.QualityReportUrl.Should().Be(QualityReportUrl);
+
+        var queueItem = ExtractsDbContext.DataValidationQueue.Single(x => x.UploadId == migrateRoadNetworkSqsRequest.UploadId.ToGuid());
+        queueItem.Completed.Should().BeTrue();
+
+        _mediatorMock.Verify(x => x.Send(It.IsAny<MigrateRoadNetworkSqsRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     private async Task<MigrateRoadNetworkSqsRequest> AddDelivery(
         ExtractUploadStatus uploadStatus = ExtractUploadStatus.AutomaticValidationSucceeded,
         DateTimeOffset? rejectedOn = null)
@@ -306,14 +354,14 @@ public class DataValidationPollingServiceTests : WhenDataValidationTestBase
             .ReturnsAsync(new PollDeliveryResponse(status, string.Empty, stage, ValidationResult.NotYetAvailable, null));
     }
 
-    private void PollDeliveryReturns(string validationResult)
+    private void PollDeliveryReturns(string validationResult, bool withQualityReport = true)
     {
         DataValidationApiClientMock
             .Setup(x => x.PollDeliveryAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PollDeliveryResponse(ValidationJobStatus.Processed, string.Empty, null, validationResult, null));
         DataValidationApiClientMock
             .Setup(x => x.GetDeliveryArtifactsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetDeliveryArtifactsResponse([new DeliveryArtifact(DeliveryArtifactType.QualityReport, QualityReportUrl)]));
+            .ReturnsAsync(new GetDeliveryArtifactsResponse(withQualityReport ? [new DeliveryArtifact(DeliveryArtifactType.QualityReport, QualityReportUrl)] : []));
     }
 
     private async Task RunAsync()
