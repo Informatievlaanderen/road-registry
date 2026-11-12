@@ -85,7 +85,17 @@ public class DataValidationPollingService : IScheduledJob
                         case ValidationJobStatus.Processed:
                             // Always keep the quality report, both on approval and rejection, so the UI shows at least one.
                             var artifactsResponse = await _dataValidationApiClient.GetDeliveryArtifactsAsync(queueItem.DataValidationId!, cancellationToken);
-                            qualityReportUrl = artifactsResponse.Artifacts.Single(x => x.Type == DeliveryArtifactType.QualityReport).Url;
+                            var qualityReports = artifactsResponse.Artifacts.Where(x => x.Type == DeliveryArtifactType.QualityReport).ToList();
+                            if (qualityReports.Count != 1)
+                            {
+                                // A processed delivery always comes with exactly one quality report, so anything else is a
+                                // problem at Datavalidatie. The uploader is not told anything yet and the delivery is picked up
+                                // again on the next run, until there is exactly one quality report.
+                                _logger.LogError("OPGEPAST! Data validation delivery '{DataValidationId}' is processed but has {Count} quality reports instead of one. Contacteer DataValidatie hiervoor.", queueItem.DataValidationId!, qualityReports.Count);
+                                continue;
+                            }
+
+                            qualityReportUrl = qualityReports[0].Url;
 
                             switch (pollResult.Result)
                             {
