@@ -41,6 +41,18 @@
             new(HttpMethod.Post, "v1/extracten/overlapping/perniscode", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Post, "v1/extracten/overlapping/percontour", Scopes.DvWrIngemetenWegBeheer),
 
+            new(HttpMethod.Post, "v2/extracten/{downloadId}/sluit", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Get, "v2/extracten/{downloadId}/download", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Get, "v2/extracten/{downloadId}/upload", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/extracten/{downloadId}/upload", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Get, "v2/extracten/{downloadId}", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Get, "v2/extracten", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/extracten/downloadaanvragen/percontour", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/extracten/downloadaanvragen/perbestand", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/extracten/downloadaanvragen/perniscode", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/extracten/overlapping/perniscode", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/extracten/overlapping/percontour", Scopes.DvWrIngemetenWegBeheer),
+
             new(HttpMethod.Get, "v1/information"),
             new(HttpMethod.Post, "v1/information/validate-wkt", Scopes.DvWrIngemetenWegBeheer),
 
