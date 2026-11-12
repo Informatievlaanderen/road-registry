@@ -33,6 +33,29 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
     }
 
     [Fact]
+    public Task WhenAlreadyLinked_ThenNothingIsRecordedAndSummaryIsNotUpdated()
+    {
+        return Run(scenario => scenario
+            .Given(given => given
+                .Add(TestData.AddSegment1StartNode)
+                .Add(TestData.AddSegment1EndNode)
+                .Add(TestData.AddSegment1))
+            .When(changes => changes
+                .Add(new AddRoadSegmentToNationalRoadChange
+                {
+                    RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
+                    Number = TestData.Segment1Added.NationalRoadNumbers.First()
+                })
+            )
+            .Then((result, events) =>
+            {
+                result.Problems.Should().HaveNoError();
+                result.Summary.RoadSegments.Modified.Should().BeEmpty();
+            })
+        );
+    }
+
+    [Fact]
     public Task WhenNotFound_ThenError()
     {
         var change = Fixture.Create<AddRoadSegmentToNationalRoadChange>();

@@ -402,9 +402,12 @@ public partial class ScopedRoadNetwork
             return problems + (roadSegment is null ? new RoadSegmentNotFound() : (Error)new RoadSegmentIsRemoved());
         }
 
+        // A road number the road segment already has, or never had, records nothing - and what records nothing is
+        // not reported as a change.
+        var recordedChanges = roadSegment.GetRecordedChanges().Count;
         var oldEnvelope = roadSegment.Geometry.Value.EnvelopeInternal;
         problems += modify(roadSegment);
-        if (problems.HasError())
+        if (problems.HasError() || roadSegment.GetRecordedChanges().Count == recordedChanges)
         {
             return problems;
         }
