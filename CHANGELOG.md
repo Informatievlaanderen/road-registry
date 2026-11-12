@@ -1,3 +1,10 @@
+## [5.34.1](https://github.com/informatievlaanderen/road-registry/compare/v5.34.0...v5.34.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* report a processed data validation delivery without exactly one quality report GAWR-7853 ([db86342](https://github.com/informatievlaanderen/road-registry/commit/db86342472f0e82e6b3b6065eeb8a90740616d9f))
+
 # [5.34.0](https://github.com/informatievlaanderen/road-registry/compare/v5.33.0...v5.34.0) (2026-11-09)
 
 
