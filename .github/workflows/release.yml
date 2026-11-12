@@ -552,6 +552,8 @@ jobs:
     name: Push images
     runs-on: ubuntu-latest
     strategy:
+      # A failing leg must not cancel the others: every leg shows its own result and only the failed one needs a re-run.
+      fail-fast: false
       matrix:
         image:
           [
@@ -634,6 +636,8 @@ jobs:
     name: Deploy
     uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.1.yml@main
     strategy:
+      # A failing leg must not cancel the others: every leg shows its own result and only the failed one needs a re-run.
+      fail-fast: false
       matrix:
         services:
           [
@@ -668,6 +672,8 @@ jobs:
     name: Deploy lambda(s) to test
     uses: informatievlaanderen/build-pipeline/.github/workflows/deploy-v4.1.yml@main
     strategy:
+      # A failing leg must not cancel the others: every leg shows its own result and only the failed one needs a re-run.
+      fail-fast: false
       matrix:
         functions:
           ["lambda-sqsbackofficefunction", "lambda-sqssnapshotfunction"]
