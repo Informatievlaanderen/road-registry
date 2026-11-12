@@ -24,6 +24,7 @@ using RoadRegistry.Infrastructure.MartenDb.Store;
 using RoadRegistry.Organization.Events.V2;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.StreetName.Events.V2;
 using RoadRegistry.ValueObjects;
 using RoadSegment;
@@ -460,7 +461,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
-                var v2Event = new OrganizationWasModified
+                var v2Event = new OrganizationWasChanged
                 {
                     OrganizationId = organizationId,
                     Name = envelope.Message.NameModified ? envelope.Message.Name : null,
@@ -482,7 +483,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
-                var v2Event = new OrganizationWasModified
+                var v2Event = new OrganizationWasChanged
                 {
                     OrganizationId = organizationId,
                     Name = envelope.Message.Name,
@@ -552,7 +553,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 session.CorrelationId = new ScopedRoadNetworkId(Guid.NewGuid());
                 session.CausationId = $"migration-{envelope.EventName}-{idempotentSessionIdentifier}";
 
-                var v2Event = new StreetNameWasModified
+                var v2Event = new StreetNameWasChanged
                 {
                     StreetNameId = streetNameLocalId,
                     DutchName = envelope.Message.Record.DutchName,
@@ -725,7 +726,7 @@ RoadNetworkExtractGotRequestedV2
 
                 var roadNode = await session.LoadAsync(roadNodeId, cancellationToken: token)
                     ?? throw new InvalidOperationException($"Road node {change.Id} not found");
-                roadNode.Apply(new RoadNodeWasModified
+                roadNode.Apply(new RoadNodeWasChanged
                 {
                     RoadNodeId = roadNodeId,
                     Geometry = point.EnsureLambert08(),
@@ -936,11 +937,14 @@ RoadNetworkExtractGotRequestedV2
             },
             (roadSegment, provenance) =>
             {
-                roadSegment.Apply(new RoadSegmentGeometryWasModified
+                roadSegment.Apply(new RoadSegmentWasChanged
                 {
                     RoadSegmentId = roadSegmentId,
-                    StartNodeId = change.StartNodeId > 0 ? new RoadNodeId(change.StartNodeId) : null,
-                    EndNodeId = change.EndNodeId > 0 ? new RoadNodeId(change.EndNodeId) : null,
+                    NodeIds = new RoadSegmentNodeIds
+                    {
+                        Start = change.StartNodeId > 0 ? new RoadNodeId(change.StartNodeId) : null,
+                        End = change.EndNodeId > 0 ? new RoadNodeId(change.EndNodeId) : null
+                    },
                     Geometry = geometry.EnsureLambert08(),
                     Provenance = new ProvenanceData(provenance)
                 });
@@ -1327,11 +1331,14 @@ RoadNetworkExtractGotRequestedV2
             },
             (roadSegment, provenance) =>
             {
-                roadSegment.Apply(new RoadSegmentGeometryWasModified
+                roadSegment.Apply(new RoadSegmentWasChanged
                 {
                     RoadSegmentId = roadSegmentId,
-                    StartNodeId = roadSegment.StartNodeId > 0 ? roadSegment.StartNodeId : null,
-                    EndNodeId = roadSegment.EndNodeId > 0 ? roadSegment.EndNodeId : null,
+                    NodeIds = new RoadSegmentNodeIds
+                    {
+                        Start = roadSegment.StartNodeId > 0 ? roadSegment.StartNodeId : null,
+                        End = roadSegment.EndNodeId > 0 ? roadSegment.EndNodeId : null
+                    },
                     Geometry = geometry.EnsureLambert08(),
                     Provenance = new ProvenanceData(provenance)
                 });
@@ -1550,7 +1557,7 @@ RoadNetworkExtractGotRequestedV2
 
             var gradeSeparatedJunction = await session.LoadAsync(gradeSeparatedJunctionId, cancellationToken: token)
                                          ?? throw new InvalidOperationException($"Grade separated junction {change.Id} not found");
-            gradeSeparatedJunction.Apply(new GradeSeparatedJunctionWasModified
+            gradeSeparatedJunction.Apply(new GradeSeparatedJunctionWasChanged
             {
                 GradeSeparatedJunctionId = gradeSeparatedJunctionId,
                 LowerRoadSegmentId = lowerRoadSegmentId,

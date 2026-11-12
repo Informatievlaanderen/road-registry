@@ -95,13 +95,13 @@ public class GradeJunctionReadProjectionTests
     }
 
     [Fact]
-    public async Task WhenGradeJunctionWasModified_ThenFoundForTheNewRoadSegmentOnly()
+    public async Task WhenGradeJunctionWasChanged_ThenFoundForTheNewRoadSegmentOnly()
     {
         var scenario = Scenario();
         await GivenRoadSegments1And2(scenario);
         await scenario.GivenAsync(GradeJunction1Between(1, 2));
 
-        await scenario.GivenAsync(new GradeJunctionWasModified
+        await scenario.GivenAsync(new GradeJunctionWasChanged
         {
             GradeJunctionId = new GradeJunctionId(1),
             RoadSegmentId2 = new RoadSegmentId(3),

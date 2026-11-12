@@ -80,7 +80,7 @@ public class AggregateTests : AggregateTestBase
 
         result.Problems.Should().HaveNoError();
 
-        var modified = gradeSeparatedJunction.GetChanges().OfType<GradeSeparatedJunctionWasModified>().Should().ContainSingle().Which;
+        var modified = gradeSeparatedJunction.GetChanges().OfType<GradeSeparatedJunctionWasChanged>().Should().ContainSingle().Which;
         modified.LowerRoadSegmentId.Should().Be(new RoadSegmentId(UpperRoadSegmentId));
         modified.UpperRoadSegmentId.Should().Be(new RoadSegmentId(LowerRoadSegmentId));
         modified.Type.Should().Be(GradeSeparatedJunctionTypeV2.Tunnel);

@@ -72,9 +72,8 @@ public class AggregateTests : AggregateTestBase
 
         result.Problems.Should().BeEmpty();
         var @event = roadNetwork.RoadSegments[TestData.Segment1Added.RoadSegmentId].GetChanges()
-            .OfType<RoadSegmentGeometryDrawMethodWasChanged>().Should().ContainSingle().Which;
-        @event.RoadSegmentId.Should().Be(TestData.Segment1Added.RoadSegmentId);
-        @event.GeometryDrawMethod.Should().Be(geometryDrawMethod);
+            .Should().ContainSingle().Which;
+        @event.Should().BeOfType(geometryDrawMethod == RoadSegmentGeometryDrawMethodV2.Ingemeten ? typeof(RoadSegmentWasMeasured) : typeof(RoadSegmentWasCorrectedToOutlined));
     }
 
     [Theory]

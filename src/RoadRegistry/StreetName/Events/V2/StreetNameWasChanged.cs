@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using RoadRegistry.BackOffice;
 
-public record StreetNameWasModified : IMartenEvent
+public record StreetNameWasChanged : IMartenEvent
 {
-    public const string EventName = "StreetNameWasModified"; // BE CAREFUL CHANGING THIS!!
+    public const string EventName = "StreetNameWasChanged"; // BE CAREFUL CHANGING THIS!!
 
     public required StreetNameLocalId StreetNameId { get; init; }
     public required string DutchName { get; init; }

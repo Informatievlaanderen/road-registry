@@ -25,7 +25,7 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         problems.Should().HaveNoError();
-        var modified = (GradeJunctionWasModified)junction.GetChanges().Single();
+        var modified = (GradeJunctionWasChanged)junction.GetChanges().Single();
         modified.GradeJunctionId.Should().Be(junction.GradeJunctionId);
         modified.RoadSegmentId1.Should().Be(newRoadSegmentId1);
         modified.RoadSegmentId2.Should().BeNull();
@@ -60,7 +60,7 @@ public class AggregateTests : AggregateTestBase
         var newRoadSegmentId2 = Fixture.Create<RoadSegmentId>();
 
         // Repoint the first side; leave the second untouched (null keeps the existing value).
-        junction.Apply(new GradeJunctionWasModified
+        junction.Apply(new GradeJunctionWasChanged
         {
             GradeJunctionId = junctionAdded.GradeJunctionId,
             RoadSegmentId1 = newRoadSegmentId1,
@@ -73,7 +73,7 @@ public class AggregateTests : AggregateTestBase
         junction.RoadSegmentId2.Should().Be(junctionAdded.RoadSegmentId2);
 
         // Repoint the second side; the first keeps the value set above.
-        junction.Apply(new GradeJunctionWasModified
+        junction.Apply(new GradeJunctionWasChanged
         {
             GradeJunctionId = junctionAdded.GradeJunctionId,
             RoadSegmentId1 = null,

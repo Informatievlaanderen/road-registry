@@ -18,7 +18,7 @@ public partial class RoadNode
             return problems;
         }
 
-        Apply(new RoadNodeWasModified
+        Apply(new RoadNodeWasChanged
         {
             RoadNodeId = RoadNodeId,
             Geometry = change.Geometry,

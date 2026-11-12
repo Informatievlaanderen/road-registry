@@ -51,6 +51,65 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
     }
 
     [Fact]
+    public Task WhenAlreadyMigrated_ThenRoadNumberChangesAreRecordedOneByOne()
+    {
+        // A road segment a neighbouring inwinning already collected is modified rather than migrated, so its road
+        // numbers do not travel in a migration event: each change to them is recorded on its own, and only when it
+        // changes something.
+        var addedEuropeanRoadNumber = Fixture.Create<EuropeanRoadNumber>();
+        var alreadyLinkedEuropeanRoadNumber = Fixture.CreateWhichIsDifferentThan(addedEuropeanRoadNumber);
+        var removedNationalRoadNumber = Fixture.Create<NationalRoadNumber>();
+        var unlinkedNationalRoadNumber = Fixture.CreateWhichIsDifferentThan(removedNationalRoadNumber);
+
+        return Run(scenario => scenario
+            .Given(given => given
+                .Add(TestData.AddSegment1StartNode)
+                .Add(TestData.AddSegment1EndNode)
+                .Add(TestData.AddSegment1 with
+                {
+                    EuropeanRoadNumbers = [alreadyLinkedEuropeanRoadNumber],
+                    NationalRoadNumbers = [removedNationalRoadNumber]
+                }))
+            .WhenMigrate(changes => changes
+                .Add(new ModifyRoadSegmentChange
+                {
+                    RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment1Added.RoadSegmentId)
+                })
+                .Add(new AddRoadSegmentToEuropeanRoadChange
+                {
+                    RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
+                    Number = addedEuropeanRoadNumber
+                })
+                .Add(new AddRoadSegmentToEuropeanRoadChange
+                {
+                    RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
+                    Number = alreadyLinkedEuropeanRoadNumber
+                })
+                .Add(new RemoveRoadSegmentFromNationalRoadChange
+                {
+                    RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
+                    Number = removedNationalRoadNumber
+                })
+                .Add(new RemoveRoadSegmentFromNationalRoadChange
+                {
+                    RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
+                    Number = unlinkedNationalRoadNumber
+                })
+            )
+            .Then((result, events) =>
+            {
+                result.Problems.Should().HaveNoError();
+
+                events.OfType<RoadSegmentWasMigrated>().Should().BeEmpty();
+                events.OfType<RoadSegmentWasAddedToEuropeanRoad>().Should().ContainSingle()
+                    .Which.Number.Should().Be(addedEuropeanRoadNumber);
+                events.OfType<RoadSegmentWasRemovedFromNationalRoad>().Should().ContainSingle()
+                    .Which.Number.Should().Be(removedNationalRoadNumber);
+            })
+        );
+    }
+
+    [Fact]
     public void WithEuropeanRoadNumbers_ThenIncludedInEvent()
     {
         var linkedNumber = Fixture.Create<EuropeanRoadNumber>();

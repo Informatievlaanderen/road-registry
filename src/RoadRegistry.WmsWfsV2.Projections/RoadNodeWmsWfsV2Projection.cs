@@ -72,7 +72,7 @@ public class RoadNodeWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesProje
             record.VERSIE = e.Data.Provenance.Timestamp.ToDateTimeOffset();
         });
 
-        When<IEvent<RoadNodeWasModified>>(async (context, e, ct) =>
+        When<IEvent<RoadNodeWasChanged>>(async (context, e, ct) =>
         {
             var record = await context.RoadNodes.FindAsync([e.Data.RoadNodeId.ToInt32()], ct);
             if (record is null)

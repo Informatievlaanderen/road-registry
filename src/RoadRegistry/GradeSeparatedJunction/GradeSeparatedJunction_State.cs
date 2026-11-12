@@ -100,7 +100,7 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         Geometry = @event.Geometry;
     }
 
-    public void Apply(GradeSeparatedJunctionWasModified @event)
+    public void Apply(GradeSeparatedJunctionWasChanged @event)
     {
         UncommittedEvents.Add(@event);
 

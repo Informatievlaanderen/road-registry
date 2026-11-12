@@ -173,7 +173,7 @@ public class GradeSeparatedJunctionReadProjectionTests
     }
 
     [Fact]
-    public async Task WhenGradeSeparatedJunctionWasModified_WithNullFields_ThenKeepsExistingValues()
+    public async Task WhenGradeSeparatedJunctionWasChanged_WithNullFields_ThenKeepsExistingValues()
     {
         var scenario = Scenario();
         var type = _testData.Fixture.Create<GradeSeparatedJunctionTypeV2>();
@@ -188,7 +188,7 @@ public class GradeSeparatedJunctionReadProjectionTests
             Provenance = Provenance
         });
 
-        await scenario.GivenAsync(new GradeSeparatedJunctionWasModified
+        await scenario.GivenAsync(new GradeSeparatedJunctionWasChanged
         {
             GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1),
             LowerRoadSegmentId = null,

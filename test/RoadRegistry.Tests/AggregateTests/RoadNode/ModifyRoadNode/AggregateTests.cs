@@ -28,7 +28,7 @@ public class AggregateTests : AggregateTestBase
         problems.Should().HaveNoError();
         node.GetChanges().Should().HaveCount(1);
 
-        var nodeModified = (RoadNodeWasModified)node.GetChanges().Single();
+        var nodeModified = (RoadNodeWasChanged)node.GetChanges().Single();
         nodeModified.RoadNodeId.Should().Be(node.RoadNodeId);
         nodeModified.Geometry.Should().BeEquivalentTo(change.Geometry);
     }
@@ -65,7 +65,7 @@ public class AggregateTests : AggregateTestBase
 
         var nodeAdded = Fixture.Create<RoadNodeWasAdded>();
         var node = RoadNode.Create(nodeAdded);
-        var evt = Fixture.Create<RoadNodeWasModified>();
+        var evt = Fixture.Create<RoadNodeWasChanged>();
 
         // Act
         node.Apply(evt);

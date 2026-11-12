@@ -58,7 +58,7 @@ public class RoadNetworkChangesProjectionOrderingTests : IClassFixture<DatabaseF
         var recorder = new AppliedOrderProjection();
         var dbContextFactory = CreateDbContextFactory();
 
-        var modified = _fixture.Create<RoadSegmentWasModified>();
+        var modified = _fixture.Create<RoadSegmentWasChanged>();
         var added = _fixture.Create<RoadSegmentWasAdded>();
 
         await new MartenProjectionIntegrationTestRunner(_databaseFixture)
@@ -109,7 +109,7 @@ public class RoadNetworkChangesProjectionOrderingTests : IClassFixture<DatabaseF
                 return Task.CompletedTask;
             });
 
-            When<IEvent<RoadSegmentWasModified>>((_, _, _) =>
+            When<IEvent<RoadSegmentWasChanged>>((_, _, _) =>
             {
                 _applied.Enqueue(Modified);
                 return Task.CompletedTask;

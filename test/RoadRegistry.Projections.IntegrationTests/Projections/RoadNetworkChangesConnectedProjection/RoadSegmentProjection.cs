@@ -30,7 +30,7 @@ public class RoadSegmentProjection : MartenRoadNetworkChangesProjection
             return Task.CompletedTask;
         });
 
-        When<IEvent<RoadSegmentWasModified>>(async (session, e, ct) =>
+        When<IEvent<RoadSegmentWasMeasured>>(async (session, e, ct) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentProjectionItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)
@@ -38,7 +38,7 @@ public class RoadSegmentProjection : MartenRoadNetworkChangesProjection
                 throw new InvalidOperationException($"No document found for Id {e.Data.RoadSegmentId}");
             }
 
-            roadSegment.GeometryDrawMethod = e.Data.GeometryDrawMethod;
+            roadSegment.GeometryDrawMethod = RoadRegistry.ValueObjects.RoadSegmentGeometryDrawMethodV2.Ingemeten;
 
             session.Store(roadSegment);
         });

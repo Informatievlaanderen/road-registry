@@ -52,7 +52,7 @@ public class OrganizationReadProjection : MartenRoadNetworkChangesProjection
 
             return Task.CompletedTask;
         });
-        When<IEvent<OrganizationWasModified>>(async (session, e, ct) =>
+        When<IEvent<OrganizationWasChanged>>(async (session, e, ct) =>
         {
             var organization = await session.LoadAsync<OrganizationReadItem>(e.Data.OrganizationId.ToString(), ct);
             if (organization is null)

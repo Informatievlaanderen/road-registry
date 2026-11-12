@@ -369,16 +369,7 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
                 segment.IsV2 = true;
             }, e.Data, ct);
         });
-        When<IEvent<RoadSegmentGeometryWasModified>>((session, e, ct) =>
-        {
-            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
-            {
-                segment.Geometry = ProjectGeometry(e.Data.Geometry);
-                segment.StartNodeId = e.Data.StartNodeId?.ToInt32();
-                segment.EndNodeId = e.Data.EndNodeId?.ToInt32();
-            }, e.Data, ct);
-        });
-        When<IEvent<RoadSegmentWasModified>>((session, e, ct) =>
+        When<IEvent<RoadSegmentWasChanged>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, async segment =>
             {
@@ -388,8 +379,6 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
                     segment.StartNodeId = e.Data.NodeIds.Start?.ToInt32();
                     segment.EndNodeId = e.Data.NodeIds.End?.ToInt32();
                 }
-                segment.GeometryDrawMethod = e.Data.GeometryDrawMethod?.ToString() ?? segment.GeometryDrawMethod;
-                segment.Status = e.Data.Status?.ToString() ?? segment.Status;
 
                 if (e.Data.AccessRestriction is not null)
                 {
@@ -452,6 +441,13 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
         When<IEvent<RoadSegmentWasCorrectedFromNotRealizedToPlanned>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
         When<IEvent<RoadSegmentWasCorrectedFromHistorizedToOutOfUse>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
         When<IEvent<RoadSegmentWasNotRealizedFromPlanned>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
+        When<IEvent<RoadSegmentWasHistorizedFromPlanned>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
+        When<IEvent<RoadSegmentWasHistorizedFromNotRealized>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
+        When<IEvent<RoadSegmentWasCorrectedFromHistorizedToPlanned>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
+        When<IEvent<RoadSegmentWasMeasured>>((session, e, ct) =>
+            ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten.ToString(); }, e.Data, ct));
+        When<IEvent<RoadSegmentWasCorrectedToOutlined>>((session, e, ct) =>
+            ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst.ToString(); }, e.Data, ct));
         When<IEvent<RoadSegmentWasMigrated>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, async segment =>
@@ -548,13 +544,6 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, async segment =>
             {
                 segment.StreetNameId = await BuildStreetNameAttribute(session, e.Data.StreetNameId, ct);
-            }, e.Data, ct);
-        });
-        When<IEvent<RoadSegmentGeometryDrawMethodWasChanged>>((session, e, ct) =>
-        {
-            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
-            {
-                segment.GeometryDrawMethod = e.Data.GeometryDrawMethod.ToString();
             }, e.Data, ct);
         });
 

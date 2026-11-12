@@ -100,7 +100,7 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
                 case RoadSegmentWasAdded @event:
                     runner.Given<RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);
                     break;
-                case RoadSegmentWasModified @event:
+                case RoadSegmentWasChanged @event:
                     runner.Given<RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);
                     break;
                 case RoadSegmentWasRemoved @event:

@@ -49,28 +49,28 @@ public class RoadSegmentExtractProjectionTests
             typeof(RoadNetworkWasChanged),
             typeof(RoadNodeWasAdded),
             typeof(RoadNodeTypeWasChanged),
-            typeof(RoadNodeWasModified),
+            typeof(RoadNodeWasChanged),
             typeof(RoadNodeWasMigrated),
             typeof(RoadNodeWasRemoved),
             typeof(RoadNodeWasRemovedBecauseOfMigration), typeof(RoadNodeRemovalWasCorrectedBecauseOfMigration),
             typeof(GradeSeparatedJunctionWasAdded),
-            typeof(GradeSeparatedJunctionWasModified),
+            typeof(GradeSeparatedJunctionWasChanged),
             typeof(GradeSeparatedJunctionWasMigrated),
             typeof(GradeSeparatedJunctionGeometryWasChanged),
             typeof(GradeSeparatedJunctionWasRemoved),
             typeof(GradeSeparatedJunctionWasRemovedBecauseOfMigration),
             typeof(GradeJunctionWasAdded),
-            typeof(GradeJunctionWasModified),
+            typeof(GradeJunctionWasChanged),
             typeof(GradeJunctionGeometryWasChanged),
             typeof(GradeJunctionWasRemoved),
 
             typeof(StreetNameWasCreated),
-            typeof(StreetNameWasModified),
+            typeof(StreetNameWasChanged),
             typeof(StreetNameWasRemoved),
             typeof(StreetNameWasRenamed),
             typeof(OrganizationWasImported),
             typeof(OrganizationWasCreated),
-            typeof(OrganizationWasModified),
+            typeof(OrganizationWasChanged),
             typeof(OrganizationWasRemoved),
         };
         var allEventTypes = typeof(IMartenEvent).Assembly
@@ -352,57 +352,13 @@ public class RoadSegmentExtractProjectionTests
     }
 
     [Fact]
-    public Task WhenRoadSegmentGeometryWasModified_ThenSucceeded()
+    public Task WhenRoadSegmentWasChanged_ThenSucceeded()
     {
         var fixture = new RoadNetworkTestDataV2().Fixture;
         fixture.Freeze<RoadSegmentId>();
 
         var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>();
-        var roadSegmentModified = fixture.Create<RoadSegmentGeometryWasModified>();
-
-        var expectedRoadSegment = new RoadSegmentExtractItem
-        {
-            RoadSegmentId = roadSegmentAdded.RoadSegmentId,
-            Geometry = roadSegmentModified.Geometry,
-            StartNodeId = roadSegmentModified.StartNodeId,
-            EndNodeId = roadSegmentModified.EndNodeId,
-            GeometryDrawMethod = roadSegmentAdded.GeometryDrawMethod,
-            Status = roadSegmentAdded.Status,
-            AccessRestriction = ForEntireLength(roadSegmentAdded.AccessRestriction!.Values.Single().Value.ToString(), roadSegmentModified.Geometry!),
-            Category = ForEntireLength(roadSegmentAdded.Category!.Values.Single().Value.ToString(), roadSegmentModified.Geometry!),
-            Morphology = ForEntireLength(roadSegmentAdded.Morphology!.Values.Single().Value.ToString(), roadSegmentModified.Geometry!),
-            StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegmentAdded.StreetNameId),
-            MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegmentAdded.MaintenanceAuthorityId),
-            SurfaceType = ForEntireLength(roadSegmentAdded.SurfaceType!.Values.Single().Value.ToString(), roadSegmentAdded.Geometry!),
-            CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(roadSegmentAdded.CarTrafficDirection)),
-            CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(roadSegmentAdded.CarTrafficDirection)),
-            BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(roadSegmentAdded.BikeTrafficDirection)),
-            BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(roadSegmentAdded.BikeTrafficDirection)),
-            PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToPedestrianAccess(roadSegmentAdded.PedestrianTrafficDirection)),
-            CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(roadSegmentAdded.CarTrafficDirection),
-            BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(roadSegmentAdded.BikeTrafficDirection),
-            PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(roadSegmentAdded.PedestrianTrafficDirection),
-            EuropeanRoadNumbers = roadSegmentAdded.EuropeanRoadNumbers.ToList(),
-            NationalRoadNumbers = roadSegmentAdded.NationalRoadNumbers.ToList(),
-            Origin = roadSegmentAdded.Provenance.ToEventTimestamp(),
-            LastModified = roadSegmentModified.Provenance.ToEventTimestamp(),
-            IsV2 = true
-        };
-
-        return BuildProjection()
-            .Scenario()
-            .Given(roadSegmentAdded, roadSegmentModified)
-            .Expect(expectedRoadSegment);
-    }
-
-    [Fact]
-    public Task WhenRoadSegmentWasModified_ThenSucceeded()
-    {
-        var fixture = new RoadNetworkTestDataV2().Fixture;
-        fixture.Freeze<RoadSegmentId>();
-
-        var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>();
-        var roadSegmentModified = fixture.Create<RoadSegmentWasModified>();
+        var roadSegmentModified = fixture.Create<RoadSegmentWasChanged>();
 
         var expectedRoadSegment = new RoadSegmentExtractItem
         {
@@ -410,8 +366,8 @@ public class RoadSegmentExtractProjectionTests
             Geometry = roadSegmentModified.Geometry,
             StartNodeId = roadSegmentModified.NodeIds!.Start!.Value,
             EndNodeId = roadSegmentModified.NodeIds.End!.Value,
-            GeometryDrawMethod = roadSegmentModified.GeometryDrawMethod,
-            Status = roadSegmentModified.Status,
+            GeometryDrawMethod = roadSegmentAdded.GeometryDrawMethod,
+            Status = roadSegmentAdded.Status,
             AccessRestriction = ForEntireLength(roadSegmentModified.AccessRestriction!.Values.Single().Value.ToString(), roadSegmentModified.Geometry!),
             Category = ForEntireLength(roadSegmentModified.Category!.Values.Single().Value.ToString(), roadSegmentModified.Geometry!),
             Morphology = ForEntireLength(roadSegmentModified.Morphology!.Values.Single().Value.ToString(), roadSegmentModified.Geometry!),

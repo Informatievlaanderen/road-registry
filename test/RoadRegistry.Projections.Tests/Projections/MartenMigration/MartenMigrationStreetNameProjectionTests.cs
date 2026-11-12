@@ -39,7 +39,7 @@ public class MartenMigrationStreetNameProjectionTests
     }
 
     [Fact]
-    public Task WhenStreetNameModifiedWithNameChange_ThenStreetNameWasModified()
+    public Task WhenStreetNameModifiedWithNameChange_ThenStreetNameWasChanged()
     {
         var message = new StreetNameModified
         {
@@ -51,7 +51,7 @@ public class MartenMigrationStreetNameProjectionTests
         return BuildProjection()
             .Scenario()
             .Given(message)
-            .Expect(new StreetNameWasModified
+            .Expect(new StreetNameWasChanged
             {
                 StreetNameId = new StreetNameLocalId(123),
                 DutchName = "Foo",

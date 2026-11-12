@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using RoadRegistry.BackOffice;
 
-public record GradeSeparatedJunctionWasModified : IMartenEvent
+public record GradeSeparatedJunctionWasChanged : IMartenEvent
 {
-    public const string EventName = "GradeSeparatedJunctionWasModified"; // BE CAREFUL CHANGING THIS!!
+    public const string EventName = "GradeSeparatedJunctionWasChanged"; // BE CAREFUL CHANGING THIS!!
 
     public required GradeSeparatedJunctionId GradeSeparatedJunctionId { get; init; }
     public RoadSegmentId? LowerRoadSegmentId { get; init; }

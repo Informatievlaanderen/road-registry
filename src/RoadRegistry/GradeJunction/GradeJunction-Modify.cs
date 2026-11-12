@@ -18,7 +18,7 @@ public partial class GradeJunction
             return problems + new GradeJunctionNoRoadSegmentSpecified(GradeJunctionId);
         }
 
-        Apply(new GradeJunctionWasModified
+        Apply(new GradeJunctionWasChanged
         {
             GradeJunctionId = GradeJunctionId,
             RoadSegmentId1 = roadSegmentId1,

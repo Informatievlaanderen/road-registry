@@ -155,7 +155,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
             {
                 result.Problems.Should().HaveNoError();
 
-                var roadNodeWasModified = events.OfType<RoadNodeWasModified>().Should().ContainSingle().Subject;
+                var roadNodeWasModified = events.OfType<RoadNodeWasChanged>().Should().ContainSingle().Subject;
                 roadNodeWasModified.RoadNodeId.Should().Be(new RoadNodeId(2));
                 roadNodeWasModified.Grensknoop.Should().BeTrue();
 

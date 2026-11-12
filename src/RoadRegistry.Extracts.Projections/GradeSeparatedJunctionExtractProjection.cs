@@ -108,7 +108,7 @@ public class GradeSeparatedJunctionExtractProjection : MartenRoadNetworkChangesP
             });
             return Task.CompletedTask;
         });
-        When<IEvent<GradeSeparatedJunctionWasModified>>(async (session, e, _) =>
+        When<IEvent<GradeSeparatedJunctionWasChanged>>(async (session, e, _) =>
         {
             var junction = await session.LoadAsync<GradeSeparatedJunctionExtractItem>(e.Data.GradeSeparatedJunctionId);
             if (junction is null)

@@ -615,7 +615,7 @@ public class AggregateTests : AggregateTestBase
         junction.UpperRoadSegmentId.Should().Be(mergedRoadSegmentId);
         junction.LowerRoadSegmentId.Should().Be(new RoadSegmentId(CrossingSegmentId));
 
-        junction.GetChanges().OfType<GradeSeparatedJunctionWasModified>().Should().ContainSingle();
+        junction.GetChanges().OfType<GradeSeparatedJunctionWasChanged>().Should().ContainSingle();
     }
 
     // The same for the crossings at grade.
@@ -641,7 +641,7 @@ public class AggregateTests : AggregateTestBase
         junction.RoadSegmentId1.Should().Be(mergedRoadSegmentId);
         junction.RoadSegmentId2.Should().Be(new RoadSegmentId(CrossingSegmentId));
 
-        junction.GetChanges().OfType<GradeJunctionWasModified>().Should().ContainSingle();
+        junction.GetChanges().OfType<GradeJunctionWasChanged>().Should().ContainSingle();
     }
 
     // The two roads that were kept apart by the node now simply cross, and that crossing is recorded as a

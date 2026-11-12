@@ -360,15 +360,6 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
                 segment.IsV2 = true;
             }, e.Data, ct);
         });
-        When<IEvent<RoadSegmentGeometryWasModified>>((session, e, ct) =>
-        {
-            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
-            {
-                segment.Geometry = e.Data.Geometry;
-                segment.StartNodeId = e.Data.StartNodeId;
-                segment.EndNodeId = e.Data.EndNodeId;
-            }, e.Data, ct);
-        });
         // The status changes. Each transition raises an event of its own - the status a segment takes on is the event
         // itself - but what a projection has to do with one follows entirely from the kind of change it is, so the
         // three shapes below are all there is. RoadSegmentStatusChange.ForEvent supplies the status.
@@ -384,7 +375,14 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
         When<IEvent<RoadSegmentWasCorrectedFromNotRealizedToPlanned>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
         When<IEvent<RoadSegmentWasCorrectedFromHistorizedToOutOfUse>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
         When<IEvent<RoadSegmentWasNotRealizedFromPlanned>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
-        When<IEvent<RoadSegmentWasModified>>((session, e, ct) =>
+        When<IEvent<RoadSegmentWasHistorizedFromPlanned>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
+        When<IEvent<RoadSegmentWasHistorizedFromNotRealized>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
+        When<IEvent<RoadSegmentWasCorrectedFromHistorizedToPlanned>>((session, e, ct) => ProjectUnconnectedStatusChange(session, e.Data, ct));
+        When<IEvent<RoadSegmentWasMeasured>>((session, e, ct) =>
+            ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten; }, e.Data, ct));
+        When<IEvent<RoadSegmentWasCorrectedToOutlined>>((session, e, ct) =>
+            ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingeschetst; }, e.Data, ct));
+        When<IEvent<RoadSegmentWasChanged>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
             {
@@ -394,8 +392,6 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
                     segment.StartNodeId = e.Data.NodeIds.Start;
                     segment.EndNodeId = e.Data.NodeIds.End;
                 }
-                segment.GeometryDrawMethod = e.Data.GeometryDrawMethod ?? segment.GeometryDrawMethod;
-                segment.Status = e.Data.Status ?? segment.Status;
 
                 if (e.Data.AccessRestriction is not null)
                 {
@@ -539,7 +535,6 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
         When<IEvent<RoadSegmentWasRemovedFromEuropeanRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.EuropeanRoadNumbers.Remove(e.Data.Number); }, e.Data, ct); });
         When<IEvent<RoadSegmentWasRemovedFromNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.NationalRoadNumbers.Remove(e.Data.Number); }, e.Data, ct); });
         When<IEvent<RoadSegmentStreetNameIdWasChanged>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId); }, e.Data, ct); });
-        When<IEvent<RoadSegmentGeometryDrawMethodWasChanged>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.GeometryDrawMethod = e.Data.GeometryDrawMethod; }, e.Data, ct); });
     }
 
     // Knotted into the network: the event records the realized state in full, so nothing is left at what it was.

@@ -65,7 +65,7 @@ public class GradeSeparatedJunctionWmsWfsV2Projection : RunnerDbContextRoadNetwo
                 e.Data.UpperRoadSegmentId.ToInt32(), e.Data.Type.Translation.Identifier, e.Data.Type.Translation.Name,
                 e.Data.Geometry.EnsureLambert08().Value.Force2D(), e.Data.Provenance.Timestamp.ToDateTimeOffset(), ct));
 
-        When<IEvent<GradeSeparatedJunctionWasModified>>(async (context, e, ct) =>
+        When<IEvent<GradeSeparatedJunctionWasChanged>>(async (context, e, ct) =>
         {
             var record = await context.GradeSeparatedJunctions.FindAsync([e.Data.GradeSeparatedJunctionId.ToInt32()], ct);
             if (record is null)

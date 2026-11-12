@@ -334,7 +334,20 @@ public partial class ScopedRoadNetwork
 
         if (roadSegment.HasMigrated())
         {
-            return ModifyRoadSegment(change, context);
+            // A road segment that already completed its inwinning - a neighbouring one, or an earlier inwinning of
+            // this municipality - is modified rather than migrated. Its road numbers do not travel in a migration
+            // event then, so the changes to them are applied one by one; each records an event only when it changes
+            // something.
+            problems += ModifyRoadSegment(change, context);
+            if (problems.HasError())
+            {
+                return problems;
+            }
+
+            return problems + ModifyMigratedRoadSegmentRoadNumbers(
+                roadSegment,
+                roadSegmentRoadNumberChanges[change.RoadSegmentIdReference.RoadSegmentId],
+                context);
         }
 
         var europeanRoadNumbers = ReadEuropeanRoadNumbers(roadSegmentRoadNumberChanges[change.RoadSegmentIdReference.RoadSegmentId]);
@@ -370,6 +383,29 @@ public partial class ScopedRoadNetwork
         context.Summary.RoadSegments.Modified.Add(roadSegment.RoadSegmentId);
 
         problems += TryToRemoveLinkedGradeJunctions(roadSegment.RoadSegmentId, context);
+
+        return problems;
+    }
+
+    private Problems ModifyMigratedRoadSegmentRoadNumbers(RoadSegment.RoadSegment roadSegment, IEnumerable<IRoadNetworkChange> roadNumberChanges, ScopedRoadNetworkChangeContext context)
+    {
+        var problems = Problems.None;
+
+        foreach (var roadNetworkChange in roadNumberChanges)
+        {
+            problems += roadNetworkChange switch
+            {
+                AddRoadSegmentToEuropeanRoadChange change => ModifyRoadSegmentRoads(roadSegment.RoadSegmentId,
+                    segment => segment.AddEuropeanRoad(change with { RoadSegmentId = roadSegment.RoadSegmentId }, context.Provenance), context.Summary),
+                RemoveRoadSegmentFromEuropeanRoadChange change => ModifyRoadSegmentRoads(roadSegment.RoadSegmentId,
+                    segment => segment.RemoveEuropeanRoad(change with { RoadSegmentId = roadSegment.RoadSegmentId }, context.Provenance), context.Summary),
+                AddRoadSegmentToNationalRoadChange change => ModifyRoadSegmentRoads(roadSegment.RoadSegmentId,
+                    segment => segment.AddNationalRoad(change with { RoadSegmentId = roadSegment.RoadSegmentId }, context.Provenance), context.Summary),
+                RemoveRoadSegmentFromNationalRoadChange change => ModifyRoadSegmentRoads(roadSegment.RoadSegmentId,
+                    segment => segment.RemoveNationalRoad(change with { RoadSegmentId = roadSegment.RoadSegmentId }, context.Provenance), context.Summary),
+                _ => Problems.None
+            };
+        }
 
         return problems;
     }

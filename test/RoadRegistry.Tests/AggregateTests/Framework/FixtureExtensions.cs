@@ -26,11 +26,11 @@ public static class FixtureExtensions
         );
     }
 
-    public static void CustomizeRoadNodeWasModified(this IFixture fixture)
+    public static void CustomizeRoadNodeWasChanged(this IFixture fixture)
     {
-        fixture.Customize<RoadNodeWasModified>(composer =>
+        fixture.Customize<RoadNodeWasChanged>(composer =>
             composer.FromFactory(_ =>
-                new RoadNodeWasModified
+                new RoadNodeWasChanged
                 {
                     RoadNodeId = fixture.Create<RoadNodeId>(),
                     Geometry = fixture.Create<RoadNodeGeometry>(),
@@ -75,14 +75,14 @@ public static class FixtureExtensions
         );
     }
 
-    public static void CustomizeRoadSegmentWasModified(this IFixture fixture)
+    public static void CustomizeRoadSegmentWasChanged(this IFixture fixture)
     {
-        fixture.Customize<RoadSegmentWasModified>(composer =>
+        fixture.Customize<RoadSegmentWasChanged>(composer =>
             composer.FromFactory(_ =>
                 {
                     var geometry = fixture.Create<RoadSegmentGeometry>();
 
-                    return new RoadSegmentWasModified
+                    return new RoadSegmentWasChanged
                     {
                         RoadSegmentId = fixture.Create<RoadSegmentId>(),
                         OriginalRoadSegmentIdReference = new RoadSegmentIdReference(fixture.Create<RoadSegmentId>(), [fixture.Create<RoadSegmentTempId>()]),
@@ -92,8 +92,6 @@ public static class FixtureExtensions
                             Start = fixture.Create<RoadNodeId>(),
                             End = fixture.Create<RoadNodeId>()
                         },
-                        GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethodV2>(),
-                        Status = fixture.Create<RoadSegmentStatusV2>(),
                         AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestrictionV2>(fixture.Create<RoadSegmentAccessRestrictionV2>(), geometry),
                         Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategoryV2>(fixture.Create<RoadSegmentCategoryV2>(), geometry),
                         Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphologyV2>(fixture.Create<RoadSegmentMorphologyV2>(), geometry),

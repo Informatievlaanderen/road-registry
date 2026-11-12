@@ -41,7 +41,7 @@ public class GradeJunctionWmsWfsV2ProjectionTests
             // RoadNode V1
             typeof(ImportedRoadNode), typeof(RoadNodeAdded), typeof(RoadNodeModified), typeof(RoadNodeRemoved),
             // RoadNode V2
-            typeof(RoadNodeWasAdded), typeof(RoadNodeTypeWasChanged), typeof(RoadNodeWasModified),
+            typeof(RoadNodeWasAdded), typeof(RoadNodeTypeWasChanged), typeof(RoadNodeWasChanged),
             typeof(RoadNodeWasMigrated), typeof(RoadNodeWasRemoved), typeof(RoadNodeWasRemovedBecauseOfMigration), typeof(RoadNodeRemovalWasCorrectedBecauseOfMigration),
             // RoadSegment V1
             typeof(RoadSegmentV1.ImportedRoadSegment), typeof(RoadSegmentV1.OutlinedRoadSegmentRemoved),
@@ -52,11 +52,11 @@ public class GradeJunctionWmsWfsV2ProjectionTests
             typeof(RoadSegmentV1.RoadSegmentRemovedFromEuropeanRoad), typeof(RoadSegmentV1.RoadSegmentRemovedFromNationalRoad),
             typeof(RoadSegmentV1.RoadSegmentRemovedFromNumberedRoad), typeof(RoadSegmentV1.RoadSegmentStreetNamesChanged),
             // RoadSegment V2
-            typeof(RoadSegmentV2.OutlinedRoadSegmentWasAdded), typeof(RoadSegmentV2.RoadSegmentGeometryWasModified),
-            typeof(RoadSegmentV2.RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentV2.RoadSegmentGeometryDrawMethodWasChanged), typeof(RoadSegmentV2.RoadSegmentWasAdded),
+            typeof(RoadSegmentV2.OutlinedRoadSegmentWasAdded), 
+            typeof(RoadSegmentV2.RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentV2.RoadSegmentWasMeasured), typeof(RoadSegmentV2.RoadSegmentWasCorrectedToOutlined), typeof(RoadSegmentV2.RoadSegmentWasAdded),
             typeof(RoadSegmentV2.RoadSegmentWasAddedToEuropeanRoad), typeof(RoadSegmentV2.RoadSegmentWasAddedToNationalRoad),
             typeof(RoadSegmentV2.RoadSegmentWasMerged), typeof(RoadSegmentV2.RoadSegmentWasMigrated),
-            typeof(RoadSegmentV2.RoadSegmentWasModified),
+            typeof(RoadSegmentV2.RoadSegmentWasChanged),
             typeof(RoadSegmentV2.RoadSegmentWasRealizedFromPlanned),
             typeof(RoadSegmentV2.RoadSegmentWasRealizedFromOutOfUse),
             typeof(RoadSegmentV2.RoadSegmentWasCorrectedFromHistorizedToRealized),
@@ -66,7 +66,7 @@ public class GradeJunctionWmsWfsV2ProjectionTests
             typeof(RoadSegmentV2.RoadSegmentWasHistorizedFromOutOfUse),
             typeof(RoadSegmentV2.RoadSegmentWasCorrectedFromNotRealizedToPlanned),
             typeof(RoadSegmentV2.RoadSegmentWasCorrectedFromHistorizedToOutOfUse),
-            typeof(RoadSegmentV2.RoadSegmentWasNotRealizedFromPlanned),
+            typeof(RoadSegmentV2.RoadSegmentWasNotRealizedFromPlanned), typeof(RoadSegmentV2.RoadSegmentWasHistorizedFromPlanned), typeof(RoadSegmentV2.RoadSegmentWasHistorizedFromNotRealized), typeof(RoadSegmentV2.RoadSegmentWasCorrectedFromHistorizedToPlanned),
             typeof(RoadSegmentV2.RoadSegmentWasRemoved),
             typeof(RoadSegmentV2.RoadSegmentWasRemovedBecauseOfMigration), typeof(RoadSegmentV2.RoadSegmentWasRemovedFromEuropeanRoad),
             typeof(RoadSegmentV2.RoadSegmentWasRemovedFromNationalRoad), typeof(RoadSegmentV2.RoadSegmentWasRetiredBecauseOfMerger), typeof(RoadSegmentV2.RoadSegmentWasRetiredBecauseOfSplit),
@@ -76,13 +76,13 @@ public class GradeJunctionWmsWfsV2ProjectionTests
             typeof(GradeSeparatedJunctionModified), typeof(GradeSeparatedJunctionRemoved),
             typeof(GradeSeparatedJunctionGeometryModified),
             // GradeSeparatedJunction V2
-            typeof(GradeSeparatedJunctionWasAdded), typeof(GradeSeparatedJunctionWasModified), typeof(GradeSeparatedJunctionWasMigrated), typeof(GradeSeparatedJunctionGeometryWasChanged),
+            typeof(GradeSeparatedJunctionWasAdded), typeof(GradeSeparatedJunctionWasChanged), typeof(GradeSeparatedJunctionWasMigrated), typeof(GradeSeparatedJunctionGeometryWasChanged),
             typeof(GradeSeparatedJunctionWasRemoved), typeof(GradeSeparatedJunctionWasRemovedBecauseOfMigration),
             // Organization V2
             typeof(OrganizationWasImported), typeof(OrganizationWasCreated),
-            typeof(OrganizationWasModified), typeof(OrganizationWasRemoved),
+            typeof(OrganizationWasChanged), typeof(OrganizationWasRemoved),
             // StreetName V2
-            typeof(StreetNameWasCreated), typeof(StreetNameWasModified),
+            typeof(StreetNameWasCreated), typeof(StreetNameWasChanged),
             typeof(StreetNameWasRemoved), typeof(StreetNameWasRenamed),
             // ScopedRoadNetwork
             typeof(RoadNetworkChangesAccepted),

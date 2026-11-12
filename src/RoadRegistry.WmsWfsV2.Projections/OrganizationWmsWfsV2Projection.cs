@@ -31,7 +31,7 @@ public class OrganizationWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesP
         When<IEvent<OrganizationWasCreated>>((context, e, ct) =>
             Insert(context, e.Data.OrganizationId.ToString(), e.Data.Name, e.Data.OvoCode, ct));
 
-        When<IEvent<OrganizationWasModified>>(async (context, e, ct) =>
+        When<IEvent<OrganizationWasChanged>>(async (context, e, ct) =>
         {
             var id = e.Data.OrganizationId.ToString();
             await Update(context, id, e.Data.Name, e.Data.OvoCode, e.Data.IsMaintainer, ct);

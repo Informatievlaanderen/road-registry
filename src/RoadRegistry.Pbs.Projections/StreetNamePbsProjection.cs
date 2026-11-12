@@ -16,7 +16,7 @@ public class StreetNamePbsProjection : RunnerDbContextRoadNetworkChangesProjecti
         When<IEvent<StreetNameWasCreated>>((context, e, ct) =>
             Insert(context, e.Data.StreetNameId.ToInt32(), e.Data.DutchName, ct));
 
-        When<IEvent<StreetNameWasModified>>((context, e, ct) =>
+        When<IEvent<StreetNameWasChanged>>((context, e, ct) =>
             Update(context, e.Data.StreetNameId.ToInt32(), e.Data.DutchName, ct));
 
         When<IEvent<StreetNameWasRemoved>>(async (context, e, ct) =>

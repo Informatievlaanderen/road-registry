@@ -83,12 +83,12 @@ public class RoadNodeReadProjectionTests
     }
 
     [Fact]
-    public async Task WhenRoadNodeWasModified_ThenGrensknoopUpdated()
+    public async Task WhenRoadNodeWasChanged_ThenGrensknoopUpdated()
     {
         var scenario = Scenario();
 
         await scenario.GivenAsync(_testData.Segment1StartNodeAdded);
-        await scenario.GivenAsync(new RoadNodeWasModified
+        await scenario.GivenAsync(new RoadNodeWasChanged
         {
             RoadNodeId = new RoadNodeId(1),
             Geometry = null,
