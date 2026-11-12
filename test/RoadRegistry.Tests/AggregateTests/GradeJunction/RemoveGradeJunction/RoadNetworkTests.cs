@@ -131,6 +131,9 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                     RoadSegmentIdReference = new RoadSegmentIdReference(TestData.Segment2Added.RoadSegmentId),
                     Status = RoadSegmentStatusV2.Parse(status)
                 })
+                // Segment 2 leaves its road nodes hanging off nothing, so they go too.
+                .Add(new RemoveRoadNodeChange { RoadNodeId = TestData.Segment2StartNodeAdded.RoadNodeId })
+                .Add(new RemoveRoadNodeChange { RoadNodeId = TestData.Segment2EndNodeAdded.RoadNodeId })
             )
             .Then((result, events) =>
             {

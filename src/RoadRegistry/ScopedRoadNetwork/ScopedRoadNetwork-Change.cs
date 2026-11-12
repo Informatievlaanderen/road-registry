@@ -376,11 +376,14 @@ public partial class ScopedRoadNetwork
         }
 
         var oldEnvelope = roadSegment.Geometry.Value.EnvelopeInternal;
+        var previousRoadNodeIds = roadSegment.GetNodeIds().ToArray();
         problems = roadSegment.Modify(change, context);
         if (problems.HasError() || roadSegment.GetRecordedChanges().Count == 0)
         {
             return problems;
         }
+
+        context.UnhookedRoadNodeIds.UnionWith(previousRoadNodeIds.Where(x => !roadSegment.GetNodeIds().Contains(x)));
 
         _roadSegmentsSpatialIndex.Update(oldEnvelope, roadSegment.Geometry.Value.EnvelopeInternal, roadSegment);
         context.Summary.RoadSegments.Modified.Add(roadSegment.RoadSegmentId);
