@@ -258,19 +258,24 @@ public class DataValidationPollingServiceTests : WhenDataValidationTestBase
     }
 
     [Theory]
-    [InlineData(ValidationResult.Approved)]
-    [InlineData(ValidationResult.Rejected)]
-    [InlineData(ValidationResult.AutomaticallyRejected)]
-    public async Task WhenProcessedWithoutQualityReport_ThenNothingIsReportedAndPollingContinues(string validationResult)
+    [InlineData(ValidationResult.Approved, 0)]
+    [InlineData(ValidationResult.Approved, 2)]
+    [InlineData(ValidationResult.ApprovedWithRemarks, 0)]
+    [InlineData(ValidationResult.ApprovedWithRemarks, 2)]
+    [InlineData(ValidationResult.Rejected, 0)]
+    [InlineData(ValidationResult.Rejected, 2)]
+    [InlineData(ValidationResult.AutomaticallyRejected, 0)]
+    [InlineData(ValidationResult.AutomaticallyRejected, 2)]
+    public async Task WhenProcessedWithoutExactlyOneQualityReport_ThenNothingIsReportedAndPollingContinues(string validationResult, int qualityReportCount)
     {
-        // Arrange: Datavalidatie processed the delivery but did not hand over its quality report.
+        // Arrange: Datavalidatie processed the delivery but did not hand over exactly one quality report.
         var migrateRoadNetworkSqsRequest = await AddDelivery();
-        PollDeliveryReturns(validationResult, withQualityReport: false);
+        PollDeliveryReturns(validationResult, qualityReportCount);
 
         // Act
         await RunAsync();
 
-        // Assert: the outcome is not acted upon without its quality report, so the delivery stays in the queue to be polled again.
+        // Assert: the outcome is not acted upon without exactly one quality report, so the delivery stays in the queue to be polled again.
         var upload = ExtractsDbContext.ExtractUploads.Single(x => x.UploadId == migrateRoadNetworkSqsRequest.UploadId.ToGuid());
         upload.Status.Should().Be(ExtractUploadStatus.AutomaticValidationSucceeded);
         upload.QualityReportUrl.Should().BeNull();
@@ -288,7 +293,7 @@ public class DataValidationPollingServiceTests : WhenDataValidationTestBase
     {
         // Arrange
         var migrateRoadNetworkSqsRequest = await AddDelivery();
-        PollDeliveryReturns(ValidationResult.Approved, withQualityReport: false);
+        PollDeliveryReturns(ValidationResult.Approved, qualityReportCount: 0);
         await RunAsync();
 
         // Act: the next run finds the quality report.
@@ -354,14 +359,14 @@ public class DataValidationPollingServiceTests : WhenDataValidationTestBase
             .ReturnsAsync(new PollDeliveryResponse(status, string.Empty, stage, ValidationResult.NotYetAvailable, null));
     }
 
-    private void PollDeliveryReturns(string validationResult, bool withQualityReport = true)
+    private void PollDeliveryReturns(string validationResult, int qualityReportCount = 1)
     {
         DataValidationApiClientMock
             .Setup(x => x.PollDeliveryAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PollDeliveryResponse(ValidationJobStatus.Processed, string.Empty, null, validationResult, null));
         DataValidationApiClientMock
             .Setup(x => x.GetDeliveryArtifactsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetDeliveryArtifactsResponse(withQualityReport ? [new DeliveryArtifact(DeliveryArtifactType.QualityReport, QualityReportUrl)] : []));
+            .ReturnsAsync(new GetDeliveryArtifactsResponse(Enumerable.Repeat(new DeliveryArtifact(DeliveryArtifactType.QualityReport, QualityReportUrl), qualityReportCount).ToList()));
     }
 
     private async Task RunAsync()
