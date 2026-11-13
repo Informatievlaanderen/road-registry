@@ -77,4 +77,48 @@ public static class ReadModelQueries
 
         return roadSegments.OrderBy(x => x.Id).ToList();
     }
+
+    // A page of the road segments, in the order of their ids, optionally only the ones linked to a street name and/or
+    // in a V2 status. SQL for the same reason as above: the street name filter is the containment match on the GIN
+    // index, and the status filter is the status column 20261113120000_add_status_column_to_read_roadsegments generates
+    // from the document - the status the detail shows, a V1 road segment's mapped onto V2 - which Marten does not know
+    // about. The index on (status, id) answers the status filter and the paging together.
+    public static Task<IReadOnlyList<RoadSegmentReadItem>> ListRoadSegments(
+        this IQuerySession session,
+        StreetNameLocalId? streetNameId,
+        RoadSegmentStatusV2? status,
+        int offset,
+        int limit,
+        CancellationToken cancellationToken)
+    {
+        var conditions = new List<string> { IsNotRemoved };
+        var parameters = new List<object>();
+
+        if (streetNameId is not null)
+        {
+            conditions.Add("street_name_ids @> ?");
+            parameters.Add(new[] { streetNameId.Value.ToInt32() });
+        }
+
+        if (status is not null)
+        {
+            conditions.Add("status = ?");
+            parameters.Add(status.ToString());
+        }
+
+        parameters.Add(offset);
+        parameters.Add(limit);
+
+        return session.QueryAsync<RoadSegmentReadItem>(
+            $"where {string.Join(" and ", conditions)} order by id offset ? limit ?",
+            roadSegments => roadSegments
+                .Where(x => !x.IsRemoved)
+                .Where(x => streetNameId == null || x.StreetNameIds.Contains(streetNameId.Value.ToInt32()))
+                .Where(x => status == null || x.GetStatusV2() == status)
+                .OrderBy(x => x.Id)
+                .Skip(offset)
+                .Take(limit),
+            cancellationToken,
+            parameters.ToArray());
+    }
 }
