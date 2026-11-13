@@ -130,6 +130,23 @@ public static class SessionExtensions
             : session.QueryAsync<T>(whereFragment, cancellationToken, parameters);
     }
 
+    // The same, for a query that does more than filter - order and page through the result, say - which the in-memory
+    // equivalent then does to the whole queryable.
+    public static Task<IReadOnlyList<T>> QueryAsync<T>(
+        this IQuerySession session,
+        string sql,
+        Func<IQueryable<T>, IQueryable<T>> inMemoryEquivalent,
+        CancellationToken cancellationToken,
+        params object[] parameters)
+        where T : notnull
+    {
+        var queryable = session.Query<T>();
+
+        return queryable.Provider is EnumerableQuery
+            ? inMemoryEquivalent(queryable).ToReadOnlyListAsync(cancellationToken)
+            : session.QueryAsync<T>(sql, cancellationToken, parameters);
+    }
+
     public static async Task<long> GetHighWaterMark(this IDocumentOperations operations, CancellationToken cancellationToken)
     {
         return (await operations.AdvancedSql.QueryAsync<long>($"SELECT last_seq_id FROM {WellKnownSchemas.MartenEventStore}.mt_event_progression WHERE name = '{MartenConstants.HighWaterMarkName}'", cancellationToken)).SingleOrDefault();
