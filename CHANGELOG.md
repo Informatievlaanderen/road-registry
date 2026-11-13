@@ -1,3 +1,11 @@
+## [5.35.1](https://github.com/informatievlaanderen/road-registry/compare/v5.35.0...v5.35.1) (2026-11-13)
+
+
+### Bug Fixes
+
+* **extracten:** don't dispose the shared ExtractsDbContext in the DomainV2 extract assembler GAWR-7199 ([613f6f7](https://github.com/informatievlaanderen/road-registry/commit/613f6f7c64f0974a997fa7a6739e6c132d4ad6d6))
+* report a processed data validation delivery without exactly one quality report GAWR-7853 ([b129350](https://github.com/informatievlaanderen/road-registry/commit/b129350a2dc9a26af4ab9757a231f97b3377b383))
+
 # [5.35.0](https://github.com/informatievlaanderen/road-registry/compare/v5.34.0...v5.35.0) (2026-11-12)
 
 
