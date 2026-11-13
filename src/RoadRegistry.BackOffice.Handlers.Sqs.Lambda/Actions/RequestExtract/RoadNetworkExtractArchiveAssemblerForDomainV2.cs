@@ -21,7 +21,9 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV2
     private readonly IDocumentStore _store;
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly Func<EditorContext> _editorContextFactory;
-    private readonly Func<ExtractsDbContext> _extractsDbContextFactory;
+    // The scoped instance, shared with the ExtractRequester that saves the download status after the archive is
+    // built, so it is not ours to dispose. Autofac resolves a Func<ExtractsDbContext> to that same instance too.
+    private readonly ExtractsDbContext _extractsDbContext;
     private readonly ILogger _logger;
 
     public RoadNetworkExtractArchiveAssemblerForDomainV2(
@@ -30,7 +32,7 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV2
         IDocumentStore store,
         IRoadNetworkRepository roadNetworkRepository,
         Func<EditorContext> editorContextFactory,
-        Func<ExtractsDbContext> extractsDbContextFactory,
+        ExtractsDbContext extractsDbContext,
         ILoggerFactory loggerFactory)
     {
         _manager = manager.ThrowIfNull();
@@ -38,7 +40,7 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV2
         _store = store.ThrowIfNull();
         _roadNetworkRepository = roadNetworkRepository.ThrowIfNull();
         _editorContextFactory = editorContextFactory.ThrowIfNull();
-        _extractsDbContextFactory = extractsDbContextFactory.ThrowIfNull();
+        _extractsDbContext = extractsDbContext.ThrowIfNull();
         _logger = loggerFactory.CreateLogger(GetType());
     }
 
@@ -52,15 +54,13 @@ public class RoadNetworkExtractArchiveAssemblerForDomainV2
 
         await using var editorContext = _editorContextFactory();
 
-        await using var extractsDbContext = _extractsDbContextFactory();
-
         var stream = _manager.GetStream();
         using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
         var writer = _writerFactory.Create(request.ZipArchiveWriterVersion);
         await writer.WriteAsync(
             archive,
             request,
-            new ZipArchiveDataSession(session, _roadNetworkRepository, editorContext, extractsDbContext),
+            new ZipArchiveDataSession(session, _roadNetworkRepository, editorContext, _extractsDbContext),
             new ZipArchiveWriteContext(),
             cancellationToken);
 
