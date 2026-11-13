@@ -22,7 +22,7 @@ public class ScopedRoadNetworkTests : RoadNetworkTestBase
                 .Add(new AddRoadSegmentToEuropeanRoadChange
                 {
                     RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-                    Number = Fixture.Create<EuropeanRoadNumber>()
+                    Number = Fixture.CreateWhichIsDifferentThan(TestData.Segment1Added.EuropeanRoadNumbers.First())
                 })
             )
             .Then((result, events) =>
