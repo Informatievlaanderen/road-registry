@@ -104,6 +104,45 @@ public class ReadModelQueriesTests : IClassFixture<DatabaseFixture>
             });
     }
 
+    // The list filters with SQL on the GIN-indexed street name ids and on the generated status column, and pages through
+    // the result by id - none of which the in-memory unit tests run.
+    [Fact]
+    public async Task ListsAPageOfTheRoadSegmentsMatchingTheFilters()
+    {
+        var segment1 = RoadSegmentAdded(1, startNodeId: 1, endNodeId: 2, streetNameId: StreetNameId, organizationCode: OrganizationCode);
+        var segment2 = RoadSegmentAdded(2, startNodeId: 1, endNodeId: 2, streetNameId: StreetNameId, organizationCode: OrganizationCode) with { Status = RoadSegmentStatusV2.Gepland };
+        var segment3 = RoadSegmentAdded(3, startNodeId: 1, endNodeId: 2, streetNameId: 200, organizationCode: OrganizationCode);
+        var segment4 = RoadSegmentAdded(4, startNodeId: 1, endNodeId: 2, streetNameId: StreetNameId, organizationCode: OrganizationCode);
+        var segment4Removed = new RoadSegmentWasRemoved { RoadSegmentId = new RoadSegmentId(4), Provenance = segment4.Provenance };
+        var segment5 = RoadSegmentAdded(5, startNodeId: 1, endNodeId: 2, streetNameId: StreetNameId, organizationCode: OrganizationCode);
+
+        await CreateProjectionTestRunner()
+            .Given<RoadSegmentAggregate, RoadSegmentId>(segment1.RoadSegmentId, segment1 with { Status = RoadSegmentStatusV2.Gerealiseerd })
+            .Given<RoadSegmentAggregate, RoadSegmentId>(segment2.RoadSegmentId, segment2)
+            .Given<RoadSegmentAggregate, RoadSegmentId>(segment3.RoadSegmentId, segment3 with { Status = RoadSegmentStatusV2.Gerealiseerd })
+            .Given<RoadSegmentAggregate, RoadSegmentId>(segment4.RoadSegmentId, segment4 with { Status = RoadSegmentStatusV2.Gerealiseerd }, segment4Removed)
+            .Given<RoadSegmentAggregate, RoadSegmentId>(segment5.RoadSegmentId, segment5 with { Status = RoadSegmentStatusV2.Gerealiseerd })
+            .Expect(async (_, session) =>
+            {
+                async Task<int[]> List(int? streetNameId, RoadSegmentStatusV2? status, int offset = 0, int limit = 10)
+                {
+                    var roadSegments = await session.ListRoadSegments(
+                        streetNameId is null ? null : new StreetNameLocalId(streetNameId.Value), status, offset, limit, CancellationToken.None);
+                    return roadSegments.Select(x => x.RoadSegmentId.ToInt32()).ToArray();
+                }
+
+                (await List(null, null)).Should().Equal(1, 2, 3, 5);
+                (await List(StreetNameId, null)).Should().Equal(1, 2, 5);
+                (await List(null, RoadSegmentStatusV2.Gerealiseerd)).Should().Equal(1, 3, 5);
+                (await List(StreetNameId, RoadSegmentStatusV2.Gerealiseerd)).Should().Equal(1, 5);
+                (await List(999, null)).Should().BeEmpty();
+                (await List(null, RoadSegmentStatusV2.BuitenGebruik)).Should().BeEmpty();
+
+                (await List(null, null, offset: 1, limit: 2)).Should().Equal(2, 3);
+                (await List(StreetNameId, RoadSegmentStatusV2.Gerealiseerd, offset: 1, limit: 1)).Should().Equal(5);
+            });
+    }
+
     private RoadNodeWasAdded RoadNodeAdded(int roadNodeId)
     {
         return _fixture.Create<RoadNodeWasAdded>() with { RoadNodeId = new RoadNodeId(roadNodeId) };

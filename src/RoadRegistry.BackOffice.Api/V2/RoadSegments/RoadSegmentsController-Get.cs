@@ -90,9 +90,6 @@ public partial class RoadSegmentsController
         var streetNames = await LoadStreetNames(session, roadSegment, cancellationToken);
         var organizations = await LoadOrganizations(session, roadSegment, cancellationToken);
 
-        var method = roadSegment.IsV2
-            ? RoadSegmentGeometryDrawMethodV2.Parse(roadSegment.GeometryDrawMethod)
-            : MapToV2(RoadSegmentGeometryDrawMethod.Parse(roadSegment.GeometryDrawMethod));
         var result = new WegsegmentV2Detail
         {
             Identificator = new WegsegmentIdentificator(OsloNamespaces.Wegsegment, roadSegment.RoadSegmentId.ToString(), roadSegment.LastModified.Timestamp.ToDateTimeOffset()),
@@ -110,10 +107,8 @@ public partial class RoadSegmentsController
                     }
                 ]
             },
-            GeometrieMethode = method.ToDutchString(),
-            Wegsegmentstatus = (roadSegment.IsV2
-                ? RoadSegmentStatusV2.Parse(roadSegment.Status)
-                : MapToV2(RoadSegmentStatus.Parse(roadSegment.Status), method)).ToDutchString(),
+            GeometrieMethode = roadSegment.GetGeometryDrawMethodV2().ToDutchString(),
+            Wegsegmentstatus = roadSegment.GetStatusV2().ToDutchString(),
             Beginknoop = roadSegment.StartNodeId is not null
                 ? new WegknoopLink(new RoadNodeId(roadSegment.StartNodeId.Value), apiOptions.GetWegknoopDetailUrlFormat())
                 : null,
@@ -277,46 +272,6 @@ public partial class RoadSegmentsController
         return organizations.TryGetValue(attribute.OrganizationId.ToString(), out var organization)
             ? organization.Name
             : attribute.Name;
-    }
-
-    private static RoadSegmentStatusV2 MapToV2(RoadSegmentStatus status, RoadSegmentGeometryDrawMethodV2 method)
-    {
-        if (status == RoadSegmentStatus.PermitRequested
-            || status == RoadSegmentStatus.PermitGranted
-            || status == RoadSegmentStatus.UnderConstruction)
-        {
-            return RoadSegmentStatusV2.Gepland;
-        }
-
-        if (status == RoadSegmentStatus.InUse)
-        {
-            return RoadSegmentStatusV2.Gerealiseerd;
-        }
-
-        if (status == RoadSegmentStatus.OutOfUse)
-        {
-            return RoadSegmentStatusV2.BuitenGebruik;
-        }
-
-        if (status == RoadSegmentStatus.Unknown)
-        {
-            return method == RoadSegmentGeometryDrawMethodV2.Ingemeten
-                ? RoadSegmentStatusV2.Gerealiseerd
-                : RoadSegmentStatusV2.Gepland;
-        }
-
-        throw new InvalidOperationException($"Unknown status value '{status}'");
-    }
-
-    private static RoadSegmentGeometryDrawMethodV2 MapToV2(RoadSegmentGeometryDrawMethod method)
-    {
-        return method.ToString() switch
-        {
-            nameof(RoadSegmentGeometryDrawMethod.Outlined) => RoadSegmentGeometryDrawMethodV2.Ingeschetst,
-            nameof(RoadSegmentGeometryDrawMethod.Measured) => RoadSegmentGeometryDrawMethodV2.Ingemeten,
-            nameof(RoadSegmentGeometryDrawMethod.Measured_according_to_GRB_specifications) => RoadSegmentGeometryDrawMethodV2.Ingemeten,
-            _ => throw new InvalidOperationException($"Unknown geometry draw method value '{method}'")
-        };
     }
 }
 
