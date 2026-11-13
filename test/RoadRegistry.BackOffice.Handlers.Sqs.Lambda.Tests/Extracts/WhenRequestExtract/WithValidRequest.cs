@@ -203,6 +203,54 @@ public class WithValidRequest : WhenRequestExtractTestBase
     }
 
     [Fact]
+    public async Task WhenPreviousLambdaRunAlreadyUploadedTheArchive_ThenArchiveIsReplaced()
+    {
+        // Arrange
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var request = new RequestExtractData(
+            ObjectProvider.Create<ExtractRequestId>(),
+            downloadId,
+            MultiPolygon.Empty,
+            ObjectProvider.Create<string>(),
+            false,
+            ObjectProvider.Create<string>()
+        );
+
+        var blobName = new BlobName(downloadId);
+        var blobClientCalls = new List<string>();
+        var blobExists = true;
+        var blobClientMock = new Mock<IBlobClient>();
+        blobClientMock
+            .Setup(x => x.DeleteBlobAsync(blobName, It.IsAny<CancellationToken>()))
+            .Callback(() =>
+            {
+                blobClientCalls.Add(nameof(IBlobClient.DeleteBlobAsync));
+                blobExists = false;
+            })
+            .Returns(Task.CompletedTask);
+        blobClientMock
+            .Setup(x => x.CreateBlobAsync(blobName, It.IsAny<Metadata>(), It.IsAny<ContentType>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+            .Callback(() => blobClientCalls.Add(nameof(IBlobClient.CreateBlobAsync)))
+            .Returns(() => blobExists
+                ? Task.FromException(new BlobAlreadyExistsException(blobName))
+                : Task.CompletedTask);
+
+        // Act
+        await HandleRequest(request, blobClient: blobClientMock.Object);
+
+        // Assert
+        VerifyThatTicketHasCompleted(new RequestExtractResponse(downloadId));
+
+        blobClientCalls.Should().Equal(
+            nameof(IBlobClient.CreateBlobAsync),
+            nameof(IBlobClient.DeleteBlobAsync),
+            nameof(IBlobClient.CreateBlobAsync));
+
+        var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
+        extractDownload.Status.Should().Be(ExtractDownloadStatus.Available);
+    }
+
+    [Fact]
     public async Task WhenArchiveAssemblyFails_ThenError()
     {
         // Arrange

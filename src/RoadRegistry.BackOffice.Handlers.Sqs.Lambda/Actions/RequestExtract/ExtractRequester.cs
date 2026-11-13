@@ -178,6 +178,16 @@ public class ExtractRequester
         return correctedContour;
     }
 
+    private Task CreateArchiveBlob(BlobName blobName, MemoryStream content, CancellationToken ct)
+    {
+        return _downloadsBlobClient.CreateBlobAsync(
+            blobName,
+            Metadata.None,
+            ContentType.Parse("application/x-zip-compressed"),
+            content,
+            ct);
+    }
+
     private async Task<MemoryStream> BuildArchive(
         ExtractRequest extractRequest,
         ExtractDownload extractDownload,
@@ -198,12 +208,21 @@ public class ExtractRequester
             var content = await _assembler.AssembleArchive(request, ct);
             content.Position = 0L;
 
-            await _downloadsBlobClient.CreateBlobAsync(
-                new BlobName(downloadId),
-                Metadata.None,
-                ContentType.Parse("application/x-zip-compressed"),
-                content,
-                ct);
+            var blobName = new BlobName(downloadId);
+            try
+            {
+                await CreateArchiveBlob(blobName, content, ct);
+            }
+            catch (BlobAlreadyExistsException)
+            {
+                // A previous attempt for this download can have uploaded its archive and failed after that. The retry
+                // built the archive again from the current data, so it replaces the one of that attempt.
+                _logger.LogInformation("Replacing the archive a previous attempt already uploaded for download {DownloadId}", downloadId);
+                await _downloadsBlobClient.DeleteBlobAsync(blobName, ct);
+
+                content.Position = 0L;
+                await CreateArchiveBlob(blobName, content, ct);
+            }
 
             return content;
         }
