@@ -343,4 +343,38 @@ public class AggregateTests : AggregateTestBase
         segment.Attributes!.MaintenanceAuthorityId.Should().Be(evt.MaintenanceAuthorityId);
         segment.Attributes!.SurfaceType.Should().Be(evt.SurfaceType);
     }
+
+    // A removed road segment is still loaded with the road network, so a caller can reach this. Nothing can be changed
+    // about it any more.
+    [Fact]
+    public void GivenRemoved_ThenIsRemovedProblem()
+    {
+        // Arrange
+        Fixture.Freeze<RoadSegmentId>();
+
+        var segmentAdded = Fixture.Create<RoadSegmentWasAdded>() with { Status = RoadSegmentStatusV2.Gerealiseerd };
+        var segment = RoadSegment.Create(segmentAdded);
+        segment.Remove(TestData.Provenance);
+        segment.WithoutChanges();
+
+        var change = Fixture.Create<ModifyRoadSegmentChange>() with
+        {
+            Status = RoadSegmentStatusV2.Gerealiseerd,
+            GeometryDrawMethod = segmentAdded.GeometryDrawMethod,
+            Geometry = BuildRoadSegmentGeometry(TestData.StartPoint1, TestData.EndPoint1)
+        };
+
+        var roadNetwork = new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), [
+            RoadNode.Create(TestData.Segment1StartNodeAdded),
+            RoadNode.Create(TestData.Segment1EndNodeAdded)
+        ], [], []);
+        var roadNetworkContext = new ScopedRoadNetworkChangeContext(roadNetwork, TestData.Provenance);
+
+        // Act
+        var problems = segment.Modify(change, roadNetworkContext);
+
+        // Assert
+        problems.Should().Contain(x => x.Reason == "RoadSegmentIsRemoved");
+        segment.GetChanges().Should().BeEmpty();
+    }
 }

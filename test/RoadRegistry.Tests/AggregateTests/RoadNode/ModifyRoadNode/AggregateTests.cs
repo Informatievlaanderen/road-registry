@@ -74,4 +74,26 @@ public class AggregateTests : AggregateTestBase
         node.RoadNodeId.Should().Be(evt.RoadNodeId);
         node.Geometry.Should().Be(evt.Geometry);
     }
+
+    // A removed road node is still loaded with the road network, so a caller can reach this. Nothing can be changed
+    // about it any more.
+    [Fact]
+    public void GivenRemoved_ThenIsRemovedProblem()
+    {
+        // Arrange
+        Fixture.Freeze<RoadNodeId>();
+
+        var node = RoadNode.Create(Fixture.Create<RoadNodeWasAdded>());
+        node.Remove(TestData.Provenance);
+        node.WithoutChanges();
+
+        var change = Fixture.Create<ModifyRoadNodeChange>();
+
+        // Act
+        var problems = node.Modify(change, TestData.Provenance);
+
+        // Assert
+        problems.Should().Contain(x => x.Reason == "RoadNodeIsRemoved");
+        node.GetChanges().Should().BeEmpty();
+    }
 }

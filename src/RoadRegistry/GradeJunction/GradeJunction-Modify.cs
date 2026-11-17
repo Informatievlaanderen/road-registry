@@ -12,6 +12,14 @@ public partial class GradeJunction
     {
         var problems = Problems.WithContext(GradeJunctionId);
 
+        // A removed grade junction is still loaded with the road network, so a caller that forgets to filter it out
+        // can reach this. Nothing can be changed about it any more: the change would be written onto a crossing the
+        // read models no longer hold.
+        if (IsRemoved)
+        {
+            return problems + new GradeJunctionIsRemoved(GradeJunctionId);
+        }
+
         // A modification must repoint at least one side; with neither road segment set there is nothing to change.
         if (roadSegmentId1 is null && roadSegmentId2 is null)
         {
