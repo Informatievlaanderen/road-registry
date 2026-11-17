@@ -91,11 +91,14 @@ public partial class RoadNode
 
         // VAL-5, the same rule the 'verwijder wegknoop' action states for itself: one road that is partly ingeschetst
         // and partly ingemeten is only something the inwinning may arrive at, which hands over the roads as they were
-        // drawn. An editing action reports it instead of deciding it on the caller's behalf (GAWR-7829).
+        // drawn. An editing action does not merge the two then, but it does not refuse either: the merge was never what
+        // it asked for, only what it would have led to. The validatieknoop is removed "indien mogelijk" (GAWR-7714), and
+        // here it is not - so it stays as the validatieknoop between the two and the action goes ahead (GAWR-7829).
         if (merging == RoadSegmentMerging.AsEditAction
             && segment1.Attributes!.GeometryDrawMethod != segment2.Attributes!.GeometryDrawMethod)
         {
-            return Problems.None + new RoadSegmentsMergeGeometryDrawMethodNotEqual(segment1.RoadSegmentId, segment2.RoadSegmentId);
+            ChangeTypeTo(RoadNodeTypeV2.Validatieknoop, context.Provenance);
+            return Problems.None;
         }
 
         var problems = context.RoadNetwork.MergeRoadSegments(segment1, segment2, idGenerator, context);
