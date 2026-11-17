@@ -84,4 +84,25 @@ public class AggregateTests : AggregateTestBase
         junction.RoadSegmentId1.Should().Be(newRoadSegmentId1);
         junction.RoadSegmentId2.Should().Be(newRoadSegmentId2);
     }
+
+    // A removed crossing is still loaded with the road network, so a caller can reach this. Nothing can be changed
+    // about it any more.
+    [Fact]
+    public void GivenRemoved_ThenIsRemovedProblem()
+    {
+        // Arrange
+        Fixture.Freeze<GradeJunctionId>();
+
+        var junctionAdded = Fixture.Create<GradeJunctionWasAdded>();
+        var junction = GradeJunction.Create(junctionAdded);
+        junction.Remove(TestData.Provenance);
+        junction.WithoutChanges();
+
+        // Act
+        var problems = junction.Modify(junctionAdded.RoadSegmentId2, null, TestData.Provenance);
+
+        // Assert
+        problems.Should().Contain(x => x.Reason == "GradeJunctionIsRemoved");
+        junction.GetChanges().Should().BeEmpty();
+    }
 }

@@ -28,6 +28,14 @@ public partial class RoadSegment
         var roadSegmentIdReference = change.RoadSegmentIdReference;
         var problems = Problems.WithContext(roadSegmentIdReference);
 
+        // A removed road segment is still loaded with the road network, so a caller that forgets to filter it out can
+        // reach this. Nothing can be changed about it any more: the change would be written onto a road segment the
+        // read models no longer hold.
+        if (IsRemoved)
+        {
+            return problems + new RoadSegmentIsRemoved();
+        }
+
         var geometry = (change.Geometry ?? Geometry).Value;
 
         problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2();
@@ -123,6 +131,13 @@ public partial class RoadSegment
     // rather than removed.
     public Problems Historize(ScopedRoadNetworkChangeContext context)
     {
+        var problems = Problems.WithContext(RoadSegmentId);
+
+        if (IsRemoved)
+        {
+            return problems + new RoadSegmentIsRemoved();
+        }
+
         ChangeStatusAlong(
             RoadSegmentStatusPaths.Get(Status, RoadSegmentStatusV2.Gehistoreerd),
             Geometry,
@@ -130,7 +145,7 @@ public partial class RoadSegment
             Attributes!,
             context.Provenance);
 
-        return Problems.WithContext(RoadSegmentId);
+        return problems;
     }
 
     // Records each status change of a path as its own event. A hop into 'gerealiseerd' records the geometry, the road

@@ -11,6 +11,14 @@ public partial class GradeSeparatedJunction
     {
         var problems = Problems.WithContext(GradeSeparatedJunctionId);
 
+        // A removed grade separated junction is still loaded with the road network, so a caller that forgets to filter
+        // it out can reach this. Nothing can be changed about it any more: the change would be written onto a crossing
+        // the read models no longer hold.
+        if (IsRemoved)
+        {
+            return problems + new GradeSeparatedJunctionIsRemoved(GradeSeparatedJunctionId);
+        }
+
         // A modification must change at least one road segment (or the type); with none of them set there is nothing to change.
         if (change.LowerRoadSegmentId is null && change.UpperRoadSegmentId is null && change.Type is null)
         {

@@ -11,6 +11,11 @@ public partial class RoadNode
     {
         var problems = Problems.WithContext(change.RoadNodeId);
 
+        if (IsRemoved)
+        {
+            return problems + new RoadNodeIsRemoved();
+        }
+
         Apply(new RoadNodeWasMigrated
         {
             RoadNodeId = change.RoadNodeId,

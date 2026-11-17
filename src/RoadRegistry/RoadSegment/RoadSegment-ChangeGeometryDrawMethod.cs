@@ -17,6 +17,13 @@ public partial class RoadSegment
     // changed has no place in the stream. The draw method it takes on is the event itself.
     private void ChangeGeometryDrawMethod(RoadSegmentGeometryDrawMethodV2 geometryDrawMethod, Provenance provenance)
     {
+        // Every caller establishes that the road segment is there to be changed before it gets here - Modify() by its
+        // own guard, the action by its lookup - so a removed one is a defect rather than something the caller did.
+        if (IsRemoved)
+        {
+            throw new InvalidOperationException($"Road segment {RoadSegmentId} is removed and cannot have its geometry draw method changed. This should not happen.");
+        }
+
         if (Attributes!.GeometryDrawMethod == geometryDrawMethod)
         {
             return;

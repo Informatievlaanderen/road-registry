@@ -126,7 +126,7 @@ public partial class ScopedRoadNetwork
 
         var nodeSegmentIds = new[] { segment1.RoadSegmentId, segment2.RoadSegmentId };
         var connectedJunctions = _gradeSeparatedJunctions
-            .Where(x => nodeSegmentIds.Any(segmentId => x.Value.IsConnectedTo(segmentId)))
+            .Where(x => !x.Value.IsRemoved && nodeSegmentIds.Any(segmentId => x.Value.IsConnectedTo(segmentId)))
             .Select(x => x.Value)
             .ToArray();
 

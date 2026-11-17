@@ -10,6 +10,11 @@ public partial class RoadSegment
     {
         var problems = Problems.WithContext(RoadSegmentId);
 
+        if (IsRemoved)
+        {
+            return problems + new RoadSegmentIsRemoved();
+        }
+
         Apply(new RoadSegmentWasRetiredBecauseOfMerger
         {
             RoadSegmentId = RoadSegmentId,

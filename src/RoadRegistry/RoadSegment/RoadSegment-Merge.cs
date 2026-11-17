@@ -14,6 +14,11 @@ public partial class RoadSegment
     {
         var problems = Problems.WithContext(RoadSegmentId);
 
+        if (IsRemoved)
+        {
+            return problems + new RoadSegmentIsRemoved();
+        }
+
         problems += change.Geometry.ValidateRoadSegmentGeometryDomainV2();
 
         var segmentLength = change.Geometry.Value.Length;

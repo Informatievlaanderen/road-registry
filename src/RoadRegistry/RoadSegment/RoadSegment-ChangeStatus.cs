@@ -18,6 +18,11 @@ public partial class RoadSegment
     {
         var problems = Problems.WithContext(RoadSegmentId);
 
+        if (IsRemoved)
+        {
+            return problems + new RoadSegmentIsRemoved();
+        }
+
         problems += geometry.ValidateRoadSegmentGeometryDomainV2();
         problems += new RoadSegmentAttributesValidator().Validate(attributes, geometry.Value.Length);
 
@@ -48,6 +53,13 @@ public partial class RoadSegment
     // has already established that it is realized, which is what guarantees both node identifiers are there.
     public Problems ChangeStatusFromConnected(RoadSegmentStatusChange statusChange, ScopedRoadNetworkChangeContext context)
     {
+        var problems = Problems.WithContext(RoadSegmentId);
+
+        if (IsRemoved)
+        {
+            return problems + new RoadSegmentIsRemoved();
+        }
+
         ApplyStatusChangeFromConnected(statusChange.BuildEvent(new RoadSegmentDisconnectedChangeData
         {
             RoadSegmentId = RoadSegmentId,
@@ -56,19 +68,26 @@ public partial class RoadSegment
             Provenance = new ProvenanceData(context.Provenance)
         }));
 
-        return Problems.None;
+        return problems;
     }
 
     // Records a status change between two statuses that both leave the segment outside the network. It carried no
     // road nodes before and carries none after, so there is nothing to record but the change itself.
     public Problems ChangeStatusWhileUnconnected(RoadSegmentStatusChange statusChange, ScopedRoadNetworkChangeContext context)
     {
+        var problems = Problems.WithContext(RoadSegmentId);
+
+        if (IsRemoved)
+        {
+            return problems + new RoadSegmentIsRemoved();
+        }
+
         ApplyStatusChangeWhileUnconnected(statusChange.BuildEvent(new RoadSegmentUnconnectedChangeData
         {
             RoadSegmentId = RoadSegmentId,
             Provenance = new ProvenanceData(context.Provenance)
         }));
 
-        return Problems.None;
+        return problems;
     }
 }
