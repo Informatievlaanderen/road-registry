@@ -1,3 +1,10 @@
+## [5.35.3](https://github.com/informatievlaanderen/road-registry/compare/v5.35.2...v5.35.3) (2026-11-17)
+
+
+### Bug Fixes
+
+* **domain:** leave removed entities alone when merging road segments ([5dfe2dd](https://github.com/informatievlaanderen/road-registry/commit/5dfe2dd7c01890a50872c51bc2982733d7dd6c62))
+
 ## [5.35.2](https://github.com/informatievlaanderen/road-registry/compare/v5.35.1...v5.35.2) (2026-11-17)
 
 
