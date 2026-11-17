@@ -1,3 +1,10 @@
+## [5.35.2](https://github.com/informatievlaanderen/road-registry/compare/v5.35.1...v5.35.2) (2026-11-17)
+
+
+### Bug Fixes
+
+* **extracten:** replace the archive a previous attempt already uploaded when building an extract GAWR-7199 ([dba2f4d](https://github.com/informatievlaanderen/road-registry/commit/dba2f4d2bbe3f6eb47734c3fcd05a65ef479f336))
+
 ## [5.35.1](https://github.com/informatievlaanderen/road-registry/compare/v5.35.0...v5.35.1) (2026-11-13)
 
 
