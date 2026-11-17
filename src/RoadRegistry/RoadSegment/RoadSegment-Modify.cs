@@ -131,6 +131,13 @@ public partial class RoadSegment
     // rather than removed.
     public Problems Historize(ScopedRoadNetworkChangeContext context)
     {
+        var problems = Problems.WithContext(RoadSegmentId);
+
+        if (IsRemoved)
+        {
+            return problems + new RoadSegmentIsRemoved();
+        }
+
         ChangeStatusAlong(
             RoadSegmentStatusPaths.Get(Status, RoadSegmentStatusV2.Gehistoreerd),
             Geometry,
@@ -138,7 +145,7 @@ public partial class RoadSegment
             Attributes!,
             context.Provenance);
 
-        return Problems.WithContext(RoadSegmentId);
+        return problems;
     }
 
     // Records each status change of a path as its own event. A hop into 'gerealiseerd' records the geometry, the road

@@ -13,6 +13,11 @@ public partial class RoadSegment
     {
         var problems = Problems.WithContext(RoadSegmentId);
 
+        if (IsRemoved)
+        {
+            return problems + new RoadSegmentIsRemoved();
+        }
+
         Apply(new RoadSegmentWasRetiredBecauseOfSplit
         {
             RoadSegmentId = RoadSegmentId,
@@ -25,6 +30,11 @@ public partial class RoadSegment
     public Problems Split(IReadOnlyCollection<RoadSegmentId> newRoadSegmentIds, RoadSegmentSplitModifications? modifications, Provenance provenance)
     {
         var problems = Problems.WithContext(RoadSegmentId);
+
+        if (IsRemoved)
+        {
+            return problems + new RoadSegmentIsRemoved();
+        }
 
         Apply(new RoadSegmentWasSplit
         {

@@ -12,6 +12,11 @@ public partial class GradeSeparatedJunction
     {
         var problems = Problems.WithContext(GradeSeparatedJunctionId);
 
+        if (IsRemoved)
+        {
+            return problems + new GradeSeparatedJunctionIsRemoved(GradeSeparatedJunctionId);
+        }
+
         Apply(new GradeSeparatedJunctionWasMigrated
         {
             GradeSeparatedJunctionId = GradeSeparatedJunctionId,

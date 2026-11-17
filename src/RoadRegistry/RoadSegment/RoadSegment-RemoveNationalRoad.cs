@@ -11,6 +11,11 @@ public partial class RoadSegment
     {
         var problems = Problems.WithContext(RoadSegmentId);
 
+        if (IsRemoved)
+        {
+            return problems + new RoadSegmentIsRemoved();
+        }
+
         if (Attributes!.NationalRoadNumbers.Contains(change.Number))
         {
             Apply(new RoadSegmentWasRemovedFromNationalRoad

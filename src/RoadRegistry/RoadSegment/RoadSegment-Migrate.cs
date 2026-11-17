@@ -15,6 +15,11 @@ public partial class RoadSegment
     {
         var problems = Problems.WithContext(change.RoadSegmentIdReference);
 
+        if (IsRemoved)
+        {
+            return problems + new RoadSegmentIsRemoved();
+        }
+
         var geometryDrawMethod = change.GeometryDrawMethod;
         var geometry = change.Geometry.Value;
 

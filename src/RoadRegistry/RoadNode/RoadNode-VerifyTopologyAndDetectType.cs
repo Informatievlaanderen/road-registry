@@ -21,6 +21,11 @@ public partial class RoadNode
     {
         var problems = Problems.WithContext(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
 
+        if (IsRemoved)
+        {
+            return problems + new RoadNodeIsRemoved();
+        }
+
         var segments = context.RoadNetwork.GetNonRemovedRoadSegments()
             .Where(x => x.StartNodeId == RoadNodeId || x.EndNodeId == RoadNodeId)
             .ToList();

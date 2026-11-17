@@ -10,6 +10,13 @@ public partial class RoadNode
     {
         var problems = Problems.WithContext(RoadNodeId);
 
+        // Removing what is already removed records nothing, the same as Remove() does: a second removal event
+        // would leave the projections with a record they have already dropped.
+        if (IsRemoved)
+        {
+            return problems;
+        }
+
         Apply(new RoadNodeWasRemovedBecauseOfMigration
         {
             RoadNodeId = RoadNodeId,
