@@ -1,3 +1,10 @@
+# [5.36.0](https://github.com/informatievlaanderen/road-registry/compare/v5.35.4...v5.36.0) (2026-11-18)
+
+
+### Features
+
+* **wegsegmenten:** lijst van wegsegmenten opvragen, filterbaar op straatnaam en status GAWR-7815 ([410195c](https://github.com/informatievlaanderen/road-registry/commit/410195c0ad692fc7f29eefcc7780842b9544e45b))
+
 ## [5.35.4](https://github.com/informatievlaanderen/road-registry/compare/v5.35.3...v5.35.4) (2026-11-18)
 
 
