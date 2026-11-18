@@ -1,3 +1,10 @@
+## [5.35.4](https://github.com/informatievlaanderen/road-registry/compare/v5.35.3...v5.35.4) (2026-11-18)
+
+
+### Bug Fixes
+
+* **roadsegment:** keep a validatieknoop instead of refusing the removal when the two remaining roads differ in geometriemethode GAWR-7829 ([ba09c53](https://github.com/informatievlaanderen/road-registry/commit/ba09c53a823eba66ebe1a633609340e3019d1bfa))
+
 ## [5.35.3](https://github.com/informatievlaanderen/road-registry/compare/v5.35.2...v5.35.3) (2026-11-17)
 
 
