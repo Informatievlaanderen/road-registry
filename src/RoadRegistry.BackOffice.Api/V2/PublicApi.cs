@@ -16,6 +16,11 @@ internal static class PublicApi
         return $"{apiOptions.BaseUrl}/{ApiVersion}/wegsegmenten/{{0}}";
     }
 
+    public static string GetWegsegmentenVolgendeUrlFormat(this ApiOptions apiOptions)
+    {
+        return $"{apiOptions.BaseUrl}/{ApiVersion}/wegsegmenten?offset={{0}}&limit={{1}}";
+    }
+
     public static string GetGelijkgrondseKruisingDetailUrlFormat(this ApiOptions apiOptions)
     {
         return $"{apiOptions.BaseUrl}/{ApiVersion}/gelijkgrondsekruisingen/{{0}}";

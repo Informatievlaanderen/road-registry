@@ -29,7 +29,10 @@ public static partial class HandManagedSchema
         "eventstore.ix_mt_doc_gradejunction_road_segment_id_2",
 
         // 20261106120000_add_geometry_column_to_roadnode_document
-        "eventstore.ix_mt_doc_roadnode_geometry"
+        "eventstore.ix_mt_doc_roadnode_geometry",
+
+        // 20261113120000_add_status_column_to_read_roadsegments
+        "projections.ix_read_roadsegments_status"
     };
 
     // Columns generated from the document JSON.
@@ -59,7 +62,10 @@ public static partial class HandManagedSchema
         ("eventstore.mt_doc_roadnode", "geometry"),
 
         // 20261109120000_add_has_migrated_column_to_roadnode_document
-        ("eventstore.mt_doc_roadnode", "has_migrated")
+        ("eventstore.mt_doc_roadnode", "has_migrated"),
+
+        // 20261113120000_add_status_column_to_read_roadsegments
+        ("projections.mt_doc_read_roadsegments", "status")
     ]);
 
     public static string RemoveDrops(string delta)
