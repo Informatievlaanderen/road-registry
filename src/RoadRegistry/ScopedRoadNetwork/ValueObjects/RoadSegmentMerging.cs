@@ -19,6 +19,7 @@ public enum RoadSegmentMerging
     // An editing action in which the merge is a consequence rather than the request: removing a road segment can
     // leave a node holding two roads that is no longer needed. What those two roads are is already settled here, and
     // a road that would be part ingeschetst and part ingemeten is not something the register may make of them on its
-    // own - VAL-5 refuses it instead of deciding for the caller (GAWR-7829).
+    // own (VAL-5). Two roads drawn in different ways are therefore not merged: the node stays as the validatieknoop
+    // between them and the action itself goes ahead (GAWR-7829).
     AsEditAction
 }
