@@ -85,12 +85,13 @@ public partial class RoadSegmentsController
         StreetNameLocalId? streetNameId = null;
         if (!string.IsNullOrEmpty(filter.StreetNameId))
         {
-            if (!int.TryParse(filter.StreetNameId, out var parsedStreetNameId) || parsedStreetNameId <= 0)
+            if (!StreetNameLocalId.TryParse(filter.StreetNameId, out var parsedStreetNameId)
+                || StreetNameLocalId.IsEmpty(parsedStreetNameId))
             {
                 return [];
             }
 
-            streetNameId = new StreetNameLocalId(parsedStreetNameId);
+            streetNameId = parsedStreetNameId;
         }
 
         RoadSegmentStatusV2? status = null;

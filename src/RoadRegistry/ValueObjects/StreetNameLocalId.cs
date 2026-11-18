@@ -53,6 +53,25 @@ public readonly struct StreetNameLocalId : IEquatable<StreetNameLocalId>, IDutch
         return _value;
     }
 
+    public static StreetNameLocalId Parse(string value)
+    {
+        if (!TryParse(value.ThrowIfNull(), out var parsed))
+            throw new FormatException($"The value {value} is not a street name local id.");
+        return parsed;
+    }
+
+    public static bool TryParse(string? value, out StreetNameLocalId parsed)
+    {
+        if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var valueAsInt) && Accepts(valueAsInt))
+        {
+            parsed = new StreetNameLocalId(valueAsInt);
+            return true;
+        }
+
+        parsed = default;
+        return false;
+    }
+
     public static StreetNameLocalId ParseUsingDutchName(string value)
     {
         if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed))

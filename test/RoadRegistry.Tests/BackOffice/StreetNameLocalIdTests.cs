@@ -32,6 +32,41 @@ public class StreetNameLocalIdTests
         Assert.Equal(value.ToString(CultureInfo.InvariantCulture), sut.ToString());
     }
 
+    [Theory]
+    [InlineData("1", 1)]
+    [InlineData("14291", 14291)]
+    [InlineData("-8", -8)]
+    [InlineData("-9", -9)]
+    public void TryParseAcceptsAValidId(string value, int expected)
+    {
+        Assert.True(StreetNameLocalId.TryParse(value, out var parsed));
+        Assert.Equal(new StreetNameLocalId(expected), parsed);
+        Assert.Equal(new StreetNameLocalId(expected), StreetNameLocalId.Parse(value));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("abc")]
+    [InlineData("0")]
+    [InlineData("-1")]
+    [InlineData("1.5")]
+    [InlineData("niet gekend")]
+    public void TryParseRejectsAnInvalidId(string? value)
+    {
+        Assert.False(StreetNameLocalId.TryParse(value, out _));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("abc")]
+    [InlineData("0")]
+    [InlineData("niet gekend")]
+    public void ParseThrowsOnAnInvalidId(string value)
+    {
+        Assert.Throws<FormatException>(() => StreetNameLocalId.Parse(value));
+    }
+
     [Fact]
     public void VerifyBehavior()
     {
