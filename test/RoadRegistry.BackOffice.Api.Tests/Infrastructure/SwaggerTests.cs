@@ -242,7 +242,7 @@ public class SwaggerTests
         return null;
     }
 
-    private static IServiceProvider BuildApiServiceProvider()
+    internal static IServiceProvider BuildApiServiceProvider()
     {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>())
