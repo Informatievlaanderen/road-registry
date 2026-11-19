@@ -10,6 +10,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <!-- The endpoints of the ACM/IDM integration tests, so every build checks that each endpoint of the API is in them. -->
+    <Compile Include="..\RoadRegistry.BackOffice.Api.IntegrationTests\Authentication\AcmIdmEndpoints.cs" Link="Infrastructure\AcmIdmEndpoints.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Read.Projections\RoadRegistry.Read.Projections.csproj" />
