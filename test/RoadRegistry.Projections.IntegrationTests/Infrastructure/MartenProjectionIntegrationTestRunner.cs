@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Npgsql;
 using RoadNetwork;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
@@ -17,6 +18,8 @@ using ScopedRoadNetwork;
 using ScopedRoadNetwork.Events.V2;
 using ScopedRoadNetwork.ValueObjects;
 using Tests.Framework.Projections;
+using Weasel.Core;
+using Weasel.Postgresql;
 using Xunit.Sdk;
 
 public class MartenProjectionIntegrationTestRunner
@@ -153,9 +156,9 @@ public class MartenProjectionIntegrationTestRunner
         // The DbUp migrations only create the production schema. A test may register additional, test-only documents
         // (e.g. a projection's read model). With AutoCreate.None in effect those tables would never be created, so a
         // projection that persists such a document fails at commit time — which pauses the async shard and makes
-        // WaitForNonStaleData time out. Create any missing configured schema objects up front (CreateOrUpdate never
-        // drops, so it leaves the migration-owned production tables untouched).
-        await store.Storage.ApplyAllConfiguredChangesToDatabaseAsync(AutoCreate.CreateOrUpdate);
+        // WaitForNonStaleData time out. Create any missing configured schema objects up front, leaving what the
+        // migrations added by hand in place.
+        await ApplyConfiguredChangesKeepingHandManagedSchema(store);
 
         foreach (var events in _givenEvents)
         {
@@ -224,9 +227,36 @@ public class MartenProjectionIntegrationTestRunner
         await sp.RunMartenDatabaseMigrationsAsync();
 
         var store = sp.GetRequiredService<IDocumentStore>();
-        await store.Storage.ApplyAllConfiguredChangesToDatabaseAsync(AutoCreate.CreateOrUpdate);
+        await ApplyConfiguredChangesKeepingHandManagedSchema(store);
 
         await body(sp, store);
+    }
+
+    // What ApplyAllConfiguredChangesToDatabaseAsync(CreateOrUpdate) does, except for one thing: Marten does not know the
+    // columns and indexes the migrations add by hand to its tables, and that call drops them again - so a test would run
+    // against a schema production never has. The drops of those objects are left out of the patch, the way the
+    // migration generator leaves them out of a new migration.
+    private async Task ApplyConfiguredChangesKeepingHandManagedSchema(IDocumentStore store)
+    {
+        var migration = await store.Storage.CreateMigrationAsync();
+        if (migration.Difference == SchemaPatchDifference.None)
+        {
+            return;
+        }
+
+        var patch = new StringWriter();
+        migration.WriteAllUpdates(patch, new PostgresqlMigrator(), AutoCreate.CreateOrUpdate);
+
+        var updates = HandManagedSchema.RemoveDrops(patch.ToString());
+        if (string.IsNullOrWhiteSpace(updates))
+        {
+            return;
+        }
+
+        await using var connection = new NpgsqlConnection(_databaseFixture.ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new NpgsqlCommand(updates, connection);
+        await command.ExecuteNonQueryAsync();
     }
 
     public XunitException CreateFailedScenarioExceptionFor(VerificationResult result)

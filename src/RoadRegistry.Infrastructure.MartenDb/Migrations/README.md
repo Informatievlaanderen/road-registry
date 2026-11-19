@@ -33,5 +33,5 @@ Marten generates that Postgres rejects, etc.).
 Marten does not know the objects a migration adds by hand to its own tables - the `ix_mt_events_correlation_seq` index,
 or the columns generated from the document JSON on the aggregate document tables that the road network topology is
 looked up in (see `RoadNetworkTopologyTables`) - and its `patch` proposes to drop them. The generator leaves drops of
-the objects listed in `RoadRegistry.MartenDb.MigrationGenerator/HandManagedSchema.cs` out of the delta, so add a
+the objects listed in `RoadRegistry.Infrastructure.MartenDb/Setup/HandManagedSchema.cs` out of the delta, so add a
 hand-managed column or index to that list together with the migration that creates it.

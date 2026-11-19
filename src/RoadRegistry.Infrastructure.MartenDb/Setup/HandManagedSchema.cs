@@ -1,4 +1,4 @@
-namespace RoadRegistry.MartenDb.MigrationGenerator;
+namespace RoadRegistry.Infrastructure.MartenDb.Setup;
 
 using System;
 using System.Collections.Generic;
