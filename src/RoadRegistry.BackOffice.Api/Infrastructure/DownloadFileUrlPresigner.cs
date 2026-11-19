@@ -47,7 +47,15 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure
                     Expires = _clock
                         .GetCurrentInstant()
                         .Plus(Duration.FromSeconds(_s3Options.ExpiresInSeconds))
-                        .ToDateTimeUtc()
+                        .ToDateTimeUtc(),
+                    // The url points to another origin than the portal, so a browser ignores the download attribute
+                    // the portal puts on the link and names the file after the last segment of the url - the blob
+                    // name, which for an upload is its id without an extension. Only a Content-Disposition header on
+                    // the response itself makes the browser use this name, and S3 sends it when the url asks for it.
+                    ResponseHeaderOverrides = new ResponseHeaderOverrides
+                    {
+                        ContentDisposition = $"attachment; filename=\"{fileName}\""
+                    }
                 });
             return new CreatePresignedGetResponse(new Uri(preSignedUrl), fileName);
         }
