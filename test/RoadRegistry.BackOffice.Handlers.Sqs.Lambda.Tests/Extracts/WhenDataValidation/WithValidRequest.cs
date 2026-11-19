@@ -105,6 +105,73 @@ public class WithValidRequest : WhenDataValidationTestBase
     }
 
     [Fact]
+    public async Task WhenOperatorIsAKboNumber_ThenItIsSentWithoutLookingItUp()
+    {
+        // Arrange: surveying companies are private, so their KBO number is on the inwinningszone itself and the
+        // organization cache does not know them.
+        var migrateRoadNetworkSqsRequest = ObjectProvider.Create<MigrateRoadNetworkSqsRequest>();
+        var ticketId = ObjectProvider.Create<TicketId>();
+        var kboNumber = "0316380841";
+
+        var sentMetadata = await GivenDeliveryFor(migrateRoadNetworkSqsRequest, ticketId, kboNumber);
+
+        // Assert
+        sentMetadata.Should().NotBeNull();
+        sentMetadata!.SurveyorOrganisationKbo.Should().Be(kboNumber);
+
+        OrganizationCacheMock.Verify(x =>
+            x.FindByIdOrOvoCodeOrKboNumberAsync(It.IsAny<OrganizationId>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task WhenOrganizationIsNotInTheCache_ThenTheOperatorIsSentAsIs()
+    {
+        // Arrange: no setup on the cache, so the lookup comes back empty.
+        var migrateRoadNetworkSqsRequest = ObjectProvider.Create<MigrateRoadNetworkSqsRequest>();
+        var ticketId = ObjectProvider.Create<TicketId>();
+        var organizationCode = "OVO002949";
+
+        var sentMetadata = await GivenDeliveryFor(migrateRoadNetworkSqsRequest, ticketId, organizationCode);
+
+        // Assert
+        sentMetadata.Should().NotBeNull();
+        sentMetadata!.SurveyorOrganisationKbo.Should().Be(organizationCode);
+    }
+
+    private async Task<DataValidationDeliveryMetadata?> GivenDeliveryFor(
+        MigrateRoadNetworkSqsRequest migrateRoadNetworkSqsRequest,
+        TicketId ticketId,
+        string operatorCode)
+    {
+        DataValidationDeliveryMetadata? sentMetadata = null;
+        DataValidationApiClientMock
+            .Setup(x => x.RequestDataValidationAsync(It.IsAny<UploadId>(), It.IsAny<Stream>(), It.IsAny<DataValidationDeliveryMetadata>(), It.IsAny<CancellationToken>()))
+            .Callback<UploadId, Stream, DataValidationDeliveryMetadata, CancellationToken>((_, _, metadata, _) => sentMetadata = metadata)
+            .ReturnsAsync(() => ObjectProvider.Create<string>());
+
+        DataValidationApiClientMock
+            .Setup(x => x.PollDeliveryAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new PollDeliveryResponse("Processing", string.Empty, "gischecks", string.Empty, string.Empty));
+
+        GivenInwinningszone(migrateRoadNetworkSqsRequest, organizationCode: operatorCode);
+        ExtractsDbContext.ExtractUploads.Add(new ExtractUpload
+        {
+            UploadId = migrateRoadNetworkSqsRequest.UploadId,
+            DownloadId = migrateRoadNetworkSqsRequest.DownloadId,
+            Status = ExtractUploadStatus.Processing,
+            TicketId = ticketId,
+            UploadedOn = DateTimeOffset.Now
+        });
+        await ExtractsDbContext.SaveChangesAsync();
+
+        // Act
+        await HandleRequest(migrateRoadNetworkSqsRequest, ticketId: ticketId, featureEnabled: true);
+
+        return sentMetadata;
+    }
+
+    [Fact]
     public async Task WhenNoInwinningszone_ThenThrows()
     {
         // Arrange
