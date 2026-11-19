@@ -13,12 +13,14 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Extracts.DataValidation;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Infrastructure;
 using TicketingService.Abstractions;
 
 public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<DataValidationSqsLambdaRequest>
 {
     private readonly IDataValidationApiClient _dataValidationApiClient;
     private readonly ExtractsDbContext _extractsDbContext;
+    private readonly IOrganizationCache _organizationCache;
     private readonly SqsJsonMessageSerializer _sqsJsonMessageSerializer;
     private readonly RoadNetworkUploadsBlobClient _uploadsBlobClient;
     private readonly UseDataValidationFeatureToggle _useDataValidationFeatureToggle;
@@ -31,6 +33,7 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
         IRoadRegistryContext roadRegistryContext,
         IDataValidationApiClient dataValidationApiClient,
         ExtractsDbContext extractsDbContext,
+        IOrganizationCache organizationCache,
         SqsJsonMessageSerializer sqsJsonMessageSerializer,
         RoadNetworkUploadsBlobClient uploadsBlobClient,
         UseDataValidationFeatureToggle useDataValidationFeatureToggle,
@@ -46,6 +49,7 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
     {
         _dataValidationApiClient = dataValidationApiClient;
         _extractsDbContext = extractsDbContext;
+        _organizationCache = organizationCache;
         _sqsJsonMessageSerializer = sqsJsonMessageSerializer;
         _uploadsBlobClient = uploadsBlobClient;
         _useDataValidationFeatureToggle = useDataValidationFeatureToggle;
@@ -78,7 +82,9 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
                         var blob = await _uploadsBlobClient.GetBlobAsync(new BlobName(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId.ToString()), cancellationToken);
                         await using var blobStream = await blob.OpenAsync(cancellationToken);
 
-                        queueItem.DataValidationId = await _dataValidationApiClient.RequestDataValidationAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, blobStream, cancellationToken);
+                        var metadata = await BuildDeliveryMetadata(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.DownloadId, cancellationToken);
+
+                        queueItem.DataValidationId = await _dataValidationApiClient.RequestDataValidationAsync(sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.UploadId, blobStream, metadata, cancellationToken);
                     }
                     else
                     {
@@ -179,5 +185,45 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
             Logger.LogError(ex, $"Error while checking with datavalidation with download id {sqsLambdaRequest.Request.MigrateRoadNetworkSqsRequest.DownloadId}");
             throw;
         }
+    }
+
+    /// <summary>
+    /// Builds the context Datavalidatie stores with the delivery: which organisation collected the data, which
+    /// download it belongs to and which municipality it covers. None of it is essential to validating the delivery,
+    /// so a missing inwinningszone or an organisation we cannot resolve a KBO number for is logged and left out
+    /// rather than failing the upload.
+    /// </summary>
+    private async Task<DataValidationDeliveryMetadata> BuildDeliveryMetadata(DownloadId downloadId, CancellationToken cancellationToken)
+    {
+        var inwinningszone = await _extractsDbContext.Inwinningszones
+            .SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
+        if (inwinningszone is null)
+        {
+            Logger.LogWarning("No inwinningszone found for download id {DownloadId}, sending the delivery to datavalidation without metadata", downloadId);
+            return new DataValidationDeliveryMetadata(null, downloadId.ToString(), null);
+        }
+
+        return new DataValidationDeliveryMetadata(
+            await FindOrganizationKboNumber(inwinningszone.Operator, cancellationToken),
+            downloadId.ToString(),
+            inwinningszone.NisCode);
+    }
+
+    private async Task<string?> FindOrganizationKboNumber(string organizationCode, CancellationToken cancellationToken)
+    {
+        if (!OrganizationId.AcceptsValue(organizationCode))
+        {
+            Logger.LogWarning("Organization code '{OrganizationCode}' is not a valid organization id, sending the delivery to datavalidation without a KBO number", organizationCode);
+            return null;
+        }
+
+        var organization = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(new OrganizationId(organizationCode), cancellationToken);
+        if (organization?.KboNumber is null)
+        {
+            Logger.LogWarning("No KBO number found for organization '{OrganizationCode}', sending the delivery to datavalidation without one", organizationCode);
+            return null;
+        }
+
+        return organization.KboNumber.Value.ToString();
     }
 }

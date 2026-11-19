@@ -30,7 +30,7 @@ public class DataValidationApiClientTests
         var apiClient = sp.GetRequiredService<IDataValidationApiClient>();
 
         var fileStream = File.OpenRead(@"27ad54a9778a4b51a1b3e35a5211032f.zip");
-        var deliveryId = await apiClient.RequestDataValidationAsync(new UploadId(Guid.NewGuid()), fileStream, CancellationToken.None);
+        var deliveryId = await apiClient.RequestDataValidationAsync(new UploadId(Guid.NewGuid()), fileStream, new DataValidationDeliveryMetadata("0316380841", Guid.NewGuid().ToString(), "44021"), CancellationToken.None);
         //var deliveryId = "8114d8a4-6ffb-47f1-ac68-85448a379954";
 
         deliveryId.Should().NotBeNullOrEmpty();
