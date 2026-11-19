@@ -194,7 +194,7 @@ public class WegsegmentV2LijstResponseExamples : IExamplesProvider<WegsegmentV2L
                 new WegsegmentV2LijstItem(new RoadSegmentId(123456), RoadSegmentStatusV2.Gerealiseerd, _apiOptions.GetWegsegmentDetailUrlFormat()),
                 new WegsegmentV2LijstItem(new RoadSegmentId(123457), RoadSegmentStatusV2.Gepland, _apiOptions.GetWegsegmentDetailUrlFormat())
             ],
-            Volgende = new Uri(string.Format(_apiOptions.GetWegsegmentenVolgendeUrlFormat(), 2, 2))
+            Volgende = new Uri(string.Format(_apiOptions.GetWegsegmentenVolgendeUrlFormat(), 2, 2), UriKind.RelativeOrAbsolute)
         };
     }
 }
