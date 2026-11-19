@@ -668,7 +668,51 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         (changeFeatures, var maintenanceAuthorityProblems) = await ValidateMaintenanceAuthorityAndMapToInternalId(changeFeatures, cancellationToken);
         problems += maintenanceAuthorityProblems;
+
+        changeFeatures = CorrectMaintenanceAuthorityByStreetNameMunicipality(changeFeatures, streetNameContext);
+
         return (changeFeatures, problems);
+    }
+
+    // GAWR-7780: see MaintenanceAuthorityByStreetNameMunicipality. It runs on the internal maintenance authority codes,
+    // which is what a municipality's NIS code is compared against.
+    private static List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> CorrectMaintenanceAuthorityByStreetNameMunicipality(
+        List<Feature<RoadSegmentFeatureCompareWithFlatAttributes>> changeFeatures,
+        IRoadSegmentFeatureCompareStreetNameContext streetNameContext)
+    {
+        return changeFeatures
+            .Select(changeFeature =>
+            {
+                var attributes = changeFeature.Attributes;
+                if (!TryGetNisCode(attributes.LeftSideStreetNameId, out var leftNisCode)
+                    || !TryGetNisCode(attributes.RightSideStreetNameId, out var rightNisCode)
+                    || !MaintenanceAuthorityByStreetNameMunicipality.TryCorrect(
+                        leftNisCode,
+                        rightNisCode,
+                        attributes.LeftMaintenanceAuthorityId,
+                        attributes.RightMaintenanceAuthorityId,
+                        out var leftMaintenanceAuthorityId,
+                        out var rightMaintenanceAuthorityId))
+                {
+                    return changeFeature;
+                }
+
+                return changeFeature with
+                {
+                    Attributes = attributes with
+                    {
+                        LeftMaintenanceAuthorityId = leftMaintenanceAuthorityId,
+                        RightMaintenanceAuthorityId = rightMaintenanceAuthorityId
+                    }
+                };
+            })
+            .ToList();
+
+        bool TryGetNisCode(StreetNameLocalId streetNameId, out string nisCode)
+        {
+            nisCode = string.Empty;
+            return streetNameId > 0 && streetNameContext.TryGetNisCode(streetNameId, out nisCode);
+        }
     }
 
     private async Task<OgcFeaturesCache> GetOgcFeaturesCache(ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
