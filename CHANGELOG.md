@@ -1,3 +1,10 @@
+## [5.36.1](https://github.com/informatievlaanderen/road-registry/compare/v5.36.0...v5.36.1) (2026-11-19)
+
+
+### Bug Fixes
+
+* **extracten:** laat S3 de bestandsnaam meesturen bij het downloaden van een upload ([4eb9441](https://github.com/informatievlaanderen/road-registry/commit/4eb94418c895b943b18b9f3850e9104497b0020c))
+
 # [5.36.0](https://github.com/informatievlaanderen/road-registry/compare/v5.35.4...v5.36.0) (2026-11-18)
 
 
