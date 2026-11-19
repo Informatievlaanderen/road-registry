@@ -1,3 +1,10 @@
+# [5.37.0](https://github.com/informatievlaanderen/road-registry/compare/v5.36.1...v5.37.0) (2026-11-19)
+
+
+### Features
+
+* **datavalidatie:** send organisation, download and NIS code with a delivery GAWR-7789 ([891e70a](https://github.com/informatievlaanderen/road-registry/commit/891e70a8d270c333784cd7d81e5c3938a1702f2d))
+
 ## [5.36.1](https://github.com/informatievlaanderen/road-registry/compare/v5.36.0...v5.36.1) (2026-11-19)
 
 
