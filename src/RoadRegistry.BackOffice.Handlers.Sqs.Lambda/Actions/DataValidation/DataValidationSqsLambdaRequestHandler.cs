@@ -189,9 +189,9 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
 
     /// <summary>
     /// Builds the context Datavalidatie stores with the delivery: which organisation collected the data, which
-    /// download it belongs to and which municipality it covers. None of it is essential to validating the delivery,
-    /// so a missing inwinningszone or an organisation we cannot resolve a KBO number for is logged and left out
-    /// rather than failing the upload.
+    /// download it belongs to and which municipality it covers. An organisation we cannot resolve a KBO number for
+    /// is logged and left out rather than failing the upload; a download without an inwinningszone is not something
+    /// that can happen along this path, so that one does stop the delivery.
     /// </summary>
     private async Task<DataValidationDeliveryMetadata> BuildDeliveryMetadata(DownloadId downloadId, CancellationToken cancellationToken)
     {
@@ -199,8 +199,7 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
             .SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
         if (inwinningszone is null)
         {
-            Logger.LogWarning("No inwinningszone found for download id {DownloadId}, sending the delivery to datavalidation without metadata", downloadId);
-            return new DataValidationDeliveryMetadata(null, downloadId.ToString(), null);
+            throw new InvalidOperationException($"No Inwinningszone found for {downloadId}");
         }
 
         return new DataValidationDeliveryMetadata(

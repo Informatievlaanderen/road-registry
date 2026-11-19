@@ -31,6 +31,7 @@ public class WithValidRequest : WhenDataValidationTestBase
             .Setup(x => x.PollDeliveryAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new PollDeliveryResponse("Processing", string.Empty, "gischecks", string.Empty, string.Empty));
 
+        GivenInwinningszone(migrateRoadNetworkSqsRequest);
         ExtractsDbContext.ExtractUploads.Add(new ExtractUpload
         {
             UploadId = migrateRoadNetworkSqsRequest.UploadId,
@@ -82,14 +83,7 @@ public class WithValidRequest : WhenDataValidationTestBase
                 KboNumber = kboNumber
             });
 
-        ExtractsDbContext.Inwinningszones.Add(new Inwinningszone
-        {
-            NisCode = nisCode,
-            Contour = ObjectProvider.Create<MultiPolygon>(),
-            Operator = organizationCode,
-            DownloadId = migrateRoadNetworkSqsRequest.DownloadId,
-            Completed = false
-        });
+        GivenInwinningszone(migrateRoadNetworkSqsRequest, nisCode, organizationCode);
         ExtractsDbContext.ExtractUploads.Add(new ExtractUpload
         {
             UploadId = migrateRoadNetworkSqsRequest.UploadId,
@@ -111,21 +105,15 @@ public class WithValidRequest : WhenDataValidationTestBase
     }
 
     [Fact]
-    public async Task WhenNoInwinningszone_ThenOnlyCorrelationIdIsSent()
+    public async Task WhenNoInwinningszone_ThenThrows()
     {
         // Arrange
         var migrateRoadNetworkSqsRequest = ObjectProvider.Create<MigrateRoadNetworkSqsRequest>();
         var ticketId = ObjectProvider.Create<TicketId>();
 
-        DataValidationDeliveryMetadata? sentMetadata = null;
         DataValidationApiClientMock
             .Setup(x => x.RequestDataValidationAsync(It.IsAny<UploadId>(), It.IsAny<Stream>(), It.IsAny<DataValidationDeliveryMetadata>(), It.IsAny<CancellationToken>()))
-            .Callback<UploadId, Stream, DataValidationDeliveryMetadata, CancellationToken>((_, _, metadata, _) => sentMetadata = metadata)
             .ReturnsAsync(() => ObjectProvider.Create<string>());
-
-        DataValidationApiClientMock
-            .Setup(x => x.PollDeliveryAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => new PollDeliveryResponse("Processing", string.Empty, "gischecks", string.Empty, string.Empty));
 
         ExtractsDbContext.ExtractUploads.Add(new ExtractUpload
         {
@@ -138,13 +126,16 @@ public class WithValidRequest : WhenDataValidationTestBase
         await ExtractsDbContext.SaveChangesAsync();
 
         // Act
-        await HandleRequest(migrateRoadNetworkSqsRequest, ticketId: ticketId, featureEnabled: true);
+        var act = () => HandleRequest(migrateRoadNetworkSqsRequest, ticketId: ticketId, featureEnabled: true);
 
-        // Assert: a missing inwinningszone must not block the delivery
-        sentMetadata.Should().NotBeNull();
-        sentMetadata!.CorrelationId.Should().Be(migrateRoadNetworkSqsRequest.DownloadId.ToString());
-        sentMetadata.NisCode.Should().BeNull();
-        sentMetadata.SurveyorOrganisationKbo.Should().BeNull();
+        // Assert: every delivery along this path has an inwinningszone, so its absence is a bug, not a delivery we
+        // quietly send on without metadata.
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage($"No Inwinningszone found for {migrateRoadNetworkSqsRequest.DownloadId}");
+
+        DataValidationApiClientMock.Verify(x =>
+            x.RequestDataValidationAsync(It.IsAny<UploadId>(), It.IsAny<Stream>(), It.IsAny<DataValidationDeliveryMetadata>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -162,6 +153,7 @@ public class WithValidRequest : WhenDataValidationTestBase
             .Setup(x => x.PollDeliveryAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new PollDeliveryResponse(ValidationJobStatus.Processed, string.Empty, null, ValidationResult.Approved, null));
 
+        GivenInwinningszone(migrateRoadNetworkSqsRequest);
         ExtractsDbContext.ExtractUploads.Add(new ExtractUpload
         {
             UploadId = migrateRoadNetworkSqsRequest.UploadId,
@@ -214,5 +206,17 @@ public class WithValidRequest : WhenDataValidationTestBase
         DataValidationApiClientMock.Verify(x =>
             x.RequestDataValidationAsync(It.IsAny<UploadId>(), It.IsAny<Stream>(), It.IsAny<DataValidationDeliveryMetadata>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    private void GivenInwinningszone(MigrateRoadNetworkSqsRequest migrateRoadNetworkSqsRequest, string nisCode = "44021", string organizationCode = "OVO002949")
+    {
+        ExtractsDbContext.Inwinningszones.Add(new Inwinningszone
+        {
+            NisCode = nisCode,
+            Contour = ObjectProvider.Create<MultiPolygon>(),
+            Operator = organizationCode,
+            DownloadId = migrateRoadNetworkSqsRequest.DownloadId,
+            Completed = false
+        });
     }
 }
