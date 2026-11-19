@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Extracts.WhenDataValidation;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Extracts.WhenDataValidation;
 
 using Actions.DataValidation;
 using AutoFixture;
@@ -14,6 +14,7 @@ using RoadNetwork;
 using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Extracts.DataValidation;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Xunit.Abstractions;
@@ -22,6 +23,7 @@ public abstract class WhenDataValidationTestBase : BackOfficeLambdaTest
 {
     protected ExtractsDbContext ExtractsDbContext { get; }
     protected Mock<IDataValidationApiClient> DataValidationApiClientMock { get; } = new();
+    protected Mock<IOrganizationCache> OrganizationCacheMock { get; } = new();
 
     protected WhenDataValidationTestBase(ITestOutputHelper outputHelper)
         : base(outputHelper)
@@ -61,6 +63,7 @@ public abstract class WhenDataValidationTestBase : BackOfficeLambdaTest
             RoadRegistryContext,
             DataValidationApiClientMock.Object,
             ExtractsDbContext,
+            OrganizationCacheMock.Object,
             new SqsJsonMessageSerializer(new FakeSqsOptions(), SqsJsonMessageAssemblies.Assemblies),
             new RoadNetworkUploadsBlobClient(blobClientMock.Object),
             new UseDataValidationFeatureToggle(featureEnabled),

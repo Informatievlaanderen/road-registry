@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 public interface IDataValidationApiClient
 {
-    Task<string> RequestDataValidationAsync(UploadId uploadId, Stream blobStream, CancellationToken cancellationToken);
+    Task<string> RequestDataValidationAsync(UploadId uploadId, Stream blobStream, DataValidationDeliveryMetadata metadata, CancellationToken cancellationToken);
     Task<PollDeliveryResponse> PollDeliveryAsync(string deliveryId, CancellationToken cancellationToken);
     Task<GetDeliveryResultResponse> GetDeliveryResultAsync(string deliveryId, CancellationToken cancellationToken);
     Task<GetDeliveryArtifactsResponse> GetDeliveryArtifactsAsync(string deliveryId, CancellationToken cancellationToken);
@@ -33,10 +33,17 @@ public class DataValidationApiClient : IDataValidationApiClient
         _tokenProvider = tokenProvider;
     }
 
-    public async Task<string> RequestDataValidationAsync(UploadId uploadId, Stream blobStream, CancellationToken cancellationToken)
+    public async Task<string> RequestDataValidationAsync(UploadId uploadId, Stream blobStream, DataValidationDeliveryMetadata metadata, CancellationToken cancellationToken)
     {
         var formContent = new MultipartFormDataContent();
         formContent.Add(new StringContent(_options.SpecificationCode), "specificationCode");
+
+        // Datavalidatie uses these to tell apart who delivered what, and to tie a re-delivery to the earlier ones for
+        // the same municipality. They are optional on their side, so we only send what we were able to resolve.
+        AddMetadata("metadata.surveyorOrganisationKbo", metadata.SurveyorOrganisationKbo);
+        AddMetadata("metadata.correlationId", metadata.CorrelationId);
+        AddMetadata("metadata.nisCode", metadata.NisCode);
+
         formContent.Add(new StreamContent(blobStream), "delivery", "delivery.zip");
 
         using var request = new HttpRequestMessage(HttpMethod.Post, $"{_options.ApiBaseUrl.TrimEnd('/')}/deliveries");
@@ -50,6 +57,14 @@ public class DataValidationApiClient : IDataValidationApiClient
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
         var result = JsonSerializer.Deserialize<CreateValidationJobResponse>(json, JsonOptions)!;
         return result.Id.ToString();
+
+        void AddMetadata(string name, string? value)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                formContent.Add(new StringContent(value), name);
+            }
+        }
     }
 
     public async Task<PollDeliveryResponse> PollDeliveryAsync(string deliveryId, CancellationToken cancellationToken)
@@ -92,6 +107,18 @@ public class DataValidationApiClient : IDataValidationApiClient
     }
 
     private sealed record CreateValidationJobResponse([property: JsonPropertyName("id")] Guid Id);
+}
+
+/// <summary>
+/// Context Datavalidatie stores alongside a delivery: the KBO number of the organisation that collected the data,
+/// the download the delivery belongs to (their correlation id) and the municipality it covers.
+/// </summary>
+public sealed record DataValidationDeliveryMetadata(
+    string? SurveyorOrganisationKbo,
+    string? CorrelationId,
+    string? NisCode)
+{
+    public static readonly DataValidationDeliveryMetadata Empty = new(null, null, null);
 }
 
 public static class ValidationJobStatus
