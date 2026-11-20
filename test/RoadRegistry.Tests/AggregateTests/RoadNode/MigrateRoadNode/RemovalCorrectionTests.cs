@@ -1,4 +1,4 @@
-namespace RoadRegistry.Tests.AggregateTests.RoadNode.MigrateRoadNode;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode.MigrateRoadNode;
 
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -157,21 +157,45 @@ public class RemovalCorrectionTests : RoadNetworkTestBase
         result.Problems.Select(x => x.Reason).Should().Contain("RoadNodeIsRemoved");
     }
 
-    // The neighbour removed the road running to the road node as well. Bringing only the road node back would leave it
-    // in the road network with nothing attached, so this stays an upload the municipality has to sort out itself.
+    // The neighbour removed the road running to the road node as well, which is what it does when it removes a road
+    // node on the border: the road that ran to it goes with it. The upload brings both back, so the road node has
+    // something attached again and the road keeps its identifier - the road segment's own RemovalCorrectionTests
+    // covers what becomes of the road itself.
     //
     //   in the network            the upload                result
     //   o inside                  o inside                  o inside
-    //   . ws-200                  | ws-200                  . ws-200
-    //   x border                  o border                  x border  <- reported
+    //   . ws-200                  | ws-200                  | ws-200
+    //   x border                  o border                  o border
     [Fact]
-    public void WhenTheRoadRunningToItWasRemovedAsWell_ThenItIsStillReported()
+    public void WhenTheRoadRunningToItWasRemovedAsWell_ThenBothAreCollectedAgain()
     {
         var roadNetwork = BuildNetworkTheNeighbourLeftBehind(uploadedRoadWasRemovedToo: true);
 
         var result = roadNetwork.Migrate(Upload(), null, IdGenerator());
 
+        result.Problems.Should().BeEmpty();
+        roadNetwork.RoadNodes[BorderNodeId].IsRemoved.Should().BeFalse();
+        roadNetwork.RoadSegments[UploadedSegmentId].IsRemoved.Should().BeFalse();
+    }
+
+    // The road running to it was removed by an editing action rather than by an inwinning. That removal is not one any
+    // inwinning may undo, so the road stays gone and there is nothing left to hold the road node in the road network.
+    //
+    //   in the network            the upload                result
+    //   o inside                  o inside                  o inside
+    //   . ws-200                  | ws-200                  . ws-200  <- reported
+    //   x border                  o border                  x border  <- reported
+    [Fact]
+    public void WhenTheRoadRunningToItWasRemovedByAnEditingAction_ThenBothAreStillReported()
+    {
+        var roadNetwork = BuildNetworkTheNeighbourLeftBehind(
+            uploadedRoadWasRemovedToo: true,
+            uploadedRoadWasRemovedByAnEditingAction: true);
+
+        var result = roadNetwork.Migrate(Upload(), null, IdGenerator());
+
         result.Problems.Select(x => x.Reason).Should().Contain("RoadNodeIsRemoved");
+        result.Problems.Select(x => x.Reason).Should().Contain("RoadSegmentIsRemoved");
     }
 
     // A road node merged away rather than removed by an inwinning is removed for good: that is the merge's own doing
@@ -225,7 +249,8 @@ public class RemovalCorrectionTests : RoadNetworkTestBase
     private ScopedRoadNetwork BuildNetworkTheNeighbourLeftBehind(
         bool borderNodeHadBeenCollected = false,
         bool borderNodeWasMergedAway = false,
-        bool uploadedRoadWasRemovedToo = false)
+        bool uploadedRoadWasRemovedToo = false,
+        bool uploadedRoadWasRemovedByAnEditingAction = false)
     {
         return BuildNetwork(
             roadNodes: [(InsideNodeId, Inside)],
@@ -237,7 +262,8 @@ public class RemovalCorrectionTests : RoadNetworkTestBase
                 ? [(NeighbourSegmentId, Across, Border, AcrossNodeId, BorderNodeId), (UploadedSegmentId, Border, Inside, BorderNodeId, InsideNodeId)]
                 : [(NeighbourSegmentId, Across, Border, AcrossNodeId, BorderNodeId)],
             borderNodeHadBeenCollected: borderNodeHadBeenCollected,
-            borderNodeWasMergedAway: borderNodeWasMergedAway);
+            borderNodeWasMergedAway: borderNodeWasMergedAway,
+            removedRoadSegmentsWereRemovedByAnEditingAction: uploadedRoadWasRemovedByAnEditingAction);
     }
 
     // What the municipality uploads: the road node the neighbour removed, the one it did not, and its own road running
@@ -289,7 +315,8 @@ public class RemovalCorrectionTests : RoadNetworkTestBase
         (RoadNodeId Id, Coordinate Coordinate)[]? removedRoadNodes = null,
         (RoadSegmentId Id, Coordinate From, Coordinate To, RoadNodeId StartNodeId, RoadNodeId EndNodeId)[]? removedRoadSegments = null,
         bool borderNodeHadBeenCollected = false,
-        bool borderNodeWasMergedAway = false)
+        bool borderNodeWasMergedAway = false,
+        bool removedRoadSegmentsWereRemovedByAnEditingAction = false)
     {
         return new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(),
             roadNodes: roadNodes
@@ -299,7 +326,8 @@ public class RemovalCorrectionTests : RoadNetworkTestBase
                 .ToArray(),
             roadSegments: roadSegments
                 .Select(BuildRoadSegment)
-                .Concat((removedRoadSegments ?? []).Select(BuildRemovedRoadSegment))
+                .Concat((removedRoadSegments ?? []).Select(x =>
+                    BuildRemovedRoadSegment(x, removedRoadSegmentsWereRemovedByAnEditingAction)))
                 .ToArray());
     }
 
@@ -314,11 +342,21 @@ public class RemovalCorrectionTests : RoadNetworkTestBase
             roadSegment.EndNodeId);
     }
 
+    // Which of the two removals put the road there decides whether it may be corrected: only an inwinning's.
     private static RoadSegment BuildRemovedRoadSegment(
-        (RoadSegmentId Id, Coordinate From, Coordinate To, RoadNodeId StartNodeId, RoadNodeId EndNodeId) roadSegment)
+        (RoadSegmentId Id, Coordinate From, Coordinate To, RoadNodeId StartNodeId, RoadNodeId EndNodeId) roadSegment,
+        bool wasRemovedByAnEditingAction = false)
     {
         var removed = BuildRoadSegment(roadSegment);
-        removed.RemoveBecauseOfMigration(new FakeProvenance());
+
+        if (wasRemovedByAnEditingAction)
+        {
+            removed.Remove(new FakeProvenance());
+        }
+        else
+        {
+            removed.RemoveBecauseOfMigration(new FakeProvenance());
+        }
 
         return removed.WithoutChanges();
     }

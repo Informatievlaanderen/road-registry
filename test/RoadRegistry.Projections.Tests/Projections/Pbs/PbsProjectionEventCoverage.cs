@@ -55,7 +55,7 @@ internal static class PbsProjectionEventCoverage
             typeof(RoadSegmentWasCorrectedFromNotRealizedToPlanned),
             typeof(RoadSegmentWasCorrectedFromHistorizedToOutOfUse),
             typeof(RoadSegmentWasNotRealizedFromPlanned), typeof(RoadSegmentWasHistorizedFromPlanned), typeof(RoadSegmentWasHistorizedFromNotRealized), typeof(RoadSegmentWasCorrectedFromHistorizedToPlanned),
-        typeof(RoadSegmentWasRemoved), typeof(RoadSegmentWasRemovedBecauseOfMigration), typeof(RoadSegmentWasRemovedFromEuropeanRoad),
+        typeof(RoadSegmentWasRemoved), typeof(RoadSegmentWasRemovedBecauseOfMigration), typeof(RoadSegmentRemovalWasCorrectedBecauseOfMigration), typeof(RoadSegmentWasRemovedFromEuropeanRoad),
         typeof(RoadSegmentWasRemovedFromNationalRoad), typeof(RoadSegmentWasRetiredBecauseOfMerger),
         typeof(RoadSegmentWasRetiredBecauseOfSplit), typeof(RoadSegmentWasSplit),
         // GradeJunction V2
