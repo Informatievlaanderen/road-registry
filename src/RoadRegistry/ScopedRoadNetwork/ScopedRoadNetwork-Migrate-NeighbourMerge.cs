@@ -100,6 +100,21 @@ public partial class ScopedRoadNetwork
             .Select(uploadedRoad => uploadedRoad!)
             .ToArray();
 
+        // The road segments of the road network this upload claims for itself. A road that took a stretch over is the
+        // neighbour's, collected before this upload was even prepared, so one this upload names as well is not that:
+        // it is this upload's own road meeting another of its own at that road node, and reading it as a takeover cuts
+        // a road back against itself and lets go of a road node that is still needed (GAWR-7827).
+        //
+        // Only the roads this upload modifies: those it holds as its own and collects. A road it says to remove is
+        // something else - an upload that draws a road anew removes the roads it replaces, and those are exactly the
+        // ones a neighbour may have taken over in the meantime (see NeighbourMergeDrawnAnewTests). A road drawn anew
+        // carries a temporary identifier that says nothing about what is on record, and nothing of this upload has
+        // been applied yet at this point, so such a road is not in the spatial index to begin with.
+        var uploadedRoadSegmentIds = changes
+            .OfType<ModifyRoadSegmentChange>()
+            .Select(change => change.RoadSegmentIdReference.RoadSegmentId)
+            .ToHashSet();
+
         // The roads that took a stretch of this upload over. They are the neighbour's, collected before this
         // upload was even prepared, so whatever this upload says about them does not apply to them.
         var takenOverByRoadSegmentIds = new List<RoadSegmentId>();
@@ -131,7 +146,7 @@ public partial class ScopedRoadNetwork
                 var uploadedGeometry = remainingSoFar.Value.GetSingleLineString();
 
                 var takenOverBy = FindRoadSegmentLeavingRoadNode(
-                    uploadedGeometry, roadNodeCoordinate, roadSegmentChange.IdReference.RoadSegmentId);
+                    uploadedGeometry, roadNodeCoordinate, roadSegmentChange.IdReference.RoadSegmentId, uploadedRoadSegmentIds);
                 if (takenOverBy is null)
                 {
                     continue;
@@ -242,7 +257,11 @@ public partial class ScopedRoadNetwork
 
     // The road segment that now lies where the uploaded one leaves the road node. Probed a centimetre along the
     // uploaded geometry rather than at the road node itself, where every road meeting there would answer.
-    private RoadSegment? FindRoadSegmentLeavingRoadNode(LineString uploadedGeometry, Coordinate roadNodeCoordinate, RoadSegmentId uploadedRoadSegmentId)
+    private RoadSegment? FindRoadSegmentLeavingRoadNode(
+        LineString uploadedGeometry,
+        Coordinate roadNodeCoordinate,
+        RoadSegmentId uploadedRoadSegmentId,
+        IReadOnlySet<RoadSegmentId> uploadedRoadSegmentIds)
     {
         var awayFromRoadNode = OrientAwayFrom(uploadedGeometry, roadNodeCoordinate);
         var probe = new Point(new LengthIndexedLine(awayFromRoadNode)
@@ -253,7 +272,9 @@ public partial class ScopedRoadNetwork
 
         return _roadSegmentsSpatialIndex
             .Query(envelope)
-            .Where(x => !x.IsRemoved && x.RoadSegmentId != uploadedRoadSegmentId)
+            .Where(x => !x.IsRemoved
+                        && x.RoadSegmentId != uploadedRoadSegmentId
+                        && !uploadedRoadSegmentIds.Contains(x.RoadSegmentId))
             .Where(x => x.Geometry.Value.Distance(probe) <= NeighbourMergeProbeDistance)
             .OrderBy(x => x.Geometry.Value.Distance(probe))
             .FirstOrDefault();
