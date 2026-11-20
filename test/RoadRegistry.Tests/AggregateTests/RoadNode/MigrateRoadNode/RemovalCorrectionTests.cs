@@ -157,6 +157,31 @@ public class RemovalCorrectionTests : RoadNetworkTestBase
         result.Problems.Select(x => x.Reason).Should().Contain("RoadNodeIsRemoved");
     }
 
+    // The road running to the road node is one the upload draws anew rather than one the road network already has.
+    // Which of the two it is says nothing about the road node: what it needs is a road running up to it once the
+    // changes are in. An upload that delivers a road in pieces arrives here as well, because the pieces are merged
+    // into a road segment that is added rather than modified - which is how road node 1059522 of the Lint delivery
+    // and three of Wijnegem's stayed removed, and their merged road was then refused for a missing road node.
+    //
+    //   in the network            the upload                result
+    //   o inside                  o inside                  o inside
+    //                             | drawn anew              | drawn anew
+    //   x border                  o border                  o border
+    [Fact]
+    public void WhenOnlyARoadTheUploadDrawsAnewRunsToTheRoadNode_ThenItIsCollectedAgain()
+    {
+        var roadNetwork = BuildNetwork(
+            roadNodes: [(InsideNodeId, Inside)],
+            roadSegments: [],
+            removedRoadNodes: [(BorderNodeId, Border), (AcrossNodeId, Across)],
+            removedRoadSegments: [(NeighbourSegmentId, Across, Border, AcrossNodeId, BorderNodeId)]);
+
+        var result = roadNetwork.Migrate(UploadWithARoadDrawnAnew(), null, IdGenerator());
+
+        result.Problems.Should().BeEmpty();
+        roadNetwork.RoadNodes[BorderNodeId].IsRemoved.Should().BeFalse();
+    }
+
     // The neighbour removed the road running to the road node as well, which is what it does when it removes a road
     // node on the border: the road that ran to it goes with it. The upload brings both back, so the road node has
     // something attached again and the road keeps its identifier - the road segment's own RemovalCorrectionTests
@@ -276,6 +301,31 @@ public class RemovalCorrectionTests : RoadNetworkTestBase
             .Add(new ModifyRoadSegmentChange
             {
                 RoadSegmentIdReference = new RoadSegmentIdReference(UploadedSegmentId),
+                Geometry = geometry.ToRoadSegmentGeometry(),
+                GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
+                Status = RoadSegmentStatusV2.Gerealiseerd,
+                AccessRestriction = Attribute<RoadSegmentAccessRestrictionV2>(geometry),
+                Category = Attribute<RoadSegmentCategoryV2>(geometry),
+                Morphology = Attribute<RoadSegmentMorphologyV2>(geometry),
+                StreetNameId = Attribute<StreetNameLocalId>(geometry),
+                MaintenanceAuthorityId = Attribute<OrganizationId>(geometry),
+                SurfaceType = Attribute<RoadSegmentSurfaceTypeV2>(geometry),
+                CarTrafficDirection = Attribute<RoadSegmentTrafficDirection>(geometry),
+                BikeTrafficDirection = Attribute<RoadSegmentTrafficDirection>(geometry),
+                PedestrianTrafficDirection = Attribute<RoadSegmentPedestrianTrafficDirection>(geometry)
+            });
+    }
+
+    // What the municipality uploads when the road running to the road node is one it draws from scratch: the road has
+    // no identifier of its own in the road network, only the temporary one the delivery gave it.
+    private RoadNetworkChanges UploadWithARoadDrawnAnew()
+    {
+        var geometry = Line(Border, Inside);
+
+        return UploadWithoutTheRoad()
+            .Add(new AddRoadSegmentChange
+            {
+                RoadSegmentIdReference = new RoadSegmentIdReference(new RoadSegmentId(1), [Fixture.Create<RoadSegmentTempId>()]),
                 Geometry = geometry.ToRoadSegmentGeometry(),
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethodV2.Ingemeten,
                 Status = RoadSegmentStatusV2.Gerealiseerd,

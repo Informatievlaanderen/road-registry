@@ -3,9 +3,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
+using RoadRegistry.ValueObjects;
 
 public partial class ScopedRoadNetwork
 {
@@ -24,6 +26,24 @@ public partial class ScopedRoadNetwork
         IReadOnlyCollection<RoadSegmentId> RoadSegmentIds)
     {
         public static readonly RemovalCorrections None = new([], []);
+    }
+
+    // A road this upload brings, weighed only by where it runs. KnownToTheRegister tells the two apart for the log:
+    // a road the register already has is worth naming by its number, while a road that is added still has to be given
+    // one, and the number on its reference is not the number it will end up with.
+    private sealed record CollectedRoad(RoadSegmentIdReference IdReference, MultiLineString Geometry, bool KnownToTheRegister)
+    {
+        public string Describe()
+        {
+            if (KnownToTheRegister)
+            {
+                return $"road segment {IdReference.RoadSegmentId.ToInt32()}";
+            }
+
+            return IdReference.TempIds is { Count: > 0 }
+                ? $"the road this upload brings as temporary road segment(s) {IdReference.GetTempIdsAsString()}"
+                : "a road this upload draws anew";
+        }
     }
 
     // Run after ResolveNeighbourMerges and given its answer: what that merge accounts for is not this, and the two
@@ -118,15 +138,26 @@ public partial class ScopedRoadNetwork
             return [];
         }
 
-        // Only a road segment the road network already has counts. One the upload draws from scratch has no identifier
-        // of its own yet, and a road that stays removed is gone for good: bringing the road node back on its own would
-        // leave it hanging in the network with nothing attached, which the topology verification rightly refuses. A
-        // road that is itself brought back does count - it will be there by the time the road nodes are looked up.
-        var roadSegmentChanges = changes
+        // What the road node needs is a road running up to it once the changes are in. Where that road gets its number
+        // from does not matter, so a road the upload draws anew counts as much as one the register already has - and it
+        // has to, because an upload that delivers a road in pieces has them merged into a road segment that is added
+        // rather than modified (see ScopedRoadNetwork-MergeRoadSegments.cs). Such a road was the only one running up to
+        // road node 1059522 of the Lint delivery and to three of Wijnegem's, which is why they stayed removed and the
+        // merged road segment was then refused for a missing start or end road node.
+        //
+        // The one road that does not count is a road segment that stays removed: that one is gone for good, and a road
+        // node brought back for it would hang in the network with nothing attached, which the topology verification
+        // rightly refuses. A road segment that is itself brought back does count - it will be there by the time the
+        // road nodes are looked up.
+        var collectedRoads = changes
             .OfType<ModifyRoadSegmentChange>()
             .Where(change => change.Geometry is not null
                              && _roadSegments.TryGetValue(change.RoadSegmentIdReference.RoadSegmentId, out var roadSegment)
                              && (!roadSegment.IsRemoved || correctedRoadSegmentIds.Contains(roadSegment.RoadSegmentId)))
+            .Select(change => new CollectedRoad(change.RoadSegmentIdReference, change.Geometry!.Value, KnownToTheRegister: true))
+            .Concat(changes
+                .OfType<AddRoadSegmentChange>()
+                .Select(change => new CollectedRoad(change.RoadSegmentIdReference, change.Geometry.Value, KnownToTheRegister: false)))
             .ToArray();
 
         var corrected = new List<RoadNodeId>();
@@ -135,8 +166,8 @@ public partial class ScopedRoadNetwork
         {
             var roadNodeCoordinate = removedRoadNode.Geometry!.Value.Coordinate;
 
-            var runsToRoadNode = roadSegmentChanges
-                .FirstOrDefault(change => TouchesCoordinate(change.Geometry!.Value, roadNodeCoordinate));
+            var runsToRoadNode = collectedRoads
+                .FirstOrDefault(road => TouchesCoordinate(road.Geometry, roadNodeCoordinate));
             if (runsToRoadNode is null)
             {
                 continue;
@@ -145,9 +176,9 @@ public partial class ScopedRoadNetwork
             corrected.Add(removedRoadNode.RoadNodeId);
 
             context.Logger.LogInformation(
-                "Road node {RoadNodeId} was removed by another inwinning and is collected again: road segment {RoadSegmentId} runs to it",
+                "Road node {RoadNodeId} was removed by another inwinning and is collected again: {RoadSegment} runs to it",
                 removedRoadNode.RoadNodeId.ToInt32(),
-                runsToRoadNode.RoadSegmentIdReference.RoadSegmentId.ToInt32());
+                runsToRoadNode.Describe());
         }
 
         return corrected;
