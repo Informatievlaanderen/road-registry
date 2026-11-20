@@ -35,5 +35,6 @@ public static class SwaggerExtensions
         options.SchemaFilter<RoadNodeTypeV2SchemaFilter>();
         options.SchemaFilter<GradeSeparatedJunctionTypeV2SchemaFilter>();
         options.SchemaFilter<EditGradeSeparatedJunctionTypeV2SchemaFilter>();
+        options.SchemaFilter<DocumentedAsRequiredSchemaFilter>();
     }
 }
