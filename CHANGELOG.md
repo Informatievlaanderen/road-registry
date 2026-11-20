@@ -1,3 +1,12 @@
+## [5.37.1](https://github.com/informatievlaanderen/road-registry/compare/v5.37.0...v5.37.1) (2026-11-20)
+
+
+### Bug Fixes
+
+* **datavalidatie:** send the inwinningszone operator as KBO number when it already is one GAWR-7789 ([aa15344](https://github.com/informatievlaanderen/road-registry/commit/aa15344ddfd63da7f68b51240b8a474d6b6f5277))
+* document kant as required for straatnaam and wegbeheerder in the change geometry and change attributes docs GAWR-7863 ([517830e](https://github.com/informatievlaanderen/road-registry/commit/517830e18aacd94631d6df6ec74f3c2d56dee1d4))
+* spelling of 'Verwijderde' in the 410 response examples GAWR-7861 ([dcce175](https://github.com/informatievlaanderen/road-registry/commit/dcce17561223bd67949fdd8bf90df0e084b4b172))
+
 # [5.37.0](https://github.com/informatievlaanderen/road-registry/compare/v5.36.1...v5.37.0) (2026-11-19)
 
 
