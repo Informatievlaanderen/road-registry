@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.DataValidation;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.DataValidation;
 
 using System.Diagnostics;
 using BackOffice.Uploads;
@@ -189,8 +189,7 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
 
     /// <summary>
     /// Builds the context Datavalidatie stores with the delivery: which organisation collected the data, which
-    /// download it belongs to and which municipality it covers. An organisation we cannot resolve a KBO number for
-    /// is logged and left out rather than failing the upload; a download without an inwinningszone is not something
+    /// download it belongs to and which municipality it covers. A download without an inwinningszone is not something
     /// that can happen along this path, so that one does stop the delivery.
     /// </summary>
     private async Task<DataValidationDeliveryMetadata> BuildDeliveryMetadata(DownloadId downloadId, CancellationToken cancellationToken)
@@ -208,8 +207,19 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
             inwinningszone.NisCode);
     }
 
+    /// <summary>
+    /// Resolves the KBO number to send along with the delivery. The operator on an inwinningszone is usually already a
+    /// KBO number of a private surveying company, and those are not in the organization cache, so a value that is
+    /// shaped like a KBO number is taken as-is and an organization the cache does not know is passed on unchanged
+    /// rather than dropped.
+    /// </summary>
     private async Task<string?> FindOrganizationKboNumber(string organizationCode, CancellationToken cancellationToken)
     {
+        if (OrganizationKboNumber.AcceptsValue(organizationCode))
+        {
+            return organizationCode;
+        }
+
         if (!OrganizationId.AcceptsValue(organizationCode))
         {
             Logger.LogWarning("Organization code '{OrganizationCode}' is not a valid organization id, sending the delivery to datavalidation without a KBO number", organizationCode);
@@ -219,8 +229,8 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
         var organization = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(new OrganizationId(organizationCode), cancellationToken);
         if (organization?.KboNumber is null)
         {
-            Logger.LogWarning("No KBO number found for organization '{OrganizationCode}', sending the delivery to datavalidation without one", organizationCode);
-            return null;
+            Logger.LogError("No KBO number found for organization '{OrganizationCode}', sending the delivery to datavalidation with the operator value as-is", organizationCode);
+            return organizationCode;
         }
 
         return organization.KboNumber.Value.ToString();
