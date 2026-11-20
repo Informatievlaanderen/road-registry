@@ -23,6 +23,11 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
     public bool IsRemoved { get; private set; }
 
+    // Which of the removals put it there. Only an inwinning's removal of a road segment can be corrected again
+    // (see RoadSegmentRemovalWasCorrectedBecauseOfMigration); a road segment removed by an editing action is removed
+    // for good - that one raises RoadSegmentWasRemoved.
+    public bool IsRemovedBecauseOfMigration { get; private set; }
+
     private readonly string? _lastSnapshotEventHash;
     public string LastEventHash => UncommittedEvents.Count > 0 ? UncommittedEvents[^1].GetHash() : _lastSnapshotEventHash ?? string.Empty;
 
@@ -47,6 +52,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         int? endNodeId,
         RoadSegmentAttributes? attributes,
         bool isRemoved,
+        bool isRemovedBecauseOfMigration,
         string? lastEventHash,
         IReadOnlyList<RoadSegmentId>? lastSplitIntoRoadSegmentIds
     )
@@ -58,6 +64,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         EndNodeId = RoadNodeId.FromValue(endNodeId);
         Attributes = attributes;
         IsRemoved = isRemoved;
+        IsRemovedBecauseOfMigration = isRemovedBecauseOfMigration;
         _lastSnapshotEventHash = lastEventHash;
         LastSplitIntoRoadSegmentIds = lastSplitIntoRoadSegmentIds;
     }
@@ -82,7 +89,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         RoadNodeId? startNodeId,
         RoadNodeId? endNodeId)
     {
-        return new RoadSegment(roadSegmentId, geometry, status.ToString(), startNodeId, endNodeId, null, false, null, null);
+        return new RoadSegment(roadSegmentId, geometry, status.ToString(), startNodeId, endNodeId, null, false, false, null, null);
     }
 
     public static RoadSegment Create(RoadSegmentWasAdded @event)
@@ -315,6 +322,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = true;
+        IsRemovedBecauseOfMigration = false;
     }
 
     public void Apply(RoadSegmentWasRemovedBecauseOfMigration @event)
@@ -322,6 +330,21 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = true;
+        IsRemovedBecauseOfMigration = true;
+    }
+
+    public void Apply(RoadSegmentRemovalWasCorrectedBecauseOfMigration @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        IsRemoved = false;
+        IsRemovedBecauseOfMigration = false;
+
+        // The road segment is collected again right after this, and dropping the attributes is what makes that happen:
+        // the migration asks HasMigrated() whether the road segment still has collecting to do. So a
+        // RoadSegmentWasMigrated follows with the geometry, the status, the road nodes and every attribute, which is
+        // everything a projection that had to delete its row needs to build it again.
+        Attributes = null;
     }
 
     public void Apply(RoadSegmentWasRetiredBecauseOfMerger @event)

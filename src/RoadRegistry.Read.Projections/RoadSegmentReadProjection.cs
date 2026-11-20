@@ -493,6 +493,19 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
             roadSegment.IsRemoved = true;
             session.Store(roadSegment);
         });
+        When<IEvent<RoadSegmentRemovalWasCorrectedBecauseOfMigration>>(async (session, e, ct) =>
+        {
+            var roadSegment = await session.LoadAsync<RoadSegmentReadItem>(e.Data.RoadSegmentId, ct);
+            if (roadSegment is null)
+            {
+                throw new InvalidOperationException($"No road segment found for Id {e.Data.RoadSegmentId}");
+            }
+
+            // This projection only flags a removal, so the road segment is still here to be unflagged. The rest of it
+            // comes from the RoadSegmentWasMigrated that follows: the road segment is collected again right after.
+            roadSegment.IsRemoved = false;
+            session.Store(roadSegment);
+        });
         When<IEvent<RoadSegmentWasRetiredBecauseOfMerger>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>

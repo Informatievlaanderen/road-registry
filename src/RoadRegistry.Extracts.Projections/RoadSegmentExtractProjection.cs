@@ -492,6 +492,14 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
 
             session.Delete(roadSegment);
         });
+        When<IEvent<RoadSegmentRemovalWasCorrectedBecauseOfMigration>>((_, _, _) =>
+        {
+            // Nothing here: the row was deleted when the road segment was removed, and the correction says no more
+            // than that the removal is undone. The road segment is collected again right after it, and the
+            // RoadSegmentWasMigrated above builds the row back with the real geometry and attributes rather than a
+            // placeholder invented here.
+            return Task.CompletedTask;
+        });
         // A road segment retired by a merger or a split is historized, not removed: the aggregate keeps it - status
         // gehistoreerd, no road nodes - so this projection keeps it as well, the same as a road segment historized
         // from realized. Deleting on a status change was what made a later event on the same road segment explode:

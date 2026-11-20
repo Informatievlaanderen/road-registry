@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Projections.WmsWfsV1Inwinning;
+﻿namespace RoadRegistry.Projections.Tests.Projections.WmsWfsV1Inwinning;
 
 using System;
 using System.Collections.Generic;
@@ -65,6 +65,9 @@ public class WmsWfsV1InwinningProjectionTests
             typeof(RoadSegmentWasCorrectedFromHistorizedToOutOfUse),
             typeof(RoadSegmentWasNotRealizedFromPlanned), typeof(RoadSegmentWasHistorizedFromPlanned), typeof(RoadSegmentWasHistorizedFromNotRealized), typeof(RoadSegmentWasCorrectedFromHistorizedToPlanned),
             typeof(RoadSegmentWasRemoved), typeof(RoadSegmentWasRemovedFromEuropeanRoad),
+            // The road segment is collected again right after its removal is corrected, and the
+            // RoadSegmentWasMigrated that follows marks it completed - which it already was.
+            typeof(RoadSegmentRemovalWasCorrectedBecauseOfMigration),
             typeof(RoadSegmentWasRemovedFromNationalRoad), typeof(RoadSegmentWasRetiredBecauseOfMerger),
             typeof(RoadSegmentWasRetiredBecauseOfSplit), typeof(RoadSegmentWasSplit),
             // GradeJunction V2
