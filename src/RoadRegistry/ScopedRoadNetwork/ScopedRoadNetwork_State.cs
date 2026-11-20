@@ -134,12 +134,14 @@ public partial class ScopedRoadNetwork : MartenAggregateRootEntity<ScopedRoadNet
         var startNodeId = FindRoadNode(geometry.Value.Coordinate)?.RoadNodeId;
         if (startNodeId is null)
         {
+            LogRoadNodeLookupMiss("start", geometry.Value.Coordinate);
             problems += new RoadSegmentStartNodeMissing();
         }
 
         var endNodeId = FindRoadNode(geometry.Value.Coordinates.Last())?.RoadNodeId;
         if (endNodeId is null)
         {
+            LogRoadNodeLookupMiss("end", geometry.Value.Coordinates.Last());
             problems += new RoadSegmentEndNodeMissing();
         }
 

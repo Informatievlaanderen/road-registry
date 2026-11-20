@@ -86,6 +86,23 @@ public partial class ScopedRoadNetwork
                              && roadNode.IsRemoved)
             .ToArray();
 
+        LogDiagnostic("ResolveNeighbourMerges: {Count} removed road node(s) named by this upload: {RoadNodeIds}",
+            removedRoadNodes.Length,
+            string.Join(",", removedRoadNodes.Select(x => x.RoadNodeId.ToInt32())));
+
+        foreach (var change in changes.OfType<ModifyRoadNodeChange>())
+        {
+            if (_roadNodes.TryGetValue(change.RoadNodeId, out var namedRoadNode))
+            {
+                LogDiagnostic("ResolveNeighbourMerges: ModifyRoadNodeChange {RoadNodeId} HasGeometry {HasGeometry} HasGrensknoop {HasGrensknoop} IsRemoved {IsRemoved} IsRemovedBecauseOfMigration {IsRemovedBecauseOfMigration}",
+                    change.RoadNodeId.ToInt32(), change.Geometry is not null, change.Grensknoop is not null, namedRoadNode.IsRemoved, namedRoadNode.IsRemovedBecauseOfMigration);
+            }
+            else
+            {
+                LogDiagnostic("ResolveNeighbourMerges: ModifyRoadNodeChange {RoadNodeId} is not in the loaded road network at all", change.RoadNodeId.ToInt32());
+            }
+        }
+
         if (removedRoadNodes.Length == 0)
         {
             return NeighbourMergeResolutions.None;
@@ -171,6 +188,9 @@ public partial class ScopedRoadNetwork
             {
                 resolvedRoadNodeIds.Add(removedRoadNode.RoadNodeId);
             }
+
+            LogDiagnostic("ResolveNeighbourMerges: removed road node {RoadNodeId} at ({X}, {Y}) accountedFor {AccountedFor}",
+                removedRoadNode.RoadNodeId.ToInt32(), roadNodeCoordinate.X, roadNodeCoordinate.Y, accountedFor);
         }
 
         var resolvedCuts = resolvedRoadSegments.ToDictionary(x => x.Key, x => (IReadOnlyList<NeighbourMergeResolution>)x.Value);

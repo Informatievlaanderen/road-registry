@@ -1,6 +1,7 @@
-namespace RoadRegistry.ScopedRoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System.Collections.Generic;
+using System.Linq;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.ValueObjects;
@@ -70,8 +71,47 @@ public partial class ScopedRoadNetwork
     {
         var roadNodeAlreadyThere = FindRoadNodeAlreadyThere(change, context);
 
+        LogAddRoadNodeFromInwinning(change, roadNodeAlreadyThere);
+
         return roadNodeAlreadyThere is null
             ? AddRoadNode(change, idGenerator, context)
             : MigrateRoadNode(AsModifyChange(change, roadNodeAlreadyThere.RoadNodeId, context), neighbourMerges, removalCorrections, context);
+    }
+
+    // TEMPORARY - see ScopedRoadNetwork-Diagnostics.cs. FindRoadNodeAlreadyThere goes through FindRoadNode, which only
+    // sees road nodes that are not removed, so a road node a neighbouring inwinning removed is invisible to it and the
+    // removal-correction branch below can never be reached for one. This says whether that is what happened here.
+    private void LogAddRoadNodeFromInwinning(AddRoadNodeChange change, RoadNode.RoadNode? roadNodeAlreadyThere)
+    {
+        if (_diagnosticLogger is null)
+        {
+            return;
+        }
+
+        var coordinate = change.Geometry.Value.Coordinate;
+
+        if (roadNodeAlreadyThere is not null)
+        {
+            LogDiagnostic("AddRoadNodeFromInwinning: temporary road node {TemporaryId} at ({X}, {Y}) reuses existing road node {RoadNodeId}",
+                change.TemporaryId.ToInt32(), coordinate.X, coordinate.Y, roadNodeAlreadyThere.RoadNodeId.ToInt32());
+            return;
+        }
+
+        var removedAtSameCoordinate = _roadNodes.Values
+            .Where(x => x.IsRemoved && x.Geometry.Value.Coordinate.Equals2D(coordinate))
+            .ToArray();
+
+        if (removedAtSameCoordinate.Length == 0)
+        {
+            LogDiagnostic("AddRoadNodeFromInwinning: temporary road node {TemporaryId} at ({X}, {Y}) is added as a new road node; no removed road node sits on that coordinate",
+                change.TemporaryId.ToInt32(), coordinate.X, coordinate.Y);
+            return;
+        }
+
+        foreach (var removed in removedAtSameCoordinate)
+        {
+            LogDiagnostic("AddRoadNodeFromInwinning: temporary road node {TemporaryId} at ({X}, {Y}) is added as a new road node although removed road node {RoadNodeId} sits on that exact coordinate, IsRemovedBecauseOfMigration {IsRemovedBecauseOfMigration}",
+                change.TemporaryId.ToInt32(), coordinate.X, coordinate.Y, removed.RoadNodeId.ToInt32(), removed.IsRemovedBecauseOfMigration);
+        }
     }
 }

@@ -68,6 +68,8 @@ public partial class ScopedRoadNetwork
             return Problems.Single(new Error(ProblemCode.RoadNetwork.NoChanges.ToString()));
         }
 
+        AttachDiagnosticLogger(context.Logger);
+
         // Ensure spatial indexes are built once at the start for optimal performance
         RebuildSpatialIndexes(context.Logger);
 

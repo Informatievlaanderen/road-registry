@@ -1,4 +1,4 @@
-namespace RoadRegistry.ScopedRoadNetwork;
+﻿namespace RoadRegistry.ScopedRoadNetwork;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -38,8 +38,36 @@ public partial class ScopedRoadNetwork
                              && roadNode is { IsRemoved: true, IsRemovedBecauseOfMigration: true })
             .ToArray();
 
+        foreach (var change in changes.OfType<ModifyRoadNodeChange>())
+        {
+            if (!_roadNodes.TryGetValue(change.RoadNodeId, out var namedRoadNode) || !namedRoadNode.IsRemoved)
+            {
+                continue;
+            }
+
+            var reason = change.Geometry is null ? "change has no geometry"
+                : change.Grensknoop is null ? "change has no grensknoop"
+                : neighbourMerges.RoadNodeIds.Contains(change.RoadNodeId) ? "accounted for by a neighbour merge"
+                : !namedRoadNode.IsRemovedBecauseOfMigration ? "removed by something other than an inwinning, which may not be undone"
+                : "candidate";
+
+            LogDiagnostic("ResolveRemovalCorrections: removed road node {RoadNodeId} -> {Reason}", change.RoadNodeId.ToInt32(), reason);
+        }
+
+        // The road segments this upload names that the road network holds as removed. They are filtered out of the
+        // candidate check below, and there is no mechanism to bring them back, so they are called out here.
+        foreach (var change in changes.OfType<ModifyRoadSegmentChange>())
+        {
+            if (_roadSegments.TryGetValue(change.RoadSegmentIdReference.RoadSegmentId, out var namedRoadSegment) && namedRoadSegment.IsRemoved)
+            {
+                LogDiagnostic("ResolveRemovalCorrections: road segment {RoadSegmentId} named by this upload is removed, so it cannot justify bringing a road node back and it has no correction of its own",
+                    change.RoadSegmentIdReference.RoadSegmentId.ToInt32());
+            }
+        }
+
         if (removedRoadNodes.Length == 0)
         {
+            LogDiagnostic("ResolveRemovalCorrections: no candidates");
             return [];
         }
 
@@ -64,6 +92,8 @@ public partial class ScopedRoadNetwork
                 .FirstOrDefault(change => TouchesCoordinate(change.Geometry!.Value, roadNodeCoordinate));
             if (runsToRoadNode is null)
             {
+                LogDiagnostic("ResolveRemovalCorrections: road node {RoadNodeId} at ({X}, {Y}) is not brought back: none of the {Count} non-removed road segment(s) this upload modifies runs up to it",
+                    removedRoadNode.RoadNodeId.ToInt32(), roadNodeCoordinate.X, roadNodeCoordinate.Y, roadSegmentChanges.Length);
                 continue;
             }
 
