@@ -73,7 +73,7 @@ public class GradeSeparatedJunctionGoneResponseExamples : IExamplesProvider<Prob
             ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:gradeseparatedjunction:gone",
             HttpStatus = StatusCodes.Status410Gone,
             Title = ProblemDetails.DefaultTitle,
-            Detail = "Verwijderd ongelijkgrondse kruising.",
+            Detail = "Verwijderde ongelijkgrondse kruising.",
             ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext!, PublicApi.ApiVersion)
         };
 }
