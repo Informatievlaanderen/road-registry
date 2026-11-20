@@ -1,3 +1,15 @@
+# [5.38.0](https://github.com/informatievlaanderen/road-registry/compare/v5.37.1...v5.38.0) (2026-11-20)
+
+
+### Bug Fixes
+
+* **inwinning:** bring back a road node a road drawn anew runs to GAWR-7866 ([f6a7bab](https://github.com/informatievlaanderen/road-registry/commit/f6a7babbe67aa4e9a0c03d1e4602fd7289eae9bd))
+
+
+### Features
+
+* **inwinning:** bring back a road segment a neighbouring inwinning removed GAWR-7865 ([463f362](https://github.com/informatievlaanderen/road-registry/commit/463f36268b622e180687923d5ed4ac00059666ca))
+
 ## [5.37.1](https://github.com/informatievlaanderen/road-registry/compare/v5.37.0...v5.37.1) (2026-11-20)
 
 
