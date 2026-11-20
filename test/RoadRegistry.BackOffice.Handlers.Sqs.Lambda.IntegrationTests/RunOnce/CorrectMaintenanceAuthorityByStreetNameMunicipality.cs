@@ -11,13 +11,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using RoadRegistry.Extracts.FeatureCompare.Inwinning.RoadSegment;
-using RoadRegistry.Extracts.Projections;
-using RoadRegistry.Extracts.Projections.Setup;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.RoadSegment.ValueObjects;
 using Xunit.Abstractions;
+using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 /// <summary>
 /// GAWR-7780. The inwinning now lets the street names lead the maintenance authority of a road segment on a
@@ -26,8 +25,9 @@ using Xunit.Abstractions;
 /// becomes A and the right side B. This applies the same correction to the road segments that were taken in before
 /// that change, through the public edit endpoint POST v2/wegsegmenten/acties/wijzigen/attributen.
 ///
-/// WHICH ROAD SEGMENTS. The V2 road segments (a migrated road segment is taken in, so its inwinning is complete), read
-/// from the extract documents in Marten. The NIS code of each street name comes from the street name cache. The rule is
+/// WHICH ROAD SEGMENTS. The migrated road segments (a migrated road segment is taken in, so its inwinning is complete)
+/// that are neither removed nor historized, read from the RoadSegment aggregate documents in Marten: an inline
+/// snapshot, so always up to date, unlike the extract documents of an async projection. The NIS code of each street name comes from the street name cache. The rule is
 /// evaluated per stretch of the road segment on which both the street names and the maintenance authorities are
 /// constant, so a road segment with attributes per position is corrected only where the rule applies; the request
 /// carries the complete new maintenance authority of the road segment, as the endpoint requires.
@@ -37,8 +37,7 @@ using Xunit.Abstractions;
 /// CreateTokenEndpoint, ClientId and ClientSecret. The client needs the scope dv_wr_attribuutwaarden_beheer.
 ///
 /// This WRITES when <c>dryRun</c> is false: every request becomes a change on the road network. Run it on STG before
-/// PRD, after the FeatureCompare part of GAWR-7780 is deployed. It is idempotent: a second run finds nothing to correct,
-/// as long as the projections have caught up.
+/// PRD, after the FeatureCompare part of GAWR-7780 is deployed. It is idempotent: a second run finds nothing to correct.
 /// </summary>
 public class CorrectMaintenanceAuthorityByStreetNameMunicipality
 {
@@ -169,28 +168,30 @@ public class CorrectMaintenanceAuthorityByStreetNameMunicipality
 
         while (true)
         {
+            // The generated columns of the aggregate document (migration 20261103120000): has_migrated is
+            // RoadSegment.HasMigrated, status the bare V2 status name.
             await using var session = store.QuerySession();
-            var items = await session.Query<RoadSegmentExtractItem>()
-                .Where(x => x.IsV2 && x.Id > lastId)
-                .OrderBy(x => x.Id)
-                .Take(ReadBatchSize)
-                .ToListAsync();
-            if (items.Count == 0)
+            var roadSegments = (await session.QueryAsync<RoadSegment>(
+                    "where road_segment_id > ? and has_migrated and not is_removed and status <> ? order by road_segment_id limit ?",
+                    lastId, RoadSegmentStatusV2.Gehistoreerd.ToString(), ReadBatchSize))
+                .ToList();
+            if (roadSegments.Count == 0)
             {
                 break;
             }
 
-            lastId = items[^1].Id;
-            read += items.Count;
+            lastId = roadSegments.Max(x => x.RoadSegmentId.ToInt32());
+            read += roadSegments.Count;
 
             // Only a road segment with a street name on both sides can lie on a municipality border.
-            var candidates = items
-                .Where(x => x.StreetNameId.Values.Any(v => v.Value > 0 && v.Side != RoadSegmentAttributeSide.Rechts)
-                            && x.StreetNameId.Values.Any(v => v.Value > 0 && v.Side != RoadSegmentAttributeSide.Links))
+            var candidates = roadSegments
+                .Where(x => x.HasMigrated() && !x.IsRemovedOrHistorized())
+                .Where(x => x.Attributes!.StreetNameId.Values.Any(v => v.Value > 0 && v.Side != RoadSegmentAttributeSide.Rechts)
+                            && x.Attributes!.StreetNameId.Values.Any(v => v.Value > 0 && v.Side != RoadSegmentAttributeSide.Links))
                 .ToList();
 
             var streetNameIds = candidates
-                .SelectMany(x => x.StreetNameId.Values)
+                .SelectMany(x => x.Attributes!.StreetNameId.Values)
                 .Where(x => x.Value > 0)
                 .Select(x => x.Value.ToInt32())
                 .Distinct()
@@ -199,16 +200,17 @@ public class CorrectMaintenanceAuthorityByStreetNameMunicipality
                 .Where(x => !x.IsRemoved && !string.IsNullOrWhiteSpace(x.NisCode))
                 .ToDictionary(x => x.Id, x => x.NisCode);
 
-            foreach (var item in candidates)
+            foreach (var roadSegment in candidates)
             {
-                var plan = PlanCorrection(item.StreetNameId.Values, item.MaintenanceAuthorityId.Values, nisCodes);
+                var attributes = roadSegment.Attributes!;
+                var plan = PlanCorrection(attributes.StreetNameId.Values, attributes.MaintenanceAuthorityId.Values, nisCodes);
                 if (plan is not null)
                 {
-                    corrections.Add(new Correction(item.RoadSegmentId, ToStretches(item.MaintenanceAuthorityId.Values), plan));
+                    corrections.Add(new Correction(roadSegment.RoadSegmentId, ToStretches(attributes.MaintenanceAuthorityId.Values), plan));
                 }
             }
 
-            _outputHelper.WriteLine($"Read {read} V2 road segments, {corrections.Count} to correct so far");
+            _outputHelper.WriteLine($"Read {read} migrated road segments, {corrections.Count} to correct so far");
         }
 
         return corrections;
@@ -217,12 +219,12 @@ public class CorrectMaintenanceAuthorityByStreetNameMunicipality
     // The corrected maintenance authority for the whole road segment, or null when nothing changes. The road segment is
     // cut at every position where a street name or a maintenance authority changes; on each stretch the rule decides.
     private static IReadOnlyList<Stretch>? PlanCorrection(
-        IReadOnlyCollection<ExtractRoadSegmentDynamicAttributeValue<StreetNameLocalId>> streetNames,
-        IReadOnlyCollection<ExtractRoadSegmentDynamicAttributeValue<OrganizationId>> maintenanceAuthorities,
+        IReadOnlyCollection<RoadSegmentDynamicAttributeValue<StreetNameLocalId>> streetNames,
+        IReadOnlyCollection<RoadSegmentDynamicAttributeValue<OrganizationId>> maintenanceAuthorities,
         IReadOnlyDictionary<int, string> nisCodes)
     {
-        var positions = streetNames.SelectMany(x => new[] { x.From, x.To })
-            .Concat(maintenanceAuthorities.SelectMany(x => new[] { x.From, x.To }))
+        var positions = streetNames.SelectMany(x => new[] { x.Coverage.From, x.Coverage.To })
+            .Concat(maintenanceAuthorities.SelectMany(x => new[] { x.Coverage.From, x.Coverage.To }))
             .Distinct()
             .OrderBy(x => x)
             .ToList();
@@ -273,21 +275,21 @@ public class CorrectMaintenanceAuthorityByStreetNameMunicipality
     }
 
     private static T? ValueOn<T>(
-        IEnumerable<ExtractRoadSegmentDynamicAttributeValue<T>> values,
+        IEnumerable<RoadSegmentDynamicAttributeValue<T>> values,
         RoadSegmentPositionV2 from,
         RoadSegmentPositionV2 to,
         RoadSegmentAttributeSide side)
         where T : struct
     {
         var value = values.FirstOrDefault(x =>
-            x.From <= from && to <= x.To
+            x.Coverage.From <= from && to <= x.Coverage.To
             && (x.Side == side || x.Side == RoadSegmentAttributeSide.Beide));
         return value is null ? null : value.Value;
     }
 
-    private static IReadOnlyList<Stretch> ToStretches(IReadOnlyCollection<ExtractRoadSegmentDynamicAttributeValue<OrganizationId>> maintenanceAuthorities)
+    private static IReadOnlyList<Stretch> ToStretches(IReadOnlyCollection<RoadSegmentDynamicAttributeValue<OrganizationId>> maintenanceAuthorities)
     {
-        var positions = maintenanceAuthorities.SelectMany(x => new[] { x.From, x.To }).Distinct().OrderBy(x => x).ToList();
+        var positions = maintenanceAuthorities.SelectMany(x => new[] { x.Coverage.From, x.Coverage.To }).Distinct().OrderBy(x => x).ToList();
         var stretches = new List<Stretch>();
         for (var i = 0; i < positions.Count - 1; i++)
         {
@@ -421,12 +423,11 @@ public class CorrectMaintenanceAuthorityByStreetNameMunicipality
         return string.Join(" | ", stretches.Select(x => $"[{x.From:0.###}-{x.To:0.###}] L {x.Left} R {x.Right}"));
     }
 
-    private static ExtractRoadSegmentDynamicAttributeValue<T> Value<T>(double from, double to, RoadSegmentAttributeSide side, T value)
+    private static RoadSegmentDynamicAttributeValue<T> Value<T>(double from, double to, RoadSegmentAttributeSide side, T value)
     {
-        return new ExtractRoadSegmentDynamicAttributeValue<T>
+        return new RoadSegmentDynamicAttributeValue<T>
         {
-            From = new RoadSegmentPositionV2(from),
-            To = new RoadSegmentPositionV2(to),
+            Coverage = new RoadSegmentPositionCoverage(new RoadSegmentPositionV2(from), new RoadSegmentPositionV2(to)),
             Side = side,
             Value = value
         };
@@ -456,7 +457,7 @@ public class CorrectMaintenanceAuthorityByStreetNameMunicipality
             .AddLogging();
 
         services
-            .AddMartenRoad(options => options.ConfigureExtractDocuments()).Services
+            .AddMartenRoad(options => options.AddRoadAggregatesSnapshots()).Services
             .AddStreetNameCache();
 
         return services.BuildServiceProvider().CreateScope().ServiceProvider;
