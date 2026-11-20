@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.SchemaFilters;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
@@ -83,6 +84,7 @@ public class SwaggerTests
 
         var schemaRepository = new SchemaRepository();
         schemaGenerator.GenerateSchema(typeof(StraatnaamParameters), schemaRepository);
+        schemaGenerator.GenerateSchema(typeof(WegbeheerderParameters), schemaRepository);
         schemaGenerator.GenerateSchema(typeof(MorfologieParameters), schemaRepository);
         schemaGenerator.GenerateSchema(typeof(ChangeRoadSegmentAttributeV2Parameters), schemaRepository);
 
@@ -90,11 +92,20 @@ public class SwaggerTests
         schemaRepository.Schemas[nameof(ChangeRoadSegmentAttributeV2Parameters)].Required
             .Should().Contain("wegsegmenten");
 
-        // A sided VanTot derivative orders kant, vanPositie, totPositie and then the attribute; only the attribute
-        // itself is required (not kant / vanPositie / totPositie).
-        var straatnaam = schemaRepository.Schemas[nameof(StraatnaamParameters)];
-        straatnaam.Properties.Keys.Should().Equal("kant", "vanPositie", "totPositie", "identificator");
-        straatnaam.Required.Should().BeEquivalentTo(new[] { "identificator" });
+        // A sided VanTot derivative orders kant, vanPositie, totPositie and then the attribute; kant and the attribute
+        // are required, vanPositie / totPositie are not. kant is only documented as required: the endpoint validates it
+        // itself, so a missing kant keeps its own problem detail instead of an invalid-JSON error.
+        foreach (var (schemaName, attribute) in new[]
+                 {
+                     (nameof(StraatnaamParameters), "identificator"),
+                     (nameof(WegbeheerderParameters), "wegbeheerder")
+                 })
+        {
+            var sided = schemaRepository.Schemas[schemaName];
+            sided.Properties.Keys.Should().Equal(new[] { "kant", "vanPositie", "totPositie", attribute }, schemaName);
+            sided.Required.Should().BeEquivalentTo(new[] { "kant", attribute }, schemaName);
+            sided.Properties["kant"].Type.Should().Be(JsonSchemaType.String, "kant is not nullable in {0}", schemaName);
+        }
 
         // A non-sided VanTot derivative orders vanPositie, totPositie and then the attribute; only the attribute is required.
         var morfologie = schemaRepository.Schemas[nameof(MorfologieParameters)];
