@@ -9,6 +9,7 @@ public interface IRoadSegmentFeatureCompareStreetNameContext
     bool IsValid(StreetNameLocalId id);
     bool IsRemoved(StreetNameLocalId id);
     bool TryGetRenamedId(StreetNameLocalId id, out StreetNameLocalId renamedToId);
+    bool TryGetNisCode(StreetNameLocalId id, out string nisCode);
 }
 
 public sealed class RoadSegmentFeatureCompareStreetNameContext: IRoadSegmentFeatureCompareStreetNameContext
@@ -45,5 +46,18 @@ public sealed class RoadSegmentFeatureCompareStreetNameContext: IRoadSegmentFeat
 
         renamedToId = default;
         return false;
+    }
+
+    public bool TryGetNisCode(StreetNameLocalId id, out string nisCode)
+    {
+        var streetName = _streetNames.SingleOrDefault(x => x.Id == id);
+        if (streetName is null || streetName.IsRemoved || string.IsNullOrWhiteSpace(streetName.NisCode))
+        {
+            nisCode = string.Empty;
+            return false;
+        }
+
+        nisCode = streetName.NisCode;
+        return true;
     }
 }

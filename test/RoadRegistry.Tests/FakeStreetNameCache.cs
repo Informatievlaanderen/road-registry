@@ -35,7 +35,8 @@ public class FakeStreetNameCache : IStreetNameCache
                         Id = streetNameId,
                         Name = streetName.Name,
                         Status = streetName.Status,
-                        IsRemoved = streetName.IsRemoved
+                        IsRemoved = streetName.IsRemoved,
+                        NisCode = streetName.NisCode
                     };
                 })
                 .ToList());
@@ -46,9 +47,9 @@ public class FakeStreetNameCache : IStreetNameCache
         return Task.FromResult(_renamedIds.Where(x => streetNameIds.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value));
     }
 
-    public FakeStreetNameCache AddStreetName(int id, string name, string status, bool isRemoved = false)
+    public FakeStreetNameCache AddStreetName(int id, string name, string status, bool isRemoved = false, string nisCode = null)
     {
-        _cache.Add(id, new StreetNameItem(name, status, isRemoved));
+        _cache.Add(id, new StreetNameItem(name, status, isRemoved, nisCode));
         return this;
     }
 
@@ -58,5 +59,5 @@ public class FakeStreetNameCache : IStreetNameCache
         return this;
     }
 
-    private sealed record StreetNameItem(string Name, string Status, bool IsRemoved);
+    private sealed record StreetNameItem(string Name, string Status, bool IsRemoved, string NisCode);
 }
