@@ -229,7 +229,7 @@ public sealed class DataValidationSqsLambdaRequestHandler : SqsLambdaHandler<Dat
         var organization = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(new OrganizationId(organizationCode), cancellationToken);
         if (organization?.KboNumber is null)
         {
-            Logger.LogWarning("No KBO number found for organization '{OrganizationCode}', sending the delivery to datavalidation with the operator value as-is", organizationCode);
+            Logger.LogError("No KBO number found for organization '{OrganizationCode}', sending the delivery to datavalidation with the operator value as-is", organizationCode);
             return organizationCode;
         }
 
