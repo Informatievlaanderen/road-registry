@@ -53,6 +53,7 @@ public partial class ScopedRoadNetwork
     private Problems ValidateRoadNodes(IReadOnlyCollection<ModifyRoadNodeChange> changes)
     {
         var problems = Problems.None;
+        var validatedRoadNodeIds = new HashSet<RoadNodeId>();
 
         foreach (var change in changes)
         {
@@ -76,7 +77,24 @@ public partial class ScopedRoadNetwork
             // is a V2 attribute. Setting it would record an attribute on something that is not a V2 road node yet - the
             // same reason every other editing action refuses one, ModifyRoadSegmentAttributes included.
             problems += ValidateRoadNodesHaveCompletedInwinning([change.RoadNodeId]);
+
+            validatedRoadNodeIds.Add(change.RoadNodeId);
         }
+
+        // VAL-10, which GAWR-7731 numbers among the inwinning validations it states for the edit endpoints as a whole:
+        // every road segment meeting at a road node named has to have completed its inwinning as well. The road node
+        // is only edited where the roads around it are the register's to speak for: a node at the edge of what has
+        // been collected is one the inwinning may still reshape - it merges roads across a municipality border and
+        // removes the node they met at - so what is recorded on it now would be recorded on a node that is about to
+        // be redrawn. Asked for the segments of the road nodes that got this far only, so a request naming a road node
+        // that does not exist is answered with that and not with the roads around the ones that do.
+        //
+        // Reported as the road segment's problem, the same as every other action that refuses a road whose inwinning
+        // is not finished.
+        problems += ValidateRoadSegmentsHaveCompletedInwinning(
+            GetNonRemovedRoadSegments()
+                .Where(x => x.GetNodeIds().Any(validatedRoadNodeIds.Contains))
+                .Select(x => x.RoadSegmentId));
 
         return problems;
     }
