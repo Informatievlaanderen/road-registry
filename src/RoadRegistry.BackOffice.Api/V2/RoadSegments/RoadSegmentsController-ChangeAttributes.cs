@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Api.Infrastructure.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
@@ -537,6 +538,7 @@ public record MorfologieParameters : VanTotParameters
     [DataMember(Name = "morfologie", Order = 3)]
     [JsonProperty("morfologie", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentMorphologyV2))]
+    [JsonConverter(typeof(JsonScalarAsStringConverter))]
     public string Morfologie { get; set; }
 }
 
@@ -551,6 +553,7 @@ public record WegverhardingParameters : VanTotParameters
     [DataMember(Name = "wegverharding", Order = 3)]
     [JsonProperty("wegverharding", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentSurfaceTypeV2))]
+    [JsonConverter(typeof(JsonScalarAsStringConverter))]
     public string Wegverharding { get; set; }
 }
 
@@ -565,6 +568,7 @@ public record ToegangParameters : VanTotParameters
     [DataMember(Name = "toegang", Order = 3)]
     [JsonProperty("toegang", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAccessRestrictionV2))]
+    [JsonConverter(typeof(JsonScalarAsStringConverter))]
     public string Toegang { get; set; }
 }
 
@@ -579,6 +583,7 @@ public record WegcategorieParameters : VanTotParameters
     [DataMember(Name = "wegcategorie", Order = 3)]
     [JsonProperty("wegcategorie", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentCategoryV2))]
+    [JsonConverter(typeof(JsonScalarAsStringConverter))]
     public string Wegcategorie { get; set; }
 }
 
@@ -594,6 +599,7 @@ public record StraatnaamParameters : VanTotParameters
     [JsonProperty("kant")]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
     [DocumentedAsRequired]
+    [JsonConverter(typeof(JsonScalarAsStringConverter))]
     public string Kant { get; set; }
 
     /// <summary>
@@ -616,6 +622,7 @@ public record WegbeheerderParameters : VanTotParameters
     [JsonProperty("kant")]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
     [DocumentedAsRequired]
+    [JsonConverter(typeof(JsonScalarAsStringConverter))]
     public string Kant { get; set; }
 
     /// <summary>
@@ -637,6 +644,7 @@ public record VerkeerstypeParameters : VanTotParameters
     [DataMember(Name = "richting", Order = 3)]
     [JsonProperty("richting", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentTrafficDirection))]
+    [JsonConverter(typeof(JsonScalarAsStringConverter))]
     public string Richting { get; set; }
 }
 
@@ -651,6 +659,7 @@ public record VerkeerstypeVoetgangerParameters : VanTotParameters
     [DataMember(Name = "richting", Order = 3)]
     [JsonProperty("richting", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentPedestrianTrafficDirection))]
+    [JsonConverter(typeof(JsonScalarAsStringConverter))]
     public string Richting { get; set; }
 }
 

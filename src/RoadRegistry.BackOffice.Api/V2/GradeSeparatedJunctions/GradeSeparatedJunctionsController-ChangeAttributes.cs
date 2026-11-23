@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Api.Infrastructure.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using RoadRegistry.BackOffice.Handlers.Sqs.GradeSeparatedJunctions.V2;
@@ -131,6 +132,7 @@ public record ChangeGradeSeparatedJunctionAttributesV2Parameters
     [DataMember(Name = "OngelijkgrondseKruisingType", Order = 2)]
     [JsonProperty("ongelijkgrondseKruisingType", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(GradeSeparatedJunctionTypeV2.Edit))]
+    [JsonConverter(typeof(JsonScalarAsStringConverter))]
     public string? OngelijkgrondseKruisingType { get; set; }
 }
 

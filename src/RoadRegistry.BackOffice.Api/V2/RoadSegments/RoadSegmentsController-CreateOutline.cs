@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Api.Infrastructure.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
@@ -201,6 +202,7 @@ public record CreateOutlinedRoadSegmentV2Parameters
     [DataMember(Name = "Wegsegmentstatus", Order = 2)]
     [JsonProperty(Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentStatusV2.EditOutlined))]
+    [JsonConverter(typeof(JsonScalarAsStringConverter))]
     public string Wegsegmentstatus { get; set; }
 
     /// <summary>
@@ -283,6 +285,7 @@ public record IngeschetstWegsegmentStraatnaamAttribuutWaarde : VanTotParameters
     [DataMember(Name = "kant", Order = 0)]
     [JsonProperty("kant", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
+    [JsonConverter(typeof(JsonScalarAsStringConverter))]
     public string Kant { get; set; }
 
     /// <summary>
@@ -305,6 +308,7 @@ public record IngeschetstWegsegmentWegbeheerderAttribuutWaarde : VanTotParameter
     [DataMember(Name = "kant", Order = 0)]
     [JsonProperty("kant", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentAttributeSide))]
+    [JsonConverter(typeof(JsonScalarAsStringConverter))]
     public string Kant { get; set; }
 
     /// <summary>

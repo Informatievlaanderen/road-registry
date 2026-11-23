@@ -9,6 +9,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.V2.RoadSegments;
 using RoadRegistry.Extensions;
 using RoadRegistry.ValueObjects;
@@ -140,6 +141,47 @@ public class ChangeRoadSegmentGeometryDrawMethodV2Tests : V2ReadEndpointTestBase
         failure.PropertyName.Should().Be("[0].geometriemethode");
         failure.ErrorMessage.Should().Be("De parameter 'geometriemethode' heeft een ongeldige waarde.");
         VerifyNothingWasQueued();
+    }
+
+    // GAWR-7870: a value of the wrong type used to depend on whatever the host's serializer did with it, which on the
+    // public api came back as a 500. These go through the deserializer the api itself uses, so the whole chain from
+    // request body to validation failure is pinned, not just the validation.
+    [Theory]
+    [InlineData("123", "a number")]
+    [InlineData("1.5", "a fractional number")]
+    [InlineData("true", "a boolean")]
+    public async Task GivenAGeometriemethodeOfTheWrongType_ThenValidationException(string jsonValue, string because)
+    {
+        var parameters = Deserialize($"[{{\"wegsegmenten\":[1],\"geometriemethode\":{jsonValue}}}]");
+
+        var ex = await Assert.ThrowsAsync<ValidationException>(() => Act(parameters));
+
+        var failure = ex.Errors.Should().ContainSingle().Which;
+        failure.PropertyName.Should().Be("[0].geometriemethode", because);
+        failure.ErrorMessage.Should().Be("De parameter 'geometriemethode' heeft een ongeldige waarde.", because);
+        VerifyNothingWasQueued();
+    }
+
+    // An object or an array has no value to read as text, so it stays what it was: a body that cannot be read, which
+    // the api answers as invalid JSON. Same for a missing or null value, which the required parameter already covers.
+    [Theory]
+    [InlineData("{\"ingemeten\":true}")]
+    [InlineData("[\"ingemeten\"]")]
+    [InlineData("null")]
+    public void GivenAGeometriemethodeThatIsNoValue_ThenTheBodyCannotBeRead(string jsonValue)
+    {
+        Assert.ThrowsAny<JsonException>(() => Deserialize($"[{{\"wegsegmenten\":[1],\"geometriemethode\":{jsonValue}}}]"));
+    }
+
+    [Fact]
+    public void GivenNoGeometriemethodeAtAll_ThenTheBodyCannotBeRead()
+    {
+        Assert.ThrowsAny<JsonException>(() => Deserialize("[{\"wegsegmenten\":[1]}]"));
+    }
+
+    private static ChangeRoadSegmentGeometryDrawMethodV2Parameters Deserialize(string json)
+    {
+        return JsonConvert.DeserializeObject<ChangeRoadSegmentGeometryDrawMethodV2Parameters>(json)!;
     }
 
     [Fact]

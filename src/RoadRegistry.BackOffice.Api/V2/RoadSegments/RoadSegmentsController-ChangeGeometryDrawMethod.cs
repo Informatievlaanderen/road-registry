@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Api.Infrastructure.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.V2;
@@ -180,6 +181,7 @@ public record ChangeRoadSegmentGeometryDrawMethodV2GroupParameters
     [DataMember(Name = "Geometriemethode", Order = 1)]
     [JsonProperty("geometriemethode", Required = Required.Always)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentGeometryDrawMethodV2))]
+    [JsonConverter(typeof(JsonScalarAsStringConverter))]
     public string Geometriemethode { get; set; }
 }
 
