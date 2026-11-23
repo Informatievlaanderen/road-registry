@@ -35,4 +35,10 @@ public class FakeRoadSegmentFeatureCompareStreetNameContextV3 : IRoadSegmentFeat
         renamedToId = default;
         return false;
     }
+
+    public bool TryGetNisCode(StreetNameLocalId id, out string nisCode)
+    {
+        nisCode = string.Empty;
+        return false;
+    }
 }
