@@ -23,7 +23,9 @@ using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 /// municipality border (see MaintenanceAuthorityByStreetNameMunicipality): when the left street name lies in
 /// municipality A, the right one in municipality B, and the maintenance authority on each side is A or B, the left side
 /// becomes A and the right side B. This applies the same correction to the road segments that were taken in before
-/// that change, through the public edit endpoint POST v2/wegsegmenten/acties/wijzigen/attributen.
+/// that change, through the edit endpoint of the public API, POST v3/wegsegmenten/acties/wijzigen/attributen. The back
+/// office API cannot be reached directly; the public API forwards its V3 to the back office V2 endpoint, and keeps that
+/// V3 behind the feature toggle RoadSegmentChangeAttributesV3 (a 404 while it is off). Its V2 is the old contract.
 ///
 /// WHICH ROAD SEGMENTS. The migrated road segments (a migrated road segment is taken in, so its inwinning is complete)
 /// that are neither removed nor historized, read from the RoadSegment aggregate documents in Marten: an inline
@@ -33,8 +35,8 @@ using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 /// carries the complete new maintenance authority of the road segment, as the endpoint requires.
 ///
 /// ENVIRONMENT. Everything comes from appsettings.runonce.{environment}.json next to the test assembly (git ignores
-/// appsettings.*.json): ConnectionStrings:Marten, ConnectionStrings:StreetNameProjections, BackOfficeApiBaseUrl,
-/// CreateTokenEndpoint, ClientId and ClientSecret. The client needs the scope dv_wr_attribuutwaarden_beheer.
+/// appsettings.*.json): ConnectionStrings:Marten, ConnectionStrings:StreetNameProjections, PublicApiBaseUrl
+/// (like https://api.basisregisters.staging-vlaanderen.be), CreateTokenEndpoint, ClientId and ClientSecret. The client needs the scope dv_wr_attribuutwaarden_beheer.
 ///
 /// This WRITES when <c>dryRun</c> is false: every request becomes a change on the road network. Run it on STG before
 /// PRD, after the FeatureCompare part of GAWR-7780 is deployed. It is idempotent: a second run finds nothing to correct.
@@ -42,7 +44,7 @@ using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 public class CorrectMaintenanceAuthorityByStreetNameMunicipality
 {
     private const string AttribuutWaardenBeheerScope = "dv_wr_attribuutwaarden_beheer";
-    private const string ChangeAttributesRoute = "v2/wegsegmenten/acties/wijzigen/attributen";
+    private const string ChangeAttributesRoute = "v3/wegsegmenten/acties/wijzigen/attributen";
     private const int ReadBatchSize = 5000;
 
     // One request is one unit of work in the domain: a single road segment that fails, fails the whole request. Small
@@ -337,6 +339,11 @@ public class CorrectMaintenanceAuthorityByStreetNameMunicipality
 
         using var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
         using var response = await httpClient.PostAsync(ChangeAttributesRoute, content);
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return (false, "404: is the feature toggle RoadSegmentChangeAttributesV3 of the public API on?");
+        }
+
         if (response.StatusCode != HttpStatusCode.Accepted)
         {
             return (false, $"{(int)response.StatusCode} {await response.Content.ReadAsStringAsync()}");
@@ -406,7 +413,7 @@ public class CorrectMaintenanceAuthorityByStreetNameMunicipality
         using var token = JsonDocument.Parse(tokenJson);
         var accessToken = token.RootElement.GetProperty("access_token").GetString();
 
-        var baseUrl = Required(configuration, "BackOfficeApiBaseUrl").TrimEnd('/') + "/";
+        var baseUrl = Required(configuration, "PublicApiBaseUrl").TrimEnd('/') + "/";
         var httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         return httpClient;
@@ -438,7 +445,7 @@ public class CorrectMaintenanceAuthorityByStreetNameMunicipality
         _outputHelper.WriteLine($"Environment: {environment}{(dryRun ? " (dry run)" : string.Empty)}");
         var marten = new NpgsqlConnectionStringBuilder(configuration.GetConnectionString(WellKnownConnectionNames.Marten));
         _outputHelper.WriteLine($"  Marten: {marten.Host}:{marten.Port}/{marten.Database}");
-        _outputHelper.WriteLine($"  API: {configuration["BackOfficeApiBaseUrl"]}");
+        _outputHelper.WriteLine($"  API: {configuration["PublicApiBaseUrl"]}");
         _outputHelper.WriteLine(string.Empty);
     }
 
