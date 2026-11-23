@@ -72,6 +72,9 @@ public partial class RoadSegment
             Provenance = new ProvenanceData(context.Provenance)
         }, context.OrdinalProvider);
 
+        // A segment that is added in a status that is not active, keeps no street name either.
+        segment.UnlinkStreetNamesUnlessActive(context.Provenance);
+
         return (segment, problems);
     }
 }

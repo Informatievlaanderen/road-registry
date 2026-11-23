@@ -27,6 +27,8 @@ using SqlStreamStore.Streams;
 using Sync.StreetNameRegistry;
 using StreetNameWasRemovedV2 = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRemovedV2;
 using StreetNameWasRenamed = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRenamed;
+using StreetNameWasRetiredV2 = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRetiredV2;
+using StreetNameWasRejected = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRejected;
 
 public class StreetNameEventConsumer : RoadRegistryBackgroundService
 {
@@ -73,6 +75,8 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         await (message switch
         {
             StreetNameWasRemovedV2 @event => Handle(@event),
+            StreetNameWasRetiredV2 @event => Handle(@event),
+            StreetNameWasRejected @event => Handle(@event),
             StreetNameWasRenamed @event => Handle(@event),
             StreetNameWasRetiredBecauseOfMunicipalityMerger @event => Handle(@event),
             StreetNameWasRejectedBecauseOfMunicipalityMerger @event => Handle(@event),
@@ -93,6 +97,31 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             message.PersistentLocalId,
             StreetNameLocalId.NotApplicable,
             $"Wegsegmenten ontkoppelen van straatnaam {message.PersistentLocalId}",
+            editorContext);
+    }
+
+    // A street name that is retired or rejected is no longer active, and only an active street name is linked to a
+    // road segment: the road segments let it go, the same as when it is removed. Nothing comes back when the status
+    // is corrected later on (see "Beheer koppeling straatnaam-wegsegment").
+    private Task Handle(StreetNameWasRetiredV2 message)
+    {
+        return UnlinkRoadSegmentsFromInactiveStreetName(message.PersistentLocalId, "gehistoreerd");
+    }
+
+    private Task Handle(StreetNameWasRejected message)
+    {
+        return UnlinkRoadSegmentsFromInactiveStreetName(message.PersistentLocalId, "afgekeurd");
+    }
+
+    private async Task UnlinkRoadSegmentsFromInactiveStreetName(int streetNameId, string status)
+    {
+        await using var editorContext = _editorContextFactory();
+        await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, Logger, CancellationToken.None);
+
+        await LinkRoadSegmentsToDifferentStreetName(
+            streetNameId,
+            StreetNameLocalId.NotApplicable,
+            $"Wegsegmenten ontkoppelen van {status}e straatnaam {streetNameId}",
             editorContext);
     }
 

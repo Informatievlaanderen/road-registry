@@ -25,6 +25,11 @@ public class FakeRoadSegmentFeatureCompareStreetNameContextV3 : IRoadSegmentFeat
         return false;
     }
 
+    public bool IsRetiredOrRejected(StreetNameLocalId id)
+    {
+        return false;
+    }
+
     public bool IsValid(StreetNameLocalId id)
     {
         return true;

@@ -251,6 +251,14 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
         When<IEvent<RoadSegmentStreetNameIdWasChanged>>(async (context, e, ct) =>
         {
             var m = e.Data;
+
+            // A road segment that was removed before its street names were let go (the run-once correction of
+            // GAWR-7784) is no longer in this projection: writing to it would bring back a record of it.
+            if (await FindSegment(context, m.RoadSegmentId.ToInt32(), ct) is null)
+            {
+                return;
+            }
+
             await WritePartial(context, m.RoadSegmentId.ToInt32(), null, null, null, null, null, null, null, null,
                 m.StreetNameId, null, null, null, null, m.Provenance, ct);
         });

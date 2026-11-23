@@ -68,6 +68,11 @@ public sealed class RoadSegmentStatusV2 : IEquatable<RoadSegmentStatusV2>, IDutc
     // shape of every status change (see RoadSegmentStatusChange).
     public bool ConnectsToRoadNodes => Equals(Gerealiseerd);
 
+    // 'gepland', 'gerealiseerd' and 'buiten gebruik' are the active statuses: a segment in one of them can still be
+    // managed, and only an active segment can be linked to a street name. 'niet gerealiseerd' and 'gehistoreerd' are
+    // the inactive ones.
+    public bool IsActive => !Equals(NietGerealiseerd) && !Equals(Gehistoreerd);
+
     public sealed record EditOutlined
     {
         public static readonly ImmutableArray<RoadSegmentStatusV2> Values = [Gepland, BuitenGebruik];

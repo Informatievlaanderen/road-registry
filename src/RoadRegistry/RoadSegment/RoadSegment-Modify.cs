@@ -102,6 +102,13 @@ public partial class RoadSegment
 
         if (!geometryChanged && nodeIds is null && !attributesChanged)
         {
+            // Only when the status did change: a modification that changes nothing records nothing, not even the
+            // street names an inactive segment kept from before GAWR-7784 (the run-once correction takes those).
+            if (statusPath.Count > 0)
+            {
+                UnlinkStreetNamesUnlessActive(context.Provenance);
+            }
+
             return problems;
         }
 
@@ -122,6 +129,11 @@ public partial class RoadSegment
             PedestrianTrafficDirection = pedestrianTrafficDirection,
             Provenance = new ProvenanceData(context.Provenance)
         });
+
+        // After RoadSegmentWasChanged, not before: a modification that makes the segment inactive and carries street
+        // names as well would otherwise link them again. That is not an error on the upload - a segment that is
+        // historized or not realized simply has no street name.
+        UnlinkStreetNamesUnlessActive(context.Provenance);
 
         return problems;
     }
@@ -144,6 +156,7 @@ public partial class RoadSegment
             null,
             Attributes!,
             context.Provenance);
+        UnlinkStreetNamesUnlessActive(context.Provenance);
 
         return problems;
     }

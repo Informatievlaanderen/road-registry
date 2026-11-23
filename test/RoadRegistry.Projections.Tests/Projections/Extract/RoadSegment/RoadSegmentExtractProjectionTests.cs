@@ -454,6 +454,30 @@ public class RoadSegmentExtractProjectionTests
             .ExpectNone();
     }
 
+    // GAWR-7784: the run-once correction lets go of the street names a removed road segment kept.
+    [Fact]
+    public async Task WhenTheStreetNamesOfARemovedRoadSegmentAreLetGo_ThenNone()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadSegmentId>();
+
+        var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegment1Removed = fixture.Create<RoadSegmentWasRemoved>();
+        var streetNamesLetGo = new RoadSegmentStreetNameIdWasChanged
+        {
+            RoadSegmentId = roadSegment1Added.RoadSegmentId,
+            OldStreetNameId = roadSegment1Added.StreetNameId.Values.First().Value,
+            NewStreetNameId = StreetNameLocalId.NotApplicable,
+            StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(StreetNameLocalId.NotApplicable, roadSegment1Added.Geometry),
+            Provenance = roadSegment1Removed.Provenance
+        };
+
+        await BuildProjection()
+            .Scenario()
+            .Given(roadSegment1Added, roadSegment1Removed, streetNamesLetGo)
+            .ExpectNone();
+    }
+
     [Fact]
     public async Task WhenRoadSegmentWasRemovedBecauseOfMigration_ThenNone()
     {

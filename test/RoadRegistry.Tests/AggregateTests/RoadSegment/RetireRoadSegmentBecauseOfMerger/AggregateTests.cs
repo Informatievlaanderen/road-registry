@@ -24,11 +24,14 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         problems.Should().HaveNoError();
-        segment.GetChanges().Should().HaveCount(1);
 
-        var segmentRetired = (RoadSegmentWasRetiredBecauseOfMerger)segment.GetChanges().Single();
+        var segmentRetired = (RoadSegmentWasRetiredBecauseOfMerger)segment.GetChanges().First();
         segmentRetired.RoadSegmentId.Should().Be(segment.RoadSegmentId);
         segmentRetired.MergedRoadSegmentId.Should().Be(mergedRoadSegmentId);
+
+        // A historized road segment keeps no street name (GAWR-7784).
+        segment.GetChanges().Skip(1).Should().AllBeOfType<RoadSegmentStreetNameIdWasChanged>();
+        segment.Attributes!.StreetNameId.Values.Should().OnlyContain(x => StreetNameLocalId.IsEmpty(x.Value));
     }
 
     [Fact]

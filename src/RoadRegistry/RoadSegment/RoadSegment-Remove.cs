@@ -15,6 +15,10 @@ public partial class RoadSegment
             return problems;
         }
 
+        // The street names are let go before the removal rather than after it: the projections drop a removed road
+        // segment, so a change recorded after the removal would land on a record they no longer hold.
+        UnlinkStreetNames(provenance);
+
         Apply(new RoadSegmentWasRemoved
         {
             RoadSegmentId = RoadSegmentId,

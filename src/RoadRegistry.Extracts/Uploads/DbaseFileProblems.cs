@@ -433,6 +433,16 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    // A street name that is retired ('gehistoreerd') or rejected ('afgekeurd') is no longer active, and only an active
+    // street name can be linked to an active road segment.
+    public static FileError LeftStreetNameIdIsNotProposedOrCurrent(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Error(nameof(LeftStreetNameIdIsNotProposedOrCurrent))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .Build();
+    }
+
     public static FileError LowerRoadSegmentIdOutOfRange(this IDbaseFileRecordProblemBuilder builder, int value)
     {
         return builder
@@ -613,6 +623,14 @@ public static class DbaseFileProblems
             .Warning(nameof(RightStreetNameIdIsRenamed))
             .WithParameter(new ProblemParameter("Actual", value.ToString()))
             .WithParameter(new ProblemParameter("DestinationValue", destinationValue.ToString()))
+            .Build();
+    }
+
+    public static FileError RightStreetNameIdIsNotProposedOrCurrent(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Error(nameof(RightStreetNameIdIsNotProposedOrCurrent))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
             .Build();
     }
 

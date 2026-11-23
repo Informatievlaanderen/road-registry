@@ -23,6 +23,7 @@ public partial class RoadSegment
             RoadSegmentId = RoadSegmentId,
             Provenance = new ProvenanceData(provenance)
         });
+        UnlinkStreetNamesUnlessActive(provenance);
 
         return problems;
     }

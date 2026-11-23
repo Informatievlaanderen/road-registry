@@ -21,6 +21,7 @@ public partial class RoadSegment
             MergedRoadSegmentId = mergedRoadSegmentId,
             Provenance = new ProvenanceData(provenance)
         });
+        UnlinkStreetNamesUnlessActive(provenance);
 
         return problems;
     }
