@@ -1,3 +1,11 @@
+## [5.39.2](https://github.com/informatievlaanderen/road-registry/compare/v5.39.1...v5.39.2) (2026-11-23)
+
+
+### Bug Fixes
+
+* **2.0:** report a removed road segment as removed instead of as not found GAWR-7872 ([868d182](https://github.com/informatievlaanderen/road-registry/commit/868d182d0947c350d17d4e8a40dfe7d436c9d33c))
+* **runonce:** send the maintenance authority corrections through the public API v3 GAWR-7780 ([80b50cd](https://github.com/informatievlaanderen/road-registry/commit/80b50cd9b9e4153dad62921d5671057198334620))
+
 ## [5.39.1](https://github.com/informatievlaanderen/road-registry/compare/v5.39.0...v5.39.1) (2026-11-23)
 
 
