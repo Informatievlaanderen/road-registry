@@ -38,6 +38,12 @@ using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 /// appsettings.*.json): ConnectionStrings:Marten, ConnectionStrings:StreetNameProjections, PublicApiBaseUrl
 /// (like https://api.basisregisters.staging-vlaanderen.be), CreateTokenEndpoint, ClientId and ClientSecret. The client needs the scope dv_wr_attribuutwaarden_beheer.
 ///
+/// INWINNINGSSTATUS. A migrated road segment is locked again while it takes part in a later inwinning that is not done
+/// yet, and the endpoint rejects a change to it. Every correction is therefore checked against the public API,
+/// GET v2/wegen/inwinningsstatus/wegsegment/{id} (anonymous, behind the feature toggle RoadInwinningsstatusWegsegment),
+/// and only the ones that are 'compleet' are sent; the others are listed as skipped. The dry run checks this too, so it
+/// shows exactly what would be sent.
+///
 /// This WRITES when <c>dryRun</c> is false: every request becomes a change on the road network. Run it on STG before
 /// PRD, after the FeatureCompare part of GAWR-7780 is deployed. It is idempotent: a second run finds nothing to correct.
 /// </summary>
@@ -45,6 +51,9 @@ public class CorrectMaintenanceAuthorityByStreetNameMunicipality
 {
     private const string AttribuutWaardenBeheerScope = "dv_wr_attribuutwaarden_beheer";
     private const string ChangeAttributesRoute = "v3/wegsegmenten/acties/wijzigen/attributen";
+    private const string InwinningsstatusRoute = "v2/wegen/inwinningsstatus/wegsegment/";
+    private const string InwinningsstatusCompleet = "compleet";
+    private const int MaxInwinningsstatusAttempts = 5;
     private const int ReadBatchSize = 5000;
 
     // One request is one unit of work in the domain: a single road segment that fails, fails the whole request. Small
@@ -75,7 +84,16 @@ public class CorrectMaintenanceAuthorityByStreetNameMunicipality
         var store = sp.GetRequiredService<IDocumentStore>();
         var streetNameCache = sp.GetRequiredService<IStreetNameCache>();
 
-        var corrections = await FindCorrections(store, streetNameCache);
+        var found = await FindCorrections(store, streetNameCache);
+        _outputHelper.WriteLine($"Road segments found to correct: {found.Count}");
+
+        var (corrections, skipped) = await KeepOnlyCompleteInwinning(configuration, found);
+        _outputHelper.WriteLine($"Skipped, inwinning not complete: {skipped.Count}");
+        foreach (var (roadSegmentId, inwinningsstatus) in skipped)
+        {
+            _outputHelper.WriteLine($"  {roadSegmentId}: {inwinningsstatus}");
+        }
+
         _outputHelper.WriteLine($"Road segments to correct: {corrections.Count}");
         foreach (var correction in corrections)
         {
@@ -394,6 +412,67 @@ public class CorrectMaintenanceAuthorityByStreetNameMunicipality
         };
     }
 
+    private async Task<(IReadOnlyList<Correction> Complete, IReadOnlyList<(RoadSegmentId RoadSegmentId, string Inwinningsstatus)> Skipped)> KeepOnlyCompleteInwinning(
+        IConfiguration configuration,
+        IReadOnlyList<Correction> corrections)
+    {
+        using var httpClient = new HttpClient { BaseAddress = PublicApiBaseAddress(configuration) };
+
+        var complete = new List<Correction>();
+        var skipped = new List<(RoadSegmentId, string)>();
+        foreach (var correction in corrections)
+        {
+            var inwinningsstatus = await GetInwinningsstatus(httpClient, correction.RoadSegmentId);
+            if (string.Equals(inwinningsstatus, InwinningsstatusCompleet, StringComparison.OrdinalIgnoreCase))
+            {
+                complete.Add(correction);
+            }
+            else
+            {
+                skipped.Add((correction.RoadSegmentId, inwinningsstatus));
+            }
+        }
+
+        return (complete, skipped);
+    }
+
+    private static async Task<string> GetInwinningsstatus(HttpClient httpClient, RoadSegmentId roadSegmentId)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            using var response = await httpClient.GetAsync($"{InwinningsstatusRoute}{roadSegmentId.ToInt32()}");
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (response.StatusCode == HttpStatusCode.TooManyRequests && attempt < MaxInwinningsstatusAttempts)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2 * attempt));
+                continue;
+            }
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                // The road segment comes from the aggregate documents, so it exists: a 404 is the feature toggle.
+                throw new InvalidOperationException(
+                    $"Inwinningsstatus of road segment {roadSegmentId}: 404. Is the feature toggle RoadInwinningsstatusWegsegment of the public API on? {json}");
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new InvalidOperationException($"Inwinningsstatus of road segment {roadSegmentId}: {(int)response.StatusCode} {json}");
+            }
+
+            using var document = JsonDocument.Parse(json);
+            return document.RootElement.TryGetProperty("inwinningsstatus", out var status)
+                ? status.GetString() ?? string.Empty
+                : throw new InvalidOperationException($"Inwinningsstatus of road segment {roadSegmentId}: no 'inwinningsstatus' in {json}");
+        }
+    }
+
+    private static Uri PublicApiBaseAddress(IConfiguration configuration)
+    {
+        return new Uri(Required(configuration, "PublicApiBaseUrl").TrimEnd('/') + "/");
+    }
+
     private static async Task<HttpClient> CreateApiClient(IConfiguration configuration)
     {
         using var tokenClient = new HttpClient();
@@ -413,8 +492,7 @@ public class CorrectMaintenanceAuthorityByStreetNameMunicipality
         using var token = JsonDocument.Parse(tokenJson);
         var accessToken = token.RootElement.GetProperty("access_token").GetString();
 
-        var baseUrl = Required(configuration, "PublicApiBaseUrl").TrimEnd('/') + "/";
-        var httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
+        var httpClient = new HttpClient { BaseAddress = PublicApiBaseAddress(configuration) };
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         return httpClient;
     }
