@@ -971,6 +971,25 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
+    public void WhenTheSegmentIsRemoved_ThenError()
+    {
+        // A removed segment is still known to the road network, so it is answered as removed rather than as one that
+        // does not exist. The API turns a removed segment away with a 410 before the request is even accepted, so what
+        // reaches the domain is a segment removed in between - and that is still what has to be said about it.
+        var roadNetwork = BuildNetworkWithSingleSegment();
+        var change = BuildChange(roadNetwork, SegmentAId, BuildGeometry((0, 0), (110, 0)));
+        roadNetwork.RoadSegments[new RoadSegmentId(SegmentAId)].Remove(TestData.Provenance);
+
+        var result = roadNetwork.ModifyRoadSegmentGeometry(
+            change, AllGeometryDrawMethods, IdGenerator(), TestData.Provenance);
+
+        var problem = result.Problems.Should().ContainSingle().Subject;
+        problem.Reason.Should().Be("RoadSegmentIsRemoved");
+        problem.Parameters.Should().ContainSingle(x => x.Name == "WegsegmentId")
+            .Which.Value.Should().Be("1");
+    }
+
+    [Fact]
     public void WhenTheGeometryIsShorterThanTheMinimumLength_ThenError()
     {
         // VAL-16

@@ -55,9 +55,14 @@ public partial class ScopedRoadNetwork
         var problems = Problems.None;
         var roadSegmentContext = Problems.WithContext(roadSegmentId);
 
+        // A segment that was never there does not exist, one that is still known but removed has been removed. The API
+        // answers a removed segment with 410 before the request is accepted, so what is caught here is a segment
+        // removed in between - which is still the thing to say about it.
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
         {
-            return Failed(roadSegmentContext + new RoadSegmentNotFound(), context);
+            return Failed(roadSegmentContext + (roadSegment is null
+                ? new RoadSegmentNotFound()
+                : (Error)new RoadSegmentIsRemoved()), context);
         }
 
         // Re-validate what the API also checks: the request may have gone stale between being accepted and handled.

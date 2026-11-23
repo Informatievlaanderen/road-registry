@@ -44,10 +44,12 @@ public partial class ScopedRoadNetwork
         foreach (var change in changes)
         {
             // Validated above, but the lookup stands on its own: an identifier that slipped through is still a
-            // not-found, never a crash.
+            // problem about that identifier, never a crash.
             if (!_roadSegments.TryGetValue(change.RoadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
             {
-                problems += Problems.WithContext(change.RoadSegmentId) + new RoadSegmentNotFound();
+                problems += Problems.WithContext(change.RoadSegmentId) + (roadSegment is null
+                    ? new RoadSegmentNotFound()
+                    : (Error)new RoadSegmentIsRemoved());
                 continue;
             }
 
@@ -79,10 +81,14 @@ public partial class ScopedRoadNetwork
             // error then identifies the segment the same way, whatever it is about.
             var roadSegmentProblems = Problems.WithContext(change.RoadSegmentId);
 
-            // VAL-4, VAL-5
+            // VAL-4 and VAL-5 are two separate messages: a segment that was never there does not exist, a segment
+            // that is still known but removed has been removed. A caller cleaning up after a removal needs to be able
+            // to tell those apart.
             if (!_roadSegments.TryGetValue(change.RoadSegmentId, out var roadSegment) || roadSegment.IsRemoved)
             {
-                problems += roadSegmentProblems + new RoadSegmentNotFound();
+                problems += roadSegmentProblems + (roadSegment is null
+                    ? new RoadSegmentNotFound()
+                    : (Error)new RoadSegmentIsRemoved());
                 continue;
             }
 
