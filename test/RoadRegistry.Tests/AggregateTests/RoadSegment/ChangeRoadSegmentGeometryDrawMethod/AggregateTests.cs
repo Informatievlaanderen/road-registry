@@ -104,9 +104,10 @@ public class AggregateTests : AggregateTestBase
     }
 
     [Fact]
-    public void WhenSegmentIsRemoved_ThenNotFound()
+    public void WhenSegmentIsRemoved_ThenIsRemoved()
     {
-        // VAL-5: a removed segment answers with the same not-found as one that never existed.
+        // VAL-5: a removed segment is reported as removed, not as a not-found. The segment is still known, so
+        // answering 'bestaat niet' would tell a caller cleaning up after a removal the wrong thing.
         var roadNetwork = BuildNetworkWith(RoadSegmentStatusV2.Gerealiseerd);
         roadNetwork.RoadSegments[TestData.Segment1Added.RoadSegmentId].Remove(TestData.Provenance);
 
@@ -114,7 +115,7 @@ public class AggregateTests : AggregateTestBase
             [BuildChange(RoadSegmentGeometryDrawMethodV2.Ingemeten)], TestData.Provenance);
 
         result.Problems.Should().ContainSingle()
-            .Which.Reason.Should().Be("RoadSegmentNotFound");
+            .Which.Reason.Should().Be("RoadSegmentIsRemoved");
         result.Summary.RoadSegments.Modified.Should().BeEmpty();
     }
 

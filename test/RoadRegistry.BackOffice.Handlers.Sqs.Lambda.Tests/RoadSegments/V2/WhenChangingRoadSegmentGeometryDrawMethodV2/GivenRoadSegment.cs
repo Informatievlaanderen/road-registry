@@ -84,6 +84,20 @@ public class GivenRoadSegment : BackOfficeLambdaTest
     }
 
     [Fact]
+    public async Task WhenTheRoadSegmentIsRemoved_ThenTicketErrorSaysItWasRemoved()
+    {
+        // VAL-5: a removed segment is still known to the register, so it is answered as removed. Telling a caller
+        // that it does not exist would send them looking for an identifier that is right there.
+        var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
+        var roadNetworkRepository = BuildRepository(store, segmentIsRemoved: true);
+
+        await HandleRequest(CreateSqsRequest(OtherDrawMethod()), store, roadNetworkRepository);
+
+        VerifyThatTicketHasError("RoadSegmentIsRemoved",
+            $"Het wegsegment met id {_testData.Segment1Added.RoadSegmentId} is verwijderd.");
+    }
+
+    [Fact]
     public async Task WhenChangingGeometryDrawMethod_ThenTicketCompletedWithSummary()
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
@@ -207,21 +221,27 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         await handler.Handle(new ChangeRoadSegmentGeometryDrawMethodV2SqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest), CancellationToken.None);
     }
 
-    private FakeRoadNetworkRepository BuildRepository(IDocumentStore store)
+    private FakeRoadNetworkRepository BuildRepository(IDocumentStore store, bool segmentIsRemoved = false)
     {
         return new FakeRoadNetworkRepository(store,
             new RoadNetworkIds([new RoadNodeId(1), new RoadNodeId(2)], [_testData.Segment1Added.RoadSegmentId], [], []),
-            BuildSeedNetwork);
+            id => BuildSeedNetwork(id, segmentIsRemoved));
     }
 
-    private ScopedRoadNetwork BuildSeedNetwork(ScopedRoadNetworkId id)
+    private ScopedRoadNetwork BuildSeedNetwork(ScopedRoadNetworkId id, bool segmentIsRemoved = false)
     {
+        var roadSegment = RoadSegment.Create(_testData.Segment1Added);
+        if (segmentIsRemoved)
+        {
+            roadSegment.Remove(_testData.Provenance);
+        }
+
         return new ScopedRoadNetwork(id,
             [
                 RoadNode.Create(_testData.Segment1StartNodeAdded).WithoutChanges(),
                 RoadNode.Create(_testData.Segment1EndNodeAdded).WithoutChanges()
             ],
-            [RoadSegment.Create(_testData.Segment1Added).WithoutChanges()],
+            [roadSegment.WithoutChanges()],
             [],
             []);
     }
