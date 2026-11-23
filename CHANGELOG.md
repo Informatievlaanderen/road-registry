@@ -1,3 +1,10 @@
+# [5.39.0](https://github.com/informatievlaanderen/road-registry/compare/v5.38.0...v5.39.0) (2026-11-23)
+
+
+### Features
+
+* derive left and right maintenance authority from the street name municipalities on inwinning GAWR-7780 ([4fd82b4](https://github.com/informatievlaanderen/road-registry/commit/4fd82b46a581fe4b254e9f526506be02877c9a08))
+
 # [5.38.0](https://github.com/informatievlaanderen/road-registry/compare/v5.37.1...v5.38.0) (2026-11-20)
 
 
