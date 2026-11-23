@@ -98,7 +98,7 @@
             new(HttpMethod.Post, "v2/gelijkgrondsekruisingen/{id}/acties/wijzigen/naarongelijkgrondsekruising", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v2/ongelijkgrondsekruisingen/{id}/acties/wijzigen/naargelijkgrondsekruising", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v2/ongelijkgrondsekruisingen/{id}/acties/wijzigen/attributen", Scopes.DvWrAttribuutWaardenBeheer),
-            new(HttpMethod.Post, "v2/wegsegmenten/acties/wijzigen/geometriemethode", Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v2/wegsegmenten/acties/wijzigen/geometriemethode", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v2/gelijkgrondsekruisingen/{id}"),
             new(HttpMethod.Get, "v2/ongelijkgrondsekruisingen/{id}"),
         };
