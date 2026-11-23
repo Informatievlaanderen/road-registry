@@ -1,3 +1,10 @@
+## [5.39.1](https://github.com/informatievlaanderen/road-registry/compare/v5.39.0...v5.39.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* **road:** let only the central road manager change the geometriemethode GAWR-7869 ([6fb5c01](https://github.com/informatievlaanderen/road-registry/commit/6fb5c01ec5edb582db1a8491df00993d4c1a389a))
+
 # [5.39.0](https://github.com/informatievlaanderen/road-registry/compare/v5.38.0...v5.39.0) (2026-11-23)
 
 
