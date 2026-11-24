@@ -10,7 +10,7 @@ public class InwinningUploadDurationWarningTests
     private static readonly UploadId UploadId = new(Guid.Parse("1f2e3d4c-5b6a-4978-8a9b-0c1d2e3f4a5b"));
 
     [Fact]
-    public void WhenStillRunning_ThenAWarningIsLoggedAsErrorAt8And9And10Minutes()
+    public void WhenStillRunning_ThenAWarningIsLoggedAsErrorAt8And9MinutesAndEveryMinuteFrom10Minutes()
     {
         var timeProvider = new ManualTimeProvider();
         var logger = new CapturingLogger();
@@ -23,14 +23,20 @@ public class InwinningUploadDurationWarningTests
         timeProvider.Advance(TimeSpan.FromSeconds(1));
         timeProvider.Advance(TimeSpan.FromMinutes(1));
         timeProvider.Advance(TimeSpan.FromMinutes(1));
-        timeProvider.Advance(TimeSpan.FromMinutes(5));
+        timeProvider.Advance(TimeSpan.FromMinutes(1));
+        timeProvider.Advance(TimeSpan.FromMinutes(1));
+        timeProvider.Advance(TimeSpan.FromMinutes(1));
+        timeProvider.Advance(TimeSpan.FromSeconds(59));
 
-        logger.Entries.Should().HaveCount(3);
+        logger.Entries.Should().HaveCount(6);
         logger.Entries.Should().OnlyContain(x => x.Level == LogLevel.Error);
         logger.Entries.Select(x => x.Message).Should().Equal(
             "Warning: UploadInwinningExtract is na 8 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021",
             "Warning: UploadInwinningExtract is na 9 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021",
-            "Warning: UploadInwinningExtract is na 10 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021");
+            "Warning: UploadInwinningExtract is na 10 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021",
+            "Warning: UploadInwinningExtract is na 11 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021",
+            "Warning: UploadInwinningExtract is na 12 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021",
+            "Warning: UploadInwinningExtract is na 13 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021");
     }
 
     [Fact]
@@ -64,6 +70,28 @@ public class InwinningUploadDurationWarningTests
     }
 
     [Fact]
+    public void WhenFinishedAfter10Minutes_ThenTheRepeatedWarningStops()
+    {
+        var timeProvider = new ManualTimeProvider();
+        var logger = new CapturingLogger();
+
+        var warning = new InwinningUploadDurationWarning(logger, "MigrateDryRunRoadNetwork", DownloadId, UploadId, timeProvider: timeProvider);
+        foreach (var _ in Enumerable.Range(0, 23))
+        {
+            timeProvider.Advance(TimeSpan.FromSeconds(30));
+        }
+        warning.Dispose();
+
+        foreach (var _ in Enumerable.Range(0, 10))
+        {
+            timeProvider.Advance(TimeSpan.FromMinutes(1));
+        }
+
+        logger.Entries.Select(x => x.Message).Should().HaveCount(4)
+            .And.Subject.Last().Should().Contain("na 11 minuten");
+    }
+
+    [Fact]
     public void WhenThereIsNoNisCode_ThenTheDownloadIdIdentifiesTheExtract()
     {
         var timeProvider = new ManualTimeProvider();
@@ -89,7 +117,8 @@ public class InwinningUploadDurationWarningTests
         }
     }
 
-    // Only one-shot timers are needed: each one fires once its due time has passed and the clock is advanced.
+    // A timer fires once its due time has passed and the clock is advanced, and then again every period if it has one.
+    // Advancing by more than a period fires a periodic timer only once.
     private sealed class ManualTimeProvider : TimeProvider
     {
         private readonly List<ManualTimer> _timers = [];
@@ -99,7 +128,7 @@ public class InwinningUploadDurationWarningTests
 
         public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
         {
-            var timer = new ManualTimer(callback, state, _now + dueTime);
+            var timer = new ManualTimer(callback, state, _now + dueTime, period);
             _timers.Add(timer);
             return timer;
         }
@@ -107,21 +136,20 @@ public class InwinningUploadDurationWarningTests
         public void Advance(TimeSpan by)
         {
             _now += by;
-            foreach (var timer in _timers.Where(x => !x.Fired && !x.Disposed && x.DueAt <= _now).OrderBy(x => x.DueAt).ToList())
+            foreach (var timer in _timers.Where(x => !x.Disposed && x.DueAt is not null && x.DueAt <= _now).OrderBy(x => x.DueAt).ToList())
             {
                 timer.Fire();
             }
         }
 
-        private sealed class ManualTimer(TimerCallback callback, object? state, DateTimeOffset dueAt) : ITimer
+        private sealed class ManualTimer(TimerCallback callback, object? state, DateTimeOffset dueAt, TimeSpan period) : ITimer
         {
-            public DateTimeOffset DueAt { get; } = dueAt;
-            public bool Fired { get; private set; }
+            public DateTimeOffset? DueAt { get; private set; } = dueAt;
             public bool Disposed { get; private set; }
 
             public void Fire()
             {
-                Fired = true;
+                DueAt = period == Timeout.InfiniteTimeSpan ? null : DueAt + period;
                 callback(state);
             }
 
