@@ -444,33 +444,47 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
                 }
             }, e.Data, ct);
         });
-        When<IEvent<RoadSegmentWasMigrated>>((session, e, ct) =>
+        When<IEvent<RoadSegmentWasMigrated>>(async (session, e, ct) =>
         {
-            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
+            // RoadSegmentWasMigrated carries the road segment whole - geometry, nodes and every attribute - so the row
+            // is written from the event rather than patched into the row that happens to be there. That is what makes
+            // this the event that brings a road segment back after RoadSegmentRemovalWasCorrectedBecauseOfMigration:
+            // the correction carries nothing to build a row from, and the row itself was deleted when the road segment
+            // was removed, so there is nothing left to patch. Patching is what stopped the whole extract projection on
+            // road segment 427083 - "RoadSegment with id 427083 is not found" - the same hole RoadNodeWasMigrated
+            // already closes for road nodes.
+            var existing = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId, ct);
+
+            session.Store(new RoadSegmentExtractItem
             {
-                segment.Geometry = e.Data.Geometry;
-                segment.StartNodeId = e.Data.StartNodeId;
-                segment.EndNodeId = e.Data.EndNodeId;
-                segment.GeometryDrawMethod = e.Data.GeometryDrawMethod;
-                segment.Status = e.Data.Status;
-                segment.AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString());
-                segment.Category = e.Data.Category.ToStringAttributeValues(x => x.ToString());
-                segment.Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString());
-                segment.StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId);
-                segment.MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId);
-                segment.SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x.ToString());
-                segment.CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(e.Data.CarTrafficDirection));
-                segment.CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(e.Data.CarTrafficDirection));
-                segment.BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(e.Data.BikeTrafficDirection));
-                segment.BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(e.Data.BikeTrafficDirection));
-                segment.PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToPedestrianAccess(e.Data.PedestrianTrafficDirection));
-                segment.CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.CarTrafficDirection);
-                segment.BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.BikeTrafficDirection);
-                segment.PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection);
-                segment.EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList();
-                segment.NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList();
-                segment.IsV2 = true;
-            }, e.Data, ct);
+                RoadSegmentId = e.Data.RoadSegmentId,
+                Geometry = e.Data.Geometry,
+                StartNodeId = e.Data.StartNodeId,
+                EndNodeId = e.Data.EndNodeId,
+                GeometryDrawMethod = e.Data.GeometryDrawMethod,
+                Status = e.Data.Status,
+                AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString()),
+                Category = e.Data.Category.ToStringAttributeValues(x => x.ToString()),
+                Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString()),
+                StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId),
+                MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId),
+                SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x.ToString()),
+                CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(e.Data.CarTrafficDirection)),
+                CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(e.Data.CarTrafficDirection)),
+                BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(e.Data.BikeTrafficDirection)),
+                BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(e.Data.BikeTrafficDirection)),
+                PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToPedestrianAccess(e.Data.PedestrianTrafficDirection)),
+                CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.CarTrafficDirection),
+                BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.BikeTrafficDirection),
+                PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection),
+                EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList(),
+                NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList(),
+                // Origin is when this projection first saw the road segment, so a road segment that is still here
+                // keeps the one it already had; one that is being collected again starts over from this event.
+                Origin = existing?.Origin ?? e.Data.Provenance.ToEventTimestamp(),
+                LastModified = e.Data.Provenance.ToEventTimestamp(),
+                IsV2 = true
+            });
         });
         When<IEvent<RoadSegmentWasRemoved>>(async (session, e, _) =>
         {
