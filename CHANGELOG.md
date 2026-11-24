@@ -1,3 +1,11 @@
+## [5.39.5](https://github.com/informatievlaanderen/road-registry/compare/v5.39.4...v5.39.5) (2026-11-24)
+
+
+### Bug Fixes
+
+* **inwinning:** bring back a road segment whose removal was corrected ([448ba7f](https://github.com/informatievlaanderen/road-registry/commit/448ba7f1019c975b089e2f1ba415bd4f70afb1a2))
+* **inwinning:** write a migrated road segment onto the row the session holds ([081a6a5](https://github.com/informatievlaanderen/road-registry/commit/081a6a5915a94d117907a7e509cfa2e6b04067be))
+
 ## [5.39.4](https://github.com/informatievlaanderen/road-registry/compare/v5.39.3...v5.39.4) (2026-11-24)
 
 
