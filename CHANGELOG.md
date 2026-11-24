@@ -1,3 +1,10 @@
+## [5.38.2](https://github.com/informatievlaanderen/road-registry/compare/v5.38.1...v5.38.2) (2026-11-24)
+
+
+### Bug Fixes
+
+* **inwinning:** write a migrated road segment onto the row the session holds ([fb5ba4d](https://github.com/informatievlaanderen/road-registry/commit/fb5ba4d225eba58bba7918ffeb8b359ca6b303a4))
+
 ## [5.38.1](https://github.com/informatievlaanderen/road-registry/compare/v5.38.0...v5.38.1) (2026-11-24)
 
 
