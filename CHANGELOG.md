@@ -1,3 +1,10 @@
+## [5.38.1](https://github.com/informatievlaanderen/road-registry/compare/v5.38.0...v5.38.1) (2026-11-24)
+
+
+### Bug Fixes
+
+* **inwinning:** bring back a road segment whose removal was corrected ([e461ad7](https://github.com/informatievlaanderen/road-registry/commit/e461ad7b7d0a08b799e0cdbf07012b94027cfab6))
+
 # [5.38.0](https://github.com/informatievlaanderen/road-registry/compare/v5.37.1...v5.38.0) (2026-11-20)
 
 
