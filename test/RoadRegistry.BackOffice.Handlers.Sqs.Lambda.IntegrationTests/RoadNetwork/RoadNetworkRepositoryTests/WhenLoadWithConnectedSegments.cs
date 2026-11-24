@@ -36,8 +36,11 @@ public class WhenLoadWithConnectedSegments : RoadNetworkIntegrationTest
         ids.IsEmpty.Should().BeTrue();
     }
 
+    // A road segment the caller named comes along whether or not its inwinning is done: the action is the one that
+    // refuses a V1 road segment, and it can only say so about one it was handed. What is around it does not: the
+    // connected road segments and the crossings are the V2 road network's, so the V1 junction stays out.
     [Fact]
-    public async Task GivenV1AndV2_ThenOnlyV2()
+    public async Task GivenV1AndV2_ThenTheNamedV1RoadSegmentIsReturnedWithoutWhatHangsOffIt()
     {
         // Arrange
         var sp = await BuildServiceProvider();
@@ -110,12 +113,44 @@ public class WhenLoadWithConnectedSegments : RoadNetworkIntegrationTest
         var ids = await LoadWithConnectedSegmentsIds(sp, [new(1), new(11)]);
 
         // Assert
+        // The V1 road nodes are not there: the migration of the legacy road network stores an aggregate document per
+        // road segment, and the road nodes only follow once they are migrated themselves.
         var expectedIds = new RoadNetworkIds(
             [new(11), new(12)],
-            [new(11)],
+            [new(1), new(11)],
             [new(11)]
             ,[]);
         ids.Should().BeEquivalentTo(expectedIds);
+    }
+
+    // The case GAWR-7874 reports: removing a road segment from a municipality whose inwinning has not started, or
+    // changing its status, answered that the road segment does not exist - it was left out of the load, so the action
+    // had nothing under that identifier to speak about. It is the action's to refuse over its inwinningsstatus, and
+    // that needs the road segment itself.
+    [Fact]
+    public async Task GivenOnlyARoadSegmentThatHasNotMigrated_ThenItIsStillReturned()
+    {
+        // Arrange
+        var sp = await BuildServiceProvider();
+
+        var store = sp.GetRequiredService<IDocumentStore>();
+        await using (var session = store.LightweightSession())
+        {
+            session.Store(RoadSegment.CreateForMigration(
+                new RoadSegmentId(1),
+                BuildRoadSegmentGeometry(0, 0, 10, 0),
+                RoadSegmentStatusV2.Gerealiseerd,
+                new RoadNodeId(1),
+                new RoadNodeId(2)));
+
+            await session.SaveChangesAsync();
+        }
+
+        // Act
+        var ids = await LoadWithConnectedSegmentsIds(sp, [new(1)]);
+
+        // Assert
+        ids.Should().BeEquivalentTo(new RoadNetworkIds([], [new(1)], [], []));
     }
 
     // An ingeschetst road segment is not knotted into the road network: the topology holds it without road nodes. The
