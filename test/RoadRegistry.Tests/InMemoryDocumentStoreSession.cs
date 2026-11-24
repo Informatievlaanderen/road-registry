@@ -24,6 +24,12 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
 {
     private readonly StoreOptions _storeOptions;
     private readonly Dictionary<(object Id, Type Type), string> _storedEntities = [];
+
+    // Marten's identity-map sessions hand back the same object for a document they have already loaded or stored, and
+    // refuse a second object for the same id. The projections run in such a session, so the same bookkeeping is kept
+    // here: without it a handler that stores a freshly built document over one the session already holds passes here
+    // and throws "Document ... with same Id already added to the session." in production.
+    private readonly Dictionary<(object Id, Type Type), object> _identityMap = [];
     private readonly List<StreamAction> _streamActions = new();
 
     public InMemoryDocumentStoreSession(StoreOptions options)
@@ -60,6 +66,12 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
             var id = GetIdProperty(entity).GetValue(entity)
                      ?? throw new InvalidOperationException($"Entity of type '{type}' has a null ID.");
 
+            if (_identityMap.TryGetValue((id, type), out var tracked) && !ReferenceEquals(tracked, entity))
+            {
+                throw new InvalidOperationException($"Document '{type.FullName}' with same Id already added to the session.");
+            }
+
+            _identityMap[(id, type)] = entity;
             _storedEntities[(id, type)] = _storeOptions.Serializer().ToJson(entity);
         }
     }
@@ -93,6 +105,11 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
             .Where(x => x.Key.Type == typeof(T) && ids.Cast<object>().Contains(x.Key.Id))
             .Select(x =>
             {
+                if (_identityMap.TryGetValue(x.Key, out var tracked))
+                {
+                    return (T)tracked;
+                }
+
                 using var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(x.Value));
                 var entity = (T)serializer.FromJson(x.Key.Type, jsonStream);
 
@@ -103,6 +120,8 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
                 {
                     idProperty.SetValue(entity, x.Key.Id);
                 }
+
+                _identityMap[x.Key] = entity;
 
                 return entity;
             })
@@ -119,6 +138,7 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
         }
 
         _storedEntities.Remove((id, typeof(T)));
+        _identityMap.Remove((id, typeof(T)));
     }
 
     public void Delete<T>(T entity) where T : notnull

@@ -453,38 +453,21 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
             // was removed, so there is nothing left to patch. Patching is what stopped the whole extract projection on
             // road segment 427083 - "RoadSegment with id 427083 is not found" - the same hole RoadNodeWasMigrated
             // already closes for road nodes.
-            var existing = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId, ct);
+            var migrated = BuildMigratedRoadSegment(e.Data);
+            var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId, ct);
 
-            session.Store(new RoadSegmentExtractItem
+            if (roadSegment is null)
             {
-                RoadSegmentId = e.Data.RoadSegmentId,
-                Geometry = e.Data.Geometry,
-                StartNodeId = e.Data.StartNodeId,
-                EndNodeId = e.Data.EndNodeId,
-                GeometryDrawMethod = e.Data.GeometryDrawMethod,
-                Status = e.Data.Status,
-                AccessRestriction = e.Data.AccessRestriction.ToStringAttributeValues(x => x.ToString()),
-                Category = e.Data.Category.ToStringAttributeValues(x => x.ToString()),
-                Morphology = e.Data.Morphology.ToStringAttributeValues(x => x.ToString()),
-                StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId),
-                MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.Data.MaintenanceAuthorityId),
-                SurfaceType = e.Data.SurfaceType.ToStringAttributeValues(x => x.ToString()),
-                CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(e.Data.CarTrafficDirection)),
-                CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(e.Data.CarTrafficDirection)),
-                BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(e.Data.BikeTrafficDirection)),
-                BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(e.Data.BikeTrafficDirection)),
-                PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToPedestrianAccess(e.Data.PedestrianTrafficDirection)),
-                CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.CarTrafficDirection),
-                BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.Data.BikeTrafficDirection),
-                PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.Data.PedestrianTrafficDirection),
-                EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList(),
-                NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList(),
-                // Origin is when this projection first saw the road segment, so a road segment that is still here
-                // keeps the one it already had; one that is being collected again starts over from this event.
-                Origin = existing?.Origin ?? e.Data.Provenance.ToEventTimestamp(),
-                LastModified = e.Data.Provenance.ToEventTimestamp(),
-                IsV2 = true
-            });
+                session.Store(migrated);
+                return;
+            }
+
+            // A road segment that is still here is written over the row object the session already holds, rather than
+            // handed a second one: Marten's identity map refuses to take two objects for the same id - "Document
+            // 'RoadSegmentExtractItem' with same Id already added to the session" - which is how the projection came
+            // to a stop again on the first migrated road segment that still had its row.
+            OverwriteWithMigrated(roadSegment, migrated);
+            session.Store(roadSegment);
         });
         When<IEvent<RoadSegmentWasRemoved>>(async (session, e, _) =>
         {
@@ -612,6 +595,70 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
         {
             segment.Status = RoadSegmentStatusChange.ForEvent(e).To;
         }, e, ct);
+    }
+
+    // The migrated road segment as the event has it, in full. Origin is when this projection first saw the road
+    // segment, which for a road segment being collected again starts over from this event.
+    private static RoadSegmentExtractItem BuildMigratedRoadSegment(RoadSegmentWasMigrated e)
+    {
+        return new RoadSegmentExtractItem
+        {
+            RoadSegmentId = e.RoadSegmentId,
+            Geometry = e.Geometry,
+            StartNodeId = e.StartNodeId,
+            EndNodeId = e.EndNodeId,
+            GeometryDrawMethod = e.GeometryDrawMethod,
+            Status = e.Status,
+            AccessRestriction = e.AccessRestriction.ToStringAttributeValues(x => x.ToString()),
+            Category = e.Category.ToStringAttributeValues(x => x.ToString()),
+            Morphology = e.Morphology.ToStringAttributeValues(x => x.ToString()),
+            StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.StreetNameId),
+            MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(e.MaintenanceAuthorityId),
+            SurfaceType = e.SurfaceType.ToStringAttributeValues(x => x.ToString()),
+            CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(e.CarTrafficDirection)),
+            CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(e.CarTrafficDirection)),
+            BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(e.BikeTrafficDirection)),
+            BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(e.BikeTrafficDirection)),
+            PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToPedestrianAccess(e.PedestrianTrafficDirection)),
+            CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.CarTrafficDirection),
+            BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(e.BikeTrafficDirection),
+            PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(e.PedestrianTrafficDirection),
+            EuropeanRoadNumbers = e.EuropeanRoadNumbers.ToList(),
+            NationalRoadNumbers = e.NationalRoadNumbers.ToList(),
+            Origin = e.Provenance.ToEventTimestamp(),
+            LastModified = e.Provenance.ToEventTimestamp(),
+            IsV2 = true
+        };
+    }
+
+    // Writes the migrated road segment onto the row the session already holds. Everything the event carries is
+    // overwritten; Origin is not, because the road segment was already here and keeps the moment this projection
+    // first saw it.
+    private static void OverwriteWithMigrated(RoadSegmentExtractItem roadSegment, RoadSegmentExtractItem migrated)
+    {
+        roadSegment.Geometry = migrated.Geometry;
+        roadSegment.StartNodeId = migrated.StartNodeId;
+        roadSegment.EndNodeId = migrated.EndNodeId;
+        roadSegment.GeometryDrawMethod = migrated.GeometryDrawMethod;
+        roadSegment.Status = migrated.Status;
+        roadSegment.AccessRestriction = migrated.AccessRestriction;
+        roadSegment.Category = migrated.Category;
+        roadSegment.Morphology = migrated.Morphology;
+        roadSegment.StreetNameId = migrated.StreetNameId;
+        roadSegment.MaintenanceAuthorityId = migrated.MaintenanceAuthorityId;
+        roadSegment.SurfaceType = migrated.SurfaceType;
+        roadSegment.CarAccessForward = migrated.CarAccessForward;
+        roadSegment.CarAccessBackward = migrated.CarAccessBackward;
+        roadSegment.BikeAccessForward = migrated.BikeAccessForward;
+        roadSegment.BikeAccessBackward = migrated.BikeAccessBackward;
+        roadSegment.PedestrianAccess = migrated.PedestrianAccess;
+        roadSegment.CarTrafficDirection = migrated.CarTrafficDirection;
+        roadSegment.BikeTrafficDirection = migrated.BikeTrafficDirection;
+        roadSegment.PedestrianTrafficDirection = migrated.PedestrianTrafficDirection;
+        roadSegment.EuropeanRoadNumbers = migrated.EuropeanRoadNumbers;
+        roadSegment.NationalRoadNumbers = migrated.NationalRoadNumbers;
+        roadSegment.LastModified = migrated.LastModified;
+        roadSegment.IsV2 = migrated.IsV2;
     }
 
     private async Task ModifyRoadSegment<TEvent>(IDocumentOperations operations, RoadSegmentId roadSegmentId, Action<RoadSegmentExtractItem> modify, TEvent evt, CancellationToken ct)
