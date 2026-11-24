@@ -1,3 +1,10 @@
+## [5.39.3](https://github.com/informatievlaanderen/road-registry/compare/v5.39.2...v5.39.3) (2026-11-24)
+
+
+### Bug Fixes
+
+* refuse road node attribute changes when a connected road segment has not completed its inwinning GAWR-7873 ([95822f7](https://github.com/informatievlaanderen/road-registry/commit/95822f7186fc11d567008268a13cc4a7151662e5))
+
 ## [5.39.2](https://github.com/informatievlaanderen/road-registry/compare/v5.39.1...v5.39.2) (2026-11-23)
 
 
