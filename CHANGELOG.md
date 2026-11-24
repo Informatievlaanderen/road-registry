@@ -1,3 +1,10 @@
+## [5.39.4](https://github.com/informatievlaanderen/road-registry/compare/v5.39.3...v5.39.4) (2026-11-24)
+
+
+### Bug Fixes
+
+* inwinningsstatus-melding bij verwijderen wegsegment en statusovergangen (GAWR-7874) ([3523194](https://github.com/informatievlaanderen/road-registry/commit/3523194f15061e0745ae6eda52bb0e843716c307))
+
 ## [5.39.3](https://github.com/informatievlaanderen/road-registry/compare/v5.39.2...v5.39.3) (2026-11-24)
 
 
