@@ -129,21 +129,27 @@ WHERE rs.road_segment_id IN ({string.Join(" UNION ", seeds)})", parameters.ToArr
 
         var scope = new RoadSegmentScope($@"
 WITH requested AS (
-    SELECT rs.road_segment_id, rs.start_node_id, rs.end_node_id
+    SELECT rs.road_segment_id, rs.start_node_id, rs.end_node_id, rs.has_migrated
     FROM {RoadNetworkTopologyTables.RoadSegments} rs
-    WHERE rs.has_migrated AND rs.road_segment_id = ANY(?)
+    WHERE rs.road_segment_id = ANY(?)
 )
 -- The road segments the caller named, knotted into the road network or not. An ingeschetst road segment has no
 -- road nodes, and the join below compares them, so it answers for no road segment without them - not even with
 -- itself, NULL being equal to nothing in SQL. Asked for on its own it used to load an empty road network, and
 -- the action then had nothing to work on and said nothing about it.
+--
+-- Whether their inwinning is done is not asked here either, for the same reason: one that is still a V1 road
+-- segment is not an action's to carry out, but it is the action's to refuse, and it can only say so about a road
+-- segment it was handed. Left out, the action had nothing under that identifier and answered that the road
+-- segment does not exist, while the read gives it out perfectly well.
 SELECT requested.road_segment_id AS id FROM requested
 UNION
 -- And every road segment meeting one of them at a road node: what an action does to the one is a statement
--- about the other.
+-- about the other. Only around the ones whose inwinning is done - the others are refused before anything is
+-- looked at, and the V1 road network is not the one this says something about.
 SELECT other.road_segment_id AS id
 FROM requested
-JOIN {RoadNetworkTopologyTables.RoadSegments} other ON other.has_migrated AND (
+JOIN {RoadNetworkTopologyTables.RoadSegments} other ON requested.has_migrated AND other.has_migrated AND (
     requested.start_node_id = other.start_node_id
     OR requested.start_node_id = other.end_node_id
     OR requested.end_node_id = other.start_node_id
