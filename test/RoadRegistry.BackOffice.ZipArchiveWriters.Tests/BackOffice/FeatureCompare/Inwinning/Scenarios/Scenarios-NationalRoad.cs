@@ -40,6 +40,26 @@ public class NationalRoadScenarios : FeatureCompareTranslatorScenariosBase
     }
 
     [Fact]
+    public async Task UnknownRoadSegmentInExtractShouldGiveProblem()
+    {
+        var (zipArchive, expected) = new InwinningZipArchiveBuilder()
+            // The change files are built from the extract files, so they are built first and keep a temp id which
+            // does match a segment. Only the extract's national road record is left pointing at a segment that is
+            // not in the extract, which is what an upload whose extract files have been edited looks like.
+            .WithChange((_, _) => { })
+            .WithExtract((builder, _) =>
+            {
+                builder.TestData.RoadSegment1NationalRoadDbaseRecord1.WS_TEMPID.Value = Math.Max(
+                    builder.TestData.RoadSegment1DbaseRecord.WS_TEMPID.Value,
+                    builder.TestData.RoadSegment2DbaseRecord.WS_TEMPID.Value) + 1;
+            })
+            .BuildWithResult(_ => TranslatedChanges.Empty);
+
+        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, expected));
+        Assert.Contains(ex.Problems, x => x.Reason == nameof(DbaseFileProblems.NumberedRoadRoadSegmentTempIdOutOfRange));
+    }
+
+    [Fact]
     public async Task WhenSegmentIsKeptAndOnlyNationalNumberRemoved_ThenOnlyNationalNumberRemoved()
     {
         var (zipArchive, expected) = new InwinningZipArchiveBuilder()
