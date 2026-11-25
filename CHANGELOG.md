@@ -1,3 +1,10 @@
+## [5.38.3](https://github.com/informatievlaanderen/road-registry/compare/v5.38.2...v5.38.3) (2026-11-25)
+
+
+### Bug Fixes
+
+* **inwinning:** report an extract feature pointing at a missing road segment ([e918ec5](https://github.com/informatievlaanderen/road-registry/commit/e918ec533f6c9b879722c3321590c6980d3e1682))
+
 ## [5.38.2](https://github.com/informatievlaanderen/road-registry/compare/v5.38.1...v5.38.2) (2026-11-24)
 
 
