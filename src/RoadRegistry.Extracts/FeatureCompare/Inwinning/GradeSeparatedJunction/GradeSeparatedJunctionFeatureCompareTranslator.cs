@@ -22,6 +22,7 @@ using TranslatedChanges = Inwinning.TranslatedChanges;
 public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTranslatorBase<GradeSeparatedJunctionFeatureCompareAttributes>
 {
     private const ExtractFileName FileName = ExtractFileName.RltOgkruising;
+    private static readonly FeatureType[] ExtractRoadSegmentFeatureTypes = [FeatureType.Extract, FeatureType.Integration];
     private readonly ILogger _logger;
 
     public GradeSeparatedJunctionFeatureCompareTranslator(
@@ -40,11 +41,14 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
 
         var processedRecords = new List<Record>();
 
+        problems += ValidateExtractRoadSegmentTempIds(features.Extract, context, cancellationToken);
+        problems.ThrowIfError();
+
         var extractFeatures = features.Extract
             .Select(x => (
                 Feature: x,
-                LowerRoadSegmentId: context.MapToRoadSegmentId([FeatureType.Extract, FeatureType.Integration], x.Attributes.LowerRoadSegmentTempId),
-                UpperRoadSegmentId: context.MapToRoadSegmentId([FeatureType.Extract, FeatureType.Integration], x.Attributes.UpperRoadSegmentTempId)))
+                LowerRoadSegmentId: context.MapToRoadSegmentId(ExtractRoadSegmentFeatureTypes, x.Attributes.LowerRoadSegmentTempId),
+                UpperRoadSegmentId: context.MapToRoadSegmentId(ExtractRoadSegmentFeatureTypes, x.Attributes.UpperRoadSegmentTempId)))
             .ToList();
 
         foreach (var changeFeature in features.Change)
@@ -155,6 +159,37 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
                 }
             }
         }
+    }
+
+    private static ZipArchiveProblems ValidateExtractRoadSegmentTempIds(
+        List<Feature<GradeSeparatedJunctionFeatureCompareAttributes>> extractFeatures,
+        ZipArchiveEntryFeatureCompareTranslateContext context,
+        CancellationToken cancellationToken)
+    {
+        // Extract files which no longer agree with each other are reported here,
+        // instead of making the mapping of the extract features throw.
+        var problems = ZipArchiveProblems.None;
+
+        foreach (var extractFeature in extractFeatures)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var recordContext = FileName
+                .AtDbaseRecord(FeatureType.Extract, extractFeature.RecordNumber)
+                .WithIdentifier(nameof(GradeSeparatedJunctionDbaseRecord.OK_OIDN), extractFeature.Attributes.Id);
+
+            if (context.TryMapToRoadSegmentId(ExtractRoadSegmentFeatureTypes, extractFeature.Attributes.UpperRoadSegmentTempId) is null)
+            {
+                problems += recordContext.UpperRoadSegmentIdOutOfRange(extractFeature.Attributes.UpperRoadSegmentTempId.ToInt32());
+            }
+
+            if (context.TryMapToRoadSegmentId(ExtractRoadSegmentFeatureTypes, extractFeature.Attributes.LowerRoadSegmentTempId) is null)
+            {
+                problems += recordContext.LowerRoadSegmentIdOutOfRange(extractFeature.Attributes.LowerRoadSegmentTempId.ToInt32());
+            }
+        }
+
+        return problems;
     }
 
     private static TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records, CancellationToken cancellationToken)
