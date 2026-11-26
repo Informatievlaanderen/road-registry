@@ -174,13 +174,13 @@ public static class DbaseExtensions
 
         if (dbaseFieldValue is DbaseDateTime dateTimeField)
         {
-            // CREATIE and VERSIE are the only date fields the files carry, and nothing reads them back: an upload
-            // is judged on its identifiers, its geometry and its attributes. A value that is not in the format
-            // they are written in therefore says nothing about the record, and it is left behind rather than
-            // refused - a throw here stops the reader on that record and leaves every record behind it unread.
-            if (!string.IsNullOrWhiteSpace(value?.ToString())
-                && DateTime.TryParseExact(value.ToString(), DateTimeFormat, null, DateTimeStyles.None, out var dateTimeValue))
+            if (!string.IsNullOrWhiteSpace(value?.ToString()))
             {
+                if (!DateTime.TryParseExact(value.ToString(), DateTimeFormat, null, DateTimeStyles.None, out var dateTimeValue))
+                {
+                    throw new ArgumentException($"Invalid date time '{value}'");
+                }
+
                 dateTimeField.Value = dateTimeValue;
             }
 
