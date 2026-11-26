@@ -37,20 +37,35 @@ public class ExtractRecordIsUnreadableScenarios : FeatureCompareTranslatorScenar
         actual.Select(Describe).Should().BeEquivalentTo(expected.Select(Describe));
     }
 
-    // Two extract records under one temp id leave the road numbers and the crossings, which name their road
-    // segment by temp id, with no way to say which of the two they mean. Reported rather than left to the
-    // mapping, which has no answer for it either and used to throw.
+    // A temp id in the extract is the key the road numbers and the crossings point at a road segment with, and
+    // nothing else reads it. One claimed by two records that nothing points at costs nobody anything, and used to
+    // throw on the mapping.
     [Fact]
-    public async Task WhenTwoExtractRecordsShareATempId_ThenItIsReported()
+    public async Task WhenTwoExtractRecordsShareATempIdNothingUses_ThenTheUploadMeansTheSame()
     {
-        var archive = Open(BuildArchiveBytes(), dbase => CopyFieldOfFirstRecordToLastRecord(dbase, "WS_TEMPID"));
+        var upload = BuildArchiveBytes();
+
+        var expected = await Translate(Open(upload));
+        var actual = await Translate(Open(upload, dbase => CopyFieldOfFirstRecordToLastRecord(dbase, "WS_TEMPID")));
+
+        actual.Select(Describe).Should().BeEquivalentTo(expected.Select(Describe));
+    }
+
+    // One claimed by two records that something does point at says nothing about which of the two is meant, so it
+    // names neither and whatever points at it is reported where it is used.
+    [Fact]
+    public async Task WhenTwoExtractRecordsShareATempIdARoadNumberUses_ThenItIsReported()
+    {
+        var archive = Open(
+            BuildArchiveBytes(withExtractRoadNumbersAndJunctions: true),
+            dbase => CopyFieldOfFirstRecordToLastRecord(dbase, "WS_TEMPID"));
         var sut = ZipArchiveFeatureCompareTranslatorV3Builder.Create();
 
         var act = () => sut.TranslateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
 
         var exception = await act.Should().ThrowAsync<ZipArchiveValidationException>();
         exception.Which.Problems.Select(x => x.Reason).Should()
-            .Contain(nameof(DbaseFileProblems.IdentifierNotUnique));
+            .Contain(nameof(DbaseFileProblems.NumberedRoadRoadSegmentTempIdOutOfRange));
     }
 
     private static string Describe(RoadRegistry.ScopedRoadNetwork.IRoadNetworkChange change)
@@ -65,13 +80,18 @@ public class ExtractRecordIsUnreadableScenarios : FeatureCompareTranslatorScenar
 
     // One upload, so that the patched copy differs from the untouched one in nothing but the patch: the builder
     // fills everything else from a random fixture.
-    private static byte[] BuildArchiveBytes()
+    private static byte[] BuildArchiveBytes(bool withExtractRoadNumbersAndJunctions = false)
     {
-        // The road numbers and the crossings are left out of the extract on purpose: an extract feature pointing
-        // at a road segment that is no longer there is reported in its own right, and that is not what is tested.
+        // Unless a test is about them, the road numbers and the crossings are left out of the extract: they are
+        // what points at a road segment by temp id, and a pointer that no longer lands is its own story.
         return new InwinningZipArchiveBuilder()
             .WithExtract((builder, _) =>
             {
+                if (withExtractRoadNumbersAndJunctions)
+                {
+                    return;
+                }
+
                 builder.DataSet.EuropeanRoadDbaseRecords.Clear();
                 builder.DataSet.NationalRoadDbaseRecords.Clear();
                 builder.DataSet.GradeSeparatedJunctionDbaseRecords.Clear();

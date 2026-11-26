@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Extracts.Infrastructure.Dbase;
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -70,6 +71,24 @@ public static class DbaseExtensions
         }
 
         throw new NotImplementedException($"Unknown field type: {field.FieldType}");
+    }
+
+    // Fills a record with what a file holds. CREATIE and VERSIE are left out of it: they are written and never
+    // read back - an upload is judged on its identifiers, its geometry and its attributes - and reading them meant
+    // refusing a value that is not in the format they are written in, which stopped the reader on that record and
+    // left every record behind it unread.
+    internal static void ReadValuesFrom(this DbaseRecord record, IEnumerable<DbfField> fields)
+    {
+        foreach (var field in fields)
+        {
+            var dbaseFieldValue = record.Values.Single(x => x.Field.Name == field.Name);
+            if (dbaseFieldValue is DbaseDateTime)
+            {
+                continue;
+            }
+
+            dbaseFieldValue.SetValue(field.Value);
+        }
     }
 
     private static object? GetValue(this DbaseFieldValue dbaseFieldValue)
@@ -260,11 +279,7 @@ public static class DbaseExtensions
                 }
 
                 var record = new TDbaseRecord();
-                foreach (var field in _reader.Fields)
-                {
-                    var dbaseFieldValue = record.Values.Single(x => x.Field.Name == field.Name);
-                    dbaseFieldValue.SetValue(field.Value);
-                }
+                record.ReadValuesFrom(_reader.Fields);
 
                 _current = record;
             }

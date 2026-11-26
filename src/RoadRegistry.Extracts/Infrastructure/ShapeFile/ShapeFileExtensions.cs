@@ -69,11 +69,7 @@ public static class ShapeFileExtensions
                     }
 
                     var record = new TDbaseRecord();
-                    foreach (var field in _reader.Fields)
-                    {
-                        var dbaseFieldValue = record.Values.Single(x => x.Field.Name == field.Name);
-                        dbaseFieldValue.SetValue(field.Value);
-                    }
+                    record.ReadValuesFrom(_reader.Fields);
 
                     _current = (record, _reader.Geometry);
                 }
