@@ -15,9 +15,8 @@ public partial class RoadSegment
     // back on its own when that is undone: a segment that is corrected back to an active status gets its street name
     // from whoever corrects it.
     //
-    // Each street name that is let go is recorded as a RoadSegmentStreetNameIdWasChanged to 'niet van toepassing', the
-    // event a street name relink already records, so every projection that follows a segment's street names follows
-    // this as well. A segment linked to two street names, one on either side, records one event for each.
+    // Each street name that is let go is recorded as a RoadSegmentStreetNameWasUnlinked, so a segment linked to two
+    // street names, one on either side, records one event for each.
     //
     // This also accepts a removed road segment: the run-once correction of the links that were left behind before
     // this rule existed has to reach those too. The road segment's own actions never get here once it is removed.
@@ -40,19 +39,38 @@ public partial class RoadSegment
 
         foreach (var streetNameId in linkedStreetNameIds)
         {
-            var updatedStreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(
-                Attributes.StreetNameId.Values
-                    .Select(value => (value.Coverage, value.Side, value.Value == streetNameId ? StreetNameLocalId.NotApplicable : value.Value)));
-
-            Apply(new RoadSegmentStreetNameIdWasChanged
-            {
-                RoadSegmentId = RoadSegmentId,
-                OldStreetNameId = streetNameId,
-                NewStreetNameId = StreetNameLocalId.NotApplicable,
-                StreetNameId = updatedStreetNameId,
-                Provenance = new ProvenanceData(provenance)
-            });
+            UnlinkStreetName(streetNameId, provenance);
         }
+    }
+
+    // Lets go of one street name: wherever the road segment carries it, it now carries 'niet van toepassing'. A street
+    // name the road segment does not carry records nothing.
+    public void UnlinkStreetName(StreetNameLocalId streetNameId, Provenance provenance)
+    {
+        if (Attributes is null
+            || StreetNameLocalId.IsEmpty(streetNameId)
+            || Attributes.StreetNameId.Values.All(value => value.Value != streetNameId))
+        {
+            return;
+        }
+
+        Apply(new RoadSegmentStreetNameWasUnlinked
+        {
+            RoadSegmentId = RoadSegmentId,
+            StreetNameId = streetNameId,
+            StreetNameIdAttributeValues = ReplaceStreetNameId(streetNameId, StreetNameLocalId.NotApplicable),
+            Provenance = new ProvenanceData(provenance)
+        });
+    }
+
+    public void Apply(RoadSegmentStreetNameWasUnlinked @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Attributes = Attributes! with
+        {
+            StreetNameId = @event.StreetNameIdAttributeValues
+        };
     }
 
     // Called after anything that can leave the segment in a status that is not active: 'gehistoreerd' or 'niet

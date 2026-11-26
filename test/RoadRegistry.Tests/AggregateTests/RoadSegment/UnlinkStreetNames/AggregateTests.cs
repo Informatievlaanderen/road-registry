@@ -75,9 +75,9 @@ public class AggregateTests : StatusChangeAggregateTestBase
 
         var changes = roadSegment.GetChanges().ToList();
         changes[0].Should().BeOfType(statusChange.EventType);
-        changes.Skip(1).Cast<RoadSegmentStreetNameIdWasChanged>()
-            .Select(x => (x.OldStreetNameId, x.NewStreetNameId))
-            .Should().BeEquivalentTo([(LeftStreetNameId, StreetNameLocalId.NotApplicable), (RightStreetNameId, StreetNameLocalId.NotApplicable)]);
+        changes.Skip(1).Cast<RoadSegmentStreetNameWasUnlinked>()
+            .Select(x => x.StreetNameId)
+            .Should().BeEquivalentTo([LeftStreetNameId, RightStreetNameId]);
     }
 
     [Theory]
@@ -95,7 +95,7 @@ public class AggregateTests : StatusChangeAggregateTestBase
 
         result.Problems.Should().BeEmpty();
         roadSegment.Attributes!.StreetNameId.Should().Be(streetNamesBefore);
-        roadSegment.GetChanges().OfType<RoadSegmentStreetNameIdWasChanged>().Should().BeEmpty();
+        roadSegment.GetChanges().OfType<RoadSegmentStreetNameWasUnlinked>().Should().BeEmpty();
     }
 
     [Fact]
@@ -110,7 +110,7 @@ public class AggregateTests : StatusChangeAggregateTestBase
         problems.Should().BeEmpty();
         roadSegment.Status.Should().Be(RoadSegmentStatusV2.Gehistoreerd);
         ShouldHaveNoStreetNames(roadSegment);
-        roadSegment.GetChanges().OfType<RoadSegmentStreetNameIdWasChanged>().Should().HaveCount(2);
+        roadSegment.GetChanges().OfType<RoadSegmentStreetNameWasUnlinked>().Should().HaveCount(2);
     }
 
     [Theory]
@@ -136,7 +136,7 @@ public class AggregateTests : StatusChangeAggregateTestBase
         problems.Should().HaveNoError();
         roadSegment.Status.Should().Be(RoadSegmentStatusV2.NietGerealiseerd);
         ShouldHaveNoStreetNames(roadSegment);
-        roadSegment.GetChanges().Last().Should().BeOfType<RoadSegmentStreetNameIdWasChanged>();
+        roadSegment.GetChanges().Last().Should().BeOfType<RoadSegmentStreetNameWasUnlinked>();
     }
 
     [Fact]
@@ -172,7 +172,7 @@ public class AggregateTests : StatusChangeAggregateTestBase
 
         var changes = roadSegment.GetChanges().ToList();
         changes.Should().HaveCount(3);
-        changes.Take(2).Should().AllBeOfType<RoadSegmentStreetNameIdWasChanged>();
+        changes.Take(2).Should().AllBeOfType<RoadSegmentStreetNameWasUnlinked>();
         changes[2].Should().BeOfType<RoadSegmentWasRemoved>();
     }
 
@@ -209,9 +209,8 @@ public class AggregateTests : StatusChangeAggregateTestBase
             new Dictionary<RoadSegmentId, IReadOnlyCollection<StreetNameLocalId>> { [segmentAdded.RoadSegmentId] = [LeftStreetNameId] },
             TestData.Provenance);
 
-        var @event = removedSegment.GetChanges().Should().ContainSingle().Which.Should().BeOfType<RoadSegmentStreetNameIdWasChanged>().Which;
-        @event.OldStreetNameId.Should().Be(LeftStreetNameId);
-        @event.NewStreetNameId.Should().Be(StreetNameLocalId.NotApplicable);
+        var @event = removedSegment.GetChanges().Should().ContainSingle().Which.Should().BeOfType<RoadSegmentStreetNameWasUnlinked>().Which;
+        @event.StreetNameId.Should().Be(LeftStreetNameId);
         removedSegment.Attributes!.StreetNameId.Values.Single(x => x.Side == RoadSegmentAttributeSide.Links).Value.Should().Be(StreetNameLocalId.NotApplicable);
         removedSegment.Attributes!.StreetNameId.Values.Single(x => x.Side == RoadSegmentAttributeSide.Rechts).Value.Should().Be(RightStreetNameId);
     }
@@ -220,24 +219,96 @@ public class AggregateTests : StatusChangeAggregateTestBase
     public void WhenSeveralSegmentsAreRelinked_ThenEveryEventGetsAnOrdinalOfItsOwn()
     {
         // Saving a road network refuses two events with the same ordinal.
+        var roadNetwork = BuildNetworkWithTwoLinkedSegments();
+
+        roadNetwork.RelinkStreetName(BothSegmentIds, LeftStreetNameId, OtherStreetNameId, TestData.Provenance);
+
+        var ordinals = roadNetwork.RoadSegments.Values.SelectMany(x => x.GetRecordedChanges()).Select(x => x.Ordinal).ToList();
+        ordinals.Should().HaveCount(2);
+        ordinals.Should().OnlyHaveUniqueItems();
+    }
+
+    [Fact]
+    public void WhenSeveralSegmentsAreUnlinked_ThenEveryEventGetsAnOrdinalOfItsOwn()
+    {
+        var roadNetwork = BuildNetworkWithTwoLinkedSegments();
+
+        roadNetwork.UnlinkStreetName(BothSegmentIds, LeftStreetNameId, TestData.Provenance);
+
+        var ordinals = roadNetwork.RoadSegments.Values.SelectMany(x => x.GetRecordedChanges()).Select(x => x.Ordinal).ToList();
+        ordinals.Should().HaveCount(2);
+        ordinals.Should().OnlyHaveUniqueItems();
+    }
+
+    [Fact]
+    public void WhenAStreetNameIsRelinked_ThenTheSegmentFollowsItToTheNewStreetName()
+    {
+        var roadNetwork = BuildNetworkWithTwoLinkedSegments();
+        var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
+
+        roadNetwork.RelinkStreetName([roadSegment.RoadSegmentId], LeftStreetNameId, OtherStreetNameId, TestData.Provenance);
+
+        var @event = roadSegment.GetChanges().Should().ContainSingle().Which.Should().BeOfType<RoadSegmentStreetNameWasRelinked>().Which;
+        @event.OldStreetNameId.Should().Be(LeftStreetNameId);
+        @event.NewStreetNameId.Should().Be(OtherStreetNameId);
+        @event.StreetNameIdAttributeValues.Should().Be(roadSegment.Attributes!.StreetNameId);
+        roadSegment.Attributes.StreetNameId.Values.Single(x => x.Side == RoadSegmentAttributeSide.Links).Value.Should().Be(OtherStreetNameId);
+        roadSegment.Attributes.StreetNameId.Values.Single(x => x.Side == RoadSegmentAttributeSide.Rechts).Value.Should().Be(RightStreetNameId);
+    }
+
+    [Fact]
+    public void WhenAStreetNameIsRelinkedToNotApplicable_ThenThatIsADefect()
+    {
+        // Letting go of a street name is an unlink, never a relink to 'niet van toepassing'.
+        var roadNetwork = BuildNetworkWithTwoLinkedSegments();
+        var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
+
+        var act = () => roadSegment.RelinkStreetName(LeftStreetNameId, StreetNameLocalId.NotApplicable, TestData.Provenance);
+
+        act.Should().Throw<System.InvalidOperationException>();
+        roadSegment.GetChanges().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void WhenAStreetNameIsUnlinked_ThenOnlyThatStreetNameIsLetGo()
+    {
+        var roadNetwork = BuildNetworkWithTwoLinkedSegments();
+        var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
+
+        roadNetwork.UnlinkStreetName([roadSegment.RoadSegmentId], LeftStreetNameId, TestData.Provenance);
+
+        var @event = roadSegment.GetChanges().Should().ContainSingle().Which.Should().BeOfType<RoadSegmentStreetNameWasUnlinked>().Which;
+        @event.StreetNameId.Should().Be(LeftStreetNameId);
+        @event.StreetNameIdAttributeValues.Should().Be(roadSegment.Attributes!.StreetNameId);
+        roadSegment.Attributes.StreetNameId.Values.Single(x => x.Side == RoadSegmentAttributeSide.Links).Value.Should().Be(StreetNameLocalId.NotApplicable);
+        roadSegment.Attributes.StreetNameId.Values.Single(x => x.Side == RoadSegmentAttributeSide.Rechts).Value.Should().Be(RightStreetNameId);
+    }
+
+    [Fact]
+    public void WhenAStreetNameTheSegmentDoesNotCarryIsUnlinked_ThenNothingIsRecorded()
+    {
+        var roadNetwork = BuildNetworkWithTwoLinkedSegments();
+        var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
+
+        roadNetwork.UnlinkStreetName([roadSegment.RoadSegmentId], OtherStreetNameId, TestData.Provenance);
+
+        roadSegment.GetChanges().Should().BeEmpty();
+    }
+
+    private static readonly StreetNameLocalId OtherStreetNameId = new(503);
+
+    private static readonly RoadSegmentId[] BothSegmentIds = [new(ChangedSegmentId), new(NeighbourSegmentId)];
+
+    private ScopedRoadNetwork BuildNetworkWithTwoLinkedSegments()
+    {
         var westNode = BuildNode(10, 0, 0, RoadNodeTypeV2.Eindknoop);
         var middleNode = BuildNode(11, 100, 0, RoadNodeTypeV2.Validatieknoop);
         var eastNode = BuildNode(12, 200, 0, RoadNodeTypeV2.Eindknoop);
-        var roadNetwork = BuildNetwork(
+        return BuildNetwork(
             [westNode, middleNode, eastNode],
             [
                 WithStreetNames(BuildSegment(ChangedSegmentId, westNode, middleNode, BuildGeometry((0, 0), (100, 0)), RoadSegmentStatusV2.Gerealiseerd)),
                 WithStreetNames(BuildSegment(NeighbourSegmentId, middleNode, eastNode, BuildGeometry((100, 0), (200, 0)), RoadSegmentStatusV2.Gerealiseerd))
             ]);
-
-        roadNetwork.ChangeStreetNameId(
-            [new RoadSegmentId(ChangedSegmentId), new RoadSegmentId(NeighbourSegmentId)],
-            LeftStreetNameId,
-            StreetNameLocalId.NotApplicable,
-            TestData.Provenance);
-
-        var ordinals = roadNetwork.RoadSegments.Values.SelectMany(x => x.GetRecordedChanges()).Select(x => x.Ordinal).ToList();
-        ordinals.Should().HaveCount(2);
-        ordinals.Should().OnlyHaveUniqueItems();
     }
 }

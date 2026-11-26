@@ -30,7 +30,7 @@ public class AggregateTests : AggregateTestBase
         segmentRetired.MergedRoadSegmentId.Should().Be(mergedRoadSegmentId);
 
         // A historized road segment keeps no street name (GAWR-7784).
-        segment.GetChanges().Skip(1).Should().AllBeOfType<RoadSegmentStreetNameIdWasChanged>();
+        segment.GetChanges().Skip(1).Should().AllBeOfType<RoadSegmentStreetNameWasUnlinked>();
         segment.Attributes!.StreetNameId.Values.Should().OnlyContain(x => StreetNameLocalId.IsEmpty(x.Value));
     }
 

@@ -380,12 +380,11 @@ public class RoadSegmentWmsWfsV2ProjectionTests
             RoadSegmentId = new RoadSegmentId(1),
             Provenance = Provenance
         });
-        await scenario.GivenAsync(new RoadSegmentStreetNameIdWasChanged
+        await scenario.GivenAsync(new RoadSegmentStreetNameWasUnlinked
         {
             RoadSegmentId = new RoadSegmentId(1),
-            OldStreetNameId = _testData.Segment1Added.StreetNameId.Values.First().Value,
-            NewStreetNameId = StreetNameLocalId.NotApplicable,
-            StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(StreetNameLocalId.NotApplicable, _testData.Segment1Added.Geometry),
+            StreetNameId = _testData.Segment1Added.StreetNameId.Values.First().Value,
+            StreetNameIdAttributeValues = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(StreetNameLocalId.NotApplicable, _testData.Segment1Added.Geometry),
             Provenance = Provenance
         });
 

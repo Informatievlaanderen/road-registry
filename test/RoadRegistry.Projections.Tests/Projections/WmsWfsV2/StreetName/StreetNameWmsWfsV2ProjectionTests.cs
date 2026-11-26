@@ -48,7 +48,7 @@ public class StreetNameWmsWfsV2ProjectionTests
             typeof(RoadSegmentRemoved), typeof(RoadSegmentRemovedFromEuropeanRoad), typeof(RoadSegmentRemovedFromNationalRoad),
             typeof(RoadSegmentRemovedFromNumberedRoad), typeof(RoadSegmentStreetNamesChanged),
             // RoadSegment V2
-            typeof(OutlinedRoadSegmentWasAdded), typeof(RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentWasMeasured), typeof(RoadSegmentWasCorrectedToOutlined),
+            typeof(OutlinedRoadSegmentWasAdded), typeof(RoadSegmentStreetNameWasUnlinked), typeof(RoadSegmentStreetNameWasRelinked), typeof(RoadSegmentWasMeasured), typeof(RoadSegmentWasCorrectedToOutlined),
             typeof(RoadSegmentWasAdded), typeof(RoadSegmentWasAddedToEuropeanRoad), typeof(RoadSegmentWasAddedToNationalRoad),
             typeof(RoadSegmentWasMerged), typeof(RoadSegmentWasMigrated), typeof(RoadSegmentWasChanged),
             typeof(RoadSegmentWasRealizedFromPlanned),

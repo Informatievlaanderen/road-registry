@@ -463,12 +463,11 @@ public class RoadSegmentExtractProjectionTests
 
         var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
         var roadSegment1Removed = fixture.Create<RoadSegmentWasRemoved>();
-        var streetNamesLetGo = new RoadSegmentStreetNameIdWasChanged
+        var streetNamesLetGo = new RoadSegmentStreetNameWasUnlinked
         {
             RoadSegmentId = roadSegment1Added.RoadSegmentId,
-            OldStreetNameId = roadSegment1Added.StreetNameId.Values.First().Value,
-            NewStreetNameId = StreetNameLocalId.NotApplicable,
-            StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(StreetNameLocalId.NotApplicable, roadSegment1Added.Geometry),
+            StreetNameId = roadSegment1Added.StreetNameId.Values.First().Value,
+            StreetNameIdAttributeValues = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(StreetNameLocalId.NotApplicable, roadSegment1Added.Geometry),
             Provenance = roadSegment1Removed.Provenance
         };
 

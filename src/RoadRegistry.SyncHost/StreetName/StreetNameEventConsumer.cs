@@ -195,21 +195,41 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
 
         if (v2RoadSegmentIds.Any())
         {
-            var request = new SystemLinkRoadSegmentsToStreetNameIdsSqsRequest
+            var queueOptions = new SqsQueueOptions { MessageGroupId = RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork.Constants.GlobalRoadNetworkMessageGroupId };
+
+            // 'Niet van toepassing' is no street name to relink to: the road segments let go of the street name. Each
+            // request is copied as its own type, which decides whether it goes through a blob.
+            if (new StreetNameLocalId(destinationStreetNameId) == StreetNameLocalId.NotApplicable)
             {
-                TicketId = Guid.NewGuid(),
-                ProvenanceData = new RoadRegistryProvenanceData(Modification.Update),
-                RoadSegmentIds = v2RoadSegmentIds,
-                OldStreetNameId = new StreetNameLocalId(sourceStreetNameId),
-                NewStreetNameId = new StreetNameLocalId(destinationStreetNameId)
-            };
+                await _sqsQueue.Copy(
+                    new SystemUnlinkRoadSegmentsFromStreetNameSqsRequest
+                    {
+                        TicketId = Guid.NewGuid(),
+                        ProvenanceData = new RoadRegistryProvenanceData(Modification.Update),
+                        RoadSegmentIds = v2RoadSegmentIds,
+                        StreetNameId = new StreetNameLocalId(sourceStreetNameId)
+                    },
+                    queueOptions,
+                    cancellationToken);
 
-            await _sqsQueue.Copy(
-                request,
-                new SqsQueueOptions { MessageGroupId = RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork.Constants.GlobalRoadNetworkMessageGroupId },
-                cancellationToken);
+                Logger.LogInformation("Published system request to unlink {Count} V2 RoadSegments from StreetName {Source}", v2RoadSegmentIds.Count, sourceStreetNameId);
+            }
+            else
+            {
+                await _sqsQueue.Copy(
+                    new SystemRelinkRoadSegmentsToStreetNameSqsRequest
+                    {
+                        TicketId = Guid.NewGuid(),
+                        ProvenanceData = new RoadRegistryProvenanceData(Modification.Update),
+                        RoadSegmentIds = v2RoadSegmentIds,
+                        OldStreetNameId = new StreetNameLocalId(sourceStreetNameId),
+                        NewStreetNameId = new StreetNameLocalId(destinationStreetNameId)
+                    },
+                    queueOptions,
+                    cancellationToken);
 
-            Logger.LogInformation("Published system request to relink {Count} V2 RoadSegments from StreetName {Source} to {Destination}", v2RoadSegmentIds.Count, sourceStreetNameId, destinationStreetNameId);
+                Logger.LogInformation("Published system request to relink {Count} V2 RoadSegments from StreetName {Source} to {Destination}", v2RoadSegmentIds.Count, sourceStreetNameId, destinationStreetNameId);
+            }
         }
 
         // V1 road segments are tracked in the (SQL) editor read model and relinked through the road network event stream.

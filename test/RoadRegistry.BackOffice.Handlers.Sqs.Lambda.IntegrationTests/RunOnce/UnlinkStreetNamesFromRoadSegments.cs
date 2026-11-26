@@ -33,9 +33,9 @@ using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 /// name cache; a street name the cache does not know is left alone and only reported.
 ///
 /// HOW. Straight through the domain, the way MigrateUntouchedGradeSeparatedJunctions does: each street name that is let
-/// go becomes a RoadSegmentStreetNameIdWasChanged to 'niet van toepassing' on the road segment's own stream, the event
-/// a street name relink already records. A removed road segment is no longer in the extract, PBS and WMS/WFS
-/// projections, and those skip the event for it; the read projection keeps the removed road segment and follows it.
+/// go becomes a RoadSegmentStreetNameWasUnlinked on the road segment's own stream. A removed road segment is no
+/// longer in the extract, PBS and WMS/WFS projections, and those skip the event for it; the read projection keeps the
+/// removed road segment and follows it.
 ///
 /// ENVIRONMENT. Everything comes from appsettings.runonce.{environment}.json next to the test assembly (git ignores
 /// appsettings.*.json): ConnectionStrings:Marten and ConnectionStrings:StreetNameProjections.

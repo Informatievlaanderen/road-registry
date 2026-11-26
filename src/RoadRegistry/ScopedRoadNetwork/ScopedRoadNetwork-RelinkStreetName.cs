@@ -6,7 +6,8 @@ using RoadRegistry.ValueObjects;
 
 public partial class ScopedRoadNetwork
 {
-    public void ChangeStreetNameId(
+    // Relinks the given road segments from one street name to another; removed road segments are left out.
+    public void RelinkStreetName(
         IReadOnlyCollection<RoadSegmentId> roadSegmentIds,
         StreetNameLocalId oldStreetNameId,
         StreetNameLocalId newStreetNameId,
@@ -20,7 +21,24 @@ public partial class ScopedRoadNetwork
         {
             if (_roadSegments.TryGetValue(roadSegmentId, out var segment) && !segment.IsRemoved)
             {
-                segment.ChangeStreetNameId(oldStreetNameId, newStreetNameId, provenance);
+                segment.RelinkStreetName(oldStreetNameId, newStreetNameId, provenance);
+            }
+        }
+    }
+
+    // Lets the given road segments go of a street name; removed road segments are left out.
+    public void UnlinkStreetName(
+        IReadOnlyCollection<RoadSegmentId> roadSegmentIds,
+        StreetNameLocalId streetNameId,
+        Provenance provenance)
+    {
+        AttachOrdinalProvider(new EventOrdinalProvider());
+
+        foreach (var roadSegmentId in roadSegmentIds)
+        {
+            if (_roadSegments.TryGetValue(roadSegmentId, out var segment) && !segment.IsRemoved)
+            {
+                segment.UnlinkStreetName(streetNameId, provenance);
             }
         }
     }

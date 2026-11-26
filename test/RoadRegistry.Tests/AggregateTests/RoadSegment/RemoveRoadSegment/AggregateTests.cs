@@ -28,7 +28,7 @@ public class AggregateTests : AggregateTestBase
         // The street names are let go of first (GAWR-7784), the removal comes last.
         var segmentRemoved = (RoadSegmentWasRemoved)segment.GetChanges().Last();
         segmentRemoved.RoadSegmentId.Should().Be(segment.RoadSegmentId);
-        segment.GetChanges().SkipLast(1).Should().AllBeOfType<RoadSegmentStreetNameIdWasChanged>();
+        segment.GetChanges().SkipLast(1).Should().AllBeOfType<RoadSegmentStreetNameWasUnlinked>();
     }
 
     [Fact]

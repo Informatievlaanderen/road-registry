@@ -248,7 +248,7 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
                 null, null, null, null, null, null, null, m.Provenance, ct);
         });
 
-        When<IEvent<RoadSegmentStreetNameIdWasChanged>>(async (context, e, ct) =>
+        When<IEvent<RoadSegmentStreetNameWasUnlinked>>(async (context, e, ct) =>
         {
             var m = e.Data;
 
@@ -260,7 +260,22 @@ public class RoadSegmentWmsWfsV2Projection : RunnerDbContextRoadNetworkChangesPr
             }
 
             await WritePartial(context, m.RoadSegmentId.ToInt32(), null, null, null, null, null, null, null, null,
-                m.StreetNameId, null, null, null, null, m.Provenance, ct);
+                m.StreetNameIdAttributeValues, null, null, null, null, m.Provenance, ct);
+        });
+
+        When<IEvent<RoadSegmentStreetNameWasRelinked>>(async (context, e, ct) =>
+        {
+            var m = e.Data;
+
+            // The relink leaves removed road segments out, but a road segment this projection no longer holds is not
+            // brought back for it either.
+            if (await FindSegment(context, m.RoadSegmentId.ToInt32(), ct) is null)
+            {
+                return;
+            }
+
+            await WritePartial(context, m.RoadSegmentId.ToInt32(), null, null, null, null, null, null, null, null,
+                m.StreetNameIdAttributeValues, null, null, null, null, m.Provenance, ct);
         });
 
         When<IEvent<RoadSegmentWasSplit>>(async (context, e, ct) =>

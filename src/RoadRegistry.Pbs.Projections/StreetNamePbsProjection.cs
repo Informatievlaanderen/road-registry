@@ -29,7 +29,7 @@ public class StreetNamePbsProjection : RunnerDbContextRoadNetworkChangesProjecti
         });
 
         // A rename merges the street name into a destination; the old id no longer stands on its own. Affected road
-        // segments get their own RoadSegmentStreetNameIdWasChanged event, so here we just drop the stale cache entry.
+        // segments get their own RoadSegmentStreetNameWasRelinked event, so here we just drop the stale cache entry.
         When<IEvent<StreetNameWasRenamed>>(async (context, e, ct) =>
         {
             var record = await context.StreetNameCache.FindAsync([e.Data.StreetNameId.ToInt32()], ct);

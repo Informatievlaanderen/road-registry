@@ -542,7 +542,7 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
         When<IEvent<RoadSegmentWasAddedToNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.NationalRoadNumbers.Add(e.Data.Number); }, e.Data, ct); });
         When<IEvent<RoadSegmentWasRemovedFromEuropeanRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.EuropeanRoadNumbers.Remove(e.Data.Number); }, e.Data, ct); });
         When<IEvent<RoadSegmentWasRemovedFromNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.NationalRoadNumbers.Remove(e.Data.Number); }, e.Data, ct); });
-        When<IEvent<RoadSegmentStreetNameIdWasChanged>>(async (session, e, ct) =>
+        When<IEvent<RoadSegmentStreetNameWasUnlinked>>(async (session, e, ct) =>
         {
             // A road segment that was removed before its street names were let go (the run-once correction of
             // GAWR-7784) is no longer in this projection, and there is nothing left to unlink.
@@ -551,7 +551,18 @@ public class RoadSegmentExtractProjection : MartenRoadNetworkChangesProjection
                 return;
             }
 
-            await ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameId); }, e.Data, ct);
+            await ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameIdAttributeValues); }, e.Data, ct);
+        });
+        When<IEvent<RoadSegmentStreetNameWasRelinked>>(async (session, e, ct) =>
+        {
+            // The relink leaves removed road segments out, but a road segment this projection no longer holds is not
+            // brought back for it either.
+            if (await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId, ct) is null)
+            {
+                return;
+            }
+
+            await ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(e.Data.StreetNameIdAttributeValues); }, e.Data, ct);
         });
     }
 

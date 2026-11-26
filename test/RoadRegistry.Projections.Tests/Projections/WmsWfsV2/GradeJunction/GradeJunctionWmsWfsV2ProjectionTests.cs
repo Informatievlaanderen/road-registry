@@ -53,7 +53,7 @@ public class GradeJunctionWmsWfsV2ProjectionTests
             typeof(RoadSegmentV1.RoadSegmentRemovedFromNumberedRoad), typeof(RoadSegmentV1.RoadSegmentStreetNamesChanged),
             // RoadSegment V2
             typeof(RoadSegmentV2.OutlinedRoadSegmentWasAdded), 
-            typeof(RoadSegmentV2.RoadSegmentStreetNameIdWasChanged), typeof(RoadSegmentV2.RoadSegmentWasMeasured), typeof(RoadSegmentV2.RoadSegmentWasCorrectedToOutlined), typeof(RoadSegmentV2.RoadSegmentWasAdded),
+            typeof(RoadSegmentV2.RoadSegmentStreetNameWasUnlinked), typeof(RoadSegmentV2.RoadSegmentStreetNameWasRelinked), typeof(RoadSegmentV2.RoadSegmentWasMeasured), typeof(RoadSegmentV2.RoadSegmentWasCorrectedToOutlined), typeof(RoadSegmentV2.RoadSegmentWasAdded),
             typeof(RoadSegmentV2.RoadSegmentWasAddedToEuropeanRoad), typeof(RoadSegmentV2.RoadSegmentWasAddedToNationalRoad),
             typeof(RoadSegmentV2.RoadSegmentWasMerged), typeof(RoadSegmentV2.RoadSegmentWasMigrated),
             typeof(RoadSegmentV2.RoadSegmentWasChanged),

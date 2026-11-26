@@ -267,11 +267,11 @@ public class RemovedEntityGuardTests : AggregateTestBase
     // The two mutators that return nothing cannot report a problem, so they say so the way the rest of this codebase
     // says 'this should not happen'.
     [Fact]
-    public void RoadSegmentChangeStreetNameIdThrows()
+    public void RoadSegmentRelinkStreetNameThrows()
     {
         var segment = RemovedRoadSegment();
 
-        var act = () => segment.ChangeStreetNameId(
+        var act = () => segment.RelinkStreetName(
             Fixture.Create<StreetNameLocalId>(),
             Fixture.Create<StreetNameLocalId>(),
             TestData.Provenance);
