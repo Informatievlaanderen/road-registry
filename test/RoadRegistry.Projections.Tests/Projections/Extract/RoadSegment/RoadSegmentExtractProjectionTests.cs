@@ -492,6 +492,121 @@ public class RoadSegmentExtractProjectionTests
             .ExpectNone();
     }
 
+    // The row was deleted when the road segment was removed, and the correction itself carries nothing to build one
+    // from. It comes back from the RoadSegmentWasMigrated that follows, when the road segment is collected again -
+    // which is also where its origin is now, the row being new. Before this, the projection threw "RoadSegment with
+    // id ... is not found" here and every extract projection shard stopped on it.
+    [Fact]
+    public Task WhenRoadSegmentRemovalWasCorrectedBecauseOfMigration_ThenTheRowIsBuiltAgain()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadSegmentId>();
+
+        var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegmentRemoved = fixture.Create<RoadSegmentWasRemovedBecauseOfMigration>();
+        var removalCorrected = fixture.Create<RoadSegmentRemovalWasCorrectedBecauseOfMigration>();
+        var roadSegmentMigrated = fixture.Create<RoadSegmentWasMigrated>();
+
+        var expectedRoadSegment = new RoadSegmentExtractItem
+        {
+            RoadSegmentId = roadSegmentAdded.RoadSegmentId,
+            Geometry = roadSegmentMigrated.Geometry,
+            StartNodeId = roadSegmentMigrated.StartNodeId,
+            EndNodeId = roadSegmentMigrated.EndNodeId,
+            GeometryDrawMethod = roadSegmentMigrated.GeometryDrawMethod,
+            Status = roadSegmentMigrated.Status,
+            AccessRestriction = ForEntireLength(roadSegmentMigrated.AccessRestriction.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
+            Category = ForEntireLength(roadSegmentMigrated.Category.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
+            Morphology = ForEntireLength(roadSegmentMigrated.Morphology.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
+            StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegmentMigrated.StreetNameId),
+            MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegmentMigrated.MaintenanceAuthorityId),
+            SurfaceType = ForEntireLength(roadSegmentMigrated.SurfaceType.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
+            CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(roadSegmentMigrated.CarTrafficDirection)),
+            CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(roadSegmentMigrated.CarTrafficDirection)),
+            BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(roadSegmentMigrated.BikeTrafficDirection)),
+            BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(roadSegmentMigrated.BikeTrafficDirection)),
+            PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToPedestrianAccess(roadSegmentMigrated.PedestrianTrafficDirection)),
+            CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(roadSegmentMigrated.CarTrafficDirection),
+            BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(roadSegmentMigrated.BikeTrafficDirection),
+            PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(roadSegmentMigrated.PedestrianTrafficDirection),
+            EuropeanRoadNumbers = roadSegmentMigrated.EuropeanRoadNumbers.ToList(),
+            NationalRoadNumbers = roadSegmentMigrated.NationalRoadNumbers.ToList(),
+            Origin = roadSegmentMigrated.Provenance.ToEventTimestamp(),
+            LastModified = roadSegmentMigrated.Provenance.ToEventTimestamp(),
+            IsV2 = true
+        };
+
+        return BuildProjection()
+            .Scenario()
+            .Given(roadSegmentAdded, roadSegmentRemoved, removalCorrected, roadSegmentMigrated)
+            .Expect(expectedRoadSegment);
+    }
+
+    // A road segment that is still here when it is migrated keeps its row: the migrated state is written onto the row
+    // the session already holds, origin and all. Handing Marten a second object for the same id is what it refuses -
+    // "Document ... with same Id already added to the session." - and that stopped every extract projection shard on
+    // the first migrated road segment that had not been removed.
+    [Fact]
+    public Task WhenRoadSegmentWasMigratedAndTheRowIsStillThere_ThenTheRowIsOverwritten()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadSegmentId>();
+
+        var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegmentMigrated = fixture.Create<RoadSegmentWasMigrated>();
+
+        var expectedRoadSegment = new RoadSegmentExtractItem
+        {
+            RoadSegmentId = roadSegmentAdded.RoadSegmentId,
+            Geometry = roadSegmentMigrated.Geometry,
+            StartNodeId = roadSegmentMigrated.StartNodeId,
+            EndNodeId = roadSegmentMigrated.EndNodeId,
+            GeometryDrawMethod = roadSegmentMigrated.GeometryDrawMethod,
+            Status = roadSegmentMigrated.Status,
+            AccessRestriction = ForEntireLength(roadSegmentMigrated.AccessRestriction.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
+            Category = ForEntireLength(roadSegmentMigrated.Category.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
+            Morphology = ForEntireLength(roadSegmentMigrated.Morphology.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
+            StreetNameId = new ExtractRoadSegmentDynamicAttribute<StreetNameLocalId>(roadSegmentMigrated.StreetNameId),
+            MaintenanceAuthorityId = new ExtractRoadSegmentDynamicAttribute<OrganizationId>(roadSegmentMigrated.MaintenanceAuthorityId),
+            SurfaceType = ForEntireLength(roadSegmentMigrated.SurfaceType.Values.Single().Value.ToString(), roadSegmentMigrated.Geometry),
+            CarAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(roadSegmentMigrated.CarTrafficDirection)),
+            CarAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(roadSegmentMigrated.CarTrafficDirection)),
+            BikeAccessForward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToForwardAccess(roadSegmentMigrated.BikeTrafficDirection)),
+            BikeAccessBackward = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToBackwardAccess(roadSegmentMigrated.BikeTrafficDirection)),
+            PedestrianAccess = new ExtractRoadSegmentDynamicAttribute<bool>(RoadSegmentTrafficDirectionTranslation.ToPedestrianAccess(roadSegmentMigrated.PedestrianTrafficDirection)),
+            CarTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(roadSegmentMigrated.CarTrafficDirection),
+            BikeTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentTrafficDirection>(roadSegmentMigrated.BikeTrafficDirection),
+            PedestrianTrafficDirection = new ExtractRoadSegmentDynamicAttribute<RoadSegmentPedestrianTrafficDirection>(roadSegmentMigrated.PedestrianTrafficDirection),
+            EuropeanRoadNumbers = roadSegmentMigrated.EuropeanRoadNumbers.ToList(),
+            NationalRoadNumbers = roadSegmentMigrated.NationalRoadNumbers.ToList(),
+            // The road segment was already here, so it keeps the moment this projection first saw it.
+            Origin = roadSegmentAdded.Provenance.ToEventTimestamp(),
+            LastModified = roadSegmentMigrated.Provenance.ToEventTimestamp(),
+            IsV2 = true
+        };
+
+        return BuildProjection()
+            .Scenario()
+            .Given(roadSegmentAdded, roadSegmentMigrated)
+            .Expect(expectedRoadSegment);
+    }
+
+    // On its own the correction leaves nothing behind: the road segment is only back once it has been collected again.
+    [Fact]
+    public async Task WhenOnlyTheRemovalWasCorrected_ThenStillNone()
+    {
+        var fixture = new RoadNetworkTestDataV2().Fixture;
+        fixture.Freeze<RoadSegmentId>();
+
+        var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegmentRemoved = fixture.Create<RoadSegmentWasRemovedBecauseOfMigration>();
+        var removalCorrected = fixture.Create<RoadSegmentRemovalWasCorrectedBecauseOfMigration>();
+
+        await BuildProjection()
+            .Scenario()
+            .Given(roadSegmentAdded, roadSegmentRemoved, removalCorrected)
+            .ExpectNone();
+    }
     [Fact]
     public Task WhenRoadSegmentWasRetiredBecauseOfMerger_ThenHistorized()
     {

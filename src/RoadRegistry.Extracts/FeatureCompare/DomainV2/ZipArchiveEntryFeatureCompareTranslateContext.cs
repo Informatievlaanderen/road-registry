@@ -107,25 +107,45 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
 
     public RoadSegmentId MapToRoadSegmentId(FeatureType featureType, RoadSegmentTempId roadSegmentTempId)
     {
-        if (_roadSegmentTempIdToActualIdMapping.TryGetValue((featureType, roadSegmentTempId), out var mapping))
+        var roadSegmentId = TryMapToRoadSegmentId(featureType, roadSegmentTempId);
+        if (roadSegmentId is not null)
         {
-            return mapping.Item1;
+            return roadSegmentId.Value;
         }
 
         throw new InvalidOperationException($"Could not find road segment ID for road segment temp ID {roadSegmentTempId} in feature type {featureType}");
     }
 
+    public RoadSegmentId? TryMapToRoadSegmentId(FeatureType featureType, RoadSegmentTempId roadSegmentTempId)
+    {
+        return _roadSegmentTempIdToActualIdMapping.TryGetValue((featureType, roadSegmentTempId), out var mapping)
+            ? mapping.Item1
+            : null;
+    }
+
     public RoadSegmentId MapToRoadSegmentId(FeatureType[] featureTypes, RoadSegmentTempId roadSegmentTempId)
     {
-        foreach (var featureType in featureTypes)
+        var roadSegmentId = TryMapToRoadSegmentId(featureTypes, roadSegmentTempId);
+        if (roadSegmentId is not null)
         {
-            if (_roadSegmentTempIdToActualIdMapping.TryGetValue((featureType, roadSegmentTempId), out var mapping))
-            {
-                return mapping.Item1;
-            }
+            return roadSegmentId.Value;
         }
 
         throw new InvalidOperationException($"Could not find road segment ID for road segment temp ID {roadSegmentTempId}");
+    }
+
+    public RoadSegmentId? TryMapToRoadSegmentId(FeatureType[] featureTypes, RoadSegmentTempId roadSegmentTempId)
+    {
+        foreach (var featureType in featureTypes)
+        {
+            var roadSegmentId = TryMapToRoadSegmentId(featureType, roadSegmentTempId);
+            if (roadSegmentId is not null)
+            {
+                return roadSegmentId;
+            }
+        }
+
+        return null;
     }
 
     public IReadOnlyList<RoadSegmentFeatureCompareRecord> GetRoadSegmentRecords(FeatureType featureType)

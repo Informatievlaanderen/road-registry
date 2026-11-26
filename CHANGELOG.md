@@ -1,3 +1,41 @@
+## [5.39.6](https://github.com/informatievlaanderen/road-registry/compare/v5.39.5...v5.39.6) (2026-11-26)
+
+
+### Bug Fixes
+
+* **inwinning:** don't lose extract records over dates nobody reads GAWR-7877 ([b61e10a](https://github.com/informatievlaanderen/road-registry/commit/b61e10a11980f3ca061b9cab68db81e18ba600b1))
+* **inwinning:** report an extract feature pointing at a missing road segment ([26d4ea2](https://github.com/informatievlaanderen/road-registry/commit/26d4ea281cbecb94d83695542af2ac90ade1a82b))
+
+## [5.39.5](https://github.com/informatievlaanderen/road-registry/compare/v5.39.4...v5.39.5) (2026-11-24)
+
+
+### Bug Fixes
+
+* **inwinning:** bring back a road segment whose removal was corrected ([448ba7f](https://github.com/informatievlaanderen/road-registry/commit/448ba7f1019c975b089e2f1ba415bd4f70afb1a2))
+* **inwinning:** write a migrated road segment onto the row the session holds ([081a6a5](https://github.com/informatievlaanderen/road-registry/commit/081a6a5915a94d117907a7e509cfa2e6b04067be))
+
+## [5.39.4](https://github.com/informatievlaanderen/road-registry/compare/v5.39.3...v5.39.4) (2026-11-24)
+
+
+### Bug Fixes
+
+* inwinningsstatus-melding bij verwijderen wegsegment en statusovergangen (GAWR-7874) ([3523194](https://github.com/informatievlaanderen/road-registry/commit/3523194f15061e0745ae6eda52bb0e843716c307))
+
+## [5.39.3](https://github.com/informatievlaanderen/road-registry/compare/v5.39.2...v5.39.3) (2026-11-24)
+
+
+### Bug Fixes
+
+* refuse road node attribute changes when a connected road segment has not completed its inwinning GAWR-7873 ([95822f7](https://github.com/informatievlaanderen/road-registry/commit/95822f7186fc11d567008268a13cc4a7151662e5))
+
+## [5.39.2](https://github.com/informatievlaanderen/road-registry/compare/v5.39.1...v5.39.2) (2026-11-23)
+
+
+### Bug Fixes
+
+* **2.0:** report a removed road segment as removed instead of as not found GAWR-7872 ([868d182](https://github.com/informatievlaanderen/road-registry/commit/868d182d0947c350d17d4e8a40dfe7d436c9d33c))
+* **runonce:** send the maintenance authority corrections through the public API v3 GAWR-7780 ([80b50cd](https://github.com/informatievlaanderen/road-registry/commit/80b50cd9b9e4153dad62921d5671057198334620))
+
 ## [5.39.1](https://github.com/informatievlaanderen/road-registry/compare/v5.39.0...v5.39.1) (2026-11-23)
 
 

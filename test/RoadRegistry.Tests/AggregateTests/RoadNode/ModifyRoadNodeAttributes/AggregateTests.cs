@@ -9,12 +9,14 @@ using RoadRegistry.Extensions;
 using RoadRegistry.RoadNetwork.Schema;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadNode.Events.V2;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.Events.V2;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
 using RoadRegistry.ValueObjects;
 using RoadNode = RoadRegistry.RoadNode.RoadNode;
+using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 // 'Wijzig attribuutwaarden' for road nodes. Today that is 'grensknoop' alone: the road node type is derived from the
 // network and is never named by hand.
@@ -22,6 +24,10 @@ public class AggregateTests : AggregateTestBase
 {
     private const int RoadNodeId1 = 10;
     private const int RoadNodeId2 = 11;
+    private const int RoadNodeId3 = 12;
+
+    private const int SegmentId1 = 1;
+    private const int SegmentId2 = 2;
 
     private RoadNodeWasAdded BuildNode(int id, bool grensknoop)
     {
@@ -37,7 +43,43 @@ public class AggregateTests : AggregateTestBase
 
     private ScopedRoadNetwork BuildNetwork(params RoadNode[] roadNodes)
     {
-        return new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), roadNodes, [], [], []).WithoutChanges();
+        return BuildNetworkWith(roadNodes);
+    }
+
+    private ScopedRoadNetwork BuildNetworkWith(RoadNode[] roadNodes, params RoadSegment[] roadSegments)
+    {
+        return new ScopedRoadNetwork(Fixture.Create<ScopedRoadNetworkId>(), roadNodes, roadSegments, [], []).WithoutChanges();
+    }
+
+    private RoadSegmentGeometry BuildGeometry(params (double X, double Y)[] coordinates)
+    {
+        return new MultiLineString([new LineString(coordinates.Select(x => new Coordinate(x.X, x.Y)).ToArray())])
+            .WithSrid(WellknownSrids.Lambert08)
+            .ToRoadSegmentGeometry();
+    }
+
+    // A road segment that has completed its inwinning: it carries attributes.
+    private RoadSegment Segment(int id, int startNodeId, int endNodeId)
+    {
+        return RoadSegment.Create(TestData.Segment1Added with
+        {
+            RoadSegmentId = new RoadSegmentId(id),
+            StartNodeId = new RoadNodeId(startNodeId),
+            EndNodeId = new RoadNodeId(endNodeId),
+            Geometry = BuildGeometry((100, startNodeId), (100, endNodeId)),
+            Status = RoadSegmentStatusV2.Gerealiseerd
+        }).WithoutChanges();
+    }
+
+    // A road segment that has not completed its inwinning: a V1 segment, so it carries no attributes.
+    private RoadSegment NotMigratedSegment(int id, int startNodeId, int endNodeId)
+    {
+        return RoadSegment.CreateForMigration(
+            new RoadSegmentId(id),
+            BuildGeometry((100, startNodeId), (100, endNodeId)),
+            RoadSegmentStatusV2.Gerealiseerd,
+            new RoadNodeId(startNodeId),
+            new RoadNodeId(endNodeId)).WithoutChanges();
     }
 
     private RoadNode Existing(RoadNodeWasAdded added)
@@ -185,6 +227,86 @@ public class AggregateTests : AggregateTestBase
 
         result.Problems.Should().Contain(x => x.Reason == "RoadNodeNotCompletedInwinning");
         roadNetwork.RoadNodes[new RoadNodeId(RoadNodeId1)].Grensknoop.Should().BeFalse();
+        roadNetwork.GetChanges().Should().BeEmpty();
+    }
+
+    // VAL-10: a road that meets at the road node and is still being collected - or not being collected at all - is one
+    // the inwinning may still reshape, so the road node is not the register's to record anything on yet. Reported as
+    // the road segment's problem, which is what the story asks for.
+    [Fact]
+    public void WhenAConnectedRoadSegmentHasNotCompletedItsInwinning_ThenItIsReported()
+    {
+        var roadNetwork = BuildNetworkWith(
+            [Existing(BuildNode(RoadNodeId1, grensknoop: false)), Existing(BuildNode(RoadNodeId3, grensknoop: false))],
+            NotMigratedSegment(SegmentId1, RoadNodeId1, RoadNodeId3));
+
+        var result = roadNetwork.ModifyRoadNodeAttributes([Grensknoop(RoadNodeId1, true)], TestData.Provenance);
+
+        result.Problems.Should().Contain(x => x.Reason == "RoadSegmentNotCompletedInwinning");
+        roadNetwork.RoadNodes[new RoadNodeId(RoadNodeId1)].Grensknoop.Should().BeFalse();
+        roadNetwork.GetChanges().Should().BeEmpty();
+    }
+
+    // One road of the several meeting at the road node is enough to hold the whole request back.
+    [Fact]
+    public void WhenOneOfTheConnectedRoadSegmentsHasNotCompletedItsInwinning_ThenItIsReported()
+    {
+        var roadNetwork = BuildNetworkWith(
+            [Existing(BuildNode(RoadNodeId1, grensknoop: false)), Existing(BuildNode(RoadNodeId2, grensknoop: false)), Existing(BuildNode(RoadNodeId3, grensknoop: false))],
+            Segment(SegmentId1, RoadNodeId1, RoadNodeId2),
+            NotMigratedSegment(SegmentId2, RoadNodeId1, RoadNodeId3));
+
+        var result = roadNetwork.ModifyRoadNodeAttributes([Grensknoop(RoadNodeId1, true)], TestData.Provenance);
+
+        result.Problems.Should().Contain(x => x.Reason == "RoadSegmentNotCompletedInwinning");
+        roadNetwork.GetChanges().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void WhenEveryConnectedRoadSegmentHasCompletedItsInwinning_ThenTheRoadNodeIsModified()
+    {
+        var roadNetwork = BuildNetworkWith(
+            [Existing(BuildNode(RoadNodeId1, grensknoop: false)), Existing(BuildNode(RoadNodeId2, grensknoop: false))],
+            Segment(SegmentId1, RoadNodeId1, RoadNodeId2));
+
+        var result = roadNetwork.ModifyRoadNodeAttributes([Grensknoop(RoadNodeId1, true)], TestData.Provenance);
+
+        result.Problems.Should().HaveNoError();
+        roadNetwork.RoadNodes[new RoadNodeId(RoadNodeId1)].Grensknoop.Should().BeTrue();
+    }
+
+    // Only the roads meeting at the road nodes the request names. A road elsewhere in the road network that is still
+    // being collected says nothing about this road node - the road network holds more than the request asks about,
+    // since the road nodes are loaded with the roads around them.
+    [Fact]
+    public void WhenARoadSegmentElsewhereHasNotCompletedItsInwinning_ThenItIsNotHeldAgainstTheChange()
+    {
+        var roadNetwork = BuildNetworkWith(
+            [Existing(BuildNode(RoadNodeId1, grensknoop: false)), Existing(BuildNode(RoadNodeId2, grensknoop: false)), Existing(BuildNode(RoadNodeId3, grensknoop: false))],
+            Segment(SegmentId1, RoadNodeId1, RoadNodeId2),
+            NotMigratedSegment(SegmentId2, RoadNodeId2, RoadNodeId3));
+
+        var result = roadNetwork.ModifyRoadNodeAttributes([Grensknoop(RoadNodeId1, true)], TestData.Provenance);
+
+        result.Problems.Should().HaveNoError();
+        roadNetwork.RoadNodes[new RoadNodeId(RoadNodeId1)].Grensknoop.Should().BeTrue();
+    }
+
+    // A road node the request does not name is not one the roads around it are judged for: the request is answered
+    // with the road node it could not find, and not with the roads around the one it did.
+    [Fact]
+    public void WhenARoadNodeIsNotFound_ThenTheRoadSegmentsOfTheOthersAreNotReported()
+    {
+        var roadNetwork = BuildNetworkWith(
+            [Existing(BuildNode(RoadNodeId1, grensknoop: false)), Existing(BuildNode(RoadNodeId3, grensknoop: false))],
+            NotMigratedSegment(SegmentId1, RoadNodeId1, RoadNodeId3));
+
+        var result = roadNetwork.ModifyRoadNodeAttributes(
+            [Grensknoop(RoadNodeId2, true)],
+            TestData.Provenance);
+
+        result.Problems.Should().Contain(x => x.Reason == "RoadNodeChangeAttributesNotFound");
+        result.Problems.Should().NotContain(x => x.Reason == "RoadSegmentNotCompletedInwinning");
         roadNetwork.GetChanges().Should().BeEmpty();
     }
 

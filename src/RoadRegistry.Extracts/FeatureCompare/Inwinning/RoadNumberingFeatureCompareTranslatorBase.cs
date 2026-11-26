@@ -46,7 +46,8 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         var problems = features.Problems;
         problems.ThrowIfError();
 
-        problems += ValidateRoadSegmentTempIds(features.Change, problems, context, cancellationToken);
+        problems += ValidateRoadSegmentTempIds(FeatureType.Change, features.Change, context, cancellationToken);
+        problems += ValidateRoadSegmentTempIds(FeatureType.Extract, features.Extract, context, cancellationToken);
         problems.ThrowIfError();
 
         var extractFeaturesLookup = features.Extract.ToLookup(x => context.MapToRoadSegmentId(FeatureType.Extract, x.Attributes.RoadSegmentTempId));
@@ -158,26 +159,39 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         return processedRecords;
     }
 
-    private ZipArchiveProblems ValidateRoadSegmentTempIds(List<Feature<TAttributes>> changeFeatures, ZipArchiveProblems problems, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private ZipArchiveProblems ValidateRoadSegmentTempIds(FeatureType featureType, List<Feature<TAttributes>> features, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
-        using var _ = Logger.TimeAction();
+        using var _ = Logger.TimeAction($"{nameof(ValidateRoadSegmentTempIds)}.{featureType}");
 
-        foreach (var changeFeature in changeFeatures)
+        var problems = ZipArchiveProblems.None;
+
+        foreach (var feature in features)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var wegsegmentFeature = context.FindNotRemovedRoadSegmentByTempId([FeatureType.Change], changeFeature.Attributes.RoadSegmentTempId);
-            if (wegsegmentFeature is null)
+            if (RoadSegmentExists(feature))
             {
-                var recordContext = _fileName
-                    .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
-                    .WithIdentifier(_identifierField, changeFeature.Attributes.Id.ToInt32());
-
-                problems += recordContext.NumberedRoadRoadSegmentTempIdOutOfRange(changeFeature.Attributes.RoadSegmentTempId);
+                continue;
             }
+
+            var recordContext = _fileName
+                .AtDbaseRecord(featureType, feature.RecordNumber)
+                .WithIdentifier(_identifierField, feature.Attributes.Id.ToInt32());
+
+            problems += recordContext.NumberedRoadRoadSegmentTempIdOutOfRange(feature.Attributes.RoadSegmentTempId);
         }
 
         return problems;
+
+        bool RoadSegmentExists(Feature<TAttributes> feature)
+        {
+            // A change feature has to point at a road segment that is still present in the change files,
+            // an extract feature at one that is still present in the extract files. Extract files which no
+            // longer agree with each other are reported here, instead of making the lookups below throw.
+            return featureType == FeatureType.Change
+                ? context.FindNotRemovedRoadSegmentByTempId([FeatureType.Change], feature.Attributes.RoadSegmentTempId) is not null
+                : context.TryMapToRoadSegmentId(featureType, feature.Attributes.RoadSegmentTempId) is not null;
+        }
     }
 
     protected abstract TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records);
