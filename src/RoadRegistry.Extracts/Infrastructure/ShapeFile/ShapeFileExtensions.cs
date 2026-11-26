@@ -2,20 +2,23 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Dbase;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO.Esri.Dbf.Fields;
 using NetTopologySuite.IO.Esri.Shapefiles.Readers;
 using RoadRegistry.Extensions;
 
 public static class ShapeFileExtensions
 {
-    internal static IShapeFileRecordEnumerator<TDbaseRecord> CreateShapefileRecordEnumerator<TDbaseRecord>(this ShapefileReader reader)
+    internal static IShapeFileRecordEnumerator<TDbaseRecord> CreateShapefileRecordEnumerator<TDbaseRecord>(this ShapefileReader reader, IReadOnlySet<string> excludedFieldNames)
         where TDbaseRecord : DbaseRecord, new()
     {
         ArgumentNullException.ThrowIfNull(reader);
-        return new ShapeFileRecordEnumerator<TDbaseRecord>(reader);
+        ArgumentNullException.ThrowIfNull(excludedFieldNames);
+        return new ShapeFileRecordEnumerator<TDbaseRecord>(reader, excludedFieldNames);
     }
 
     private sealed class ShapeFileRecordEnumerator<TDbaseRecord> : IShapeFileRecordEnumerator<TDbaseRecord>
@@ -24,13 +27,15 @@ public static class ShapeFileExtensions
             private enum State { Initial, Started, Ended }
 
             private readonly ShapefileReader _reader;
+            private readonly DbfField[] _fieldsToRead;
             private RecordNumber _number;
             private (TDbaseRecord, Geometry) _current;
             private State _state;
 
-            public ShapeFileRecordEnumerator(ShapefileReader reader)
+            public ShapeFileRecordEnumerator(ShapefileReader reader, IReadOnlySet<string> excludedFieldNames)
             {
                 _reader = reader.ThrowIfNull();
+                _fieldsToRead = _reader.Fields.Where(field => !excludedFieldNames.Contains(field.Name)).ToArray();
                 _current = default;
                 _state = State.Initial;
                 _number = RecordNumber.Initial;
@@ -69,11 +74,7 @@ public static class ShapeFileExtensions
                     }
 
                     var record = new TDbaseRecord();
-                    foreach (var field in _reader.Fields)
-                    {
-                        var dbaseFieldValue = record.Values.Single(x => x.Field.Name == field.Name);
-                        dbaseFieldValue.SetValue(field.Value);
-                    }
+                    record.ReadValuesFrom(_fieldsToRead);
 
                     _current = (record, _reader.Geometry);
                 }

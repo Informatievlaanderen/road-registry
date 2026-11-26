@@ -1,6 +1,7 @@
-namespace RoadRegistry.Extracts.Infrastructure.ShapeFile;
+﻿namespace RoadRegistry.Extracts.Infrastructure.ShapeFile;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -73,7 +74,7 @@ public class ShapeFileRecordReader
                 throw new DbaseSchemaMismatchException(dbfFileName, dbaseSchema, schema);
             }
 
-            return new ShapeFileReadResult<TDbaseRecord>(dbfStream, reader, dbfEntry, shpEntry);
+            return new ShapeFileReadResult<TDbaseRecord>(dbfStream, reader, dbfEntry, shpEntry, DbaseFields.NotRead);
         }
         catch (DbaseHeaderFormatException ex)
         {
@@ -121,12 +122,12 @@ public sealed class ShapeFileReadResult<TDbaseRecord> : IDisposable
     private readonly Stream _dbfStream;
     private readonly ShapefileReader _shpReader;
 
-    public ShapeFileReadResult(Stream dbfStream, ShapefileReader shpReader, ZipArchiveEntry dbaseEntry, ZipArchiveEntry shapeEntry)
+    public ShapeFileReadResult(Stream dbfStream, ShapefileReader shpReader, ZipArchiveEntry dbaseEntry, ZipArchiveEntry shapeEntry, IReadOnlySet<string> excludedFieldNames)
     {
         _dbfStream = dbfStream;
         _shpReader = shpReader;
 
-        RecordEnumerator = shpReader.CreateShapefileRecordEnumerator<TDbaseRecord>();
+        RecordEnumerator = shpReader.CreateShapefileRecordEnumerator<TDbaseRecord>(excludedFieldNames);
         DbaseEntry = dbaseEntry;
         ShapeEntry = shapeEntry;
     }

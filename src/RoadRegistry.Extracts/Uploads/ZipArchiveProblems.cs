@@ -119,6 +119,12 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
         {
             nameof(ZipArchiveProblems.RequiredFileMissing),
             nameof(DbaseFileProblems.HasDbaseHeaderFormatError),
+            // A record the reader cannot read stops it where it stands, so every record behind it is never seen.
+            // That is not a record problem to be weighed like the others - it is a file the upload cannot be judged
+            // against. Dropped along with them, the feature compare goes on to work from an extract it believes is
+            // complete: a road segment it never read is never matched and never removed, and an upload that redraws
+            // one of them adds its road next to the one that stayed behind.
+            nameof(DbaseFileProblems.HasDbaseRecordFormatError),
             nameof(DbaseFileProblems.HasDbaseSchemaMismatch),
             nameof(ProjectionFormatFileProblems.ProjectionFormatNotLambert08),
             nameof(ProjectionFormatFileProblems.ProjectionFormatNotLambert72)
