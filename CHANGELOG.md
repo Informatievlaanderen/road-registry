@@ -1,3 +1,10 @@
+# [5.40.0](https://github.com/informatievlaanderen/road-registry/compare/v5.39.6...v5.40.0) (2026-11-26)
+
+
+### Features
+
+* **2.0:** unlink street names from road segments when either is removed or becomes inactive GAWR-7784 ([12fd652](https://github.com/informatievlaanderen/road-registry/commit/12fd6525445eddeac225d8435c98063589cf95ed))
+
 ## [5.39.6](https://github.com/informatievlaanderen/road-registry/compare/v5.39.5...v5.39.6) (2026-11-26)
 
 
