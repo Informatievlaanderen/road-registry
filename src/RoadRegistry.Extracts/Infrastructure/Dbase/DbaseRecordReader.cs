@@ -1,6 +1,7 @@
-namespace RoadRegistry.Extracts.Infrastructure.Dbase;
+﻿namespace RoadRegistry.Extracts.Infrastructure.Dbase;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -49,7 +50,7 @@ public class DbaseRecordReader
                 throw new DbaseSchemaMismatchException(dbfFileName, dbaseSchema, schema);
             }
 
-            return new DbaseReadResult<TDbaseRecord>(stream, reader, entry);
+            return new DbaseReadResult<TDbaseRecord>(stream, reader, entry, DbaseFields.NotRead);
         }
         catch (DbaseHeaderFormatException ex)
         {
@@ -94,12 +95,12 @@ public sealed class DbaseReadResult<TDbaseRecord> : IDisposable
     private readonly Stream _dbfStream;
     private readonly DbfReader _dbfReader;
 
-    public DbaseReadResult(Stream dbfStream, DbfReader dbfReader, ZipArchiveEntry dbaseEntry)
+    public DbaseReadResult(Stream dbfStream, DbfReader dbfReader, ZipArchiveEntry dbaseEntry, IReadOnlySet<string> excludedFieldNames)
     {
         _dbfStream = dbfStream;
         _dbfReader = dbfReader;
 
-        RecordEnumerator = dbfReader.CreateDbaseRecordEnumerator<TDbaseRecord>();
+        RecordEnumerator = dbfReader.CreateDbaseRecordEnumerator<TDbaseRecord>(excludedFieldNames);
         DbaseEntry = dbaseEntry;
     }
 
