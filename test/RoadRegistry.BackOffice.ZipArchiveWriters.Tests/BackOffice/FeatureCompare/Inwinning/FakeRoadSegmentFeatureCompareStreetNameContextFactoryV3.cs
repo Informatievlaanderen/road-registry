@@ -30,6 +30,11 @@ public class FakeRoadSegmentFeatureCompareStreetNameContextV3 : IRoadSegmentFeat
         return true;
     }
 
+    public bool IsRetiredOrRejected(StreetNameLocalId id)
+    {
+        return false;
+    }
+
     public bool TryGetRenamedId(StreetNameLocalId id, out StreetNameLocalId renamedToId)
     {
         renamedToId = default;

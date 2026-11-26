@@ -24,10 +24,11 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         problems.Should().HaveNoError();
-        segment.GetChanges().Should().HaveCount(1);
 
-        var segmentRemoved = (RoadSegmentWasRemoved)segment.GetChanges().Single();
+        // The street names are let go of first (GAWR-7784), the removal comes last.
+        var segmentRemoved = (RoadSegmentWasRemoved)segment.GetChanges().Last();
         segmentRemoved.RoadSegmentId.Should().Be(segment.RoadSegmentId);
+        segment.GetChanges().SkipLast(1).Should().AllBeOfType<RoadSegmentStreetNameWasUnlinked>();
     }
 
     [Fact]

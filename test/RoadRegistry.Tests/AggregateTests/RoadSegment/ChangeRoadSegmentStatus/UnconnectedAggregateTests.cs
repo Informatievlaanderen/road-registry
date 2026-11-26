@@ -55,7 +55,12 @@ public class UnconnectedAggregateTests : StatusChangeAggregateTestBase
         result.Problems.Should().BeEmpty();
         roadSegment.Status.Should().Be(statusChange.To);
         roadSegment.Geometry.Should().Be(geometryBefore);
-        roadSegment.Attributes.Should().Be(attributesBefore);
+        // Except for the street names an inactive segment lets go of (GAWR-7784, see UnlinkStreetNames.AggregateTests).
+        roadSegment.Attributes.Should().Be(attributesBefore! with { StreetNameId = roadSegment.Attributes!.StreetNameId });
+        if (statusChange.To.IsActive)
+        {
+            roadSegment.Attributes.StreetNameId.Should().Be(attributesBefore.StreetNameId);
+        }
         roadSegment.StartNodeId.Should().BeNull();
         roadSegment.EndNodeId.Should().BeNull();
     }

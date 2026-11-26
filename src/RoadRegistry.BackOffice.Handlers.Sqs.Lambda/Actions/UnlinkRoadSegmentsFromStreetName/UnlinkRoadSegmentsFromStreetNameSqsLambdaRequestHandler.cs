@@ -1,6 +1,5 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.LinkRoadSegmentsToStreetNameIds;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UnlinkRoadSegmentsFromStreetName;
 
-using System.Data;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -15,11 +14,11 @@ using ScopedRoadNetwork;
 using ScopedRoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 
-public sealed class SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler : MartenSqsLambdaHandler<SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequest>
+public sealed class SystemUnlinkRoadSegmentsFromStreetNameSqsLambdaRequestHandler : MartenSqsLambdaHandler<SystemUnlinkRoadSegmentsFromStreetNameSqsLambdaRequest>
 {
     private readonly IRoadNetworkRepository _roadNetworkRepository;
 
-    public SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler(
+    public SystemUnlinkRoadSegmentsFromStreetNameSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
@@ -39,7 +38,7 @@ public sealed class SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler
         _roadNetworkRepository = roadNetworkRepository;
     }
 
-    protected override async Task<object> InnerHandle(SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(SystemUnlinkRoadSegmentsFromStreetNameSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
         var command = sqsLambdaRequest.Request;
         var scopedRoadNetworkId = new ScopedRoadNetworkId(command.TicketId);
@@ -48,7 +47,7 @@ public sealed class SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequestHandler
         {
             var roadNetwork = await Load(session, command.RoadSegmentIds, scopedRoadNetworkId);
 
-            roadNetwork.ChangeStreetNameId(command.RoadSegmentIds, command.OldStreetNameId, command.NewStreetNameId, command.ProvenanceData.ToProvenance());
+            roadNetwork.UnlinkStreetName(command.RoadSegmentIds, command.StreetNameId, command.ProvenanceData.ToProvenance());
 
             _roadNetworkRepository.Save(session, roadNetwork, command.GetType().Name);
         }, cancellationToken, Logger);

@@ -656,8 +656,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 .AtDbaseRecord(FeatureType.Change, feature.RecordNumber)
                 .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_TEMPID), feature.Attributes.TempId.ToInt32());
 
-            problems += GetProblemsForStreetNameId(recordContext, feature.Attributes.LeftSideStreetNameId, true, streetNameContext);
-            problems += GetProblemsForStreetNameId(recordContext, feature.Attributes.RightSideStreetNameId, false, streetNameContext);
+            problems += GetProblemsForStreetNameId(recordContext, feature.Attributes.LeftSideStreetNameId, true, feature.Attributes.Status, streetNameContext);
+            problems += GetProblemsForStreetNameId(recordContext, feature.Attributes.RightSideStreetNameId, false, feature.Attributes.Status, streetNameContext);
         }
 
         (changeFeatures, var maintenanceAuthorityProblems) = await ValidateMaintenanceAuthorityAndMapToInternalId(changeFeatures, cancellationToken);
@@ -665,7 +665,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         return (changeFeatures, problems);
     }
 
-    private static ZipArchiveProblems GetProblemsForStreetNameId(IDbaseFileRecordProblemBuilder recordContext, StreetNameLocalId? id, bool leftSide, IRoadSegmentFeatureCompareStreetNameContext streetNameContext)
+    private static ZipArchiveProblems GetProblemsForStreetNameId(IDbaseFileRecordProblemBuilder recordContext, StreetNameLocalId? id, bool leftSide, RoadSegmentStatusV2 roadSegmentStatus, IRoadSegmentFeatureCompareStreetNameContext streetNameContext)
     {
         var problems = ZipArchiveProblems.None;
 
@@ -690,6 +690,15 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 return problems + (leftSide
                     ? recordContext.LeftStreetNameIdIsRenamed(id.Value, renamedToId)
                     : recordContext.RightStreetNameIdIsRenamed(id.Value, renamedToId));
+            }
+
+            // Only an active street name can be linked to an active road segment, the same as the edit API demands.
+            // An inactive road segment is not held to it: it lets go of its street names in the domain anyway.
+            if (roadSegmentStatus.IsActive && streetNameContext.IsRetiredOrRejected(id.Value))
+            {
+                return problems + (leftSide
+                    ? recordContext.LeftStreetNameIdIsNotProposedOrCurrent(id.Value)
+                    : recordContext.RightStreetNameIdIsNotProposedOrCurrent(id.Value));
             }
         }
 

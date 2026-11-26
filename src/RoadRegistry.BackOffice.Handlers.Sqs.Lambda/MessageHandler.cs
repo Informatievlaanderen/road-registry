@@ -15,7 +15,8 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNodeAttribut
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentAttributes;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentGeometry;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentGeometryDrawMethod;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.LinkRoadSegmentsToStreetNameIds;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RelinkRoadSegmentsToStreetName;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UnlinkRoadSegmentsFromStreetName;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateDryRunRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadSegmentStatus;
@@ -84,7 +85,8 @@ public sealed class MessageHandler : BlobMessageHandler
             CloseExtractSqsRequest request => new CloseExtractSqsLambdaRequest(groupId, request),
             ChangeRoadNetworkSqsRequest request => new ChangeRoadNetworkSqsLambdaRequest(groupId, request),
             RemoveRoadSegmentsSqsRequest request => new RemoveRoadSegmentsSqsLambdaRequest(groupId, request),
-            SystemLinkRoadSegmentsToStreetNameIdsSqsRequest request => new SystemLinkRoadSegmentsToStreetNameIdsSqsLambdaRequest(groupId, request),
+            SystemRelinkRoadSegmentsToStreetNameSqsRequest request => new SystemRelinkRoadSegmentsToStreetNameSqsLambdaRequest(groupId, request),
+            SystemUnlinkRoadSegmentsFromStreetNameSqsRequest request => new SystemUnlinkRoadSegmentsFromStreetNameSqsLambdaRequest(groupId, request),
             MigrateDryRunRoadNetworkSqsRequest request => new MigrateDryRunRoadNetworkSqsLambdaRequest(groupId, request),
             MigrateRoadNetworkSqsRequest request => new MigrateRoadNetworkSqsLambdaRequest(groupId, request),
             DataValidationSqsRequest request => new DataValidationSqsLambdaRequest(groupId, request),

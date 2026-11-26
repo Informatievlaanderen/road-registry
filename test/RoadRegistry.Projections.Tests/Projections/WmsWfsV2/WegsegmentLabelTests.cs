@@ -90,7 +90,7 @@ public class WegsegmentLabelTests
     public async Task WhenStreetNameWasRemoved_ThenDerivedStreetNameLabelsAreLeftUntouched()
     {
         // Removal does not cascade to the derived labels: the affected segments each get their own
-        // RoadSegmentStreetNameIdWasChanged event, which re-derives them.
+        // RoadSegmentStreetNameWasUnlinked event, which re-derives them.
         var scenario = new WmsWfsV2ProjectionScenario(new StreetNameWmsWfsV2Projection());
 
         await scenario.SeedAsync(context =>

@@ -552,11 +552,18 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
         When<IEvent<RoadSegmentWasAddedToNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.NationalRoadNumbers.Add(e.Data.Number); }, e.Data, ct); });
         When<IEvent<RoadSegmentWasRemovedFromEuropeanRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.EuropeanRoadNumbers.Remove(e.Data.Number); }, e.Data, ct); });
         When<IEvent<RoadSegmentWasRemovedFromNationalRoad>>((session, e, ct) => { return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment => { segment.NationalRoadNumbers.Remove(e.Data.Number); }, e.Data, ct); });
-        When<IEvent<RoadSegmentStreetNameIdWasChanged>>((session, e, ct) =>
+        When<IEvent<RoadSegmentStreetNameWasUnlinked>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, async segment =>
             {
-                segment.StreetNameId = await BuildStreetNameAttribute(session, e.Data.StreetNameId, ct);
+                segment.StreetNameId = await BuildStreetNameAttribute(session, e.Data.StreetNameIdAttributeValues, ct);
+            }, e.Data, ct);
+        });
+        When<IEvent<RoadSegmentStreetNameWasRelinked>>((session, e, ct) =>
+        {
+            return ModifyRoadSegment(session, e.Data.RoadSegmentId, async segment =>
+            {
+                segment.StreetNameId = await BuildStreetNameAttribute(session, e.Data.StreetNameIdAttributeValues, ct);
             }, e.Data, ct);
         });
 

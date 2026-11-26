@@ -67,6 +67,7 @@ public partial class RoadSegment
             PreviousEndNodeId = EndNodeId!.Value,
             Provenance = new ProvenanceData(context.Provenance)
         }));
+        UnlinkStreetNamesUnlessActive(context.Provenance);
 
         return problems;
     }
@@ -87,6 +88,7 @@ public partial class RoadSegment
             RoadSegmentId = RoadSegmentId,
             Provenance = new ProvenanceData(context.Provenance)
         }));
+        UnlinkStreetNamesUnlessActive(context.Provenance);
 
         return problems;
     }

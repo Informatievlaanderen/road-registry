@@ -365,6 +365,33 @@ public class RoadSegmentWmsWfsV2ProjectionTests
     private static readonly RoadNodeId ConnectedStartNodeId = new(100);
     private static readonly RoadNodeId ConnectedEndNodeId = new(200);
 
+    // GAWR-7784: the run-once correction lets go of the street names a removed road segment kept. That must not bring
+    // back a record of it.
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task WhenTheStreetNamesOfARemovedRoadSegmentAreLetGo_ThenNoRecordComesBack(bool prefetchBatches)
+    {
+        var scenario = Scenario(prefetchBatches);
+
+        await scenario.GivenAsync(_testData.Segment1Added);
+        await scenario.GivenAsync(new RoadSegmentWasRemoved
+        {
+            RoadSegmentId = new RoadSegmentId(1),
+            Provenance = Provenance
+        });
+        await scenario.GivenAsync(new RoadSegmentStreetNameWasUnlinked
+        {
+            RoadSegmentId = new RoadSegmentId(1),
+            StreetNameId = _testData.Segment1Added.StreetNameId.Values.First().Value,
+            StreetNameIdAttributeValues = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(StreetNameLocalId.NotApplicable, _testData.Segment1Added.Geometry),
+            Provenance = Provenance
+        });
+
+        Assert.Null(await scenario.Find<RoadSegmentRecord>(1));
+        Assert.Empty(await scenario.Query<DerivedRoadSegmentRecord>(q => q.Where(x => x.WS_OIDN == 1)));
+    }
+
     [Fact]
     public async Task WhenRoadSegmentWasRemoved_ThenSegmentAndAllRelatedRowsDeleted()
     {
