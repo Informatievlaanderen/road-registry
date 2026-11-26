@@ -73,21 +73,13 @@ public static class DbaseExtensions
         throw new NotImplementedException($"Unknown field type: {field.FieldType}");
     }
 
-    // Fills a record with what a file holds. CREATIE and VERSIE are left out of it: they are written and never
-    // read back - an upload is judged on its identifiers, its geometry and its attributes - and reading them meant
-    // refusing a value that is not in the format they are written in, which stopped the reader on that record and
-    // left every record behind it unread.
+    // Fills a record with the fields it is handed. Which of the fields in a file those are is the reader's to say:
+    // see DbaseFields.NotRead.
     internal static void ReadValuesFrom(this DbaseRecord record, IEnumerable<DbfField> fields)
     {
         foreach (var field in fields)
         {
-            var dbaseFieldValue = record.Values.Single(x => x.Field.Name == field.Name);
-            if (dbaseFieldValue is DbaseDateTime)
-            {
-                continue;
-            }
-
-            dbaseFieldValue.SetValue(field.Value);
+            record.Values.Single(x => x.Field.Name == field.Name).SetValue(field.Value);
         }
     }
 
@@ -216,11 +208,12 @@ public static class DbaseExtensions
         throw new NotImplementedException($"Unknown field type: {dbaseFieldValue.Field.FieldType}");
     }
 
-    internal static IDbaseRecordEnumerator<TDbaseRecord> CreateDbaseRecordEnumerator<TDbaseRecord>(this DbfReader reader)
+    internal static IDbaseRecordEnumerator<TDbaseRecord> CreateDbaseRecordEnumerator<TDbaseRecord>(this DbfReader reader, IReadOnlySet<string> excludedFieldNames)
         where TDbaseRecord : DbaseRecord, new()
     {
         ArgumentNullException.ThrowIfNull(reader);
-        return new DbfRecordEnumerator<TDbaseRecord>(reader);
+        ArgumentNullException.ThrowIfNull(excludedFieldNames);
+        return new DbfRecordEnumerator<TDbaseRecord>(reader, excludedFieldNames);
     }
 
     private sealed class DbfRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbaseRecord>
@@ -234,13 +227,15 @@ public static class DbaseExtensions
         }
 
         private readonly DbfReader _reader;
+        private readonly DbfField[] _fieldsToRead;
         private RecordNumber _number;
         private TDbaseRecord? _current;
         private State _state;
 
-        public DbfRecordEnumerator(DbfReader reader)
+        public DbfRecordEnumerator(DbfReader reader, IReadOnlySet<string> excludedFieldNames)
         {
             _reader = reader.ThrowIfNull();
+            _fieldsToRead = _reader.Fields.Where(field => !excludedFieldNames.Contains(field.Name)).ToArray();
             _current = null;
             _state = State.Initial;
             _number = RecordNumber.Initial;
@@ -279,7 +274,7 @@ public static class DbaseExtensions
                 }
 
                 var record = new TDbaseRecord();
-                record.ReadValuesFrom(_reader.Fields);
+                record.ReadValuesFrom(_fieldsToRead);
 
                 _current = record;
             }
