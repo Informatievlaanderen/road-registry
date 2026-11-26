@@ -19,9 +19,6 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
     private readonly ConcurrentDictionary<FeatureType, List<RoadNodeFeatureCompareRecord>> _roadNodeRecords = [];
     private readonly ConcurrentDictionary<FeatureType, List<RoadSegmentFeatureCompareRecord>> _roadSegmentRecords = [];
     private readonly ConcurrentDictionary<(FeatureType, RoadSegmentTempId), (RoadSegmentId, RecordType)> _roadSegmentTempIdToActualIdMapping = new();
-    // Temp ids that more than one record of the same feature type claims, and that therefore name no road segment
-    // at all. See AddRoadSegmentRecords.
-    private readonly ConcurrentDictionary<(FeatureType, RoadSegmentTempId), byte> _ambiguousRoadSegmentTempIds = new();
     // Index of non-removed road segment records by (FeatureType, actual RoadSegmentId).
     // Lets FindNotRemovedRoadSegmentByActualId run in O(1) instead of scanning every record per call,
     // which was making ValidateRoadSegmentTempIds and the GradeSeparatedJunction translator quadratic on big uploads.
@@ -87,47 +84,23 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
             foreach (var flatFeature in record.FlatFeatures)
             {
                 var mappingKey = (record.FeatureType, flatFeature.Attributes.TempId);
-                if (_ambiguousRoadSegmentTempIds.ContainsKey(mappingKey))
+                if (!_roadSegmentTempIdToActualIdMapping.TryAdd(mappingKey, (record.GetActualId(), record.RecordType)))
                 {
-                    continue;
-                }
+                    if (record.RecordType == RecordType.Removed)
+                    {
+                        continue;
+                    }
 
-                if (_roadSegmentTempIdToActualIdMapping.TryAdd(mappingKey, (record.GetActualId(), record.RecordType)))
-                {
-                    continue;
+                    var existingMapping = _roadSegmentTempIdToActualIdMapping[mappingKey];
+                    if (existingMapping.Item2 == RecordType.Removed)
+                    {
+                        _roadSegmentTempIdToActualIdMapping[mappingKey] = (record.GetActualId(), record.RecordType);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Duplicate road segment temp ID {flatFeature.Attributes.TempId} for feature type {record.FeatureType} and road segment ID {record.GetActualId()}");
+                    }
                 }
-
-                if (record.RecordType == RecordType.Removed)
-                {
-                    continue;
-                }
-
-                var existingMapping = _roadSegmentTempIdToActualIdMapping[mappingKey];
-                if (existingMapping.Item2 == RecordType.Removed)
-                {
-                    _roadSegmentTempIdToActualIdMapping[mappingKey] = (record.GetActualId(), record.RecordType);
-                    continue;
-                }
-
-                if (existingMapping.Item1 == record.GetActualId())
-                {
-                    continue;
-                }
-
-                // The change files are the uploader's own and their temp ids are checked for uniqueness before any
-                // of this, so one claimed twice there is a bug rather than a file to deal with.
-                if (record.FeatureType == FeatureType.Change)
-                {
-                    throw new InvalidOperationException($"Duplicate road segment temp ID {flatFeature.Attributes.TempId} for feature type {record.FeatureType} and road segment ID {record.GetActualId()}");
-                }
-
-                // The extract and the integration data are generated, and a temp id in them is no more than the key
-                // the road numbers and the crossings point at a road segment with - nothing else reads it. One
-                // claimed by two records says nothing about which of the two is meant, so it stops naming either:
-                // whatever goes on to use it is reported where it is used, and a temp id nothing uses is no reason
-                // to refuse an upload over.
-                _ambiguousRoadSegmentTempIds.TryAdd(mappingKey, default);
-                _roadSegmentTempIdToActualIdMapping.TryRemove(mappingKey, out _);
             }
         }
     }
