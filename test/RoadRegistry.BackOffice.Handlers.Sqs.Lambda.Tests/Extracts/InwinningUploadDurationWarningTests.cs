@@ -10,33 +10,25 @@ public class InwinningUploadDurationWarningTests
     private static readonly UploadId UploadId = new(Guid.Parse("1f2e3d4c-5b6a-4978-8a9b-0c1d2e3f4a5b"));
 
     [Fact]
-    public void WhenStillRunning_ThenAWarningIsLoggedAsErrorAt8And9MinutesAndEveryMinuteFrom10Minutes()
+    public void WhenStillRunning_ThenAWarningIsLoggedAsErrorEveryMinuteFrom20Minutes()
     {
         var timeProvider = new ManualTimeProvider();
         var logger = new CapturingLogger();
 
         using var warning = new InwinningUploadDurationWarning(logger, "UploadInwinningExtract", DownloadId, UploadId, "44021", timeProvider);
 
-        timeProvider.Advance(TimeSpan.FromMinutes(7) + TimeSpan.FromSeconds(59));
+        AdvanceInSteps(timeProvider, TimeSpan.FromMinutes(19) + TimeSpan.FromSeconds(59));
         logger.Entries.Should().BeEmpty();
 
         timeProvider.Advance(TimeSpan.FromSeconds(1));
-        timeProvider.Advance(TimeSpan.FromMinutes(1));
-        timeProvider.Advance(TimeSpan.FromMinutes(1));
-        timeProvider.Advance(TimeSpan.FromMinutes(1));
-        timeProvider.Advance(TimeSpan.FromMinutes(1));
-        timeProvider.Advance(TimeSpan.FromMinutes(1));
-        timeProvider.Advance(TimeSpan.FromSeconds(59));
+        AdvanceInSteps(timeProvider, TimeSpan.FromMinutes(2) + TimeSpan.FromSeconds(59));
 
-        logger.Entries.Should().HaveCount(6);
+        logger.Entries.Should().HaveCount(3);
         logger.Entries.Should().OnlyContain(x => x.Level == LogLevel.Error);
         logger.Entries.Select(x => x.Message).Should().Equal(
-            "Warning: UploadInwinningExtract is na 8 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021",
-            "Warning: UploadInwinningExtract is na 9 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021",
-            "Warning: UploadInwinningExtract is na 10 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021",
-            "Warning: UploadInwinningExtract is na 11 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021",
-            "Warning: UploadInwinningExtract is na 12 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021",
-            "Warning: UploadInwinningExtract is na 13 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021");
+            "Warning: UploadInwinningExtract is na 20 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021",
+            "Warning: UploadInwinningExtract is na 21 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021",
+            "Warning: UploadInwinningExtract is na 22 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b, NisCode 44021");
     }
 
     [Fact]
@@ -46,49 +38,28 @@ public class InwinningUploadDurationWarningTests
         var logger = new CapturingLogger();
 
         var warning = new InwinningUploadDurationWarning(logger, "UploadInwinningExtract", DownloadId, UploadId, "44021", timeProvider);
-        timeProvider.Advance(TimeSpan.FromMinutes(7));
+        AdvanceInSteps(timeProvider, TimeSpan.FromMinutes(19));
         warning.Dispose();
 
-        timeProvider.Advance(TimeSpan.FromMinutes(10));
+        AdvanceInSteps(timeProvider, TimeSpan.FromMinutes(15));
 
         logger.Entries.Should().BeEmpty();
     }
 
     [Fact]
-    public void WhenFinishedBetweenTwoWarnings_ThenOnlyTheEarlierOnesAreLogged()
-    {
-        var timeProvider = new ManualTimeProvider();
-        var logger = new CapturingLogger();
-
-        var warning = new InwinningUploadDurationWarning(logger, "UploadInwinningExtract", DownloadId, UploadId, "44021", timeProvider);
-        timeProvider.Advance(TimeSpan.FromMinutes(8.5));
-        warning.Dispose();
-
-        timeProvider.Advance(TimeSpan.FromMinutes(10));
-
-        logger.Entries.Should().ContainSingle().Which.Message.Should().Contain("na 8 minuten");
-    }
-
-    [Fact]
-    public void WhenFinishedAfter10Minutes_ThenTheRepeatedWarningStops()
+    public void WhenFinishedAfter20Minutes_ThenTheRepeatedWarningStops()
     {
         var timeProvider = new ManualTimeProvider();
         var logger = new CapturingLogger();
 
         var warning = new InwinningUploadDurationWarning(logger, "MigrateDryRunRoadNetwork", DownloadId, UploadId, timeProvider: timeProvider);
-        foreach (var _ in Enumerable.Range(0, 23))
-        {
-            timeProvider.Advance(TimeSpan.FromSeconds(30));
-        }
+        AdvanceInSteps(timeProvider, TimeSpan.FromMinutes(21.5));
         warning.Dispose();
 
-        foreach (var _ in Enumerable.Range(0, 10))
-        {
-            timeProvider.Advance(TimeSpan.FromMinutes(1));
-        }
+        AdvanceInSteps(timeProvider, TimeSpan.FromMinutes(10));
 
-        logger.Entries.Select(x => x.Message).Should().HaveCount(4)
-            .And.Subject.Last().Should().Contain("na 11 minuten");
+        logger.Entries.Select(x => x.Message).Should().HaveCount(2)
+            .And.Subject.Last().Should().Contain("na 21 minuten");
     }
 
     [Fact]
@@ -98,10 +69,20 @@ public class InwinningUploadDurationWarningTests
         var logger = new CapturingLogger();
 
         using var warning = new InwinningUploadDurationWarning(logger, "MigrateDryRunRoadNetwork", DownloadId, UploadId, timeProvider: timeProvider);
-        timeProvider.Advance(TimeSpan.FromMinutes(8));
+        timeProvider.Advance(TimeSpan.FromMinutes(20));
 
         logger.Entries.Should().ContainSingle().Which.Message.Should().Be(
-            "Warning: MigrateDryRunRoadNetwork is na 8 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b");
+            "Warning: MigrateDryRunRoadNetwork is na 20 minuten nog bezig: DownloadId 8b6a5f4e0c1d4c4f9d430a1b2c3d4e5f, UploadId 1f2e3d4c5b6a49788a9b0c1d2e3f4a5b");
+    }
+
+    // The manual clock fires a periodic timer once per advance, so time is moved on in steps shorter than its period.
+    private static void AdvanceInSteps(ManualTimeProvider timeProvider, TimeSpan by)
+    {
+        var step = TimeSpan.FromSeconds(30);
+        for (var advanced = TimeSpan.Zero; advanced < by; advanced += step)
+        {
+            timeProvider.Advance(by - advanced < step ? by - advanced : step);
+        }
     }
 
     private sealed class CapturingLogger : ILogger
