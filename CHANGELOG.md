@@ -1,3 +1,10 @@
+## [5.38.4](https://github.com/informatievlaanderen/road-registry/compare/v5.38.3...v5.38.4) (2026-11-26)
+
+
+### Bug Fixes
+
+* **inwinning:** don't lose extract records over dates nobody reads GAWR-7877 ([37390ba](https://github.com/informatievlaanderen/road-registry/commit/37390bac87d27e1590bd55d458552f9ddc8b0819))
+
 ## [5.38.3](https://github.com/informatievlaanderen/road-registry/compare/v5.38.2...v5.38.3) (2026-11-25)
 
 
