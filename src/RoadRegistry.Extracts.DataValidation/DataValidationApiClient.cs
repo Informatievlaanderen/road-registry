@@ -14,6 +14,8 @@ public interface IDataValidationApiClient
 
 public class DataValidationApiClient : IDataValidationApiClient
 {
+    private const int MaxResponseBodyLengthInExceptionMessage = 4000;
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -52,9 +54,10 @@ public class DataValidationApiClient : IDataValidationApiClient
 
         var httpClient = _httpClientFactory.CreateClient();
         using var response = await httpClient.SendAsync(request, cancellationToken);
-        response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccessStatusCode(response, json);
+
         var result = JsonSerializer.Deserialize<CreateValidationJobResponse>(json, JsonOptions)!;
         return result.Id.ToString();
 
@@ -74,9 +77,10 @@ public class DataValidationApiClient : IDataValidationApiClient
 
         var httpClient = _httpClientFactory.CreateClient();
         using var response = await httpClient.SendAsync(request, cancellationToken);
-        response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccessStatusCode(response, json);
+
         return JsonSerializer.Deserialize<PollDeliveryResponse>(json, JsonOptions)!;
     }
 
@@ -87,9 +91,10 @@ public class DataValidationApiClient : IDataValidationApiClient
 
         var httpClient = _httpClientFactory.CreateClient();
         using var response = await httpClient.SendAsync(request, cancellationToken);
-        response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccessStatusCode(response, json);
+
         return JsonSerializer.Deserialize<GetDeliveryResultResponse>(json, JsonOptions)!;
     }
 
@@ -100,10 +105,35 @@ public class DataValidationApiClient : IDataValidationApiClient
 
         var httpClient = _httpClientFactory.CreateClient();
         using var response = await httpClient.SendAsync(request, cancellationToken);
-        response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccessStatusCode(response, json);
+
         return JsonSerializer.Deserialize<GetDeliveryArtifactsResponse>(json, JsonOptions)!;
+    }
+
+    /// <summary>
+    /// Datavalidatie explains in the response body why it refused a request, and
+    /// <see cref="HttpResponseMessage.EnsureSuccessStatusCode" /> throws that body away. Putting it in the exception
+    /// message means the logged error already tells us what was wrong instead of only "400 (Bad Request)".
+    /// </summary>
+    private static void EnsureSuccessStatusCode(HttpResponseMessage response, string responseBody)
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        var body = string.IsNullOrWhiteSpace(responseBody)
+            ? "<empty>"
+            : responseBody.Length > MaxResponseBodyLengthInExceptionMessage
+                ? string.Concat(responseBody.AsSpan(0, MaxResponseBodyLengthInExceptionMessage), "... [truncated]")
+                : responseBody;
+
+        throw new HttpRequestException(
+            $"Response status code does not indicate success: {(int)response.StatusCode} ({response.ReasonPhrase}). Response body: {body}",
+            null,
+            response.StatusCode);
     }
 
     private sealed record CreateValidationJobResponse([property: JsonPropertyName("id")] Guid Id);
