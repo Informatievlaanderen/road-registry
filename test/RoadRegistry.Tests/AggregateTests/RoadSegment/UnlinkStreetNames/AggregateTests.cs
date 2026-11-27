@@ -1,7 +1,12 @@
 namespace RoadRegistry.Tests.AggregateTests.RoadSegment.UnlinkStreetNames;
 
 using System.Linq;
+using AutoFixture;
 using FluentAssertions;
+using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
+using RoadRegistry.RoadNetwork.Schema;
+using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
@@ -293,6 +298,141 @@ public class AggregateTests : StatusChangeAggregateTestBase
         roadNetwork.UnlinkStreetName([roadSegment.RoadSegmentId], OtherStreetNameId, TestData.Provenance);
 
         roadSegment.GetChanges().Should().BeEmpty();
+    }
+
+    // GAWR-7784, follow-up: a road segment that is added or migrated in a status that is not active, is recorded without
+    // street names - 'niet gekend' (-8) included - rather than with them and then let go of them.
+    [Theory]
+    [InlineData(nameof(RoadSegmentStatusV2.Gehistoreerd))]
+    [InlineData(nameof(RoadSegmentStatusV2.NietGerealiseerd))]
+    public void WhenAnInactiveSegmentIsAdded_ThenItIsAddedWithoutStreetNames(string status)
+    {
+        var geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates().ToRoadSegmentGeometry();
+        var change = Fixture.Create<AddRoadSegmentChange>() with
+        {
+            Status = RoadSegmentStatusV2.Parse(status),
+            Geometry = geometry,
+            StreetNameId = StreetNamesWithUnknown(geometry),
+            EuropeanRoadNumbers = [],
+            NationalRoadNumbers = []
+        };
+        var roadNetwork = new RoadNetworkBuilder(new InMemoryRoadNetworkIdGenerator()).Build();
+
+        var (roadSegment, problems) = RoadRegistry.RoadSegment.RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), new ScopedRoadNetworkChangeContext(roadNetwork, TestData.Provenance));
+
+        problems.Should().HaveNoError();
+        roadSegment!.GetChanges().Should().ContainSingle().Which.Should().BeOfType<RoadSegmentWasAdded>()
+            .Which.StreetNameId.Values.Should().OnlyContain(x => x.Value == StreetNameLocalId.NotApplicable);
+    }
+
+    [Fact]
+    public void WhenAnActiveSegmentIsAdded_ThenItKeepsItsStreetNames()
+    {
+        var geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates().ToRoadSegmentGeometry();
+        var change = Fixture.Create<AddRoadSegmentChange>() with
+        {
+            Status = RoadSegmentStatusV2.Gepland,
+            Geometry = geometry,
+            StreetNameId = StreetNamesWithUnknown(geometry),
+            EuropeanRoadNumbers = [],
+            NationalRoadNumbers = []
+        };
+        var roadNetwork = new RoadNetworkBuilder(new InMemoryRoadNetworkIdGenerator()).Build();
+
+        var (roadSegment, problems) = RoadRegistry.RoadSegment.RoadSegment.Add(change, new InMemoryRoadNetworkIdGenerator(), new ScopedRoadNetworkChangeContext(roadNetwork, TestData.Provenance));
+
+        problems.Should().HaveNoError();
+        roadSegment!.GetChanges().Should().ContainSingle().Which.Should().BeOfType<RoadSegmentWasAdded>()
+            .Which.StreetNameId.Should().Be(change.StreetNameId);
+    }
+
+    [Theory]
+    [InlineData(nameof(RoadSegmentStatusV2.Gehistoreerd))]
+    [InlineData(nameof(RoadSegmentStatusV2.NietGerealiseerd))]
+    public void WhenAnInactiveSegmentIsMigrated_ThenItIsMigratedWithoutStreetNames(string status)
+    {
+        Fixture.Freeze<RoadSegmentId>();
+        var roadSegment = RoadRegistry.RoadSegment.RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>()).WithoutChanges();
+        var geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates().ToRoadSegmentGeometry();
+        var change = Fixture.Create<MigrateRoadSegmentChange>() with
+        {
+            Status = RoadSegmentStatusV2.Parse(status),
+            Geometry = geometry,
+            StreetNameId = StreetNamesWithUnknown(geometry),
+            EuropeanRoadNumbers = [],
+            NationalRoadNumbers = []
+        };
+        var roadNetwork = new RoadNetworkBuilder(new InMemoryRoadNetworkIdGenerator()).Build();
+
+        var problems = roadSegment.Migrate(change, new ScopedRoadNetworkChangeContext(roadNetwork, TestData.Provenance));
+
+        problems.Should().HaveNoError();
+        roadSegment.GetChanges().Should().ContainSingle().Which.Should().BeOfType<RoadSegmentWasMigrated>()
+            .Which.StreetNameId.Values.Should().OnlyContain(x => x.Value == StreetNameLocalId.NotApplicable);
+    }
+
+    [Fact]
+    public void WhenAnUploadMakesASegmentWithAnUnknownStreetNameInactive_ThenTheUnknownStreetNameIsLetGoAsWell()
+    {
+        var roadNetwork = BuildUnconnectedNetworkWith(RoadSegmentStatusV2.Gepland);
+        var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
+        var change = new RoadRegistry.RoadSegment.Changes.ModifyRoadSegmentChange
+        {
+            RoadSegmentIdReference = new RoadSegmentIdReference(roadSegment.RoadSegmentId),
+            Status = RoadSegmentStatusV2.NietGerealiseerd,
+            StreetNameId = StreetNamesWithUnknown(roadSegment.Geometry)
+        };
+
+        var problems = roadSegment.Modify(change, new ScopedRoadNetworkChangeContext(roadNetwork, TestData.Provenance));
+
+        problems.Should().HaveNoError();
+        ShouldHaveNoStreetNames(roadSegment);
+
+        // The street names are recorded on RoadSegmentWasChanged as they came, and let go of after it.
+        var changes = roadSegment.GetChanges().ToList();
+        changes.OfType<RoadSegmentWasChanged>().Should().ContainSingle()
+            .Which.StreetNameId.Should().Be(change.StreetNameId);
+        changes.SkipWhile(x => x is not RoadSegmentWasChanged).Skip(1).Cast<RoadSegmentStreetNameWasUnlinked>()
+            .Select(x => x.StreetNameId)
+            .Should().BeEquivalentTo([LeftStreetNameId, StreetNameLocalId.Unknown]);
+    }
+
+    [Fact]
+    public void WhenASegmentWithAnUnknownStreetNameIsRemoved_ThenTheUnknownStreetNameIsLetGoAsWell()
+    {
+        var roadNetwork = BuildRealizedNetwork();
+        var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
+        roadSegment.RelinkStreetName(RightStreetNameId, StreetNameLocalId.Unknown, TestData.Provenance);
+        roadSegment.WithoutChanges();
+
+        roadSegment.Remove(TestData.Provenance);
+
+        ShouldHaveNoStreetNames(roadSegment);
+        roadSegment.GetChanges().OfType<RoadSegmentStreetNameWasUnlinked>()
+            .Select(x => x.StreetNameId)
+            .Should().BeEquivalentTo([LeftStreetNameId, StreetNameLocalId.Unknown]);
+    }
+
+    [Fact]
+    public void WhenAnActiveSegmentLetsGoOfAllItsStreetNamesTwice_ThenNothingIsRecordedTheSecondTime()
+    {
+        var roadNetwork = BuildRealizedNetwork();
+        var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
+        roadSegment.UnlinkStreetNames(TestData.Provenance);
+        roadSegment.WithoutChanges();
+
+        roadSegment.UnlinkStreetNames(TestData.Provenance);
+
+        roadSegment.GetChanges().Should().BeEmpty();
+    }
+
+    // Street name 501 on the left, 'niet gekend' (-8) on the right.
+    private static RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNamesWithUnknown(RoadSegmentGeometry geometry)
+    {
+        var to = new RoadSegmentPositionV2(geometry.Value.Length);
+        return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
+            .Add(RoadSegmentPositionV2.Zero, to, RoadSegmentAttributeSide.Links, LeftStreetNameId)
+            .Add(RoadSegmentPositionV2.Zero, to, RoadSegmentAttributeSide.Rechts, StreetNameLocalId.Unknown);
     }
 
     private static readonly StreetNameLocalId OtherStreetNameId = new(503);

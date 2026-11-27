@@ -28,6 +28,9 @@ using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 ///   street name is let go;
 /// - a removed road segment with a street name: every street name is let go.
 ///
+/// In the last two cases 'niet gekend' (-8) is let go as well, so the road segment ends up with 'niet van toepassing' (-9)
+/// on both sides; it is recorded as a RoadSegmentStreetNameWasUnlinked with street name -8.
+///
 /// WHICH ROAD SEGMENTS. Only V2 road segments - the migrated ones, read from the RoadSegment aggregate documents in
 /// Marten, which are an inline snapshot and so always up to date. The status of each street name comes from the street
 /// name cache; a street name the cache does not know is left alone and only reported.
@@ -216,7 +219,35 @@ public class UnlinkStreetNamesFromRoadSegments
         var plan = PlanCorrection(
             isRemoved: true,
             RoadSegmentStatusV2.Gehistoreerd,
+            [StreetNameLocalId.NotApplicable],
+            StreetNames());
+
+        plan.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(true, nameof(RoadSegmentStatusV2.Gerealiseerd))]
+    [InlineData(false, nameof(RoadSegmentStatusV2.Gehistoreerd))]
+    [InlineData(false, nameof(RoadSegmentStatusV2.NietGerealiseerd))]
+    public void PlanCorrection_RemovedOrInactiveRoadSegmentWithUnknownStreetName_UnlinksIt(bool isRemoved, string status)
+    {
+        var plan = PlanCorrection(
+            isRemoved,
+            RoadSegmentStatusV2.Parse(status),
             [StreetNameLocalId.NotApplicable, StreetNameLocalId.Unknown],
+            StreetNames());
+
+        plan.Should().NotBeNull();
+        plan!.StreetNameIds.Should().Equal(StreetNameLocalId.Unknown);
+    }
+
+    [Fact]
+    public void PlanCorrection_ActiveRoadSegmentWithUnknownStreetName_CorrectsNothing()
+    {
+        var plan = PlanCorrection(
+            isRemoved: false,
+            RoadSegmentStatusV2.Gerealiseerd,
+            [StreetNameLocalId.Unknown],
             StreetNames());
 
         plan.Should().BeNull();
@@ -254,6 +285,7 @@ public class UnlinkStreetNamesFromRoadSegments
 
             var streetNameIds = linked
                 .SelectMany(x => x.StreetNameIds)
+                .Where(x => !StreetNameLocalId.IsEmpty(x))
                 .Select(x => x.ToInt32())
                 .Distinct()
                 .ToList();
@@ -280,19 +312,20 @@ public class UnlinkStreetNamesFromRoadSegments
     {
         return roadSegment.Attributes!.StreetNameId.Values
             .Select(x => x.Value)
-            .Where(x => !StreetNameLocalId.IsEmpty(x))
+            .Where(x => x != StreetNameLocalId.NotApplicable)
             .Distinct()
             .ToList();
     }
 
-    // The street names to let go of, and why, or null when the road segment keeps them all.
+    // The street names to let go of, and why, or null when the road segment keeps them all. A removed or inactive road
+    // segment lets go of 'niet gekend' (-8) as well: it carries 'niet van toepassing' and nothing else.
     private static Plan? PlanCorrection(
         bool isRemoved,
         RoadSegmentStatusV2 status,
         IReadOnlyCollection<StreetNameLocalId> linkedStreetNameIds,
         IReadOnlyDictionary<int, StreetNameCacheItem> streetNames)
     {
-        var linked = linkedStreetNameIds.Where(x => !StreetNameLocalId.IsEmpty(x)).Distinct().ToList();
+        var linked = linkedStreetNameIds.Where(x => x != StreetNameLocalId.NotApplicable).Distinct().ToList();
         if (linked.Count == 0)
         {
             return null;

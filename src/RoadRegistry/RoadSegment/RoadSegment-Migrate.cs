@@ -29,7 +29,8 @@ public partial class RoadSegment
         var accessRestriction = change.AccessRestriction;
         var category = change.Category;
         var morphology = change.Morphology;
-        var streetNameId = change.StreetNameId;
+        // A segment that is migrated in a status that is not active, keeps no street name.
+        var streetNameId = StreetNameIdsUnlessInactive(change.StreetNameId, change.Status);
         var maintenanceAuthorityId = change.MaintenanceAuthorityId;
         var surfaceType = change.SurfaceType;
         var carTrafficDirection = change.CarTrafficDirection;
