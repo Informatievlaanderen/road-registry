@@ -480,6 +480,8 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
             }
 
             roadSegment.IsRemoved = true;
+            // A removal lets go of the street names by itself: no RoadSegmentStreetNameWasUnlinked precedes it.
+            roadSegment.StreetNameId = WithoutStreetNames(roadSegment.StreetNameId);
             session.Store(roadSegment);
         });
         When<IEvent<RoadSegmentWasRemovedBecauseOfMigration>>(async (session, e, ct) =>
@@ -491,6 +493,8 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
             }
 
             roadSegment.IsRemoved = true;
+            // A removal lets go of the street names by itself: no RoadSegmentStreetNameWasUnlinked precedes it.
+            roadSegment.StreetNameId = WithoutStreetNames(roadSegment.StreetNameId);
             session.Store(roadSegment);
         });
         When<IEvent<RoadSegmentRemovalWasCorrectedBecauseOfMigration>>(async (session, e, ct) =>
@@ -758,6 +762,17 @@ public class RoadSegmentReadProjection : MartenRoadNetworkChangesProjection
             Lambert72 = geometry.EnsureLambert72().RoundToCm(),
             Lambert08 = geometry.EnsureLambert08().RoundToCm(),
         };
+    }
+
+    private static ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue> WithoutStreetNames(
+        ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue> streetNameId)
+    {
+        return new ReadRoadSegmentDynamicAttribute<RoadSegmentStreetNameAttributeValue>(
+            streetNameId.Values.Select(x => (x.From, x.To, x.Side, (RoadSegmentStreetNameAttributeValue?)new RoadSegmentStreetNameAttributeValue
+            {
+                StreetNameId = StreetNameLocalId.NotApplicable,
+                DutchName = null
+            })));
     }
 
     private async Task<string?> GetStreetName(

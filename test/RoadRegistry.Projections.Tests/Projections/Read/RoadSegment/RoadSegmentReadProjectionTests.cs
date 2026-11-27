@@ -12,8 +12,10 @@ using RoadRegistry.Extensions;
 using RoadRegistry.Read.Projections;
 using RoadRegistry.RoadSegment.Events.V1.ValueObjects;
 using RoadRegistry.RoadSegment.Events.V2;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.AggregateTests;
 using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadRegistry.ValueObjects;
 using RoadSegmentAddedV1 = RoadRegistry.RoadSegment.Events.V1.RoadSegmentAdded;
 
 public class RoadSegmentReadProjectionTests
@@ -99,6 +101,46 @@ public class RoadSegmentReadProjectionTests
 
         Assert.Empty(await RoadSegmentIdsOf(scenario, 1));
         Assert.Empty(await RoadSegmentIdsOf(scenario, 2));
+    }
+
+    // GAWR-7784: a removal lets go of the street names by itself, without a RoadSegmentStreetNameWasUnlinked before it.
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task WhenRoadSegmentWasRemoved_ThenItsStreetNamesAreGone(bool becauseOfMigration)
+    {
+        var scenario = Scenario();
+        var segmentAdded = _testData.Segment1Added with
+        {
+            StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(new StreetNameLocalId(501), _testData.Segment1Added.Geometry)
+        };
+
+        await scenario.GivenAsync(_testData.Segment1StartNodeAdded, _testData.Segment1EndNodeAdded, segmentAdded);
+        if (becauseOfMigration)
+        {
+            await scenario.GivenAsync(new RoadSegmentWasRemovedBecauseOfMigration
+            {
+                RoadSegmentId = new RoadSegmentId(1),
+                StartNodeId = segmentAdded.StartNodeId,
+                EndNodeId = segmentAdded.EndNodeId,
+                Geometry = segmentAdded.Geometry,
+                Provenance = Provenance
+            });
+        }
+        else
+        {
+            await scenario.GivenAsync(new RoadSegmentWasRemoved { RoadSegmentId = new RoadSegmentId(1), Provenance = Provenance });
+        }
+
+        var segment = await scenario.Load<RoadSegmentReadItem>(1);
+        Assert.True(segment!.IsRemoved);
+        Assert.NotEmpty(segment.StreetNameId.Values);
+        Assert.All(segment.StreetNameId.Values, x =>
+        {
+            Assert.Equal(StreetNameLocalId.NotApplicable, x.Value!.StreetNameId);
+            Assert.Null(x.Value.DutchName);
+        });
+        Assert.Empty(segment.StreetNameIds);
     }
 
     [Fact]

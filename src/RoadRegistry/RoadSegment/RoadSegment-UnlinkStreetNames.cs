@@ -16,10 +16,9 @@ public partial class RoadSegment
     // from whoever corrects it.
     //
     // Each street name that is let go is recorded as a RoadSegmentStreetNameWasUnlinked, so a segment linked to two
-    // street names, one on either side, records one event for each.
-    //
-    // This also accepts a removed road segment: the run-once correction of the links that were left behind before
-    // this rule existed has to reach those too. The road segment's own actions never get here once it is removed.
+    // street names, one on either side, records one event for each. A removal is the exception: removing a road
+    // segment is letting go of its street names by definition, so it records no RoadSegmentStreetNameWasUnlinked. The
+    // aggregate keeps the attribute as it was; the projections that keep a removed road segment clear it themselves.
     //
     // Without streetNameIds every street name is let go; with them only those, which is how the run-once correction
     // lets an active road segment keep the street name on the one side that is still active.
@@ -95,11 +94,11 @@ public partial class RoadSegment
         RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameIds,
         RoadSegmentStatusV2 status)
     {
-        if (status.IsActive)
-        {
-            return streetNameIds;
-        }
+        return status.IsActive ? streetNameIds : WithoutStreetNames(streetNameIds);
+    }
 
+    private static RoadSegmentDynamicAttributeValues<StreetNameLocalId> WithoutStreetNames(RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameIds)
+    {
         return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(
             streetNameIds.Values.Select(value => (value.Coverage, value.Side, StreetNameLocalId.NotApplicable)));
     }
