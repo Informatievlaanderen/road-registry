@@ -56,7 +56,8 @@ public class AggregateTests : AggregateTestBase
         segment.Attributes.AccessRestriction.Should().Be(segmentAdded.AccessRestriction);
         segment.Attributes.Category.Should().Be(segmentAdded.Category);
         segment.Attributes.Morphology.Should().Be(segmentAdded.Morphology);
-        segment.Attributes.StreetNameId.Should().Be(segmentAdded.StreetNameId);
+        // GAWR-7784: a removal lets go of the street names by itself.
+        segment.Attributes.StreetNameId.Values.Should().NotContain(x => x.Value != StreetNameLocalId.NotApplicable);
         segment.Attributes.MaintenanceAuthorityId.Should().Be(segmentAdded.MaintenanceAuthorityId);
         segment.Attributes.SurfaceType.Should().Be(segmentAdded.SurfaceType);
         segment.Attributes.EuropeanRoadNumbers.Should().BeEquivalentTo(segmentAdded.EuropeanRoadNumbers);

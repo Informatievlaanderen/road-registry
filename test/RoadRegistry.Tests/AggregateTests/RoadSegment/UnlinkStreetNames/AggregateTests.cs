@@ -163,9 +163,9 @@ public class AggregateTests : StatusChangeAggregateTestBase
     }
 
     [Fact]
-    public void WhenTheSegmentIsRemoved_ThenItLetsGoOfItsStreetNamesBeforeTheRemoval()
+    public void WhenTheSegmentIsRemoved_ThenTheRemovalAloneLetsGoOfItsStreetNames()
     {
-        // Before, not after: the projections drop a removed road segment.
+        // Removing is letting go of the street names by definition: no RoadSegmentStreetNameWasUnlinked precedes it.
         var roadNetwork = BuildRealizedNetwork();
         var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
 
@@ -174,11 +174,20 @@ public class AggregateTests : StatusChangeAggregateTestBase
         problems.Should().BeEmpty();
         roadSegment.IsRemoved.Should().BeTrue();
         ShouldHaveNoStreetNames(roadSegment);
+        roadSegment.GetChanges().Should().ContainSingle().Which.Should().BeOfType<RoadSegmentWasRemoved>();
+    }
 
-        var changes = roadSegment.GetChanges().ToList();
-        changes.Should().HaveCount(3);
-        changes.Take(2).Should().AllBeOfType<RoadSegmentStreetNameWasUnlinked>();
-        changes[2].Should().BeOfType<RoadSegmentWasRemoved>();
+    [Fact]
+    public void WhenTheSegmentIsRemovedBecauseOfMigration_ThenTheRemovalAloneLetsGoOfItsStreetNames()
+    {
+        var roadNetwork = BuildRealizedNetwork();
+        var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
+
+        var problems = roadSegment.RemoveBecauseOfMigration(TestData.Provenance);
+
+        problems.Should().BeEmpty();
+        ShouldHaveNoStreetNames(roadSegment);
+        roadSegment.GetChanges().Should().ContainSingle().Which.Should().BeOfType<RoadSegmentWasRemovedBecauseOfMigration>();
     }
 
     [Fact]
@@ -192,32 +201,6 @@ public class AggregateTests : StatusChangeAggregateTestBase
         roadSegment.Remove(TestData.Provenance);
 
         roadSegment.GetChanges().Should().ContainSingle().Which.Should().BeOfType<RoadSegmentWasRemoved>();
-    }
-
-    [Fact]
-    public void WhenGivenStreetNamesOfARemovedSegmentAreLetGo_ThenOnlyThoseAreLetGo()
-    {
-        // The run-once correction: a removed road segment that kept its street names from before GAWR-7784.
-        var westNode = BuildNode(10, 0, 0, RoadNodeTypeV2.Eindknoop);
-        var eastNode = BuildNode(11, 200, 0, RoadNodeTypeV2.Eindknoop);
-        var segmentAdded = WithStreetNames(BuildSegment(ChangedSegmentId, westNode, eastNode, BuildGeometry((0, 0), (200, 0)), RoadSegmentStatusV2.Gerealiseerd));
-        var removedSegment = RoadRegistry.RoadSegment.RoadSegment.Create(segmentAdded);
-        removedSegment.Apply(new RoadSegmentWasRemoved { RoadSegmentId = segmentAdded.RoadSegmentId, Provenance = segmentAdded.Provenance });
-        var roadNetwork = new ScopedRoadNetwork(
-            new ScopedRoadNetworkId(Guid.NewGuid()),
-            [],
-            [removedSegment.WithoutChanges()],
-            [],
-            []).WithoutChanges();
-
-        roadNetwork.UnlinkStreetNames(
-            new Dictionary<RoadSegmentId, IReadOnlyCollection<StreetNameLocalId>> { [segmentAdded.RoadSegmentId] = [LeftStreetNameId] },
-            TestData.Provenance);
-
-        var @event = removedSegment.GetChanges().Should().ContainSingle().Which.Should().BeOfType<RoadSegmentStreetNameWasUnlinked>().Which;
-        @event.StreetNameId.Should().Be(LeftStreetNameId);
-        removedSegment.Attributes!.StreetNameId.Values.Single(x => x.Side == RoadSegmentAttributeSide.Links).Value.Should().Be(StreetNameLocalId.NotApplicable);
-        removedSegment.Attributes!.StreetNameId.Values.Single(x => x.Side == RoadSegmentAttributeSide.Rechts).Value.Should().Be(RightStreetNameId);
     }
 
     [Fact]
@@ -398,7 +381,7 @@ public class AggregateTests : StatusChangeAggregateTestBase
     }
 
     [Fact]
-    public void WhenASegmentWithAnUnknownStreetNameIsRemoved_ThenTheUnknownStreetNameIsLetGoAsWell()
+    public void WhenASegmentWithAnUnknownStreetNameIsRemoved_ThenTheUnknownStreetNameIsGoneAsWell()
     {
         var roadNetwork = BuildRealizedNetwork();
         var roadSegment = roadNetwork.RoadSegments[new RoadSegmentId(ChangedSegmentId)];
@@ -408,9 +391,7 @@ public class AggregateTests : StatusChangeAggregateTestBase
         roadSegment.Remove(TestData.Provenance);
 
         ShouldHaveNoStreetNames(roadSegment);
-        roadSegment.GetChanges().OfType<RoadSegmentStreetNameWasUnlinked>()
-            .Select(x => x.StreetNameId)
-            .Should().BeEquivalentTo([LeftStreetNameId, StreetNameLocalId.Unknown]);
+        roadSegment.GetChanges().Should().ContainSingle().Which.Should().BeOfType<RoadSegmentWasRemoved>();
     }
 
     [Fact]
