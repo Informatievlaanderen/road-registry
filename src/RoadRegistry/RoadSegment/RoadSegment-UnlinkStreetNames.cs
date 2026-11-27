@@ -17,8 +17,8 @@ public partial class RoadSegment
     //
     // Each street name that is let go is recorded as a RoadSegmentStreetNameWasUnlinked, so a segment linked to two
     // street names, one on either side, records one event for each. A removal is the exception: removing a road
-    // segment is letting go of its street names by definition, so it records no RoadSegmentStreetNameWasUnlinked and
-    // the removal event itself clears them (see LetGoOfStreetNamesBecauseOfRemoval).
+    // segment is letting go of its street names by definition, so it records no RoadSegmentStreetNameWasUnlinked. The
+    // aggregate keeps the attribute as it was; the projections that keep a removed road segment clear it themselves.
     //
     // Without streetNameIds every street name is let go; with them only those, which is how the run-once correction
     // lets an active road segment keep the street name on the one side that is still active.
@@ -95,21 +95,6 @@ public partial class RoadSegment
         RoadSegmentStatusV2 status)
     {
         return status.IsActive ? streetNameIds : WithoutStreetNames(streetNameIds);
-    }
-
-    // Applied with RoadSegmentWasRemoved and RoadSegmentWasRemovedBecauseOfMigration: the removed road segment carries
-    // 'niet van toepassing' everywhere, 'niet gekend' (-8) included.
-    private void LetGoOfStreetNamesBecauseOfRemoval()
-    {
-        if (Attributes is null)
-        {
-            return;
-        }
-
-        Attributes = Attributes with
-        {
-            StreetNameId = WithoutStreetNames(Attributes.StreetNameId)
-        };
     }
 
     private static RoadSegmentDynamicAttributeValues<StreetNameLocalId> WithoutStreetNames(RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameIds)

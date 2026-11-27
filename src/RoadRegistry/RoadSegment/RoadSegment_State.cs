@@ -323,7 +323,6 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
         IsRemoved = true;
         IsRemovedBecauseOfMigration = false;
-        LetGoOfStreetNamesBecauseOfRemoval();
     }
 
     public void Apply(RoadSegmentWasRemovedBecauseOfMigration @event)
@@ -332,7 +331,6 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
         IsRemoved = true;
         IsRemovedBecauseOfMigration = true;
-        LetGoOfStreetNamesBecauseOfRemoval();
     }
 
     public void Apply(RoadSegmentRemovalWasCorrectedBecauseOfMigration @event)

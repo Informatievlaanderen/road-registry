@@ -15,8 +15,8 @@ public partial class RoadSegment
             return problems;
         }
 
-        // No RoadSegmentStreetNameWasUnlinked first: a removal lets go of the street names by itself (see
-        // Apply(RoadSegmentWasRemoved)).
+        // No RoadSegmentStreetNameWasUnlinked first: removing a road segment is letting go of its street names by
+        // definition.
 
         Apply(new RoadSegmentWasRemoved
         {
