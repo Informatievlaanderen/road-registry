@@ -1,3 +1,10 @@
+# [5.41.0](https://github.com/informatievlaanderen/road-registry/compare/v5.40.0...v5.41.0) (2026-11-27)
+
+
+### Features
+
+* **2.0:** record an inactive road segment without street names in the event itself GAWR-7784 ([2e0769f](https://github.com/informatievlaanderen/road-registry/commit/2e0769f7a1777489321dcc256b2c2c7a8bd2ce83))
+
 # [5.40.0](https://github.com/informatievlaanderen/road-registry/compare/v5.39.6...v5.40.0) (2026-11-26)
 
 
