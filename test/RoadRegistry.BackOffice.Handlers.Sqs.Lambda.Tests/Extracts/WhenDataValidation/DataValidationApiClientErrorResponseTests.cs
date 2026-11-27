@@ -8,7 +8,8 @@ using RoadRegistry.Extracts.DataValidation;
 
 /// <summary>
 /// Datavalidatie says in the response body why it refused a request. Without it a failure only shows up in our logs as
-/// "400 (Bad Request)", which tells us nothing, so the body has to end up in the exception message.
+/// "400 (Bad Request)", which tells us nothing, so the body - along with which call failed and for which delivery -
+/// has to end up in the exception message.
 /// </summary>
 public class DataValidationApiClientErrorResponseTests
 {
@@ -26,18 +27,22 @@ public class DataValidationApiClientErrorResponseTests
         var exception = await act.Should().ThrowAsync<HttpRequestException>();
         exception.Which.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         exception.Which.Message.Should().Contain("400");
+        exception.Which.Message.Should().Contain(nameof(IDataValidationApiClient.RequestDataValidationAsync));
         exception.Which.Message.Should().Contain("specificationCode 'WR' is unknown");
     }
 
     [Fact]
-    public async Task WhenPollDeliveryFails_ThenTheResponseBodyIsPartOfTheExceptionMessage()
+    public async Task WhenPollDeliveryFails_ThenTheActionAndDeliveryIdArePartOfTheExceptionMessage()
     {
         var apiClient = BuildApiClient(HttpStatusCode.NotFound, "delivery not found");
+        var deliveryId = Guid.NewGuid().ToString();
 
-        var act = async () => await apiClient.PollDeliveryAsync(Guid.NewGuid().ToString(), CancellationToken.None);
+        var act = async () => await apiClient.PollDeliveryAsync(deliveryId, CancellationToken.None);
 
         var exception = await act.Should().ThrowAsync<HttpRequestException>();
         exception.Which.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        exception.Which.Message.Should().Contain(nameof(IDataValidationApiClient.PollDeliveryAsync));
+        exception.Which.Message.Should().Contain(deliveryId);
         exception.Which.Message.Should().Contain("delivery not found");
     }
 

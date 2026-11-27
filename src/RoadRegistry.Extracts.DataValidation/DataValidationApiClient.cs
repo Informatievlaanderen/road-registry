@@ -1,6 +1,7 @@
 namespace RoadRegistry.Extracts.DataValidation;
 
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -79,7 +80,7 @@ public class DataValidationApiClient : IDataValidationApiClient
         using var response = await httpClient.SendAsync(request, cancellationToken);
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
-        EnsureSuccessStatusCode(response, json);
+        EnsureSuccessStatusCode(response, json, deliveryId);
 
         return JsonSerializer.Deserialize<PollDeliveryResponse>(json, JsonOptions)!;
     }
@@ -93,7 +94,7 @@ public class DataValidationApiClient : IDataValidationApiClient
         using var response = await httpClient.SendAsync(request, cancellationToken);
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
-        EnsureSuccessStatusCode(response, json);
+        EnsureSuccessStatusCode(response, json, deliveryId);
 
         return JsonSerializer.Deserialize<GetDeliveryResultResponse>(json, JsonOptions)!;
     }
@@ -107,7 +108,7 @@ public class DataValidationApiClient : IDataValidationApiClient
         using var response = await httpClient.SendAsync(request, cancellationToken);
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
-        EnsureSuccessStatusCode(response, json);
+        EnsureSuccessStatusCode(response, json, deliveryId);
 
         return JsonSerializer.Deserialize<GetDeliveryArtifactsResponse>(json, JsonOptions)!;
     }
@@ -115,9 +116,14 @@ public class DataValidationApiClient : IDataValidationApiClient
     /// <summary>
     /// Datavalidatie explains in the response body why it refused a request, and
     /// <see cref="HttpResponseMessage.EnsureSuccessStatusCode" /> throws that body away. Putting it in the exception
-    /// message means the logged error already tells us what was wrong instead of only "400 (Bad Request)".
+    /// message, together with which call failed and for which delivery, means the logged error already tells us what
+    /// was wrong instead of only "400 (Bad Request)".
     /// </summary>
-    private static void EnsureSuccessStatusCode(HttpResponseMessage response, string responseBody)
+    private static void EnsureSuccessStatusCode(
+        HttpResponseMessage response,
+        string responseBody,
+        string? deliveryId = null,
+        [CallerMemberName] string action = "")
     {
         if (response.IsSuccessStatusCode)
         {
@@ -130,8 +136,10 @@ public class DataValidationApiClient : IDataValidationApiClient
                 ? string.Concat(responseBody.AsSpan(0, MaxResponseBodyLengthInExceptionMessage), "... [truncated]")
                 : responseBody;
 
+        var delivery = deliveryId is not null ? $" [DeliveryId={deliveryId}]" : "";
+
         throw new HttpRequestException(
-            $"Response status code does not indicate success: {(int)response.StatusCode} ({response.ReasonPhrase}). Response body: {body}",
+            $"Datavalidation {action}{delivery} failed. Response status code does not indicate success: {(int)response.StatusCode} ({response.ReasonPhrase}). Response body: {body}",
             null,
             response.StatusCode);
     }
