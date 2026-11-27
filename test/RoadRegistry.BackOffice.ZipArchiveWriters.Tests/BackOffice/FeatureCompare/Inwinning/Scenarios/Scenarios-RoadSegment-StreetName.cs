@@ -5,12 +5,14 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.Extracts.FeatureCompare.Inwinning;
 using RoadRegistry.Extracts.FeatureCompare.Inwinning.RoadSegment;
 using RoadRegistry.Extracts.Uploads;
+using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts.Inwinning;
 using Xunit.Abstractions;
 
-// GAWR-7784: only an active street name can be linked to an active road segment, the same as the edit API demands.
+// GAWR-7784: only an active street name is linked to a road segment. Unlike the change upload, the inwinning does not
+// refuse a retired or rejected street name: it lets go of it without a word, the same as of a removed one.
 public class RoadSegmentStreetNameScenarios : FeatureCompareTranslatorScenariosBase
 {
     private const int InactiveStreetNameId = 777;
@@ -23,19 +25,16 @@ public class RoadSegmentStreetNameScenarios : FeatureCompareTranslatorScenariosB
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public async Task WhenAnActiveRoadSegmentGetsARetiredOrRejectedStreetName_ThenTheUploadIsRefused(bool leftSide)
+    public async Task WhenAnActiveRoadSegmentGetsARetiredOrRejectedStreetName_ThenItIsLetGoWithoutAProblem(bool leftSide)
     {
         var zipArchive = BuildZipArchive(RoadSegmentStatusV2.Gerealiseerd, leftSide);
 
         var translator = ZipArchiveFeatureCompareTranslatorV3Builder.Create(
             streetNameContextFactory: new StreetNameContextFactory(new StreetNameContext([InactiveStreetNameId])));
 
-        var act = () => TranslateSucceeds(zipArchive, translator);
+        var result = await TranslateSucceeds(zipArchive, translator);
 
-        var exception = await act.Should().ThrowAsync<ZipArchiveValidationException>();
-        exception.Which.Problems.Should().Contain(x => x.Reason == (leftSide
-            ? nameof(DbaseFileProblems.LeftStreetNameIdIsNotProposedOrCurrent)
-            : nameof(DbaseFileProblems.RightStreetNameIdIsNotProposedOrCurrent)));
+        StreetNameIds(result).Should().NotContain(new StreetNameLocalId(InactiveStreetNameId));
     }
 
     [Fact]
@@ -69,7 +68,15 @@ public class RoadSegmentStreetNameScenarios : FeatureCompareTranslatorScenariosB
         var translator = ZipArchiveFeatureCompareTranslatorV3Builder.Create(
             streetNameContextFactory: new StreetNameContextFactory(new StreetNameContext([])));
 
-        await TranslateSucceeds(zipArchive, translator);
+        var result = await TranslateSucceeds(zipArchive, translator);
+
+        StreetNameIds(result).Should().Contain(new StreetNameLocalId(InactiveStreetNameId));
+    }
+
+    private static IEnumerable<StreetNameLocalId> StreetNameIds(TranslatedChanges changes)
+    {
+        return changes.OfType<ModifyRoadSegmentChange>().SelectMany(x => x.StreetNameId?.Values.Select(value => value.Value) ?? [])
+            .Concat(changes.OfType<AddRoadSegmentChange>().SelectMany(x => x.StreetNameId.Values.Select(value => value.Value)));
     }
 
     private static System.IO.Compression.ZipArchive BuildZipArchive(RoadSegmentStatusV2 status, bool leftSide)

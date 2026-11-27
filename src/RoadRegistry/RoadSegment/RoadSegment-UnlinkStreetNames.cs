@@ -23,6 +23,9 @@ public partial class RoadSegment
     //
     // Without streetNameIds every street name is let go; with them only those, which is how the run-once correction
     // lets an active road segment keep the street name on the one side that is still active.
+    //
+    // 'Niet gekend' (-8) is let go as well, the same as a street name: a road segment that is not active has no street
+    // name, so it carries 'niet van toepassing' and nothing else.
     public void UnlinkStreetNames(Provenance provenance, IReadOnlyCollection<StreetNameLocalId>? streetNameIds = null)
     {
         if (Attributes is null)
@@ -32,7 +35,7 @@ public partial class RoadSegment
 
         var linkedStreetNameIds = Attributes.StreetNameId.Values
             .Select(value => value.Value)
-            .Where(streetNameId => !StreetNameLocalId.IsEmpty(streetNameId))
+            .Where(streetNameId => streetNameId != StreetNameLocalId.NotApplicable)
             .Where(streetNameId => streetNameIds is null || streetNameIds.Contains(streetNameId))
             .Distinct()
             .ToList();
@@ -43,12 +46,12 @@ public partial class RoadSegment
         }
     }
 
-    // Lets go of one street name: wherever the road segment carries it, it now carries 'niet van toepassing'. A street
-    // name the road segment does not carry records nothing.
+    // Lets go of one street name, or of 'niet gekend' (-8): wherever the road segment carries it, it now carries 'niet
+    // van toepassing'. A value the road segment does not carry records nothing.
     public void UnlinkStreetName(StreetNameLocalId streetNameId, Provenance provenance)
     {
         if (Attributes is null
-            || StreetNameLocalId.IsEmpty(streetNameId)
+            || streetNameId == StreetNameLocalId.NotApplicable
             || Attributes.StreetNameId.Values.All(value => value.Value != streetNameId))
         {
             return;
@@ -83,5 +86,21 @@ public partial class RoadSegment
         }
 
         UnlinkStreetNames(provenance);
+    }
+
+    // The street names a road segment in the given status carries: all of them while it is active, otherwise none -
+    // every value, 'niet gekend' (-8) included, becomes 'niet van toepassing'. For the events that record a road
+    // segment in full (RoadSegmentWasAdded, RoadSegmentWasMigrated), so they carry no street name to let go of after.
+    private static RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNameIdsUnlessInactive(
+        RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameIds,
+        RoadSegmentStatusV2 status)
+    {
+        if (status.IsActive)
+        {
+            return streetNameIds;
+        }
+
+        return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(
+            streetNameIds.Values.Select(value => (value.Coverage, value.Side, StreetNameLocalId.NotApplicable)));
     }
 }

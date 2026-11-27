@@ -11,6 +11,7 @@ using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ScopedRoadNetwork;
 using RoadRegistry.ScopedRoadNetwork.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
+using RoadRegistry.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
 using RoadNode = RoadRegistry.RoadNode.RoadNode;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
@@ -97,7 +98,15 @@ public class AggregateTests : AggregateTestBase
         segmentAdded.Category.Should().Be(change.Category);
         segmentAdded.Morphology.Should().Be(change.Morphology);
         segmentAdded.Status.Should().Be(change.Status);
-        segmentAdded.StreetNameId.Should().Be(change.StreetNameId);
+        // GAWR-7784: a segment that is not active keeps no street name, 'niet gekend' (-8) included.
+        if (change.Status.IsActive)
+        {
+            segmentAdded.StreetNameId.Should().Be(change.StreetNameId);
+        }
+        else
+        {
+            segmentAdded.StreetNameId.Values.Should().NotContain(x => x.Value != StreetNameLocalId.NotApplicable);
+        }
         segmentAdded.MaintenanceAuthorityId.Should().Be(change.MaintenanceAuthorityId);
         segmentAdded.SurfaceType.Should().Be(change.SurfaceType);
         segmentAdded.EuropeanRoadNumbers.Should().BeEquivalentTo(change.EuropeanRoadNumbers);

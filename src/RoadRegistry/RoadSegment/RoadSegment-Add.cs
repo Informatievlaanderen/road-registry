@@ -24,7 +24,9 @@ public partial class RoadSegment
             AccessRestriction = change.AccessRestriction,
             Category = change.Category,
             Morphology = change.Morphology,
-            StreetNameId = change.StreetNameId,
+            // A segment that is added in a status that is not active, keeps no street name: it is added without one, rather
+            // than added with one and then let go of it.
+            StreetNameId = StreetNameIdsUnlessInactive(change.StreetNameId, change.Status),
             MaintenanceAuthorityId = change.MaintenanceAuthorityId,
             SurfaceType = change.SurfaceType,
             CarTrafficDirection = change.CarTrafficDirection,
@@ -71,9 +73,6 @@ public partial class RoadSegment
             NationalRoadNumbers = attributes.NationalRoadNumbers,
             Provenance = new ProvenanceData(context.Provenance)
         }, context.OrdinalProvider);
-
-        // A segment that is added in a status that is not active, keeps no street name either.
-        segment.UnlinkStreetNamesUnlessActive(context.Provenance);
 
         return (segment, problems);
     }
