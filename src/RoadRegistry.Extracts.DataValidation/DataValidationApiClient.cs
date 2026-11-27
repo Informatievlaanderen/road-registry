@@ -1,6 +1,7 @@
 namespace RoadRegistry.Extracts.DataValidation;
 
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -14,6 +15,8 @@ public interface IDataValidationApiClient
 
 public class DataValidationApiClient : IDataValidationApiClient
 {
+    private const int MaxResponseBodyLengthInExceptionMessage = 4000;
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -52,9 +55,10 @@ public class DataValidationApiClient : IDataValidationApiClient
 
         var httpClient = _httpClientFactory.CreateClient();
         using var response = await httpClient.SendAsync(request, cancellationToken);
-        response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccessStatusCode(response, json);
+
         var result = JsonSerializer.Deserialize<CreateValidationJobResponse>(json, JsonOptions)!;
         return result.Id.ToString();
 
@@ -74,9 +78,10 @@ public class DataValidationApiClient : IDataValidationApiClient
 
         var httpClient = _httpClientFactory.CreateClient();
         using var response = await httpClient.SendAsync(request, cancellationToken);
-        response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccessStatusCode(response, json, deliveryId);
+
         return JsonSerializer.Deserialize<PollDeliveryResponse>(json, JsonOptions)!;
     }
 
@@ -87,9 +92,10 @@ public class DataValidationApiClient : IDataValidationApiClient
 
         var httpClient = _httpClientFactory.CreateClient();
         using var response = await httpClient.SendAsync(request, cancellationToken);
-        response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccessStatusCode(response, json, deliveryId);
+
         return JsonSerializer.Deserialize<GetDeliveryResultResponse>(json, JsonOptions)!;
     }
 
@@ -100,10 +106,42 @@ public class DataValidationApiClient : IDataValidationApiClient
 
         var httpClient = _httpClientFactory.CreateClient();
         using var response = await httpClient.SendAsync(request, cancellationToken);
-        response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccessStatusCode(response, json, deliveryId);
+
         return JsonSerializer.Deserialize<GetDeliveryArtifactsResponse>(json, JsonOptions)!;
+    }
+
+    /// <summary>
+    /// Datavalidatie explains in the response body why it refused a request, and
+    /// <see cref="HttpResponseMessage.EnsureSuccessStatusCode" /> throws that body away. Putting it in the exception
+    /// message, together with which call failed and for which delivery, means the logged error already tells us what
+    /// was wrong instead of only "400 (Bad Request)".
+    /// </summary>
+    private static void EnsureSuccessStatusCode(
+        HttpResponseMessage response,
+        string responseBody,
+        string? deliveryId = null,
+        [CallerMemberName] string action = "")
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        var body = string.IsNullOrWhiteSpace(responseBody)
+            ? "<empty>"
+            : responseBody.Length > MaxResponseBodyLengthInExceptionMessage
+                ? string.Concat(responseBody.AsSpan(0, MaxResponseBodyLengthInExceptionMessage), "... [truncated]")
+                : responseBody;
+
+        var delivery = deliveryId is not null ? $" [DeliveryId={deliveryId}]" : "";
+
+        throw new HttpRequestException(
+            $"Datavalidation {action}{delivery} failed. Response status code does not indicate success: {(int)response.StatusCode} ({response.ReasonPhrase}). Response body: {body}",
+            null,
+            response.StatusCode);
     }
 
     private sealed record CreateValidationJobResponse([property: JsonPropertyName("id")] Guid Id);
