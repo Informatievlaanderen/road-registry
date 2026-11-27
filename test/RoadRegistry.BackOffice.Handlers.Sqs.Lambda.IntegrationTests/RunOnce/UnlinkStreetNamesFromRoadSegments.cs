@@ -20,32 +20,29 @@ using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 /// GAWR-7784. A street name is linked to a road segment only while both are active (see "Beheer koppeling
 /// straatnaam-wegsegment"): a road segment now lets go of its street names when it is removed, historized or not
 /// realized, and a street name that is removed, retired or rejected is let go by every road segment. This corrects the
-/// links that were left behind before that, for the three cases the analysis names:
+/// links that were left behind before that, for the two cases that still matter:
 ///
 /// - a road segment that is not removed, linked to a street name that is removed, retired (gehistoreerd) or rejected
 ///   (afgekeurd): only that street name is let go, so a street name on the other side that is still active stays;
 /// - a road segment that is not removed but inactive (gehistoreerd or niet gerealiseerd) with a street name: every
-///   street name is let go;
-/// - a removed road segment with a street name: every street name is let go.
+///   street name is let go, 'niet gekend' (-8) included, so it ends up with 'niet van toepassing' (-9) on both
+///   sides; -8 is recorded as a RoadSegmentStreetNameWasUnlinked with street name -8.
 ///
-/// In the last two cases 'niet gekend' (-8) is let go as well, so the road segment ends up with 'niet van toepassing' (-9)
-/// on both sides; it is recorded as a RoadSegmentStreetNameWasUnlinked with street name -8.
+/// A removed road segment is left alone: it never comes back, every action and system flow skips it, and the extract,
+/// PBS and WMS/WFS projections no longer hold it.
 ///
 /// WHICH ROAD SEGMENTS. Only V2 road segments - the migrated ones, read from the RoadSegment aggregate documents in
 /// Marten, which are an inline snapshot and so always up to date. The status of each street name comes from the street
 /// name cache; a street name the cache does not know is left alone and only reported.
 ///
 /// HOW. Straight through the domain, the way MigrateUntouchedGradeSeparatedJunctions does: each street name that is let
-/// go becomes a RoadSegmentStreetNameWasUnlinked on the road segment's own stream. A removed road segment is no
-/// longer in the extract, PBS and WMS/WFS projections, and those skip the event for it; the read projection keeps the
-/// removed road segment and follows it.
+/// go becomes a RoadSegmentStreetNameWasUnlinked on the road segment's own stream.
 ///
 /// ENVIRONMENT. Everything comes from appsettings.runonce.{environment}.json next to the test assembly (git ignores
 /// appsettings.*.json): ConnectionStrings:Marten and ConnectionStrings:StreetNameProjections.
 ///
-/// This WRITES when <c>dryRun</c> is false: the events land in the configured event store. Deploy GAWR-7784 first,
-/// otherwise the projections do not skip a removed road segment yet, and run it on STG before PRD. It is idempotent: a
-/// second run finds nothing to correct.
+/// This WRITES when <c>dryRun</c> is false: the events land in the configured event store. Run it on STG
+/// before PRD. It is idempotent: a second run finds nothing to correct.
 /// </summary>
 public class UnlinkStreetNamesFromRoadSegments
 {
@@ -98,14 +95,14 @@ public class UnlinkStreetNamesFromRoadSegments
 
         var provenance = new RoadRegistryProvenanceData(
             Modification.Update,
-            reason: "Wegsegmenten ontkoppelen van inactieve straatnamen (GAWR-7784)").ToProvenance();
+            reason: "Wegsegmenten ontkoppelen van inactieve straatnamen").ToProvenance();
 
         var corrected = 0;
         foreach (var batch in corrections.Chunk(WriteBatchSize))
         {
             await using var session = store.LightweightSession();
 
-            // By id, so the removed road segments come along as well: a load by scope leaves those out.
+            // By id: exactly the road segments to correct.
             var roadNetwork = await repository.Load(
                 session,
                 new RoadNetworkIds([], batch.Select(x => x.RoadSegmentId).ToList(), [], []),
@@ -127,7 +124,6 @@ public class UnlinkStreetNamesFromRoadSegments
     public void PlanCorrection_ActiveRoadSegmentWithRetiredStreetName_UnlinksOnlyThatStreetName()
     {
         var plan = PlanCorrection(
-            isRemoved: false,
             RoadSegmentStatusV2.Gerealiseerd,
             [new StreetNameLocalId(1), new StreetNameLocalId(2)],
             StreetNames(Item(1, StreetNameStatus.Retired), Item(2, StreetNameStatus.Current)));
@@ -141,7 +137,6 @@ public class UnlinkStreetNamesFromRoadSegments
     public void PlanCorrection_ActiveRoadSegmentWithInactiveStreetName_UnlinksIt(string status)
     {
         var plan = PlanCorrection(
-            isRemoved: false,
             RoadSegmentStatusV2.Gepland,
             [new StreetNameLocalId(1)],
             StreetNames(Item(1, status)));
@@ -153,7 +148,6 @@ public class UnlinkStreetNamesFromRoadSegments
     public void PlanCorrection_ActiveRoadSegmentWithRemovedStreetName_UnlinksIt()
     {
         var plan = PlanCorrection(
-            isRemoved: false,
             RoadSegmentStatusV2.BuitenGebruik,
             [new StreetNameLocalId(1)],
             StreetNames(Item(1, StreetNameStatus.Current) with { IsRemoved = true }));
@@ -167,7 +161,6 @@ public class UnlinkStreetNamesFromRoadSegments
     public void PlanCorrection_ActiveRoadSegmentWithActiveStreetName_CorrectsNothing(string status)
     {
         var plan = PlanCorrection(
-            isRemoved: false,
             RoadSegmentStatusV2.Gerealiseerd,
             [new StreetNameLocalId(1)],
             StreetNames(Item(1, status)));
@@ -179,7 +172,6 @@ public class UnlinkStreetNamesFromRoadSegments
     public void PlanCorrection_ActiveRoadSegmentWithStreetNameUnknownToTheCache_CorrectsNothing()
     {
         var plan = PlanCorrection(
-            isRemoved: false,
             RoadSegmentStatusV2.Gerealiseerd,
             [new StreetNameLocalId(1)],
             StreetNames());
@@ -193,7 +185,6 @@ public class UnlinkStreetNamesFromRoadSegments
     public void PlanCorrection_InactiveRoadSegment_UnlinksEveryStreetName(string status)
     {
         var plan = PlanCorrection(
-            isRemoved: false,
             RoadSegmentStatusV2.Parse(status),
             [new StreetNameLocalId(1), new StreetNameLocalId(2)],
             StreetNames(Item(1, StreetNameStatus.Current), Item(2, StreetNameStatus.Current)));
@@ -202,22 +193,9 @@ public class UnlinkStreetNamesFromRoadSegments
     }
 
     [Fact]
-    public void PlanCorrection_RemovedRoadSegment_UnlinksEveryStreetName()
-    {
-        var plan = PlanCorrection(
-            isRemoved: true,
-            RoadSegmentStatusV2.Gerealiseerd,
-            [new StreetNameLocalId(1)],
-            StreetNames(Item(1, StreetNameStatus.Current)));
-
-        plan.Should().BeEquivalentTo(new Plan(Reason.RemovedRoadSegment, [new StreetNameLocalId(1)]));
-    }
-
-    [Fact]
     public void PlanCorrection_NoStreetName_CorrectsNothing()
     {
         var plan = PlanCorrection(
-            isRemoved: true,
             RoadSegmentStatusV2.Gehistoreerd,
             [StreetNameLocalId.NotApplicable],
             StreetNames());
@@ -226,13 +204,11 @@ public class UnlinkStreetNamesFromRoadSegments
     }
 
     [Theory]
-    [InlineData(true, nameof(RoadSegmentStatusV2.Gerealiseerd))]
-    [InlineData(false, nameof(RoadSegmentStatusV2.Gehistoreerd))]
-    [InlineData(false, nameof(RoadSegmentStatusV2.NietGerealiseerd))]
-    public void PlanCorrection_RemovedOrInactiveRoadSegmentWithUnknownStreetName_UnlinksIt(bool isRemoved, string status)
+    [InlineData(nameof(RoadSegmentStatusV2.Gehistoreerd))]
+    [InlineData(nameof(RoadSegmentStatusV2.NietGerealiseerd))]
+    public void PlanCorrection_InactiveRoadSegmentWithUnknownStreetName_UnlinksIt(string status)
     {
         var plan = PlanCorrection(
-            isRemoved,
             RoadSegmentStatusV2.Parse(status),
             [StreetNameLocalId.NotApplicable, StreetNameLocalId.Unknown],
             StreetNames());
@@ -245,7 +221,6 @@ public class UnlinkStreetNamesFromRoadSegments
     public void PlanCorrection_ActiveRoadSegmentWithUnknownStreetName_CorrectsNothing()
     {
         var plan = PlanCorrection(
-            isRemoved: false,
             RoadSegmentStatusV2.Gerealiseerd,
             [StreetNameLocalId.Unknown],
             StreetNames());
@@ -263,10 +238,10 @@ public class UnlinkStreetNamesFromRoadSegments
         while (true)
         {
             // The generated columns of the aggregate document (migration 20261103120000): has_migrated is
-            // RoadSegment.HasMigrated. The removed road segments are read as well.
+            // RoadSegment.HasMigrated. The removed road segments are left out.
             await using var session = store.QuerySession();
             var roadSegments = (await session.QueryAsync<RoadSegment>(
-                    "where road_segment_id > ? and has_migrated order by road_segment_id limit ?",
+                    "where road_segment_id > ? and has_migrated and not is_removed order by road_segment_id limit ?",
                     lastId, ReadBatchSize))
                 .ToList();
             if (roadSegments.Count == 0)
@@ -295,7 +270,7 @@ public class UnlinkStreetNamesFromRoadSegments
 
             foreach (var (roadSegment, linkedStreetNameIds) in linked)
             {
-                var plan = PlanCorrection(roadSegment.IsRemoved, roadSegment.Status, linkedStreetNameIds, streetNames);
+                var plan = PlanCorrection(roadSegment.Status, linkedStreetNameIds, streetNames);
                 if (plan is not null)
                 {
                     corrections.Add(new Correction(roadSegment.RoadSegmentId, plan.Reason, plan.StreetNameIds));
@@ -317,10 +292,9 @@ public class UnlinkStreetNamesFromRoadSegments
             .ToList();
     }
 
-    // The street names to let go of, and why, or null when the road segment keeps them all. A removed or inactive road
-    // segment lets go of 'niet gekend' (-8) as well: it carries 'niet van toepassing' and nothing else.
+    // The street names to let go of, and why, or null when the road segment keeps them all. An inactive road segment
+    // lets go of 'niet gekend' (-8) as well: it carries 'niet van toepassing' and nothing else.
     private static Plan? PlanCorrection(
-        bool isRemoved,
         RoadSegmentStatusV2 status,
         IReadOnlyCollection<StreetNameLocalId> linkedStreetNameIds,
         IReadOnlyDictionary<int, StreetNameCacheItem> streetNames)
@@ -329,11 +303,6 @@ public class UnlinkStreetNamesFromRoadSegments
         if (linked.Count == 0)
         {
             return null;
-        }
-
-        if (isRemoved)
-        {
-            return new Plan(Reason.RemovedRoadSegment, linked);
         }
 
         if (!status.IsActive)
@@ -398,8 +367,7 @@ public class UnlinkStreetNamesFromRoadSegments
     private enum Reason
     {
         InactiveStreetName,
-        InactiveRoadSegment,
-        RemovedRoadSegment
+        InactiveRoadSegment
     }
 
     private sealed record Plan(Reason Reason, IReadOnlyList<StreetNameLocalId> StreetNameIds);
